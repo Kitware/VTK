@@ -132,7 +132,7 @@ void vtkPointLoad::ExecuteDataWithInformation(vtkDataObject *outp, vtkInformatio
   double sx, sy, sz, seff;
   vtkImageData *output = this->AllocateOutputData(outp, outInfo);
   vtkFloatArray *newScalars =
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetScalars());
   double *spacing, *origin;
 
   vtkDebugMacro(<< "Computing point load stress tensors");

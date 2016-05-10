@@ -547,7 +547,7 @@ void vtkPlotArea::Update()
 
     cache.Reset();
     cache.ValidPointMask = (this->ValidPointMaskName.empty() == false)?
-      vtkCharArray::SafeDownCast(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
     cache.SetPoints(
       this->UseIndexForXSeries? NULL: this->Data->GetInputArrayToProcess(0, table),
       this->Data->GetInputArrayToProcess(1, table),

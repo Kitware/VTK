@@ -85,14 +85,14 @@ int vtkSubPixelPositionEdgels::RequestData(
   dimensions = gradMaps->GetDimensions();
   spacing = gradMaps->GetSpacing();
   origin = gradMaps->GetOrigin();
-  if (vtkDoubleArray::SafeDownCast(gradMaps->GetPointData()->GetScalars()))
+  if (vtkArrayDownCast<vtkDoubleArray>(gradMaps->GetPointData()->GetScalars()))
     {
-    DMapData = vtkDoubleArray::SafeDownCast(gradMaps->GetPointData()
+    DMapData = vtkArrayDownCast<vtkDoubleArray>(gradMaps->GetPointData()
                                             ->GetScalars())->GetPointer(0);
     }
-  else if (vtkFloatArray::SafeDownCast(gradMaps->GetPointData()->GetScalars()))
+  else if (vtkArrayDownCast<vtkFloatArray>(gradMaps->GetPointData()->GetScalars()))
     {
-    MapData = vtkFloatArray::SafeDownCast(gradMaps->GetPointData()
+    MapData = vtkArrayDownCast<vtkFloatArray>(gradMaps->GetPointData()
                                           ->GetScalars())->GetPointer(0);
     }
   else

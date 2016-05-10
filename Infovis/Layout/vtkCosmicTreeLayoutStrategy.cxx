@@ -330,7 +330,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
     scale = this->CreateScaleFactors( numVertices );
     this->Graph->GetVertexData()->AddArray( scale );
     scale->Delete();
-    radii = vtkDoubleArray::SafeDownCast( inputRadii );
+    radii = vtkArrayDownCast<vtkDoubleArray>( inputRadii );
     // Did we find a node size spec?
     if ( radii )
       {
@@ -396,7 +396,7 @@ void vtkCosmicTreeLayoutStrategy::Layout()
       {
       reordered->SetPoint( i, 0, 0, 0 );
       }
-    vtkIdTypeArray* graphVertexIdArr = vtkIdTypeArray::SafeDownCast(
+    vtkIdTypeArray* graphVertexIdArr = vtkArrayDownCast<vtkIdTypeArray>(
       tree->GetVertexData()->GetAbstractArray( "GraphVertexId" ) );
     for ( vtkIdType i = 0; i < graphVertexIdArr->GetNumberOfTuples(); ++ i )
       {

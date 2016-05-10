@@ -104,7 +104,7 @@ public:
         {
         cout<<"abs is null"<<endl;
         }
-      vtkIdTypeArray *ids=vtkIdTypeArray::SafeDownCast(abs);
+      vtkIdTypeArray *ids=vtkArrayDownCast<vtkIdTypeArray>(abs);
       if(ids==0)
         {
         cout<<"ids is null"<<endl;

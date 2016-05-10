@@ -53,7 +53,7 @@ int TestDataSet(vtkDataSet* ds, int expectedValue)
     {
     std::cout << "Have field data for surface from data set type " << className << "\n";
 
-    vtkIntArray* array = vtkIntArray::SafeDownCast(fieldData->GetArray(0));
+    vtkIntArray* array = vtkArrayDownCast<vtkIntArray>(fieldData->GetArray(0));
     if (!array)
       {
       std::cerr << "Field data array was not of type vtkIntArray for data set type"

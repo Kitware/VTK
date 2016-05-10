@@ -313,7 +313,7 @@ bool CheckFields(vtkUniformGrid *grid)
     }
 
   vtkDoubleArray *centroidArray =
-      vtkDoubleArray::SafeDownCast(CD->GetArray("Centroid"));
+      vtkArrayDownCast<vtkDoubleArray>(CD->GetArray("Centroid"));
   assert("pre: centroid arrays is NULL!" && (centroidArray != NULL) );
   if( centroidArray->GetNumberOfComponents() != 3 )
     {
@@ -322,7 +322,7 @@ bool CheckFields(vtkUniformGrid *grid)
   double *centers = static_cast<double*>(centroidArray->GetVoidPointer(0));
 
   vtkDoubleArray *pulseArray =
-      vtkDoubleArray::SafeDownCast(CD->GetArray("Gaussian-Pulse"));
+      vtkArrayDownCast<vtkDoubleArray>(CD->GetArray("Gaussian-Pulse"));
   assert("pre: pulse array is NULL!" && (pulseArray != NULL) );
   if( pulseArray->GetNumberOfComponents() != 1)
     {

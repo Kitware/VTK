@@ -263,7 +263,7 @@ vtkIdType GetCellIdFromPickerPosition(vtkRenderer *ren, int x, int y)
   vtkIdType cellId = -1;
   if (picker->GetDataSet())
     {
-      vtkIdTypeArray * ids = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray * ids = vtkArrayDownCast<vtkIdTypeArray>(
         picker->GetDataSet()->GetCellData()->GetArray("CellID"));
       cellId = ids->GetValue(picker->GetCellId());
     }

@@ -53,7 +53,7 @@ void vtkBooleanOperationPolyDataFilter::SortPolyData(vtkPolyData* input,
 {
   int numCells = input->GetNumberOfCells();
 
-  vtkDoubleArray *distArray = vtkDoubleArray::SafeDownCast
+  vtkDoubleArray *distArray = vtkArrayDownCast<vtkDoubleArray>
     ( input->GetCellData()->GetArray("Distance") );
 
   for (int cid = 0; cid < numCells; cid++)
@@ -290,7 +290,7 @@ void vtkBooleanOperationPolyDataFilter
   vtkFloatArray *outNormals = NULL;
   if ( reverseCells )
     {
-    outNormals = vtkFloatArray::SafeDownCast( outPD->GetArray("Normals") );
+    outNormals = vtkArrayDownCast<vtkFloatArray>( outPD->GetArray("Normals") );
     }
 
   vtkIdType numPts = in->GetNumberOfPoints();

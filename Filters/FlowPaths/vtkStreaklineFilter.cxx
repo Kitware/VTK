@@ -82,9 +82,9 @@ void StreaklineFilterInternal::Finalize()
 
   vtkPointData* pd = this->Filter->Output->GetPointData();
   Assert(pd);
-  vtkFloatArray* particleAge = vtkFloatArray::SafeDownCast(pd->GetArray("ParticleAge"));
+  vtkFloatArray* particleAge = vtkArrayDownCast<vtkFloatArray>(pd->GetArray("ParticleAge"));
   Assert(particleAge);
-  vtkIntArray* seedIds = vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
+  vtkIntArray* seedIds = vtkArrayDownCast<vtkIntArray>(pd->GetArray("InjectedPointId"));
   Assert(seedIds);
 
   if(seedIds)

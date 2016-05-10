@@ -79,7 +79,7 @@ int vtkPBivariateLinearTableThreshold::RequestData(vtkInformation* request ,
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
   for (int i=0; i<outRowDataTable->GetNumberOfColumns(); i++)
     {
-    vtkAbstractArray* col = vtkAbstractArray::SafeDownCast(outRowDataTable->GetColumn(i));
+    vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outRowDataTable->GetColumn(i));
     if (!col)
       continue;
 

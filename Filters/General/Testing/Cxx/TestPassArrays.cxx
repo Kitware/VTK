@@ -93,8 +93,8 @@ int TestPassArrays(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
         std::cerr << "Checking output ..." << std::endl;
         vtkFieldData* outAttrib = out->GetAttributesAsFieldData(type);
-        vtkIntArray* out1 = vtkIntArray::SafeDownCast(outAttrib->GetAbstractArray("column1"));
-        vtkIntArray* out2 = vtkIntArray::SafeDownCast(outAttrib->GetAbstractArray("column2"));
+        vtkIntArray* out1 = vtkArrayDownCast<vtkIntArray>(outAttrib->GetAbstractArray("column1"));
+        vtkIntArray* out2 = vtkArrayDownCast<vtkIntArray>(outAttrib->GetAbstractArray("column2"));
         if (useFieldTypes)
           {
           if (!out1 || !out2)

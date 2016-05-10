@@ -125,7 +125,7 @@ int vtkNetworkHierarchy::RequestData(
   // Get the field to filter on
   vtkAbstractArray* arr =
     inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
-  vtkStringArray* ipArray = vtkStringArray::SafeDownCast(arr);
+  vtkStringArray* ipArray = vtkArrayDownCast<vtkStringArray>(arr);
   if (ipArray == NULL)
     {
     vtkErrorMacro(<< "An string based ip array must be specified");
@@ -161,7 +161,7 @@ int vtkNetworkHierarchy::RequestData(
   vtkAbstractArray* pedIDArr = builderVertexData->GetPedigreeIds();
 
   // Get domain. If there isn't one, make one.
-  vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
     builderVertexData->GetAbstractArray("domain"));
   if (pedIDArr && !domainArr)
     {

@@ -696,7 +696,7 @@ void vtkXMLDataReader::ConvertGhostLevelsToGhostType(
   FieldType fieldType, vtkAbstractArray* data, vtkIdType startIndex,
   vtkIdType numValues)
 {
-  vtkUnsignedCharArray* ucData = vtkUnsignedCharArray::SafeDownCast(data);
+  vtkUnsignedCharArray* ucData = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   int numComp = data->GetNumberOfComponents();
   const char* name = data->GetName();
   if (this->GetFileMajorVersion() < 2 && ucData &&

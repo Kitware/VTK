@@ -65,7 +65,7 @@ int CheckGrid( vtkRectilinearGrid* grid )
     return( rc );
     }
 
-  vtkDoubleArray* xyz_data = vtkDoubleArray::SafeDownCast(PD->GetArray("xyz"));
+  vtkDoubleArray* xyz_data = vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("xyz"));
   double* xyz = static_cast<double*>( xyz_data->GetVoidPointer(0));
 
   vtkIdType npoints = grid->GetNumberOfPoints();

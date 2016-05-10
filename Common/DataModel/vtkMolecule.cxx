@@ -117,7 +117,7 @@ void vtkMolecule::PrintSelf(ostream &os, vtkIndent indent)
 vtkAtom vtkMolecule::AppendAtom(unsigned short atomicNumber,
                                 const vtkVector3f &pos)
 {
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetVertexData()->GetScalars());
 
   assert(atomicNums);
@@ -148,7 +148,7 @@ unsigned short vtkMolecule::GetAtomAtomicNumber(vtkIdType id)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
 
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetVertexData()->GetScalars());
 
   assert(atomicNums);
@@ -161,7 +161,7 @@ void vtkMolecule::SetAtomAtomicNumber(vtkIdType id, unsigned short atomicNum)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
 
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetVertexData()->GetScalars());
 
   assert(atomicNums);
@@ -190,7 +190,7 @@ void vtkMolecule::SetAtomPosition(vtkIdType id, double x, double y, double z)
 vtkVector3f vtkMolecule::GetAtomPosition(vtkIdType id)
 {
   assert(id >= 0 && id < this->GetNumberOfAtoms());
-  vtkFloatArray *positions = vtkFloatArray::SafeDownCast(this->Points->GetData());
+  vtkFloatArray *positions = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData());
   assert(positions != NULL);
   float *data = static_cast<float *>(positions->GetVoidPointer(id * 3));
   return vtkVector3f(data);
@@ -215,7 +215,7 @@ vtkIdType vtkMolecule::GetNumberOfAtoms()
 vtkBond vtkMolecule::AppendBond(const vtkIdType atom1, const vtkIdType atom2,
                              const unsigned short order)
 {
-  vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *bondOrders = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetEdgeData()->GetScalars());
   assert(bondOrders);
 
@@ -249,7 +249,7 @@ void vtkMolecule::SetBondOrder(vtkIdType bondId, unsigned short order)
 {
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
-  vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *bondOrders = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetEdgeData()->GetScalars());
 
   assert(bondOrders);
@@ -263,7 +263,7 @@ unsigned short vtkMolecule::GetBondOrder(vtkIdType bondId)
 {
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
-  vtkUnsignedShortArray *bondOrders = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *bondOrders = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetEdgeData()->GetScalars());
 
   assert(bondOrders);
@@ -297,7 +297,7 @@ vtkPoints * vtkMolecule::GetAtomicPositionArray()
 //----------------------------------------------------------------------------
 vtkUnsignedShortArray * vtkMolecule::GetAtomicNumberArray()
 {
-  vtkUnsignedShortArray *atomicNums = vtkUnsignedShortArray::SafeDownCast
+  vtkUnsignedShortArray *atomicNums = vtkArrayDownCast<vtkUnsignedShortArray>
     (this->GetVertexData()->GetScalars());
 
   assert(atomicNums);

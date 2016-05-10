@@ -975,7 +975,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
             // Don't set valid_range if the default is suitable
             if (this->ComputeValidRangeFromScalarRange ||
                 (this->ImageAttributes &&
-                 vtkDoubleArray::SafeDownCast(
+                 vtkArrayDownCast<vtkDoubleArray>(
                    this->ImageAttributes->GetAttributeValueAsArray(
                      MIimage, MIvalid_range))))
               {
@@ -1239,7 +1239,7 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
   vtkDoubleArray *rangearray = 0;
   if (this->ImageAttributes)
     {
-    rangearray = vtkDoubleArray::SafeDownCast(
+    rangearray = vtkArrayDownCast<vtkDoubleArray>(
       this->ImageAttributes->GetAttributeValueAsArray(
         MIimage, MIvalid_range));
     }

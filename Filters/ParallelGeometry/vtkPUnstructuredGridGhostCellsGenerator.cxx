@@ -391,7 +391,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::ExtractAndReduceSurfacePoints()
   surfaceCells->InitTraversal();
   vtkIdType npts, *pts;
 
-  vtkIdTypeArray *surfaceOriginalPointIds = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray *surfaceOriginalPointIds = vtkArrayDownCast<vtkIdTypeArray>(
     surface->GetPointData()->GetArray(surfaceFilter->GetOriginalPointIdsName()));
 
   if (this->Internals->InputGlobalPointIds)

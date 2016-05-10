@@ -4322,11 +4322,11 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
 
 int DisplayReebGraph(vtkReebGraph *g)
 {
-  vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(
+  vtkDataArray *vertexInfo = vtkArrayDownCast<vtkDataArray>(
     g->GetVertexData()->GetAbstractArray("Vertex Ids"));
   if(!vertexInfo) return 1;
 
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     g->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   if(!edgeInfo) return 2;
 
@@ -4399,7 +4399,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
     {
-    vtkDoubleArray *arc = vtkDoubleArray::SafeDownCast(skeleton->GetColumn(i));
+    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);
@@ -4522,7 +4522,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
     {
-    vtkDoubleArray *arc = vtkDoubleArray::SafeDownCast(skeleton->GetColumn(i));
+    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
     arc->GetTypedTuple(0, point);

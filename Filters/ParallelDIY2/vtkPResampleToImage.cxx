@@ -286,7 +286,7 @@ inline void GetPointsFromImage(vtkImageData *img, const char *maskArrayName,
     }
 
   vtkPointData *pd = img->GetPointData();
-  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
+  vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(pd->GetArray(maskArrayName));
   char *mask = maskArray->GetPointer(0);
 
   // use diy's serialization facilities

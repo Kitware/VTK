@@ -415,7 +415,7 @@ bool vtkCompositeDataReader::ReadCompositeData(vtkOverlappingAMR* oamr)
         }
 
       vtkSmartPointer<vtkIntArray> idata;
-      idata.TakeReference(vtkIntArray::SafeDownCast(
+      idata.TakeReference(vtkArrayDownCast<vtkIntArray>(
                             this->ReadArray("int", num_tuples, num_components)));
       if (!idata || idata->GetNumberOfComponents() != 6 ||
           idata->GetNumberOfTuples() != static_cast<vtkIdType>(oamr->GetTotalNumberOfBlocks()))

@@ -160,15 +160,18 @@ public:
   static vtkAOSDataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
-    switch (source->GetArrayType())
+    if (source)
       {
-      case vtkAbstractArray::AoSDataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-          return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
-          }
-        break;
+      switch (source->GetArrayType())
+        {
+        case vtkAbstractArray::AoSDataArrayTemplate:
+          if (vtkDataTypesCompare(source->GetDataType(),
+                                  vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+            {
+            return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
+            }
+          break;
+        }
       }
     return NULL;
   }

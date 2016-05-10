@@ -42,7 +42,7 @@ int TestGraphWeightEuclideanDistanceFilter(int, char *[])
   weightFilter->SetInputData(g);
   weightFilter->Update();
 
-  vtkFloatArray* weights = vtkFloatArray::SafeDownCast(weightFilter->GetOutput()->GetEdgeData()->GetArray("Weights"));
+  vtkFloatArray* weights = vtkArrayDownCast<vtkFloatArray>(weightFilter->GetOutput()->GetEdgeData()->GetArray("Weights"));
 
   std::vector<float> correctWeights;
   correctWeights.push_back(1.0f);

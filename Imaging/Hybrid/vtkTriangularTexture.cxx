@@ -164,7 +164,7 @@ void vtkTriangularTexture::ExecuteDataWithInformation(vtkDataObject *outp,
 {
   vtkImageData *output = this->AllocateOutputData(outp, outInfo);
   vtkUnsignedCharArray *newScalars =
-    vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkUnsignedCharArray>(output->GetPointData()->GetScalars());
 
   if (this->XSize*this->YSize < 1)
     {

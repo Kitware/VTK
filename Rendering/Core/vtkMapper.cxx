@@ -463,7 +463,7 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
       }
 
     if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+         vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
         this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
       {
       // Don't use texture is direct coloring using RGB unsigned chars is
@@ -524,7 +524,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
       }
 
     // Get the lookup table.
-    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
     if (dataArray && dataArray->GetLookupTable())
       {
       this->SetLookupTable(dataArray->GetLookupTable());
@@ -694,7 +694,7 @@ void vtkMapper::CreateDefaultLookupTable()
     GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
     {
     // Use indexed lookup for non-numeric arrays
@@ -835,7 +835,7 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
   this->Modified();
 
   // Ensure the scalar range is initialized
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (dataArray && scalarRange[0] > scalarRange[1])
     {
     scalarRange = dataArray->GetRange();

@@ -631,7 +631,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( modelTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>( modelTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     return;
@@ -651,7 +651,7 @@ void vtkAutoCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
 
       // For auto-correlative statistics, type must be convertible to DataArray
       // E.g., StringArrays do not fit here
-      vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
+      vtkDataArray* vals = vtkArrayDownCast<vtkDataArray>( arr );
       if ( ! vals )
         {
         return;

@@ -104,7 +104,7 @@ int vtkLabelHierarchyIterator::GetType()
     {
     return -1;
     }
-  vtkIntArray* labelTypeIArr = vtkIntArray::SafeDownCast( labelTypeArr );
+  vtkIntArray* labelTypeIArr = vtkArrayDownCast<vtkIntArray>( labelTypeArr );
   if ( ! labelTypeIArr )
     {
     return -1;

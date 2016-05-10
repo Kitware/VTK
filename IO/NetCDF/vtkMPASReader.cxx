@@ -2381,7 +2381,7 @@ void vtkMPASReader::LoadTimeFieldData(vtkUnstructuredGrid *dataset)
 
   if (vtkDataArray *da = fd->GetArray("Time"))
     {
-    if (!(array = vtkStringArray::SafeDownCast(da)))
+    if (!(array = vtkArrayDownCast<vtkStringArray>(da)))
       {
       vtkWarningMacro("Not creating \"Time\" field data array: a data array "
                       "with this name already exists.");

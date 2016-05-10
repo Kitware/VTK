@@ -96,7 +96,7 @@ int vtkProbeSelectedLocations::RequestData(vtkInformation *vtkNotUsed(request),
   tempInput->SetPoints(points);
   points->Delete();
 
-  vtkDataArray* dA = vtkDataArray::SafeDownCast(
+  vtkDataArray* dA = vtkArrayDownCast<vtkDataArray>(
     node->GetSelectionList());
   if (!dA)
     {

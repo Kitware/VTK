@@ -130,7 +130,7 @@ ExtractPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
-  vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
+  vtkStringArray *ids = vtkArrayDownCast<vtkStringArray>(array);
   ids->InsertNextValue(this->FeatureId);
 
   return outputData;
@@ -154,7 +154,7 @@ ExtractMultiPoint(const Json::Value& coordinates, vtkPolyData *outputData)
 
     vtkAbstractArray *array =
       outputData->GetCellData()->GetAbstractArray("feature-id");
-    vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
+    vtkStringArray *ids = vtkArrayDownCast<vtkStringArray>(array);
 
     const int PID_SIZE = coordinates.size();
     vtkIdType* pids = new vtkIdType[ PID_SIZE ];
@@ -203,7 +203,7 @@ ExtractLineString(const Json::Value& coordinates, vtkPolyData *outputData)
   outputData->GetLines()->InsertNextCell(polyLine.GetPointer());
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
-  vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
+  vtkStringArray *ids = vtkArrayDownCast<vtkStringArray>(array);
   ids->InsertNextValue(this->FeatureId);
 
   return outputData;
@@ -245,7 +245,7 @@ ExtractPolygon(const Json::Value& coordinate, vtkPolyData *outputData)
   vtkPoints *points = outputData->GetPoints();
   vtkAbstractArray *array =
     outputData->GetCellData()->GetAbstractArray("feature-id");
-  vtkStringArray *ids = vtkStringArray::SafeDownCast(array);
+  vtkStringArray *ids = vtkArrayDownCast<vtkStringArray>(array);
 
   // Output is either vtkPolygon or vtkPolyLine,
   // depending on OutputPolygons option.

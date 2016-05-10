@@ -516,7 +516,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
   if (!cellOnly)
     {
     vtkSmartPointer<vtkUnsignedCharArray> ghostPoints =
-      vtkUnsignedCharArray::SafeDownCast(
+      vtkArrayDownCast<vtkUnsignedCharArray>(
         this->PointData->GetArray(vtkDataSetAttributes::GhostArrayName()));
     if (!ghostPoints)
       {
@@ -586,7 +586,7 @@ void vtkDataSet::GenerateGhostArray(int zeroExt[6], bool cellOnly)
   // ---- CELLS ----
 
   vtkSmartPointer<vtkUnsignedCharArray> ghostCells =
-    vtkUnsignedCharArray::SafeDownCast(
+    vtkArrayDownCast<vtkUnsignedCharArray>(
       this->CellData->GetArray(vtkDataSetAttributes::GhostArrayName()));
   if (!ghostCells)
     {
@@ -754,12 +754,12 @@ vtkUnsignedCharArray* vtkDataSet::GetPointGhostArray()
 {
   if(!this->PointGhostArrayCached)
     {
-    this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
+    this->PointGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
       this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
     this->PointGhostArrayCached = true;
     }
   assert (this->PointGhostArray ==
-          vtkUnsignedCharArray::SafeDownCast(
+          vtkArrayDownCast<vtkUnsignedCharArray>(
             this->GetPointData()->GetArray(
               vtkDataSetAttributes::GhostArrayName())));
   return this->PointGhostArray;
@@ -768,7 +768,7 @@ vtkUnsignedCharArray* vtkDataSet::GetPointGhostArray()
 //----------------------------------------------------------------------------
 void vtkDataSet::UpdatePointGhostArrayCache()
 {
-  this->PointGhostArray = vtkUnsignedCharArray::SafeDownCast(
+  this->PointGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->GetPointData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
   this->PointGhostArrayCached = true;
 }
@@ -796,13 +796,13 @@ vtkUnsignedCharArray* vtkDataSet::GetCellGhostArray()
 {
   if(!this->CellGhostArrayCached)
     {
-    this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
+    this->CellGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
       this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
     this->CellGhostArrayCached = true;
     }
   assert (
     this->CellGhostArray ==
-    vtkUnsignedCharArray::SafeDownCast(
+    vtkArrayDownCast<vtkUnsignedCharArray>(
       this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName())));
   return this->CellGhostArray;
 }
@@ -810,7 +810,7 @@ vtkUnsignedCharArray* vtkDataSet::GetCellGhostArray()
 //----------------------------------------------------------------------------
 void vtkDataSet::UpdateCellGhostArrayCache()
 {
-  this->CellGhostArray = vtkUnsignedCharArray::SafeDownCast(
+  this->CellGhostArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->GetCellData()->GetArray(vtkDataSetAttributes::GhostArrayName()));
   this->CellGhostArrayCached = true;
 }

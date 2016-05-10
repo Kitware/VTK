@@ -1358,7 +1358,7 @@ int vtkXMLWriter::WriteBinaryDataInternal(vtkAbstractArray* a)
       }
     aiter->Delete();
     }
-  else if (vtkDataArray *da = vtkDataArray::SafeDownCast(a))
+  else if (vtkDataArray *da = vtkArrayDownCast<vtkDataArray>(a))
     {
     WriteBinaryDataBlockWorker worker(this, wordType, memWordSize, outWordSize,
                                       numValues);
@@ -2008,7 +2008,7 @@ void vtkXMLWriter::WriteArrayAppended(
   this->WriteArrayHeader(a,indent,alternateName, writeNumTuples, timestep);
   int shortFormatTag = 1; // close with: />
   //
-  if (vtkDataArray::SafeDownCast(a))
+  if (vtkArrayDownCast<vtkDataArray>(a))
     {
     // write the scalar range of this data array, we reserver space because we
     // don't actually have the data at this point
@@ -2083,7 +2083,7 @@ void vtkXMLWriter::WriteArrayHeader(vtkAbstractArray* a,  vtkIndent indent,
                                         int timestep)
 {
   ostream& os = *(this->Stream);
-  if (vtkDataArray::SafeDownCast(a))
+  if (vtkArrayDownCast<vtkDataArray>(a))
     {
     os << indent << "<DataArray";
     }
@@ -2162,7 +2162,7 @@ void vtkXMLWriter::WriteArrayFooter(
     }
   else
     {
-    vtkDataArray* da = vtkDataArray::SafeDownCast(a);
+    vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(a);
     os << indent << (da ? "</DataArray>" : "</Array>") << "\n";
     }
   // Force write and check for errors.
@@ -2200,7 +2200,7 @@ void vtkXMLWriter::WriteArrayInline(
   // Write the header <DataArray or <Array:
   this->WriteArrayHeader(a, indent, alternateName, writeNumTuples, 0);
   //
-  vtkDataArray* da = vtkDataArray::SafeDownCast(a);
+  vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(a);
   if (da)
     {
     // write the range
@@ -2515,7 +2515,7 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
         (pdManager->GetElement(i).GetPosition(timestep),
          pdManager->GetElement(i).GetOffsetValue(timestep), "offset");
       }
-    vtkDataArray* d = vtkDataArray::SafeDownCast(a);
+    vtkDataArray* d = vtkArrayDownCast<vtkDataArray>(a);
     if (d)
       {
       // ranges are only written in case of Data Arrays.
@@ -2610,7 +2610,7 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
         cdManager->GetElement(i).GetOffsetValue(timestep),
         "offset");
       }
-    vtkDataArray* d = vtkDataArray::SafeDownCast(a);
+    vtkDataArray* d = vtkArrayDownCast<vtkDataArray>(a);
     if (d)
       {
       double *range = d->GetRange(-1);
@@ -2978,7 +2978,7 @@ void vtkXMLWriter::WritePPoints(vtkPoints* points, vtkIndent indent)
 void vtkXMLWriter::WritePArray(vtkAbstractArray* a, vtkIndent indent,
                                    const char* alternateName)
 {
-  vtkDataArray* d = vtkDataArray::SafeDownCast(a);
+  vtkDataArray* d = vtkArrayDownCast<vtkDataArray>(a);
   ostream& os = *(this->Stream);
   if (d)
     {

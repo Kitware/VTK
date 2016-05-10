@@ -258,7 +258,7 @@ void vtkMoleculeMapper::GetSelectedAtomsAndBonds(vtkSelection *selection,
     if (selActor && (selActor->GetMapper() == this))
       {
       // Separate the selection ids into atoms and bonds
-      vtkIdTypeArray *selIds = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
             node->GetSelectionList());
       if (selIds)
         {
@@ -476,9 +476,9 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
 
   // Set up pointers to the specific color arrays
   vtkUnsignedCharArray *singleColorArray =
-    vtkUnsignedCharArray::SafeDownCast(cylColors);
+    vtkArrayDownCast<vtkUnsignedCharArray>(cylColors);
   vtkUnsignedShortArray *discreteColorArray =
-    vtkUnsignedShortArray::SafeDownCast(cylColors);
+    vtkArrayDownCast<vtkUnsignedShortArray>(cylColors);
 
   // Remove reference to cylColors
   cylColors->Delete();

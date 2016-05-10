@@ -121,7 +121,7 @@ void vtkPlotPoints::Update()
   if (table && !this->ValidPointMaskName.empty() &&
       table->GetColumnByName(this->ValidPointMaskName))
     {
-    this->ValidPointMask = vtkCharArray::SafeDownCast(
+    this->ValidPointMask = vtkArrayDownCast<vtkCharArray>(
       table->GetColumnByName(this->ValidPointMaskName));
     }
   else
@@ -238,7 +238,7 @@ bool vtkPlotPoints::Paint(vtkContext2D *painter)
     if (this->Selection->GetMTime() > this->SelectedPoints->GetMTime() ||
         this->GetMTime() > this->SelectedPoints->GetMTime())
       {
-      float *f = vtkFloatArray::SafeDownCast(
+      float *f = vtkArrayDownCast<vtkFloatArray>(
             this->Points->GetData())->GetPointer(0);
       int nSelected(static_cast<int>(this->Selection->GetNumberOfTuples()));
       this->SelectedPoints->SetNumberOfComponents(2);
@@ -731,7 +731,7 @@ bool vtkPlotPoints::UpdateTableCache(vtkTable *table)
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
     {
     vtkDataArray* c =
-      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (c)
       {
@@ -1008,7 +1008,7 @@ void vtkPlotPoints::SelectColorArray(vtkIdType arrayNum)
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  vtkDataArray *col = vtkArrayDownCast<vtkDataArray>(table->GetColumn(arrayNum));
   // TODO: Should add support for categorical coloring & try enum lookup
   if (!col)
     {

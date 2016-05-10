@@ -112,14 +112,14 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       {
 
       // Retrieve the arc given by ArcId
-      vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+      vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
         inputGraph->GetEdgeData()->GetAbstractArray("Vertex Ids"));
       // Invalid Reeb graph (no information associated to the edges)
       if(!edgeInfo)
         return 0;
 
       // Retrieve the information to get the critical vertices Ids
-      vtkDataArray *criticalPointIds = vtkDataArray::SafeDownCast(
+      vtkDataArray *criticalPointIds = vtkArrayDownCast<vtkDataArray>(
         inputGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
       // Invalid Reeb graph (no information associated to the vertices)
       if(!criticalPointIds)

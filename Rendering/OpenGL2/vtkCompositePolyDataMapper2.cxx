@@ -625,7 +625,7 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
         this->CanUseTextureMapForColoringValue = 0;
         }
       if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-           vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+           vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
           this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
         {
         // Don't use texture is direct coloring using RGB unsigned chars is

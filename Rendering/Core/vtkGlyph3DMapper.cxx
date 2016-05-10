@@ -214,7 +214,7 @@ vtkDataArray* vtkGlyph3DMapper::GetSelectionIdArray(vtkDataSet* input)
 // ---------------------------------------------------------------------------
 vtkUnsignedCharArray* vtkGlyph3DMapper::GetColors(vtkDataSet* input)
 {
-  return vtkUnsignedCharArray::SafeDownCast(
+  return vtkArrayDownCast<vtkUnsignedCharArray>(
     input->GetPointData()->GetScalars());
 }
 

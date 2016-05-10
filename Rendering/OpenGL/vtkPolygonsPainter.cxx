@@ -180,7 +180,7 @@ int vtkPolygonsPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
     pd->GetLines()->GetNumberOfCells();
   vtkIdType cellNumStart = cellNum;
   vtkIdType totalCells = ca->GetNumberOfCells();
-  vtkUnsignedCharArray *ef = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray *ef = vtkArrayDownCast<vtkUnsignedCharArray>(
               pd->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG));
 
   vtkPainterDeviceAdapter* device = ren->GetRenderWindow()->

@@ -832,18 +832,18 @@ int vtkTesting::CompareAverageOfL2Norm(vtkDataArray *daA,
     {
     case VTK_DOUBLE:
       {
-      vtkDoubleArray *A = vtkDoubleArray::SafeDownCast(daA);
+      vtkDoubleArray *A = vtkArrayDownCast<vtkDoubleArray>(daA);
       double *pA = A->GetPointer(0);
-      vtkDoubleArray *B = vtkDoubleArray::SafeDownCast(daB);
+      vtkDoubleArray *B = vtkArrayDownCast<vtkDoubleArray>(daB);
       double *pB = B->GetPointer(0);
       N = AccumulateScaledL2Norm(pA, pB, nTupsA, nCompsA, L2);
       }
       break;
     case VTK_FLOAT:
       {
-      vtkFloatArray *A = vtkFloatArray::SafeDownCast(daA);
+      vtkFloatArray *A = vtkArrayDownCast<vtkFloatArray>(daA);
       float *pA = A->GetPointer(0);
-      vtkFloatArray *B = vtkFloatArray::SafeDownCast(daB);
+      vtkFloatArray *B = vtkArrayDownCast<vtkFloatArray>(daB);
       float *pB = B->GetPointer(0);
       N = AccumulateScaledL2Norm(pA, pB, nTupsA, nCompsA, L2);
       }

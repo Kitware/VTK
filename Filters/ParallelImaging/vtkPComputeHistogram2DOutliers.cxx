@@ -95,7 +95,7 @@ int vtkPComputeHistogram2DOutliers::RequestData(
   vtkSmartPointer<vtkTable> gatheredTable = vtkSmartPointer<vtkTable>::New();
   for (int i=0; i<outputTable->GetNumberOfColumns(); i++)
     {
-    vtkAbstractArray* col = vtkAbstractArray::SafeDownCast(outputTable->GetColumn(i));
+    vtkAbstractArray* col = vtkArrayDownCast<vtkAbstractArray>(outputTable->GetColumn(i));
     if (!col)
       continue;
 

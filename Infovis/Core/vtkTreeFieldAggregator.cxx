@@ -87,7 +87,7 @@ int vtkTreeFieldAggregator::RequestData(
     arr->SetName(this->Field);
     for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
       {
-      vtkIntArray::SafeDownCast(arr)->SetTuple1(i, 1);
+      vtkArrayDownCast<vtkIntArray>(arr)->SetTuple1(i, 1);
       }
     output->GetVertexData()->AddArray(arr);
     arr->Delete();
@@ -180,7 +180,7 @@ double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType i
 {
   if (arr->IsA("vtkDataArray"))
     {
-    double d = vtkDataArray::SafeDownCast(arr)->GetTuple1(id);
+    double d = vtkArrayDownCast<vtkDataArray>(arr)->GetTuple1(id);
     if (d < this->MinValue)
       {
       return MinValue;
@@ -189,7 +189,7 @@ double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType i
     }
   else if (arr->IsA("vtkVariantArray"))
     {
-    vtkVariant v = vtkVariantArray::SafeDownCast(arr)->GetValue(id);
+    vtkVariant v = vtkArrayDownCast<vtkVariantArray>(arr)->GetValue(id);
     if (!v.IsValid())
       {
       return this->MinValue;
@@ -208,7 +208,7 @@ double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType i
     }
   else if (arr->IsA("vtkStringArray"))
     {
-    vtkVariant v(vtkStringArray::SafeDownCast(arr)->GetValue(id));
+    vtkVariant v(vtkArrayDownCast<vtkStringArray>(arr)->GetValue(id));
     bool ok;
     double d = v.ToDouble(&ok);
     if (!ok)
@@ -228,14 +228,14 @@ void vtkTreeFieldAggregator::SetDoubleValue(vtkAbstractArray* arr, vtkIdType id,
 {
   if (arr->IsA("vtkDataArray"))
     {
-    vtkDataArray::SafeDownCast(arr)->SetTuple1(id, value);
+    vtkArrayDownCast<vtkDataArray>(arr)->SetTuple1(id, value);
     }
   else if (arr->IsA("vtkVariantArray"))
     {
-    vtkVariantArray::SafeDownCast(arr)->SetValue(id, vtkVariant(value));
+    vtkArrayDownCast<vtkVariantArray>(arr)->SetValue(id, vtkVariant(value));
     }
   else if (arr->IsA("vtkStringArray"))
     {
-    vtkStringArray::SafeDownCast(arr)->SetValue(id, vtkVariant(value).ToString());
+    vtkArrayDownCast<vtkStringArray>(arr)->SetValue(id, vtkVariant(value).ToString());
     }
 }

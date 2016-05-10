@@ -179,7 +179,7 @@ int vtkGroupLeafVertices::RequestData(
 
   // Get the domain array. If none exists, create one, and initialize
   bool addInputDomain = false;
-  vtkStringArray* domainArr = vtkStringArray::SafeDownCast(builderVertexData->GetAbstractArray("domain"));
+  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(builderVertexData->GetAbstractArray("domain"));
   int group_index = 0;
   if(!domainArr)
     {
@@ -211,7 +211,8 @@ int vtkGroupLeafVertices::RequestData(
           }
         }
       }
-    else if(vtkStringArray::SafeDownCast(pedigreeIdArr)||vtkVariantArray::SafeDownCast(pedigreeIdArr))
+    else if(vtkArrayDownCast<vtkStringArray>(pedigreeIdArr) ||
+            vtkArrayDownCast<vtkVariantArray>(pedigreeIdArr))
       {
       for(vtkIdType i=0; i<groupIds->GetNumberOfIds(); ++i)
         {
@@ -299,9 +300,9 @@ int vtkGroupLeafVertices::RequestData(
               continue;
               }
             int comps = arr->GetNumberOfComponents();
-            if (vtkDataArray::SafeDownCast(arr2))
+            if (vtkArrayDownCast<vtkDataArray>(arr2))
               {
-              vtkDataArray* data = vtkDataArray::SafeDownCast(arr2);
+              vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr2);
               double* tuple = new double[comps];
               for (int j = 0; j < comps; j++)
                 {
@@ -310,25 +311,25 @@ int vtkGroupLeafVertices::RequestData(
               data->InsertTuple(group_vertex, tuple);
               delete[] tuple;
               }
-            else if (vtkStringArray::SafeDownCast(arr2))
+            else if (vtkArrayDownCast<vtkStringArray>(arr2))
               {
-              vtkStringArray* data = vtkStringArray::SafeDownCast(arr2);
+              vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkStdString(""));
                 }
               }
-            else if (vtkVariantArray::SafeDownCast(arr2))
+            else if (vtkArrayDownCast<vtkVariantArray>(arr2))
               {
-              vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr2);
+              vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkVariant());
                 }
               }
-            else if (vtkUnicodeStringArray::SafeDownCast(arr2))
+            else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr2))
               {
-              vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr2);
+              vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr2);
               for (int j = 0; j < comps; j++)
                 {
                 data->InsertValue(group_vertex + j - 1, vtkUnicodeString::from_utf8(""));

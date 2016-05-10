@@ -363,8 +363,8 @@ int vtkComputeHistogram2DOutliers::FillOutlierIds(vtkTable* data, vtkCollection*
   vtkSmartPointer<vtkIdList> uniqueRowIds = vtkSmartPointer<vtkIdList>::New();
   for (int i=0; i<numColumns-1; i++)
     {
-    vtkDataArray* col1 = vtkDataArray::SafeDownCast(data->GetColumn(i));
-    vtkDataArray* col2 = vtkDataArray::SafeDownCast(data->GetColumn(i+1));
+    vtkDataArray* col1 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i));
+    vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(data->GetColumn(i+1));
 
     vtkDoubleArray* currThresholds = vtkDoubleArray::SafeDownCast(thresholds->GetItemAsObject(i));
     for (int j=0; j<currThresholds->GetNumberOfTuples(); j++)

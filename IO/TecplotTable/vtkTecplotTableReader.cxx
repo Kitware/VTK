@@ -302,7 +302,7 @@ private:
       // Handle case where input file has header information ...
       vtkIdType recordIndex;
       recordIndex = this->CurrentRecordIndex - HeaderLines;
-      vtkDoubleArray* array = vtkDoubleArray::SafeDownCast(this->OutputTable->GetColumn(fieldIndex));
+      vtkDoubleArray* array = vtkArrayDownCast<vtkDoubleArray>(this->OutputTable->GetColumn(fieldIndex));
 
       vtkStdString str;
       str = this->CurrentField.utf8_str();

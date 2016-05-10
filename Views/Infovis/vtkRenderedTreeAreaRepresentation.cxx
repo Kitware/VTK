@@ -790,7 +790,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
     if (prop == this->AreaActor.GetPointer())
       {
       vtkSmartPointer<vtkIdTypeArray> vertexIds;
-      vertexIds = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vertexIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
 
       // If we are in single select mode, make sure to select only the vertex
       // that is being hovered over.
@@ -855,7 +855,7 @@ vtkSelection* vtkRenderedTreeAreaRepresentation::ConvertSelection(
 
           vtkGraph* g = vtkGraph::SafeDownCast(this->GetInternalOutputPort(1, static_cast<int>(k))->GetProducer()->GetOutputDataObject(0));
           vtkAbstractArray* arr2 = g->GetVertexData()->GetPedigreeIds();
-          vtkStringArray* domainArr = vtkStringArray::SafeDownCast(g->GetVertexData()->GetAbstractArray("domain"));
+          vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(g->GetVertexData()->GetAbstractArray("domain"));
           for(vtkIdType j=0; j<arr->GetNumberOfTuples(); ++j)
             {
             vtkIdType id = arr2->LookupValue(arr->GetVariantValue(j));

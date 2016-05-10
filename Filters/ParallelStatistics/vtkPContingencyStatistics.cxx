@@ -89,10 +89,10 @@ static bool StringArrayToStringBuffer( vtkTable* contingencyTab,
                                        std::vector<vtkIdType>& kcValues )
 {
   // Downcast meta columns to string arrays for efficient data access
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+  vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Key" ) );
   vtkAbstractArray* valx = contingencyTab->GetColumnByName( "x" );
   vtkAbstractArray* valy = contingencyTab->GetColumnByName( "y" );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+  vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Cardinality" ) );
   if ( ! keys || ! valx || ! valy || ! card )
     {
     return true;

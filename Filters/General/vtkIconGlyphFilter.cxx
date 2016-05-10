@@ -95,7 +95,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     return 1;
     }
 
-  vtkIntArray* scalars = vtkIntArray::SafeDownCast(
+  vtkIntArray* scalars = vtkArrayDownCast<vtkIntArray>(
     this->GetInputArrayToProcess(0, inputVector));
   if (!scalars)
     {

@@ -276,7 +276,7 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceSelection(vtkPolyData* p
                                                                   vtkTable* data,
                                                                   vtkSelectionNode* selectionNode)
 {
-  vtkIdTypeArray* selectedIds = vtkIdTypeArray::SafeDownCast(selectionNode->GetSelectionList());
+  vtkIdTypeArray* selectedIds = vtkArrayDownCast<vtkIdTypeArray>(selectionNode->GetSelectionList());
   if (!selectedIds)
     return 1;
 
@@ -313,10 +313,10 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramLineQuads(vtkPo
                          numberOfQuads,0);
 
   vtkPoints* points = polyData->GetPoints();
-  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float* pointsp = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
 
-  vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
-  double* scalarsp = scalars->GetPointer(0);//vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
+  double* scalarsp = scalars->GetPointer(0);//vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
 
   // for each histogram, draw a quad for each bin.
   vtkIdType ptId=0;
@@ -392,9 +392,9 @@ int vtkParallelCoordinatesHistogramRepresentation::PlaceHistogramCurveQuads(vtkP
                          numberOfStrips,0);
 
   vtkPoints *points = polyData->GetPoints();
-  float* pointsp = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float* pointsp = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
 
-  vtkDoubleArray* scalars = vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+  vtkDoubleArray* scalars = vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
   double* scalarsp = scalars->GetPointer(0);
 
   // build the default spline

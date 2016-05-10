@@ -160,7 +160,7 @@ vtkUnsignedCharArray *vtkPolyDataMapper2D::MapScalars(double alpha)
 
     if (scalars)
       {
-      vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+      vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
       if (dataArray && dataArray->GetLookupTable())
         {
         this->SetLookupTable(dataArray->GetLookupTable());
@@ -268,7 +268,7 @@ void vtkPolyDataMapper2D::CreateDefaultLookupTable()
     GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
     {
     // Use indexed lookup for non-numeric arrays

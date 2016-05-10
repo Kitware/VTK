@@ -186,7 +186,7 @@ public:
         switch ( ffdef->GetType() )
           {
         case OFTInteger:
-          iarr = vtkIntArray::SafeDownCast( fields[f] );
+          iarr = vtkArrayDownCast<vtkIntArray>( fields[f] );
           ival = feat->GetFieldAsInteger( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -194,7 +194,7 @@ public:
             }
           break;
         case OFTReal:
-          rarr = vtkDoubleArray::SafeDownCast( fields[f] );
+          rarr = vtkArrayDownCast<vtkDoubleArray>( fields[f] );
           rval = feat->GetFieldAsDouble( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -203,7 +203,7 @@ public:
           break;
         case OFTString:
         default:
-          sarr = vtkStringArray::SafeDownCast( fields[f] );
+          sarr = vtkArrayDownCast<vtkStringArray>( fields[f] );
           sval = feat->GetFieldAsString( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -213,7 +213,7 @@ public:
         }
       if (this->AddFeatureIds)
         {
-        vtkIdTypeArray* idarr = vtkIdTypeArray::SafeDownCast(fields[numFields]);
+        vtkIdTypeArray* idarr = vtkArrayDownCast<vtkIdTypeArray>(fields[numFields]);
         for ( i = 0; i < nPoly; ++i )
           {
           idarr->InsertNextValue(feat->GetFID());

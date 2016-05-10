@@ -893,7 +893,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     anchorOffset[1] = text_bbox[2];
 
     // compute TCoords.
-    vtkFloatArray* tc = vtkFloatArray::SafeDownCast
+    vtkFloatArray* tc = vtkArrayDownCast<vtkFloatArray>
       ( this->Rectangle->GetPointData()->GetTCoords() );
     float tcXMax, tcYMax;
     // Add a fudge factor to the texture coordinates to prevent the top

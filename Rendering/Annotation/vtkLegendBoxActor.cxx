@@ -545,7 +545,7 @@ double* vtkLegendBoxActor::GetEntryColor(int i)
     }
   else
     {
-    return vtkDoubleArray::SafeDownCast(this->Colors)->GetPointer(i*3);
+    return vtkArrayDownCast<vtkDoubleArray>(this->Colors)->GetPointer(i*3);
     }
 }
 

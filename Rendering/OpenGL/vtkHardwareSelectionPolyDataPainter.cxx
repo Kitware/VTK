@@ -174,17 +174,17 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   vtkIdType npts, *pts;
   vtkIdType cellId = startCellId;
   vtkUnsignedIntArray* procIdsArray = this->ProcessIdArrayName?
-    vtkUnsignedIntArray::SafeDownCast(
+    vtkArrayDownCast<vtkUnsignedIntArray>(
       pd->GetPointData()->GetArray(this->ProcessIdArrayName)) : NULL;
 
-  vtkIdTypeArray* pidArray = this->PointIdArrayName? vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray* pidArray = this->PointIdArrayName? vtkArrayDownCast<vtkIdTypeArray>(
     pd->GetPointData()->GetArray(this->PointIdArrayName)) : NULL;
 
-  vtkIdTypeArray* cidArray = this->CellIdArrayName? vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray* cidArray = this->CellIdArrayName? vtkArrayDownCast<vtkIdTypeArray>(
     pd->GetCellData()->GetArray(this->CellIdArrayName)) : NULL;
 
   vtkUnsignedIntArray* compositeIdArray = this->CompositeIdArrayName?
-    vtkUnsignedIntArray::SafeDownCast(
+    vtkArrayDownCast<vtkUnsignedIntArray>(
       pd->GetCellData()->GetArray(this->CompositeIdArrayName)) : NULL;
 
   int pointtype = p->GetDataType();

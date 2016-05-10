@@ -224,7 +224,7 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
     }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
@@ -333,7 +333,7 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
@@ -551,7 +551,7 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Get a quick pointer to the point data
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Place the vertices into a giant grid (100xNumVertices)

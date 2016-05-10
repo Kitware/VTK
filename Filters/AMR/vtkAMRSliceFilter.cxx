@@ -525,7 +525,7 @@ void vtkAMRSliceFilter::GetSliceCellData(
      sourceCD->GetArray( arrayIdx )->GetNumberOfComponents( ) );
     array->SetNumberOfTuples( numCells );
     targetCD->AddArray( array );
-    vtkUnsignedCharArray* uca = vtkUnsignedCharArray::SafeDownCast(array);
+    vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(array);
     if (uca != NULL && uca == slice->GetCellGhostArray())
       {
       // initiallize the ghost array

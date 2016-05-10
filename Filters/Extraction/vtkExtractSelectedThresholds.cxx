@@ -142,7 +142,7 @@ int vtkExtractSelectedThresholds::ExtractCells(
   int usePointScalars)
 {
   //find the values to threshold within
-  vtkDataArray *lims = vtkDataArray::SafeDownCast(sel->GetSelectionList());
+  vtkDataArray *lims = vtkArrayDownCast<vtkDataArray>(sel->GetSelectionList());
   if (lims == NULL)
     {
     vtkErrorMacro(<<"No values to threshold with");
@@ -412,7 +412,7 @@ int vtkExtractSelectedThresholds::ExtractPoints(
   vtkDataSet *output)
 {
   //find the values to threshold within
-  vtkDataArray *lims = vtkDataArray::SafeDownCast(sel->GetSelectionList());
+  vtkDataArray *lims = vtkArrayDownCast<vtkDataArray>(sel->GetSelectionList());
   if (lims == NULL)
     {
     vtkErrorMacro(<<"No values to threshold with");
@@ -552,7 +552,7 @@ int vtkExtractSelectedThresholds::ExtractRows(
   vtkSelectionNode* sel, vtkTable* input, vtkTable* output)
 {
   //find the values to threshold within
-  vtkDataArray *lims = vtkDataArray::SafeDownCast(sel->GetSelectionList());
+  vtkDataArray *lims = vtkArrayDownCast<vtkDataArray>(sel->GetSelectionList());
   if (lims == NULL)
     {
     vtkErrorMacro(<<"No values to threshold with");

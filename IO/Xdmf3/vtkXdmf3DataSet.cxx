@@ -1801,7 +1801,7 @@ void vtkXdmf3DataSet::VTKToXdmf(
     mColumnIndex->initialize(XdmfArrayType::Int32());
     }
 
-  vtkDoubleArray *wA = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray *wA = vtkArrayDownCast<vtkDoubleArray>(
     dataSet->GetEdgeData()->GetArray("Edge Weights"));
 
   while (vit->HasNext())

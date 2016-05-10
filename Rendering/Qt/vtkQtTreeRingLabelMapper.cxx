@@ -256,9 +256,9 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                     this->FieldDataArray : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
         }
-      numericData = vtkDataArray::SafeDownCast(abstractData);
-      stringData = vtkStringArray::SafeDownCast(abstractData);
-      uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+      numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+      stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+      uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
       };
       break;
       }

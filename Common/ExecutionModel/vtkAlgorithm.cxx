@@ -361,7 +361,7 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
 vtkDataArray* vtkAlgorithm::GetInputArrayToProcess
   (int idx, vtkInformationVector **inputVector, int& association)
 {
-  return vtkDataArray::SafeDownCast(
+  return vtkArrayDownCast<vtkDataArray>(
     this->GetInputAbstractArrayToProcess(idx, inputVector, association));
 }
 
@@ -377,7 +377,7 @@ vtkDataArray *vtkAlgorithm::GetInputArrayToProcess(
 vtkDataArray* vtkAlgorithm::GetInputArrayToProcess
   (int idx, int connection, vtkInformationVector **inputVector, int& association)
 {
-  return vtkDataArray::SafeDownCast(this->GetInputAbstractArrayToProcess(
+  return vtkArrayDownCast<vtkDataArray>(this->GetInputAbstractArrayToProcess(
       idx, connection, inputVector, association));
 }
 
@@ -394,7 +394,7 @@ vtkDataArray* vtkAlgorithm::GetInputArrayToProcess(int idx,
                                                    vtkDataObject* input,
                                                    int& association)
 {
-  return vtkDataArray::SafeDownCast(this->GetInputAbstractArrayToProcess(idx,
+  return vtkArrayDownCast<vtkDataArray>(this->GetInputAbstractArrayToProcess(idx,
       input, association));
 }
 

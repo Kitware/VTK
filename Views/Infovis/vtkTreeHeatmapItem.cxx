@@ -105,7 +105,7 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 
   // add an array to this table's field data to keep track of collapsed rows
   // (unless it already has the array)
-  vtkBitArray *existingRowsArray = vtkBitArray::SafeDownCast(
+  vtkBitArray *existingRowsArray = vtkArrayDownCast<vtkBitArray>(
     this->GetTable()->GetFieldData()->GetArray("collapsed rows"));
   if (existingRowsArray)
     {
@@ -129,7 +129,7 @@ void vtkTreeHeatmapItem::SetTable(vtkTable *table)
 
   // add an array to this table's field data to keep track of collapsed columns
   // (unless it already has the array)
-  vtkBitArray *existingColumnsArray = vtkBitArray::SafeDownCast(
+  vtkBitArray *existingColumnsArray = vtkArrayDownCast<vtkBitArray>(
     this->GetTable()->GetFieldData()->GetArray("collapsed columns"));
   if (existingColumnsArray)
     {
@@ -245,7 +245,7 @@ void vtkTreeHeatmapItem::ReorderTable()
     }
 
   // get the names of the vertices in our tree.
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->GetTree()->GetVertexData()->GetAbstractArray("node name"));
 
 
@@ -434,10 +434,10 @@ bool vtkTreeHeatmapItem::MouseDoubleClickEvent(
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseHeatmapRows()
 {
-  vtkBitArray *collapsedRowsArray = vtkBitArray::SafeDownCast(
+  vtkBitArray *collapsedRowsArray = vtkArrayDownCast<vtkBitArray>(
     this->GetTable()->GetFieldData()->GetArray("collapsed rows"));
 
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->Dendrogram->GetPrunedTree()->GetVertexData()
     ->GetAbstractArray("node name"));
 
@@ -466,10 +466,10 @@ void vtkTreeHeatmapItem::CollapseHeatmapRows()
 //-----------------------------------------------------------------------------
 void vtkTreeHeatmapItem::CollapseHeatmapColumns()
 {
-  vtkBitArray *collapsedColumnsArray = vtkBitArray::SafeDownCast(
+  vtkBitArray *collapsedColumnsArray = vtkArrayDownCast<vtkBitArray>(
     this->GetTable()->GetFieldData()->GetArray("collapsed columns"));
 
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->ColumnDendrogram->GetPrunedTree()->GetVertexData()
     ->GetAbstractArray("node name"));
 

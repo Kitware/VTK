@@ -110,7 +110,7 @@ int vtkDataSetToPiston::RequestData(vtkInformation *vtkNotUsed(request),
         return 1;
         }
       int association;
-      vtkFloatArray *inArray = vtkFloatArray::SafeDownCast(
+      vtkFloatArray *inArray = vtkArrayDownCast<vtkFloatArray>(
         this->GetInputArrayToProcess(0,id, association));
       //this filter expects that input has point associated float scalars
       if (!inArray

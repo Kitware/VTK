@@ -143,15 +143,18 @@ public:
   static vtkSOADataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
-    switch (source->GetArrayType())
+    if (source)
       {
-      case vtkAbstractArray::SoADataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-          return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
-          }
-        break;
+      switch (source->GetArrayType())
+        {
+        case vtkAbstractArray::SoADataArrayTemplate:
+          if (vtkDataTypesCompare(source->GetDataType(),
+                                  vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+            {
+            return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
+            }
+          break;
+        }
       }
     return NULL;
   }

@@ -316,7 +316,7 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
       return 0;
       }
     vtkAbstractArray* ac2 = this->CreateArray(eTypes);
-    vtkDataArray* c2 = vtkDataArray::SafeDownCast(ac2);
+    vtkDataArray* c2 = vtkArrayDownCast<vtkDataArray>(ac2);
     if(!c2 || (c2->GetNumberOfComponents() != 1))
       {
       vtkErrorMacro("Cannot read cell types from " << eCells->GetName()

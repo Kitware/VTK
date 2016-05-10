@@ -140,7 +140,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
   this->EdgeMap.clear();
   this->EdgeMap.assign(tree1->GetNumberOfEdges(), -1);
 
-  vtkStringArray *nodeNames1 = vtkStringArray::SafeDownCast(
+  vtkStringArray *nodeNames1 = vtkArrayDownCast<vtkStringArray>(
     tree1->GetVertexData()->GetAbstractArray(this->IdArrayName));
   if (nodeNames1 == NULL)
     {
@@ -149,7 +149,7 @@ bool vtkTreeDifferenceFilter::GenerateMapping(vtkTree *tree1, vtkTree *tree2)
     return false;
     }
 
-  vtkStringArray *nodeNames2 = vtkStringArray::SafeDownCast(
+  vtkStringArray *nodeNames2 = vtkArrayDownCast<vtkStringArray>(
     tree2->GetVertexData()->GetAbstractArray(this->IdArrayName));
   if (nodeNames2 == NULL)
     {

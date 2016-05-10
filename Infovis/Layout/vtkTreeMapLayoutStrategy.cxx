@@ -56,7 +56,7 @@ vtkIdType vtkTreeMapLayoutStrategy::FindVertex(
   float blimits[4];
 
   vtkIdType vertex = otree->GetRoot();
-  vtkFloatArray *boxInfo = vtkFloatArray::SafeDownCast(array);
+  vtkFloatArray *boxInfo = vtkArrayDownCast<vtkFloatArray>(array);
   // Now try to find the vertex that contains the point
   boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
   if ((pnt[0] < blimits[0]) || (pnt[0] > blimits[1]) ||

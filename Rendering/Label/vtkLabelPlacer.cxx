@@ -439,11 +439,11 @@ int vtkLabelPlacer::RequestData(
   ouData0->GetPointData()->AddArray( idArr0 );
   idArr0->Delete();
 
-  vtkStringArray* nameArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* nameArr = vtkArrayDownCast<vtkStringArray>(
     inData->GetLabels());
-  vtkUnicodeStringArray* nameUArr = vtkUnicodeStringArray::SafeDownCast(
+  vtkUnicodeStringArray* nameUArr = vtkArrayDownCast<vtkUnicodeStringArray>(
     inData->GetLabels());
-  vtkIntArray* iconIndexArr = vtkIntArray::SafeDownCast(
+  vtkIntArray* iconIndexArr = vtkArrayDownCast<vtkIntArray>(
     inData->GetIconIndices());
 
   if ( ! inData )

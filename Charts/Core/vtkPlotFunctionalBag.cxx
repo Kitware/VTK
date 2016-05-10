@@ -133,7 +133,7 @@ bool vtkPlotFunctionalBag::UpdateTableCache(vtkTable *table)
     {
     // The input array has 2 components, this must be a bag
     // with {miny,maxy} tuples
-    vtkDoubleArray* darr = vtkDoubleArray::SafeDownCast(array[1]);
+    vtkDoubleArray* darr = vtkArrayDownCast<vtkDoubleArray>(array[1]);
 
     this->LogX = this->XAxis->GetLogScaleActive();
     this->LogY = this->YAxis->GetLogScaleActive();

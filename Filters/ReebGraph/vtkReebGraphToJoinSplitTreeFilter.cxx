@@ -123,13 +123,13 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       output->DeepCopy(inputGraph);
 
       // Retrieve the information regarding the critical nodes
-      vtkDataArray  *vertexInfo = vtkDataArray::SafeDownCast(
+      vtkDataArray  *vertexInfo = vtkArrayDownCast<vtkDataArray>(
         inputGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
       if(!vertexInfo)
         // invalid Reeb graph (no information associated to the vertices)
         return 0;
 
-      vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+      vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
         inputGraph->GetEdgeData()->GetAbstractArray("Vertex Ids"));
       if(!edgeInfo)
         // invalid Reeb graph (no information associated to the edges)
@@ -236,7 +236,7 @@ int vtkReebGraphToJoinSplitTreeFilter::RequestData(vtkInformation* vtkNotUsed(re
       std::vector<std::vector<int> >
         halfStars(vertexList.size());
 
-      vertexInfo = vtkDataArray::SafeDownCast(
+      vertexInfo = vtkArrayDownCast<vtkDataArray>(
         unCompressedGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
       eIt = vtkEdgeListIterator::New();
       unCompressedGraph->GetEdges(eIt);

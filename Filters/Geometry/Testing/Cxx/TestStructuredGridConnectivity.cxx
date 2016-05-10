@@ -699,12 +699,12 @@ bool CompareFieldsForGrid( vtkUniformGrid *grid )
            grid->GetPointData()->HasArray( "EXPECTED-NodeXYZ" ) );
 
   vtkDoubleArray *computedCellData =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           grid->GetCellData()->GetArray( "COMPUTED-CellXYZ" ) );
   assert( "pre: computedCellData is NULL" && (computedCellData != NULL) );
 
   vtkDoubleArray *expectedCellData =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           grid->GetCellData()->GetArray( "EXPECTED-CellXYZ" ) );
   assert( "pre: expectedCellData is NULL" && (expectedCellData != NULL) );
 
@@ -715,12 +715,12 @@ bool CompareFieldsForGrid( vtkUniformGrid *grid )
     }
 
   vtkDoubleArray *computedPointData =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           grid->GetPointData()->GetArray( "COMPUTED-NodeXYZ" ) );
   assert( "pre: computePointData is NULL" && (computedPointData != NULL) );
 
   vtkDoubleArray *expectedPointData =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           grid->GetPointData()->GetArray( "EXPECTED-NodeXYZ" ) );
   assert( "pre: expectedPointData is NULL" && (expectedPointData != NULL) );
 

@@ -109,8 +109,8 @@ void MyProcess::Execute()
     vtkImageData *result = sampler->GetOutput();
 
     // Compare RTData Array
-    vtkFloatArray* rtDataRef = vtkFloatArray::SafeDownCast(reference->GetPointData()->GetArray("RTData"));
-    vtkFloatArray* rtDataTest = vtkFloatArray::SafeDownCast(result->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataRef = vtkArrayDownCast<vtkFloatArray>(reference->GetPointData()->GetArray("RTData"));
+    vtkFloatArray* rtDataTest = vtkArrayDownCast<vtkFloatArray>(result->GetPointData()->GetArray("RTData"));
     vtkIdType sizeRef = rtDataRef->GetNumberOfTuples();
     if(sizeRef == rtDataTest->GetNumberOfTuples() && rtDataRef->GetNumberOfComponents() == 1)
       {

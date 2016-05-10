@@ -662,7 +662,7 @@ vtkStringArray *vtkMNITagPointReader::GetLabelText()
 
   if (output)
     {
-    return vtkStringArray::SafeDownCast(
+    return vtkArrayDownCast<vtkStringArray>(
       output->GetPointData()->GetAbstractArray("LabelText"));
     }
 
@@ -679,7 +679,7 @@ vtkDoubleArray *vtkMNITagPointReader::GetWeights()
 
   if (output)
     {
-    return vtkDoubleArray::SafeDownCast(
+    return vtkArrayDownCast<vtkDoubleArray>(
       output->GetPointData()->GetArray("Weights"));
     }
 
@@ -696,7 +696,7 @@ vtkIntArray *vtkMNITagPointReader::GetStructureIds()
 
   if (output)
     {
-    return vtkIntArray::SafeDownCast(
+    return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("StructureIds"));
     }
 
@@ -713,7 +713,7 @@ vtkIntArray *vtkMNITagPointReader::GetPatientIds()
 
   if (output)
     {
-    return vtkIntArray::SafeDownCast(
+    return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("PatientIds"));
     }
 

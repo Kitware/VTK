@@ -464,7 +464,7 @@ void vtkCompassRepresentation::BuildRepresentation()
 
   int *renSize = this->Renderer->GetSize();
   vtkUnsignedCharArray* colors =
-    vtkUnsignedCharArray::SafeDownCast
+    vtkArrayDownCast<vtkUnsignedCharArray>
     ( this->BackdropMapper->GetInput()->GetPointData()->GetScalars() );
   unsigned char color[4];
   color[0] = 0;

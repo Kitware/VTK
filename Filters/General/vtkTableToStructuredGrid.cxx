@@ -99,11 +99,11 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     return 0;
     }
 
-  vtkDataArray* xarray = vtkDataArray::SafeDownCast(
+  vtkDataArray* xarray = vtkArrayDownCast<vtkDataArray>(
     input->GetColumnByName(this->XColumn));
-  vtkDataArray* yarray = vtkDataArray::SafeDownCast(
+  vtkDataArray* yarray = vtkArrayDownCast<vtkDataArray>(
     input->GetColumnByName(this->YColumn));
-  vtkDataArray* zarray = vtkDataArray::SafeDownCast(
+  vtkDataArray* zarray = vtkArrayDownCast<vtkDataArray>(
     input->GetColumnByName(this->ZColumn));
   if (!xarray || !yarray || !zarray)
     {

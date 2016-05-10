@@ -75,7 +75,7 @@ int vtkStringToTimePoint::RequestData(
 
   // Get the input array
   vtkAbstractArray* inputArray = this->GetInputAbstractArrayToProcess(0, inputVector);
-  vtkStringArray* stringArray = vtkStringArray::SafeDownCast(inputArray);
+  vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(inputArray);
   if (stringArray == NULL)
     {
     vtkErrorMacro(<< "The input array must be a string array.");
