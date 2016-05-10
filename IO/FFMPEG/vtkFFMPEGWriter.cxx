@@ -323,7 +323,11 @@ int vtkFFMPEGWriterInternal::Start()
 #if LIBAVFORMAT_VERSION_MAJOR < 54
   av_write_header(this->avFormatContext);
 #else
-  avformat_write_header(this->avFormatContext, NULL);
+  if (avformat_write_header(this->avFormatContext, NULL) < 0)
+    {
+    vtkGenericWarningMacro (<< "Could not allocate avcodec private data.");
+    return 0;
+    }
 #endif
   return 1;
 }
