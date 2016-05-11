@@ -107,6 +107,7 @@ public:
   static void MarkEndEvent(const char *EventString);
 
   static void DumpLogWithIndents(ostream *os, double threshold);
+  static void DumpLogWithIndentsAndPercentages(ostream *os);
 
   // Description:
   // Programatic access to events.  Indexed from 0 to num-1.
