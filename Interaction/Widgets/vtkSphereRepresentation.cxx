@@ -12,35 +12,33 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include "vtkSphereRepresentation.h"
 #include "vtkActor.h"
-#include "vtkSphere.h"
-#include "vtkSphereSource.h"
-#include "vtkPickingManager.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkPolyData.h"
+#include "vtkActor2D.h"
+#include "vtkAssemblyPath.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCamera.h"
+#include "vtkCellArray.h"
+#include "vtkCellPicker.h"
+#include "vtkCursor3D.h"
+#include "vtkDoubleArray.h"
+#include "vtkInteractorObserver.h"
+#include "vtkLineSource.h"
+#include "vtkMath.h"
+#include "vtkObjectFactory.h"
+#include "vtkPickingManager.h"
 #include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
 #include "vtkProperty.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
-#include "vtkInteractorObserver.h"
-#include "vtkMath.h"
-#include "vtkCellArray.h"
-#include "vtkCellPicker.h"
-#include "vtkTransform.h"
-#include "vtkDoubleArray.h"
 #include "vtkSphere.h"
-#include "vtkCamera.h"
-#include "vtkAssemblyPath.h"
+#include "vtkSphereRepresentation.h"
+#include "vtkSphereSource.h"
 #include "vtkTextMapper.h"
-#include "vtkActor2D.h"
 #include "vtkTextProperty.h"
-#include "vtkLineSource.h"
+#include "vtkTransform.h"
 #include "vtkWindow.h"
-#include "vtkObjectFactory.h"
-
 
 vtkStandardNewMacro(vtkSphereRepresentation);
 
@@ -110,6 +108,18 @@ vtkSphereRepresentation::vtkSphereRepresentation()
   this->RadialLineActor->SetMapper(this->RadialLineMapper);
   this->RadialLineActor->SetProperty(this->RadialLineProperty);
 
+  // Represent the center cursor
+  this->CenterCursor = 0;
+  this->CenterCursorSource = vtkCursor3D::New();
+  this->CenterCursorSource->AllOff();
+  this->CenterCursorSource->AxesOn();
+  this->CenterCursorSource->TranslationModeOn();
+  this->CenterMapper = vtkPolyDataMapper::New();
+  this->CenterMapper->SetInputConnection(
+    this->CenterCursorSource->GetOutputPort());
+  this->CenterActor = vtkActor::New();
+  this->CenterActor->SetMapper(this->CenterMapper);
+
   // Define the point coordinates
   double bounds[6];
   bounds[0] = -0.5;
@@ -161,6 +171,11 @@ vtkSphereRepresentation::~vtkSphereRepresentation()
   this->RadialLineSource->Delete();
   this->RadialLineMapper->Delete();
   this->RadialLineActor->Delete();
+
+  // The cursor
+  this->CenterCursorSource->Delete();
+  this->CenterMapper->Delete();
+  this->CenterActor->Delete();
 
   if ( this->SphereProperty )
     {
@@ -362,6 +377,7 @@ void vtkSphereRepresentation::Translate(double *p1, double *p2)
     }
 
   this->SphereSource->SetCenter(center1);
+  this->CenterCursorSource->SetFocalPoint(center1);
   this->HandleSource->SetCenter(HandlePosition);
 }
 
@@ -419,6 +435,9 @@ void vtkSphereRepresentation::PlaceWidget(double center[3], double handle[3])
   this->HandleSource->SetCenter(handle);
   this->HandleSource->Update();
 
+  this->CenterCursorSource->SetFocalPoint(center);
+  this->CenterCursorSource->Update();
+
   this->HandleDirection[0] = handle[0] - center[0];
   this->HandleDirection[1] = handle[1] - center[1];
   this->HandleDirection[2] = handle[2] - center[2];
@@ -457,6 +476,10 @@ void vtkSphereRepresentation::SetCenter(double center[3])
       }
 
     this->SphereSource->Update();
+
+    this->CenterCursorSource->SetFocalPoint(center);
+    this->CenterCursorSource->Update();
+
     this->Modified();
     }
 }
@@ -544,6 +567,9 @@ void vtkSphereRepresentation::PlaceWidget(double bds[6])
   this->SphereSource->SetCenter(center);
   this->SphereSource->SetRadius(radius);
   this->SphereSource->Update();
+
+  this->CenterCursorSource->SetFocalPoint(center);
+  this->CenterCursorSource->Update();
 
   // place the handle
   this->PlaceHandle(center,radius);
@@ -686,6 +712,7 @@ void vtkSphereRepresentation::ReleaseGraphicsResources(vtkWindow *w)
   this->HandleActor->ReleaseGraphicsResources(w);
   this->HandleTextActor->ReleaseGraphicsResources(w);
   this->RadialLineActor->ReleaseGraphicsResources(w);
+  this->CenterActor->ReleaseGraphicsResources(w);
 }
 
 //----------------------------------------------------------------------------
@@ -705,6 +732,10 @@ int vtkSphereRepresentation::RenderOpaqueGeometry(vtkViewport *v)
   if ( this->RadialLine )
     {
     count += this->RadialLineActor->RenderOpaqueGeometry(v);
+    }
+  if (this->CenterCursor)
+    {
+    count += this->CenterActor->RenderOpaqueGeometry(v);
     }
 
   return count;
@@ -726,6 +757,10 @@ int vtkSphereRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *v)
   if ( this->RadialLine )
     {
     count += this->RadialLineActor->RenderTranslucentPolygonalGeometry(v);
+    }
+  if (this->CenterCursor)
+    {
+    count += this->CenterActor->RenderTranslucentPolygonalGeometry(v);
     }
 
   return count;
@@ -765,6 +800,10 @@ int vtkSphereRepresentation::HasTranslucentPolygonalGeometry()
   if ( this->RadialLine )
     {
     result |= this->RadialLineActor->HasTranslucentPolygonalGeometry();
+    }
+  if (this->CenterCursor)
+    {
+    result |= this->CenterActor->HasTranslucentPolygonalGeometry();
     }
 
   return result;
@@ -858,6 +897,7 @@ void vtkSphereRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Handle Text: " << this->HandleText << "\n";
   os << indent << "Radial Line: " << this->RadialLine << "\n";
+  os << indent << "Center Cursor: " << this->CenterCursor << "\n";
 
   if ( this->HandleTextProperty )
     {

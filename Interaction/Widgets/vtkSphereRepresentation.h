@@ -63,6 +63,7 @@ class vtkTextMapper;
 class vtkActor2D;
 class vtkTextProperty;
 class vtkLineSource;
+class vtkCursor3D;
 
 #define VTK_SPHERE_OFF 0
 #define VTK_SPHERE_WIREFRAME 1
@@ -170,6 +171,13 @@ public:
   vtkSetMacro(RadialLine,int);
   vtkGetMacro(RadialLine,int);
   vtkBooleanMacro(RadialLine,int);
+
+  // Description:
+  // Enable/disable a center cursor
+  // Default is disabled
+  vtkSetMacro(CenterCursor, bool);
+  vtkGetMacro(CenterCursor, bool);
+  vtkBooleanMacro(CenterCursor, bool);
 
   // Description:
   // Grab the polydata (including points) that defines the sphere.  The
@@ -298,6 +306,12 @@ protected:
   vtkLineSource     *RadialLineSource;
   vtkPolyDataMapper *RadialLineMapper;
   vtkActor          *RadialLineActor;
+
+  // Managing the center cursor
+  vtkActor          *CenterActor;
+  vtkPolyDataMapper *CenterMapper;
+  vtkCursor3D       *CenterCursorSource;
+  bool CenterCursor;
 
 private:
   vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
