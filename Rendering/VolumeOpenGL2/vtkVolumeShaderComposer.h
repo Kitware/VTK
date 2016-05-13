@@ -84,20 +84,7 @@ namespace vtkvolume
     return std::string(
       "\n  // For point dataset, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
-       \n  vec3 spacingSign = vec3(1.0);\
-       \n  if (in_cellSpacing.x < 0.0)\
-       \n    {\
-      \n     spacingSign.x = -1.0;\
-       \n    }\
-       \n  if (in_cellSpacing.y < 0.0)\
-       \n    {\
-       \n     spacingSign.y = -1.0;\
-       \n    }\
-       \n  if (in_cellSpacing.z < 0.0)\
-       \n    {\
-       \n     spacingSign.z = -1.0;\
-       \n    }\
-       \n  vec3 uvx = spacingSign * (in_vertexPos - in_volumeExtentsMin) /\
+       \n  vec3 uvx = sign(in_cellSpacing) * (in_vertexPos - in_volumeExtentsMin) /\
        \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
        \n  if (in_cellFlag)\
        \n    {\
@@ -1551,19 +1538,12 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n    // sign function performs component wise operation and returns -1\
-      \n    // if the difference is less than 0, 0 if equal to 0, and 1 if\
-      \n    // above 0. So if the ray is inside the volume, dot product will\
-      \n    // always be 3.\
-      \n    stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
-      \n             < 3.0;\
-      \n\
-      \n    // If the stopping condition is true we brek out of the ray marching\
-      \n    // loop\
-      \n    if (stop)\
+      \n    if(any(greaterThan(g_dataPos, l_texMax)) ||\
+      \n      any(lessThan(g_dataPos, l_texMin)))\
       \n      {\
       \n      break;\
       \n      }\
+      \n\
       \n    // Early ray termination\
       \n    // if the currently composited colour alpha is already fully saturated\
       \n    // we terminated the loop or if we have hit an obstacle in the\
