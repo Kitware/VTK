@@ -15,7 +15,7 @@
 // .NAME vtkBezierContourLineInterpolator - Interpolates supplied nodes with bezier line segments
 // .SECTION Description
 // The line interpolator interpolates supplied nodes (see InterpolateLine)
-// with Bézier line segments. The fitness of the curve may be controlled using
+// with Bezier line segments. The fitness of the curve may be controlled using
 // SetMaximumCurveError and SetMaximumNumberOfLineSegments.
 //
 // .SECTION See Also
