@@ -612,11 +612,12 @@ public:
     this->Type = STRING;
     this->String = new vtkStdString(value);
   }
-  void operator=(const vtkFoamToken& value)
+  vtkFoamToken& operator=(const vtkFoamToken& value)
   {
     this->Clear();
     this->Type = value.Type;
     this->AssignData(value);
+    return *this;
   }
   bool operator==(const char value) const
   {
