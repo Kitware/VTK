@@ -287,7 +287,8 @@ vtkPolyData *vtkOrientedGlyphContourRepresentation::GetCursorShape()
 }
 
 //----------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation::SetActiveCursorShape(vtkPolyData *shape)
+void vtkOrientedGlyphContourRepresentation::SetActiveCursorShape(
+  vtkPolyData *shape)
 {
   if (shape != this->ActiveCursorShape)
     {
@@ -322,7 +323,8 @@ void vtkOrientedGlyphContourRepresentation::SetRenderer(vtkRenderer *ren)
 }
 
 //-------------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUsed(modified))
+int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(
+  int X, int Y, int vtkNotUsed(modified))
 {
 
   double pos[4], xyz[3];
@@ -360,7 +362,8 @@ int vtkOrientedGlyphContourRepresentation::ComputeInteractionState(int X, int Y,
 
 //----------------------------------------------------------------------
 // Record the current event position, and the rectilinear wipe position.
-void vtkOrientedGlyphContourRepresentation::StartWidgetInteraction(double startEventPos[2])
+void vtkOrientedGlyphContourRepresentation::StartWidgetInteraction(
+  double startEventPos[2])
 {
   this->StartEventPosition[0] = startEventPos[0];
   this->StartEventPosition[1] = startEventPos[1];
@@ -854,7 +857,8 @@ void vtkOrientedGlyphContourRepresentation::GetActors(vtkPropCollection *pc)
 }
 
 //----------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation::ReleaseGraphicsResources(vtkWindow *win)
+void vtkOrientedGlyphContourRepresentation::ReleaseGraphicsResources(
+  vtkWindow *win)
 {
   this->Actor->ReleaseGraphicsResources(win);
   this->ActiveActor->ReleaseGraphicsResources(win);
@@ -878,7 +882,8 @@ int vtkOrientedGlyphContourRepresentation::RenderOverlay(vtkViewport *viewport)
 }
 
 //-----------------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
+int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(
+  vtkViewport *viewport)
 {
   // Since we know RenderOpaqueGeometry gets called first, will do the
   // build here
@@ -904,7 +909,8 @@ int vtkOrientedGlyphContourRepresentation::RenderOpaqueGeometry(vtkViewport *vie
 }
 
 //-----------------------------------------------------------------------------
-int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
+int vtkOrientedGlyphContourRepresentation::RenderTranslucentPolygonalGeometry(
+  vtkViewport *viewport)
 {
   int count=0;
   count += this->LinesActor->RenderTranslucentPolygonalGeometry(viewport);
@@ -936,7 +942,8 @@ int vtkOrientedGlyphContourRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-void vtkOrientedGlyphContourRepresentation::SetLineColor(double r, double g, double b)
+void vtkOrientedGlyphContourRepresentation::SetLineColor(
+  double r, double g, double b)
 {
   if (this->GetLinesProperty())
     {
