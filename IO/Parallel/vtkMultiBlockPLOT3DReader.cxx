@@ -1595,6 +1595,9 @@ int vtkMultiBlockPLOT3DReader::RequestData(
       et->PieceToExtent();
       et->GetExtent(extent);
 
+      int ldims[3];
+      vtkStructuredData::GetDimensionsFromExtent(extent, ldims);
+
       vtkIdType npts = vtkStructuredData::GetNumberOfPoints(extent);
       vtkIdType nTotalPts = (vtkIdType)dims[0]*dims[1]*dims[2];
 
@@ -1732,7 +1735,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           vtkDataArray* spec = outputPD->GetArray(res);
           vtkDataArray* dens = outputPD->GetArray("Density");
           rat->SetNumberOfComponents(1);
-          rat->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          rat->SetNumberOfTuples(ldims[0]*ldims[1]*ldims[2]);
           sprintf(res, "Spec Dens #%d / rho", v+1);
           rat->SetName(res);
           for(int w=0; w<npts; w++)
@@ -1749,7 +1752,7 @@ int vtkMultiBlockPLOT3DReader::RequestData(
           {
           vtkDataArray* temp = this->NewFloatArray();
           temp->SetNumberOfComponents(1);
-          temp->SetNumberOfTuples(dims[0]*dims[1]*dims[2]);
+          temp->SetNumberOfTuples(ldims[0]*ldims[1]*ldims[2]);
           int k = a+1;
           sprintf(res, "Turb Field Quant #%d", k);
           temp->SetName(res);
