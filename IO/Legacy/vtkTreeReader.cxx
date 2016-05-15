@@ -144,8 +144,7 @@ int vtkTreeReader::RequestData(
   vtkSmartPointer<vtkMutableDirectedGraph> builder =
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
 
-  int done = 0;
-  while(!done)
+  while(true)
     {
     if(!this->ReadString(line))
       {

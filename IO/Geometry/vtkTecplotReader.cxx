@@ -76,10 +76,10 @@ public:
 protected:
   bool Open;
   bool Eof;
-  static const unsigned int BUFF_SIZE = 2048;
+  static const int BUFF_SIZE = 2048;
   char buff[BUFF_SIZE];
-  unsigned int Pos;
-  unsigned int BuffEnd;
+  int Pos;
+  int BuffEnd;
   gzFile file;
   std::string FileName;
 

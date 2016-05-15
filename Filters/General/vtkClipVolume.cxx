@@ -311,7 +311,7 @@ int vtkClipVolume::RequestData(
             {
             above = 1;
             }
-          else if ( s < value )
+          else
             {
             below = 1;
             }

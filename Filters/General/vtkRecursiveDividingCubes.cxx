@@ -154,7 +154,7 @@ int vtkRecursiveDividingCubes::RequestData(
             {
             above = 1;
             }
-          else if ( voxelScalars->GetComponent(vertNum,0) < this->Value )
+          else
             {
             below = 1;
             }
@@ -315,7 +315,7 @@ void vtkRecursiveDividingCubes::SubDivide(double origin[3], double h[3],
               {
               above = 1;
               }
-            else if ( scalar < this->Value )
+            else
               {
               below = 1;
               }

@@ -139,8 +139,7 @@ int vtkTableReader::RequestData(
   vtkTable* const output = vtkTable::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  int done = 0;
-  while(!done)
+  while(true)
     {
     if(!this->ReadString(line))
       {
