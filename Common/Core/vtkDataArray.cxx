@@ -864,6 +864,7 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
   if (!src1DA || !src2DA)
     {
     vtkErrorMacro("Both arrays must be vtkDataArray subclasses.");
+    return;
     }
 
   bool fallback = type == VTK_BIT;
