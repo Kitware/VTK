@@ -13,6 +13,8 @@ vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI no_data_tests
   GenericCommunicator.cxx
   MPIController.cxx
+  PDirectory.cxx
+  PSystemTools.cxx
   TestNonBlockingCommunication.cxx
   TestProcess.cxx
   ${extra_opengl_tests}
