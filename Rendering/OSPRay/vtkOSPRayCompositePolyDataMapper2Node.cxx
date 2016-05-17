@@ -40,7 +40,6 @@
 #include "vtkMultiPieceDataSet.h"
 
 #include "ospray/ospray.h"
-#include "ospray/common/OSPCommon.h"
 #include "ospray/version.h"
 
 #include <map>

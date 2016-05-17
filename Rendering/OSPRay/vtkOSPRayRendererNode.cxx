@@ -281,11 +281,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (!this->ORenderer)
       {
       ospRelease((osp::Renderer*)this->ORenderer);
-  #if  OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
-      oRenderer = (osp::Renderer*)ospNewRenderer("obj");
-  #else
       oRenderer = (osp::Renderer*)ospNewRenderer("scivis");
-  #endif
       this->ORenderer = oRenderer;
       }
     else
@@ -318,11 +314,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
     ospCommit(oRenderer);
 
-  #if OSPRAY_VERSION_MINOR < 9
-    osp::vec2i isize(this->Size[0], this->Size[1]);
-  #else
     osp::vec2i isize = {this->Size[0], this->Size[1]};
-  #endif
     OSPFrameBuffer osp_framebuffer = ospNewFrameBuffer
       (isize,
   #if OSPRAY_VERSION_MAJOR < 1 && OSPRAY_VERSION_MINOR < 10 && OSPRAY_VERSION_PATCH < 2
