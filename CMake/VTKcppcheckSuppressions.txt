@@ -123,9 +123,12 @@ uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 unusedStructMember:Common/Core/vtkTypeList.txx
+CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 
 // Not worth fixing, but not actually false positives.
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
+knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
+knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
 
 // There are a fair number of these, but they are probably worth working through.
 // 217 warnings
