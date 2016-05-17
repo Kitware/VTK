@@ -4,9 +4,10 @@ if (VTK_WRAP_PYTHON)
       MPI
     DEPENDS
       vtkParallelMPI
-      vtkPython
     COMPILE_DEPENDS
       vtkmpi4py
+      vtkPython
+    OPTIONAL_PYTHON_LINK
     EXCLUDE_FROM_TCL_WRAPPING
     EXCLUDE_FROM_JAVA_WRAPPING
     KIT

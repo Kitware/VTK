@@ -5,6 +5,7 @@ set(_VTKModuleMacros_DEFAULT_LABEL "VTKModular")
 include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
 include(GenerateExportHeader)
 include(vtkWrapping)
+include(vtkTargetLinkLibrariesWithDynamicLookup)
 if(VTK_MAKE_INSTANTIATORS)
   include(vtkMakeInstantiator)
 endif()
@@ -22,6 +23,7 @@ endif()
 #  DEPENDS = Modules that will be publicly linked to this module
 #  PRIVATE_DEPENDS = Modules that will be privately linked to this module
 #  COMPILE_DEPENDS = Modules that are needed at compile time by this module
+#  OPTIONAL_PYTHON_LINK = Optionally link the python library to this module
 #  TEST_DEPENDS = Modules that are needed by this modules testing executables
 #  DESCRIPTION = Free text description of the module
 #  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
@@ -47,6 +49,7 @@ macro(vtk_module _name)
   set(${vtk-module-test}_DECLARED 1)
   set(${vtk-module}_DEPENDS "")
   set(${vtk-module}_COMPILE_DEPENDS "")
+  set(${vtk-module}_OPTIONAL_PYTHON_LINK 0)
   set(${vtk-module}_PRIVATE_DEPENDS "")
   set(${vtk-module-test}_DEPENDS "${vtk-module}")
   set(${vtk-module}_IMPLEMENTS "")
@@ -79,6 +82,9 @@ macro(vtk_module _name)
     elseif("${arg}" STREQUAL "IMPLEMENTATION_REQUIRED_BY_BACKEND")
       set(_doing "")
       set(${vtk-module}_IMPLEMENTATION_REQUIRED_BY_BACKEND 1)
+    elseif("${arg}" STREQUAL "OPTIONAL_PYTHON_LINK")
+      set(_doing "")
+      set(${vtk-module}_OPTIONAL_PYTHON_LINK 1)
     elseif("${arg}" MATCHES "^[A-Z][A-Z][A-Z]$" AND
            NOT "${arg}" MATCHES "^(ON|OFF|MPI)$")
       set(_doing "")
@@ -649,6 +655,11 @@ function(vtk_module_library name)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
   endforeach()
+
+  # Optionally link the module to the python library
+  if(${${vtk-module}_OPTIONAL_PYTHON_LINK})
+    vtk_target_link_libraries_with_dynamic_lookup(${vtk-module} LINK_PUBLIC ${vtkPython_LIBRARIES})
+  endif()
 
   # Handle the private dependencies, setting up link/include directories.
   foreach(dep IN LISTS ${vtk-module}_PRIVATE_DEPENDS)
