@@ -29,9 +29,13 @@
 
 int TestXMLWriterWithDataArrayFallback(int argc, char *argv[])
 {
-  std::string temp_dir = std::string(vtkTestUtilities::GetArgOrEnvOrDefault(
-                                       "-T", argc, argv, "VTK_TEMP_DIR",
-                                       "Testing/Temporary"));
+  char* temp_dir_c =
+    vtkTestUtilities::GetArgOrEnvOrDefault("-T", argc, argv,
+                                           "VTK_TEMP_DIR",
+                                           "Testing/Temporary");
+  std::string temp_dir = std::string(temp_dir_c);
+  delete [] temp_dir_c;
+
   if (temp_dir.empty())
     {
     cerr << "Could not determine temporary directory." << endl;
