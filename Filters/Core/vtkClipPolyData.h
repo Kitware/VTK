@@ -51,7 +51,7 @@
 // output may consist of different cell types than the input data.
 
 // .SECTION See Also
-// vtkImplicitFunction vtkCutter vtkClipVolume
+// vtkImplicitFunction vtkCutter vtkClipVolume vtkExtractGeometry
 
 #ifndef vtkClipPolyData_h
 #define vtkClipPolyData_h
@@ -70,7 +70,8 @@ public:
 
   // Description:
   // Construct with user-specified implicit function; InsideOut turned off;
-  // value set to 0.0; and generate clip scalars turned off.
+  // value set to 0.0; GenerateClipScalars turned off; GenerateClippedOutput
+  // turned off.
   static vtkClipPolyData *New();
 
   // Description:
@@ -103,6 +104,7 @@ public:
   // interpolated from the implicit function values, and not the
   // input scalar data. If you enable this flag but do not provide an
   // implicit function an error will be reported.
+  // GenerateClipScalars is off by default.
   vtkSetMacro(GenerateClipScalars,int);
   vtkGetMacro(GenerateClipScalars,int);
   vtkBooleanMacro(GenerateClipScalars,int);
@@ -110,6 +112,7 @@ public:
   // Description:
   // Control whether a second output is generated. The second output
   // contains the polygonal data that's been clipped away.
+  // GenerateClippedOutput is off by default.
   vtkSetMacro(GenerateClippedOutput,int);
   vtkGetMacro(GenerateClippedOutput,int);
   vtkBooleanMacro(GenerateClippedOutput,int);
@@ -143,7 +146,8 @@ public:
   // Description:
   // Set/get the desired precision for the output types. See the documentation
   // for the vtkAlgorithm::DesiredOutputPrecision enum for an explanation of
-  // the available precision settings.
+  // the available precision settings. OutputPointsPrecision is DEFAULT_PRECISION
+  // by default.
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
 
