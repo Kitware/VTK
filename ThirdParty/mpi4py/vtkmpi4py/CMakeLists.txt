@@ -24,7 +24,12 @@ if (NOT MPI4PY_PACKAGE_BINARY_DIR)
 endif()
 
 find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
-find_package(PythonLibs ${VTK_PYTHON_VERSION} REQUIRED)
+if (VTK_UNDEFINED_SYMBOLS_ALLOWED)
+  set(_QUIET_LIBRARY "QUIET")
+else()
+  set(_QUIET_LIBRARY "${VTK_PYTHON_VERSION}" "REQUIRED")
+endif()
+find_package(PythonLibs ${_QUIET_LIBRARY})
 find_package(MPI REQUIRED)
 
 # -------------------------------------------------------------------------
