@@ -456,13 +456,6 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     exit(1);
     }
 
-  /* if a hierarchy is was given, then BTX/ETX can be ignored */
-  vtkParse_SetIgnoreBTX(0);
-  if (options.HierarchyFileNames)
-    {
-    vtkParse_SetIgnoreBTX(1);
-    }
-
   /* parse the input file */
   data = vtkParse_ParseFile(options.InputFileName, ifile, stderr);
 

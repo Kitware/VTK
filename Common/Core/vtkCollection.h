@@ -31,7 +31,6 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX - begin tcl exclude
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
  public:
@@ -40,7 +39,6 @@ class vtkCollectionElement //;prevents pick-up by man page generator
   vtkCollectionElement *Next;
 };
 typedef void * vtkCollectionSimpleIterator;
-//ETX end tcl exclude
 
 class vtkCollectionIterator;
 

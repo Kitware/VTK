@@ -35,8 +35,6 @@ class vtkImageData;
 //
 // Special classes for manipulating data
 //
-//BTX - begin tcl exclude
-//
 // For the breadth first search
 class vtkImageConnectorSeed { //;prevent man page generation
 public:
@@ -45,8 +43,6 @@ public:
   int  Index[3];
   vtkImageConnectorSeed *Next;
 };
-//ETX - end tcl exclude
-//
 
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageConnector : public vtkObject

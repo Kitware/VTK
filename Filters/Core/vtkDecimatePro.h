@@ -279,8 +279,6 @@ protected:
   //
   // Special classes for manipulating data
   //
-  //BTX - begin tcl exclude
-  //
   // Special structures for building loops
   class LocalVertex
   {
@@ -340,8 +338,6 @@ protected:
     LocalTri *Array;  // pointer to data
     vtkIdType MaxId;           // maximum index inserted thus far
   };
-  //ETX - end tcl exclude
-  //
 
 private:
   void InitializeQueue(vtkIdType numPts);

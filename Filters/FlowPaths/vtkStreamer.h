@@ -212,8 +212,6 @@ protected:
   //
   // Special classes for manipulating data
   //
-  //BTX - begin tcl exclude
-  //
   class StreamPoint {
   public:
     double    x[3];    // position

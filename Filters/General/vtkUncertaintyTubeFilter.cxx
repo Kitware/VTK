@@ -31,7 +31,7 @@ vtkStandardNewMacro(vtkUncertaintyTubeFilter);
 
 //
 // Special classes for manipulating data
-//BTX
+//
 class vtkTubePoint { //;prevent man page generation
 public:
   vtkTubePoint(); // method sets up storage
@@ -44,7 +44,6 @@ public:
   double   V2[3];   // another, orthogonal normal to the line
   double   Vector[3];//local uncertainty vector
 };
-//ETX
 
 class vtkTubeArray { //;prevent man page generation
 public:

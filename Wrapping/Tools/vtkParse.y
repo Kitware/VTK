@@ -202,7 +202,6 @@ int            NumberOfDefinitions = 0;
 const char   **Definitions;
 
 /* options that can be set by the programs that use the parser */
-int            IgnoreBTX = 0;
 int            Recursive = 0;
 const char    *CommandName = NULL;
 
@@ -4972,19 +4971,6 @@ void outputGetVectorMacro(const char *var, unsigned int paramType,
     vtkstrcat4(typeText, " *", currentFunction->Name, "();");
   set_return(currentFunction, (VTK_PARSE_POINTER | paramType), getTypeId(), n);
   output_function();
-}
-
-/* Set a flag to ignore BTX/ETX markers in the files */
-void vtkParse_SetIgnoreBTX(int option)
-{
-  if (option)
-    {
-    IgnoreBTX = 1;
-    }
-  else
-    {
-    IgnoreBTX = 0;
-    }
 }
 
 /* Set a flag to recurse into included files */

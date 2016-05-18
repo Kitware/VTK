@@ -9,7 +9,6 @@ vtk_add_test_python(
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py
   TestGhost.py
-  TestIgnoreBTX.py
   TestMutable.py
   TestNumpySupport.py
   TestNumpyInterface.py
