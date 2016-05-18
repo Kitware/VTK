@@ -102,6 +102,16 @@ int vtkRTAnalyticSource::RequestInformation(
 {
   // get the info objects
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
+  if (this->WholeExtent[0] > this->WholeExtent[1] ||
+    this->WholeExtent[2] > this->WholeExtent[3] ||
+    this->WholeExtent[4] > this->WholeExtent[5])
+    {
+    vtkErrorMacro("Invalid WholeExtent: "
+      << this->WholeExtent[0] << ", " << this->WholeExtent[1] << ", "
+      << this->WholeExtent[2] << ", " << this->WholeExtent[3] << ", "
+      << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
+    return 0;
+    }
 
   int tmpExt[6], i;
   for (i = 0; i < 3; i++)
