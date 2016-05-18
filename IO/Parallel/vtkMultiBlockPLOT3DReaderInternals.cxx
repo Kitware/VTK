@@ -15,6 +15,9 @@
 =========================================================================*/
 #include "vtkMultiBlockPLOT3DReaderInternals.h"
 
+#include "vtkMultiProcessController.h"
+#include <cassert>
+
 int vtkMultiBlockPLOT3DReaderInternals::ReadInts(FILE* fp, int n, int* val)
 {
   int retVal = static_cast<int>(fread(val, sizeof(int), n, fp));
@@ -408,4 +411,163 @@ size_t vtkMultiBlockPLOT3DReaderInternals::CalculateFileSizeForBlock(int precisi
     size += 2*4;
     }
   return size;
+}
+
+//-----------------------------------------------------------------------------
+bool vtkMultiBlockPLOT3DReaderRecord::Initialize(
+  FILE* fp, vtkTypeUInt64 offset,
+  const vtkMultiBlockPLOT3DReaderInternals::InternalSettings& settings,
+  vtkMultiProcessController* controller)
+{
+  this->SubRecords.clear();
+  if (!settings.BinaryFile || !settings.HasByteCount)
+    {
+    return true;
+    }
+  const int rank = controller? controller->GetLocalProcessId() : 0;
+  int error = 0;
+  if (rank == 0)
+    {
+    vtkTypeUInt64 pos = vtk_ftell(fp);
+    unsigned int leadingLengthField;
+    int signBit = 0;
+    try
+      {
+      do
+        {
+        vtkSubRecord subrecord;
+        subrecord.HeaderOffset = offset;
+        vtkTypeUInt64 dataOffset = subrecord.HeaderOffset + sizeof(int);
+        vtk_fseek(fp, offset, SEEK_SET);
+        if (fread(&leadingLengthField, sizeof(unsigned int), 1, fp) != 1)
+          {
+          throw Plot3DException();
+          }
+        signBit = (0x80000000 & leadingLengthField)? 1 : 0;
+        if (signBit)
+          {
+          unsigned int length = 0xffffffff ^ (leadingLengthField - 1);
+          subrecord.FooterOffset = dataOffset + length;
+          }
+        else
+          {
+          subrecord.FooterOffset = dataOffset + leadingLengthField;
+          }
+        this->SubRecords.push_back(subrecord);
+        offset = subrecord.FooterOffset + sizeof(int);
+        }
+      while (signBit == 1);
+      }
+    catch (Plot3DException&)
+      {
+      error = 1;
+      }
+    vtk_fseek(fp, pos, SEEK_SET);
+    }
+
+  if (controller == NULL)
+    {
+    if (error)
+      {
+      this->SubRecords.clear();
+      }
+    return error == 0;
+    }
+
+  // Communicate record information to all ranks.
+  controller->Broadcast(&error, 1, 0);
+  if (error)
+    {
+    this->SubRecords.clear();
+    return false;
+    }
+  if (rank == 0)
+    {
+    int count = static_cast<int>(this->SubRecords.size());
+    controller->Broadcast(&count, 1, 0);
+    if (count > 0)
+      {
+      controller->Broadcast(
+        reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      }
+    }
+  else
+    {
+    int count;
+    controller->Broadcast(&count, 1, 0);
+    this->SubRecords.resize(count);
+    if (count > 0)
+      {
+      controller->Broadcast(
+        reinterpret_cast<vtkTypeUInt64*>(&this->SubRecords[0]), count * 2, 0);
+      }
+    }
+  return true;
+}
+
+//-----------------------------------------------------------------------------
+vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparators
+vtkMultiBlockPLOT3DReaderRecord::GetSubRecordSeparators(
+  vtkTypeUInt64 startOffset, vtkTypeUInt64 length) const
+{
+  vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparators markers;
+  if (this->SubRecords.size() <= 1)
+    {
+    return markers;
+    }
+
+  // locate the sub-record in which startOffset begins.
+  VectorOfSubRecords::const_iterator sr_start = this->SubRecords.begin();
+  while (sr_start != this->SubRecords.end()
+    && sr_start->FooterOffset < startOffset)
+    {
+    sr_start++;
+    }
+  assert(sr_start != this->SubRecords.end());
+
+  vtkTypeUInt64 endOffset = startOffset + length;
+
+  VectorOfSubRecords::const_iterator sr_end = sr_start;
+  while (sr_end != this->SubRecords.end()
+    && sr_end->FooterOffset < endOffset)
+    {
+    markers.push_back(sr_end->FooterOffset);
+    sr_end++;
+    assert(sr_end != this->SubRecords.end());
+    endOffset += vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth;
+    }
+  assert(sr_end != this->SubRecords.end());
+  return markers;
+}
+
+//-----------------------------------------------------------------------------
+std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> >
+vtkMultiBlockPLOT3DReaderRecord::GetChunksToRead(
+  vtkTypeUInt64 start, vtkTypeUInt64 length, const std::vector<vtkTypeUInt64> &markers)
+{
+  std::vector<std::pair<vtkTypeUInt64, vtkTypeUInt64> > chunks;
+  for (size_t cc=0; cc < markers.size(); ++cc)
+    {
+    if (start < markers[cc])
+      {
+      vtkTypeUInt64 chunksize = (markers[cc] - start);
+      chunks.push_back(std::pair<vtkTypeUInt64, vtkTypeUInt64>(start, chunksize));
+      length -= chunksize;
+      }
+    start = markers[cc] + vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth;
+    }
+  if (length > 0)
+    {
+    chunks.push_back(std::pair<vtkTypeUInt64, vtkTypeUInt64>(start, length));
+    }
+  return chunks;
+}
+
+//-----------------------------------------------------------------------------
+vtkTypeUInt64 vtkMultiBlockPLOT3DReaderRecord::GetLengthWithSeparators(
+  vtkTypeUInt64 start, vtkTypeUInt64 length) const
+{
+  return this->GetSubRecordSeparators(start, length).size()
+    * vtkMultiBlockPLOT3DReaderRecord::SubRecordSeparatorWidth
+    + length;
 }
