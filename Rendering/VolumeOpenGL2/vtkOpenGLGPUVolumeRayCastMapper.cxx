@@ -116,7 +116,9 @@ public:
     this->TextureSize[0] = this->TextureSize[1] = this->TextureSize[2] = -1;
     this->WindowLowerLeft[0] = this->WindowLowerLeft[1] = 0;
     this->WindowSize[0] = this->WindowSize[1] = 0;
-    this->LastWindowSize[0] = this->LastWindowSize[1] = 0;
+    this->LastDepthPassWindowSize[0] = this->LastDepthPassWindowSize[1] = 0;
+    this->LastRenderToImageWindowSize[0] = 0;
+    this->LastRenderToImageWindowSize[1] = 0;
     this->ScalarsRange[0][0] = this->ScalarsRange[0][1] = 0.0;
     this->ScalarsRange[1][0] = this->ScalarsRange[1][1] = 0.0;
     this->ScalarsRange[2][0] = this->ScalarsRange[2][1] = 0.0;
@@ -382,7 +384,8 @@ public:
   int TextureSize[3];
   int WindowLowerLeft[2];
   int WindowSize[2];
-  int LastWindowSize[2];
+  int LastDepthPassWindowSize[2];
+  int LastRenderToImageWindowSize[2];
 
   double ScalarsRange[4][2];
   double LoadedBounds[6];
@@ -2214,11 +2217,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupRenderToTexture(
 {
   if (this->Parent->RenderToImage && this->Parent->CurrentPass == RenderPass)
     {
-    if ( (this->LastWindowSize[0] != this->WindowSize[0]) ||
-         (this->LastWindowSize[1] != this->WindowSize[1]) )
+    if ( (this->LastRenderToImageWindowSize[0] != this->WindowSize[0]) ||
+         (this->LastRenderToImageWindowSize[1] != this->WindowSize[1]) )
       {
-      this->LastWindowSize[0] = this->WindowSize[0];
-      this->LastWindowSize[1] = this->WindowSize[1];
+      this->LastRenderToImageWindowSize[0] = this->WindowSize[0];
+      this->LastRenderToImageWindowSize[1] = this->WindowSize[1];
       this->ReleaseRenderToTextureGraphicsResources(ren->GetRenderWindow());
       }
 
@@ -2342,11 +2345,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ExitRenderToTexture(
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   vtkRenderer* ren)
 {
-  if ( (this->LastWindowSize[0] != this->WindowSize[0]) ||
-       (this->LastWindowSize[1] != this->WindowSize[1]) )
+  if ( (this->LastDepthPassWindowSize[0] != this->WindowSize[0]) ||
+       (this->LastDepthPassWindowSize[1] != this->WindowSize[1]) )
     {
-    this->LastWindowSize[0] = this->WindowSize[0];
-    this->LastWindowSize[1] = this->WindowSize[1];
+    this->LastDepthPassWindowSize[0] = this->WindowSize[0];
+    this->LastDepthPassWindowSize[1] = this->WindowSize[1];
     this->ReleaseDepthPassGraphicsResources(ren->GetRenderWindow());
     }
 
