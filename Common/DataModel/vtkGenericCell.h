@@ -157,6 +157,18 @@ public:
     this->SetCellType(VTK_TRIQUADRATIC_HEXAHEDRON);}
   void SetCellTypeToBiQuadraticQuadraticHexahedron() {
     this->SetCellType(VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON);}
+  void SetCellTypeToLagrangeTriangle() {
+    this->SetCellType(VTK_LAGRANGE_TRIANGLE);}
+  void SetCellTypeToLagrangeTetra() {
+    this->SetCellType(VTK_LAGRANGE_TETRAHEDRON);}
+  void SetCellTypeToLagrangeCurve() {
+    this->SetCellType(VTK_LAGRANGE_CURVE);}
+  void SetCellTypeToLagrangeQuadrilateral() {
+    this->SetCellType(VTK_LAGRANGE_QUADRILATERAL);}
+  void SetCellTypeToLagrangeHexahedron() {
+    this->SetCellType(VTK_LAGRANGE_HEXAHEDRON);}
+  void SetCellTypeToLagrangeWedge() {
+    this->SetCellType(VTK_LAGRANGE_WEDGE);}
 
   /**
    * Instantiate a new vtkCell based on it's cell type value

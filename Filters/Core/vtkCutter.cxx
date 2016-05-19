@@ -433,6 +433,7 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_QUADRATIC_EDGE] = 1;
   cellTypeDimensions[VTK_PARAMETRIC_CURVE] = 1;
   cellTypeDimensions[VTK_HIGHER_ORDER_EDGE] = 1;
+  cellTypeDimensions[VTK_LAGRANGE_CURVE] = 1;
   cellTypeDimensions[VTK_TRIANGLE] = 2;
   cellTypeDimensions[VTK_TRIANGLE_STRIP] = 2;
   cellTypeDimensions[VTK_POLYGON] = 2;
@@ -449,6 +450,8 @@ void vtkCutter::GetCellTypeDimensions(unsigned char* cellTypeDimensions)
   cellTypeDimensions[VTK_HIGHER_ORDER_TRIANGLE] = 2;
   cellTypeDimensions[VTK_HIGHER_ORDER_QUAD] = 2;
   cellTypeDimensions[VTK_HIGHER_ORDER_POLYGON] = 2;
+  cellTypeDimensions[VTK_LAGRANGE_TRIANGLE] = 2;
+  cellTypeDimensions[VTK_LAGRANGE_QUADRILATERAL] = 2;
 }
 
 //----------------------------------------------------------------------------

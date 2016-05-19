@@ -43,6 +43,7 @@
 #include "vtkUnstructuredGridBase.h"
 #include "vtkUnstructuredGridGeometryFilter.h"
 #include "vtkUnstructuredGrid.h"
+#include "vtkVector.h"
 #include "vtkVoxel.h"
 #include "vtkWedge.h"
 #include "vtkStructuredData.h"
@@ -1770,6 +1771,8 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       case VTK_QUADRATIC_LINEAR_QUAD:
       case VTK_BIQUADRATIC_QUAD:
       case VTK_QUADRATIC_POLYGON:
+      case VTK_LAGRANGE_TRIANGLE:
+      case VTK_LAGRANGE_QUADRILATERAL:
         // save 2D cells for third pass
         flag2D = 1;
         break;
@@ -1862,6 +1865,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                   switch (face->GetCellType())
                   {
                     case VTK_QUADRATIC_TRIANGLE:
+                    case VTK_LAGRANGE_TRIANGLE:
                       this->InsertTriInHash(face->PointIds->GetId(0),
                                             face->PointIds->GetId(1),
                                             face->PointIds->GetId(2), cellId);
@@ -1869,6 +1873,7 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
                     case VTK_QUADRATIC_QUAD:
                     case VTK_BIQUADRATIC_QUAD:
                     case VTK_QUADRATIC_LINEAR_QUAD:
+                    case VTK_LAGRANGE_QUADRILATERAL:
                       this->InsertQuadInHash(face->PointIds->GetId(0),
                                              face->PointIds->GetId(1),
                                              face->PointIds->GetId(2),
@@ -1911,11 +1916,13 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
       switch (cellType)
       {
         case VTK_QUADRATIC_TRIANGLE:
+        case VTK_LAGRANGE_TRIANGLE:
           cellType = VTK_TRIANGLE;  numCellPts = 3;
           break;
         case VTK_QUADRATIC_QUAD:
         case VTK_BIQUADRATIC_QUAD:
         case VTK_QUADRATIC_LINEAR_QUAD:
+        case VTK_LAGRANGE_QUADRILATERAL:
           cellType = VTK_POLYGON;  numCellPts = 4;
           break;
       }
@@ -1978,7 +1985,9 @@ int vtkDataSetSurfaceFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
            || cellType == VTK_QUADRATIC_QUAD
            || cellType == VTK_BIQUADRATIC_QUAD
            || cellType == VTK_QUADRATIC_LINEAR_QUAD
-           || cellType == VTK_QUADRATIC_POLYGON)
+           || cellType == VTK_QUADRATIC_POLYGON
+           || cellType == VTK_LAGRANGE_TRIANGLE
+           || cellType == VTK_LAGRANGE_QUADRILATERAL)
     {
       // If all of the cell points are duplicate (boundary), do not
       // extract as a surface cell.

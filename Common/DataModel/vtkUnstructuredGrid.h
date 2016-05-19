@@ -37,6 +37,12 @@ class vtkEmptyCell;
 class vtkHexahedron;
 class vtkIdList;
 class vtkIdTypeArray;
+class vtkLagrangeCurve;
+class vtkLagrangeQuadrilateral;
+class vtkLagrangeHexahedron;
+class vtkLagrangeTriangle;
+class vtkLagrangeTetra;
+class vtkLagrangeWedge;
 class vtkLine;
 class vtkPixel;
 class vtkPolyLine;
@@ -367,6 +373,12 @@ protected:
   // used by GetCell method
   vtkVertex                         *Vertex;
   vtkPolyVertex                     *PolyVertex;
+  vtkLagrangeCurve                  *LagrangeCurve;
+  vtkLagrangeQuadrilateral          *LagrangeQuadrilateral;
+  vtkLagrangeHexahedron             *LagrangeHexahedron;
+  vtkLagrangeTriangle               *LagrangeTriangle;
+  vtkLagrangeTetra                  *LagrangeTetra;
+  vtkLagrangeWedge                  *LagrangeWedge;
   vtkLine                           *Line;
   vtkPolyLine                       *PolyLine;
   vtkTriangle                       *Triangle;

@@ -104,6 +104,15 @@ typedef enum {
   VTK_HIGHER_ORDER_PYRAMID     = 66,
   VTK_HIGHER_ORDER_HEXAHEDRON  = 67,
 
+  // Arbitary order Lagrange elements (formulated separated from generic higher order cells)
+  VTK_LAGRANGE_CURVE           = 68,
+  VTK_LAGRANGE_TRIANGLE        = 69,
+  VTK_LAGRANGE_QUADRILATERAL   = 70,
+  VTK_LAGRANGE_TETRAHEDRON     = 71,
+  VTK_LAGRANGE_HEXAHEDRON      = 72,
+  VTK_LAGRANGE_WEDGE           = 73,
+  VTK_LAGRANGE_PYRAMID         = 74,
+
   VTK_NUMBER_OF_CELL_TYPES
 } VTKCellType;
 

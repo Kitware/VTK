@@ -32,6 +32,8 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkUnstructuredGridAlgorithm.h"
 
+class vtkMergePoints;
+
 class VTKFILTERSSOURCES_EXPORT vtkCellTypeSource : public vtkUnstructuredGridAlgorithm
 {
 public:
@@ -50,6 +52,20 @@ public:
    */
   void SetCellType(int cellType);
   vtkGetMacro(CellType, int);
+  //@}
+
+  //@{
+  /**
+   * Set/Get the order of Lagrange interpolation to be used.
+   *
+   * This is only used when the cell type is a Lagrange element.
+   * The default is cubic (order 3).
+   * Lagrange elements are the same order along all axes
+   * (i.e., you cannot specify a different interpolation order
+   * for the i, j, and k axes of a hexahedron).
+   */
+  vtkSetMacro(CellOrder, int);
+  vtkGetMacro(CellOrder, int);
   //@}
 
   //@{
@@ -110,13 +126,22 @@ protected:
   void GenerateQuadraticWedges(vtkUnstructuredGrid*, int extent[6]);
   void GenerateQuadraticPyramids(vtkUnstructuredGrid*, int extent[6]);
 
+  void GenerateLagrangeCurves(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeTris(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeQuads(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeTets(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeHexes(vtkUnstructuredGrid*, int extent[6]);
+  void GenerateLagrangeWedges(vtkUnstructuredGrid*, int extent[6]);
+
   virtual void ComputeFields(vtkUnstructuredGrid*);
   double GetValueOfOrder(int order, double coords[3]);
 
   int BlocksDimensions[3];
   int CellType;
+  int CellOrder;
   int OutputPrecision;
   int PolynomialFieldOrder;
+  vtkMergePoints* Locator; // Only valid during RequestData.
 
 private:
   vtkCellTypeSource(const vtkCellTypeSource&) VTK_DELETE_FUNCTION;

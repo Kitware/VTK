@@ -75,6 +75,9 @@ from . import BlackBox
 # environment variable.
 VTK_DATA_ROOT = ""
 
+# a list of paths to specific input data files
+VTK_DATA_PATHS = []
+
 # location of the VTK baseline images.  Set via command line args or
 # environment variable.
 VTK_BASELINE_ROOT = ""
@@ -82,6 +85,9 @@ VTK_BASELINE_ROOT = ""
 # location of the VTK difference images for failed tests.  Set via
 # command line args or environment variable.
 VTK_TEMP_DIR = ""
+
+# a list of paths to validated output files
+VTK_BASELINE_PATHS = []
 
 # Verbosity of the test messages (used by unittest)
 _VERBOSE = 0
@@ -142,7 +148,131 @@ class vtkTest(unittest.TestCase):
         This effectively calls _testParse internally. """
         self._blackbox.testBoolean(obj, excluded_methods)
 
+    def pathToData(self, filename):
+        """Given a filename with no path (i.e., no leading directories
+        prepended), return the full path to a file as specified on the
+        command line with a '-D' option.
 
+        As an example, if a test is run with "-D /path/to/grid.vtu"
+        then calling
+
+            self.pathToData('grid.vtu')
+
+        in your test will return "/path/to/grid.vtu". This is
+        useful in combination with ExternalData, where data may be
+        staged by CTest to a user-configured directory at build time.
+
+        In order for this method to work, you must specify
+        the JUST_VALID option for your test in CMake.
+        """
+        global VTK_DATA_PATHS
+        if not filename:
+            return VTK_DATA_PATHS
+        for path in VTK_DATA_PATHS:
+            if filename == os.path.split(path)[-1]:
+                return path
+        return filename
+
+    def pathToValidatedOutput(self, filename):
+        """Given a filename with no path (i.e., no leading directories
+        prepended), return the full path to a file as specified on the
+        command line with a '-V' option.
+
+        As an example, if a test is run with
+        "-V /path/to/validImage.png" then calling
+
+            self.pathToData('validImage.png')
+
+        in your test will return "/path/to/validImage.png". This is
+        useful in combination with ExternalData, where data may be
+        staged by CTest to a user-configured directory at build time.
+
+        In order for this method to work, you must specify
+        the JUST_VALID option for your test in CMake.
+        """
+        global VTK_BASELINE_PATHS
+        if not filename:
+            return VTK_BASELINE_PATHS
+        for path in VTK_BASELINE_PATHS:
+            if filename == os.path.split(path)[-1]:
+                return path
+        return filename
+
+    def prepareTestImage(self, interactor, **kwargs):
+        import time
+        startTime = time.time()
+        events = []
+
+        def onKeyPress(caller, eventId):
+            print('key is "' + caller.GetKeySym() + '"')
+            events.append((time.time() - startTime, eventId, caller.GetKeySym()))
+
+        def onButton(caller, eventId):
+            events.append((time.time() - startTime, eventId))
+
+        def onMovement(caller, eventId):
+            events.append((time.time() - startTime, eventId, caller.GetEventPosition()))
+
+        interactor.AddObserver(vtk.vtkCommand.KeyPressEvent, onKeyPress)
+        interactor.AddObserver(vtk.vtkCommand.LeftButtonPressEvent, onButton)
+        interactor.AddObserver(vtk.vtkCommand.LeftButtonReleaseEvent, onButton)
+        interactor.AddObserver(vtk.vtkCommand.MouseMoveEvent, onMovement)
+        interactor.Start()
+        rw = interactor.GetRenderWindow()
+        baseline = 'baselineFilename'
+        if 'filename' in kwargs:
+            # Render an image and save it to the given filename
+            w2if = vtk.vtkWindowToImageFilter()
+            w2if.ReadFrontBufferOff()
+            w2if.SetInput(rw)
+            w2if.Update()
+            baselineWithPath = kwargs['filename']
+            baseline = os.path.split(baselineWithPath)[-1]
+            pngw = vtk.vtkPNGWriter()
+            pngw.SetFileName(baselineWithPath)
+            pngw.SetInputConnection(w2if.GetOutputPort())
+            try:
+                pngw.Write()
+            except RuntimeError:
+                w2if.ReadFrontBufferOn()
+                pngw.Write()
+        rsz = rw.GetSize()
+        rrc = rw.GetRenderers()
+        rrs = [rrc.GetItemAsObject(i) for i in range(rrc.GetNumberOfItems())]
+        eye = [0,0,1]
+        aim = [0,0,0]
+        up  = [0,1,0]
+        if len(rrs) > 0:
+            cam = rrs[0].GetActiveCamera()
+            eye = cam.GetPosition()
+            aim = cam.GetFocalPoint()
+            up  = cam.GetViewUp()
+        print("""
+        Replace prepareTestImage() in your script with the following to make a test:
+
+            camera.SetPosition({eye[0]}, {eye[1]}, {eye[2]})
+            camera.SetFocalPoint({aim[0]}, {aim[1]}, {aim[2]})
+            camera.SetViewUp({up[0]}, {up[1]}, {up[2]})
+            renwin.SetSize({rsz[0]}, {rsz[1]})
+            self.assertImageMatch(renwin, '{baseline}')
+
+        Be sure that "renwin" and "camera" are valid variables (or rename them in the
+        snippet above) referencing the vtkRenderWindow and vtkCamera, respectively.
+        """.format(eye=eye, aim=aim, up=up, rsz=rsz, baseline=baseline))
+        return events
+
+    def assertImageMatch(self, renwin, baseline, **kwargs):
+        """Throw an error if a rendering in the render window does not match the baseline image.
+
+        This method accepts a threshold keyword argument (with a default of 10)
+        that specifies how different a baseline may be before causing a failure.
+        """
+        absoluteBaseline = baseline
+        try:
+            open(absoluteBaseline, 'r')
+        except:
+            absoluteBaseline = getAbsImagePath(baseline)
+        compareImage(renwin, absoluteBaseline, **kwargs)
 
 def interact():
     """Interacts with the user if necessary. """
@@ -422,6 +552,12 @@ def usage():
           environment variable is not set the value defaults to
           '../../../../Testing/Temporary'.
 
+    -V /path/to/validated/output.png
+    --validated-output /path/to/valid/output.png
+
+          This is a path to a file (usually but not always an image)
+          which is compared to data generated by the test.
+
     -v level
     --verbose level
 
@@ -455,9 +591,10 @@ def usage():
 def parseCmdLine():
     arguments = sys.argv[1:]
 
-    options = "B:D:T:v:hnI"
+    options = "B:D:T:V:v:hnI"
     long_options = ['baseline-root=', 'data-dir=', 'temp-dir=',
-                    'verbose=', 'help', 'no-image', 'interact']
+                    'validated-output=', 'verbose=', 'help',
+                    'no-image', 'interact']
 
     try:
         opts, args = getopt.getopt(arguments, options, long_options)
@@ -473,7 +610,7 @@ def parseCmdLine():
 def processCmdLine():
     opts, args = parseCmdLine()
 
-    global VTK_DATA_ROOT, VTK_BASELINE_ROOT, VTK_TEMP_DIR
+    global VTK_DATA_ROOT, VTK_BASELINE_ROOT, VTK_TEMP_DIR, VTK_BASELINE_PATHS
     global _VERBOSE, _NO_IMAGE, _INTERACT
 
     # setup defaults
@@ -494,11 +631,17 @@ def processCmdLine():
 
     for o, a in opts:
         if o in ('-D', '--data-dir'):
-            VTK_DATA_ROOT = os.path.abspath(a)
+            oa = os.path.abspath(a)
+            if os.path.isfile(oa):
+                VTK_DATA_PATHS.append(oa)
+            else:
+                VTK_DATA_ROOT = oa
         if o in ('-B', '--baseline-root'):
             VTK_BASELINE_ROOT = os.path.abspath(a)
         if o in ('-T', '--temp-dir'):
             VTK_TEMP_DIR = os.path.abspath(a)
+        if o in ('-V', '--validated-output'):
+            VTK_BASELINE_PATHS.append(os.path.abspath(a))
         if o in ('-n', '--no-image'):
             _NO_IMAGE = 1
         if o in ('-I', '--interact'):

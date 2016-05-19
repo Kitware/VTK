@@ -26,6 +26,11 @@
 #include "vtkIncrementalPointLocator.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkLagrangeCurve.h"
+#include "vtkLagrangeHexahedron.h"
+#include "vtkLagrangeQuadrilateral.h"
+#include "vtkLagrangeTriangle.h"
+#include "vtkLagrangeTetra.h"
 #include "vtkMergePoints.h"
 #include "vtkObjectFactory.h"
 #include "vtkPentagonalPrism.h"
@@ -312,8 +317,10 @@ protected:
   unsigned int ChunkSize;
 };
 
-// The 2D cell with the maximum number of points is VTK_BIQUADRATIC_QUAD
-const int VTK_MAXIMUM_NUMBER_OF_POINTS=9;
+// The 2D cell with the maximum number of points is VTK_LAGRANGE_TRIANGLE.
+// We support up to 6th order triangles. The VTK_LAGRANGE_QUADRILATERAL
+// may also have a large number of points (up to 25 for a 4th order quad).
+const int VTK_MAXIMUM_NUMBER_OF_POINTS=28;
 
 //-----------------------------------------------------------------------------
 // Surface element: face of a 3D cell.
@@ -331,6 +338,8 @@ public:
   // VTK_BIQUADRATIC_QUAD,
   // VTK_BIQUADRATIC_TRIANGLE
   // VTK_QUADRATIC_LINEAR_QUAD
+  // VTK_LAGRANGE_TRIANGLE
+  // VTK_LAGRANGE_QUADRILATERAL
   vtkIdType Type;
 
   // Dataset point Ids that form the surfel.
@@ -407,11 +416,13 @@ public:
       {
         case VTK_QUADRATIC_TRIANGLE:
         case VTK_BIQUADRATIC_TRIANGLE:
+        case VTK_LAGRANGE_TRIANGLE:
           numberOfCornerPoints=3;
           break;
         case VTK_QUADRATIC_QUAD:
         case VTK_QUADRATIC_LINEAR_QUAD:
         case VTK_BIQUADRATIC_QUAD:
+        case VTK_LAGRANGE_QUADRILATERAL:
           numberOfCornerPoints=4;
           break;
         default:
@@ -460,7 +471,7 @@ public:
             if(faceType==VTK_QUADRATIC_LINEAR_QUAD)
             {
               // weird case
-              // the following for combinations are equivalent
+              // the following four combinations are equivalent
               // 01 23, 45, smallestIdx=0, go->
               // 10 32, 45, smallestIdx=1, go<-
               // 23 01, 54, smallestIdx=2, go->
@@ -510,7 +521,7 @@ public:
                 ++i;
               }
 
-              // Check for other kind of points for none linear faces.
+              // Check for other kind of points for nonlinear faces.
               switch(faceType)
               {
                 case VTK_QUADRATIC_TRIANGLE:
@@ -542,6 +553,19 @@ public:
                     ++i;
                   }
                   break;
+                case VTK_LAGRANGE_TRIANGLE:
+                  // the mid-edge points
+                  i=0;
+                  while(found && i<3)
+                    {
+                    // we add numberOfPoints before modulo. Modulo does not work
+                    // with negative values.
+                    // -1: start at the end in reverse order.
+                    found=current->Points[numberOfCornerPoints+((current->SmallestIdx-i+3-1)%3)]
+                      ==points[numberOfCornerPoints+((smallestIdx+i)%3)];
+                    ++i;
+                    }
+                  break;
                 case VTK_QUADRATIC_QUAD:
                   // the mid-edge points
                   i=0;
@@ -568,6 +592,41 @@ public:
                       ==points[numberOfCornerPoints+((smallestIdx+i)%4)];
                     ++i;
                   }
+                  break;
+                case VTK_LAGRANGE_QUADRILATERAL:
+                  // Check that order is the same:
+                  /*
+                  found = found && current->NumberOfPoints == numberOfPoints;
+                  std::cout << "Testing quads\n  " << current->SmallestIdx << "_ ";
+                  for (int qq = 0; qq < numberOfPoints; ++qq)
+                    {
+                    std::cout << " " << current->Points[(current->SmallestIdx + qq) % numberOfPoints];
+                    }
+                  std::cout << "  vs.\n  " << smallestIdx << "_ ";
+                  for (int qq = 0; qq < numberOfPoints; ++qq)
+                    {
+                    std::cout << " " << points[(smallestIdx + qq) % numberOfPoints];
+                    }
+                  */
+                  // If order matches, check that all other points match:
+                  /*
+                  for (i = 4; found && i < numberOfPoints; ++i)
+                    {
+                    found =
+                      current->Points[(current->SmallestIdx - i + numberOfPoints) % numberOfPoints] ==
+                      points[(smallestIdx + i + numberOfPoints) % numberOfPoints];
+                    }
+                   */
+                  //std::cout << " => " << (found ? "Same" : "Diff") << "\n";
+                  /*
+                  while (found && i < numberOfPoints)
+                    {
+                    found =
+                      current->Points[(current->SmallestIdx - i + numberOfPoints - 1) % numberOfPoints] ==
+                      points[(smallestIdx + i) % numberOfPoints];
+                    ++i;
+                    }
+                    */
                   break;
                 default: // other faces are linear: we are done.
                   break;
@@ -966,6 +1025,8 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   vtkIdType newPtId;
   vtkIdType newCellId;
 
+  vtkGenericCell* genericCell = vtkGenericCell::New();
+
   for (cellIter->InitTraversal(); !cellIter->IsDoneWithTraversal() && !abort;
        cellIter->GoToNextCell())
   {
@@ -994,6 +1055,9 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
          ||(cellType==VTK_BIQUADRATIC_TRIANGLE)
          ||(cellType==VTK_CUBIC_LINE)
          ||(cellType==VTK_QUADRATIC_POLYGON)
+         ||(cellType==VTK_LAGRANGE_CURVE)
+         ||(cellType==VTK_LAGRANGE_QUADRILATERAL)
+         ||(cellType==VTK_LAGRANGE_TRIANGLE)
         )
       {
         vtkDebugMacro(<<"not 3D cell. type="<<cellType);
@@ -1400,6 +1464,26 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
             }
             break;
           }
+          case VTK_LAGRANGE_TETRAHEDRON:
+          case VTK_LAGRANGE_HEXAHEDRON:
+          case VTK_LAGRANGE_WEDGE:
+            cellIter->GetCell(genericCell);
+            face=0;
+            while(face<genericCell->GetNumberOfFaces())
+            {
+              vtkCell* faceCell = genericCell->GetFace(face);
+              vtkIdType nPoints = faceCell->GetPointIds()->GetNumberOfIds();
+              pt=0;
+              while(pt<nPoints)
+              {
+                points[pt]=faceCell->GetPointIds()->GetId(pt);
+                ++pt;
+              }
+              this->HashTable->InsertFace(cellId,faceCell->GetCellType(),nPoints,
+                                          points);
+              ++face;
+            }
+            break;
           default:
             vtkErrorMacro(<< "Cell type "
                           << vtkCellTypes::GetClassNameFromTypeId(cellType)
@@ -1476,6 +1560,7 @@ int vtkUnstructuredGridGeometryFilter::RequestData(
   {
     delete[] pointMap;
   }
+  genericCell->Delete();
   cellIds->Delete();
   delete this->HashTable;
   delete pool;
