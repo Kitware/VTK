@@ -87,7 +87,7 @@ protected:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkDataSet *DataSet;
   double OutValue;

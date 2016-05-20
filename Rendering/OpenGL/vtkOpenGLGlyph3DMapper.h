@@ -61,7 +61,7 @@ protected:
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Description:
   // Send mapper ivars to sub-mapper.

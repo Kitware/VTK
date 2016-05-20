@@ -163,7 +163,7 @@ protected:
   vtkContourFilter();
   ~vtkContourFilter();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   virtual int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,

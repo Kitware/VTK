@@ -80,7 +80,7 @@ protected:
 
   int WholeExtent[6];
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 private:
   vtkTrivialProducer(const vtkTrivialProducer&);  // Not implemented.
   void operator=(const vtkTrivialProducer&);  // Not implemented.

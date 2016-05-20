@@ -169,7 +169,7 @@ protected:
   vtkEncodedGradientShader     *GradientShader;
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // The distance between sample points along the ray
   double                       SampleDistance;

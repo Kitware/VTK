@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Report object referenced by instances of this class.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 protected:
   vtkImageStencilSource();

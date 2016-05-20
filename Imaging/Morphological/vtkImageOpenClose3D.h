@@ -105,7 +105,7 @@ protected:
   vtkImageDilateErode3D *Filter0;
   vtkImageDilateErode3D *Filter1;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 private:
   vtkImageOpenClose3D(const vtkImageOpenClose3D&);  // Not implemented.
   void operator=(const vtkImageOpenClose3D&);  // Not implemented.
