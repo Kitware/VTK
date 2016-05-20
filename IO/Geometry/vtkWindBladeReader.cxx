@@ -1691,37 +1691,18 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
 void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
 {
   // Initial z coordinate processing
-  float* zedge = new float[this->Dimension[2] + 1];
-  float* z     = new float[this->Dimension[2]];
+  std::vector<float> z(this->Dimension[2]);
   float  zb;
-  int    ibctopbot = 1;
 
-  if (ibctopbot == 1)
+  zb = this->Dimension[2] * this->Step[2];
+  for (int k = 0; k < this->Dimension[2]; k++)
     {
-    for (int k = 0; k <= this->Dimension[2]; k++)
-      {
-      zedge[k] = k * this->Step[2];
-      }
-    zb = zedge[this->Dimension[2]];
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2] + 0.5 * this->Step[2];
-      }
-    }
-
-  else
-    {
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2];
-      }
-    zb = z[this->Dimension[2] - 1];
+    z[k] = k * this->Step[2] + 0.5 * this->Step[2];
     }
 
   // Use cubic spline or deformation to calculate z values
   int npoints = 31;
-  float* zdata = new float[npoints];
-  float* zcoeff = new float[npoints];
+  std::vector<float> zdata(npoints), zcoeff(npoints);
   float zcrdata[] = {
         0.0 ,    2.00,    4.00,     6.00,      8.00,
        10.00,   14.00,   18.00,    22.00,     26.00,
@@ -1739,7 +1720,7 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
       }
 
     // Call spline with zcoeff being the answer
-    this->Spline(zdata, zcrdata, npoints, 99.0e31, 99.0e31, zcoeff);
+    this->Spline(&zdata[0], zcrdata, npoints, 99.0e31, 99.0e31, &zcoeff[0]);
     }
 
   // Fill the zValues array depending on compression
@@ -1760,7 +1741,7 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
           {
           // Use spline interpolation
           float zinterp;
-          this->Splint(zdata, zcrdata, zcoeff, npoints, z[k], &zinterp, flag);
+          this->Splint(&zdata[0], zcrdata, &zcoeff[0], npoints, z[k], &zinterp, flag);
           zValues[index] = zinterp;
           }
         else
@@ -1772,11 +1753,6 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
         }
       }
     }
-
-  delete [] zedge;
-  delete [] z;
-  delete [] zdata;
-  delete [] zcoeff;
 }
 
 //----------------------------------------------------------------------------
