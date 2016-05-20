@@ -1781,6 +1781,14 @@ namespace vtkvolume
       \n  vec4 objDataPos = vec4(0.0);\
       \n  mat4 textureToObjMat = in_volumeMatrix *\
       \n                             in_textureDatasetMatrix;\
+      \n\
+      \n  vec4 terminatePointObj = textureToObjMat * terminatePoint;\
+      \n  if (terminatePointObj.w != 0.0)\
+      \n   {\
+      \n   terminatePointObj = terminatePointObj/ terminatePointObj.w ;\
+      \n   terminatePointObj.w = 1.0;\
+      \n   }\
+      \n\
       \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
       \n    {\
       \n    if (in_useJittering)\
@@ -1804,34 +1812,52 @@ namespace vtkvolume
       \n                            in_clippingPlanes[i + 6]);\
       \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
       \n\
-      \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
-      \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
-      \n    bool frontFace = dot(objRayDir, normalizedPlaneNormal) > 0;\
-      \n    float dist = dot(objRayDir, normalizedPlaneNormal);\
-      \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
-      \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
+      \n    float rayDotNormal = dot(objRayDir, normalizedPlaneNormal);\
+      \n    bool frontFace = rayDotNormal > 0;\
+      \n    float distance = dot(normalizedPlaneNormal, planeOrigin - objDataPos.xyz);\
+      \n\
+      \n    if (frontFace && // Observing from the clipped side (plane's front face)\
+      \n      distance > 0.0) // Ray-entry lies on the clipped side.\
       \n      {\
-      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * objRayDir, 1.0);\
+      \n      // Scale the point-plane distance to the ray direction and update the\
+      \n      // entry point.\
+      \n      float rayScaledDist = distance / rayDotNormal;\
+      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + rayScaledDist * objRayDir, 1.0);\
       \n      newObjDataPos = in_inverseTextureDatasetMatrix\
-      \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
+      \n        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
       \n      if (newObjDataPos.w != 0.0)\
       \n        {\
       \n        newObjDataPos /= newObjDataPos.w;\
       \n        }\
-      \n     if (in_useJittering)\
-      \n       {\
-      \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
-      \n       }\
-      \n     else\
-      \n       {\
-      \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
-      \n       }\
-      \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
-      \n                     < 3.0;\
+      \n      if (in_useJittering)\
+      \n        {\
+      \n        g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+      \n        }\
+      \n      else\
+      \n        {\
+      \n        g_dataPos = newObjDataPos.xyz + g_dirStep;\
+      \n        }\
+      \n\
+      \n      bool stop = any(greaterThan(g_dataPos, l_texMax)) || any(lessThan(g_dataPos, l_texMin));\
       \n      if (stop)\
       \n        {\
+      \n        // The ray exits the bounding box before ever intersecting the plane (only\
+      \n        // the clipped space is hit).\
       \n        discard;\
       \n        }\
+      \n\
+      \n      bool behindGeometry = dot(terminatePointObj.xyz - planeOrigin.xyz, normalizedPlaneNormal) < 0.0;\
+      \n      if (behindGeometry)\
+      \n        {\
+      \n        // Geometry appears in front of the plane.\
+      \n        discard;\
+      \n        }\
+      \n\
+      \n      // Update the number of ray marching steps to account for the clipped entry point (\
+      \n      // this is necessary in case the ray hits geometry after marching behind the plane,\
+      \n      // given that the number of steps was assumed to be from the not-clipped entry).\
+      \n      l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
+      \n        length(g_dirStep);\
       \n      }\
       \n  }");
 

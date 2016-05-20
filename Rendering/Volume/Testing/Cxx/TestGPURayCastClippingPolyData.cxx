@@ -42,6 +42,7 @@
 #include <vtkPlaneCollection.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 
+
 /// Tests volume clipping when intermixed with geometry.
 int TestGPURayCastClippingPolyData(int argc, char *argv[])
 {
@@ -138,8 +139,11 @@ int TestGPURayCastClippingPolyData(int argc, char *argv[])
   clipPlaneCollection->AddItem(clipPlane2.GetPointer());
   volumeMapper->SetClippingPlanes(clipPlaneCollection.GetPointer());
 
-  renWin->Render();
   ren->ResetCamera();
+  ren->GetActiveCamera()->Azimuth(-30);
+  ren->GetActiveCamera()->Elevation(25);
+  ren->GetActiveCamera()->OrthogonalizeViewUp();
+  renWin->Render();
 
   iren->Initialize();
 
