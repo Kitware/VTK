@@ -41,20 +41,10 @@ vtkImageSliceCollection::~vtkImageSliceCollection()
 void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
 {
   vtkCollectionElement* elem = new vtkCollectionElement;
+  elem->Item = a;
 
-  // Check if the top item is NULL
-  if (this->Top == NULL)
-    {
-    this->Top = elem;
-    elem->Item = a;
-    elem->Next = NULL;
-    this->Bottom = elem;
-    this->NumberOfItems++;
-    a->Register(this);
-    return;
-    }
-
-  // Insert according to the layer number
+  // Find insertion location according to the layer number
+  vtkCollectionElement *prevElem = 0;
   int layerNumber = a->GetProperty()->GetLayerNumber();
   for (vtkCollectionElement *indexElem = this->Top;
        indexElem != 0;
@@ -63,23 +53,29 @@ void vtkImageSliceCollection::AddItem(vtkImageSlice *a)
     vtkImageSlice* tempImage = static_cast<vtkImageSlice*>(indexElem->Item);
     if (layerNumber < tempImage->GetProperty()->GetLayerNumber())
       {
-      // The indexElem item's layer number is larger, so swap
-      // the new item and the indexElem item.
-      elem->Item = indexElem->Item;
-      elem->Next = indexElem->Next;
-      indexElem->Item = a;
-      indexElem->Next = elem;
-      this->NumberOfItems++;
-      a->Register(this);
-      return;
+      break;
       }
+    prevElem = indexElem;
     }
 
-  //End of list found before a larger layer number
-  elem->Item = a;
-  elem->Next = NULL;
-  this->Bottom->Next = elem;
-  this->Bottom = elem;
+  // Insert the new element into the linked list
+  if (prevElem == 0)
+    {
+    elem->Next = this->Top;
+    this->Top = elem;
+    }
+  else
+    {
+    elem->Next = prevElem->Next;
+    prevElem->Next = elem;
+    }
+
+  // Check if this is the new bottom
+  if (elem->Next == 0)
+    {
+    this->Bottom = elem;
+    }
+
   this->NumberOfItems++;
   a->Register(this);
 }
