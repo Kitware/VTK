@@ -114,7 +114,12 @@ namespace vtkosp {
           static_cast<float>(color[2])/(255.0f)
         };
       ospSet3fv(oMaterial,"Kd",diffusef);
-      float specularf[] = {specColor[0],specColor[1],specColor[2]};
+      float specAdjust = 2.0f/(2.0f+specPower); //since OSP 0.10.0
+      float specularf[] = {
+        specColor[0]*specAdjust,
+        specColor[1]*specAdjust,
+        specColor[2]*specAdjust
+      };
       ospSet3fv(oMaterial,"Ks",specularf);
       ospSet1f(oMaterial,"Ns",specPower);
       ospSet1f(oMaterial,"d", opacity);
@@ -583,14 +588,20 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       static_cast<float>(diffuseColor[1]*property->GetDiffuse()),
       static_cast<float>(diffuseColor[2]*property->GetDiffuse())
     };
+  float specPower =
+    static_cast<float>(property->GetSpecularPower());
+  float specAdjust = 2.0f/(2.0f+specPower); //since OSP 0.10.0
   float specularf[] =
     {
       static_cast<float>(property->GetSpecularColor()[0]*
-                         property->GetSpecular()),
+                         property->GetSpecular()*
+                         specAdjust),
       static_cast<float>(property->GetSpecularColor()[1]*
-                         property->GetSpecular()),
+                         property->GetSpecular()*
+                         specAdjust),
       static_cast<float>(property->GetSpecularColor()[2]*
-                         property->GetSpecular())
+                         property->GetSpecular()*
+                         specAdjust)
     };
 
   ospSet3fv(oMaterial,"Ka",ambientf);
@@ -605,7 +616,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     ospSet3fv(oMaterial,"Kd",diffusef);
     }
   ospSet3fv(oMaterial,"Ks",specularf);
-  ospSet1f(oMaterial,"Ns",float(property->GetSpecularPower()));
+  ospSet1f(oMaterial,"Ns",specPower);
   ospSet1f(oMaterial,"d",float(opacity));
   ospCommit(oMaterial);
 
