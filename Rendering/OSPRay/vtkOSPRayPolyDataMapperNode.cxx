@@ -33,7 +33,7 @@
 #include "vtkSmartPointer.h"
 
 #include "ospray/ospray.h"
-#include "ospray/common/OSPCommon.h"
+//#include "ospray/common/OSPCommon.h"
 #include "ospray/version.h"
 
 #include <map>
@@ -78,14 +78,18 @@ namespace vtkosp {
   //------------------------------------------------------------------------------
   void VToOPointNormals(
     vtkDataArray *vNormals,
-    ospray::vec3fa *&normals)
+    osp::vec3f *&normals)
   {
     int numNormals = vNormals->GetNumberOfTuples();
-    normals = new ospray::vec3fa[numNormals];
+    normals = new osp::vec3f[numNormals];
     for (int i = 0; i < numNormals; i++)
       {
       double *vNormal = vNormals->GetTuple(i);
-      normals[i] = ospray::vec3fa(vNormal[0],vNormal[1],vNormal[2]);
+      normals[i] = osp::vec3f {
+        static_cast<float>(vNormal[0]),
+        static_cast<float>(vNormal[1]),
+        static_cast<float>(vNormal[2])
+      };
       }
   }
 
@@ -102,16 +106,20 @@ namespace vtkosp {
       {
       double *color = vColors->GetTuple(i);
       OSPMaterial oMaterial;
-#if OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
-      oMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-#else
       oMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
-#endif
-      float diffusef[] = {static_cast<float>(color[0])/(255.0f),
-                          static_cast<float>(color[1])/(255.0f),
-                          static_cast<float>(color[2])/(255.0f)};
+      float diffusef[] =
+        {
+          static_cast<float>(color[0])/(255.0f),
+          static_cast<float>(color[1])/(255.0f),
+          static_cast<float>(color[2])/(255.0f)
+        };
       ospSet3fv(oMaterial,"Kd",diffusef);
-      float specularf[] = {specColor[0],specColor[1],specColor[2]};
+      float specAdjust = 2.0f/(2.0f+specPower); //since OSP 0.10.0
+      float specularf[] = {
+        specColor[0]*specAdjust,
+        specColor[1]*specAdjust,
+        specColor[2]*specAdjust
+      };
       ospSet3fv(oMaterial,"Ks",specularf);
       ospSet1f(oMaterial,"Ns",specPower);
       ospSet1f(oMaterial,"d", opacity);
@@ -145,24 +153,14 @@ namespace vtkosp {
     osp::Texture2D *t2d;
     t2d = (osp::Texture2D*)ospNewTexture2D
        (
-#if OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 10
-        xsize+1,
-        ysize+1,
-        OSP_UCHAR3,
-#else
         osp::vec2i{xsize+1,
           ysize+1},
           OSP_TEXTURE_RGB8,
-#endif
        ochars,
        OSP_TEXTURE_FILTER_NEAREST);
 
     OSPMaterial ospMaterial;
-#if OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
-    ospMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-#else
     ospMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
-#endif
     ospSetObject(ospMaterial, "map_Kd", ((OSPTexture2D)(t2d)));
     ospCommit(t2d);
     ospCommit(ospMaterial);
@@ -184,7 +182,7 @@ namespace vtkosp {
   }
 
   //----------------------------------------------------------------------------
-  OSPGeometry RenderAsSpheres(ospray::vec3fa *vertices,
+  OSPGeometry RenderAsSpheres(osp::vec3fa *vertices,
                               std::vector<unsigned int> &indexArray,
                               std::vector<unsigned int> &rIndexArray,
                               double pointSize,
@@ -194,7 +192,7 @@ namespace vtkosp {
                               int numCellMaterials,
                               OSPData CellMaterials,
                               int numPointColors,
-                              ospray::vec4f *PointColors,
+                              osp::vec4f *PointColors,
                               OSPModel oModel
                               )
   {
@@ -210,9 +208,9 @@ namespace vtkosp {
     int *idata = (int*)mdata;
     for (size_t i = 0; i < indexArray.size(); i++)
       {
-      mdata[i*width+0] = (float)vertices[indexArray[i]].x;
-      mdata[i*width+1] = (float)vertices[indexArray[i]].y;
-      mdata[i*width+2] = (float)vertices[indexArray[i]].z;
+      mdata[i*width+0] = static_cast<float>(vertices[indexArray[i]].x);
+      mdata[i*width+1] = static_cast<float>(vertices[indexArray[i]].y);
+      mdata[i*width+2] = static_cast<float>(vertices[indexArray[i]].z);
       int mat = 0;
       if (numCellMaterials)
         {
@@ -271,7 +269,7 @@ namespace vtkosp {
   }
 
   //----------------------------------------------------------------------------
-  OSPGeometry RenderAsCylinders(ospray::vec3fa *vertices,
+  OSPGeometry RenderAsCylinders(osp::vec3fa *vertices,
                                 std::vector<unsigned int> &indexArray,
                                 std::vector<unsigned int> &rIndexArray,
                                 double lineWidth,
@@ -281,7 +279,7 @@ namespace vtkosp {
                                 int numCellMaterials,
                                 OSPData CellMaterials,
                                 int numPointColors,
-                                ospray::vec4f *PointColors,
+                                osp::vec4f *PointColors,
                                 OSPModel oModel)
   {
     OSPGeometry ospMesh = ospNewGeometry("cylinders");
@@ -296,12 +294,12 @@ namespace vtkosp {
     int *idata = (int*)mdata;
     for (size_t i = 0; i < indexArray.size()/2; i++)
       {
-      mdata[i*width+0] = (float)vertices[indexArray[i*2+0]].x;
-      mdata[i*width+1] = (float)vertices[indexArray[i*2+0]].y;
-      mdata[i*width+2] = (float)vertices[indexArray[i*2+0]].z;
-      mdata[i*width+3] = (float)vertices[indexArray[i*2+1]].x;
-      mdata[i*width+4] = (float)vertices[indexArray[i*2+1]].y;
-      mdata[i*width+5] = (float)vertices[indexArray[i*2+1]].z;
+      mdata[i*width+0] = static_cast<float>(vertices[indexArray[i*2+0]].x);
+      mdata[i*width+1] = static_cast<float>(vertices[indexArray[i*2+0]].y);
+      mdata[i*width+2] = static_cast<float>(vertices[indexArray[i*2+0]].z);
+      mdata[i*width+3] = static_cast<float>(vertices[indexArray[i*2+1]].x);
+      mdata[i*width+4] = static_cast<float>(vertices[indexArray[i*2+1]].y);
+      mdata[i*width+5] = static_cast<float>(vertices[indexArray[i*2+1]].z);
       int mat = 0;
       if (numCellMaterials)
         {
@@ -368,14 +366,14 @@ namespace vtkosp {
                                 std::vector<unsigned int> &rIndexArray,
                                 OSPMaterial actorMaterial,
                                 int numNormals,
-                                ospray::vec3fa *normals,
+                                osp::vec3f *normals,
                                 vtkImageData *vColorTextureMap,
                                 int numTextureCoordinates,
                                 float *textureCoordinates,
                                 int numCellMaterials,
                                 OSPData CellMaterials,
                                 int numPointColors,
-                                ospray::vec4f *PointColors,
+                                osp::vec4f *PointColors,
                                 int numPointValueTextureCoords,
                                 float *pointValueTextureCoords,
                                 OSPModel oModel,
@@ -386,12 +384,12 @@ namespace vtkosp {
     ospSetData(ospMesh, "position", vertices);
 
     size_t numTriangles = indexArray.size() / 3;
-    ospray::vec3i *triangles = new ospray::vec3i[numTriangles];
+    osp::vec3i *triangles = new osp::vec3i[numTriangles];
     for (size_t i = 0, mi = 0; i < numTriangles; i++, mi += 3)
       {
-      triangles[i] = ospray::vec3i(indexArray[mi + 0],
-                                   indexArray[mi + 1],
-                                   indexArray[mi + 2]);
+      triangles[i] = osp::vec3i{indexArray[mi + 0],
+                                indexArray[mi + 1],
+                                indexArray[mi + 2]};
       }
     OSPData index = ospNewData(numTriangles, OSP_INT3, &triangles[0]);
     delete[] triangles;
@@ -400,13 +398,13 @@ namespace vtkosp {
     OSPData _normals = NULL;
     if (numNormals)
       {
-      _normals = ospNewData(numNormals, OSP_FLOAT3A, &normals[0]);
+      _normals = ospNewData(numNormals, OSP_FLOAT3, &normals[0]);
       ospSetData(ospMesh, "vertex.normal", _normals);
       }
 
     //send the texture map and texture coordiantes over
     bool _hastm = false;
-    ospray::vec2f *tc = NULL;
+    osp::vec2f *tc = NULL;
     if (numTextureCoordinates || numPointValueTextureCoords)
       {
       _hastm = true;
@@ -414,10 +412,10 @@ namespace vtkosp {
       if (numPointValueTextureCoords)
         {
         //using 1D texture for point value LUT
-        tc = new ospray::vec2f[numPointValueTextureCoords];
+        tc = new osp::vec2f[numPointValueTextureCoords];
         for (size_t i = 0; i < numPointValueTextureCoords; i++)
           {
-          tc[i] = ospray::vec2f(pointValueTextureCoords[i],0);
+          tc[i] = osp::vec2f{pointValueTextureCoords[i],0};
           }
         OSPData tcs = ospNewData(numPointValueTextureCoords, OSP_FLOAT2, &tc[0]);
         ospSetData(ospMesh, "vertex.texcoord", tcs);
@@ -425,7 +423,7 @@ namespace vtkosp {
       else if (numTextureCoordinates)
         {
         //2d texture mapping
-        tc = new ospray::vec2f[numTextureCoordinates/2];
+        tc = new osp::vec2f[numTextureCoordinates/2];
         float *itc = textureCoordinates;
         for (size_t i = 0; i < numTextureCoordinates; i+=2)
           {
@@ -434,7 +432,7 @@ namespace vtkosp {
           itc++;
           t2 = *itc;
           itc++;
-          tc[i/2] = ospray::vec2f(t1,t2);
+          tc[i/2] = osp::vec2f{t1,t2};
           }
         OSPData tcs = ospNewData(numTextureCoordinates/2, OSP_FLOAT2, &tc[0]);
         ospSetData(ospMesh, "vertex.texcoord", tcs);
@@ -523,13 +521,13 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   std::vector<double> _vertices;
   vtkPolyDataMapperNode::TransformPoints(act, poly, _vertices);
   size_t numPositions = _vertices.size()/3;
-  ospray::vec3fa *vertices = new ospray::vec3fa[numPositions];
+  osp::vec3fa *vertices = new osp::vec3fa[numPositions];
   for (size_t i = 0; i < numPositions; i++)
     {
     vertices[i] =
-      ospray::vec3fa(_vertices[i*3+0],
-                     _vertices[i*3+1],
-                     _vertices[i*3+2]);
+      osp::vec3fa{_vertices[i*3+0],
+                  _vertices[i*3+1],
+                  _vertices[i*3+2]};
     }
   OSPData position = ospNewData(numPositions, OSP_FLOAT3A, &vertices[0]);
   ospCommit(position);
@@ -577,23 +575,34 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
 
   //per actor material
   OSPMaterial oMaterial;
-#if OSPRAY_VERSION_MAJOR == 0 && OSPRAY_VERSION_MINOR < 9
-  oMaterial = ospNewMaterial(oRenderer,"OBJMaterial");
-#else
   oMaterial = ospNewMaterial(oRenderer,"RayTraceMaterial");
-#endif
-  float ambientf[] = {(float)(ambientColor[0]*property->GetAmbient()),
-                      (float)(ambientColor[1]*property->GetAmbient()),
-                      (float)(ambientColor[2]*property->GetAmbient())};
-  float diffusef[] = {(float)(diffuseColor[0]*property->GetDiffuse()),
-                      (float)(diffuseColor[1]*property->GetDiffuse()),
-                      (float)(diffuseColor[2]*property->GetDiffuse())};
-  float specularf[] = {(float)(property->GetSpecularColor()[0]*
-                               property->GetSpecular()),
-                       (float)(property->GetSpecularColor()[1]*
-                               property->GetSpecular()),
-                       (float)(property->GetSpecularColor()[2]*
-                               property->GetSpecular())};
+  float ambientf[] =
+    {
+      static_cast<float>(ambientColor[0]*property->GetAmbient()),
+      static_cast<float>(ambientColor[1]*property->GetAmbient()),
+      static_cast<float>(ambientColor[2]*property->GetAmbient())
+    };
+  float diffusef[] =
+    {
+      static_cast<float>(diffuseColor[0]*property->GetDiffuse()),
+      static_cast<float>(diffuseColor[1]*property->GetDiffuse()),
+      static_cast<float>(diffuseColor[2]*property->GetDiffuse())
+    };
+  float specPower =
+    static_cast<float>(property->GetSpecularPower());
+  float specAdjust = 2.0f/(2.0f+specPower); //since OSP 0.10.0
+  float specularf[] =
+    {
+      static_cast<float>(property->GetSpecularColor()[0]*
+                         property->GetSpecular()*
+                         specAdjust),
+      static_cast<float>(property->GetSpecularColor()[1]*
+                         property->GetSpecular()*
+                         specAdjust),
+      static_cast<float>(property->GetSpecularColor()[2]*
+                         property->GetSpecular()*
+                         specAdjust)
+    };
 
   ospSet3fv(oMaterial,"Ka",ambientf);
   double scale = property->GetDiffuse();
@@ -607,7 +616,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     ospSet3fv(oMaterial,"Kd",diffusef);
     }
   ospSet3fv(oMaterial,"Ks",specularf);
-  ospSet1f(oMaterial,"Ns",float(property->GetSpecularPower()));
+  ospSet1f(oMaterial,"Ns",specPower);
   ospSet1f(oMaterial,"d",float(opacity));
   ospCommit(oMaterial);
 
@@ -624,9 +633,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     float *tp = textureCoordinates;
     for (int i=0; i<numTextureCoordinates; i++)
       {
-      *tp = (float)da->GetTuple(i)[0];
+      *tp = static_cast<float>(da->GetTuple(i)[0]);
       tp++;
-      *tp = (float)da->GetTuple(i)[1];
+      *tp = static_cast<float>(da->GetTuple(i)[1]);
       tp++;
       }
     vColorTextureMap = vtkImageData::SafeDownCast
@@ -638,7 +647,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   int numCellMaterials = 0;
   OSPData cellMaterials = NULL;
   int numPointColors = 0;
-  ospray::vec4f *pointColors = NULL;
+  osp::vec4f *pointColors = NULL;
   int numPointValueTextureCoords = 0;
   float *pointValueTextureCoords = NULL;
   //
@@ -665,9 +674,12 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       // this setting (and all the other scalar colors)
       // really depends on mapper->ScalarMaterialMode
       // but I'm not sure Ka is working currently so leaving it on Kd
-      float fdiffusef[] = {(float)(colorPtr[0]*property->GetDiffuse()/255.0),
-                      (float)(colorPtr[1]*property->GetDiffuse()/255.0),
-                      (float)(colorPtr[2]*property->GetDiffuse()/255.0)};
+      float fdiffusef[] =
+        {
+          static_cast<float>(colorPtr[0]*property->GetDiffuse()/255.0f),
+          static_cast<float>(colorPtr[1]*property->GetDiffuse()/255.0f),
+          static_cast<float>(colorPtr[2]*property->GetDiffuse()/255.0f)
+        };
       ospSet3fv(oMaterial,"Kd",fdiffusef);
       ospCommit(oMaterial);
       }
@@ -686,14 +698,14 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
       {
       //color on point interpolated RGB
       numPointColors = vColors->GetNumberOfTuples();
-      pointColors = new ospray::vec4f[numPointColors];
+      pointColors = new osp::vec4f[numPointColors];
       for (int i = 0; i < numPointColors; i++)
         {
         unsigned char *color = vColors->GetPointer(4 * i);
-        pointColors[i] = ospray::vec4f(color[0] / 255.0,
-                                       color[1] / 255.0,
-                                       color[2] / 255.0,
-                                       1);
+        pointColors[i] = osp::vec4f{color[0] / 255.0f,
+                                    color[1] / 255.0f,
+                                    color[2] / 255.0f,
+                                    1};
         }
       }
     }
@@ -794,7 +806,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
         }
       default:
         {
-        ospray::vec3fa *normals = NULL;
+        osp::vec3f *normals = NULL;
         int numNormals = 0;
         if (property->GetInterpolation() != VTK_FLAT)
           {
@@ -855,7 +867,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
         }
       default:
         {
-        ospray::vec3fa *normals = NULL;
+        osp::vec3f *normals = NULL;
         int numNormals = 0;
         if (property->GetInterpolation() != VTK_FLAT)
           {

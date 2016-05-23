@@ -15,7 +15,7 @@ set(Module_SRCS
 
 vtk_module_library(vtkRenderingOSPRay ${Module_SRCS})
 
-target_link_libraries(${vtk-module} LINK_PRIVATE ${OSPRAY_LIBRARIES} ${QT_LIBRARIES})
+target_link_libraries(${vtk-module} LINK_PUBLIC ${OSPRAY_LIBRARIES})
 
 # OSPRay_Core uses MMTime which is in it's own special library.
 if(WIN32)

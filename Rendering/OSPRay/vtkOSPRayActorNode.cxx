@@ -29,7 +29,6 @@
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
-#include "ospray/common/OSPCommon.h"
 
 vtkInformationKeyMacro(vtkOSPRayActorNode, ENABLE_SCALING, Integer);
 vtkInformationKeyMacro(vtkOSPRayActorNode, SCALE_ARRAY_NAME, String);
