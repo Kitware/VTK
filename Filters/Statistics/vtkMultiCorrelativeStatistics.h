@@ -129,14 +129,12 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; }
 
-  //BTX
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-  //ETX
 
   // Description:
   // Computes the median of inData with vtkOrderStatistics.

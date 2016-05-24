@@ -298,7 +298,6 @@ public:
   vtkGetMacro(FileMajorVersion, int);
   vtkGetMacro(FileMinorVersion, int);
 
-//BTX
   // Description:
   // Internal function to read in a value.  Returns zero if there was an
   // error.
@@ -314,13 +313,11 @@ public:
   int Read(unsigned long long *result);
   int Read(float *);
   int Read(double *);
-//ETX
 
   // Description:
   // Close the vtk file.
   void CloseVTKFile();
 
-//BTX
   // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
@@ -338,7 +335,6 @@ public:
   // Description:
   // Return the istream being used to read in the data.
   istream *GetIStream() {return this->IS;};
-//ETX
 
   // Description:
   // Read the meta information from the file.  This needs to be public to it

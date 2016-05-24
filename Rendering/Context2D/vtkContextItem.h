@@ -40,7 +40,6 @@ public:
   // 1.0 by default.
   vtkSetMacro(Opacity, double);
 
-//BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
@@ -50,7 +49,7 @@ protected:
 private:
   vtkContextItem(const vtkContextItem &); // Not implemented.
   void operator=(const vtkContextItem &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkContextItem_h

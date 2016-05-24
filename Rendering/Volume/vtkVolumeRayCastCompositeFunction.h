@@ -52,23 +52,19 @@ public:
     {this->SetCompositeMethod(VTK_COMPOSITE_CLASSIFY_FIRST);}
   const char *GetCompositeMethodAsString(void);
 
-//BTX
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo);
 
   float GetZeroOpacityThreshold( vtkVolume *vol );
-//ETX
 
 protected:
   vtkVolumeRayCastCompositeFunction();
   ~vtkVolumeRayCastCompositeFunction();
 
-//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
-//ETX
 
   int           CompositeMethod;
 private:

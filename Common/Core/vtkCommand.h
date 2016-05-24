@@ -394,7 +394,6 @@ public:
   void PassiveObserverOff()
     { this->SetPassiveObserver(0); }
 
-//BTX
   // Description:
   // All the currently defined events are listed here.  Developers can
   // use -- vtkCommand::UserEvent + int to specify their own event
@@ -403,7 +402,6 @@ public:
 #define _vtk_add_event(Enum)  Enum,
   vtkEventDeclarationMacro(EventIds)
 #undef _vtk_add_event
-//ETX
 
 protected:
   int AbortFlag;
@@ -413,10 +411,10 @@ protected:
   virtual ~vtkCommand() {}
 
   friend class vtkSubjectHelper;
-//BTX
+
   vtkCommand(const vtkCommand& c) : vtkObjectBase(c) {}
   void operator=(const vtkCommand&) {}
-//ETX
+
 };
 
 #endif /* vtkCommand_h */

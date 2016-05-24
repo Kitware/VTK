@@ -239,11 +239,9 @@ public:
   vtkSetMacro(NumberOfNodeSets, int);
   int GetNumberOfNodeSets() const {return this->NumberOfNodeSets;}
 
-//BTX
   // Description:
   void SetNodeSetNames (vtkStringArray *names) { this->NodeSetNames = names; }
   vtkStringArray* GetNodeSetNames() const { return this->NodeSetNames; }
-//ETX
 
   // Description:
   //   Set or get the list the IDs for each node set.
@@ -311,11 +309,9 @@ public:
   vtkSetMacro(NumberOfSideSets, int);
   int GetNumberOfSideSets() const {return this->NumberOfSideSets;}
 
-//BTX
   // Description:
   void SetSideSetNames (vtkStringArray *names) { this->SideSetNames = names; }
   vtkStringArray* GetSideSetNames() const { return this->SideSetNames; }
-//ETX
 
   // Description:
   //   Set or get a pointer to a list giving the ID of each side set.

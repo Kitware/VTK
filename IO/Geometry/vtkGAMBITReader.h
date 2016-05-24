@@ -78,7 +78,6 @@ protected:
   int NumberOfVelocityComponents;
   ifstream *FileStream;
 
-  //BTX
   enum GAMBITCellType
   {
     EDGE    = 1,
@@ -89,7 +88,6 @@ protected:
     TETRA   = 6,
     PYRAMID = 7
   };
-  //ETX
 
 private:
   void ReadFile(vtkUnstructuredGrid *output);

@@ -193,11 +193,9 @@ public:
   // Effect a database schema.
   virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
 
-//BTX
   // Description:
   // Type for CreateFromURL callback.
   typedef vtkSQLDatabase* (*CreateFunction)(const char* URL);
-//ETX
 
   // Description:
   // Provides mechanism to register/unregister additional callbacks to create
@@ -216,7 +214,6 @@ public:
   // information (full text)for specific documents.
   static vtkInformationObjectBaseKey* DATABASE();
 
-//BTX
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
@@ -235,7 +232,7 @@ private:
   // Datastructure used to store registered callbacks.
   class vtkCallbackVector;
   static vtkCallbackVector* Callbacks;
-//ETX
+
 };
 
 #endif // vtkSQLDatabase_h

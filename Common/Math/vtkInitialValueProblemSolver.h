@@ -103,14 +103,12 @@ public:
   // 0 otherwise
   virtual int IsAdaptive() { return this->Adaptive; }
 
-//BTX
   enum ErrorCodes
   {
     OUT_OF_DOMAIN = 1,
     NOT_INITIALIZED = 2,
     UNEXPECTED_VALUE = 3
   };
-//ETX
 
 protected:
   vtkInitialValueProblemSolver();

@@ -136,13 +136,10 @@ public:
   virtual void RemoveAllMaterialBlockMappings();
   virtual void AddMaterialBlockMapping(int b);
 
-
-//BTX
   enum
   {
     MAX_CELL_POINTS=256
   };
-//ETX
 
 protected:
   vtkYoungsMaterialInterface ();
@@ -170,9 +167,9 @@ protected:
   int ReverseMaterialOrder;
   int UseFractionAsDistance;
   double VolumeFractionRange[2];
-//BTX
+
   vtkSmartPointer<vtkIntArray> MaterialBlockMapping;
-//ETX
+
   bool UseAllBlocks;
 
   // Description:

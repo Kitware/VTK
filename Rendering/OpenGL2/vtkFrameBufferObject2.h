@@ -274,7 +274,6 @@ public:
         int oglFormat,
         vtkPixelBufferObject *pbo);
 
-//BTX
 protected:
   // Description:
   // Load all necessary extensions.
@@ -308,7 +307,7 @@ private:
   void operator=(const vtkFrameBufferObject2&); // Not implemented.
 
   friend class vtkRenderbuffer; // needs access to LoadRequiredExtentsions
-//ETX
+
 };
 
 #endif

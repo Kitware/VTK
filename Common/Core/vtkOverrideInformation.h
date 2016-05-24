@@ -82,9 +82,8 @@ private:
   ~vtkOverrideInformation();
   // allow the object factory to set the values in this
   // class, but only the object factory
-//BTX
+
   friend class vtkObjectFactory;
-//ETX
 
   char* ClassOverrideName;
   char* ClassOverrideWithName;

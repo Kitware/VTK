@@ -198,8 +198,6 @@ public:
                             vtkAbstractArray *source)
   { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
-
-  //BTX
 protected:
   vtkAOSDataArrayTemplate();
   ~vtkAOSDataArrayTemplate();
@@ -222,7 +220,7 @@ private:
 
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
-  //ETX
+
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:

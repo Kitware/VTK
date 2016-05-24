@@ -108,14 +108,12 @@ public:
   vtkGetMacro(OutputTraversedBounds, bool);
   vtkBooleanMacro(OutputTraversedBounds, bool);
 
-  //BTX
   enum LabelShape {
     NONE,
     RECT,
     ROUNDED_RECT,
     NUMBER_OF_LABEL_SHAPES
   };
-  //ETX
 
   // Description:
   // The shape of the label background, should be one of the
@@ -129,13 +127,11 @@ public:
   virtual void SetShapeToRoundedRect()
     { this->SetShape(ROUNDED_RECT); }
 
-  //BTX
   enum LabelStyle {
     FILLED,
     OUTLINE,
     NUMBER_OF_LABEL_STYLES
   };
-  //ETX
 
   // Description:
   // The style of the label background shape, should be one of the
@@ -181,10 +177,8 @@ protected:
 
   virtual int FillInputPortInformation( int port, vtkInformation* info );
 
-  //BTX
   class Internal;
   Internal* Buckets;
-  //ETX
 
   vtkLabelRenderStrategy* RenderStrategy;
   vtkCoordinate* AnchorTransform;

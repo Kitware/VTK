@@ -40,7 +40,6 @@ public:
   // Paint event for the item.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
   // Description:
   // Returns true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -64,7 +63,6 @@ public:
   // Description:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-//ETX
 
   // Description:
   // Set the block label.
@@ -88,11 +86,8 @@ public:
   // Initial value is (0,0,0,0)
   vtkGetVector4Macro(Dimensions, float);
 
-//BTX
   void SetScalarFunctor(double (*scalarFunction)(double, double));
-//ETX
 
-//BTX
 protected:
   vtkBlockItem();
   ~vtkBlockItem();
@@ -109,7 +104,7 @@ protected:
 private:
   vtkBlockItem(const vtkBlockItem &); // Not implemented.
   void operator=(const vtkBlockItem &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkBlockItem_h

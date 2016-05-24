@@ -23,9 +23,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
-//BTX
 class vtkSelectionSourceInternals;
-//ETX
 
 class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {

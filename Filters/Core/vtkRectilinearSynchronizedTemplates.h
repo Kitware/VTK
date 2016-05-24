@@ -162,11 +162,8 @@ private:
 };
 
 // template table.
-//BTX
 
 extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_1[];
 extern int VTK_RECTILINEAR_SYNCHONIZED_TEMPLATES_TABLE_2[];
-
-//ETX
 
 #endif

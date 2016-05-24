@@ -63,7 +63,6 @@ public:
   virtual void PrintSelf( ostream& os, vtkIndent indent );
   static vtkPCAStatistics* New();
 
-  //BTX
   // Description:
   // Methods by which the covariance matrix may be normalized.
   enum NormalizationType
@@ -84,7 +83,6 @@ public:
     FIXED_BASIS_ENERGY, //!< Use consecutive basis matrix entries whose energies sum to at least T
     NUM_BASIS_SCHEMES   //!< The number of schemes (not a valid scheme).
     };
-  //ETX
 
   // Description:
   // This determines how (or if) the covariance matrix \a cov is normalized before PCA.
@@ -240,30 +238,26 @@ protected:
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
                        vtkTable* );
-  //BTX
+
   // Description:
   // Calculate p-value. This will be overridden using the object factory with an
   // R implementation if R is present.
   virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
 
-  //BTX
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-  //ETX
 
   int NormalizationScheme;
   int BasisScheme;
   int FixedBasisSize;
   double FixedBasisEnergy;
 
-  //BTX
   static const char* BasisSchemeEnumNames[NUM_BASIS_SCHEMES + 1];
   static const char* NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1];
-  //ETX
 
 private:
   vtkPCAStatistics( const vtkPCAStatistics& ); // Not implemented

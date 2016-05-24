@@ -46,12 +46,10 @@ public:
   vtkPlane *GetItem(int i) {
     return static_cast<vtkPlane *>(this->GetItemAsObject(i));};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkPlane *GetNextPlane(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkPlaneCollection() {}

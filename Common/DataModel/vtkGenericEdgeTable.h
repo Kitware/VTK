@@ -119,7 +119,6 @@ public:
   void DumpTable();
   void LoadFactor();
 
-//BTX
 class PointEntry
 {
 public:
@@ -220,7 +219,6 @@ public:
     return *this;
     }
 };
-//ETX
 
 protected:
   vtkGenericEdgeTable();

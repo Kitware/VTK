@@ -32,9 +32,8 @@
 class vtkCompositeDataSet;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
-//BTX
+
 struct vtkXMLCompositeDataReaderInternals;
-//ETX
 
 class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {

@@ -79,9 +79,9 @@ protected:
   ~vtkIdTypeArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<vtkIdType> RealSuperclass;
-  //ETX
+
   vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
   void operator=(const vtkIdTypeArray&);  // Not implemented.
 };

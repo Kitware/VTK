@@ -70,9 +70,9 @@ protected:
   ~vtkIntArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<int> RealSuperclass;
-  //ETX
+
   vtkIntArray(const vtkIntArray&);  // Not implemented.
   void operator=(const vtkIntArray&);  // Not implemented.
 };

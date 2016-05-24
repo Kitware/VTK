@@ -55,11 +55,10 @@ public:
   // A convenience handle to get whatever is actually stored in the reference.
   void * GetReferredData();
 
-//BTX
   // Description:
   // GPU level representation and storage this manages.
   vtkPistonReference *GetReference() { return this->Reference; };
-//ETX
+
   // Description:
   // Shallow/deep copy the data from src into this object.
   virtual void ShallowCopy(vtkDataObject* src);
@@ -101,12 +100,10 @@ public:
   // Set scalars range.
   void SetScalarsRange(double range[2]);
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPistonDataObject* GetData(vtkInformation* info);
   static vtkPistonDataObject* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkPistonDataObject();

@@ -59,7 +59,6 @@ public:
                              const void *attribute,
                              unsigned long offset=0);
 
-//BTX
 protected:
   vtkGLSLShaderDeviceAdapter2();
   ~vtkGLSLShaderDeviceAdapter2();
@@ -74,7 +73,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

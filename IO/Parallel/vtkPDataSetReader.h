@@ -88,9 +88,8 @@ protected:
   vtkDataSet *CheckOutput();
   void SetNumberOfPieces(int num);
 
-//BTX
   ifstream *OpenFile(const char *);
-//ETX
+
   int ReadXML(ifstream *file, char **block, char **param, char **value);
   void SkipFieldData(ifstream *file);
 

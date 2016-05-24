@@ -59,13 +59,11 @@ public:
   vtkTypeMacro(vtkLegendScaleActor,vtkProp);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum AttributeLocation
   {
     DISTANCE=0,
     XY_COORDINATES=1
   };
-//ETX
 
   // Description:
   // Specify the mode for labeling the scale axes. By default, the axes are

@@ -73,9 +73,9 @@ private:
   static vtkImageReader2Collection* AvailableReaders;
   vtkImageReader2Factory(const vtkImageReader2Factory&);  // Not implemented.
   void operator=(const vtkImageReader2Factory&);  // Not implemented.
-//BTX
+
   friend class vtkImageReader2FactoryCleanup;
-//ETX
+
 };
 
 #endif

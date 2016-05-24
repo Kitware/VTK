@@ -52,7 +52,6 @@ public:
   // slave to the master render.
   virtual bool CaptureBuffers();
 
-//BTX
 protected:
   vtkPHardwareSelector();
   ~vtkPHardwareSelector();
@@ -69,7 +68,7 @@ private:
   class vtkObserver;
   friend class vtkObserver;
   vtkObserver* Observer;
-//ETX
+
 };
 
 #endif

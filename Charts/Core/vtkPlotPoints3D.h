@@ -42,7 +42,6 @@ public:
   // Paint event for the XY plot, called whenever the chart needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
 protected:
   vtkPlotPoints3D();
   ~vtkPlotPoints3D();
@@ -58,7 +57,6 @@ protected:
 private:
   vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
   void operator=(const vtkPlotPoints3D &); // Not implemented.
-//ETX
 
 };
 

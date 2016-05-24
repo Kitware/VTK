@@ -98,7 +98,6 @@ public:
   // Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -180,8 +179,6 @@ public:
   /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   virtual bool GetSupportsSelection()
    { return true; }
-
-//ETX
 
 protected:
   vtkVolume();

@@ -255,7 +255,7 @@ protected:
     vtkIdType Extend;       // grow array by this amount
     double Direction;       // integration direction
   };
-  //ETX
+
   //
 
   //array of streamers

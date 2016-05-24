@@ -36,8 +36,6 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkSystemIncludes.h"
 
-//BTX
-
 #ifdef VTK_USE_SPROC
 #include <abi_mutex.h> // Needed for sproc implementation of mutex
 typedef abilock_t vtkCritSecType;
@@ -99,7 +97,6 @@ private:
   vtkSimpleCriticalSection(const vtkSimpleCriticalSection& other); // no copy constructor
   vtkSimpleCriticalSection& operator=(const vtkSimpleCriticalSection& rhs); // no copy assignment
 };
-//ETX
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSimpleCriticalSection.h

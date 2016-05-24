@@ -111,7 +111,6 @@ public:
     {vtkObject::SetGlobalWarningDisplay(0);};
   static int  GetGlobalWarningDisplay();
 
-//BTX
   // Description:
   // Allow people to add/remove/invoke observers (callbacks) to any VTK
   // object.  This is an implementation of the subject/observer design
@@ -133,7 +132,7 @@ public:
   void RemoveObservers(const char *event, vtkCommand *);
   int HasObserver(unsigned long event, vtkCommand *);
   int HasObserver(const char *event, vtkCommand *);
-//ETX
+
   void RemoveObserver(unsigned long tag);
   void RemoveObservers(unsigned long event);
   void RemoveObservers(const char *event);
@@ -141,7 +140,6 @@ public:
   int HasObserver(unsigned long event);
   int HasObserver(const char *event);
 
-//BTX
   // Description:
   // Overloads to AddObserver that allow developers to add class member
   // functions as callbacks for events.  The callback function can
@@ -202,16 +200,14 @@ public:
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
     }
-//ETX
 
-//BTX
   // Description:
   // This method invokes an event and return whether the event was
   // aborted or not. If the event was aborted, the return value is 1,
   // otherwise it is 0.
   int InvokeEvent(unsigned long event, void *callData);
   int InvokeEvent(const char *event, void *callData);
-//ETX
+
   int InvokeEvent(unsigned long event) { return this->InvokeEvent(event, NULL); };
   int InvokeEvent(const char *event) { return this->InvokeEvent(event, NULL); };
 
@@ -227,7 +223,6 @@ protected:
   vtkTimeStamp      MTime;      // Keep track of modification time
   vtkSubjectHelper *SubjectHelper; // List of observers on this object
 
-//BTX
   // Description:
   // These methods allow a command to exclusively grab all events. (This
   // method is typically used by widgets to grab events once an event
@@ -237,8 +232,7 @@ protected:
   // they use two separate vtkCommands to watch for mouse and keypress events.
   void InternalGrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
   void InternalReleaseFocus();
-//ETX
-//BTX
+
 private:
   vtkObject(const vtkObject&);  // Not implemented.
   void operator=(const vtkObject&);  // Not implemented.
@@ -365,7 +359,7 @@ private:
     unsigned long event, vtkClassMemberCallbackBase* callable, float priority);
   // Friend to access AddTemplatedObserver().
   friend class vtkObjectCommandInternal;
-//ETX
+
 };
 
 #endif

@@ -33,12 +33,10 @@ public:
   vtkTypeMacro(vtkClientServerCompositePass, vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -88,7 +86,6 @@ public:
   vtkBooleanMacro(ServerSideRendering, bool);
   vtkGetMacro(ServerSideRendering, bool);
 
-//BTX
 protected:
   vtkClientServerCompositePass();
   ~vtkClientServerCompositePass();
@@ -102,7 +99,7 @@ protected:
 private:
   vtkClientServerCompositePass(const vtkClientServerCompositePass&); // Not implemented.
   void operator=(const vtkClientServerCompositePass&); // Not implemented.
-//ETX
+
 };
 
 #endif

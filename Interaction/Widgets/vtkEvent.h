@@ -38,7 +38,6 @@ public:
   vtkTypeMacro(vtkEvent,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Ways to specify modifiers to VTK events. These can be logical OR'd to
   // produce combinations of modifiers.
@@ -49,7 +48,6 @@ public:
     ControlModifier = 2,
     AltModifier = 4
   };
-//ETX
 
   // Description:
   // Set the modifier for the event.
@@ -80,13 +78,11 @@ public:
   // Convenience method computes the event modifier from an interactor.
   static int GetModifier(vtkRenderWindowInteractor*);
 
-//BTX
   // Description:
   // Used to compare whether two events are equal. Takes into account
   // the EventId as well as the various modifiers.
   bool operator==(vtkEvent*);
   bool operator==(unsigned long VTKEvent);  //event with no modifiers
-//ETX
 
 protected:
   vtkEvent();

@@ -53,11 +53,10 @@ public:
   vtkTypeMacro(vtkImageConnector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);
   void AddSeed(vtkImageConnectorSeed *seed);
   void AddSeedToEnd(vtkImageConnectorSeed *seed);
-  //ETX
+
   void RemoveAllSeeds();
 
   // Description:

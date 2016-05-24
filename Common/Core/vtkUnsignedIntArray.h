@@ -70,9 +70,9 @@ protected:
   ~vtkUnsignedIntArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<unsigned int> RealSuperclass;
-  //ETX
+
   vtkUnsignedIntArray(const vtkUnsignedIntArray&);  // Not implemented.
   void operator=(const vtkUnsignedIntArray&);  // Not implemented.
 };

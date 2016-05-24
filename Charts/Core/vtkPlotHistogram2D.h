@@ -75,7 +75,6 @@ public:
   virtual void SetPosition(const vtkRectf& pos);
   virtual vtkRectf GetPosition();
 
-//BTX
   // Description:
   // Generate and return the tooltip label string for this plot
   // The segmentIndex parameter is ignored.
@@ -125,7 +124,6 @@ private:
   vtkPlotHistogram2D(const vtkPlotHistogram2D &); // Not implemented.
   void operator=(const vtkPlotHistogram2D &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlotHistogram2D_h

@@ -52,7 +52,6 @@ public:
       return static_cast<vtkDataObject *>(this->GetItemAsObject(i));
     }
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
@@ -60,7 +59,6 @@ public:
     {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));
     }
-  //ETX
 
 protected:
   vtkDataObjectCollection() {}

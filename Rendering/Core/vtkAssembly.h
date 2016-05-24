@@ -140,14 +140,12 @@ public:
   // Shallow copy of an assembly. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE DO NOT USE THIS
   // METHOD OUTSIDE OF THE RENDERING PROCESS Overload the superclass' vtkProp
   // BuildPaths() method. Paths consist of an ordered sequence of actors,
   // with transformations properly concatenated.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
-//ETX
 
 protected:
   vtkAssembly();

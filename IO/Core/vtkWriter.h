@@ -67,10 +67,9 @@ public:
   // Set/get the input to this writer.
   void SetInputData(vtkDataObject *input);
   void SetInputData(int index, vtkDataObject *input);
-//BTX
+
   vtkDataObject *GetInput();
   vtkDataObject *GetInput(int port);
-//ETX
 
 protected:
   vtkWriter();

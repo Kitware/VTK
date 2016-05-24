@@ -127,7 +127,6 @@ protected:
                        vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
-//BTX
   // Description:
   // Calculate p-value. This will be overridden using the object factory with an
   // R implementation if R is present.
@@ -139,7 +138,6 @@ protected:
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-//ETX
 
   int UnbiasedVariance;
   int G1Skewness;

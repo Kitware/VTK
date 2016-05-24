@@ -69,10 +69,9 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"
 
-//BTX
 #include "vtkAtom.h" // Simple proxy class dependent on vtkMolecule
 #include "vtkBond.h" // Simple proxy class dependent on vtkMolecule
-//ETX
+
 #include "vtkVector.h" // Small templated vector convenience class
 
 class vtkPlane;
@@ -92,7 +91,6 @@ public:
   // Return what type of dataset this is.
   virtual int GetDataObjectType() {return VTK_MOLECULE;}
 
-//BTX
   // Description:
   // Add new atom with atomic number 0 (dummy atom) at origin. Return
   // a vtkAtom that refers to the new atom.
@@ -137,7 +135,6 @@ public:
   // Description:
   // Return a vtkAtom that refers to the bond with the specified id.
   vtkBond GetBond(vtkIdType bondId);
-//ETX
 
   // Description:
   // Return the number of bonds in the molecule.
@@ -182,12 +179,10 @@ public:
   vtkPoints * GetAtomicPositionArray();
   vtkUnsignedShortArray * GetAtomicNumberArray();
 
-//BTX
   // Description:
   // Set/Get the AbstractElectronicData-subclassed object for this molecule.
   vtkGetObjectMacro(ElectronicData, vtkAbstractElectronicData);
   virtual void SetElectronicData(vtkAbstractElectronicData*);
-//ETX
 
   // Description:
   // Shallow copies the data object into this molecule.

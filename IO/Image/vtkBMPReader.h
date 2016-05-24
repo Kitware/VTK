@@ -84,11 +84,9 @@ public:
 
   vtkGetObjectMacro(LookupTable, vtkLookupTable);
 
-//BTX
   // Description:
   // Returns the color lut.
   vtkGetMacro(Colors,unsigned char *);
-//ETX
 
 protected:
   vtkBMPReader();

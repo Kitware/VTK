@@ -53,7 +53,6 @@ public:
   // WriteMetaFile set to 0 by default.
   virtual void SetWriteMetaFile(int flag);
 
-//BTX
 protected:
   vtkXMLPUniformGridAMRWriter();
   ~vtkXMLPUniformGridAMRWriter();
@@ -66,7 +65,7 @@ protected:
 private:
   vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&); // Not implemented.
   void operator=(const vtkXMLPUniformGridAMRWriter&); // Not implemented.
-//ETX
+
 };
 
 #endif

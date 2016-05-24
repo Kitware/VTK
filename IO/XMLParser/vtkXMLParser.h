@@ -42,7 +42,6 @@ public:
 
   static vtkXMLParser* New();
 
-  //BTX
   // Description:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
@@ -54,7 +53,6 @@ public:
   // work-around stream bugs on various platforms.
   vtkTypeInt64 TellG();
   void SeekG(vtkTypeInt64 position);
-  //ETX
 
   // Description:
   // Parse the XML input.
@@ -178,11 +176,9 @@ protected:
   // routine.
   static int IsSpace(char c);
 
-  //BTX
   friend void vtkXMLParserStartElement(void*, const char*, const char**);
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
-  //ETX
 
   int IgnoreCharacterData;
 

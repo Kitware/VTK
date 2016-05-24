@@ -88,9 +88,9 @@ public:
   const vtkArrayExtents& operator[](vtkIdType i) const;
 
 private:
-  //BTX
+
   std::vector<vtkArrayExtents> Storage;
-  //ETX
+
 };
 
 #endif

@@ -44,7 +44,6 @@ public:
   // Get the root element from the XML document.
   vtkXMLDataElement* GetRootElement();
 
-  //BTX
   // Description:
   // Enumerate big and little endian byte order settings.
   enum { BigEndian, LittleEndian };
@@ -84,7 +83,6 @@ public:
   // stream.  Returns the number of words read.
   size_t ReadBinaryData(void* buffer, vtkTypeUInt64 startWord,
                         size_t maxWords, int wordType);
-  //ETX
 
   // Description:
   // Get/Set the compressor used to decompress binary and appended data

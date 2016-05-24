@@ -248,12 +248,9 @@ protected:
 
   virtual vtkUnicodeString GetHoverTextInternal(vtkSelection* sel);
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
-  //BTX
   vtkSmartPointer<vtkWorldPointPicker>             Picker;
   vtkSmartPointer<vtkApplyColors>                  ApplyColors;
   vtkSmartPointer<vtkTreeLevelsFilter>             TreeLevels;
@@ -271,7 +268,6 @@ protected:
   vtkSmartPointer<vtkScalarBarWidget>              EdgeScalarBar;
   vtkSmartPointer<vtkPointSetToLabelHierarchy>     AreaLabelHierarchy;
   vtkSmartPointer<vtkPolyData>                     EmptyPolyData;
-  //ETX
 
   vtkSetStringMacro(AreaSizeArrayNameInternal);
   vtkGetStringMacro(AreaSizeArrayNameInternal);

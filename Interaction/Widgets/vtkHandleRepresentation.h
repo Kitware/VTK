@@ -87,13 +87,11 @@ public:
   vtkGetMacro(ActiveRepresentation,int);
   vtkBooleanMacro(ActiveRepresentation,int);
 
-//BTX
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
   // widget. Note that ComputeInteractionState() and several other methods
   // must be implemented by subclasses.
   enum _InteractionState { Outside=0, Nearby, Selecting, Translating, Scaling };
-//ETX
 
   // Description:
   // The interaction state may be set from a widget (e.g., HandleWidget) or

@@ -96,13 +96,11 @@ public:
   // Returns if the animation is being played.
   int IsInPlay() { return this->InPlay; }
 
-//BTX
   enum PlayModes
   {
     PLAYMODE_SEQUENCE=0,
     PLAYMODE_REALTIME=1
   };
-//ETX
 
 protected:
   vtkAnimationScene();

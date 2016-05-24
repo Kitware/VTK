@@ -153,9 +153,8 @@ protected:
   int NumberOfTimesLevelDown;
   int NumberOfFailedPoints;
   double AverageLevel;
-// BTX
+
   std::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
-// ETX
 
   // Description:
   // Checks if this filter instance is running on more than one processes

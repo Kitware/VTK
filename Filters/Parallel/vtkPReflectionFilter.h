@@ -36,7 +36,6 @@ public:
   void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro (Controller, vtkMultiProcessController);
 
-//BTX
 protected:
   vtkPReflectionFilter();
   ~vtkPReflectionFilter();
@@ -49,7 +48,7 @@ protected:
 private:
   vtkPReflectionFilter(const vtkPReflectionFilter&); // Not implemented.
   void operator=(const vtkPReflectionFilter&); // Not implemented.
-//ETX
+
 };
 
 #endif

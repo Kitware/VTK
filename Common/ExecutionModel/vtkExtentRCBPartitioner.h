@@ -179,9 +179,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
      bool ExtentIsPartitioned;
 
-     // BTX
      std::vector<int> PartitionExtents;
-     // ETX
 
   private:
     vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& );// Not implemented

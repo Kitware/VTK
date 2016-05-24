@@ -52,13 +52,11 @@ public:
   vtkSetMacro(MaximumDistanceMeters, double);
   vtkGetMacro(MaximumDistanceMeters, double);
 
-  //BTX
   enum
     {
     RECTANGULAR,
     SPHERICAL
     };
-  //ETX
 
   // Description:
   // The input coordinate system.

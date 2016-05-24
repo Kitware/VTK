@@ -94,7 +94,6 @@ public:
   vtkGetMacro(TraverseSubTree, int);
   vtkBooleanMacro(TraverseSubTree, int);
 
-//BTX
 protected:
   vtkDataObjectTreeIterator();
   virtual ~vtkDataObjectTreeIterator();
@@ -135,7 +134,7 @@ private:
 
   // Cannot be called when this->IsDoneWithTraversal() return 1.
   void UpdateLocation();
-//ETX
+
 };
 
 #endif

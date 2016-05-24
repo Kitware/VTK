@@ -79,12 +79,10 @@ public:
   vtkInformation* GetMetaData(unsigned int pieceno)
     { return this->Superclass::GetChildMetaData(pieceno); }
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkMultiPieceDataSet* GetData(vtkInformation* info);
   static vtkMultiPieceDataSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Unhiding superclass method.
@@ -96,7 +94,6 @@ public:
   virtual int HasMetaData(vtkCompositeDataIterator* iter)
     { return this->Superclass::HasMetaData(iter); }
 
-//BTX
 protected:
   vtkMultiPieceDataSet();
   ~vtkMultiPieceDataSet();
@@ -104,7 +101,7 @@ protected:
 private:
   vtkMultiPieceDataSet(const vtkMultiPieceDataSet&); // Not implemented.
   void operator=(const vtkMultiPieceDataSet&); // Not implemented.
-//ETX
+
 };
 
 #endif

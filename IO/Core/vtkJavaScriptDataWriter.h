@@ -90,7 +90,7 @@ protected:
 private:
   vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&); // Not implemented.
   void operator=(const vtkJavaScriptDataWriter&); // Not implemented.
-//ETX
+
 };
 
 

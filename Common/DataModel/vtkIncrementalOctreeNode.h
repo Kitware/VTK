@@ -186,7 +186,6 @@ public:
   // are added to vtkIdList by vtkIdList::SetId().
   void ExportAllPointIdsByDirectSet( vtkIdType * pntIdx, vtkIdList * idList );
 
-//BTX
 protected:
 
   vtkIncrementalOctreeNode();
@@ -330,7 +329,7 @@ private:
 
   vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & );// Not implemented
   void operator = ( const vtkIncrementalOctreeNode & );        // Not implemented
-//ETX
+
 };
 
 // In-lined for performance

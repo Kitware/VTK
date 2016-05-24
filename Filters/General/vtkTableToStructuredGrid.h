@@ -77,7 +77,6 @@ public:
   vtkSetClampMacro(ZComponent, int, 0, VTK_INT_MAX);
   vtkGetMacro(ZComponent, int);
 
-//BTX
 protected:
   vtkTableToStructuredGrid();
   ~vtkTableToStructuredGrid();
@@ -110,7 +109,7 @@ protected:
 private:
   vtkTableToStructuredGrid(const vtkTableToStructuredGrid&); // Not implemented.
   void operator=(const vtkTableToStructuredGrid&); // Not implemented.
-//ETX
+
 };
 
 #endif

@@ -92,7 +92,6 @@ public:
   // code point.
   virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) = 0;
 
-//BTX
 protected:
   vtkTextCodec();
   ~vtkTextCodec();
@@ -101,7 +100,6 @@ private:
   vtkTextCodec(const vtkTextCodec &); // Not implemented.
   void operator=(const vtkTextCodec &); // Not implemented.
 
-//ETX
 };
 
 #endif

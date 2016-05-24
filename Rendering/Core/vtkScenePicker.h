@@ -51,10 +51,10 @@ class vtkScenePickerSelectionRenderCommand;
 
 class VTKRENDERINGCORE_EXPORT vtkScenePicker : public vtkObject
 {
-  //BTX
+
   friend class vtkRenderer;
   friend class vtkScenePickerSelectionRenderCommand;
-  //ETX
+
 public:
   static vtkScenePicker* New();
   vtkTypeMacro(vtkScenePicker, vtkObject);

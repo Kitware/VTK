@@ -152,11 +152,9 @@ protected:
   // helper methods for cursoe management
   virtual void SetCursor(int State);
 
-//BTX
   //widget state
   int WidgetState;
   enum _WidgetState{Start=0,Define,Manipulate,Selected};
-//ETX
 
 private:
   vtkBorderWidget(const vtkBorderWidget&);  //Not implemented

@@ -176,10 +176,8 @@ protected:
   void UpdateVTKCamera();
   void UpdateAngleRanges();
 
-//BTX
   vtkSmartPointer<vtkCamera> VTKCamera;
   vtkSmartPointer<vtkTransform> Transform;
-//ETX
 
   // This point is shifted to 0,0,0 to avoid openGL issues.
   double OriginLatitude;

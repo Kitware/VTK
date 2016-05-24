@@ -31,7 +31,6 @@ public:
   vtkTypeMacro(vtkBlockIdScalars, vtkMultiBlockDataSetAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkBlockIdScalars();
   ~vtkBlockIdScalars();
@@ -45,7 +44,7 @@ protected:
 private:
   vtkBlockIdScalars(const vtkBlockIdScalars&); // Not implemented.
   void operator=(const vtkBlockIdScalars&); // Not implemented.
-//ETX
+
 };
 
 #endif

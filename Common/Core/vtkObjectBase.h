@@ -73,11 +73,11 @@ public:
 #ifdef VTK_WORKAROUND_WINDOWS_MANGLE
 # undef GetClassNameW
 # undef GetClassNameA
-  //BTX
+
   // Define possible mangled names.
   const char* GetClassNameA() const;
   const char* GetClassNameW() const;
-  //ETX
+
 #endif
 
   // Description:
@@ -176,16 +176,16 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector*);
 
 private:
-  //BTX
+
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, vtkObjectBase& o);
   friend class vtkGarbageCollectorToObjectBaseFriendship;
   friend class vtkWeakPointerBaseToObjectBaseFriendship;
-  //ETX
+
 protected:
-//BTX
+
   vtkObjectBase(const vtkObjectBase&) {}
   void operator=(const vtkObjectBase&) {}
-//ETX
+
 };
 
 #endif

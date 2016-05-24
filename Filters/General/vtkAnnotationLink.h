@@ -124,11 +124,10 @@ private:
   vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
   void operator=(const vtkAnnotationLink&);  // Not implemented.
 
-  //BTX
   class Command;
   friend class Command;
   Command* Observer;
-  //ETX
+
 };
 
 #endif

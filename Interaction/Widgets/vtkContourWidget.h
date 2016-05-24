@@ -209,9 +209,8 @@ public:
     {this->Initialize(NULL);}
 
   // The state of the widget
-  //BTX
+
   enum {Start,Define,Manipulate};
-  //ETX
 
 protected:
   vtkContourWidget();

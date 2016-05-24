@@ -95,7 +95,6 @@ public:
   // Remove all array entries.
   void RemoveAllArrays();
 
-  //BTX
   // Description:
   // Add to the list of arrays that have entries.  For arrays that
   // already have entries, the settings are untouched.  For arrays
@@ -124,7 +123,6 @@ public:
   void SetArrays(const char* const* names, int numArrays);
   void SetArraysWithDefault(const char* const* names, int numArrays,
                             int defaultStatus);
-  //ETX
 
   // Description:
   // Copy the selections from the given vtkDataArraySelection instance.

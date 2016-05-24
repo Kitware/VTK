@@ -80,12 +80,10 @@ public:
   // is valid only after the pipeline has updated.
   virtual unsigned long GetActualMemorySize();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkCompositeDataSet* GetData(vtkInformation* info);
   static vtkCompositeDataSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Restore data object to initial state,
@@ -114,7 +112,6 @@ public:
   // ***THIS IS AN EXPERIMENTAL KEY SUBJECT TO CHANGE WITHOUT NOTICE***
   static vtkInformationIntegerKey* CURRENT_PROCESS_CAN_LOAD_BLOCK();
 
-//BTX
  protected:
   vtkCompositeDataSet();
   virtual ~vtkCompositeDataSet();
@@ -122,7 +119,7 @@ public:
 
   vtkCompositeDataSet(const vtkCompositeDataSet&); // Not implemented.
   void operator=(const vtkCompositeDataSet&); // Not implemented.
-//ETX
+
 };
 
 #endif

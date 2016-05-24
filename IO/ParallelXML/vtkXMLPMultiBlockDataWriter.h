@@ -66,7 +66,6 @@ public:
                      vtkInformationVector**,
                      vtkInformationVector*);
 
-//BTX
 protected:
   vtkXMLPMultiBlockDataWriter();
   ~vtkXMLPMultiBlockDataWriter();
@@ -130,7 +129,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

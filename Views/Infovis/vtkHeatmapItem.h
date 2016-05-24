@@ -127,8 +127,6 @@ public:
   vtkGetMacro(RowLabelWidth, float);
   vtkGetMacro(ColumnLabelWidth, float);
 
-  //BTX
-
   // Description:
   // Enum for Orientation.
   enum
@@ -150,8 +148,6 @@ public:
   // Description:
   // Display a legend for a column of data.
   virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
-
-  //ETX
 
 protected:
   vtkHeatmapItem();

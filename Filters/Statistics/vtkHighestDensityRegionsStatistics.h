@@ -106,14 +106,12 @@ protected:
                     vtkMultiBlockDataSet*,
                     vtkTable*) { return; }
 
-//BTX
   // Description: (Not implemented)
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor(vtkTable*,
                                    vtkDataObject*,
                                    vtkStringArray*,
                                    AssessFunctor*&) { return; }
-//ETX
 
   // Description:
   // Store the smooth matrix parameter H. Specify a smooth direction

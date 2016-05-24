@@ -58,12 +58,10 @@ public:
   vtkGetMacro(AutomaticFocalDistance,bool);
   vtkBooleanMacro(AutomaticFocalDistance,bool);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own

@@ -257,10 +257,9 @@ private:
   vtkBitArray(const vtkBitArray&);  // Not implemented.
   void operator=(const vtkBitArray&);  // Not implemented.
 
-  //BTX
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();
-  //ETX
+
 };
 
 inline void vtkBitArray::SetNumberOfValues(vtkIdType number)

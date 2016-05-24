@@ -147,7 +147,6 @@ public:
   // Get the final color level.
   vtkGetMacro( FinalColorLevel,  float );
 
-//BTX
 // The possible values for the default and current render mode ivars
   enum
   {
@@ -159,7 +158,6 @@ public:
     UndefinedRenderMode,
     InvalidRenderMode
   };
-//ETX
 
   // Description:
   // Set the requested render mode. The default is
@@ -263,8 +261,6 @@ public:
                             double viewDirection[3],
                             double viewUp[3] );
 
-
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -276,7 +272,6 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-//ETX
 
 protected:
   vtkSmartVolumeMapper();

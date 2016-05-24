@@ -38,7 +38,6 @@ public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastFunction,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
 
   virtual void Finalize( )=0;
@@ -48,8 +47,6 @@ public:
   // ray with the cells of the input.  The calling code is responsible for
   // deleting the returned object.
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator() = 0;
-//ETX
-
 
 protected:
   vtkUnstructuredGridVolumeRayCastFunction() {}

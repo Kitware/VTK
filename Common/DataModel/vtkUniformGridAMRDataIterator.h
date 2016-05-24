@@ -81,8 +81,6 @@ public:
   // IsDoneWithTraversal() returns 0.
   virtual int IsDoneWithTraversal();
 
-
-//BTX
 protected:
   vtkUniformGridAMRDataIterator();
   ~vtkUniformGridAMRDataIterator();
@@ -97,7 +95,7 @@ private:
   vtkAMRDataInternals* AMRData;
 
   void GetCurrentIndexPair(unsigned int& level, unsigned int& id);
-//ETX
+
 };
 
 #endif

@@ -88,10 +88,9 @@ private:
   vtkArrayData(const vtkArrayData&); // Not implemented
   void operator=(const vtkArrayData&); // Not implemented
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

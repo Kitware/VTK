@@ -38,7 +38,6 @@ public:
   vtkTypeMacro(vtkPLineIntegralConvolution2D, vtkLineIntegralConvolution2D);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Set the communicator to use during parallel operation
   // The communicator will not be duplicated or reference
@@ -55,7 +54,6 @@ public:
         vtkPainterCommunicator *comm,
         float &min,
         float &max);
-  //ETX
 
   // Description:
   // Methods used for parallel benchmarks. Use cmake to define

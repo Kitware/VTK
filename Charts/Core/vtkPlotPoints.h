@@ -107,7 +107,6 @@ public:
   // Get the array name to color by.
   vtkStdString GetColorArrayName();
 
-//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
@@ -134,7 +133,6 @@ public:
     CIRCLE = VTK_MARKER_CIRCLE,
     DIAMOND = VTK_MARKER_DIAMOND
   };
-//ETX
 
   // Description:
   // Get/set the marker style that should be used. The default is none, the enum
@@ -153,7 +151,6 @@ public:
   vtkGetMacro(ValidPointMaskName, vtkStdString)
   vtkSetMacro(ValidPointMaskName, vtkStdString)
 
-//BTX
 protected:
   vtkPlotPoints();
   ~vtkPlotPoints();
@@ -241,7 +238,7 @@ private:
 
 // #define  VTK_COLOR_MODE_DEFAULT   0
 // #define  VTK_COLOR_MODE_MAP_SCALARS   1
-//ETX
+
 };
 
 #endif //vtkPlotPoints_h

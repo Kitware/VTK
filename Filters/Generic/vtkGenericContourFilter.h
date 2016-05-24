@@ -61,9 +61,7 @@ public:
   // of 0.0.
   static vtkGenericContourFilter *New();
 
-  //BTX
   typedef double PointType[3];  // Arbitrary definition of a point
-  //ETX
 
   // Description:
   // Methods to set / get contour values.

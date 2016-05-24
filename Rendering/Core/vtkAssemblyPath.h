@@ -87,13 +87,11 @@ public:
   // of the nodes in this path.
   virtual unsigned long GetMTime();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkAssemblyNode *GetNextNode(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkAssemblyNode *>(this->GetNextItemAsObject(cookie)); }
-  //ETX
 
 protected:
   vtkAssemblyPath();

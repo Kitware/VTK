@@ -161,17 +161,13 @@ protected:
   int NodeIdsListed;
   int ElementIdsListed;
 
-  //BTX
   class UndefPartialInternal;
   // Description:
   // Handle the undef / partial support for EnSight gold
   UndefPartialInternal* UndefPartial;
-  //ETX
 
-  //BTX
   class FileOffsetMapInternal;
   FileOffsetMapInternal *FileOffsets;
-  //ETX
 
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&);  // Not implemented.

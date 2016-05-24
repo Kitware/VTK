@@ -37,7 +37,6 @@ public:
   vtkTypeMacro(vtkMarkerUtilities, vtkObject);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   // Description:
   // Enum containing various marker styles that can be used in a plot.
   enum {
@@ -48,13 +47,11 @@ public:
     CIRCLE,
     DIAMOND
   };
-//ETX
 
   // Description:
   // Generate the requested symbol of a particular style and size.
   static void GenerateMarker(vtkImageData *data, int style, int width);
 
-//BTX
 protected:
   vtkMarkerUtilities();
   ~vtkMarkerUtilities();
@@ -62,7 +59,7 @@ protected:
 private:
   vtkMarkerUtilities(const vtkMarkerUtilities &); // Not implemented.
   void operator=(const vtkMarkerUtilities &); // Not implemented.
-//ETX
+
 };
 
 #endif //vtkMarkerUtilities_h

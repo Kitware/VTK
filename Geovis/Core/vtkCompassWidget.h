@@ -118,7 +118,6 @@ protected:
     TiltAdjusting,
     DistanceAdjusting
   };
-//ETX
 
   int TimerId;
   int TimerDuration;

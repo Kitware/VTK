@@ -88,13 +88,12 @@ protected:
   virtual void Assess( vtkTable*,
                        vtkMultiBlockDataSet*,
                        vtkTable* );
-//BTX
+
   // Description:
   // Calculate p-value. This will be overridden using the object factory with an
   // R implementation if R is present.
   virtual void CalculatePValues(vtkTable*);
 
-//BTX
   // Description:
   // Provide the appropriate assessment functor.
   // This one does nothing because the API is not sufficient for tables indexed
@@ -111,7 +110,6 @@ protected:
                                     vtkIdType pairKey,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-//ETX
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented

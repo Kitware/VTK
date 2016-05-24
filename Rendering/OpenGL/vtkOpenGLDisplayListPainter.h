@@ -39,7 +39,7 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
-//BTX
+
   vtkOpenGLDisplayListPainter();
   ~vtkOpenGLDisplayListPainter();
 
@@ -56,7 +56,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

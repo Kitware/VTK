@@ -313,14 +313,12 @@ public:
   void ShallowCopy(vtkDataObject *src);
   void DeepCopy(vtkDataObject *src);
 
-//BTX
   enum FieldDataType
   {
     DATA_OBJECT_FIELD=0,
     POINT_DATA_FIELD=1,
     CELL_DATA_FIELD=2
   };
-//ETX
 
   // Description:
   // This method checks to see if the cell and point attributes
@@ -341,12 +339,10 @@ public:
   }
   virtual void GenerateGhostArray(int zeroExt[6], bool cellOnly);
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkDataSet* GetData(vtkInformation* info);
   static vtkDataSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Returns the attributes of the data object as a vtkFieldData.
@@ -453,9 +449,8 @@ private:
   static void OnDataModified(
     vtkObject* source, unsigned long eid, void* clientdata, void *calldata);
 
-  //BTX
   friend class vtkImageAlgorithmToDataSetFriendship;
-  //ETX
+
 private:
   vtkDataSet(const vtkDataSet&);  // Not implemented.
   void operator=(const vtkDataSet&);    // Not implemented.

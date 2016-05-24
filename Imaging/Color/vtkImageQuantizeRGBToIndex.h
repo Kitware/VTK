@@ -55,7 +55,6 @@ public:
   vtkGetMacro( BuildTreeExecuteTime, double );
   vtkGetMacro( LookupIndexExecuteTime, double );
 
-//BTX
   // Description:
   // For internal use only - get the type of the image
   vtkGetMacro( InputType, int );
@@ -65,7 +64,6 @@ public:
   vtkSetMacro( InitializeExecuteTime, double );
   vtkSetMacro( BuildTreeExecuteTime, double );
   vtkSetMacro( LookupIndexExecuteTime, double );
-//ETX
 
 protected:
   vtkImageQuantizeRGBToIndex();

@@ -48,7 +48,7 @@
 // function is of type void *, and returns NULL
 // Otherwise the type is void which is correct for WIN32
 // and SPROC
-//BTX
+
 #ifdef VTK_USE_SPROC
 typedef int vtkThreadProcessIDType;
 typedef int vtkMultiThreaderIDType;
@@ -81,7 +81,6 @@ typedef int vtkThreadProcessIDType;
 // #define VTK_THREAD_RETURN_TYPE void
 typedef int vtkMultiThreaderIDType;
 #endif
-//ETX
 
 class vtkMutexLock;
 
@@ -105,7 +104,6 @@ public:
   // The UserData is the (void *)arg passed into the SetSingleMethod,
   // SetMultipleMethod, or SpawnThread method.
 
-  //BTX
 #define ThreadInfoStruct vtkMultiThreader::ThreadInfo
   class ThreadInfo
   {
@@ -116,7 +114,6 @@ public:
     vtkMutexLock        *ActiveFlagLock;
     void                *UserData;
   };
-  //ETX
 
   // Description:
   // Get/Set the number of threads to create. It will be clamped to the range
@@ -142,7 +139,6 @@ public:
   // These methods are excluded from Tcl wrapping 1) because the
   // wrapper gives up on them and 2) because they really shouldn't be
   // called from a script anyway.
-  //BTX
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
@@ -213,8 +209,6 @@ protected:
   vtkMutexLock               *SpawnedThreadActiveFlagLock[VTK_MAX_THREADS];
   vtkThreadProcessIDType     SpawnedThreadProcessID[VTK_MAX_THREADS];
   ThreadInfo                 SpawnedThreadInfoArray[VTK_MAX_THREADS];
-
-//ETX
 
   // Internal storage of the data
   void                       *SingleData;

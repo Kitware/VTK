@@ -117,9 +117,7 @@ protected:
 
   void DeleteQueryResults();
 
-  //BTX
   friend class vtkPostgreSQLDatabase;
-  //ETX
 
 private:
   vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ); // Not implemented.

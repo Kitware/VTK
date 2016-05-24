@@ -79,9 +79,9 @@ protected:
   vtkStringArray* Delimiters;
 
 private:
-//BTX
+
   class implementation;
-//ETX
+
   vtkBoostSplitTableField(const vtkBoostSplitTableField&); // Not implemented
   void operator=(const vtkBoostSplitTableField&);   // Not implemented
 };

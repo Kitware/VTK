@@ -91,7 +91,6 @@ public:
   // Return the method for obtaining scalar data.
   const char *GetScalarModeAsString();
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   virtual float GetGradientMagnitudeScale() {return 1.0f;};
@@ -112,8 +111,6 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
-
-//ETX
 
 protected:
   vtkAbstractVolumeMapper();

@@ -33,7 +33,6 @@ public:
   vtkTypeMacro(vtkEnSightReader, vtkGenericEnSightReader);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum ElementTypesList
   {
     POINT     = 0,
@@ -78,7 +77,6 @@ public:
     BLOCK       = 1,
     ELEMENT     = 2
   };
-  //ETX
 
   // Description:
   // Get the Measured file name. Made public to allow access from

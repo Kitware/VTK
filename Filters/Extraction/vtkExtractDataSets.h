@@ -45,7 +45,6 @@ public:
   // Remove all entries from the list of datasets to be extracted.
   void ClearDataSetList();
 
-//BTX
 protected:
   vtkExtractDataSets();
   ~vtkExtractDataSets();
@@ -62,7 +61,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

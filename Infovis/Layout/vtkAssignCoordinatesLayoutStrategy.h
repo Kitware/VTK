@@ -61,9 +61,7 @@ protected:
   vtkAssignCoordinatesLayoutStrategy();
   ~vtkAssignCoordinatesLayoutStrategy();
 
-  //BTX
   vtkSmartPointer<vtkAssignCoordinates> AssignCoordinates;
-  //ETX
 
 private:
   vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.

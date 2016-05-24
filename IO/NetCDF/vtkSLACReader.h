@@ -126,7 +126,6 @@ public:
   static vtkInformationObjectBaseKey *POINTS();
   static vtkInformationObjectBaseKey *POINT_DATA();
 
-//BTX
   // Description:
   // Simple class used internally to define an edge based on the endpoints.  The
   // endpoints are canonically identified by the lower and higher values.
@@ -176,13 +175,11 @@ public:
     VOLUME_OUTPUT = 1,
     NUM_OUTPUTS = 2
   };
-//ETX
 
 protected:
   vtkSLACReader();
   ~vtkSLACReader();
 
-//BTX
   class vtkInternal;
   vtkInternal *Internal;
 
@@ -207,8 +204,6 @@ protected:
   // Description:
   // True if mode files describe vibrating fields.
   bool FrequencyModes;
-
-//ETX
 
   virtual int RequestInformation(vtkInformation *request,
                                  vtkInformationVector **inputVector,
@@ -250,22 +245,17 @@ protected:
   virtual int ReadTetrahedronExteriorArray(int meshFD,
                                            vtkIdTypeArray *connectivity);
 
-//BTX
   // Description:
   // Reads point data arrays.  Called by ReadCoordinates and ReadFieldData.
   virtual vtkSmartPointer<vtkDataArray> ReadPointDataArray(int ncFD, int varId);
-//ETX
 
-//BTX
   // Description:
   // Helpful constants equal to the amount of identifiers per tet.
   enum {
     NumPerTetInt = 5,
     NumPerTetExt = 9
   };
-//ETX
 
-//BTX
   // Description:
   // Manages a map from edges to midpoint coordinates.
   class VTKIONETCDF_EXPORT MidpointCoordinateMap
@@ -328,7 +318,6 @@ protected:
     MidpointIdMap(const MidpointIdMap &);
     void operator=(const MidpointIdMap &);
   };
-//ETX
 
   // Description:
   // Read in the point coordinate data from the mesh file.  Returns 1 on

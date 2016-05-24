@@ -28,9 +28,9 @@
 
 class vtkAbstractArray;
 class vtkArrayIterator;
-//BTX
+
 template <class T> class vtkArrayIteratorTemplate;
-//ETX
+
 class vtkCellData;
 class vtkDataArray;
 class vtkDataCompressor;
@@ -41,12 +41,11 @@ class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
 class vtkXMLDataHeader;
-//BTX
+
 class vtkStdString;
 class OffsetsManager;      // one per piece/per time
 class OffsetsManagerGroup; // array of OffsetsManager
 class OffsetsManagerArray; // array of OffsetsManagerGroup
-//ETX
 
 class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
@@ -54,22 +53,17 @@ public:
   vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Enumerate big and little endian byte order settings.
   enum { BigEndian, LittleEndian };
-  //ETX
 
-  //BTX
   // Description:
   // Enumerate the supported data modes.
   //   Ascii = Inline ascii data.
   //   Binary = Inline binary data (base64 encoded, possibly compressed).
   //   Appended = Appended binary data (possibly compressed and/or base64).
   enum { Ascii, Binary, Appended };
-  //ETX
 
-  //BTX
   // Description:
   // Enumerate the supported vtkIdType bit lengths.
   //   Int32 = File stores 32-bit values for vtkIdType.
@@ -81,7 +75,6 @@ public:
   //   UInt32 = File stores 32-bit binary data header elements.
   //   UInt64 = File stores 64-bit binary data header elements.
   enum { UInt32=32, UInt64=64 };
-  //ETX
 
   // Description:
   // Get/Set the byte order of data written to the file.  The default
@@ -125,13 +118,11 @@ public:
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
 
-//BTX
   enum CompressorType
     {
     NONE,
     ZLIB
     };
-//ETX
 
   // Description:
   // Convenience functions to set the compressor to certain known types.
@@ -254,7 +245,6 @@ protected:
   // appended data offsets for field data
   OffsetsManagerGroup *FieldDataOM;  //one per array
 
-  //BTX
   // We need a 32 bit signed integer type to which vtkIdType will be
   // converted if Int32 is specified for the IdType parameter to this
   // writer.
@@ -267,7 +257,6 @@ protected:
 # else
 #  error "No native data type can represent a signed 32-bit integer."
 # endif
-  //ETX
 
   // Buffer for vtkIdType conversion.
   Int32IdType* Int32IdTypeBuffer;
@@ -457,9 +446,8 @@ protected:
   bool UsePreviousVersion;
 
   vtkTypeInt64 *NumberOfTimeValues; //one per piece / per timestep
-  //BTX
+
   friend class vtkXMLWriterHelper;
-  //ETX
 
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.

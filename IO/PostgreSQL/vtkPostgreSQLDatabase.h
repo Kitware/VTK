@@ -53,10 +53,9 @@ struct PQconn;
 
 class VTKIOPOSTGRESQL_EXPORT vtkPostgreSQLDatabase : public vtkSQLDatabase
 {
-  //BTX
+
   friend class vtkPostgreSQLQuery;
   friend class vtkPostgreSQLQueryPrivate;
-  //ETX
 
 public:
   vtkTypeMacro(vtkPostgreSQLDatabase, vtkSQLDatabase);

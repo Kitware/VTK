@@ -142,12 +142,10 @@ public:
   virtual void Aggregate( vtkDataObjectCollection*,
                           vtkMultiBlockDataSet* ) { return; };
 
-  //BTX
   // Description:
   // A convenience method for setting properties by name.
   virtual bool SetParameter(
     const char* parameter, int index, vtkVariant value );
-  //ETX
 
 protected:
   vtkKMeansStatistics();
@@ -175,14 +173,13 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; };
 
-  //BTX
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-  //ETX
+
   // Description:
   // Subroutine to update new cluster centers from the old centers.
   // Called from within Learn (and will be overridden by vtkPKMeansStatistics

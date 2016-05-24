@@ -191,10 +191,8 @@ public:
   virtual int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
 
-//BTX
   ifstream *GetFile() {return this->File;}
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
-//ETX
 
   virtual int OpenFile();
   virtual void SeekFile(int i, int j, int k);

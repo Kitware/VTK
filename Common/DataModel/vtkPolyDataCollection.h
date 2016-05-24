@@ -47,13 +47,11 @@ public:
   vtkPolyData *GetNextItem() {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject());};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkPolyData *GetNextPolyData(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkPolyDataCollection() {}

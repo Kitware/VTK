@@ -43,9 +43,7 @@ public:
   static vtkExtractUserDefinedPiece *New();
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   typedef int (*UserDefFunc)(vtkIdType cellID, vtkUnstructuredGrid *grid, void *constantData);
-//ETX
 
   // Set the function used to identify the piece.  The function should
   // return 1 if the cell is in the piece, and 0 otherwise.

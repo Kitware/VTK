@@ -100,9 +100,7 @@ protected:
   void CheckerboardInteraction(int sliderNum);
   void EndCheckerboardInteraction();
 
-//BTX
   friend class vtkCWCallback;
-//ETX
 
 private:
   vtkCheckerboardWidget(const vtkCheckerboardWidget&);  //Not implemented

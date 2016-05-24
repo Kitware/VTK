@@ -67,14 +67,12 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkAbstractInterpolatedVelocityField.h"
 
-//BTX
 #include <vector> // STL Header; Required for vector
-//ETX
 
 class vtkDataSet;
-//BTX
+
 class vtkDataArray;
-//ETX
+
 class vtkPointData;
 class vtkGenericCell;
 class vtkCompositeInterpolatedVelocityFieldDataSetsType;
@@ -119,9 +117,7 @@ private:
   void operator = ( const vtkCompositeInterpolatedVelocityField & );  // Not implemented.
 };
 
-//BTX
 typedef std::vector< vtkDataSet * > DataSetsTypeBase;
 class   vtkCompositeInterpolatedVelocityFieldDataSetsType: public DataSetsTypeBase { };
-//ETX
 
 #endif

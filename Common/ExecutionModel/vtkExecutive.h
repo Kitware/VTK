@@ -175,10 +175,9 @@ public:
   static vtkInformationIntegerKey* ALGORITHM_DIRECTION();
   static vtkInformationIntegerKey* FORWARD_DIRECTION();
   static vtkInformationKeyVectorKey* KEYS_TO_COPY();
-  //BTX
+
   enum { RequestUpstream, RequestDownstream };
   enum { BeforeForward, AfterForward };
-  //ETX
 
   // Description:
   // An API to CallAlgorithm that allows you to pass in the info objects to
@@ -242,9 +241,8 @@ private:
   // Internal implementation details.
   vtkExecutiveInternals* ExecutiveInternal;
 
-  //BTX
   friend class vtkAlgorithmToExecutiveFriendship;
-  //ETX
+
 private:
   vtkExecutive(const vtkExecutive&);  // Not implemented.
   void operator=(const vtkExecutive&);  // Not implemented.

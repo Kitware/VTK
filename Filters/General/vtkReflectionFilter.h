@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   enum ReflectionPlane
   {
     USE_X_MIN = 0,
@@ -48,7 +47,6 @@ public:
     USE_Y = 7,
     USE_Z = 8
   };
-//ETX
 
   // Description:
   // Set the normal of the plane to use as mirror.

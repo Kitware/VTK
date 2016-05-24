@@ -58,9 +58,7 @@ protected:
   vtkContingencyStatisticsGnuR();
   ~vtkContingencyStatisticsGnuR();
 
-//BTX
   virtual void CalculatePValues(vtkTable*);
-//ETX
 
 private:
   vtkContingencyStatisticsGnuR(const vtkContingencyStatisticsGnuR&); // Not implemented

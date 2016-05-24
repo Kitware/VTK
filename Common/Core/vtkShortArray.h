@@ -70,9 +70,9 @@ protected:
   ~vtkShortArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<short> RealSuperclass;
-  //ETX
+
   vtkShortArray(const vtkShortArray&);  // Not implemented.
   void operator=(const vtkShortArray&);  // Not implemented.
 };

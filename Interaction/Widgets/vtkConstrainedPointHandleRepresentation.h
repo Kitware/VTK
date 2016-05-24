@@ -178,9 +178,7 @@ public:
   virtual int HasTranslucentPolygonalGeometry();
   virtual void ShallowCopy(vtkProp* prop);
 
-//BTX
   enum {XAxis=0,YAxis,ZAxis,Oblique};
-//ETX
 
   void Highlight(int highlight);
 

@@ -72,7 +72,6 @@ public:
   // Get the color series used.
   vtkColorSeries *GetColorSeries();
 
-//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
@@ -108,7 +107,7 @@ private:
   void operator=(const vtkPlotPie &); // Not implemented.
 
   vtkPlotPiePrivate *Private;
-//ETX
+
 };
 
 #endif //vtkPlotPie_h

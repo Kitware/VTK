@@ -38,7 +38,6 @@ public:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
-//BTX
   enum { // Compression types
     NoCompression,
     PackBits,
@@ -46,7 +45,6 @@ public:
     Deflate,
     LZW
   };
-//ETX
 
   // Description:
   // Set compression type. Sinze LZW compression is patented outside US, the

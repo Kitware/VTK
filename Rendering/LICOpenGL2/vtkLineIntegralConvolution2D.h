@@ -270,7 +270,6 @@ public:
         vtkTextureObject *vectorTex,
         vtkTextureObject *noiseTex);
 
-  //BTX
   // Description:
   // Compute LIC over the desired subset of the input texture. The
   // result is copied into the desired subset of the provided output
@@ -289,7 +288,6 @@ public:
         vtkTextureObject *vectorTex,
         vtkTextureObject *maskVectorTex,
         vtkTextureObject *noiseTex);
-  //ETX
 
   // Description:
   // Convenience functions to ensure that the input textures are
@@ -300,7 +298,6 @@ public:
   static
   void SetNoiseTexParameters(vtkTextureObject *noise);
 
-  //BTX
   // Description:
   // Set the communicator to use during parallel operation
   // The communicator will not be duplicated or reference
@@ -317,7 +314,6 @@ public:
        vtkPainterCommunicator*,
        float&,
        float&) {}
-  //ETX
 
   // Description:
   // Methods used for parallel benchmarks. Use cmake to define

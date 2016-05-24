@@ -129,7 +129,6 @@ public:
   virtual double GetPickedT()
     {return this->PickedT;}
 
-//BTX
   // Enums are used to describe what is selected
   enum _InteractionState
   {
@@ -139,7 +138,6 @@ public:
     RightCap,
     Slider
   };
-//ETX
 
 protected:
   vtkSliderRepresentation();

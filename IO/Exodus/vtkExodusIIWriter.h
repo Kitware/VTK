@@ -188,7 +188,6 @@ protected:
   int FileTimeOffset;
   bool TopologyChanged;
 
-//BTX
   vtkDataObject *OriginalInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > FlattenedInput;
   std::vector< vtkSmartPointer<vtkUnstructuredGrid> > NewFlattenedInput;
@@ -232,11 +231,10 @@ protected:
 
   std::vector<vtkIdType*> GlobalElementIdList;
   std::vector<vtkIdType*> GlobalNodeIdList;
-//ETX
+
   int AtLeastOneGlobalElementIdList;
   int AtLeastOneGlobalNodeIdList;
 
-//BTX
   struct VariableInfo
   {
     int NumComponents;
@@ -250,11 +248,9 @@ protected:
   int NumberOfScalarGlobalArrays;
   int NumberOfScalarElementArrays;
   int NumberOfScalarNodeArrays;
-//ETX
 
-//BTX
   std::vector< std::vector<int> > CellToElementOffset;
-//ETX
+
   // By BlockId, and within block ID by element variable, with variables
   // appearing in the same order in which they appear in OutputElementArrayNames
 
@@ -263,10 +259,8 @@ protected:
 
   int BlockVariableTruthValue(int blockIdx, int varIdx);
 
-//BTX
   char *StrDupWithNew (const char *s);
   void StringUppercase (std::string& str);
-//ETX
 
   int ProcessRequest (vtkInformation* request,
                       vtkInformationVector** inputVector,
@@ -313,7 +307,6 @@ protected:
   int CreateBlockVariableMetadata (vtkModelMetadata* em);
   int CreateSetsMetadata (vtkModelMetadata* em);
 
-//BTX
   void ConvertVariableNames (std::map<std::string, VariableInfo>& variableMap);
   char **FlattenOutVariableNames (
             int nScalarArrays,
@@ -324,7 +317,7 @@ protected:
 
   std::map<vtkIdType, vtkIdType> *LocalNodeIdMap;
   std::map<vtkIdType, vtkIdType> *LocalElementIdMap;
-//ETX
+
   vtkIdType GetNodeLocalId(vtkIdType id);
   vtkIdType GetElementLocalId(vtkIdType id);
   int GetElementType(vtkIdType id);
@@ -346,15 +339,12 @@ protected:
   static bool SameTypeOfCells (vtkIntArray* cellToBlockId,
                                vtkUnstructuredGrid* input);
 
-//BTX
   double ExtractGlobalData (const char *name, int comp, int ts);
   int WriteGlobalData (int timestep, vtkDataArray *buffer);
   void ExtractCellData (const char *name, int comp, vtkDataArray *buffer);
   int WriteCellData (int timestep, vtkDataArray *buffer);
   void ExtractPointData (const char *name, int comp, vtkDataArray *buffer);
   int WritePointData (int timestep, vtkDataArray *buffer);
-//ETX
-
 
 private:
   vtkExodusIIWriter (const vtkExodusIIWriter&); // Not Implemented

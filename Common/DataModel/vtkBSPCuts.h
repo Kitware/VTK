@@ -98,12 +98,10 @@ public:
   void PrintTree();
   void PrintArrays();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkBSPCuts* GetData(vtkInformation* info);
   static vtkBSPCuts* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Restore data object to initial state,

@@ -120,11 +120,9 @@ public:
   // when being truncated).
   vtkIdType *Resize(const vtkIdType sz);
 
-  //BTX
   // This method should become legacy
   void IntersectWith(vtkIdList& otherIds) {
     this->IntersectWith(&otherIds); };
-  //ETX
 
 protected:
   vtkIdList();

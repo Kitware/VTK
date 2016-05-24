@@ -54,7 +54,6 @@ public:
   // Paint event for the axis, called whenever the axis needs to be drawn
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
 protected:
   vtkPlotGrid();
   ~vtkPlotGrid();
@@ -68,7 +67,7 @@ protected:
 private:
   vtkPlotGrid(const vtkPlotGrid &); // Not implemented.
   void operator=(const vtkPlotGrid &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkPlotGrid_h

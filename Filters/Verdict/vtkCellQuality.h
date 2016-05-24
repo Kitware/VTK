@@ -39,7 +39,7 @@ class vtkPoints;
 
 class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
 {
-  //BTX
+
   enum
     {
     NONE = 0,
@@ -75,7 +75,6 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
     VOLUME,
     WARPAGE
     };
-  //ETX
 
 public:
   void PrintSelf (ostream&, vtkIndent);

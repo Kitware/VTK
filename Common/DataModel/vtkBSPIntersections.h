@@ -149,13 +149,11 @@ protected:
 
   double CellBoundsCache[6];   // to speed cell intersection queries
 
-//BTX
   enum {
     XDIM = 0,  // don't change these values
     YDIM = 1,
     ZDIM = 2
   };
-//ETX
 
 private:
 

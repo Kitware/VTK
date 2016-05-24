@@ -45,7 +45,6 @@ public:
   void SetSurfaceLICPainter(vtkSurfaceLICPainter*);
   vtkGetObjectMacro(SurfaceLICPainter, vtkSurfaceLICPainter);
 
-//BTX
 protected:
   vtkSurfaceLICDefaultPainter();
   ~vtkSurfaceLICDefaultPainter();
@@ -68,7 +67,7 @@ protected:
 private:
   vtkSurfaceLICDefaultPainter(const vtkSurfaceLICDefaultPainter&); // Not implemented.
   void operator=(const vtkSurfaceLICDefaultPainter&); // Not implemented.
-//ETX
+
 };
 
 #endif

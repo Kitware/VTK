@@ -51,11 +51,9 @@ class VTKRENDERINGIMAGE_EXPORT vtkImageSliceCollection : public vtkPropCollectio
   // GetNextImage method that takes a collection iterator instead.
   vtkImageSlice *GetNextImage();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection.
   vtkImageSlice *GetNextImage(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
   // Description:
   // Access routine provided for compatibility with previous

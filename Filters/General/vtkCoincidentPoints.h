@@ -72,10 +72,8 @@ public:
   // might reuse this class (another executive pass for instance).
   void Clear();
 
-  //BTX
   class implementation;
   implementation * GetImplementation() { return this->Implementation; }
-  //ETX
 
   // Description:
   // Calculate \a num points, at a regular interval, along a parametric
@@ -91,11 +89,10 @@ private:
   vtkCoincidentPoints( const vtkCoincidentPoints& ); // Not implemented.
   void operator = ( const vtkCoincidentPoints& ); // Not implemented.
 
-  //BTX
   implementation* Implementation;
 
   friend class implementation;
-  //ETX
+
 };
 
 #endif // vtkCoincidentPoints_h

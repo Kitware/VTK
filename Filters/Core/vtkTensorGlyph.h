@@ -153,13 +153,11 @@ public:
   vtkGetMacro(ColorGlyphs,int);
   vtkBooleanMacro(ColorGlyphs,int);
 
-//BTX
   enum
   {
       COLOR_BY_SCALARS,
       COLOR_BY_EIGENVALUES
   };
-//ETX
 
   // Description:
   // Set the color mode to be used for the glyphs.  This can be set to

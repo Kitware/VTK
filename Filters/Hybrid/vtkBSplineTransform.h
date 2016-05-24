@@ -122,12 +122,10 @@ protected:
   void InverseTransformDerivative(const double in[3], double out[3],
                                   double derivative[3][3]);
 
-//BTX
   void (*CalculateSpline)(const double point[3], double displacement[3],
                           double derivatives[3][3],
                           void *gridPtr, int inExt[6], vtkIdType inInc[3],
                           int borderMode);
-//ETX
 
   double DisplacementScale;
   int BorderMode;

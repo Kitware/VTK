@@ -108,7 +108,6 @@ public:
   vtkGetMacro(AutomaticEventHandling, bool);
   vtkBooleanMacro(AutomaticEventHandling, bool);
 
-//BTX
   enum
     {
     SYNC_RENDERER_TAG = 15101,
@@ -170,7 +169,7 @@ public:
 
     void Allocate(int dx, int dy, int numcomps);
     };
-//ETX
+
 protected:
   vtkSynchronizedRenderers();
   ~vtkSynchronizedRenderers();

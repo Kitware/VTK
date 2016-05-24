@@ -210,12 +210,10 @@ protected:
   int               NumberOfComponents;
   vtkPolyData      *Mesh;
 
-  //BTX
   struct ErrorQuadric
   {
     double *Quadric;
   };
-  //ETX
 
   ErrorQuadric *ErrorQuadrics;
   int           AttributeComponents[6];

@@ -47,9 +47,7 @@
 #include "vtkCommonExecutionModelModule.h" // For export macro
 #include "vtkScalarTree.h"
 
-//BTX
 class vtkScalarNode;
-//ETX
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleScalarTree : public vtkScalarTree
 {

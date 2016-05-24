@@ -73,7 +73,6 @@ public:
   // to call it before SetInputData() when possible.
   void SetYRange(float min, float max);
 
-//BTX
 protected:
   vtkPlotSurface();
   ~vtkPlotSurface();
@@ -146,7 +145,6 @@ private:
   vtkPlotSurface(const vtkPlotSurface &); // Not implemented.
   void operator=(const vtkPlotSurface &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlotSurface_h

@@ -22,9 +22,8 @@
 
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkTexture.h"
-//BTX
+
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-//ETX
 
 class vtkWindow;
 class vtkOpenGLRenderer;
@@ -59,7 +58,7 @@ public:
   vtkGetMacro(Index, long);
 
 protected:
-//BTX
+
   vtkOpenGLTexture();
   ~vtkOpenGLTexture();
 
@@ -82,7 +81,6 @@ private:
   // Handle loading in extension support
   virtual void Initialize(vtkRenderer * ren);
 
-//ETX
 };
 
 #endif

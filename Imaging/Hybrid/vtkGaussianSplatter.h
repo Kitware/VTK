@@ -194,7 +194,6 @@ public:
   void ComputeModelBounds(vtkCompositeDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);
 
-//BTX
   // Description:
   // Provide access to templated helper class. Note that SamplePoint() method
   // is public here because some compilers don't handle friend functions
@@ -234,7 +233,6 @@ public:
         }
       }//not first visit
   }
-//ETX
 
 protected:
   vtkGaussianSplatter();
@@ -268,7 +266,6 @@ protected:
   double PositionSampling(double)
     {return this->ScaleFactor;}
 
-//BTX
 private:
   double Radius2;
   double (vtkGaussianSplatter::*Sample)(double x[3]);
@@ -282,7 +279,6 @@ private:
   double Spacing[3];
   double SplatDistance[3];
   double NullValue;
-//ETX
 
 private:
   vtkGaussianSplatter(const vtkGaussianSplatter&);  // Not implemented.

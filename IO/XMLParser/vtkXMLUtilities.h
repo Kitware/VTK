@@ -51,7 +51,6 @@ public:
                                 ostream&,
                                 const char *sep = 0);
 
-  //BTX
   // Description:
   // Flatten a vtkXMLDataElement to a stream, i.e. output a textual stream
   // corresponding to that XML element, its attributes and its
@@ -73,9 +72,7 @@ public:
   static int WriteElementToFile(vtkXMLDataElement*,
                                 const char *filename,
                                 vtkIndent *indent = 0);
-  //ETX
 
-  //BTX
   // Description:
   // Read a vtkXMLDataElement from a stream, string or file.
   // The 'encoding' parameter will be used to set the internal encoding of the
@@ -92,7 +89,6 @@ public:
     const char *str, int encoding = VTK_ENCODING_NONE);
   static vtkXMLDataElement* ReadElementFromFile(
     const char *filename, int encoding = VTK_ENCODING_NONE);
-  //ETX
 
   // Description:
   // Sets attributes of an element from an array of encoded attributes.
@@ -106,7 +102,6 @@ public:
         const char** atts,
         int encoding);
 
-  //BTX
   // Description:
   // Find all elements in 'tree' that are similar to 'elem' (using the
   // vtkXMLDataElement::IsEqualTo() predicate).
@@ -117,7 +112,6 @@ public:
   static int FindSimilarElements(vtkXMLDataElement *elem,
                                  vtkXMLDataElement *tree,
                                  vtkXMLDataElement ***results);
-  //ETX
 
   // Description:
   // Factor and unfactor a tree. This operation looks for duplicate elements

@@ -36,14 +36,12 @@ public:
   vtkTypeMacro(vtkRotationFilter, vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   enum RotationAxis
   {
     USE_X = 0,
     USE_Y = 1,
     USE_Z = 2
   };
-//ETX
 
   // Description:
   // Set the axis of rotation to use. It is set by default to Z.

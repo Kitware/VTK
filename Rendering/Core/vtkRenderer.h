@@ -538,7 +538,6 @@ public:
   vtkGetObjectMacro(Information, vtkInformation);
   virtual void SetInformation(vtkInformation*);
 
-//BTX
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -733,7 +732,7 @@ protected:
 private:
   vtkRenderer(const vtkRenderer&);  // Not implemented.
   void operator=(const vtkRenderer&);  // Not implemented.
-//ETX
+
 };
 
 inline vtkLightCollection *vtkRenderer::GetLights() {

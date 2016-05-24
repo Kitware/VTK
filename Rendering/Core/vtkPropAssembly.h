@@ -112,13 +112,11 @@ public:
   vtkAssemblyPath *GetNextPath();
   int GetNumberOfPaths();
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Overload the superclass' vtkProp BuildPaths() method.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
-//ETX
 
 protected:
   vtkPropAssembly();

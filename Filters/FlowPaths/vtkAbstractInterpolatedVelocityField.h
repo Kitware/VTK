@@ -65,14 +65,13 @@
 #define vtkAbstractInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
-//BTX
+
 #include <vector> // STL Header; Required for vector
-//ETX
 
 class vtkDataSet;
-//BTX
+
 class vtkDataArray;
-//ETX
+
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
@@ -226,7 +225,6 @@ protected:
   // using FindPoint and comparing distance with tolerance
   virtual bool FindAndUpdateCell(vtkDataSet* ds, double* x);
 
-//BTX
   friend class vtkTemporalInterpolatedVelocityField;
   // Description:
   // If all weights have been computed (parametric coords etc all valid), a
@@ -237,7 +235,6 @@ protected:
   bool InterpolatePoint( vtkPointData * outPD, vtkIdType outIndex );
   vtkGenericCell * GetLastCell()
     { return ( this->LastCellId != -1 ) ? this->GenCell : NULL; }
-//ETX
 
 private:
   vtkAbstractInterpolatedVelocityField

@@ -187,9 +187,7 @@ public:
   // Get the texture actor.. you may want to change some properties on it
   vtkGetObjectMacro(TextureActor, vtkTexturedActor2D);
 
-//BTX
   enum { PrecedeScalarBar = 0, SucceedScalarBar };
-//ETX
 
   // Description:
   // Should the title and tick marks precede the scalar bar or succeed it?

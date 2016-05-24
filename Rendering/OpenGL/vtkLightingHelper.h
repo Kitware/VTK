@@ -56,7 +56,6 @@ public:
   void EncodeLightState(){ this->PrepareForRendering(); }
   void PrepareForRendering();
 
-//BTX
 protected:
   vtkLightingHelper();
   ~vtkLightingHelper();
@@ -67,7 +66,7 @@ protected:
 private:
   vtkLightingHelper(const vtkLightingHelper&); // Not implemented.
   void operator=(const vtkLightingHelper&); // Not implemented.
-//ETX
+
 };
 
 #endif

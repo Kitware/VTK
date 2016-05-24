@@ -172,9 +172,7 @@ protected:
   int OutputPointsPrecision;
   int UseContinuousCellRange;
 
-  //BTX
   int (vtkThreshold::*ThresholdFunction)(double s);
-  //ETX
 
   int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
