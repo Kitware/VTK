@@ -36,3 +36,6 @@ target_link_libraries(${vtk-module} LINK_PUBLIC ${OSPRAY_LIBRARIES})
 if(WIN32)
   target_link_libraries(${vtk-module} LINK_PRIVATE Winmm)
 endif()
+
+include(vtkOpenGL)
+vtk_opengl_link(${vtk-module})

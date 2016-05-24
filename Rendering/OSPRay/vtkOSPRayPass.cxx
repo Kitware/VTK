@@ -29,6 +29,14 @@
 #include "vtkSequencePass.h"
 #include "vtkVolumetricPass.h"
 
+#ifdef VTK_OPENGL2
+#include <vtk_glew.h>
+#include "vtkOpenGLHelper.h"
+#else
+#include "vtkgl.h"
+#include "vtkOpenGL.h"
+#endif
+
 #include "ospray/ospray.h"
 
 #include <stdexcept>
@@ -41,10 +49,12 @@ public:
   vtkOSPRayPassInternals()
     {
     this->Factory = 0;
+    this->MaxDepth = NULL;
     }
   ~vtkOSPRayPassInternals()
     {
     this->Factory->Delete();
+    //delete this->MaxDepth;
     }
   void Render(const vtkRenderState *s)
     {
@@ -53,6 +63,7 @@ public:
 
   vtkOSPRayViewNodeFactory *Factory;
   vtkOSPRayPass *Parent;
+  OSPTexture2D MaxDepth;
 };
 
 // ----------------------------------------------------------------------------
@@ -83,7 +94,6 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->Internal->Factory = vnf;
   this->Internal->Parent = this;
 
-
   this->CameraPass = vtkCameraPass::New();
   this->LightsPass = vtkLightsPass::New();
   this->SequencePass = vtkSequencePass::New();
@@ -94,7 +104,7 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->RenderPassCollection->AddItem(this->LightsPass);
   this->RenderPassCollection->AddItem(this->Internal);
 //  this->RenderPassCollection->AddItem(vtkOpaquePass::New());
-  this->RenderPassCollection->AddItem(this->VolumetricPass);
+  //this->RenderPassCollection->AddItem(this->VolumetricPass);
   this->RenderPassCollection->AddItem(this->OverlayPass);
 
   this->SequencePass->SetPasses(this->RenderPassCollection);
@@ -171,6 +181,20 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
 
   if (this->SceneGraph)
     {
+    if (this->Internal->MaxDepth)
+      {
+      //if we've been given a ray limiting texture (cooperation with GL)
+      //then tell ospray about it here
+      vtkOSPRayRendererNode *rn = vtkOSPRayRendererNode::SafeDownCast
+        (
+         this->SceneGraph
+         );
+      if (rn)
+        {
+        rn->SetMaxDepthTexture(this->Internal->MaxDepth);
+        }
+      }
+
     this->SceneGraph->TraverseAllPasses();
 
     // copy the result to the window
@@ -198,6 +222,18 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
       }
     else
       {
+#if 0
+      //TODO: why in GL doesn't this work
+      glDisable(GL_DEPTH_TEST);
+      glEnable(GL_BLEND);
+      glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+      glDisable(GL_TEXTURE_2D);
+      //glColor3f(1,1,1);
+      //glClearColor(0,0,0,0);
+      glDrawPixels(viewportWidth, viewportHeight, GL_RGBA, GL_UNSIGNED_BYTE,
+                   this->SceneGraph->GetBuffer());
+      glEnable(GL_DEPTH_TEST);
+#else
       float *ontoZ = rwin->GetZbufferData
         (viewportX,  viewportY,
          viewportX+viewportWidth-1,
@@ -223,6 +259,16 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
          0, 0 );
       delete[] ontoZ;
       delete[] ontoRGBA;
+#endif
       }
     }
+}
+
+//------------------------------------------------------------------------------
+void vtkOSPRayPass::SetMaxDepthTexture(void *dt)
+{
+  //TODO: streamline this handoff
+  OSPTexture2D DT = static_cast<OSPTexture2D>(dt);
+  delete this->Internal->MaxDepth;
+  this->Internal->MaxDepth = DT;
 }

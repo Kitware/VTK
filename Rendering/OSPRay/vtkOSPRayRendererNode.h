@@ -109,6 +109,8 @@ public:
   // or way override this method
   virtual void Traverse(int operation);
 
+  void SetMaxDepthTexture(void *dt);
+
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode();
@@ -120,7 +122,7 @@ protected:
   OSPModel OModel;
   OSPRenderer ORenderer;
   std::vector<OSPLight> Lights;
-
+  void *MaxDepth;
   int NumActors;
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;

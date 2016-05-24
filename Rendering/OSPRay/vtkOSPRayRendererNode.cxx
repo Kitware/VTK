@@ -56,6 +56,7 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->OModel = NULL;
   this->ORenderer = NULL;
   this->NumActors = 0;
+  this->MaxDepth = NULL;
 }
 
 //----------------------------------------------------------------------------
@@ -163,6 +164,12 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   this->Apply(operation,true);
 
   OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
+  if (this->MaxDepth)
+    {
+    OSPTexture2D glDepthTex = static_cast<OSPTexture2D>(this->MaxDepth);
+    ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
+    //ospSet1i(oRenderer, "backgroundEnabled",ren->GetErase());
+    }
 
   //camera
   //TODO: this repeated traversal to find things of particular types
@@ -254,6 +261,12 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       if (child)
         {
         child->Traverse(operation);
+        }
+      vtkOSPRayVolumeNode *vchild =
+        vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
+      if (vchild)
+        {
+        vchild->Traverse(operation);
         }
       it->GoToNextItem();
       }
@@ -413,6 +426,7 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
     }
   else
     {
+    //TODO: blending needs to be optional
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
       {
       unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
@@ -423,10 +437,15 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
         {
         if (*zptr<1.0)
           {
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
+          unsigned char a = (*(iptr+2));
+          float A = (float)a/255;
+          for (int h = 0; h<3; h++)
+            {
+            *optr = (unsigned char)(((float)*iptr)*(1-A) + ((float)*optr)*(A));
+            optr++; iptr++;
+            }
+          optr++;
+          iptr++;
           *ozptr = *zptr;
           }
         else
@@ -439,4 +458,13 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
         }
       }
     }
+}
+
+//------------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetMaxDepthTexture(void *dt)
+{
+  //TODO: streamline this
+  OSPTexture2D DT = static_cast<OSPTexture2D>(dt);
+  //delete this->MaxDepth;
+  this->MaxDepth = DT;
 }
