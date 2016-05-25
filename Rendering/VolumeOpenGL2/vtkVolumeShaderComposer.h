@@ -194,22 +194,21 @@ namespace vtkvolume
       \n uniform bool in_clampDepthToBackface;\
       ");
 
-    if (hasGradientOpacity || lightingComplexity > 0)
-      {
-      shaderStr += std::string("\
-        \nvec3 g_xvec;\
-        \nvec3 g_yvec;\
-        \nvec3 g_zvec;"
-      );
-      }
-
     if (lightingComplexity > 0 || hasGradientOpacity)
       {
       shaderStr += std::string("\
         \nuniform bool in_twoSidedLighting;\
+        \nvec3 g_xvec;\
+        \nvec3 g_yvec;\
+        \nvec3 g_zvec;");
+      }
+
+    if (hasGradientOpacity)
+      {
+      shaderStr += std::string("\
+        \nvec3 g_aspect;\
         \nvec3 g_cellSpacing;\
-        \nfloat g_avgSpacing;"
-      );
+        \nfloat g_avgSpacing;");
       }
 
     if (lightingComplexity == 3)
@@ -248,9 +247,7 @@ namespace vtkvolume
         \nvec4 g_lightPosObj;\
         \nvec3 g_ldir;\
         \nvec3 g_vdir;\
-        \nvec3 g_h;\
-        \nvec3 g_aspect;"
-      );
+        \nvec3 g_h;");
       }
 
     if (noOfComponents > 1 && independentComponents)
@@ -379,12 +376,6 @@ namespace vtkvolume
          glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
       {
       shaderStr += std::string("\
-        \n  g_cellSpacing = vec3(in_cellSpacing[0],\
-        \n                       in_cellSpacing[1],\
-        \n                       in_cellSpacing[2]);\
-        \n  g_avgSpacing = (g_cellSpacing[0] +\
-        \n                  g_cellSpacing[1] +\
-        \n                  g_cellSpacing[2])/3.0;\
         \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
@@ -394,6 +385,12 @@ namespace vtkvolume
     if (vol->GetProperty()->HasGradientOpacity())
       {
       shaderStr += std::string("\
+        \n  g_cellSpacing = vec3(in_cellSpacing[0],\
+        \n                       in_cellSpacing[1],\
+        \n                       in_cellSpacing[2]);\
+        \n  g_avgSpacing = (g_cellSpacing[0] +\
+        \n                  g_cellSpacing[1] +\
+        \n                  g_cellSpacing[2])/3.0;\
         \n  // Adjust the aspect\
         \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
         \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\

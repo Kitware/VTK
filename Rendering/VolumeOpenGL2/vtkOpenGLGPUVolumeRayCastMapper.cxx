@@ -2986,7 +2986,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->ShaderProgram = this->Impl->ShaderCache->ReadyShaderProgram(
     vertexShader.c_str(), fragmentShader.c_str(), "");
-  if (!this->Impl->ShaderProgram->GetCompiled())
+  if (!this->Impl->ShaderProgram || !this->Impl->ShaderProgram->GetCompiled())
     {
     vtkErrorMacro("Shader failed to compile");
     }

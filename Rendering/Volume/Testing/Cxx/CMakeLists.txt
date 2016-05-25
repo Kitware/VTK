@@ -59,6 +59,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
+  TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
