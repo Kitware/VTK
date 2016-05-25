@@ -58,6 +58,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSliderWidget.cxx
   TestSplineWidget.cxx
   TestSphereWidgetZoomInOut.cxx
+  TestSphereWidget2CenterCursor.cxx
   TestTextWidget.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests
