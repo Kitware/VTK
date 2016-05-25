@@ -165,7 +165,6 @@ void vtkDataTransferHelper::SetContext(vtkRenderWindow* renWin)
   // \pre valid_gpu_extent: this->GetGPUExtentIsValid()
   // \pre gpu_extent_in_cpu_extent: CPUExtent[0]<=GPUExtent[0] && GPUExtent[1]<=CPUExtent[1] && CPUExtent[2]<=GPUExtent[2] && GPUExtent[3]<=CPUExtent[3] && CPUExtent[4]<=GPUExtent[4] && GPUExtent[5]<=CPUExtent[5]
   // \pre gpu_texture_size: !this->GetTextureExtentIsValid() || (GPUExtent[1]-GPUExtent[0]+1)*(GPUExtent[3]-GPUExtent[2]+1)*(GPUExtent[5]-GPUExtent[4]+1)==(TextureExtent[1]-TextureExtent[0]+1)*(TextureExtent[3]-TextureExtent[2]+1)*(TextureExtent[5]-TextureExtent[4]+1)
-  // \pre texture_can_exist_or_not: texture==0 || texture!=0
   // \pre valid_components: (components==0 && componentList==0 && array->GetNumberOfComponents()<=4) || (components>=1 && components<=array->GetNumberOfComponents() && components<=4 && componentList!=0)
 bool vtkDataTransferHelper::Upload(int components,
                                       int *componentList)
@@ -194,8 +193,6 @@ bool vtkDataTransferHelper::Upload(int components,
            (this->TextureExtent[1]-this->TextureExtent[0]+1)*
            (this->TextureExtent[3]-this->TextureExtent[2]+1)*
            (this->TextureExtent[5]-this->TextureExtent[4]+1))));
-  assert("pre: texture_can_exist_or_not" && (this->Texture==0 ||
-                                             this->Texture!=0));
   assert("pre: valid_components" &&
          ((components==0 && componentList==0 &&
            this->Array->GetNumberOfComponents()<=4) ||
@@ -460,8 +457,6 @@ bool vtkDataTransferHelper::DownloadAsync1()
       (this->TextureExtent[1]-this->TextureExtent[0]+1)*
       (this->TextureExtent[3]-this->TextureExtent[2]+1)*
       (this->TextureExtent[5]-this->TextureExtent[4]+1))));
-  assert("pre: texture_can_exist_or_not" && (this->Texture==0 ||
-      this->Texture!=0));
   assert("pre: valid_components" && (this->Array==0 ||
       this->Array->GetNumberOfComponents()<=4));
   assert("pre: components_match" && (this->Array==0 ||
