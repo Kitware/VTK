@@ -437,7 +437,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 {
   PyObject *obj = NULL;
 
-  if (ptr)
+  if (ptr && vtkPythonMap)
     {
     vtkPythonObjectMap::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
@@ -777,6 +777,12 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
+  if (vtkPythonMap == NULL)
+    {
+    PyErr_SetString(PyExc_TypeError, "method requires a vtkPythonMap");
+    return NULL;
+    }
+
   const char *object_type =
     vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
 
