@@ -354,11 +354,7 @@ PyVTKSpecialType *vtkPythonUtil::FindSpecialType(const char *classname)
 //--------------------------------------------------------------------
 void vtkPythonUtil::AddObjectToMap(PyObject *obj, vtkObjectBase *ptr)
 {
-  if (vtkPythonMap == NULL)
-    {
-    vtkPythonMap = new vtkPythonUtil();
-    Py_AtExit(vtkPythonUtilDelete);
-    }
+  vtkPythonUtilCreateIfNeeded();
 
 #ifdef VTKPYTHONDEBUG
   vtkGenericWarningMacro("Adding an object to map ptr = " << ptr);
@@ -441,7 +437,7 @@ PyObject *vtkPythonUtil::GetObjectFromPointer(vtkObjectBase *ptr)
 {
   PyObject *obj = NULL;
 
-  if (ptr)
+  if (ptr && vtkPythonMap)
     {
     vtkPythonObjectMap::iterator i =
       vtkPythonMap->ObjectMap->find(ptr);
@@ -781,6 +777,12 @@ PyObject *vtkPythonUtil::GetObjectFromObject(
 void *vtkPythonUtil::GetPointerFromSpecialObject(
   PyObject *obj, const char *result_type, PyObject **newobj)
 {
+  if (vtkPythonMap == NULL)
+    {
+    PyErr_SetString(PyExc_TypeError, "method requires a vtkPythonMap");
+    return NULL;
+    }
+
   const char *object_type =
     vtkPythonUtil::StripModule(Py_TYPE(obj)->tp_name);
 
@@ -865,11 +867,7 @@ void vtkPythonUtil::AddNamespaceToMap(PyObject *module)
     return;
     }
 
-  if (vtkPythonMap == NULL)
-    {
-    vtkPythonMap = new vtkPythonUtil();
-    Py_AtExit(vtkPythonUtilDelete);
-    }
+  vtkPythonUtilCreateIfNeeded();
 
   const char *name = PyVTKNamespace_GetName(module);
   // let's make sure it isn't already there
@@ -921,11 +919,7 @@ PyObject *vtkPythonUtil::FindNamespace(const char *name)
 //--------------------------------------------------------------------
 void vtkPythonUtil::AddEnumToMap(PyTypeObject *enumtype)
 {
-  if (vtkPythonMap == NULL)
-    {
-    vtkPythonMap = new vtkPythonUtil();
-    Py_AtExit(vtkPythonUtilDelete);
-    }
+  vtkPythonUtilCreateIfNeeded();
 
   // Only add to map if it isn't already there
   const char *enumname = vtkPythonUtil::StripModule(enumtype->tp_name);
