@@ -226,7 +226,6 @@ public:
   vtkGetMacro(AxisLabels, int);
   vtkBooleanMacro(AxisLabels, int);
 
-//BTX
   enum
   {
     CYLINDER_SHAFT,
@@ -240,7 +239,6 @@ public:
     SPHERE_TIP,
     USER_DEFINED_TIP
   };
-//ETX
 
 protected:
   vtkAxesActor();

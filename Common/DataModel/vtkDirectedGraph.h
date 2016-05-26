@@ -49,12 +49,10 @@ public:
   // Return what type of dataset this is.
   virtual int GetDataObjectType() {return VTK_DIRECTED_GRAPH;}
 
-  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkDirectedGraph *GetData(vtkInformation *info);
   static vtkDirectedGraph *GetData(vtkInformationVector *v, int i=0);
-  //ETX
 
   // Description:
   // Check the storage, and accept it if it is a valid

@@ -205,7 +205,6 @@ public:
     { vtkMapper::SetGlobalImmediateModeRendering(0); }
   static int  GetGlobalImmediateModeRendering();
 
-  //BTX
   // Description:
   // Force compile only mode in case display lists are used
   // (ImmediateModeRendering is false). If ImmediateModeRendering is true,
@@ -216,7 +215,6 @@ public:
   // There is no good reason to expose it to wrappers.
   vtkGetMacro(ForceCompileOnly, int);
   void SetForceCompileOnly(int value);
-  //ETX
 
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -401,12 +399,10 @@ public:
   void SetRenderTime(double time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, double);
 
-  //BTX
   // Description:
   // Get the input as a vtkDataSet.  This method is overridden in
   // the specialized mapper classes to return more specific data types.
   vtkDataSet *GetInput();
-  //ETX
 
   // Description:
   // Get the input to this mapper as a vtkDataSet, instead of as a

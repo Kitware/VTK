@@ -185,9 +185,7 @@ public:
   void SetMaskInput(vtkImageData *mask);
   vtkGetObjectMacro(MaskInput, vtkImageData);
 
-  //BTX
   enum { BinaryMaskType = 0, LabelMapMaskType };
-  //ETX
 
   // Description:
   // Set the mask type, if mask is to be used. See documentation for
@@ -262,7 +260,6 @@ public:
   // \sa SetRenderToImage()
   virtual void GetColorImage(vtkImageData*) {};
 
-//BTX
   // Description:
   // Initialize rendering for this volume.
   // \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
@@ -292,8 +289,6 @@ public:
   // \post valid_j_ratio: ratio[1]>0 && ratio[1]<=1.0
   // \post valid_k_ratio: ratio[2]>0 && ratio[2]<=1.0
   virtual void GetReductionRatio(double ratio[3])=0;
-
-//ETX
 
 protected:
   vtkGPUVolumeRayCastMapper();

@@ -84,13 +84,11 @@ public:
   // such as Representation, Culling are specified by the Property.
   virtual void BackfaceRender(vtkActor *, vtkRenderer *) {}
 
-  //BTX
   // Description:
   // This method is called after the actor has been rendered.
   // Don't call this directly. This method cleans up
   // any shaders allocated.
   virtual void PostRender(vtkActor*, vtkRenderer*);
-  //ETX
 
   // Description:
   // Set/Get lighting flag for an object. Initial value is true.
@@ -333,7 +331,6 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *win);
 
-//BTX
   // Description:
   // Used to specify which texture unit a texture will use.
   // Only relevant when multitexturing.
@@ -348,7 +345,6 @@ public:
     VTK_TEXTURE_UNIT_6,
     VTK_TEXTURE_UNIT_7
   };
-//ETX
 
 protected:
   vtkProperty();
@@ -387,14 +383,12 @@ protected:
   char* MaterialName;
   vtkSetStringMacro(MaterialName);
 
-//BTX
   // FIXME:
   // Don't use these methods. They will be removed. They are provided only
   // for the time-being.
   vtkTexture* GetTextureAtIndex(int index);
   int GetTextureUnitAtIndex(int index);
   int GetTextureUnit(const char* name);
-//ETX
 
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.

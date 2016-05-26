@@ -130,7 +130,6 @@ public:
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -157,8 +156,6 @@ public:
     {return this->GetGradientMagnitudeScale();};
   virtual float GetGradientMagnitudeBias(int)
     {return this->GetGradientMagnitudeBias();};
-
-//ETX
 
 protected:
   vtkVolumeRayCastMapper();

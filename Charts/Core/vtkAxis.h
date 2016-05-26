@@ -433,7 +433,6 @@ public:
   // is TICK_SIMPLE.
   vtkStdString GenerateSimpleLabel(double val);
 
-//BTX
 protected:
   vtkAxis();
   ~vtkAxis();
@@ -602,7 +601,6 @@ private:
   // Return true if the value is in range, false otherwise.
   bool InRange(double value);
 
-//ETX
 };
 
 #endif //vtkAxis_h

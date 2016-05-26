@@ -76,7 +76,6 @@ public:
     {this->SetSortingStyle(VTK_CULLER_SORT_FRONT_TO_BACK);};
   const char *GetSortingStyleAsString(void);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
@@ -85,7 +84,6 @@ public:
   // the render process
   double Cull( vtkRenderer *ren, vtkProp **propList,
               int& listLength, int& initialized );
-//ETX
 
 protected:
   vtkFrustumCoverageCuller();

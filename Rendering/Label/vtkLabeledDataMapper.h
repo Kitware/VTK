@@ -161,14 +161,12 @@ public:
   vtkGetObjectMacro(Transform, vtkTransform);
   void SetTransform(vtkTransform* t);
 
-  //BTX
   /// Coordinate systems that output dataset may use.
   enum Coordinates
     {
     WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
     DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
     };
-  //ETX
 
   // Description:
   // Set/get the coordinate system used for output labels.
@@ -227,10 +225,8 @@ protected:
   void BuildLabels();
   void BuildLabelsInternal(vtkDataSet*);
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.

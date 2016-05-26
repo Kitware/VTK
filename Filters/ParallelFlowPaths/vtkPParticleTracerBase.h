@@ -27,9 +27,7 @@
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkParticleTracerBase.h"
 
-//BTX
 #include <vector> // STL Header
-//ETX
 
 #include "vtkFiltersParallelFlowPathsModule.h" // For export macro
 
@@ -63,7 +61,6 @@ protected:
                                   vtkInformationVector* outputVector);
 
 //
-//BTX
 
   virtual vtkPolyData* Execute(vtkInformationVector** inputVector);
   virtual bool SendParticleToAnotherProcess(vtkParticleTracerBaseNamespace::ParticleInformation & info,
@@ -103,7 +100,7 @@ protected:
 
 
 //
-//ETX
+
 //
 
   // MPI controller needed when running in parallel

@@ -217,10 +217,8 @@ protected:
   void SetDataArraySelections(vtkXMLDataElement* eDSA,
                               vtkDataArraySelection* sel);
 
-//BTX
   int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,
   int numTuples, vtkInformationVector *(&infoVector));
-//ETX
 
   // Check whether the given array element is an enabled array.
   int PointDataArrayIsEnabled(vtkXMLDataElement* ePDA);

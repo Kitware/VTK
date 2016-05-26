@@ -96,9 +96,7 @@ public:
   // Note: vtkImageData* is required
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-//BTX
   enum {SIMPLE_PROJECTION=0,NONOCCLUDED_PROJECTION,HUG_PROJECTION};
-//ETX
 
   // Description:
   // Determine how to control the projection process. Simple projection

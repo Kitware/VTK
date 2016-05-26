@@ -239,13 +239,11 @@ public:
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-//BTX
   enum
   {
     FILE_BIG_ENDIAN=0,
     FILE_LITTLE_ENDIAN=1
   };
-//ETX
 
 protected:
   vtkMultiBlockPLOT3DReader();

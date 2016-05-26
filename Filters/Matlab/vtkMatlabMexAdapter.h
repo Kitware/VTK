@@ -75,7 +75,6 @@ public:
 
   static vtkMatlabMexAdapter *New();
 
-//BTX
   // Description:
   // Create a mxArray copy of a vtkDataArray (Allocates memory by default)
   mxArray* vtkDataArrayToMxArray(vtkDataArray* aa, bool ShallowCopy = false);
@@ -111,8 +110,6 @@ public:
   // Description:
   // Match Matlab and VTK data types for conversion.
   static vtkDataArray* GetVTKDataType(mxClassID cid);
-
-//ETX
 
 protected:
 

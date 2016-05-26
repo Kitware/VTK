@@ -81,7 +81,6 @@ public:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
-//BTX
 protected:
   vtkPiecewisePointHandleItem();
   ~vtkPiecewisePointHandleItem();
@@ -103,7 +102,7 @@ private:
 
   class InternalPiecewisePointHandleInfo;
   InternalPiecewisePointHandleInfo* Internal;
-//ETX
+
 };
 
 #endif //vtkPiecewisePointHandleItem_h

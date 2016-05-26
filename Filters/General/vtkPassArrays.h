@@ -147,10 +147,8 @@ protected:
   bool RemoveArrays;
   bool UseFieldTypes;
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
   vtkPassArrays(const vtkPassArrays&); // Not implemented

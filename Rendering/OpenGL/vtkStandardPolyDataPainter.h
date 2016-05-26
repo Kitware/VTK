@@ -55,7 +55,7 @@ public:
   static vtkStandardPolyDataPainter *New();
 
   void AddMultiTextureCoordsArray(vtkDataArray * array);
-//BTX
+
 protected:
   vtkStandardPolyDataPainter();
   ~vtkStandardPolyDataPainter();
@@ -86,7 +86,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif //vtkStandardPolyDataPainter_h

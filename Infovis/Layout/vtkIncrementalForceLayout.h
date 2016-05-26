@@ -92,7 +92,6 @@ public:
   vtkSetMacro(Friction, float);
   vtkGetMacro(Friction, float);
 
-//BTX
   // Description:
   // Set the gravity point where all vertices will migrate. Generally this
   // should be set to the location in the center of the scene.
@@ -101,7 +100,6 @@ public:
     { this->GravityPoint = point; }
   virtual vtkVector2f GetGravityPoint()
     { return this->GravityPoint; }
-//ETX
 
   // Description:
   // Perform one iteration of the force-directed layout.

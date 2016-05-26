@@ -66,9 +66,9 @@ protected:
   ~vtkSignedCharArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
-  //ETX
+
   vtkSignedCharArray(const vtkSignedCharArray&);  // Not implemented.
   void operator=(const vtkSignedCharArray&);  // Not implemented.
 };

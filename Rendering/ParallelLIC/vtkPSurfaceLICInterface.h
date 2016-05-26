@@ -45,7 +45,6 @@ protected:
   vtkPSurfaceLICInterface();
   ~vtkPSurfaceLICInterface();
 
-  //BTX
   // Description:
   // Get the min/max across all ranks. min/max are in/out.
   // In serial operation this is a no-op, in parallel it
@@ -61,7 +60,6 @@ protected:
   // is included in the new communicator. In parallel this call is mpi
   // collective on the world communicator. In serial this is a no-op.
   virtual vtkPainterCommunicator *CreateCommunicator(int include);
-  //ETX
 
   // Description:
   // Ensure that if any rank udpates the communicator they all

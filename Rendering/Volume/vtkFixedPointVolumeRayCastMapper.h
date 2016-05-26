@@ -89,11 +89,9 @@ class vtkRayCastImageDisplayHelper;
 class vtkFixedPointRayCastImage;
 class vtkDataArray;
 
-//BTX
 // Forward declaration needed for use by friend declaration below.
 VTK_THREAD_RETURN_TYPE FixedPointVolumeRayCastMapper_CastRays( void *arg );
 VTK_THREAD_RETURN_TYPE vtkFPVRCMSwitchOnDataType( void *arg );
-//ETX
 
 class VTKRENDERINGVOLUME_EXPORT vtkFixedPointVolumeRayCastMapper : public vtkVolumeMapper
 {
@@ -188,7 +186,6 @@ public:
                                             vtkRenderer *ren,
                                             vtkVolume *vol );
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -222,8 +219,6 @@ public:
     int            components,
     unsigned char  color[4] );
   int CheckIfCropped( unsigned int pos[3] );
-
-//ETX
 
   vtkGetObjectMacro( RenderWindow, vtkRenderWindow );
   vtkGetObjectMacro( MIPHelper, vtkFixedPointVolumeRayCastMIPHelper );

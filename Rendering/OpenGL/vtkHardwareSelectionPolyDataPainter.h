@@ -69,7 +69,6 @@ public:
   vtkSetStringMacro(CompositeIdArrayName);
   vtkGetStringMacro(CompositeIdArrayName);
 
-//BTX
 protected:
   vtkHardwareSelectionPolyDataPainter();
   ~vtkHardwareSelectionPolyDataPainter();
@@ -93,7 +92,7 @@ protected:
 private:
   vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
   void operator=(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
-//ETX
+
 };
 
 #endif

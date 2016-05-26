@@ -66,9 +66,9 @@ protected:
   ~vtkDoubleArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<double> RealSuperclass;
-  //ETX
+
   vtkDoubleArray(const vtkDoubleArray&);  // Not implemented.
   void operator=(const vtkDoubleArray&);  // Not implemented.
 };

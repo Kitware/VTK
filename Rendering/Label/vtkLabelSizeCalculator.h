@@ -90,10 +90,8 @@ protected:
 
   int DPI;
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
   vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ); // Not implemented.

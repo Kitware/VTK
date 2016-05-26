@@ -87,9 +87,8 @@ public:
   // interior.
   vtkSetClampMacro(OutputDimension,int,1,3);
   vtkGetMacro(OutputDimension,int);
-  //BTX
+
   int GetOutputDimension() const;
-  //ETX
 
   // Description:
   // These are convenience routines for setting properties maintained by the
@@ -140,7 +139,6 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-  //BTX
   vtkStreamingTessellator* Tessellator;
   vtkDataSetEdgeSubdivisionCriterion* Subdivider;
   int OutputDimension;
@@ -184,18 +182,15 @@ protected:
                           const double*,
                           const double*,
                           const double* );
-  //ETX
 
 private:
   vtkTessellatorFilter( const vtkTessellatorFilter& ); // Not implemented.
   void operator = ( const vtkTessellatorFilter& ); // Not implemented.
 };
 
-//BTX
 inline int vtkTessellatorFilter::GetOutputDimension() const
 {
   return this->OutputDimension;
 }
-//ETX
 
 #endif // vtkTessellatorFilter_h

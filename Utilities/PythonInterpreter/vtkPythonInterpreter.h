@@ -113,7 +113,6 @@ public:
   static void SetCaptureStdin(bool);
   static bool GetCaptureStdin();
 
-//BTX
 protected:
   vtkPythonInterpreter();
   ~vtkPythonInterpreter();
@@ -142,7 +141,7 @@ private:
   // Accumulate here output printed to console by the python interpreter.
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
-//ETX
+
 };
 
 #endif

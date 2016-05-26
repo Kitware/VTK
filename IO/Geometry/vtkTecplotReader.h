@@ -76,10 +76,8 @@
 #include "vtkIOGeometryModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-//BTX
 #include <vector> // STL Header; Required for vector
 #include <string> // STL Header; Required for string
-//ETX
 
 class vtkPoints;
 class vtkCellData;
@@ -258,12 +256,10 @@ protected:
   vtkDataArraySelection    *        DataArraySelection;
   vtkTecplotReaderInternal *        Internal;
 
-  //BTX
   std::string                    DataTitle;
   std::vector< int >             CellBased;
   std::vector< std::string >  ZoneNames;
   std::vector< std::string >  Variables;
-  //ETX
 
 private:
 

@@ -83,7 +83,6 @@ public:
   // Get the component no. at the given index.
   int GetTextureUnit(unsigned int index);
 
-//BTX
 protected:
   vtkGenericVertexAttributeMapping();
   ~vtkGenericVertexAttributeMapping();
@@ -94,7 +93,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

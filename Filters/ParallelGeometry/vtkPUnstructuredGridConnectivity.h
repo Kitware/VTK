@@ -138,10 +138,8 @@ protected:
   vtkUnstructuredGrid* GhostedGrid;   // This is the output from this class.
   vtkMPIController* Controller;       // Supplied MPI controller.
 
-// BTX
   vtk::details::GridInfo* AuxiliaryData; // Data used to build the ghost zones.
   vtk::details::CommunicationLinks* CommLists; // Persistent comm lists.
-// ETX
 
   // Description:
   // Given the deserialized cell-centered ghost data from the given neighboring

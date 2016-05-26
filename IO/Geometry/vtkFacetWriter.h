@@ -57,9 +57,7 @@ public:
   // Write data
   void Write();
 
-  // BTX
   void WriteToStream(ostream* ost);
-  // ETX
 
 protected:
   vtkFacetWriter();
@@ -73,9 +71,7 @@ protected:
 
   virtual int FillInputPortInformation(int, vtkInformation *);
 
-  // BTX
   int WriteDataToStream(ostream* ost, vtkPolyData* data);
-  // ETX
 
   char *FileName;
   ostream *OutputStream;

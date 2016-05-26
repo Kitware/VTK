@@ -126,7 +126,6 @@ public:
   // hardcoded to 1024.
   virtual vtkIdType GetTextureSizeLimit();
 
-//BTX
 protected:
   vtkScalarsToColorsPainter();
   virtual ~vtkScalarsToColorsPainter();
@@ -226,7 +225,7 @@ protected:
 private:
   vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&); // Not implemented.
   void operator=(const vtkScalarsToColorsPainter&); // Not implemented.
-//ETX
+
 };
 
 #endif

@@ -55,9 +55,8 @@ private:
   vtkEmptyRepresentation(const vtkEmptyRepresentation&); // Not implemented
   void operator=(const vtkEmptyRepresentation&);   // Not implemented
 
-//BTX
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;
-//ETX
+
 };
 
 #endif

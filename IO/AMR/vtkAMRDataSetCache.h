@@ -90,10 +90,8 @@ protected:
   vtkAMRDataSetCache();
   virtual ~vtkAMRDataSetCache();
 
-//BTX
   typedef std::map< int, vtkUniformGrid* > AMRCacheType;
   AMRCacheType Cache;
-//ETX
 
 private:
   vtkAMRDataSetCache( const vtkAMRDataSetCache& ); // Not implemented

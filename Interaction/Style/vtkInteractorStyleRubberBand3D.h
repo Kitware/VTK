@@ -63,7 +63,6 @@ public:
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
 
-  //BTX
   // Description:
   // Selection types
   enum
@@ -71,13 +70,11 @@ public:
     SELECT_NORMAL = 0,
     SELECT_UNION = 1
     };
-  //ETX
 
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
 
-  //BTX
   enum
     {
     NONE,
@@ -86,7 +83,6 @@ public:
     ROTATING,
     SELECTING
     };
-  //ETX
 
   // Description:
   // Access to the start and end positions (display coordinates) of the rubber

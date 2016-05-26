@@ -63,10 +63,9 @@ private:
   vtkRemoveHiddenData(const vtkRemoveHiddenData&);  // Not implemented.
   void operator=(const vtkRemoveHiddenData&);  // Not implemented.
 
-//BTX
   vtkSmartPointer<vtkExtractSelectedGraph> ExtractGraph;
   vtkSmartPointer<vtkExtractSelectedRows> ExtractTable;
-//ETX
+
 };
 
 #endif

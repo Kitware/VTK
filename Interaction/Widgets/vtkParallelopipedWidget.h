@@ -49,9 +49,9 @@ class vtkWidgetSet;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkParallelopipedWidget : public vtkAbstractWidget
 {
-  //BTX
+
   friend class vtkWidgetSet;
-  //ETX
+
 public:
   // Description:
   // Instantiate the object.
@@ -124,7 +124,6 @@ protected:
   // The positioning handle widgets
   vtkHandleWidget **HandleWidgets;
 
-  //BTX
   // Description:
   // Events invoked by this widget
   enum WidgetEventIds
@@ -133,7 +132,6 @@ protected:
     RequestResizeAlongAnAxisEvent,
     RequestChairModeEvent
     };
-  //ETX
 
   vtkWidgetSet* WidgetSet;
 

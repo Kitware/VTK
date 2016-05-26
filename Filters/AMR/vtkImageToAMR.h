@@ -49,8 +49,6 @@ public:
   vtkSetClampMacro(MaximumNumberOfBlocks, int, 1, VTK_INT_MAX);
   vtkGetMacro(MaximumNumberOfBlocks, int);
 
-
-//BTX
 protected:
   vtkImageToAMR();
   ~vtkImageToAMR();
@@ -76,7 +74,7 @@ protected:
 private:
   vtkImageToAMR(const vtkImageToAMR&); // Not implemented.
   void operator=(const vtkImageToAMR&); // Not implemented.
-//ETX
+
 };
 
 #endif

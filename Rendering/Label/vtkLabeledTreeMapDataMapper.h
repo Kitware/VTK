@@ -132,9 +132,9 @@ protected:
   int MaxTreeLevels;
   double BoxTrans[2][2];
   double WindowLimits[2][2];
-  //BTX
+
   float (*LabelMasks)[4];
-  //ETX
+
   vtkIdList *VertexList;
   vtkPoints *TextPoints;
   vtkCoordinate *VCoord;

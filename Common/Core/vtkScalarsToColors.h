@@ -147,14 +147,11 @@ public:
   void SetVectorModeToComponent();
   void SetVectorModeToRGBColors();
 
-//BTX
   enum VectorModes {
     MAGNITUDE=0,
     COMPONENT=1,
     RGBCOLORS=2
   };
-//ETX
-
 
   // Description:
   // If the mapper does not select which component of a vector

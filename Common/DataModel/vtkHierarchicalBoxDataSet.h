@@ -44,12 +44,11 @@ public:
   // Return class name of data type (see vtkType.h for definitions).
   virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
-  // BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkHierarchicalBoxDataSet* GetData(vtkInformation* info);
   static vtkHierarchicalBoxDataSet* GetData(vtkInformationVector* v, int i=0);
-  // ETX
+
 protected:
   vtkHierarchicalBoxDataSet();
   virtual ~vtkHierarchicalBoxDataSet();

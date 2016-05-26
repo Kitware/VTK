@@ -320,7 +320,6 @@ protected:
   double ZBinStep;
   vtkIdType SliceSize; //eliminate one multiplication
 
-  //BTX
   struct PointQuadric
   {
     PointQuadric():VertexId(-1),Dimension(255) {}
@@ -332,7 +331,6 @@ protected:
     unsigned char Dimension;
     double Quadric[9];
   };
-  //ETX
 
   PointQuadric* QuadricArray;
   vtkIdType NumberOfBinsUsed;

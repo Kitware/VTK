@@ -127,10 +127,8 @@ protected:
 
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
   vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&); // Not implemented

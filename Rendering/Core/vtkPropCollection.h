@@ -54,13 +54,11 @@ class VTKRENDERINGCORE_EXPORT vtkPropCollection : public vtkCollection
   // or vtkPropAssembly.
   int GetNumberOfPaths();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkProp *GetNextProp(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkProp *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkPropCollection() {}

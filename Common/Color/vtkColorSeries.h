@@ -55,7 +55,6 @@ public:
   // Create a new vtkColorSeries with the SPECTRUM color scheme.
   static vtkColorSeries* New();
 
-//BTX
   // Description:
   // Enum of the available color schemes
   enum ColorSchemes {
@@ -186,9 +185,7 @@ public:
     /// User specified color scheme.
     CUSTOM
     };
-//ETX
 
-//BTX
 // Description:
 // An enum defining how lookup tables should be used: either as a
 // list of discrete colors to choose from (categorical), or as an
@@ -199,7 +196,6 @@ enum LUTMode {
   /// indexed lookup is on
   CATEGORICAL
 };
-//ETX
 
   // Description:
   // Set the color scheme that should be used.
@@ -236,7 +232,6 @@ enum LUTMode {
   // to be duplicated to a new custom scheme.
   virtual void SetNumberOfColors(int numColors);
 
-//BTX
   // Description:
   // Get the color at the specified index. If the index is out of range then
   // black will be returned.
@@ -259,7 +254,6 @@ enum LUTMode {
   // Description:
   // Inserts the color at the specified index in the list.
   virtual void InsertColor(int index, const vtkColor3ub &color);
-//ETX
 
   // Description:
   // Removes the color at the specified index in the list.
@@ -291,7 +285,6 @@ enum LUTMode {
   // is treated as CATEGORICAL.
   vtkLookupTable* CreateLookupTable(int lutIndexing = CATEGORICAL);
 
-//BTX
 protected:
   vtkColorSeries();
   virtual ~vtkColorSeries();
@@ -316,7 +309,7 @@ protected:
 private:
   vtkColorSeries(const vtkColorSeries &); // Not implemented.
   void operator=(const vtkColorSeries &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkColorSeries_h

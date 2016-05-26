@@ -185,10 +185,8 @@ private:
   vtkMergeCellsSTLCloak *GlobalIdMap;
   vtkMergeCellsSTLCloak *GlobalCellIdMap;
 
-//BTX
   vtkDataSetAttributes::FieldList *ptList;
   vtkDataSetAttributes::FieldList *cellList;
-//ETX
 
   vtkUnstructuredGrid *UnstructuredGrid;
 

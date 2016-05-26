@@ -55,11 +55,10 @@ public:
   void SetGraph(vtkGraph* g);
   vtkGraph* GetGraph();
 
-//BTX
   // Description:
   // Add an edge to the underlying mutable graph.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
-//ETX
+
   vtkGraphEdge* AddGraphEdge(vtkIdType u, vtkIdType v);
 
   // Description:

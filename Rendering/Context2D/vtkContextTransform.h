@@ -140,7 +140,6 @@ public:
   vtkGetMacro(PanYOnMouseWheel, bool);
   vtkBooleanMacro(PanYOnMouseWheel, bool);
 
-//BTX
   // Description:
   // Returns true if the transform is interactive, false otherwise.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -156,9 +155,7 @@ public:
   // Description:
   // Mouse wheel event. Perform pan or zoom as specified by mouse bindings.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
 
-//BTX
 protected:
   vtkContextTransform();
   ~vtkContextTransform();
@@ -182,7 +179,7 @@ protected:
 private:
   vtkContextTransform(const vtkContextTransform &); // Not implemented.
   void operator=(const vtkContextTransform &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkContextTransform_h

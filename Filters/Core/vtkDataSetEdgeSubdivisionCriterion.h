@@ -48,19 +48,17 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
 
     virtual void SetMesh( vtkDataSet* );
     vtkDataSet* GetMesh();
-    //BTX
+
     const vtkDataSet* GetMesh() const;
-    //ETX
 
     virtual void SetCellId( vtkIdType cell );
     vtkIdType  GetCellId() const;
-    //BTX
+
     vtkIdType& GetCellId();
-    //ETX
+
     vtkCell* GetCell();
-    //BTX
+
     const vtkCell* GetCell() const;
-    //ETX
 
     virtual bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start );
 
@@ -156,8 +154,6 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
 
 };
 
-//BTX
-
 inline vtkIdType& vtkDataSetEdgeSubdivisionCriterion::GetCellId()       { return this->CurrentCellId; }
 inline vtkIdType  vtkDataSetEdgeSubdivisionCriterion::GetCellId() const { return this->CurrentCellId; }
 
@@ -166,7 +162,5 @@ inline const vtkDataSet* vtkDataSetEdgeSubdivisionCriterion::GetMesh() const { r
 
 inline       vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell()       { return this->CurrentCellData; }
 inline const vtkCell* vtkDataSetEdgeSubdivisionCriterion::GetCell() const { return this->CurrentCellData; }
-
-//ETX
 
 #endif // vtkDataSetEdgeSubdivisionCriterion_h

@@ -96,7 +96,6 @@ public:
 
   vtkObjectIdMap* GetObjectIdMap();
 
-//BTX
 protected:
   vtkWebApplication();
   ~vtkWebApplication();
@@ -112,7 +111,6 @@ private:
   class vtkInternals;
   vtkInternals* Internals;
 
-//ETX
 };
 
 #endif

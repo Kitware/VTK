@@ -38,8 +38,6 @@ public:
 
   static vtkOpenGLVolumeTextureMapper2D *New();
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -48,8 +46,6 @@ public:
 
   void RenderQuads( int count, float *v, float *t,
                     unsigned char *texture, int size[2], int reverseFlag);
-
-//ETX
 
 protected:
   vtkOpenGLVolumeTextureMapper2D();

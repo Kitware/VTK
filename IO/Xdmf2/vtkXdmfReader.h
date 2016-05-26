@@ -138,7 +138,6 @@ public:
   // eg. blocks/materials/hierarchies.
   virtual vtkGraph* GetSIL();
 
-//BTX
   class XdmfDataSetTopoGeoPath
   {
   public:
@@ -214,7 +213,7 @@ private:
 private:
   vtkXdmfReader(const vtkXdmfReader&); // Not implemented
   void operator=(const vtkXdmfReader&); // Not implemented
-//ETX
+
 };
 
 #endif

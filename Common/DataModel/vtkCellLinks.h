@@ -42,13 +42,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkAbstractCellLinks
 {
 public:
 
-  //BTX
   class Link {
   public:
     unsigned short ncells;
     vtkIdType *cells;
   };
-  //ETX
 
   // Description:
   // Standard methods to instantiate, print, and obtain type information.

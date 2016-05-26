@@ -68,7 +68,6 @@ public:
   typedef vtkArrayExtents::DimensionT DimensionT;
   typedef vtkArrayExtents::SizeT SizeT;
 
-//BTX
   enum
   {
     /// Used with CreateArray() to create dense arrays
@@ -76,7 +75,6 @@ public:
     /// Used with CreateArray() to create sparse arrays
     SPARSE = 1
   };
-//ETX
 
   // Description:
   // Creates a new array where StorageType is one of vtkArray::DENSE

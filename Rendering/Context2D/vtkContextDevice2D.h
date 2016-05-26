@@ -289,7 +289,6 @@ public:
   // Initial value is false.
   virtual bool GetBufferIdMode() const;
 
-//BTX
   // Description:
   // Start BufferId creation Mode.
   // The default implementation is empty.
@@ -297,7 +296,7 @@ public:
   // \pre bufferId_exists: bufferId!=0
   // \post started: GetBufferIdMode()
   virtual void BufferIdModeBegin(vtkAbstractContextBufferId *bufferId);
-//ETX
+
   // Description:
   // Finalize BufferId creation Mode. It makes sure that the content of the
   // bufferId passed in argument of BufferIdModeBegin() is correctly set.
@@ -318,7 +317,6 @@ public:
   }
   vtkGetMacro(ViewportRect, vtkRecti)
 
-//BTX
 protected:
   vtkContextDevice2D();
   ~vtkContextDevice2D();
@@ -345,7 +343,6 @@ private:
   vtkContextDevice2D(const vtkContextDevice2D &); // Not implemented.
   void operator=(const vtkContextDevice2D &);   // Not implemented.
 
-//ETX
 };
 
 #endif //vtkContextDevice2D_h

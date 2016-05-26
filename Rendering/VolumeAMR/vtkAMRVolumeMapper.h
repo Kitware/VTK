@@ -129,7 +129,6 @@ public:
   virtual void SetCroppingRegionFlags(int mode);
   virtual int GetCroppingRegionFlags();
 
-//BTX
 // The possible values for the default and current render mode ivars
   enum
   {
@@ -141,7 +140,6 @@ public:
     UndefinedRenderMode,
     InvalidRenderMode
   };
-//ETX
 
   // Description:
   // Set the requested render mode. The default is
@@ -208,7 +206,6 @@ public:
   vtkSetVector3Macro(NumberOfSamples,int);
   vtkGetVector3Macro(NumberOfSamples,int);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -230,7 +227,6 @@ public:
                                  vtkInformationVector *outputVector);
   void UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *amr);
   void UpdateResamplerFrustrumMethod(vtkRenderer *ren, vtkOverlappingAMR *amr);
-//ETX
 
   // Description:
   //Select the type of resampling techinque approach to use.

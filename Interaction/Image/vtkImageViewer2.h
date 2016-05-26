@@ -92,14 +92,14 @@ public:
 
   // Description:
   // Set/get the slice orientation
-  //BTX
+
   enum
   {
     SLICE_ORIENTATION_YZ = 0,
     SLICE_ORIENTATION_XZ = 1,
     SLICE_ORIENTATION_XY = 2
   };
-  //ETX
+
   vtkGetMacro(SliceOrientation, int);
   virtual void SetSliceOrientation(int orientation);
   virtual void SetSliceOrientationToXY()

@@ -106,13 +106,11 @@ public:
   void InterpolateQuaternion(double t, vtkQuaterniond& q);
   void InterpolateQuaternion(double t, double q[4]);
 
-//BTX
   // Description:
   // Enums to control the type of interpolation to use.
   enum {INTERPOLATION_TYPE_LINEAR=0,
         INTERPOLATION_TYPE_SPLINE
   };
-//ETX
 
   // Description:
   // Specify which type of function to use for interpolation. By default

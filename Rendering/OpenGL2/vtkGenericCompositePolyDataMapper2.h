@@ -88,7 +88,6 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
-//BTX
 protected:
   vtkGenericCompositePolyDataMapper2();
   ~vtkGenericCompositePolyDataMapper2();
@@ -160,7 +159,7 @@ private:
 
   vtkGenericCompositePolyDataMapper2(const vtkGenericCompositePolyDataMapper2&); // Not implemented.
   void operator=(const vtkGenericCompositePolyDataMapper2&); // Not implemented.
-//ETX
+
 };
 
 #endif

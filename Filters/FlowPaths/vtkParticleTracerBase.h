@@ -28,10 +28,9 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPolyDataAlgorithm.h"
-//BTX
+
 #include <vector> // STL Header
 #include <list>   // STL Header
-//ETX
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
@@ -52,7 +51,6 @@ class vtkPoints;
 class vtkPolyData;
 class vtkTemporalInterpolatedVelocityField;
 
-//BTX
 namespace vtkParticleTracerBaseNamespace
 {
   typedef struct { double x[4]; } Position;
@@ -90,7 +88,6 @@ namespace vtkParticleTracerBaseNamespace
   typedef std::list<ParticleInformation>    ParticleDataList;
   typedef ParticleDataList::iterator           ParticleListIterator;
 };
-//ETX
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
 {

@@ -96,14 +96,12 @@ public:
   void SetVectorAttribute(const char* name, int length, const double* value);
   void SetVectorAttribute(const char* name, int length, const unsigned long* value);
 
-  //BTX
   int  GetScalarAttribute(const char* name, long long& value);
   int  GetVectorAttribute(const char* name, int length, long long* value);
   void SetVectorAttribute(const char* name, int length, long long const* value);
   int  GetScalarAttribute(const char* name, unsigned long long& value);
   int  GetVectorAttribute(const char* name, int length, unsigned long long* value);
   void SetVectorAttribute(const char* name, int length, unsigned long long const* value);
-  //ETX
 
   // Description:
   // Get the attribute with the given name and converted to a word type
@@ -274,10 +272,8 @@ protected:
   void PrintCharacterData(ostream &os,vtkIndent indent);
   static void PrintWithEscapedData(ostream& os, const char* data);
 
-  //BTX
   friend class vtkXMLDataParser;
   friend class vtkXMLMaterialParser;
-  //ETX
 
 private:
   vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.

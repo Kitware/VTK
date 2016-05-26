@@ -53,13 +53,11 @@ public:
   vtkSetVector2Macro(LongitudeBounds,double);
   vtkGetVector2Macro(LongitudeBounds,double);
 
-  //BTX
   enum LevelLimits {
     LEVEL_MIN = 0,
     LEVEL_MAX = 11,
     NUMBER_OF_LEVELS = ( LEVEL_MAX - LEVEL_MIN + 1 )
   };
-  //ETX
 
   // Description:
   // The frequency level of latitude lines.
@@ -89,12 +87,10 @@ public:
   vtkSetMacro(GeometryType,int);
   vtkGetMacro(GeometryType,int);
 
-  //BTX
   enum GeometryType {
     POLYLINES      = 0x1,
     QUADRILATERALS = 0x2
   };
-  //ETX
 
 protected:
   vtkGeoGraticule();

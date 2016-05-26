@@ -58,7 +58,6 @@ public:
   // this is done automatically in SateChanged.
   void Update();
 
-  //BTX
   // Description:
   // Setters for internal state.
   void SetEnabled(int val);
@@ -70,7 +69,6 @@ public:
   void SetSpotExponent(float val);
   void SetSpotCutoff(float val);
   void SetAttenuation(float *val);
-  //ETX
 
 private:
   vtkOpenGLLightMonitor(int lightId) : LightId(lightId), UpTime(0)

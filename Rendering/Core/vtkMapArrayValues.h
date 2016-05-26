@@ -105,7 +105,6 @@ public:
   // Get the size of the internal map.
   int GetMapSize();
 
-//BTX
   // Always keep NUM_ATTRIBUTE_LOCS as the last entry
   enum FieldType
   {
@@ -116,7 +115,6 @@ public:
     ROW_DATA=4,
     NUM_ATTRIBUTE_LOCS
   };
-//ETX
 
 protected:
 

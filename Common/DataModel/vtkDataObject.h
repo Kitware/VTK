@@ -210,7 +210,6 @@ public:
   // matches the update extent.
   virtual void Crop(const int* updateExtent);
 
-  //BTX
   // Description:
   // Possible values for the FIELD_ASSOCIATION information entry.
   enum FieldAssociations
@@ -224,9 +223,7 @@ public:
     FIELD_ASSOCIATION_ROWS,
     NUMBER_OF_ASSOCIATIONS
   };
-  //ETX
 
-  //BTX
   // Description:
   // Possible attribute types.
   // POINT_THEN_CELL is provided for consistency with FieldAssociations.
@@ -241,7 +238,6 @@ public:
     ROW,
     NUMBER_OF_ATTRIBUTE_TYPES
   };
-  //ETX
 
   // Description:
   // Returns the attributes of the data object of the specified
@@ -276,7 +272,6 @@ public:
   // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
   virtual vtkIdType GetNumberOfElements(int type);
 
-  //BTX
   // Description:
   // Possible values for the FIELD_OPERATION information entry.
   enum FieldOperations
@@ -286,7 +281,6 @@ public:
     FIELD_OPERATION_MODIFIED,
     FIELD_OPERATION_REMOVED
   };
-  //ETX
 
   // Description:
   // Given an integer association type, this static method returns a string type
@@ -355,12 +349,10 @@ public:
   // \ingroup InformationKeys
   static vtkInformationDataObjectKey* SIL();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkDataObject* GetData(vtkInformation* info);
   static vtkDataObject* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
 

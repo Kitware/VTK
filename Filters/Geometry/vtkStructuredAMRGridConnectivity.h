@@ -478,7 +478,6 @@ protected:
                             // grids in the hierarchy can only differ by one
                             // level.
 
-  // BTX
   // AMRHierarchy stores the the set of grid Ids in [0,N] for each level
   std::map< int, std::set<int> > AMRHierarchy;
 
@@ -498,7 +497,6 @@ protected:
   // RefinementRatios stores the refinement ratio at each level, this vector
   // is used only when the refinement ratio varies across levels
   std::vector< int > RefinementRatios;
-  // ETX
 
 private:
    vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&); // Not implemented

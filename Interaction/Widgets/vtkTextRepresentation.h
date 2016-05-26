@@ -72,7 +72,6 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
 
-  //BTX
   enum
     {
     AnyLocation = 0,
@@ -83,7 +82,6 @@ public:
     UpperRightCorner,
     UpperCenter
     };
-  //ETX
 
   // Description:
   // Set the text position, by enumeration (

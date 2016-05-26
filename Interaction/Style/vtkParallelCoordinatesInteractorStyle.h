@@ -54,14 +54,12 @@ public:
   vtkTypeMacro(vtkParallelCoordinatesInteractorStyle, vtkInteractorStyleTrackballCamera);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum {
     INTERACT_HOVER=0,
     INTERACT_INSPECT,
     INTERACT_ZOOM,
     INTERACT_PAN
   };
-  //ETX
 
   // Description:
   // Get the cursor positions in pixel coords

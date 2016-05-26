@@ -59,7 +59,6 @@ public:
   // Given the extents, computes the dimensions.
   static void GetDimensions(const int ext[6], int dims[3]);
 
-//BTX
 protected:
   vtkStructuredExtent();
   ~vtkStructuredExtent();
@@ -67,7 +66,7 @@ protected:
 private:
   vtkStructuredExtent(const vtkStructuredExtent&); // Not implemented.
   void operator=(const vtkStructuredExtent&); // Not implemented.
-//ETX
+
 };
 
 //----------------------------------------------------------------------------

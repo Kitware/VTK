@@ -105,9 +105,9 @@ public:
     ostream& stream, const vtkArrayCoordinates& rhs);
 
 private:
-  //BTX
+
   std::vector<CoordinateT> Storage;
-  //ETX
+
 };
 
 #endif

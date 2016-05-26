@@ -40,7 +40,6 @@ public:
   vtkTypeMacro(vtkAddMembershipArray,vtkPassInputTypeAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum
     {
     FIELD_DATA = 0,
@@ -50,7 +49,6 @@ public:
     EDGE_DATA = 4,
     ROW_DATA = 5
     };
-  //ETX
 
   // Description:
   // The field type to add the membership array to.
@@ -83,9 +81,8 @@ protected:
   int FieldType;
   char* OutputArrayName;
   char* InputArrayName;
-//BTX
+
   vtkAbstractArray* InputValues;
-//ETX
 
 private:
   vtkAddMembershipArray(const vtkAddMembershipArray&); // Not implemented

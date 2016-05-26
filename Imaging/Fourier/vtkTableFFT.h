@@ -55,11 +55,9 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-//BTX
   // Description:
   // Perform the FFT on the given data array.
   virtual vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray *input);
-//ETX
 
 private:
   vtkTableFFT(const vtkTableFFT &);     // Not implemented

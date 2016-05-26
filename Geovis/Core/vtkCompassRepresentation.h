@@ -127,7 +127,6 @@ public:
   virtual void EndDistance();
   virtual void SetRenderer(vtkRenderer *ren);
 
-//BTX
   // Enums are used to describe what is selected
   enum _InteractionState
   {
@@ -141,7 +140,6 @@ public:
     DistanceIn,
     DistanceAdjusting
   };
-//ETX
 
 protected:
   vtkCompassRepresentation();
@@ -156,10 +154,9 @@ protected:
   double OuterRadius;
 
   // tilt and distance rep
-  //BTX
+
   vtkSmartPointer<vtkCenteredSliderRepresentation> TiltRepresentation;
   vtkSmartPointer<vtkCenteredSliderRepresentation> DistanceRepresentation;
-  //ETX
 
   // Define the geometry. It is constructed in canaonical position
   // along the x-axis and then rotated into position.

@@ -75,7 +75,6 @@ public:
   // fails, a NULL pointer is returned.
   static vtkObject* CreateInstance(const char* className);
 
-  //BTX
   typedef vtkObject* (*CreateFunction)();
 
   // Description:
@@ -92,7 +91,6 @@ public:
   // function registered for the same class will be left untouched.
   static void UnRegisterInstantiator(const char* className,
                                      CreateFunction createFunction);
-  //ETX
 
 protected:
   vtkInstantiator();
@@ -104,16 +102,13 @@ protected:
   static void ClassInitialize();
   static void ClassFinalize();
 
-  //BTX
   friend class vtkInstantiatorInitialize;
-  //ETX
 
 private:
   vtkInstantiator(const vtkInstantiator&);  // Not implemented.
   void operator=(const vtkInstantiator&);  // Not implemented.
 };
 
-//BTX
 // Utility class to make sure vtkInstantiator is initialized before it
 // is used.
 class VTKCOMMONCORE_EXPORT vtkInstantiatorInitialize
@@ -132,6 +127,5 @@ private:
 // vtkInstantiator.  It will make sure vtkInstantiator is initialized
 // before it is used.
 static vtkInstantiatorInitialize vtkInstantiatorInitializer;
-//ETX
 
 #endif

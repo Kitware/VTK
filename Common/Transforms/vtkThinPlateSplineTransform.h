@@ -68,7 +68,6 @@ public:
   void SetBasisToR2LogR() { this->SetBasis(VTK_RBF_R2LOGR); };
   const char *GetBasisAsString();
 
-//BTX
   // Description:
   // Set the radial basis function to a custom function.  You must
   // supply both the function and its derivative with respect to r.
@@ -80,7 +79,6 @@ public:
   void SetBasisDerivative(double (*dUdr)(double r, double &dU)) {
     this->BasisDerivative = dUdr;
     this->Modified(); };
-//ETX
 
   // Description:
   // Set the source landmarks for the warp.  If you add or change the
@@ -128,11 +126,10 @@ protected:
   vtkPoints *SourceLandmarks;
   vtkPoints *TargetLandmarks;
 
-//BTX
   // the radial basis function to use
   double (*BasisFunction)(double r);
   double (*BasisDerivative)(double r, double& dUdr);
-//ETX
+
   int Basis;
 
   int NumberOfPoints;

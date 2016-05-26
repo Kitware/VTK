@@ -277,10 +277,9 @@ private:
   vtkPolyhedron(const vtkPolyhedron&);  // Not implemented.
   void operator=(const vtkPolyhedron&);  // Not implemented.
 
-  //BTX
   class vtkInternal;
   vtkInternal * Internal;
-  //ETX
+
 };
 
 //----------------------------------------------------------------------------

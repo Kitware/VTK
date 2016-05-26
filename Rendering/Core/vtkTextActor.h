@@ -101,13 +101,11 @@ public:
   void SetTextScaleModeToViewport()
     { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
 
-//BTX
   enum {
     TEXT_SCALE_MODE_NONE = 0,
     TEXT_SCALE_MODE_PROP,
     TEXT_SCALE_MODE_VIEWPORT
   };
-//ETX
 
   // Description:
   // Turn on or off the UseBorderAlign option.
@@ -225,7 +223,6 @@ public:
   // and then resizes based on if that long dimension was 72 DPI.
   static float GetFontScale(vtkViewport *viewport);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -245,7 +242,6 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-//ETX
 
 protected:
   // Description:

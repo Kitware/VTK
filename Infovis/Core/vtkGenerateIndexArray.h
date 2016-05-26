@@ -75,7 +75,6 @@ public:
   vtkSetMacro(PedigreeID, int);
   vtkGetMacro(PedigreeID, int);
 
-//BTX
   enum
   {
     ROW_DATA = 0,
@@ -84,7 +83,6 @@ public:
     VERTEX_DATA = 3,
     EDGE_DATA = 4
   };
-//ETX
 
 protected:
   vtkGenerateIndexArray();

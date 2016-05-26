@@ -46,7 +46,6 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
 class vtkAbstractArray;
 class vtkDataSetAttributes;
 class vtkInformation;
@@ -55,7 +54,6 @@ class vtkInformationIntegerKey;
 class vtkInformationObjectBaseKey;
 class vtkProp;
 class vtkTable;
-//ETX
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSelectionNode : public vtkObject
 {
@@ -113,7 +111,7 @@ public:
   // THRESHOLDS means the points and cells with values within a set of ranges
   // GetContentType() returns -1 if the content type is not set.
   static vtkInformationIntegerKey* CONTENT_TYPE();
-//BTX
+
   enum SelectionContent
   {
     SELECTIONS,  // Deprecated.
@@ -127,7 +125,6 @@ public:
     BLOCKS,       // used to select blocks within a composite dataset.
     QUERY
   };
-//ETX
 
   // Description:
   // Get or set the content type of the selection.
@@ -141,7 +138,7 @@ public:
   // Vertex and edge types are also available for graph classes.
   // GetFieldType() returns -1 if the field type is not set.
   static vtkInformationIntegerKey* FIELD_TYPE();
-//BTX
+
   enum SelectionField
   {
     CELL,
@@ -151,7 +148,6 @@ public:
     EDGE,
     ROW
   };
-//ETX
 
   // Description:
   // Get or set the field type of the selection.
@@ -248,7 +244,6 @@ public:
   // Compares Properties of self and other to ensure that they are exactly same.
   bool EqualProperties(vtkSelectionNode* other, bool fullcompare=true);
 
-//BTX
 protected:
   vtkSelectionNode();
   ~vtkSelectionNode();
@@ -260,7 +255,7 @@ protected:
 private:
   vtkSelectionNode(const vtkSelectionNode&);  // Not implemented.
   void operator=(const vtkSelectionNode&);  // Not implemented.
-//ETX
+
 };
 
 #endif

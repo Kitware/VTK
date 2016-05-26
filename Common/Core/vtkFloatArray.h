@@ -68,9 +68,9 @@ protected:
   ~vtkFloatArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<float> RealSuperclass;
-  //ETX
+
   vtkFloatArray(const vtkFloatArray&);  // Not implemented.
   void operator=(const vtkFloatArray&);  // Not implemented.
 };

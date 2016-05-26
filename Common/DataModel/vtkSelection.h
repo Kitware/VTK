@@ -28,10 +28,8 @@
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkDataObject.h"
 
-//BTX
 class vtkSelectionNode;
 struct vtkSelectionInternals;
-//ETX
 
 class VTKCOMMONDATAMODEL_EXPORT vtkSelection : public vtkDataObject
 {
@@ -107,16 +105,14 @@ public:
   // Description:
   // Dumps the contents of the selection, giving basic information only.
   virtual void Dump();
-  //BTX
+
   virtual void Dump(ostream& os);
-  //ETX
 
   // Description:
   // Retrieve a vtkSelection stored inside an invormation object.
   static vtkSelection* GetData(vtkInformation* info);
   static vtkSelection* GetData(vtkInformationVector* v, int i=0);
 
-//BTX
 protected:
   vtkSelection();
   ~vtkSelection();
@@ -126,7 +122,7 @@ private:
   void operator=(const vtkSelection&);  // Not implemented.
 
   vtkSelectionInternals* Internal;
-//ETX
+
 };
 
 #endif

@@ -90,7 +90,6 @@ public:
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
 
-//BTX
   enum
   {
     XAxis=0,
@@ -98,7 +97,6 @@ public:
     ZAxis,
     Oblique
   };
-//ETX
 
   // Description:
   // Given a renderer and a display position, compute the

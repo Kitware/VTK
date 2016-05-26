@@ -104,7 +104,6 @@ private:
   void operator=(const vtkLandmarkTransform&);  // Not implemented.
 };
 
-//BTX
 inline const char *vtkLandmarkTransform::GetModeAsString()
 {
   switch (this->Mode)
@@ -119,5 +118,5 @@ inline const char *vtkLandmarkTransform::GetModeAsString()
       return "Unrecognized";
     }
 }
-//ETX
+
 #endif

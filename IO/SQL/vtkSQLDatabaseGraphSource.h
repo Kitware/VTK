@@ -101,10 +101,8 @@ private:
   // and re-emits them as if they came from this class.
   vtkEventForwarderCommand *EventForwarder;
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
 
   bool Directed;
 

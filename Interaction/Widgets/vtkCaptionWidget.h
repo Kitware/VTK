@@ -96,9 +96,7 @@ protected:
   void AnchorInteraction();
   void EndAnchorInteraction();
 
-//BTX
   friend class vtkCaptionAnchorCallback;
-//ETX
 
 private:
   vtkCaptionWidget(const vtkCaptionWidget&);  //Not implemented

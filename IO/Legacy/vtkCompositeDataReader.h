@@ -45,7 +45,6 @@ public:
   vtkCompositeDataSet *GetOutput(int idx);
   void SetOutput(vtkCompositeDataSet *output);
 
-//BTX
 protected:
   vtkCompositeDataReader();
   ~vtkCompositeDataReader();
@@ -83,7 +82,7 @@ protected:
 private:
   vtkCompositeDataReader(const vtkCompositeDataReader&); // Not implemented.
   void operator=(const vtkCompositeDataReader&); // Not implemented.
-//ETX
+
 };
 
 #endif

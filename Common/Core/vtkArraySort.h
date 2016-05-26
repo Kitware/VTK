@@ -100,9 +100,9 @@ public:
     ostream& stream, const vtkArraySort& rhs);
 
 private:
-  //BTX
+
   std::vector<DimensionT> Storage;
-  //ETX
+
 };
 
 #endif

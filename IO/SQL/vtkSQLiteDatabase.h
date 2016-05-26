@@ -53,23 +53,20 @@ struct vtk_sqlite3;
 
 class VTKIOSQL_EXPORT vtkSQLiteDatabase : public vtkSQLDatabase
 {
-  //BTX
+
   friend class vtkSQLiteQuery;
-  //ETX
 
 public:
   vtkTypeMacro(vtkSQLiteDatabase, vtkSQLDatabase);
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLiteDatabase *New();
 
-  //BTX
   enum {
     USE_EXISTING,
     USE_EXISTING_OR_CREATE,
     CREATE_OR_CLEAR,
     CREATE
   };
-  //ETX
 
   // Description:
   // Open a new connection to the database.  You need to set the

@@ -67,10 +67,10 @@ public:
   bool isWidget();
   bool HasTransparency();
   bool InteractAtServer();
-  //BTX
+
   std::string GetMD5();
   std::string GetId();
-  //ETX
+
   size_t GetRendererId();
   int GetLayer();
 

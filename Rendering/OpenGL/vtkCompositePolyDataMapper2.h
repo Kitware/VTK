@@ -77,7 +77,6 @@ public:
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
 
-//BTX
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2();
@@ -118,7 +117,7 @@ private:
 private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
   void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
-//ETX
+
 };
 
 #endif

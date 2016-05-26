@@ -44,7 +44,7 @@ public:
   // background without locking the main one.
   static void ProcessRMIs();
   static void ProcessRMIs(int reportError, int dont_loop=0);
-//BTX
+
 protected:
   vtkWebUtilities();
   ~vtkWebUtilities();
@@ -52,7 +52,7 @@ protected:
 private:
   vtkWebUtilities(const vtkWebUtilities&); // Not implemented
   void operator=(const vtkWebUtilities&); // Not implemented
-//ETX
+
 };
 
 #endif

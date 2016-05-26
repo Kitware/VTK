@@ -48,7 +48,6 @@ public:
   // Converts the input file to new format and writes out the output file.
   bool Convert();
 
-//BTX
 protected:
   vtkXMLHierarchicalBoxDataFileConverter();
   ~vtkXMLHierarchicalBoxDataFileConverter();
@@ -67,7 +66,7 @@ protected:
 private:
   vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
-//ETX
+
 };
 
 #endif

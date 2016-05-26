@@ -61,7 +61,6 @@ public:
   vtkSetMacro(Invert, int);
   vtkGetMacro(Invert, int);
 
-//BTX
   // Description:
   // Defines an optional "window" used to compute the norm on a subset of the elements
   // in a vector.
@@ -85,7 +84,7 @@ private:
   int L;
   int Invert;
   vtkArrayRange Window;
-//ETX
+
 };
 
 #endif

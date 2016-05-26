@@ -274,7 +274,7 @@ public:
   // code to include the headers for these key types.  Avoid wrapping
   // them because the original method can be called from the wrappers
   // anyway and this causes a python help string to be too long.
-  //BTX
+
   VTKCOMMONCORE_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationDataObjectKey* value);
   VTKCOMMONCORE_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
@@ -318,7 +318,6 @@ public:
                     vtkInformationObjectBaseKey* value);
   VTKCOMMONCORE_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationUnsignedLongKey* value);
-  //ETX
 
   // Description:
   // Get/Set a string-valued entry.
@@ -422,10 +421,10 @@ protected:
                           vtkGarbageCollector* collector);
 
 private:
-  //BTX
+
   friend class vtkInformationKeyToInformationFriendship;
   friend class vtkInformationIterator;
-  //ETX
+
 private:
   VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&);  // Not implemented.
   VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&);  // Not implemented.

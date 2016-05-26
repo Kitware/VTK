@@ -77,7 +77,6 @@ public:
   // Initialize core text codecs - needed for the static compilation case.
   static void Initialize();
 
-//BTX
 protected:
   vtkTextCodecFactory();
   ~vtkTextCodecFactory();
@@ -91,7 +90,6 @@ private:
   class CallbackVector;
   static CallbackVector* Callbacks;
 
-//ETX
 };
 
 #endif // vtkTextCodecFactory_h

@@ -90,7 +90,6 @@ protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter();
 
-//BTX
   ostream *OpenFile();
   int WriteUnstructuredMetaData(vtkDataSet *input,
                                 char *root, char *str, ostream *fptr);
@@ -100,7 +99,6 @@ protected:
                                    char *root, char *str, ostream *fptr);
   int WriteStructuredGridMetaData(vtkStructuredGrid *input,
                                   char *root, char *str, ostream *fptr);
-//ETX
 
   int StartPiece;
   int EndPiece;

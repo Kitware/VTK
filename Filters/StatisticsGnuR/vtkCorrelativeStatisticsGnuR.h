@@ -58,9 +58,7 @@ protected:
   vtkCorrelativeStatisticsGnuR();
   ~vtkCorrelativeStatisticsGnuR();
 
-//BTX
   virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
-//ETX
 
 private:
   vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&); // Not implemented

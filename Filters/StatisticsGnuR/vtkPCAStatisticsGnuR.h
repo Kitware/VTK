@@ -60,9 +60,8 @@ public:
 protected:
   vtkPCAStatisticsGnuR();
   ~vtkPCAStatisticsGnuR();
-//BTX
+
   virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
-//ETX
 
 private:
   vtkPCAStatisticsGnuR(const vtkPCAStatisticsGnuR&); // Not implemented

@@ -96,14 +96,12 @@ public:
   virtual void Register(vtkObjectBase *o);
   virtual void UnRegister(vtkObjectBase *o);
 
-  //BTX
   enum {
     VERTS = 0x1,
     LINES = 0x2,
     POLYS = 0x4,
     STRIPS = 0x8
   };
-  //ETX
 
   // Description:
   // Generates rendering primitives of appropriate type(s). Multiple types
@@ -150,7 +148,6 @@ public:
   virtual vtkDataObject* GetOutput()
     { return this->Input; }
 
-//BTX
 protected:
   vtkPainter();
   ~vtkPainter();
@@ -246,7 +243,7 @@ private:
   void operator=(const vtkPainter &);   // Not implemented.
 
   vtkDataObject* Input;
-//ETX
+
 };
 
 #endif //vtkPainter_h

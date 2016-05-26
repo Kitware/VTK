@@ -101,7 +101,6 @@ public:
   // Check if LIC runs properly.
   int   GetLICSuccess() { return this->LICSuccess; }
 
-//BTX
 protected:
   vtkStructuredGridLIC2D();
   ~vtkStructuredGridLIC2D();
@@ -160,7 +159,7 @@ protected:
 private:
   vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&); // Not implemented.
   void operator=(const vtkStructuredGridLIC2D&); // Not implemented.
-//ETX
+
 };
 
 #endif

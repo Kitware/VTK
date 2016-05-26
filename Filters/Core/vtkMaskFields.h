@@ -120,14 +120,12 @@ public:
   //    If CopyAllOff is set, do not copy the array
   virtual void CopyAllOff();
 
-//BTX
   enum FieldLocation
     {
       OBJECT_DATA=0,
       POINT_DATA=1,
       CELL_DATA=2
     };
-//ETX
 
 protected:
   vtkMaskFields();
@@ -135,7 +133,6 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
-//BTX
   struct CopyFieldFlag
   {
     char* Name;
@@ -143,7 +140,6 @@ protected:
     int Location;
     int IsCopied;
   };
-//ETX
 
   CopyFieldFlag* CopyFieldFlags; // the names of fields not to be copied
   int NumberOfFieldFlags; // the number of fields not to be copied

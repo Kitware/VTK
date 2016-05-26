@@ -56,7 +56,7 @@ class vtkMatrix4x4;
 
 // Special class defines node for the OBB tree
 //
-//BTX
+
 //
 class VTKFILTERSGENERAL_EXPORT vtkOBBNode { //;prevent man page generation
 public:
@@ -75,7 +75,7 @@ private:
   vtkOBBNode(const vtkOBBNode& other); // no copy constructor
   vtkOBBNode& operator=(const vtkOBBNode& rhs); // no copy assignment
 };
-//ETX
+
 //
 
 class VTKFILTERSGENERAL_EXPORT vtkOBBTree : public vtkAbstractCellLocator
@@ -134,8 +134,6 @@ public:
   // The return value is +1 if outside, -1 if inside, and 0 if undecided.
   int InsideOrOutside(const double point[3]);
 
-  //BTX
-
   // Description:
   // Returns true if nodeB and nodeA are disjoint after optional
   // transformation of nodeB with matrix XformBtoA
@@ -161,7 +159,6 @@ public:
                                             vtkMatrix4x4 *Xform,
                                             void *arg ),
                             void *data_arg );
-  //ETX
 
   // Description:
   // Satisfy locator's abstract interface, see vtkLocator.
@@ -178,7 +175,6 @@ public:
   // the relative diameter of the OBB compared to the diameter (d).
   void GenerateRepresentation(int level, vtkPolyData *pd);
 
-  //BTX
 protected:
   vtkOBBTree();
   ~vtkOBBTree();
@@ -199,7 +195,6 @@ protected:
   void GeneratePolygons(vtkOBBNode *OBBptr, int level, int repLevel,
                         vtkPoints* pts, vtkCellArray *polys);
 
-  //ETX
 private:
   vtkOBBTree(const vtkOBBTree&);  // Not implemented.
   void operator=(const vtkOBBTree&);  // Not implemented.

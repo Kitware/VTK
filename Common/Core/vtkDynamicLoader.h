@@ -26,11 +26,9 @@
 #include "vtkObject.h"
 #include <vtksys/DynamicLoader.hxx>
 
-//BTX
 typedef vtksys::DynamicLoader::LibraryHandle vtkLibHandle;
 // Cannot use this as this is a void (*)() but VTK old API used to be void*
 typedef vtksys::DynamicLoader::SymbolPointer vtkSymbolPointer;
-//ETX
 
 class VTKCOMMONCORE_EXPORT vtkDynamicLoader : public vtkObject
 {
@@ -38,7 +36,6 @@ public:
   static vtkDynamicLoader* New();
   vtkTypeMacro(vtkDynamicLoader,vtkObject);
 
-  //BTX
   // Description:
   // Load a dynamic library into the current process.
   // The returned vtkLibHandle can be used to access the symbols in the
@@ -54,7 +51,6 @@ public:
   // Find the address of the symbol in the given library
   //static vtkSymbolPointer GetSymbolAddress(vtkLibHandle, const char*);
   static void* GetSymbolAddress(vtkLibHandle, const char*);
-  //ETX
 
   // Description:
   // Return the library prefix for the given architecture

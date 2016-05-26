@@ -44,14 +44,12 @@ public:
   vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
   void PrintSelf( ostream & os, vtkIndent indent );
 
-//BTX
   // Description:
   // Determine whether a given point x has been inserted into the points list.
   // Return the id of the already inserted point if it is true, or -1 else.
   // Note this function always returns -1 since any point is always inserted.
   virtual vtkIdType IsInsertedPoint( const double [3] ) { return -1; }
   virtual vtkIdType IsInsertedPoint( double, double, double ) { return -1; }
-//ETX
 
   // Description:
   // Determine whether a given point x has been inserted into the points list.

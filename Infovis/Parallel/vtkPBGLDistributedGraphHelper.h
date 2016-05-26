@@ -41,11 +41,9 @@
 
 class vtkPBGLDistributedGraphHelperInternals;
 
-//BTX
 namespace boost { namespace graph { namespace distributed {
   class mpi_process_group;
 } } } /// end namespace boost::graph::distributed
-//ETX
 
 #if !defined(VTK_LEGACY_REMOVE)
 class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistributedGraphHelper
@@ -70,11 +68,9 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
   // Clones this distributed graph helper.
   vtkDistributedGraphHelper *Clone();
 
-  //BTX
   // Description:
   // Return the process group associated with this distributed graph.
   boost::graph::distributed::mpi_process_group GetProcessGroup();
-  //ETX
 
   // Description:
   // The Parallel BGL-specific internal information for this distributed
@@ -87,7 +83,6 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
   vtkPBGLDistributedGraphHelper();
   ~vtkPBGLDistributedGraphHelper();
 
-  //BTX
   enum Tags
   {
     // Find a vertex by pedigree ID. This always has a reply.
@@ -208,15 +203,13 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
   // Attach this distributed graph helper to the given graph. This will
   // be called as part of vtkGraph::SetDistributedGraphHelper.
   void AttachToGraph(vtkGraph *graph);
-  //ETX
 
  private:
   vtkPBGLDistributedGraphHelper(const vtkPBGLDistributedGraphHelper&); // Not implemented
   void operator=(const vtkPBGLDistributedGraphHelper&); // Not implemented
 
-  //BTX
   friend class vtkPBGLDistributedGraphHelperInternals;
-  //ETX
+
 };
 
 #endif //VTK_LEGACY_REMOVE

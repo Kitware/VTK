@@ -53,9 +53,6 @@ public:
     { this->SetBlendMode( vtkUnstructuredGridVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   vtkGetMacro( BlendMode, int );
 
-
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -74,8 +71,6 @@ public:
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND
   };
-
-//ETX
 
 protected:
   vtkUnstructuredGridVolumeMapper();

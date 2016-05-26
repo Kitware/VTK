@@ -57,7 +57,6 @@ public:
   // Returns the vertex id for the root vertex.
   vtkGetMacro(RootVertex, vtkIdType);
 
-//BTX
 protected:
   vtkSILBuilder();
   ~vtkSILBuilder();
@@ -71,7 +70,7 @@ protected:
 private:
   vtkSILBuilder(const vtkSILBuilder&); // Not implemented.
   void operator=(const vtkSILBuilder&); // Not implemented.
-//ETX
+
 };
 
 #endif

@@ -36,7 +36,6 @@ public:
   virtual const char* GetDefaultFileExtension()
     { return "vth"; }
 
-//BTX
 protected:
   vtkXMLHierarchicalBoxDataWriter();
   ~vtkXMLHierarchicalBoxDataWriter();
@@ -44,7 +43,7 @@ protected:
 private:
   vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
   void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
-//ETX
+
 };
 
 #endif

@@ -227,9 +227,7 @@ public:
   vtkDoubleArray *GetTimeValues();
   int MakeMetaDataAtTimeStep(const bool);
 
-  //BTX
   friend class vtkOpenFOAMReaderPrivate;
-  //ETX
 
 protected:
   // refresh flag

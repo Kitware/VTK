@@ -103,12 +103,10 @@ public:
   void Register(vtkObjectBase* o) VTK_OVERRIDE;
   void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPointSet* GetData(vtkInformation* info);
   static vtkPointSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkPointSet();

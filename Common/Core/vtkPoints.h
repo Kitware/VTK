@@ -30,9 +30,9 @@ class vtkIdList;
 class VTKCOMMONCORE_EXPORT vtkPoints : public vtkObject
 {
 public:
-//BTX
+
   static vtkPoints *New(int dataType);
-//ETX
+
   static vtkPoints *New();
 
   vtkTypeMacro(vtkPoints,vtkObject);

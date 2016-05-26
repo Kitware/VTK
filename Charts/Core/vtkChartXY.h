@@ -211,7 +211,6 @@ public:
                               vtkIdType, vtkPlot*,
                               vtkIdType segmentIndex = -1);
 
-//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -243,9 +242,7 @@ public:
   // Description:
   // Key press event.
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
-//ETX
 
-//BTX
 protected:
   vtkChartXY();
   ~vtkChartXY();
@@ -378,7 +375,6 @@ private:
                              vtkVector2f &min, vtkVector2f &max,
                              vtkContextPolygon &polygon);
 
-//ETX
 };
 
 // Description:

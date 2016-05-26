@@ -48,7 +48,6 @@ public:
   // Get the gradient shader.
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
-//BTX
   // Description:
   // Allow access to the arrays / variables from the templated functions in the
   // subclasses.
@@ -82,8 +81,6 @@ public:
     { return this->GetGradientMagnitudeScale(); };
   virtual float GetGradientMagnitudeBias(int)
     { return this->GetGradientMagnitudeBias(); };
-
-//ETX
 
   // Description:
   // see vtkAlgorithm for details

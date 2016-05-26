@@ -99,7 +99,6 @@ public:
   // Retrieve the milliseconds from the start of the last second.
   static int GetMillisecond(vtkTypeUInt64 time);
 
-  //BTX
   enum {
     ISO8601_DATETIME_MILLIS = 0,
     ISO8601_DATETIME = 1,
@@ -126,7 +125,6 @@ public:
   // the second argument.  The value will be set to true if the
   // string was parsed successfully, false otherwise.
   static vtkTypeUInt64 ISO8601ToTimePoint(const char* str, bool* ok = NULL);
-  //ETX
 
   // Description:
   // Converts a VTK timepoint into one of the following ISO8601

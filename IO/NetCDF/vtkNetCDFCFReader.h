@@ -115,15 +115,12 @@ protected:
                           vtkInformationVector **inputVector,
                           vtkInformationVector *outputVector);
 
-//BTX
   // Description:
   // Interprets the special conventions of COARDS.
   virtual int ReadMetaData(int ncFD);
   virtual int IsTimeDimension(int ncFD, int dimId);
   virtual vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId);
-//ETX
 
-//BTX
   class vtkDimensionInfo {
   public:
     vtkDimensionInfo() { };
@@ -202,7 +199,6 @@ protected:
   // Finds the dependent dimension information for the given set of dimensions.
   // Returns NULL if no information has been recorded.
   vtkDependentDimensionInfo *FindDependentDimensionInfo(vtkIntArray *dims);
-//ETX
 
   // Description:
   // Given the list of dimensions, identify the longitude, latitude, and

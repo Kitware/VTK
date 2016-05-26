@@ -51,7 +51,6 @@ public:
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
-//BTX
 protected:
   vtkHierarchicalBoxDataSetAlgorithm();
   ~vtkHierarchicalBoxDataSetAlgorithm();
@@ -99,7 +98,7 @@ protected:
 private:
   vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
   void operator=(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
-//ETX
+
 };
 
 #endif

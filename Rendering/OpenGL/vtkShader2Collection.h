@@ -53,12 +53,10 @@ class VTKRENDERINGOPENGL_EXPORT vtkShader2Collection : public vtkCollection
   // Get the last shader in the list.
   vtkShader2 *GetLastShader();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkShader2 *GetNextShader(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
   // Description:
   // Add the elements of `other' to the end of `this'.

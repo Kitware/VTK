@@ -57,7 +57,6 @@ public:
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
     }
 
-//BTX
 protected:
   vtkContextMapper2D();
   ~vtkContextMapper2D();
@@ -69,7 +68,7 @@ protected:
 private:
   vtkContextMapper2D(const vtkContextMapper2D &); // Not implemented.
   void operator=(const vtkContextMapper2D &); // Not implemented.
-//ETX
+
 };
 
 #endif //vtkContextMapper2D_h

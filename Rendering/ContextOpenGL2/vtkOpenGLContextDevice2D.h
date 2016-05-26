@@ -291,7 +291,6 @@ public:
   vtkMatrix4x4 *GetProjectionMatrix();
   vtkMatrix4x4 *GetModelMatrix();
 
-//BTX
 protected:
   vtkOpenGLContextDevice2D();
   virtual ~vtkOpenGLContextDevice2D();
@@ -441,7 +440,6 @@ private:
   // not be used directly -- use GetMarker, which caches results, instead.
   vtkImageData * GenerateMarker(int shape, int size, bool highlight);
 
-//ETX
 };
 
 #endif //vtkOpenGLContextDevice2D_h

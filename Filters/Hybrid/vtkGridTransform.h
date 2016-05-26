@@ -120,12 +120,11 @@ protected:
   void InverseTransformDerivative(const double in[3], double out[3],
                                   double derivative[3][3]);
 
-//BTX
   void (*InterpolationFunction)(double point[3], double displacement[3],
                                 double derivatives[3][3],
                                 void *gridPtr, int gridType,
                                 int inExt[6], vtkIdType inInc[3]);
-//ETX
+
   int InterpolationMode;
   double DisplacementScale;
   double DisplacementShift;
@@ -144,8 +143,6 @@ private:
   vtkGridTransformConnectionHolder* ConnectionHolder;
 };
 
-//BTX
-
 //----------------------------------------------------------------------------
 inline const char *vtkGridTransform::GetInterpolationModeAsString()
 {
@@ -161,7 +158,6 @@ inline const char *vtkGridTransform::GetInterpolationModeAsString()
       return "";
     }
 }
-//ETX
 
 #endif
 

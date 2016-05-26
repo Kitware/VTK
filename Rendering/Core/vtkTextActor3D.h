@@ -77,7 +77,6 @@ public:
   // array.  This call can be used for sizing other elements.
   int GetBoundingBox(int bbox[4]);
 
-  //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -97,7 +96,6 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-  //ETX
 
 protected:
    vtkTextActor3D();

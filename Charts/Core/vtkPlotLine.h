@@ -57,7 +57,6 @@ public:
   vtkGetMacro(PolyLine,bool);
   vtkBooleanMacro(PolyLine,bool);
 
-//BTX
 protected:
   vtkPlotLine();
   ~vtkPlotLine();
@@ -70,7 +69,6 @@ private:
   vtkPlotLine(const vtkPlotLine &); // Not implemented.
   void operator=(const vtkPlotLine &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlotLine_h

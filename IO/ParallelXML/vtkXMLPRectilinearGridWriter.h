@@ -39,11 +39,9 @@ public:
   vtkTypeMacro(vtkXMLPRectilinearGridWriter,vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkRectilinearGrid* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.

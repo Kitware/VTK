@@ -93,9 +93,9 @@ protected:
   char* FieldDelimiter;
   char* StringDelimiter;
   bool UseStringDelimiter;
-//BTX
+
   ostream* Stream;
-//ETX
+
 private:
   vtkDelimitedTextWriter(const vtkDelimitedTextWriter&); // Not implemented.
   void operator=(const vtkDelimitedTextWriter&); // Not implemented.

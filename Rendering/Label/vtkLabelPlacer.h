@@ -58,7 +58,6 @@ public:
 
   vtkGetObjectMacro(AnchorTransform,vtkCoordinate);
 
-  //BTX
   /// Specifications for the placement of the label relative to an anchor point.
   enum LabelGravity
     {
@@ -95,7 +94,6 @@ public:
     WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
     DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
     };
-  //ETX
 
   // Description:
   // The placement of the label relative to the anchor point.
@@ -168,10 +166,8 @@ protected:
   virtual int RequestData( vtkInformation* request,
     vtkInformationVector** inputVector, vtkInformationVector* outputVector );
 
-  //BTX
   class Internal;
   Internal* Buckets;
-  //ETX
 
   vtkRenderer* Renderer;
   vtkCoordinate* AnchorTransform;

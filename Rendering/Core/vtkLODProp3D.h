@@ -217,8 +217,6 @@ public:
   // Shallow copy of this vtkLODProp3D.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
-
   // Description:
   // Support the standard render methods.
   int RenderOpaqueGeometry(vtkViewport *viewport);
@@ -252,8 +250,6 @@ public:
   // Override method from vtkProp in order to push this call down to the
   // selected LOD as well.
   virtual void AddEstimatedRenderTime( double t, vtkViewport *vp );
-
-//ETX
 
 protected:
   vtkLODProp3D();

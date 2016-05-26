@@ -1192,7 +1192,6 @@ inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
   z[0] = Zx; z[1] = Zy; z[2] = Zz;
 }
 
-//BTX
 //----------------------------------------------------------------------------
 template<class T>
 inline double vtkDeterminant3x3(T A[3][3])
@@ -1201,7 +1200,6 @@ inline double vtkDeterminant3x3(T A[3][3])
          A[2][0] * A[0][1] * A[1][2] - A[0][0] * A[2][1] * A[1][2] -
          A[1][0] * A[0][1] * A[2][2] - A[2][0] * A[1][1] * A[0][2];
 }
-//ETX
 
 //----------------------------------------------------------------------------
 inline double vtkMath::Determinant3x3(float A[3][3])

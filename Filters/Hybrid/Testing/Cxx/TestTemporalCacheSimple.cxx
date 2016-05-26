@@ -60,9 +60,7 @@ public:
   // Save the range of valid timestep index values.
   vtkGetVector2Macro(TimeStepRange, int);
 
-  //BTX
 //  void GetTimeStepValues(std::vector<double> &steps);
-  //ETX
 
  protected:
    vtkTemporalSphereSource();

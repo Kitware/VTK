@@ -33,7 +33,7 @@ class vtkDataArray;
 
 class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
 {
-  //BTX
+
   enum
   {
   NONE = 0,
@@ -47,7 +47,6 @@ class VTKFILTERSVERDICT_EXPORT vtkMatrixMathFilter : public vtkDataSetAlgorithm
   POINT_QUALITY = 0,
   CELL_QUALITY
   };
-  //ETX
 
 public:
   void PrintSelf (ostream&, vtkIndent);

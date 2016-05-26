@@ -71,9 +71,9 @@ protected:
   ~vtkLongArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<long> RealSuperclass;
-  //ETX
+
   vtkLongArray(const vtkLongArray&);  // Not implemented.
   void operator=(const vtkLongArray&);  // Not implemented.
 };

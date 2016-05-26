@@ -44,9 +44,7 @@
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
 
-//BTX
 class QImage;
-//ETX
 
 class vtkQImageToImageSource;
 class vtkCoordinate;

@@ -118,14 +118,11 @@ public:
   // might be expansive.
   virtual vtkIdType GetNumberOfPoints();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkDataObjectTree* GetData(vtkInformation* info);
   static vtkDataObjectTree* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
-//BTX
 protected:
   vtkDataObjectTree();
   ~vtkDataObjectTree();
@@ -174,7 +171,7 @@ protected:
 private:
   vtkDataObjectTree(const vtkDataObjectTree&); // Not implemented.
   void operator=(const vtkDataObjectTree&); // Not implemented.
-//ETX
+
 };
 
 #endif

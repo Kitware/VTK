@@ -63,13 +63,10 @@ public:
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int GetDepthPeelingHigherLayer();
 
-  //BTX
   // Description:
   //
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
   virtual void SetShaderProgram(vtkShaderProgram2 *program);
-  //ETX
-
 
 protected:
   vtkOpenGLRenderer();
@@ -82,7 +79,6 @@ protected:
   // Internal method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
 
-  //BTX
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
   virtual void StartPick(unsigned int pickFromSize);
@@ -95,7 +91,6 @@ protected:
 
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
-  //ETX
 
   double PickedZ;
 
@@ -107,12 +102,10 @@ protected:
   // \pre positive_layer: layer>=0
   int RenderPeel(int layer);
 
-  //BTX
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
-  //ETX
 
   // Description:
   // Access to the OpenGL program shader uniform variable "useTexture" from the

@@ -212,8 +212,6 @@ protected:
   //
   // Special classes for manipulating data
   //
-  //BTX - begin tcl exclude
-  //
   class StreamPoint {
   public:
     double    x[3];    // position
@@ -257,7 +255,7 @@ protected:
     vtkIdType Extend;       // grow array by this amount
     double Direction;       // integration direction
   };
-  //ETX
+
   //
 
   //array of streamers

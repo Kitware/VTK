@@ -212,10 +212,7 @@ protected:
   vtkTimeStamp InformationTime;
   vtkTimeStamp DataTime;
 
-//BTX
   friend class vtkCompositeDataPipeline;
-//ETX
-
 
   vtkInformation *InfoRequest;
   vtkInformation *DataObjectRequest;

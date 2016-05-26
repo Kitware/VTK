@@ -54,10 +54,9 @@ private:
   vtkViewUpdater(const vtkViewUpdater&);  // Not implemented.
   void operator=(const vtkViewUpdater&);  // Not implemented.
 
-//BTX
   class vtkViewUpdaterInternals;
   vtkViewUpdaterInternals* Internals;
-//ETX
+
 };
 
 #endif

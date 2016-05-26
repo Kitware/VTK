@@ -53,9 +53,7 @@ public:
   vtkSetMacro(ReslicePlaneNormal,int);
   vtkGetMacro(ReslicePlaneNormal,int);
 
-//BTX
   enum {XAxis=0,YAxis,ZAxis};
-//ETX
 
   // Description:
   // Set the planes that correspond to the reslice axes.

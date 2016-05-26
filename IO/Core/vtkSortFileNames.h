@@ -33,10 +33,8 @@
 
 class vtkStringArray;
 
-//BTX
 // this is a helper class defined in the .cxx file
 class vtkStringArrayVector;
-//ETX
 
 class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 {

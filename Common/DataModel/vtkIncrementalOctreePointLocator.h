@@ -275,7 +275,6 @@ public:
   void InsertPointWithoutChecking
     ( const double point[3], vtkIdType  & pntId, int insert );
 
-//BTX
 protected:
 
   vtkIncrementalOctreePointLocator();
@@ -434,6 +433,6 @@ private:
   vtkIncrementalOctreePointLocator
     ( const vtkIncrementalOctreePointLocator & ); // Not implemented
   void operator = ( const vtkIncrementalOctreePointLocator & );// Not implemented
-//ETX
+
 };
 #endif

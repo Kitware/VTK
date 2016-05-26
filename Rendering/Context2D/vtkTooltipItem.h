@@ -79,7 +79,6 @@ public:
   // Paint event for the tooltip.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
 protected:
   vtkTooltipItem();
   ~vtkTooltipItem();
@@ -94,7 +93,7 @@ protected:
 private:
   vtkTooltipItem(const vtkTooltipItem &); // Not implemented.
   void operator=(const vtkTooltipItem &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkTooltipItem_h

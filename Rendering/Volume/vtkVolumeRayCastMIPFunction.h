@@ -64,11 +64,8 @@ public:
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   const char *GetMaximizeMethodAsString(void);
 
-//BTX
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo );
-//ETX
-
 
 protected:
   vtkVolumeRayCastMIPFunction();
@@ -76,13 +73,11 @@ protected:
 
   int MaximizeMethod;
 
-//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
 
-//ETX
 private:
   vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
   void operator=(const vtkVolumeRayCastMIPFunction&);  // Not implemented.

@@ -78,7 +78,7 @@ public:
   void EnableAllPointArrays();
 
 protected:
-//BTX
+
    static float DRY_AIR_CONSTANT;
    static int   NUM_PART_SIDES;  // Blade parts rhombus
    const static int   NUM_BASE_SIDES;  // Base pyramid
@@ -89,7 +89,6 @@ protected:
    static int   VECTOR;
    static int   FLOAT;
    static int   INTEGER;
-//ETX
 
   vtkWindBladeReader();
   ~vtkWindBladeReader();

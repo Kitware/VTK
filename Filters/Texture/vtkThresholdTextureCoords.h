@@ -93,9 +93,7 @@ protected:
   double InTextureCoord[3];
   double OutTextureCoord[3];
 
-  //BTX
   int (vtkThresholdTextureCoords::*ThresholdFunction)(double s);
-  //ETX
 
   int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};

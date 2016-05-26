@@ -2305,16 +2305,10 @@ YY_RULE_SETUP
 case 4:
 YY_RULE_SETUP
 
-{
-      if (!IgnoreBTX) {
-        skip_ahead_until("//ETX");
-      }
-    }
         YY_BREAK
 case 5:
 YY_RULE_SETUP
 
-/* eat mismatched ETX */
         YY_BREAK
 case 6:
 YY_RULE_SETUP

@@ -55,7 +55,6 @@ public:
   // Creates a 2D Painter object.
   static vtkContext2D *New();
 
-//BTX
   // Description:
   // Begin painting on a vtkContextDevice2D, no painting can occur before this call
   // has been made. Only one painter is allowed at a time on any given paint
@@ -436,7 +435,6 @@ public:
   vtkGetObjectMacro(Context3D, vtkContext3D)
   virtual void SetContext3D(vtkContext3D *context);
 
-//BTX
 protected:
   vtkContext2D();
   ~vtkContext2D();
@@ -465,7 +463,6 @@ private:
   // represent width and height.
   vtkVector2f CalculateTextPosition(float rect[4]);
 
-//ETX
 };
 
 inline int vtkContext2D::FloatToInt(float x)

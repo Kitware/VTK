@@ -455,9 +455,6 @@ set(VTK_PYTHON_VERSION 2 CACHE STRING
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
 
-# FIXME: This variable should not be necessary once we are done
-set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
-
 # Force reset of hints file location in cache if it was moved
 if(VTK_WRAP_HINTS)
   if(NOT EXISTS ${VTK_WRAP_HINTS})

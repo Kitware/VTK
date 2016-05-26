@@ -51,9 +51,8 @@ struct vtk_sqlite3_stmt;
 
 class VTKIOSQL_EXPORT vtkSQLiteQuery : public vtkSQLQuery
 {
-  //BTX
+
   friend class vtkSQLiteDatabase;
-  //ETX
 
 public:
   vtkTypeMacro(vtkSQLiteQuery, vtkSQLQuery);
@@ -111,21 +110,21 @@ public:
   // further explanation.  The driver makes internal copies of string
   // and BLOB parameters so you don't need to worry about keeping them
   // in scope until the query finishes executing.
-//BTX
+
   using vtkSQLQuery::BindParameter;
   bool BindParameter(int index, unsigned char value);
   bool BindParameter(int index, signed char value);
   bool BindParameter(int index, unsigned short value);
   bool BindParameter(int index, short value);
   bool BindParameter(int index, unsigned int value);
-//ETX
+
   bool BindParameter(int index, int value);
-//BTX
+
   bool BindParameter(int index, unsigned long value);
   bool BindParameter(int index, long value);
   bool BindParameter(int index, vtkTypeUInt64 value);
   bool BindParameter(int index, vtkTypeInt64 value);
-//ETX
+
   bool BindParameter(int index, float value);
   bool BindParameter(int index, double value);
   // Description:
@@ -134,9 +133,9 @@ public:
   // Description:
   // Bind a string value by specifying an array and a size
   bool BindParameter(int index, const char *stringValue, size_t length);
-//BTX
+
   bool BindParameter(int index, const vtkStdString &string);
-//ETX
+
   bool BindParameter(int index, vtkVariant value);
   // Description:
   // Bind a blob value.  Not all databases support blobs as a data

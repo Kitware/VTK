@@ -71,9 +71,9 @@ protected:
   ~vtkUnsignedShortArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<unsigned short> RealSuperclass;
-  //ETX
+
   vtkUnsignedShortArray(const vtkUnsignedShortArray&);  // Not implemented.
   void operator=(const vtkUnsignedShortArray&);  // Not implemented.
 };

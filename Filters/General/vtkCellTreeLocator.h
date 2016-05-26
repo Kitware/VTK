@@ -78,7 +78,6 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     // only after the locator has been built.
     virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
 
-    //BTX
     /*
       if the borland compiler is ever removed, we can use these declarations
       instead of reimplementaing the calls in this subclass
@@ -86,7 +85,7 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
       using vtkAbstractCellLocator::FindClosestPoint;
       using vtkAbstractCellLocator::FindClosestPointWithinRadius;
     */
-    //ETX
+
     // Description:
     // reimplemented from vtkAbstractCellLocator to support bad compilers
     virtual int IntersectWithLine(
@@ -128,8 +127,6 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
     virtual void ForceBuildLocator();
     virtual void BuildLocator();
 
-
-//BTX
     // Description:
     // Internal classes made public to allow subclasses to create
     // customized some traversal algorithms
@@ -185,7 +182,6 @@ class VTKFILTERSGENERAL_EXPORT vtkCellTreeLocator : public vtkAbstractCellLocato
         unsigned int Start() const;
         unsigned int Size() const;
     };
-//ETX
 
 protected:
      vtkCellTreeLocator();

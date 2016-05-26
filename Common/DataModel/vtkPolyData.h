@@ -408,14 +408,11 @@ public:
   // It does not remove unused points.
   void RemoveGhostCells();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPolyData* GetData(vtkInformation* info);
   static vtkPolyData* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
-//BTX
   // Description:
   // Scalar field critical point classification (for manifold 2D meshes).
   // Reference: J. Milnor "Morse Theory", Princeton University Press, 1963.
@@ -443,7 +440,7 @@ public:
     SADDLE = 1,
     MAXIMUM = 2
     };
-//ETX
+
   int GetScalarFieldCriticalIndex (vtkIdType pointId,
                                    vtkDataArray *scalarField);
   int GetScalarFieldCriticalIndex (vtkIdType pointId, int fieldId);

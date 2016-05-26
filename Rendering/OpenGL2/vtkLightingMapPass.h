@@ -58,12 +58,10 @@ public:
   // the RENDER_LUMINANCE key.
   static vtkInformationIntegerKey *RENDER_NORMALS();
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
  protected:
   // Description:

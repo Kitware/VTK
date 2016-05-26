@@ -40,9 +40,7 @@
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkContingencyStatistics.h"
 
-//BTX
 #include <vector> // STL Header
-//ETX
 
 class vtkMultiBlockDataSet;
 class vtkMultiProcessController;
@@ -70,7 +68,6 @@ protected:
   vtkPContingencyStatistics();
   ~vtkPContingencyStatistics();
 
-//BTX
   // Description:
   // Reduce the collection of local contingency tables to the global one
   bool Reduce( vtkIdType&,
@@ -88,7 +85,6 @@ protected:
                   vtkIdType,
                   std::vector<vtkIdType>&,
                   vtkIdType );
-//ETX
 
   vtkMultiProcessController* Controller;
 private:

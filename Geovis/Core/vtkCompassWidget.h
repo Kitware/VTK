@@ -109,7 +109,6 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
   static void TimerAction(vtkAbstractWidget*);
 
-//BTX - manage the state of the widget
   int WidgetState;
   enum _WidgetState
   {
@@ -119,7 +118,6 @@ protected:
     TiltAdjusting,
     DistanceAdjusting
   };
-//ETX
 
   int TimerId;
   int TimerDuration;

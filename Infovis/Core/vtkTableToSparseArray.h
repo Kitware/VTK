@@ -72,7 +72,6 @@ public:
   void ClearOutputExtents();
   void SetOutputExtents(const vtkArrayExtents& extents);
 
-//BTX
 protected:
   vtkTableToSparseArray();
   ~vtkTableToSparseArray();
@@ -90,7 +89,7 @@ private:
 
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

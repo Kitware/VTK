@@ -55,7 +55,6 @@ public:
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
 
-  //BTX
   // Description:
   // Returns the next edge in the graph.
   inline vtkInEdgeType Next()
@@ -64,7 +63,6 @@ public:
     ++this->Current;
     return e;
   }
-  //ETX
 
   // Description:
   // Just like Next(), but

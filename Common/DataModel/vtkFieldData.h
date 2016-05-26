@@ -317,8 +317,6 @@ protected:
   // Release all data but do not delete object.
   virtual void InitializeFields();
 
-//BTX
-
   struct CopyFieldFlag
   {
     char* ArrayName;
@@ -419,9 +417,6 @@ public:
     vtkFieldData* Fields;
     int Detached;
   };
-
-
-//ETX
 
 };
 

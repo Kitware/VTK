@@ -76,9 +76,8 @@ class vtkODBCInternals;
 
 class VTKIOODBC_EXPORT vtkODBCDatabase : public vtkSQLDatabase
 {
-//BTX
+
   friend class vtkODBCQuery;
-//ETX
 
 public:
   vtkTypeMacro(vtkODBCDatabase, vtkSQLDatabase);

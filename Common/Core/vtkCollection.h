@@ -31,7 +31,6 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX - begin tcl exclude
 class vtkCollectionElement //;prevents pick-up by man page generator
 {
  public:
@@ -40,7 +39,6 @@ class vtkCollectionElement //;prevents pick-up by man page generator
   vtkCollectionElement *Next;
 };
 typedef void * vtkCollectionSimpleIterator;
-//ETX end tcl exclude
 
 class vtkCollectionIterator;
 
@@ -100,13 +98,11 @@ public:
   // is set at the beginning of the list.
   void InitTraversal() { this->Current = this->Top;};
 
-  //BTX
   // Description:
   // A reentrant safe way to iterate through a collection.
   // Just pass the same cookie value around each time
   void InitTraversal(vtkCollectionSimpleIterator &cookie) {
     cookie = static_cast<vtkCollectionSimpleIterator>(this->Top);};
-  //ETX
 
   // Description:
   // Get the next item in the collection. NULL is returned if the collection
@@ -118,12 +114,10 @@ public:
   // of range
   vtkObject *GetItemAsObject(int i);
 
-  //BTX
   // Description:
   // A reentrant safe way to get the next object as a collection. Just pass the
   // same cookie back and forth.
   vtkObject *GetNextItemAsObject(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
   // Description:
   // Get an iterator to traverse the objects in this collection.
@@ -145,9 +139,7 @@ protected:
   vtkCollectionElement *Bottom;
   vtkCollectionElement *Current;
 
-  //BTX
   friend class vtkCollectionIterator;
-  //ETX
 
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector* collector);

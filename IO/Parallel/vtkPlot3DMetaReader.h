@@ -76,9 +76,7 @@
 #include "vtkIOParallelModule.h" // For export macro
 #include "vtkMultiBlockDataSetAlgorithm.h"
 
-//BTX
 struct vtkPlot3DMetaReaderInternals;
-//ETX
 
 class vtkMultiBlockPLOT3DReader;
 
