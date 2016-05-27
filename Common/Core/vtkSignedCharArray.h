@@ -26,14 +26,14 @@
 #include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<signed char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkSignedCharArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkSignedCharArray, vtkDataArray)
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkSignedCharArray* New();
@@ -42,7 +42,7 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(signed char);
 #endif
 

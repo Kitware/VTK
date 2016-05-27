@@ -198,7 +198,7 @@ private:
 
 // We need to fake the superclass for the wrappers, otherwise they will choke on
 // the template:
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 
 #define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl) \
 class _exportDecl _className : \
@@ -242,7 +242,7 @@ private: \
   void operator=(const _className&); \
 };
 
-#else // __WRAP__
+#else // __VTK_WRAP__
 
 #define vtkMakeExportedMappedUnstructuredGrid(_className, _impl, _exportDecl) \
   class _exportDecl _className : \
@@ -274,7 +274,7 @@ private: \
   void operator=(const _className&); \
 };
 
-#endif // __WRAP__
+#endif // __VTK_WRAP__
 
 #define vtkMakeMappedUnstructuredGrid(_className, _impl) \
   vtkMakeExportedMappedUnstructuredGrid(_className, _impl, )
