@@ -52,6 +52,7 @@ typedef struct _plyVertex {
   unsigned char red;
   unsigned char green;
   unsigned char blue;
+  unsigned char alpha;
 } plyVertex;
 
 typedef struct _plyFace {
@@ -59,6 +60,7 @@ typedef struct _plyFace {
   unsigned char red;
   unsigned char green;
   unsigned char blue;
+  unsigned char alpha;
   unsigned char nverts;   // number of vertex indices in list
   int *verts;             // vertex index list
 } plyFace;
@@ -77,35 +79,33 @@ int vtkPLYReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   PlyProperty vertProps[] = {
-    {"x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)),
-     0, 0, 0, 0},
-    {"y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)),
-     0, 0, 0, 0},
-    {"z", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,x)+sizeof(float)+sizeof(float)),
-     0, 0, 0, 0},
-    {"u", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,tex)),
-     0, 0, 0, 0},
-    {"v", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,tex)+sizeof(float)),
-     0, 0, 0, 0},
-    {"nx", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)),
-     0, 0, 0, 0},
-    {"ny", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)+sizeof(float)),
-     0, 0, 0, 0},
-    {"nz", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex,normal)+2*sizeof(float)),
-     0, 0, 0, 0},
-    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,red)), 0, 0, 0, 0},
-    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,green)), 0, 0, 0, 0},
-    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex,blue)), 0, 0, 0, 0},
+    { "x", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, x)), 0, 0, 0, 0 },
+    { "y", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, x) + sizeof(float)), 0, 0, 0,
+      0 },
+    { "z", PLY_FLOAT, PLY_FLOAT,
+      static_cast<int>(offsetof(plyVertex, x) + sizeof(float) + sizeof(float)), 0, 0, 0, 0 },
+    { "u", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, tex)), 0, 0, 0, 0 },
+    { "v", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, tex) + sizeof(float)), 0, 0,
+      0, 0 },
+    { "nx", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, normal)), 0, 0, 0, 0 },
+    { "ny", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, normal) + sizeof(float)), 0,
+      0, 0, 0 },
+    { "nz", PLY_FLOAT, PLY_FLOAT, static_cast<int>(offsetof(plyVertex, normal) + 2 * sizeof(float)),
+      0, 0, 0, 0 },
+    { "red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, red)), 0, 0, 0, 0 },
+    { "green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, green)), 0, 0, 0, 0 },
+    { "blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, blue)), 0, 0, 0, 0 },
+    { "alpha", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyVertex, alpha)), 0, 0, 0, 0 },
   };
   PlyProperty faceProps[] = {
-    {"vertex_indices", PLY_INT, PLY_INT,
-     static_cast<int>(offsetof(plyFace,verts)),
-     1, PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,nverts))},
-    {"intensity", PLY_UCHAR, PLY_UCHAR,
-     static_cast<int>(offsetof(plyFace,intensity)), 0, 0, 0, 0},
-    {"red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,red)), 0, 0, 0, 0},
-    {"green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,green)), 0, 0, 0, 0},
-    {"blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace,blue)), 0, 0, 0, 0},
+    { "vertex_indices", PLY_INT, PLY_INT, static_cast<int>(offsetof(plyFace, verts)), 1, PLY_UCHAR,
+      PLY_UCHAR, static_cast<int>(offsetof(plyFace, nverts)) },
+    { "intensity", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, intensity)), 0, 0, 0,
+      0 },
+    { "red", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, red)), 0, 0, 0, 0 },
+    { "green", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, green)), 0, 0, 0, 0 },
+    { "blue", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, blue)), 0, 0, 0, 0 },
+    { "alpha", PLY_UCHAR, PLY_UCHAR, static_cast<int>(offsetof(plyFace, alpha)), 0, 0, 0, 0 },
   };
 
   if (!this->FileName)
@@ -154,30 +154,51 @@ int vtkPLYReader::RequestData(
   }
 
   bool RGBCellsAvailable = false;
+  bool RGBCellsHaveAlpha = false;
   vtkSmartPointer<vtkUnsignedCharArray> RGBCells = NULL;
   if ( (elem = vtkPLY::find_element (ply, "face")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
        vtkPLY::find_property (elem, "blue", &index) != NULL )
   {
-    RGBCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
-    RGBCells->SetName("RGB");
     RGBCellsAvailable = true;
+    RGBCells = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    if (vtkPLY::find_property(elem, "alpha", &index) != NULL)
+    {
+      RGBCells->SetName("RGBA");
+      RGBCells->SetNumberOfComponents(4);
+      RGBCellsHaveAlpha = true;
+    }
+    else
+    {
+      RGBCells->SetName("RGB");
+      RGBCells->SetNumberOfComponents(3);
+    }
     output->GetCellData()->AddArray(RGBCells);
     output->GetCellData()->SetActiveScalars("RGB");
   }
 
   bool RGBPointsAvailable = false;
+  bool RGBPointsHaveAlpha = false;
   vtkSmartPointer<vtkUnsignedCharArray> RGBPoints = NULL;
   if ( (elem = vtkPLY::find_element (ply, "vertex")) != NULL &&
        vtkPLY::find_property (elem, "red", &index) != NULL &&
        vtkPLY::find_property (elem, "green", &index) != NULL &&
        vtkPLY::find_property (elem, "blue", &index) != NULL )
   {
-    RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
     RGBPointsAvailable = true;
-    RGBPoints->SetName("RGB");
-    RGBPoints->SetNumberOfComponents(3);
+    RGBPoints = vtkSmartPointer<vtkUnsignedCharArray>::New();
+    if (vtkPLY::find_property(elem, "alpha", &index) != NULL)
+    {
+      RGBPoints->SetName("RGBA");
+      RGBPoints->SetNumberOfComponents(4);
+      RGBPointsHaveAlpha = true;
+    }
+    else
+    {
+      RGBPoints->SetName("RGB");
+      RGBPoints->SetNumberOfComponents(3);
+    }
     output->GetPointData()->SetScalars(RGBPoints);
   }
 
@@ -263,6 +284,10 @@ int vtkPLYReader::RequestData(
         vtkPLY::ply_get_property (ply, elemName, &vertProps[8]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[9]);
         vtkPLY::ply_get_property (ply, elemName, &vertProps[10]);
+        if (RGBPointsHaveAlpha)
+        {
+          vtkPLY::ply_get_property(ply, elemName, &vertProps[11]);
+        }
         RGBPoints->SetNumberOfTuples(numPts);
       }
 
@@ -281,7 +306,14 @@ int vtkPLYReader::RequestData(
         }
         if ( RGBPointsAvailable )
         {
-          RGBPoints->SetTuple3(j, vertex.red, vertex.green, vertex.blue);
+          if (RGBPointsHaveAlpha)
+          {
+            RGBPoints->SetTuple4(j, vertex.red, vertex.green, vertex.blue, vertex.alpha);
+          }
+          else
+          {
+            RGBPoints->SetTuple3(j, vertex.red, vertex.green, vertex.blue);
+          }
         }
       }
       output->SetPoints(pts);
@@ -310,7 +342,11 @@ int vtkPLYReader::RequestData(
         vtkPLY::ply_get_property (ply, elemName, &faceProps[2]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[3]);
         vtkPLY::ply_get_property (ply, elemName, &faceProps[4]);
-        RGBCells->SetNumberOfComponents(3);
+
+        if (RGBCellsHaveAlpha)
+        {
+          vtkPLY::ply_get_property(ply, elemName, &faceProps[5]);
+        }
         RGBCells->SetNumberOfTuples(numPolys);
       }
 
@@ -332,9 +368,19 @@ int vtkPLYReader::RequestData(
         }
         if ( RGBCellsAvailable )
         {
-          RGBCells->SetValue(3*j,face.red);
-          RGBCells->SetValue(3*j+1,face.green);
-          RGBCells->SetValue(3*j+2,face.blue);
+          if (RGBCellsHaveAlpha)
+          {
+            RGBCells->SetValue(4 * j, face.red);
+            RGBCells->SetValue(4 * j + 1, face.green);
+            RGBCells->SetValue(4 * j + 2, face.blue);
+            RGBCells->SetValue(4 * j + 3, face.alpha);
+          }
+          else
+          {
+            RGBCells->SetValue(3 * j, face.red);
+            RGBCells->SetValue(3 * j + 1, face.green);
+            RGBCells->SetValue(3 * j + 2, face.blue);
+          }
         }
       }
       output->SetPolys(polys);

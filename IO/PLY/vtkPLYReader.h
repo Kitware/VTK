@@ -23,8 +23,8 @@
  * must have the properties "x", "y", and "z". The "face" element must
  * have the property "vertex_indices" defined. Optionally, if the "face"
  * element has the properties "intensity" and/or the triplet "red",
- * "green", and "blue"; these are read and added as scalars to the
- * output data.
+ * "green", "blue", and optionally "alpha"; these are read and added as scalars
+ * to the output data.
  *
  * @sa
  * vtkPLYWriter

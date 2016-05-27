@@ -25,6 +25,9 @@
  * writer). If the array is not a vtkUnsignedCharArray with 3 or 4 components,
  * you need to specify a vtkLookupTable to map the scalars to RGB.
  *
+ * To enable saving out alpha (opacity) values, you must enable alpha using
+ * `vtkPLYWriter::SetEnableAlpha()`.
+ *
  * @warning
  * PLY does not handle big endian versus little endian correctly.
  *
@@ -45,6 +48,7 @@ class vtkDataSetAttributes;
 class vtkPolyData;
 class vtkScalarsToColors;
 class vtkStringArray;
+class vtkUnsignedCharArray;
 
 #define VTK_LITTLE_ENDIAN 0
 #define VTK_BIG_ENDIAN    1
@@ -112,6 +116,16 @@ public:
 
   //@{
   /**
+   * Enable alpha output. Default is off, i.e. only color values will be saved
+   * based on ColorMode.
+   */
+  vtkSetMacro(EnableAlpha, bool);
+  vtkGetMacro(EnableAlpha, bool);
+  vtkBooleanMacro(EnableAlpha, bool);
+  //@}
+
+  //@{
+  /**
    * Specify the array name to use to color the data.
    */
   vtkSetStringMacro(ArrayName);
@@ -122,8 +136,8 @@ public:
   /**
    * Specify the array component to use to color the data.
    */
-  vtkSetClampMacro(Component,int,0,VTK_INT_MAX);
-  vtkGetMacro(Component,int);
+  vtkSetClampMacro(Component, int, 0, VTK_INT_MAX);
+  vtkGetMacro(Component, int);
   //@}
 
   //@{
@@ -132,7 +146,7 @@ public:
    * RGBA colors.
    */
   virtual void SetLookupTable(vtkScalarsToColors*);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
   //@}
 
   //@{
@@ -142,8 +156,16 @@ public:
    * between (0,255). This only takes effect when the ColorMode is set to
    * uniform point, uniform cell, or uniform color.
    */
-  vtkSetVector3Macro(Color,unsigned char);
-  vtkGetVector3Macro(Color,unsigned char);
+  vtkSetVector3Macro(Color, unsigned char);
+  vtkGetVector3Macro(Color, unsigned char);
+  //@}
+
+  //@{
+  /** Set the alpha to use when using a uniform color (effect point or cells, or
+   *  both) and EnableAlpha is ON.
+   */
+  vtkSetMacro(Alpha, unsigned char);
+  vtkGetMacro(Alpha, unsigned char);
   //@}
 
   //@{
@@ -166,10 +188,10 @@ public:
   /**
    * Specify file type (ASCII or BINARY) for vtk data file.
    */
-  vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
-  vtkGetMacro(FileType,int);
-  void SetFileTypeToASCII() {this->SetFileType(VTK_ASCII);};
-  void SetFileTypeToBinary() {this->SetFileType(VTK_BINARY);};
+  vtkSetClampMacro(FileType, int, VTK_ASCII, VTK_BINARY);
+  vtkGetMacro(FileType, int);
+  void SetFileTypeToASCII() { this->SetFileType(VTK_ASCII); };
+  void SetFileTypeToBinary() { this->SetFileType(VTK_BINARY); };
   //@}
 
   //@{
@@ -177,12 +199,12 @@ public:
    * Choose the name used for the texture coordinates.
    * (u, v) or (texture_u, texture_v)
    */
-  vtkSetClampMacro(TextureCoordinatesName,int,VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
-  vtkGetMacro(TextureCoordinatesName,int);
-  void SetTextureCoordinatesNameToUV()
-    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_UV);}
+  vtkSetClampMacro(
+    TextureCoordinatesName, int, VTK_TEXTURECOORDS_UV, VTK_TEXTURECOORDS_TEXTUREUV);
+  vtkGetMacro(TextureCoordinatesName, int);
+  void SetTextureCoordinatesNameToUV() { this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_UV); }
   void SetTextureCoordinatesNameToTextureUV()
-    {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
+  {this->SetTextureCoordinatesName(VTK_TEXTURECOORDS_TEXTUREUV);}
   //@}
 
   /**
@@ -195,7 +217,7 @@ protected:
   ~vtkPLYWriter() VTK_OVERRIDE;
 
   void WriteData() VTK_OVERRIDE;
-  unsigned char *GetColors(vtkIdType num, vtkDataSetAttributes *dsa);
+  vtkSmartPointer<vtkUnsignedCharArray> GetColors(vtkIdType num, vtkDataSetAttributes* dsa);
   const float *GetTextureCoordinates(vtkIdType num, vtkDataSetAttributes *dsa);
 
   int DataByteOrder;
@@ -204,6 +226,9 @@ protected:
   int ColorMode;
   vtkScalarsToColors *LookupTable;
   unsigned char Color[3];
+
+  bool EnableAlpha;
+  unsigned char Alpha;
 
   char* FileName;
 
