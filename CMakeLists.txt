@@ -28,6 +28,17 @@ endif()
 
 project(VTK)
 
+if (NOT CMAKE_VERSION VERSION_LESS "3.1")
+  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
+         OFF)
+else()
+  set(VTK_USE_CXX11_FEATURES OFF)
+endif()
+if (VTK_USE_CXX11_FEATURES)
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED 11)
+endif()
+
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
 # so we provide this in case the user needs to specify flags specifically
