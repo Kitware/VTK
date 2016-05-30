@@ -387,9 +387,9 @@ namespace vtkosp {
     osp::vec3i *triangles = new osp::vec3i[numTriangles];
     for (size_t i = 0, mi = 0; i < numTriangles; i++, mi += 3)
       {
-      triangles[i] = osp::vec3i{indexArray[mi + 0],
-                                indexArray[mi + 1],
-                                indexArray[mi + 2]};
+      triangles[i] = osp::vec3i{static_cast<int>(indexArray[mi + 0]),
+                                static_cast<int>(indexArray[mi + 1]),
+                                static_cast<int>(indexArray[mi + 2])};
       }
     OSPData index = ospNewData(numTriangles, OSP_INT3, &triangles[0]);
     delete[] triangles;
@@ -525,9 +525,9 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
   for (size_t i = 0; i < numPositions; i++)
     {
     vertices[i] =
-      osp::vec3fa{_vertices[i*3+0],
-                  _vertices[i*3+1],
-                  _vertices[i*3+2]};
+      osp::vec3fa{static_cast<float>(_vertices[i*3+0]),
+                  static_cast<float>(_vertices[i*3+1]),
+                  static_cast<float>(_vertices[i*3+2])};
     }
   OSPData position = ospNewData(numPositions, OSP_FLOAT3A, &vertices[0]);
   ospCommit(position);
