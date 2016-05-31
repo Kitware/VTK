@@ -362,6 +362,14 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
      (this->EnableOpacityMapping == true) &&
      (this->ScalarOpacityFunction.GetPointer() != NULL))
   {
+    // extract from docs from vtkScalarsToColors.h:
+    // "... When the component argument is -1,
+    //      then the this object uses its own selected technique to change a
+    //      vector into a scalar to map."
+    if (component < 0 && scalars->GetNumberOfComponents() > 1)
+    {
+      component = (this->VectorMode == vtkScalarsToColors::COMPONENT) ? this->VectorComponent : -1;
+    }
     vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(scalars);
     this->MapDataArrayToOpacity(da, component, colors);
   }
