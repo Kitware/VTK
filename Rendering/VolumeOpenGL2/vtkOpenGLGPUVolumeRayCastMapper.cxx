@@ -201,24 +201,6 @@ public:
       this->RTTColorTextureObject = 0;
       }
 
-    if (this->DPFBO)
-      {
-      this->DPFBO->Delete();
-      this->DPFBO = 0;
-      }
-
-    if (this->DPDepthBufferTextureObject)
-      {
-      this->DPDepthBufferTextureObject->Delete();
-      this->DPDepthBufferTextureObject = 0;
-      }
-
-    if (this->DPColorTextureObject)
-      {
-      this->DPColorTextureObject->Delete();
-      this->DPColorTextureObject = 0;
-      }
-
     this->DeleteTransferFunctions();
 
     delete this->MaskTextures;
@@ -2590,6 +2572,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     }
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
+  this->Impl->ReleaseDepthPassGraphicsResources(window);
 
   if(this->Impl->MaskTextures != 0)
     {
