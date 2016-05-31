@@ -155,8 +155,6 @@ public:
     this->DPFBO = 0;
     this->DPDepthBufferTextureObject = 0;
     this->DPColorTextureObject = 0;
-
-    this->ContourMapper = NULL;
     }
 
   // Destructor
@@ -440,7 +438,7 @@ public:
   vtkTextureObject* DPColorTextureObject;
 
   vtkNew<vtkContourFilter>  ContourFilter;
-  vtkPolyDataMapper* ContourMapper;
+  vtkNew<vtkPolyDataMapper> ContourMapper;
   vtkNew<vtkActor> ContourActor;
 };
 
@@ -2393,16 +2391,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   this->DPFBO->ActivateDrawBuffers(1);
   this->DPFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
 
+  // Setup the contour polydata mapper to render to DPFBO
+  this->ContourMapper->SetInputConnection(
+    this->ContourFilter->GetOutputPort());
+
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
-
-  if (!this->ContourMapper)
-    {
-    this->ContourMapper = vtkPolyDataMapper::New();
-    this->ContourMapper->SetInputConnection(
-      this->ContourFilter->GetOutputPort());
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -2484,12 +2479,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
       this->DPColorTextureObject = 0;
       }
 
-    if (this->ContourMapper)
-      {
-      this->ContourMapper->ReleaseGraphicsResources(win);
-      this->ContourMapper->Delete();
-      this->ContourMapper = 0;
-      }
+    this->ContourMapper->ReleaseGraphicsResources(win);
     }
 }
 
@@ -3289,7 +3279,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
 
       this->Impl->SetupDepthPass(ren);
 
-      this->Impl->ContourActor->Render(ren, this->Impl->ContourMapper);
+      this->Impl->ContourActor->Render(ren,
+                                       this->Impl->ContourMapper.GetPointer());
 
       this->Impl->ExitDepthPass(ren);
 
@@ -3303,7 +3294,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       {
       this->Impl->SetupDepthPass(ren);
 
-      this->Impl->ContourActor->Render(ren, this->Impl->ContourMapper);
+      this->Impl->ContourActor->Render(ren,
+                                       this->Impl->ContourMapper.GetPointer());
 
       this->Impl->ExitDepthPass(ren);
       this->Impl->DepthPassTime.Modified();
