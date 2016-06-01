@@ -344,9 +344,9 @@ The `Do: test` command accepts the following arguments:
         build the superbuilds related to the project
   * `--clear`
         clear previous commands before adding this command
-  * `--regex-include <arg>`
+  * `--regex-include <arg>` or `-i <arg>`
         only build on builders matching `<arg>` (a Python regular expression)
-  * `--regex-exclude <arg>`
+  * `--regex-exclude <arg>` or `-e <arg>`
         excludes builds on builders matching `<arg>` (a Python regular
         expression)
 
