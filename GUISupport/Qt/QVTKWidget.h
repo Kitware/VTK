@@ -39,6 +39,7 @@
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "QVTKInteractor.h"
 #include <QWidget>
+#include <QTimer>
 
 class QVTKInteractorAdapter;
 
@@ -74,6 +75,9 @@ class VTKGUISUPPORTQT_EXPORT QVTKWidget : public QWidget
   Q_PROPERTY(double maxRenderRateForImageCache
              READ maxRenderRateForImageCache
              WRITE setMaxRenderRateForImageCache)
+  Q_PROPERTY(bool deferRenderInPaintEvent
+             READ deferRenderInPaintEvent
+             WRITE setDeferRenderInPaintEvent)
 
 public:
   //! constructor
@@ -113,7 +117,7 @@ public:
 
   // Description:
   // If automatic image caching is enabled, then the image will be cached
-  // after every render with a DesiredUpdateRate that is greater than
+  // after every render with a DesiredUpdateRate that is less than
   // this parameter.  By default, the vtkRenderWindowInteractor will
   // change the desired render rate depending on the user's
   // interactions. (See vtkRenderWindow::DesiredUpdateRate,
@@ -143,6 +147,18 @@ public:
   void SetUseTDx(bool useTDx);
   bool GetUseTDx() const;
 
+  // Description:
+  // When set to true (default is false), paintEvent() will never directly trigger
+  // a render on the vtkRenderWindow (via vtkRenderWindowInteractor::Render()).
+  // Instead, it starts a timer that then triggers the render on idle. This, in
+  // general is a good strategy for cases where Render may take a while with
+  // applications wanting to report progress and consequently trigger paint
+  // events on other widgets like progress bars, etc.
+  // There is one caveat: when paintEvent() is called using a redirected paint device,
+  // then this flag is ignored and the paintEvent() will trigger
+  // vtkRenderWindowInteractor::Render(), if needed.
+  void setDeferRenderInPaintEvent(bool val);
+  bool deferRenderInPaintEvent() const;
 
 Q_SIGNALS:
   // Description:
@@ -179,6 +195,17 @@ public Q_SLOTS:
 #ifdef VTK_USE_TDX
   void setDevice(vtkTDxDevice *device);
 #endif
+
+protected Q_SLOTS:
+  // Description:
+  // Request to defer a render call i.e. start the mDeferedRenderTimer. When the
+  // timer times out, it will call doDeferredRender() to do the actual
+  // rendering.
+  virtual void deferRender();
+
+  // Description:
+  // Called when the mDeferedRenderTimer times out to do the rendering.
+  virtual void doDeferredRender();
 
 protected:
   // overloaded resize handler
@@ -250,12 +277,13 @@ protected:
 #endif
 
 protected:
-
   vtkImageData* mCachedImage;
   bool cachedImageCleanFlag;
   bool automaticImageCache;
   double maxImageCacheRenderRate;
   QVTKInteractorAdapter* mIrenAdapter;
+  bool mDeferRenderInPaintEvent;
+
 
 private:
   //! unimplemented operator=
@@ -269,6 +297,7 @@ private:
   // Callback called on every vtkCommand::RenderEvent fired by the
   // vtkRenderWindow.
   void renderEventCallback();
+  QTimer mDeferedRenderTimer;
 };
 
 #endif
