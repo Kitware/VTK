@@ -301,13 +301,22 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // all lookups to return NaN. See discussion on
       // https://bugs.freedesktop.org/show_bug.cgi?id=94955
       // We'll always fallback to regular depth peeling until this is fixed.
+      // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
+      // seem to be affected by this.
       std::string glVersion =
           reinterpret_cast<const char *>(glGetString(GL_VERSION));
-      if (glVersion.find("Mesa 11.3.0") != std::string::npos)
+      if (glVersion.find("Mesa") != std::string::npos)
         {
-        vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
-                      "GL_VERSION = " << glVersion);
-        dualDepthPeelingSupported = false;
+        std::string glRenderer =
+            reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+        if (glRenderer.find("llvmpipe") != std::string::npos ||
+            glRenderer.find("SWR") != std::string::npos)
+          {
+          vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
+                        "GL_VERSION = '" << glVersion << "'; "
+                        "GL_RENDERER = '" << glRenderer << "'.");
+          dualDepthPeelingSupported = false;
+          }
         }
 
       if (dualDepthPeelingSupported)
