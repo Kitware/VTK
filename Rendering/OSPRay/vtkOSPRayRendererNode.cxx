@@ -134,14 +134,14 @@ int vtkOSPRayRendererNode::GetAmbientSamples(vtkRenderer *renderer)
 {
   if (!renderer)
     {
-    return 1;
+    return 0;
     }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::AMBIENT_SAMPLES()))
     {
     return (info->Get(vtkOSPRayRendererNode::AMBIENT_SAMPLES()));
     }
-  return 1;
+  return 0;
 }
 
 //----------------------------------------------------------------------------

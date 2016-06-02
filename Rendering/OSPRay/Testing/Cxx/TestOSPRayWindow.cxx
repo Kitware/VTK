@@ -17,6 +17,7 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
+#include "vtkLight.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkProperty2D.h"
 #include "vtkRegressionTestImage.h"
@@ -48,9 +49,13 @@ int TestOSPRayWindow( int argc, char *argv[] )
   vtkNew<vtkActor> sphereActor;
   sphereActor->SetMapper(sphereMapper.Get());
 
+  vtkSmartPointer<vtkLight> light1 = vtkSmartPointer<vtkLight>::New();
+
   // Create the RenderWindow, Renderer and all Actors
   vtkSmartPointer<vtkRenderer> ren1 =
     vtkSmartPointer<vtkRenderer>::New();
+  ren1->AddLight(light1);
+
   vtkSmartPointer<vtkRenderWindow> renWin =
     vtkSmartPointer<vtkRenderWindow>::New();
   renWin->AddRenderer( ren1 );

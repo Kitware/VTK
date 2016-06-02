@@ -87,8 +87,8 @@ void vtkOSPRayLightNode::Render(bool prepass)
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
-         vtkMath::Pi()* //since OSP 0.10.0
-         0.2);//TODO: why so bright?
+         vtkMath::Pi() //since OSP 0.10.0
+         );
       ospSet1f(ospLight, "intensity", fI);
       ospSet3f(ospLight, "position",
                light->GetPosition()[0],
