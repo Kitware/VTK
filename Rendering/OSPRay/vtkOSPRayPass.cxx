@@ -31,6 +31,8 @@
 
 #include "ospray/ospray.h"
 
+#include <stdexcept>
+
 class vtkOSPRayPassInternals : public vtkRenderPass
 {
 public:
