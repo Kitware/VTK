@@ -23,4 +23,5 @@ vtk_add_test_python(
   TestVariant.py
   TestWeakref.py
   TestCommand.py
+  TestInvokeEvent.py
   )
