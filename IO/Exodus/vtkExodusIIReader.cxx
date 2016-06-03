@@ -3840,17 +3840,25 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
   int exoid = this->Exoid;
   int itmp[5];
   int num_timesteps;
+  int i;
 
   VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME, itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
   num_timesteps = itmp[0];
 
   this->Times.clear();
-  this->Times.resize( num_timesteps );
-  // If there are zero or one timesteps, then there is only one file containing
-  // the data to be read. So, we treat both instances in the same manner.
-  if ( num_timesteps > 1 )
+  if ( num_timesteps > 0 )
     {
-    VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
+    this->Times.resize( num_timesteps );
+
+    int exo_err = ex_get_all_times( this->Exoid, &this->Times[0] );
+    if ( exo_err < 0)
+      {
+      for ( i = 0; i < num_timesteps; ++i )
+        {
+          this->Times[i] = i;
+        }
+      vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
+      }
     }
   return 0;
 }
