@@ -3845,11 +3845,11 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
   num_timesteps = itmp[0];
 
   this->Times.clear();
+  this->Times.resize( num_timesteps );
   // If there are zero or one timesteps, then there is only one file containing
   // the data to be read. So, we treat both instances in the same manner.
   if ( num_timesteps > 1 )
     {
-    this->Times.resize( num_timesteps );
     VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
     }
   return 0;
