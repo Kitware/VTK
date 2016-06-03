@@ -326,6 +326,54 @@ public:
     case wkbMultiSurfaceZ:
       return 0;
 #endif
+#if GDAL_VERSION_MAJOR >= 3 || \
+   (GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR > 0)
+    case wkbCircularStringM:
+    case wkbCircularStringZM:
+    case wkbCompoundCurveM:
+    case wkbCompoundCurveZM:
+    case wkbCurve:
+    case wkbCurveM:
+    case wkbCurvePolygonM:
+    case wkbCurvePolygonZM:
+    case wkbCurveZ:
+    case wkbCurveZM:
+    case wkbGeometryCollectionM:
+    case wkbGeometryCollectionZM:
+    case wkbLineStringM:
+    case wkbLineStringZM:
+    case wkbMultiCurveM:
+    case wkbMultiCurveZM:
+    case wkbMultiLineStringM:
+    case wkbMultiLineStringZM:
+    case wkbMultiPointM:
+    case wkbMultiPointZM:
+    case wkbMultiPolygonM:
+    case wkbMultiPolygonZM:
+    case wkbMultiSurfaceM:
+    case wkbMultiSurfaceZM:
+    case wkbPointM:
+    case wkbPointZM:
+    case wkbPolygonM:
+    case wkbPolygonZM:
+    case wkbPolyhedralSurface:
+    case wkbPolyhedralSurfaceM:
+    case wkbPolyhedralSurfaceZ:
+    case wkbPolyhedralSurfaceZM:
+    case wkbSurface:
+    case wkbSurfaceM:
+    case wkbSurfaceZ:
+    case wkbSurfaceZM:
+    case wkbTIN:
+    case wkbTINM:
+    case wkbTINZ:
+    case wkbTINZM:
+    case wkbTriangle:
+    case wkbTriangleM:
+    case wkbTriangleZ:
+    case wkbTriangleZM:
+      return 0;
+#endif
       }
 
     return nCells;
