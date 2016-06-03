@@ -299,6 +299,9 @@ int main(int argc, char *argv[])
   size_t k, m;
   int is_vtkobject;
 
+  /* pre-define a macro to identify the language */
+  vtkParse_DefineMacro("__VTK_WRAP_PYTHON__", 0);
+
   /* get command-line args and parse the header file */
   file_info = vtkParse_Main(argc, argv);
 

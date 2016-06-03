@@ -197,7 +197,7 @@ public:
   // The class uses the actual array provided; it does not copy the data
   // from the supplied array. If save 0, the array must have been allocated
   // with new[] not malloc.
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
   void SetArray(unsigned char* array, vtkIdType size, int save);
 #endif
   void SetVoidArray(void *array, vtkIdType size, int save)

@@ -321,7 +321,7 @@ public:
   // Generate the table before calling InitializeSuperCursorChild.
   void GenerateSuperCursorTraversalTable();
 
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
   // Description:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
@@ -390,7 +390,7 @@ protected:
   void DeleteInternalArrays();
   void DeleteTrees();
 
-#if !defined(__WRAP__) && !defined(__WRAP_GCCXML__)
+#if !defined(__VTK_WRAP__) && !defined(__WRAP_GCCXML__)
   void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, unsigned int );
 
   void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
