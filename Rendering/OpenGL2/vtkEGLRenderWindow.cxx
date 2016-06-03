@@ -29,6 +29,9 @@
 #include <sstream>
 #include <EGL/egl.h>
 
+#if ANDROID
+#include <android/native_window.h>
+#endif
 
 
 namespace
