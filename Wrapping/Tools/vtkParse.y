@@ -3611,7 +3611,8 @@ declaration_macro:
    currentFunction->Name = "NewInstance";
    currentFunction->Signature = vtkstrcat($<str>3, " *NewInstance();");
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, VTK_PARSE_OBJECT_PTR, $<str>3, 0);
+   set_return(currentFunction, VTK_PARSE_NEWINSTANCE | VTK_PARSE_OBJECT_PTR,
+              $<str>3, 0);
    output_function();
 
    currentFunction->Macro = "vtkTypeMacro";

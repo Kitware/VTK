@@ -273,6 +273,7 @@ SET(Module_SRCS
   vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
+  vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
@@ -655,6 +656,7 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   "${VTK_TYPELISTMACROS_HEADER}"
@@ -685,6 +687,7 @@ set_source_files_properties(
   vtkWeakPointer.h
   vtkWeakPointerBase.cxx
   vtkWin32Header.h
+  vtkWrappingHints.h
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
 )
 

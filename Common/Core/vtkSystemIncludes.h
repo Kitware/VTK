@@ -39,6 +39,9 @@
 // Setup the basic types to be used by VTK.
 #include "vtkType.h"
 
+// Define some macros to provide wrapping hints
+#include "vtkWrappingHints.h"
+
 // this should be removed at some point
 #define VTK_USE_EXECUTIVES
 

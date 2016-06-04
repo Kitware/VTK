@@ -343,6 +343,7 @@ public:
   // VTK_STRING.
   // Note that the data array returned has to be deleted by the
   // user.
+  VTK_NEWINSTANCE
   static vtkAbstractArray* CreateArray(int dataType);
 
   // Description:

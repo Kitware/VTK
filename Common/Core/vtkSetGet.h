@@ -631,7 +631,7 @@ virtual double *Get##name() \
       } \
     return NULL;\
   } \
-  instanceType *NewInstance() const \
+  VTK_NEWINSTANCE instanceType *NewInstance() const \
   { \
     return instanceType::SafeDownCast(this->NewInstanceInternal()); \
   }
