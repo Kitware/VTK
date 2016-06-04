@@ -2689,13 +2689,13 @@ parameter_list:
     { currentFunction->IsVariadic = 1; postSig("..."); }
 
 parameter_declaration:
-    { markSig(); }
+    decl_attribute_specifier_seq { markSig(); }
     store_type direct_abstract_declarator
     {
       ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(param);
 
-      handle_complex_type(param, getType(), $<integer>3, copySig());
+      handle_complex_type(param, getType(), $<integer>4, copySig());
       add_legacy_parameter(currentFunction, param);
 
       if (getVarName())
