@@ -4783,11 +4783,13 @@ void handle_attribute(const char *att, int pack)
       {
       /* no current vtk attributes use arguments */
       print_parser_error("attribute takes no args", att, l);
+      exit(1);
       }
     else if (pack)
       {
       /* no current vtk attributes use '...' */
       print_parser_error("attribute takes no ...", att, l);
+      exit(1);
       }
     else if (strcmp(att, "vtk::newinstance") == 0 &&
              role == VTK_PARSE_ATTRIB_DECL)
@@ -4797,6 +4799,7 @@ void handle_attribute(const char *att, int pack)
     else
       {
       print_parser_error("attribute cannot be used here", att, l);
+      exit(1);
       }
     }
 }
