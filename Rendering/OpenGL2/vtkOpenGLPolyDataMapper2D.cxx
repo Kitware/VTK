@@ -596,6 +596,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
+#ifndef NDEBUG
     static bool warnAppleBugOnce = true;
     if (warnAppleBugOnce)
       {
@@ -604,7 +605,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
                       << (const char *)glGetString(GL_RENDERER));
       warnAppleBugOnce = false;
       }
-
+#endif
     }
 
   // if we have cell scalars then we have to

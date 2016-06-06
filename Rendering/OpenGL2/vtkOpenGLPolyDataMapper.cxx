@@ -3016,6 +3016,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
+#ifndef NDEBUG
     static bool warnedAboutBrokenAppleDriver = false;
     if (!warnedAboutBrokenAppleDriver)
       {
@@ -3025,6 +3026,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
         << (const char *)glGetString(GL_VERSION));
       warnedAboutBrokenAppleDriver = true;
       }
+#endif
     if (n)
       {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
