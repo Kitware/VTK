@@ -199,24 +199,6 @@ public:
       this->RTTColorTextureObject = 0;
       }
 
-    if (this->DPFBO)
-      {
-      this->DPFBO->Delete();
-      this->DPFBO = 0;
-      }
-
-    if (this->DPDepthBufferTextureObject)
-      {
-      this->DPDepthBufferTextureObject->Delete();
-      this->DPDepthBufferTextureObject = 0;
-      }
-
-    if (this->DPColorTextureObject)
-      {
-      this->DPColorTextureObject->Delete();
-      this->DPColorTextureObject = 0;
-      }
-
     this->DeleteTransferFunctions();
 
     delete this->MaskTextures;
@@ -2409,6 +2391,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetupDepthPass(
   this->DPFBO->ActivateDrawBuffers(1);
   this->DPFBO->CheckFrameBufferStatus(GL_FRAMEBUFFER);
 
+  // Setup the contour polydata mapper to render to DPFBO
+  this->ContourMapper->SetInputConnection(
+    this->ContourFilter->GetOutputPort());
+
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
@@ -2492,6 +2478,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal
       this->DPColorTextureObject->Delete();
       this->DPColorTextureObject = 0;
       }
+
+    this->ContourMapper->ReleaseGraphicsResources(win);
     }
 }
 
@@ -2574,6 +2562,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     }
 
   this->Impl->ReleaseRenderToTextureGraphicsResources(window);
+  this->Impl->ReleaseDepthPassGraphicsResources(window);
 
   if(this->Impl->MaskTextures != 0)
     {
@@ -3284,16 +3273,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
         this->Impl->ContourFilter->SetValue(i,
           this->DepthPassContourValues->GetValue(i));
         }
-      this->Impl->ContourMapper->SetInputConnection(this->Impl->ContourFilter->GetOutputPort());
-      this->Impl->ContourActor->SetMapper(this->Impl->ContourMapper.GetPointer());
-      this->Impl->ContourMapper->Update();
 
       vtkNew<vtkMatrix4x4> newMatrix;
       newMatrix->DeepCopy(vol->GetMatrix());
 
       this->Impl->SetupDepthPass(ren);
 
-      this->Impl->ContourActor->Render(ren, this->Impl->ContourMapper.GetPointer());
+      this->Impl->ContourActor->Render(ren,
+                                       this->Impl->ContourMapper.GetPointer());
 
       this->Impl->ExitDepthPass(ren);
 
@@ -3307,7 +3294,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
       {
       this->Impl->SetupDepthPass(ren);
 
-      this->Impl->ContourActor->Render(ren, this->Impl->ContourMapper.GetPointer());
+      this->Impl->ContourActor->Render(ren,
+                                       this->Impl->ContourMapper.GetPointer());
 
       this->Impl->ExitDepthPass(ren);
       this->Impl->DepthPassTime.Modified();
