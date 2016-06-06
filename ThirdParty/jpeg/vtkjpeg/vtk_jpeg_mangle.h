@@ -83,6 +83,7 @@ nm libvtkjpeg.a |grep " [TR] "
 #define jpeg_make_d_derived_tbl vtk_jpeg_make_d_derived_tbl
 #define jpeg_mem_available vtk_jpeg_mem_available
 #define jpeg_mem_init vtk_jpeg_mem_init
+#define jpeg_mem_src vtk_jpeg_mem_src
 #define jpeg_mem_term vtk_jpeg_mem_term
 #define jpeg_natural_order vtk_jpeg_natural_order
 #define jpeg_new_colormap vtk_jpeg_new_colormap
