@@ -873,4 +873,58 @@ static void vtkWrapPython_CustomMethods(
             "\n",
             classname, data->Name, data->Name, data->Name);
     }
+    if (strcmp("vtkCollection", data->Name) == 0 &&
+       do_constructors == 0)
+     {
+      fprintf(fp,
+              "static PyObject *\n"
+              "PyvtkCollection_iter(PyObject *self)\n"
+              "{\n"
+              "  PyVTKObject* vp = (PyVTKObject *) self;\n"
+              "  vtkCollection *op = (vtkCollection* ) vp->vtk_ptr; \n"
+              "  \n"
+              "  PyObject *result = NULL;\n"
+              "  \n"
+              "  if (op)\n"
+              "    {\n"
+              "    vtkObject *tempr = (vtkObject *) op->NewIterator();\n"
+              "    if (tempr != NULL)\n"
+              "      {\n"
+              "      result = vtkPythonArgs::BuildVTKObject(tempr);\n"
+              "      }\n"
+              "    }\n"
+              "\n"
+              "  return result;\n"
+              "}\n");
+    }
+   if (strcmp("vtkCollectionIterator", data->Name) == 0 &&
+      do_constructors == 0)
+    {
+     fprintf(fp,
+              "static PyObject * PyvtkCollectionIterator_next(PyObject *self)\n"
+              "{\n"
+              "  PyVTKObject* vp = (PyVTKObject *) self;\n"
+              "  vtkCollectionIterator *op = (vtkCollectionIterator* ) vp->vtk_ptr; \n"
+              "  \n"
+              "  PyObject *result = NULL;\n"
+              "  \n"
+              "  if (op)\n"
+              "    {\n"
+              "    vtkObject *tempr = op->GetCurrentObject();\n"
+              "    op->GoToNextItem();\n"
+              "    if (tempr != NULL)\n"
+              "      {\n"
+              "      result = vtkPythonArgs::BuildVTKObject(tempr);\n"
+              "      }\n"
+              "    }\n"
+              "\n"
+              "  return result;\n"
+              "}\n"
+              "\n"
+              "static PyObject *PyvtkCollectionIterator_iter(PyObject *self)\n"
+              "{\n"
+              "  Py_INCREF(self);\n"
+              "  return self;\n"
+              "}\n");
+    }
 }
