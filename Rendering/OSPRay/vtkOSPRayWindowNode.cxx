@@ -25,7 +25,7 @@
 #include "vtkViewNodeCollection.h"
 
 #include "ospray/ospray.h"
-#include <exception>
+#include <stdexcept>
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayWindowNode);
