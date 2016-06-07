@@ -364,8 +364,6 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
     this->OriginalCellIds->SetNumberOfComponents(1);
     this->OriginalCellIds->Allocate(numCells);
     output->GetCellData()->AddArray(this->OriginalCellIds);
-    this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
     }
   if (this->PassThroughPointIds)
     {
@@ -374,8 +372,6 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
     this->OriginalPointIds->SetNumberOfComponents(1);
     this->OriginalPointIds->Allocate(numPoints);
     output->GetPointData()->AddArray(this->OriginalPointIds);
-    this->OriginalPointIds->Delete();
-    this->OriginalPointIds = NULL;
     }
 
   // xMin face
@@ -405,6 +401,16 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
   output->Squeeze();
   this->PassThroughCellIds = originalPassThroughCellIds;
 
+  if (this->OriginalPointIds)
+    {
+    this->OriginalPointIds->Delete();
+    this->OriginalPointIds = NULL;
+    }
+  if (this->OriginalCellIds)
+    {
+    this->OriginalCellIds->Delete();
+    this->OriginalPointIds = NULL;
+    }
   return 1;
 }
 
