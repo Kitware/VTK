@@ -21,6 +21,7 @@
 int main()
 {
   int i,j;
+  {
   vtkXMLWriterC* writer = vtkXMLWriterC_New();
   const char filename[] = "cube.vtu";
   float points[3*NPOINTS] = {0, 0, 0,
@@ -62,6 +63,6 @@ int main()
     }
   vtkXMLWriterC_Stop(writer);
   vtkXMLWriterC_Delete(writer);
-
+  }
   return 0;
 }
