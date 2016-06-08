@@ -71,6 +71,13 @@ void vtkMFCRenderView::OnDraw(CDC* pDC)
     WNDPROC OldProc = (WNDPROC)vtkGetWindowLong(this->m_hWnd,vtkGWL_WNDPROC);
     this->Interactor->Initialize();
     vtkSetWindowLong(this->m_hWnd,vtkGWL_WNDPROC,(vtkLONG)OldProc);
+
+    // Transfer super window proc to the interactor - it will forward uncatched
+    // message to it instead of current window proc (this->WindowProc).
+    // This is necessary the avoid infinite loops (WindowProc calls
+    // vtkHandlMessage2 which calls WindowProc etc.)
+    vtkHandleMessage2(
+      this->m_hWnd, WM_USER + 13, 26,(LPARAM)m_pfnSuper, this->Interactor);
     }
 
   // TODO: add draw code for native data here
