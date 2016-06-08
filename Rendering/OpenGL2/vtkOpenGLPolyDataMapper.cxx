@@ -72,7 +72,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->InternalColorTexture = 0;
   this->PopulateSelectionSettings = 1;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
-  this->LastDepthPeeling = 0;
   this->CurrentInput = 0;
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
@@ -314,6 +313,70 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(
       renWin->GetMaximumHardwareLineWidth() >= actor->GetProperty()->GetLineWidth());
     }
   return false;
+}
+
+//-----------------------------------------------------------------------------
+unsigned long vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
+{
+  vtkInformation *info = actor->GetPropertyKeys();
+  unsigned long int renderPassMTime = 0;
+
+  int curRenderPasses = 0;
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  int lastRenderPasses = 0;
+  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    lastRenderPasses =
+        this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  // Determine the last time a render pass changed stages:
+  if (curRenderPasses != lastRenderPasses)
+    {
+    // Number of passes changed, definitely need to update.
+    // Fake the time to force an update:
+    renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+    }
+  else
+    {
+    // Compare the current to the previous render passes:
+    for (int i = 0; i < curRenderPasses; ++i)
+      {
+      vtkObjectBase *curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkObjectBase *lastRP =
+          this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+
+      if (curRP != lastRP)
+        {
+        // Render passes have changed. Force update:
+        renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+        break;
+        }
+      else
+        {
+        // Render passes have not changed -- check MTime.
+        vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(curRP);
+        renderPassMTime = std::max(renderPassMTime, rp->GetShaderStageMTime());
+        }
+      }
+    }
+
+  // Cache the current set of render passes for next time:
+  if (info)
+    {
+    this->LastRenderPassInfo->CopyEntry(info,
+                                        vtkOpenGLRenderPass::RenderPasses());
+    }
+  else
+    {
+    this->LastRenderPassInfo->Clear();
+    }
+
+  return renderPassMTime;
 }
 
 //-----------------------------------------------------------------------------
@@ -1368,69 +1431,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     }
 
   // Have the renderpasses changed?
-  vtkInformation *info = actor->GetPropertyKeys();
-
-  int curRenderPasses = 0;
-  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
-    {
-    curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
-    }
-
-  int lastRenderPasses = 0;
-  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
-    {
-    lastRenderPasses =
-        this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
-    }
-
-  // Determine the last time a render pass changed stages:
-  unsigned long int renderPassMTime = 0;
-  if (curRenderPasses != lastRenderPasses)
-    {
-    // Number of passes changed, definitely need to update.
-    // Fake the time to force an update:
-    renderPassMTime = cellBO.ShaderSourceTime.GetMTime() + 1;
-    }
-  else
-    {
-    // Compare the current to the previous render passes:
-    for (int i = 0; i < curRenderPasses; ++i)
-      {
-      vtkObjectBase *curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
-      vtkObjectBase *lastRP =
-          this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
-
-      if (curRP != lastRP)
-        {
-        // Render passes have changed. Force update:
-        renderPassMTime = cellBO.ShaderSourceTime.GetMTime() + 1;
-        break;
-        }
-      else
-        {
-        // Render passes have not changed -- check MTime.
-        vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(curRP);
-        renderPassMTime = std::max(renderPassMTime, rp->GetShaderStageMTime());
-
-        // abort early if possible:
-        if (cellBO.ShaderSourceTime < renderPassMTime)
-          {
-          break;
-          }
-        }
-      }
-    }
-
-  // Cache the current set of render passes for next time:
-  if (info)
-    {
-    this->LastRenderPassInfo->CopyEntry(info,
-                                        vtkOpenGLRenderPass::RenderPasses());
-    }
-  else
-    {
-    this->LastRenderPassInfo->Clear();
-    }
+  unsigned long int renderPassMTime = this->GetRenderPassStageMTime(actor);
 
   // has something changed that would require us to recreate the shader?
   // candidates are
