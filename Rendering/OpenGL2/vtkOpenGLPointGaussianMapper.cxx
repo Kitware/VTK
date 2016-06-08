@@ -648,7 +648,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   this->VBO->NormalOffset = 0;
   this->VBO->TCoordOffset = 0;
   this->VBO->TCoordComponents = 0;
-  this->VBO->ColorComponents = 4;
+  this->VBO->ColorComponents = (this->Colors == NULL)? 0 :  4;
   this->VBO->ColorOffset = sizeof(float) * blockSize;
   ++blockSize; // color
 
