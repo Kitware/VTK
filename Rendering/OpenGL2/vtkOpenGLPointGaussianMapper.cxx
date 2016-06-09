@@ -219,6 +219,8 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
     this->LastSelectionState = picking;
     }
 
+  unsigned long int renderPassMTime = this->GetRenderPassStageMTime(actor);
+
   // has something changed that would require us to recreate the shader?
   // candidates are
   // property modified (representation interpolation and lighting)
@@ -229,7 +231,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
-      cellBO.ShaderSourceTime < this->DepthPeelingChanged)
+      cellBO.ShaderSourceTime < renderPassMTime)
     {
     return true;
     }
