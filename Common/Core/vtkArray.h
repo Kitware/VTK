@@ -83,6 +83,7 @@ public:
   // VTK_UNSIGNED_INT, VTK_LONG, VTK_UNSIGNED_LONG, VTK_DOUBLE,
   // VTK_ID_TYPE, or VTK_STRING.  The caller is responsible for the
   // lifetime of the returned object.
+  VTK_NEWINSTANCE
   static vtkArray* CreateArray(int StorageType, int ValueType);
 
   // Description:

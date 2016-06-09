@@ -101,7 +101,7 @@ public:
 
   // Description:
   // Return an empty query on this database.
-  virtual vtkSQLQuery* GetQueryInstance() = 0;
+  virtual VTK_NEWINSTANCE vtkSQLQuery* GetQueryInstance() = 0;
 
   // Description:
   // Did the last operation generate an error
@@ -187,7 +187,7 @@ public:
   // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
-  static vtkSQLDatabase* CreateFromURL( const char* URL );
+  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL( const char* URL );
 
   // Description:
   // Effect a database schema.

@@ -343,6 +343,7 @@ public:
   // VTK_UNSIGNED_LONG, VTK_DOUBLE, VTK_DOUBLE, VTK_ID_TYPE.
   // Note that the data array returned has be deleted by the
   // user.
+  VTK_NEWINSTANCE
   static vtkDataArray* CreateDataArray(int dataType);
 
   // Description:

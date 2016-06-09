@@ -283,6 +283,7 @@ enum LUTMode {
   // The default behavior is to return categorical data. Set lutIndexing
   // to ORDINAL to return ordinal data. Any other value for lutIndexing
   // is treated as CATEGORICAL.
+  VTK_NEWINSTANCE
   vtkLookupTable* CreateLookupTable(int lutIndexing = CATEGORICAL);
 
 protected:

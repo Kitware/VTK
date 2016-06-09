@@ -55,6 +55,7 @@ public:
   // If the requested class is abstract, set isAbstract to true. Otherwise
   // it is assumed that an instance of 'vtkclassname' will be instantiated
   // by the caller when no override is found.
+  VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname,
                                    bool isAbstract = false);
 

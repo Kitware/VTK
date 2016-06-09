@@ -221,7 +221,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  virtual vtkAbstractTransform *MakeTransform() = 0;
+  virtual VTK_NEWINSTANCE vtkAbstractTransform *MakeTransform() = 0;
 
   // Description:
   // Check for self-reference.  Will return true if concatenating
