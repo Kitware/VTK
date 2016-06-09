@@ -77,6 +77,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
   : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
     cachedImageCleanFlag(false),
     automaticImageCache(false), maxImageCacheRenderRate(1.0),
+    mDeferRenderInPaintEvent(false),
     renderEventCallbackObserverId(0)
 {
   this->UseTDx=false;
@@ -105,6 +106,9 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
 
   mIrenAdapter = new QVTKInteractorAdapter(this);
 
+  this->mDeferedRenderTimer.setSingleShot(true);
+  this->mDeferedRenderTimer.setInterval(0);
+  this->connect(&this->mDeferedRenderTimer, SIGNAL(timeout()), SLOT(doDeferredRender()));
 }
 
 /*! destructor */
@@ -328,6 +332,16 @@ double QVTKWidget::maxRenderRateForImageCache() const
   return this->maxImageCacheRenderRate;
 }
 
+void QVTKWidget::setDeferRenderInPaintEvent(bool val)
+{
+  this->mDeferRenderInPaintEvent = val;
+}
+
+bool QVTKWidget::deferRenderInPaintEvent() const
+{
+  return this->mDeferRenderInPaintEvent;
+}
+
 vtkImageData* QVTKWidget::cachedImage()
 {
   // Make sure image is up to date.
@@ -444,30 +458,39 @@ void QVTKWidget::moveEvent(QMoveEvent* e)
  */
 void QVTKWidget::paintEvent(QPaintEvent* )
 {
-  vtkRenderWindowInteractor* iren = NULL;
-  if(this->mRenWin)
-    {
-    iren = this->mRenWin->GetInteractor();
-    }
-
-  if(!iren || !iren->GetEnabled())
+  vtkRenderWindowInteractor* iren = this->mRenWin ? this->mRenWin->GetInteractor() : NULL;
+  if (!iren || !iren->GetEnabled())
     {
     return;
     }
-
-  // if we have a saved image, use it
-  if (this->paintCachedImage())
-    {
-    return;
-    }
-
-  iren->Render();
 
   // In Qt 4.1+ let's support redirected painting
   // if redirected, let's grab the image from VTK, and paint it to the device
   QPaintDevice* device = QPainter::redirected(this);
-  if(device != NULL && device != this)
+  bool usingRedirectedDevice = (device != NULL && device != this);
+
+  // if we have a saved image, use it
+  if (this->paintCachedImage() == false)
     {
+    // we don't defer render in redirected painting is active since the target
+    // being painted to may not be around when the deferred render call happens.
+    if (!usingRedirectedDevice && this->mDeferRenderInPaintEvent)
+      {
+      this->deferRender();
+      }
+    else
+      {
+      iren->Render();
+      }
+    }
+
+  // Irrespective of whether cache was used on or, if using redirected painting
+  // is being employed, we need to "paint" the image from the render window to
+  // the redirected target.
+  if (usingRedirectedDevice)
+    {
+    Q_ASSERT(device);
+
     int w = this->width();
     int h = this->height();
     QImage img(w, h, QImage::Format_RGB32);
@@ -480,7 +503,6 @@ void QVTKWidget::paintEvent(QPaintEvent* )
 
     QPainter painter(this);
     painter.drawImage(QPointF(0.0,0.0), img);
-    return;
     }
 }
 
@@ -867,11 +889,31 @@ void QVTKWidget::renderEventCallback()
         }
       }
 
+    // Render happened. If we have requested a render to happen, it has happened,
+    // so no need to request another render. Stop the timer.
+    this->mDeferedRenderTimer.stop();
+
     this->markCachedImageAsDirty();
     if (this->isAutomaticImageCacheEnabled() &&
       (this->mRenWin->GetDesiredUpdateRate() < this->maxRenderRateForImageCache()))
       {
       this->saveImageToCache();
       }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKWidget::deferRender()
+{
+  this->mDeferedRenderTimer.start();
+}
+
+//-----------------------------------------------------------------------------
+void QVTKWidget::doDeferredRender()
+{
+  vtkRenderWindowInteractor* iren = this->mRenWin ? this->mRenWin->GetInteractor() : NULL;
+  if (iren && iren->GetEnabled())
+    {
+    iren->Render();
     }
 }
