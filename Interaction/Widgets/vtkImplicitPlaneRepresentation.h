@@ -140,6 +140,23 @@ public:
   vtkBooleanMacro(OutsideBounds,int);
 
   // Description:
+  // Set/Get the bounds of the widget representation. PlaceWidget can also be
+  // used to set the bounds of the widget but it may also have other effects
+  // on the internal state of the represenation. Use this function when only
+  // the widget bounds are needs to be modified.
+  vtkSetVector6Macro(WidgetBounds, double);
+  vtkGetVector6Macro(WidgetBounds, double);
+
+  // Description:
+  // Turn on/off whether the origin should be constrained to the widget bounds.
+  // If on, the origin will not be allowed to move outside the set widget bounds.
+  // If off, the origin can be freely moved and the widget outline will change
+  // accordingly. The default is on.
+  vtkSetMacro(ConstrainOrigin,int);
+  vtkGetMacro(ConstrainOrigin,int);
+  vtkBooleanMacro(ConstrainOrigin,int);
+
+  // Description:
   // Turn on/off the ability to scale the widget with the mouse.
   vtkSetMacro(ScaleEnabled,int);
   vtkGetMacro(ScaleEnabled,int);
@@ -300,6 +317,8 @@ protected:
   int  OutlineTranslation; //whether the outline can be moved
   int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
+  double WidgetBounds[6];
+  int ConstrainOrigin;
 
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
@@ -351,7 +370,6 @@ protected:
   vtkTransform *Transform;
 
   // Methods to manipulate the plane
-  void ConstrainOrigin(double x[3]);
   void Rotate(double X, double Y, double *p1, double *p2, double *vpn);
   void TranslatePlane(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);

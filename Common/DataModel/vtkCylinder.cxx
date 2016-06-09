@@ -91,7 +91,6 @@ void vtkCylinder::SetAxis(double a[3])
   // If axis length is zero, then don't change it
   if ( vtkMath::Normalize(a) < DBL_EPSILON )
     {
-    vtkErrorMacro("Attempt to define cylinder with zero-length axis");
     return;
     }
 

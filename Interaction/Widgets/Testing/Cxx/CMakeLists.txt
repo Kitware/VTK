@@ -30,8 +30,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageActorContourWidget.cxx
   TestImageTracerWidget.cxx
   TestImplicitCylinderWidget.cxx
+  TestImplicitCylinderWidget2.cxx
   TestImplicitPlaneWidget2b.cxx
   TestImplicitPlaneWidget2.cxx
+  TestImplicitPlaneWidget3.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
