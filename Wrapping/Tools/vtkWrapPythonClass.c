@@ -550,9 +550,29 @@ void vtkWrapPython_GenerateObjectType(
     "  PyVTKObject_Traverse, // tp_traverse\n"
     "  0, // tp_clear\n"
     "  0, // tp_richcompare\n"
-    "  offsetof(PyVTKObject, vtk_weakreflist), // tp_weaklistoffset\n"
-    "  0, // tp_iter\n"
-    "  0, // tp_iternext\n"
+    "  offsetof(PyVTKObject, vtk_weakreflist), // tp_weaklistoffset\n");
+  if (strcmp(classname, "vtkCollection") == 0)
+    {
+    fprintf(fp,
+      "  PyvtkCollection_iter, // tp_iter\n"
+      "  0, // tp_iternext\n");
+    }
+  else
+    {
+    if(strcmp(classname, "vtkCollectionIterator") == 0)
+      {
+      fprintf(fp,
+        "  PyvtkCollectionIterator_iter, // tp_iter\n"
+        "  PyvtkCollectionIterator_next, // tp_iternext\n");
+      }
+    else
+      {
+      fprintf(fp,
+        "  0, // tp_iter\n"
+        "  0, // tp_iternext\n");
+      }
+    }
+  fprintf(fp,
     "  0, // tp_methods\n"
     "  0, // tp_members\n"
     "  PyVTKObject_GetSet, // tp_getset\n"
