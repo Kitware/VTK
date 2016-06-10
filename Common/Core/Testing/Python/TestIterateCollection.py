@@ -42,6 +42,11 @@ class TestIterateCollection(Testing.vtkTest):
         self.assertTrue(self.vtkObjs[0] in self.collection)
         self.assertEqual(list(self.collection), self.vtkObjs)
 
+    def testReferenceCounting(self):
+        initialReferenceCount = self.collection.GetReferenceCount()
+        list(self.collection)
+        self.assertEqual(self.collection.GetReferenceCount(), initialReferenceCount)
+
 
 if __name__ == "__main__":
     Testing.main([(TestIterateCollection, 'test')])
