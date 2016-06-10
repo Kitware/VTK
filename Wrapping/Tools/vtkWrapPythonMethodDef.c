@@ -1034,6 +1034,7 @@ static void vtkWrapPython_CustomMethods(
               "    if (tempr != NULL)\n"
               "      {\n"
               "      result = vtkPythonArgs::BuildVTKObject(tempr);\n"
+              "      tempr->UnRegister(0);\n"
               "      }\n"
               "    }\n"
               "\n"
