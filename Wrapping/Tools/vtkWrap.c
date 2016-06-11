@@ -658,7 +658,8 @@ void vtkWrap_FindCountHints(
     }
 
   /* add hints for array GetTuple methods */
-  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray") ||
+      vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayIterator"))
     {
     countMethod = "GetNumberOfComponents()";
 
