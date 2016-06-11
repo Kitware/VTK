@@ -240,7 +240,7 @@ public:
 
   // Description:
   // Returns a vtkArrayIteratorTemplate<vtkStdString>.
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   // Description:
   // Returns the size of the data in DataTypeSize units. Thus, the number of bytes

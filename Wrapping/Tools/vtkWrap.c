@@ -783,6 +783,7 @@ void vtkWrap_FindNewInstanceMethods(
         vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
       {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
+          strcmp(theFunc->Name, "NewIterator") == 0 ||
           strcmp(theFunc->Name, "CreateInstance") == 0)
         {
         if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)

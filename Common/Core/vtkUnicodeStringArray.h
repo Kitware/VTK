@@ -67,7 +67,7 @@ public:
   virtual void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod);
   virtual unsigned long GetActualMemorySize(); // in bytes
   virtual int IsNumeric();
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
   virtual vtkVariant GetVariantValue(vtkIdType idx);
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);

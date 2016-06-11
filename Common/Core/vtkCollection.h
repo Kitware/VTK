@@ -121,7 +121,7 @@ public:
 
   // Description:
   // Get an iterator to traverse the objects in this collection.
-  vtkCollectionIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
   // Description:
   // Participate in garbage collection.

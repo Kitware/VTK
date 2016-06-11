@@ -92,6 +92,7 @@ public:
   // Called by the ray cast mapper at the end of rendering
   virtual void Finalize();
 
+  VTK_NEWINSTANCE
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
 
   // Used to store each triangle - made public because of the

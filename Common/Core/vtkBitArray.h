@@ -212,7 +212,7 @@ public:
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.
-  vtkArrayIterator* NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   // Description:
   // Return the indices where a specific value appears.
