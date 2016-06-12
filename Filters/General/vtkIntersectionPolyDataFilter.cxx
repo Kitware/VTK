@@ -207,8 +207,8 @@ vtkIntersectionPolyDataFilter::Impl::Impl() :
     this->IntersectionPtsMap[i]   = new IntersectionMapType();
     this->PointEdgeMap[i]         = new PointEdgeMapType();
     }
-  this->PointMapper             = new IntersectionMapType();
-  this->SplittingPD             = vtkPolyData::New();
+  this->PointMapper               = new IntersectionMapType();
+  this->SplittingPD               = vtkPolyData::New();
   this->TransformSign = 0;
   this->Tolerance = 1e-6;
 }
@@ -329,161 +329,161 @@ int vtkIntersectionPolyDataFilter::Impl
               else
                 {
                 if (unique[0])
-                {
-                intersectionSurfaceId->InsertValue(ptId0, surfaceid[0]);
-                }
-              else
-                {
-                if (intersectionSurfaceId->GetValue(ptId0) != 3)
                   {
                   intersectionSurfaceId->InsertValue(ptId0, surfaceid[0]);
                   }
-
-                }
-              if (unique[1])
-                {
-                intersectionSurfaceId->InsertValue(ptId1, surfaceid[1]);
-                }
-              else
-                {
-                if (intersectionSurfaceId->GetValue(ptId1) != 3)
+                else
+                  {
+                  if (intersectionSurfaceId->GetValue(ptId0) != 3)
+                    {
+                    intersectionSurfaceId->InsertValue(ptId0, surfaceid[0]);
+                    }
+                  }
+                if (unique[1])
                   {
                   intersectionSurfaceId->InsertValue(ptId1, surfaceid[1]);
                   }
-                }
-              }
-
-            info->IntersectionPtsMap[0]->
-              insert(std::make_pair(ptId0, cellId0));
-            info->IntersectionPtsMap[1]->
-              insert(std::make_pair(ptId0, cellId1));
-            info->IntersectionPtsMap[0]->
-              insert(std::make_pair(ptId1, cellId0));
-            info->IntersectionPtsMap[1]->
-              insert(std::make_pair(ptId1, cellId1));
-
-            //Check to see if duplicate line. Line can only be a duplicate
-            //line if both points are not unique and they don't
-            //equal eachother
-            if (!unique[0] && !unique[1] && ptId0 != ptId1)
-              {
-              vtkSmartPointer<vtkPolyData> lineTest =
-                vtkSmartPointer<vtkPolyData>::New();
-              lineTest->SetPoints(pointMerger->GetPoints());
-              lineTest->SetLines(intersectionLines);
-              lineTest->BuildLinks();
-              int newLine = info->CheckLine(lineTest, ptId0, ptId1);
-              if (newLine == 0)
-                {
-                addline = 0;
-                }
-              }
-            if (addline)
-              {
-              //If the line is new and does not consist of two identical
-              //points, add the line to the intersection and update
-              //mapping information
-              intersectionLines->InsertNextCell(2);
-              intersectionLines->InsertCellPoint(ptId0);
-              intersectionLines->InsertCellPoint(ptId1);
-
-              intersectionCellIds0->InsertNextValue(cellId0);
-              intersectionCellIds1->InsertNextValue(cellId1);
-
-              info->PointCellIds[0]->InsertValue(ptId0, cellId0);
-              info->PointCellIds[0]->InsertValue(ptId1, cellId0);
-              info->PointCellIds[1]->InsertValue(ptId0, cellId1);
-              info->PointCellIds[1]->InsertValue(ptId1, cellId1);
-
-              info->IntersectionMap[0]->
-                insert(std::make_pair(cellId0, lineId));
-              info->IntersectionMap[1]->
-                insert(std::make_pair(cellId1, lineId));
-
-              // Check which edges of cellId0 and cellId1 outpt0 and
-              // outpt1 are on, if any.
-              int isOnEdge=0;
-              int m0p0=0, m0p1=0, m1p0=0, m1p1=0;
-              for (vtkIdType edgeId = 0; edgeId < 3; edgeId++)
-                {
-                isOnEdge = info->AddToPointEdgeMap(0, ptId0, outpt0,
-                    mesh0, cellId0, edgeId, lineId, triPtIds0);
-                if (isOnEdge != -1)
+                else
                   {
-                  m0p0++;
-                  }
-                isOnEdge = info->AddToPointEdgeMap(0, ptId1, outpt1,
-                    mesh0, cellId0, edgeId, lineId, triPtIds0);
-                if (isOnEdge != -1)
-                  {
-                  m0p1++;
-                  }
-                isOnEdge = info->AddToPointEdgeMap(1, ptId0, outpt0,
-                    mesh1, cellId1, edgeId, lineId, triPtIds1);
-                if (isOnEdge != -1)
-                  {
-                  m1p0++;
-                  }
-                isOnEdge = info->AddToPointEdgeMap(1, ptId1, outpt1,
-                    mesh1, cellId1, edgeId, lineId, triPtIds1);
-                if (isOnEdge != -1)
-                  {
-                  m1p1++;
+                  if (intersectionSurfaceId->GetValue(ptId1) != 3)
+                    {
+                    intersectionSurfaceId->InsertValue(ptId1, surfaceid[1]);
+                    }
                   }
                 }
-              //Special cases caught by tolerance and not from the Point
-              //Merger
-              if (m0p0 > 0 && m1p0 > 0)
-                {
-                intersectionSurfaceId->InsertValue(ptId0, 3);
-                }
-              if (m0p1 > 0 && m1p1 > 0)
-                {
-                intersectionSurfaceId->InsertValue(ptId1, 3);
-                }
-              }
-            //Add information about origin surface to std::maps for
-            //checks later
-            if (intersectionSurfaceId->GetValue(ptId0) == 1)
-              {
-              info->IntersectionPtsMap[0]->
-                insert(std::make_pair(ptId0, cellId0));
-              }
-            else if (intersectionSurfaceId->GetValue(ptId0) == 2)
-              {
-              info->IntersectionPtsMap[1]->
-                insert(std::make_pair(ptId0, cellId1));
-              }
-            else
-              {
+
               info->IntersectionPtsMap[0]->
                 insert(std::make_pair(ptId0, cellId0));
               info->IntersectionPtsMap[1]->
                 insert(std::make_pair(ptId0, cellId1));
-              }
-            if (intersectionSurfaceId->GetValue(ptId1) == 1)
-              {
-              info->IntersectionPtsMap[0]->
-                insert(std::make_pair(ptId1, cellId0));
-              }
-            else if (intersectionSurfaceId->GetValue(ptId1) == 2)
-              {
-              info->IntersectionPtsMap[1]->
-                insert(std::make_pair(ptId1, cellId1));
-              }
-            else
-              {
               info->IntersectionPtsMap[0]->
                 insert(std::make_pair(ptId1, cellId0));
               info->IntersectionPtsMap[1]->
                 insert(std::make_pair(ptId1, cellId1));
+
+              //Check to see if duplicate line. Line can only be a duplicate
+              //line if both points are not unique and they don't
+              //equal eachother
+              if (!unique[0] && !unique[1] && ptId0 != ptId1)
+                {
+                vtkSmartPointer<vtkPolyData> lineTest =
+                  vtkSmartPointer<vtkPolyData>::New();
+                lineTest->SetPoints(pointMerger->GetPoints());
+                lineTest->SetLines(intersectionLines);
+                lineTest->BuildLinks();
+                int newLine = info->CheckLine(lineTest, ptId0, ptId1);
+                if (newLine == 0)
+                  {
+                  addline = 0;
+                  }
+                }
+              if (addline)
+                {
+                //If the line is new and does not consist of two identical
+                //points, add the line to the intersection and update
+                //mapping information
+                intersectionLines->InsertNextCell(2);
+                intersectionLines->InsertCellPoint(ptId0);
+                intersectionLines->InsertCellPoint(ptId1);
+
+                intersectionCellIds0->InsertNextValue(cellId0);
+                intersectionCellIds1->InsertNextValue(cellId1);
+
+                info->PointCellIds[0]->InsertValue(ptId0, cellId0);
+                info->PointCellIds[0]->InsertValue(ptId1, cellId0);
+                info->PointCellIds[1]->InsertValue(ptId0, cellId1);
+                info->PointCellIds[1]->InsertValue(ptId1, cellId1);
+
+                info->IntersectionMap[0]->
+                  insert(std::make_pair(cellId0, lineId));
+                info->IntersectionMap[1]->
+                  insert(std::make_pair(cellId1, lineId));
+
+                // Check which edges of cellId0 and cellId1 outpt0 and
+                // outpt1 are on, if any.
+                int isOnEdge=0;
+                int m0p0=0, m0p1=0, m1p0=0, m1p1=0;
+                for (vtkIdType edgeId = 0; edgeId < 3; edgeId++)
+                  {
+                  isOnEdge = info->AddToPointEdgeMap(0, ptId0, outpt0,
+                      mesh0, cellId0, edgeId, lineId, triPtIds0);
+                  if (isOnEdge != -1)
+                    {
+                    m0p0++;
+                    }
+                  isOnEdge = info->AddToPointEdgeMap(0, ptId1, outpt1,
+                      mesh0, cellId0, edgeId, lineId, triPtIds0);
+                  if (isOnEdge != -1)
+                    {
+                    m0p1++;
+                    }
+                  isOnEdge = info->AddToPointEdgeMap(1, ptId0, outpt0,
+                      mesh1, cellId1, edgeId, lineId, triPtIds1);
+                  if (isOnEdge != -1)
+                    {
+                    m1p0++;
+                    }
+                  isOnEdge = info->AddToPointEdgeMap(1, ptId1, outpt1,
+                      mesh1, cellId1, edgeId, lineId, triPtIds1);
+                  if (isOnEdge != -1)
+                    {
+                    m1p1++;
+                    }
+                  }
+                //Special cases caught by tolerance and not from the Point
+                //Merger
+                if (m0p0 > 0 && m1p0 > 0)
+                  {
+                  intersectionSurfaceId->InsertValue(ptId0, 3);
+                  }
+                if (m0p1 > 0 && m1p1 > 0)
+                  {
+                  intersectionSurfaceId->InsertValue(ptId1, 3);
+                  }
+                }
+              //Add information about origin surface to std::maps for
+              //checks later
+              if (intersectionSurfaceId->GetValue(ptId0) == 1)
+                {
+                info->IntersectionPtsMap[0]->
+                  insert(std::make_pair(ptId0, cellId0));
+                }
+              else if (intersectionSurfaceId->GetValue(ptId0) == 2)
+                {
+                info->IntersectionPtsMap[1]->
+                  insert(std::make_pair(ptId0, cellId1));
+                }
+              else
+                {
+                info->IntersectionPtsMap[0]->
+                  insert(std::make_pair(ptId0, cellId0));
+                info->IntersectionPtsMap[1]->
+                  insert(std::make_pair(ptId0, cellId1));
+                }
+              if (intersectionSurfaceId->GetValue(ptId1) == 1)
+                {
+                info->IntersectionPtsMap[0]->
+                  insert(std::make_pair(ptId1, cellId0));
+                }
+              else if (intersectionSurfaceId->GetValue(ptId1) == 2)
+                {
+                info->IntersectionPtsMap[1]->
+                  insert(std::make_pair(ptId1, cellId1));
+                }
+              else
+                {
+                info->IntersectionPtsMap[0]->
+                  insert(std::make_pair(ptId1, cellId0));
+                info->IntersectionPtsMap[1]->
+                  insert(std::make_pair(ptId1, cellId1));
+                }
               }
-            }
             }
           }
         }
       }
     }
+
   return 1;
 }
 
@@ -642,7 +642,7 @@ int vtkIntersectionPolyDataFilter::Impl
 
         vtkIdType npts, *ptIds, subCellId;
         splitCells->InitTraversal();
-        for (subCellId = 0;splitCells->GetNextCell(npts, ptIds);subCellId++)
+        for (subCellId = 0; splitCells->GetNextCell(npts, ptIds); subCellId++)
           {
           // Check for reversed cells. I'm not sure why, but in some
           // cases, cells are reversed.
@@ -756,7 +756,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
           vtkGenericWarningMacro(<< "invalid point read 2");
           }
         //Check to see if point is unique
-        int unique=merger->InsertUniquePoint(xyz, ptIdMap[ linePtIds[i] ]);
+        int unique = merger->InsertUniquePoint(xyz, ptIdMap[ linePtIds[i] ]);
         if (unique)
           {
           //If point is unique, check to see if it is actually a
@@ -967,13 +967,13 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       double d[3];
       vtkMath::Subtract(x, c, d);
       angleList->InsertNextValue(atan2(vtkMath::Dot(d, v0),
-                                         vtkMath::Dot(d, v1)));
-        if (ptId > 2)
-          {
-          //Intersection Point!
-          interPtIdList->InsertNextValue(ptId);
-          interPtBool[ptId] = true;
-          }
+                                       vtkMath::Dot(d, v1)));
+      if (ptId > 2)
+        {
+        //Intersection Point!
+        interPtIdList->InsertNextValue(ptId);
+        interPtBool[ptId] = true;
+        }
       }
     //Setting the boundary points
     if (ptId > 2)
@@ -1066,7 +1066,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       return splitCells;
       }
     //For each loop, orient and triangulate
-    for (int k=0;k< (int) loops.size();k++)
+    for (int k = 0; k < (int) loops.size(); k++)
       {
       vtkCellArray *polys;
       vtkSmartPointer<vtkPolyData> newpd =
@@ -1079,7 +1079,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       int ptiter=0;
       int *pointMapper;
       pointMapper = new int[loops[k].points.size()];
-      for (it = loops[k].points.begin();it != loops[k].points.end();++it)
+      for (it = loops[k].points.begin(); it != loops[k].points.end(); ++it)
         {
         if (ptiter < (int) loops[k].points.size()-1)
           {
@@ -1169,14 +1169,14 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       for (polys->InitTraversal(); polys->GetNextCell(npts, ptIds);)
         {
         if (pointMapper[ptIds[0]] >= points->GetNumberOfPoints() ||
-             pointMapper[ptIds[1]] >= points->GetNumberOfPoints() ||
-             pointMapper[ptIds[2]] >= points->GetNumberOfPoints())
+            pointMapper[ptIds[1]] >= points->GetNumberOfPoints() ||
+            pointMapper[ptIds[2]] >= points->GetNumberOfPoints())
           {
           vtkGenericWarningMacro(<< "Invalid point ID!!!");
           }
 
         splitCells->InsertNextCell(npts);
-        int interPtCount=0;
+        int interPtCount = 0;
         int interPts[3];
         for (int i = 0; i < npts; i++)
           {
@@ -1233,14 +1233,14 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
     for (polys->InitTraversal(); polys->GetNextCell(npts, ptIds);)
       {
       if (ptIds[0] >= points->GetNumberOfPoints() ||
-           ptIds[1] >= points->GetNumberOfPoints() ||
-           ptIds[2] >= points->GetNumberOfPoints())
+          ptIds[1] >= points->GetNumberOfPoints() ||
+          ptIds[2] >= points->GetNumberOfPoints())
         {
         vtkGenericWarningMacro(<< "Invalid point ID!!!");
         }
 
       splitCells->InsertNextCell(npts);
-      int interPtCount=0;
+      int interPtCount = 0;
       int interPts[3];
       for (int i = 0; i < npts; i++)
         {
@@ -1325,7 +1325,7 @@ void vtkIntersectionPolyDataFilter::Impl::AddToNewCellMap(
 {
   vtkIdList **cellIds;
   cellIds = new vtkIdList*[interPtCount];
-  for (int i=0;i<interPtCount;i++)
+  for (int i = 0; i < interPtCount; i++)
     {
     cellIds[i] = vtkIdList::New();
     vtkSmartPointer<vtkIdList> temp = vtkSmartPointer<vtkIdList>::New();
@@ -1338,7 +1338,7 @@ void vtkIntersectionPolyDataFilter::Impl::AddToNewCellMap(
     if (temp->GetNumberOfIds() > 0)
       {
       //For each id
-      for (int j=0;j<temp->GetNumberOfIds();j++)
+      for (int j = 0; j < temp->GetNumberOfIds(); j++)
         {
         //If it hasn't already been set
         if (this->NewCellIds[inputIndex]->GetComponent(temp->GetId(j), 0) == -1)
@@ -1362,7 +1362,7 @@ void vtkIntersectionPolyDataFilter::Impl::AddToNewCellMap(
     cellIds[0]->IntersectWith(cellIds[interPtCount-1]);
     if (cellIds[0]->GetNumberOfIds() > 0)
       {
-      for (int j=0;j<cellIds[0]->GetNumberOfIds();j++)
+      for (int j = 0;j < cellIds[0]->GetNumberOfIds(); j++)
         {
         if (this->NewCellIds[inputIndex]->
             GetComponent(cellIds[0]->GetId(j), 0) == -1)
@@ -1380,7 +1380,7 @@ void vtkIntersectionPolyDataFilter::Impl::AddToNewCellMap(
         }
       }
     }
-  for (int i=0;i<interPtCount;i++)
+  for (int i = 0; i < interPtCount; i++)
     {
     cellIds[i]->Delete();
     }
@@ -1402,18 +1402,18 @@ int vtkIntersectionPolyDataFilter::Impl
   int numPoints = pd->GetNumberOfPoints();
   int numCells = pd->GetNumberOfCells();
 
-  for (vtkIdType ptId = 0;ptId < numPoints;ptId++)
+  for (vtkIdType ptId = 0; ptId < numPoints; ptId++)
     {
     ptBool[ptId] = false;
     }
     vtkDebugWithObjectMacro(this->ParentFilter, <<"Number Of Cells: "<<numCells);
-  for (vtkIdType lineId = 0;lineId < numCells;lineId++)
+  for (vtkIdType lineId = 0; lineId < numCells; lineId++)
     {
     lineBool[lineId] = false;
     }
 
   //For each point in triangle and additional lines
-  for (vtkIdType ptId = 0;ptId < numPoints ;ptId++)
+  for (vtkIdType ptId = 0; ptId < numPoints; ptId++)
     {
     //if the point hasn't already been touch and put in a loop
     if (ptBool[ptId] == false)
@@ -1440,7 +1440,7 @@ int vtkIntersectionPolyDataFilter::Impl
       }
     }
   //Check now for untouched lines, possible to still have
-  for (vtkIdType lineId = 0;lineId <pd->GetNumberOfCells();lineId++)
+  for (vtkIdType lineId = 0; lineId <pd->GetNumberOfCells(); lineId++)
     {
     if (lineBool[lineId] == false)
       {
@@ -1507,7 +1507,7 @@ int vtkIntersectionPolyDataFilter::Impl
   interPtBool[nextPt] = true;
 
   //Loop until we get back to the point we started at, completing the loop!
-  while(nextPt != startPt)
+  while (nextPt != startPt)
     {
     pd->GetPointCells(nextPt, pointCells);
     //There are multiple lines attached to this point; must figure out
@@ -1614,7 +1614,7 @@ int vtkIntersectionPolyDataFilter::Impl
   int foundcell = 0;
   double newcell = 0;
   double minangle = VTK_DOUBLE_MAX;
-  for (vtkIdType i=0;i<pointCells->GetNumberOfIds();i++)
+  for (vtkIdType i = 0; i < pointCells->GetNumberOfIds(); i++)
     {
     vtkIdType cellId = pointCells->GetId(i);
     if (*nextCell != cellId)
@@ -1644,7 +1644,7 @@ int vtkIntersectionPolyDataFilter::Impl
           pd->GetPoint(specialCellPoints->GetId(1), l1pt1);
           }
         double edge1[3], edge2[3];
-        for (int j=0;j<2;j++)
+        for (int j = 0; j < 2; j++)
           {
           edge1[j] = l0pt1[j]-l0pt0[j];
           edge2[j] = l1pt1[j]-l1pt0[j];
@@ -1686,7 +1686,7 @@ void vtkIntersectionPolyDataFilter::Impl
   //Set the orientation of this loop!
   double mincell = 0;
   double minangle = VTK_DOUBLE_MAX;
-  for (vtkIdType i=0;i<pointCells->GetNumberOfIds();i++)
+  for (vtkIdType i = 0; i < pointCells->GetNumberOfIds(); i++)
     {
     vtkIdType cellId = pointCells->GetId(i);
     //If the next line is not equal to the current line, check the angle
@@ -1710,10 +1710,10 @@ void vtkIntersectionPolyDataFilter::Impl
         pd->GetPoint(specialCellPoints->GetId(1), l1pt1);
         }
       double edge1[3], edge2[3];
-      for (int j=0;j<2;j++)
+      for (int j = 0; j < 2; j++)
         {
-        edge1[j] = l0pt1[j]-l0pt0[j];
-        edge2[j] = l1pt1[j]-l1pt0[j];
+        edge1[j] = l0pt1[j] - l0pt0[j];
+        edge2[j] = l1pt1[j] - l1pt0[j];
         }
       edge1[2] = 0.;
       edge2[2] = 0.;
@@ -1742,8 +1742,7 @@ int vtkIntersectionPolyDataFilter::Impl::GetLoopOrientation(
 {
   //Calculate the actual orientation of this loop, by calculating the signed
   //area of the triangle made by the three points
-  vtkSmartPointer<vtkIdList> cellPoints =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> cellPoints = vtkSmartPointer<vtkIdList>::New();
   pd->GetCellPoints(cell, cellPoints);
 
   vtkIdType ptId3;
@@ -1757,7 +1756,10 @@ int vtkIntersectionPolyDataFilter::Impl::GetLoopOrientation(
     }
 
   double pt1[3], pt2[3], pt3[3];
-  pd->GetPoint(ptId1, pt1); pd->GetPoint(ptId2, pt2); pd->GetPoint(ptId3, pt3);
+  pd->GetPoint(ptId1, pt1);
+  pd->GetPoint(ptId2, pt2);
+  pd->GetPoint(ptId3, pt3);
+
   double area = 0;
   area = area + (pt1[0]*pt2[1])-(pt2[0]*pt1[1]);
   area = area + (pt2[0]*pt3[1])-(pt3[0]*pt2[1]);
@@ -1781,7 +1783,7 @@ int vtkIntersectionPolyDataFilter::Impl::GetLoopOrientation(
     testPoints->InsertNextPoint(this->SplittingPD->GetPoint(ptId1));
     testPoints->InsertNextPoint(this->SplittingPD->GetPoint(ptId2));
     testPoints->InsertNextPoint(this->SplittingPD->GetPoint(ptId3));
-    for (int i=0; i<3;i++)
+    for (int i = 0; i < 3; i++)
       {
       testCells->InsertNextCell(2);
       testCells->InsertCellPoint(i);
@@ -1851,11 +1853,11 @@ void vtkIntersectionPolyDataFilter::Impl
   double tedgept1[3];
   double tedgept2[3];
   vtkIdType nextPt;
-  for(nextPt=0;nextPt<pd->GetNumberOfPoints()-1;nextPt++)
+  for (nextPt = 0; nextPt < pd->GetNumberOfPoints() - 1; nextPt++)
     {
-      transformedpd->GetPoint(nextPt, tedgept1);
-      transformedpd->GetPoint(nextPt+1, tedgept2);
-      area = area + (tedgept1[0]*tedgept2[1])-(tedgept2[0]*tedgept1[1]);
+    transformedpd->GetPoint(nextPt, tedgept1);
+    transformedpd->GetPoint(nextPt+1, tedgept2);
+    area = area + (tedgept1[0]*tedgept2[1])-(tedgept2[0]*tedgept1[1]);
     }
   transformedpd->GetPoint(nextPt, tedgept1);
   transformedpd->GetPoint(0, tedgept2);
@@ -1863,14 +1865,14 @@ void vtkIntersectionPolyDataFilter::Impl
 
   if (area < 0)
     {
-    for (nextPt=pd->GetNumberOfPoints()-1;nextPt>-1;nextPt--)
+    for (nextPt = pd->GetNumberOfPoints() - 1; nextPt > -1; nextPt--)
       {
       boundarypoly->GetPointIds()->InsertNextId(nextPt);
       }
     }
   else
     {
-    for (nextPt=0;nextPt<pd->GetNumberOfPoints();nextPt++)
+    for (nextPt = 0; nextPt < pd->GetNumberOfPoints(); nextPt++)
       {
       boundarypoly->GetPointIds()->InsertNextId(nextPt);
       }
@@ -1888,10 +1890,8 @@ void vtkIntersectionPolyDataFilter::Impl
 int vtkIntersectionPolyDataFilter::Impl::CheckLine(
     vtkPolyData *pd, vtkIdType ptId1, vtkIdType ptId2)
 {
-  vtkSmartPointer<vtkIdList> pointCells1 =
-    vtkSmartPointer<vtkIdList>::New();
-  vtkSmartPointer<vtkIdList> pointCells2 =
-    vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> pointCells1 = vtkSmartPointer<vtkIdList>::New();
+  vtkSmartPointer<vtkIdList> pointCells2 = vtkSmartPointer<vtkIdList>::New();
 
   pd->GetPointCells(ptId1, pointCells1);
   pd->GetPointCells(ptId2, pointCells2);
@@ -2141,7 +2141,7 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(
 
   // Check for NaNs
   if (vtkMath::IsNan(t1[0]) || vtkMath::IsNan(t1[1]) ||
-       vtkMath::IsNan(t2[0]) || vtkMath::IsNan(t2[1]))
+      vtkMath::IsNan(t2[0]) || vtkMath::IsNan(t2[1]))
     {
     //vtkWarningMacro(<<"NaNs!");
     return 0;
@@ -2216,7 +2216,8 @@ int vtkIntersectionPolyDataFilter::TriangleTriangleIntersection(
 void vtkIntersectionPolyDataFilter::CleanAndCheckSurface(vtkPolyData *pd,
     double stats[2], double tolerance)
 {
-  int badEdges = 0, freeEdges = 0;
+  int badEdges = 0;
+  int freeEdges = 0;
   vtkSmartPointer<vtkCleanPolyData> cleaner =
     vtkSmartPointer<vtkCleanPolyData>::New();
   vtkSmartPointer<vtkIntArray> bad =
@@ -2238,14 +2239,14 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckSurface(vtkPolyData *pd,
   //than one neighbor or no neighbors. No neighbors can be okay,as this can
   //indicate a free edge. However, for a polydata surface, multiple neighbors
   //indicates a bad cell with possible intersecting facets!
-  for (int i = 0;i<pd->GetNumberOfCells();i++)
+  for (int i = 0; i < pd->GetNumberOfCells(); i++)
     {
     vtkIdType *pts = 0;
     vtkIdType npts = 0;
     pd->GetCellPoints(i, npts, pts);
     int badcell = 0;
     int freeedgecell = 0;
-    for (int j=0;j<npts;j++)
+    for (int j = 0; j < npts; j++)
       {
       vtkIdType p0 = pts[j];
       vtkIdType p1 = pts[(j+1)%npts];
@@ -2312,7 +2313,7 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckInput(vtkPolyData *pd,
   normaler->GetOutput()->GetPoints()->GetPoint(cellPts[2], pt2);
 
   double v1[3], v2[3], cellNorm[3];
-  for (int i=0;i<3;i++)
+  for (int i = 0; i < 3; i++)
     {
     v1[i] = pt1[i] - pt0[i];
     v2[i] = pt2[i] - pt1[i];
@@ -2323,12 +2324,6 @@ void vtkIntersectionPolyDataFilter::CleanAndCheckInput(vtkPolyData *pd,
   //vtkDebugMacro(<<"Getting Normal Array");
   normaler->GetOutput()->GetCellData()->GetNormals("Normals")->GetTuple(0,
       arrayNormal);
-  //double sign = vtkMath::Dot(cellNorm,arrayNormal);
-  //vtkDebugMacro(<<"Sign is "<<sign);
-  //if (sign < 0)
-  //  {
-  //  vtkDebugMacro(<<"Normals are wrong way crazy kid");
-  //  }
 }
 
 //----------------------------------------------------------------------------
@@ -2373,17 +2368,14 @@ int vtkIntersectionPolyDataFilter::RequestData(
     outPolyDataInfo1->Get(vtkDataObject::DATA_OBJECT()));
 
   // Set up new poly data for the inputs to build cells and links.
-  vtkSmartPointer< vtkPolyData > mesh0 =
-    vtkSmartPointer< vtkPolyData >::New();
+  vtkSmartPointer< vtkPolyData > mesh0 = vtkSmartPointer< vtkPolyData >::New();
   mesh0->DeepCopy(input0);
 
-  vtkSmartPointer< vtkPolyData > mesh1 =
-    vtkSmartPointer< vtkPolyData >::New();
+  vtkSmartPointer< vtkPolyData > mesh1 = vtkSmartPointer< vtkPolyData >::New();
   mesh1->DeepCopy(input1);
 
   // Find the triangle-triangle intersections between mesh0 and mesh1
-  vtkSmartPointer< vtkOBBTree > obbTree0 =
-    vtkSmartPointer< vtkOBBTree >::New();
+  vtkSmartPointer< vtkOBBTree > obbTree0 = vtkSmartPointer< vtkOBBTree >::New();
   obbTree0->SetDataSet(mesh0);
   obbTree0->SetNumberOfCellsPerNode(10);
   obbTree0->SetMaxLevel(1000000);
@@ -2391,8 +2383,7 @@ int vtkIntersectionPolyDataFilter::RequestData(
   obbTree0->AutomaticOn();
   obbTree0->BuildLocator();
 
-  vtkSmartPointer< vtkOBBTree > obbTree1 =
-    vtkSmartPointer< vtkOBBTree >::New();
+  vtkSmartPointer< vtkOBBTree > obbTree1 = vtkSmartPointer< vtkOBBTree >::New();
   obbTree1->SetDataSet(mesh1);
   obbTree1->SetNumberOfCellsPerNode(10);
   obbTree1->SetMaxLevel(1000000);
@@ -2472,9 +2463,9 @@ int vtkIntersectionPolyDataFilter::RequestData(
 
   int rawLines = outputIntersection->GetNumberOfLines();
 
-  for (int i=0;i<2;i++)
+  for (int i = 0; i < 2; i++)
     {
-    for (vtkIdType interCellId=0;interCellId<rawLines;interCellId++)
+    for (vtkIdType interCellId = 0; interCellId < rawLines; interCellId++)
       {
       impl->NewCellIds[i]->InsertTuple2(interCellId, -1, -1);
       }
@@ -2484,8 +2475,7 @@ int vtkIntersectionPolyDataFilter::RequestData(
   //The point merger doesn't doesn't detect 100 percent of the points already
   //inserted into the points object. This sometimes causes multiple lines
   //or points. To account for this, this simple clean retains what we need.
-  vtkSmartPointer<vtkPolyData> tmpLines =
-    vtkSmartPointer<vtkPolyData>::New();
+  vtkSmartPointer<vtkPolyData> tmpLines = vtkSmartPointer<vtkPolyData>::New();
   tmpLines->DeepCopy(outputIntersection);
   tmpLines->BuildLinks();
 
@@ -2502,7 +2492,7 @@ int vtkIntersectionPolyDataFilter::RequestData(
   linePtMapper->BuildLocator();
   double newpt[3];
   vtkIdType mapPtId=0;
-  for (vtkIdType ptId=0;ptId<tmpLines->GetNumberOfPoints();ptId++)
+  for (vtkIdType ptId = 0; ptId < tmpLines->GetNumberOfPoints(); ptId++)
     {
     tmpLines->GetPoint(ptId, newpt);
     mapPtId = linePtMapper->FindClosestPoint(newpt);
@@ -2512,7 +2502,7 @@ int vtkIntersectionPolyDataFilter::RequestData(
   this->NumberOfIntersectionPoints = outputIntersection->GetNumberOfPoints();
   this->NumberOfIntersectionLines = outputIntersection->GetNumberOfLines();
   if (this->NumberOfIntersectionPoints == 0 ||
-                  this->NumberOfIntersectionLines == 0)
+      this->NumberOfIntersectionLines == 0)
     {
     vtkGenericWarningMacro(<< "No Intersection between objects ");
     impl->NewCellIds[0]->Delete();
