@@ -264,7 +264,8 @@ int vtkWrapPython_WrapTemplatedClass(
       types = NULL;
 
       /* only do these classes directly */
-      if (strcmp(entry->Name, "vtkDenseArray") == 0 ||
+      if (strcmp(entry->Name, "vtkArrayIteratorTemplate") == 0 ||
+          strcmp(entry->Name, "vtkDenseArray") == 0 ||
           strcmp(entry->Name, "vtkSparseArray") == 0)
         {
         types = vtkParse_GetArrayTypes();

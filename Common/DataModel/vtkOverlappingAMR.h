@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   //Description:
   //Get/Set the global origin of the amr data set

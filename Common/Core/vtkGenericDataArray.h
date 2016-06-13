@@ -263,7 +263,7 @@ public:
   virtual void LookupTypedValue(ValueType value, vtkIdList* valueIds);
   virtual void ClearLookup();
   virtual void DataChanged();
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
 protected:
   vtkGenericDataArray();

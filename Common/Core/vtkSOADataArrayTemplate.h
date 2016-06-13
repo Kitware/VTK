@@ -160,7 +160,7 @@ public:
   }
 
   virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
-  virtual vtkArrayIterator *NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   virtual void SetNumberOfComponents(int numComps);
   virtual void ShallowCopy(vtkDataArray *other);
 

@@ -186,7 +186,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right
   // kind of templated vtkArrayIteratorTemplate.
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   //
   // Additional functions

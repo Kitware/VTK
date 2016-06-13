@@ -165,6 +165,12 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 
   types = (const char **)malloc(1000*sizeof(const char *));
 
+  /* always include vtkVariant, it is often used as a template arg
+     for templated array types, and the file_info doesn't tell us
+     what types each templated class is instantiated for (that info
+     might be in the .cxx files, which we cannot access here) */
+  types[numTypes++] = "vtkVariant";
+
   nn = file_info->Contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
     {

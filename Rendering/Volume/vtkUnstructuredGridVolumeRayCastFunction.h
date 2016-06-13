@@ -46,6 +46,7 @@ public:
   // Returns a new object that will iterate over all the intersections of a
   // ray with the cells of the input.  The calling code is responsible for
   // deleting the returned object.
+  VTK_NEWINSTANCE
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator() = 0;
 
 protected:

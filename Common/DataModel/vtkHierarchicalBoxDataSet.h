@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).

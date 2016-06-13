@@ -152,7 +152,7 @@ public:
   // @param frustumPlanes - should be the output of the camera's frustum planes.
   // @param positionsAsNormals - throws out octree nodes on the opposite side of the origin.
   // @param bucketSize - an array of 2 integers describing the width and height of label placer buckets.
-  vtkLabelHierarchyIterator* NewIterator(
+  VTK_NEWINSTANCE vtkLabelHierarchyIterator* NewIterator(
     int type, vtkRenderer* ren, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals, float bucketSize[2] );
 
   // Description:

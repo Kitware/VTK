@@ -177,7 +177,7 @@ public:
   }
 
   virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
-  virtual vtkArrayIterator *NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   virtual bool HasStandardMemoryLayout() { return true; }
   virtual void ShallowCopy(vtkDataArray *other);
 
