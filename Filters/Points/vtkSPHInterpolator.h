@@ -23,12 +23,17 @@
 // can then be visualized using classical visualization techniques such as
 // isocontouring, slicing, heat maps and so on.
 //
-// To use this filter, besides setting the input and source, specify a point
-// locator (which accelerates queries about points and their neighbors) and
-// an interpolation kernel (a subclass of vtkSPHKernel). In addition, the
+// To use this filter, besides setting the input P and source Pc, specify a
+// point locator (which accelerates queries about points and their neighbors)
+// and an interpolation kernel (a subclass of vtkSPHKernel). In addition, the
 // name of the source's density and mass arrays can optionally be provided;
-// however if not provided then the local volume is computed from the kernel's
-// spatial step.
+// however if not provided then the local volume is computed from the
+// kernel's spatial step. Finally, a cutoff distance array can optionall be
+// provided when the local neighborhood around each point varies. The cutoff
+// distance defines a local neighborhood in which the points in that
+// neighborhood are used to interpolate values. If not provided, then the
+// cutoff distance is computed from the spatial step size times the cutoff
+// factor (see vtkSPHKernel).
 //
 // Other options to the filter include specifying which data attributes to
 // interpolate from the source. By default, all data attributes contained in
@@ -58,7 +63,7 @@
 
 // .SECTION Acknowledgments
 // The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
 // more information.
 
 // .SECTION See Also
@@ -121,14 +126,25 @@ public:
   vtkGetObjectMacro(Kernel,vtkSPHKernel);
 
   // Description:
+  // Specify an (optional) cutoff distance for each point in the input P. If
+  // not specified, then the kernel cutoff is used.
+  vtkSetMacro(CutoffArrayName,vtkStdString);
+  vtkGetMacro(CutoffArrayName,vtkStdString);
+
+  // Description:
   // Specify the density array name. This is optional. Typically both the density
   // and mass arrays are specified together (in order to compute the local volume).
+  // Both the mass and density arrays must consist of tuples of 1-component. (Note that
+  // the density array name specifies a point array found in the Pc source.)
   vtkSetMacro(DensityArrayName,vtkStdString);
   vtkGetMacro(DensityArrayName,vtkStdString);
 
   // Description:
-  // Specify the mass array name. This is optional. Typically both the density
-  // and mass arrays are specified together (in order to compute the local volume).
+  // Specify the mass array name. This is optional. Typically both the
+  // density and mass arrays are specified together (in order to compute the
+  // local volume).  Both the mass and density arrays must consist of tuples
+  // of 1-component. (Note that the mass array name specifies a point
+  // array found in the Pc source.)
   vtkSetMacro(MassArrayName,vtkStdString);
   vtkGetMacro(MassArrayName,vtkStdString);
 
@@ -295,6 +311,8 @@ protected:
 
   vtkAbstractPointLocator *Locator;
   vtkSPHKernel *Kernel;
+
+  vtkStdString CutoffArrayName;
 
   vtkStdString DensityArrayName;
   vtkStdString MassArrayName;

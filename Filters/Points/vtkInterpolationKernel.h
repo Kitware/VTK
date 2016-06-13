@@ -88,12 +88,14 @@ public:
   vtkBooleanMacro(RequiresInitialization, bool);
 
   // Description:
-  // Given a point x, determine the points around x which form an
-  // interpolation basis. The user must provide the vtkIdList pids, which will
-  // be dynamically resized as necessary. The method returns the number of
-  // points in the basis. Typically this method is called before
-  // ComputeWeights().
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds) = 0;
+  // Given a point x (and optional associated point id), determine the points
+  // around x which form an interpolation basis. The user must provide the
+  // vtkIdList pIds, which will be dynamically resized as necessary. The
+  // method returns the number of points in the basis. Typically this method
+  // is called before ComputeWeights(). Note that ptId is optional in most
+  // cases, although in some kernels it is used to facilitate basis
+  // computation.
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0) = 0;
 
   // Description:
   // Given a point x, and a list of basis points pIds, compute interpolation
