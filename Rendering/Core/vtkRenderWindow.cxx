@@ -828,6 +828,7 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
   // we are its parent
   if (ren->GetRenderWindow() == this)
     {
+    ren->ReleaseGraphicsResources(this);
     ren->SetRenderWindow(NULL);
     }
   this->Renderers->RemoveItem(ren);
