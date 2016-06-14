@@ -68,8 +68,16 @@ vtk_add_test_cxx(${vtk-module}CxxTests data_tests
   TestSmoothErrorMetric.cxx
   TestQuadraticPolygonFilters.cxx
   )
+# add to the list but don't define a test
+list(APPEND data_tests TestPolyhedron2.cxx)
+
 vtk_add_test_cxx(${vtk-module}CxxTests output_tests
   TestKdTreeRepresentation.cxx,NO_DATA
+  )
+ExternalData_add_test(VTKData
+  NAME TestPolyhedron2
+  COMMAND ${vtk-module}CxxTests TestPolyhedron2
+  -D DATA{../Data/polyhedron_mesh.vtu}
   )
 set(all_tests
   ${tests}
