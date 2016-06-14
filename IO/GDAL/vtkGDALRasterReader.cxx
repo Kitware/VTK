@@ -101,6 +101,7 @@ public:
   // Upper left, lower left, upper right, lower right
   double CornerPoints[8];
 
+  int HasNoDataValue;
   double NoDataValue;
   vtkIdType NumberOfPoints;
 
@@ -287,7 +288,8 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   for (int i = 1; i <= this->NumberOfBands; ++i)
     {
     GDALRasterBand* rasterBand = this->GDALData->GetRasterBand(i);
-    NoDataValue = rasterBand->GetNoDataValue();
+    this->HasNoDataValue = 0;
+    this->NoDataValue = rasterBand->GetNoDataValue(&this->HasNoDataValue);
     if (this->NumberOfBytesPerPixel == 0)
       {
       this->TargetDataType = rasterBand->GetRasterDataType();
@@ -480,6 +482,12 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
   scArr->SetNumberOfComponents(this->NumberOfBands);
   scArr->SetNumberOfTuples(targetWidth * targetHeight);
 
+  RAW_TYPE TNoDataValue = 0;
+  if (this->HasNoDataValue)
+    {
+    TNoDataValue = static_cast<RAW_TYPE>(this->NoDataValue);
+    }
+
   for (int j = 0; j < targetHeight; ++j)
     {
     for (int i = 0; i < targetWidth; ++i)
@@ -491,11 +499,18 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::Convert(
                       j * targetWidth * NumberOfBands + bandIndex;
         sourceIndex = i + j * targetWidth +
                       bandIndex * targetWidth * targetHeight;
+
         RAW_TYPE tmp = rawUniformGridData[sourceIndex];
-        if(tmp < min) min = tmp;
-        if(tmp > max) max = tmp;
-        if(tmp == NoDataValue) this->UniformGridData->BlankPoint(targetIndex);
-        else this->NumberOfPoints++;
+        if (this->HasNoDataValue && tmp == TNoDataValue)
+          {
+          this->UniformGridData->BlankPoint(targetIndex);
+          }
+        else
+          {
+          if(tmp < min) min = tmp;
+          if(tmp > max) max = tmp;
+          this->NumberOfPoints++;
+          }
 
         scArr->InsertValue(targetIndex, rawUniformGridData[sourceIndex]);
         }
