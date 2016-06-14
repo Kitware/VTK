@@ -148,13 +148,14 @@ public:
   vtkGetVector6Macro(WidgetBounds, double);
 
   // Description:
-  // Turn on/off whether the origin should be constrained to the widget bounds.
+  // Turn on/off whether the plane should be constrained to the widget bounds.
   // If on, the origin will not be allowed to move outside the set widget bounds.
+  // This is the default behaviour.
   // If off, the origin can be freely moved and the widget outline will change
-  // accordingly. The default is on.
-  vtkSetMacro(ConstrainOrigin,int);
-  vtkGetMacro(ConstrainOrigin,int);
-  vtkBooleanMacro(ConstrainOrigin,int);
+  // accordingly.
+  vtkSetMacro(ConstrainToWidgetBounds,int);
+  vtkGetMacro(ConstrainToWidgetBounds,int);
+  vtkBooleanMacro(ConstrainToWidgetBounds,int);
 
   // Description:
   // Turn on/off the ability to scale the widget with the mouse.
@@ -318,7 +319,7 @@ protected:
   int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  int ConstrainOrigin;
+  int ConstrainToWidgetBounds;
 
   // The cut plane is produced with a vtkCutter
   vtkCutter         *Cutter;
