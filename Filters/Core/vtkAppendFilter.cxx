@@ -441,6 +441,7 @@ void vtkAppendFilter::AppendArrays(int attributesType,
     {
     vtkAbstractArray* srcArray = firstInputData->GetAbstractArray((*it).c_str());
     vtkAbstractArray* dstArray = vtkAbstractArray::CreateArray(srcArray->GetDataType());
+    dstArray->CopyInformation(srcArray->GetInformation());
     dstArray->SetName(srcArray->GetName());
     dstArray->SetNumberOfComponents(srcArray->GetNumberOfComponents());
     for (int j = 0; j < srcArray->GetNumberOfComponents(); ++j)
