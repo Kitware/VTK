@@ -169,7 +169,7 @@ nm libxml2.a |grep " [TRD] "
 #define notationDecl vtk_libxml2_notationDecl
 #define oldXMLWDcompatibility vtk_libxml2_oldXMLWDcompatibility
 #define processingInstruction vtk_libxml2_processingInstruction
-#define reference vtk_libxml2_reference
+//#define reference vtk_libxml2_reference
 #define resolveEntity vtk_libxml2_resolveEntity
 #define setDocumentLocator vtk_libxml2_setDocumentLocator
 #define setNamespace vtk_libxml2_setNamespace
