@@ -13,33 +13,15 @@
 
 =========================================================================*/
 
-#include "vtkDataSetMapper.h"
-#include "vtkActor.h"
-#include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkSmartPointer.h"
-#include "vtkExtractEdges.h"
-#include "vtkProperty.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkPolyhedron.h"
-#include "vtkCellArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkPoints.h"
-#include "vtkDataArray.h"
-#include "vtkPointLocator.h"
-#include "vtkPlaneSource.h"
 #include "vtkPlane.h"
-#include "vtkDoubleArray.h"
-#include "vtkMath.h"
 
 #include "vtkTestUtilities.h"
 #include "vtkNew.h"
 #include "vtkCutter.h"
 #include "vtkPlane.h"
 #include "vtkXMLUnstructuredGridReader.h"
-#include "vtkXMLPolyDataWriter.h"
 
 // Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=14485
 int TestPolyhedron2( int argc, char* argv[] )
