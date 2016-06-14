@@ -85,6 +85,16 @@ public:
   vtkBooleanMacro(AttributeErrorMetric, int);
 
   // Description:
+  // Decide whether to activate volume preservation which greatly reduces errors
+  // in triangle normal direction. If off, volume preservation is disabled and
+  // if AttributeErrorMetric is active, these errors can be large.
+  // By default VolumePreservation is off
+  // the attribute errors are off.
+  vtkSetMacro(VolumePreservation, int);
+  vtkGetMacro(VolumePreservation, int);
+  vtkBooleanMacro(VolumePreservation, int);
+
+  // Description:
   // If attribute errors are to be included in the metric (i.e.,
   // AttributeErrorMetric is on), then the following flags control which
   // attributes are to be included in the error calculation. By default all
@@ -188,6 +198,7 @@ protected:
   double TargetReduction;
   double ActualReduction;
   int   AttributeErrorMetric;
+  int   VolumePreservation;
 
   int ScalarsAttribute;
   int VectorsAttribute;
@@ -215,8 +226,13 @@ protected:
     double *Quadric;
   };
 
+
+  // One ErrorQuadric per point
   ErrorQuadric *ErrorQuadrics;
-  int           AttributeComponents[6];
+
+  // Contains 4 doubles per point. Length = nPoints * 4
+  double *VolumeConstraints;
+  int AttributeComponents[6];
   double        AttributeScale[6];
 
   // Temporary variables for performance
