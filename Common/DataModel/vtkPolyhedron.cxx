@@ -2279,7 +2279,7 @@ int vtkPolyhedron::IntersectWithContour(double value,
     vMax = std::max(vMax, v);
     }
 
-  double valueTolerance = std::min(1e-6, 1e-6*vMax - vMin);
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
 
   for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); ++pid)
     {
@@ -2332,7 +2332,7 @@ int vtkPolyhedron::InternalContour(double value,
     vMax = std::max(vMax, v);
     }
 
-  double valueTolerance = std::min(1e-6, 1e-6*vMax - vMin);
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
 
   double x0[3], x1[3], x[3];
   double v0, v1, v, t;
@@ -3102,7 +3102,7 @@ void vtkPolyhedron::Clip(double value,
     vMax = std::max(vMax, v);
     }
 
-  double valueTolerance = std::min(1e-6, 1e-6*vMax - vMin);
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
 
   // Main algorithm: go through all positive points (points on the right side
   // of the contour).  These do not include contour points.
