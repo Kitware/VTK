@@ -1217,9 +1217,13 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 {
-  if (w && this->Pass)
+  if (w)
     {
-    this->Pass->ReleaseGraphicsResources(w);
+    vtkRenderer::ReleaseGraphicsResources(w);
+    if (this->Pass)
+      {
+      this->Pass->ReleaseGraphicsResources(w);
+      }
     }
 }
 
