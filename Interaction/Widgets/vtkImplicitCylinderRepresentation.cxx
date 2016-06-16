@@ -92,7 +92,7 @@ vtkImplicitCylinderRepresentation::vtkImplicitCylinderRepresentation()
   this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
-  this->ConstrainCenter = 1;
+  this->ConstrainToWidgetBounds = 1;
 
   this->Cyl = vtkPolyData::New();
   vtkPoints *pts = vtkPoints::New();
@@ -669,8 +669,8 @@ void vtkImplicitCylinderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: "
      << (this->OutsideBounds ? "On" : "Off") << "\n";
-  os << indent << "Constrain Center: "
-     << (this->ConstrainCenter ? "On" : "Off") << "\n";
+  os << indent << "Constrain to Widget Bounds: "
+     << (this->ConstrainToWidgetBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Cylinder: " << (this->DrawCylinder ? "On" : "Off") << "\n";
@@ -1091,18 +1091,6 @@ void vtkImplicitCylinderRepresentation::SetCenter(double x, double y, double z)
 // the bounding box or the cylinder tends to disappear as it hits the boundary.
 void vtkImplicitCylinderRepresentation::SetCenter(double x[3])
 {
-  double *bounds = this->Outline->GetOutput()->GetBounds();
-  for (int i=0; i<3; i++)
-    {
-    if ( x[i] <= bounds[2*i] )
-      {
-      x[i] = bounds[2*i] + FLT_EPSILON;
-      }
-    else if ( x[i] >= bounds[2*i+1] )
-      {
-      x[i] = bounds[2*i+1] - FLT_EPSILON;
-      }
-    }
   this->Cylinder->SetCenter(x);
   this->BuildRepresentation();
 }
@@ -1162,12 +1150,13 @@ void vtkImplicitCylinderRepresentation::GetAxis(double xyz[3])
 // Set the radius the cylinder. The radius must be a positive number.
 void vtkImplicitCylinderRepresentation::SetRadius(double radius)
 {
-  double minRadius = this->Outline->GetOutput()->GetLength() * this->MinRadius;
-  double maxRadius = this->Outline->GetOutput()->GetLength() * this->MaxRadius;
+  if (this->ConstrainToWidgetBounds)
+    {
+    double minRadius = this->Outline->GetOutput()->GetLength() * this->MinRadius;
+    double maxRadius = this->Outline->GetOutput()->GetLength() * this->MaxRadius;
 
-  radius = ( radius < minRadius ? minRadius :
-             (radius > maxRadius ? maxRadius : radius) );
-
+    radius = std::min(maxRadius, std::max(minRadius, radius));
+    }
   this->Cylinder->SetRadius(radius);
   this->BuildRepresentation();
 }
@@ -1318,24 +1307,34 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
     double *center = this->Cylinder->GetCenter();
     double *axis = this->Cylinder->GetAxis();
 
+
+    double bounds[6];
+    std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
+
     double p2[3];
     if ( !this->OutsideBounds )
       {
-      double *bounds = this->InitialBounds;
+      // restrict the center inside InitialBounds
+      double *ibounds = this->InitialBounds;
       for (int i=0; i<3; i++)
         {
-        if ( center[i] < bounds[2*i] )
+        if ( center[i] < ibounds[2*i] )
           {
-          center[i] = bounds[2*i];
+          center[i] = ibounds[2*i];
           }
-        else if ( center[i] > bounds[2*i+1] )
+        else if ( center[i] > ibounds[2*i+1] )
           {
-          center[i] = bounds[2*i+1];
+          center[i] = ibounds[2*i+1];
           }
         }
-      if ( this->ConstrainCenter )
+      }
+
+    if ( this->ConstrainToWidgetBounds )
+      {
+      if ( !this->OutsideBounds )
         {
-        bounds = this->Box->GetBounds();
+        // center cannot move outside InitialBounds. Therefore, restrict
+        // movement of the Box.
         double v[3] = { 0.0, 0.0, 0.0 };
         for (int i = 0; i < 3; ++i)
           {
@@ -1350,28 +1349,9 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
           bounds[2*i] += v[i];
           bounds[2*i + 1] += v[i];
           }
-        this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-        this->Outline->Update();
         }
-      }
 
-    if ( !this->ConstrainCenter )
-      {
-      double offset = this->Cylinder->GetRadius() * 1.2;
-      double boxBounds[6];
-      for (int i = 0; i < 3; ++i)
-        {
-        boxBounds[2*i] = vtkMath::Min(center[i] - offset, this->WidgetBounds[2*i]);
-        boxBounds[2*i + 1] = vtkMath::Max(center[i] + offset, this->WidgetBounds[2*i + 1]);
-        }
-      this->Box->SetOrigin(boxBounds[0], boxBounds[2], boxBounds[4]);
-      this->Box->SetSpacing(boxBounds[1]-boxBounds[0], boxBounds[3]-boxBounds[2],
-                            boxBounds[5]-boxBounds[4]);
-      this->Outline->Update();
-      }
-    else
-      {
-      double *bounds = this->Box->GetBounds();
+      // restrict center inside bounds
       for (int i = 0; i < 3; ++i)
         {
         if (center[i] <= bounds[2*i])
@@ -1384,6 +1364,21 @@ void vtkImplicitCylinderRepresentation::BuildRepresentation()
           }
         }
       }
+    else // cylinder can move freely, adjust the bounds to change with it
+      {
+      double offset = this->Cylinder->GetRadius() * 1.2;
+      for (int i = 0; i < 3; ++i)
+        {
+        bounds[2*i] = vtkMath::Min(center[i] - offset, this->WidgetBounds[2*i]);
+        bounds[2*i + 1] = vtkMath::Max(center[i] + offset, this->WidgetBounds[2*i + 1]);
+        }
+      }
+
+    this->Box->SetOrigin(bounds[0],bounds[2],bounds[4]);
+    this->Box->SetSpacing((bounds[1]-bounds[0]),(bounds[3]-bounds[2]),
+                          (bounds[5]-bounds[4]));
+    this->Outline->Update();
+
 
     // Setup the cylinder axis
     double d = this->Outline->GetOutput()->GetLength();

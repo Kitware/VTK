@@ -400,7 +400,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->GetCenter(center);
 
   // #1: With ConstrainCenter on, center SHOULD NOT be settable outside widget bounds
-  rep->ConstrainCenterOn();
+  rep->ConstrainToWidgetBoundsOn();
   rep->GetWidgetBounds(wbounds);
   rep->SetCenter(wbounds[1] + 1.0, wbounds[3] + 1.0, wbounds[5] + 1.0);
   rep->GetCenter(center1);
@@ -416,7 +416,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
 
   // #2: With ConstrainCenter off, center SHOULD be settable outside current widget bounds.
-  rep->ConstrainCenterOff();
+  rep->ConstrainToWidgetBoundsOff();
   center1[0] = wbounds[1] + 1.0;
   center1[1] = wbounds[3] + 1.0;
   center1[2] = wbounds[5] + 1.0;
@@ -438,7 +438,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // #3: With ConstrainCenter on and OutsideBounds off, the translation of the
   // widget should be limited
   rep->OutsideBoundsOff();
-  rep->ConstrainCenterOn();
+  rep->ConstrainToWidgetBoundsOn();
 
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();
