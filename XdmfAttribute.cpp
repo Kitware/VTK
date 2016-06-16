@@ -41,6 +41,14 @@ XdmfAttribute::XdmfAttribute() :
 {
 }
 
+XdmfAttribute::XdmfAttribute(XdmfAttribute & refAttribute) :
+  XdmfArray(refAttribute),
+  mCenter(refAttribute.mCenter),
+  mName(refAttribute.mName),
+  mType(refAttribute.mType)
+{
+}
+
 XdmfAttribute::~XdmfAttribute()
 {
 }
@@ -120,16 +128,148 @@ void
 XdmfAttribute::setCenter(const shared_ptr<const XdmfAttributeCenter> center)
 {
   mCenter = center;
+  this->setIsChanged(true);
 }
 
 void
 XdmfAttribute::setName(const std::string & name)
 {
   mName = name;
+  this->setIsChanged(true);
 }
 
 void
 XdmfAttribute::setType(const shared_ptr<const XdmfAttributeType> type)
 {
   mType = type;
+  this->setIsChanged(true);
 }
+
+// C Wrappers
+
+XDMFATTRIBUTE * XdmfAttributeNew()
+{
+  try
+  {
+    shared_ptr<XdmfAttribute> generatedAttribute = XdmfAttribute::New();
+    return (XDMFATTRIBUTE *)((void *)(new XdmfAttribute(*generatedAttribute.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfAttribute> generatedAttribute = XdmfAttribute::New();
+    return (XDMFATTRIBUTE *)((void *)(new XdmfAttribute(*generatedAttribute.get())));
+  }
+}
+
+int XdmfAttributeGetCenter(XDMFATTRIBUTE * attribute)
+{
+  if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Grid()) {
+    return XDMF_ATTRIBUTE_CENTER_GRID;
+  }
+  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Cell()) {
+    return XDMF_ATTRIBUTE_CENTER_CELL;
+  }
+  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Face()) {
+    return XDMF_ATTRIBUTE_CENTER_FACE;
+  }
+  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Edge()) {
+    return XDMF_ATTRIBUTE_CENTER_EDGE;
+  }
+  else if (((XdmfAttribute *)attribute)->getCenter() == XdmfAttributeCenter::Node()) {
+    return XDMF_ATTRIBUTE_CENTER_NODE;
+  }
+  else {
+    return -1;
+  }
+}
+
+int XdmfAttributeGetType(XDMFATTRIBUTE * attribute)
+{
+  if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Scalar()) {
+    return XDMF_ATTRIBUTE_TYPE_SCALAR;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Vector()) {
+    return XDMF_ATTRIBUTE_TYPE_VECTOR;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Tensor()) {
+    return XDMF_ATTRIBUTE_TYPE_TENSOR;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Matrix()) {
+    return XDMF_ATTRIBUTE_TYPE_MATRIX;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::Tensor6()) {
+    return XDMF_ATTRIBUTE_TYPE_TENSOR6;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::GlobalId()) {
+    return XDMF_ATTRIBUTE_TYPE_GLOBALID;
+  }
+  else if (((XdmfAttribute *)attribute)->getType() == XdmfAttributeType::NoAttributeType()) {
+    return XDMF_ATTRIBUTE_TYPE_NOTYPE;
+  }
+  else {
+    return -1;
+  }
+}
+
+void XdmfAttributeSetCenter(XDMFATTRIBUTE * attribute, int center, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  switch(center) {
+    case XDMF_ATTRIBUTE_CENTER_GRID:
+      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Grid());
+      break;
+    case XDMF_ATTRIBUTE_CENTER_CELL:
+      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Cell());
+      break;
+    case XDMF_ATTRIBUTE_CENTER_FACE:
+      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Face());
+      break;
+    case XDMF_ATTRIBUTE_CENTER_EDGE:
+      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Edge());
+      break;
+    case XDMF_ATTRIBUTE_CENTER_NODE:
+      ((XdmfAttribute *)attribute)->setCenter(XdmfAttributeCenter::Node());
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid Attribute Center: Code " + center);
+      break;
+  }
+  XDMF_ERROR_WRAP_END(status)
+}
+
+void XdmfAttributeSetType(XDMFATTRIBUTE * attribute, int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  switch(type) {
+    case XDMF_ATTRIBUTE_TYPE_SCALAR:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Scalar());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_VECTOR:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Vector());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_TENSOR:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Tensor());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_MATRIX:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Matrix());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_TENSOR6:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::Tensor6());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_GLOBALID:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::GlobalId());
+      break;
+    case XDMF_ATTRIBUTE_TYPE_NOTYPE:
+      ((XdmfAttribute *)attribute)->setType(XdmfAttributeType::NoAttributeType());
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid Attribute Type: Code " + type);
+      break;
+  }
+  XDMF_ERROR_WRAP_END(status)
+}
+
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfAttribute, XDMFATTRIBUTE)
+XDMF_ARRAY_C_CHILD_WRAPPER(XdmfAttribute, XDMFATTRIBUTE)

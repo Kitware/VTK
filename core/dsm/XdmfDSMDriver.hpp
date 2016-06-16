@@ -58,7 +58,7 @@
 // Includes
 #include <XdmfDSMBuffer.hpp>
 #include <XdmfDSMCommMPI.hpp>
-#include <XdmfDSMManager.hpp>
+//#include <XdmfDSMManager.hpp>
 #include <XdmfDSM.hpp>
 #include <mpi.h>
 
@@ -84,14 +84,16 @@
 #define IS_XDMF_DSM(f) /* (H5F_t *f) */    \
     (XDMF_DSM==H5F_DRIVER_ID(f))
 
-#include "H5FDmpiposix.h"
+#ifndef H5_HAVE_VFD_EXTENSIONS
+  #include "H5FDmpio.h"
 
-#ifndef H5FD_FEAT_HAS_MPI
-  // This is a temporary solution to allow interface with standard hdf5 in addition to hdf5vfd
-  // Hopefully a better solution will be made in the future
-  #define XDMF_dsm_init H5FD_mpiposix_init
-  //#pragma message(": warning Xdmf: H5FD mpiposix file driver replaced to enable dsm compatibility with hdf5")
-#endif
+  #ifndef H5FD_FEAT_HAS_MPI
+    // This is a temporary solution to allow interface with standard hdf5 in addition to hdf5vfd
+    // Hopefully a better solution will be made in the future
+    #define XDMF_dsm_init H5FD_mpio_init
+    //#pragma message(": warning Xdmf: H5FD mpiposix file driver replaced to enable dsm compatibility with hdf5")
+  #endif
+#endif /* H5_HAVE_VFD_EXTENSIONS */
 
 extern "C" {
   XDMFDSM_EXPORT hid_t  XDMF_dsm_init(void);
@@ -133,14 +135,13 @@ extern "C" {
   XDMFDSM_EXPORT hbool_t xdmf_dsm_is_connected();
   XDMFDSM_EXPORT herr_t  xdmf_dsm_connect();
 
-  XDMFDSM_EXPORT herr_t  xdmf_dsm_update_entry(haddr_t start, haddr_t end);
-  XDMFDSM_EXPORT herr_t  xdmf_dsm_get_entry(haddr_t *start_ptr, haddr_t *end_ptr);
-
-  XDMFDSM_EXPORT herr_t  xdmf_dsm_lock();
-  XDMFDSM_EXPORT herr_t  xdmf_dsm_unlock(unsigned long flag);
+  XDMFDSM_EXPORT herr_t  xdmf_dsm_lock(char * filename);
+  XDMFDSM_EXPORT herr_t  xdmf_dsm_unlock(char * filename, unsigned long flag);
 
   XDMFDSM_EXPORT herr_t  xdmf_dsm_read(haddr_t addr, size_t len, void *buf_ptr);
+  XDMFDSM_EXPORT herr_t  xdmf_dsm_read_pages(unsigned int * pages, unsigned int numPages, haddr_t addr, size_t len, void *buf_ptr);
   XDMFDSM_EXPORT herr_t  xdmf_dsm_write(haddr_t addr, size_t len, const void *buf_ptr);
+  XDMFDSM_EXPORT herr_t  xdmf_dsm_write_pages(unsigned int * pages, unsigned int numPages, haddr_t addr, size_t len, const void *buf_ptr);
 }
 
 #endif /* XDMFDSMDRIVER_HPP_ */

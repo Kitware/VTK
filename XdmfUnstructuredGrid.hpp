@@ -24,12 +24,15 @@
 #ifndef XDMFUNSTRUCTUREDGRID_HPP_
 #define XDMFUNSTRUCTUREDGRID_HPP_
 
-// Forward Declarations
-class XdmfRegularGrid;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfGrid.hpp"
+#include "XdmfRegularGrid.hpp"
+
+#ifdef __cplusplus
+
+// Forward Declarations
+class XdmfRegularGrid;
 
 /**
  * @brief An unstructured grid that consists of elements, points, and
@@ -153,6 +156,10 @@ public:
    */
   shared_ptr<XdmfTopology> getTopology();
 
+  virtual void read();
+
+  virtual void release();
+
   /**
    * Set the geometry associated with this grid.
    *
@@ -203,16 +210,56 @@ public:
    */
   void setTopology(const shared_ptr<XdmfTopology> topology);
 
+  XdmfUnstructuredGrid(XdmfUnstructuredGrid &);
+
 protected:
 
   XdmfUnstructuredGrid();
   XdmfUnstructuredGrid(const shared_ptr<XdmfRegularGrid> regularGrid);
 
+  virtual void
+  copyGrid(shared_ptr<XdmfGrid> sourceGrid);
+
 private:
+
+  /**
+   * PIMPL
+   */
+  class XdmfUnstructuredGridImpl;
 
   XdmfUnstructuredGrid(const XdmfUnstructuredGrid &);  // Not implemented.
   void operator=(const XdmfUnstructuredGrid &);  // Not implemented.
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFUNSTRUCTUREDGRID; // Simply as a typedef to ensure correct typing
+typedef struct XDMFUNSTRUCTUREDGRID XDMFUNSTRUCTUREDGRID;
+
+XDMF_EXPORT XDMFUNSTRUCTUREDGRID * XdmfUnstructuredGridNew();
+
+XDMF_EXPORT XDMFUNSTRUCTUREDGRID * XdmfUnstructuredGridNewFromRegularGrid(XDMFREGULARGRID * regularGrid, int * status);
+
+XDMF_EXPORT XDMFGEOMETRY * XdmfUnstructuredGridGetGeometry(XDMFUNSTRUCTUREDGRID * grid);
+
+XDMF_EXPORT XDMFTOPOLOGY * XdmfUnstructuredGridGetTopology(XDMFUNSTRUCTUREDGRID * grid);
+
+XDMF_EXPORT void XdmfUnstructuredGridSetGeometry(XDMFUNSTRUCTUREDGRID * grid, XDMFGEOMETRY * geometry, int passControl);
+
+XDMF_EXPORT void XdmfUnstructuredGridSetTopology(XDMFUNSTRUCTUREDGRID * grid, XDMFTOPOLOGY * topology, int passControl);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfUnstructuredGrid, XDMFUNSTRUCTUREDGRID, XDMF)
+XDMF_GRID_C_CHILD_DECLARE(XdmfUnstructuredGrid, XDMFUNSTRUCTUREDGRID, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFUNSTRUCTUREDGRID_HPP_ */

@@ -24,18 +24,25 @@
 #ifndef XDMFITEM_HPP_
 #define XDMFITEM_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+#include "XdmfVisitor.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfCoreReader;
 class XdmfInformation;
 class XdmfVisitor;
 
 // Includes
-#undef reference //stop libXML2 mangle of "reference" from causing havoc
 #include <loki/Visitor.h>
+#include <libxml/xmlexports.h>
+#include <libxml/tree.h>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
-#include "XdmfCore.hpp"
 #include "XdmfSharedPtr.hpp"
 
 // Macro that allows children XdmfItems to be attached to a parent XdmfItem.
@@ -243,6 +250,7 @@ public :
   ParentClass::insert(const shared_ptr<ChildClass> ChildName)                 \
   {                                                                           \
     m##ChildName##s.push_back(ChildName);                                     \
+    this->setIsChanged(true);                                                 \
   }                                                                           \
                                                                               \
   void                                                                        \
@@ -251,6 +259,7 @@ public :
     if(index < m##ChildName##s.size()) {                                      \
       m##ChildName##s.erase(m##ChildName##s.begin() + index);                 \
     }                                                                         \
+    this->setIsChanged(true);                                                 \
   }                                                                           \
                                                                               \
   void                                                                        \
@@ -265,6 +274,7 @@ public :
           return;                                                             \
         }                                                                     \
     }                                                                         \
+    this->setIsChanged(true);                                                 \
   }
 
 /**
@@ -284,6 +294,9 @@ public:
   LOKI_DEFINE_VISITABLE_BASE()
   XDMF_CHILDREN(XdmfItem, XdmfInformation, Information, Key)
   friend class XdmfCoreReader;
+  friend class XdmfWriter;
+  friend class XdmfHeavyDataWriter;
+  friend class XdmfHDF5Writer;
 
   /**
    * Get the tag for this item.  This is equivalent to tags in XML
@@ -362,6 +375,8 @@ public:
    */
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfItem(XdmfItem &);
+
 protected:
 
   XdmfItem();
@@ -382,11 +397,119 @@ protected:
                const std::vector<shared_ptr<XdmfItem > > & childItems,
                const XdmfCoreReader * const reader);
 
+  bool
+  getIsChanged();
+
+  void
+  setIsChanged(bool status);
+
+  std::set<XdmfItem *> mParents;
+
+  bool mIsChanged;
+
 private:
 
   XdmfItem(const XdmfItem &);  // Not implemented.
   void operator=(const XdmfItem &);  // Not implemented.
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFITEM; // Simply as a typedef to ensure correct typing
+typedef struct XDMFITEM XDMFITEM;
+
+#ifndef XDMFINFORMATIONCDEFINE
+#define XDMFINFORMATIONCDEFINE
+struct XDMFINFORMATION; // Simply as a typedef to ensure correct typing
+typedef struct XDMFINFORMATION XDMFINFORMATION;
+#endif
+
+XDMFCORE_EXPORT void XdmfItemAccept(XDMFITEM * item, XDMFVISITOR * visitor, int * status);
+
+XDMFCORE_EXPORT void XdmfItemFree(void * item);
+
+XDMFCORE_EXPORT XDMFINFORMATION * XdmfItemGetInformation(XDMFITEM * item, unsigned int index);
+
+XDMFCORE_EXPORT XDMFINFORMATION * XdmfItemGetInformationByKey(XDMFITEM * item, char * key);
+
+XDMFCORE_EXPORT unsigned int XdmfItemGetNumberInformations(XDMFITEM * item);
+
+XDMFCORE_EXPORT void XdmfItemInsertInformation(XDMFITEM * item, XDMFINFORMATION * information, int passControl);
+
+XDMFCORE_EXPORT void XdmfItemRemoveInformation(XDMFITEM * item, unsigned int index);
+
+XDMFCORE_EXPORT void XdmfItemRemoveInformationByKey(XDMFITEM * item, char * key);
+
+XDMFCORE_EXPORT char * XdmfItemGetItemTag(XDMFITEM * item);
+
+#define XDMF_ITEM_C_CHILD_DECLARE(ClassName, CClassName, Level)                                                       \
+                                                                                                                      \
+Level##_EXPORT void ClassName##Accept ( CClassName * item, XDMFVISITOR * visitor, int * status);                      \
+XDMFCORE_EXPORT void ClassName##Free(void * item);                                                                    \
+Level##_EXPORT XDMFINFORMATION * ClassName##GetInformation( CClassName * item, unsigned int index);                   \
+Level##_EXPORT XDMFINFORMATION * ClassName##GetInformationByKey( CClassName * item, char * key);                      \
+Level##_EXPORT unsigned int ClassName##GetNumberInformations( CClassName * item);                                     \
+Level##_EXPORT void ClassName##InsertInformation( CClassName * item, XDMFINFORMATION * information, int passControl); \
+Level##_EXPORT void ClassName##RemoveInformation( CClassName * item, unsigned int index);                             \
+Level##_EXPORT void ClassName##RemoveInformationByKey( CClassName * item, char * key);                                \
+Level##_EXPORT char * ClassName##GetItemTag( CClassName * item);
+
+
+#define XDMF_ITEM_C_CHILD_WRAPPER(ClassName, CClassName)                                                    \
+void ClassName##Accept( CClassName * item, XDMFVISITOR * visitor, int * status)                             \
+{                                                                                                           \
+  XdmfItemAccept(((XDMFITEM *)item), visitor, status);                                                      \
+}                                                                                                           \
+                                                                                                            \
+void ClassName##Free(void * item)                                                                           \
+{                                                                                                           \
+  XdmfItemFree(item);                                                                                       \
+}                                                                                                           \
+                                                                                                            \
+XDMFINFORMATION * ClassName##GetInformation( CClassName * item, unsigned int index)                         \
+{                                                                                                           \
+  return XdmfItemGetInformation(((XDMFITEM *)item), index);                                                 \
+}                                                                                                           \
+                                                                                                            \
+XDMFINFORMATION * ClassName##GetInformationByKey( CClassName * item, char * key)                            \
+{                                                                                                           \
+  return XdmfItemGetInformationByKey(((XDMFITEM *)item), key);                                              \
+}                                                                                                           \
+                                                                                                            \
+unsigned int ClassName##GetNumberInformations( CClassName * item)                                           \
+{                                                                                                           \
+  return XdmfItemGetNumberInformations(((XDMFITEM *)item));                                                 \
+}                                                                                                           \
+                                                                                                            \
+void ClassName##InsertInformation( CClassName * item, XDMFINFORMATION * information, int passControl)       \
+{                                                                                                           \
+  XdmfItemInsertInformation(((XDMFITEM *)item), information, passControl);                                  \
+}                                                                                                           \
+                                                                                                            \
+void ClassName##RemoveInformation( CClassName * item, unsigned int index)                                   \
+{                                                                                                           \
+  XdmfItemRemoveInformation(((XDMFITEM *)item), index);                                                     \
+}                                                                                                           \
+                                                                                                            \
+void ClassName##RemoveInformationByKey( CClassName * item, char * key)                                      \
+{                                                                                                           \
+  XdmfItemRemoveInformationByKey(((XDMFITEM *)item), key);                                                  \
+}                                                                                                           \
+                                                                                                            \
+char * ClassName##GetItemTag( CClassName * item)                                                            \
+{                                                                                                           \
+  return XdmfItemGetItemTag(((XDMFITEM *)item));                                                            \
+} 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFITEM_HPP_ */

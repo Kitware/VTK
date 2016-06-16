@@ -76,6 +76,9 @@
 * a topology could be shared across multiple grids or a grid
 * could be included in multiple grid collections and/or the domain.
 *
+* Comparing objects is done by comparing pointer addresses,
+* a deep copy will not produce an equivalent object.
+*
 *
 * C++ Examples:
 *

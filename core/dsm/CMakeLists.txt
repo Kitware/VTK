@@ -31,7 +31,10 @@ if(HDF5_FOUND)
   # FIXME: Would like to get this info from HDF5 so we don't have conflicting
   # MPI versions
   if(HDF5_IS_PARALLEL)
+    # If MPI variables are already populated don't search again
+    if (NOT MPI_FOUND)
     find_package(MPI REQUIRED)
+    endif (NOT MPI_FOUND)
     if(MPI_FOUND)
       include_directories(${MPI_INCLUDE_PATH})
       set(XdmfDSMLinkLibraries ${XdmfDSMLinkLibraries} ${MPI_LIBRARY} ${MPI_EXTRA_LIBRARY})
@@ -55,13 +58,13 @@ set(XdmfDSMSources
   XdmfHDF5WriterDSM
   XdmfDSMCommMPI
   XdmfDSMBuffer
-  XdmfDSMManager
+  XdmfDSMDescription
+  XdmfDSMItemFactory
   XdmfDSMDriver)
 
 if (XDMF_BUILD_DSM_THREADS)
   add_definitions(-DXDMF_BUILD_DSM_THREADS)
 endif ()
-
 
 if (XDMF_BUILD_DSM_THREADS)
   find_package(H5FDdsm REQUIRED NO_MODULE)
@@ -76,21 +79,64 @@ if (XDMF_BUILD_DSM_THREADS)
   endif()
 endif ()
 
-add_library(XdmfDSM ${XdmfDSMSources})
+# Set a variable if cray is being used
+STRING(REGEX MATCH "aprun" IS_CRAY "${MPIEXEC}")
+
+set(XDMF_DSM_IS_CRAY "${IS_CRAY}")
+set(XDMF_DSM_IS_CRAY "${XDMF_DSM_IS_CRAY}" PARENT_SCOPE)
+
+if (XDMF_DSM_IS_CRAY)
+  add_definitions(-DXDMF_DSM_IS_CRAY)
+endif (XDMF_DSM_IS_CRAY)
+
+add_library(XdmfDSMObjects OBJECT ${XdmfDSMSources})
+set_target_properties(XdmfDSMObjects PROPERTIES
+  POSITION_INDEPENDENT_CODE True)
+add_library(XdmfDSM $<TARGET_OBJECTS:XdmfDSMObjects>)
+if (BUILD_SHARED_LIBS)
+  add_library(XdmfDSM_Static STATIC $<TARGET_OBJECTS:XdmfDSMObjects>)
+  if (UNIX)
+    set_target_properties(XdmfDSM_Static PROPERTIES
+      OUTPUT_NAME "XdmfDSM")
+  endif (UNIX)
+endif (BUILD_SHARED_LIBS)
+#add_library(XdmfDSM ${XdmfDSMSources})
+#if (BUILD_SHARED_LIBS)
+#  add_library(XdmfDSM_Static STATIC ${XdmfDSMSources})
+#  if (UNIX)
+#    set_target_properties(XdmfDSM_Static PROPERTIES
+#      OUTPUT_NAME "XdmfDSM")
+#  endif (UNIX)
+#endif (BUILD_SHARED_LIBS)
 link_directories(${XDMF_LIBRARY_DIRS} ${XdmfDSMLinkLibraryDir})
 target_link_libraries(XdmfDSM ${XdmfDSMLinkLibraries})
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(XdmfDSM_Static ${XdmfDSMLinkLibraries})
+endif (BUILD_SHARED_LIBS)
 
 if(WIN32)
   add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
   set_target_properties(XdmfDSM PROPERTIES
       DEFINE_SYMBOL XdmfDSM_EXPORTS)
+  if (BUILD_SHARED_LIBS)
+    set_target_properties(XdmfDSM_Static PROPERTIES
+        DEFINE_SYMBOL XdmfDSM_EXPORTS)
+  endif (BUILD_SHARED_LIBS)
   if(NOT MSVC10)
-        set_target_properties(XdmfDSM PROPERTIES
+    set_target_properties(XdmfDSM PROPERTIES
       PREFIX ../
       IMPORT_PREFIX ../
       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
       ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    if (BUILD_SHARED_LIBS)
+      set_target_properties(XdmfDSM_Static PROPERTIES
+        PREFIX ../
+        IMPORT_PREFIX ../
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+    endif()
   endif()
 endif()
 
@@ -99,6 +145,10 @@ if(XDMF_WRAP_JAVA)
 endif()
 
 if(XDMF_WRAP_PYTHON)
+  if (NOT BUILD_SHARED_LIBS)
+    message(FATAL_ERROR "Python Wrappers do not function"
+                        " properly without shared libraries")
+  endif (NOT BUILD_SHARED_LIBS)
   XDMF_SWIG_PYTHON(XdmfDSM XdmfCore)
 endif()
 
@@ -106,12 +156,17 @@ endif()
 set(XDMF_LIBRARY_DIRS ${XDMF_LIBRARY_DIRS} PARENT_SCOPE)
 
 if(WIN32)
-    set(XDMFDSM_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/XdmfDSM.lib PARENT_SCOPE)
+  set(XDMFDSM_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/XdmfDSM.lib PARENT_SCOPE)
 endif()
 
 if(UNIX)
+  if (BUILD_SHARED_LIBS)
     set(XDMFDSM_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libXdmfDSM.so
-        PARENT_SCOPE)
+      PARENT_SCOPE)
+  else (BUILD_SHARED_LIBS)
+    set(XDMFDSM_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libXdmfDSM.a
+      PARENT_SCOPE)
+  endif (BUILD_SHARED_LIBS)
 endif()
 
 if(APPLE)
@@ -128,6 +183,12 @@ install(TARGETS XdmfDSM
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
+if (BUILD_SHARED_LIBS)
+  install(TARGETS XdmfDSM_Static
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+endif (BUILD_SHARED_LIBS)
 
 if(XDMF_BUILD_DSM_THREADS)
 set(XdmfDSM_INCLUDE_DIRS

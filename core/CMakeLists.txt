@@ -8,9 +8,9 @@ include(CheckCXXSourceCompiles)
 include(SetUpVersion)
 include(TestBigEndian)
 
-if(VERSION_CONTROL_AUTOUPDATE OR 
+if(VERSION_CONTROL_AUTOUPDATE OR
     NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/XdmfVersion.hpp)
-  VersionCreate("Xdmf" "2" "XDMFCORE_EXPORT" "XdmfCore.hpp")
+  VersionCreate("Xdmf" "3" "3" "0" "XDMFCORE_EXPORT" "XdmfCore.hpp")
 endif()
 
 if(BUILD_SHARED_LIBS)
@@ -131,10 +131,12 @@ set(XdmfCoreSources
   XdmfHDF5Controller
   XdmfHDF5Writer
   XdmfHeavyDataController
+  XdmfHeavyDataDescription
   XdmfHeavyDataWriter
   XdmfInformation
   XdmfItem
   XdmfItemProperty
+  XdmfPlaceholder
   XdmfSparseMatrix
   XdmfSubset
   XdmfSystemUtils
@@ -142,10 +144,31 @@ set(XdmfCoreSources
   XdmfVisitor
   XdmfWriter)
 
-add_library(XdmfCore ${LIBTYPE} ${XdmfCoreSources})
+if (TIFF_FOUND)
+  set(XdmfCoreSources
+      ${XdmfCoreSources}
+      XdmfTIFFController)
+endif()
+
+add_library(XdmfCoreObjects OBJECT ${XdmfCoreSources})
+set_target_properties(XdmfCoreObjects PROPERTIES
+  POSITION_INDEPENDENT_CODE True)
+add_library(XdmfCore ${LIBTYPE} $<TARGET_OBJECTS:XdmfCoreObjects>)
+if (BUILD_SHARED_LIBS)
+  add_library(XdmfCore_Static STATIC $<TARGET_OBJECTS:XdmfCoreObjects>)
+  if (UNIX)
+    set_target_properties(XdmfCore_Static PROPERTIES
+      OUTPUT_NAME "XdmfCore")
+  endif (UNIX)
+endif (BUILD_SHARED_LIBS)
+
 link_directories(${XDMF_LIBRARY_DIRS})
 
 target_link_libraries(XdmfCore ${XDMF_LIBRARIES})
+if (BUILD_SHARED_LIBS)
+  target_link_libraries(XdmfCore_Static ${XDMF_LIBRARIES})
+endif (BUILD_SHARED_LIBS)
+
 if (COMMAND vtk_target_install)
   vtk_target_install(XdmfCore)
 endif()
@@ -155,14 +178,24 @@ if(WIN32)
   if (BUILD_SHARED_LIBS)
     set_target_properties(XdmfCore PROPERTIES
         DEFINE_SYMBOL XdmfCore_EXPORTS)
+    set_target_properties(XdmfCore_Static PROPERTIES
+      DEFINE_SYMBOL XdmfCore_EXPORTS)
   endif()
   if(NOT MSVC10)
-	set_target_properties(XdmfCore PROPERTIES
+    set_target_properties(XdmfCore PROPERTIES
       PREFIX ../
       IMPORT_PREFIX ../
       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    if (BUILD_SHARED_LIBS)
+      set_target_properties(XdmfCore_Static PROPERTIES
+        PREFIX ../
+        IMPORT_PREFIX ../
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    endif ()
   endif()
 endif()
 
@@ -171,6 +204,10 @@ if(XDMF_WRAP_JAVA)
 endif()
 
 if(XDMF_WRAP_PYTHON)
+  if (NOT BUILD_SHARED_LIBS)
+    message(FATAL_ERROR "Python Wrappers do not function"
+                        " properly without shared libraries")
+  endif (NOT BUILD_SHARED_LIBS)
   XDMF_SWIG_PYTHON(XdmfCore)
 endif()
 
@@ -180,8 +217,13 @@ if(WIN32)
 endif()
 
 if(UNIX)
-    set(XDMFCORE_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libXdmfCore.so
-        PARENT_SCOPE)
+    if (BUILD_SHARED_LIBS)
+      set(XDMFCORE_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libXdmfCore.so
+          PARENT_SCOPE)
+    else()
+      set(XDMFCORE_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libXdmfCore.a
+          PARENT_SCOPE)
+    endif()
 endif()
 
 if(APPLE)
@@ -200,6 +242,12 @@ install(TARGETS XdmfCore
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
+if (BUILD_SHARED_LIBS)
+  install(TARGETS XdmfCore_Static
+    RUNTIME DESTINATION bin
+    LIBRARY DESTINATION lib
+    ARCHIVE DESTINATION lib)
+endif (BUILD_SHARED_LIBS)
 
 set(XdmfCore_INCLUDE_DIRS
   ${Boost_INCLUDE_DIRS}
@@ -217,7 +265,8 @@ set(XDMF_BINARIES ${XDMF_BINARIES} ${CMAKE_INSTALL_PREFIX}/bin)
 
 if(XDMF_BUILD_DSM)
   add_subdirectory(dsm)
-endif()
+  set(XDMF_DSM_IS_CRAY "${XDMF_DSM_IS_CRAY}" PARENT_SCOPE)
+endif(XDMF_BUILD_DSM)
 
 if(XDMF_BUILD_TESTING)
   add_subdirectory(tests)
@@ -225,4 +274,3 @@ endif()
 
 set(XDMF_LIBRARIES ${XDMF_LIBRARIES} PARENT_SCOPE)
 set(XDMF_BINARIES ${XDMF_BINARIES} PARENT_SCOPE)
-

@@ -25,6 +25,7 @@
 #include <hdf5.h>
 #include <numeric>
 #include <sstream>
+#include "string.h"
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"
 #include "XdmfError.hpp"
@@ -64,11 +65,41 @@ XdmfHDF5Controller::XdmfHDF5Controller(const std::string & hdf5FilePath,
                                        const std::vector<unsigned int> & dataspaceDimensions) :
   XdmfHeavyDataController(hdf5FilePath,
                           type,
-                          dimensions),
+                          start,
+                          stride, 
+                          dimensions,
+                          dataspaceDimensions),
   mDataSetPath(dataSetPath),
-  mDataspaceDimensions(dataspaceDimensions),
-  mStart(start),
-  mStride(stride)
+  mDataSetPrefix(""),
+  mDataSetId(-1)
+{
+  unsigned int i = 0;
+  for (; i < mDataSetPath.size(); ++i) {
+    if (mDataSetPath[(mDataSetPath.size() - 1) - i] != '0' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '1' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '2' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '3' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '4' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '5' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '6' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '7' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '8' &&
+        mDataSetPath[(mDataSetPath.size() - 1) - i] != '9') {
+      break;
+    }
+  }
+  unsigned int endOfPrefix = (mDataSetPath.size()) - i;
+  mDataSetPrefix = mDataSetPath.substr(0, endOfPrefix);
+  if (mDataSetPrefix.compare(mDataSetPath) != 0) {
+    mDataSetId = atoi(mDataSetPath.substr(endOfPrefix).c_str());
+  }
+}
+
+XdmfHDF5Controller::XdmfHDF5Controller(const XdmfHDF5Controller& refController):
+  XdmfHeavyDataController(refController),
+  mDataSetPath(refController.getDataSetPath()),
+  mDataSetPrefix(refController.mDataSetPrefix),
+  mDataSetId(refController.mDataSetId)
 {
 }
 
@@ -94,16 +125,22 @@ XdmfHDF5Controller::getDataSetPath() const
   return mDataSetPath;
 }
 
+const std::string
+XdmfHDF5Controller::getDataSetPrefix() const
+{
+  return mDataSetPrefix;
+}
+
+int
+XdmfHDF5Controller::getDataSetId() const
+{
+  return mDataSetId;
+}
+
 std::string
 XdmfHDF5Controller::getDescriptor() const
 {
   return ":" + mDataSetPath;
-}
-
-std::vector<unsigned int> 
-XdmfHDF5Controller::getDataspaceDimensions() const
-{
-  return mDataspaceDimensions;
 }
 
 std::string
@@ -122,18 +159,6 @@ void
 XdmfHDF5Controller::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties["Format"] = this->getName();
-}
-
-std::vector<unsigned int> 
-XdmfHDF5Controller::getStart() const
-{
-  return mStart;
-}
-
-std::vector<unsigned int> 
-XdmfHDF5Controller::getStride() const
-{
-  return mStride;
 }
 
 void
@@ -320,3 +345,116 @@ XdmfHDF5Controller::setMaxOpenedFiles(unsigned int newMax)
 {
   XdmfHDF5Controller::mMaxOpenedFiles = newMax;
 }
+
+// C Wrappers
+
+XDMFHDF5CONTROLLER * XdmfHDF5ControllerNew(char * hdf5FilePath,
+                                           char * dataSetPath,
+                                           int type,
+                                           unsigned int * start,
+                                           unsigned int * stride,
+                                           unsigned int * dimensions,
+                                           unsigned int * dataspaceDimensions,
+                                           unsigned int numDims,
+                                           int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  try
+  {
+    std::vector<unsigned int> startVector(start, start + numDims);
+    std::vector<unsigned int> strideVector(stride, stride + numDims);
+    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+    switch (type) {
+      case XDMF_ARRAY_TYPE_UINT8:
+        buildType = XdmfArrayType::UInt8();
+        break;
+      case XDMF_ARRAY_TYPE_UINT16:
+        buildType = XdmfArrayType::UInt16();
+        break;
+      case XDMF_ARRAY_TYPE_UINT32:
+        buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_INT8:
+        buildType = XdmfArrayType::Int8();
+        break;
+      case XDMF_ARRAY_TYPE_INT16:
+        buildType = XdmfArrayType::Int16();
+        break;
+      case XDMF_ARRAY_TYPE_INT32:
+        buildType = XdmfArrayType::Int32();
+        break;
+      case XDMF_ARRAY_TYPE_INT64:
+        buildType = XdmfArrayType::Int64();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT32:
+        buildType = XdmfArrayType::Float32();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT64:
+        buildType = XdmfArrayType::Float64();
+        break;
+      default:
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: Invalid ArrayType.");
+        break;
+    }
+    shared_ptr<XdmfHDF5Controller> generatedController = XdmfHDF5Controller::New(std::string(hdf5FilePath), std::string(dataSetPath), buildType, startVector, strideVector, dimVector, dataspaceVector);
+    return (XDMFHDF5CONTROLLER *)((void *)(new XdmfHDF5Controller(*generatedController.get())));
+  }
+  catch (...)
+  {
+    std::vector<unsigned int> startVector(start, start + numDims);
+    std::vector<unsigned int> strideVector(stride, stride + numDims);
+    std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+    std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+    shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+    switch (type) {
+      case XDMF_ARRAY_TYPE_UINT8:
+        buildType = XdmfArrayType::UInt8();
+        break;
+      case XDMF_ARRAY_TYPE_UINT16:
+        buildType = XdmfArrayType::UInt16();
+        break;
+      case XDMF_ARRAY_TYPE_UINT32:
+        buildType = XdmfArrayType::UInt32();
+        break;
+      case XDMF_ARRAY_TYPE_INT8:
+        buildType = XdmfArrayType::Int8();
+        break;
+      case XDMF_ARRAY_TYPE_INT16:
+        buildType = XdmfArrayType::Int16();
+        break;
+      case XDMF_ARRAY_TYPE_INT32:
+        buildType = XdmfArrayType::Int32();
+        break;
+      case XDMF_ARRAY_TYPE_INT64:
+        buildType = XdmfArrayType::Int64();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT32:
+        buildType = XdmfArrayType::Float32();
+        break;
+      case XDMF_ARRAY_TYPE_FLOAT64:
+        buildType = XdmfArrayType::Float64();
+        break;
+      default:
+        XdmfError::message(XdmfError::FATAL,
+                           "Error: Invalid ArrayType.");
+        break;
+    }
+    shared_ptr<XdmfHDF5Controller> generatedController = XdmfHDF5Controller::New(std::string(hdf5FilePath), std::string(dataSetPath), buildType, startVector, strideVector, dimVector, dataspaceVector);
+    return (XDMFHDF5CONTROLLER *)((void *)(new XdmfHDF5Controller(*generatedController.get())));
+  }
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+char * XdmfHDF5ControllerGetDataSetPath(XDMFHDF5CONTROLLER * controller)
+{
+  char * returnPointer = strdup(((XdmfHDF5Controller *)(controller))->getDataSetPath().c_str());
+  return returnPointer;
+}
+
+// C Wrappers for parent classes are generated by macros
+
+XDMF_HEAVYCONTROLLER_C_CHILD_WRAPPER(XdmfHDF5Controller, XDMFHDF5CONTROLLER)
