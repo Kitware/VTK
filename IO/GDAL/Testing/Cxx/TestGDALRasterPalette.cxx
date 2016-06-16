@@ -14,9 +14,16 @@
 =========================================================================*/
 #include <vtkDataArray.h>
 #include <vtkGDALRasterReader.h>
+#include <vtkImageActor.h>
+#include <vtkImageProperty.h>
 #include <vtkLookupTable.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
+#include <vtkRegressionTestImage.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderer.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
 #include <vtkUniformGrid.h>
 
 #include <iostream>
@@ -44,13 +51,12 @@ int TestGDALRasterPalette(int argc, char** argv)
     std::cerr << "ERROR: Missing point data scalars" << std::endl;
     return 1;
     }
-  if (image->GetPointData()->GetScalars()->GetSize() != 300*300)
+  if (image->GetPointData()->GetScalars()->GetSize() == 0)
     {
-    std::cerr << "ERROR: Point data scalars wrong size, not."
-              << (300*300) << ". Instead "
-              << image->GetPointData()->GetScalars()->GetSize() << std::endl;
+    std::cerr << "ERROR: Point data scalars empty" << std::endl;
     return 1;
     }
+  //image->GetPointData()->GetScalars()->Print(std::cout);
 
   // Check that reader generated color table
   vtkLookupTable *colorTable =
@@ -67,6 +73,36 @@ int TestGDALRasterPalette(int argc, char** argv)
               << std::endl;
     return 1;
     }
+  //colorTable->Print(std::cout);
 
-  return 0;
+  // Create a renderer and actor
+  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkImageActor> actor;
+  actor->SetInputData(reader->GetOutput());
+  actor->InterpolateOff();
+  //actor->GetProperty()->SetInterpolationTypeToNearest();
+  actor->GetProperty()->SetLookupTable(colorTable);
+  actor->GetProperty()->UseLookupTableScalarRangeOn();
+  renderer->AddActor(actor.GetPointer());
+
+  // Create a render window, and an interactor
+  vtkNew<vtkRenderWindow> renderWindow;
+  vtkNew<vtkRenderWindowInteractor> renderWindowInteractor;
+  renderWindow->AddRenderer(renderer.GetPointer());
+  renderWindowInteractor->SetRenderWindow(renderWindow.GetPointer());
+
+  //Add the actor to the scene
+  renderer->SetBackground(1.0, 1.0, 1.0);
+  renderWindow->SetSize(400, 400);
+  renderWindow->Render();
+  renderer->ResetCamera();
+  renderWindow->Render();
+
+  int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
+  if (retVal == vtkRegressionTester::DO_INTERACTOR)
+    {
+    renderWindowInteractor->Start();
+    }
+
+  return !retVal;
 }

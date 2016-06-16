@@ -45,6 +45,7 @@
 // C/C++ includes
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 vtkStandardNewMacro(vtkGDALRasterReader);
@@ -483,6 +484,7 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
 
   if (paletteBand)
     {
+    this->UniformGridData->GetPointData()->GetScalars()->SetName("Categories");
     this->UniformGridData->GetPointData()->GetScalars()->SetLookupTable(
       colorTable);
     }
@@ -655,17 +657,38 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadColorTable(
     return;
     }
 
+  char **categoryNames = rasterBand->GetCategoryNames();
+
   colorTable->IndexedLookupOn();
   int numEntries = gdalTable->GetColorEntryCount();
   colorTable->SetNumberOfTableValues(numEntries);
+  std::stringstream ss;
   for (int i=0; i< numEntries; ++i)
     {
     const GDALColorEntry *gdalEntry = gdalTable->GetColorEntry(i);
-    double r = gdalEntry->c1 / 255.0;
-    double g = gdalEntry->c2 / 255.0;
-    double b = gdalEntry->c3 / 255.0;
-    double a = gdalEntry->c4 / 255.0;
+    double r = static_cast<double>(gdalEntry->c1) / 255.0;
+    double g = static_cast<double>(gdalEntry->c2) / 255.0;
+    double b = static_cast<double>(gdalEntry->c3) / 255.0;
+    double a = static_cast<double>(gdalEntry->c4) / 255.0;
     colorTable->SetTableValue(i, r, g, b, a);
+
+    // Copy category name to lookup table annotation
+    if (categoryNames)
+      {
+      // Only use non-empty names
+      if (strlen(categoryNames[i]) > 0)
+        {
+        colorTable->SetAnnotation(vtkVariant(i), categoryNames[i]);
+        }
+      }
+    else
+      {
+      // Create default annotation
+      ss.str("");
+      ss.clear();
+      ss << "Category " << i;
+      colorTable->SetAnnotation(vtkVariant(i), ss.str());
+      }
     }
 }
 
