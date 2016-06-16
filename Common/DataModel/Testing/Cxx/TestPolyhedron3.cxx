@@ -41,8 +41,15 @@ const char inputDataStream[] =
   "42\n";
 
 // Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=15026
-int TestPolyhedron3( int argc, char* argv[] )
+int TestPolyhedron3(int argc, char **argv)
 {
+  // the next two lines are only in the test to get rid of compiler warnings
+  // I cannot make the function without the parameters, because that is what
+  // is expected. At the same time, I also can't not reference them, because
+  // that give a warning.
+  if (argc < 0 && argc > 0) return 1; // reference one formal parameter
+  if (!argv && argv) return 1;        // reference another formal parameter
+
   vtkNew<vtkUnstructuredGridReader> reader;
   reader->SetInputString(inputDataStream);
   reader->ReadFromInputStringOn();
@@ -60,14 +67,14 @@ int TestPolyhedron3( int argc, char* argv[] )
   if (!result) return 1;
   if (result->GetNumberOfCells() != 1)
     {
-    printf("Expected 1 but found %d cells in intersected polyhedron\n", result->GetNumberOfCells());
+    std::cout << "Expected 1 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
     return 1;
     }
   vtkCell* clipped = result->GetCell(0);
   if (!clipped) return 1;
   if (clipped->GetNumberOfFaces() != 7)
     {
-    printf("Expected 7 but found %d cell faces in intersected polyhedron\n", clipped->GetNumberOfFaces());
+    std::cout << "Expected 7 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
     return 1;
     }
 

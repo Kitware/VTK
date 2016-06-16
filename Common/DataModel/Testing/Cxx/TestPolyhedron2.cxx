@@ -27,6 +27,7 @@
 int TestPolyhedron2( int argc, char* argv[] )
 {
   if (argc < 3) return 1; // test not run with data on the command line
+
   const char* filename = argv[2];
   vtkNew<vtkXMLUnstructuredGridReader> reader;
   reader->SetFileName(filename);
@@ -48,7 +49,7 @@ int TestPolyhedron2( int argc, char* argv[] )
   vtkPolyData* output = vtkPolyData::SafeDownCast(cutter->GetOutputDataObject(0));
   if (output->GetNumberOfCells() != 2)
     {
-    printf("Expected 2 but found %d cells in intersected polyhedron\n", output->GetNumberOfCells());
+    std::cout << "Expected 2 but found " << output->GetNumberOfCells() << " in intersected polyhedron." << std::endl;
     return 1;
     }
 
