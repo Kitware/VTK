@@ -203,6 +203,7 @@ SET(Module_SRCS
   vtkInformationIntegerVectorKey.cxx
   vtkInformationIterator.cxx
   vtkInformationKey.cxx
+  vtkInformationKeyLookup.cxx
   vtkInformationKeyVectorKey.cxx
   vtkInformationObjectBaseKey.cxx
   vtkInformationObjectBaseVectorKey.cxx
