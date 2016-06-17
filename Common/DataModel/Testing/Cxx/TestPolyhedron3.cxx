@@ -41,7 +41,7 @@ const char inputDataStream[] =
   "42\n";
 
 // Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=15026
-int TestPolyhedron3(int argc, char **argv)
+int TestPolyhedron3(int argc, char *argv[])
 {
   // the next two lines are only in the test to get rid of compiler warnings
   // I cannot make the function without the parameters, because that is what
