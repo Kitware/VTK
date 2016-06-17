@@ -95,6 +95,8 @@ set(Module_SRCS
   vtkPolygonalHandleRepresentation3D.cxx
   vtkPolygonalSurfaceContourLineInterpolator.cxx
   vtkPolygonalSurfacePointPlacer.cxx
+  vtkProgressBarRepresentation.cxx
+  vtkProgressBarWidget.cxx
   vtkProp3DButtonRepresentation.cxx
   vtkRectilinearWipeRepresentation.cxx
   vtkRectilinearWipeWidget.cxx
