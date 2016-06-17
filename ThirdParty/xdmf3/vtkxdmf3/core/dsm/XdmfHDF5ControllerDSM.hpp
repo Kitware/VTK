@@ -24,17 +24,17 @@
 #ifndef XDMFHDF5CONTROLLERDSM_HPP_
 #define XDMFHDF5CONTROLLERDSM_HPP_
 
+// C Compatible Includes
+#include "XdmfDSM.hpp"
+#include "XdmfDSMBuffer.hpp"
+#include "XdmfHDF5Controller.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
-#ifdef XDMF_BUILD_DSM_THREADS
-  class H5FDdsmBuffer;
-  class H5FDdsmManager;
-#endif
 
 // Includes
-#include "XdmfDSM.hpp"
-#include "XdmfHDF5Controller.hpp"
-#include "XdmfDSMManager.hpp"
-#include "XdmfDSMBuffer.hpp"
+#include "XdmfDSMDescription.hpp"
 
 /**
  * @brief Couples an XdmfArray with HDF5 data stored in a DSM buffer.
@@ -50,118 +50,6 @@ class XDMFDSM_EXPORT XdmfHDF5ControllerDSM : public XdmfHDF5Controller {
 public:
 
   virtual ~XdmfHDF5ControllerDSM();
-
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  /**
-   * Create a new controller for an DSM data set.
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSM.cpp
-   * @skipline //#initMPI
-   * @until //#initMPI
-   * @skipline //#generateBuffer
-   * @until //#generateBuffer
-   * @skipline //#initializewriterfrombuffer
-   * @until //#initializewriterfrombuffer
-   * @skipline //#createwritecontrollervectors
-   * @until //#createwritecontrollervectors
-   * @skipline //#initializereadcontroller
-   * @until //#initializereadcontroller
-   * @skipline //#finalizeMPI
-   * @until //#finalizeMPI
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI
-   * @until #//initMPI
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initwritergenerate
-   * @until #//initwritergenerate
-   * @skipline #//initcontrollerwithbuffer
-   * @until #//initcontrollerwithbuffer
-   * @skipline #//deleteManagerwriter
-   * @until #//deleteManagerwriter
-   *
-   * @param     hdf5FilePath            The path to the hdf5 file that the controller will be accessing
-   * @param     dataSetPath             The location within the file of the data the controller with be accessing
-   * @param     type                    The data type of the data Ex: XdmfArrayType::Int32()
-   * @param     start                   A vector of the start indexes for all dimensions of the data
-   * @param     stride                  A vector of the distance between reads for all dimensions of the data
-   * @param     dimensions              A vector of the number of values read from all dimensions of the data
-   * @param     dataspaceDimensions     A vecotr containing the total size of the dimension in the data space
-   * @param     dsmBuffer               A pointer to the dsm buffer
-   */
-  static shared_ptr<XdmfHDF5ControllerDSM>
-  New(const std::string & hdf5FilePath,
-      const std::string & dataSetPath,
-      const shared_ptr<const XdmfArrayType> type,
-      const std::vector<unsigned int> & start,
-      const std::vector<unsigned int> & stride,
-      const std::vector<unsigned int> & dimensions,
-      const std::vector<unsigned int> & dataspaceDimensions,
-      H5FDdsmBuffer * const dsmBuffer);
-
-  /**
-   * Create a new controller for an DSM data set. This version creates its own DSM buffer
-   *
-   * When created the manager has the following defaults:
-   * IsStandAlone = H5FD_DSM_TRUE
-   * H5FD_DSM_LOCK_ASYNCHRONOUS
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#deleteManagercontroller
-   * @until //#deleteManagercontroller
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI
-   * @until #//initMPI
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//deleteManagercontroller
-   * @until #//deleteManagercontroller
-   *
-   * @param     hdf5FilePath            The path to the hdf5 file that the controller will be accessing
-   * @param     dataSetPath             The location within the file of the data the controller with be accessing
-   * @param     type                    The data type of the data Ex: XdmfArrayType::Int32()
-   * @param     start                   A vector of the start indexes for all dimensions of the data
-   * @param     stride                  A vector of the distance between reads for all dimensions of the data
-   * @param     dimensions              A vector of the number of values read from all dimensions of the data
-   * @param     dataspaceDimensions     A vecotr containing the total size of the dimension in the data space
-   * @param     comm                    The communicator that the DSM buffer will reference
-   * @param     bufferSize              The size of the buffer to be created on the core calling this function               
-   */
-  static shared_ptr<XdmfHDF5ControllerDSM>
-  New(const std::string & hdf5FilePath,
-      const std::string & dataSetPath,
-      const shared_ptr<const XdmfArrayType> type,
-      const std::vector<unsigned int> & start,
-      const std::vector<unsigned int> & stride,
-      const std::vector<unsigned int> & dimensions,
-      const std::vector<unsigned int> & dataspaceDimensions,
-      MPI_Comm comm,
-      unsigned int bufferSize);
-
-#endif
 
   /**
    * Create a new controller for an DSM data set.
@@ -270,6 +158,8 @@ public:
    * @param     bufferSize              The size of the buffer to be created on the core calling this function
    * @param     startCoreIndex          The index at which the server cores for the buffer start
    * @param     endCoreIndex            The index at which the server cores for the buffer end
+   * @param     applicationName         The name in the process description for this process
+   * @return                            A constructed HDF5DSM controller.
    */
   static shared_ptr<XdmfHDF5ControllerDSM>
   New(const std::string & hdf5FilePath,
@@ -282,125 +172,74 @@ public:
       MPI_Comm comm,
       unsigned int bufferSize,
       int startCoreIndex,
-      int endCoreIndex);
+      int endCoreIndex,
+      std::string applicationName = "Application");
 
   /**
-   * Deletes the manager that the controller contains.
-   * Used during cleanup.
+   * Create a new controller for an DSM data set.
    *
-   * Example of Use:
+   * Example of use:
    *
    * C++
    *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#deleteManagercontroller
-   * @until //#deleteManagercontroller
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initcontrollerpagedgenerate
+   * @until //#initcontrollerpagedgenerate
+   * @skipline //#stopDSMcontroller
+   * @until //#stopDSMcontroller
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
    *
    * Python
    *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI 
-   * @until #//initMPI 
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//deleteManagercontroller
-   * @until #//deleteManagercontroller
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initcontrollerpagedgenerate
+   * @until #//initcontrollerpagedgenerate
+   * @skipline #//stopDSMcontroller
+   * @until #//stopDSMcontroller
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @param     hdf5FilePath            The path to the hdf5 file that the controller will be accessing
+   * @param     dataSetPath             The location within the file of the data the controller with be accessing
+   * @param     type                    The data type of the data Ex: XdmfArrayType::Int32()
+   * @param     start                   A vector of the start indexes for all dimensions of the data
+   * @param     start                   A vector of the start indexes for all dimensions of the data
+   * @param     stride                  A vector of the distance between reads for all dimensions of the data
+   * @param     dimensions              A vector of the number of values read from all dimensions of the data
+   * @param     dataspaceDimensions     A vecotr containing the total size of the dimension in the data space
+   * @param     comm                    The communicator that the DSM buffer will reference
+   * @param     bufferSize              The size of the buffer to be created on the core calling this function
+   * @param     blockSize               The size of the paged in the buffer
+   * @param     resizeFactor            The factor by which the buffer will be resized when pages are added.
+   * @param     startCoreIndex          The index at which the server cores for the buffer start
+   * @param     endCoreIndex            The index at which the server cores for the buffer end
+   * @param     applicationName         The name in the process description for this process
+   * @return                            A constructed HDF5DSM controller.
    */
-  void deleteManager();
-
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  /**
-   * Returns the current dsmManager for the Controller. If there is no manager then it returns null
-   *
-   * Example of Use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#initwriterwithbuffer
-   * @until //#initwriterwithbuffer
-   * @skipline //#setManagerwriter
-   * @until //#setManagerwriter
-   * @skipline //#deleteManagercontroller
-   * @until //#deleteManagercontroller
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI 
-   * @until #//initMPI 
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//initwriterwithbuffer
-   * @until #//initwriterwithbuffer
-   * @skipline #//setManagerwriter
-   * @until #//setManagerwriter
-   * @skipline #//deleteManagercontroller
-   * @until #//deleteManagercontroller
-   *
-   * @return    The dsmManager of the controller
-   */
-  H5FDdsmManager * getManager();
-
-  /**
-   * Returns the current dsmBuffer the Controller. If there is no manager then it returns null
-   *
-   * Example of Use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#initwriterwithbuffer
-   * @until //#initwriterwithbuffer
-   * @skipline //#setBufferwriter
-   * @until //#setBufferwriter
-   * @skipline //#deleteManagercontroller
-   * @until //#deleteManagercontroller
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI 
-   * @until #//initMPI 
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//initwriterwithbuffer
-   * @until #//initwriterwithbuffer
-   * @skipline #//setBufferwriter
-   * @until #//setBufferwriter
-   * @skipline #//deleteManagercontroller
-   * @until #//deleteManagercontroller
-   *
-   * @return    The dsmBuffer of the controller
-   */
-  H5FDdsmBuffer * getBuffer();
-
-#endif
+  static shared_ptr<XdmfHDF5ControllerDSM>
+  New(const std::string & hdf5FilePath,
+      const std::string & dataSetPath,
+      const shared_ptr<const XdmfArrayType> type,
+      const std::vector<unsigned int> & start,
+      const std::vector<unsigned int> & stride,
+      const std::vector<unsigned int> & dimensions,
+      const std::vector<unsigned int> & dataspaceDimensions,
+      MPI_Comm comm,
+      unsigned int bufferSize,
+      unsigned int blockSize,
+      double resizeFactor,
+      int startCoreIndex,
+      int endCoreIndex,
+      std::string applicationName = "Application");
 
   /**
    * Gets the buffer for the non-threaded version of DSM
@@ -450,57 +289,6 @@ public:
    * @return    The XdmfDSMBuffer that is controlling the data for the DSM
    */
   XdmfDSMBuffer * getServerBuffer();
-
-  /**
-   * Gets the manager for the non-threaded version of DSM
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMNoThread.cpp
-   * @skipline //#initMPI
-   * @until //#initMPI
-   * @skipline //#initwritevector
-   * @until //#initwritevector
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#startworksection
-   * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagercontroller
-   * @until //#getServerManagercontroller
-   * @skipline //#endworksection
-   * @until //#endworksection
-   * @skipline //#stopDSMcontroller
-   * @until //#stopDSMcontroller
-   * @skipline //#finalizeMPI
-   * @until //#finalizeMPI
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMNoThread.py
-   * @skipline #//initMPI
-   * @until #//initMPI
-   * @skipline #//initwritevector
-   * @until #//initwritevector
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//startworksection
-   * @until #//startworksection
-   * @skipline #//getServerManagercontroller
-   * @until #//getServerManagercontroller
-   * @skipline #//endworksection
-   * @until #//endworksection
-   * @skipline #//stopDSMcontroller
-   * @until #//stopDSMcontroller
-   * @skipline #//finalizeMPI
-   * @until #//finalizeMPI
-   *
-   * @return    The XdmfDSMManager that is controlling the DSM
-   */
-  XdmfDSMManager * getServerManager();
 
   /**
    * Checks if the DSM is in server mode or not.
@@ -597,52 +385,7 @@ public:
    *
    * @return    The comm that the workers are using.
    */
-  MPI_Comm getWorkerComm();
-
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  /**
-   * Sets the controller's dsmBuffer to the provided buffer
-   *
-   * Example of Use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initwritergenerate
-   * @until //#initwritergenerate
-   * @skipline //#initcontrollerwithbuffer
-   * @until //#initcontrollerwithbuffer
-   * @skipline //#setBuffercontroller
-   * @until //#setBuffercontroller
-   * @skipline //#deleteManagerwriter
-   * @until //#deleteManagerwriter
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI 
-   * @until #//initMPI 
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initwritergenerate
-   * @until #//initwritergenerate
-   * @skipline #//initcontrollerwithbuffer
-   * @until #//initcontrollerwithbuffer
-   * @skipline #//setBuffercontroller
-   * @until #//setBuffercontroller
-   * @skipline #//deleteManagerwriter
-   * @until #//deleteManagerwriter
-   *
-   * @param     newBuffer       The buffer to be set
-   */
-  void setBuffer(H5FDdsmBuffer * newBuffer);
-
-#endif
+  MPI_Comm getWorkerComm() const;
 
   /**
    * Sets the controller's dsmBuffer to the provided buffer
@@ -651,7 +394,6 @@ public:
    *
    * C++
    *
-   * @dontinclude ExampleXdmfDSMNoThread.cpp
    * @dontinclude ExampleXdmfDSMNoThread.cpp
    * @skipline //#initMPI
    * @until //#initMPI
@@ -697,106 +439,6 @@ public:
    * @param     newBuffer       A pointer to the buffer to be set
    */
   void setBuffer(XdmfDSMBuffer * newBuffer);
-
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  /**
-   * Sets the controller's dsmManager to the provided manager.
-   * Then the dsmBuffer controlled by the manager is set to the controller
-   *
-   * Example of Use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMSelfcontained.cpp
-   * @skipline //#initMPI 
-   * @until //#initMPI 
-   * @skipline //#writevectorinit
-   * @until //#writevectorinit
-   * @skipline //#initwritergenerate
-   * @until //#initwritergenerate
-   * @skipline //#initcontrollerwithbuffer
-   * @until //#initcontrollerwithbuffer
-   * @skipline //#setManagercontroller
-   * @until //#setManagercontroller
-   * @skipline //#deleteManagerwriter
-   * @until //#deleteManagerwriter
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMStandalone.py
-   * @skipline #//initMPI 
-   * @until #//initMPI 
-   * @skipline #//writevectorinit
-   * @until #//writevectorinit
-   * @skipline #//initwritergenerate
-   * @until #//initwritergenerate
-   * @skipline #//initcontrollerwithbuffer
-   * @until #//initcontrollerwithbuffer
-   * @skipline #//setManagercontroller
-   * @until #//setManagercontroller
-   * @skipline #//deleteManagerwriter
-   * @until #//deleteManagerwriter
-   *
-   * @param     newManager      The manager to be set
-   */
-  void setManager(H5FDdsmManager * newManager);
-
-#endif
-
-  /**
-   * Sets the controller's dsmManager to the provided manager.
-   * Then the dsmBuffer controlled by the manager is set to the Writer
-   * 
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMNoThread.cpp
-   * @skipline //#initMPI
-   * @until //#initMPI
-   * @skipline //#initwritevector
-   * @until //#initwritevector
-   * @skipline //#initcontrollergenerate
-   * @until //#initcontrollergenerate
-   * @skipline //#startworksection
-   * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagercontroller
-   * @until //#getServerManagercontroller
-   * @skipline //#setManagercontroller
-   * @until //#setManagercontroller
-   * @skipline //#endworksection
-   * @until //#endworksection
-   * @skipline //#stopDSMcontroller
-   * @until //#stopDSMcontroller
-   * @skipline //#finalizeMPI
-   * @until //#finalizeMPI
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMNoThread.py
-   * @skipline #//initMPI
-   * @until #//initMPI
-   * @skipline #//initwritevector
-   * @until #//initwritevector
-   * @skipline #//initcontrollergenerate
-   * @until #//initcontrollergenerate
-   * @skipline #//startworksection
-   * @until #//startworksection
-   * @skipline #//getServerManagercontroller
-   * @until #//getServerManagercontroller
-   * @skipline #//setManagercontroller
-   * @until #//setManagercontroller
-   * @skipline #//stopDSMcontroller
-   * @until #//stopDSMcontroller
-   * @skipline #//finalizeMPI
-   * @until #//finalizeMPI
-   *
-   * @param     newManager      A pointer the the manager to be set.
-   */
-  void setManager(XdmfDSMManager * newManager);
 
   /**
    * Used to switch between server and threaded mode.
@@ -976,30 +618,9 @@ public:
    */
   void restartDSM();
 
+  XdmfHDF5ControllerDSM(XdmfHDF5ControllerDSM &);
+
 protected:
-
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  XdmfHDF5ControllerDSM(const std::string & hdf5FilePath,
-                        const std::string & dataSetPath,
-                        const shared_ptr<const XdmfArrayType> type,
-                        const std::vector<unsigned int> & start,
-                        const std::vector<unsigned int> & stride,
-                        const std::vector<unsigned int> & dimensions,
-                        const std::vector<unsigned int> & dataspaceDimensions,
-                        H5FDdsmBuffer * const dsmBuffer);
-
-  XdmfHDF5ControllerDSM(const std::string & hdf5FilePath,
-                        const std::string & dataSetPath,
-                        const shared_ptr<const XdmfArrayType> type,
-                        const std::vector<unsigned int> & start,
-                        const std::vector<unsigned int> & stride,
-                        const std::vector<unsigned int> & dimensions,
-                        const std::vector<unsigned int> & dataspaceDimensions,
-                        MPI_Comm comm,
-                        unsigned int bufferSize);
-
-#endif
 
   XdmfHDF5ControllerDSM(const std::string & hdf5FilePath,
                         const std::string & dataSetPath,
@@ -1011,7 +632,23 @@ protected:
                         MPI_Comm comm,
                         unsigned int bufferSize,
                         int startCoreIndex,
-                        int endCoreIndex);
+                        int endCoreIndex,
+                        std::string applicationName);
+
+  XdmfHDF5ControllerDSM(const std::string & hdf5FilePath,
+                        const std::string & dataSetPath,
+                        const shared_ptr<const XdmfArrayType> type,
+                        const std::vector<unsigned int> & start,
+                        const std::vector<unsigned int> & stride,
+                        const std::vector<unsigned int> & dimensions,
+                        const std::vector<unsigned int> & dataspaceDimensions,
+                        MPI_Comm comm,
+                        unsigned int bufferSize,
+                        unsigned int blockSize,
+                        double resizeFactor,
+                        int startCoreIndex,
+                        int endCoreIndex,
+                        std::string applicationName);
 
   XdmfHDF5ControllerDSM(const std::string & hdf5FilePath,
                         const std::string & dataSetPath,
@@ -1024,20 +661,89 @@ protected:
 
 private:
 
-  XdmfHDF5ControllerDSM(const XdmfHDF5Controller &);  // Not implemented.
+//  XdmfHDF5ControllerDSM(const XdmfHDF5Controller &);  // Not implemented.
   void operator=(const XdmfHDF5Controller &);  // Not implemented.
 
-#ifdef XDMF_BUILD_DSM_THREADS
-
-  H5FDdsmBuffer * mDSMBuffer;
-  H5FDdsmManager * mDSMManager;
-
-#endif
-
   XdmfDSMBuffer * mDSMServerBuffer;
-  XdmfDSMManager * mDSMServerManager;
   MPI_Comm mWorkerComm;
   bool mServerMode;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFHDF5CONTROLLERDSM; // Simply as a typedef to ensure correct typing
+typedef struct XDMFHDF5CONTROLLERDSM XDMFHDF5CONTROLLERDSM;
+
+XDMFDSM_EXPORT XDMFHDF5CONTROLLERDSM * XdmfHDF5ControllerDSMNewFromServerBuffer(char * hdf5FilePath,
+                                                                                char * dataSetPath,
+                                                                                int type,
+                                                                                unsigned int * start,
+                                                                                unsigned int * stride,
+                                                                                unsigned int * dimensions,
+                                                                                unsigned int * dataspaceDimensions,
+                                                                                unsigned int numDims,
+                                                                                void * dsmBuffer,
+                                                                                int * status);
+
+XDMFDSM_EXPORT XDMFHDF5CONTROLLERDSM * XdmfHDF5ControllerDSMNew(char * hdf5FilePath,
+                                                                char * dataSetPath,
+                                                                int type,
+                                                                unsigned int * start,
+                                                                unsigned int * stride,
+                                                                unsigned int * dimensions,
+                                                                unsigned int * dataspaceDimensions,
+                                                                unsigned int numDims,
+                                                                MPI_Comm comm,
+                                                                unsigned int bufferSize,
+                                                                int startCoreIndex,
+                                                                int endCoreIndex,
+                                                                char * applicationName,
+                                                                int * status);
+
+XDMFDSM_EXPORT XDMFHDF5CONTROLLERDSM * XdmfHDF5ControllerDSMNewPaged(char * hdf5FilePath,
+                                                                     char * dataSetPath,
+                                                                     int type,
+                                                                     unsigned int * start,
+                                                                     unsigned int * stride,
+                                                                     unsigned int * dimensions,
+                                                                     unsigned int * dataspaceDimensions,
+                                                                     unsigned int numDims,
+                                                                     MPI_Comm comm,
+                                                                     unsigned int bufferSize,
+                                                                     unsigned int blockSize,
+                                                                     double resizeFactor,
+                                                                     int startCoreIndex,
+                                                                     int endCoreIndex,
+                                                                     char * applicationName,
+                                                                     int * status);
+
+XDMFDSM_EXPORT XDMFDSMBUFFER * XdmfHDF5ControllerDSMGetServerBuffer(XDMFHDF5CONTROLLERDSM * controller);
+
+XDMFDSM_EXPORT int XdmfHDF5ControllerDSMGetServerMode(XDMFHDF5CONTROLLERDSM * controller);
+
+XDMFDSM_EXPORT MPI_Comm XdmfHDF5ControllerDSMGetWorkerComm(XDMFHDF5CONTROLLERDSM * controller);
+
+XDMFDSM_EXPORT void XdmfHDF5ControllerDSMSetServerBuffer(XDMFHDF5CONTROLLERDSM * controller, XDMFDSMBUFFER * newBuffer);
+
+XDMFDSM_EXPORT void XdmfHDF5ControllerDSMSetServerMode(XDMFHDF5CONTROLLERDSM * controller, int newMode);
+
+XDMFDSM_EXPORT void XdmfHDF5ControllerDSMSetWorkerComm(XDMFHDF5CONTROLLERDSM * controller, MPI_Comm comm, int * status);
+
+XDMFDSM_EXPORT void XdmfHDF5ControllerDSMStopDSM(XDMFHDF5CONTROLLERDSM * controller, int * status);
+
+XDMFDSM_EXPORT void XdmfHDF5ControllerDSMRestartDSM(XDMFHDF5CONTROLLERDSM * controller, int * status);
+
+XDMF_HEAVYCONTROLLER_C_CHILD_DECLARE(XdmfHDF5ControllerDSM, XDMFHDF5CONTROLLERDSM, XDMFDSM)
+XDMF_HDF5CONTROLLER_C_CHILD_DECLARE(XdmfHDF5ControllerDSM, XDMFHDF5CONTROLLERDSM, XDMFDSM)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFHDF5CONTROLLER_HPP_ */

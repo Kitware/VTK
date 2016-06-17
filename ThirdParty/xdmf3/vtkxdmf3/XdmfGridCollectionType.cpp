@@ -25,6 +25,9 @@
 #include "XdmfError.hpp"
 #include "XdmfGridCollectionType.hpp"
 
+std::map<std::string, shared_ptr<const XdmfGridCollectionType>(*)()>
+  XdmfGridCollectionType::mGridCollectionDefinitions;
+
 // Supported XdmfGridCollectionTypes
 shared_ptr<const XdmfGridCollectionType>
 XdmfGridCollectionType::NoCollectionType()
@@ -50,6 +53,14 @@ XdmfGridCollectionType::Temporal()
   return p;
 }
 
+void
+XdmfGridCollectionType::InitTypes()
+{
+  mGridCollectionDefinitions["NONE"] = NoCollectionType;
+  mGridCollectionDefinitions["SPATIAL"] = Spatial;
+  mGridCollectionDefinitions["TEMPORAL"] = Temporal;
+}
+
 XdmfGridCollectionType::XdmfGridCollectionType(const std::string & name) :
   mName(name)
 {
@@ -62,6 +73,8 @@ XdmfGridCollectionType::~XdmfGridCollectionType()
 shared_ptr<const XdmfGridCollectionType>
 XdmfGridCollectionType::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
+
   std::map<std::string, std::string>::const_iterator type =
     itemProperties.find("CollectionType");
   if(type == itemProperties.end()) {
@@ -70,15 +83,18 @@ XdmfGridCollectionType::New(const std::map<std::string, std::string> & itemPrope
                        "XdmfGridCollectionType::New");
   }
 
-  const std::string & typeVal = type->second;
-  if(typeVal.compare("None") == 0) {
-    return NoCollectionType();
+  const std::string & typeVal = ConvertToUpper(type->second);
+
+  std::map<std::string, shared_ptr<const XdmfGridCollectionType>(*)()>::const_iterator returnType
+    = mGridCollectionDefinitions.find(typeVal);
+
+  if (returnType == mGridCollectionDefinitions.end()) {
+    XdmfError::message(XdmfError::FATAL,
+                       "'CollectionType' not of 'None', 'Spatial', or "
+                       "'Temporal' in XdmfGridCollectionType::New");
   }
-  else if(typeVal.compare("Spatial") == 0) {
-    return Spatial();
-  }
-  else if(typeVal.compare("Temporal") == 0) {
-    return Temporal();
+  else {
+    return (*(returnType->second))();
   }
 
   XdmfError::message(XdmfError::FATAL, 
@@ -93,4 +109,21 @@ void
 XdmfGridCollectionType::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties.insert(std::make_pair("CollectionType", mName));
+}
+
+// C Wrappers
+
+int XdmfGridCollectionTypeNoCollectionType()
+{
+  return XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE;
+}
+
+int XdmfGridCollectionTypeSpatial()
+{
+  return XDMF_GRID_COLLECTION_TYPE_SPATIAL;
+}
+
+int XdmfGridCollectionTypeTemporal()
+{
+  return XDMF_GRID_COLLECTION_TYPE_TEMPORAL;
 }

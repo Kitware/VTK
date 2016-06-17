@@ -24,6 +24,15 @@
 #ifndef XDMFITEMFACTORY_HPP_
 #define XDMFITEMFACTORY_HPP_
 
+// C Compatible Includes
+#include "Xdmf.hpp"
+#include "XdmfCoreItemFactory.hpp"
+#ifdef XDMF_BUILD_DSM
+  #include "XdmfDSMItemFactory.hpp"
+#endif
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfItem;
 
@@ -35,7 +44,11 @@ class XdmfItem;
  * @brief Factory for constructing XdmfItems from their ItemTag and
  * ItemProperties.
  */
+#ifdef XDMF_BUILD_DSM
+class XDMF_EXPORT XdmfItemFactory : public XdmfDSMItemFactory {
+#else
 class XDMF_EXPORT XdmfItemFactory : public XdmfCoreItemFactory {
+#endif
 
 public:
 
@@ -67,6 +80,11 @@ public:
              const std::map<std::string, std::string> & itemProperties,
              const std::vector<shared_ptr<XdmfItem> > & childItems) const;
 
+  virtual bool isArrayTag(char * tag) const;
+
+  virtual XdmfItem *
+  DuplicatePointer(shared_ptr<XdmfItem> original) const;
+
 protected:
 
   XdmfItemFactory();
@@ -77,5 +95,8 @@ private:
   void operator=(const XdmfItemFactory &);  // Not implemented.
 
 };
+
+
+#endif
 
 #endif /* XDMFITEMFACTORY_HPP_ */

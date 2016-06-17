@@ -38,6 +38,12 @@ XdmfTime::XdmfTime(const double & value) :
 {
 }
 
+XdmfTime::XdmfTime(XdmfTime & refTime) :
+  XdmfItem(refTime),
+  mValue(refTime.getValue())
+{
+}
+
 XdmfTime::~XdmfTime()
 {
 }
@@ -88,4 +94,31 @@ void
 XdmfTime::setValue(const double & value)
 {
   mValue = value;
+  this->setIsChanged(true);
 }
+
+// C Wrappers
+
+XDMFTIME * XdmfTimeNew(double value)
+{
+  try
+  {
+    return (XDMFTIME *)((void *)(new XdmfTime(*(XdmfTime::New(value).get()))));
+  }
+  catch (...)
+  {
+    return (XDMFTIME *)((void *)(new XdmfTime(*(XdmfTime::New(value).get()))));
+  }
+}
+
+double XdmfTimeGetValue(XDMFTIME * timePointer)
+{
+  return ((XdmfTime *)timePointer)->getValue();
+}
+
+void XdmfTimeSetValue(XDMFTIME * timePointer, double time)
+{
+  ((XdmfTime *)timePointer)->setValue(time);
+}
+
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfTime, XDMFTIME)
