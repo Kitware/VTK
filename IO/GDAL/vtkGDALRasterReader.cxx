@@ -24,6 +24,7 @@
 #include "vtkInformationVector.h"
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
+#include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
@@ -44,6 +45,7 @@
 // C/C++ includes
 #include <cassert>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
 vtkStandardNewMacro(vtkGDALRasterReader);
@@ -83,6 +85,9 @@ public:
                          double x, double y, double* out) const;
 
   const double* GetGeoCornerPoints();
+
+  void ReadColorTable(
+    GDALRasterBand *rasterBand, vtkLookupTable *colorTable) const;
 
   int NumberOfBands;
   int NumberOfBytesPerPixel;
@@ -278,12 +283,17 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   // Pixel data.
   std::vector<RAW_TYPE> rawUniformGridData;
 
+  // Color table
+  vtkSmartPointer<vtkLookupTable> colorTable =
+    vtkSmartPointer<vtkLookupTable>::New();
+
   // Possible bands
   GDALRasterBand* redBand = 0;
   GDALRasterBand* greenBand = 0;
   GDALRasterBand* blueBand = 0;
   GDALRasterBand* alphaBand = 0;
   GDALRasterBand* greyBand = 0;
+  GDALRasterBand* paletteBand = 0;
 
   for (int i = 1; i <= this->NumberOfBands; ++i)
     {
@@ -329,6 +339,10 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
              rasterBand->GetColorInterpretation() == GCI_Undefined)
       {
       greyBand = rasterBand;
+      }
+    else if (rasterBand->GetColorInterpretation() == GCI_PaletteIndex)
+      {
+      paletteBand = rasterBand;
       }
     }
 
@@ -436,6 +450,20 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
       assert(err == CE_None);
       }
     }
+  else if (paletteBand)
+    {
+    // Read indexes
+    this->Reader->SetNumberOfScalarComponents(1);
+    rawUniformGridData.resize(destWidth * destHeight * pixelSpace);
+    err = paletteBand->RasterIO(
+      GF_Read, windowX, windowY,  windowWidth, windowHeight,
+      static_cast<void*>(reinterpret_cast<GByte*>(&rawUniformGridData[0]) +
+      0 * bandSpace), destWidth, destHeight,
+      this->TargetDataType, pixelSpace, lineSpace);
+    assert(err == CE_None);
+
+    this->ReadColorTable(paletteBand, colorTable.GetPointer());
+    }
   else
     {
     std::cerr << "Unknown raster band type \n";
@@ -453,6 +481,13 @@ void vtkGDALRasterReader::vtkGDALRasterReaderInternal::GenericReadData()
   this->UniformGridData->SetSpacing(geoSpacing[0], geoSpacing[1], geoSpacing[2]);
   this->UniformGridData->SetOrigin(d[0], d[1], 0);
   this->Convert<VTK_TYPE, RAW_TYPE>(rawUniformGridData, destWidth, destHeight);
+
+  if (paletteBand)
+    {
+    this->UniformGridData->GetPointData()->GetScalars()->SetName("Categories");
+    this->UniformGridData->GetPointData()->GetScalars()->SetLookupTable(
+      colorTable);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -608,6 +643,53 @@ const double* vtkGDALRasterReader::vtkGDALRasterReaderInternal::GetGeoCornerPoin
                           &this->CornerPoints[6]);
 
   return this->CornerPoints;
+}
+
+//-----------------------------------------------------------------------------
+void vtkGDALRasterReader::vtkGDALRasterReaderInternal::ReadColorTable(
+  GDALRasterBand *rasterBand, vtkLookupTable *colorTable) const
+{
+  GDALColorTable *gdalTable = rasterBand->GetColorTable();
+  if (gdalTable->GetPaletteInterpretation() != GPI_RGB)
+    {
+    std::cerr << "Color table palette type not supported "
+              << gdalTable->GetPaletteInterpretation() << std::endl;
+    return;
+    }
+
+  char **categoryNames = rasterBand->GetCategoryNames();
+
+  colorTable->IndexedLookupOn();
+  int numEntries = gdalTable->GetColorEntryCount();
+  colorTable->SetNumberOfTableValues(numEntries);
+  std::stringstream ss;
+  for (int i=0; i< numEntries; ++i)
+    {
+    const GDALColorEntry *gdalEntry = gdalTable->GetColorEntry(i);
+    double r = static_cast<double>(gdalEntry->c1) / 255.0;
+    double g = static_cast<double>(gdalEntry->c2) / 255.0;
+    double b = static_cast<double>(gdalEntry->c3) / 255.0;
+    double a = static_cast<double>(gdalEntry->c4) / 255.0;
+    colorTable->SetTableValue(i, r, g, b, a);
+
+    // Copy category name to lookup table annotation
+    if (categoryNames)
+      {
+      // Only use non-empty names
+      if (strlen(categoryNames[i]) > 0)
+        {
+        colorTable->SetAnnotation(vtkVariant(i), categoryNames[i]);
+        }
+      }
+    else
+      {
+      // Create default annotation
+      ss.str("");
+      ss.clear();
+      ss << "Category " << i;
+      colorTable->SetAnnotation(vtkVariant(i), ss.str());
+      }
+    }
 }
 
 //-----------------------------------------------------------------------------

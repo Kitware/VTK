@@ -23,7 +23,7 @@ int TestGDALRasterNoDataValue(int argc, char** argv)
 {
   if (argc < 3)
     {
-    std::cerr << "Expected TestName -D InputFile.tif";
+    std::cerr << "Expected TestName -D InputFile.tif" << std::endl;
     return -1;
     }
 
