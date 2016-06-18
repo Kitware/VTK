@@ -129,11 +129,6 @@
 # define VTK_USE_ANSI_STDLIB
 #endif
 
-/* Setup vtkstd, a portable namespace for std.  */
-#ifndef VTK_LEGACY_REMOVE
-# define vtkstd std
-#endif
-
 /* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
    if this file is included by a c++ file. */
 #ifndef VTK_LEGACY_REMOVE

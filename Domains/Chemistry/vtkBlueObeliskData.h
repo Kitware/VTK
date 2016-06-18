@@ -43,7 +43,7 @@ class vtkStringArray;
 class vtkSimpleMutexLock;
 class vtkUnsignedShortArray;
 
-// Hidden STL reference: vtkstd::vector<vtkAbstractArray*>
+// Hidden STL reference: std::vector<vtkAbstractArray*>
 class MyStdVectorOfVtkAbstractArrays;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
