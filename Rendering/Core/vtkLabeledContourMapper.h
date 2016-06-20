@@ -156,7 +156,7 @@ protected:
   vtkIdType StencilQuadIndicesSize;
   void FreeStencilQuads();
 
-  vtkTimeStamp BuildTime;
+  vtkTimeStamp LabelBuildTime;
 
 private:
   vtkLabeledContourMapper(const vtkLabeledContourMapper&);  // Not implemented.
