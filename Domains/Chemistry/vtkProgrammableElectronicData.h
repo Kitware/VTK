@@ -79,7 +79,7 @@ protected:
   vtkImageData *ElectronDensity;
 
 private:
-  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&); // Not implemented
+  vtkProgrammableElectronicData(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
 };
 

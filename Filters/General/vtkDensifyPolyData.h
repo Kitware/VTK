@@ -58,7 +58,7 @@ protected:
 private:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
-  vtkDensifyPolyData(const vtkDensifyPolyData&);  // Not implemented.
+  vtkDensifyPolyData(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDensifyPolyData&) VTK_DELETE_FUNCTION;
 };
 

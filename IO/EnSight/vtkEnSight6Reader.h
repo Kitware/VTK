@@ -129,7 +129,7 @@ protected:
   vtkPoints* UnstructuredPoints;
   vtkIdTypeArray* UnstructuredNodeIds; // matching of node ids to point ids
 private:
-  vtkEnSight6Reader(const vtkEnSight6Reader&);  // Not implemented.
+  vtkEnSight6Reader(const vtkEnSight6Reader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEnSight6Reader&) VTK_DELETE_FUNCTION;
 };
 

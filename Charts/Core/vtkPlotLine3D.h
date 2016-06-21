@@ -50,7 +50,7 @@ protected:
   ~vtkPlotLine3D();
 
 private:
-  vtkPlotLine3D(const vtkPlotLine3D &); // Not implemented.
+  vtkPlotLine3D(const vtkPlotLine3D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotLine3D &) VTK_DELETE_FUNCTION;
 
 };

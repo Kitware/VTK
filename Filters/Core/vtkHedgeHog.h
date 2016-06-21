@@ -66,7 +66,7 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkHedgeHog(const vtkHedgeHog&);  // Not implemented.
+  vtkHedgeHog(const vtkHedgeHog&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHedgeHog&) VTK_DELETE_FUNCTION;
 };
 

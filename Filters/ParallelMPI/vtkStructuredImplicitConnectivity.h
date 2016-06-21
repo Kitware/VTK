@@ -206,7 +206,7 @@ protected:
   void ExchangeExtents();
 
 private:
-  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&); // Not implemented
+  vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
 };
 #endif

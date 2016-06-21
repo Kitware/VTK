@@ -122,7 +122,7 @@ protected:
   virtual ~vtkMathTextUtilities();
 
 private:
-  vtkMathTextUtilities(const vtkMathTextUtilities&);  // Not implemented.
+  vtkMathTextUtilities(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
 
   // Description:

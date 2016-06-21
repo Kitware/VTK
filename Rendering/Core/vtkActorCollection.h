@@ -77,7 +77,7 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
 private:
-  vtkActorCollection(const vtkActorCollection&);  // Not implemented.
+  vtkActorCollection(const vtkActorCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkActorCollection&) VTK_DELETE_FUNCTION;
 };
 

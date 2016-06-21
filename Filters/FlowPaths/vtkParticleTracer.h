@@ -39,7 +39,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracer: public vtkParticleTracerBase
  protected:
   vtkParticleTracer();
   virtual ~vtkParticleTracer(){}
-  vtkParticleTracer(const vtkParticleTracer&);  // Not implemented.
+  vtkParticleTracer(const vtkParticleTracer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParticleTracer&) VTK_DELETE_FUNCTION;
   virtual int OutputParticles(vtkPolyData* poly);
 };

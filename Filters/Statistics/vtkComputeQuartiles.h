@@ -63,7 +63,7 @@ protected:
 
 private:
   void operator=(const vtkComputeQuartiles&) VTK_DELETE_FUNCTION;
-  vtkComputeQuartiles(const vtkComputeQuartiles&); // Not implemented
+  vtkComputeQuartiles(const vtkComputeQuartiles&) VTK_DELETE_FUNCTION;
 
   int GetInputFieldAssociation();
   vtkFieldData* GetInputFieldData(vtkDataObject* input);

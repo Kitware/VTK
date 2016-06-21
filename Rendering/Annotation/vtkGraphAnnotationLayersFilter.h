@@ -112,7 +112,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&); // Not implemented.
+  vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkAppendPolyData> HullAppend;

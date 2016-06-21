@@ -92,7 +92,7 @@ protected:
   unsigned int NumberOfCacheEntries;
 
 private:
-  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
+  vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
 
 

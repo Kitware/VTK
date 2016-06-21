@@ -180,7 +180,7 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericClip(const vtkGenericClip&);  // Not implemented.
+  vtkGenericClip(const vtkGenericClip&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericClip&) VTK_DELETE_FUNCTION;
 };
 

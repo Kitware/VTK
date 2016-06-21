@@ -407,7 +407,7 @@ private:
   double* GetTupleN(vtkIdType i, int n);
 
 private:
-  vtkDataArray(const vtkDataArray&);  // Not implemented.
+  vtkDataArray(const vtkDataArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataArray&) VTK_DELETE_FUNCTION;
 };
 

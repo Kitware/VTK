@@ -119,7 +119,7 @@ protected:
   double ScreenSize;
 
 private:
-  vtkGraphToGlyphs(const vtkGraphToGlyphs&);  // Not implemented.
+  vtkGraphToGlyphs(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
 };
 

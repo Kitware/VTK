@@ -174,7 +174,7 @@ protected:
   vtkMatrix3x3 *InverseMatrix;
 
 private:
-  vtkTransform2D (const vtkTransform2D&);  // Not implemented
+  vtkTransform2D (const vtkTransform2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTransform2D&) VTK_DELETE_FUNCTION;
 };
 

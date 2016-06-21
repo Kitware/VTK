@@ -69,7 +69,7 @@ protected:
   ~vtkDynamicLoader() {}
 
 private:
-  vtkDynamicLoader(const vtkDynamicLoader&);  // Not implemented.
+  vtkDynamicLoader(const vtkDynamicLoader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDynamicLoader&) VTK_DELETE_FUNCTION;
 };
 

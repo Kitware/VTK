@@ -137,7 +137,7 @@ protected:
   double LastDataMaxValue;
 
 private:
-  vtkFastSplatter(const vtkFastSplatter &); // Not implemented
+  vtkFastSplatter(const vtkFastSplatter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkFastSplatter &) VTK_DELETE_FUNCTION;
 };
 

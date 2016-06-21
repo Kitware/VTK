@@ -44,7 +44,7 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 private:
-  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&); // Not implemented.
+  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
 
 };

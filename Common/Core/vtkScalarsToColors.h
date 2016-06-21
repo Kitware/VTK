@@ -401,7 +401,7 @@ private:
   double RGB[3];
   double InputRange[2];
 
-  vtkScalarsToColors(const vtkScalarsToColors&);  // Not implemented.
+  vtkScalarsToColors(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
   void operator=(const vtkScalarsToColors&) VTK_DELETE_FUNCTION;
 };
 

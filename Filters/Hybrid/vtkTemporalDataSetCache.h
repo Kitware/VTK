@@ -77,7 +77,7 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&);  // Not implemented.
+  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
 };
 

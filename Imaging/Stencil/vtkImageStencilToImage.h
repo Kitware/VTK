@@ -84,7 +84,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImageStencilToImage(const vtkImageStencilToImage&);  // Not implemented.
+  vtkImageStencilToImage(const vtkImageStencilToImage&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageStencilToImage&) VTK_DELETE_FUNCTION;
 };
 

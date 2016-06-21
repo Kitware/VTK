@@ -122,7 +122,7 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkTransformToGrid(const vtkTransformToGrid&);  // Not implemented.
+  vtkTransformToGrid(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
 };
 

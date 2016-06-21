@@ -92,7 +92,7 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkUGFacetReader(const vtkUGFacetReader&);  // Not implemented.
+  vtkUGFacetReader(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
 };
 

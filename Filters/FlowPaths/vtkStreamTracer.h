@@ -395,7 +395,7 @@ protected:
   friend class PStreamTracerUtils;
 
 private:
-  vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.
+  vtkStreamTracer(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
 };
 

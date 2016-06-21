@@ -314,7 +314,7 @@ protected:
   float LineWidthFactor;
 
 private:
-  vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
+  vtkGL2PSExporter(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
 };
 

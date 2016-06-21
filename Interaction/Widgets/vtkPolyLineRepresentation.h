@@ -84,7 +84,7 @@ protected:
   virtual void InsertHandleOnLine(double* pos);
 
 private:
-  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&); // Not implemented.
+  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
 
 };

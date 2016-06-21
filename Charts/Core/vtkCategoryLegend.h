@@ -95,7 +95,7 @@ protected:
   vtkVariantArray*                    Values;
 
 private:
-  vtkCategoryLegend(const vtkCategoryLegend &); // Not implemented.
+  vtkCategoryLegend(const vtkCategoryLegend &) VTK_DELETE_FUNCTION;
   void operator=(const vtkCategoryLegend &) VTK_DELETE_FUNCTION;
 };
 

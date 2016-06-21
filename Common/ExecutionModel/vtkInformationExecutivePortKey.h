@@ -69,7 +69,7 @@ public:
   virtual void Print(ostream& os, vtkInformation* info);
 
 private:
-  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&);  // Not implemented.
+  vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
 };
 

@@ -62,7 +62,7 @@ protected:
   char *FileName;
 
 private:
-  vtkFacetReader(const vtkFacetReader&);  // Not implemented.
+  vtkFacetReader(const vtkFacetReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFacetReader&) VTK_DELETE_FUNCTION;
 };
 

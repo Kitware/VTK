@@ -64,7 +64,7 @@ protected:
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&);  // Not implemented.
+  vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

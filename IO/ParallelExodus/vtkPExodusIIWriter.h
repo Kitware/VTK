@@ -96,7 +96,7 @@ protected:
   virtual int GlobalContinueExecuting(int localContinue);
 
 private:
-  vtkPExodusIIWriter (const vtkPExodusIIWriter&); // Not Implemented
+  vtkPExodusIIWriter (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
   void operator= (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
 };
 

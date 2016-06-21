@@ -97,7 +97,7 @@ protected:
   double DefaultContinuity;
 
 private:
-  vtkKochanekSpline(const vtkKochanekSpline&);  // Not implemented.
+  vtkKochanekSpline(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
   void operator=(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
 };
 

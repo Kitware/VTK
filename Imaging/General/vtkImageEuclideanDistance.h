@@ -114,7 +114,7 @@ protected:
                                            vtkInformation* out);
 
 private:
-  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);  // Not implemented.
+  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
 };
 

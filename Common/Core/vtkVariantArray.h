@@ -283,7 +283,7 @@ protected:
   int SaveUserArray;
 
 private:
-  vtkVariantArray(const vtkVariantArray&);  // Not implemented.
+  vtkVariantArray(const vtkVariantArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVariantArray&) VTK_DELETE_FUNCTION;
 
   vtkVariantArrayLookup* Lookup;

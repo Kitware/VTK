@@ -53,7 +53,7 @@ public:
   virtual ~vtkLightsPass();
 
  private:
-  vtkLightsPass(const vtkLightsPass&);  // Not implemented.
+  vtkLightsPass(const vtkLightsPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLightsPass&) VTK_DELETE_FUNCTION;
 };
 

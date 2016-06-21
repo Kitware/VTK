@@ -90,7 +90,7 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&); // Not implemented
+  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;

@@ -136,7 +136,7 @@ protected:
   char* NodeSizeArrayName;
 
 private:
-  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
+  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
 };
 

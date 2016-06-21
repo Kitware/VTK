@@ -79,7 +79,7 @@ protected:
                                    vtkVolumeRayCastMapper *mapper );
 
 private:
-  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
+  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
 };
 

@@ -86,7 +86,7 @@ protected:
   ~vtkSPHQuinticKernel();
 
 private:
-  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&);  // Not implemented.
+  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
 };
 

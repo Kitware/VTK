@@ -44,7 +44,7 @@ protected:
   virtual void RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                               unsigned long typeflags, bool forceCompileOnly);
 private:
-  vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&); // Not implemented.
+  vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
 };
 

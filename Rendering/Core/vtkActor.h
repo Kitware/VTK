@@ -186,7 +186,7 @@ protected:
   vtkTimeStamp BoundsMTime;
 
 private:
-  vtkActor(const vtkActor&);  // Not implemented.
+  vtkActor(const vtkActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkActor&) VTK_DELETE_FUNCTION;
 };
 

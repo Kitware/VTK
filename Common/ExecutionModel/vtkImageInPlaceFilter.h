@@ -43,7 +43,7 @@ protected:
   void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
 
 private:
-  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.
+  vtkImageInPlaceFilter(const vtkImageInPlaceFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageInPlaceFilter&) VTK_DELETE_FUNCTION;
 };
 

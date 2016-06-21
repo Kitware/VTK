@@ -107,7 +107,7 @@ protected:
   char* FileName;
 
 private:
-  vtkGeoJSONWriter(const vtkGeoJSONWriter&);  // Not implemented.
+  vtkGeoJSONWriter(const vtkGeoJSONWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeoJSONWriter&) VTK_DELETE_FUNCTION;
 };
 

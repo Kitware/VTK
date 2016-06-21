@@ -61,7 +61,7 @@ private:
   double UpperThreshold;
 
 
-  vtkThresholdGraph(const vtkThresholdGraph&);  // Not implemented.
+  vtkThresholdGraph(const vtkThresholdGraph&) VTK_DELETE_FUNCTION;
   void operator =(const vtkThresholdGraph&) VTK_DELETE_FUNCTION;
 
 };

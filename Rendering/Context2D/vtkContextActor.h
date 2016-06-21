@@ -74,7 +74,7 @@ protected:
   bool Initialized;
 
 private:
-  vtkContextActor(const vtkContextActor&);  // Not implemented.
+  vtkContextActor(const vtkContextActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContextActor&) VTK_DELETE_FUNCTION;
 };
 

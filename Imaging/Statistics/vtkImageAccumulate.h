@@ -143,7 +143,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkImageAccumulate(const vtkImageAccumulate&);  // Not implemented.
+  vtkImageAccumulate(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
 };
 

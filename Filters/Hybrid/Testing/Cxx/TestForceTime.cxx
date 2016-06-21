@@ -89,7 +89,7 @@ protected:
   }
 
 private:
-  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&);  // Not implemented.
+  vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
 };
 

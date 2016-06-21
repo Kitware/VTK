@@ -53,7 +53,7 @@ protected:
   char *FileName;
 
 private:
-  vtkOOGLExporter(const vtkOOGLExporter&); // Not implemented
+  vtkOOGLExporter(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
 };
 

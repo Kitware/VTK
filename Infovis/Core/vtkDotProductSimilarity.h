@@ -129,7 +129,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkDotProductSimilarity(const vtkDotProductSimilarity&); // Not implemented
+  vtkDotProductSimilarity(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;
 
   vtkIdType VectorDimension;

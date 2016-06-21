@@ -324,7 +324,7 @@ private:
   TemplateIDType  ComputeTemplateIndex();
 
 private:
-  vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
+  vtkOrderedTriangulator(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
 };
 

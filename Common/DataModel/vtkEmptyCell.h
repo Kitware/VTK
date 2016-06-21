@@ -66,7 +66,7 @@ protected:
   ~vtkEmptyCell() {}
 
 private:
-  vtkEmptyCell(const vtkEmptyCell&);  // Not implemented.
+  vtkEmptyCell(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEmptyCell&) VTK_DELETE_FUNCTION;
 };
 

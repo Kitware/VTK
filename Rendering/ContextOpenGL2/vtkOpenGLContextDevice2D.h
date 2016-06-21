@@ -406,7 +406,7 @@ protected:
   void TransformSize(float &dx, float &dy) const;
 
 private:
-  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
+  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
 
   void AlignText(double orientation, float width, float height, float *p);

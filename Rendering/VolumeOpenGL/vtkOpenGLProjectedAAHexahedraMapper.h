@@ -136,7 +136,7 @@ protected:
   vtkFloatArray *ConvertedScalars;
 
 private:
-  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
+  vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
 };
 

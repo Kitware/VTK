@@ -128,7 +128,7 @@ protected:
   static vtkStdString ReadStdin();
 
 private:
-  vtkPythonInterpreter(const vtkPythonInterpreter&); // Not implemented.
+  vtkPythonInterpreter(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
 
   static bool InitializedOnce;

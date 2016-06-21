@@ -70,7 +70,7 @@ private:
   long long UpTime;
 
 private:
-  vtkOpenGLModelViewProjectionMonitor(const vtkOpenGLModelViewProjectionMonitor&); // Not implemented
+  vtkOpenGLModelViewProjectionMonitor(const vtkOpenGLModelViewProjectionMonitor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLModelViewProjectionMonitor &) VTK_DELETE_FUNCTION;
 };
 

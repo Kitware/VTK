@@ -70,7 +70,7 @@ protected:
   int RequiredLength;
 
 private:
-  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&);  // Not implemented.
+  vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
 };
 

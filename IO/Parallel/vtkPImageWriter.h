@@ -53,7 +53,7 @@ protected:
 
   vtkPipelineSize *SizeEstimator;
 private:
-  vtkPImageWriter(const vtkPImageWriter&);  // Not implemented.
+  vtkPImageWriter(const vtkPImageWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPImageWriter&) VTK_DELETE_FUNCTION;
 };
 

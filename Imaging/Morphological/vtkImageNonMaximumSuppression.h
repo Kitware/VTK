@@ -79,7 +79,7 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.
+  vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
 };
 

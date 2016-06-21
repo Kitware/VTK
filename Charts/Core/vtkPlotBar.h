@@ -235,7 +235,7 @@ protected:
   bool LogY;
 
 private:
-  vtkPlotBar(const vtkPlotBar &); // Not implemented.
+  vtkPlotBar(const vtkPlotBar &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotBar &) VTK_DELETE_FUNCTION;
 
   vtkPlotBarPrivate *Private;

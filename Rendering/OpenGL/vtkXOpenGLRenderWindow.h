@@ -273,7 +273,7 @@ protected:
 
 
 private:
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 

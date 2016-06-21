@@ -58,7 +58,7 @@ protected:
   const char* GetDataSetName();
 
 private:
-  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&);  // Not implemented.
+  vtkXMLImageDataWriter(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
 };
 

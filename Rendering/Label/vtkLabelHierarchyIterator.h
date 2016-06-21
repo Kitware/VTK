@@ -141,7 +141,7 @@ protected:
   int AllBoundsRecorded;
 
 private:
-  vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ); // Not implemented.
+  vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkLabelHierarchyIterator& ) VTK_DELETE_FUNCTION;
 };
 

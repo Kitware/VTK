@@ -242,7 +242,7 @@ private:
   int BuildPlot(vtkViewport*);
 
 private:
-  vtkSpiderPlotActor(const vtkSpiderPlotActor&);  // Not implemented.
+  vtkSpiderPlotActor(const vtkSpiderPlotActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSpiderPlotActor&) VTK_DELETE_FUNCTION;
 };
 

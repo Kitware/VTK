@@ -90,7 +90,7 @@ protected:
   vtkTransform *Transform;
 
 private:
-  vtkAffineRepresentation(const vtkAffineRepresentation&);  //Not implemented
+  vtkAffineRepresentation(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
 };
 

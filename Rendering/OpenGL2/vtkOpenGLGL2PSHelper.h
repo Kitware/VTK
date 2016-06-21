@@ -162,7 +162,7 @@ protected:
   unsigned short LineStipple;
 
 private:
-  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &); // Not implemented.
+  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
 };
 

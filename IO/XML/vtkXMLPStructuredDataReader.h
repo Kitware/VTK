@@ -94,7 +94,7 @@ protected:
                                  vtkInformationVector *outputVector);
 
 private:
-  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&);  // Not implemented.
+  vtkXMLPStructuredDataReader(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPStructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 

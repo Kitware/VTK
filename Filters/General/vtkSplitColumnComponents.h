@@ -92,7 +92,7 @@ protected:
 
   int NamingMode;
 private:
-  vtkSplitColumnComponents(const vtkSplitColumnComponents&); // Not implemented
+  vtkSplitColumnComponents(const vtkSplitColumnComponents&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSplitColumnComponents&) VTK_DELETE_FUNCTION;
 };
 

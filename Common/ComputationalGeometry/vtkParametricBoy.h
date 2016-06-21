@@ -92,7 +92,7 @@ protected:
   double ZScale;
 
 private:
-  vtkParametricBoy(const vtkParametricBoy&);  // Not implemented.
+  vtkParametricBoy(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
 };
 

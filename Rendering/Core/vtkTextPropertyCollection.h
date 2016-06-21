@@ -64,7 +64,7 @@ private:
   void AddItem(vtkObject *o);
 
 private:
-  vtkTextPropertyCollection(const vtkTextPropertyCollection&);  // Not implemented.
+  vtkTextPropertyCollection(const vtkTextPropertyCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextPropertyCollection&) VTK_DELETE_FUNCTION;
 };
 

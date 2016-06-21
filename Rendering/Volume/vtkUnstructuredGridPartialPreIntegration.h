@@ -100,7 +100,7 @@ protected:
   static int PsiTableBuilt;
 
 private:
-  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
+  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
 };
 

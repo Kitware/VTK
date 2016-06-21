@@ -266,7 +266,7 @@ protected:
   bool Interactive;
 
 private:
-  vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.
+  vtkAbstractContextItem(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
 
 };

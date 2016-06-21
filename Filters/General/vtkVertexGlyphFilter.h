@@ -50,7 +50,7 @@ protected:
   int FillInputPortInformation(int, vtkInformation *);
 
 private:
-  vtkVertexGlyphFilter(const vtkVertexGlyphFilter &); // Not implemented
+  vtkVertexGlyphFilter(const vtkVertexGlyphFilter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkVertexGlyphFilter &) VTK_DELETE_FUNCTION;
 };
 

@@ -187,7 +187,7 @@ protected:
   virtual vtkRenderedTreeAreaRepresentation* GetTreeAreaRepresentation();
 
 private:
-  vtkTreeAreaView(const vtkTreeAreaView&);  // Not implemented.
+  vtkTreeAreaView(const vtkTreeAreaView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeAreaView&) VTK_DELETE_FUNCTION;
 };
 

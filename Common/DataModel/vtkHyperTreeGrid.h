@@ -500,7 +500,7 @@ public:
   };
 
 private:
-  vtkHyperTreeGrid(const vtkHyperTreeGrid&);  // Not implemented.
+  vtkHyperTreeGrid(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGrid&) VTK_DELETE_FUNCTION;
 };
 

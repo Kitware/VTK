@@ -190,7 +190,7 @@ protected:
   int           CellScalars;
 
 private:
-  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 

@@ -69,7 +69,7 @@ private:
 
   typedef vtkAOSDataArrayTemplate<char> RealSuperclass;
 
-  vtkCharArray(const vtkCharArray&);  // Not implemented.
+  vtkCharArray(const vtkCharArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCharArray&) VTK_DELETE_FUNCTION;
 };
 

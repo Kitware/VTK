@@ -95,7 +95,7 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&); // Not implemented
+  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
 
   // Description:

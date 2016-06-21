@@ -63,7 +63,7 @@ protected:
                                  vtkIdList *stencil, double *weights);
   int NumberOfSubdivisions;
 private:
-  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
+  vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 

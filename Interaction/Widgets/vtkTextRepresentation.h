@@ -130,7 +130,7 @@ protected:
   vtkTextRepresentationObserver *Observer;
 
 private:
-  vtkTextRepresentation(const vtkTextRepresentation&);  //Not implemented
+  vtkTextRepresentation(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
 };
 

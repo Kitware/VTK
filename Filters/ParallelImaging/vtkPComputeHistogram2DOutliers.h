@@ -64,7 +64,7 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPComputeHistogram2DOutliers(const vtkPComputeHistogram2DOutliers&); // Not implemented
+  vtkPComputeHistogram2DOutliers(const vtkPComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
 };
 

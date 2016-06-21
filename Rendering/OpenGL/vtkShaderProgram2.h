@@ -410,7 +410,7 @@ protected:
   int GeometryVerticesOut;
 
 private:
-  vtkShaderProgram2(const vtkShaderProgram2&); // Not implemented.
+  vtkShaderProgram2(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
 };
 

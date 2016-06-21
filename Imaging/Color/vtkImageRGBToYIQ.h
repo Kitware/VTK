@@ -45,7 +45,7 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageRGBToYIQ(const vtkImageRGBToYIQ&);  // Not implemented.
+  vtkImageRGBToYIQ(const vtkImageRGBToYIQ&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageRGBToYIQ&) VTK_DELETE_FUNCTION;
 };
 

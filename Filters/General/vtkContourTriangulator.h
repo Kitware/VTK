@@ -84,7 +84,7 @@ protected:
   int TriangulationErrorDisplay;
 
 private:
-  vtkContourTriangulator(const vtkContourTriangulator&);  // Not implemented.
+  vtkContourTriangulator(const vtkContourTriangulator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContourTriangulator&) VTK_DELETE_FUNCTION;
 };
 

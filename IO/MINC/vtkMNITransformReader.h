@@ -151,7 +151,7 @@ protected:
                              vtkInformationVector* outInfo);
 
 private:
-  vtkMNITransformReader(const vtkMNITransformReader&); // Not implemented
+  vtkMNITransformReader(const vtkMNITransformReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMNITransformReader&) VTK_DELETE_FUNCTION;
 
 };

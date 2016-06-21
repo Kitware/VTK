@@ -83,7 +83,7 @@ protected:
   vtkActor  *Device;
 
 private:
-  vtkFollower(const vtkFollower&);  // Not implemented.
+  vtkFollower(const vtkFollower&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFollower&) VTK_DELETE_FUNCTION;
 
   // hide the two parameter Render() method from the user and the compiler.

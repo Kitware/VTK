@@ -153,7 +153,7 @@ protected:
                           vtkInformationVector* outputVector);
 
 private:
-  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&);  // Not implemented.
+  vtkVolumeOutlineSource(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
 };
 

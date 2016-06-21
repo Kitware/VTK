@@ -115,7 +115,7 @@ protected:
   virtual void AdjustCaptionBoundary();
 
 private:
-  vtkCaptionRepresentation(const vtkCaptionRepresentation&);  //Not implemented
+  vtkCaptionRepresentation(const vtkCaptionRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCaptionRepresentation&) VTK_DELETE_FUNCTION;
 };
 

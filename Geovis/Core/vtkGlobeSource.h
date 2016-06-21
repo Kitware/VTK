@@ -148,7 +148,7 @@ protected:
   int QuadrilateralTessellation;
 
 private:
-  vtkGlobeSource(const vtkGlobeSource&);  // Not implemented.
+  vtkGlobeSource(const vtkGlobeSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGlobeSource&) VTK_DELETE_FUNCTION;
 };
 

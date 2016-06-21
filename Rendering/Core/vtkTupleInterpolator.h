@@ -152,7 +152,7 @@ protected:
 
 
 private:
-  vtkTupleInterpolator(const vtkTupleInterpolator&);  // Not implemented.
+  vtkTupleInterpolator(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
 
 };

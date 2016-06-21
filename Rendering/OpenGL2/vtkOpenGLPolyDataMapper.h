@@ -414,7 +414,7 @@ protected:
   unsigned int TimerQuery;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 

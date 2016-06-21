@@ -193,7 +193,7 @@ protected:
 
 
 private:
-  vtkFixedPointRayCastImage(const vtkFixedPointRayCastImage&);  // Not implemented.
+  vtkFixedPointRayCastImage(const vtkFixedPointRayCastImage&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFixedPointRayCastImage&) VTK_DELETE_FUNCTION;
 };
 

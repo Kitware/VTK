@@ -72,7 +72,7 @@ protected:
   ~vtkTextWidget();
 
 private:
-  vtkTextWidget(const vtkTextWidget&);  //Not implemented
+  vtkTextWidget(const vtkTextWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextWidget&) VTK_DELETE_FUNCTION;
 };
 

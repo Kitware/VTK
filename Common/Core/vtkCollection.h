@@ -144,7 +144,7 @@ protected:
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector* collector);
 private:
-  vtkCollection(const vtkCollection&); // Not implemented
+  vtkCollection(const vtkCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollection&) VTK_DELETE_FUNCTION;
 };
 

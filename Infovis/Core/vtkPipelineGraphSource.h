@@ -56,7 +56,7 @@ protected:
   vtkCollection* Sinks;
 
 private:
-  vtkPipelineGraphSource(const vtkPipelineGraphSource&); // Not implemented
+  vtkPipelineGraphSource(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
 
 };

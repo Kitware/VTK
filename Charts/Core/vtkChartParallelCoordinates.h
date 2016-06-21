@@ -149,7 +149,7 @@ protected:
   void SwapAxes(int a1, int a2);
 
 private:
-  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &); // Not implemented.
+  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartParallelCoordinates &) VTK_DELETE_FUNCTION;
 
 };

@@ -76,7 +76,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTableToArray(const vtkTableToArray&); // Not implemented
+  vtkTableToArray(const vtkTableToArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTableToArray&) VTK_DELETE_FUNCTION;
 
   class implementation;

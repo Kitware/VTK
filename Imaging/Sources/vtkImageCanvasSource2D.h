@@ -161,7 +161,7 @@ protected:
                            vtkInformationVector *);
 
 private:
-  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&);  // Not implemented.
+  vtkImageCanvasSource2D(const vtkImageCanvasSource2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageCanvasSource2D&) VTK_DELETE_FUNCTION;
 };
 

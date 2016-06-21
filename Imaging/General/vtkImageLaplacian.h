@@ -57,7 +57,7 @@ protected:
                            int outExt[6], int id);
 
 private:
-  vtkImageLaplacian(const vtkImageLaplacian&);  // Not implemented.
+  vtkImageLaplacian(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;
 };
 

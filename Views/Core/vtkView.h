@@ -212,7 +212,7 @@ protected:
   bool ReuseSingleRepresentation;
 
 private:
-  vtkView(const vtkView&);  // Not implemented.
+  vtkView(const vtkView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkView&) VTK_DELETE_FUNCTION;
 
   class vtkImplementation;

@@ -147,7 +147,7 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticPyramid(const vtkQuadraticPyramid&);  // Not implemented.
+  vtkQuadraticPyramid(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

@@ -64,7 +64,7 @@ protected:
   void Initialize();
 
 private:
-  vtkPointPicker(const vtkPointPicker&);  // Not implemented.
+  vtkPointPicker(const vtkPointPicker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointPicker&) VTK_DELETE_FUNCTION;
 };
 

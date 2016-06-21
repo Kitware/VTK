@@ -92,7 +92,7 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
   void SeekIntersectingCells(vtkDataSet* input, vtkIdTypeArray* outIndices);
 
  private:
-  vtkLinearSelector(const vtkLinearSelector&);  // Not implemented
+  vtkLinearSelector(const vtkLinearSelector&) VTK_DELETE_FUNCTION;
   void operator =(const vtkLinearSelector&) VTK_DELETE_FUNCTION;
 
   // Description:

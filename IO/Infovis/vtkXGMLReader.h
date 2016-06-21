@@ -58,7 +58,7 @@ protected:
 private:
   char* FileName;
 
-  vtkXGMLReader(const vtkXGMLReader&);  // Not implemented.
+  vtkXGMLReader(const vtkXGMLReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXGMLReader&) VTK_DELETE_FUNCTION;
 };
 

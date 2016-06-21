@@ -78,7 +78,7 @@ protected:
   MPEG2_structure* MPEGStructure;
 
 private:
-  vtkMPEG2Writer(const vtkMPEG2Writer&); // Not implemented
+  vtkMPEG2Writer(const vtkMPEG2Writer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMPEG2Writer&) VTK_DELETE_FUNCTION;
 };
 

@@ -69,7 +69,7 @@ protected:
   ~vtkDummyController();
 
 private:
-  vtkDummyController(const vtkDummyController&);  // Not implemented.
+  vtkDummyController(const vtkDummyController&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDummyController&) VTK_DELETE_FUNCTION;
 };
 

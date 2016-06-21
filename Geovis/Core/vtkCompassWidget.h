@@ -124,7 +124,7 @@ protected:
   double StartTime;
 
 private:
-  vtkCompassWidget(const vtkCompassWidget&);  //Not implemented
+  vtkCompassWidget(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
 };
 

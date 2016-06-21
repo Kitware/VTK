@@ -49,7 +49,7 @@ protected:
   int FilteredAxes[3];
 
 private:
-  vtkImagePermute(const vtkImagePermute&);  // Not implemented.
+  vtkImagePermute(const vtkImagePermute&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImagePermute&) VTK_DELETE_FUNCTION;
 };
 

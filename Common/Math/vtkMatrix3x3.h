@@ -160,7 +160,7 @@ protected:
   double Element[3][3]; // The elements of the 3x3 matrix
 
 private:
-  vtkMatrix3x3(const vtkMatrix3x3&);  // Not implemented
+  vtkMatrix3x3(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
 };
 

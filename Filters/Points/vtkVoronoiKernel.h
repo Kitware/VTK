@@ -70,7 +70,7 @@ protected:
   ~vtkVoronoiKernel();
 
 private:
-  vtkVoronoiKernel(const vtkVoronoiKernel&);  // Not implemented.
+  vtkVoronoiKernel(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;
 };
 

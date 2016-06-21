@@ -97,7 +97,7 @@ protected:
   double Radius;
 
 private:
-  vtkParametricFigure8Klein(const vtkParametricFigure8Klein&);  // Not implemented.
+  vtkParametricFigure8Klein(const vtkParametricFigure8Klein&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricFigure8Klein&) VTK_DELETE_FUNCTION;
 
 };

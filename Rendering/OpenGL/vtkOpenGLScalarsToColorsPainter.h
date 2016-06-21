@@ -65,7 +65,7 @@ protected:
                               unsigned long typeflags, bool forceCompileOnly);
 
 private:
-  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.
+  vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
 };
 

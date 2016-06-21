@@ -1184,7 +1184,7 @@ protected:
 
 
 private:
-  vtkFixedPointVolumeRayCastHelper(const vtkFixedPointVolumeRayCastHelper&);  // Not implemented.
+  vtkFixedPointVolumeRayCastHelper(const vtkFixedPointVolumeRayCastHelper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFixedPointVolumeRayCastHelper&) VTK_DELETE_FUNCTION;
 };
 

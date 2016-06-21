@@ -77,7 +77,7 @@ protected:
   bool Invert;
 
 private:
-  vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&); // Not implemented.
+  vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
 };
 

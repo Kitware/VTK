@@ -109,7 +109,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&);  // Not implemented.
+  vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
 
   // Eigenvalues

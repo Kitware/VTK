@@ -97,7 +97,7 @@ protected:
   vtkCallbackCommand* Callback;
 
 private:
-  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem &); // Not implemented.
+  vtkPiecewisePointHandleItem(const vtkPiecewisePointHandleItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPiecewisePointHandleItem &) VTK_DELETE_FUNCTION;
 
   class InternalPiecewisePointHandleInfo;

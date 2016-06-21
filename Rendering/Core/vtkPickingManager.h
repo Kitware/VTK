@@ -178,7 +178,7 @@ protected:
   bool OptimizeOnInteractorEvents;
 
 private:
-  vtkPickingManager(const vtkPickingManager&);  // Not implemented.
+  vtkPickingManager(const vtkPickingManager&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPickingManager&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;

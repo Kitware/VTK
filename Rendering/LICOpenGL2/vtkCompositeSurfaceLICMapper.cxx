@@ -59,7 +59,7 @@ protected:
   virtual void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
 
 private:
-  vtkCompositeLICHelper(const vtkCompositeLICHelper&); // Not implemented.
+  vtkCompositeLICHelper(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
 };
 

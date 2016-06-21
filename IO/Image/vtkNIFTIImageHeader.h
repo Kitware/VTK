@@ -376,7 +376,7 @@ protected:
   void SetStringValue(char *x, const char *y, size_t n);
 
 private:
-  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&);  // Not implemented.
+  vtkNIFTIImageHeader(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
 };
 

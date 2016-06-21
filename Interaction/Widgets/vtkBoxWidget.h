@@ -318,7 +318,7 @@ protected:
   int RotationEnabled;
 
 private:
-  vtkBoxWidget(const vtkBoxWidget&);  //Not implemented
+  vtkBoxWidget(const vtkBoxWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBoxWidget&) VTK_DELETE_FUNCTION;
 };
 

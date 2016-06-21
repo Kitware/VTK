@@ -338,7 +338,7 @@ protected:
   void ReleaseCacheManager();
 
 private:
-  vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
+  vtkFreeTypeTools(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
 
   // Description:

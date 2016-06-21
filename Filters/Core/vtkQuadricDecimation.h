@@ -228,7 +228,7 @@ protected:
   double *TempData;
 
 private:
-  vtkQuadricDecimation(const vtkQuadricDecimation&);  // Not implemented.
+  vtkQuadricDecimation(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
 };
 

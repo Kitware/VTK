@@ -100,7 +100,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkArrayDataAlgorithm(const vtkArrayDataAlgorithm&);  // Not implemented.
+  vtkArrayDataAlgorithm(const vtkArrayDataAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkArrayDataAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

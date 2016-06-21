@@ -53,7 +53,7 @@ protected:
   double Progress;
 
 private:
-  vtkProgressObserver(const vtkProgressObserver&);  // Not implemented.
+  vtkProgressObserver(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProgressObserver&) VTK_DELETE_FUNCTION;
 };
 

@@ -60,7 +60,7 @@ protected:
 private:
   vtkCachedStreamingDemandDrivenPipelineInternals* CachedStreamingDemandDrivenInternal;
 private:
-  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&);  // Not implemented.
+  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 

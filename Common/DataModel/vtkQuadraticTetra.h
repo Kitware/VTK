@@ -139,7 +139,7 @@ protected:
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkQuadraticTetra(const vtkQuadraticTetra&);  // Not implemented.
+  vtkQuadraticTetra(const vtkQuadraticTetra&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraticTetra&) VTK_DELETE_FUNCTION;
 };
 

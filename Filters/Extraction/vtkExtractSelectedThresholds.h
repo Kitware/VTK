@@ -108,7 +108,7 @@ protected:
 
   int ExtractRows(vtkSelectionNode* sel, vtkTable* input, vtkTable* output);
 private:
-  vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&);  // Not implemented.
+  vtkExtractSelectedThresholds(const vtkExtractSelectedThresholds&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractSelectedThresholds&) VTK_DELETE_FUNCTION;
 };
 

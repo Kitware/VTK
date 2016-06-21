@@ -70,7 +70,7 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&);  // Not implemented.
+  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
 
 };

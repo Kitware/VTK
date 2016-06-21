@@ -44,7 +44,7 @@ protected:
   ~vtkQtTimePointUtility() {}
 
 private:
-  vtkQtTimePointUtility(const vtkQtTimePointUtility&);  // Not implemented.
+  vtkQtTimePointUtility(const vtkQtTimePointUtility&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtTimePointUtility&) VTK_DELETE_FUNCTION;
 };
 

@@ -160,7 +160,7 @@ protected:
   vtkDoubleArray *Scalars;
 
 private:
-  vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &);  // Not implemented.
+  vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &) VTK_DELETE_FUNCTION;
   void operator = (const vtkTriQuadraticHexahedron &) VTK_DELETE_FUNCTION;
 };
 

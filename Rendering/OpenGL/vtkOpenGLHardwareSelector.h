@@ -57,7 +57,7 @@ protected:
   vtkInternals* Internals;
 
 private:
-  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&); // Not implemented.
+  vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLHardwareSelector&) VTK_DELETE_FUNCTION;
 };
 

@@ -81,7 +81,7 @@ protected:
   double LastCameraParallelScale;
 
 private:
-  vtkDistanceToCamera(const vtkDistanceToCamera&);  // Not implemented.
+  vtkDistanceToCamera(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDistanceToCamera&) VTK_DELETE_FUNCTION;
 };
 

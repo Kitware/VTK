@@ -48,7 +48,7 @@ protected:
                        int ext[6], int id);
 
 private:
-  vtkImageRGBToHSI(const vtkImageRGBToHSI&);  // Not implemented.
+  vtkImageRGBToHSI(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
 };
 

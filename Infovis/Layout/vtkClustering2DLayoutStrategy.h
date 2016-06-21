@@ -160,7 +160,7 @@ private:
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
   void ResolveCoincidentVertices();
 
-  vtkClustering2DLayoutStrategy(const vtkClustering2DLayoutStrategy&);  // Not implemented.
+  vtkClustering2DLayoutStrategy(const vtkClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

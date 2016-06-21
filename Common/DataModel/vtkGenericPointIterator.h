@@ -79,7 +79,7 @@ protected:
   virtual ~vtkGenericPointIterator();
 
 private:
-  vtkGenericPointIterator(const vtkGenericPointIterator&);  // Not implemented.
+  vtkGenericPointIterator(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;
 };
 

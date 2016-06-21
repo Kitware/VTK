@@ -55,7 +55,7 @@ protected:
 
   int PieceInvariant;
 private:
-  vtkPCellDataToPointData(const vtkPCellDataToPointData&);  // Not implemented.
+  vtkPCellDataToPointData(const vtkPCellDataToPointData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPCellDataToPointData&) VTK_DELETE_FUNCTION;
 };
 

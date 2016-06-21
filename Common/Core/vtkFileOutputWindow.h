@@ -71,7 +71,7 @@ protected:
   int Append;
 
 private:
-  vtkFileOutputWindow(const vtkFileOutputWindow&);  // Not implemented.
+  vtkFileOutputWindow(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFileOutputWindow&) VTK_DELETE_FUNCTION;
 };
 

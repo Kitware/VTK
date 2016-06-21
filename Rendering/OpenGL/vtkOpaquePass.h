@@ -53,7 +53,7 @@ public:
   virtual ~vtkOpaquePass();
 
  private:
-  vtkOpaquePass(const vtkOpaquePass&);  // Not implemented.
+  vtkOpaquePass(const vtkOpaquePass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpaquePass&) VTK_DELETE_FUNCTION;
 };
 

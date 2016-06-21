@@ -62,7 +62,7 @@ protected:
   int PUser;
 
 private:
-  vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ); // Not implemented.
+  vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkExtractFunctionalBagPlot& ) VTK_DELETE_FUNCTION;
 };
 

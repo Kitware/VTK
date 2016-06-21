@@ -53,7 +53,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkPLYReader(const vtkPLYReader&);  // Not implemented.
+  vtkPLYReader(const vtkPLYReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPLYReader&) VTK_DELETE_FUNCTION;
 };
 

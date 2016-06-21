@@ -384,7 +384,7 @@ protected:
   bool LegendVisibility;
 
 private:
-  vtkPlot(const vtkPlot &); // Not implemented.
+  vtkPlot(const vtkPlot &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlot &) VTK_DELETE_FUNCTION;
 
 };

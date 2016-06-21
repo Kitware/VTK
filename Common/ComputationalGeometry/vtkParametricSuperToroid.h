@@ -141,7 +141,7 @@ protected:
   double N2;
 
 private:
-  vtkParametricSuperToroid(const vtkParametricSuperToroid&);  // Not implemented.
+  vtkParametricSuperToroid(const vtkParametricSuperToroid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricSuperToroid&) VTK_DELETE_FUNCTION;
 
   // Description:

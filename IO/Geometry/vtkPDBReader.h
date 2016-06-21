@@ -42,7 +42,7 @@ protected:
   void ReadSpecificMolecule(FILE* fp);
 
 private:
-  vtkPDBReader(const vtkPDBReader&);  // Not implemented.
+  vtkPDBReader(const vtkPDBReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPDBReader&) VTK_DELETE_FUNCTION;
 };
 

@@ -81,7 +81,7 @@ protected:
   int Piece;
 
 private:
-  vtkPieceRequestFilter(const vtkPieceRequestFilter&);  // Not implemented.
+  vtkPieceRequestFilter(const vtkPieceRequestFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPieceRequestFilter&) VTK_DELETE_FUNCTION;
 };
 

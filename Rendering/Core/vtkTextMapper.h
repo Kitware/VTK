@@ -114,7 +114,7 @@ protected:
   vtkTextProperty *TextProperty;
 
 private:
-  vtkTextMapper(const vtkTextMapper&);  // Not implemented.
+  vtkTextMapper(const vtkTextMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextMapper&) VTK_DELETE_FUNCTION;
 
   void UpdateQuad(vtkActor2D *actor, int dpi);

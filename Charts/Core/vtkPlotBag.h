@@ -122,7 +122,7 @@ protected:
   vtkPen* LinePen;
 
 private:
-  vtkPlotBag(const vtkPlotBag &); // Not implemented.
+  vtkPlotBag(const vtkPlotBag &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotBag &) VTK_DELETE_FUNCTION;
 };
 

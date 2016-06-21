@@ -159,7 +159,7 @@ private:
  int TextUpsideDown;
  int VisibleAtCurrentViewAngle;
 
- vtkAxisFollower(const vtkAxisFollower&);  // Not implemented.
+ vtkAxisFollower(const vtkAxisFollower&) VTK_DELETE_FUNCTION;
  void operator =(const vtkAxisFollower&) VTK_DELETE_FUNCTION;
 
  // hide the two parameter Render() method from the user and the compiler.

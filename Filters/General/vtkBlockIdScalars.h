@@ -42,7 +42,7 @@ protected:
   vtkDataObject* ColorBlock(vtkDataObject* input, int group);
 
 private:
-  vtkBlockIdScalars(const vtkBlockIdScalars&); // Not implemented.
+  vtkBlockIdScalars(const vtkBlockIdScalars&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBlockIdScalars&) VTK_DELETE_FUNCTION;
 
 };

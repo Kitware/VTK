@@ -82,7 +82,7 @@ protected:
   ~vtkParametricCrossCap();
 
 private:
-  vtkParametricCrossCap(const vtkParametricCrossCap&);  // Not implemented.
+  vtkParametricCrossCap(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricCrossCap&) VTK_DELETE_FUNCTION;
 };
 

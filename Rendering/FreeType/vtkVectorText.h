@@ -55,7 +55,7 @@ protected:
   char *Text;
 
 private:
-  vtkVectorText(const vtkVectorText&);  // Not implemented.
+  vtkVectorText(const vtkVectorText&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVectorText&) VTK_DELETE_FUNCTION;
 };
 

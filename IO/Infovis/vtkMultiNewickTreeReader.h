@@ -59,7 +59,7 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&);  // Not implemented.
+  vtkMultiNewickTreeReader(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiNewickTreeReader&) VTK_DELETE_FUNCTION;
 };
 

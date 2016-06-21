@@ -123,7 +123,7 @@ protected:
 
   vtkTimeStamp PickRenderTime;
 private:
-  vtkScenePicker(const vtkScenePicker&); // Not implemented.
+  vtkScenePicker(const vtkScenePicker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkScenePicker&) VTK_DELETE_FUNCTION;
 };
 

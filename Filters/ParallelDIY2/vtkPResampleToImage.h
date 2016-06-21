@@ -53,7 +53,7 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPResampleToImage(const vtkPResampleToImage&);  // Not implemented.
+  vtkPResampleToImage(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
 };
 

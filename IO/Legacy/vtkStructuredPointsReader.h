@@ -65,7 +65,7 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation *);
 private:
-  vtkStructuredPointsReader(const vtkStructuredPointsReader&);  // Not implemented.
+  vtkStructuredPointsReader(const vtkStructuredPointsReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredPointsReader&) VTK_DELETE_FUNCTION;
 };
 

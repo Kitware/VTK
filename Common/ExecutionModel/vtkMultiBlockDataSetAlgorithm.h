@@ -97,7 +97,7 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkMultiBlockDataSetAlgorithm(const vtkMultiBlockDataSetAlgorithm&);  // Not implemented.
+  vtkMultiBlockDataSetAlgorithm(const vtkMultiBlockDataSetAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiBlockDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

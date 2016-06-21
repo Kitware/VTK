@@ -98,7 +98,7 @@ protected:
   double Distance;
 
 private:
-  vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&);  //Not implemented
+  vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDistanceRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 

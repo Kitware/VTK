@@ -57,7 +57,7 @@ protected:
                            int extent[6], int id);
 
 private:
-  vtkImageMedian3D(const vtkImageMedian3D&);  // Not implemented.
+  vtkImageMedian3D(const vtkImageMedian3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMedian3D&) VTK_DELETE_FUNCTION;
 };
 

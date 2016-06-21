@@ -50,7 +50,7 @@ protected:
   ~vtkFixedPointVolumeRayCastCompositeGOHelper();
 
 private:
-  vtkFixedPointVolumeRayCastCompositeGOHelper(const vtkFixedPointVolumeRayCastCompositeGOHelper&);  // Not implemented.
+  vtkFixedPointVolumeRayCastCompositeGOHelper(const vtkFixedPointVolumeRayCastCompositeGOHelper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFixedPointVolumeRayCastCompositeGOHelper&) VTK_DELETE_FUNCTION;
 };
 

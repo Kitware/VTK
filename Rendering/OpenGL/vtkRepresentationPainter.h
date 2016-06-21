@@ -36,7 +36,7 @@ protected:
   ~vtkRepresentationPainter();
 
 private:
-  vtkRepresentationPainter(const vtkRepresentationPainter&); // Not implemented.
+  vtkRepresentationPainter(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRepresentationPainter&) VTK_DELETE_FUNCTION;
 };
 

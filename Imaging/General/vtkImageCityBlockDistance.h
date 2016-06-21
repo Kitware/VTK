@@ -55,7 +55,7 @@ protected:
                              vtkInformation* outInfo);
 
 private:
-  vtkImageCityBlockDistance(const vtkImageCityBlockDistance&);  // Not implemented.
+  vtkImageCityBlockDistance(const vtkImageCityBlockDistance&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageCityBlockDistance&) VTK_DELETE_FUNCTION;
 };
 

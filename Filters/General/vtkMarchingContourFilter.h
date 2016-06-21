@@ -150,7 +150,7 @@ protected:
   //default if not structured data
   void DataSetContour(vtkDataSet *input, vtkPolyData *output);
 private:
-  vtkMarchingContourFilter(const vtkMarchingContourFilter&);  // Not implemented.
+  vtkMarchingContourFilter(const vtkMarchingContourFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMarchingContourFilter&) VTK_DELETE_FUNCTION;
 };
 

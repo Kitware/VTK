@@ -127,7 +127,7 @@ protected:
   int    Wrap;
 
 private:
-  vtkCursor2D(const vtkCursor2D&);  // Not implemented.
+  vtkCursor2D(const vtkCursor2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCursor2D&) VTK_DELETE_FUNCTION;
 };
 

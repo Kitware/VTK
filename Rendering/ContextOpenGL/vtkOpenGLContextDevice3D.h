@@ -120,7 +120,7 @@ protected:
   virtual void DisableDepthBuffer();
 
 private:
-  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.
+  vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLContextDevice3D &) VTK_DELETE_FUNCTION;
 
   // Description:

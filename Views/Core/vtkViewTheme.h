@@ -257,7 +257,7 @@ protected:
   vtkTextProperty* CellTextProperty;
 
 private:
-  vtkViewTheme(const vtkViewTheme&);  // Not implemented.
+  vtkViewTheme(const vtkViewTheme&) VTK_DELETE_FUNCTION;
   void operator=(const vtkViewTheme&) VTK_DELETE_FUNCTION;
 };
 

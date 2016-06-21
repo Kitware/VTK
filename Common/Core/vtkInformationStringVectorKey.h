@@ -68,7 +68,7 @@ protected:
   int RequiredLength;
 
 private:
-  vtkInformationStringVectorKey(const vtkInformationStringVectorKey&);  // Not implemented.
+  vtkInformationStringVectorKey(const vtkInformationStringVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationStringVectorKey&) VTK_DELETE_FUNCTION;
 };
 

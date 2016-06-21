@@ -226,7 +226,7 @@ private:
   static unsigned char MASKED_CELL_VALUE;
 
 private:
-  vtkStructuredGrid(const vtkStructuredGrid&);  // Not implemented.
+  vtkStructuredGrid(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
 };
 

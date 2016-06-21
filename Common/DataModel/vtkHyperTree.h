@@ -189,7 +189,7 @@ protected:
   }
 
 private:
-  vtkHyperTree(const vtkHyperTree&);  // Not implemented.
+  vtkHyperTree(const vtkHyperTree&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTree&) VTK_DELETE_FUNCTION;
 };
 

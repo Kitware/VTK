@@ -204,7 +204,7 @@ protected:
   void ConstrainPlanePositions(double positions[6]);
 
 private:
-  vtkImageCroppingRegionsWidget(const vtkImageCroppingRegionsWidget&);  //Not implemented
+  vtkImageCroppingRegionsWidget(const vtkImageCroppingRegionsWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageCroppingRegionsWidget&) VTK_DELETE_FUNCTION;
 };
 

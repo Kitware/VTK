@@ -42,7 +42,7 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
 private:
-  vtkImageMirrorPad(const vtkImageMirrorPad&);  // Not implemented.
+  vtkImageMirrorPad(const vtkImageMirrorPad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMirrorPad&) VTK_DELETE_FUNCTION;
 };
 

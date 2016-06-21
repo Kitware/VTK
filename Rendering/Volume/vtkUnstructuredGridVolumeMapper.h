@@ -81,7 +81,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 

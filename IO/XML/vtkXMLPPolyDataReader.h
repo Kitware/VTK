@@ -75,7 +75,7 @@ protected:
   vtkIdType StartPoly;
 
 private:
-  vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&);  // Not implemented.
+  vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 

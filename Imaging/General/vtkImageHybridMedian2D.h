@@ -46,7 +46,7 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
 private:
-  vtkImageHybridMedian2D(const vtkImageHybridMedian2D&);  // Not implemented.
+  vtkImageHybridMedian2D(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageHybridMedian2D&) VTK_DELETE_FUNCTION;
 };
 

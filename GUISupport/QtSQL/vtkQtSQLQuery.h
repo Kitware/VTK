@@ -90,7 +90,7 @@ private:
 
   char* LastErrorText;
 
-  vtkQtSQLQuery(const vtkQtSQLQuery &); // Not implemented.
+  vtkQtSQLQuery(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtSQLQuery &) VTK_DELETE_FUNCTION;
 };
 

@@ -96,7 +96,7 @@ protected:
   int PreventSeam;
 
 private:
-  vtkTextureMapToCylinder(const vtkTextureMapToCylinder&);  // Not implemented.
+  vtkTextureMapToCylinder(const vtkTextureMapToCylinder&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextureMapToCylinder&) VTK_DELETE_FUNCTION;
 };
 

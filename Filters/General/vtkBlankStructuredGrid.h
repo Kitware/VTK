@@ -85,7 +85,7 @@ protected:
   int   Component;
 
 private:
-  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&);  // Not implemented.
+  vtkBlankStructuredGrid(const vtkBlankStructuredGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBlankStructuredGrid&) VTK_DELETE_FUNCTION;
 };
 

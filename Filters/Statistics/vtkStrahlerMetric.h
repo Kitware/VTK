@@ -84,7 +84,7 @@ protected:
   float CalculateStrahler(vtkIdType root, vtkFloatArray *metric, vtkTree *graph);
 
 private:
-  vtkStrahlerMetric(const vtkStrahlerMetric&);  // Not implemented.
+  vtkStrahlerMetric(const vtkStrahlerMetric&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStrahlerMetric&) VTK_DELETE_FUNCTION;
 };
 

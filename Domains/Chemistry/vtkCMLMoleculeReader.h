@@ -52,7 +52,7 @@ protected:
   char *FileName;
 
 private:
-  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&);  // Not implemented.
+  vtkCMLMoleculeReader(const vtkCMLMoleculeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCMLMoleculeReader&) VTK_DELETE_FUNCTION;
 };
 

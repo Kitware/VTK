@@ -70,7 +70,7 @@ protected:
   int Symmetric;
   int ComputeNormals;
 private:
-  vtkAxes(const vtkAxes&);  // Not implemented.
+  vtkAxes(const vtkAxes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxes&) VTK_DELETE_FUNCTION;
 };
 

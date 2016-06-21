@@ -115,7 +115,7 @@ protected:
   int   DisplayLocation;
 
 private:
-  vtkProperty2D(const vtkProperty2D&);  // Not implemented.
+  vtkProperty2D(const vtkProperty2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProperty2D&) VTK_DELETE_FUNCTION;
 };
 

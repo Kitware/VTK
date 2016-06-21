@@ -93,7 +93,7 @@ private:
 
   vtkAnnotationLayers*   Annotations;
 
-  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &);  // Not implemented
+  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtAnnotationLayersModelAdapter&) VTK_DELETE_FUNCTION;
 };
 

@@ -70,7 +70,7 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&); // Not implemented
+  vtkWebGLDataSet(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
 };
 

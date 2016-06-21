@@ -107,7 +107,7 @@ protected:
   double Translation;
   double DeltaRadius;
 private:
-  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);  // Not implemented.
+  vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 

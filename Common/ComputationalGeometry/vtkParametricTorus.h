@@ -96,7 +96,7 @@ protected:
   double CrossSectionRadius;
 
 private:
-  vtkParametricTorus(const vtkParametricTorus&);  // Not implemented.
+  vtkParametricTorus(const vtkParametricTorus&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricTorus&) VTK_DELETE_FUNCTION;
 };
 

@@ -347,7 +347,7 @@ protected:
   int  InitializedBlendMode;
 
 private:
-  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.
+  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 

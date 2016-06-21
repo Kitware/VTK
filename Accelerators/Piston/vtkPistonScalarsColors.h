@@ -97,7 +97,7 @@ protected:
   vtkScalarsToColors *LookupTable;
 
 private:
-  vtkPistonScalarsColors(const vtkPistonScalarsColors&); // Not implemented.
+  vtkPistonScalarsColors(const vtkPistonScalarsColors&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPistonScalarsColors&) VTK_DELETE_FUNCTION;
 };
 

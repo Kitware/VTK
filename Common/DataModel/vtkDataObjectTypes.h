@@ -64,7 +64,7 @@ protected:
   static int Validate();
 
 private:
-  vtkDataObjectTypes(const vtkDataObjectTypes&);  // Not implemented.
+  vtkDataObjectTypes(const vtkDataObjectTypes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataObjectTypes&) VTK_DELETE_FUNCTION;
 };
 

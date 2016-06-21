@@ -71,7 +71,7 @@ protected:
   virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
 
 private:
-  vtkPPCAStatistics(const vtkPPCAStatistics&); // Not implemented.
+  vtkPPCAStatistics(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;
 };
 

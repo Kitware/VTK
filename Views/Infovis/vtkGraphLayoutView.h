@@ -311,7 +311,7 @@ protected:
   virtual void ProcessEvents(vtkObject* caller, unsigned long eventId, void* callData);
 
 private:
-  vtkGraphLayoutView(const vtkGraphLayoutView&);  // Not implemented.
+  vtkGraphLayoutView(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
   bool VertexLabelsRequested;
   bool EdgeLabelsRequested;

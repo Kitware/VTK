@@ -90,7 +90,7 @@ protected:
   double DataSpacing[3];
   double DataOrigin[3];
 private:
-  vtkVolumeReader(const vtkVolumeReader&);  // Not implemented.
+  vtkVolumeReader(const vtkVolumeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeReader&) VTK_DELETE_FUNCTION;
 };
 

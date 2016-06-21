@@ -159,7 +159,7 @@ protected:
   vtkTimeStamp LabelBuildTime;
 
 private:
-  vtkLabeledContourMapper(const vtkLabeledContourMapper&);  // Not implemented.
+  vtkLabeledContourMapper(const vtkLabeledContourMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLabeledContourMapper&) VTK_DELETE_FUNCTION;
 
   struct Private;

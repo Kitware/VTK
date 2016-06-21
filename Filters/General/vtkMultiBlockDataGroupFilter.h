@@ -61,7 +61,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&);  // Not implemented.
+  vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;
 };
 

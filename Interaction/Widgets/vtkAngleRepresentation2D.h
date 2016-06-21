@@ -94,7 +94,7 @@ protected:
   vtkLeaderActor2D *Arc;
 
 private:
-  vtkAngleRepresentation2D(const vtkAngleRepresentation2D&);  //Not implemented
+  vtkAngleRepresentation2D(const vtkAngleRepresentation2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAngleRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 

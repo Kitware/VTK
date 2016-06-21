@@ -166,7 +166,7 @@ protected:
   double TitleHeight;
 
 private:
-  vtkSliderRepresentation(const vtkSliderRepresentation&);  //Not implemented
+  vtkSliderRepresentation(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
 };
 

@@ -128,7 +128,7 @@ protected:
   vtkTimerLog* AnimationTimer;
 
 private:
-  vtkAnimationScene(const vtkAnimationScene&); // Not implemented.
+  vtkAnimationScene(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
 };
 

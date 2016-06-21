@@ -187,7 +187,7 @@ protected:
   void SetDeviceAsDisplay(int deviceIndex);
 
 private:
-  vtkEGLRenderWindow(const vtkEGLRenderWindow&);  // Not implemented.
+  vtkEGLRenderWindow(const vtkEGLRenderWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   bool DeviceExtensionsPresent;

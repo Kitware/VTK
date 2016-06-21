@@ -160,7 +160,7 @@ protected:
   Link *Resize(vtkIdType sz);  // function to resize data
 
 private:
-  vtkCellLinks(const vtkCellLinks&);  // Not implemented.
+  vtkCellLinks(const vtkCellLinks&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
 };
 

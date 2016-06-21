@@ -82,7 +82,7 @@ private:
 
   typedef vtkAOSDataArrayTemplate<vtkIdType> RealSuperclass;
 
-  vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
+  vtkIdTypeArray(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
 };
 

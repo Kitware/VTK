@@ -87,7 +87,7 @@ protected:
   double Center[3];
 
 private:
-  vtkSphere(const vtkSphere&);  // Not implemented.
+  vtkSphere(const vtkSphere&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSphere&) VTK_DELETE_FUNCTION;
 };
 

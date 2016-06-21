@@ -700,7 +700,7 @@ protected:
   vtkIdTypeArray *EdgeList;
 
 private:
-  vtkGraph(const vtkGraph&);  // Not implemented.
+  vtkGraph(const vtkGraph&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraph&) VTK_DELETE_FUNCTION;
 };
 

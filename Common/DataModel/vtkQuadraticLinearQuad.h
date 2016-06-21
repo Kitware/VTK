@@ -124,7 +124,7 @@ protected:
   vtkDoubleArray *Scalars;
 
 private:
-  vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &);  // Not implemented.
+  vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &) VTK_DELETE_FUNCTION;
   void operator = (const vtkQuadraticLinearQuad &) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

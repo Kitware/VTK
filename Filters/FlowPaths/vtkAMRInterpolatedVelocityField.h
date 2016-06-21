@@ -81,7 +81,7 @@ protected:
     { return this->Superclass::FunctionValues( ds, x, f ); }
 
 private:
-  vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&); //Not implemented
+  vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
   void operator = ( const vtkAMRInterpolatedVelocityField& ) VTK_DELETE_FUNCTION;
 
 };

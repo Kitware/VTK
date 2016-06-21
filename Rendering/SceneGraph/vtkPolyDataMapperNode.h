@@ -67,7 +67,7 @@ protected:
                                std::vector<unsigned int> &strip_reverse);
 
  private:
-  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&); // Not implemented.
+  vtkPolyDataMapperNode(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
 };
 

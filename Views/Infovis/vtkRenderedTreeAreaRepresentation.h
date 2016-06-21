@@ -292,7 +292,7 @@ protected:
   bool UseRectangularCoordinates;
 
 private:
-  vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&); // Not implemented
+  vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
 };
 

@@ -41,7 +41,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkCompositeCutter(const vtkCompositeCutter&);  // Not implemented.
+  vtkCompositeCutter(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
 };
 

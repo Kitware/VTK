@@ -39,7 +39,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 private:
-  vtkMySQLToTableReader(const vtkMySQLToTableReader&); // Not implemented.
+  vtkMySQLToTableReader(const vtkMySQLToTableReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMySQLToTableReader&) VTK_DELETE_FUNCTION;
 
 };

@@ -149,7 +149,7 @@ protected:
   bool                TimerCallbackInitialized;
 
 private:
-  vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
+  vtkContextInteractorStyle(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
 
   void ConstructMouseEvent(vtkContextMouseEvent &event, int button);

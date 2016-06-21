@@ -51,7 +51,7 @@ protected:
   std::ostringstream OStream;
 
 private:
-  vtkStringOutputWindow(const vtkStringOutputWindow&);  // Not implemented.
+  vtkStringOutputWindow(const vtkStringOutputWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStringOutputWindow&) VTK_DELETE_FUNCTION;
 };
 

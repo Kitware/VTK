@@ -85,7 +85,7 @@ protected:
   vtkEnzoReaderInternal *Internal;
 
 private:
-  vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ); // Not implemented
+  vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ) VTK_DELETE_FUNCTION;
   void operator=( const vtkAMREnzoParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 

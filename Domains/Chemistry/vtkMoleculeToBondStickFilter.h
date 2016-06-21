@@ -40,7 +40,7 @@ protected:
                   vtkInformationVector *);
 
 private:
-  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&);  // Not implemented.
+  vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;
 };
 

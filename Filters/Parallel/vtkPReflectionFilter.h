@@ -46,7 +46,7 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPReflectionFilter(const vtkPReflectionFilter&); // Not implemented.
+  vtkPReflectionFilter(const vtkPReflectionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPReflectionFilter&) VTK_DELETE_FUNCTION;
 
 };

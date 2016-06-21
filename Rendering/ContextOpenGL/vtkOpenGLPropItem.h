@@ -49,7 +49,7 @@ protected:
 private:
   vtkNew<vtkCamera> CameraCache;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &); // Not implemented.
+  vtkOpenGLPropItem(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
 };
 

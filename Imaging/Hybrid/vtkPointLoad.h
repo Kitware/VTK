@@ -91,7 +91,7 @@ protected:
   double ModelBounds[6];
 
 private:
-  vtkPointLoad(const vtkPointLoad&);  // Not implemented.
+  vtkPointLoad(const vtkPointLoad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointLoad&) VTK_DELETE_FUNCTION;
 };
 

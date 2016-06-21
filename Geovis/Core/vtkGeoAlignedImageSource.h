@@ -93,7 +93,7 @@ protected:
   vtkProgressObserver* ProgressObserver;
 
 private:
-  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&);  // Not implemented.
+  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
 };
 

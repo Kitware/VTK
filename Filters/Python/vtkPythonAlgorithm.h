@@ -80,7 +80,7 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkPythonAlgorithm(const vtkPythonAlgorithm&);  // Not implemented.
+  vtkPythonAlgorithm(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;
 
   int CheckResult(const char* method, const vtkSmartPyObject& res);

@@ -59,7 +59,7 @@ public:
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
 private:
-  vtkInformationInformationVectorKey(const vtkInformationInformationVectorKey&);  // Not implemented.
+  vtkInformationInformationVectorKey(const vtkInformationInformationVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationInformationVectorKey&) VTK_DELETE_FUNCTION;
 };
 

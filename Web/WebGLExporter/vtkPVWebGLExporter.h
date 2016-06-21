@@ -39,7 +39,7 @@ protected:
   char *FileName;
 
 private:
-  vtkPVWebGLExporter(const vtkPVWebGLExporter&);  // Not implemented.
+  vtkPVWebGLExporter(const vtkPVWebGLExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPVWebGLExporter&) VTK_DELETE_FUNCTION;
 };
 

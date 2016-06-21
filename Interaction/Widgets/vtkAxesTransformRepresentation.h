@@ -179,7 +179,7 @@ protected:
   double LastEventPosition[3];
 
 private:
-  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&);  //Not implemented
+  vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
 };
 

@@ -219,7 +219,7 @@ protected:
   vtkInformation *DataRequest;
 
 private:
-  vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&);  // Not implemented.
+  vtkDemandDrivenPipeline(const vtkDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 

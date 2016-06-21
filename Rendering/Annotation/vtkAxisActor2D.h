@@ -360,7 +360,7 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkAxisActor2D(const vtkAxisActor2D&);  // Not implemented.
+  vtkAxisActor2D(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
 };
 

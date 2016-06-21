@@ -47,7 +47,7 @@ protected:
   vtkTable *Input;
 
 private:
-  vtkTableToMySQLWriter(const vtkTableToMySQLWriter&);  // Not implemented.
+  vtkTableToMySQLWriter(const vtkTableToMySQLWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTableToMySQLWriter&) VTK_DELETE_FUNCTION;
 };
 

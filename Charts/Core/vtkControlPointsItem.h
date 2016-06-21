@@ -409,7 +409,7 @@ protected:
   bool                ShowLabels;
   char*               LabelFormat;
 private:
-  vtkControlPointsItem(const vtkControlPointsItem &); // Not implemented.
+  vtkControlPointsItem(const vtkControlPointsItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkControlPointsItem &) VTK_DELETE_FUNCTION;
 
   void      ComputeBounds();

@@ -96,7 +96,7 @@ protected:
   virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
 
 private:
-  vtkUndirectedGraph(const vtkUndirectedGraph&);  // Not implemented.
+  vtkUndirectedGraph(const vtkUndirectedGraph&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUndirectedGraph&) VTK_DELETE_FUNCTION;
 };
 

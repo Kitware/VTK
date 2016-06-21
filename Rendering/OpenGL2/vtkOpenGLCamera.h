@@ -54,7 +54,7 @@ protected:
   vtkRenderer *LastRenderer;
 
 private:
-  vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
+  vtkOpenGLCamera(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
 };
 

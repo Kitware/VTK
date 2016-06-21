@@ -83,7 +83,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkImageLogic(const vtkImageLogic&);  // Not implemented.
+  vtkImageLogic(const vtkImageLogic&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageLogic&) VTK_DELETE_FUNCTION;
 };
 

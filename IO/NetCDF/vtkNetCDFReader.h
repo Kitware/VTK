@@ -222,7 +222,7 @@ protected:
                            vtkDataSet *output);
 
 private:
-  vtkNetCDFReader(const vtkNetCDFReader &);     // Not implemented
+  vtkNetCDFReader(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
   void operator=(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
 
   int UpdateExtent[6];

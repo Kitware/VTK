@@ -134,7 +134,7 @@ protected:
   unsigned char OutOn[2];
 
 private:
-  vtkBooleanTexture(const vtkBooleanTexture&);  // Not implemented.
+  vtkBooleanTexture(const vtkBooleanTexture&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBooleanTexture&) VTK_DELETE_FUNCTION;
 };
 

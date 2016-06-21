@@ -432,7 +432,7 @@ protected:
   bool EdgeSelection;
 
 private:
-  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented
+  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
 };
 

@@ -100,7 +100,7 @@ protected:
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&);  // Not implemented.
+  vtkThresholdTextureCoords(const vtkThresholdTextureCoords&) VTK_DELETE_FUNCTION;
   void operator=(const vtkThresholdTextureCoords&) VTK_DELETE_FUNCTION;
 };
 

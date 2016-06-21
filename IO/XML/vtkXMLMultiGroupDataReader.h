@@ -41,7 +41,7 @@ protected:
     }
 
 private:
-  vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&);  // Not implemented.
+  vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLMultiGroupDataReader&) VTK_DELETE_FUNCTION;
 };
 

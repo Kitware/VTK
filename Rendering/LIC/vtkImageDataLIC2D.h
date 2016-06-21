@@ -134,7 +134,7 @@ protected:
 
 
 private:
-  vtkImageDataLIC2D(const vtkImageDataLIC2D&); // Not implemented.
+  vtkImageDataLIC2D(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageDataLIC2D&) VTK_DELETE_FUNCTION;
 
 };

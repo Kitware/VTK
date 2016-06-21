@@ -210,7 +210,7 @@ protected:
   int ShowLabelAboveWidget;
 
 private:
-  vtkBiDimensionalRepresentation(const vtkBiDimensionalRepresentation&);  //Not implemented
+  vtkBiDimensionalRepresentation(const vtkBiDimensionalRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBiDimensionalRepresentation&) VTK_DELETE_FUNCTION;
 };
 

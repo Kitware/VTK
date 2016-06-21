@@ -117,7 +117,7 @@ protected:
   vtkPolygon       *Polygon;
 
 private:
-  vtkHexagonalPrism(const vtkHexagonalPrism&);  // Not implemented.
+  vtkHexagonalPrism(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
 };
 

@@ -480,7 +480,7 @@ protected:
     return this->OptimizedTransform; };
 
 private:
-  vtkImageReslice(const vtkImageReslice&);  // Not implemented.
+  vtkImageReslice(const vtkImageReslice&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageReslice&) VTK_DELETE_FUNCTION;
 };
 

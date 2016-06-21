@@ -258,7 +258,7 @@ protected:
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
 
 private:
-  vtkGenericDataSet(const vtkGenericDataSet&);  // Not implemented.
+  vtkGenericDataSet(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
 };
 

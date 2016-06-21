@@ -156,7 +156,7 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkGeometryFilter(const vtkGeometryFilter&);  // Not implemented.
+  vtkGeometryFilter(const vtkGeometryFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 

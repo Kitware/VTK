@@ -225,7 +225,7 @@ protected:
   virtual bool ParseURL( const char* url ) = 0;
 
 private:
-  vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.
+  vtkSQLDatabase(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
   void operator=(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
 
   // Description;

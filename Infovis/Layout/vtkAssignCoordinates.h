@@ -72,7 +72,7 @@ private:
   char* ZCoordArrayName;
   bool Jitter;
 
-  vtkAssignCoordinates(const vtkAssignCoordinates&);  // Not implemented.
+  vtkAssignCoordinates(const vtkAssignCoordinates&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAssignCoordinates&) VTK_DELETE_FUNCTION;
 };
 

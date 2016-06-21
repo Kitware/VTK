@@ -193,7 +193,7 @@ private:
                              const idMapping& nodeMap,
                              idMapping& cellMap);
 
-  vtkAVSucdReader(const vtkAVSucdReader&);  // Not implemented.
+  vtkAVSucdReader(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
 };
 

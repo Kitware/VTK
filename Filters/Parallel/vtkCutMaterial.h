@@ -83,7 +83,7 @@ protected:
   vtkPlane *PlaneFunction;
 
 private:
-  vtkCutMaterial(const vtkCutMaterial&);  // Not implemented.
+  vtkCutMaterial(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
 };
 

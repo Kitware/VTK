@@ -95,7 +95,7 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkOutEdgeIterator(const vtkOutEdgeIterator&);  // Not implemented.
+  vtkOutEdgeIterator(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
 };
 

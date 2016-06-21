@@ -177,7 +177,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkFlyingEdges3D(const vtkFlyingEdges3D&);  // Not implemented.
+  vtkFlyingEdges3D(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
 };
 

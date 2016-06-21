@@ -124,7 +124,7 @@ protected:
   int TrapezoidIntegration;
 
 private:
-  vtkImageSlab(const vtkImageSlab&);  // Not implemented.
+  vtkImageSlab(const vtkImageSlab&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageSlab&) VTK_DELETE_FUNCTION;
 };
 

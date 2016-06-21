@@ -80,7 +80,7 @@ protected:
   virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
 
 private:
-  vtkOpenGLStickMapper(const vtkOpenGLStickMapper&); // Not implemented.
+  vtkOpenGLStickMapper(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;
 };
 

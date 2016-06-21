@@ -591,7 +591,7 @@ private:
   template<typename T>
   int FillPartSizes();
 
-  vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
+  vtkLSDynaReader( const vtkLSDynaReader& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkLSDynaReader& ) VTK_DELETE_FUNCTION;
 };
 

@@ -468,7 +468,7 @@ protected:
   vtkShaderProgram2 *ScaleBiasProgram;
 
 private:
-  vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&);  // Not implemented.
+  vtkOpenGLGPUVolumeRayCastMapper(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 

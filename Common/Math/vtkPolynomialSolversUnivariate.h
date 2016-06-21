@@ -268,7 +268,7 @@ protected:
   static double DivisionTolerance;
 
 private:
-  vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&);  // Not implemented.
+  vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolynomialSolversUnivariate&) VTK_DELETE_FUNCTION;
 };
 

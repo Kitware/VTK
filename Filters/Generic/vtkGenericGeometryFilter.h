@@ -166,7 +166,7 @@ protected:
   int PassThroughCellIds;
 
 private:
-  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.
+  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 

@@ -165,7 +165,7 @@ protected:
   bool SupportGeometryShader;
 
 private:
-  vtkShader2(const vtkShader2&); // Not implemented.
+  vtkShader2(const vtkShader2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShader2&) VTK_DELETE_FUNCTION;
 };
 

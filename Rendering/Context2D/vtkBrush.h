@@ -152,7 +152,7 @@ protected:
   int            TextureProperties;
 
 private:
-  vtkBrush(const vtkBrush &); // Not implemented.
+  vtkBrush(const vtkBrush &) VTK_DELETE_FUNCTION;
   void operator=(const vtkBrush &) VTK_DELETE_FUNCTION;
 
 };

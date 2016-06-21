@@ -73,7 +73,7 @@ private:
     { this->vtkPropCollection::AddItem(o); }
 
 private:
-  vtkVolumeCollection(const vtkVolumeCollection&);  // Not implemented.
+  vtkVolumeCollection(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
 };
 

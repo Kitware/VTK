@@ -55,7 +55,7 @@ protected:
   vtkNew<vtkPeriodicTable> pTab;
 
 private:
-  vtkCMLParser(const vtkCMLParser&);   // Not implemented
+  vtkCMLParser(const vtkCMLParser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCMLParser&) VTK_DELETE_FUNCTION;
 };
 

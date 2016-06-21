@@ -184,7 +184,7 @@ protected:
                           const double* );
 
 private:
-  vtkTessellatorFilter( const vtkTessellatorFilter& ); // Not implemented.
+  vtkTessellatorFilter( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
 };
 

@@ -118,7 +118,7 @@ protected:
   int Button;
 
 private:
-  vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
 };
 

@@ -224,7 +224,7 @@ protected:
                            double &hL, double &hR);
 
 private:
-  vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&);  // Not implemented.
+  vtkGreedyTerrainDecimation(const vtkGreedyTerrainDecimation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGreedyTerrainDecimation&) VTK_DELETE_FUNCTION;
 
 };

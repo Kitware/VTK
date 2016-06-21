@@ -115,7 +115,7 @@ protected:
   void           RenderSavedTexture();
 
 private:
-  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);  // Not implemented.
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
 };
 

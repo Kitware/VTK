@@ -79,7 +79,7 @@ protected:
   vtkSmartPointer<vtkQImageToImageSource> QImageToImage;
 
 private:
-  vtkQtStringToImage(const vtkQtStringToImage &); // Not implemented.
+  vtkQtStringToImage(const vtkQtStringToImage &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtStringToImage &) VTK_DELETE_FUNCTION;
 };
 

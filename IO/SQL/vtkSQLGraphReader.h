@@ -147,7 +147,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkSQLGraphReader(const vtkSQLGraphReader&); // Not implemented
+  vtkSQLGraphReader(const vtkSQLGraphReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSQLGraphReader&) VTK_DELETE_FUNCTION;
 };
 

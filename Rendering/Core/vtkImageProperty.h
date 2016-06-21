@@ -163,7 +163,7 @@ protected:
   double BackingColor[3];
 
 private:
-  vtkImageProperty(const vtkImageProperty&);  // Not implemented.
+  vtkImageProperty(const vtkImageProperty&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageProperty&) VTK_DELETE_FUNCTION;
 };
 

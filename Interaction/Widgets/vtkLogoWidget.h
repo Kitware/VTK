@@ -61,7 +61,7 @@ protected:
   ~vtkLogoWidget();
 
 private:
-  vtkLogoWidget(const vtkLogoWidget&);  //Not implemented
+  vtkLogoWidget(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLogoWidget&) VTK_DELETE_FUNCTION;
 };
 

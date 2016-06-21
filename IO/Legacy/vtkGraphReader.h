@@ -73,7 +73,7 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkGraphReader(const vtkGraphReader&);  // Not implemented.
+  vtkGraphReader(const vtkGraphReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphReader&) VTK_DELETE_FUNCTION;
 };
 

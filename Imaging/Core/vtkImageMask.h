@@ -102,7 +102,7 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageMask(const vtkImageMask&);  // Not implemented.
+  vtkImageMask(const vtkImageMask&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMask&) VTK_DELETE_FUNCTION;
 };
 

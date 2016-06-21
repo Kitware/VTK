@@ -110,7 +110,7 @@ protected:
   std::vector<Scalar *> Arrays;
 
 private:
-  vtkCPExodusIIResultsArrayTemplate(const vtkCPExodusIIResultsArrayTemplate &); // Not implemented.
+  vtkCPExodusIIResultsArrayTemplate(const vtkCPExodusIIResultsArrayTemplate &) VTK_DELETE_FUNCTION;
   void operator=(const vtkCPExodusIIResultsArrayTemplate &) VTK_DELETE_FUNCTION;
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);

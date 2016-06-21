@@ -86,7 +86,7 @@ private:
   vtkWeakPointer<vtkRenderWindow> Context;
 
 private:
-  vtkRenderbuffer(const vtkRenderbuffer&); // Not implemented.
+  vtkRenderbuffer(const vtkRenderbuffer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderbuffer&) VTK_DELETE_FUNCTION;
 };
 

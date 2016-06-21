@@ -75,7 +75,7 @@ protected:
   int OutputField; // which output field
 
 private:
-  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&);  // Not implemented.
+  vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMergeDataObjectFilter&) VTK_DELETE_FUNCTION;
 };
 

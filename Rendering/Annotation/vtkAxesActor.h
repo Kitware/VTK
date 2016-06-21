@@ -290,7 +290,7 @@ protected:
   double             CylinderRadius;
 
 private:
-  vtkAxesActor(const vtkAxesActor&);  // Not implemented.
+  vtkAxesActor(const vtkAxesActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxesActor&) VTK_DELETE_FUNCTION;
 };
 

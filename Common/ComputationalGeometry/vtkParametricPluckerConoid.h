@@ -80,7 +80,7 @@ protected:
   int N;
 
 private:
-  vtkParametricPluckerConoid(const vtkParametricPluckerConoid&);  // Not implemented.
+  vtkParametricPluckerConoid(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricPluckerConoid&) VTK_DELETE_FUNCTION;
 };
 

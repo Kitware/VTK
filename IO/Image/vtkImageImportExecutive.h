@@ -41,7 +41,7 @@ protected:
   ~vtkImageImportExecutive() {}
 
 private:
-  vtkImageImportExecutive(const vtkImageImportExecutive&);  // Not implemented.
+  vtkImageImportExecutive(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
 };
 

@@ -123,7 +123,7 @@ protected:
 
   int NumActors;
 private:
-  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&); // Not implemented.
+  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
 };
 

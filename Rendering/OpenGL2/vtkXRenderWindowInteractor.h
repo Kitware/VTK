@@ -191,7 +191,7 @@ protected:
   virtual void StartEventLoop();
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 

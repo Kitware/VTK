@@ -101,7 +101,7 @@ protected:
 
   unsigned char NaNColor[4];
 private:
-  vtkImageMapToColors(const vtkImageMapToColors&);  // Not implemented.
+  vtkImageMapToColors(const vtkImageMapToColors&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMapToColors&) VTK_DELETE_FUNCTION;
 };
 

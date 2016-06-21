@@ -386,7 +386,7 @@ public:
   void FlushEntryReferences(Entry* e);
 
 private:
-  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&);  // Not implemented.
+  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
 };
 

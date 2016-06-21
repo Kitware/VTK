@@ -233,7 +233,7 @@ protected:
   vtkStdString NameColumn;
 
 private:
-  vtkHeatmapItem(const vtkHeatmapItem&); // Not implemented
+  vtkHeatmapItem(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
 
   unsigned long HeatmapBuildTime;

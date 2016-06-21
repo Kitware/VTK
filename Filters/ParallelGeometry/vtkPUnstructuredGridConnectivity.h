@@ -289,7 +289,7 @@ protected:
   void ExtractBoundaryGrid();
 
 private:
-  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&); // Not implemented
+  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 

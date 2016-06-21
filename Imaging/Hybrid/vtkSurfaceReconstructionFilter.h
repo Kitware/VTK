@@ -71,7 +71,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.
+  vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;
 };
 

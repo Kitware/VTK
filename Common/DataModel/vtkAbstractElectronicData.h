@@ -101,7 +101,7 @@ protected:
   double Padding;
 
 private:
-  vtkAbstractElectronicData(const vtkAbstractElectronicData&); // Not implemented
+  vtkAbstractElectronicData(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
 };
 

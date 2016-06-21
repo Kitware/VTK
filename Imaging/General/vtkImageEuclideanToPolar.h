@@ -48,7 +48,7 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);  // Not implemented.
+  vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageEuclideanToPolar&) VTK_DELETE_FUNCTION;
 };
 

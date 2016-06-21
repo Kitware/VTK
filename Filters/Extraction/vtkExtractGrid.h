@@ -101,7 +101,7 @@ protected:
   vtkExtractStructuredGridHelper* Internal;
 
 private:
-  vtkExtractGrid(const vtkExtractGrid&);  // Not implemented.
+  vtkExtractGrid(const vtkExtractGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractGrid&) VTK_DELETE_FUNCTION;
 };
 

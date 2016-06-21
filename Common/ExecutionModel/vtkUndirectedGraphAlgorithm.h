@@ -96,7 +96,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkUndirectedGraphAlgorithm(const vtkUndirectedGraphAlgorithm&);  // Not implemented.
+  vtkUndirectedGraphAlgorithm(const vtkUndirectedGraphAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUndirectedGraphAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

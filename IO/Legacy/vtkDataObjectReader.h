@@ -54,7 +54,7 @@ protected:
                           vtkInformationVector *);
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkDataObjectReader(const vtkDataObjectReader&);  // Not implemented.
+  vtkDataObjectReader(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataObjectReader&) VTK_DELETE_FUNCTION;
 };
 

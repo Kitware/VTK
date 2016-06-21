@@ -91,7 +91,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&);  // Not implemented.
+  vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

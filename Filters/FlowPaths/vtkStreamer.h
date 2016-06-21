@@ -310,7 +310,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkStreamer(const vtkStreamer&);  // Not implemented.
+  vtkStreamer(const vtkStreamer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStreamer&) VTK_DELETE_FUNCTION;
 };
 

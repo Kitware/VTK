@@ -35,7 +35,7 @@ protected:
   ~vtkLightNode();
 
 private:
-  vtkLightNode(const vtkLightNode&); // Not implemented.
+  vtkLightNode(const vtkLightNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLightNode&) VTK_DELETE_FUNCTION;
 };
 

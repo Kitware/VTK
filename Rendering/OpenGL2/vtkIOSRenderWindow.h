@@ -309,7 +309,7 @@ protected:
   int OnScreenInitialized;
 
 private:
-  vtkIOSRenderWindow(const vtkIOSRenderWindow&);  // Not implemented.
+  vtkIOSRenderWindow(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
 
 private:

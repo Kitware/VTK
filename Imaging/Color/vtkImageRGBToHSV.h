@@ -50,7 +50,7 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageRGBToHSV(const vtkImageRGBToHSV&);  // Not implemented.
+  vtkImageRGBToHSV(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
 };
 

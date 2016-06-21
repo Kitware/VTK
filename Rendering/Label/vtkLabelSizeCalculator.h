@@ -94,7 +94,7 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ); // Not implemented.
+  vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkLabelSizeCalculator& ) VTK_DELETE_FUNCTION;
 };
 

@@ -166,7 +166,7 @@ public:
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 

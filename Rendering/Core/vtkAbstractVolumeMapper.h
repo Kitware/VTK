@@ -125,7 +125,7 @@ protected:
   int         ArrayAccessMode;
 
 private:
-  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&);  // Not implemented.
+  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 

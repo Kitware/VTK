@@ -115,7 +115,7 @@ protected:
   vtkCellLocator *Locator;
 
 private:
-  vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&);  // Not implemented.
+  vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitPolyDataDistance&) VTK_DELETE_FUNCTION;
 };
 

@@ -53,7 +53,7 @@ protected:
   vtkIdType Offset;  // offset (or starting point id)
 
 private:
-  vtkMaskPolyData(const vtkMaskPolyData&);  // Not implemented.
+  vtkMaskPolyData(const vtkMaskPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMaskPolyData&) VTK_DELETE_FUNCTION;
 };
 

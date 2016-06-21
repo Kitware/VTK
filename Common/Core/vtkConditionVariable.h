@@ -170,7 +170,7 @@ protected:
   vtkSimpleConditionVariable SimpleConditionVariable;
 
 private:
-  vtkConditionVariable( const vtkConditionVariable& ); // Not implemented.
+  vtkConditionVariable( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
 };
 

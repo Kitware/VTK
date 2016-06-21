@@ -59,7 +59,7 @@ protected:
                           unsigned char* uncompressedData,
                           size_t uncompressedSize);
 private:
-  vtkZLibDataCompressor(const vtkZLibDataCompressor&);  // Not implemented.
+  vtkZLibDataCompressor(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
 };
 

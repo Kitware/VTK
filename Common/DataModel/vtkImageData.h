@@ -414,7 +414,7 @@ private:
 
   int DataDescription;
 
-  vtkImageData(const vtkImageData&);  // Not implemented.
+  vtkImageData(const vtkImageData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageData&) VTK_DELETE_FUNCTION;
 };
 

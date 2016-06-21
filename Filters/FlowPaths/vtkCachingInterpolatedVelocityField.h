@@ -149,7 +149,7 @@ protected:
   vtkGenericCell *GetLastCell();
 
 private:
-  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&);  // Not implemented.
+  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 

@@ -102,7 +102,7 @@ protected:
   size_t Position; //the position in the Current block
 
 private:
-  vtkHeap(const vtkHeap&); // Not implemented.
+  vtkHeap(const vtkHeap&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHeap&) VTK_DELETE_FUNCTION;
 };
 

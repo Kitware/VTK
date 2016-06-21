@@ -64,7 +64,7 @@ protected:
   vtkSmartPointer<vtkAssignCoordinates> AssignCoordinates;
 
 private:
-  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.
+  vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAssignCoordinatesLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

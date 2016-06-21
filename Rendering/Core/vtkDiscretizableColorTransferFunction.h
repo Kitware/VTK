@@ -229,7 +229,7 @@ protected:
     vtkDataArray *scalars, int component, vtkUnsignedCharArray* colors);
 
 private:
-  vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.
+  vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDiscretizableColorTransferFunction&) VTK_DELETE_FUNCTION;
 
   template<typename T, typename VectorGetter>

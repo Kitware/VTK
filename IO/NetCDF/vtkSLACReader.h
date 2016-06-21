@@ -370,7 +370,7 @@ protected:
   virtual int MeshUpToDate();
 
 private:
-  vtkSLACReader(const vtkSLACReader &);         // Not implemented
+  vtkSLACReader(const vtkSLACReader &) VTK_DELETE_FUNCTION;
   void operator=(const vtkSLACReader &) VTK_DELETE_FUNCTION;
 };
 

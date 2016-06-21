@@ -85,7 +85,7 @@ protected:
                                  vtkInformationVector *);
 
 private:
-  vtkDataSetReader(const vtkDataSetReader&);  // Not implemented.
+  vtkDataSetReader(const vtkDataSetReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataSetReader&) VTK_DELETE_FUNCTION;
 };
 

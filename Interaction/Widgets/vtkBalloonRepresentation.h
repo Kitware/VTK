@@ -212,7 +212,7 @@ protected:
   void ScaleImage(double imageSize[2],double scale);
 
 private:
-  vtkBalloonRepresentation(const vtkBalloonRepresentation&);  //Not implemented
+  vtkBalloonRepresentation(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
 };
 

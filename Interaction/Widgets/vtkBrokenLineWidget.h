@@ -310,7 +310,7 @@ protected:
   double HandleSizeFactor;
 
 private:
-  vtkBrokenLineWidget(const vtkBrokenLineWidget&);  //Not implemented
+  vtkBrokenLineWidget(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
 };
 

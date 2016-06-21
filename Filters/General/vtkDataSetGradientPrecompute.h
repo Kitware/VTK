@@ -47,7 +47,7 @@ class VTKFILTERSGENERAL_EXPORT vtkDataSetGradientPrecompute : public vtkDataSetA
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
  private:
-  vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&); // Not implemented
+  vtkDataSetGradientPrecompute(const vtkDataSetGradientPrecompute&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataSetGradientPrecompute&) VTK_DELETE_FUNCTION;
 };
 

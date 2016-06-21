@@ -264,7 +264,7 @@ private:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkDelaunay2D(const vtkDelaunay2D&);  // Not implemented.
+  vtkDelaunay2D(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;
 };
 

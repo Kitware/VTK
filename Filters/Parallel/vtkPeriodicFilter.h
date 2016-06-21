@@ -115,7 +115,7 @@ protected:
   bool ReducePeriodNumbers;
 
 private:
-  vtkPeriodicFilter(const vtkPeriodicFilter&); // Not implemented.
+  vtkPeriodicFilter(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
 
   int IterationMode;

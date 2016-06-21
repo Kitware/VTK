@@ -97,7 +97,7 @@ protected:
   ~vtkTextCodec();
 
 private:
-  vtkTextCodec(const vtkTextCodec &); // Not implemented.
+  vtkTextCodec(const vtkTextCodec &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextCodec &) VTK_DELETE_FUNCTION;
 
 };

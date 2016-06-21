@@ -145,7 +145,7 @@ protected:
   int SignedDeviations;
 
 private:
-  vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented
+  vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkDescriptiveStatistics& ) VTK_DELETE_FUNCTION;
 };
 

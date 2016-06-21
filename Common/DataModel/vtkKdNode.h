@@ -254,7 +254,7 @@ private:
   int MinID;
   int MaxID;
 
-  vtkKdNode(const vtkKdNode&); // Not implemented
+  vtkKdNode(const vtkKdNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkKdNode&) VTK_DELETE_FUNCTION;
 };
 

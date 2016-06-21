@@ -89,7 +89,7 @@ protected:
   int Section;
 
 private:
-  vtkSpherePuzzle(const vtkSpherePuzzle&); // Not implemented
+  vtkSpherePuzzle(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
 };
 

@@ -61,7 +61,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkMatricizeArray(const vtkMatricizeArray&); // Not implemented
+  vtkMatricizeArray(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
 
   class Generator;

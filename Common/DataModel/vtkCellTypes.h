@@ -137,7 +137,7 @@ protected:
   vtkIdType Extend;          // grow array by this point
 
 private:
-  vtkCellTypes(const vtkCellTypes&);  // Not implemented.
+  vtkCellTypes(const vtkCellTypes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellTypes&) VTK_DELETE_FUNCTION;
 };
 

@@ -90,7 +90,7 @@ private:
   char* Description;
   vtkObjectFactory* ObjectFactory;
 private:
-  vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
+  vtkOverrideInformation(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
 };
 

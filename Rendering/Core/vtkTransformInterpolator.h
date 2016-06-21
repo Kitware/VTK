@@ -181,7 +181,7 @@ protected:
   vtkTransformList *TransformList;
 
 private:
-  vtkTransformInterpolator(const vtkTransformInterpolator&);  // Not implemented.
+  vtkTransformInterpolator(const vtkTransformInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTransformInterpolator&) VTK_DELETE_FUNCTION;
 
 };

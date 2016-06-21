@@ -97,7 +97,7 @@ protected:
   vtkProjectedTerrainPath   *Projector;
 
 private:
-  vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&);  //Not implemented
+  vtkTerrainContourLineInterpolator(const vtkTerrainContourLineInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTerrainContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 

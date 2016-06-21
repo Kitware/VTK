@@ -68,7 +68,7 @@ protected:
     const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   bool UseMPIIO;
 private:
-  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&); // Not implemented.
+  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
 };
 

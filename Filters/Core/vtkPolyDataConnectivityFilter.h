@@ -226,7 +226,7 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.
+  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
 };
 

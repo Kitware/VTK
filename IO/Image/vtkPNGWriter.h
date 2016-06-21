@@ -95,7 +95,7 @@ protected:
 
 
 private:
-  vtkPNGWriter(const vtkPNGWriter&);  // Not implemented.
+  vtkPNGWriter(const vtkPNGWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPNGWriter&) VTK_DELETE_FUNCTION;
 };
 

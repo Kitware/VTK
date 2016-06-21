@@ -94,7 +94,7 @@ protected:
   int OutputCoordinateSystem;
 
 private:
-  vtkGeoSampleArcs(const vtkGeoSampleArcs&);  // Not implemented.
+  vtkGeoSampleArcs(const vtkGeoSampleArcs&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeoSampleArcs&) VTK_DELETE_FUNCTION;
 };
 

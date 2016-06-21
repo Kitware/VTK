@@ -67,7 +67,7 @@ protected:
                            vtkImageData ***inData, vtkImageData **outData,
                            int outExt[6], int id);
 private:
-  vtkImageIdealLowPass(const vtkImageIdealLowPass&);  // Not implemented.
+  vtkImageIdealLowPass(const vtkImageIdealLowPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageIdealLowPass&) VTK_DELETE_FUNCTION;
 };
 

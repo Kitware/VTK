@@ -56,7 +56,7 @@ public:
   virtual ~vtkValuePasses();
 
  private:
-  vtkValuePasses(const vtkValuePasses&);  // Not implemented.
+  vtkValuePasses(const vtkValuePasses&) VTK_DELETE_FUNCTION;
   void operator=(const vtkValuePasses&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;

@@ -112,7 +112,7 @@ protected:
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.
+  vtkQuadraticEdge(const vtkQuadraticEdge&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraticEdge&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

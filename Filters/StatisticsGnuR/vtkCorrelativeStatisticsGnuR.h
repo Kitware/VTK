@@ -61,7 +61,7 @@ protected:
   virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
 
 private:
-  vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&); // Not implemented
+  vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCorrelativeStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 

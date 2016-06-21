@@ -162,7 +162,7 @@ protected:
   char* LabelArrayNameInternal;
 
 private:
-  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&); // Not implemented
+  vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
 };
 

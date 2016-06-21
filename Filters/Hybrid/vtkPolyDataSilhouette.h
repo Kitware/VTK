@@ -158,7 +158,7 @@ protected:
   vtkPolyDataEdges* PreComp; // precomputed data for a given point of view
 
 private:
-  vtkPolyDataSilhouette(const vtkPolyDataSilhouette&);  // Not implemented.
+  vtkPolyDataSilhouette(const vtkPolyDataSilhouette&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataSilhouette&) VTK_DELETE_FUNCTION;
 };
 

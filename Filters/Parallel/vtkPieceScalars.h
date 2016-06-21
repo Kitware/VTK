@@ -66,7 +66,7 @@ protected:
   int CellScalarsFlag;
   int RandomMode;
 private:
-  vtkPieceScalars(const vtkPieceScalars&);  // Not implemented.
+  vtkPieceScalars(const vtkPieceScalars&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPieceScalars&) VTK_DELETE_FUNCTION;
 };
 

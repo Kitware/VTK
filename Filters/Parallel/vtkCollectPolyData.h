@@ -67,7 +67,7 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectPolyData(const vtkCollectPolyData&); // Not implemented
+  vtkCollectPolyData(const vtkCollectPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollectPolyData&) VTK_DELETE_FUNCTION;
 };
 

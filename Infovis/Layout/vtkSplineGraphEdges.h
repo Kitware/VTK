@@ -88,7 +88,7 @@ protected:
   vtkIdType NumberOfSubdivisions;
 
 private:
-  vtkSplineGraphEdges(const vtkSplineGraphEdges&);  // Not implemented.
+  vtkSplineGraphEdges(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
 };
 

@@ -72,7 +72,7 @@ protected:
 
 
 private:
-  vtkImageToAMR(const vtkImageToAMR&); // Not implemented.
+  vtkImageToAMR(const vtkImageToAMR&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageToAMR&) VTK_DELETE_FUNCTION;
 
 };

@@ -128,7 +128,7 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticQuad(const vtkQuadraticQuad&);  // Not implemented.
+  vtkQuadraticQuad(const vtkQuadraticQuad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraticQuad&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

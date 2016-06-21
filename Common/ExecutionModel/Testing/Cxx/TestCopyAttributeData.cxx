@@ -51,7 +51,7 @@ protected:
     vtkInformationVector* outputVector);
 
 private:
-  vtkDummyImageFilter(const vtkDummyImageFilter&);  // Not implemented.
+  vtkDummyImageFilter(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
 };
 

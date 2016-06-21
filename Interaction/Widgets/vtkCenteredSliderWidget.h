@@ -128,7 +128,7 @@ protected:
   double Value;
 
 private:
-  vtkCenteredSliderWidget(const vtkCenteredSliderWidget&);  //Not implemented
+  vtkCenteredSliderWidget(const vtkCenteredSliderWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCenteredSliderWidget&) VTK_DELETE_FUNCTION;
 };
 

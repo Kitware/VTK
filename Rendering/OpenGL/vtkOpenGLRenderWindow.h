@@ -277,7 +277,7 @@ protected:
   vtkTextureUnitManager *TextureUnitManager;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);

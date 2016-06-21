@@ -143,7 +143,7 @@ protected:
                               double dir, double xP[3]);
 
 private:
-  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
+  vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 

@@ -50,7 +50,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkGlyph2D(const vtkGlyph2D&);  // Not implemented.
+  vtkGlyph2D(const vtkGlyph2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGlyph2D&) VTK_DELETE_FUNCTION;
 };
 

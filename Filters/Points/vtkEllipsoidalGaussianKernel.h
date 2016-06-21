@@ -162,7 +162,7 @@ protected:
   virtual void FreeStructures();
 
 private:
-  vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&);  // Not implemented.
+  vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;
 };
 

@@ -53,7 +53,7 @@ public:
   virtual ~vtkOverlayPass();
 
  private:
-  vtkOverlayPass(const vtkOverlayPass&);  // Not implemented.
+  vtkOverlayPass(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
 };
 

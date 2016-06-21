@@ -107,7 +107,7 @@ private:
   vtkStringArray *FileNames;    // VTK array of files
 
 private:
-  vtkGlobFileNames(const vtkGlobFileNames&);  // Not implemented.
+  vtkGlobFileNames(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
 };
 

@@ -102,7 +102,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&);  // Not implemented.
+  vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

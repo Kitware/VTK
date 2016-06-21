@@ -226,7 +226,7 @@ private:
   int IsSameColor(unsigned char *p1, unsigned char *p2);
 
 private:
-  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);  // Not implemented.
+  vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageToPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 

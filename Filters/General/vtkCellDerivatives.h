@@ -109,7 +109,7 @@ protected:
   int VectorMode;
   int TensorMode;
 private:
-  vtkCellDerivatives(const vtkCellDerivatives&);  // Not implemented.
+  vtkCellDerivatives(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellDerivatives&) VTK_DELETE_FUNCTION;
 };
 

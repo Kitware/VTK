@@ -71,7 +71,7 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.
+  vtkImageDilateErode3D(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;
 };
 

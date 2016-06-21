@@ -237,7 +237,7 @@ protected:
   int AttributesEncoding;
 
 private:
-  vtkXMLDataParser(const vtkXMLDataParser&);  // Not implemented.
+  vtkXMLDataParser(const vtkXMLDataParser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLDataParser&) VTK_DELETE_FUNCTION;
 };
 

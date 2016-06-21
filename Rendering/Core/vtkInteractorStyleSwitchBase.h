@@ -43,7 +43,7 @@ protected:
   ~vtkInteractorStyleSwitchBase();
 
 private:
-  vtkInteractorStyleSwitchBase(const vtkInteractorStyleSwitchBase&); // Not implemented.
+  vtkInteractorStyleSwitchBase(const vtkInteractorStyleSwitchBase&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInteractorStyleSwitchBase&) VTK_DELETE_FUNCTION;
 };
 

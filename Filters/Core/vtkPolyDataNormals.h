@@ -174,7 +174,7 @@ private:
   void MarkAndSplit(vtkIdType ptId);
 
 private:
-  vtkPolyDataNormals(const vtkPolyDataNormals&);  // Not implemented.
+  vtkPolyDataNormals(const vtkPolyDataNormals&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataNormals&) VTK_DELETE_FUNCTION;
 };
 

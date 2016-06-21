@@ -94,7 +94,7 @@ protected:
   bool DepthFirstSpanningTree;
 
 private:
-  vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&);  // Not implemented.
+  vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSpanTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

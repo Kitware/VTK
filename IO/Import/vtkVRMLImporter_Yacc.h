@@ -121,7 +121,7 @@ public:
   typedef unsigned char YY_CHAR;
   typedef int yy_state_type;
 private:
-  vtkVRMLYaccData(const vtkVRMLYaccData&); // Not implemented
+  vtkVRMLYaccData(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
   vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
 public:
   // Parser variables and functions:

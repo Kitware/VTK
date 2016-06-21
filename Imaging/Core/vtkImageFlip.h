@@ -82,7 +82,7 @@ protected:
   int PreserveImageExtent;
 
 private:
-  vtkImageFlip(const vtkImageFlip&);  // Not implemented.
+  vtkImageFlip(const vtkImageFlip&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageFlip&) VTK_DELETE_FUNCTION;
 };
 

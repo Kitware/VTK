@@ -232,7 +232,7 @@ protected:
   void ComputeNumbers();
 
 private:
-  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &);  // Not implemented.
+  vtkGenericAttributeCollection(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericAttributeCollection &) VTK_DELETE_FUNCTION;
 };
 #endif

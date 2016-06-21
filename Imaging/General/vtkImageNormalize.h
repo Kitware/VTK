@@ -41,7 +41,7 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
-  vtkImageNormalize(const vtkImageNormalize&);  // Not implemented.
+  vtkImageNormalize(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
 };
 

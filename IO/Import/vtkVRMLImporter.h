@@ -167,7 +167,7 @@ private:
   vtkPolyDataMapper* CurrentMapper;
 
 private:
-  vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
+  vtkVRMLImporter(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
 };
 

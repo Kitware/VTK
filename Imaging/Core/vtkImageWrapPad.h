@@ -47,7 +47,7 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
 private:
-  vtkImageWrapPad(const vtkImageWrapPad&);  // Not implemented.
+  vtkImageWrapPad(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
 };
 

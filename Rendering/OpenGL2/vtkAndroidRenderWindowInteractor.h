@@ -128,7 +128,7 @@ protected:
   virtual void StartEventLoop();
 
 private:
-  vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&);  // Not implemented.
+  vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAndroidRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 

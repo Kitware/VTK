@@ -174,7 +174,7 @@ protected:
   friend class vtkAngleWidgetCallback;
 
 private:
-  vtkAngleWidget(const vtkAngleWidget&);  //Not implemented
+  vtkAngleWidget(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
 };
 

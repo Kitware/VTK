@@ -63,7 +63,7 @@ protected:
   int NumberOfSubdivisions;
 
 private:
-  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&);  // Not implemented.
+  vtkInterpolatingSubdivisionFilter(const vtkInterpolatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInterpolatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 

@@ -130,7 +130,7 @@ protected:
 
   virtual int FillInputPortInformation(int, vtkInformation*);
 private:
-  vtkImageMapper(const vtkImageMapper&);  // Not implemented.
+  vtkImageMapper(const vtkImageMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMapper&) VTK_DELETE_FUNCTION;
 };
 

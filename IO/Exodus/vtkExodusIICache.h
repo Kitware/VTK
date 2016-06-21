@@ -203,7 +203,7 @@ protected:
   vtkExodusIICacheLRU LRU;
 
 private:
-  vtkExodusIICache( const vtkExodusIICache& ); // Not implemented
+  vtkExodusIICache( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
 };
 #endif // vtkExodusIICache_h

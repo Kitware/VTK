@@ -131,7 +131,7 @@ protected:
   int    WaitCount;
 
 private:
-  vtkPointHandleRepresentation2D(const vtkPointHandleRepresentation2D&);  //Not implemented
+  vtkPointHandleRepresentation2D(const vtkPointHandleRepresentation2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointHandleRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 

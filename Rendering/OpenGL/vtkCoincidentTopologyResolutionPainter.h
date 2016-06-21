@@ -98,7 +98,7 @@ protected:
   double ZShift;
   int OffsetFaces;
 private:
-  vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&); // Not implemented.
+  vtkCoincidentTopologyResolutionPainter(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
 };
 

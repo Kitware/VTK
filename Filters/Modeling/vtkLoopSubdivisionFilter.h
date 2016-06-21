@@ -76,7 +76,7 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);  // Not implemented.
+  vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLoopSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 

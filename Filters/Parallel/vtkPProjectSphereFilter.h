@@ -48,7 +48,7 @@ protected:
   virtual double GetZTranslation(vtkPointSet* input);
 
 private:
-  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &); // Not implemented
+  vtkPProjectSphereFilter(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
 };
 

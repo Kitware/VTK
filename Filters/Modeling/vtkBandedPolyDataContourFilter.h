@@ -165,7 +165,7 @@ protected:
   int GenerateContourEdges;
 
 private:
-  vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
+  vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBandedPolyDataContourFilter&) VTK_DELETE_FUNCTION;
 };
 

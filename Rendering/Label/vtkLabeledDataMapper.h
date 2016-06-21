@@ -229,7 +229,7 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.
+  vtkLabeledDataMapper(const vtkLabeledDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLabeledDataMapper&) VTK_DELETE_FUNCTION;
 };
 

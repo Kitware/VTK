@@ -63,7 +63,7 @@ protected:
   ~vtkQtView();
 
 private:
-  vtkQtView(const vtkQtView&);  // Not implemented.
+  vtkQtView(const vtkQtView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtView&) VTK_DELETE_FUNCTION;
 
 };

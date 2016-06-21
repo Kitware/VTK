@@ -173,7 +173,7 @@ protected:
   ~vtkPainterDeviceAdapter();
 
 private:
-  vtkPainterDeviceAdapter(const vtkPainterDeviceAdapter &);  // Not implemented.
+  vtkPainterDeviceAdapter(const vtkPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
 };
 

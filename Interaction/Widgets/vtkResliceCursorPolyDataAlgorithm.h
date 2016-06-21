@@ -129,7 +129,7 @@ protected:
   vtkPolyData              *ThickAxes[2];
 
 private:
-  vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&);  // Not implemented.
+  vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkResliceCursorPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
 
 };

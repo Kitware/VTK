@@ -426,7 +426,7 @@ private:
   friend class vtkInformationIterator;
 
 private:
-  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&);  // Not implemented.
+  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) VTK_DELETE_FUNCTION;
   VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) VTK_DELETE_FUNCTION;
   vtkInformationRequestKey *Request;
 };

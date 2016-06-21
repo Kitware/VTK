@@ -159,7 +159,7 @@ protected:
   FILE *FilePtr;
   char *TexturePrefix;
 private:
-  vtkRIBExporter(const vtkRIBExporter&);  // Not implemented.
+  vtkRIBExporter(const vtkRIBExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRIBExporter&) VTK_DELETE_FUNCTION;
 };
 

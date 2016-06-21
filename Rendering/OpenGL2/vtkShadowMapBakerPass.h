@@ -205,7 +205,7 @@ public:
   bool NeedUpdate;
 
 private:
-  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&);  // Not implemented.
+  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
 };
 

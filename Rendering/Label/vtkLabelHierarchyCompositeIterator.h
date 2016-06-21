@@ -107,7 +107,7 @@ protected:
   Internal* Implementation;
 
 private:
-  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ); // Not implemented.
+  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
 };
 

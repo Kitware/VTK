@@ -70,7 +70,7 @@ private:
     float minX, float maxX,
     float minY, float maxY);
 
-  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&);  // Not implemented.
+  vtkSquarifyLayoutStrategy(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSquarifyLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

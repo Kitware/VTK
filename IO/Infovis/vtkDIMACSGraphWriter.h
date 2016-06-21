@@ -71,7 +71,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&);  // Not implemented.
+  vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
 };
 

@@ -371,7 +371,7 @@ private:
   double Error;      //Maximum allowable surface error
 
 private:
-  vtkDecimatePro(const vtkDecimatePro&);  // Not implemented.
+  vtkDecimatePro(const vtkDecimatePro&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDecimatePro&) VTK_DELETE_FUNCTION;
 };
 

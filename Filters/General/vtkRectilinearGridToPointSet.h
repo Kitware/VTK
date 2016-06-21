@@ -56,7 +56,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &); // Not implemented
+  vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &) VTK_DELETE_FUNCTION;
   void operator=(const vtkRectilinearGridToPointSet &) VTK_DELETE_FUNCTION;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkRectilinearGrid *inData);

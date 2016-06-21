@@ -94,7 +94,7 @@ protected:
                           std::vector<std::vector<unsigned int> >& children,
                           const std::vector<int>& processMap);
 private:
-  vtkAMRUtilities(const vtkAMRUtilities&); // Not implemented
+  vtkAMRUtilities(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAMRUtilities&) VTK_DELETE_FUNCTION;
 };
 

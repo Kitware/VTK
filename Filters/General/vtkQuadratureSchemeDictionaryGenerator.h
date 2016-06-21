@@ -51,7 +51,7 @@ protected:
   virtual ~vtkQuadratureSchemeDictionaryGenerator();
 
 private:
-  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &); // Not implemented
+  vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
 
   // Description:

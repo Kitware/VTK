@@ -120,7 +120,7 @@ protected:
                   vtkInformationVector* outputVector);
 
 private:
-  vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.
+  vtkImageFourierFilter(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;
 };
 

@@ -52,7 +52,7 @@ protected:
   ~vtkEmptyRepresentation();
 
 private:
-  vtkEmptyRepresentation(const vtkEmptyRepresentation&); // Not implemented
+  vtkEmptyRepresentation(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEmptyRepresentation&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkConvertSelectionDomain> ConvertDomains;

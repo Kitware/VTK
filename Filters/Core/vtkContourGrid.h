@@ -171,7 +171,7 @@ protected:
   vtkEdgeTable *EdgeTable;
 
 private:
-  vtkContourGrid(const vtkContourGrid&);  // Not implemented.
+  vtkContourGrid(const vtkContourGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContourGrid&) VTK_DELETE_FUNCTION;
 };
 

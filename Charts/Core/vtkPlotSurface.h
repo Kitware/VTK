@@ -142,7 +142,7 @@ protected:
   bool DataHasBeenRescaled;
 
 private:
-  vtkPlotSurface(const vtkPlotSurface &); // Not implemented.
+  vtkPlotSurface(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
 
 };

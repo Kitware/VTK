@@ -157,7 +157,7 @@ protected:
   int    LICSuccess;
 
 private:
-  vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&); // Not implemented.
+  vtkStructuredGridLIC2D(const vtkStructuredGridLIC2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredGridLIC2D&) VTK_DELETE_FUNCTION;
 
 };

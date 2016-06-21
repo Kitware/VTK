@@ -79,7 +79,7 @@ protected:
   ~vtkOSPRayActorNode();
 
 private:
-  vtkOSPRayActorNode(const vtkOSPRayActorNode&); // Not implemented.
+  vtkOSPRayActorNode(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
 };
 #endif

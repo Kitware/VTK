@@ -85,7 +85,7 @@ private:
   int SubSetUGridCellArraySize;
   char InputIsUgrid;
 
-  vtkExtractCells(const vtkExtractCells&); // Not implemented
+  vtkExtractCells(const vtkExtractCells&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractCells&) VTK_DELETE_FUNCTION;
 };
 

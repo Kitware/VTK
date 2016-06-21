@@ -64,7 +64,7 @@ protected:
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkImageResample(const vtkImageResample&);  // Not implemented.
+  vtkImageResample(const vtkImageResample&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageResample&) VTK_DELETE_FUNCTION;
 };
 

@@ -147,7 +147,7 @@ private:
   vtkInformationObjectBaseVectorValue *GetObjectBaseVector(vtkInformation *info);
 
   //
-  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&);  // Not implemented.
+  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
 };
 

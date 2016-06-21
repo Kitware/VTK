@@ -138,7 +138,7 @@ private:
   class vtkInternal;
   vtkInternal* Internal;
 
-  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
+  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtTableModelAdapter&) VTK_DELETE_FUNCTION;
 };
 

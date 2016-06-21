@@ -59,7 +59,7 @@ protected:
   void WritePData(vtkIndent indent);
 
 private:
-  vtkXMLPStructuredGridWriter(const vtkXMLPStructuredGridWriter&);  // Not implemented.
+  vtkXMLPStructuredGridWriter(const vtkXMLPStructuredGridWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPStructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 

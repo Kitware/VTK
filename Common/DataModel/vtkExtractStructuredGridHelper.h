@@ -217,7 +217,7 @@ protected:
   void Invalidate();
 
 private:
-  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&); // Not implemented.
+  vtkExtractStructuredGridHelper(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractStructuredGridHelper&) VTK_DELETE_FUNCTION;
 };
 

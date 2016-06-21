@@ -174,7 +174,7 @@ protected:
   int ProcessEvents;
 
 private:
-  vtkAbstractWidget(const vtkAbstractWidget&);  //Not implemented
+  vtkAbstractWidget(const vtkAbstractWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractWidget&) VTK_DELETE_FUNCTION;
 };
 

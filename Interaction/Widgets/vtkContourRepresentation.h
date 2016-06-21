@@ -486,7 +486,7 @@ protected:
 
 
 private:
-  vtkContourRepresentation(const vtkContourRepresentation&);  //Not implemented
+  vtkContourRepresentation(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 

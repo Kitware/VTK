@@ -168,7 +168,7 @@ private:
   // Used to assign unique identifiers for database instances
   static int id;
 
-  vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
+  vtkQtSQLDatabase(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
 };
 

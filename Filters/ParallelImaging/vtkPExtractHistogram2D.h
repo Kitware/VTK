@@ -65,7 +65,7 @@ protected:
                       vtkMultiBlockDataSet* outMeta );
 
 private:
-  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&); // Not implemented
+  vtkPExtractHistogram2D(const vtkPExtractHistogram2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 

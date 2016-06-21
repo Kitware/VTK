@@ -69,7 +69,7 @@ protected:
   vtkVisibilitySort *VisibilitySort;
 
 private:
-  vtkProjectedAAHexahedraMapper(const vtkProjectedAAHexahedraMapper &);  // Not Implemented.
+  vtkProjectedAAHexahedraMapper(const vtkProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
   void operator=(const vtkProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
 };
 

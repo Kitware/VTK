@@ -40,7 +40,7 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreaklineFilter: public vtkPParti
  protected:
   vtkPStreaklineFilter();
   ~vtkPStreaklineFilter(){}
-  vtkPStreaklineFilter(const vtkPStreaklineFilter&);  // Not implemented.
+  vtkPStreaklineFilter(const vtkPStreaklineFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPStreaklineFilter&) VTK_DELETE_FUNCTION;
   virtual int OutputParticles(vtkPolyData* poly);
   virtual void Finalize();

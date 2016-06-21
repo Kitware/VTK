@@ -120,7 +120,7 @@ protected:
   void ViaPoint(double x[3], vtkIdType id, vtkDataArray *normals=0);
 
 private:
-  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&);  // Not implemented.
+  vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLinearExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 

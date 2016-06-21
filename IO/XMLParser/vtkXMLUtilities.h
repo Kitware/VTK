@@ -131,7 +131,7 @@ protected:
                                       vtkXMLDataElement *pool);
 
 private:
-  vtkXMLUtilities(const vtkXMLUtilities&); // Not implemented
+  vtkXMLUtilities(const vtkXMLUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLUtilities&) VTK_DELETE_FUNCTION;
 };
 

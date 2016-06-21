@@ -88,7 +88,7 @@ protected:
   int AttributeMode; //control whether to use point or cell data, or both
 
 private:
-  vtkVectorNorm(const vtkVectorNorm&);  // Not implemented.
+  vtkVectorNorm(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
 
   // Helper function

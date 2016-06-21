@@ -450,7 +450,7 @@ protected:
   friend class vtkXMLWriterHelper;
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
+  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
 };
 

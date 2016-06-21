@@ -362,7 +362,7 @@ protected:
   TranslationTableType *TranslationTable;
 
 private:
-  vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.
+  vtkGenericEnSightReader(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
 };
 

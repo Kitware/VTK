@@ -122,7 +122,7 @@ protected:
   virtual void FreeStructures();
 
 private:
-  vtkInterpolationKernel(const vtkInterpolationKernel&);  // Not implemented.
+  vtkInterpolationKernel(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
 };
 

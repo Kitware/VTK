@@ -398,7 +398,7 @@ public:
 
 private:
 
-  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & );  // Not implemented.
+  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
 };
 // ==========================================================================//

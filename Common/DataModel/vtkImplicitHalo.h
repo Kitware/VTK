@@ -78,7 +78,7 @@ protected:
   double FadeOut;
 
 private:
-  vtkImplicitHalo(const vtkImplicitHalo&); // Not implemented.
+  vtkImplicitHalo(const vtkImplicitHalo&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitHalo&) VTK_DELETE_FUNCTION;
 };
 

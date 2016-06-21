@@ -173,7 +173,7 @@ protected:
                             vtkAbstractArray *arr, void *dataIn, int dir);
 
 private:
-  vtkSortDataArray(const vtkSortDataArray &);  // Not implemented.
+  vtkSortDataArray(const vtkSortDataArray &) VTK_DELETE_FUNCTION;
   void operator=(const vtkSortDataArray &) VTK_DELETE_FUNCTION;
 };
 

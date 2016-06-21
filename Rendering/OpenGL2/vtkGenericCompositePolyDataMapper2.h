@@ -157,7 +157,7 @@ private:
   bool LastOpaqueCheckValue;
   double ColorResult[3];
 
-  vtkGenericCompositePolyDataMapper2(const vtkGenericCompositePolyDataMapper2&); // Not implemented.
+  vtkGenericCompositePolyDataMapper2(const vtkGenericCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
 
 };

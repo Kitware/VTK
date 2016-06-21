@@ -115,7 +115,7 @@ protected:
   ~vtkQtRichTextView();
 
 private:
-  vtkQtRichTextView(const vtkQtRichTextView&);  // Not implemented.
+  vtkQtRichTextView(const vtkQtRichTextView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtRichTextView&) VTK_DELETE_FUNCTION;
 
   char* ContentColumnName;

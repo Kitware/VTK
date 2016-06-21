@@ -201,7 +201,7 @@ private:
 
   char *DatabaseType;
 
-  vtkODBCDatabase(const vtkODBCDatabase &); // Not implemented.
+  vtkODBCDatabase(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
   void operator=(const vtkODBCDatabase &) VTK_DELETE_FUNCTION;
 };
 

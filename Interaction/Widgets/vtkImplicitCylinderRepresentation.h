@@ -415,7 +415,7 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&);  //Not implemented
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
 };
 

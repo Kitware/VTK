@@ -53,7 +53,7 @@ protected:
                           vtkInformationVector*);
 
 private:
-  vtkForceTime(const vtkForceTime&);  // Not implemented.
+  vtkForceTime(const vtkForceTime&) VTK_DELETE_FUNCTION;
   void operator=(const vtkForceTime&) VTK_DELETE_FUNCTION;
 
   double ForcedTime;

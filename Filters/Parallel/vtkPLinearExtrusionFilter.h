@@ -54,7 +54,7 @@ protected:
 
   int PieceInvariant;
 private:
-  vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&);  // Not implemented.
+  vtkPLinearExtrusionFilter(const vtkPLinearExtrusionFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPLinearExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 

@@ -131,7 +131,7 @@ protected:
   bool LayoutIsDirty;
 
 private:
-  vtkChartMatrix(const vtkChartMatrix &); // Not implemented.
+  vtkChartMatrix(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
 };
 

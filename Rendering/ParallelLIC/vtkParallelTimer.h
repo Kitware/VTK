@@ -165,7 +165,7 @@ protected:
   virtual ~vtkParallelTimer();
 
 private:
-  vtkParallelTimer(const vtkParallelTimer&); // Not implemented
+  vtkParallelTimer(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
 
   // Description:

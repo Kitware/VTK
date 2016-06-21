@@ -61,7 +61,7 @@ protected:
     int vtkNotUsed(port), vtkInformation* info);
 
 private:
-  vtkNetworkHierarchy(const vtkNetworkHierarchy&); // Not implemented
+  vtkNetworkHierarchy(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
 
   // Internal helper functions

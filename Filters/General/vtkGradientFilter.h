@@ -209,7 +209,7 @@ protected:
   int ComputeVorticity;
 
 private:
-  vtkGradientFilter(const vtkGradientFilter &); // Not implemented
+  vtkGradientFilter(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
 };
 

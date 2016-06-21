@@ -99,7 +99,7 @@ protected:
   int UserManagedInputs;
   int AppendByUnion;
 private:
-  vtkAppendSelection(const vtkAppendSelection&);  // Not implemented.
+  vtkAppendSelection(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
 };
 

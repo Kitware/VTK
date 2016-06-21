@@ -212,7 +212,7 @@ protected:
   friend class vtkBiDimensionalWidgetCallback;
 
 private:
-  vtkBiDimensionalWidget(const vtkBiDimensionalWidget&);  //Not implemented
+  vtkBiDimensionalWidget(const vtkBiDimensionalWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBiDimensionalWidget&) VTK_DELETE_FUNCTION;
 };
 

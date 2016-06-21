@@ -94,7 +94,7 @@ protected:
   vtkHyperOctreeIdSet *IdSet;
 
 private:
-  vtkHyperOctreeClipCutPointsGrabber(const vtkHyperOctreeClipCutPointsGrabber&);  // Not implemented.
+  vtkHyperOctreeClipCutPointsGrabber(const vtkHyperOctreeClipCutPointsGrabber&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperOctreeClipCutPointsGrabber&) VTK_DELETE_FUNCTION;
 };
 

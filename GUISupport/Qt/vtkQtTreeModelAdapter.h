@@ -110,7 +110,7 @@ protected:
   QHash<QModelIndex, QVariant> IndexToDecoration;
 
 private:
-  vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &);  // Not implemented
+  vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtTreeModelAdapter&) VTK_DELETE_FUNCTION;
 };
 

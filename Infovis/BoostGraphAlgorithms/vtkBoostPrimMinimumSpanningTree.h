@@ -126,7 +126,7 @@ private:
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
 
-  vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&);  // Not implemented.
+  vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBoostPrimMinimumSpanningTree&) VTK_DELETE_FUNCTION;
 };
 

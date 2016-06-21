@@ -159,7 +159,7 @@ protected:
   vtkDoubleArray *ParametricCoords;
 
 private:
-  vtkConvexPointSet(const vtkConvexPointSet&);  // Not implemented.
+  vtkConvexPointSet(const vtkConvexPointSet&) VTK_DELETE_FUNCTION;
   void operator=(const vtkConvexPointSet&) VTK_DELETE_FUNCTION;
 };
 

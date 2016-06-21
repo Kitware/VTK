@@ -123,7 +123,7 @@ protected:
   int GhostLevel;
 
 private:
-  vtkPistonMapper(const vtkPistonMapper&); // Not implemented.
+  vtkPistonMapper(const vtkPistonMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPistonMapper&) VTK_DELETE_FUNCTION;
 
   // Description:

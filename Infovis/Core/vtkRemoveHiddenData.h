@@ -60,7 +60,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkRemoveHiddenData(const vtkRemoveHiddenData&);  // Not implemented.
+  vtkRemoveHiddenData(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkExtractSelectedGraph> ExtractGraph;

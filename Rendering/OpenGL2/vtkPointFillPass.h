@@ -93,7 +93,7 @@ public:
   float MinimumCandidateAngle;
 
  private:
-  vtkPointFillPass(const vtkPointFillPass&);  // Not implemented.
+  vtkPointFillPass(const vtkPointFillPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointFillPass&) VTK_DELETE_FUNCTION;
 };
 

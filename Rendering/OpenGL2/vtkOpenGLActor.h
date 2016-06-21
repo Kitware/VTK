@@ -66,7 +66,7 @@ protected:
   vtkTimeStamp KeyMatrixTime;
 
 private:
-  vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
+  vtkOpenGLActor(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
 };
 

@@ -148,7 +148,7 @@ protected:
   virtual ~vtkGL2PSContextDevice2D();
 
 private:
-  vtkGL2PSContextDevice2D(const vtkGL2PSContextDevice2D &); // Not implemented.
+  vtkGL2PSContextDevice2D(const vtkGL2PSContextDevice2D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkGL2PSContextDevice2D &) VTK_DELETE_FUNCTION;
 
   void DrawCrossMarkers(bool highlight, float *points, int n,

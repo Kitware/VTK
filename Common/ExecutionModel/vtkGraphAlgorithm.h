@@ -103,7 +103,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphAlgorithm(const vtkGraphAlgorithm&);  // Not implemented.
+  vtkGraphAlgorithm(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

@@ -345,7 +345,7 @@ protected:
   char* ParseError;
 
 private:
-  vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.
+  vtkFunctionParser(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
 };
 

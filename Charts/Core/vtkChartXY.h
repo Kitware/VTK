@@ -342,7 +342,7 @@ protected:
   bool ZoomWithMouseWheel;
 
 private:
-  vtkChartXY(const vtkChartXY &); // Not implemented.
+  vtkChartXY(const vtkChartXY &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartXY &) VTK_DELETE_FUNCTION;
 
   vtkChartXYPrivate *ChartPrivate; // Private class where I hide my STL containers

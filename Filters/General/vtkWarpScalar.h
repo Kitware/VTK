@@ -98,7 +98,7 @@ protected:
   double *ZNormal(vtkIdType id, vtkDataArray *normals=NULL);
 
 private:
-  vtkWarpScalar(const vtkWarpScalar&);  // Not implemented.
+  vtkWarpScalar(const vtkWarpScalar&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWarpScalar&) VTK_DELETE_FUNCTION;
 };
 

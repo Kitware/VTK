@@ -73,7 +73,7 @@ protected:
   int Error;
 
 private:
-  vtkGenericMovieWriter(const vtkGenericMovieWriter&); // Not implemented
+  vtkGenericMovieWriter(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
 };
 

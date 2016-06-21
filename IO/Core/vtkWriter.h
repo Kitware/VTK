@@ -85,7 +85,7 @@ protected:
   virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkTimeStamp WriteTime;
 private:
-  vtkWriter(const vtkWriter&);  // Not implemented.
+  vtkWriter(const vtkWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWriter&) VTK_DELETE_FUNCTION;
 };
 

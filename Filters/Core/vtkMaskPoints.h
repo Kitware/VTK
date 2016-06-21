@@ -148,7 +148,7 @@ protected:
   unsigned long GetLocalSampleSize(vtkIdType, int);
 
 private:
-  vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
+  vtkMaskPoints(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
 };
 

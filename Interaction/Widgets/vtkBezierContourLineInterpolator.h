@@ -89,7 +89,7 @@ protected:
   int    MaximumCurveLineSegments;
 
 private:
-  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&);  //Not implemented
+  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 

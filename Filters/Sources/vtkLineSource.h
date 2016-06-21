@@ -83,7 +83,7 @@ protected:
   vtkPoints* Points;
 
 private:
-  vtkLineSource(const vtkLineSource&);  // Not implemented.
+  vtkLineSource(const vtkLineSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLineSource&) VTK_DELETE_FUNCTION;
 };
 

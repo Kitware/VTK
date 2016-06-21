@@ -40,7 +40,7 @@ protected:
   virtual void WriteFileHeader(
     ofstream *, vtkImageData *, int wExt[6]);
 private:
-  vtkPNMWriter(const vtkPNMWriter&);  // Not implemented.
+  vtkPNMWriter(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
 };
 

@@ -82,7 +82,7 @@ protected:
                                            int expectedNumComponents);
 
 private:
-  vtkSLACParticleReader(const vtkSLACParticleReader &);         // Not implemented
+  vtkSLACParticleReader(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
   void operator=(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
 };
 

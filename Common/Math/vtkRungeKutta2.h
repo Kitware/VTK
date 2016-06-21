@@ -86,7 +86,7 @@ protected:
   vtkRungeKutta2();
   ~vtkRungeKutta2();
 private:
-  vtkRungeKutta2(const vtkRungeKutta2&);  // Not implemented.
+  vtkRungeKutta2(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRungeKutta2&) VTK_DELETE_FUNCTION;
 };
 

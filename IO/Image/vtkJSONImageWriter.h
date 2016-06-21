@@ -62,7 +62,7 @@ protected:
                           vtkInformationVector* outputVector);
 
 private:
-  vtkJSONImageWriter(const vtkJSONImageWriter&);  // Not implemented.
+  vtkJSONImageWriter(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkJSONImageWriter&) VTK_DELETE_FUNCTION;
 };
 

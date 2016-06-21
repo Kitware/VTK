@@ -109,7 +109,7 @@ protected:
   int PedigreeID;
 
 private:
-  vtkGenerateIndexArray(const vtkGenerateIndexArray&);  // Not implemented.
+  vtkGenerateIndexArray(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
 };
 

@@ -87,7 +87,7 @@ private:
 
 private:
   void operator=(const vtkAssemblyNode&) VTK_DELETE_FUNCTION;
-  vtkAssemblyNode(const vtkAssemblyNode&); // Not implemented.
+  vtkAssemblyNode(const vtkAssemblyNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -304,7 +304,7 @@ protected:
   vtkProp3D *CachedProp3D; //support the PokeMatrix() method
   int IsIdentity;
 private:
-  vtkProp3D(const vtkProp3D&);  // Not implemented.
+  vtkProp3D(const vtkProp3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProp3D&) VTK_DELETE_FUNCTION;
 };
 

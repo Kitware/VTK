@@ -83,7 +83,7 @@ private:
 
   vtkCirclePackFrontChainLayoutStrategyImplementation* pimpl; // Private implementation
 
-  vtkCirclePackFrontChainLayoutStrategy(const vtkCirclePackFrontChainLayoutStrategy&);  // Not implemented.
+  vtkCirclePackFrontChainLayoutStrategy(const vtkCirclePackFrontChainLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCirclePackFrontChainLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

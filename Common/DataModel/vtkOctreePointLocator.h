@@ -230,7 +230,7 @@ protected:
   // default is to have this set on.
   int CreateCubicOctants;
 
-  vtkOctreePointLocator(const vtkOctreePointLocator&); // Not implemented
+  vtkOctreePointLocator(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
 };
 #endif

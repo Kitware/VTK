@@ -211,7 +211,7 @@ protected:
   int DerivativesAvailable;
 
 private:
-  vtkParametricFunction(const vtkParametricFunction&);  // Not implemented.
+  vtkParametricFunction(const vtkParametricFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParametricFunction&) VTK_DELETE_FUNCTION;
 
 };

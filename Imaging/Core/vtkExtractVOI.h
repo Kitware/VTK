@@ -106,7 +106,7 @@ protected:
 
   vtkExtractStructuredGridHelper* Internal;
 private:
-  vtkExtractVOI(const vtkExtractVOI&);  // Not implemented.
+  vtkExtractVOI(const vtkExtractVOI&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractVOI&) VTK_DELETE_FUNCTION;
 };
 

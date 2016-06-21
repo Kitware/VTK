@@ -62,7 +62,7 @@ protected:
   double DashFactor;
 
 private:
-  vtkDashedStreamLine(const vtkDashedStreamLine&);  // Not implemented.
+  vtkDashedStreamLine(const vtkDashedStreamLine&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDashedStreamLine&) VTK_DELETE_FUNCTION;
 };
 

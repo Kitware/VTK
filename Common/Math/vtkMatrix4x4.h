@@ -166,7 +166,7 @@ protected:
   double DoublePoint[4];
 
 private:
-  vtkMatrix4x4(const vtkMatrix4x4&);  // Not implemented
+  vtkMatrix4x4(const vtkMatrix4x4&) VTK_DELETE_FUNCTION;
   void operator= (const vtkMatrix4x4&) VTK_DELETE_FUNCTION;
 };
 

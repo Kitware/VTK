@@ -84,7 +84,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkSTLWriter(const vtkSTLWriter&);  // Not implemented.
+  vtkSTLWriter(const vtkSTLWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSTLWriter&) VTK_DELETE_FUNCTION;
 };
 

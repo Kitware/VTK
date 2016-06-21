@@ -38,7 +38,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkSubdivideTetra(const vtkSubdivideTetra&);  // Not implemented.
+  vtkSubdivideTetra(const vtkSubdivideTetra&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSubdivideTetra&) VTK_DELETE_FUNCTION;
 };
 

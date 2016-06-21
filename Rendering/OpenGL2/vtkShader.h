@@ -87,7 +87,7 @@ protected:
   std::string Error;
 
 private:
-  vtkShader(const vtkShader&);  // Not implemented.
+  vtkShader(const vtkShader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShader&) VTK_DELETE_FUNCTION;
 };
 

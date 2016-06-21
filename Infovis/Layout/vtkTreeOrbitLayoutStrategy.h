@@ -73,7 +73,7 @@ protected:
 
 private:
 
-  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&);  // Not implemented.
+  vtkTreeOrbitLayoutStrategy(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeOrbitLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

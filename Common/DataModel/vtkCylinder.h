@@ -84,7 +84,7 @@ protected:
   double Axis[3];
 
 private:
-  vtkCylinder(const vtkCylinder&);  // Not implemented.
+  vtkCylinder(const vtkCylinder&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCylinder&) VTK_DELETE_FUNCTION;
 };
 

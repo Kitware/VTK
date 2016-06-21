@@ -114,7 +114,7 @@ protected:
     vtkInformationVector *);
 
 private:
-  vtkDeformPointSet(const vtkDeformPointSet&);  // Not implemented.
+  vtkDeformPointSet(const vtkDeformPointSet&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDeformPointSet&) VTK_DELETE_FUNCTION;
 
 };

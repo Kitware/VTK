@@ -90,7 +90,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkMergeTables(const vtkMergeTables&); // Not implemented
+  vtkMergeTables(const vtkMergeTables&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMergeTables&) VTK_DELETE_FUNCTION;
 };
 

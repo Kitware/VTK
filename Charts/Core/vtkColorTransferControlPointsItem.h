@@ -108,7 +108,7 @@ protected:
 
   bool ColorFill;
 private:
-  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &); // Not implemented.
+  vtkColorTransferControlPointsItem(const vtkColorTransferControlPointsItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkColorTransferControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 

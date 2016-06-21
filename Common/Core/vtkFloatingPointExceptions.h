@@ -39,7 +39,7 @@ public:
 
 private:
   vtkFloatingPointExceptions(); // Not implemented.
-  vtkFloatingPointExceptions(const vtkFloatingPointExceptions&);  // Not implemented.
+  vtkFloatingPointExceptions(const vtkFloatingPointExceptions&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFloatingPointExceptions&) VTK_DELETE_FUNCTION;
 };
 

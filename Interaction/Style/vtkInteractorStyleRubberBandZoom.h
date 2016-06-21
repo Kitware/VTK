@@ -54,7 +54,7 @@ protected:
   vtkUnsignedCharArray *PixelArray;
 
 private:
-  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&);  // Not implemented
+  vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
 };
 

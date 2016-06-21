@@ -112,7 +112,7 @@ protected:
   void ReadScalarFile(int numPts, vtkInformation *outInfo);
   void ReadTextureFile(int numPts, vtkInformation *outInfo);
 private:
-  vtkBYUReader(const vtkBYUReader&);  // Not implemented.
+  vtkBYUReader(const vtkBYUReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBYUReader&) VTK_DELETE_FUNCTION;
 };
 

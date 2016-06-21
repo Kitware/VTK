@@ -85,7 +85,7 @@ protected:
   int* GetPortsWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&);  // Not implemented.
+  vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;
 };
 

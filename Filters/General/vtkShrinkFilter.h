@@ -60,7 +60,7 @@ protected:
   double ShrinkFactor;
 
 private:
-  vtkShrinkFilter(const vtkShrinkFilter&);  // Not implemented.
+  vtkShrinkFilter(const vtkShrinkFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShrinkFilter&) VTK_DELETE_FUNCTION;
 };
 

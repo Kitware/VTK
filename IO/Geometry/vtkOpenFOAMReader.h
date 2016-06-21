@@ -303,7 +303,7 @@ protected:
 private:
   vtkOpenFOAMReader *Parent;
 
-  vtkOpenFOAMReader(const vtkOpenFOAMReader&);  // Not implemented.
+  vtkOpenFOAMReader(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
 
   int GetNumberOfSelectionArrays(vtkDataArraySelection *);

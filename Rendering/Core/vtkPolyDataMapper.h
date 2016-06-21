@@ -132,7 +132,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkPolyDataMapper(const vtkPolyDataMapper&);  // Not implemented.
+  vtkPolyDataMapper(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 

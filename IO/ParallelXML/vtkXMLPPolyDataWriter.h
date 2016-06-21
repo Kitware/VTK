@@ -57,7 +57,7 @@ protected:
   vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
 
 private:
-  vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&);  // Not implemented.
+  vtkXMLPPolyDataWriter(const vtkXMLPPolyDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPPolyDataWriter&) VTK_DELETE_FUNCTION;
 };
 

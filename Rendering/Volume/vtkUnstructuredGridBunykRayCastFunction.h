@@ -252,7 +252,7 @@ protected:
   void          ComputePixelIntersections();
 
 private:
-  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
+  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 

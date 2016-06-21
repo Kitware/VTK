@@ -112,7 +112,7 @@ protected:
 
 private:
 
-  vtkMatlabEngineInterface(const vtkMatlabEngineInterface&);  // Not implemented.
+  vtkMatlabEngineInterface(const vtkMatlabEngineInterface&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMatlabEngineInterface&) VTK_DELETE_FUNCTION;
 
   vtkMatlabEngineSingleton* meng;

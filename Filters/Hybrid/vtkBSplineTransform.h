@@ -137,7 +137,7 @@ protected:
   vtkIdType GridIncrements[3];
 
 private:
-  vtkBSplineTransform(const vtkBSplineTransform&);  // Not implemented.
+  vtkBSplineTransform(const vtkBSplineTransform&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBSplineTransform&) VTK_DELETE_FUNCTION;
 
   vtkBSplineTransformConnectionHolder* ConnectionHolder;

@@ -70,7 +70,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridPartitioner :
     int NumberOfGhostLayers;
     int DuplicateNodes;
   private:
-    vtkUniformGridPartitioner(const vtkUniformGridPartitioner &); // Not implemented
+    vtkUniformGridPartitioner(const vtkUniformGridPartitioner &) VTK_DELETE_FUNCTION;
     void operator=(const vtkUniformGridPartitioner &) VTK_DELETE_FUNCTION;
 
 };

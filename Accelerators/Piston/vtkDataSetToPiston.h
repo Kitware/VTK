@@ -50,7 +50,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkDataSetToPiston(const vtkDataSetToPiston&);  // Not implemented.
+  vtkDataSetToPiston(const vtkDataSetToPiston&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataSetToPiston&) VTK_DELETE_FUNCTION;
 };
 

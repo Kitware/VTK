@@ -276,7 +276,7 @@ protected:
   friend class vtkXMLMaterialParser;
 
 private:
-  vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.
+  vtkXMLDataElement(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
 };
 

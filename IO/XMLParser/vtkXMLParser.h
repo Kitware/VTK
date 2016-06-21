@@ -185,7 +185,7 @@ protected:
   int IgnoreCharacterData;
 
 private:
-  vtkXMLParser(const vtkXMLParser&);  // Not implemented.
+  vtkXMLParser(const vtkXMLParser&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLParser&) VTK_DELETE_FUNCTION;
 };
 

@@ -149,7 +149,7 @@ protected:
                                  vtkMultiPieceDataSet* output,
                                  vtkIdType outputId);
 private:
-  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&); // Not implemented.
+  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
 
   bool ComputeRotationsOnTheFly;

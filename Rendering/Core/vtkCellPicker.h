@@ -289,7 +289,7 @@ private:
   vtkDoubleArray *Gradients; //used in volume picking
 
 private:
-  vtkCellPicker(const vtkCellPicker&);  // Not implemented.
+  vtkCellPicker(const vtkCellPicker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellPicker&) VTK_DELETE_FUNCTION;
 };
 

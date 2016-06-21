@@ -213,7 +213,7 @@ private:
   void Cleanup();
 
 private:
-  vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
+  vtkRectilinearGrid(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
 };
 

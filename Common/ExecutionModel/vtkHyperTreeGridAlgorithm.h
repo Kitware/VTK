@@ -106,7 +106,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&);  // Not implemented.
+  vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

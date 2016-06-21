@@ -112,7 +112,7 @@ protected:
   double Center[3];
   double Scale[3];
 private:
-  vtkSuperquadric(const vtkSuperquadric&);  // Not implemented.
+  vtkSuperquadric(const vtkSuperquadric&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSuperquadric&) VTK_DELETE_FUNCTION;
 };
 

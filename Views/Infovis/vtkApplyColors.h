@@ -238,7 +238,7 @@ protected:
   bool UseCurrentAnnotationColor;
 
 private:
-  vtkApplyColors(const vtkApplyColors&);  // Not implemented.
+  vtkApplyColors(const vtkApplyColors&) VTK_DELETE_FUNCTION;
   void operator=(const vtkApplyColors&) VTK_DELETE_FUNCTION;
 };
 

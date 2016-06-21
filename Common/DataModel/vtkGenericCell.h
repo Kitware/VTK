@@ -154,7 +154,7 @@ protected:
   vtkCell *Cell;
 
 private:
-  vtkGenericCell(const vtkGenericCell&);  // Not implemented.
+  vtkGenericCell(const vtkGenericCell&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericCell&) VTK_DELETE_FUNCTION;
 };
 

@@ -49,7 +49,7 @@ protected:
   ~vtkDataArrayCollectionIterator();
 
 private:
-  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&); // Not implemented
+  vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;
 };
 

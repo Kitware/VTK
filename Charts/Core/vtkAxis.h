@@ -594,7 +594,7 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkAxis(const vtkAxis &); // Not implemented.
+  vtkAxis(const vtkAxis &) VTK_DELETE_FUNCTION;
   void operator=(const vtkAxis &) VTK_DELETE_FUNCTION;
 
   // Description:

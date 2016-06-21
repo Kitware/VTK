@@ -105,7 +105,7 @@ protected:
   vtkActor2D     *BackgroundActor;
 
 private:
-  vtkProgressBarRepresentation(const vtkProgressBarRepresentation&);  //Not implemented
+  vtkProgressBarRepresentation(const vtkProgressBarRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProgressBarRepresentation&) VTK_DELETE_FUNCTION;
 };
 

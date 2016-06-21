@@ -166,7 +166,7 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkClipPolyData(const vtkClipPolyData&);  // Not implemented.
+  vtkClipPolyData(const vtkClipPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClipPolyData&) VTK_DELETE_FUNCTION;
 };
 

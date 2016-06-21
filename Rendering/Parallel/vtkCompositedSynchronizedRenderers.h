@@ -48,7 +48,7 @@ protected:
 
   vtkCompositer* Compositer;
 private:
-  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&); // Not implemented
+  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
 
 };

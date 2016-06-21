@@ -69,7 +69,7 @@ protected:
   vtkVolumeProperty *TransferFunction;
 
 private:
-  vtkClassifyVolume(const vtkClassifyVolume&);  // Not implemented
+  vtkClassifyVolume(const vtkClassifyVolume&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClassifyVolume&) VTK_DELETE_FUNCTION;
 };
 

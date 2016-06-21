@@ -196,7 +196,7 @@ protected:
   ~vtkSparseArray();
 
 private:
-  vtkSparseArray(const vtkSparseArray&); // Not implemented
+  vtkSparseArray(const vtkSparseArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSparseArray&) VTK_DELETE_FUNCTION;
 
   void InternalResize(const vtkArrayExtents& extents);

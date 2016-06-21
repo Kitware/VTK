@@ -68,7 +68,7 @@ protected:
   virtual void DeletePositionArrays();
 
 private:
-  vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&);  // Not implemented.
+  vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 

@@ -83,7 +83,7 @@ protected:
   double EndAngle;
 
 private:
-  vtkSectorSource(const vtkSectorSource&);  // Not implemented.
+  vtkSectorSource(const vtkSectorSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSectorSource&) VTK_DELETE_FUNCTION;
 };
 

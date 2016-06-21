@@ -61,7 +61,7 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPlaneCollection(const vtkPlaneCollection&);  // Not implemented.
+  vtkPlaneCollection(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
 };
 

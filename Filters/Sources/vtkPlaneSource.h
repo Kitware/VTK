@@ -138,7 +138,7 @@ protected:
 
   int UpdatePlane(double v1[3], double v2[3]);
 private:
-  vtkPlaneSource(const vtkPlaneSource&);  // Not implemented.
+  vtkPlaneSource(const vtkPlaneSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlaneSource&) VTK_DELETE_FUNCTION;
 };
 

@@ -49,7 +49,7 @@ protected:
   virtual ~vtkBridgeCellIteratorStrategy() {}
 
 private:
-  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&); // Not implemented
+  vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
 };
 

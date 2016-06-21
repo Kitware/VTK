@@ -92,7 +92,7 @@ protected:
                            int outExt[6], int id);
 
 private:
-  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);  // Not implemented.
+  vtkImageGaussianSmooth(const vtkImageGaussianSmooth&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageGaussianSmooth&) VTK_DELETE_FUNCTION;
 };
 

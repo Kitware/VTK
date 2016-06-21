@@ -118,7 +118,7 @@ protected:
   void** ResizeAndExtend(vtkIdType sz);  // function to resize data
 
 private:
-  vtkVoidArray(const vtkVoidArray&);  // Not implemented.
+  vtkVoidArray(const vtkVoidArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVoidArray&) VTK_DELETE_FUNCTION;
 };
 

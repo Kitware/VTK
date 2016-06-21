@@ -94,7 +94,7 @@ protected:
   static vtkNew<vtkBlueObeliskData> BlueObeliskData;
 
 private:
-  vtkPeriodicTable(const vtkPeriodicTable&);   // Not implemented
+  vtkPeriodicTable(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
 };
 

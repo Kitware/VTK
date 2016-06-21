@@ -185,7 +185,7 @@ protected:
 
   vtkTimeStamp BuildTime;
 private:
-  vtkPairwiseExtractHistogram2D(const vtkPairwiseExtractHistogram2D&); // Not implemented
+  vtkPairwiseExtractHistogram2D(const vtkPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 

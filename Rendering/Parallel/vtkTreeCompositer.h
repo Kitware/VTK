@@ -73,7 +73,7 @@ protected:
   ~vtkTreeCompositer();
 
 private:
-  vtkTreeCompositer(const vtkTreeCompositer&); // Not implemented
+  vtkTreeCompositer(const vtkTreeCompositer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeCompositer&) VTK_DELETE_FUNCTION;
 };
 

@@ -35,7 +35,7 @@ protected:
   ~vtkCameraNode();
 
 private:
-  vtkCameraNode(const vtkCameraNode&); // Not implemented.
+  vtkCameraNode(const vtkCameraNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCameraNode&) VTK_DELETE_FUNCTION;
 };
 

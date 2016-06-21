@@ -49,7 +49,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&);  // Not implemented.
+  vtkTreeLevelsFilter(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;
 };
 

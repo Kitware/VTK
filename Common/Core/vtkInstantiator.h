@@ -106,7 +106,7 @@ protected:
   friend class vtkInstantiatorInitialize;
 
 private:
-  vtkInstantiator(const vtkInstantiator&);  // Not implemented.
+  vtkInstantiator(const vtkInstantiator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInstantiator&) VTK_DELETE_FUNCTION;
 };
 

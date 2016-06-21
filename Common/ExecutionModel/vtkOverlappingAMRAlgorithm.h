@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkOverlappingAMRAlgorithm :
     virtual int FillInputPortInformation(int port, vtkInformation* info);
 
   private:
-    vtkOverlappingAMRAlgorithm(const vtkOverlappingAMRAlgorithm&); // Not implemented
+    vtkOverlappingAMRAlgorithm(const vtkOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
     void operator=(const vtkOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

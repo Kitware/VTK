@@ -80,7 +80,7 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkProcessIdScalars(const vtkProcessIdScalars&);  // Not implemented.
+  vtkProcessIdScalars(const vtkProcessIdScalars&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProcessIdScalars&) VTK_DELETE_FUNCTION;
 };
 

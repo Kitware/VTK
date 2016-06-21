@@ -746,7 +746,7 @@ protected:
 
   friend class vtkPExodusIIReader;
 private:
-  vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
+  vtkExodusIIReader(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
 
   void AddDisplacements(vtkUnstructuredGrid* output);

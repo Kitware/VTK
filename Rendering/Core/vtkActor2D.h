@@ -145,7 +145,7 @@ protected:
   vtkCoordinate *Position2Coordinate;
 
 private:
-  vtkActor2D(const vtkActor2D&);  // Not implemented.
+  vtkActor2D(const vtkActor2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkActor2D&) VTK_DELETE_FUNCTION;
 };
 

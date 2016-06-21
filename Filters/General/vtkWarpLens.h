@@ -98,7 +98,7 @@ protected:
   int ImageWidth;               // image width in pixels
   int ImageHeight;              // image height in pixels
 private:
-  vtkWarpLens(const vtkWarpLens&);  // Not implemented.
+  vtkWarpLens(const vtkWarpLens&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWarpLens&) VTK_DELETE_FUNCTION;
 };
 

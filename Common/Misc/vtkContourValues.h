@@ -86,7 +86,7 @@ protected:
   vtkDoubleArray *Contours;
 
 private:
-  vtkContourValues(const vtkContourValues&);  // Not implemented.
+  vtkContourValues(const vtkContourValues&) VTK_DELETE_FUNCTION;
   void operator=(const vtkContourValues&) VTK_DELETE_FUNCTION;
 };
 

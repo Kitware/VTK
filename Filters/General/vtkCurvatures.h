@@ -131,7 +131,7 @@ protected:
   int InvertMeanCurvature;
 
 private:
-  vtkCurvatures(const vtkCurvatures&);  // Not implemented.
+  vtkCurvatures(const vtkCurvatures&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCurvatures&) VTK_DELETE_FUNCTION;
 
 };

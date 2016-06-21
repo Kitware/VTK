@@ -100,7 +100,7 @@ protected:
 
   void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
 private:
-  vtkImageReader(const vtkImageReader&);  // Not implemented.
+  vtkImageReader(const vtkImageReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageReader&) VTK_DELETE_FUNCTION;
 };
 

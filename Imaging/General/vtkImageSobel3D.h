@@ -50,7 +50,7 @@ protected:
                                   vtkInformationVector *outputVector);
 
 private:
-  vtkImageSobel3D(const vtkImageSobel3D&);  // Not implemented.
+  vtkImageSobel3D(const vtkImageSobel3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageSobel3D&) VTK_DELETE_FUNCTION;
 };
 

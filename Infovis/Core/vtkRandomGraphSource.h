@@ -159,7 +159,7 @@ protected:
                                 vtkInformationVector* outputVector);
 
 private:
-  vtkRandomGraphSource(const vtkRandomGraphSource&); // Not implemented
+  vtkRandomGraphSource(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;
 };
 

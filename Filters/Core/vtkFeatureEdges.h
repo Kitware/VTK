@@ -124,7 +124,7 @@ protected:
   int OutputPointsPrecision;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkFeatureEdges(const vtkFeatureEdges&);  // Not implemented.
+  vtkFeatureEdges(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
 };
 

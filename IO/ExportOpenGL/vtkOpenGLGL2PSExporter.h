@@ -153,7 +153,7 @@ protected:
   vtkNew<vtkImageData> PixelData;
 
 private:
-  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter&); // Not implemented
+  vtkOpenGLGL2PSExporter(const vtkOpenGLGL2PSExporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLGL2PSExporter&) VTK_DELETE_FUNCTION;
 };
 

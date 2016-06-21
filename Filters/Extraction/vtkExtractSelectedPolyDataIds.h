@@ -46,7 +46,7 @@ protected:
                   vtkInformationVector *);
 
 private:
-  vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&);  // Not implemented.
+  vtkExtractSelectedPolyDataIds(const vtkExtractSelectedPolyDataIds&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractSelectedPolyDataIds&) VTK_DELETE_FUNCTION;
 };
 

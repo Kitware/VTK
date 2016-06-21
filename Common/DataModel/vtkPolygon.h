@@ -213,7 +213,7 @@ protected:
   int EarCutTriangulation();
 
 private:
-  vtkPolygon(const vtkPolygon&);  // Not implemented.
+  vtkPolygon(const vtkPolygon&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolygon&) VTK_DELETE_FUNCTION;
 };
 

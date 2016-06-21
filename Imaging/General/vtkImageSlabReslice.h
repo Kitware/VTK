@@ -99,7 +99,7 @@ protected:
   int    NumBlendSamplePoints;
 
 private:
-  vtkImageSlabReslice(const vtkImageSlabReslice&);  // Not implemented.
+  vtkImageSlabReslice(const vtkImageSlabReslice&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageSlabReslice&) VTK_DELETE_FUNCTION;
 };
 

@@ -67,7 +67,7 @@ protected:
   int InverseFlag;
   vtkMatrix4x4 *Input;
 private:
-  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&);  // Not implemented.
+  vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMatrixToLinearTransform&) VTK_DELETE_FUNCTION;
 };
 

@@ -127,7 +127,7 @@ protected:
   bool PlotTransformValid;
 
 private:
-  vtkChartPie(const vtkChartPie &); // Not implemented.
+  vtkChartPie(const vtkChartPie &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartPie &) VTK_DELETE_FUNCTION;
 
   // Description:

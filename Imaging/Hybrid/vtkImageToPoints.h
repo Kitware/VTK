@@ -73,7 +73,7 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkImageToPoints(const vtkImageToPoints&);  // Not implemented.
+  vtkImageToPoints(const vtkImageToPoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageToPoints&) VTK_DELETE_FUNCTION;
 };
 

@@ -286,7 +286,7 @@ protected:
   double StartCPUTime;
 
 private:
-  vtkTesting(const vtkTesting&);  // Not implemented.
+  vtkTesting(const vtkTesting&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTesting&) VTK_DELETE_FUNCTION;
 };
 

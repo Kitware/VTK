@@ -82,7 +82,7 @@ protected:
   vtkRenderer *Renderer;
 
 private:
-  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&);  // Not implemented.
+  vtkTDxInteractorStyle(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTDxInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 #endif

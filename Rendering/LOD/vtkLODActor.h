@@ -145,7 +145,7 @@ protected:
   virtual void DeleteOwnLODs();
 
 private:
-  vtkLODActor(const vtkLODActor&);  // Not implemented.
+  vtkLODActor(const vtkLODActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLODActor&) VTK_DELETE_FUNCTION;
 };
 

@@ -381,7 +381,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   class vtkSQLDatabaseSchemaInternals* Internals;
 
  private:
-  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &); // Not implemented.
+  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
   void operator=(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
 };
 

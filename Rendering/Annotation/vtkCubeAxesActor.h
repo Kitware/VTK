@@ -670,7 +670,7 @@ protected:
   double AxisBaseForZ[3];
 
 private:
-  vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
+  vtkCubeAxesActor(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
 
   vtkSetStringMacro(ActualXLabel);

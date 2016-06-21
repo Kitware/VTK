@@ -146,7 +146,7 @@ protected:
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
 private:
-  vtkPlotStacked(const vtkPlotStacked &); // Not implemented.
+  vtkPlotStacked(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
 
   vtkPlotStackedPrivate *Private;

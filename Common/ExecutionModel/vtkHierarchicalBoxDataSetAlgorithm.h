@@ -96,7 +96,7 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
+  vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 
 };

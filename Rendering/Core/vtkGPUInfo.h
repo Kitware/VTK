@@ -65,7 +65,7 @@ protected:
   vtkTypeUInt64 SharedSystemMemory;
 
 private:
-  vtkGPUInfo(const vtkGPUInfo&); // Not implemented.
+  vtkGPUInfo(const vtkGPUInfo&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGPUInfo&) VTK_DELETE_FUNCTION;
 };
 

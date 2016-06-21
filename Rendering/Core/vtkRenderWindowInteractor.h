@@ -754,7 +754,7 @@ protected:
   vtkCommand::EventIds CurrentGesture;
 
 private:
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 

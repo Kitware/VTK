@@ -64,7 +64,7 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkTreeRingToPolyData(const vtkTreeRingToPolyData&);  // Not implemented.
+  vtkTreeRingToPolyData(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeRingToPolyData&) VTK_DELETE_FUNCTION;
 };
 

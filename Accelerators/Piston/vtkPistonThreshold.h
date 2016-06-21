@@ -52,7 +52,7 @@ protected:
   float MaxValue;
 
 private:
-  vtkPistonThreshold(const vtkPistonThreshold&);  // Not implemented.
+  vtkPistonThreshold(const vtkPistonThreshold&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPistonThreshold&) VTK_DELETE_FUNCTION;
 
 };

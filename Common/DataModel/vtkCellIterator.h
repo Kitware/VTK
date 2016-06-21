@@ -166,7 +166,7 @@ protected:
   vtkIdList *Faces;
 
 private:
-  vtkCellIterator(const vtkCellIterator &); // Not implemented.
+  vtkCellIterator(const vtkCellIterator &) VTK_DELETE_FUNCTION;
   void operator=(const vtkCellIterator &) VTK_DELETE_FUNCTION;
 
   enum

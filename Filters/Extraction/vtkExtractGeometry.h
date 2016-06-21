@@ -92,7 +92,7 @@ protected:
   int ExtractOnlyBoundaryCells;
 
 private:
-  vtkExtractGeometry(const vtkExtractGeometry&);  // Not implemented.
+  vtkExtractGeometry(const vtkExtractGeometry&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractGeometry&) VTK_DELETE_FUNCTION;
 };
 

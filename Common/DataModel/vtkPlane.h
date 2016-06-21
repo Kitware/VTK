@@ -115,7 +115,7 @@ protected:
   double Origin[3];
 
 private:
-  vtkPlane(const vtkPlane&);  // Not implemented.
+  vtkPlane(const vtkPlane&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlane&) VTK_DELETE_FUNCTION;
 };
 

@@ -211,7 +211,7 @@ public:
  private:
   vtkAMRInformation();
   ~vtkAMRInformation();
-  vtkAMRInformation(const vtkAMRInformation&); // Not implemented.
+  vtkAMRInformation(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAMRInformation&) VTK_DELETE_FUNCTION;
 
   bool HasValidOrigin();

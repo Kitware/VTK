@@ -164,7 +164,7 @@ protected:
   void CloseFile(ostream *fp);
 
 private:
-  vtkMNIObjectWriter(const vtkMNIObjectWriter&); // Not implemented
+  vtkMNIObjectWriter(const vtkMNIObjectWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMNIObjectWriter&) VTK_DELETE_FUNCTION;
 
 };

@@ -100,7 +100,7 @@ protected:
   bool UseDomain;
 
 private:
-  vtkExpandSelectedGraph(const vtkExpandSelectedGraph&); // Not implemented
+  vtkExpandSelectedGraph(const vtkExpandSelectedGraph&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExpandSelectedGraph&) VTK_DELETE_FUNCTION;
 
   void BFSExpandSelection(vtkIdTypeArray *selection,

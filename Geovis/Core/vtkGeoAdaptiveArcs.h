@@ -91,7 +91,7 @@ protected:
   vtkDoubleArray* InputLongitude;
 
 private:
-  vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&);  // Not implemented.
+  vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeoAdaptiveArcs&) VTK_DELETE_FUNCTION;
 };
 

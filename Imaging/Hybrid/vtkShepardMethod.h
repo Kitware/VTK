@@ -156,7 +156,7 @@ protected:
   double PowerParameter;
 
 private:
-  vtkShepardMethod(const vtkShepardMethod&);  // Not implemented.
+  vtkShepardMethod(const vtkShepardMethod&) VTK_DELETE_FUNCTION;
   void operator=(const vtkShepardMethod&) VTK_DELETE_FUNCTION;
 };
 

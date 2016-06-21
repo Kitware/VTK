@@ -71,7 +71,7 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectTable(const vtkCollectTable&); // Not implemented
+  vtkCollectTable(const vtkCollectTable&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollectTable&) VTK_DELETE_FUNCTION;
 };
 

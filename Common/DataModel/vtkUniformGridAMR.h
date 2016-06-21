@@ -138,7 +138,7 @@ protected:
 
 
 private:
-  vtkUniformGridAMR(const vtkUniformGridAMR&);  // Not implemented.
+  vtkUniformGridAMR(const vtkUniformGridAMR&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUniformGridAMR&) VTK_DELETE_FUNCTION;
 
   friend class vtkUniformGridAMRDataIterator;

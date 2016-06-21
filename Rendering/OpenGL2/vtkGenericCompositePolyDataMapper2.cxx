@@ -98,7 +98,7 @@ protected:
     vtkRenderer *ren, vtkActor *act);
 
 private:
-  vtkCompositeMapperHelper(const vtkCompositeMapperHelper&); // Not implemented.
+  vtkCompositeMapperHelper(const vtkCompositeMapperHelper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeMapperHelper&) VTK_DELETE_FUNCTION;
 };
 

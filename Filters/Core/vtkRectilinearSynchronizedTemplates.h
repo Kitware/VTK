@@ -157,7 +157,7 @@ protected:
                             vtkRectilinearGrid *input);
 
 private:
-  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
+  vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
 };
 

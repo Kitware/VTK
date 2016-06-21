@@ -193,7 +193,7 @@ protected:
                         int tick, int deltatick, const char *event);
 
 private:
-  vtkTimerLog(const vtkTimerLog&);  // Not implemented.
+  vtkTimerLog(const vtkTimerLog&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
 };
 

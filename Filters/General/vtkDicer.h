@@ -121,7 +121,7 @@ protected:
   int           DiceMode;
 
 private:
-  vtkDicer(const vtkDicer&);  // Not implemented.
+  vtkDicer(const vtkDicer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDicer&) VTK_DELETE_FUNCTION;
 };
 

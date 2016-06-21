@@ -133,7 +133,7 @@ protected:
   float *KernelLookupTable;
 
 private:
-  vtkImageBSplineInterpolator(const vtkImageBSplineInterpolator&);  // Not implemented.
+  vtkImageBSplineInterpolator(const vtkImageBSplineInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageBSplineInterpolator&) VTK_DELETE_FUNCTION;
 };
 

@@ -213,7 +213,7 @@ protected:
                           vtkInformationVector* outputVector);
 
 private:
-  vtkMINCImageWriter(const vtkMINCImageWriter&); // Not implemented
+  vtkMINCImageWriter(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
 
 };

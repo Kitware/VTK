@@ -81,7 +81,7 @@ protected:
   vtkCellArray* Cells;
 
 private:
-  vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&);  // Not implemented.
+  vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
 };
 

@@ -313,7 +313,7 @@ protected:
   static int CheckForMPIError(int err);
 
 private:
-  vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
+  vtkMPICommunicator(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
 };
 

@@ -92,7 +92,7 @@ protected:
   int NormalizeByWeight;
 
 private:
-  vtkImplicitSum(const vtkImplicitSum&);  // Not implemented.
+  vtkImplicitSum(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
 };
 

@@ -129,7 +129,7 @@ protected:
   ~vtkRowQuery();
   bool CaseSensitiveFieldNames;
 private:
-  vtkRowQuery(const vtkRowQuery &); // Not implemented.
+  vtkRowQuery(const vtkRowQuery &) VTK_DELETE_FUNCTION;
   void operator=(const vtkRowQuery &) VTK_DELETE_FUNCTION;
 };
 

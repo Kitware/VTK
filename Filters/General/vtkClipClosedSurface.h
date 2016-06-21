@@ -284,7 +284,7 @@ protected:
     unsigned char colors[3][3]);
 
 private:
-  vtkClipClosedSurface(const vtkClipClosedSurface&);  // Not implemented.
+  vtkClipClosedSurface(const vtkClipClosedSurface&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClipClosedSurface&) VTK_DELETE_FUNCTION;
 };
 

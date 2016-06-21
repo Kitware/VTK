@@ -186,7 +186,7 @@ protected:
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
 
 private:
-  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&);  // Not implemented.
+  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 

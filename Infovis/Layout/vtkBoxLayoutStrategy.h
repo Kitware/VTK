@@ -59,7 +59,7 @@ private:
     float parentMinX, float parentMaxX,
     float parentMinY, float parentMaxY);
 
-  vtkBoxLayoutStrategy(const vtkBoxLayoutStrategy&);  // Not implemented.
+  vtkBoxLayoutStrategy(const vtkBoxLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBoxLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

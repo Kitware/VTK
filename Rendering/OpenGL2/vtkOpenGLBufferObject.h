@@ -105,7 +105,7 @@ protected:
   bool UploadInternal(const void *buffer, size_t size, ObjectType objectType);
 
 private:
-  vtkOpenGLBufferObject(const vtkOpenGLBufferObject&); // Not implemented
+  vtkOpenGLBufferObject(const vtkOpenGLBufferObject&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLBufferObject&) VTK_DELETE_FUNCTION;
   struct Private;
   Private *Internal;

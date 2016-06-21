@@ -62,7 +62,7 @@ protected:
 private:
   vtkDataArray  *vtkArray;
   xdmf2::XdmfArray  *Array;
-  vtkXdmfDataArray(const vtkXdmfDataArray&); // Not implemented
+  vtkXdmfDataArray(const vtkXdmfDataArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXdmfDataArray&) VTK_DELETE_FUNCTION;
 };
 

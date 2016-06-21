@@ -83,7 +83,7 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkCylinderSource(const vtkCylinderSource&);  // Not implemented.
+  vtkCylinderSource(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
 };
 

@@ -105,7 +105,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&);  // Not implemented.
+  vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

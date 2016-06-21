@@ -151,7 +151,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.
+  vtkVolumeMapper(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 

@@ -97,7 +97,7 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkCompositeDataSetAlgorithm(const vtkCompositeDataSetAlgorithm&);  // Not implemented.
+  vtkCompositeDataSetAlgorithm(const vtkCompositeDataSetAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

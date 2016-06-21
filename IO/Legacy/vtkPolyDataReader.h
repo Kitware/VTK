@@ -62,7 +62,7 @@ protected:
   int FillOutputPortInformation(int, vtkInformation*);
 
 private:
-  vtkPolyDataReader(const vtkPolyDataReader&);  // Not implemented.
+  vtkPolyDataReader(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 

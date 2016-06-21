@@ -102,7 +102,7 @@ protected:
   vtkAnnotation* CurrentAnnotation;
 
 private:
-  vtkAnnotationLayers(const vtkAnnotationLayers&);  // Not implemented.
+  vtkAnnotationLayers(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
 
 };

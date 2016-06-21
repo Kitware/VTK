@@ -82,7 +82,7 @@ protected:
     int SnapMode;
 
 private:
-  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&);  // Not implemented.
+  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
 };
 

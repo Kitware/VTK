@@ -51,7 +51,7 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphToPoints(const vtkGraphToPoints&);  // Not implemented.
+  vtkGraphToPoints(const vtkGraphToPoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphToPoints&) VTK_DELETE_FUNCTION;
 };
 

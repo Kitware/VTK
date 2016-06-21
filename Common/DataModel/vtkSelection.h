@@ -118,7 +118,7 @@ protected:
   ~vtkSelection();
 
 private:
-  vtkSelection(const vtkSelection&);  // Not implemented.
+  vtkSelection(const vtkSelection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSelection&) VTK_DELETE_FUNCTION;
 
   vtkSelectionInternals* Internal;

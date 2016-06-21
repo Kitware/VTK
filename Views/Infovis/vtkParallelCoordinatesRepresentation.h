@@ -331,7 +331,7 @@ protected:
   char* InternalHoverText;
 
 private:
-  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&); // Not implemented
+  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
 };
 

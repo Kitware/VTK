@@ -56,7 +56,7 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkExtractDataSets(const vtkExtractDataSets&); // Not implemented.
+  vtkExtractDataSets(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;

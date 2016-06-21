@@ -104,7 +104,7 @@ protected:
   bool IncludeColorAndLuminance;
 
 private:
-  vtkPTSReader(const vtkPTSReader&);  // Not implemented.
+  vtkPTSReader(const vtkPTSReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPTSReader&) VTK_DELETE_FUNCTION;
 };
 

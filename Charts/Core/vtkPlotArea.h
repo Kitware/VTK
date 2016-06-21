@@ -101,7 +101,7 @@ protected:
   vtkStdString ValidPointMaskName;
 
 private:
-  vtkPlotArea(const vtkPlotArea&); // Not implemented.
+  vtkPlotArea(const vtkPlotArea&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotArea&) VTK_DELETE_FUNCTION;
 
   class vtkTableCache;

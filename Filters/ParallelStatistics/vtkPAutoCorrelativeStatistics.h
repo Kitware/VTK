@@ -62,7 +62,7 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&); // Not implemented.
+  vtkPAutoCorrelativeStatistics(const vtkPAutoCorrelativeStatistics&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPAutoCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 

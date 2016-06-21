@@ -65,7 +65,7 @@ protected:
   ~vtkIcicleView();
 
 private:
-  vtkIcicleView(const vtkIcicleView&);  // Not implemented.
+  vtkIcicleView(const vtkIcicleView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkIcicleView&) VTK_DELETE_FUNCTION;
 };
 

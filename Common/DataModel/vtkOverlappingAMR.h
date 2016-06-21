@@ -153,7 +153,7 @@ public:
   virtual ~vtkOverlappingAMR();
 
 private:
-  vtkOverlappingAMR(const vtkOverlappingAMR&);  // Not implemented.
+  vtkOverlappingAMR(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
 };
 

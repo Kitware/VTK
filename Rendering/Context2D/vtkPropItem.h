@@ -56,7 +56,7 @@ protected:
 private:
   vtkProp *PropObject;
 
-  vtkPropItem(const vtkPropItem &); // Not implemented.
+  vtkPropItem(const vtkPropItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPropItem &) VTK_DELETE_FUNCTION;
 };
 

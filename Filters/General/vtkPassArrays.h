@@ -151,7 +151,7 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkPassArrays(const vtkPassArrays&); // Not implemented
+  vtkPassArrays(const vtkPassArrays&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPassArrays&) VTK_DELETE_FUNCTION;
 };
 

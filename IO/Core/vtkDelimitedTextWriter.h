@@ -97,7 +97,7 @@ protected:
   ostream* Stream;
 
 private:
-  vtkDelimitedTextWriter(const vtkDelimitedTextWriter&); // Not implemented.
+  vtkDelimitedTextWriter(const vtkDelimitedTextWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDelimitedTextWriter&) VTK_DELETE_FUNCTION;
 };
 

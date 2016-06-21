@@ -73,7 +73,7 @@ protected:
   virtual bool UpdateLayout(vtkContext2D *painter);
 
 private:
-  vtkChartHistogram2D(const vtkChartHistogram2D &); // Not implemented.
+  vtkChartHistogram2D(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
 };
 

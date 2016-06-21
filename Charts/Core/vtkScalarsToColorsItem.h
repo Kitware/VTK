@@ -108,7 +108,7 @@ protected:
   vtkPen*             PolyLinePen;
   bool                MaskAboveCurve;
 private:
-  vtkScalarsToColorsItem(const vtkScalarsToColorsItem &); // Not implemented.
+  vtkScalarsToColorsItem(const vtkScalarsToColorsItem &) VTK_DELETE_FUNCTION;
   void operator=(const vtkScalarsToColorsItem &) VTK_DELETE_FUNCTION;
 };
 

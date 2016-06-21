@@ -194,7 +194,7 @@ protected:
   void GenerateTraversalTable();
 
 private:
-  vtkHyperOctreeDualGridContourFilter(const vtkHyperOctreeDualGridContourFilter&);  // Not implemented.
+  vtkHyperOctreeDualGridContourFilter(const vtkHyperOctreeDualGridContourFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperOctreeDualGridContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

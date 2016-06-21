@@ -65,7 +65,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkSplineWidget2(const vtkSplineWidget2&); // Not implemented.
+  vtkSplineWidget2(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
 
 };

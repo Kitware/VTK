@@ -70,7 +70,7 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageCorrelation(const vtkImageCorrelation&);  // Not implemented.
+  vtkImageCorrelation(const vtkImageCorrelation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageCorrelation&) VTK_DELETE_FUNCTION;
 };
 

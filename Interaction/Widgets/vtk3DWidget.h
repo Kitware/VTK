@@ -140,7 +140,7 @@ protected:
   void UpdateInput();
 
 private:
-  vtk3DWidget(const vtk3DWidget&);  // Not implemented.
+  vtk3DWidget(const vtk3DWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtk3DWidget&) VTK_DELETE_FUNCTION;
 
 };

@@ -82,7 +82,7 @@ protected:
   ~vtkTextCodecFactory();
 
 private:
-  vtkTextCodecFactory(const vtkTextCodecFactory &); // Not implemented.
+  vtkTextCodecFactory(const vtkTextCodecFactory &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextCodecFactory &) VTK_DELETE_FUNCTION;
 
   // Description;

@@ -106,7 +106,7 @@ protected:
   vtkTriangle *Triangle;
 
 private:
-  vtkQuad(const vtkQuad&);  // Not implemented.
+  vtkQuad(const vtkQuad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuad&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

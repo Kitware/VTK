@@ -88,7 +88,7 @@ protected:
   bool     WeightEdges;
 private:
 
-  vtkGraphLayoutStrategy(const vtkGraphLayoutStrategy&);  // Not implemented.
+  vtkGraphLayoutStrategy(const vtkGraphLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGraphLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

@@ -79,7 +79,7 @@ protected:
   void UpdateRotationMatrix();
 
 private:
-  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &); // Not implemented.
+  vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
   void operator=(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
 
   double Angle;            // Rotation angle in degrees

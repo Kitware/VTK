@@ -107,7 +107,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&);  // Not implemented.
+  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
 };
 

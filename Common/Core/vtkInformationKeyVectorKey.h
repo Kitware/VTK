@@ -66,7 +66,7 @@ public:
   virtual void Print(ostream& os, vtkInformation* info);
 
 private:
-  vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&);  // Not implemented.
+  vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInformationKeyVectorKey&) VTK_DELETE_FUNCTION;
 };
 

@@ -138,7 +138,7 @@ protected:
   double Bounds[6];
 
 private:
-  vtkImageActorPointPlacer(const vtkImageActorPointPlacer&);  //Not implemented
+  vtkImageActorPointPlacer(const vtkImageActorPointPlacer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageActorPointPlacer&) VTK_DELETE_FUNCTION;
 };
 

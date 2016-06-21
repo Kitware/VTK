@@ -123,7 +123,7 @@ protected:
   vtkIdType Root;
 
 private:
-  vtkTree(const vtkTree&);  // Not implemented.
+  vtkTree(const vtkTree&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTree&) VTK_DELETE_FUNCTION;
 };
 

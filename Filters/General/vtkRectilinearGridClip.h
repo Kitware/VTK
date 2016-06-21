@@ -77,7 +77,7 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkRectilinearGridClip(const vtkRectilinearGridClip&);  // Not implemented.
+  vtkRectilinearGridClip(const vtkRectilinearGridClip&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRectilinearGridClip&) VTK_DELETE_FUNCTION;
 };
 

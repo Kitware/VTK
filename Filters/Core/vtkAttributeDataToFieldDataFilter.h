@@ -66,7 +66,7 @@ protected:
 
   int PassAttributeData;
 private:
-  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&);  // Not implemented.
+  vtkAttributeDataToFieldDataFilter(const vtkAttributeDataToFieldDataFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAttributeDataToFieldDataFilter&) VTK_DELETE_FUNCTION;
 };
 

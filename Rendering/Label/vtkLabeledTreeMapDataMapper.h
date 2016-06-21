@@ -147,7 +147,7 @@ protected:
   vtkTextProperty **HLabelProperties;
 
 private:
-  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
+  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
 };
 

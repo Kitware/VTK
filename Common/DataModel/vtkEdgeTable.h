@@ -163,7 +163,7 @@ protected:
   vtkIdList **Resize(vtkIdType size);
 
 private:
-  vtkEdgeTable(const vtkEdgeTable&);  // Not implemented.
+  vtkEdgeTable(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
 };
 

@@ -361,7 +361,7 @@ protected:
   int SelectMode;
 
 private:
-  vtkGlyph3DMapper(const vtkGlyph3DMapper&); // Not implemented.
+  vtkGlyph3DMapper(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
 
   // Description:

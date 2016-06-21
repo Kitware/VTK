@@ -79,7 +79,7 @@ protected:
   char        *FileName;
 
 private:
-  vtkAbstractParticleWriter(const vtkAbstractParticleWriter&);  // Not implemented.
+  vtkAbstractParticleWriter(const vtkAbstractParticleWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractParticleWriter&) VTK_DELETE_FUNCTION;
 };
 

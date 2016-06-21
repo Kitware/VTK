@@ -93,7 +93,7 @@ protected:
   double OutputSpacing[3];
 
 private:
-  vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
+  vtkImageStencilSource(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
 };
 

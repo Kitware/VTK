@@ -88,7 +88,7 @@ protected:
   virtual void SetCursor(int State);
 
 private:
-  vtkScalarBarWidget(const vtkScalarBarWidget&);  //Not implemented
+  vtkScalarBarWidget(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;
 };
 

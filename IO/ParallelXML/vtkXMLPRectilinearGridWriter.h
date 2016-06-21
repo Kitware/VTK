@@ -59,7 +59,7 @@ protected:
   void WritePData(vtkIndent indent);
 
 private:
-  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
+  vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 

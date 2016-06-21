@@ -234,7 +234,7 @@ protected:
   int TranslucentCachedResult;
 
 private:
-  vtkTexture(const vtkTexture&);  // Not implemented.
+  vtkTexture(const vtkTexture&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTexture&) VTK_DELETE_FUNCTION;
 };
 

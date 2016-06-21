@@ -335,7 +335,7 @@ protected:
   vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory *MemoryManager;
 
 private:
-  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
 };
 

@@ -51,7 +51,7 @@ protected:
   ~vtkRenderedAreaPicker();
 
 private:
-  vtkRenderedAreaPicker(const vtkRenderedAreaPicker&);  // Not implemented.
+  vtkRenderedAreaPicker(const vtkRenderedAreaPicker&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderedAreaPicker&) VTK_DELETE_FUNCTION;
 };
 

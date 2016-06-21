@@ -164,7 +164,7 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&);  // Not implemented.
+  vtkDataSetAlgorithm(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

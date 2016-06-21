@@ -135,7 +135,7 @@ protected:
   vtkDataArraySelectionInternals* Internal;
 
 private:
-  vtkDataArraySelection(const vtkDataArraySelection&);  // Not implemented.
+  vtkDataArraySelection(const vtkDataArraySelection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataArraySelection&) VTK_DELETE_FUNCTION;
 };
 

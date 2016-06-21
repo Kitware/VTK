@@ -101,7 +101,7 @@ protected:
   vtkSmartPointer<vtkRenderWindow> RenderWindow;
 
 private:
-  vtkRenderViewBase(const vtkRenderViewBase&);  // Not implemented.
+  vtkRenderViewBase(const vtkRenderViewBase&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRenderViewBase&) VTK_DELETE_FUNCTION;
 };
 

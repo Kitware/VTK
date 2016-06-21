@@ -120,7 +120,7 @@ protected:
   double              HeightOffset;
 
 private:
-  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&);  //Not implemented
+  vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
 };
 

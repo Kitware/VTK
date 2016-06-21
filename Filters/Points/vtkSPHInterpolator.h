@@ -358,7 +358,7 @@ protected:
                                double origin[3], double spacing[3]);
 
 private:
-  vtkSPHInterpolator(const vtkSPHInterpolator&);  // Not implemented.
+  vtkSPHInterpolator(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
 
 };

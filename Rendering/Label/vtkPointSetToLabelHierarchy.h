@@ -110,7 +110,7 @@ protected:
   vtkTextProperty* TextProperty;
 
 private:
-  vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ); // Not implemented.
+  vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkPointSetToLabelHierarchy& ) VTK_DELETE_FUNCTION;
 };
 

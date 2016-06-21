@@ -82,7 +82,7 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkFreeTypeStringToImage(const vtkFreeTypeStringToImage &); // Not implemented.
+  vtkFreeTypeStringToImage(const vtkFreeTypeStringToImage &) VTK_DELETE_FUNCTION;
   void operator=(const vtkFreeTypeStringToImage &) VTK_DELETE_FUNCTION;
 };
 

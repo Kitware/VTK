@@ -113,7 +113,7 @@ protected:
   int Height;
 
 private:
-  vtkAbstractContextBufferId(const vtkAbstractContextBufferId &); // Not implemented.
+  vtkAbstractContextBufferId(const vtkAbstractContextBufferId &) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractContextBufferId &) VTK_DELETE_FUNCTION;
 };
 

@@ -188,7 +188,7 @@ protected:
   virtual void EndCueInternal();
 
 private:
-  vtkAnimationCue(const vtkAnimationCue&);  // Not implemented.
+  vtkAnimationCue(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
 };
 

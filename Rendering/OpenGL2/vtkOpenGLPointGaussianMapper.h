@@ -51,7 +51,7 @@ protected:
   vtkTimeStamp HelperUpdateTime;
 
 private:
-  vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&); // Not implemented.
+  vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLPointGaussianMapper&) VTK_DELETE_FUNCTION;
 };
 

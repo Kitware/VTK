@@ -270,7 +270,7 @@ protected:
   double NextFramePeriod;
 
 private:
-  vtkMILVideoSource(const vtkMILVideoSource&);  // Not implemented.
+  vtkMILVideoSource(const vtkMILVideoSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMILVideoSource&) VTK_DELETE_FUNCTION;
 };
 

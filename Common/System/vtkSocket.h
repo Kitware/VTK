@@ -112,7 +112,7 @@ protected:
   int GetPort(int socketdescriptor);
 
 private:
-  vtkSocket(const vtkSocket&); // Not implemented.
+  vtkSocket(const vtkSocket&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSocket&) VTK_DELETE_FUNCTION;
 };
 

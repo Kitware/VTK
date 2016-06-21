@@ -59,7 +59,7 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPYoungsMaterialInterface(const vtkPYoungsMaterialInterface&); // Not implemented
+  vtkPYoungsMaterialInterface(const vtkPYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
 };
 

@@ -146,7 +146,7 @@ protected:
   int         SuccessParsingFiles;
 
 private:
-  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
+  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
 };
 

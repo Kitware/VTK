@@ -242,7 +242,7 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
+  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
   void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
 };
 

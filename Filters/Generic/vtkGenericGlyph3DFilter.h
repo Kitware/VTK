@@ -258,7 +258,7 @@ protected:
   vtkSetStringMacro(InputNormalsSelection);
 
 private:
-  vtkGenericGlyph3DFilter(const vtkGenericGlyph3DFilter&);  // Not implemented.
+  vtkGenericGlyph3DFilter(const vtkGenericGlyph3DFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericGlyph3DFilter&) VTK_DELETE_FUNCTION;
 };
 

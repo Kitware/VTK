@@ -85,7 +85,7 @@ protected:
   double BaseAltitude;
 
 private:
-  vtkGeoSphereTransform( const vtkGeoSphereTransform& ); // Not implemented.
+  vtkGeoSphereTransform( const vtkGeoSphereTransform& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkGeoSphereTransform& ) VTK_DELETE_FUNCTION;
 };
 

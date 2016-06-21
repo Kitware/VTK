@@ -35,7 +35,7 @@ class VTKFILTERSGENERAL_EXPORT vtkLevelIdScalars :
     virtual ~vtkLevelIdScalars();
 
   private:
-    vtkLevelIdScalars(const vtkLevelIdScalars&); // Not implemented
+    vtkLevelIdScalars(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
     void operator=(const vtkLevelIdScalars&) VTK_DELETE_FUNCTION;
 };
 

@@ -132,7 +132,7 @@ protected:
   float TriangleScale;
 
 private:
-  vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.
+  vtkPointGaussianMapper(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
 };
 

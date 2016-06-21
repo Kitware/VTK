@@ -88,7 +88,7 @@ protected:
   bool ReadFromInputString;
 
 private:
-  vtkArrayReader(const vtkArrayReader&); // Not implemented
+  vtkArrayReader(const vtkArrayReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkArrayReader&) VTK_DELETE_FUNCTION;
 };
 

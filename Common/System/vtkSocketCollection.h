@@ -64,7 +64,7 @@ private:
   void AddItem(vtkObject* o) { this->Superclass::AddItem(o); }
 
 private:
-  vtkSocketCollection(const vtkSocketCollection&); // Not implemented.
+  vtkSocketCollection(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSocketCollection&) VTK_DELETE_FUNCTION;
 };
 

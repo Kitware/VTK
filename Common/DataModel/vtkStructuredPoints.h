@@ -45,7 +45,7 @@ protected:
   vtkStructuredPoints();
   ~vtkStructuredPoints() {}
 private:
-  vtkStructuredPoints(const vtkStructuredPoints&);  // Not implemented.
+  vtkStructuredPoints(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkStructuredPoints&) VTK_DELETE_FUNCTION;
 };
 

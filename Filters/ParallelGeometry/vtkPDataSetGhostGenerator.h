@@ -66,7 +66,7 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&); // Not implemented
+  vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPDataSetGhostGenerator&) VTK_DELETE_FUNCTION;
 };
 

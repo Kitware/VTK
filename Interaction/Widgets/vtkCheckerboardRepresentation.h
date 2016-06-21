@@ -123,7 +123,7 @@ protected:
   int OrthoAxis;
 
 private:
-  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&);  //Not implemented
+  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
 };
 

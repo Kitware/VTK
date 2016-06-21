@@ -175,7 +175,7 @@ protected:
   vtkEdgeList *EdgeList;
 
 private:
-  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&);  // Not implemented.
+  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
 
 };

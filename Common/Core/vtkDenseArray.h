@@ -162,7 +162,7 @@ protected:
   ~vtkDenseArray();
 
 private:
-  vtkDenseArray(const vtkDenseArray&); // Not implemented
+  vtkDenseArray(const vtkDenseArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDenseArray&) VTK_DELETE_FUNCTION;
 
   void InternalResize(const vtkArrayExtents& extents);

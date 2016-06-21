@@ -138,7 +138,7 @@ protected:
   vtkAlgorithm *GetInputAlgorithm();
 
 private:
-  vtkImageActor(const vtkImageActor&);  // Not implemented.
+  vtkImageActor(const vtkImageActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageActor&) VTK_DELETE_FUNCTION;
 };
 

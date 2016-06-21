@@ -114,7 +114,7 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
  private:
-  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&); // Not implemented.
+  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
 
   void operator=(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
 

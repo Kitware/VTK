@@ -86,7 +86,7 @@ protected:
   ~vtkDataEncoder();
 
 private:
-  vtkDataEncoder(const vtkDataEncoder&); // Not implemented
+  vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;

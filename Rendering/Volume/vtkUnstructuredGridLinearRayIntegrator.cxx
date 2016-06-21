@@ -78,7 +78,7 @@ public:
   acolor *Colors;
 
 private:
-  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&);  // Not implemented.
+  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLinearRayIntegratorTransferFunction &) VTK_DELETE_FUNCTION;
 };
 

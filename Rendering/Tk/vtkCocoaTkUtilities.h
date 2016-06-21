@@ -52,7 +52,7 @@ protected:
   ~vtkCocoaTkUtilities() {}
 
 private:
-  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&);  // Not implemented.
+  vtkCocoaTkUtilities(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCocoaTkUtilities&) VTK_DELETE_FUNCTION;
 };
 

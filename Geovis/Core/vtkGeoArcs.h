@@ -70,7 +70,7 @@ protected:
   int NumberOfSubdivisions;
 
 private:
-  vtkGeoArcs(const vtkGeoArcs&);  // Not implemented.
+  vtkGeoArcs(const vtkGeoArcs&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGeoArcs&) VTK_DELETE_FUNCTION;
 };
 

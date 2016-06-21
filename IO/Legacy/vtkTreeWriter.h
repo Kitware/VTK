@@ -48,7 +48,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkTreeWriter(const vtkTreeWriter&);  // Not implemented.
+  vtkTreeWriter(const vtkTreeWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeWriter&) VTK_DELETE_FUNCTION;
 
   void WriteEdges(ostream& Stream, vtkTree* Tree);

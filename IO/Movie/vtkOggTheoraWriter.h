@@ -75,7 +75,7 @@ protected:
   int Subsampling;
 
 private:
-  vtkOggTheoraWriter(const vtkOggTheoraWriter&); // Not implemented
+  vtkOggTheoraWriter(const vtkOggTheoraWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOggTheoraWriter&) VTK_DELETE_FUNCTION;
 };
 

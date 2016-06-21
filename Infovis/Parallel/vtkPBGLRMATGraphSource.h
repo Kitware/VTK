@@ -174,7 +174,7 @@ protected:
                                 vtkInformationVector* outputVector);
 
 private:
-  vtkPBGLRMATGraphSource(const vtkPBGLRMATGraphSource&); // Not implemented
+  vtkPBGLRMATGraphSource(const vtkPBGLRMATGraphSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPBGLRMATGraphSource&) VTK_DELETE_FUNCTION;
 };
 

@@ -36,7 +36,7 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkDaxContour(const vtkDaxContour&); //Not implemented
+  vtkDaxContour(const vtkDaxContour&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDaxContour&) VTK_DELETE_FUNCTION;
 };
 

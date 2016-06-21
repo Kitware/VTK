@@ -131,7 +131,7 @@ protected:
   int UserManagedInputs;
 
 private:
-  vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.
+  vtkAppendPolyData(const vtkAppendPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAppendPolyData&) VTK_DELETE_FUNCTION;
 };
 

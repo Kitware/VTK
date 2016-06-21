@@ -47,7 +47,7 @@ protected:
   bool ConnectingSide;
   friend class vtkServerSocket;
 private:
-  vtkClientSocket(const vtkClientSocket&); // Not implemented.
+  vtkClientSocket(const vtkClientSocket&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClientSocket&) VTK_DELETE_FUNCTION;
 
 };

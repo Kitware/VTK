@@ -54,7 +54,7 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int ext[6], int id);
 private:
-  vtkImageConstantPad(const vtkImageConstantPad&);  // Not implemented.
+  vtkImageConstantPad(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageConstantPad&) VTK_DELETE_FUNCTION;
 };
 

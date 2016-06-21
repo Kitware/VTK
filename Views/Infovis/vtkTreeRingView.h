@@ -78,7 +78,7 @@ protected:
   ~vtkTreeRingView();
 
 private:
-  vtkTreeRingView(const vtkTreeRingView&);  // Not implemented.
+  vtkTreeRingView(const vtkTreeRingView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeRingView&) VTK_DELETE_FUNCTION;
 };
 

@@ -158,7 +158,7 @@ protected:
   int Interpolate;
 
 private:
-  vtkImageResize(const vtkImageResize&);  // Not implemented.
+  vtkImageResize(const vtkImageResize&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageResize&) VTK_DELETE_FUNCTION;
 };
 

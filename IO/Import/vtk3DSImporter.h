@@ -77,7 +77,7 @@ protected:
   FILE *FileFD;
   int ComputeNormals;
 private:
-  vtk3DSImporter(const vtk3DSImporter&);  // Not implemented.
+  vtk3DSImporter(const vtk3DSImporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtk3DSImporter&) VTK_DELETE_FUNCTION;
 };
 

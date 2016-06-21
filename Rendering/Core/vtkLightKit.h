@@ -335,7 +335,7 @@ protected:
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
 
 private:
-  vtkLightKit(const vtkLightKit&);  // Not implemented.
+  vtkLightKit(const vtkLightKit&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLightKit&) VTK_DELETE_FUNCTION;
 };
 

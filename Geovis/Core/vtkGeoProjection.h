@@ -130,7 +130,7 @@ protected:
   unsigned long ProjectionMTime;
 
 private:
-  vtkGeoProjection( const vtkGeoProjection& ); // Not implemented.
+  vtkGeoProjection( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
 
   class vtkInternals;

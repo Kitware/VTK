@@ -603,7 +603,7 @@ protected:
   double Bounds[6];
 
 private:
-  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&);  // Not implemented.
+  vtkGenericAdaptorCell(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
 };
 

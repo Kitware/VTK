@@ -102,7 +102,7 @@ protected:
   ~vtkVoxel();
 
 private:
-  vtkVoxel(const vtkVoxel&);  // Not implemented.
+  vtkVoxel(const vtkVoxel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVoxel&) VTK_DELETE_FUNCTION;
 
   vtkLine *Line;

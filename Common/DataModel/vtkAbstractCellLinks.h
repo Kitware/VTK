@@ -63,7 +63,7 @@ protected:
   virtual ~vtkAbstractCellLinks();
 
 private:
-  vtkAbstractCellLinks(const vtkAbstractCellLinks&);  // Not implemented.
+  vtkAbstractCellLinks(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;
 };
 

@@ -166,7 +166,7 @@ protected:
   vtkIdTypeArray* FaceOffsets;
 
 private:
-  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&);  // Not implemented.
+  vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
 };
 

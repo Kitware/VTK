@@ -35,7 +35,7 @@ protected:
   ~vtkHierarchicalDataExtractLevel();
 
 private:
-  vtkHierarchicalDataExtractLevel(const vtkHierarchicalDataExtractLevel&);  // Not implemented.
+  vtkHierarchicalDataExtractLevel(const vtkHierarchicalDataExtractLevel&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHierarchicalDataExtractLevel&) VTK_DELETE_FUNCTION;
 };
 

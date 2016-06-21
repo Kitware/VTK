@@ -85,7 +85,7 @@ private:
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
-  vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
+  vtkDebugLeaks(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
 };
 

@@ -264,7 +264,7 @@ protected:
                                double origin[3], double spacing[3]);
 
 private:
-  vtkPointInterpolator(const vtkPointInterpolator&);  // Not implemented.
+  vtkPointInterpolator(const vtkPointInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPointInterpolator&) VTK_DELETE_FUNCTION;
 
 };

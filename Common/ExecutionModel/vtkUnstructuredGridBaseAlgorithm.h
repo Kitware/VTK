@@ -102,7 +102,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkUnstructuredGridBaseAlgorithm(const vtkUnstructuredGridBaseAlgorithm&); // Not implemented.
+  vtkUnstructuredGridBaseAlgorithm(const vtkUnstructuredGridBaseAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnstructuredGridBaseAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

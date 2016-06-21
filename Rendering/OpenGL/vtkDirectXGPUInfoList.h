@@ -75,7 +75,7 @@ protected:
                                int cchDeviceID);
 
 private:
-  vtkDirectXGPUInfoList(const vtkDirectXGPUInfoList&); // Not implemented.
+  vtkDirectXGPUInfoList(const vtkDirectXGPUInfoList&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDirectXGPUInfoList&) VTK_DELETE_FUNCTION;
 };
 

@@ -170,7 +170,7 @@ protected:
   // The method that does it all...
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkHull(const vtkHull&);  // Not implemented.
+  vtkHull(const vtkHull&) VTK_DELETE_FUNCTION;
   void operator=(const vtkHull&) VTK_DELETE_FUNCTION;
 };
 

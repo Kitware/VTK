@@ -63,7 +63,7 @@ protected:
 
 
 private:
-  vtkPipelineSize(const vtkPipelineSize&);  // Not implemented.
+  vtkPipelineSize(const vtkPipelineSize&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPipelineSize&) VTK_DELETE_FUNCTION;
 };
 

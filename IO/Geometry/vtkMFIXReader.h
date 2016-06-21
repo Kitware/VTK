@@ -230,7 +230,7 @@ protected:
                               //  into a file for a certain variable.
 
 private:
-  vtkMFIXReader(const vtkMFIXReader&);  // Not implemented.
+  vtkMFIXReader(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
 
   void MakeMesh(vtkUnstructuredGrid *output);

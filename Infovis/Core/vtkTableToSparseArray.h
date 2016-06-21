@@ -84,7 +84,7 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTableToSparseArray(const vtkTableToSparseArray&); // Not implemented
+  vtkTableToSparseArray(const vtkTableToSparseArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTableToSparseArray&) VTK_DELETE_FUNCTION;
 
   class implementation;

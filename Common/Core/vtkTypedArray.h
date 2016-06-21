@@ -109,7 +109,7 @@ protected:
   ~vtkTypedArray() {}
 
 private:
-  vtkTypedArray(const vtkTypedArray&); // Not implemented
+  vtkTypedArray(const vtkTypedArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTypedArray&) VTK_DELETE_FUNCTION;
 };
 

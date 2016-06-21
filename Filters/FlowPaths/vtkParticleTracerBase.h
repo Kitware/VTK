@@ -504,7 +504,7 @@ public:
   vtkSmartPointer<vtkDataSet>       DataReferenceT[2];
   vtkSmartPointer<vtkCellArray>     ParticleCells;
 
-  vtkParticleTracerBase(const vtkParticleTracerBase&);  // Not implemented.
+  vtkParticleTracerBase(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParticleTracerBase&) VTK_DELETE_FUNCTION;
   vtkTimeStamp ExecuteTime;
 

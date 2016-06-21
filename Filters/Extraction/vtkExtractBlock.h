@@ -88,7 +88,7 @@ protected:
   int PruneOutput;
   int MaintainStructure;
 private:
-  vtkExtractBlock(const vtkExtractBlock&); // Not implemented.
+  vtkExtractBlock(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
 
   class vtkSet;

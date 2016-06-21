@@ -55,7 +55,7 @@ protected:
   vtkTimeStamp SelectedPointsBuildTime;
 
 private:
-  vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
+  vtkPlotPoints3D(const vtkPlotPoints3D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPlotPoints3D &) VTK_DELETE_FUNCTION;
 
 };

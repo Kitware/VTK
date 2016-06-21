@@ -99,7 +99,7 @@ protected:
   vtkTimeStamp InternalMappersBuildTime;
 
 private:
-  vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&);  // Not implemented.
+  vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositePolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 

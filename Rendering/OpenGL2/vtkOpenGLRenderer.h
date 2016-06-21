@@ -123,7 +123,7 @@ protected:
   bool HaveApplePrimitiveIdBugChecked;
 
 private:
-  vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
+  vtkOpenGLRenderer(const vtkOpenGLRenderer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLRenderer&) VTK_DELETE_FUNCTION;
 };
 

@@ -49,7 +49,7 @@ protected:
   virtual int WritePiece(int index);
 
 private:
-  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
+  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
 
   typedef std::map<int, std::vector<int> > ExtentsType;

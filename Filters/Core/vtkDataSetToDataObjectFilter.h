@@ -107,7 +107,7 @@ protected:
   int FieldData;
 
 private:
-  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&);  // Not implemented.
+  vtkDataSetToDataObjectFilter(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataSetToDataObjectFilter&) VTK_DELETE_FUNCTION;
 };
 

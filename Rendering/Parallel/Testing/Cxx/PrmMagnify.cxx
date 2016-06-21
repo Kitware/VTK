@@ -66,7 +66,7 @@ protected:
   vtkImageMandelbrotSource *Mandelbrot;
 
 private:
-  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &);  // Not implemented.
+  vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
 };
 

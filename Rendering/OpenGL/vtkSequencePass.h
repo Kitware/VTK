@@ -65,7 +65,7 @@ protected:
   virtual ~vtkSequencePass();
 
 private:
-  vtkSequencePass(const vtkSequencePass&);  // Not implemented.
+  vtkSequencePass(const vtkSequencePass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSequencePass&) VTK_DELETE_FUNCTION;
 };
 

@@ -132,7 +132,7 @@ protected:
   vtkPlaneCollection * InnerBoundingPlanes;
 
 private:
-  vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&);  //Not implemented
+  vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkClosedSurfacePointPlacer&) VTK_DELETE_FUNCTION;
 };
 

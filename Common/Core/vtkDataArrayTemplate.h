@@ -40,7 +40,7 @@ protected:
   ~vtkDataArrayTemplate() {}
 
 private:
-  vtkDataArrayTemplate(const vtkDataArrayTemplate&); // Not implemented.
+  vtkDataArrayTemplate(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataArrayTemplate&) VTK_DELETE_FUNCTION;
 };
 

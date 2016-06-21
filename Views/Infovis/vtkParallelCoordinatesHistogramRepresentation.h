@@ -189,7 +189,7 @@ protected:
   // get the table containing just the outlier rows from the input table.
   virtual vtkTable* GetOutlierData();
 private:
-  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&); // Not implemented
+  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
 };
 

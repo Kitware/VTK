@@ -110,7 +110,7 @@ protected:
   static vtkOpenGLBufferObject *FullScreenQuadVerts;
 
 private:
-  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&);  // Not implemented.
+  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
 };
 

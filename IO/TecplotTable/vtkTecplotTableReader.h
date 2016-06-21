@@ -116,7 +116,7 @@ protected:
   vtkStdString LastError;
 
 private:
-  vtkTecplotTableReader(const vtkTecplotTableReader&); // Not implemented
+  vtkTecplotTableReader(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
 
 };

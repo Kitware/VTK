@@ -49,7 +49,7 @@ protected:
   vtkTransform *Transform; // Used for internal intermediate calculation.
 
 private:
-  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&);  // Not implemented.
+  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTDxInteractorStyleCamera&) VTK_DELETE_FUNCTION;
 };
 #endif

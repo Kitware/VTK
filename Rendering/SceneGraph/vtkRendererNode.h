@@ -47,7 +47,7 @@ protected:
   int Size[2];
 
 private:
-  vtkRendererNode(const vtkRendererNode&); // Not implemented.
+  vtkRendererNode(const vtkRendererNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRendererNode&) VTK_DELETE_FUNCTION;
 };
 

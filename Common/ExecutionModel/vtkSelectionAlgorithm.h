@@ -93,7 +93,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkSelectionAlgorithm(const vtkSelectionAlgorithm&);  // Not implemented.
+  vtkSelectionAlgorithm(const vtkSelectionAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSelectionAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

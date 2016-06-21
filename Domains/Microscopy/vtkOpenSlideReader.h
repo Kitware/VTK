@@ -67,7 +67,7 @@ protected:
 private:
   openslide_t *openslide_handle;
 
-  vtkOpenSlideReader(const vtkOpenSlideReader&);  // Not implemented.
+  vtkOpenSlideReader(const vtkOpenSlideReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenSlideReader&) VTK_DELETE_FUNCTION;
 };
 #endif

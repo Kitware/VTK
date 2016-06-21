@@ -49,7 +49,7 @@ public:
   static vtkMPICommunicator* ConvertToVTK(PyObject* comm);
 
 private:
-  vtkMPI4PyCommunicator(const vtkMPI4PyCommunicator&);  // Not implemented.
+  vtkMPI4PyCommunicator(const vtkMPI4PyCommunicator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMPI4PyCommunicator&) VTK_DELETE_FUNCTION;
 };
 

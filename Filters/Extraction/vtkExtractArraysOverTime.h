@@ -140,7 +140,7 @@ protected:
   vtkExtractSelection* SelectionExtractor;
 
 private:
-  vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
+  vtkExtractArraysOverTime(const vtkExtractArraysOverTime&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractArraysOverTime&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;

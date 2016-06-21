@@ -170,7 +170,7 @@ protected:
   void BuildLines();
 
 private:
-  vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&);  //Not implemented
+  vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 

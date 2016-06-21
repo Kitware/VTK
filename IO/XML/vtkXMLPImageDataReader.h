@@ -69,7 +69,7 @@ protected:
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
 private:
-  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&);  // Not implemented.
+  vtkXMLPImageDataReader(const vtkXMLPImageDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPImageDataReader&) VTK_DELETE_FUNCTION;
 };
 

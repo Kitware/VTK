@@ -96,7 +96,7 @@ protected:
     }
 
 private:
-  vtkHyperOctreeInternal(const vtkHyperOctreeInternal &);  // Not implemented.
+  vtkHyperOctreeInternal(const vtkHyperOctreeInternal &) VTK_DELETE_FUNCTION;
   void operator=(const vtkHyperOctreeInternal &) VTK_DELETE_FUNCTION;
 };
 

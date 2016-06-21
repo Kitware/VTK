@@ -113,7 +113,7 @@ protected:
   vtkGDALRasterReaderInternal* Implementation;
 
 private:
-  vtkGDALRasterReader(const vtkGDALRasterReader&); // Not implemented.
+  vtkGDALRasterReader(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
 };
 

@@ -86,7 +86,7 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
 private:
-  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
+  vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
   void operator=(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
 };
 

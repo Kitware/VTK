@@ -891,7 +891,7 @@ protected:
   static double CurrentTriNormal[3];
 
 private:
-  vtkMeshQuality( const vtkMeshQuality& ); // Not implemented.
+  vtkMeshQuality( const vtkMeshQuality& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkMeshQuality& ) VTK_DELETE_FUNCTION;
 };
 

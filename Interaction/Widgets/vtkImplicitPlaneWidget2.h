@@ -158,7 +158,7 @@ protected:
   void InvokeInteractionCallback();
 
 private:
-  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&);  //Not implemented
+  vtkImplicitPlaneWidget2(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitPlaneWidget2&) VTK_DELETE_FUNCTION;
 };
 

@@ -117,7 +117,7 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkRendererSource(const vtkRendererSource&);  // Not implemented.
+  vtkRendererSource(const vtkRendererSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRendererSource&) VTK_DELETE_FUNCTION;
 };
 

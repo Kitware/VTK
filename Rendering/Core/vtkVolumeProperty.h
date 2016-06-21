@@ -351,7 +351,7 @@ protected:
   virtual void CreateDefaultGradientOpacity(int index);
 
 private:
-  vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
+  vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
 };
 

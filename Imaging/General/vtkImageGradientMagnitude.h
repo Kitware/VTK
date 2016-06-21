@@ -65,7 +65,7 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int extent[6], int id);
 private:
-  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&);  // Not implemented.
+  vtkImageGradientMagnitude(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
 };
 

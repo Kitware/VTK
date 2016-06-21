@@ -55,7 +55,7 @@ protected:
   vtkNew<vtkOpenGLStickMapper> FastBondMapper;
 
 private:
-  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&); // Not implemented.
+  vtkOpenGLMoleculeMapper(const vtkOpenGLMoleculeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLMoleculeMapper&) VTK_DELETE_FUNCTION;
 };
 

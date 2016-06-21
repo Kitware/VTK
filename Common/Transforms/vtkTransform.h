@@ -339,7 +339,7 @@ protected:
   double DoublePoint[4];
   double ReturnValue[4];
 private:
-  vtkTransform (const vtkTransform&);  // Not implemented
+  vtkTransform (const vtkTransform&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTransform&) VTK_DELETE_FUNCTION;
 };
 

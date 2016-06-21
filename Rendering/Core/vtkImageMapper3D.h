@@ -227,7 +227,7 @@ private:
   // The cached data-to-world matrix
   vtkMatrix4x4 *DataToWorldMatrix;
 
-  vtkImageMapper3D(const vtkImageMapper3D&);  // Not implemented.
+  vtkImageMapper3D(const vtkImageMapper3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageMapper3D&) VTK_DELETE_FUNCTION;
 
   friend class vtkImageToImageMapper3DFriendship;

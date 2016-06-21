@@ -103,7 +103,7 @@ protected:
   virtual void ProcessInformation(vtkInformation*);
 
 private:
-  vtkPolyDataPainter(const vtkPolyDataPainter &); // Not implemented.
+  vtkPolyDataPainter(const vtkPolyDataPainter &) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataPainter &) VTK_DELETE_FUNCTION;
 };
 

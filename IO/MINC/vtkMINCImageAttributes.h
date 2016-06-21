@@ -294,7 +294,7 @@ protected:
   int ValidateAttributes;
 
 private:
-  vtkMINCImageAttributes(const vtkMINCImageAttributes&); // Not implemented
+  vtkMINCImageAttributes(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMINCImageAttributes&) VTK_DELETE_FUNCTION;
 
 };

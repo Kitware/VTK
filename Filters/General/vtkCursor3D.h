@@ -136,7 +136,7 @@ protected:
   int Wrap;
 
 private:
-  vtkCursor3D(const vtkCursor3D&);  // Not implemented.
+  vtkCursor3D(const vtkCursor3D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCursor3D&) VTK_DELETE_FUNCTION;
 };
 

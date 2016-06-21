@@ -146,7 +146,7 @@ private:
   vtkIdType NumberOfNodes;
   bool HasBranchColor;
   vtkSmartPointer<vtkBitArray> ColoredVertices;
-  vtkPhyloXMLTreeReader(const vtkPhyloXMLTreeReader&);  // Not implemented.
+  vtkPhyloXMLTreeReader(const vtkPhyloXMLTreeReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPhyloXMLTreeReader&) VTK_DELETE_FUNCTION;
 };
 

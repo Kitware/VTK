@@ -168,7 +168,7 @@ protected:
   vtkTriangle *Triangle;
 
 private:
-  vtkTetra(const vtkTetra&);  // Not implemented.
+  vtkTetra(const vtkTetra&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTetra&) VTK_DELETE_FUNCTION;
 };
 

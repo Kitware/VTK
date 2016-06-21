@@ -214,7 +214,7 @@ protected:
   char* LastErrorText;
 
 private:
-  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ); // Not implemented.
+  vtkPostgreSQLDatabase( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkPostgreSQLDatabase& ) VTK_DELETE_FUNCTION;
 };
 

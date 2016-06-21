@@ -86,7 +86,7 @@ protected:
   int DeleteMethod;
 
 private:
-  vtkBuffer(const vtkBuffer&);  // Not implemented.
+  vtkBuffer(const vtkBuffer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBuffer&) VTK_DELETE_FUNCTION;
 };
 

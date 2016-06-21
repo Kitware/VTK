@@ -234,7 +234,7 @@ protected:
   bool FillViewport;
 
 private:
-  vtkContextArea(const vtkContextArea &); // Not implemented.
+  vtkContextArea(const vtkContextArea &) VTK_DELETE_FUNCTION;
   void operator=(const vtkContextArea &) VTK_DELETE_FUNCTION;
 
   // Smart pointers for axis lifetime management. See this->Axes.

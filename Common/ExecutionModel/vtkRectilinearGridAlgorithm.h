@@ -107,7 +107,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&);  // Not implemented.
+  vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 

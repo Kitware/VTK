@@ -66,7 +66,7 @@ protected:
     int port, vtkInformation* info);
 
 private:
-  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&);  // Not implemented.
+  vtkConvertSelectionDomain(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
   void operator=(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
 };
 

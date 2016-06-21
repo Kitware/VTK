@@ -63,7 +63,7 @@ protected:
 
 private:
 
-  vtkPassThroughLayoutStrategy(const vtkPassThroughLayoutStrategy&);  // Not implemented.
+  vtkPassThroughLayoutStrategy(const vtkPassThroughLayoutStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPassThroughLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 

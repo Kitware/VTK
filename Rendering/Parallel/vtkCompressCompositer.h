@@ -68,7 +68,7 @@ protected:
   vtkTimerLog *Timer;
 
 private:
-  vtkCompressCompositer(const vtkCompressCompositer&); // Not implemented
+  vtkCompressCompositer(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
 };
 

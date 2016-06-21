@@ -251,7 +251,7 @@ protected:
   int RequestCursorShape(int requestedShape);
 
 private:
-  vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
+  vtkInteractorObserver(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
 
 };

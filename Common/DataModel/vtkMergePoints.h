@@ -56,7 +56,7 @@ protected:
   ~vtkMergePoints() {}
 
 private:
-  vtkMergePoints(const vtkMergePoints&);  // Not implemented.
+  vtkMergePoints(const vtkMergePoints&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMergePoints&) VTK_DELETE_FUNCTION;
 };
 

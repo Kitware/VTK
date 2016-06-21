@@ -61,7 +61,7 @@ protected:
   int EncodeEnding(unsigned char c0);
 
 private:
-  vtkBase64OutputStream(const vtkBase64OutputStream&);  // Not implemented.
+  vtkBase64OutputStream(const vtkBase64OutputStream&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBase64OutputStream&) VTK_DELETE_FUNCTION;
 };
 

@@ -218,7 +218,7 @@ protected:
   int GenerateCutScalars;
   int OutputPointsPrecision;
 private:
-  vtkCutter(const vtkCutter&);  // Not implemented.
+  vtkCutter(const vtkCutter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCutter&) VTK_DELETE_FUNCTION;
 };
 

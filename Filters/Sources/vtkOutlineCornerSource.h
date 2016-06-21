@@ -55,7 +55,7 @@ protected:
   double CornerFactor;
   int OutputPointsPrecision;
 private:
-  vtkOutlineCornerSource(const vtkOutlineCornerSource&);  // Not implemented.
+  vtkOutlineCornerSource(const vtkOutlineCornerSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOutlineCornerSource&) VTK_DELETE_FUNCTION;
 };
 

@@ -91,7 +91,7 @@ protected:
   unsigned long MemorySize;
 
 private:
-  vtkDuplicatePolyData(const vtkDuplicatePolyData&); // Not implemented
+  vtkDuplicatePolyData(const vtkDuplicatePolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDuplicatePolyData&) VTK_DELETE_FUNCTION;
 };
 

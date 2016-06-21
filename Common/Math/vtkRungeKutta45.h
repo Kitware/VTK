@@ -116,7 +116,7 @@ protected:
                    double& delT,  double& delTActual, double& error);
 
 private:
-  vtkRungeKutta45(const vtkRungeKutta45&);  // Not implemented.
+  vtkRungeKutta45(const vtkRungeKutta45&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRungeKutta45&) VTK_DELETE_FUNCTION;
 };
 

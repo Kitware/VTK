@@ -312,7 +312,7 @@ protected:
 
 
 private:
-  vtkViewport(const vtkViewport&);  // Not implemented.
+  vtkViewport(const vtkViewport&) VTK_DELETE_FUNCTION;
   void operator=(const vtkViewport&) VTK_DELETE_FUNCTION;
 };
 

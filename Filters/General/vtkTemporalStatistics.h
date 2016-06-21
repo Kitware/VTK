@@ -150,7 +150,7 @@ protected:
                                  const char *nameSuffix);
 
 private:
-  vtkTemporalStatistics(const vtkTemporalStatistics &); // Not implemented.
+  vtkTemporalStatistics(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
 };
 

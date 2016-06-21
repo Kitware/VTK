@@ -47,7 +47,7 @@ protected:
                                   vtkInformationVector *outputVector);
 
 private:
-  vtkImageSobel2D(const vtkImageSobel2D&);  // Not implemented.
+  vtkImageSobel2D(const vtkImageSobel2D&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageSobel2D&) VTK_DELETE_FUNCTION;
 };
 

@@ -85,7 +85,7 @@ protected:
   int                                   OutputPointsPrecision;
 
 private:
-  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.
+  vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
 };
 

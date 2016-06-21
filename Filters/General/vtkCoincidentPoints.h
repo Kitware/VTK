@@ -86,7 +86,7 @@ protected:
   virtual ~vtkCoincidentPoints();
 
 private:
-  vtkCoincidentPoints( const vtkCoincidentPoints& ); // Not implemented.
+  vtkCoincidentPoints( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkCoincidentPoints& ) VTK_DELETE_FUNCTION;
 
   implementation* Implementation;

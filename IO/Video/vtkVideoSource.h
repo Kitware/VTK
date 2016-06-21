@@ -298,7 +298,7 @@ protected:
                                 int start, int count);
 
 private:
-  vtkVideoSource(const vtkVideoSource&);  // Not implemented.
+  vtkVideoSource(const vtkVideoSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVideoSource&) VTK_DELETE_FUNCTION;
 };
 

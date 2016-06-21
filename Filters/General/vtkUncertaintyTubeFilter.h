@@ -72,7 +72,7 @@ protected:
   int NumberOfSides;
 
 private:
-  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&);  // Not implemented.
+  vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
 };
 

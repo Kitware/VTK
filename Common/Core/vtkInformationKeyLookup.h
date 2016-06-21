@@ -60,7 +60,7 @@ protected:
                             const std::string &location);
 
 private:
-    vtkInformationKeyLookup(const vtkInformationKeyLookup&); // Not implemented
+    vtkInformationKeyLookup(const vtkInformationKeyLookup&) VTK_DELETE_FUNCTION;
     void operator=(const vtkInformationKeyLookup&) VTK_DELETE_FUNCTION;
 
     typedef std::pair<std::string, std::string> Identifier; // Location, Name

@@ -66,7 +66,7 @@ public:
 protected:
   vtkParticlePathFilter();
   ~vtkParticlePathFilter();
-  vtkParticlePathFilter(const vtkParticlePathFilter&);  // Not implemented.
+  vtkParticlePathFilter(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
 
   virtual void ResetCache();

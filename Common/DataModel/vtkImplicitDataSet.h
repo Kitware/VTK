@@ -97,7 +97,7 @@ protected:
   int Size; //keeps track of length of weights array
 
 private:
-  vtkImplicitDataSet(const vtkImplicitDataSet&);  // Not implemented.
+  vtkImplicitDataSet(const vtkImplicitDataSet&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImplicitDataSet&) VTK_DELETE_FUNCTION;
 };
 

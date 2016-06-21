@@ -194,7 +194,7 @@ protected:
   int AllowDuplicateScalars;
 
 private:
-  vtkPiecewiseFunction(const vtkPiecewiseFunction&);  // Not implemented.
+  vtkPiecewiseFunction(const vtkPiecewiseFunction&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPiecewiseFunction&) VTK_DELETE_FUNCTION;
 };
 

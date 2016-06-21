@@ -260,7 +260,7 @@ protected:
   double (*CellBounds)[6];
 
 private:
-  vtkAbstractCellLocator(const vtkAbstractCellLocator&);  // Not implemented.
+  vtkAbstractCellLocator(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
 };
 

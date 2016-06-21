@@ -63,7 +63,7 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&); // Not implemented.
+  vtkXMLPUniformGridAMRWriter(const vtkXMLPUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLPUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
 
 };

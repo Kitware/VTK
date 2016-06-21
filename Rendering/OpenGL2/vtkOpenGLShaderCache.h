@@ -92,7 +92,7 @@ protected:
   vtkShaderProgram *LastShaderBound;
 
 private:
-  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.
+  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
 
 };

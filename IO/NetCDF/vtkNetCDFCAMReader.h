@@ -94,7 +94,7 @@ protected:
     int & beginCellLevel, int & endCellLevel, int & beginCell, int & endCell);
 
 private:
-  vtkNetCDFCAMReader(const vtkNetCDFCAMReader&);  // Not implemented.
+  vtkNetCDFCAMReader(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
 
   // Description:

@@ -140,7 +140,7 @@ protected:
   vtkSmartPointer<vtkTransform> Transform;    // Current transform
 
 private:
-  vtkContext3D(const vtkContext3D &);   // Not implemented.
+  vtkContext3D(const vtkContext3D &) VTK_DELETE_FUNCTION;
   void operator=(const vtkContext3D &) VTK_DELETE_FUNCTION;
 };
 

@@ -234,7 +234,7 @@ protected:
   void InternalReleaseFocus();
 
 private:
-  vtkObject(const vtkObject&);  // Not implemented.
+  vtkObject(const vtkObject&) VTK_DELETE_FUNCTION;
   void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
 
   // Description:

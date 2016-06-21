@@ -49,7 +49,7 @@ protected:
   vtkRandomSequence();
   virtual ~vtkRandomSequence();
 private:
-  vtkRandomSequence(const vtkRandomSequence&);  // Not implemented.
+  vtkRandomSequence(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
 };
 

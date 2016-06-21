@@ -145,7 +145,7 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.
+  vtkGenericContourFilter(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

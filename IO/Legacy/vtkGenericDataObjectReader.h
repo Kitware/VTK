@@ -95,7 +95,7 @@ protected:
                                  vtkInformationVector *);
 
 private:
-  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&);  // Not implemented.
+  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
 
   template<typename ReaderT, typename DataT>

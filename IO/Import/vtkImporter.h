@@ -94,7 +94,7 @@ protected:
   virtual void ReadData();
 
 private:
-  vtkImporter(const vtkImporter&);  // Not implemented.
+  vtkImporter(const vtkImporter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImporter&) VTK_DELETE_FUNCTION;
 };
 

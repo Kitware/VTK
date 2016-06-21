@@ -103,7 +103,7 @@ public:
   vtkShaderProgram2 *Program2; // shader to compute |G| from Gx1 and Gy1
 
  private:
-  vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&);  // Not implemented.
+  vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSobelGradientMagnitudePass&) VTK_DELETE_FUNCTION;
 };
 

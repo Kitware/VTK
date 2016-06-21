@@ -123,7 +123,7 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkImageChangeInformation(const vtkImageChangeInformation&);  // Not implemented.
+  vtkImageChangeInformation(const vtkImageChangeInformation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageChangeInformation&) VTK_DELETE_FUNCTION;
 };
 

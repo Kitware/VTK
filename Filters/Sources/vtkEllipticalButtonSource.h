@@ -137,7 +137,7 @@ private:
   void IntersectEllipseWithLine(double a2, double b2, double dX, double dY,
                                 double& xe, double& ye);
 
-  vtkEllipticalButtonSource(const vtkEllipticalButtonSource&);  // Not implemented.
+  vtkEllipticalButtonSource(const vtkEllipticalButtonSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkEllipticalButtonSource&) VTK_DELETE_FUNCTION;
 };
 

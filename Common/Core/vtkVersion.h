@@ -52,7 +52,7 @@ protected:
   vtkVersion() {} //insure constructor/destructor protected
   ~vtkVersion() {}
 private:
-  vtkVersion(const vtkVersion&);  // Not implemented.
+  vtkVersion(const vtkVersion&) VTK_DELETE_FUNCTION;
   void operator=(const vtkVersion&) VTK_DELETE_FUNCTION;
 };
 

@@ -127,7 +127,7 @@ protected:
 
 
 private:
-  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&);  // Not implemented.
+  vtkXMLUnstructuredDataReader(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
   void operator=(const vtkXMLUnstructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 

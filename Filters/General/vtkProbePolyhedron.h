@@ -110,7 +110,7 @@ protected:
     vtkInformationVector *);
 
 private:
-  vtkProbePolyhedron(const vtkProbePolyhedron&);  // Not implemented.
+  vtkProbePolyhedron(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
   void operator=(const vtkProbePolyhedron&) VTK_DELETE_FUNCTION;
 
 };

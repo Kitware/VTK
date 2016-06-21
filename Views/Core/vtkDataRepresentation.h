@@ -270,7 +270,7 @@ protected:
   void SetInternalInput(int port, int conn, vtkTrivialProducer* producer);
 
 private:
-  vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.
+  vtkDataRepresentation(const vtkDataRepresentation&) VTK_DELETE_FUNCTION;
   void operator=(const vtkDataRepresentation&) VTK_DELETE_FUNCTION;
 
   class Internals;

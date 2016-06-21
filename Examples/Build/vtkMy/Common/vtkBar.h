@@ -32,7 +32,7 @@ protected:
   vtkBar() {}
   ~vtkBar() {}
 private:
-  vtkBar(const vtkBar&);  // Not implemented.
+  vtkBar(const vtkBar&) VTK_DELETE_FUNCTION;
   void operator=(const vtkBar&) VTK_DELETE_FUNCTION;
 };
 

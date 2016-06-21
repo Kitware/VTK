@@ -47,7 +47,7 @@ protected:
   ~vtkNonLinearCell() {}
 
 private:
-  vtkNonLinearCell(const vtkNonLinearCell&);  // Not implemented.
+  vtkNonLinearCell(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
   void operator=(const vtkNonLinearCell&) VTK_DELETE_FUNCTION;
 };
 

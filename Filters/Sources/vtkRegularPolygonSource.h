@@ -94,7 +94,7 @@ protected:
   int    OutputPointsPrecision;
 
 private:
-  vtkRegularPolygonSource(const vtkRegularPolygonSource&);  // Not implemented.
+  vtkRegularPolygonSource(const vtkRegularPolygonSource&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRegularPolygonSource&) VTK_DELETE_FUNCTION;
 };
 

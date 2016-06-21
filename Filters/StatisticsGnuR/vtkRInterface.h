@@ -120,7 +120,7 @@ protected:
 
 private:
   int FillOutputBuffer();
-  vtkRInterface(const vtkRInterface&);    // Not implemented
+  vtkRInterface(const vtkRInterface&) VTK_DELETE_FUNCTION;
   void operator=(const vtkRInterface&) VTK_DELETE_FUNCTION;
 
   vtkImplementationRSingleton* rs;

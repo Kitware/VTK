@@ -143,7 +143,7 @@ protected:
   vtkHandleWidget *LineHandle; //used when selecting the line
 
 private:
-  vtkLineWidget2(const vtkLineWidget2&);  //Not implemented
+  vtkLineWidget2(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
 };
 

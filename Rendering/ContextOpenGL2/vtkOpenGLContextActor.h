@@ -51,7 +51,7 @@ protected:
   void Initialize(vtkViewport* viewport);
 
 private:
-  vtkOpenGLContextActor(const vtkOpenGLContextActor&);  // Not implemented.
+  vtkOpenGLContextActor(const vtkOpenGLContextActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLContextActor&) VTK_DELETE_FUNCTION;
 };
 

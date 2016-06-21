@@ -65,7 +65,7 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkPolyLineWidget(const vtkPolyLineWidget&); // Not implemented.
+  vtkPolyLineWidget(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
 
 };

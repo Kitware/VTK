@@ -84,7 +84,7 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkTextRendererStringToImage(const vtkTextRendererStringToImage &); // Not implemented.
+  vtkTextRendererStringToImage(const vtkTextRendererStringToImage &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextRendererStringToImage &) VTK_DELETE_FUNCTION;
 };
 

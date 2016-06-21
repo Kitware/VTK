@@ -96,7 +96,7 @@ protected:
   bool MultiTouch;
 
 private:
-  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);  // Not implemented.
+  vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&) VTK_DELETE_FUNCTION;
   void operator=(const vtkInteractorStyleSwitch&) VTK_DELETE_FUNCTION;
 };
 

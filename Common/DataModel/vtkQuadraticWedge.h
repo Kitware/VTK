@@ -140,7 +140,7 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticWedge(const vtkQuadraticWedge&);  // Not implemented.
+  vtkQuadraticWedge(const vtkQuadraticWedge&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQuadraticWedge&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------

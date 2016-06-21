@@ -74,7 +74,7 @@ private:
 
   typedef vtkAOSDataArrayTemplate<unsigned long long> RealSuperclass;
 
-  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&);  // Not implemented.
+  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
 };
 

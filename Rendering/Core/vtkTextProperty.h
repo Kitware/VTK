@@ -184,7 +184,7 @@ protected:
   double LineSpacing;
 
 private:
-  vtkTextProperty(const vtkTextProperty&);  // Not implemented.
+  vtkTextProperty(const vtkTextProperty&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTextProperty&) VTK_DELETE_FUNCTION;
 };
 

@@ -56,7 +56,7 @@ protected:
   double Radius;
 
 private:
-  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&); // Not implemented
+  vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
 };
 

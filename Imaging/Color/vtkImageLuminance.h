@@ -40,7 +40,7 @@ protected:
                         int outExt[6], int id);
 
 private:
-  vtkImageLuminance(const vtkImageLuminance&);  // Not implemented.
+  vtkImageLuminance(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageLuminance&) VTK_DELETE_FUNCTION;
 };
 

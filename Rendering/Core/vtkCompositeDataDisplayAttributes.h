@@ -117,7 +117,7 @@ protected:
   ~vtkCompositeDataDisplayAttributes();
 
 private:
-  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&); // Not implemented.
+  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
 
   // Description:

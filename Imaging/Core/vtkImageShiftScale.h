@@ -102,7 +102,7 @@ protected:
                                    int outExt[6],
                                    int threadId);
 private:
-  vtkImageShiftScale(const vtkImageShiftScale&);  // Not implemented.
+  vtkImageShiftScale(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageShiftScale&) VTK_DELETE_FUNCTION;
 };
 

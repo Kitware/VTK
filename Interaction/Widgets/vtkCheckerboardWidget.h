@@ -103,7 +103,7 @@ protected:
   friend class vtkCWCallback;
 
 private:
-  vtkCheckerboardWidget(const vtkCheckerboardWidget&);  //Not implemented
+  vtkCheckerboardWidget(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
 };
 

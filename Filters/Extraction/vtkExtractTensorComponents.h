@@ -170,7 +170,7 @@ protected:
   int TCoordComponents[6];
 
 private:
-  vtkExtractTensorComponents(const vtkExtractTensorComponents&);  // Not implemented.
+  vtkExtractTensorComponents(const vtkExtractTensorComponents&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractTensorComponents&) VTK_DELETE_FUNCTION;
 };
 

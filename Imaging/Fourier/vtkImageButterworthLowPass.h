@@ -72,7 +72,7 @@ protected:
                             vtkImageData ***inData, vtkImageData **outData,
                             int outExt[6], int id);
 private:
-  vtkImageButterworthLowPass(const vtkImageButterworthLowPass&);  // Not implemented.
+  vtkImageButterworthLowPass(const vtkImageButterworthLowPass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageButterworthLowPass&) VTK_DELETE_FUNCTION;
 };
 

@@ -60,7 +60,7 @@ protected:
 
   int PreserveTopology;
 private:
-  vtkExtractSelectionBase(const vtkExtractSelectionBase&); // Not implemented.
+  vtkExtractSelectionBase(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
   void operator=(const vtkExtractSelectionBase&) VTK_DELETE_FUNCTION;
 
 };

@@ -291,7 +291,7 @@ protected:
   int ParallelSplatCrossover; //the point at which parallel splatting occurs
 
 private:
-  vtkCheckerboardSplatter(const vtkCheckerboardSplatter&);  // Not implemented.
+  vtkCheckerboardSplatter(const vtkCheckerboardSplatter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCheckerboardSplatter&) VTK_DELETE_FUNCTION;
 };
 

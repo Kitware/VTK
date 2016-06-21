@@ -277,7 +277,7 @@ private:
   int InUnRegister;
 
 private:
-  vtkAbstractTransform(const vtkAbstractTransform&);  // Not implemented.
+  vtkAbstractTransform(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
   void operator=(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
 };
 

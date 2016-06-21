@@ -421,7 +421,7 @@ private:
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
 private:
-  vtkTemporalStreamTracer(const vtkTemporalStreamTracer&);  // Not implemented.
+  vtkTemporalStreamTracer(const vtkTemporalStreamTracer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
