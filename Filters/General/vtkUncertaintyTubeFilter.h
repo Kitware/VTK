@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkUncertaintyTubeFilter(const vtkUncertaintyTubeFilter&);  // Not implemented.
-  void operator=(const vtkUncertaintyTubeFilter&);  // Not implemented.
+  void operator=(const vtkUncertaintyTubeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

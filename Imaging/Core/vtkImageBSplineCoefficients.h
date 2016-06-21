@@ -148,7 +148,7 @@ protected:
 
 private:
   vtkImageBSplineCoefficients(const vtkImageBSplineCoefficients&);  // Not implemented.
-  void operator=(const vtkImageBSplineCoefficients&);  // Not implemented.
+  void operator=(const vtkImageBSplineCoefficients&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkRectilinearGridPartitioner(const vtkRectilinearGridPartitioner &); // Not implemented
-  void operator=(const vtkRectilinearGridPartitioner &); // Not implemented
+  void operator=(const vtkRectilinearGridPartitioner &) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkRectilinearGridPartitioner_h */

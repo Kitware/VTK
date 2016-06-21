@@ -78,7 +78,7 @@ protected:
   vtkObject* GetObjectInternal();
 private:
   vtkCollectionIterator(const vtkCollectionIterator&); // Not implemented
-  void operator=(const vtkCollectionIterator&); // Not implemented
+  void operator=(const vtkCollectionIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

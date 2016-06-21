@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkPChacoReader(const vtkPChacoReader&); // Not implemented
-  void operator=(const vtkPChacoReader&); // Not implemented
+  void operator=(const vtkPChacoReader&) VTK_DELETE_FUNCTION;
 
   void SetUpEmptyGrid(vtkUnstructuredGrid *output);
   int DivideCells(vtkMultiProcessController *contr, vtkUnstructuredGrid *output,

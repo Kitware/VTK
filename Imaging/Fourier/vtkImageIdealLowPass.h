@@ -68,7 +68,7 @@ protected:
                            int outExt[6], int id);
 private:
   vtkImageIdealLowPass(const vtkImageIdealLowPass&);  // Not implemented.
-  void operator=(const vtkImageIdealLowPass&);  // Not implemented.
+  void operator=(const vtkImageIdealLowPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

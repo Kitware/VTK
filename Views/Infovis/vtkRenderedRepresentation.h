@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkRenderedRepresentation(const vtkRenderedRepresentation&); // Not implemented
-  void operator=(const vtkRenderedRepresentation&);   // Not implemented
+  void operator=(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

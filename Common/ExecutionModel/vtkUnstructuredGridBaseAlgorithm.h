@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkUnstructuredGridBaseAlgorithm(const vtkUnstructuredGridBaseAlgorithm&); // Not implemented.
-  void operator=(const vtkUnstructuredGridBaseAlgorithm&); // Not implemented.
+  void operator=(const vtkUnstructuredGridBaseAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

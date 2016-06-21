@@ -117,7 +117,7 @@ protected:
 
 private:
   vtkTecplotTableReader(const vtkTecplotTableReader&); // Not implemented
-  void operator=(const vtkTecplotTableReader&);   // Not implemented
+  void operator=(const vtkTecplotTableReader&) VTK_DELETE_FUNCTION;
 
 };
 

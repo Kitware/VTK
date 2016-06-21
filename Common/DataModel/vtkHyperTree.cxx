@@ -414,7 +414,7 @@ protected:
 
 private:
   vtkCompactHyperTreeCursor(const vtkCompactHyperTreeCursor<N> &);  // Not implemented.
-  void operator=(const vtkCompactHyperTreeCursor<N> &);    // Not implemented.
+  void operator=(const vtkCompactHyperTreeCursor<N> &) VTK_DELETE_FUNCTION;
 };
 
 // We could use a 4 byte int, but the internals are completely hidden.
@@ -904,7 +904,7 @@ protected:
 
 private:
   vtkCompactHyperTree(const vtkCompactHyperTree<N> &);  // Not implemented.
-  void operator=(const vtkCompactHyperTree<N> &);    // Not implemented.
+  void operator=(const vtkCompactHyperTree<N> &) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

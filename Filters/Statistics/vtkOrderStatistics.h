@@ -143,7 +143,7 @@ protected:
 
 private:
   vtkOrderStatistics(const vtkOrderStatistics&); // Not implemented
-  void operator=(const vtkOrderStatistics&);   // Not implemented
+  void operator=(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

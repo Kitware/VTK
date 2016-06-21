@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkNonOverlappingAMRLevelIdScalars(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
-  void operator=(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
+  void operator=(const vtkNonOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
 
 };
 

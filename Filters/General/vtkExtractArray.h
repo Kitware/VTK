@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkExtractArray(const vtkExtractArray&); // Not implemented
-  void operator=(const vtkExtractArray&);   // Not implemented
+  void operator=(const vtkExtractArray&) VTK_DELETE_FUNCTION;
 
   vtkIdType Index;
 };

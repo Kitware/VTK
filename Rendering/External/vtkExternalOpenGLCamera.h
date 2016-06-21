@@ -66,7 +66,7 @@ private:
   bool UserProvidedViewTransform;
 
   vtkExternalOpenGLCamera(const vtkExternalOpenGLCamera&);  // Not implemented.
-  void operator=(const vtkExternalOpenGLCamera&);  // Not implemented.
+  void operator=(const vtkExternalOpenGLCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

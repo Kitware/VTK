@@ -214,7 +214,7 @@ protected:
   const char* GetDICOMFileName(int index);
 private:
   vtkDICOMImageReader(const vtkDICOMImageReader&);  // Not implemented.
-  void operator=(const vtkDICOMImageReader&);  // Not implemented.
+  void operator=(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
 
 };
 

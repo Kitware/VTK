@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkNetCDFCAMReader(const vtkNetCDFCAMReader&);  // Not implemented.
-  void operator=(const vtkNetCDFCAMReader&);  // Not implemented.
+  void operator=(const vtkNetCDFCAMReader&) VTK_DELETE_FUNCTION;
 
   // Description:
   // The file name of the file that contains all of the point

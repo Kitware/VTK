@@ -182,7 +182,7 @@ protected:
 
 private:
   vtkTransformInterpolator(const vtkTransformInterpolator&);  // Not implemented.
-  void operator=(const vtkTransformInterpolator&);  // Not implemented.
+  void operator=(const vtkTransformInterpolator&) VTK_DELETE_FUNCTION;
 
 };
 

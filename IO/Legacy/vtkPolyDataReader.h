@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkPolyDataReader(const vtkPolyDataReader&);  // Not implemented.
-  void operator=(const vtkPolyDataReader&);  // Not implemented.
+  void operator=(const vtkPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

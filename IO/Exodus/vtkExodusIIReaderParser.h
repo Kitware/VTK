@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkExodusIIReaderParser(const vtkExodusIIReaderParser&); // Not implemented
-  void operator=(const vtkExodusIIReaderParser&); // Not implemented
+  void operator=(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
 
 };
 

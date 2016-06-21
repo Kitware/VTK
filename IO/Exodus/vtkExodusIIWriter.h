@@ -348,7 +348,7 @@ protected:
 
 private:
   vtkExodusIIWriter (const vtkExodusIIWriter&); // Not Implemented
-  void operator= (const vtkExodusIIWriter&); // Not Implemented
+  void operator= (const vtkExodusIIWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkRectilinearGridAlgorithm(const vtkRectilinearGridAlgorithm&);  // Not implemented.
-  void operator=(const vtkRectilinearGridAlgorithm&);  // Not implemented.
+  void operator=(const vtkRectilinearGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkUniformVariables(const vtkUniformVariables&);  // Not implemented.
-  void operator=(const vtkUniformVariables&);  // Not implemented.
+  void operator=(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
 
   vtkUniformVariablesMap *Map;
 };

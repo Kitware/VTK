@@ -102,7 +102,7 @@ private:
   void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
 
   vtkGAMBITReader(const vtkGAMBITReader&);  // Not implemented.
-  void operator=(const vtkGAMBITReader&);  // Not implemented.
+  void operator=(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkDecimatePolylineFilter(const vtkDecimatePolylineFilter&);  // Not implemented.
-  void operator=(const vtkDecimatePolylineFilter&);  // Not implemented.
+  void operator=(const vtkDecimatePolylineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

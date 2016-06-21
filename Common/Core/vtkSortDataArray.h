@@ -174,7 +174,7 @@ protected:
 
 private:
   vtkSortDataArray(const vtkSortDataArray &);  // Not implemented.
-  void operator=(const vtkSortDataArray &);  // Not implemented.
+  void operator=(const vtkSortDataArray &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSortDataArray_h

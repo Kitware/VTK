@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkSliceAndDiceLayoutStrategy(const vtkSliceAndDiceLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkSliceAndDiceLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkSliceAndDiceLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

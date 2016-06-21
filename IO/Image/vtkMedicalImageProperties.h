@@ -409,7 +409,7 @@ protected:
 
 private:
   vtkMedicalImageProperties(const vtkMedicalImageProperties&); // Not implemented.
-  void operator=(const vtkMedicalImageProperties&); // Not implemented.
+  void operator=(const vtkMedicalImageProperties&) VTK_DELETE_FUNCTION;
 };
 
 #endif

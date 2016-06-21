@@ -849,7 +849,7 @@ protected:
 
 private:
   vtkPolarAxesActor(const vtkPolarAxesActor&); // Not implemented
-  void operator=(const vtkPolarAxesActor&); // Not implemented
+  void operator=(const vtkPolarAxesActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

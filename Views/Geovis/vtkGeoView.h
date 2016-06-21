@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkGeoView(const vtkGeoView&);  // Not implemented.
-  void operator=(const vtkGeoView&);  // Not implemented.
+  void operator=(const vtkGeoView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

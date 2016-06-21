@@ -50,6 +50,6 @@ protected:
 
 private:
   vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleCamera&);  // Not implemented.
+  void operator=(const vtkTDxInteractorStyleCamera&) VTK_DELETE_FUNCTION;
 };
 #endif

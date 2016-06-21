@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkDataSetCellIterator(const vtkDataSetCellIterator &); // Not implemented.
-  void operator=(const vtkDataSetCellIterator &);   // Not implemented.
+  void operator=(const vtkDataSetCellIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkDataSetCellIterator_h

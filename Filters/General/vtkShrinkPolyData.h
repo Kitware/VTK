@@ -62,7 +62,7 @@ protected:
   double ShrinkFactor;
 private:
   vtkShrinkPolyData(const vtkShrinkPolyData&);  // Not implemented.
-  void operator=(const vtkShrinkPolyData&);  // Not implemented.
+  void operator=(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

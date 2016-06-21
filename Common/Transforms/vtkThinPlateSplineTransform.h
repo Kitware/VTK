@@ -136,7 +136,7 @@ protected:
   double **MatrixW;
 private:
   vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&);  // Not implemented.
-  void operator=(const vtkThinPlateSplineTransform&);  // Not implemented.
+  void operator=(const vtkThinPlateSplineTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

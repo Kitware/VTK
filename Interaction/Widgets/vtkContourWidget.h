@@ -240,7 +240,7 @@ protected:
 
 private:
   vtkContourWidget(const vtkContourWidget&);  //Not implemented
-  void operator=(const vtkContourWidget&);  //Not implemented
+  void operator=(const vtkContourWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

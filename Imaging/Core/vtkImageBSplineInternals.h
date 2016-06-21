@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkImageBSplineInternals(const vtkImageBSplineInternals&);  // Not implemented.
-  void operator=(const vtkImageBSplineInternals&);  // Not implemented.
+  void operator=(const vtkImageBSplineInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif

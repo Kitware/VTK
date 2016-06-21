@@ -2100,7 +2100,7 @@ protected:
 private:
   vtkFace(); // not implemented
   vtkFace(const vtkFace &other); // not implemented
-  vtkFace &operator=(const vtkFace &other); // not implemented
+  vtkFace &operator=(const vtkFace &other) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

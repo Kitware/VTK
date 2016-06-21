@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkCompositeTransferFunctionItem(const vtkCompositeTransferFunctionItem&); // Not implemented.
-  void operator=(const vtkCompositeTransferFunctionItem&); // Not implemented
+  void operator=(const vtkCompositeTransferFunctionItem&) VTK_DELETE_FUNCTION;
 };
 
 #endif

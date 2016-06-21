@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkLinearContourLineInterpolator(const vtkLinearContourLineInterpolator&);  //Not implemented
-  void operator=(const vtkLinearContourLineInterpolator&);  //Not implemented
+  void operator=(const vtkLinearContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

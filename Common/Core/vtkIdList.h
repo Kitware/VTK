@@ -134,7 +134,7 @@ protected:
 
 private:
   vtkIdList(const vtkIdList&);  // Not implemented.
-  void operator=(const vtkIdList&);  // Not implemented.
+  void operator=(const vtkIdList&) VTK_DELETE_FUNCTION;
 };
 
 // In-lined for performance

@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkCollectTable(const vtkCollectTable&); // Not implemented
-  void operator=(const vtkCollectTable&); // Not implemented
+  void operator=(const vtkCollectTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

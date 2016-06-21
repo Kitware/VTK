@@ -396,7 +396,7 @@ protected:
 
 private:
   vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.
-  void operator=(const vtkStreamTracer&);  // Not implemented.
+  void operator=(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 

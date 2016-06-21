@@ -40,7 +40,7 @@ protected:
 
 private:
   vtkCellData(const vtkCellData&);  // Not implemented.
-  void operator=(const vtkCellData&);  // Not implemented.
+  void operator=(const vtkCellData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

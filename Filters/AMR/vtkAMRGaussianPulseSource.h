@@ -159,7 +159,7 @@ protected:
 
 private:
   vtkAMRGaussianPulseSource(const vtkAMRGaussianPulseSource&); // Not implemented
-  void operator=(const vtkAMRGaussianPulseSource&); // Not implemented
+  void operator=(const vtkAMRGaussianPulseSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRGaussianPulseSource_h */

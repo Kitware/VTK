@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkDummyImageFilter(const vtkDummyImageFilter&);  // Not implemented.
-  void operator=(const vtkDummyImageFilter&);  // Not implemented.
+  void operator=(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkDummyImageFilter);

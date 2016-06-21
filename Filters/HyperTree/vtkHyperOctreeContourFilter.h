@@ -229,6 +229,6 @@ protected:
 
 private:
   vtkHyperOctreeContourFilter(const vtkHyperOctreeContourFilter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeContourFilter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

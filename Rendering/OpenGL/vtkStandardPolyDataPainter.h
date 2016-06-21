@@ -82,7 +82,7 @@ protected:
   vtkIdType TotalCells;
 private:
   vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.
-  void operator=(const vtkStandardPolyDataPainter&); // Not implemented.
+  void operator=(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

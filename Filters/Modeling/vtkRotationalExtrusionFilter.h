@@ -108,7 +108,7 @@ protected:
   double DeltaRadius;
 private:
   vtkRotationalExtrusionFilter(const vtkRotationalExtrusionFilter&);  // Not implemented.
-  void operator=(const vtkRotationalExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -128,7 +128,7 @@ protected:
 
 private:
   vtkGDALVectorReader(const vtkGDALVectorReader&);  // Not implemented.
-  void operator=(const vtkGDALVectorReader&);       // Not implemented.
+  void operator=(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDALVectorReader_h

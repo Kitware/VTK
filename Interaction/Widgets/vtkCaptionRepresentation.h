@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkCaptionRepresentation(const vtkCaptionRepresentation&);  //Not implemented
-  void operator=(const vtkCaptionRepresentation&);  //Not implemented
+  void operator=(const vtkCaptionRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

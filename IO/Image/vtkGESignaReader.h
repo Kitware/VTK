@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkGESignaReader(const vtkGESignaReader&);  // Not implemented.
-  void operator=(const vtkGESignaReader&);  // Not implemented.
+  void operator=(const vtkGESignaReader&) VTK_DELETE_FUNCTION;
 };
 #endif
 

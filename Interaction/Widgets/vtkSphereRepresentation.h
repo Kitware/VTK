@@ -319,7 +319,7 @@ protected:
 
 private:
   vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
-  void operator=(const vtkSphereRepresentation&);  //Not implemented
+  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

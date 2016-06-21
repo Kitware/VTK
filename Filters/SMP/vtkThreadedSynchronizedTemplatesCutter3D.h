@@ -72,7 +72,7 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 private:
   vtkThreadedSynchronizedTemplatesCutter3D(const vtkThreadedSynchronizedTemplatesCutter3D&);  // Not implemented.
-  void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&);  // Not implemented.
+  void operator=(const vtkThreadedSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

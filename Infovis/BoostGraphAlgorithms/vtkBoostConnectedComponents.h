@@ -50,7 +50,7 @@ protected:
 private:
 
   vtkBoostConnectedComponents(const vtkBoostConnectedComponents&);  // Not implemented.
-  void operator=(const vtkBoostConnectedComponents&);  // Not implemented.
+  void operator=(const vtkBoostConnectedComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

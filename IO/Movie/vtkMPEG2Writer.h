@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkMPEG2Writer(const vtkMPEG2Writer&); // Not implemented
-  void operator=(const vtkMPEG2Writer&); // Not implemented
+  void operator=(const vtkMPEG2Writer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

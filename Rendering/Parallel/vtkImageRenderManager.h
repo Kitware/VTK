@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkImageRenderManager(const vtkImageRenderManager &);//Not implemented
-  void operator=(const vtkImageRenderManager &);  //Not implemented
+  void operator=(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkImageRenderManager_h

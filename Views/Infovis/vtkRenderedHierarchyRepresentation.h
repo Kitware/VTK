@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&); // Not implemented
-  void operator=(const vtkRenderedHierarchyRepresentation&);   // Not implemented
+  void operator=(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

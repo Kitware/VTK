@@ -39,7 +39,7 @@ protected:
   ~vtkLogLookupTable() {}
 private:
   vtkLogLookupTable(const vtkLogLookupTable&);  // Not implemented.
-  void operator=(const vtkLogLookupTable&);  // Not implemented.
+  void operator=(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

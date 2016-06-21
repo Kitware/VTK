@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkGeoJSONWriter(const vtkGeoJSONWriter&);  // Not implemented.
-  void operator=(const vtkGeoJSONWriter&);       // Not implemented.
+  void operator=(const vtkGeoJSONWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoJSONWriter_h

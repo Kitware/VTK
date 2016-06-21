@@ -148,7 +148,7 @@ protected:
 
 private:
   vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
-  void operator=(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
+  void operator=(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
 };
 
 

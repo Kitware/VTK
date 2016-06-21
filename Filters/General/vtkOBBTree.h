@@ -197,7 +197,7 @@ protected:
 
 private:
   vtkOBBTree(const vtkOBBTree&);  // Not implemented.
-  void operator=(const vtkOBBTree&);  // Not implemented.
+  void operator=(const vtkOBBTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

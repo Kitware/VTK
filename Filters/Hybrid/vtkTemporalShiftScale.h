@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkTemporalShiftScale(const vtkTemporalShiftScale&);  // Not implemented.
-  void operator=(const vtkTemporalShiftScale&);  // Not implemented.
+  void operator=(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkDummyCommunicator(const vtkDummyCommunicator &);   // Not implemented
-  void operator=(const vtkDummyCommunicator &);         // Not implemented
+  void operator=(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkDummyCommunicator_h

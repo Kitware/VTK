@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkAnnotation(const vtkAnnotation&);  // Not implemented.
-  void operator=(const vtkAnnotation&);  // Not implemented.
+  void operator=(const vtkAnnotation&) VTK_DELETE_FUNCTION;
 
 };
 

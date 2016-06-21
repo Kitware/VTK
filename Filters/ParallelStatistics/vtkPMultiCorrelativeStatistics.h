@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&); // Not implemented.
-  void operator=(const vtkPMultiCorrelativeStatistics&); // Not implemented.
+  void operator=(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

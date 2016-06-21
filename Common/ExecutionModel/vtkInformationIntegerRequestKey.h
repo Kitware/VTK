@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkInformationIntegerRequestKey(const vtkInformationIntegerRequestKey&);  // Not implemented.
-  void operator=(const vtkInformationIntegerRequestKey&);  // Not implemented.
+  void operator=(const vtkInformationIntegerRequestKey&) VTK_DELETE_FUNCTION;
 
 };
 

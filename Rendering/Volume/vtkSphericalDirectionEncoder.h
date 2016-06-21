@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkSphericalDirectionEncoder&);  // Not implemented.
+  void operator=(const vtkSphericalDirectionEncoder&) VTK_DELETE_FUNCTION;
 };
 
 

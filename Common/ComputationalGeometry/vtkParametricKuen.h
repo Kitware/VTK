@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkParametricKuen(const vtkParametricKuen&);  // Not implemented.
-  void operator=(const vtkParametricKuen&);  // Not implemented.
+  void operator=(const vtkParametricKuen&) VTK_DELETE_FUNCTION;
 };
 
 #endif

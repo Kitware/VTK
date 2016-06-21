@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkSLACParticleReader(const vtkSLACParticleReader &);         // Not implemented
-  void operator=(const vtkSLACParticleReader &);        // Not implemented
+  void operator=(const vtkSLACParticleReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSLACParticleReader_h

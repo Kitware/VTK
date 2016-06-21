@@ -144,7 +144,7 @@ protected:
 
 private:
   vtkBiDimensionalRepresentation2D(const vtkBiDimensionalRepresentation2D&);  //Not implemented
-  void operator=(const vtkBiDimensionalRepresentation2D&);  //Not implemented
+  void operator=(const vtkBiDimensionalRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -53,7 +53,7 @@ protected:
   unsigned int Count;
 private:
   vtkWin32ProcessOutputWindow(const vtkWin32ProcessOutputWindow&);  // Not implemented.
-  void operator=(const vtkWin32ProcessOutputWindow&);  // Not implemented.
+  void operator=(const vtkWin32ProcessOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

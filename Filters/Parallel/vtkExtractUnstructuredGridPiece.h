@@ -58,7 +58,7 @@ private:
                          int piece, int numPieces);
 
   vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
+  void operator=(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

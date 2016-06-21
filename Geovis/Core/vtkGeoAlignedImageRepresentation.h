@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkGeoAlignedImageRepresentation(const vtkGeoAlignedImageRepresentation&); // Not implemented
-  void operator=(const vtkGeoAlignedImageRepresentation&); // Not implemented
+  void operator=(const vtkGeoAlignedImageRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

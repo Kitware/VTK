@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkNetworkHierarchy(const vtkNetworkHierarchy&); // Not implemented
-  void operator=(const vtkNetworkHierarchy&);   // Not implemented
+  void operator=(const vtkNetworkHierarchy&) VTK_DELETE_FUNCTION;
 
   // Internal helper functions
   unsigned int ITON(vtkStdString ip);

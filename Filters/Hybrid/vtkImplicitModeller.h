@@ -281,7 +281,7 @@ protected:
 
 private:
   vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
-  void operator=(const vtkImplicitModeller&);  // Not implemented.
+  void operator=(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -186,7 +186,7 @@ private:
   vtkPythonUtil();
   ~vtkPythonUtil();
   vtkPythonUtil(const vtkPythonUtil&);  // Not implemented.
-  void operator=(const vtkPythonUtil&);  // Not implemented.
+  void operator=(const vtkPythonUtil&) VTK_DELETE_FUNCTION;
 
   vtkPythonObjectMap *ObjectMap;
   vtkPythonGhostMap *GhostMap;

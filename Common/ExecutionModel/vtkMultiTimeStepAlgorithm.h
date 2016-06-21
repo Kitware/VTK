@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkMultiTimeStepAlgorithm(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
-  void operator=(const vtkMultiTimeStepAlgorithm&);  // Not implemented.
+  void operator=(const vtkMultiTimeStepAlgorithm&) VTK_DELETE_FUNCTION;
 
 
   vtkSmartPointer<vtkMultiBlockDataSet> MDataSet; //stores all the temporal data sets

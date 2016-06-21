@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkFacetReader(const vtkFacetReader&);  // Not implemented.
-  void operator=(const vtkFacetReader&);  // Not implemented.
+  void operator=(const vtkFacetReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

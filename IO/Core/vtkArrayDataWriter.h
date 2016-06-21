@@ -128,7 +128,7 @@ protected:
 
 private:
   vtkArrayDataWriter(const vtkArrayDataWriter&);  // Not implemented.
-  void operator=(const vtkArrayDataWriter&);  // Not implemented.
+  void operator=(const vtkArrayDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

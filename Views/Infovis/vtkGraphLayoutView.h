@@ -312,7 +312,7 @@ protected:
 
 private:
   vtkGraphLayoutView(const vtkGraphLayoutView&);  // Not implemented.
-  void operator=(const vtkGraphLayoutView&);  // Not implemented.
+  void operator=(const vtkGraphLayoutView&) VTK_DELETE_FUNCTION;
   bool VertexLabelsRequested;
   bool EdgeLabelsRequested;
   bool Interacting;

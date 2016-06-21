@@ -4254,7 +4254,7 @@ struct vtk_sqlite3_index_info {
 
   // Remove compiler warnings
   vtk_sqlite3_index_info(const vtk_sqlite3_index_info &); // Not implemented.
-  void operator=(const vtk_sqlite3_index_info &); // Not implemented.
+  void operator=(const vtk_sqlite3_index_info &) VTK_DELETE_FUNCTION;
 };
 #define VTK_SQLITE_INDEX_CONSTRAINT_EQ    2
 #define VTK_SQLITE_INDEX_CONSTRAINT_GT    4

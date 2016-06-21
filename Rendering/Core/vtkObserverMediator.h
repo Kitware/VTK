@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkObserverMediator(const vtkObserverMediator&);  //Not implemented
-  void operator=(const vtkObserverMediator&);  //Not implemented
+  void operator=(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

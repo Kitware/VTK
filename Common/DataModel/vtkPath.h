@@ -110,7 +110,7 @@ protected:
 
 private:
   vtkPath(const vtkPath&);  // Not implemented.
-  void operator=(const vtkPath&);  // Not implemented.
+  void operator=(const vtkPath&) VTK_DELETE_FUNCTION;
 };
 
 #endif

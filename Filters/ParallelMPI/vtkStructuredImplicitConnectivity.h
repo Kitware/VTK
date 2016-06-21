@@ -207,6 +207,6 @@ protected:
 
 private:
   vtkStructuredImplicitConnectivity(const vtkStructuredImplicitConnectivity&); // Not implemented
-  void operator=(const vtkStructuredImplicitConnectivity&); // Not implemented
+  void operator=(const vtkStructuredImplicitConnectivity&) VTK_DELETE_FUNCTION;
 };
 #endif

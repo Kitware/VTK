@@ -230,7 +230,7 @@ protected:
 
 private:
   vtkLabeledDataMapper(const vtkLabeledDataMapper&);  // Not implemented.
-  void operator=(const vtkLabeledDataMapper&);  // Not implemented.
+  void operator=(const vtkLabeledDataMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

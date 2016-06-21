@@ -190,7 +190,7 @@ protected:
   virtual vtkTable* GetOutlierData();
 private:
   vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&); // Not implemented
-  void operator=(const vtkParallelCoordinatesHistogramRepresentation&);   // Not implemented
+  void operator=(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

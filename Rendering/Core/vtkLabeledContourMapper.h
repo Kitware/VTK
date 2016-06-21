@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkLabeledContourMapper(const vtkLabeledContourMapper&);  // Not implemented.
-  void operator=(const vtkLabeledContourMapper&);  // Not implemented.
+  void operator=(const vtkLabeledContourMapper&) VTK_DELETE_FUNCTION;
 
   struct Private;
   Private *Internal;

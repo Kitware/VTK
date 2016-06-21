@@ -38,7 +38,7 @@ protected:
   ~vtkImageMapToRGBA() {}
 private:
   vtkImageMapToRGBA(const vtkImageMapToRGBA&);  // Not implemented.
-  void operator=(const vtkImageMapToRGBA&);  // Not implemented.
+  void operator=(const vtkImageMapToRGBA&) VTK_DELETE_FUNCTION;
 };
 
 #endif

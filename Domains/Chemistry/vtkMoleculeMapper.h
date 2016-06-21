@@ -256,7 +256,7 @@ protected:
 
 private:
   vtkMoleculeMapper(const vtkMoleculeMapper&);  // Not implemented.
-  void operator=(const vtkMoleculeMapper&);  // Not implemented.
+  void operator=(const vtkMoleculeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkPProjectSphereFilter(const vtkPProjectSphereFilter &); // Not implemented
-  void operator=(const vtkPProjectSphereFilter &);    // Not implemented
+  void operator=(const vtkPProjectSphereFilter &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPProjectSphereFilter_h

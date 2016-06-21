@@ -110,7 +110,7 @@ protected:
 
 private:
   vtkPCAAnalysisFilter(const vtkPCAAnalysisFilter&);  // Not implemented.
-  void operator=(const vtkPCAAnalysisFilter&);  // Not implemented.
+  void operator=(const vtkPCAAnalysisFilter&) VTK_DELETE_FUNCTION;
 
   // Eigenvalues
   vtkFloatArray *Evals;

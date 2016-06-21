@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkWindowNode(const vtkWindowNode&); // Not implemented.
-  void operator=(const vtkWindowNode&); // Not implemented.
+  void operator=(const vtkWindowNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

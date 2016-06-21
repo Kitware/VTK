@@ -172,7 +172,7 @@ protected:
 
 private:
   vtkContourGrid(const vtkContourGrid&);  // Not implemented.
-  void operator=(const vtkContourGrid&);  // Not implemented.
+  void operator=(const vtkContourGrid&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

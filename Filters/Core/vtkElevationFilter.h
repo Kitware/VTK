@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkElevationFilter(const vtkElevationFilter&);  // Not implemented.
-  void operator=(const vtkElevationFilter&);  // Not implemented.
+  void operator=(const vtkElevationFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -253,7 +253,7 @@ protected:
 
 private:
   vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

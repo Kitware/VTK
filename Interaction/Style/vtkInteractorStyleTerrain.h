@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkInteractorStyleTerrain(const vtkInteractorStyleTerrain&);  // Not implemented.
-  void operator=(const vtkInteractorStyleTerrain&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTerrain&) VTK_DELETE_FUNCTION;
 
 };
 

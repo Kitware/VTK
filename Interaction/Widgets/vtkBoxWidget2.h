@@ -160,7 +160,7 @@ protected:
   int MoveFacesEnabled;
 private:
   vtkBoxWidget2(const vtkBoxWidget2&);  //Not implemented
-  void operator=(const vtkBoxWidget2&);  //Not implemented
+  void operator=(const vtkBoxWidget2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

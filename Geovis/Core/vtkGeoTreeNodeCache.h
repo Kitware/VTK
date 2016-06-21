@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkGeoTreeNodeCache(const vtkGeoTreeNodeCache&); // Not implemented
-  void operator=(const vtkGeoTreeNodeCache&); // Not implemented
+  void operator=(const vtkGeoTreeNodeCache&) VTK_DELETE_FUNCTION;
 };
 
 #endif

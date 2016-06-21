@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented
-  void operator=(const vtkFFMPEGWriter&); // Not implemented
+  void operator=(const vtkFFMPEGWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

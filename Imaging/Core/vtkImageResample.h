@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkImageResample(const vtkImageResample&);  // Not implemented.
-  void operator=(const vtkImageResample&);  // Not implemented.
+  void operator=(const vtkImageResample&) VTK_DELETE_FUNCTION;
 };
 
 #endif

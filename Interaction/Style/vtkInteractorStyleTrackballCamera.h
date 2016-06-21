@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkInteractorStyleTrackballCamera(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
-  void operator=(const vtkInteractorStyleTrackballCamera&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTrackballCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

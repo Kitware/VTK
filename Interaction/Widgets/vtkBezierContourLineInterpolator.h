@@ -90,7 +90,7 @@ protected:
 
 private:
   vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&);  //Not implemented
-  void operator=(const vtkBezierContourLineInterpolator&);  //Not implemented
+  void operator=(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkSMPContourGrid(const vtkSMPContourGrid&);  // Not implemented.
-  void operator=(const vtkSMPContourGrid&);  // Not implemented.
+  void operator=(const vtkSMPContourGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

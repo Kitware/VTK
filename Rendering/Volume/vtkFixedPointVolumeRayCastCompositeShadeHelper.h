@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkFixedPointVolumeRayCastCompositeShadeHelper(const vtkFixedPointVolumeRayCastCompositeShadeHelper&);  // Not implemented.
-  void operator=(const vtkFixedPointVolumeRayCastCompositeShadeHelper&);  // Not implemented.
+  void operator=(const vtkFixedPointVolumeRayCastCompositeShadeHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

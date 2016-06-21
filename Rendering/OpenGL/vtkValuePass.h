@@ -54,7 +54,7 @@ public:
 
  private:
   vtkValuePass(const vtkValuePass&);  // Not implemented.
-  void operator=(const vtkValuePass&);  // Not implemented.
+  void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals *Internals;

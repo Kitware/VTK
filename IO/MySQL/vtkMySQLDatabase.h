@@ -203,7 +203,7 @@ private:
   vtkMySQLDatabasePrivate* const Private;
 
   vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.
-  void operator=(const vtkMySQLDatabase &); // Not implemented.
+  void operator=(const vtkMySQLDatabase &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkMySQLDatabase_h

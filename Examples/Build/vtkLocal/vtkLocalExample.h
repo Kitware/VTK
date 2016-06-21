@@ -26,7 +26,7 @@ protected:
 
 private:
   vtkLocalExample(const vtkLocalExample&);  // Not implemented.
-  void operator=(const vtkLocalExample&);  // Not implemented.
+  void operator=(const vtkLocalExample&) VTK_DELETE_FUNCTION;
 };
 
 #endif

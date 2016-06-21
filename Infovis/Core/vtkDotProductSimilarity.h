@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkDotProductSimilarity(const vtkDotProductSimilarity&); // Not implemented
-  void operator=(const vtkDotProductSimilarity&);   // Not implemented
+  void operator=(const vtkDotProductSimilarity&) VTK_DELETE_FUNCTION;
 
   vtkIdType VectorDimension;
   double MinimumThreshold;

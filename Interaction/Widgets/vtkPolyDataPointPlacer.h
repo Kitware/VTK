@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkPolyDataPointPlacer(const vtkPolyDataPointPlacer&);  //Not implemented
-  void operator=(const vtkPolyDataPointPlacer&);  //Not implemented
+  void operator=(const vtkPolyDataPointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

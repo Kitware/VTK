@@ -154,7 +154,7 @@ private:
   bool NoRelease;
 
   vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&); // Not implemented.
-  void operator=(const vtkPythonScopeGilEnsurer&); // Not implemented.
+  void operator=(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
 };
 
 

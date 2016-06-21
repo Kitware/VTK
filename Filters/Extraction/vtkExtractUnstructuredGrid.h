@@ -140,7 +140,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkExtractUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -75,7 +75,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkTreeMapToPolyData(const vtkTreeMapToPolyData&);  // Not implemented.
-  void operator=(const vtkTreeMapToPolyData&);  // Not implemented.
+  void operator=(const vtkTreeMapToPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

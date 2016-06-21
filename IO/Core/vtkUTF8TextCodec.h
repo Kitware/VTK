@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkUTF8TextCodec(const vtkUTF8TextCodec &) ; // Not implemented.
-  void operator=(const vtkUTF8TextCodec &) ; // Not implemented.
+  void operator=(const vtkUTF8TextCodec &)  VTK_DELETE_FUNCTION;
 
 };
 

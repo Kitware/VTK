@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkParametricPseudosphere(const vtkParametricPseudosphere&);  // Not implemented.
-  void operator=(const vtkParametricPseudosphere&);  // Not implemented.
+  void operator=(const vtkParametricPseudosphere&) VTK_DELETE_FUNCTION;
 };
 
 #endif

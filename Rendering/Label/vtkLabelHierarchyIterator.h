@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkLabelHierarchyIterator( const vtkLabelHierarchyIterator& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchyIterator& ); // Not implemented.
+  void operator = ( const vtkLabelHierarchyIterator& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelHierarchyIterator_h

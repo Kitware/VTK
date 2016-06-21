@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkImporter(const vtkImporter&);  // Not implemented.
-  void operator=(const vtkImporter&);  // Not implemented.
+  void operator=(const vtkImporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

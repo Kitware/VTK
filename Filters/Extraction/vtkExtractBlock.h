@@ -89,7 +89,7 @@ protected:
   int MaintainStructure;
 private:
   vtkExtractBlock(const vtkExtractBlock&); // Not implemented.
-  void operator=(const vtkExtractBlock&); // Not implemented.
+  void operator=(const vtkExtractBlock&) VTK_DELETE_FUNCTION;
 
   class vtkSet;
   vtkSet *Indices;

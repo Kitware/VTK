@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkDataArrayCollectionIterator(const vtkDataArrayCollectionIterator&); // Not implemented
-  void operator=(const vtkDataArrayCollectionIterator&); // Not implemented
+  void operator=(const vtkDataArrayCollectionIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

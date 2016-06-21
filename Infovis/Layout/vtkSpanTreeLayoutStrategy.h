@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkSpanTreeLayoutStrategy(const vtkSpanTreeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkSpanTreeLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkSpanTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

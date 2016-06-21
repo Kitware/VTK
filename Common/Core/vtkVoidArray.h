@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkVoidArray(const vtkVoidArray&);  // Not implemented.
-  void operator=(const vtkVoidArray&);  // Not implemented.
+  void operator=(const vtkVoidArray&) VTK_DELETE_FUNCTION;
 };
 
 

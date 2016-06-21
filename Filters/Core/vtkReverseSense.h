@@ -66,7 +66,7 @@ protected:
   int ReverseNormals;
 private:
   vtkReverseSense(const vtkReverseSense&);  // Not implemented.
-  void operator=(const vtkReverseSense&);  // Not implemented.
+  void operator=(const vtkReverseSense&) VTK_DELETE_FUNCTION;
 };
 
 #endif

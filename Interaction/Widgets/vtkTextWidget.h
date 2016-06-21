@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkTextWidget(const vtkTextWidget&);  //Not implemented
-  void operator=(const vtkTextWidget&);  //Not implemented
+  void operator=(const vtkTextWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

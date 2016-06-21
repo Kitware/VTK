@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkPPCAStatistics(const vtkPPCAStatistics&); // Not implemented.
-  void operator=(const vtkPPCAStatistics&); // Not implemented.
+  void operator=(const vtkPPCAStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkGeoFileTerrainSource(const vtkGeoFileTerrainSource&); // Not implemented
-  void operator=(const vtkGeoFileTerrainSource&); // Not implemented
+  void operator=(const vtkGeoFileTerrainSource&) VTK_DELETE_FUNCTION;
 
   char* Path;
 };

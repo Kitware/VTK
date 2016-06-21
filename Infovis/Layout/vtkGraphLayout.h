@@ -101,7 +101,7 @@ private:
   bool UseTransform;
 
   vtkGraphLayout(const vtkGraphLayout&);  // Not implemented.
-  void operator=(const vtkGraphLayout&);  // Not implemented.
+  void operator=(const vtkGraphLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

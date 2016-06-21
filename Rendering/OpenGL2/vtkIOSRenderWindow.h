@@ -310,7 +310,7 @@ protected:
 
 private:
   vtkIOSRenderWindow(const vtkIOSRenderWindow&);  // Not implemented.
-  void operator=(const vtkIOSRenderWindow&);  // Not implemented.
+  void operator=(const vtkIOSRenderWindow&) VTK_DELETE_FUNCTION;
 
 private:
   int      WindowCreated;

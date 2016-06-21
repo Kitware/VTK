@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkUnstructuredGridPreIntegration(const vtkUnstructuredGridPreIntegration&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridPreIntegration&);  // Not implemented
+  void operator=(const vtkUnstructuredGridPreIntegration&) VTK_DELETE_FUNCTION;
 };
 
 inline float *vtkUnstructuredGridPreIntegration::GetIndexedTableEntry(

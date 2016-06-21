@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkDIMACSGraphWriter(const vtkDIMACSGraphWriter&);  // Not implemented.
-  void operator=(const vtkDIMACSGraphWriter&);  // Not implemented.
+  void operator=(const vtkDIMACSGraphWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -44,7 +44,7 @@ protected:
   virtual ~vtkGaussianRandomSequence();
 private:
   vtkGaussianRandomSequence(const vtkGaussianRandomSequence&);  // Not implemented.
-  void operator=(const vtkGaussianRandomSequence&);  // Not implemented.
+  void operator=(const vtkGaussianRandomSequence&) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkGaussianRandomSequence_h

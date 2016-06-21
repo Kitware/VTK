@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkAMRFlashReader( const vtkAMRFlashReader& ); // Not implemented
-  void operator=(const vtkAMRFlashReader& ); // Not implemented
+  void operator=(const vtkAMRFlashReader& ) VTK_DELETE_FUNCTION;
 
   void ComputeStats(vtkFlashReaderInternal* internal, std::vector<int>& numBlocks, double min[3]);
   vtkFlashReaderInternal *Internal;

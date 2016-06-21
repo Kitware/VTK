@@ -246,7 +246,7 @@ private:
   ~vtkOpenFOAMReaderPrivate();
 
   vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &); // Not implemented.
-  void operator=(const vtkOpenFOAMReaderPrivate &); // Not implemented.
+  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
 
   // clear mesh construction
   void ClearInternalMeshes();

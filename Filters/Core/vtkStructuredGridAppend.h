@@ -80,7 +80,7 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
 
  private:
   vtkStructuredGridAppend(const vtkStructuredGridAppend&);  // Not implemented.
-  void operator=(const vtkStructuredGridAppend&);  // Not implemented.
+  void operator=(const vtkStructuredGridAppend&) VTK_DELETE_FUNCTION;
 };
 
 #endif

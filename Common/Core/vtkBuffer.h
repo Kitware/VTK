@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkBuffer(const vtkBuffer&);  // Not implemented.
-  void operator=(const vtkBuffer&);  // Not implemented.
+  void operator=(const vtkBuffer&) VTK_DELETE_FUNCTION;
 };
 
 template <class ScalarT>

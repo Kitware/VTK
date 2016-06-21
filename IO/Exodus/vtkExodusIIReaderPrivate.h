@@ -831,7 +831,7 @@ protected:
   vtkMutableDirectedGraph* SIL;
 private:
   vtkExodusIIReaderPrivate( const vtkExodusIIReaderPrivate& ); // Not implemented.
-  void operator = ( const vtkExodusIIReaderPrivate& ); // Not implemented.
+  void operator = ( const vtkExodusIIReaderPrivate& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkExodusIIReaderPrivate_h

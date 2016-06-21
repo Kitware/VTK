@@ -44,7 +44,7 @@ protected:
 
 private:
   vtkImageInPlaceFilter(const vtkImageInPlaceFilter&);  // Not implemented.
-  void operator=(const vtkImageInPlaceFilter&);  // Not implemented.
+  void operator=(const vtkImageInPlaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkImageCursor3D(const vtkImageCursor3D&);  // Not implemented.
-  void operator=(const vtkImageCursor3D&);  // Not implemented.
+  void operator=(const vtkImageCursor3D&) VTK_DELETE_FUNCTION;
 };
 
 

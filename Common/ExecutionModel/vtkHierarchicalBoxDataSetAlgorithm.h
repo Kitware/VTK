@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkHierarchicalBoxDataSetAlgorithm(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
-  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&); // Not implemented.
+  void operator=(const vtkHierarchicalBoxDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 
 };
 

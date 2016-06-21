@@ -156,7 +156,7 @@ private:
   double ColorResult[3];
   vtkCompositeSurfaceLICMapper(
     const vtkCompositeSurfaceLICMapper&); // Not implemented.
-  void operator=(const vtkCompositeSurfaceLICMapper&); // Not implemented.
+  void operator=(const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

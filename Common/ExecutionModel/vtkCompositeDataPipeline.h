@@ -219,7 +219,7 @@ protected:
 
 private:
   vtkCompositeDataPipeline(const vtkCompositeDataPipeline&);  // Not implemented.
-  void operator=(const vtkCompositeDataPipeline&);  // Not implemented.
+  void operator=(const vtkCompositeDataPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

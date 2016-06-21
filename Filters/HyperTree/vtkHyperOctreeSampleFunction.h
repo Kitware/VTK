@@ -202,7 +202,7 @@ protected:
 
 private:
   vtkHyperOctreeSampleFunction(const vtkHyperOctreeSampleFunction&);  // Not implemented.
-  void operator=(const vtkHyperOctreeSampleFunction&);  // Not implemented.
+  void operator=(const vtkHyperOctreeSampleFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

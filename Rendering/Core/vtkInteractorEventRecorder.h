@@ -126,7 +126,7 @@ protected:
 
 private:
   vtkInteractorEventRecorder(const vtkInteractorEventRecorder&);  // Not implemented.
-  void operator=(const vtkInteractorEventRecorder&);  // Not implemented.
+  void operator=(const vtkInteractorEventRecorder&) VTK_DELETE_FUNCTION;
 
 };
 

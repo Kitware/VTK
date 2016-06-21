@@ -240,7 +240,7 @@ protected:
                          // This is not reference counted.
 private:
   vtkPainter(const vtkPainter &); // Not implemented.
-  void operator=(const vtkPainter &);   // Not implemented.
+  void operator=(const vtkPainter &) VTK_DELETE_FUNCTION;
 
   vtkDataObject* Input;
 

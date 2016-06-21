@@ -58,7 +58,7 @@ protected:
   vtkMergePoints *Locator;
 private:
   vtkEdgePoints(const vtkEdgePoints&);  // Not implemented.
-  void operator=(const vtkEdgePoints&);  // Not implemented.
+  void operator=(const vtkEdgePoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

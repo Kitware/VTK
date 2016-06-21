@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkExtractLevel(const vtkExtractLevel&); // Not implemented.
-  void operator=(const vtkExtractLevel&); // Not implemented.
+  void operator=(const vtkExtractLevel&) VTK_DELETE_FUNCTION;
 
   class vtkSet;
   vtkSet* Levels;

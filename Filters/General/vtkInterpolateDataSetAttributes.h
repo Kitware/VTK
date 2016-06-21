@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);  // Not implemented.
-  void operator=(const vtkInterpolateDataSetAttributes&);  // Not implemented.
+  void operator=(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

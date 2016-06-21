@@ -101,7 +101,7 @@ private:
              vtkIntArray* KCoreNumbers);
 
   vtkKCoreDecomposition(const vtkKCoreDecomposition&);  // Not implemented.
-  void operator=(const vtkKCoreDecomposition&);  // Not implemented.
+  void operator=(const vtkKCoreDecomposition&) VTK_DELETE_FUNCTION;
 };
 
 #endif

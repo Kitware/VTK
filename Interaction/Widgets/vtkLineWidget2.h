@@ -144,7 +144,7 @@ protected:
 
 private:
   vtkLineWidget2(const vtkLineWidget2&);  //Not implemented
-  void operator=(const vtkLineWidget2&);  //Not implemented
+  void operator=(const vtkLineWidget2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

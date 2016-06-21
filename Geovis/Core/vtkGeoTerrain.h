@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented
-  void operator=(const vtkGeoTerrain&); // Not implemented
+  void operator=(const vtkGeoTerrain&) VTK_DELETE_FUNCTION;
 };
 
 #endif

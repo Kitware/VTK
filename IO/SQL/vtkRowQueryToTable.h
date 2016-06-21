@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkRowQueryToTable(const vtkRowQueryToTable&); // Not implemented
-  void operator=(const vtkRowQueryToTable&);   // Not implemented
+  void operator=(const vtkRowQueryToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

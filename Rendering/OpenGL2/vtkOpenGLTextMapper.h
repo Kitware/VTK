@@ -41,7 +41,7 @@ protected:
 
 private:
   vtkOpenGLTextMapper(const vtkOpenGLTextMapper&); // Not implemented
-  void operator=(const vtkOpenGLTextMapper&); // Not implemented
+  void operator=(const vtkOpenGLTextMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLTextMapper_h

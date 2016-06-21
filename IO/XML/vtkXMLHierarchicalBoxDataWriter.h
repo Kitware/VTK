@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
-  void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
+  void operator=(const vtkXMLHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;
 
 };
 

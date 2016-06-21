@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkQuadraticWedge(const vtkQuadraticWedge&);  // Not implemented.
-  void operator=(const vtkQuadraticWedge&);  // Not implemented.
+  void operator=(const vtkQuadraticWedge&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 // Return the center of the quadratic wedge in parametric coordinates.

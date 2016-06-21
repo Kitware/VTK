@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkPassThrough(const vtkPassThrough&); // Not implemented
-  void operator=(const vtkPassThrough&);   // Not implemented
+  void operator=(const vtkPassThrough&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -90,7 +90,7 @@ protected:
 
 private:
   vtkTimeRTAnalyticSource(const vtkTimeRTAnalyticSource&);  // Not implemented.
-  void operator=(const vtkTimeRTAnalyticSource&);  // Not implemented.
+  void operator=(const vtkTimeRTAnalyticSource&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkTimeRTAnalyticSource);

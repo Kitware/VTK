@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkImageViewer(const vtkImageViewer&);  // Not implemented.
-  void operator=(const vtkImageViewer&);  // Not implemented.
+  void operator=(const vtkImageViewer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

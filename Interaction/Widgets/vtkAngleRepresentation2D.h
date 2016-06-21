@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkAngleRepresentation2D(const vtkAngleRepresentation2D&);  //Not implemented
-  void operator=(const vtkAngleRepresentation2D&);  //Not implemented
+  void operator=(const vtkAngleRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

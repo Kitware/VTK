@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkBridgeCellIteratorStrategy(const vtkBridgeCellIteratorStrategy&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorStrategy&); // Not implemented
+  void operator=(const vtkBridgeCellIteratorStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

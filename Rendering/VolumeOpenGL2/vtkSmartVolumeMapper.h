@@ -344,7 +344,7 @@ protected:
 
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.
-  void operator=(const vtkSmartVolumeMapper&);  // Not implemented.
+  void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

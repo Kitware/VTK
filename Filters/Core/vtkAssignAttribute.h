@@ -120,7 +120,7 @@ protected:
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
   vtkAssignAttribute(const vtkAssignAttribute&);  // Not implemented.
-  void operator=(const vtkAssignAttribute&);  // Not implemented.
+  void operator=(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

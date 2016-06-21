@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&);  // Not implemented.
-  void operator=(const vtkViewDependentErrorMetric&);  // Not implemented.
+  void operator=(const vtkViewDependentErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

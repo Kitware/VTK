@@ -52,7 +52,7 @@ protected:
   vtkColorTransferFunction* ColorTransferFunction;
 private:
   vtkColorTransferFunctionItem(const vtkColorTransferFunctionItem&); // Not implemented
-  void operator=(const vtkColorTransferFunctionItem&); // Not implemented
+  void operator=(const vtkColorTransferFunctionItem&) VTK_DELETE_FUNCTION;
 };
 
 #endif

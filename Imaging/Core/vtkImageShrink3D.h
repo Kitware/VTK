@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkImageShrink3D(const vtkImageShrink3D&);  // Not implemented.
-  void operator=(const vtkImageShrink3D&);  // Not implemented.
+  void operator=(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

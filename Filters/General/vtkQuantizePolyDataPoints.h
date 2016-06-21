@@ -68,7 +68,7 @@ protected:
   double QFactor;
 private:
   vtkQuantizePolyDataPoints(const vtkQuantizePolyDataPoints&);  // Not implemented.
-  void operator=(const vtkQuantizePolyDataPoints&);  // Not implemented.
+  void operator=(const vtkQuantizePolyDataPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

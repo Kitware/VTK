@@ -165,7 +165,7 @@ protected:
   vtkMultiProcessController *Controller;
 private:
   vtkExtractCTHPart(const vtkExtractCTHPart&);  // Not implemented.
-  void operator=(const vtkExtractCTHPart&);  // Not implemented.
+  void operator=(const vtkExtractCTHPart&) VTK_DELETE_FUNCTION;
 
   class VectorOfFragments;
 

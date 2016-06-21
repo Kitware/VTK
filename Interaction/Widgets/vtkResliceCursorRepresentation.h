@@ -265,7 +265,7 @@ protected:
 
 private:
   vtkResliceCursorRepresentation(const vtkResliceCursorRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorRepresentation&);  //Not implemented
+  void operator=(const vtkResliceCursorRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

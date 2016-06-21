@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkShepardKernel(const vtkShepardKernel&);  // Not implemented.
-  void operator=(const vtkShepardKernel&);  // Not implemented.
+  void operator=(const vtkShepardKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

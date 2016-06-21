@@ -196,7 +196,7 @@ protected:
 
 private:
   vtkContourFilter(const vtkContourFilter&);  // Not implemented.
-  void operator=(const vtkContourFilter&);  // Not implemented.
+  void operator=(const vtkContourFilter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

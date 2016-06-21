@@ -80,6 +80,6 @@ protected:
 
 private:
   vtkOSPRayActorNode(const vtkOSPRayActorNode&); // Not implemented.
-  void operator=(const vtkOSPRayActorNode&); // Not implemented.
+  void operator=(const vtkOSPRayActorNode&) VTK_DELETE_FUNCTION;
 };
 #endif

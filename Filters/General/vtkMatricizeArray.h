@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkMatricizeArray(const vtkMatricizeArray&); // Not implemented
-  void operator=(const vtkMatricizeArray&);   // Not implemented
+  void operator=(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
 
   class Generator;
 

@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkProjectSphereFilter(const vtkProjectSphereFilter &); // Not implemented
-  void operator=(const vtkProjectSphereFilter &);    // Not implemented
+  void operator=(const vtkProjectSphereFilter &) VTK_DELETE_FUNCTION;
 
   double Center[3];
   const double SplitLongitude;

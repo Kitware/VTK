@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkInformationDoubleKey(const vtkInformationDoubleKey&);  // Not implemented.
-  void operator=(const vtkInformationDoubleKey&);  // Not implemented.
+  void operator=(const vtkInformationDoubleKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

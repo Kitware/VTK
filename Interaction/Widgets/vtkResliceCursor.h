@@ -158,7 +158,7 @@ protected:
 
 private:
   vtkResliceCursor(const vtkResliceCursor&);  // Not implemented.
-  void operator=(const vtkResliceCursor&);  // Not implemented.
+  void operator=(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

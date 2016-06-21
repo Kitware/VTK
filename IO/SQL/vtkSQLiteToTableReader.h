@@ -40,7 +40,7 @@ protected:
                           vtkInformationVector *);
 private:
   vtkSQLiteToTableReader(const vtkSQLiteToTableReader&); // Not implemented.
-  void operator=(const vtkSQLiteToTableReader&); // Not implemented.
+  void operator=(const vtkSQLiteToTableReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -147,7 +147,7 @@ protected:
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
   vtkMergeFields(const vtkMergeFields&);  // Not implemented.
-  void operator=(const vtkMergeFields&);  // Not implemented.
+  void operator=(const vtkMergeFields&) VTK_DELETE_FUNCTION;
 };
 
 #endif

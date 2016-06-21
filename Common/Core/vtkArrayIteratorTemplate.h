@@ -95,7 +95,7 @@ protected:
   T* Pointer;
 private:
   vtkArrayIteratorTemplate(const vtkArrayIteratorTemplate&); // Not implemented.
-  void operator=(const vtkArrayIteratorTemplate&); // Not implemented.
+  void operator=(const vtkArrayIteratorTemplate&) VTK_DELETE_FUNCTION;
 
  void SetArray(vtkAbstractArray*);
  vtkAbstractArray* Array;

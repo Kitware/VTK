@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkUnstructuredGridVolumeRayCastFunction(const vtkUnstructuredGridVolumeRayCastFunction&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeRayCastFunction&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

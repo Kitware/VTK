@@ -102,7 +102,7 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);
 private:
   vtkBMPReader(const vtkBMPReader&);  // Not implemented.
-  void operator=(const vtkBMPReader&);  // Not implemented.
+  void operator=(const vtkBMPReader&) VTK_DELETE_FUNCTION;
 };
 #endif
 

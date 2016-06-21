@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkContingencyStatisticsGnuR(const vtkContingencyStatisticsGnuR&); // Not implemented
-  void operator=(const vtkContingencyStatisticsGnuR&); // Not implemented
+  void operator=(const vtkContingencyStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

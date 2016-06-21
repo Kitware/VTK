@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&); // Not implemented
-  void operator=(const vtkAdjacencyMatrixToEdgeTable&);   // Not implemented
+  void operator=(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

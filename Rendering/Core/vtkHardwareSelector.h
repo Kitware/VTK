@@ -340,7 +340,7 @@ protected:
 
 private:
   vtkHardwareSelector(const vtkHardwareSelector&); // Not implemented.
-  void operator=(const vtkHardwareSelector&); // Not implemented.
+  void operator=(const vtkHardwareSelector&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

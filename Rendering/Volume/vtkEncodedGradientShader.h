@@ -124,7 +124,7 @@ protected:
   float    ZeroNormalSpecularIntensity;
 private:
   vtkEncodedGradientShader(const vtkEncodedGradientShader&);  // Not implemented.
-  void operator=(const vtkEncodedGradientShader&);  // Not implemented.
+  void operator=(const vtkEncodedGradientShader&) VTK_DELETE_FUNCTION;
 };
 
 

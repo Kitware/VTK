@@ -95,7 +95,7 @@ protected:
 private:
   vtkTensorProbeRepresentation(
       const vtkTensorProbeRepresentation&);  //Not implemented
-  void operator=(const vtkTensorProbeRepresentation&);  //Not implemented
+  void operator=(const vtkTensorProbeRepresentation&) VTK_DELETE_FUNCTION;
 
 };
 

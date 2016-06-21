@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkArrayReader(const vtkArrayReader&); // Not implemented
-  void operator=(const vtkArrayReader&);   // Not implemented
+  void operator=(const vtkArrayReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

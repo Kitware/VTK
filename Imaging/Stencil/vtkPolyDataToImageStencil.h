@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.
-  void operator=(const vtkPolyDataToImageStencil&);  // Not implemented.
+  void operator=(const vtkPolyDataToImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

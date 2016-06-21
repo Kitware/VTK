@@ -81,7 +81,7 @@ protected:
                            int outExt[6], int id);
 private:
   vtkImageFoo(const vtkImageFoo&);  // Not implemented.
-  void operator=(const vtkImageFoo&);  // Not implemented.
+  void operator=(const vtkImageFoo&) VTK_DELETE_FUNCTION;
 };
 
 #endif

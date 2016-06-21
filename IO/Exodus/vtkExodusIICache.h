@@ -204,6 +204,6 @@ protected:
 
 private:
   vtkExodusIICache( const vtkExodusIICache& ); // Not implemented
-  void operator = ( const vtkExodusIICache& ); // Not implemented
+  void operator = ( const vtkExodusIICache& ) VTK_DELETE_FUNCTION;
 };
 #endif // vtkExodusIICache_h

@@ -38,7 +38,7 @@ protected:
 
 private:
   vtkReferenceCount(const vtkReferenceCount&);  // Not implemented.
-  void operator=(const vtkReferenceCount&);  // Not implemented.
+  void operator=(const vtkReferenceCount&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -183,7 +183,7 @@ protected:
   private:
   vtkTableBasedClipperEdgeHashTable
                   ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
-  void operator = ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
+  void operator = ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
 };
 // ---- vtkTableBasedClipperEdgeHashTable (end)
 

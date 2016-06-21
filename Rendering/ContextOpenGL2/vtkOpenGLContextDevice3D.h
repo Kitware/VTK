@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkOpenGLContextDevice3D(const vtkOpenGLContextDevice3D &); // Not implemented.
-  void operator=(const vtkOpenGLContextDevice3D &);   // Not implemented.
+  void operator=(const vtkOpenGLContextDevice3D &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Private data pointer of the class

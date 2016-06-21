@@ -197,7 +197,7 @@ protected:
 
 private:
   vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&);  // Not implemented
-  void operator=(const vtkOrientationMarkerWidget&);  // Not implemented
+  void operator=(const vtkOrientationMarkerWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

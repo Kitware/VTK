@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkArrayDataReader(const vtkArrayDataReader&); // Not implemented
-  void operator=(const vtkArrayDataReader&);   // Not implemented
+  void operator=(const vtkArrayDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

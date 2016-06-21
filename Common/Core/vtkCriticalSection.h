@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkCriticalSection(const vtkCriticalSection&);  // Not implemented.
-  void operator=(const vtkCriticalSection&);  // Not implemented.
+  void operator=(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
 };
 
 

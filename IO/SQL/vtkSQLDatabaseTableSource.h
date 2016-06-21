@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&); // Not implemented
-  void operator=(const vtkSQLDatabaseTableSource&);   // Not implemented
+  void operator=(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
 
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;

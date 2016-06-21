@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkTextRepresentation(const vtkTextRepresentation&);  //Not implemented
-  void operator=(const vtkTextRepresentation&);  //Not implemented
+  void operator=(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

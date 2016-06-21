@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkGraphEdgePoints(const vtkGraphEdgePoints&);  // Not implemented.
-  void operator=(const vtkGraphEdgePoints&);  // Not implemented.
+  void operator=(const vtkGraphEdgePoints&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
 

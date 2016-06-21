@@ -120,7 +120,7 @@ protected:
 private:
 
   vtkX3DExporter(const vtkX3DExporter&); // Not implemented.
-  void operator=(const vtkX3DExporter&); // Not implemented.
+  void operator=(const vtkX3DExporter&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkHoverWidget(const vtkHoverWidget&);  //Not implemented
-  void operator=(const vtkHoverWidget&);  //Not implemented
+  void operator=(const vtkHoverWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkRectilinearWipeWidget(const vtkRectilinearWipeWidget&);  //Not implemented
-  void operator=(const vtkRectilinearWipeWidget&);  //Not implemented
+  void operator=(const vtkRectilinearWipeWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

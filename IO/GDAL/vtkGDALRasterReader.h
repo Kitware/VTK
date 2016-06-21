@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkGDALRasterReader(const vtkGDALRasterReader&); // Not implemented.
-  void operator=(const vtkGDALRasterReader&); // Not implemented
+  void operator=(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDALRasterReader_h

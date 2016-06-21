@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkBridgePointIteratorOne(const vtkBridgePointIteratorOne&); // Not implemented
-  void operator=(const vtkBridgePointIteratorOne&); // Not implemented
+  void operator=(const vtkBridgePointIteratorOne&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -82,7 +82,7 @@ private:
 
   // Not implemented.
   vtkTestDataArray(const vtkTestDataArray &); // Not implemented.
-  void operator=(const vtkTestDataArray &); // Not implemented.
+  void operator=(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
 };
 
 #endif

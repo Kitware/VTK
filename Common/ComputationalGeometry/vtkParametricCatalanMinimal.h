@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkParametricCatalanMinimal(const vtkParametricCatalanMinimal&);  // Not implemented.
-  void operator=(const vtkParametricCatalanMinimal&);  // Not implemented.
+  void operator=(const vtkParametricCatalanMinimal&) VTK_DELETE_FUNCTION;
 };
 
 #endif

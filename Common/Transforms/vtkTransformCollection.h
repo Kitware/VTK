@@ -64,7 +64,7 @@ private:
 
 private:
   vtkTransformCollection(const vtkTransformCollection&);  // Not implemented.
-  void operator=(const vtkTransformCollection&);  // Not implemented.
+  void operator=(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

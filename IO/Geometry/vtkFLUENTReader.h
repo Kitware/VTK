@@ -228,6 +228,6 @@ protected:
 
 private:
   vtkFLUENTReader(const vtkFLUENTReader&);  // Not implemented.
-  void operator=(const vtkFLUENTReader&);  // Not implemented.
+  void operator=(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
 };
 #endif

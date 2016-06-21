@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkStripper(const vtkStripper&);  // Not implemented.
-  void operator=(const vtkStripper&);  // Not implemented.
+  void operator=(const vtkStripper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

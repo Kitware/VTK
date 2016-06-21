@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkTransmitStructuredDataPiece(const vtkTransmitStructuredDataPiece&); // Not implemented
-  void operator=(const vtkTransmitStructuredDataPiece&); // Not implemented
+  void operator=(const vtkTransmitStructuredDataPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

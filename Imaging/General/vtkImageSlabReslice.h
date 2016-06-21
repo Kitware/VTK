@@ -100,7 +100,7 @@ protected:
 
 private:
   vtkImageSlabReslice(const vtkImageSlabReslice&);  // Not implemented.
-  void operator=(const vtkImageSlabReslice&);  // Not implemented.
+  void operator=(const vtkImageSlabReslice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

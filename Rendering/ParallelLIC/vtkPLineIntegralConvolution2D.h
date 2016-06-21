@@ -80,7 +80,7 @@ private:
 
 private:
   vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D &); // Not implemented.
-  void operator=(const vtkPLineIntegralConvolution2D &); // Not implemented.
+  void operator=(const vtkPLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif

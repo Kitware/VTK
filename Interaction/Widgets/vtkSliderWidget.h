@@ -144,7 +144,7 @@ protected:
 
 private:
   vtkSliderWidget(const vtkSliderWidget&);  //Not implemented
-  void operator=(const vtkSliderWidget&);  //Not implemented
+  void operator=(const vtkSliderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

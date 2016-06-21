@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkFacetWriter(const vtkFacetWriter&);  // Not implemented.
-  void operator=(const vtkFacetWriter&);  // Not implemented.
+  void operator=(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

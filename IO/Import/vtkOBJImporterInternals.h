@@ -147,7 +147,7 @@ protected:
 
 private:
   vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
-  void operator=(const vtkOBJPolyDataProcessor&);  // Not implemented.
+  void operator=(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
 };
 
 class vtkRenderWindow;

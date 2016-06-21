@@ -117,7 +117,7 @@ protected:
 
 private:
   vtkBox(const vtkBox&);  // Not implemented.
-  void operator=(const vtkBox&);  // Not implemented.
+  void operator=(const vtkBox&) VTK_DELETE_FUNCTION;
 };
 
 

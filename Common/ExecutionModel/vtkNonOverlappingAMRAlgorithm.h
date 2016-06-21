@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
 
   private:
     vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&); // Not implemented
-    void operator=(const vtkNonOverlappingAMRAlgorithm&); // Not implemented
+    void operator=(const vtkNonOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKNONOVERLAPPINGAMRALGORITHM_H_ */

@@ -182,7 +182,7 @@ protected:
   int OutputPointsPrecision;
 private:
   vtkCleanPolyData(const vtkCleanPolyData&);  // Not implemented.
-  void operator=(const vtkCleanPolyData&);  // Not implemented.
+  void operator=(const vtkCleanPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkImageGaussianSmooth(const vtkImageGaussianSmooth&);  // Not implemented.
-  void operator=(const vtkImageGaussianSmooth&);  // Not implemented.
+  void operator=(const vtkImageGaussianSmooth&) VTK_DELETE_FUNCTION;
 };
 
 #endif

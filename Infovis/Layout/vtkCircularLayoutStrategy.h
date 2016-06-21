@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkCircularLayoutStrategy(const vtkCircularLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkCircularLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkCircularLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

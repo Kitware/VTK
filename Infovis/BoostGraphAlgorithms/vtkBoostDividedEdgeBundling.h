@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&);  // Not implemented.
-  void operator=(const vtkBoostDividedEdgeBundling&);  // Not implemented.
+  void operator=(const vtkBoostDividedEdgeBundling&) VTK_DELETE_FUNCTION;
 };
 
 #endif

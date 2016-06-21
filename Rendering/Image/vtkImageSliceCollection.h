@@ -74,7 +74,7 @@ private:
 
 private:
   vtkImageSliceCollection(const vtkImageSliceCollection&);  // Not implemented.
-  void operator=(const vtkImageSliceCollection&);  // Not implemented.
+  void operator=(const vtkImageSliceCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline vtkImageSlice *vtkImageSliceCollection::GetNextImage()

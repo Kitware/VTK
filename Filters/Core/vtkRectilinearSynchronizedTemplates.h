@@ -158,7 +158,7 @@ protected:
 
 private:
   vtkRectilinearSynchronizedTemplates(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
-  void operator=(const vtkRectilinearSynchronizedTemplates&);  // Not implemented.
+  void operator=(const vtkRectilinearSynchronizedTemplates&) VTK_DELETE_FUNCTION;
 };
 
 // template table.

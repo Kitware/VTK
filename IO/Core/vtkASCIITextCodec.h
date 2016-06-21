@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkASCIITextCodec(const vtkASCIITextCodec &) ; // Not implemented.
-  void operator=(const vtkASCIITextCodec &) ; // Not implemented.
+  void operator=(const vtkASCIITextCodec &)  VTK_DELETE_FUNCTION;
 
 };
 

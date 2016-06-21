@@ -89,7 +89,7 @@ protected:
 private:
 
   vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkRandomLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkRandomLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

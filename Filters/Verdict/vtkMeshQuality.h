@@ -892,7 +892,7 @@ protected:
 
 private:
   vtkMeshQuality( const vtkMeshQuality& ); // Not implemented.
-  void operator = ( const vtkMeshQuality& ); // Not implemented.
+  void operator = ( const vtkMeshQuality& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkMeshQuality_h

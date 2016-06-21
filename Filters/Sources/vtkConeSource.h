@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkConeSource(const vtkConeSource&);  // Not implemented.
-  void operator=(const vtkConeSource&);  // Not implemented.
+  void operator=(const vtkConeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

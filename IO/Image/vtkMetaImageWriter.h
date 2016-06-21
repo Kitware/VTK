@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkMetaImageWriter(const vtkMetaImageWriter&);  // Not implemented.
-  void operator=(const vtkMetaImageWriter&);  // Not implemented.
+  void operator=(const vtkMetaImageWriter&) VTK_DELETE_FUNCTION;
 
   vtkmetaio::MetaImage * MetaImagePtr;
 

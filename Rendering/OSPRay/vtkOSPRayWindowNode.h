@@ -40,7 +40,7 @@ protected:
 
 private:
   vtkOSPRayWindowNode(const vtkOSPRayWindowNode&); // Not implemented.
-  void operator=(const vtkOSPRayWindowNode&); // Not implemented.
+  void operator=(const vtkOSPRayWindowNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkPlotBag(const vtkPlotBag &); // Not implemented.
-  void operator=(const vtkPlotBag &); // Not implemented.
+  void operator=(const vtkPlotBag &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPlotBag_h

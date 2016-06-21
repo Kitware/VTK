@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkPentagonalPrism(const vtkPentagonalPrism&);  // Not implemented.
-  void operator=(const vtkPentagonalPrism&);  // Not implemented.
+  void operator=(const vtkPentagonalPrism&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

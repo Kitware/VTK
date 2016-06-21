@@ -57,7 +57,7 @@ public:
 
  private:
   vtkClearZPass(const vtkClearZPass&);  // Not implemented.
-  void operator=(const vtkClearZPass&);  // Not implemented.
+  void operator=(const vtkClearZPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

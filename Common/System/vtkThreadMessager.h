@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkThreadMessager(const vtkThreadMessager&);  // Not implemented.
-  void operator=(const vtkThreadMessager&);  // Not implemented.
+  void operator=(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
 };
 
 #endif

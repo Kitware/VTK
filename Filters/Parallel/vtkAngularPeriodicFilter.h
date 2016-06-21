@@ -150,7 +150,7 @@ protected:
                                  vtkIdType outputId);
 private:
   vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&); // Not implemented.
-  void operator=(const vtkAngularPeriodicFilter&); // Not implemented.
+  void operator=(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
 
   bool ComputeRotationsOnTheFly;
 

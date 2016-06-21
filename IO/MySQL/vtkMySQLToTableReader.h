@@ -40,7 +40,7 @@ protected:
                           vtkInformationVector *);
 private:
   vtkMySQLToTableReader(const vtkMySQLToTableReader&); // Not implemented.
-  void operator=(const vtkMySQLToTableReader&); // Not implemented
+  void operator=(const vtkMySQLToTableReader&) VTK_DELETE_FUNCTION;
 
 };
 

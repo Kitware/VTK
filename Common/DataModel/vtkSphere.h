@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkSphere(const vtkSphere&);  // Not implemented.
-  void operator=(const vtkSphere&);  // Not implemented.
+  void operator=(const vtkSphere&) VTK_DELETE_FUNCTION;
 };
 
 #endif

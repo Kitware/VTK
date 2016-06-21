@@ -359,7 +359,7 @@ protected:
 
 private:
   vtkReebGraph(const vtkReebGraph&); // Not implemented.
-  void operator=(const vtkReebGraph&); // Not implemented.
+  void operator=(const vtkReebGraph&) VTK_DELETE_FUNCTION;
 
 };
 

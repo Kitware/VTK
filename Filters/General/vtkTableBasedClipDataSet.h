@@ -273,7 +273,7 @@ protected:
 
 private:
   vtkTableBasedClipDataSet( const vtkTableBasedClipDataSet &); // Not implemented.
-  void operator= ( const vtkTableBasedClipDataSet & );         // Not implemented.
+  void operator= ( const vtkTableBasedClipDataSet & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

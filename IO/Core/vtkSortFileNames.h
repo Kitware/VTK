@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkSortFileNames(const vtkSortFileNames&);  // Not implemented.
-  void operator=(const vtkSortFileNames&);  // Not implemented.
+  void operator=(const vtkSortFileNames&) VTK_DELETE_FUNCTION;
 };
 
 #endif

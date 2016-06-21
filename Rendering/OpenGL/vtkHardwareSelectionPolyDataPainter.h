@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
-  void operator=(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
+  void operator=(const vtkHardwareSelectionPolyDataPainter&) VTK_DELETE_FUNCTION;
 
 };
 

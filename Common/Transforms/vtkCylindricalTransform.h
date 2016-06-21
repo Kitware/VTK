@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkCylindricalTransform(const vtkCylindricalTransform&); // Not implemented.
-  void operator=(const vtkCylindricalTransform&); // Not implemented.
+  void operator=(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -70,7 +70,7 @@ private:
   typedef vtkAOSDataArrayTemplate<unsigned char> RealSuperclass;
 
   vtkUnsignedCharArray(const vtkUnsignedCharArray&);  // Not implemented.
-  void operator=(const vtkUnsignedCharArray&);  // Not implemented.
+  void operator=(const vtkUnsignedCharArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

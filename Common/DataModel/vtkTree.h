@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkTree(const vtkTree&);  // Not implemented.
-  void operator=(const vtkTree&);  // Not implemented.
+  void operator=(const vtkTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

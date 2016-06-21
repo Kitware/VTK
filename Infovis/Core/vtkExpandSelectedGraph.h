@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkExpandSelectedGraph(const vtkExpandSelectedGraph&); // Not implemented
-  void operator=(const vtkExpandSelectedGraph&);   // Not implemented
+  void operator=(const vtkExpandSelectedGraph&) VTK_DELETE_FUNCTION;
 
   void BFSExpandSelection(vtkIdTypeArray *selection,
                           vtkGraph *graph);

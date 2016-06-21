@@ -202,7 +202,7 @@ protected:
 
 private:
   vtkPoints(const vtkPoints&);  // Not implemented.
-  void operator=(const vtkPoints&);  // Not implemented.
+  void operator=(const vtkPoints&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPoints::Reset()

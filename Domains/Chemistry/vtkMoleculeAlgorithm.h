@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkMoleculeAlgorithm(const vtkMoleculeAlgorithm&);  // Not implemented.
-  void operator=(const vtkMoleculeAlgorithm&);  // Not implemented.
+  void operator=(const vtkMoleculeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

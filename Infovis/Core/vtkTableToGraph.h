@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkTableToGraph(const vtkTableToGraph&); // Not implemented
-  void operator=(const vtkTableToGraph&);   // Not implemented
+  void operator=(const vtkTableToGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkVectorNorm(const vtkVectorNorm&);  // Not implemented.
-  void operator=(const vtkVectorNorm&);  // Not implemented.
+  void operator=(const vtkVectorNorm&) VTK_DELETE_FUNCTION;
 
   // Helper function
   void GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s);

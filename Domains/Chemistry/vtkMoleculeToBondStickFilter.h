@@ -41,7 +41,7 @@ protected:
 
 private:
   vtkMoleculeToBondStickFilter(const vtkMoleculeToBondStickFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToBondStickFilter&);  // Not implemented.
+  void operator=(const vtkMoleculeToBondStickFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

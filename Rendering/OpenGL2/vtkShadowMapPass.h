@@ -155,7 +155,7 @@ public:
 
 private:
   vtkShadowMapPass(const vtkShadowMapPass&);  // Not implemented.
-  void operator=(const vtkShadowMapPass&);  // Not implemented.
+  void operator=(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

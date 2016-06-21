@@ -701,7 +701,7 @@ protected:
 
 private:
   vtkGraph(const vtkGraph&);  // Not implemented.
-  void operator=(const vtkGraph&);  // Not implemented.
+  void operator=(const vtkGraph&) VTK_DELETE_FUNCTION;
 };
 
 bool VTKCOMMONDATAMODEL_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);

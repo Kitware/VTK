@@ -72,7 +72,7 @@ private:
   vtkCellCenterDepthSortStack *ToSort;
 
   vtkCellCenterDepthSort(const vtkCellCenterDepthSort &);  // Not implemented.
-  void operator=(const vtkCellCenterDepthSort &);  // Not implemented.
+  void operator=(const vtkCellCenterDepthSort &) VTK_DELETE_FUNCTION;
 };
 
 #endif

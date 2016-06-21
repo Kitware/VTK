@@ -224,7 +224,7 @@ protected:
 
 private:
   vtkScalarsToColorsPainter(const vtkScalarsToColorsPainter&); // Not implemented.
-  void operator=(const vtkScalarsToColorsPainter&); // Not implemented.
+  void operator=(const vtkScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
 
 };
 

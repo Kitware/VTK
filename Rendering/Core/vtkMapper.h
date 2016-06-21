@@ -566,7 +566,7 @@ protected:
 
 private:
   vtkMapper(const vtkMapper&);  // Not implemented.
-  void operator=(const vtkMapper&);  // Not implemented.
+  void operator=(const vtkMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

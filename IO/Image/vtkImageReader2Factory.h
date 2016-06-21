@@ -73,7 +73,7 @@ protected:
 private:
   static vtkImageReader2Collection* AvailableReaders;
   vtkImageReader2Factory(const vtkImageReader2Factory&);  // Not implemented.
-  void operator=(const vtkImageReader2Factory&);  // Not implemented.
+  void operator=(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
 
   friend class vtkImageReader2FactoryCleanup;
 

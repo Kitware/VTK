@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkPolyDataPointSampler(const vtkPolyDataPointSampler&);  // Not implemented.
-  void operator=(const vtkPolyDataPointSampler&);  // Not implemented.
+  void operator=(const vtkPolyDataPointSampler&) VTK_DELETE_FUNCTION;
 };
 
 #endif

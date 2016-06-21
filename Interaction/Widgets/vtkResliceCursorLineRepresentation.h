@@ -118,7 +118,7 @@ protected:
 
 private:
   vtkResliceCursorLineRepresentation(const vtkResliceCursorLineRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorLineRepresentation&);  //Not implemented
+  void operator=(const vtkResliceCursorLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

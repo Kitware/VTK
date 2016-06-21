@@ -74,7 +74,7 @@ private:
   char*       EdgeWeightArrayName;
 
   vtkBoostBrandesCentrality(const vtkBoostBrandesCentrality&);  // Not implemented.
-  void operator=(const vtkBoostBrandesCentrality&);  // Not implemented.
+  void operator=(const vtkBoostBrandesCentrality&) VTK_DELETE_FUNCTION;
 };
 
 #endif

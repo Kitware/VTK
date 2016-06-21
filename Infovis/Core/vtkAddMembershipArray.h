@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkAddMembershipArray(const vtkAddMembershipArray&); // Not implemented
-  void operator=(const vtkAddMembershipArray&);   // Not implemented
+  void operator=(const vtkAddMembershipArray&) VTK_DELETE_FUNCTION;
 };
 
 #endif

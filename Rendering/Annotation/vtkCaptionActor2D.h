@@ -224,7 +224,7 @@ private:
 
 private:
   vtkCaptionActor2D(const vtkCaptionActor2D&);  // Not implemented.
-  void operator=(const vtkCaptionActor2D&);  // Not implemented.
+  void operator=(const vtkCaptionActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

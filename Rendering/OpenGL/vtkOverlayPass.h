@@ -54,7 +54,7 @@ public:
 
  private:
   vtkOverlayPass(const vtkOverlayPass&);  // Not implemented.
-  void operator=(const vtkOverlayPass&);  // Not implemented.
+  void operator=(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

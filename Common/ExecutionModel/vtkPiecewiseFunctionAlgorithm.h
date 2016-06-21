@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkPiecewiseFunctionAlgorithm(const vtkPiecewiseFunctionAlgorithm&);  // Not implemented.
-  void operator=(const vtkPiecewiseFunctionAlgorithm&);  // Not implemented.
+  void operator=(const vtkPiecewiseFunctionAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

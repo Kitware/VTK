@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&); // Not implemented
-  void operator=(const vtkInteractorStyleRubberBand2D&); // Not implemented
+  void operator=(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

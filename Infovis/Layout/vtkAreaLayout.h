@@ -100,7 +100,7 @@ protected:
 private:
 
   vtkAreaLayout(const vtkAreaLayout&);  // Not implemented.
-  void operator=(const vtkAreaLayout&);  // Not implemented.
+  void operator=(const vtkAreaLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

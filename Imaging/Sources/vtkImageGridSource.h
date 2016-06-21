@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.
-  void operator=(const vtkImageGridSource&);  // Not implemented.
+  void operator=(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
 };
 
 

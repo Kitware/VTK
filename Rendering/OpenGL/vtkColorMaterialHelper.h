@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkColorMaterialHelper(const vtkColorMaterialHelper&); // Not implemented.
-  void operator=(const vtkColorMaterialHelper&); // Not implemented.
+  void operator=(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
 
 };
 

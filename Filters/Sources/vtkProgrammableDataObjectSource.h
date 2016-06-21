@@ -74,7 +74,7 @@ protected:
   void *ExecuteMethodArg;
 private:
   vtkProgrammableDataObjectSource(const vtkProgrammableDataObjectSource&);  // Not implemented.
-  void operator=(const vtkProgrammableDataObjectSource&);  // Not implemented.
+  void operator=(const vtkProgrammableDataObjectSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

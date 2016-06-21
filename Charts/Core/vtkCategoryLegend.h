@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkCategoryLegend(const vtkCategoryLegend &); // Not implemented.
-  void operator=(const vtkCategoryLegend &);   // Not implemented.
+  void operator=(const vtkCategoryLegend &) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkWebApplication(const vtkWebApplication&); // Not implemented
-  void operator=(const vtkWebApplication&); // Not implemented
+  void operator=(const vtkWebApplication&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

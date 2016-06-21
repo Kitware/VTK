@@ -134,7 +134,7 @@ protected:
 
 private:
   vtkImageSlice(const vtkImageSlice&);  // Not implemented.
-  void operator=(const vtkImageSlice&);  // Not implemented.
+  void operator=(const vtkImageSlice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

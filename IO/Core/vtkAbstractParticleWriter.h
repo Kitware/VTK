@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkAbstractParticleWriter(const vtkAbstractParticleWriter&);  // Not implemented.
-  void operator=(const vtkAbstractParticleWriter&);  // Not implemented.
+  void operator=(const vtkAbstractParticleWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

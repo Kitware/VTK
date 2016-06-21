@@ -754,6 +754,6 @@ private:
 
 private:
   vtkModelMetadata(const vtkModelMetadata&); // Not implemented
-  void operator=(const vtkModelMetadata&); // Not implemented
+  void operator=(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
 };
 #endif

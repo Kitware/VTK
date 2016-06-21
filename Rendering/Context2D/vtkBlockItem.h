@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkBlockItem(const vtkBlockItem &); // Not implemented.
-  void operator=(const vtkBlockItem &);   // Not implemented.
+  void operator=(const vtkBlockItem &) VTK_DELETE_FUNCTION;
 
 };
 

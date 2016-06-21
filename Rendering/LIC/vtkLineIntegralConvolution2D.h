@@ -386,7 +386,7 @@ protected:
 
 private:
   vtkLineIntegralConvolution2D(const vtkLineIntegralConvolution2D &); // Not implemented.
-  void operator = (const vtkLineIntegralConvolution2D &);             // Not implemented.
+  void operator = (const vtkLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif

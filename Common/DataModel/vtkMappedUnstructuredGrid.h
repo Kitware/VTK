@@ -189,7 +189,7 @@ protected:
 
 private:
   vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &); // Not implemented.
-  void operator=(const vtkMappedUnstructuredGrid &);   // Not implemented.
+  void operator=(const vtkMappedUnstructuredGrid &) VTK_DELETE_FUNCTION;
 
   vtkNew<vtkGenericCell> TempCell;
 };

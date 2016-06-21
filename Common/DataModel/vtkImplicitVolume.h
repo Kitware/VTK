@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkImplicitVolume(const vtkImplicitVolume&);  // Not implemented.
-  void operator=(const vtkImplicitVolume&);  // Not implemented.
+  void operator=(const vtkImplicitVolume&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkImageRange3D(const vtkImageRange3D&);  // Not implemented.
-  void operator=(const vtkImageRange3D&);  // Not implemented.
+  void operator=(const vtkImageRange3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

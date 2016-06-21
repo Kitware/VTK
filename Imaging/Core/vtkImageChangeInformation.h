@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkImageChangeInformation(const vtkImageChangeInformation&);  // Not implemented.
-  void operator=(const vtkImageChangeInformation&);  // Not implemented.
+  void operator=(const vtkImageChangeInformation&) VTK_DELETE_FUNCTION;
 };
 
 

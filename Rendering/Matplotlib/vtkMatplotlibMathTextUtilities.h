@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
-  void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+  void operator=(const vtkMatplotlibMathTextUtilities&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Used for runtime checking of matplotlib's mathtext availability.

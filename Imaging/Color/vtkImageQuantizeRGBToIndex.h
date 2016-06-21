@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkImageQuantizeRGBToIndex(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
-  void operator=(const vtkImageQuantizeRGBToIndex&);  // Not implemented.
+  void operator=(const vtkImageQuantizeRGBToIndex&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -60,7 +60,7 @@ protected:
                           size_t uncompressedSize);
 private:
   vtkZLibDataCompressor(const vtkZLibDataCompressor&);  // Not implemented.
-  void operator=(const vtkZLibDataCompressor&);  // Not implemented.
+  void operator=(const vtkZLibDataCompressor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

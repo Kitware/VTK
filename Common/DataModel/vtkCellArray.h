@@ -239,7 +239,7 @@ protected:
 
 private:
   vtkCellArray(const vtkCellArray&);  // Not implemented.
-  void operator=(const vtkCellArray&);  // Not implemented.
+  void operator=(const vtkCellArray&) VTK_DELETE_FUNCTION;
 };
 
 

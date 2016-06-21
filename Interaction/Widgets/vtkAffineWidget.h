@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkAffineWidget(const vtkAffineWidget&);  //Not implemented
-  void operator=(const vtkAffineWidget&);  //Not implemented
+  void operator=(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

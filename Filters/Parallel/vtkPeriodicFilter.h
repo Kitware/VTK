@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkPeriodicFilter(const vtkPeriodicFilter&); // Not implemented.
-  void operator=(const vtkPeriodicFilter&); // Not implemented.
+  void operator=(const vtkPeriodicFilter&) VTK_DELETE_FUNCTION;
 
   int IterationMode;
   int NumberOfPeriods;      // User provided number of periods

@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkTransposeMatrix(const vtkTransposeMatrix&); // Not implemented
-  void operator=(const vtkTransposeMatrix&);   // Not implemented
+  void operator=(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;
 };
 
 #endif

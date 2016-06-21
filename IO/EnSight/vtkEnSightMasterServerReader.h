@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkEnSightMasterServerReader(const vtkEnSightMasterServerReader&);  // Not implemented.
-  void operator=(const vtkEnSightMasterServerReader&);  // Not implemented.
+  void operator=(const vtkEnSightMasterServerReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

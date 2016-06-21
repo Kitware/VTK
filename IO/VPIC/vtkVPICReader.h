@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkVPICReader(const vtkVPICReader&);  // Not implemented.
-  void operator=(const vtkVPICReader&); // Not implemented.
+  void operator=(const vtkVPICReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

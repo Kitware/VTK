@@ -121,7 +121,7 @@ class vtkCellPointTraversal
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
     vtkCellPointTraversal(const vtkCellPointTraversal&); // Not implemented
-    void operator=(vtkCellPointTraversal&); // Not implemented
+    void operator=(vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;

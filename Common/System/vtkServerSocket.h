@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkServerSocket(const vtkServerSocket&); // Not implemented.
-  void operator=(const vtkServerSocket&); // Not implemented.
+  void operator=(const vtkServerSocket&) VTK_DELETE_FUNCTION;
 };
 
 

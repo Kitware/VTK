@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&);  // Not implemented.
-  void operator=(const vtkDiscreteMarchingCubes&);  // Not implemented.
+  void operator=(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
 
 };
 

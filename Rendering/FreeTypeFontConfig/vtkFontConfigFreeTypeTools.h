@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &); // Not implemented.
-  void operator=(const vtkFontConfigFreeTypeTools &);   // Not implemented.
+  void operator=(const vtkFontConfigFreeTypeTools &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkFontConfigFreeTypeTools_h

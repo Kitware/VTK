@@ -156,7 +156,7 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
 
  private:
   vtkBlueObeliskData(const vtkBlueObeliskData&); // Not implemented.
-  void operator=(const vtkBlueObeliskData&); // Not implemented.
+  void operator=(const vtkBlueObeliskData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

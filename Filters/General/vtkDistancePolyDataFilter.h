@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkDistancePolyDataFilter(const vtkDistancePolyDataFilter&); // Not implemented
-  void operator=(const vtkDistancePolyDataFilter&); // Not implemented
+  void operator=(const vtkDistancePolyDataFilter&) VTK_DELETE_FUNCTION;
 
   int SignedDistance;
   int NegateDistance;

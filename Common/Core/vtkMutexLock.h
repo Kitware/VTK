@@ -100,7 +100,7 @@ protected:
   vtkMutexLock() {}
 private:
   vtkMutexLock(const vtkMutexLock&);  // Not implemented.
-  void operator=(const vtkMutexLock&);  // Not implemented.
+  void operator=(const vtkMutexLock&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkPlane(const vtkPlane&);  // Not implemented.
-  void operator=(const vtkPlane&);  // Not implemented.
+  void operator=(const vtkPlane&) VTK_DELETE_FUNCTION;
 };
 
 inline double vtkPlane::Evaluate(double normal[3],

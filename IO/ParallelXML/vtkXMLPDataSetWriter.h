@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataSetWriter&);  // Not implemented.
+  void operator=(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

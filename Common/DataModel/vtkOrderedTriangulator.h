@@ -325,7 +325,7 @@ private:
 
 private:
   vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
-  void operator=(const vtkOrderedTriangulator&);  // Not implemented.
+  void operator=(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

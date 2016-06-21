@@ -51,7 +51,7 @@ public:
 private:
 
   qObserver(const qObserver&);  // Not implemented.
-  void operator=(const qObserver&);  // Not implemented.
+  void operator=(const qObserver&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkPointLoad(const vtkPointLoad&);  // Not implemented.
-  void operator=(const vtkPointLoad&);  // Not implemented.
+  void operator=(const vtkPointLoad&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -73,7 +73,7 @@ private:
 
 private:
   vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkButterflySubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkButterflySubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

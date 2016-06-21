@@ -258,7 +258,7 @@ protected:
 
 private:
   vtkViewTheme(const vtkViewTheme&);  // Not implemented.
-  void operator=(const vtkViewTheme&);  // Not implemented.
+  void operator=(const vtkViewTheme&) VTK_DELETE_FUNCTION;
 };
 
 #endif

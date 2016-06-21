@@ -65,7 +65,7 @@ private:
 
 private:
   vtkDataArrayCollection(const vtkDataArrayCollection&);  // Not implemented.
-  void operator=(const vtkDataArrayCollection&);  // Not implemented.
+  void operator=(const vtkDataArrayCollection&) VTK_DELETE_FUNCTION;
 };
 
 

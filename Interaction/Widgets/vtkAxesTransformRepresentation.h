@@ -180,7 +180,7 @@ protected:
 
 private:
   vtkAxesTransformRepresentation(const vtkAxesTransformRepresentation&);  //Not implemented
-  void operator=(const vtkAxesTransformRepresentation&);  //Not implemented
+  void operator=(const vtkAxesTransformRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

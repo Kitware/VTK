@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkMoleculeToAtomBallFilter(const vtkMoleculeToAtomBallFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToAtomBallFilter&);  // Not implemented.
+  void operator=(const vtkMoleculeToAtomBallFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

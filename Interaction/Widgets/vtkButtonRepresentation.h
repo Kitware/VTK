@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkButtonRepresentation(const vtkButtonRepresentation&);  //Not implemented
-  void operator=(const vtkButtonRepresentation&);  //Not implemented
+  void operator=(const vtkButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkPeriodicTable(const vtkPeriodicTable&);   // Not implemented
-  void operator=(const vtkPeriodicTable&); // Not implemented
+  void operator=(const vtkPeriodicTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

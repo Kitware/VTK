@@ -139,7 +139,7 @@ protected:
 
 private:
   vtkImageActor(const vtkImageActor&);  // Not implemented.
-  void operator=(const vtkImageActor&);  // Not implemented.
+  void operator=(const vtkImageActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

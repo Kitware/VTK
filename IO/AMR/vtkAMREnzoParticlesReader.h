@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkAMREnzoParticlesReader( const vtkAMREnzoParticlesReader& ); // Not implemented
-  void operator=( const vtkAMREnzoParticlesReader& ); // Not implemented
+  void operator=( const vtkAMREnzoParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMREnzoParticlesReader_h */

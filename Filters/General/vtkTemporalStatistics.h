@@ -151,7 +151,7 @@ protected:
 
 private:
   vtkTemporalStatistics(const vtkTemporalStatistics &); // Not implemented.
-  void operator=(const vtkTemporalStatistics &);        // Not implemented.
+  void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
 };
 
 #endif //_vtkTemporalStatistics_h

@@ -40,7 +40,7 @@ protected:
 
 private:
   vtkOpenGLTextActor(const vtkOpenGLTextActor&); // Not implemented
-  void operator=(const vtkOpenGLTextActor&); // Not implemented
+  void operator=(const vtkOpenGLTextActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLTextActor_h

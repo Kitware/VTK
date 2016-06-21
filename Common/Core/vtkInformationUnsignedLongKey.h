@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkInformationUnsignedLongKey(const vtkInformationUnsignedLongKey&);  // Not implemented.
-  void operator=(const vtkInformationUnsignedLongKey&);  // Not implemented.
+  void operator=(const vtkInformationUnsignedLongKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

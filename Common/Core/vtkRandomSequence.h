@@ -50,7 +50,7 @@ protected:
   virtual ~vtkRandomSequence();
 private:
   vtkRandomSequence(const vtkRandomSequence&);  // Not implemented.
-  void operator=(const vtkRandomSequence&);  // Not implemented.
+  void operator=(const vtkRandomSequence&) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkRandomSequence_h

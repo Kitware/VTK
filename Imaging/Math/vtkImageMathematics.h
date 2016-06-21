@@ -205,7 +205,7 @@ protected:
 
 private:
   vtkImageMathematics(const vtkImageMathematics&);  // Not implemented.
-  void operator=(const vtkImageMathematics&);  // Not implemented.
+  void operator=(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

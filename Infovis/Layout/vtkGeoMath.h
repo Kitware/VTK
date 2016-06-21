@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkGeoMath(const vtkGeoMath&);  // Not implemented.
-  void operator=(const vtkGeoMath&);  // Not implemented.
+  void operator=(const vtkGeoMath&) VTK_DELETE_FUNCTION;
 };
 
 #endif

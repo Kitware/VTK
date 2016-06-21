@@ -149,7 +149,7 @@ protected:
 
 private:
   vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&);  //Not implemented
-  void operator=(const vtkTexturedButtonRepresentation2D&);  //Not implemented
+  void operator=(const vtkTexturedButtonRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

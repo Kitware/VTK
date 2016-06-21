@@ -154,7 +154,7 @@ protected:
 
 private:
   vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.
-  void operator=(const vtkSelectionSource&);  // Not implemented.
+  void operator=(const vtkSelectionSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

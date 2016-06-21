@@ -117,7 +117,7 @@ protected:
   double TRange[2];
 private:
   vtkProjectedTexture(const vtkProjectedTexture&);  // Not implemented.
-  void operator=(const vtkProjectedTexture&);  // Not implemented.
+  void operator=(const vtkProjectedTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

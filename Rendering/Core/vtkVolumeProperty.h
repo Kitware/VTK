@@ -352,7 +352,7 @@ protected:
 
 private:
   vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
-  void operator=(const vtkVolumeProperty&);  // Not implemented.
+  void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

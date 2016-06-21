@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkPiecewiseFunctionShiftScale(const vtkPiecewiseFunctionShiftScale&);  // Not implemented
-  void operator=(const vtkPiecewiseFunctionShiftScale&);  // Not implemented
+  void operator=(const vtkPiecewiseFunctionShiftScale&) VTK_DELETE_FUNCTION;
 };
 
 #endif

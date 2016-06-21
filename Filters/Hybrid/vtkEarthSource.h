@@ -65,7 +65,7 @@ protected:
   int Outline;
 private:
   vtkEarthSource(const vtkEarthSource&);  // Not implemented.
-  void operator=(const vtkEarthSource&);  // Not implemented.
+  void operator=(const vtkEarthSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

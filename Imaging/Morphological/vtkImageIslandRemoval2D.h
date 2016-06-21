@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);  // Not implemented.
-  void operator=(const vtkImageIslandRemoval2D&);  // Not implemented.
+  void operator=(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

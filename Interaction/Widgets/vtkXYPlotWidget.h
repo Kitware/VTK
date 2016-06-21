@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkXYPlotWidget(const vtkXYPlotWidget&);  //Not implemented
-  void operator=(const vtkXYPlotWidget&);  //Not implemented
+  void operator=(const vtkXYPlotWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -227,7 +227,7 @@ private:
 
 private:
   vtkStructuredGrid(const vtkStructuredGrid&);  // Not implemented.
-  void operator=(const vtkStructuredGrid&);  // Not implemented.
+  void operator=(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 

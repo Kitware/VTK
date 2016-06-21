@@ -58,7 +58,7 @@ protected:
   char *FileName;
 private:
   vtkIVExporter(const vtkIVExporter&);  // Not implemented.
-  void operator=(const vtkIVExporter&);  // Not implemented.
+  void operator=(const vtkIVExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

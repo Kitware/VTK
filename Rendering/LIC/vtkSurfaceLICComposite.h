@@ -259,7 +259,7 @@ protected:
 
 private:
   vtkSurfaceLICComposite(const vtkSurfaceLICComposite&); // Not implemented
-  void operator=(const vtkSurfaceLICComposite&); // Not implemented
+  void operator=(const vtkSurfaceLICComposite&) VTK_DELETE_FUNCTION;
 
   friend
   ostream &operator<<(ostream &os, vtkSurfaceLICComposite &ss);

@@ -41,7 +41,7 @@ protected:
 
 private:
   vtkInteractorStyleTrackball(const vtkInteractorStyleTrackball&);  // Not implemented.
-  void operator=(const vtkInteractorStyleTrackball&);  // Not implemented.
+  void operator=(const vtkInteractorStyleTrackball&) VTK_DELETE_FUNCTION;
 };
 
 #endif

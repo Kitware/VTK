@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkImageResliceToColors(const vtkImageResliceToColors&);  // Not implemented.
-  void operator=(const vtkImageResliceToColors&);  // Not implemented.
+  void operator=(const vtkImageResliceToColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

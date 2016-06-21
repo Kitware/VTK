@@ -99,7 +99,7 @@ protected:
 
 private:
   vtkCompositeMapperHelper(const vtkCompositeMapperHelper&); // Not implemented.
-  void operator=(const vtkCompositeMapperHelper&); // Not implemented.
+  void operator=(const vtkCompositeMapperHelper&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkCompositeMapperHelper);

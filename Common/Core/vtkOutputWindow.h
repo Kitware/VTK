@@ -89,7 +89,7 @@ private:
   static vtkOutputWindow* Instance;
 private:
   vtkOutputWindow(const vtkOutputWindow&);  // Not implemented.
-  void operator=(const vtkOutputWindow&);  // Not implemented.
+  void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

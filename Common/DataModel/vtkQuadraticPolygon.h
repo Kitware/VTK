@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkQuadraticPolygon(const vtkQuadraticPolygon&);  // Not implemented.
-  void operator=(const vtkQuadraticPolygon&);  // Not implemented.
+  void operator=(const vtkQuadraticPolygon&) VTK_DELETE_FUNCTION;
 };
 
 #endif

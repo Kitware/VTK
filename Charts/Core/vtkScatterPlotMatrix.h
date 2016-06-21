@@ -371,7 +371,7 @@ protected:
 
 private:
   vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.
-  void operator=(const vtkScatterPlotMatrix &); // Not implemented.
+  void operator=(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
 
   class PIMPL;
   PIMPL *Private;

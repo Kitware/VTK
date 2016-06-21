@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkXMLPPolyDataReader(const vtkXMLPPolyDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPPolyDataReader&);  // Not implemented.
+  void operator=(const vtkXMLPPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

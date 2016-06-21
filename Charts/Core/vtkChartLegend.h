@@ -244,7 +244,7 @@ protected:
 
 private:
   vtkChartLegend(const vtkChartLegend &); // Not implemented.
-  void operator=(const vtkChartLegend &); // Not implemented.
+  void operator=(const vtkChartLegend &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkChartLegend_h

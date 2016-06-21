@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkPhyloXMLTreeWriter(const vtkPhyloXMLTreeWriter&);  // Not implemented.
-  void operator=(const vtkPhyloXMLTreeWriter&);  // Not implemented.
+  void operator=(const vtkPhyloXMLTreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

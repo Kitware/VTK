@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkScalarBarWidget(const vtkScalarBarWidget&);  //Not implemented
-  void operator=(const vtkScalarBarWidget&);  //Not implemented
+  void operator=(const vtkScalarBarWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

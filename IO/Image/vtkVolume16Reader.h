@@ -143,7 +143,7 @@ protected:
 
 private:
   vtkVolume16Reader(const vtkVolume16Reader&);  // Not implemented.
-  void operator=(const vtkVolume16Reader&);  // Not implemented.
+  void operator=(const vtkVolume16Reader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

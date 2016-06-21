@@ -133,7 +133,7 @@ protected:
 
 private:
   vtkCellCentersPointPlacer(const vtkCellCentersPointPlacer&);  //Not implemented
-  void operator=(const vtkCellCentersPointPlacer&);  //Not implemented
+  void operator=(const vtkCellCentersPointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

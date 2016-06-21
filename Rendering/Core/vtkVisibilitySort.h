@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkVisibilitySort(const vtkVisibilitySort &);  // Not implemented.
-  void operator=(const vtkVisibilitySort &);  // Not implemented.
+  void operator=(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkVisibilitySort_h

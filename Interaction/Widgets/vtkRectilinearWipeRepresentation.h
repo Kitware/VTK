@@ -153,7 +153,7 @@ protected:
 
 private:
   vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&);  //Not implemented
-  void operator=(const vtkRectilinearWipeRepresentation&);  //Not implemented
+  void operator=(const vtkRectilinearWipeRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

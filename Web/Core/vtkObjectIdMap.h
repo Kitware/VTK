@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkObjectIdMap(const vtkObjectIdMap&); // Not implemented
-  void operator=(const vtkObjectIdMap&); // Not implemented
+  void operator=(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;
 
   struct vtkInternals;
   vtkInternals* Internals;

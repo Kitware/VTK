@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkOpenGLScalarsToColorsPainter(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.
-  void operator=(const vtkOpenGLScalarsToColorsPainter&); // Not implemented.
+  void operator=(const vtkOpenGLScalarsToColorsPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

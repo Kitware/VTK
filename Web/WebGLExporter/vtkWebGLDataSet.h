@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkWebGLDataSet(const vtkWebGLDataSet&); // Not implemented
-  void operator=(const vtkWebGLDataSet&);   // Not implemented
+  void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkPSystemTools(const vtkPSystemTools&);  // Not implemented.
-  void operator=(const vtkPSystemTools&);  // Not implemented.
+  void operator=(const vtkPSystemTools&) VTK_DELETE_FUNCTION;
 };
 
 #endif

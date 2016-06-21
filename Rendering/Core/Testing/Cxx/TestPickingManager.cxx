@@ -110,7 +110,7 @@ class PickingManagerClient : public vtkObject
     vtkPicker *Picker;
 
     PickingManagerClient(const PickingManagerClient&);  //Not implemented
-    void operator=(const PickingManagerClient&);  //Not implemented
+    void operator=(const PickingManagerClient&) VTK_DELETE_FUNCTION;
   };
 
 vtkStandardNewMacro(PickingManagerClient);

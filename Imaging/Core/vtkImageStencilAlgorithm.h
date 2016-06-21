@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkImageStencilAlgorithm(const vtkImageStencilAlgorithm&);  // Not implemented.
-  void operator=(const vtkImageStencilAlgorithm&);  // Not implemented.
+  void operator=(const vtkImageStencilAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

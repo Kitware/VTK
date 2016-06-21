@@ -195,6 +195,6 @@ protected:
 
 private:
   vtkHyperOctreeDualGridContourFilter(const vtkHyperOctreeDualGridContourFilter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeDualGridContourFilter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeDualGridContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

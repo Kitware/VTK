@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkGeoTerrainNode(const vtkGeoTerrainNode&);  // Not implemented.
-  void operator=(const vtkGeoTerrainNode&);  // Not implemented.
+  void operator=(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

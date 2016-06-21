@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkXMLUnstructuredDataWriter(const vtkXMLUnstructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

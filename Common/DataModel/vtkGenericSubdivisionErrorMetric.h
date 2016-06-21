@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkGenericSubdivisionErrorMetric(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.
-  void operator=(const vtkGenericSubdivisionErrorMetric&);  // Not implemented.
+  void operator=(const vtkGenericSubdivisionErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

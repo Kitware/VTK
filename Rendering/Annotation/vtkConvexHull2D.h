@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkConvexHull2D(const vtkConvexHull2D&); // Not implemented.
-  void operator=(const vtkConvexHull2D&); // Not implemented.
+  void operator=(const vtkConvexHull2D&) VTK_DELETE_FUNCTION;
 
   void ResizeHullToMinimumInDisplay(vtkPolyData* hullPolyData);
 

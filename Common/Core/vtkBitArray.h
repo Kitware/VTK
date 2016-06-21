@@ -255,7 +255,7 @@ private:
 
 private:
   vtkBitArray(const vtkBitArray&);  // Not implemented.
-  void operator=(const vtkBitArray&);  // Not implemented.
+  void operator=(const vtkBitArray&) VTK_DELETE_FUNCTION;
 
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();

@@ -240,7 +240,7 @@ protected:
 
 private:
   vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&);  //Not implemented
-  void operator=(const vtkConstrainedPointHandleRepresentation&);  //Not implemented
+  void operator=(const vtkConstrainedPointHandleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

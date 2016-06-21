@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented
-  void operator=(const vtkAMREnzoReader& ); // Not Implemented
+  void operator=(const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
 
   vtkEnzoReaderInternal *Internal;
 

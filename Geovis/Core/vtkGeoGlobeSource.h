@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkGeoGlobeSource(const vtkGeoGlobeSource&); // Not implemented
-  void operator=(const vtkGeoGlobeSource&); // Not implemented
+  void operator=(const vtkGeoGlobeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

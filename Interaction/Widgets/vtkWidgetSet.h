@@ -178,7 +178,7 @@ protected:
 
 private:
   vtkWidgetSet(const vtkWidgetSet&);  //Not implemented
-  void operator=(const vtkWidgetSet&);  //Not implemented
+  void operator=(const vtkWidgetSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

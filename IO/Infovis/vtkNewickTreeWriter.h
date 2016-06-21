@@ -77,7 +77,7 @@ protected:
 
 private:
   vtkNewickTreeWriter(const vtkNewickTreeWriter&);  // Not implemented.
-  void operator=(const vtkNewickTreeWriter&);  // Not implemented.
+  void operator=(const vtkNewickTreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -90,7 +90,7 @@ protected:
 
 private:
   vtkGeoTerrain2D(const vtkGeoTerrain2D&); // Not implemented
-  void operator=(const vtkGeoTerrain2D&); // Not implemented
+  void operator=(const vtkGeoTerrain2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

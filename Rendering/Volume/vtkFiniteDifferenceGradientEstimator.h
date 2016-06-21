@@ -69,7 +69,7 @@ protected:
   void UpdateNormals( void );
 private:
   vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
-  void operator=(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
+  void operator=(const vtkFiniteDifferenceGradientEstimator&) VTK_DELETE_FUNCTION;
 };
 
 

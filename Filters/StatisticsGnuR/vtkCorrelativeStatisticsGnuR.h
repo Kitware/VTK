@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&); // Not implemented
-  void operator=(const vtkCorrelativeStatisticsGnuR&); // Not implemented
+  void operator=(const vtkCorrelativeStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

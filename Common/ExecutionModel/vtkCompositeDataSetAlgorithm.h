@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkCompositeDataSetAlgorithm(const vtkCompositeDataSetAlgorithm&);  // Not implemented.
-  void operator=(const vtkCompositeDataSetAlgorithm&);  // Not implemented.
+  void operator=(const vtkCompositeDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

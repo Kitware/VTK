@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkRandomGraphSource(const vtkRandomGraphSource&); // Not implemented
-  void operator=(const vtkRandomGraphSource&);   // Not implemented
+  void operator=(const vtkRandomGraphSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

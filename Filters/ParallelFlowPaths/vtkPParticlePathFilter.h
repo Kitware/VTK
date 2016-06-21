@@ -52,6 +52,6 @@ protected:
 
 private:
   vtkPParticlePathFilter(const vtkPParticlePathFilter&);  // Not implemented.
-  void operator=(const vtkPParticlePathFilter&); // Not implemented
+  void operator=(const vtkPParticlePathFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

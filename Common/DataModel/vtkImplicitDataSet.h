@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkImplicitDataSet(const vtkImplicitDataSet&);  // Not implemented.
-  void operator=(const vtkImplicitDataSet&);  // Not implemented.
+  void operator=(const vtkImplicitDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

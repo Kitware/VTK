@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkAbstractRenderDevice(const vtkAbstractRenderDevice&);  // Not implemented.
-  void operator=(const vtkAbstractRenderDevice&);  // Not implemented.
+  void operator=(const vtkAbstractRenderDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

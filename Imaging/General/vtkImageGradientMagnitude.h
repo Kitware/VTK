@@ -66,7 +66,7 @@ protected:
                        int extent[6], int id);
 private:
   vtkImageGradientMagnitude(const vtkImageGradientMagnitude&);  // Not implemented.
-  void operator=(const vtkImageGradientMagnitude&);  // Not implemented.
+  void operator=(const vtkImageGradientMagnitude&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -235,7 +235,7 @@ protected:
 
 private:
   vtkObject(const vtkObject&);  // Not implemented.
-  void operator=(const vtkObject&);  // Not implemented.
+  void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Following classes (vtkClassMemberCallbackBase,

@@ -52,7 +52,7 @@ protected:
   double CornerFactor;
 private:
   vtkOutlineCornerFilter(const vtkOutlineCornerFilter&);  // Not implemented.
-  void operator=(const vtkOutlineCornerFilter&);  // Not implemented.
+  void operator=(const vtkOutlineCornerFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

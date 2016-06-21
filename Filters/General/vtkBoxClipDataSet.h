@@ -246,7 +246,7 @@ protected:
 
 private:
   vtkBoxClipDataSet(const vtkBoxClipDataSet&);  // Not implemented.
-  void operator=(const vtkBoxClipDataSet&);  // Not implemented.
+  void operator=(const vtkBoxClipDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

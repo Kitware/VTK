@@ -169,7 +169,7 @@ private:
   static int id;
 
   vtkQtSQLDatabase(const vtkQtSQLDatabase &); // Not implemented.
-  void operator=(const vtkQtSQLDatabase &); // Not implemented.
+  void operator=(const vtkQtSQLDatabase &) VTK_DELETE_FUNCTION;
 };
 
 #endif // (QT_EDITION & QT_MODULE_SQL)

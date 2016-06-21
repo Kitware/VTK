@@ -57,7 +57,7 @@ protected:
   int NumberOfDivisions[3];
 private:
   vtkImageCheckerboard(const vtkImageCheckerboard&);  // Not implemented.
-  void operator=(const vtkImageCheckerboard&);  // Not implemented.
+  void operator=(const vtkImageCheckerboard&) VTK_DELETE_FUNCTION;
 };
 
 #endif

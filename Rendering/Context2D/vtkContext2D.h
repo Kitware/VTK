@@ -447,7 +447,7 @@ protected:
 
 private:
   vtkContext2D(const vtkContext2D &); // Not implemented.
-  void operator=(const vtkContext2D &);   // Not implemented.
+  void operator=(const vtkContext2D &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Calculate position of text for rendering in a rectangle.

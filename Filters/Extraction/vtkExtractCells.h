@@ -86,7 +86,7 @@ private:
   char InputIsUgrid;
 
   vtkExtractCells(const vtkExtractCells&); // Not implemented
-  void operator=(const vtkExtractCells&); // Not implemented
+  void operator=(const vtkExtractCells&) VTK_DELETE_FUNCTION;
 };
 
 #endif

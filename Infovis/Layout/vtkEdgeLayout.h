@@ -70,7 +70,7 @@ private:
   vtkGraph *InternalGraph;
 
   vtkEdgeLayout(const vtkEdgeLayout&);  // Not implemented.
-  void operator=(const vtkEdgeLayout&);  // Not implemented.
+  void operator=(const vtkEdgeLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

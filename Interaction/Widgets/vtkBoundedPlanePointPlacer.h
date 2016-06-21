@@ -193,7 +193,7 @@ protected:
 
 private:
   vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&);  //Not implemented
-  void operator=(const vtkBoundedPlanePointPlacer&);  //Not implemented
+  void operator=(const vtkBoundedPlanePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

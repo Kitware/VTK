@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkImageWeightedSum(const vtkImageWeightedSum&);  // Not implemented.
-  void operator=(const vtkImageWeightedSum&);  // Not implemented.
+  void operator=(const vtkImageWeightedSum&) VTK_DELETE_FUNCTION;
 };
 
 #endif

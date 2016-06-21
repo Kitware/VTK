@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkHedgeHog(const vtkHedgeHog&);  // Not implemented.
-  void operator=(const vtkHedgeHog&);  // Not implemented.
+  void operator=(const vtkHedgeHog&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

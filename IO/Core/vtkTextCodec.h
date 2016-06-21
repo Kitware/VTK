@@ -71,7 +71,7 @@ public:
 
   private:
     OutputIterator(const OutputIterator&); // Not implemented
-    const OutputIterator& operator=(const OutputIterator&); // Not Implemented
+    const OutputIterator& operator=(const OutputIterator&) VTK_DELETE_FUNCTION;
   };
 
   // Description:
@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkTextCodec(const vtkTextCodec &); // Not implemented.
-  void operator=(const vtkTextCodec &); // Not implemented.
+  void operator=(const vtkTextCodec &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkFillHolesFilter(const vtkFillHolesFilter&);  // Not implemented.
-  void operator=(const vtkFillHolesFilter&);  // Not implemented.
+  void operator=(const vtkFillHolesFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

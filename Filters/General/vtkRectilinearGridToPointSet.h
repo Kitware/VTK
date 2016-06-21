@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkRectilinearGridToPointSet(const vtkRectilinearGridToPointSet &); // Not implemented
-  void operator=(const vtkRectilinearGridToPointSet &);         // Not implemented
+  void operator=(const vtkRectilinearGridToPointSet &) VTK_DELETE_FUNCTION;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkRectilinearGrid *inData);
 };

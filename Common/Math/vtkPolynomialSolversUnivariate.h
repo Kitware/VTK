@@ -269,7 +269,7 @@ protected:
 
 private:
   vtkPolynomialSolversUnivariate(const vtkPolynomialSolversUnivariate&);  // Not implemented.
-  void operator=(const vtkPolynomialSolversUnivariate&);  // Not implemented.
+  void operator=(const vtkPolynomialSolversUnivariate&) VTK_DELETE_FUNCTION;
 };
 
 #endif

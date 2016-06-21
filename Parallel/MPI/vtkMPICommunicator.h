@@ -314,7 +314,7 @@ protected:
 
 private:
   vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
-  void operator=(const vtkMPICommunicator&);  // Not implemented.
+  void operator=(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

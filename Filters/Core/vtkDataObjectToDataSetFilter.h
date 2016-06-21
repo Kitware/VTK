@@ -321,7 +321,7 @@ protected:
 
 private:
   vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);  // Not implemented.
-  void operator=(const vtkDataObjectToDataSetFilter&);  // Not implemented.
+  void operator=(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

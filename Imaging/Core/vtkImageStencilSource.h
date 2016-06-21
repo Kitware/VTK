@@ -94,7 +94,7 @@ protected:
 
 private:
   vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
-  void operator=(const vtkImageStencilSource&);  // Not implemented.
+  void operator=(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -338,7 +338,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
 
  private:
   vtkMPASReader(const vtkMPASReader&);    // Not implemented.
-  void operator=(const vtkMPASReader&); // Not implemented.
+  void operator=(const vtkMPASReader&) VTK_DELETE_FUNCTION;
 
   class Internal;
   Internal *Internals;

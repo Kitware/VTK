@@ -136,7 +136,7 @@ protected:
 
 private:
   vtkXMLDataReader(const vtkXMLDataReader&);  // Not implemented.
-  void operator=(const vtkXMLDataReader&);  // Not implemented.
+  void operator=(const vtkXMLDataReader&) VTK_DELETE_FUNCTION;
 
   void ConvertGhostLevelsToGhostType(
     FieldType type, vtkAbstractArray* data, vtkIdType startIndex,

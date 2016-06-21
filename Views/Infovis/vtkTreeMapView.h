@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkTreeMapView(const vtkTreeMapView&);  // Not implemented.
-  void operator=(const vtkTreeMapView&);  // Not implemented.
+  void operator=(const vtkTreeMapView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

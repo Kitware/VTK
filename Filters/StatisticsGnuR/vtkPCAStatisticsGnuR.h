@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkPCAStatisticsGnuR(const vtkPCAStatisticsGnuR&); // Not implemented
-  void operator=(const vtkPCAStatisticsGnuR&); // Not implemented
+  void operator=(const vtkPCAStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPCAStatisticsGnuR_h

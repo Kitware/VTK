@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&);  // Not implemented.
-  void operator=(const vtkFlyingEdgesPlaneCutter&);  // Not implemented.
+  void operator=(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

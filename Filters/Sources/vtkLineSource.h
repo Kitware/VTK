@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkLineSource(const vtkLineSource&);  // Not implemented.
-  void operator=(const vtkLineSource&);  // Not implemented.
+  void operator=(const vtkLineSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

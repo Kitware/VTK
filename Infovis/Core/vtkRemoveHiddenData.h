@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkRemoveHiddenData(const vtkRemoveHiddenData&);  // Not implemented.
-  void operator=(const vtkRemoveHiddenData&);  // Not implemented.
+  void operator=(const vtkRemoveHiddenData&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkExtractSelectedGraph> ExtractGraph;
   vtkSmartPointer<vtkExtractSelectedRows> ExtractTable;

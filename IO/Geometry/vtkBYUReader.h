@@ -113,7 +113,7 @@ protected:
   void ReadTextureFile(int numPts, vtkInformation *outInfo);
 private:
   vtkBYUReader(const vtkBYUReader&);  // Not implemented.
-  void operator=(const vtkBYUReader&);  // Not implemented.
+  void operator=(const vtkBYUReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

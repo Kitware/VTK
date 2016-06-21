@@ -209,7 +209,7 @@ protected:
   vtkSmartPointer<vtkPixelBufferObject> PBO;
 private:
   vtkDataTransferHelper(const vtkDataTransferHelper&); // Not implemented.
-  void operator=(const vtkDataTransferHelper&); // Not implemented.
+  void operator=(const vtkDataTransferHelper&) VTK_DELETE_FUNCTION;
 
 };
 

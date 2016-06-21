@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkInterpolationKernel(const vtkInterpolationKernel&);  // Not implemented.
-  void operator=(const vtkInterpolationKernel&);  // Not implemented.
+  void operator=(const vtkInterpolationKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

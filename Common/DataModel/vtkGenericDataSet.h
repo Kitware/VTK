@@ -259,7 +259,7 @@ protected:
 
 private:
   vtkGenericDataSet(const vtkGenericDataSet&);  // Not implemented.
-  void operator=(const vtkGenericDataSet&);    // Not implemented.
+  void operator=(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

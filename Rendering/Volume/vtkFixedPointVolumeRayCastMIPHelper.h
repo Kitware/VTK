@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkFixedPointVolumeRayCastMIPHelper(const vtkFixedPointVolumeRayCastMIPHelper&);  // Not implemented.
-  void operator=(const vtkFixedPointVolumeRayCastMIPHelper&);  // Not implemented.
+  void operator=(const vtkFixedPointVolumeRayCastMIPHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

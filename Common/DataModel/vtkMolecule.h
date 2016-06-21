@@ -269,7 +269,7 @@ public:
 
 private:
   vtkMolecule(const vtkMolecule&);    // Not implemented.
-  void operator=(const vtkMolecule&); // Not implemented.
+  void operator=(const vtkMolecule&) VTK_DELETE_FUNCTION;
 };
 
 #endif

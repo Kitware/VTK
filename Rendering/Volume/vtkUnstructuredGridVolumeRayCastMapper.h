@@ -191,7 +191,7 @@ protected:
 
 private:
   vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

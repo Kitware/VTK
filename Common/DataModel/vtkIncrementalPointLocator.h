@@ -127,7 +127,7 @@ protected:
 
 private:
   vtkIncrementalPointLocator( const vtkIncrementalPointLocator & );  // Not implemented.
-  void operator = ( const vtkIncrementalPointLocator & );            // Not implemented.
+  void operator = ( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

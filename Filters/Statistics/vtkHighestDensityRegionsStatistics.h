@@ -136,7 +136,7 @@ private :
 
 private:
   vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&); // Not implemented
-  void operator = (const vtkHighestDensityRegionsStatistics&);  // Not implemented
+  void operator = (const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkType@VTK_TYPE_NAME@Array(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
-  void operator=(const vtkType@VTK_TYPE_NAME@Array&);  // Not implemented.
+  void operator=(const vtkType@VTK_TYPE_NAME@Array&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

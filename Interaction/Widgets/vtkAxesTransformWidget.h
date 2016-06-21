@@ -139,7 +139,7 @@ protected:
 
 private:
   vtkAxesTransformWidget(const vtkAxesTransformWidget&);  //Not implemented
-  void operator=(const vtkAxesTransformWidget&);  //Not implemented
+  void operator=(const vtkAxesTransformWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

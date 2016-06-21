@@ -137,7 +137,7 @@ protected:
 
 private:
   vtkOpenGLProjectedAAHexahedraMapper(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
-  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &);  // Not Implemented.
+  void operator=(const vtkOpenGLProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
 };
 
 #endif

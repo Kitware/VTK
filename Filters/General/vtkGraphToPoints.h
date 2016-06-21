@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkGraphToPoints(const vtkGraphToPoints&);  // Not implemented.
-  void operator=(const vtkGraphToPoints&);  // Not implemented.
+  void operator=(const vtkGraphToPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

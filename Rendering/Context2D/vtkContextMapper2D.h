@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkContextMapper2D(const vtkContextMapper2D &); // Not implemented.
-  void operator=(const vtkContextMapper2D &); // Not implemented.
+  void operator=(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
 
 };
 

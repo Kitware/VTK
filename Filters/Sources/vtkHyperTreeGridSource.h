@@ -258,7 +258,7 @@ protected:
 
 private:
   vtkHyperTreeGridSource(const vtkHyperTreeGridSource&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridSource&);  // Not implemented.
+  void operator=(const vtkHyperTreeGridSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

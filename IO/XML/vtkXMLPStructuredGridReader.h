@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkXMLPStructuredGridReader(const vtkXMLPStructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredGridReader&);  // Not implemented.
+  void operator=(const vtkXMLPStructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

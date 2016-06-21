@@ -100,7 +100,7 @@ protected:
 
 private:
   vtkDirectedGraphAlgorithm(const vtkDirectedGraphAlgorithm&);  // Not implemented.
-  void operator=(const vtkDirectedGraphAlgorithm&);  // Not implemented.
+  void operator=(const vtkDirectedGraphAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

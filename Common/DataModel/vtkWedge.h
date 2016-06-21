@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkWedge(const vtkWedge&);  // Not implemented.
-  void operator=(const vtkWedge&);  // Not implemented.
+  void operator=(const vtkWedge&) VTK_DELETE_FUNCTION;
 };
 
 inline int vtkWedge::GetParametricCenter(double pcoords[3])

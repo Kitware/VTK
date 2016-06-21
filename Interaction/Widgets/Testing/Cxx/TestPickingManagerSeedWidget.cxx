@@ -613,7 +613,7 @@ public:
 
 private:
   vtkPMSRecordPerfCallback(const vtkPMSRecordPerfCallback&);  //Not implemented
-  void operator=(const vtkPMSRecordPerfCallback&);  //Not implemented
+  void operator=(const vtkPMSRecordPerfCallback&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

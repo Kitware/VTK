@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkAMRDataInternals(const vtkAMRDataInternals&); // Not implemented.
-  void operator=(const vtkAMRDataInternals&); // Not implemented
+  void operator=(const vtkAMRDataInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkTableToTreeFilter(const vtkTableToTreeFilter&); // Not implemented
-  void operator=(const vtkTableToTreeFilter&);   // Not implemented
+  void operator=(const vtkTableToTreeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

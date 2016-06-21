@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridReader&);  // Not implemented.
+  void operator=(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

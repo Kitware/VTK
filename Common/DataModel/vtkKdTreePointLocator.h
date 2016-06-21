@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkKdTreePointLocator(const vtkKdTreePointLocator&);  // Not implemented.
-  void operator=(const vtkKdTreePointLocator&);  // Not implemented.
+  void operator=(const vtkKdTreePointLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

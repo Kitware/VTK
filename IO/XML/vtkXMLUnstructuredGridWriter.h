@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
+  void operator=(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

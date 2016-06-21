@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkEvent(const vtkEvent&);  //Not implemented
-  void operator=(const vtkEvent&);  //Not implemented
+  void operator=(const vtkEvent&) VTK_DELETE_FUNCTION;
 
 };
 

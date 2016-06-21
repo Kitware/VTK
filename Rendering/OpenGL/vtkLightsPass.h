@@ -54,7 +54,7 @@ public:
 
  private:
   vtkLightsPass(const vtkLightsPass&);  // Not implemented.
-  void operator=(const vtkLightsPass&);  // Not implemented.
+  void operator=(const vtkLightsPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

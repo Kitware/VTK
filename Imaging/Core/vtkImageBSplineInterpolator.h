@@ -134,7 +134,7 @@ protected:
 
 private:
   vtkImageBSplineInterpolator(const vtkImageBSplineInterpolator&);  // Not implemented.
-  void operator=(const vtkImageBSplineInterpolator&);  // Not implemented.
+  void operator=(const vtkImageBSplineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

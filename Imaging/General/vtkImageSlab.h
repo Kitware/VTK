@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkImageSlab(const vtkImageSlab&);  // Not implemented.
-  void operator=(const vtkImageSlab&);  // Not implemented.
+  void operator=(const vtkImageSlab&) VTK_DELETE_FUNCTION;
 };
 
 #endif

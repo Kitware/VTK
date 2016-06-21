@@ -165,7 +165,7 @@ protected:
 
 private:
   vtkDataSetAlgorithm(const vtkDataSetAlgorithm&);  // Not implemented.
-  void operator=(const vtkDataSetAlgorithm&);  // Not implemented.
+  void operator=(const vtkDataSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

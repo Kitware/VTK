@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkMassProperties(const vtkMassProperties&);  // Not implemented.
-  void operator=(const vtkMassProperties&);  // Not implemented.
+  void operator=(const vtkMassProperties&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
-  void operator=(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
+  void operator=(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkGeoSphereTransform( const vtkGeoSphereTransform& ); // Not implemented.
-  void operator = ( const vtkGeoSphereTransform& ); // Not implemented.
+  void operator = ( const vtkGeoSphereTransform& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoSphereTransform_h

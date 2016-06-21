@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkGenericPointIterator(const vtkGenericPointIterator&);  // Not implemented.
-  void operator=(const vtkGenericPointIterator&);  // Not implemented.
+  void operator=(const vtkGenericPointIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkMergeTables(const vtkMergeTables&); // Not implemented
-  void operator=(const vtkMergeTables&);   // Not implemented
+  void operator=(const vtkMergeTables&) VTK_DELETE_FUNCTION;
 };
 
 #endif

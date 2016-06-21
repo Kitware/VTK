@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkProbeSelectedLocations(const vtkProbeSelectedLocations&); // Not implemented.
-  void operator=(const vtkProbeSelectedLocations&); // Not implemented.
+  void operator=(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;
 
 };
 

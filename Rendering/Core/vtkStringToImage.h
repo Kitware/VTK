@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkStringToImage(const vtkStringToImage &); // Not implemented.
-  void operator=(const vtkStringToImage &);   // Not implemented.
+  void operator=(const vtkStringToImage &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkStringToImage_h

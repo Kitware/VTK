@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
-  void operator=(const vtkPProbeFilter&);  // Not implemented.
+  void operator=(const vtkPProbeFilter&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkImageLogic(const vtkImageLogic&);  // Not implemented.
-  void operator=(const vtkImageLogic&);  // Not implemented.
+  void operator=(const vtkImageLogic&) VTK_DELETE_FUNCTION;
 };
 
 #endif

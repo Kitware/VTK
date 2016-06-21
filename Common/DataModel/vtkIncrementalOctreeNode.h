@@ -328,7 +328,7 @@ private:
     int innerOnly, vtkIncrementalOctreeNode* rootNode, int checkData = 0 );
 
   vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & );// Not implemented
-  void operator = ( const vtkIncrementalOctreeNode & );        // Not implemented
+  void operator = ( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
 
 };
 

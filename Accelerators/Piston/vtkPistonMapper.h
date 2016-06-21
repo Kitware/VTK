@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkPistonMapper(const vtkPistonMapper&); // Not implemented.
-  void operator=(const vtkPistonMapper&);  // Not implemented.
+  void operator=(const vtkPistonMapper&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Allocates buffers that are shared between CUDA and GL

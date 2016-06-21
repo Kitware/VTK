@@ -112,6 +112,6 @@ protected:
   RemoteParticleVector Tail; //this is to receive the "tails" of traces from other processes
 private:
   vtkPParticleTracerBase(const vtkPParticleTracerBase&);  // Not implemented.
-  void operator=(const vtkPParticleTracerBase&);  // Not implemented.
+  void operator=(const vtkPParticleTracerBase&) VTK_DELETE_FUNCTION;
 };
 #endif

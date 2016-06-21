@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkAbstractMapper3D(const vtkAbstractMapper3D&);  // Not implemented.
-  void operator=(const vtkAbstractMapper3D&);  // Not implemented.
+  void operator=(const vtkAbstractMapper3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

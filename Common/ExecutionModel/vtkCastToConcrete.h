@@ -57,7 +57,7 @@ protected:
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkCastToConcrete(const vtkCastToConcrete&);  // Not implemented.
-  void operator=(const vtkCastToConcrete&);  // Not implemented.
+  void operator=(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
 };
 
 #endif

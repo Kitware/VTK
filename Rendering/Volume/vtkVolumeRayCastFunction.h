@@ -171,7 +171,7 @@ protected:
 
 private:
   vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastFunction&);  // Not implemented.
+  void operator=(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

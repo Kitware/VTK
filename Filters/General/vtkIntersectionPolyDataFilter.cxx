@@ -191,7 +191,7 @@ public:
 
 protected:
   Impl(const Impl&); // Not implemented
-  void operator=(const Impl&); // Not implemented
+  void operator=(const Impl&) VTK_DELETE_FUNCTION;
 
 };
 

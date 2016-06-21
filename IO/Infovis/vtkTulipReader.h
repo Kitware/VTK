@@ -95,7 +95,7 @@ private:
   char* FileName;
 
   vtkTulipReader(const vtkTulipReader&);  // Not implemented.
-  void operator=(const vtkTulipReader&);  // Not implemented.
+  void operator=(const vtkTulipReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkTulipReader_h

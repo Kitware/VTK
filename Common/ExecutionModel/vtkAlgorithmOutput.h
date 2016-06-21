@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkAlgorithmOutput(const vtkAlgorithmOutput&);  // Not implemented.
-  void operator=(const vtkAlgorithmOutput&);  // Not implemented.
+  void operator=(const vtkAlgorithmOutput&) VTK_DELETE_FUNCTION;
 };
 
 #endif

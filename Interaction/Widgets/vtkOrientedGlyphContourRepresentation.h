@@ -181,7 +181,7 @@ protected:
 
 private:
   vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
-  void operator=(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
+  void operator=(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

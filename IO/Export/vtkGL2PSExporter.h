@@ -315,7 +315,7 @@ protected:
 
 private:
   vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
-  void operator=(const vtkGL2PSExporter&); // Not implemented
+  void operator=(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkGL2PSExporter::GetSortAsString(void)

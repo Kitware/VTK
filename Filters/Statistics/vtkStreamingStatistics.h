@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkStreamingStatistics( const vtkStreamingStatistics& ); // Not implemented
-  void operator = ( const vtkStreamingStatistics& );   // Not implemented
+  void operator = ( const vtkStreamingStatistics& ) VTK_DELETE_FUNCTION;
 
   // Internal statistics algorithm to care for and feed
   vtkStatisticsAlgorithm* StatisticsAlgorithm;

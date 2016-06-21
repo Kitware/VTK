@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkCPExodusIIResultsArrayTemplate(const vtkCPExodusIIResultsArrayTemplate &); // Not implemented.
-  void operator=(const vtkCPExodusIIResultsArrayTemplate &); // Not implemented.
+  void operator=(const vtkCPExodusIIResultsArrayTemplate &) VTK_DELETE_FUNCTION;
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;

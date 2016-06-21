@@ -103,7 +103,7 @@ public:
 
  private:
   vtkDefaultPass(const vtkDefaultPass&);  // Not implemented.
-  void operator=(const vtkDefaultPass&);  // Not implemented.
+  void operator=(const vtkDefaultPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

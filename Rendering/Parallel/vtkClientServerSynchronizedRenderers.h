@@ -40,7 +40,7 @@ protected:
 
 private:
   vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-  void operator=(const vtkClientServerSynchronizedRenderers&); // Not implemented.
+  void operator=(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -203,7 +203,7 @@ protected:
 
 private:
   vtkLegendScaleActor(const vtkLegendScaleActor&);  //Not implemented
-  void operator=(const vtkLegendScaleActor&);  //Not implemented
+  void operator=(const vtkLegendScaleActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

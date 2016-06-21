@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkParametricSuperToroid(const vtkParametricSuperToroid&);  // Not implemented.
-  void operator=(const vtkParametricSuperToroid&);  // Not implemented.
+  void operator=(const vtkParametricSuperToroid&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Calculate sign(x)*(abs(x)^n).

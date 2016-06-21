@@ -53,7 +53,7 @@ protected:
   char *FilePrefix;
 private:
   vtkOBJExporter(const vtkOBJExporter&);  // Not implemented.
-  void operator=(const vtkOBJExporter&);  // Not implemented.
+  void operator=(const vtkOBJExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

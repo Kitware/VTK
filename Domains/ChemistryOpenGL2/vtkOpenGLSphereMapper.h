@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkOpenGLSphereMapper(const vtkOpenGLSphereMapper&); // Not implemented.
-  void operator=(const vtkOpenGLSphereMapper&); // Not implemented.
+  void operator=(const vtkOpenGLSphereMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

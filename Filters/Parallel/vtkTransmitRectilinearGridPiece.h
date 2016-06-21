@@ -45,7 +45,7 @@ protected:
 
 private:
   vtkTransmitRectilinearGridPiece(const vtkTransmitRectilinearGridPiece&); // Not implemented
-  void operator=(const vtkTransmitRectilinearGridPiece&); // Not implemented
+  void operator=(const vtkTransmitRectilinearGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

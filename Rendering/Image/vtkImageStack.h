@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkImageStack(const vtkImageStack&);  // Not implemented.
-  void operator=(const vtkImageStack&);  // Not implemented.
+  void operator=(const vtkImageStack&) VTK_DELETE_FUNCTION;
 };
 
 #endif

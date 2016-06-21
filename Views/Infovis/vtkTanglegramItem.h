@@ -187,7 +187,7 @@ private:
   float CorrespondenceLineWidth;
 
   vtkTanglegramItem(const vtkTanglegramItem&); // Not implemented
-  void operator=(const vtkTanglegramItem&); // Not implemented
+  void operator=(const vtkTanglegramItem&) VTK_DELETE_FUNCTION;
 
 };
 

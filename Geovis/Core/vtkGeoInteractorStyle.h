@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
-  void operator=(const vtkGeoInteractorStyle&);  // Not implemented.
+  void operator=(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

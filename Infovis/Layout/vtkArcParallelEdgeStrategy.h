@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkArcParallelEdgeStrategy(const vtkArcParallelEdgeStrategy&);  // Not implemented.
-  void operator=(const vtkArcParallelEdgeStrategy&);  // Not implemented.
+  void operator=(const vtkArcParallelEdgeStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

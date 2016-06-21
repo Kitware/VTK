@@ -99,7 +99,7 @@ private:
 
 private:
   vtkDirectory(const vtkDirectory&);  // Not implemented.
-  void operator=(const vtkDirectory&);  // Not implemented.
+  void operator=(const vtkDirectory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

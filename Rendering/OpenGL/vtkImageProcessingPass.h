@@ -85,7 +85,7 @@ public:
 
  private:
   vtkImageProcessingPass(const vtkImageProcessingPass&);  // Not implemented.
-  void operator=(const vtkImageProcessingPass&);  // Not implemented.
+  void operator=(const vtkImageProcessingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

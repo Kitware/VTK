@@ -285,7 +285,7 @@ protected:
 
 private:
   vtkClipClosedSurface(const vtkClipClosedSurface&);  // Not implemented.
-  void operator=(const vtkClipClosedSurface&);  // Not implemented.
+  void operator=(const vtkClipClosedSurface&) VTK_DELETE_FUNCTION;
 };
 
 #endif

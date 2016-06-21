@@ -94,7 +94,7 @@ protected:
   int          SortingStyle;
 private:
   vtkFrustumCoverageCuller(const vtkFrustumCoverageCuller&);  // Not implemented.
-  void operator=(const vtkFrustumCoverageCuller&);  // Not implemented.
+  void operator=(const vtkFrustumCoverageCuller&) VTK_DELETE_FUNCTION;
 };
 
 

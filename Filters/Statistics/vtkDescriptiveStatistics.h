@@ -146,7 +146,7 @@ protected:
 
 private:
   vtkDescriptiveStatistics( const vtkDescriptiveStatistics& ); // Not implemented
-  void operator = ( const vtkDescriptiveStatistics& );   // Not implemented
+  void operator = ( const vtkDescriptiveStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

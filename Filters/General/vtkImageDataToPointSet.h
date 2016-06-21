@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkImageDataToPointSet(const vtkImageDataToPointSet &); // Not implemented
-  void operator=(const vtkImageDataToPointSet &);         // Not implemented
+  void operator=(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkImageData *inData);
 };

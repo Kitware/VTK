@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&);  // Not implemented
-  void operator=(const vtkInteractorStyleDrawPolygon&);  // Not implemented
+  void operator=(const vtkInteractorStyleDrawPolygon&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

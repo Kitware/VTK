@@ -72,7 +72,7 @@ private:
     { this->vtkCollection::AddItem(o); }
 
   vtkRendererCollection(const vtkRendererCollection&);  // Not implemented.
-  void operator=(const vtkRendererCollection&);  // Not implemented.
+  void operator=(const vtkRendererCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

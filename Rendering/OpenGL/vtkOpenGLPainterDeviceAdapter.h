@@ -127,7 +127,7 @@ protected:
   bool Initialized;
 private:
   vtkOpenGLPainterDeviceAdapter(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
-  void operator=(const vtkOpenGLPainterDeviceAdapter &);  // Not implemented.
+  void operator=(const vtkOpenGLPainterDeviceAdapter &) VTK_DELETE_FUNCTION;
 };
 
 #if defined(_MSC_VER)

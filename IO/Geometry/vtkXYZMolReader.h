@@ -74,7 +74,7 @@ protected:
 
 private:
   vtkXYZMolReader(const vtkXYZMolReader&);  // Not implemented.
-  void operator=(const vtkXYZMolReader&);  // Not implemented.
+  void operator=(const vtkXYZMolReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

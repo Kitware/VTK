@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkSILBuilder(const vtkSILBuilder&); // Not implemented.
-  void operator=(const vtkSILBuilder&); // Not implemented.
+  void operator=(const vtkSILBuilder&) VTK_DELETE_FUNCTION;
 
 };
 

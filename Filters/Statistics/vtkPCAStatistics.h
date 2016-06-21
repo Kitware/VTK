@@ -261,7 +261,7 @@ protected:
 
 private:
   vtkPCAStatistics( const vtkPCAStatistics& ); // Not implemented
-  void operator = ( const vtkPCAStatistics& );  // Not implemented
+  void operator = ( const vtkPCAStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPCAStatistics_h

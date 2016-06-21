@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkClassifyVolume(const vtkClassifyVolume&);  // Not implemented
-  void operator=(const vtkClassifyVolume&);     // Not implemented
+  void operator=(const vtkClassifyVolume&) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

@@ -61,7 +61,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkExtractEdges(const vtkExtractEdges&);  // Not implemented.
-  void operator=(const vtkExtractEdges&);  // Not implemented.
+  void operator=(const vtkExtractEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

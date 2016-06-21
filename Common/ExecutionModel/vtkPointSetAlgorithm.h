@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkPointSetAlgorithm(const vtkPointSetAlgorithm&);  // Not implemented.
-  void operator=(const vtkPointSetAlgorithm&);  // Not implemented.
+  void operator=(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

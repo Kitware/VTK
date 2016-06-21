@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkImageDilateErode3D(const vtkImageDilateErode3D&);  // Not implemented.
-  void operator=(const vtkImageDilateErode3D&);  // Not implemented.
+  void operator=(const vtkImageDilateErode3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

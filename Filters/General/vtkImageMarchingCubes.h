@@ -139,7 +139,7 @@ protected:
 
 private:
   vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
-  void operator=(const vtkImageMarchingCubes&);  // Not implemented.
+  void operator=(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

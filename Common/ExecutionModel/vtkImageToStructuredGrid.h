@@ -58,7 +58,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredGrid:
   private:
     vtkImageToStructuredGrid(
         const vtkImageToStructuredGrid& ); //Not implemented
-    void operator=(const vtkImageToStructuredGrid&);//Not implemented
+    void operator=(const vtkImageToStructuredGrid&) VTK_DELETE_FUNCTION;
 
 
 };

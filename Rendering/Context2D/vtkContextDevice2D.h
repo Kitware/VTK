@@ -341,7 +341,7 @@ protected:
 
 private:
   vtkContextDevice2D(const vtkContextDevice2D &); // Not implemented.
-  void operator=(const vtkContextDevice2D &);   // Not implemented.
+  void operator=(const vtkContextDevice2D &) VTK_DELETE_FUNCTION;
 
 };
 

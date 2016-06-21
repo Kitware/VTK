@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkOBJImporter(const vtkOBJImporter&);  // Not implemented.
-  void operator=(const vtkOBJImporter&);  // Not implemented.
+  void operator=(const vtkOBJImporter&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -245,7 +245,7 @@ private:
 
 private:
   vtkExecutive(const vtkExecutive&);  // Not implemented.
-  void operator=(const vtkExecutive&);  // Not implemented.
+  void operator=(const vtkExecutive&) VTK_DELETE_FUNCTION;
 };
 
 #endif

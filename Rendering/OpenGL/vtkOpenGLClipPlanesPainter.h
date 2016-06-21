@@ -45,7 +45,7 @@ protected:
                               unsigned long typeflags, bool forceCompileOnly);
 private:
   vtkOpenGLClipPlanesPainter(const vtkOpenGLClipPlanesPainter&); // Not implemented.
-  void operator=(const vtkOpenGLClipPlanesPainter&); // Not implemented.
+  void operator=(const vtkOpenGLClipPlanesPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

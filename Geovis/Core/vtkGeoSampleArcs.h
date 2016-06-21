@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkGeoSampleArcs(const vtkGeoSampleArcs&);  // Not implemented.
-  void operator=(const vtkGeoSampleArcs&);  // Not implemented.
+  void operator=(const vtkGeoSampleArcs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

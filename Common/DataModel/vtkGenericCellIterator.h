@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkGenericCellIterator(const vtkGenericCellIterator&);  // Not implemented.
-  void operator=(const vtkGenericCellIterator&);  // Not implemented.
+  void operator=(const vtkGenericCellIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

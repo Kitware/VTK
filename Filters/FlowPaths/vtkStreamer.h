@@ -311,7 +311,7 @@ protected:
 
 private:
   vtkStreamer(const vtkStreamer&);  // Not implemented.
-  void operator=(const vtkStreamer&);  // Not implemented.
+  void operator=(const vtkStreamer&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

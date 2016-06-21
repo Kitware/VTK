@@ -226,7 +226,7 @@ protected:
 
 private:
   vtkSQLDatabase(const vtkSQLDatabase &); // Not implemented.
-  void operator=(const vtkSQLDatabase &); // Not implemented.
+  void operator=(const vtkSQLDatabase &) VTK_DELETE_FUNCTION;
 
   // Description;
   // Datastructure used to store registered callbacks.

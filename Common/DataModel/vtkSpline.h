@@ -173,7 +173,7 @@ protected:
 
 private:
   vtkSpline(const vtkSpline&);  // Not implemented.
-  void operator=(const vtkSpline&);  // Not implemented.
+  void operator=(const vtkSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

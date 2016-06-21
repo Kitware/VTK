@@ -284,7 +284,7 @@ protected:
 
 private:
   vtkVariantArray(const vtkVariantArray&);  // Not implemented.
-  void operator=(const vtkVariantArray&);  // Not implemented.
+  void operator=(const vtkVariantArray&) VTK_DELETE_FUNCTION;
 
   vtkVariantArrayLookup* Lookup;
   void UpdateLookup();

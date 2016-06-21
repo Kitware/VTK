@@ -282,7 +282,7 @@ private:
 
 private:
   vtkGaussianSplatter(const vtkGaussianSplatter&);  // Not implemented.
-  void operator=(const vtkGaussianSplatter&);  // Not implemented.
+  void operator=(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

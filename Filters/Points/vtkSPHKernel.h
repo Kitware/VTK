@@ -170,7 +170,7 @@ protected:
 
 private:
   vtkSPHKernel(const vtkSPHKernel&);  // Not implemented.
-  void operator=(const vtkSPHKernel&);  // Not implemented.
+  void operator=(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

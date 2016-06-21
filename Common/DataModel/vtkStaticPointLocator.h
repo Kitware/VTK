@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkStaticPointLocator(const vtkStaticPointLocator&);  // Not implemented.
-  void operator=(const vtkStaticPointLocator&);  // Not implemented.
+  void operator=(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
 
 };
 

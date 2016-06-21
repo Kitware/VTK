@@ -331,7 +331,7 @@ protected:
   unsigned int Handle;
 private:
   vtkPixelBufferObject(const vtkPixelBufferObject&); // Not implemented.
-  void operator=(const vtkPixelBufferObject&); // Not implemented.
+  void operator=(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
 
 };
 

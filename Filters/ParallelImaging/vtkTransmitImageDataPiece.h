@@ -45,7 +45,7 @@ protected:
 
 private:
   vtkTransmitImageDataPiece(const vtkTransmitImageDataPiece&); // Not implemented
-  void operator=(const vtkTransmitImageDataPiece&); // Not implemented
+  void operator=(const vtkTransmitImageDataPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

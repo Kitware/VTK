@@ -241,7 +241,7 @@ protected:
 
 private:
   vtkFrameBufferObject(const vtkFrameBufferObject&); // Not implemented.
-  void operator=(const vtkFrameBufferObject&); // Not implemented.
+  void operator=(const vtkFrameBufferObject&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -232,7 +232,7 @@ protected:
 
 private:
   vtkQuadricLODActor(const vtkQuadricLODActor&);  // Not implemented.
-  void operator=(const vtkQuadricLODActor&);  // Not implemented.
+  void operator=(const vtkQuadricLODActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

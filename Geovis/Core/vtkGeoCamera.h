@@ -209,7 +209,7 @@ protected:
 
 private:
   vtkGeoCamera(const vtkGeoCamera&);  // Not implemented.
-  void operator=(const vtkGeoCamera&);  // Not implemented.
+  void operator=(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

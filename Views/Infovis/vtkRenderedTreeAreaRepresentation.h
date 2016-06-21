@@ -293,7 +293,7 @@ protected:
 
 private:
   vtkRenderedTreeAreaRepresentation(const vtkRenderedTreeAreaRepresentation&); // Not implemented
-  void operator=(const vtkRenderedTreeAreaRepresentation&);   // Not implemented
+  void operator=(const vtkRenderedTreeAreaRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

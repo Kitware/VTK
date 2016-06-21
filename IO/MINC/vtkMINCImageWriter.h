@@ -214,7 +214,7 @@ protected:
 
 private:
   vtkMINCImageWriter(const vtkMINCImageWriter&); // Not implemented
-  void operator=(const vtkMINCImageWriter&);  // Not implemented
+  void operator=(const vtkMINCImageWriter&) VTK_DELETE_FUNCTION;
 
 };
 

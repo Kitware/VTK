@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkBridgeCellIteratorOnCellList(const vtkBridgeCellIteratorOnCellList&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorOnCellList&); // Not implemented
+  void operator=(const vtkBridgeCellIteratorOnCellList&) VTK_DELETE_FUNCTION;
 };
 
 #endif

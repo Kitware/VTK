@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkGraphAlgorithm(const vtkGraphAlgorithm&);  // Not implemented.
-  void operator=(const vtkGraphAlgorithm&);  // Not implemented.
+  void operator=(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

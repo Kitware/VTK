@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ); // Not implemented.
-  void operator = ( const vtkExtractFunctionalBagPlot& ); // Not implemented.
+  void operator = ( const vtkExtractFunctionalBagPlot& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkExtractFunctionalBagPlot_h

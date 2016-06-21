@@ -271,7 +271,7 @@ protected:
 
 private:
   vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.
-  void operator=(const vtkDataRepresentation&);  // Not implemented.
+  void operator=(const vtkDataRepresentation&) VTK_DELETE_FUNCTION;
 
   class Internals;
   Internals* Implementation;

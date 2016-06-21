@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkTDxDevice(const vtkTDxDevice&);  // Not implemented.
-  void operator=(const vtkTDxDevice&);  // Not implemented.
+  void operator=(const vtkTDxDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

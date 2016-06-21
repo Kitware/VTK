@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkProcessIdScalars(const vtkProcessIdScalars&);  // Not implemented.
-  void operator=(const vtkProcessIdScalars&);  // Not implemented.
+  void operator=(const vtkProcessIdScalars&) VTK_DELETE_FUNCTION;
 };
 
 #endif

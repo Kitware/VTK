@@ -94,7 +94,7 @@ protected:
 
 private:
   vtkSliceCubes(const vtkSliceCubes&);  // Not implemented.
-  void operator=(const vtkSliceCubes&);  // Not implemented.
+  void operator=(const vtkSliceCubes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

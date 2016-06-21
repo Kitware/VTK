@@ -77,7 +77,7 @@ protected:
   int OutputPointsPrecision;
 private:
   vtkCubeSource(const vtkCubeSource&);  // Not implemented.
-  void operator=(const vtkCubeSource&);  // Not implemented.
+  void operator=(const vtkCubeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

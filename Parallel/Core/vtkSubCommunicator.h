@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkSubCommunicator(const vtkSubCommunicator &);       // Not implemented
-  void operator=(const vtkSubCommunicator &);           // Not implemented
+  void operator=(const vtkSubCommunicator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSubCommunicator_h

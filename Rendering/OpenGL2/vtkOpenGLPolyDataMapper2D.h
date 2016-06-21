@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
-  void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

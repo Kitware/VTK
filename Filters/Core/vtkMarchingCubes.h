@@ -108,7 +108,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkMarchingCubes(const vtkMarchingCubes&);  // Not implemented.
-  void operator=(const vtkMarchingCubes&);  // Not implemented.
+  void operator=(const vtkMarchingCubes&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

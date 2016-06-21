@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
-  void operator = ( const vtkAutoCorrelativeStatistics& );   // Not implemented
+  void operator = ( const vtkAutoCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

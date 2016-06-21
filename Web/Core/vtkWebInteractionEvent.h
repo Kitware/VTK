@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkWebInteractionEvent(const vtkWebInteractionEvent&); // Not implemented
-  void operator=(const vtkWebInteractionEvent&); // Not implemented
+  void operator=(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
 
 };
 

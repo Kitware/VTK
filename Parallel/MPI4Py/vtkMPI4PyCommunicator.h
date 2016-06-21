@@ -50,7 +50,7 @@ public:
 
 private:
   vtkMPI4PyCommunicator(const vtkMPI4PyCommunicator&);  // Not implemented.
-  void operator=(const vtkMPI4PyCommunicator&);  // Not implemented.
+  void operator=(const vtkMPI4PyCommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

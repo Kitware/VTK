@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkImageDotProduct(const vtkImageDotProduct&);  // Not implemented.
-  void operator=(const vtkImageDotProduct&);  // Not implemented.
+  void operator=(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;
 };
 
 #endif

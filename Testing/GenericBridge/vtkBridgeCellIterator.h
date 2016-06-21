@@ -154,7 +154,7 @@ protected:
 
 private:
   vtkBridgeCellIterator(const vtkBridgeCellIterator&); // Not implemented
-  void operator=(const vtkBridgeCellIterator&); // Not implemented
+  void operator=(const vtkBridgeCellIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

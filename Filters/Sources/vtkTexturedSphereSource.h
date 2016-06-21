@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkTexturedSphereSource(const vtkTexturedSphereSource&);  // Not implemented.
-  void operator=(const vtkTexturedSphereSource&);  // Not implemented.
+  void operator=(const vtkTexturedSphereSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

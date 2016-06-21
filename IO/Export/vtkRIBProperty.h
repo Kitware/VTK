@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkRIBProperty(const vtkRIBProperty&);  // Not implemented.
-  void operator=(const vtkRIBProperty&);  // Not implemented.
+  void operator=(const vtkRIBProperty&) VTK_DELETE_FUNCTION;
 };
 
 #endif

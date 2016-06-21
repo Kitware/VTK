@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);  // Not implemented.
-  void operator=(const vtkSimpleImageToImageFilter&);  // Not implemented.
+  void operator=(const vtkSimpleImageToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkWidgetEvent(const vtkWidgetEvent&);  //Not implemented
-  void operator=(const vtkWidgetEvent&);  //Not implemented
+  void operator=(const vtkWidgetEvent&) VTK_DELETE_FUNCTION;
 
 };
 

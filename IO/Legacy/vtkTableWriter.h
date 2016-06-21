@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkTableWriter(const vtkTableWriter&);  // Not implemented.
-  void operator=(const vtkTableWriter&);  // Not implemented.
+  void operator=(const vtkTableWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

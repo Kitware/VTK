@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkXMLImageDataReader(const vtkXMLImageDataReader&);  // Not implemented.
-  void operator=(const vtkXMLImageDataReader&);  // Not implemented.
+  void operator=(const vtkXMLImageDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

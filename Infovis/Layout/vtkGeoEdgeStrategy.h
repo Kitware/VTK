@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkGeoEdgeStrategy(const vtkGeoEdgeStrategy&);  // Not implemented.
-  void operator=(const vtkGeoEdgeStrategy&);  // Not implemented.
+  void operator=(const vtkGeoEdgeStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

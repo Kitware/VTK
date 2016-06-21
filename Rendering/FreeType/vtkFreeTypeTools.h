@@ -339,7 +339,7 @@ protected:
 
 private:
   vtkFreeTypeTools(const vtkFreeTypeTools&);  // Not implemented.
-  void operator=(const vtkFreeTypeTools&);  // Not implemented.
+  void operator=(const vtkFreeTypeTools&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Internal helper called by RenderString methods

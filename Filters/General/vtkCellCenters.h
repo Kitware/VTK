@@ -62,7 +62,7 @@ protected:
   int VertexCells;
 private:
   vtkCellCenters(const vtkCellCenters&);  // Not implemented.
-  void operator=(const vtkCellCenters&);  // Not implemented.
+  void operator=(const vtkCellCenters&) VTK_DELETE_FUNCTION;
 };
 
 #endif

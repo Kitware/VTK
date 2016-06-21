@@ -42,7 +42,7 @@ protected:
 
  private:
   vtkActorNode(const vtkActorNode&); // Not implemented.
-  void operator=(const vtkActorNode&); // Not implemented.
+  void operator=(const vtkActorNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

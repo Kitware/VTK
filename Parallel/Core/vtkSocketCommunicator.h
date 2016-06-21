@@ -247,7 +247,7 @@ protected:
   bool BufferMessage;
 private:
   vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
-  void operator=(const vtkSocketCommunicator&);  // Not implemented.
+  void operator=(const vtkSocketCommunicator&) VTK_DELETE_FUNCTION;
 
   int SelectSocket(int socket, unsigned long msec);
 

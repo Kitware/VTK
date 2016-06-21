@@ -575,7 +575,7 @@ protected:
 
 private:
   vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
-  void operator=(const vtkParallelRenderManager &);  //Not implemented
+  void operator=(const vtkParallelRenderManager &) VTK_DELETE_FUNCTION;
 
 };
 

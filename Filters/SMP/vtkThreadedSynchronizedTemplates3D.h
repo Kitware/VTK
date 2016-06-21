@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkThreadedSynchronizedTemplates3D(const vtkThreadedSynchronizedTemplates3D&);  // Not implemented.
-  void operator=(const vtkThreadedSynchronizedTemplates3D&);  // Not implemented.
+  void operator=(const vtkThreadedSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
 };
 
 

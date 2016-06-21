@@ -62,7 +62,7 @@ public:
 
 private:
   vtkParallelAMRUtilities(const vtkParallelAMRUtilities&); // Not implemented
-  void operator=(const vtkParallelAMRUtilities&); // Not implemented
+  void operator=(const vtkParallelAMRUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkParallelAMRUtilities_h */

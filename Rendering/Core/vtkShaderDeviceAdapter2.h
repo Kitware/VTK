@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&); // Not implemented
-  void operator=(const vtkShaderDeviceAdapter2&); // Not implemented
+  void operator=(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
 
 };
 

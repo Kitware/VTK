@@ -188,7 +188,7 @@ protected:
 
 private:
   vtkEGLRenderWindow(const vtkEGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkEGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkEGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   bool DeviceExtensionsPresent;
 };

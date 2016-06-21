@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkMapper2D(const vtkMapper2D&);  // Not implemented.
-  void operator=(const vtkMapper2D&);  // Not implemented.
+  void operator=(const vtkMapper2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

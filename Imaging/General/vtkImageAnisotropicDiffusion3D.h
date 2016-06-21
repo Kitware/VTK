@@ -116,7 +116,7 @@ protected:
                double ar0, double ar1, double ar3, int *coreExtent, int count);
 private:
   vtkImageAnisotropicDiffusion3D(const vtkImageAnisotropicDiffusion3D&);  // Not implemented.
-  void operator=(const vtkImageAnisotropicDiffusion3D&);  // Not implemented.
+  void operator=(const vtkImageAnisotropicDiffusion3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

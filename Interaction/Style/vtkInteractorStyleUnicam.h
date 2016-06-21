@@ -176,7 +176,7 @@ protected:
   double WindowAspect();
 private:
   vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);  // Not implemented.
-  void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
+  void operator=(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
 };
 
 #endif  // vtkInteractorStyleUnicam_h

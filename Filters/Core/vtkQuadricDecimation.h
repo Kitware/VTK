@@ -229,7 +229,7 @@ protected:
 
 private:
   vtkQuadricDecimation(const vtkQuadricDecimation&);  // Not implemented.
-  void operator=(const vtkQuadricDecimation&);  // Not implemented.
+  void operator=(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

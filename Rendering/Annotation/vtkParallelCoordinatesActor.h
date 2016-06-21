@@ -191,7 +191,7 @@ private:
 
 private:
   vtkParallelCoordinatesActor(const vtkParallelCoordinatesActor&);  // Not implemented.
-  void operator=(const vtkParallelCoordinatesActor&);  // Not implemented.
+  void operator=(const vtkParallelCoordinatesActor&) VTK_DELETE_FUNCTION;
 };
 
 

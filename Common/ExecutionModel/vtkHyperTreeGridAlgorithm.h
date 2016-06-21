@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkHyperTreeGridAlgorithm(const vtkHyperTreeGridAlgorithm&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridAlgorithm&);  // Not implemented.
+  void operator=(const vtkHyperTreeGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -249,7 +249,7 @@ protected:
 
 private:
   vtkGenericEdgeTable(const vtkGenericEdgeTable&);  // Not implemented.
-  void operator=(const vtkGenericEdgeTable&);  // Not implemented.
+  void operator=(const vtkGenericEdgeTable&) VTK_DELETE_FUNCTION;
 
 };
 

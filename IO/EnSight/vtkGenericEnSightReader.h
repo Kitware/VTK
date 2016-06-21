@@ -363,7 +363,7 @@ protected:
 
 private:
   vtkGenericEnSightReader(const vtkGenericEnSightReader&);  // Not implemented.
-  void operator=(const vtkGenericEnSightReader&);  // Not implemented.
+  void operator=(const vtkGenericEnSightReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

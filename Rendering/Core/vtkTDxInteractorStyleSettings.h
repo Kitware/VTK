@@ -107,6 +107,6 @@ protected:
 
 private:
   vtkTDxInteractorStyleSettings(const vtkTDxInteractorStyleSettings&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleSettings&);  // Not implemented.
+  void operator=(const vtkTDxInteractorStyleSettings&) VTK_DELETE_FUNCTION;
 };
 #endif

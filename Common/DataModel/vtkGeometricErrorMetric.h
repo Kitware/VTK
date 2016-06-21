@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkGeometricErrorMetric(const vtkGeometricErrorMetric&);  // Not implemented.
-  void operator=(const vtkGeometricErrorMetric&);  // Not implemented.
+  void operator=(const vtkGeometricErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

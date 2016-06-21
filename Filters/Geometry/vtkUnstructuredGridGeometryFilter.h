@@ -183,7 +183,7 @@ protected:
 
 private:
   vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

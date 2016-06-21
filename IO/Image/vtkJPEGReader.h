@@ -62,7 +62,7 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
 private:
   vtkJPEGReader(const vtkJPEGReader&);  // Not implemented.
-  void operator=(const vtkJPEGReader&);  // Not implemented.
+  void operator=(const vtkJPEGReader&) VTK_DELETE_FUNCTION;
 };
 #endif
 

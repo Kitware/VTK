@@ -34,7 +34,7 @@ protected:
 
 private:
   vtkLightingPainter(const vtkLightingPainter&); // Not implemented.
-  void operator=(const vtkLightingPainter&); // Not implemented.
+  void operator=(const vtkLightingPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

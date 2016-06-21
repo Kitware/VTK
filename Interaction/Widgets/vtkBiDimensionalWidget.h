@@ -213,7 +213,7 @@ protected:
 
 private:
   vtkBiDimensionalWidget(const vtkBiDimensionalWidget&);  //Not implemented
-  void operator=(const vtkBiDimensionalWidget&);  //Not implemented
+  void operator=(const vtkBiDimensionalWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

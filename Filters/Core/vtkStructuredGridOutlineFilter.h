@@ -39,7 +39,7 @@ protected:
 
 private:
   vtkStructuredGridOutlineFilter(const vtkStructuredGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkStructuredGridOutlineFilter&);  // Not implemented.
+  void operator=(const vtkStructuredGridOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

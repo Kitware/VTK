@@ -126,7 +126,7 @@ protected:
 
 private:
   vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&);  // Not implemented.
-  void operator=(const vtkAbstractVolumeMapper&);  // Not implemented.
+  void operator=(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

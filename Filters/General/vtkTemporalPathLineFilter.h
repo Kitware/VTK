@@ -165,7 +165,7 @@ protected:
   //
 private:
   vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&);  // Not implemented.
-  void operator=(const vtkTemporalPathLineFilter&);  // Not implemented.
+  void operator=(const vtkTemporalPathLineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

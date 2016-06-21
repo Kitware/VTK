@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkLabelRenderStrategy(const vtkLabelRenderStrategy&);  // Not implemented.
-  void operator=(const vtkLabelRenderStrategy&);  // Not implemented.
+  void operator=(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

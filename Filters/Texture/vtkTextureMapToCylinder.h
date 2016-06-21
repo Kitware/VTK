@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkTextureMapToCylinder(const vtkTextureMapToCylinder&);  // Not implemented.
-  void operator=(const vtkTextureMapToCylinder&);  // Not implemented.
+  void operator=(const vtkTextureMapToCylinder&) VTK_DELETE_FUNCTION;
 };
 
 #endif

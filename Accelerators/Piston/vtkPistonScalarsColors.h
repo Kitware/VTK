@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkPistonScalarsColors(const vtkPistonScalarsColors&); // Not implemented.
-  void operator=(const vtkPistonScalarsColors&);  // Not implemented.
+  void operator=(const vtkPistonScalarsColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPistonScalarsColors_h

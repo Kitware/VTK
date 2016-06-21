@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkCellIterator(const vtkCellIterator &); // Not implemented.
-  void operator=(const vtkCellIterator &);   // Not implemented.
+  void operator=(const vtkCellIterator &) VTK_DELETE_FUNCTION;
 
   enum
     {

@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkQuadratureSchemeDictionaryGenerator(const vtkQuadratureSchemeDictionaryGenerator &); // Not implemented
-  void operator=(const vtkQuadratureSchemeDictionaryGenerator &); // Not implemented
+  void operator=(const vtkQuadratureSchemeDictionaryGenerator &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Generate definitions for each cell type found on the

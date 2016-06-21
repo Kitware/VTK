@@ -126,7 +126,7 @@ protected:
 
 private:
   vtkSphereSource(const vtkSphereSource&);  // Not implemented.
-  void operator=(const vtkSphereSource&);  // Not implemented.
+  void operator=(const vtkSphereSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

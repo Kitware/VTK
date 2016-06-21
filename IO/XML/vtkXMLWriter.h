@@ -451,7 +451,7 @@ protected:
 
 private:
   vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
-  void operator=(const vtkXMLWriter&);  // Not implemented.
+  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

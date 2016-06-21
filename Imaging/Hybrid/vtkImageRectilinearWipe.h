@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkImageRectilinearWipe(const vtkImageRectilinearWipe&);  // Not implemented.
-  void operator=(const vtkImageRectilinearWipe&);  // Not implemented.
+  void operator=(const vtkImageRectilinearWipe&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -243,7 +243,7 @@ protected:
 
 private:
   vtkKMeansStatistics( const vtkKMeansStatistics& ); // Not implemented
-  void operator=( const vtkKMeansStatistics& );  // Not implemented
+  void operator=( const vtkKMeansStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

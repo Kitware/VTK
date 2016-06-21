@@ -182,7 +182,7 @@ protected:
 
 private:
   vtkPLYWriter(const vtkPLYWriter&);  // Not implemented.
-  void operator=(const vtkPLYWriter&);  // Not implemented.
+  void operator=(const vtkPLYWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

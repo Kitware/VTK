@@ -65,7 +65,7 @@ private:
 
 private:
   vtkStructuredPointsCollection(const vtkStructuredPointsCollection&);  // Not implemented.
-  void operator=(const vtkStructuredPointsCollection&);  // Not implemented.
+  void operator=(const vtkStructuredPointsCollection&) VTK_DELETE_FUNCTION;
 };
 
 

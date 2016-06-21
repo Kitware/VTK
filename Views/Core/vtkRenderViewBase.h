@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkRenderViewBase(const vtkRenderViewBase&);  // Not implemented.
-  void operator=(const vtkRenderViewBase&);  // Not implemented.
+  void operator=(const vtkRenderViewBase&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkMaskFields(const vtkMaskFields&);  // Not implemented.
-  void operator=(const vtkMaskFields&);  // Not implemented.
+  void operator=(const vtkMaskFields&) VTK_DELETE_FUNCTION;
 };
 
 #endif

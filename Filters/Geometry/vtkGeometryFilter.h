@@ -157,7 +157,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkGeometryFilter(const vtkGeometryFilter&);  // Not implemented.
-  void operator=(const vtkGeometryFilter&);  // Not implemented.
+  void operator=(const vtkGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

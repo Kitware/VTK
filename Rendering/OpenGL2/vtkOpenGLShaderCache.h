@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.
-  void operator=(const vtkOpenGLShaderCache&);  // Not implemented.
+  void operator=(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
 
 };
 

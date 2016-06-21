@@ -248,7 +248,7 @@ public:
 
 private:
   vtkShadowMapBakerPass(const vtkShadowMapBakerPass&);  // Not implemented.
-  void operator=(const vtkShadowMapBakerPass&);  // Not implemented.
+  void operator=(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

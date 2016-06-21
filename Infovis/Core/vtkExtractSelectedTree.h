@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkExtractSelectedTree(const vtkExtractSelectedTree&); // Not implemented
-  void operator=(const vtkExtractSelectedTree&);   // Not implemented
+  void operator=(const vtkExtractSelectedTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

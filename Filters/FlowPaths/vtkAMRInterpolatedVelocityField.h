@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkAMRInterpolatedVelocityField(const vtkAMRInterpolatedVelocityField&); //Not implemented
-  void operator = ( const vtkAMRInterpolatedVelocityField& ); // Not implemented.
+  void operator = ( const vtkAMRInterpolatedVelocityField& ) VTK_DELETE_FUNCTION;
 
 };
 

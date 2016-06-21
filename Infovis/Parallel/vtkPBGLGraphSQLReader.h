@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkPBGLGraphSQLReader(const vtkPBGLGraphSQLReader&); // Not implemented
-  void operator=(const vtkPBGLGraphSQLReader&);   // Not implemented
+  void operator=(const vtkPBGLGraphSQLReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

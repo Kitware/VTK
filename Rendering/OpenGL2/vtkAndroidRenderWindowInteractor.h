@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkAndroidRenderWindowInteractor(const vtkAndroidRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkAndroidRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkAndroidRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

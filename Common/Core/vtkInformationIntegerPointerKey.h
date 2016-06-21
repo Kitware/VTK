@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkInformationIntegerPointerKey(const vtkInformationIntegerPointerKey&);  // Not implemented.
-  void operator=(const vtkInformationIntegerPointerKey&);  // Not implemented.
+  void operator=(const vtkInformationIntegerPointerKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

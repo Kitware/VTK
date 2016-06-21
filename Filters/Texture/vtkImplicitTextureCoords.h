@@ -96,7 +96,7 @@ protected:
   int FlipTexture;
 private:
   vtkImplicitTextureCoords(const vtkImplicitTextureCoords&);  // Not implemented.
-  void operator=(const vtkImplicitTextureCoords&);  // Not implemented.
+  void operator=(const vtkImplicitTextureCoords&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLPolyDataMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

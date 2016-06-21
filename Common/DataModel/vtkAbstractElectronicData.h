@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkAbstractElectronicData(const vtkAbstractElectronicData&); // Not implemented
-  void operator=(const vtkAbstractElectronicData&); // Not implemented
+  void operator=(const vtkAbstractElectronicData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

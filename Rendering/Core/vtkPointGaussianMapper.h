@@ -133,7 +133,7 @@ protected:
 
 private:
   vtkPointGaussianMapper(const vtkPointGaussianMapper&); // Not implemented.
-  void operator=(const vtkPointGaussianMapper&); // Not implemented.
+  void operator=(const vtkPointGaussianMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

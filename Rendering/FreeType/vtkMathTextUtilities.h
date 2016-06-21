@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkMathTextUtilities(const vtkMathTextUtilities&);  // Not implemented.
-  void operator=(const vtkMathTextUtilities&);  // Not implemented.
+  void operator=(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
 
   // Description:
   // The singleton instance and the singleton cleanup instance

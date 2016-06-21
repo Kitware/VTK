@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkStructuredPointsWriter(const vtkStructuredPointsWriter&);  // Not implemented.
-  void operator=(const vtkStructuredPointsWriter&);  // Not implemented.
+  void operator=(const vtkStructuredPointsWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

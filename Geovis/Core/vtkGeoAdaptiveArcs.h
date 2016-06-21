@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkGeoAdaptiveArcs(const vtkGeoAdaptiveArcs&);  // Not implemented.
-  void operator=(const vtkGeoAdaptiveArcs&);  // Not implemented.
+  void operator=(const vtkGeoAdaptiveArcs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

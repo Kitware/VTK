@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderer&);  // Not implemented.
+  void operator=(const vtkOpenGLRenderer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

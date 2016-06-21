@@ -171,7 +171,7 @@ protected:
 
 private:
   vtkExtractTensorComponents(const vtkExtractTensorComponents&);  // Not implemented.
-  void operator=(const vtkExtractTensorComponents&);  // Not implemented.
+  void operator=(const vtkExtractTensorComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

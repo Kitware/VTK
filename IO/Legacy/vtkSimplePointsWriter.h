@@ -45,7 +45,7 @@ protected:
 
 private:
   vtkSimplePointsWriter(const vtkSimplePointsWriter&);  // Not implemented.
-  void operator=(const vtkSimplePointsWriter&);  // Not implemented.
+  void operator=(const vtkSimplePointsWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

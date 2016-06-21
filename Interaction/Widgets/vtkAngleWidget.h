@@ -175,7 +175,7 @@ protected:
 
 private:
   vtkAngleWidget(const vtkAngleWidget&);  //Not implemented
-  void operator=(const vtkAngleWidget&);  //Not implemented
+  void operator=(const vtkAngleWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

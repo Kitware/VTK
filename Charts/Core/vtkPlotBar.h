@@ -236,7 +236,7 @@ protected:
 
 private:
   vtkPlotBar(const vtkPlotBar &); // Not implemented.
-  void operator=(const vtkPlotBar &); // Not implemented.
+  void operator=(const vtkPlotBar &) VTK_DELETE_FUNCTION;
 
   vtkPlotBarPrivate *Private;
 

@@ -63,7 +63,7 @@ public:
 
 private:
   vtkInformationInformationKey(const vtkInformationInformationKey&);  // Not implemented.
-  void operator=(const vtkInformationInformationKey&);  // Not implemented.
+  void operator=(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

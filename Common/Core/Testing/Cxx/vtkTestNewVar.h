@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkTestNewVar(const vtkTestNewVar&);  // Not implemented.
-  void operator=(const vtkTestNewVar&);  // Not implemented.
+  void operator=(const vtkTestNewVar&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -146,7 +146,7 @@ protected:
 
 private:
   vtkFlyingEdges2D(const vtkFlyingEdges2D&);  // Not implemented.
-  void operator=(const vtkFlyingEdges2D&);  // Not implemented.
+  void operator=(const vtkFlyingEdges2D&) VTK_DELETE_FUNCTION;
 };
 
 

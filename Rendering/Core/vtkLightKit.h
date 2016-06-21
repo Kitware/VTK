@@ -336,7 +336,7 @@ protected:
 
 private:
   vtkLightKit(const vtkLightKit&);  // Not implemented.
-  void operator=(const vtkLightKit&);  // Not implemented.
+  void operator=(const vtkLightKit&) VTK_DELETE_FUNCTION;
 };
 
 #endif

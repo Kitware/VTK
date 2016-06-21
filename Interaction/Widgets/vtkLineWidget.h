@@ -273,7 +273,7 @@ protected:
 
 private:
   vtkLineWidget(const vtkLineWidget&);  //Not implemented
-  void operator=(const vtkLineWidget&);  //Not implemented
+  void operator=(const vtkLineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

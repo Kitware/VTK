@@ -239,7 +239,7 @@ protected:
 private:
   vtkAbstractInterpolatedVelocityField
     ( const vtkAbstractInterpolatedVelocityField & );  // Not implemented.
-  void operator = ( const vtkAbstractInterpolatedVelocityField & );  // Not implemented.
+  void operator = ( const vtkAbstractInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 

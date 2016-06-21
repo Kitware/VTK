@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkRenderedSurfaceRepresentation(const vtkRenderedSurfaceRepresentation&);  // Not implemented.
-  void operator=(const vtkRenderedSurfaceRepresentation&);  // Not implemented.
+  void operator=(const vtkRenderedSurfaceRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

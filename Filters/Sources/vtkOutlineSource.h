@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkOutlineSource(const vtkOutlineSource&);  // Not implemented.
-  void operator=(const vtkOutlineSource&);  // Not implemented.
+  void operator=(const vtkOutlineSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

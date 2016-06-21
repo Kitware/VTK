@@ -86,7 +86,7 @@ protected:
   vtkTimeStamp WriteTime;
 private:
   vtkWriter(const vtkWriter&);  // Not implemented.
-  void operator=(const vtkWriter&);  // Not implemented.
+  void operator=(const vtkWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkHyperTreeGridAxisCut(const vtkHyperTreeGridAxisCut&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridAxisCut&);  // Not implemented.
+  void operator=(const vtkHyperTreeGridAxisCut&) VTK_DELETE_FUNCTION;
 };
 
 #endif

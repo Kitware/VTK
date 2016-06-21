@@ -278,7 +278,7 @@ protected:
 
 private:
   vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);
   void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);

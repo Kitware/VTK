@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&);  // Not implemented.
-  void operator=(const vtkXMLHyperOctreeReader&);  // Not implemented.
+  void operator=(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

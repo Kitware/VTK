@@ -62,7 +62,7 @@ protected:
   char *FileName;
 private:
   vtkGaussianCubeReader2(const vtkGaussianCubeReader2&);  // Not implemented.
-  void operator=(const vtkGaussianCubeReader2&);  // Not implemented.
+  void operator=(const vtkGaussianCubeReader2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

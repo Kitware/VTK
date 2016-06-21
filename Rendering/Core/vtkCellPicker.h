@@ -290,7 +290,7 @@ private:
 
 private:
   vtkCellPicker(const vtkCellPicker&);  // Not implemented.
-  void operator=(const vtkCellPicker&);  // Not implemented.
+  void operator=(const vtkCellPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

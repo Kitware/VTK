@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkSectorSource(const vtkSectorSource&);  // Not implemented.
-  void operator=(const vtkSectorSource&);  // Not implemented.
+  void operator=(const vtkSectorSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

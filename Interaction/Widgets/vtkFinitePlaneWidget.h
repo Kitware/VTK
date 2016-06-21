@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkFinitePlaneWidget(const vtkFinitePlaneWidget&);  //Not implemented
-  void operator=(const vtkFinitePlaneWidget&);  //Not implemented
+  void operator=(const vtkFinitePlaneWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

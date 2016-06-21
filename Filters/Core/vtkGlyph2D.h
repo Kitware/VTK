@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkGlyph2D(const vtkGlyph2D&);  // Not implemented.
-  void operator=(const vtkGlyph2D&);  // Not implemented.
+  void operator=(const vtkGlyph2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

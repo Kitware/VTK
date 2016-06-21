@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkRayCastImageDisplayHelper(const vtkRayCastImageDisplayHelper&);  // Not implemented.
-  void operator=(const vtkRayCastImageDisplayHelper&);  // Not implemented.
+  void operator=(const vtkRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

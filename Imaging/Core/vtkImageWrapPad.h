@@ -48,7 +48,7 @@ protected:
                             int ext[6], int id);
 private:
   vtkImageWrapPad(const vtkImageWrapPad&);  // Not implemented.
-  void operator=(const vtkImageWrapPad&);  // Not implemented.
+  void operator=(const vtkImageWrapPad&) VTK_DELETE_FUNCTION;
 };
 
 #endif

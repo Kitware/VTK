@@ -178,7 +178,7 @@ protected:
 
 private:
   vtkMetaImageReader(const vtkMetaImageReader&);  // Not implemented.
-  void operator=(const vtkMetaImageReader&);  // Not implemented.
+  void operator=(const vtkMetaImageReader&) VTK_DELETE_FUNCTION;
 
   vtkmetaio::MetaImage *MetaImagePtr;
 

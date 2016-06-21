@@ -110,7 +110,7 @@ protected:
   int ShowBounds;
 private:
   vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.
-  void operator=(const vtkExtractSelection&);  // Not implemented.
+  void operator=(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

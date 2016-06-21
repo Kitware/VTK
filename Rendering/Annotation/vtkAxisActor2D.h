@@ -361,7 +361,7 @@ protected:
 
 private:
   vtkAxisActor2D(const vtkAxisActor2D&);  // Not implemented.
-  void operator=(const vtkAxisActor2D&);  // Not implemented.
+  void operator=(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
-  void operator=(const vtkExtractArraysOverTime&);  // Not implemented.
+  void operator=(const vtkExtractArraysOverTime&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal *Internal;

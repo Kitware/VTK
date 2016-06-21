@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&);  // Not implemented.
-  void operator=(const vtkLookupTableWithEnabling&);  // Not implemented.
+  void operator=(const vtkLookupTableWithEnabling&) VTK_DELETE_FUNCTION;
 };
 
 

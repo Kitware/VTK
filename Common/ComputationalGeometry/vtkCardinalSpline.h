@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkCardinalSpline(const vtkCardinalSpline&);  // Not implemented.
-  void operator=(const vtkCardinalSpline&);  // Not implemented.
+  void operator=(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

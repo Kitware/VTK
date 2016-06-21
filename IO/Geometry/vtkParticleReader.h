@@ -181,7 +181,7 @@ protected:
 
 private:
   vtkParticleReader(const vtkParticleReader&);  // Not implemented.
-  void operator=(const vtkParticleReader&);  // Not implemented.
+  void operator=(const vtkParticleReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

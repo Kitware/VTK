@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkPlotLine(const vtkPlotLine &); // Not implemented.
-  void operator=(const vtkPlotLine &); // Not implemented.
+  void operator=(const vtkPlotLine &) VTK_DELETE_FUNCTION;
 
 };
 

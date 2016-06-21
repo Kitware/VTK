@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&);  // Not implemented.
-  void operator=(const vtkCachingInterpolatedVelocityField&);  // Not implemented.
+  void operator=(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 
 //---------------------------------------------------------------------------

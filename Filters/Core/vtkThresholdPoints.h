@@ -85,7 +85,7 @@ protected:
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
   vtkThresholdPoints(const vtkThresholdPoints&);  // Not implemented.
-  void operator=(const vtkThresholdPoints&);  // Not implemented.
+  void operator=(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

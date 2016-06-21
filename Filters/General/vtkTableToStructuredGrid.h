@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkTableToStructuredGrid(const vtkTableToStructuredGrid&); // Not implemented.
-  void operator=(const vtkTableToStructuredGrid&); // Not implemented.
+  void operator=(const vtkTableToStructuredGrid&) VTK_DELETE_FUNCTION;
 
 };
 

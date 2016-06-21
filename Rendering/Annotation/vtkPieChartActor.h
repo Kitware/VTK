@@ -196,7 +196,7 @@ private:
 
 private:
   vtkPieChartActor(const vtkPieChartActor&);  // Not implemented.
-  void operator=(const vtkPieChartActor&);  // Not implemented.
+  void operator=(const vtkPieChartActor&) VTK_DELETE_FUNCTION;
 };
 
 

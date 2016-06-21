@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&);  //Not implemented
-  void operator=(const vtkTexturedButtonRepresentation&);  //Not implemented
+  void operator=(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

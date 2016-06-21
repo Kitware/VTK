@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkPExtractHistogram2D(const vtkPExtractHistogram2D&); // Not implemented
-  void operator=(const vtkPExtractHistogram2D&);   // Not implemented
+  void operator=(const vtkPExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

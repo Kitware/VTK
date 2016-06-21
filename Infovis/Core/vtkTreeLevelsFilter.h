@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkTreeLevelsFilter(const vtkTreeLevelsFilter&);  // Not implemented.
-  void operator=(const vtkTreeLevelsFilter&);  // Not implemented.
+  void operator=(const vtkTreeLevelsFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

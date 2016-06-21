@@ -90,7 +90,7 @@ protected:
 
 private:
   vtkCollectGraph(const vtkCollectGraph&); // Not implemented
-  void operator=(const vtkCollectGraph&); // Not implemented
+  void operator=(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

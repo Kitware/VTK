@@ -118,7 +118,7 @@ protected:
 
 private:
   vtkPrimitivePainter(const vtkPrimitivePainter&); // Not implemented.
-  void operator=(const vtkPrimitivePainter&); // Not implemented.
+  void operator=(const vtkPrimitivePainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

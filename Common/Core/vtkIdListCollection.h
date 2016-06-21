@@ -65,7 +65,7 @@ private:
 
 private:
   vtkIdListCollection(const vtkIdListCollection&);  // Not implemented.
-  void operator=(const vtkIdListCollection&);  // Not implemented.
+  void operator=(const vtkIdListCollection&) VTK_DELETE_FUNCTION;
 };
 
 

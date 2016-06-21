@@ -106,7 +106,7 @@ public:
 
  private:
   vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&);  // Not implemented.
-  void operator=(const vtkSobelGradientMagnitudePass&);  // Not implemented.
+  void operator=(const vtkSobelGradientMagnitudePass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

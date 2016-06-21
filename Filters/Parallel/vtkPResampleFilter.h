@@ -74,7 +74,7 @@ protected:
 
 private:
   vtkPResampleFilter(const vtkPResampleFilter&);  // Not implemented.
-  void operator=(const vtkPResampleFilter&);  // Not implemented.
+  void operator=(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
 
 };
 

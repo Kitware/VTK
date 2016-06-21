@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkXMLPRectilinearGridWriter(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridWriter&);  // Not implemented.
+  void operator=(const vtkXMLPRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

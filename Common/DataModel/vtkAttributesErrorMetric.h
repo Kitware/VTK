@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkAttributesErrorMetric(const vtkAttributesErrorMetric&);  // Not implemented.
-  void operator=(const vtkAttributesErrorMetric&);  // Not implemented.
+  void operator=(const vtkAttributesErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

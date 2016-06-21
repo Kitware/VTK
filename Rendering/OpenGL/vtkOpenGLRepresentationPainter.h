@@ -54,7 +54,7 @@ protected:
                       unsigned long typeflags,bool forceCompileOnly);
 private:
   vtkOpenGLRepresentationPainter(const vtkOpenGLRepresentationPainter&); // Not implemented.
-  void operator=(const vtkOpenGLRepresentationPainter&); // Not implemented.
+  void operator=(const vtkOpenGLRepresentationPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

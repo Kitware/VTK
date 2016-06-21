@@ -41,7 +41,7 @@ protected:
     ofstream *, vtkImageData *, int wExt[6]);
 private:
   vtkPNMWriter(const vtkPNMWriter&);  // Not implemented.
-  void operator=(const vtkPNMWriter&);  // Not implemented.
+  void operator=(const vtkPNMWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

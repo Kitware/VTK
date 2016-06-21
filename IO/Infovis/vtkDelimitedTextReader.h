@@ -293,7 +293,7 @@ protected:
 
 private:
   vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented
-  void operator=(const vtkDelimitedTextReader&);   // Not implemented
+  void operator=(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
 
 };
 

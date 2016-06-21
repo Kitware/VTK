@@ -65,7 +65,7 @@ private:
 
 private:
   vtkTextPropertyCollection(const vtkTextPropertyCollection&);  // Not implemented.
-  void operator=(const vtkTextPropertyCollection&);  // Not implemented.
+  void operator=(const vtkTextPropertyCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkTextPropertyCollection::AddItem(vtkTextProperty *a)

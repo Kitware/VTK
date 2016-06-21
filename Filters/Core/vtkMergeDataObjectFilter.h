@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkMergeDataObjectFilter(const vtkMergeDataObjectFilter&);  // Not implemented.
-  void operator=(const vtkMergeDataObjectFilter&);  // Not implemented.
+  void operator=(const vtkMergeDataObjectFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

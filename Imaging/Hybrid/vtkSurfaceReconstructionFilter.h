@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkSurfaceReconstructionFilter(const vtkSurfaceReconstructionFilter&);  // Not implemented.
-  void operator=(const vtkSurfaceReconstructionFilter&);  // Not implemented.
+  void operator=(const vtkSurfaceReconstructionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

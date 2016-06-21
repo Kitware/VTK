@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkBoostExtractLargestComponent(const vtkBoostExtractLargestComponent&);  // Not implemented.
-  void operator=(const vtkBoostExtractLargestComponent&);  // Not implemented.
+  void operator=(const vtkBoostExtractLargestComponent&) VTK_DELETE_FUNCTION;
 };
 
 #endif

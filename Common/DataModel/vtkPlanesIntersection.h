@@ -127,7 +127,7 @@ private:
   vtkPointsProjectedHull *RegionPts;
 
   vtkPlanesIntersection(const vtkPlanesIntersection&); // Not implemented
-  void operator=(const vtkPlanesIntersection&); // Not implemented
+  void operator=(const vtkPlanesIntersection&) VTK_DELETE_FUNCTION;
 };
 #endif
 

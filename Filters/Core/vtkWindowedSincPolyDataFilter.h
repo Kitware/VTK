@@ -236,7 +236,7 @@ public:
   int NormalizeCoordinates;
 private:
   vtkWindowedSincPolyDataFilter(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkWindowedSincPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkWindowedSincPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

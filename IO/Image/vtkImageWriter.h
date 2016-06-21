@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkImageWriter(const vtkImageWriter&);  // Not implemented.
-  void operator=(const vtkImageWriter&);  // Not implemented.
+  void operator=(const vtkImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

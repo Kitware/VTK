@@ -135,7 +135,7 @@ protected:
 
 private:
   vtkPicker(const vtkPicker&);  // Not implemented.
-  void operator=(const vtkPicker&);  // Not implemented.
+  void operator=(const vtkPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

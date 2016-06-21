@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkGeoImageNode(const vtkGeoImageNode&);  // Not implemented.
-  void operator=(const vtkGeoImageNode&);  // Not implemented.
+  void operator=(const vtkGeoImageNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

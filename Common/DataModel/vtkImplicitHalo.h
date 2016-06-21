@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkImplicitHalo(const vtkImplicitHalo&); // Not implemented.
-  void operator=(const vtkImplicitHalo&); // Not implemented.
+  void operator=(const vtkImplicitHalo&) VTK_DELETE_FUNCTION;
 };
 
 #endif

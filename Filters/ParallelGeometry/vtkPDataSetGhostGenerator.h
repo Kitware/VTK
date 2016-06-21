@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkPDataSetGhostGenerator(const vtkPDataSetGhostGenerator&); // Not implemented
-  void operator=(const vtkPDataSetGhostGenerator&); // Not implemented
+  void operator=(const vtkPDataSetGhostGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkPDataSetGhostGenerator_h */

@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkCompositeDataWriter(const vtkCompositeDataWriter&); // Not implemented
-  void operator=(const vtkCompositeDataWriter&); // Not implemented
+  void operator=(const vtkCompositeDataWriter&) VTK_DELETE_FUNCTION;
 
 };
 

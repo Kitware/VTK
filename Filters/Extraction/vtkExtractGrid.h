@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkExtractGrid(const vtkExtractGrid&);  // Not implemented.
-  void operator=(const vtkExtractGrid&);  // Not implemented.
+  void operator=(const vtkExtractGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

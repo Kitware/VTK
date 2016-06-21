@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkPExtractVOI(const vtkPExtractVOI&); // Not implemented.
-  void operator=(const vtkPExtractVOI&); // Not implemented.
+  void operator=(const vtkPExtractVOI&) VTK_DELETE_FUNCTION;
 };
 
 #endif

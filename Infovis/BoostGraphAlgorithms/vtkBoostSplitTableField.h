@@ -83,7 +83,7 @@ private:
   class implementation;
 
   vtkBoostSplitTableField(const vtkBoostSplitTableField&); // Not implemented
-  void operator=(const vtkBoostSplitTableField&);   // Not implemented
+  void operator=(const vtkBoostSplitTableField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

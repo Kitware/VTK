@@ -205,7 +205,7 @@ protected:
 
 private:
   vtkImageCroppingRegionsWidget(const vtkImageCroppingRegionsWidget&);  //Not implemented
-  void operator=(const vtkImageCroppingRegionsWidget&);  //Not implemented
+  void operator=(const vtkImageCroppingRegionsWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

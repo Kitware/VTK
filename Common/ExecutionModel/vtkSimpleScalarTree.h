@@ -147,7 +147,7 @@ private:
 
 private:
   vtkSimpleScalarTree(const vtkSimpleScalarTree&);  // Not implemented.
-  void operator=(const vtkSimpleScalarTree&);  // Not implemented.
+  void operator=(const vtkSimpleScalarTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkCheckerboardWidget(const vtkCheckerboardWidget&);  //Not implemented
-  void operator=(const vtkCheckerboardWidget&);  //Not implemented
+  void operator=(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

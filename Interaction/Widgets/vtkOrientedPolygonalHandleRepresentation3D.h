@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkOrientedPolygonalHandleRepresentation3D(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkOrientedPolygonalHandleRepresentation3D&);  //Not implemented
+  void operator=(const vtkOrientedPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

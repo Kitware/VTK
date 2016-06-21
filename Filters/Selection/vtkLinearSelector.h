@@ -93,7 +93,7 @@ class VTKFILTERSSELECTION_EXPORT vtkLinearSelector : public vtkSelectionAlgorith
 
  private:
   vtkLinearSelector(const vtkLinearSelector&);  // Not implemented
-  void operator =(const vtkLinearSelector&); // Not implemented
+  void operator =(const vtkLinearSelector&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Start and end point of the intersecting line segment

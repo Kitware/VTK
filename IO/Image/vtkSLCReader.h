@@ -74,7 +74,7 @@ protected:
   int Error;
 private:
   vtkSLCReader(const vtkSLCReader&);  // Not implemented.
-  void operator=(const vtkSLCReader&);  // Not implemented.
+  void operator=(const vtkSLCReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

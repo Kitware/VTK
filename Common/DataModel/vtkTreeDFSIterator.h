@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkTreeDFSIterator(const vtkTreeDFSIterator &);  // Not implemented.
-  void operator=(const vtkTreeDFSIterator &);        // Not implemented.
+  void operator=(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
 };
 
 

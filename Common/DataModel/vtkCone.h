@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkCone(const vtkCone&);  // Not implemented.
-  void operator=(const vtkCone&);  // Not implemented.
+  void operator=(const vtkCone&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -58,7 +58,7 @@ private:
 
 private:
   vtkImageReader2Collection(const vtkImageReader2Collection&);  // Not implemented.
-  void operator=(const vtkImageReader2Collection&);  // Not implemented.
+  void operator=(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

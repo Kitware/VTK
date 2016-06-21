@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkStrahlerMetric(const vtkStrahlerMetric&);  // Not implemented.
-  void operator=(const vtkStrahlerMetric&);  // Not implemented.
+  void operator=(const vtkStrahlerMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

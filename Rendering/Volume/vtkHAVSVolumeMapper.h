@@ -251,6 +251,6 @@ protected:
 
 private:
   vtkHAVSVolumeMapper(const vtkHAVSVolumeMapper&);  // Not implemented.
-  void operator=(const vtkHAVSVolumeMapper&);  // Not implemented.
+  void operator=(const vtkHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 #endif

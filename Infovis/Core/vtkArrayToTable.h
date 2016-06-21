@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkArrayToTable(const vtkArrayToTable&); // Not implemented
-  void operator=(const vtkArrayToTable&);   // Not implemented
+  void operator=(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

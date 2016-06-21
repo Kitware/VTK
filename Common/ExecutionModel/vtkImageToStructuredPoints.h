@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkImageToStructuredPoints(const vtkImageToStructuredPoints&);  // Not implemented.
-  void operator=(const vtkImageToStructuredPoints&);  // Not implemented.
+  void operator=(const vtkImageToStructuredPoints&) VTK_DELETE_FUNCTION;
 };
 
 

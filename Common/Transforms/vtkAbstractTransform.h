@@ -278,7 +278,7 @@ private:
 
 private:
   vtkAbstractTransform(const vtkAbstractTransform&);  // Not implemented.
-  void operator=(const vtkAbstractTransform&);  // Not implemented.
+  void operator=(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
 };
 
 //-------------------------------------------------------------------------

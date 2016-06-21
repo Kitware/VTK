@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkImageAlgorithm(const vtkImageAlgorithm&);  // Not implemented.
-  void operator=(const vtkImageAlgorithm&);  // Not implemented.
+  void operator=(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

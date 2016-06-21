@@ -71,7 +71,7 @@ private:
 
 private:
   vtkOpenGLModelViewProjectionMonitor(const vtkOpenGLModelViewProjectionMonitor&); // Not implemented
-  void operator=(const vtkOpenGLModelViewProjectionMonitor &); // Not implemented
+  void operator=(const vtkOpenGLModelViewProjectionMonitor &) VTK_DELETE_FUNCTION;
 };
 
 #endif

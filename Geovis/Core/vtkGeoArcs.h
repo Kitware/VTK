@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkGeoArcs(const vtkGeoArcs&);  // Not implemented.
-  void operator=(const vtkGeoArcs&);  // Not implemented.
+  void operator=(const vtkGeoArcs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

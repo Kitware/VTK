@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkTextRendererStringToImage(const vtkTextRendererStringToImage &); // Not implemented.
-  void operator=(const vtkTextRendererStringToImage &);   // Not implemented.
+  void operator=(const vtkTextRendererStringToImage &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkTextRendererStringToImage_h

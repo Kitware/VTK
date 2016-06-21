@@ -211,7 +211,7 @@ protected:
   double Length; // Distance, in x, from the origin to the end of the glyph
 private:
   vtkTensorGlyph(const vtkTensorGlyph&);  // Not implemented.
-  void operator=(const vtkTensorGlyph&);  // Not implemented.
+  void operator=(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -100,7 +100,7 @@ protected:
 
 private:
   vtkCompositePolyDataMapper(const vtkCompositePolyDataMapper&);  // Not implemented.
-  void operator=(const vtkCompositePolyDataMapper&);    // Not implemented.
+  void operator=(const vtkCompositePolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

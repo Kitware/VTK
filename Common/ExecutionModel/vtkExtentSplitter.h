@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkExtentSplitter(const vtkExtentSplitter&);  // Not implemented.
-  void operator=(const vtkExtentSplitter&);  // Not implemented.
+  void operator=(const vtkExtentSplitter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

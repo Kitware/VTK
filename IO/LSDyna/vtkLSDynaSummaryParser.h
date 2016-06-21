@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ); // Not implemented.
-  void operator = ( const vtkLSDynaSummaryParser& ); // Not implemented.
+  void operator = ( const vtkLSDynaSummaryParser& ) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkLSDynaReader_h

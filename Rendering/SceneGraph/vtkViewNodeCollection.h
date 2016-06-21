@@ -60,7 +60,7 @@ private:
     { this->vtkCollection::AddItem(o); }
 
   vtkViewNodeCollection(const vtkViewNodeCollection&); // Not implemented.
-  void operator=(const vtkViewNodeCollection&); // Not implemented.
+  void operator=(const vtkViewNodeCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

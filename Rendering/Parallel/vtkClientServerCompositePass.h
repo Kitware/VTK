@@ -98,7 +98,7 @@ protected:
   bool ServerSideRendering;
 private:
   vtkClientServerCompositePass(const vtkClientServerCompositePass&); // Not implemented.
-  void operator=(const vtkClientServerCompositePass&); // Not implemented.
+  void operator=(const vtkClientServerCompositePass&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -83,7 +83,7 @@ private:
   char* ColorArrayName;
 
   vtkPBGLVertexColoring(const vtkPBGLVertexColoring&);  // Not implemented.
-  void operator=(const vtkPBGLVertexColoring&);  // Not implemented.
+  void operator=(const vtkPBGLVertexColoring&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

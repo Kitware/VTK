@@ -77,7 +77,7 @@ protected:
   double Speed;
 private:
   vtkVRMLExporter(const vtkVRMLExporter&);  // Not implemented.
-  void operator=(const vtkVRMLExporter&);  // Not implemented.
+  void operator=(const vtkVRMLExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

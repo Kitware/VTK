@@ -129,7 +129,7 @@ class VTKPARALLELCORE_EXPORT vtkFieldDataSerializer : public vtkObject
 
   private:
     vtkFieldDataSerializer(const vtkFieldDataSerializer&); // Not implemented
-    void operator=(const vtkFieldDataSerializer&); // Not implemented
+    void operator=(const vtkFieldDataSerializer&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkFieldDataSerializer_h */

@@ -260,7 +260,7 @@ protected:
 
 private:
   vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

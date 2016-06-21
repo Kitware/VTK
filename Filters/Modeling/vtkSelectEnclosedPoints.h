@@ -134,7 +134,7 @@ protected:
 
 private:
   vtkSelectEnclosedPoints(const vtkSelectEnclosedPoints&);  // Not implemented.
-  void operator=(const vtkSelectEnclosedPoints&);  // Not implemented.
+  void operator=(const vtkSelectEnclosedPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

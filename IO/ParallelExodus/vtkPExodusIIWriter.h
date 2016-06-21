@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkPExodusIIWriter (const vtkPExodusIIWriter&); // Not Implemented
-  void operator= (const vtkPExodusIIWriter&); // Not Implemented
+  void operator= (const vtkPExodusIIWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

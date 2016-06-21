@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkEllipseArcSource(const vtkEllipseArcSource&);  // Not implemented.
-  void operator=(const vtkEllipseArcSource&);  // Not implemented.
+  void operator=(const vtkEllipseArcSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

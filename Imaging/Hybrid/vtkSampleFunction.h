@@ -158,7 +158,7 @@ protected:
 
 private:
   vtkSampleFunction(const vtkSampleFunction&);  // Not implemented.
-  void operator=(const vtkSampleFunction&);  // Not implemented.
+  void operator=(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -143,7 +143,7 @@ protected:
 
 private:
   vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&);  //Not implemented
-  void operator=(const vtkImplicitCylinderWidget&);  //Not implemented
+  void operator=(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkDataObjectWriter(const vtkDataObjectWriter&);  // Not implemented.
-  void operator=(const vtkDataObjectWriter&);  // Not implemented.
+  void operator=(const vtkDataObjectWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

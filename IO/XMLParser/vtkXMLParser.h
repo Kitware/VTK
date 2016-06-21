@@ -186,7 +186,7 @@ protected:
 
 private:
   vtkXMLParser(const vtkXMLParser&);  // Not implemented.
-  void operator=(const vtkXMLParser&);  // Not implemented.
+  void operator=(const vtkXMLParser&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

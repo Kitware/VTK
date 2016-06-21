@@ -63,7 +63,7 @@ private:
   bool SendToStdErr;
 
   vtkWin32OutputWindow(const vtkWin32OutputWindow&);  // Not implemented.
-  void operator=(const vtkWin32OutputWindow&);  // Not implemented.
+  void operator=(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

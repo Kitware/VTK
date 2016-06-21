@@ -274,7 +274,7 @@ protected:
 
 private:
   vtkLODProp3D(const vtkLODProp3D&);  // Not implemented.
-  void operator=(const vtkLODProp3D&);  // Not implemented.
+  void operator=(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

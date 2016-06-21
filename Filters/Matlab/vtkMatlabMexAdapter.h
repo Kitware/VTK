@@ -119,7 +119,7 @@ protected:
 private:
 
   vtkMatlabMexAdapter(const vtkMatlabMexAdapter&); // Not implemented
-  void operator=(const vtkMatlabMexAdapter&); // Not implemented
+  void operator=(const vtkMatlabMexAdapter&) VTK_DELETE_FUNCTION;
 
   template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType);
 

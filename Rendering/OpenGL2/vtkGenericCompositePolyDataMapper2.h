@@ -158,7 +158,7 @@ private:
   double ColorResult[3];
 
   vtkGenericCompositePolyDataMapper2(const vtkGenericCompositePolyDataMapper2&); // Not implemented.
-  void operator=(const vtkGenericCompositePolyDataMapper2&); // Not implemented.
+  void operator=(const vtkGenericCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
 
 };
 

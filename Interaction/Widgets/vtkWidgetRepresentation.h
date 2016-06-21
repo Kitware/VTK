@@ -244,7 +244,7 @@ protected:
 
 private:
   vtkWidgetRepresentation(const vtkWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkWidgetRepresentation&);  //Not implemented
+  void operator=(const vtkWidgetRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

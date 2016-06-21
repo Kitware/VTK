@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkBase64OutputStream(const vtkBase64OutputStream&);  // Not implemented.
-  void operator=(const vtkBase64OutputStream&);  // Not implemented.
+  void operator=(const vtkBase64OutputStream&) VTK_DELETE_FUNCTION;
 };
 
 #endif

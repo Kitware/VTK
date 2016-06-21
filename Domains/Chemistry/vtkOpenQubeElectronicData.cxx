@@ -69,7 +69,7 @@ protected:
 
 private:
   OQEDImageData(const OQEDImageData&);  // Not implemented
-  void operator=(const OQEDImageData&); // Not implemented
+  void operator=(const OQEDImageData&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(OQEDImageData);
 

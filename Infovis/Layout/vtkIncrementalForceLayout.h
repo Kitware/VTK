@@ -124,6 +124,6 @@ protected:
 
 private:
   vtkIncrementalForceLayout(const vtkIncrementalForceLayout &); // Not implemented.
-  void operator=(const vtkIncrementalForceLayout &); // Not implemented.
+  void operator=(const vtkIncrementalForceLayout &) VTK_DELETE_FUNCTION;
 };
 #endif

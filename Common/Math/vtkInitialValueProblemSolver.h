@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkInitialValueProblemSolver(const vtkInitialValueProblemSolver&);  // Not implemented.
-  void operator=(const vtkInitialValueProblemSolver&);  // Not implemented.
+  void operator=(const vtkInitialValueProblemSolver&) VTK_DELETE_FUNCTION;
 };
 
 #endif

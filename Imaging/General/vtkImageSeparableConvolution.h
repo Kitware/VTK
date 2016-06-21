@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkImageSeparableConvolution(const vtkImageSeparableConvolution&);  // Not implemented.
-  void operator=(const vtkImageSeparableConvolution&);  // Not implemented.
+  void operator=(const vtkImageSeparableConvolution&) VTK_DELETE_FUNCTION;
 };
 
 #endif

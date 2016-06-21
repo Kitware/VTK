@@ -382,7 +382,7 @@ protected:
 
 private:
   vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
-  void operator=(const vtkOpenGLExtensionManager&); // Not implemented
+  void operator=(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
 
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
 

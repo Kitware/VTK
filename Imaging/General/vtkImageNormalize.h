@@ -42,7 +42,7 @@ protected:
                        int extent[6], int id);
 private:
   vtkImageNormalize(const vtkImageNormalize&);  // Not implemented.
-  void operator=(const vtkImageNormalize&);  // Not implemented.
+  void operator=(const vtkImageNormalize&) VTK_DELETE_FUNCTION;
 };
 
 #endif

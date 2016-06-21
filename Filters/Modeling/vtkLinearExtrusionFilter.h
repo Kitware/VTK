@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkLinearExtrusionFilter(const vtkLinearExtrusionFilter&);  // Not implemented.
-  void operator=(const vtkLinearExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkLinearExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

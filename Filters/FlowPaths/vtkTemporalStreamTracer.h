@@ -422,7 +422,7 @@ private:
 
 private:
   vtkTemporalStreamTracer(const vtkTemporalStreamTracer&);  // Not implemented.
-  void operator=(const vtkTemporalStreamTracer&);  // Not implemented.
+  void operator=(const vtkTemporalStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

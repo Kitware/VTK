@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkInformationExecutivePortVectorKey(const vtkInformationExecutivePortVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationExecutivePortVectorKey&);  // Not implemented.
+  void operator=(const vtkInformationExecutivePortVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

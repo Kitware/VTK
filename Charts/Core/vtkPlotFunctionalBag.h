@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkPlotFunctionalBag(const vtkPlotFunctionalBag &); // Not implemented.
-  void operator=(const vtkPlotFunctionalBag &); // Not implemented.
+  void operator=(const vtkPlotFunctionalBag &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPlotFunctionalBag_h

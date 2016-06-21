@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkUnstructuredGridHomogeneousRayIntegrator(const vtkUnstructuredGridHomogeneousRayIntegrator&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&);  // Not implemented
+  void operator=(const vtkUnstructuredGridHomogeneousRayIntegrator&) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridHomogeneousRayIntegrator_h

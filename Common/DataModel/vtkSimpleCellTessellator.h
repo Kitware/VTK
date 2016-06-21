@@ -379,7 +379,7 @@ protected:
 
 private:
   vtkSimpleCellTessellator(const vtkSimpleCellTessellator&);  // Not implemented.
-  void operator=(const vtkSimpleCellTessellator&);  // Not implemented.
+  void operator=(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
 
   friend class vtkTetraTile;
   friend class vtkTriangleTile;

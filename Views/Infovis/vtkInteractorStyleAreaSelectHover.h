@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkInteractorStyleAreaSelectHover(const vtkInteractorStyleAreaSelectHover&); // Not implemented
-  void operator=(const vtkInteractorStyleAreaSelectHover&); // Not implemented
+  void operator=(const vtkInteractorStyleAreaSelectHover&) VTK_DELETE_FUNCTION;
 
   // These methods are used internally
   void GetBoundingAreaForItem(vtkIdType id, float *sinfo);

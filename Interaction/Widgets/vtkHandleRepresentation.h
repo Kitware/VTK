@@ -164,7 +164,7 @@ protected:
 
 private:
   vtkHandleRepresentation(const vtkHandleRepresentation&);  //Not implemented
-  void operator=(const vtkHandleRepresentation&);  //Not implemented
+  void operator=(const vtkHandleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

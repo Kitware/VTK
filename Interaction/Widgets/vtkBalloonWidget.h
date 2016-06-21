@@ -170,7 +170,7 @@ protected:
 
 private:
   vtkBalloonWidget(const vtkBalloonWidget&);  //Not implemented
-  void operator=(const vtkBalloonWidget&);  //Not implemented
+  void operator=(const vtkBalloonWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

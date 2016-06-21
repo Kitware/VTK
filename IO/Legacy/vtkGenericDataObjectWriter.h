@@ -39,7 +39,7 @@ protected:
 
 private:
   vtkGenericDataObjectWriter(const vtkGenericDataObjectWriter&);  // Not implemented.
-  void operator=(const vtkGenericDataObjectWriter&);  // Not implemented.
+  void operator=(const vtkGenericDataObjectWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

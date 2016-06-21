@@ -609,7 +609,7 @@ protected:
 
 private:
   vtkCamera(const vtkCamera&);  // Not implemented.
-  void operator=(const vtkCamera&);  // Not implemented.
+  void operator=(const vtkCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

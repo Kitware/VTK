@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkInformationDoubleVectorKey(const vtkInformationDoubleVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationDoubleVectorKey&);  // Not implemented.
+  void operator=(const vtkInformationDoubleVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

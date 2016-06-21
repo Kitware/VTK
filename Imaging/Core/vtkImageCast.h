@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkImageCast(const vtkImageCast&);  // Not implemented.
-  void operator=(const vtkImageCast&);  // Not implemented.
+  void operator=(const vtkImageCast&) VTK_DELETE_FUNCTION;
 };
 
 #endif

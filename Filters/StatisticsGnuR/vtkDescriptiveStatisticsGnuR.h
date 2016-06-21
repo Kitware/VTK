@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkDescriptiveStatisticsGnuR(const vtkDescriptiveStatisticsGnuR&); // Not implemented
-  void operator=(const vtkDescriptiveStatisticsGnuR&); // Not implemented
+  void operator=(const vtkDescriptiveStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

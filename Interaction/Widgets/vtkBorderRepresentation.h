@@ -234,7 +234,7 @@ protected:
 
 private:
   vtkBorderRepresentation(const vtkBorderRepresentation&);  //Not implemented
-  void operator=(const vtkBorderRepresentation&);  //Not implemented
+  void operator=(const vtkBorderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

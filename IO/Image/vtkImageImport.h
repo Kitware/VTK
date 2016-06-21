@@ -283,7 +283,7 @@ protected:
 
 private:
   vtkImageImport(const vtkImageImport&);  // Not implemented.
-  void operator=(const vtkImageImport&);  // Not implemented.
+  void operator=(const vtkImageImport&) VTK_DELETE_FUNCTION;
 };
 
 #endif

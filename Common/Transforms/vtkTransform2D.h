@@ -175,7 +175,7 @@ protected:
 
 private:
   vtkTransform2D (const vtkTransform2D&);  // Not implemented
-  void operator=(const vtkTransform2D&);  // Not implemented
+  void operator=(const vtkTransform2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

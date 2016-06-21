@@ -113,7 +113,7 @@ private:
   void AddItem(vtkObject *o);
 
   vtkShader2Collection(const vtkShader2Collection&);  // Not implemented.
-  void operator=(const vtkShader2Collection&);  // Not implemented.
+  void operator=(const vtkShader2Collection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

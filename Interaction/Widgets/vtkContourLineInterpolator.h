@@ -85,7 +85,7 @@ public:
 
 private:
   vtkContourLineInterpolator(const vtkContourLineInterpolator&);  //Not implemented
-  void operator=(const vtkContourLineInterpolator&);  //Not implemented
+  void operator=(const vtkContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

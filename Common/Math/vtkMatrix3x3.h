@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkMatrix3x3(const vtkMatrix3x3&);  // Not implemented
-  void operator=(const vtkMatrix3x3&);  // Not implemented
+  void operator=(const vtkMatrix3x3&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)

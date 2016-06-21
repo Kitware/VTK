@@ -159,7 +159,7 @@ protected:
 
 private:
   vtkTransformFeedback(const vtkTransformFeedback &); // Not implemented.
-  void operator=(const vtkTransformFeedback &);   // Not implemented.
+  void operator=(const vtkTransformFeedback &) VTK_DELETE_FUNCTION;
 
   bool VaryingsBound;
 

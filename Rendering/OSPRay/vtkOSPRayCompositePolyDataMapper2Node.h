@@ -64,6 +64,6 @@ protected:
 
 private:
   vtkOSPRayCompositePolyDataMapper2Node(const vtkOSPRayCompositePolyDataMapper2Node&); // Not implemented.
-  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&); // Not implemented.
+  void operator=(const vtkOSPRayCompositePolyDataMapper2Node&) VTK_DELETE_FUNCTION;
 };
 #endif

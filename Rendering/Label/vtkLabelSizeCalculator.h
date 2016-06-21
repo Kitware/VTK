@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkLabelSizeCalculator( const vtkLabelSizeCalculator& ); // Not implemented.
-  void operator = ( const vtkLabelSizeCalculator& ); // Not implemented.
+  void operator = ( const vtkLabelSizeCalculator& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelSizeCalculator_h

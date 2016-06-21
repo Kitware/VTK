@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkImageFourierFilter(const vtkImageFourierFilter&);  // Not implemented.
-  void operator=(const vtkImageFourierFilter&);  // Not implemented.
+  void operator=(const vtkImageFourierFilter&) VTK_DELETE_FUNCTION;
 };
 
 

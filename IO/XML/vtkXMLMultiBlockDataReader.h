@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&);  // Not implemented.
-  void operator=(const vtkXMLMultiBlockDataReader&);  // Not implemented.
+  void operator=(const vtkXMLMultiBlockDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

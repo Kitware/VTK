@@ -178,7 +178,7 @@ private:
 
 private:
   vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
-  void operator=(const vtkGarbageCollector&);  // Not implemented.
+  void operator=(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
 };
 
 class vtkSmartPointerBase;

@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkOpenQubeElectronicData(const vtkOpenQubeElectronicData&); // Not implemented
-  void operator=(const vtkOpenQubeElectronicData&); // Not implemented
+  void operator=(const vtkOpenQubeElectronicData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

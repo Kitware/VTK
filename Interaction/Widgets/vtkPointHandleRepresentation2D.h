@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkPointHandleRepresentation2D(const vtkPointHandleRepresentation2D&);  //Not implemented
-  void operator=(const vtkPointHandleRepresentation2D&);  //Not implemented
+  void operator=(const vtkPointHandleRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

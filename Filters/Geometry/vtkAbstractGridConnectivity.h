@@ -187,7 +187,7 @@ protected:
 
 private:
   vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&);// Not implemented
-  void operator=(const vtkAbstractGridConnectivity&); // Not implemented
+  void operator=(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

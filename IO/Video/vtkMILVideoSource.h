@@ -271,7 +271,7 @@ protected:
 
 private:
   vtkMILVideoSource(const vtkMILVideoSource&);  // Not implemented.
-  void operator=(const vtkMILVideoSource&);  // Not implemented.
+  void operator=(const vtkMILVideoSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

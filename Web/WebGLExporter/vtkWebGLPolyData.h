@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkWebGLPolyData(const vtkWebGLPolyData&); // Not implemented
-  void operator=(const vtkWebGLPolyData&);   // Not implemented
+  void operator=(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;
 
   vtkTriangleFilter* TriangleFilter;
 

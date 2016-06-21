@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkSuperquadricSource(const vtkSuperquadricSource&);  // Not implemented.
-  void operator=(const vtkSuperquadricSource&);  // Not implemented.
+  void operator=(const vtkSuperquadricSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -94,7 +94,7 @@ protected:
 
 private:
   vtkSelectionAlgorithm(const vtkSelectionAlgorithm&);  // Not implemented.
-  void operator=(const vtkSelectionAlgorithm&);  // Not implemented.
+  void operator=(const vtkSelectionAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

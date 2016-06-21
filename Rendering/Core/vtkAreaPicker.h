@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkAreaPicker(const vtkAreaPicker&);  // Not implemented.
-  void operator=(const vtkAreaPicker&);  // Not implemented.
+  void operator=(const vtkAreaPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

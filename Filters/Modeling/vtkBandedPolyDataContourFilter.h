@@ -166,7 +166,7 @@ protected:
 
 private:
   vtkBandedPolyDataContourFilter(const vtkBandedPolyDataContourFilter&);  // Not implemented.
-  void operator=(const vtkBandedPolyDataContourFilter&);  // Not implemented.
+  void operator=(const vtkBandedPolyDataContourFilter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

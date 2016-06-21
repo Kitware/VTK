@@ -63,7 +63,7 @@ private:
 
 private:
   vtkRenderPassCollection(const vtkRenderPassCollection&);  // Not implemented.
-  void operator=(const vtkRenderPassCollection&);  // Not implemented.
+  void operator=(const vtkRenderPassCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

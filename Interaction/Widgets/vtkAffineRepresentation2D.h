@@ -223,7 +223,7 @@ protected:
 
 private:
   vtkAffineRepresentation2D(const vtkAffineRepresentation2D&);  //Not implemented
-  void operator=(const vtkAffineRepresentation2D&);  //Not implemented
+  void operator=(const vtkAffineRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

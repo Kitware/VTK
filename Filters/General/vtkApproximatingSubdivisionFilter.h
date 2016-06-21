@@ -64,7 +64,7 @@ protected:
   int NumberOfSubdivisions;
 private:
   vtkApproximatingSubdivisionFilter(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkApproximatingSubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkApproximatingSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

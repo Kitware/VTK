@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkDashedStreamLine(const vtkDashedStreamLine&);  // Not implemented.
-  void operator=(const vtkDashedStreamLine&);  // Not implemented.
+  void operator=(const vtkDashedStreamLine&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

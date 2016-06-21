@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkOpenGLBufferObject(const vtkOpenGLBufferObject&); // Not implemented
-  void operator=(const vtkOpenGLBufferObject&); // Not implemented
+  void operator=(const vtkOpenGLBufferObject&) VTK_DELETE_FUNCTION;
   struct Private;
   Private *Internal;
 };

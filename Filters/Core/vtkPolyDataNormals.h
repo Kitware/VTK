@@ -175,7 +175,7 @@ private:
 
 private:
   vtkPolyDataNormals(const vtkPolyDataNormals&);  // Not implemented.
-  void operator=(const vtkPolyDataNormals&);  // Not implemented.
+  void operator=(const vtkPolyDataNormals&) VTK_DELETE_FUNCTION;
 };
 
 #endif

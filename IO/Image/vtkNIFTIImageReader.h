@@ -220,7 +220,7 @@ protected:
 
 private:
   vtkNIFTIImageReader(const vtkNIFTIImageReader&);  // Not implemented.
-  void operator=(const vtkNIFTIImageReader&);  // Not implemented.
+  void operator=(const vtkNIFTIImageReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkNIFTIImageReader_h

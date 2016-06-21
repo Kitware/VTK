@@ -70,7 +70,7 @@ public:
 
 private:
   vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&);  // Not implemented.
-  void operator=(const vtkInformationExecutivePortKey&);  // Not implemented.
+  void operator=(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkPythonAlgorithm(const vtkPythonAlgorithm&);  // Not implemented.
-  void operator=(const vtkPythonAlgorithm&);  // Not implemented.
+  void operator=(const vtkPythonAlgorithm&) VTK_DELETE_FUNCTION;
 
   int CheckResult(const char* method, const vtkSmartPyObject& res);
 

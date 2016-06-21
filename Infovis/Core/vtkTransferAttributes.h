@@ -111,7 +111,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkTransferAttributes(const vtkTransferAttributes&);  // Not implemented.
-  void operator=(const vtkTransferAttributes&);  // Not implemented.
+  void operator=(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

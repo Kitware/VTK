@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkClipConvexPolyData(const vtkClipConvexPolyData&);  // Not implemented.
-  void operator=(const vtkClipConvexPolyData&);  // Not implemented.
+  void operator=(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

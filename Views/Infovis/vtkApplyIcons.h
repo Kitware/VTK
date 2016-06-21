@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkApplyIcons(const vtkApplyIcons&);  // Not implemented.
-  void operator=(const vtkApplyIcons&);  // Not implemented.
+  void operator=(const vtkApplyIcons&) VTK_DELETE_FUNCTION;
 };
 
 #endif

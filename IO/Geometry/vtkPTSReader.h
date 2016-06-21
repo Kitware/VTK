@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkPTSReader(const vtkPTSReader&);  // Not implemented.
-  void operator=(const vtkPTSReader&);  // Not implemented.
+  void operator=(const vtkPTSReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

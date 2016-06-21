@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkPExtractRectilinearGrid(const vtkPExtractRectilinearGrid&); // Not implemented.
-  void operator=(const vtkPExtractRectilinearGrid&); // Not implemented.
+  void operator=(const vtkPExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKPEXTRACTRECTILINEARGRID_H_ */

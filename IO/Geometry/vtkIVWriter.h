@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkIVWriter(const vtkIVWriter&);  // Not implemented.
-  void operator=(const vtkIVWriter&);  // Not implemented.
+  void operator=(const vtkIVWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

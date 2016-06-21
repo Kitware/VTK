@@ -133,7 +133,7 @@ protected:
 
 private:
   vtkClosedSurfacePointPlacer(const vtkClosedSurfacePointPlacer&);  //Not implemented
-  void operator=(const vtkClosedSurfacePointPlacer&);  //Not implemented
+  void operator=(const vtkClosedSurfacePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

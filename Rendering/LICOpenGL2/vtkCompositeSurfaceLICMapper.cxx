@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkCompositeLICHelper(const vtkCompositeLICHelper&); // Not implemented.
-  void operator=(const vtkCompositeLICHelper&); // Not implemented.
+  void operator=(const vtkCompositeLICHelper&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkCompositeLICHelper);

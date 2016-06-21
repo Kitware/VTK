@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ); // Not implemented.
-  void operator = ( const vtkPostgreSQLQuery& ); // Not implemented.
+  void operator = ( const vtkPostgreSQLQuery& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPostgreSQLQuery_h

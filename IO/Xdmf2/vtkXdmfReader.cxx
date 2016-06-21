@@ -86,7 +86,7 @@ private:
   int Valid;
   int Done;
   vtkXdmfReaderTester(const vtkXdmfReaderTester&); // Not implemented
-  void operator=(const vtkXdmfReaderTester&); // Not implemented
+  void operator=(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(vtkXdmfReaderTester);
 

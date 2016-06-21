@@ -63,7 +63,7 @@ protected:
     int threadId);
 private:
   vtkImageRFFT(const vtkImageRFFT&);  // Not implemented.
-  void operator=(const vtkImageRFFT&);  // Not implemented.
+  void operator=(const vtkImageRFFT&) VTK_DELETE_FUNCTION;
 };
 
 #endif

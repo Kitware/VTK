@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkMNITransformReader(const vtkMNITransformReader&); // Not implemented
-  void operator=(const vtkMNITransformReader&);  // Not implemented
+  void operator=(const vtkMNITransformReader&) VTK_DELETE_FUNCTION;
 
 };
 

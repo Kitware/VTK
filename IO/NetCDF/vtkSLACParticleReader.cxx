@@ -152,7 +152,7 @@ protected:
 private:
   vtkSLACParticleReaderAutoCloseNetCDF();       // Not implemented
   vtkSLACParticleReaderAutoCloseNetCDF(const vtkSLACParticleReaderAutoCloseNetCDF &); // Not implemented
-  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &); // Not implemented
+  void operator=(const vtkSLACParticleReaderAutoCloseNetCDF &) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================

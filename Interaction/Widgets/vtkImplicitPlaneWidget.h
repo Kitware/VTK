@@ -352,7 +352,7 @@ protected:
 
 private:
   vtkImplicitPlaneWidget(const vtkImplicitPlaneWidget&);  //Not implemented
-  void operator=(const vtkImplicitPlaneWidget&);  //Not implemented
+  void operator=(const vtkImplicitPlaneWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

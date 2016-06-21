@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkPointSetToLabelHierarchy( const vtkPointSetToLabelHierarchy& ); // Not implemented.
-  void operator = ( const vtkPointSetToLabelHierarchy& ); // Not implemented.
+  void operator = ( const vtkPointSetToLabelHierarchy& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPointSetToLabelHierarchy_h

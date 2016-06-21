@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkProjectedAAHexahedraMapper(const vtkProjectedAAHexahedraMapper &);  // Not Implemented.
-  void operator=(const vtkProjectedAAHexahedraMapper &);  // Not Implemented.
+  void operator=(const vtkProjectedAAHexahedraMapper &) VTK_DELETE_FUNCTION;
 };
 
 #endif

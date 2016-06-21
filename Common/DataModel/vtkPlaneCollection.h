@@ -62,7 +62,7 @@ private:
 
 private:
   vtkPlaneCollection(const vtkPlaneCollection&);  // Not implemented.
-  void operator=(const vtkPlaneCollection&);  // Not implemented.
+  void operator=(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f)

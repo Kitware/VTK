@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkTreeDifferenceFilter(const vtkTreeDifferenceFilter&); // Not implemented
-  void operator=(const vtkTreeDifferenceFilter&);   // Not implemented
+  void operator=(const vtkTreeDifferenceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

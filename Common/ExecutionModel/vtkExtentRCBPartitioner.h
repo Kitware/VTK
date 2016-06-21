@@ -183,7 +183,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
   private:
     vtkExtentRCBPartitioner( const vtkExtentRCBPartitioner& );// Not implemented
-    void operator=( const vtkExtentRCBPartitioner& );// Not implemented
+    void operator=( const vtkExtentRCBPartitioner& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKEXTENTRCBPARTITIONER_H_ */

@@ -147,7 +147,7 @@ protected:
 
 private:
   vtkPlotStacked(const vtkPlotStacked &); // Not implemented.
-  void operator=(const vtkPlotStacked &); // Not implemented.
+  void operator=(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
 
   vtkPlotStackedPrivate *Private;
 

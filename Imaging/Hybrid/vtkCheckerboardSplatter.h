@@ -292,7 +292,7 @@ protected:
 
 private:
   vtkCheckerboardSplatter(const vtkCheckerboardSplatter&);  // Not implemented.
-  void operator=(const vtkCheckerboardSplatter&);  // Not implemented.
+  void operator=(const vtkCheckerboardSplatter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

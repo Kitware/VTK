@@ -150,7 +150,7 @@ protected:
   vtkUnstructuredGrid* TmpInput;
 
   vtkEnSightWriter(const vtkEnSightWriter&);  // Not implemented.
-  void operator=(const vtkEnSightWriter&);  // Not implemented.
+  void operator=(const vtkEnSightWriter&) VTK_DELETE_FUNCTION;
 
 };
 

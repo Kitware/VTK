@@ -206,7 +206,7 @@ protected:
 
 private:
   vtkLabelPlacementMapper(const vtkLabelPlacementMapper&);  // Not implemented.
-  void operator=(const vtkLabelPlacementMapper&);  // Not implemented.
+  void operator=(const vtkLabelPlacementMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

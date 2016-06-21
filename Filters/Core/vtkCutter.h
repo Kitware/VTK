@@ -219,7 +219,7 @@ protected:
   int OutputPointsPrecision;
 private:
   vtkCutter(const vtkCutter&);  // Not implemented.
-  void operator=(const vtkCutter&);  // Not implemented.
+  void operator=(const vtkCutter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

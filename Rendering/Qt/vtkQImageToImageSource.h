@@ -50,7 +50,7 @@ protected:
                            vtkInformationVector *outputVector);
 private:
   vtkQImageToImageSource(const vtkQImageToImageSource&);  // Not implemented.
-  void operator=(const vtkQImageToImageSource&);  // Not implemented.
+  void operator=(const vtkQImageToImageSource&) VTK_DELETE_FUNCTION;
 };
 
 

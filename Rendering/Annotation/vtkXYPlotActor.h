@@ -792,7 +792,7 @@ protected:
 
 private:
   vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
-  void operator=(const vtkXYPlotActor&);  // Not implemented.
+  void operator=(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
 
   bool DoesConnectionMatch(int i, vtkAlgorithmOutput* in);
 

@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkPointSource(const vtkPointSource&);  // Not implemented.
-  void operator=(const vtkPointSource&);  // Not implemented.
+  void operator=(const vtkPointSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

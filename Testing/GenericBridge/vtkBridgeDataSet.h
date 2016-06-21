@@ -164,7 +164,7 @@ protected:
 
 private:
   vtkBridgeDataSet(const vtkBridgeDataSet&);  // Not implemented.
-  void operator=(const vtkBridgeDataSet&);    // Not implemented.
+  void operator=(const vtkBridgeDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

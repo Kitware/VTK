@@ -235,7 +235,7 @@ protected:
 
 private:
   vtkTexture(const vtkTexture&);  // Not implemented.
-  void operator=(const vtkTexture&);  // Not implemented.
+  void operator=(const vtkTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

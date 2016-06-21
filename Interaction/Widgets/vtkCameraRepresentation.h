@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkCameraRepresentation(const vtkCameraRepresentation&);  //Not implemented
-  void operator=(const vtkCameraRepresentation&);  //Not implemented
+  void operator=(const vtkCameraRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

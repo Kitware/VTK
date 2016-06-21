@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkButtonWidget(const vtkButtonWidget&);  //Not implemented
-  void operator=(const vtkButtonWidget&);  //Not implemented
+  void operator=(const vtkButtonWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

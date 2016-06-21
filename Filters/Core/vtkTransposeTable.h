@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkTransposeTable(const vtkTransposeTable&); // Not implemented
-  void operator=(const vtkTransposeTable&);   // Not implemented
+  void operator=(const vtkTransposeTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

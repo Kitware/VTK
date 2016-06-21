@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkPExodusIIReader( const vtkPExodusIIReader& ); // Not implemented
-  void operator = ( const vtkPExodusIIReader& ); // Not implemented
+  void operator = ( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

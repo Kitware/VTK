@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkGeoJSONFeature(const vtkGeoJSONFeature&);  //Not implemented
-  void operator=(const vtkGeoJSONFeature&); //Not implemented
+  void operator=(const vtkGeoJSONFeature&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoJSONFeature_h

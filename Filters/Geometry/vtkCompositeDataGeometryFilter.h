@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkCompositeDataGeometryFilter(const vtkCompositeDataGeometryFilter&);  // Not implemented.
-  void operator=(const vtkCompositeDataGeometryFilter&);  // Not implemented.
+  void operator=(const vtkCompositeDataGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

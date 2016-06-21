@@ -190,7 +190,7 @@ protected:
 
 private:
   vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&); // Not implemented
-  void operator=(const vtkDualDepthPeelingPass&); // Not implemented
+  void operator=(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkDualDepthPeelingPass_h

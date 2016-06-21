@@ -168,7 +168,7 @@ protected:
 
 private:
   vtkDistanceWidget(const vtkDistanceWidget&);  //Not implemented
-  void operator=(const vtkDistanceWidget&);  //Not implemented
+  void operator=(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -101,7 +101,7 @@ public:
 
  private:
   vtkCompositeZPass(const vtkCompositeZPass&);  // Not implemented.
-  void operator=(const vtkCompositeZPass&);  // Not implemented.
+  void operator=(const vtkCompositeZPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

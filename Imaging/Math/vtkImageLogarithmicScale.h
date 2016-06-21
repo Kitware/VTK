@@ -49,7 +49,7 @@ protected:
                        int outExt[6], int id);
 private:
   vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.
-  void operator=(const vtkImageLogarithmicScale&);  // Not implemented.
+  void operator=(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
 };
 
 #endif

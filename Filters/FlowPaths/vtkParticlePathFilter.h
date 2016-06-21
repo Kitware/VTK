@@ -67,7 +67,7 @@ protected:
   vtkParticlePathFilter();
   ~vtkParticlePathFilter();
   vtkParticlePathFilter(const vtkParticlePathFilter&);  // Not implemented.
-  void operator=(const vtkParticlePathFilter&);  // Not implemented.
+  void operator=(const vtkParticlePathFilter&) VTK_DELETE_FUNCTION;
 
   virtual void ResetCache();
   virtual int OutputParticles(vtkPolyData* poly);

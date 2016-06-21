@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkDuplicatePolyData(const vtkDuplicatePolyData&); // Not implemented
-  void operator=(const vtkDuplicatePolyData&); // Not implemented
+  void operator=(const vtkDuplicatePolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

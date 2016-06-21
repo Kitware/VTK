@@ -125,7 +125,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkFeatureEdges(const vtkFeatureEdges&);  // Not implemented.
-  void operator=(const vtkFeatureEdges&);  // Not implemented.
+  void operator=(const vtkFeatureEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

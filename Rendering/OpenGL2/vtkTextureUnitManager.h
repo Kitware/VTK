@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkTextureUnitManager(const vtkTextureUnitManager&);  // Not implemented.
-  void operator=(const vtkTextureUnitManager&);  // Not implemented.
+  void operator=(const vtkTextureUnitManager&) VTK_DELETE_FUNCTION;
 };
 
 #endif

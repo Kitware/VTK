@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkOpenGLHardwareSupport(const vtkOpenGLHardwareSupport&);  // Not implemented.
-  void operator=(const vtkOpenGLHardwareSupport&);  // Not implemented.
+  void operator=(const vtkOpenGLHardwareSupport&) VTK_DELETE_FUNCTION;
 
   bool ExtensionManagerSet();
 

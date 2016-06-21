@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkTextActor3D(const vtkTextActor3D&);  // Not implemented.
-  void operator=(const vtkTextActor3D&);  // Not implemented.
+  void operator=(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
 };
 
 

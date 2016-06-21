@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkSeedRepresentation(const vtkSeedRepresentation&);  //Not implemented
-  void operator=(const vtkSeedRepresentation&);  //Not implemented
+  void operator=(const vtkSeedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

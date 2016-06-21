@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkOOGLExporter(const vtkOOGLExporter&); // Not implemented
-  void operator=(const vtkOOGLExporter&); // Not implemented
+  void operator=(const vtkOOGLExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkGenericRenderWindowInteractor(const vtkGenericRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkGenericRenderWindowInteractor&);  // Not implemented.
+  void operator=(const vtkGenericRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

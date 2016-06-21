@@ -304,7 +304,7 @@ protected:
 
 private:
   vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
-  void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
+  void operator=(const vtkStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

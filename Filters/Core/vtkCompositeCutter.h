@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkCompositeCutter(const vtkCompositeCutter&);  // Not implemented.
-  void operator=(const vtkCompositeCutter&);  // Not implemented.
+  void operator=(const vtkCompositeCutter&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -299,7 +299,7 @@ protected:
 
 private:
   vtkVideoSource(const vtkVideoSource&);  // Not implemented.
-  void operator=(const vtkVideoSource&);  // Not implemented.
+  void operator=(const vtkVideoSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

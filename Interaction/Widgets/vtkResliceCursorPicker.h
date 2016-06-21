@@ -100,7 +100,7 @@ private:
 
 private:
   vtkResliceCursorPicker(const vtkResliceCursorPicker&);  // Not implemented.
-  void operator=(const vtkResliceCursorPicker&);  // Not implemented.
+  void operator=(const vtkResliceCursorPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -85,7 +85,7 @@ protected:
   vtkIdType NumberOfVertices;
 private:
   vtkBridgeCellIteratorOnCellBoundaries(const vtkBridgeCellIteratorOnCellBoundaries&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorOnCellBoundaries&); // Not implemented
+  void operator=(const vtkBridgeCellIteratorOnCellBoundaries&) VTK_DELETE_FUNCTION;
 };
 
 #endif

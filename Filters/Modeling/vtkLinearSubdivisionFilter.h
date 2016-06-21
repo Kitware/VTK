@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkLinearSubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -119,7 +119,7 @@ private:
 
 private:
   vtkImplicitSelectionLoop(const vtkImplicitSelectionLoop&);  // Not implemented.
-  void operator=(const vtkImplicitSelectionLoop&);  // Not implemented.
+  void operator=(const vtkImplicitSelectionLoop&) VTK_DELETE_FUNCTION;
 };
 
 #endif

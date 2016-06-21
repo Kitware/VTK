@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkLightingHelper(const vtkLightingHelper&); // Not implemented.
-  void operator=(const vtkLightingHelper&); // Not implemented.
+  void operator=(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
 
 };
 

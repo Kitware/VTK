@@ -575,7 +575,7 @@ protected:
 
 private:
   vtkAxisActor(const vtkAxisActor&); // Not implemented
-  void operator=(const vtkAxisActor&); // Not implemented
+  void operator=(const vtkAxisActor&) VTK_DELETE_FUNCTION;
 
   void TransformBounds(vtkViewport *, double bnds[6]);
 

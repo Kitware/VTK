@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkDataObjectGenerator(const vtkDataObjectGenerator&);  // Not implemented.
-  void operator=(const vtkDataObjectGenerator&);  // Not implemented.
+  void operator=(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

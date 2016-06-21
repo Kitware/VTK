@@ -165,7 +165,7 @@ protected:
 
 private:
   vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.
-  void operator=(const vtkWindowToImageFilter&);  // Not implemented.
+  void operator=(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

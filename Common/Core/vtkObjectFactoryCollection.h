@@ -65,7 +65,7 @@ private:
 
 private:
   vtkObjectFactoryCollection(const vtkObjectFactoryCollection&);  // Not implemented.
-  void operator=(const vtkObjectFactoryCollection&);  // Not implemented.
+  void operator=(const vtkObjectFactoryCollection&) VTK_DELETE_FUNCTION;
 };
 
 

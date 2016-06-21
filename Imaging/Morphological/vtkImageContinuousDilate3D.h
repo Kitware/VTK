@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.
-  void operator=(const vtkImageContinuousDilate3D&);  // Not implemented.
+  void operator=(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkUnstructuredGridCellIterator(const vtkUnstructuredGridCellIterator &); // Not implemented.
-  void operator=(const vtkUnstructuredGridCellIterator &);   // Not implemented.
+  void operator=(const vtkUnstructuredGridCellIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridCellIterator_h

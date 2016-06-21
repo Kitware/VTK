@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkGroupLeafVertices(const vtkGroupLeafVertices&); // Not implemented
-  void operator=(const vtkGroupLeafVertices&);   // Not implemented
+  void operator=(const vtkGroupLeafVertices&) VTK_DELETE_FUNCTION;
 };
 
 #endif

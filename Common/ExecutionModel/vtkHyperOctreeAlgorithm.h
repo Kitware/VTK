@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkHyperOctreeAlgorithm(const vtkHyperOctreeAlgorithm&);  // Not implemented.
-  void operator=(const vtkHyperOctreeAlgorithm&);  // Not implemented.
+  void operator=(const vtkHyperOctreeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

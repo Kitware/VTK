@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
-  void operator=(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
+  void operator=(const vtkImplicitFunctionToImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

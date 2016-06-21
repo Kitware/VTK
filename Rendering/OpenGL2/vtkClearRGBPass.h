@@ -57,7 +57,7 @@ public:
 
  private:
   vtkClearRGBPass(const vtkClearRGBPass&);  // Not implemented.
-  void operator=(const vtkClearRGBPass&);  // Not implemented.
+  void operator=(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

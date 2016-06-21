@@ -60,7 +60,7 @@ protected:
                        int ext[6], int id);
 private:
   vtkImageExtractComponents(const vtkImageExtractComponents&);  // Not implemented.
-  void operator=(const vtkImageExtractComponents&);  // Not implemented.
+  void operator=(const vtkImageExtractComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

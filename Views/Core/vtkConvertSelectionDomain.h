@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkConvertSelectionDomain(const vtkConvertSelectionDomain&);  // Not implemented.
-  void operator=(const vtkConvertSelectionDomain&);  // Not implemented.
+  void operator=(const vtkConvertSelectionDomain&) VTK_DELETE_FUNCTION;
 };
 
 #endif

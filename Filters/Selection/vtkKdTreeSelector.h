@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkKdTreeSelector(const vtkKdTreeSelector&); // Not implemented
-  void operator=(const vtkKdTreeSelector&);   // Not implemented
+  void operator=(const vtkKdTreeSelector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

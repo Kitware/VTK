@@ -143,7 +143,7 @@ protected:
 
 private:
   vtkGenericInterpolatedVelocityField(const vtkGenericInterpolatedVelocityField&);  // Not implemented.
-  void operator=(const vtkGenericInterpolatedVelocityField&);  // Not implemented.
+  void operator=(const vtkGenericInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

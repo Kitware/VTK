@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkWebGLWidget(const vtkWebGLWidget&); // Not implemented
-  void operator=(const vtkWebGLWidget&); // Not implemented
+  void operator=(const vtkWebGLWidget&) VTK_DELETE_FUNCTION;
 
 };
 

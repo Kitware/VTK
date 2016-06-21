@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkMCubesWriter(const vtkMCubesWriter&);  // Not implemented.
-  void operator=(const vtkMCubesWriter&);  // Not implemented.
+  void operator=(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

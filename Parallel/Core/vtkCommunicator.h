@@ -1342,7 +1342,7 @@ protected:
 
 private:
   vtkCommunicator(const vtkCommunicator&);  // Not implemented.
-  void operator=(const vtkCommunicator&);  // Not implemented.
+  void operator=(const vtkCommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCommunicator_h

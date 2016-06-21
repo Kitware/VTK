@@ -171,7 +171,7 @@ protected:
 
 private:
   vtkEnSightGoldReader(const vtkEnSightGoldReader&);  // Not implemented.
-  void operator=(const vtkEnSightGoldReader&);  // Not implemented.
+  void operator=(const vtkEnSightGoldReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

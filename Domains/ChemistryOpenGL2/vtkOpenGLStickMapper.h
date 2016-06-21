@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkOpenGLStickMapper(const vtkOpenGLStickMapper&); // Not implemented.
-  void operator=(const vtkOpenGLStickMapper&); // Not implemented.
+  void operator=(const vtkOpenGLStickMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

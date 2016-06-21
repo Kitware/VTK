@@ -54,7 +54,7 @@ private:
   char* OutputArrayName;
 
   vtkVertexDegree(const vtkVertexDegree&);  // Not implemented.
-  void operator=(const vtkVertexDegree&);  // Not implemented.
+  void operator=(const vtkVertexDegree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

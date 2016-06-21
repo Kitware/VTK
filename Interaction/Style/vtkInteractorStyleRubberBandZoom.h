@@ -55,7 +55,7 @@ protected:
 
 private:
   vtkInteractorStyleRubberBandZoom(const vtkInteractorStyleRubberBandZoom&);  // Not implemented
-  void operator=(const vtkInteractorStyleRubberBandZoom&);  // Not implemented
+  void operator=(const vtkInteractorStyleRubberBandZoom&) VTK_DELETE_FUNCTION;
 };
 
 #endif

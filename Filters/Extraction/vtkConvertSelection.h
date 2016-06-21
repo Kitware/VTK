@@ -205,7 +205,7 @@ protected:
 
 private:
   vtkConvertSelection(const vtkConvertSelection&);  // Not implemented.
-  void operator=(const vtkConvertSelection&);  // Not implemented.
+  void operator=(const vtkConvertSelection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

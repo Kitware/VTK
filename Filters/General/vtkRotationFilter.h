@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkRotationFilter(const vtkRotationFilter&);  // Not implemented
-  void operator=(const vtkRotationFilter&);  // Not implemented
+  void operator=(const vtkRotationFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

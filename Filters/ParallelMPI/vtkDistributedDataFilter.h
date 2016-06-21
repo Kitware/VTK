@@ -551,7 +551,7 @@ private:
   vtkBSPCuts* UserCuts;
 
   vtkDistributedDataFilter(const vtkDistributedDataFilter&); // Not implemented
-  void operator=(const vtkDistributedDataFilter&); // Not implemented
+  void operator=(const vtkDistributedDataFilter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

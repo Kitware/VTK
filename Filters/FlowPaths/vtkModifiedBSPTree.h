@@ -246,7 +246,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   void BuildLocatorInternal();
 private:
   vtkModifiedBSPTree(const vtkModifiedBSPTree&);  // Not implemented.
-  void operator=(const vtkModifiedBSPTree&);      // Not implemented.
+  void operator=(const vtkModifiedBSPTree&) VTK_DELETE_FUNCTION;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -94,7 +94,7 @@ public:
 
  private:
   vtkDepthOfFieldPass(const vtkDepthOfFieldPass&);  // Not implemented.
-  void operator=(const vtkDepthOfFieldPass&);  // Not implemented.
+  void operator=(const vtkDepthOfFieldPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

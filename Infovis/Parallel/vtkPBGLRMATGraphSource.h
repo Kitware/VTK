@@ -175,7 +175,7 @@ protected:
 
 private:
   vtkPBGLRMATGraphSource(const vtkPBGLRMATGraphSource&); // Not implemented
-  void operator=(const vtkPBGLRMATGraphSource&);   // Not implemented
+  void operator=(const vtkPBGLRMATGraphSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

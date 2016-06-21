@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkChartMatrix(const vtkChartMatrix &); // Not implemented.
-  void operator=(const vtkChartMatrix &); // Not implemented.
+  void operator=(const vtkChartMatrix &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkChartMatrix_h

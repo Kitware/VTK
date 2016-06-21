@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkDataObjectTypes(const vtkDataObjectTypes&);  // Not implemented.
-  void operator=(const vtkDataObjectTypes&);  // Not implemented.
+  void operator=(const vtkDataObjectTypes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

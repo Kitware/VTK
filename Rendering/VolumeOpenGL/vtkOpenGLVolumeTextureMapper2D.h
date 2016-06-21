@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkOpenGLVolumeTextureMapper2D(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
-  void operator=(const vtkOpenGLVolumeTextureMapper2D&);  // Not implemented.
+  void operator=(const vtkOpenGLVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

@@ -120,7 +120,7 @@ protected:
 
 private:
   vtkResliceImageViewerMeasurements(const vtkResliceImageViewerMeasurements&);  // Not implemented.
-  void operator=(const vtkResliceImageViewerMeasurements&);  // Not implemented.
+  void operator=(const vtkResliceImageViewerMeasurements&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -122,7 +122,7 @@ protected:
 
 private:
   vtkDicer(const vtkDicer&);  // Not implemented.
-  void operator=(const vtkDicer&);  // Not implemented.
+  void operator=(const vtkDicer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -158,7 +158,7 @@ protected:
 
 private:
   vtkBorderWidget(const vtkBorderWidget&);  //Not implemented
-  void operator=(const vtkBorderWidget&);  //Not implemented
+  void operator=(const vtkBorderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -90,7 +90,7 @@ protected:
   bool PassPartialArrays;
 private:
   vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&); // Not implemented.
-  void operator=(const vtkCompositeDataProbeFilter&); // Not implemented.
+  void operator=(const vtkCompositeDataProbeFilter&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -83,7 +83,7 @@ protected:
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 private:
   vtkTrivialProducer(const vtkTrivialProducer&);  // Not implemented.
-  void operator=(const vtkTrivialProducer&);  // Not implemented.
+  void operator=(const vtkTrivialProducer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

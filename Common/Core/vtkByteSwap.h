@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkByteSwap(const vtkByteSwap&);  // Not implemented.
-  void operator=(const vtkByteSwap&);  // Not implemented.
+  void operator=(const vtkByteSwap&) VTK_DELETE_FUNCTION;
 };
 
 #endif

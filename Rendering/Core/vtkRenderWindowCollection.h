@@ -71,6 +71,6 @@ private:
 
 private:
   vtkRenderWindowCollection(const vtkRenderWindowCollection&);  // Not implemented.
-  void operator=(const vtkRenderWindowCollection&);  // Not implemented.
+  void operator=(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;
 };
 #endif

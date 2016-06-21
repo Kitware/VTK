@@ -82,7 +82,7 @@ public:
   double AspectRatioOverride;
  private:
   vtkCameraPass(const vtkCameraPass&);  // Not implemented.
-  void operator=(const vtkCameraPass&);  // Not implemented.
+  void operator=(const vtkCameraPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

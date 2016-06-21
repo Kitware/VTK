@@ -109,7 +109,7 @@ protected:
   bool                MaskAboveCurve;
 private:
   vtkScalarsToColorsItem(const vtkScalarsToColorsItem &); // Not implemented.
-  void operator=(const vtkScalarsToColorsItem &);   // Not implemented.
+  void operator=(const vtkScalarsToColorsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -260,7 +260,7 @@ private:
 
   vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other); // Not implemented
 
-  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other); // Not implemented
+  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeOpacityTable_h

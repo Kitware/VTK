@@ -212,7 +212,7 @@ private:
 
 private:
   vtkXdmfReader(const vtkXdmfReader&); // Not implemented
-  void operator=(const vtkXdmfReader&); // Not implemented
+  void operator=(const vtkXdmfReader&) VTK_DELETE_FUNCTION;
 
 };
 

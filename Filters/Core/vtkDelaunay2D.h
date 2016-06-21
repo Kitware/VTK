@@ -265,7 +265,7 @@ private:
 
 private:
   vtkDelaunay2D(const vtkDelaunay2D&);  // Not implemented.
-  void operator=(const vtkDelaunay2D&);  // Not implemented.
+  void operator=(const vtkDelaunay2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

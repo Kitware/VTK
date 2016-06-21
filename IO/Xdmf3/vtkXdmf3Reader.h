@@ -168,7 +168,7 @@ protected:
 
 private:
   vtkXdmf3Reader(const vtkXdmf3Reader&); // Not implemented
-  void operator=(const vtkXdmf3Reader&); // Not implemented
+  void operator=(const vtkXdmf3Reader&) VTK_DELETE_FUNCTION;
 
   bool FileSeriesAsTime;
 

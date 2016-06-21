@@ -156,7 +156,7 @@ protected:
 
 private:
   vtkSphereHandleRepresentation(const vtkSphereHandleRepresentation&);  //Not implemented
-  void operator=(const vtkSphereHandleRepresentation&);  //Not implemented
+  void operator=(const vtkSphereHandleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

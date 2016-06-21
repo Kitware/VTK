@@ -130,7 +130,7 @@ protected:
   void UpdatePaths(); //apply transformations and properties recursively
 private:
   vtkPropAssembly(const vtkPropAssembly&);  // Not implemented.
-  void operator=(const vtkPropAssembly&);  // Not implemented.
+  void operator=(const vtkPropAssembly&) VTK_DELETE_FUNCTION;
 };
 
 #endif

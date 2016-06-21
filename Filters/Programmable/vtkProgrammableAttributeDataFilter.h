@@ -133,7 +133,7 @@ private:
 
 private:
   vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
-  void operator=(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableAttributeDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

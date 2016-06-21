@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkOpenGLHardwareSelector(const vtkOpenGLHardwareSelector&); // Not implemented.
-  void operator=(const vtkOpenGLHardwareSelector&); // Not implemented.
+  void operator=(const vtkOpenGLHardwareSelector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -408,7 +408,7 @@ private:
 
 private:
   vtkDataArray(const vtkDataArray&);  // Not implemented.
-  void operator=(const vtkDataArray&);  // Not implemented.
+  void operator=(const vtkDataArray&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkCMLParser(const vtkCMLParser&);   // Not implemented
-  void operator=(const vtkCMLParser&); // Not implemented
+  void operator=(const vtkCMLParser&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkCMLMoleculeReader);

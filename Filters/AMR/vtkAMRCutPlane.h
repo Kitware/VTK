@@ -171,7 +171,7 @@ protected:
 
 private:
   vtkAMRCutPlane(const vtkAMRCutPlane& ); // Not implemented
-  void operator=(const vtkAMRCutPlane& ); // Not implemented
+  void operator=(const vtkAMRCutPlane& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRCutPlane_h */

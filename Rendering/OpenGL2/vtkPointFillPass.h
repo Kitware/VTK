@@ -94,7 +94,7 @@ public:
 
  private:
   vtkPointFillPass(const vtkPointFillPass&);  // Not implemented.
-  void operator=(const vtkPointFillPass&);  // Not implemented.
+  void operator=(const vtkPointFillPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

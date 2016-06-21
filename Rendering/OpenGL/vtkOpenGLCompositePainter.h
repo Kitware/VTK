@@ -39,7 +39,7 @@ protected:
 
 private:
   vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&); // Not implemented.
-  void operator=(const vtkOpenGLCompositePainter&); // Not implemented.
+  void operator=(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;
 
   bool PushedOpenGLAttribs;
 };

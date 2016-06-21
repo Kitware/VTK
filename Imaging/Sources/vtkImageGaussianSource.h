@@ -64,7 +64,7 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkImageGaussianSource(const vtkImageGaussianSource&);  // Not implemented.
-  void operator=(const vtkImageGaussianSource&);  // Not implemented.
+  void operator=(const vtkImageGaussianSource&) VTK_DELETE_FUNCTION;
 };
 
 

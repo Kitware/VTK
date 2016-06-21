@@ -65,7 +65,7 @@ private:
   float PerturbFactor;
 
   vtkPerturbCoincidentVertices(const vtkPerturbCoincidentVertices&); // Not implemented
-  void operator=(const vtkPerturbCoincidentVertices&);   // Not implemented
+  void operator=(const vtkPerturbCoincidentVertices&) VTK_DELETE_FUNCTION;
 };
 
 #endif

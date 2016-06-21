@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkSTLWriter(const vtkSTLWriter&);  // Not implemented.
-  void operator=(const vtkSTLWriter&);  // Not implemented.
+  void operator=(const vtkSTLWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

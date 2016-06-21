@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkReebGraphVolumeSkeletonFilter(const vtkReebGraphVolumeSkeletonFilter&); // Not implemented.
-  void operator=(const vtkReebGraphVolumeSkeletonFilter&); // Not implemented.
+  void operator=(const vtkReebGraphVolumeSkeletonFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

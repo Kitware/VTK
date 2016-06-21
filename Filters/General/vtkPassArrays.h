@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkPassArrays(const vtkPassArrays&); // Not implemented
-  void operator=(const vtkPassArrays&);   // Not implemented
+  void operator=(const vtkPassArrays&) VTK_DELETE_FUNCTION;
 };
 
 #endif

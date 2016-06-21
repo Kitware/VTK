@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkSparseArrayToTable(const vtkSparseArrayToTable&); // Not implemented
-  void operator=(const vtkSparseArrayToTable&);   // Not implemented
+  void operator=(const vtkSparseArrayToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

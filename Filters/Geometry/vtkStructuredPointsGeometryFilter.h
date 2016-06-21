@@ -38,7 +38,7 @@ protected:
 
 private:
   vtkStructuredPointsGeometryFilter(const vtkStructuredPointsGeometryFilter&); // Not implemented
-  void operator=(const vtkStructuredPointsGeometryFilter&); // Not implemented
+  void operator=(const vtkStructuredPointsGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

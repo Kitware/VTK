@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkHyperOctreeSurfaceFilter(const vtkHyperOctreeSurfaceFilter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeSurfaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

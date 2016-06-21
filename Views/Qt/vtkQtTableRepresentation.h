@@ -123,7 +123,7 @@ public:
 
 private:
   vtkQtTableRepresentation(const vtkQtTableRepresentation &); // Not implemented
-  void operator=(const vtkQtTableRepresentation &); // Not implemented
+  void operator=(const vtkQtTableRepresentation &) VTK_DELETE_FUNCTION;
 
 };
 

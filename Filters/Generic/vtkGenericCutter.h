@@ -155,7 +155,7 @@ protected:
 
 private:
   vtkGenericCutter(const vtkGenericCutter&);  // Not implemented.
-  void operator=(const vtkGenericCutter&);  // Not implemented.
+  void operator=(const vtkGenericCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

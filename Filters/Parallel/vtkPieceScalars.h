@@ -67,7 +67,7 @@ protected:
   int RandomMode;
 private:
   vtkPieceScalars(const vtkPieceScalars&);  // Not implemented.
-  void operator=(const vtkPieceScalars&);  // Not implemented.
+  void operator=(const vtkPieceScalars&) VTK_DELETE_FUNCTION;
 };
 
 #endif

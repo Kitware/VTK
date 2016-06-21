@@ -183,7 +183,7 @@ protected:
 
 private:
   vtkChartBox(const vtkChartBox &); // Not implemented.
-  void operator=(const vtkChartBox &);   // Not implemented.
+  void operator=(const vtkChartBox &) VTK_DELETE_FUNCTION;
 
 };
 

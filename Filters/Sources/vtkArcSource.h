@@ -134,7 +134,7 @@ protected:
 
 private:
   vtkArcSource(const vtkArcSource&);  // Not implemented.
-  void operator=(const vtkArcSource&);  // Not implemented.
+  void operator=(const vtkArcSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

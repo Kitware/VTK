@@ -433,7 +433,7 @@ protected:
 
 private:
   vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented
-  void operator=(const vtkRenderedGraphRepresentation&);   // Not implemented
+  void operator=(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

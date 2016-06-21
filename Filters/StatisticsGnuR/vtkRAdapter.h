@@ -118,7 +118,7 @@ protected:
 private:
 
   vtkRAdapter(const vtkRAdapter&); // Not implemented
-  void operator=(const vtkRAdapter&); // Not implemented
+  void operator=(const vtkRAdapter&) VTK_DELETE_FUNCTION;
 
   vtkDataArrayCollection* vdac;  // Collection of vtkDataArrays that have been converted from R.
   vtkArrayData* vad;  // Collection of vtkArrays that have been converted from R.

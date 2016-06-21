@@ -157,7 +157,7 @@ protected:
 
 private:
   vtkShepardMethod(const vtkShepardMethod&);  // Not implemented.
-  void operator=(const vtkShepardMethod&);  // Not implemented.
+  void operator=(const vtkShepardMethod&) VTK_DELETE_FUNCTION;
 };
 
 #endif

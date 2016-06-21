@@ -408,7 +408,7 @@ protected:
 
 private:
   vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
+  void operator=(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

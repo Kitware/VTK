@@ -62,7 +62,7 @@ protected:
   int FieldAssociation;
 
 private:
-  void operator=(const vtkComputeQuartiles&); // Not implemented
+  void operator=(const vtkComputeQuartiles&) VTK_DELETE_FUNCTION;
   vtkComputeQuartiles(const vtkComputeQuartiles&); // Not implemented
 
   int GetInputFieldAssociation();

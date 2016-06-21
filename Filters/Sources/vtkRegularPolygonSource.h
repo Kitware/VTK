@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkRegularPolygonSource(const vtkRegularPolygonSource&);  // Not implemented.
-  void operator=(const vtkRegularPolygonSource&);  // Not implemented.
+  void operator=(const vtkRegularPolygonSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

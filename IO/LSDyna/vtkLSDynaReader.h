@@ -592,7 +592,7 @@ private:
   int FillPartSizes();
 
   vtkLSDynaReader( const vtkLSDynaReader& ); // Not implemented.
-  void operator = ( const vtkLSDynaReader& ); // Not implemented.
+  void operator = ( const vtkLSDynaReader& ) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkLSDynaReader::SetPointArrayStatus( const char* arrName, int status )

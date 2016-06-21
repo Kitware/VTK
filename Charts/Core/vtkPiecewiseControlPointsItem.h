@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.
-  void operator=(const vtkPiecewiseControlPointsItem &);   // Not implemented.
+  void operator=(const vtkPiecewiseControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

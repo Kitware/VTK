@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&);  // Not implemented.
-  void operator=(const vtkAnnotationLayersAlgorithm&);  // Not implemented.
+  void operator=(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

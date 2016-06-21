@@ -245,7 +245,7 @@ protected:
 
 private:
   vtkLegendBoxActor(const vtkLegendBoxActor&);  // Not implemented.
-  void operator=(const vtkLegendBoxActor&);  // Not implemented.
+  void operator=(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
 };
 
 

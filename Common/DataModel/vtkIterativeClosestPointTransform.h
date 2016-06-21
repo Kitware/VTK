@@ -180,7 +180,7 @@ protected:
   vtkLandmarkTransform *LandmarkTransform;
 private:
   vtkIterativeClosestPointTransform(const vtkIterativeClosestPointTransform&);  // Not implemented.
-  void operator=(const vtkIterativeClosestPointTransform&);  // Not implemented.
+  void operator=(const vtkIterativeClosestPointTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

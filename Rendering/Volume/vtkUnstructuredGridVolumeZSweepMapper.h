@@ -336,7 +336,7 @@ protected:
 
 private:
   vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

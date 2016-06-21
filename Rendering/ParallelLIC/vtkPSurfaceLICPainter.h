@@ -79,7 +79,7 @@ private:
 
 private:
   vtkPSurfaceLICPainter(const vtkPSurfaceLICPainter&); // Not implemented.
-  void operator=(const vtkPSurfaceLICPainter&); // Not implemented.
+  void operator=(const vtkPSurfaceLICPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

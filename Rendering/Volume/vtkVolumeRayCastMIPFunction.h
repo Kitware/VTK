@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
+  void operator=(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
 };
 
 

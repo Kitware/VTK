@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkDummyGPUInfoList(const vtkDummyGPUInfoList&); // Not implemented.
-  void operator=(const vtkDummyGPUInfoList&); // Not implemented.
+  void operator=(const vtkDummyGPUInfoList&) VTK_DELETE_FUNCTION;
 };
 
 #endif

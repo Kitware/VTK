@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkChartParallelCoordinates(const vtkChartParallelCoordinates &); // Not implemented.
-  void operator=(const vtkChartParallelCoordinates &);   // Not implemented.
+  void operator=(const vtkChartParallelCoordinates &) VTK_DELETE_FUNCTION;
 
 };
 

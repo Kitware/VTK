@@ -347,7 +347,7 @@ protected:
 
 private:
   vtkImageTracerWidget(const vtkImageTracerWidget&);  //Not implemented
-  void operator=(const vtkImageTracerWidget&);  //Not implemented
+  void operator=(const vtkImageTracerWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -319,7 +319,7 @@ protected:
 
 private:
   vtkBoxWidget(const vtkBoxWidget&);  //Not implemented
-  void operator=(const vtkBoxWidget&);  //Not implemented
+  void operator=(const vtkBoxWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

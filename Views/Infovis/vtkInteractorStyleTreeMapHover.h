@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkInteractorStyleTreeMapHover(const vtkInteractorStyleTreeMapHover&); // Not implemented
-  void operator=(const vtkInteractorStyleTreeMapHover&); // Not implemented
+  void operator=(const vtkInteractorStyleTreeMapHover&) VTK_DELETE_FUNCTION;
 
   // These methods are used internally
   vtkIdType GetTreeMapIdAtPos(int x, int y);

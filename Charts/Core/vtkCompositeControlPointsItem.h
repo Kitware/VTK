@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &); // Not implemented.
-  void operator=(const vtkCompositeControlPointsItem &);   // Not implemented.
+  void operator=(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

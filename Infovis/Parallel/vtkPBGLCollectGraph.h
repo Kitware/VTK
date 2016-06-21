@@ -141,7 +141,7 @@ private:
   char * OriginProcessArrayName;
 
   vtkPBGLCollectGraph(const vtkPBGLCollectGraph&);  // Not implemented.
-  void operator=(const vtkPBGLCollectGraph&);  // Not implemented.
+  void operator=(const vtkPBGLCollectGraph&) VTK_DELETE_FUNCTION;
 
 };
 

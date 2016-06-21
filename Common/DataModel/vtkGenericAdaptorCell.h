@@ -604,7 +604,7 @@ protected:
 
 private:
   vtkGenericAdaptorCell(const vtkGenericAdaptorCell&);  // Not implemented.
-  void operator=(const vtkGenericAdaptorCell&);  // Not implemented.
+  void operator=(const vtkGenericAdaptorCell&) VTK_DELETE_FUNCTION;
 };
 
 #endif

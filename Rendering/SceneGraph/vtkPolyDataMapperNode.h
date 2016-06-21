@@ -68,7 +68,7 @@ protected:
 
  private:
   vtkPolyDataMapperNode(const vtkPolyDataMapperNode&); // Not implemented.
-  void operator=(const vtkPolyDataMapperNode&); // Not implemented.
+  void operator=(const vtkPolyDataMapperNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

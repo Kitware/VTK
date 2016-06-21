@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkTableAlgorithm(const vtkTableAlgorithm&);  // Not implemented.
-  void operator=(const vtkTableAlgorithm&);  // Not implemented.
+  void operator=(const vtkTableAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

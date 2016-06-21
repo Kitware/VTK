@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkEnsembleSource(const vtkEnsembleSource&);  // Not implemented.
-  void operator=(const vtkEnsembleSource&);  // Not implemented.
+  void operator=(const vtkEnsembleSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

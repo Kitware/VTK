@@ -392,7 +392,7 @@ protected:
 
 private:
   vtkProperty(const vtkProperty&);  // Not implemented.
-  void operator=(const vtkProperty&);  // Not implemented.
+  void operator=(const vtkProperty&) VTK_DELETE_FUNCTION;
 
   vtkPropertyInternals* Internals;
 };

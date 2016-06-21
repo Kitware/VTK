@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkPythonInteractiveInterpreter(const vtkPythonInteractiveInterpreter&); // Not implemented.
-  void operator=(const vtkPythonInteractiveInterpreter&); // Not implemented.
+  void operator=(const vtkPythonInteractiveInterpreter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

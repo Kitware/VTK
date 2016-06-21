@@ -154,7 +154,7 @@ protected:
 
 private:
   vtkVolumeOutlineSource(const vtkVolumeOutlineSource&);  // Not implemented.
-  void operator=(const vtkVolumeOutlineSource&);  // Not implemented.
+  void operator=(const vtkVolumeOutlineSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

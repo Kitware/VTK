@@ -103,7 +103,7 @@ protected:
   void *EndWriteArg;
 private:
   vtkExporter(const vtkExporter&);  // Not implemented.
-  void operator=(const vtkExporter&);  // Not implemented.
+  void operator=(const vtkExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

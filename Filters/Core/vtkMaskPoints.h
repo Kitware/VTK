@@ -149,7 +149,7 @@ protected:
 
 private:
   vtkMaskPoints(const vtkMaskPoints&);  // Not implemented.
-  void operator=(const vtkMaskPoints&);  // Not implemented.
+  void operator=(const vtkMaskPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

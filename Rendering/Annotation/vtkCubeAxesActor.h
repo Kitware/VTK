@@ -671,7 +671,7 @@ protected:
 
 private:
   vtkCubeAxesActor(const vtkCubeAxesActor&); // Not implemented
-  void operator=(const vtkCubeAxesActor&); // Not implemented
+  void operator=(const vtkCubeAxesActor&) VTK_DELETE_FUNCTION;
 
   vtkSetStringMacro(ActualXLabel);
   vtkSetStringMacro(ActualYLabel);

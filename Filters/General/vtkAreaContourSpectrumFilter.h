@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkAreaContourSpectrumFilter(const vtkAreaContourSpectrumFilter&); // Not implemented.
-  void operator=(const vtkAreaContourSpectrumFilter&); // Not implemented.
+  void operator=(const vtkAreaContourSpectrumFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

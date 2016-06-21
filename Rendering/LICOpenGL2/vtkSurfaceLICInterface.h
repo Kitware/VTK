@@ -493,7 +493,7 @@ protected:
 
 private:
   vtkSurfaceLICInterface(const vtkSurfaceLICInterface&); // Not implemented.
-  void operator=(const vtkSurfaceLICInterface&); // Not implemented.
+  void operator=(const vtkSurfaceLICInterface&) VTK_DELETE_FUNCTION;
 };
 
 #endif

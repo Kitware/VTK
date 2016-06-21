@@ -481,7 +481,7 @@ protected:
 
 private:
   vtkImageReslice(const vtkImageReslice&);  // Not implemented.
-  void operator=(const vtkImageReslice&);  // Not implemented.
+  void operator=(const vtkImageReslice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

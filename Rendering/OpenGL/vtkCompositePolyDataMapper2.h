@@ -116,7 +116,7 @@ private:
 
 private:
   vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
-  void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
+  void operator=(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
 
 };
 

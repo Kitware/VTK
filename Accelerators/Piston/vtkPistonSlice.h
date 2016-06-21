@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkPistonSlice(const vtkPistonSlice&);  // Not implemented.
-  void operator=(const vtkPistonSlice&);  // Not implemented.
+  void operator=(const vtkPistonSlice&) VTK_DELETE_FUNCTION;
 
 };
 

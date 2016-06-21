@@ -416,7 +416,7 @@ protected:
 
 private:
   vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&);  //Not implemented
-  void operator=(const vtkImplicitCylinderRepresentation&);  //Not implemented
+  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

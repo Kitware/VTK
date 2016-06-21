@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkReebGraphSurfaceSkeletonFilter(const vtkReebGraphSurfaceSkeletonFilter&); // Not implemented.
-  void operator=(const vtkReebGraphSurfaceSkeletonFilter&); // Not implemented.
+  void operator=(const vtkReebGraphSurfaceSkeletonFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

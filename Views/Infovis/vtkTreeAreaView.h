@@ -188,7 +188,7 @@ protected:
 
 private:
   vtkTreeAreaView(const vtkTreeAreaView&);  // Not implemented.
-  void operator=(const vtkTreeAreaView&);  // Not implemented.
+  void operator=(const vtkTreeAreaView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

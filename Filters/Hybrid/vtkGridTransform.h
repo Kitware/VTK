@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkGridTransform(const vtkGridTransform&);  // Not implemented.
-  void operator=(const vtkGridTransform&);  // Not implemented.
+  void operator=(const vtkGridTransform&) VTK_DELETE_FUNCTION;
 
   vtkGridTransformConnectionHolder* ConnectionHolder;
 };

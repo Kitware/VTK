@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkInstantiatorHashTable(const vtkInstantiatorHashTable&);  // Not implemented.
-  void operator=(const vtkInstantiatorHashTable&);  // Not implemented.
+  void operator=(const vtkInstantiatorHashTable&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

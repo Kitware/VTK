@@ -192,7 +192,7 @@ private:
   vtkIdList *CellIds;
 private:
   vtkConnectivityFilter(const vtkConnectivityFilter&);  // Not implemented.
-  void operator=(const vtkConnectivityFilter&);  // Not implemented.
+  void operator=(const vtkConnectivityFilter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

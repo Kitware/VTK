@@ -154,7 +154,7 @@ protected:
 
 private:
   vtkRibbonFilter(const vtkRibbonFilter&);  // Not implemented.
-  void operator=(const vtkRibbonFilter&);  // Not implemented.
+  void operator=(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

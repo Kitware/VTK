@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkCompositeDataIterator(const vtkCompositeDataIterator&); // Not implemented.
-  void operator=(const vtkCompositeDataIterator&); // Not implemented.
+  void operator=(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
 
 };
 

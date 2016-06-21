@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkMutableGraphHelper(const vtkMutableGraphHelper&);  // Not implemented.
-  void operator=(const vtkMutableGraphHelper&);  // Not implemented.
+  void operator=(const vtkMutableGraphHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

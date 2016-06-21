@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkCompositeRenderManager(const vtkCompositeRenderManager &);//Not implemented
-  void operator=(const vtkCompositeRenderManager &);  //Not implemented
+  void operator=(const vtkCompositeRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkCompositeRenderManager_h

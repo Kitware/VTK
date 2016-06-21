@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkBSplineTransform(const vtkBSplineTransform&);  // Not implemented.
-  void operator=(const vtkBSplineTransform&);  // Not implemented.
+  void operator=(const vtkBSplineTransform&) VTK_DELETE_FUNCTION;
 
   vtkBSplineTransformConnectionHolder* ConnectionHolder;
 };

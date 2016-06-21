@@ -63,7 +63,7 @@ protected:
   int Frozen;
 private:
   vtkOStrStreamWrapper(const vtkOStrStreamWrapper& r); // Not Implemented.
-  vtkOStrStreamWrapper& operator=(const vtkOStrStreamWrapper&); // Not Implemented.
+  vtkOStrStreamWrapper& operator=(const vtkOStrStreamWrapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -182,7 +182,7 @@ protected:
 
 private:
   vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLCompositeDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

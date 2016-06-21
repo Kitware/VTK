@@ -214,7 +214,7 @@ protected:
 
 private:
   vtkPolygon(const vtkPolygon&);  // Not implemented.
-  void operator=(const vtkPolygon&);  // Not implemented.
+  void operator=(const vtkPolygon&) VTK_DELETE_FUNCTION;
 };
 
 #endif

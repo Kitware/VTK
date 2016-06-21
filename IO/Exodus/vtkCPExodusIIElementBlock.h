@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkCPExodusIIElementBlockImpl(const vtkCPExodusIIElementBlockImpl &); // Not implemented.
-  void operator=(const vtkCPExodusIIElementBlockImpl &);   // Not implemented.
+  void operator=(const vtkCPExodusIIElementBlockImpl &) VTK_DELETE_FUNCTION;
 
   // Convert between Exodus node ids and VTK point ids.
   static vtkIdType NodeToPoint(const int &id)

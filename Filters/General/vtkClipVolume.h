@@ -208,7 +208,7 @@ private:
 
 private:
   vtkClipVolume(const vtkClipVolume&);  // Not implemented.
-  void operator=(const vtkClipVolume&);  // Not implemented.
+  void operator=(const vtkClipVolume&) VTK_DELETE_FUNCTION;
 };
 
 #endif

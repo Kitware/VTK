@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkXMLUniformGridAMRReader(const vtkXMLUniformGridAMRReader&);  // Not implemented.
-  void operator=(const vtkXMLUniformGridAMRReader&);  // Not implemented.
+  void operator=(const vtkXMLUniformGridAMRReader&) VTK_DELETE_FUNCTION;
 
   char* OutputDataType;
   vtkSetStringMacro(OutputDataType);

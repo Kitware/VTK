@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkImageLaplacian(const vtkImageLaplacian&);  // Not implemented.
-  void operator=(const vtkImageLaplacian&);  // Not implemented.
+  void operator=(const vtkImageLaplacian&) VTK_DELETE_FUNCTION;
 };
 
 #endif

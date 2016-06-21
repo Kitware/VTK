@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkImageDifference(const vtkImageDifference&);  // Not implemented.
-  void operator=(const vtkImageDifference&);  // Not implemented.
+  void operator=(const vtkImageDifference&) VTK_DELETE_FUNCTION;
 
   friend class vtkImageDifferenceSMPFunctor;
 };

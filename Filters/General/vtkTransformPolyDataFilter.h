@@ -72,7 +72,7 @@ protected:
   int OutputPointsPrecision;
 private:
   vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkTransformPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkTransformPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

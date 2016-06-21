@@ -72,7 +72,7 @@ public:
 
  private:
   vtkOSPRayPass(const vtkOSPRayPass&);  // Not implemented.
-  void operator=(const vtkOSPRayPass&);  // Not implemented.
+  void operator=(const vtkOSPRayPass&) VTK_DELETE_FUNCTION;
 
   class Internals;
   vtkOSPRayPassInternals *Internal;

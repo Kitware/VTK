@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkDelimitedTextWriter(const vtkDelimitedTextWriter&); // Not implemented.
-  void operator=(const vtkDelimitedTextWriter&); // Not implemented.
+  void operator=(const vtkDelimitedTextWriter&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -100,7 +100,7 @@ protected:
 
 private:
   vtkCaptionWidget(const vtkCaptionWidget&);  //Not implemented
-  void operator=(const vtkCaptionWidget&);  //Not implemented
+  void operator=(const vtkCaptionWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

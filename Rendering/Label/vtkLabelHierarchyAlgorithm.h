@@ -115,7 +115,7 @@ protected:
 
 private:
   vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchyAlgorithm& );  // Not implemented.
+  void operator = ( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

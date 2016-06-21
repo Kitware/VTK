@@ -227,7 +227,7 @@ protected:
 
 private:
   vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.
-  void operator=(const vtkPolyDataConnectivityFilter&);  // Not implemented.
+  void operator=(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

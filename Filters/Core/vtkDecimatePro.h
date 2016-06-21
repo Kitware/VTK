@@ -372,7 +372,7 @@ private:
 
 private:
   vtkDecimatePro(const vtkDecimatePro&);  // Not implemented.
-  void operator=(const vtkDecimatePro&);  // Not implemented.
+  void operator=(const vtkDecimatePro&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -115,7 +115,7 @@ protected:
 
 private:
   vtkPyramid(const vtkPyramid&);  // Not implemented.
-  void operator=(const vtkPyramid&);  // Not implemented.
+  void operator=(const vtkPyramid&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

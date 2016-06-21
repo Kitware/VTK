@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.
-  void operator=(const vtkGenericGeometryFilter&);  // Not implemented.
+  void operator=(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

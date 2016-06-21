@@ -172,7 +172,7 @@ protected:
 
 private:
   vtkWindow(const vtkWindow&);  // Not implemented.
-  void operator=(const vtkWindow&);  // Not implemented.
+  void operator=(const vtkWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

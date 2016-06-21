@@ -100,7 +100,7 @@ protected:
 
 private:
   vtkGenericDataSetTessellator(const vtkGenericDataSetTessellator&);  // Not implemented.
-  void operator=(const vtkGenericDataSetTessellator&);  // Not implemented.
+  void operator=(const vtkGenericDataSetTessellator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

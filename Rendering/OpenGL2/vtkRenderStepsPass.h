@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkRenderStepsPass(const vtkRenderStepsPass&);  // Not implemented.
-  void operator=(const vtkRenderStepsPass&);  // Not implemented.
+  void operator=(const vtkRenderStepsPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

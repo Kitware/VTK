@@ -54,7 +54,7 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
 private:
   vtkLinesPainter(const vtkLinesPainter&); // Not implemented.
-  void operator=(const vtkLinesPainter&); // Not implemented.
+  void operator=(const vtkLinesPainter&) VTK_DELETE_FUNCTION;
 };
 
 

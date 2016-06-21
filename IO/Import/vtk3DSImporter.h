@@ -78,7 +78,7 @@ protected:
   int ComputeNormals;
 private:
   vtk3DSImporter(const vtk3DSImporter&);  // Not implemented.
-  void operator=(const vtk3DSImporter&);  // Not implemented.
+  void operator=(const vtk3DSImporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

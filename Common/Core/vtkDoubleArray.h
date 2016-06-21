@@ -70,7 +70,7 @@ private:
   typedef vtkAOSDataArrayTemplate<double> RealSuperclass;
 
   vtkDoubleArray(const vtkDoubleArray&);  // Not implemented.
-  void operator=(const vtkDoubleArray&);  // Not implemented.
+  void operator=(const vtkDoubleArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkSocket(const vtkSocket&); // Not implemented.
-  void operator=(const vtkSocket&); // Not implemented.
+  void operator=(const vtkSocket&) VTK_DELETE_FUNCTION;
 };
 
 

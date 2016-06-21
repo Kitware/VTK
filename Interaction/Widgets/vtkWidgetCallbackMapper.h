@@ -99,7 +99,7 @@ protected:
 
 private:
   vtkWidgetCallbackMapper(const vtkWidgetCallbackMapper&);  //Not implemented
-  void operator=(const vtkWidgetCallbackMapper&);  //Not implemented
+  void operator=(const vtkWidgetCallbackMapper&) VTK_DELETE_FUNCTION;
 
 };
 

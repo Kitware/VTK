@@ -218,7 +218,7 @@ protected:
 
 private:
   vtkTable(const vtkTable&); // Not implemented
-  void operator=(const vtkTable&); // Not implemented
+  void operator=(const vtkTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

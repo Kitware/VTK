@@ -121,7 +121,7 @@ protected:
 private:
   int FillOutputBuffer();
   vtkRInterface(const vtkRInterface&);    // Not implemented
-  void operator=(const vtkRInterface&);   // Not implemented
+  void operator=(const vtkRInterface&) VTK_DELETE_FUNCTION;
 
   vtkImplementationRSingleton* rs;
 

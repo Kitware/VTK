@@ -142,7 +142,7 @@ protected:
 
 private:
   vtkMNIObjectReader(const vtkMNIObjectReader&); // Not implemented
-  void operator=(const vtkMNIObjectReader&);  // Not implemented
+  void operator=(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.
-  void operator=(const vtkRTAnalyticSource&);  // Not implemented.
+  void operator=(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
 };
 
 

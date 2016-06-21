@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkCurvatures(const vtkCurvatures&);  // Not implemented.
-  void operator=(const vtkCurvatures&);  // Not implemented.
+  void operator=(const vtkCurvatures&) VTK_DELETE_FUNCTION;
 
 };
 

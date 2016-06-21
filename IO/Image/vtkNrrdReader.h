@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkNrrdReader(const vtkNrrdReader &);       // Not implemented.
-  void operator=(const vtkNrrdReader &);        // Not implemented.
+  void operator=(const vtkNrrdReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkNrrdReader_h

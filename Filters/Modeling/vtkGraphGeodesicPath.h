@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkGraphGeodesicPath(const vtkGraphGeodesicPath&);  // Not implemented.
-  void operator=(const vtkGraphGeodesicPath&);  // Not implemented.
+  void operator=(const vtkGraphGeodesicPath&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -311,7 +311,7 @@ protected:
 
 private:
   vtkBrokenLineWidget(const vtkBrokenLineWidget&);  //Not implemented
-  void operator=(const vtkBrokenLineWidget&);  //Not implemented
+  void operator=(const vtkBrokenLineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

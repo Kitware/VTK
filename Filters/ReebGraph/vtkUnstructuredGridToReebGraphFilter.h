@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkUnstructuredGridToReebGraphFilter(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
-  void operator=(const vtkUnstructuredGridToReebGraphFilter&); // Not implemented.
+  void operator=(const vtkUnstructuredGridToReebGraphFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

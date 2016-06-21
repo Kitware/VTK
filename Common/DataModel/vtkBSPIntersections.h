@@ -185,6 +185,6 @@ private:
   int ComputeIntersectionsUsingDataBounds;
 
   vtkBSPIntersections(const vtkBSPIntersections&); // Not implemented
-  void operator=(const vtkBSPIntersections&); // Not implemented
+  void operator=(const vtkBSPIntersections&) VTK_DELETE_FUNCTION;
 };
 #endif

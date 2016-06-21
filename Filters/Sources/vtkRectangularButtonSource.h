@@ -126,7 +126,7 @@ protected:
 
 private:
   vtkRectangularButtonSource(const vtkRectangularButtonSource&);  // Not implemented.
-  void operator=(const vtkRectangularButtonSource&);  // Not implemented.
+  void operator=(const vtkRectangularButtonSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

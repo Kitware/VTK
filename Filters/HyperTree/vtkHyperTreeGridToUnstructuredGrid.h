@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
+  void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

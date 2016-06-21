@@ -90,7 +90,7 @@ protected:
 
 private:
   vtkSpherePuzzle(const vtkSpherePuzzle&); // Not implemented
-  void operator=(const vtkSpherePuzzle&); // Not implemented
+  void operator=(const vtkSpherePuzzle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

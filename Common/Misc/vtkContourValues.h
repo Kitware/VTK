@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkContourValues(const vtkContourValues&);  // Not implemented.
-  void operator=(const vtkContourValues&);  // Not implemented.
+  void operator=(const vtkContourValues&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkImageMagnify(const vtkImageMagnify&);  // Not implemented.
-  void operator=(const vtkImageMagnify&);  // Not implemented.
+  void operator=(const vtkImageMagnify&) VTK_DELETE_FUNCTION;
 };
 
 #endif

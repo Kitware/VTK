@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkDefaultPainter(const vtkDefaultPainter &); // Not implemented
-  void operator=(const vtkDefaultPainter &);    // Not implemented
+  void operator=(const vtkDefaultPainter &) VTK_DELETE_FUNCTION;
 };
 
 #endif //_vtkDefaultPainter_h

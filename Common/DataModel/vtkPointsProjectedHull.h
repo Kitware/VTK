@@ -172,7 +172,7 @@ private:
   vtkTimeStamp HullTime[3];
 
   vtkPointsProjectedHull(const vtkPointsProjectedHull&); // Not implemented
-  void operator=(const vtkPointsProjectedHull&); // Not implemented
+  void operator=(const vtkPointsProjectedHull&) VTK_DELETE_FUNCTION;
 };
 #endif
 

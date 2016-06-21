@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkOutEdgeIterator(const vtkOutEdgeIterator&);  // Not implemented.
-  void operator=(const vtkOutEdgeIterator&);  // Not implemented.
+  void operator=(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

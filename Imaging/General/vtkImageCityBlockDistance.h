@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkImageCityBlockDistance(const vtkImageCityBlockDistance&);  // Not implemented.
-  void operator=(const vtkImageCityBlockDistance&);  // Not implemented.
+  void operator=(const vtkImageCityBlockDistance&) VTK_DELETE_FUNCTION;
 };
 
 #endif

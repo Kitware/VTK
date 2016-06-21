@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkDijkstraImageGeodesicPath(const vtkDijkstraImageGeodesicPath&);  // Not implemented.
-  void operator=(const vtkDijkstraImageGeodesicPath&);  // Not implemented.
+  void operator=(const vtkDijkstraImageGeodesicPath&) VTK_DELETE_FUNCTION;
 
 };
 

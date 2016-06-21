@@ -373,7 +373,7 @@ class TestVTKFiles:
         if foundasgn < 1:
             self.Print( "File: %s does not define assignment operator" %
                         self.FileName )
-            self.Print( "Should be:\nvoid operator=(const %s&); // Not implemented"
+            self.Print( "Should be:\nvoid operator=(const %s&) VTK_DELETE_FUNCTION;"
                         % self.ClassName )
             self.Error("No private assignment operator")
         if foundcopy > 1:

@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkTableToPostgreSQLWriter(const vtkTableToPostgreSQLWriter&); // Not implemented.
-  void operator=(const vtkTableToPostgreSQLWriter&); // Not implemented.
+  void operator=(const vtkTableToPostgreSQLWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

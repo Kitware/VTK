@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkProgressBarWidget(const vtkProgressBarWidget&);  //Not implemented
-  void operator=(const vtkProgressBarWidget&);  //Not implemented
+  void operator=(const vtkProgressBarWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

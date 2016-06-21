@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkCompassWidget(const vtkCompassWidget&);  //Not implemented
-  void operator=(const vtkCompassWidget&);  //Not implemented
+  void operator=(const vtkCompassWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -79,7 +79,7 @@ public:
 
  private:
   vtkLightingMapPass(const vtkLightingMapPass&);  // Not implemented.
-  void operator=(const vtkLightingMapPass&);  // Not implemented.
+  void operator=(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;
 
   RenderMode RenderType;
 };

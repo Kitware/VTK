@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&);  // Not implemented.
-  void operator=(const vtkExtractTemporalFieldData&);  // Not implemented.
+  void operator=(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

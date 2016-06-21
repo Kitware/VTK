@@ -65,7 +65,7 @@ protected:
   int Operation;
 private:
   vtkImageMaskBits(const vtkImageMaskBits&);  // Not implemented.
-  void operator=(const vtkImageMaskBits&);  // Not implemented.
+  void operator=(const vtkImageMaskBits&) VTK_DELETE_FUNCTION;
 };
 
 #endif

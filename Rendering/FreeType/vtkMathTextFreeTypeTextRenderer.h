@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &); // Not implemented.
-  void operator=(const vtkMathTextFreeTypeTextRenderer &); // Not implemented.
+  void operator=(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;
 
   vtkFreeTypeTools *FreeTypeTools;
   vtkMathTextUtilities *MathTextUtilities;

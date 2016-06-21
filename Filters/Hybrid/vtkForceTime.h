@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkForceTime(const vtkForceTime&);  // Not implemented.
-  void operator=(const vtkForceTime&);  // Not implemented.
+  void operator=(const vtkForceTime&) VTK_DELETE_FUNCTION;
 
   double ForcedTime;
   bool IgnorePipelineTime;

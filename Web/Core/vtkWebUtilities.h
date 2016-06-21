@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkWebUtilities(const vtkWebUtilities&); // Not implemented
-  void operator=(const vtkWebUtilities&); // Not implemented
+  void operator=(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
 
 };
 

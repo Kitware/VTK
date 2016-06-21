@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkOBBDicer(const vtkOBBDicer&);  // Not implemented.
-  void operator=(const vtkOBBDicer&);  // Not implemented.
+  void operator=(const vtkOBBDicer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

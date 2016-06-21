@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkTriQuadraticHexahedron (const vtkTriQuadraticHexahedron &);  // Not implemented.
-  void operator = (const vtkTriQuadraticHexahedron &);  // Not implemented.
+  void operator = (const vtkTriQuadraticHexahedron &) VTK_DELETE_FUNCTION;
 };
 
 #endif

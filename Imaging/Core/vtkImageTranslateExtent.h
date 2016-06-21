@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkImageTranslateExtent(const vtkImageTranslateExtent&);  // Not implemented.
-  void operator=(const vtkImageTranslateExtent&);  // Not implemented.
+  void operator=(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
 };
 
 #endif

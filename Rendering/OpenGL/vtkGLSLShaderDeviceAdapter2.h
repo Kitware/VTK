@@ -69,7 +69,7 @@ protected:
 private:
   vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&);
   // Not implemented
-  void operator=(const vtkGLSLShaderDeviceAdapter2&); // Not implemented
+  void operator=(const vtkGLSLShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

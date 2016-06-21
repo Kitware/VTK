@@ -240,7 +240,7 @@ protected:
 
 private:
   vtkImageSincInterpolator(const vtkImageSincInterpolator&);  // Not implemented.
-  void operator=(const vtkImageSincInterpolator&);  // Not implemented.
+  void operator=(const vtkImageSincInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

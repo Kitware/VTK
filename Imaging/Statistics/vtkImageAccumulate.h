@@ -144,7 +144,7 @@ protected:
 
 private:
   vtkImageAccumulate(const vtkImageAccumulate&);  // Not implemented.
-  void operator=(const vtkImageAccumulate&);  // Not implemented.
+  void operator=(const vtkImageAccumulate&) VTK_DELETE_FUNCTION;
 };
 
 #endif

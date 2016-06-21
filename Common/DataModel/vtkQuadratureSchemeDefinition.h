@@ -137,7 +137,7 @@ private:
 
   //
   vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &); // Not implemented.
-  void operator=(const vtkQuadratureSchemeDefinition &); // Not implemented.
+  void operator=(const vtkQuadratureSchemeDefinition &) VTK_DELETE_FUNCTION;
   friend ostream &operator<<(ostream &s, const vtkQuadratureSchemeDefinition &d);
   friend istream &operator>>(istream &s, vtkQuadratureSchemeDefinition &d);
   //

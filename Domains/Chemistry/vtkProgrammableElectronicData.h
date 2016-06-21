@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkProgrammableElectronicData(const vtkProgrammableElectronicData&); // Not implemented
-  void operator=(const vtkProgrammableElectronicData&); // Not implemented
+  void operator=(const vtkProgrammableElectronicData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

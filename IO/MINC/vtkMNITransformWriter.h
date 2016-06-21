@@ -145,7 +145,7 @@ protected:
 
 private:
   vtkMNITransformWriter(const vtkMNITransformWriter&); // Not implemented
-  void operator=(const vtkMNITransformWriter&);  // Not implemented
+  void operator=(const vtkMNITransformWriter&) VTK_DELETE_FUNCTION;
 
 };
 

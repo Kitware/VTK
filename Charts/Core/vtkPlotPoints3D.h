@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkPlotPoints3D(const vtkPlotPoints3D &); // Not implemented.
-  void operator=(const vtkPlotPoints3D &); // Not implemented.
+  void operator=(const vtkPlotPoints3D &) VTK_DELETE_FUNCTION;
 
 };
 

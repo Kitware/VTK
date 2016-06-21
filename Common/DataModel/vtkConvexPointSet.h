@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkConvexPointSet(const vtkConvexPointSet&);  // Not implemented.
-  void operator=(const vtkConvexPointSet&);  // Not implemented.
+  void operator=(const vtkConvexPointSet&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

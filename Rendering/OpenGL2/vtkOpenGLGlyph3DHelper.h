@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkOpenGLGlyph3DHelper(const vtkOpenGLGlyph3DHelper&); // Not implemented.
-  void operator=(const vtkOpenGLGlyph3DHelper&); // Not implemented.
+  void operator=(const vtkOpenGLGlyph3DHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

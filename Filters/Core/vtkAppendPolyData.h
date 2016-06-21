@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.
-  void operator=(const vtkAppendPolyData&);  // Not implemented.
+  void operator=(const vtkAppendPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

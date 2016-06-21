@@ -169,7 +169,7 @@ private:
 
 private:
   vtkRuledSurfaceFilter(const vtkRuledSurfaceFilter&);  // Not implemented.
-  void operator=(const vtkRuledSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkRuledSurfaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

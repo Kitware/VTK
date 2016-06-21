@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkTriangleStrip(const vtkTriangleStrip&);  // Not implemented.
-  void operator=(const vtkTriangleStrip&);  // Not implemented.
+  void operator=(const vtkTriangleStrip&) VTK_DELETE_FUNCTION;
 };
 
 #endif

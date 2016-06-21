@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkExtractDataOverTime(const vtkExtractDataOverTime&);  // Not implemented.
-  void operator=(const vtkExtractDataOverTime&);  // Not implemented.
+  void operator=(const vtkExtractDataOverTime&) VTK_DELETE_FUNCTION;
 };
 
 #endif

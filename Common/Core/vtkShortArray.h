@@ -74,7 +74,7 @@ private:
   typedef vtkAOSDataArrayTemplate<short> RealSuperclass;
 
   vtkShortArray(const vtkShortArray&);  // Not implemented.
-  void operator=(const vtkShortArray&);  // Not implemented.
+  void operator=(const vtkShortArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

@@ -248,7 +248,7 @@ protected:
 
 private:
   vtkHyperOctreeCutter(const vtkHyperOctreeCutter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeCutter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

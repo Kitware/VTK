@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkParametricMobius(const vtkParametricMobius&);  // Not implemented.
-  void operator=(const vtkParametricMobius&);  // Not implemented.
+  void operator=(const vtkParametricMobius&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkXMLFileReadTester(const vtkXMLFileReadTester&);  // Not implemented.
-  void operator=(const vtkXMLFileReadTester&);  // Not implemented.
+  void operator=(const vtkXMLFileReadTester&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -53,7 +53,7 @@ protected:
   ~vtkVersion() {}
 private:
   vtkVersion(const vtkVersion&);  // Not implemented.
-  void operator=(const vtkVersion&);  // Not implemented.
+  void operator=(const vtkVersion&) VTK_DELETE_FUNCTION;
 };
 
 #endif

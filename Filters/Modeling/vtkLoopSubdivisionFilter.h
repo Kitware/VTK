@@ -77,7 +77,7 @@ protected:
 
 private:
   vtkLoopSubdivisionFilter(const vtkLoopSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkLoopSubdivisionFilter&);  // Not implemented.
+  void operator=(const vtkLoopSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

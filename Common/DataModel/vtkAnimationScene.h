@@ -129,7 +129,7 @@ protected:
 
 private:
   vtkAnimationScene(const vtkAnimationScene&); // Not implemented.
-  void operator=(const vtkAnimationScene&); // Not implemented.
+  void operator=(const vtkAnimationScene&) VTK_DELETE_FUNCTION;
 };
 
 #endif

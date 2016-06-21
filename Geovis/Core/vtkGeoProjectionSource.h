@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkGeoProjectionSource(const vtkGeoProjectionSource&); // Not implemented
-  void operator=(const vtkGeoProjectionSource&); // Not implemented
+  void operator=(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

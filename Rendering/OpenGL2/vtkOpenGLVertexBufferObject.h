@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkOpenGLVertexBufferObject(const vtkOpenGLVertexBufferObject&); // Not implemented
-  void operator=(const vtkOpenGLVertexBufferObject&); // Not implemented
+  void operator=(const vtkOpenGLVertexBufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

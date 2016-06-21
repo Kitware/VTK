@@ -371,7 +371,7 @@ protected:
 
 private:
   vtkSLACReader(const vtkSLACReader &);         // Not implemented
-  void operator=(const vtkSLACReader &);        // Not implemented
+  void operator=(const vtkSLACReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSLACReader_h

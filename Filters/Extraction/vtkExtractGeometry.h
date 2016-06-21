@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkExtractGeometry(const vtkExtractGeometry&);  // Not implemented.
-  void operator=(const vtkExtractGeometry&);  // Not implemented.
+  void operator=(const vtkExtractGeometry&) VTK_DELETE_FUNCTION;
 };
 
 #endif

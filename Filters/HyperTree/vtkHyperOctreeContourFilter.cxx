@@ -151,7 +151,7 @@ protected:
   vtkHyperOctreeIdSet *IdSet;
 private:
   vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&);  // Not implemented.
-  void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
+  void operator=(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);

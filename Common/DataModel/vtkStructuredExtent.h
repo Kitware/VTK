@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkStructuredExtent(const vtkStructuredExtent&); // Not implemented.
-  void operator=(const vtkStructuredExtent&); // Not implemented.
+  void operator=(const vtkStructuredExtent&) VTK_DELETE_FUNCTION;
 
 };
 

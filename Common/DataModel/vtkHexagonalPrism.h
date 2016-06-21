@@ -118,7 +118,7 @@ protected:
 
 private:
   vtkHexagonalPrism(const vtkHexagonalPrism&);  // Not implemented.
-  void operator=(const vtkHexagonalPrism&);  // Not implemented.
+  void operator=(const vtkHexagonalPrism&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

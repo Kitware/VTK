@@ -169,7 +169,7 @@ protected:
 
 private:
   vtkGeneralizedKernel(const vtkGeneralizedKernel&);  // Not implemented.
-  void operator=(const vtkGeneralizedKernel&);  // Not implemented.
+  void operator=(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

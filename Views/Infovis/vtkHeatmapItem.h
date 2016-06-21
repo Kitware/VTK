@@ -234,7 +234,7 @@ protected:
 
 private:
   vtkHeatmapItem(const vtkHeatmapItem&); // Not implemented
-  void operator=(const vtkHeatmapItem&); // Not implemented
+  void operator=(const vtkHeatmapItem&) VTK_DELETE_FUNCTION;
 
   unsigned long HeatmapBuildTime;
   vtkNew<vtkCategoryLegend> CategoryLegend;

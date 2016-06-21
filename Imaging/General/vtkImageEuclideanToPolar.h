@@ -49,7 +49,7 @@ protected:
                        int ext[6], int id);
 private:
   vtkImageEuclideanToPolar(const vtkImageEuclideanToPolar&);  // Not implemented.
-  void operator=(const vtkImageEuclideanToPolar&);  // Not implemented.
+  void operator=(const vtkImageEuclideanToPolar&) VTK_DELETE_FUNCTION;
 };
 
 #endif

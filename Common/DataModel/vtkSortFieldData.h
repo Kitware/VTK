@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkSortFieldData(const vtkSortFieldData &);  // Not implemented.
-  void operator=(const vtkSortFieldData &);  // Not implemented.
+  void operator=(const vtkSortFieldData &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkSortFieldData_h

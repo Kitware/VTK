@@ -364,7 +364,7 @@ private:
   vtkPoints* Points;
 
   vtkCellQuality(const vtkCellQuality&); // Not implemented
-  void operator=(const vtkCellQuality&); // Not implemented
+  void operator=(const vtkCellQuality&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCellQuality_h

@@ -151,7 +151,7 @@ protected:
 
 private:
   vtkProgrammableGlyphFilter(const vtkProgrammableGlyphFilter&);  // Not implemented.
-  void operator=(const vtkProgrammableGlyphFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableGlyphFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

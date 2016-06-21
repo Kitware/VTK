@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkAreaLayoutStrategy(const vtkAreaLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkAreaLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkAreaLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

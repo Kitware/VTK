@@ -153,7 +153,7 @@ public:
 
  private:
   vtkEDLShading(const vtkEDLShading&);  // Not implemented.
-  void operator=(const vtkEDLShading&);  // Not implemented.
+  void operator=(const vtkEDLShading&) VTK_DELETE_FUNCTION;
 };
 
 #endif

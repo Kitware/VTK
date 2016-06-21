@@ -92,7 +92,7 @@ public:
 
  private:
   vtkSSAAPass(const vtkSSAAPass&);  // Not implemented.
-  void operator=(const vtkSSAAPass&);  // Not implemented.
+  void operator=(const vtkSSAAPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

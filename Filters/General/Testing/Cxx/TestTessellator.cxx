@@ -2558,7 +2558,7 @@ class vtkTestTessellatorSubdivision
 
   private:
     vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ); // Not implemented.
-    void operator = ( const vtkTestTessellatorSubdivision& ); // Not implemented.
+    void operator = ( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
 
 };
 

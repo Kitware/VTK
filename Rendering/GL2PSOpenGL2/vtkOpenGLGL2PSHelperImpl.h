@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkOpenGLGL2PSHelperImpl(const vtkOpenGLGL2PSHelperImpl &); // Not implemented.
-  void operator=(const vtkOpenGLGL2PSHelperImpl &);   // Not implemented.
+  void operator=(const vtkOpenGLGL2PSHelperImpl &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGL2PSHelperImpl_h

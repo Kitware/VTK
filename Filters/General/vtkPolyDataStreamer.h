@@ -78,7 +78,7 @@ protected:
   int ColorByPiece;
 private:
   vtkPolyDataStreamer(const vtkPolyDataStreamer&);  // Not implemented.
-  void operator=(const vtkPolyDataStreamer&);  // Not implemented.
+  void operator=(const vtkPolyDataStreamer&) VTK_DELETE_FUNCTION;
 
   vtkAppendPolyData* Append;
 };

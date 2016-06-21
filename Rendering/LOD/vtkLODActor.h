@@ -146,7 +146,7 @@ protected:
 
 private:
   vtkLODActor(const vtkLODActor&);  // Not implemented.
-  void operator=(const vtkLODActor&);  // Not implemented.
+  void operator=(const vtkLODActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

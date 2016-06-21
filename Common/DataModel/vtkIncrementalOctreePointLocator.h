@@ -432,7 +432,7 @@ private:
 
   vtkIncrementalOctreePointLocator
     ( const vtkIncrementalOctreePointLocator & ); // Not implemented
-  void operator = ( const vtkIncrementalOctreePointLocator & );// Not implemented
+  void operator = ( const vtkIncrementalOctreePointLocator & ) VTK_DELETE_FUNCTION;
 
 };
 #endif

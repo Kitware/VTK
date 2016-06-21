@@ -193,7 +193,7 @@ private:
 
 private:
   vtkBarChartActor(const vtkBarChartActor&);  // Not implemented.
-  void operator=(const vtkBarChartActor&);  // Not implemented.
+  void operator=(const vtkBarChartActor&) VTK_DELETE_FUNCTION;
 };
 
 

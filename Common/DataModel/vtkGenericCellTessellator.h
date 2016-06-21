@@ -198,7 +198,7 @@ protected:
 
 private:
   vtkGenericCellTessellator(const vtkGenericCellTessellator&);  // Not implemented.
-  void operator=(const vtkGenericCellTessellator&);  // Not implemented.
+  void operator=(const vtkGenericCellTessellator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkStreamGraph(const vtkStreamGraph&); // Not implemented
-  void operator=(const vtkStreamGraph&);   // Not implemented
+  void operator=(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

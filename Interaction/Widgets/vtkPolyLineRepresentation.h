@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&); // Not implemented.
-  void operator=(const vtkPolyLineRepresentation&); // Not implemented.
+  void operator=(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
 
 };
 

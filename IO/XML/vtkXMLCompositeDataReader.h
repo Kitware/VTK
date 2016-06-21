@@ -99,7 +99,7 @@ protected:
 
 private:
   vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataReader&);  // Not implemented.
+  void operator=(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };

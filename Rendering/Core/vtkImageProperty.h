@@ -164,7 +164,7 @@ protected:
 
 private:
   vtkImageProperty(const vtkImageProperty&);  // Not implemented.
-  void operator=(const vtkImageProperty&);  // Not implemented.
+  void operator=(const vtkImageProperty&) VTK_DELETE_FUNCTION;
 };
 
 #endif

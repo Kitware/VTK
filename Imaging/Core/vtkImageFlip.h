@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkImageFlip(const vtkImageFlip&);  // Not implemented.
-  void operator=(const vtkImageFlip&);  // Not implemented.
+  void operator=(const vtkImageFlip&) VTK_DELETE_FUNCTION;
 };
 
 #endif

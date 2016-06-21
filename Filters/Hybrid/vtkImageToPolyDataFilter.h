@@ -227,7 +227,7 @@ private:
 
 private:
   vtkImageToPolyDataFilter(const vtkImageToPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkImageToPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkImageToPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

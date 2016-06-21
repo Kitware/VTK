@@ -139,7 +139,7 @@ private:
   vtkInternal* Internal;
 
   vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
-  void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
+  void operator=(const vtkQtTableModelAdapter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&);  // Not implemented.
-  void operator=(const vtkSMPContourGridManyPieces&);  // Not implemented.
+  void operator=(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
 };
 
 #endif

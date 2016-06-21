@@ -91,7 +91,7 @@ protected:
   double Kernel[343];
 private:
   vtkImageConvolve(const vtkImageConvolve&);  // Not implemented.
-  void operator=(const vtkImageConvolve&);  // Not implemented.
+  void operator=(const vtkImageConvolve&) VTK_DELETE_FUNCTION;
 };
 
 #endif

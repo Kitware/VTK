@@ -62,7 +62,7 @@ protected:
   int PassPointData;
 private:
   vtkPointDataToCellData(const vtkPointDataToCellData&);  // Not implemented.
-  void operator=(const vtkPointDataToCellData&);  // Not implemented.
+  void operator=(const vtkPointDataToCellData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

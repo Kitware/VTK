@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkQuadraticTetra(const vtkQuadraticTetra&);  // Not implemented.
-  void operator=(const vtkQuadraticTetra&);  // Not implemented.
+  void operator=(const vtkQuadraticTetra&) VTK_DELETE_FUNCTION;
 };
 
 #endif

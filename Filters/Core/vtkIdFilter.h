@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkIdFilter(const vtkIdFilter&);  // Not implemented.
-  void operator=(const vtkIdFilter&);  // Not implemented.
+  void operator=(const vtkIdFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

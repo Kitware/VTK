@@ -87,7 +87,7 @@ private:
 
 private:
   vtkRenderbuffer(const vtkRenderbuffer&); // Not implemented.
-  void operator=(const vtkRenderbuffer&); // Not implemented.
+  void operator=(const vtkRenderbuffer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

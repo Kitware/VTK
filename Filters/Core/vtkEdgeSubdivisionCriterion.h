@@ -162,7 +162,7 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
 
   private:
     vtkEdgeSubdivisionCriterion( const vtkEdgeSubdivisionCriterion& ); // Not implemented.
-    void operator = ( const vtkEdgeSubdivisionCriterion& ); // Not implemented.
+    void operator = ( const vtkEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
 };
 
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldIds() const { return this->FieldIds; }

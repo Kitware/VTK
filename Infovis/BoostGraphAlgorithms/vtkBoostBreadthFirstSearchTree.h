@@ -100,7 +100,7 @@ private:
     vtkAbstractArray *abstract,vtkVariant value);
 
   vtkBoostBreadthFirstSearchTree(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.
-  void operator=(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.
+  void operator=(const vtkBoostBreadthFirstSearchTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

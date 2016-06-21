@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkParametricTorus(const vtkParametricTorus&);  // Not implemented.
-  void operator=(const vtkParametricTorus&);  // Not implemented.
+  void operator=(const vtkParametricTorus&) VTK_DELETE_FUNCTION;
 };
 
 #endif

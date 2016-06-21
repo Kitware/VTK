@@ -184,7 +184,7 @@ protected:
 
 private:
   vtkGraphItem(const vtkGraphItem&); // Not implemented
-  void operator=(const vtkGraphItem&); // Not implemented
+  void operator=(const vtkGraphItem&) VTK_DELETE_FUNCTION;
 
   struct Internals;
   Internals *Internal;

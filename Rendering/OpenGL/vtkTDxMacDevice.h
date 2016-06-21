@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkTDxMacDevice(const vtkTDxMacDevice&);  // Not implemented.
-  void operator=(const vtkTDxMacDevice&);  // Not implemented.
+  void operator=(const vtkTDxMacDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

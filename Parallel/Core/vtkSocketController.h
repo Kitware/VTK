@@ -123,7 +123,7 @@ protected:
   static int Initialized;
 private:
   vtkSocketController(const vtkSocketController&);  // Not implemented.
-  void operator=(const vtkSocketController&);  // Not implemented.
+  void operator=(const vtkSocketController&) VTK_DELETE_FUNCTION;
 };
 
 

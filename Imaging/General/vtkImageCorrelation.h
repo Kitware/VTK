@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkImageCorrelation(const vtkImageCorrelation&);  // Not implemented.
-  void operator=(const vtkImageCorrelation&);  // Not implemented.
+  void operator=(const vtkImageCorrelation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

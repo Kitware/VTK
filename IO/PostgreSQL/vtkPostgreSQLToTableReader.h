@@ -40,7 +40,7 @@ protected:
                           vtkInformationVector *);
 private:
   vtkPostgreSQLToTableReader(const vtkPostgreSQLToTableReader&); // Not implemented.
-  void operator=(const vtkPostgreSQLToTableReader&); // Not implemented.
+  void operator=(const vtkPostgreSQLToTableReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

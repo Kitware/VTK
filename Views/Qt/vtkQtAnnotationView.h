@@ -73,7 +73,7 @@ private:
   vtkQtAnnotationLayersModelAdapter* Adapter;
 
   vtkQtAnnotationView(const vtkQtAnnotationView&);  // Not implemented.
-  void operator=(const vtkQtAnnotationView&);  // Not implemented.
+  void operator=(const vtkQtAnnotationView&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkPassThroughFilter(const vtkPassThroughFilter&);  // Not implemented.
-  void operator=(const vtkPassThroughFilter&);  // Not implemented.
+  void operator=(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

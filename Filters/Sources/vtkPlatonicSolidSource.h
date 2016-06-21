@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkPlatonicSolidSource(const vtkPlatonicSolidSource&);  // Not implemented.
-  void operator=(const vtkPlatonicSolidSource&);  // Not implemented.
+  void operator=(const vtkPlatonicSolidSource&) VTK_DELETE_FUNCTION;
 
 };
 

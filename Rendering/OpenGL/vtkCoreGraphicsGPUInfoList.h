@@ -45,7 +45,7 @@ protected:
 
 private:
   vtkCoreGraphicsGPUInfoList(const vtkCoreGraphicsGPUInfoList&); // Not implemented.
-  void operator=(const vtkCoreGraphicsGPUInfoList&); // Not implemented.
+  void operator=(const vtkCoreGraphicsGPUInfoList&) VTK_DELETE_FUNCTION;
 };
 
 #endif

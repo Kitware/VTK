@@ -377,7 +377,7 @@ protected:
 
 private:
   vtkNIFTIImageHeader(const vtkNIFTIImageHeader&);  // Not implemented.
-  void operator=(const vtkNIFTIImageHeader&);  // Not implemented.
+  void operator=(const vtkNIFTIImageHeader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkNIFTIImageHeader_h

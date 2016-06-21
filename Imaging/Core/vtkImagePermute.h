@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkImagePermute(const vtkImagePermute&);  // Not implemented.
-  void operator=(const vtkImagePermute&);  // Not implemented.
+  void operator=(const vtkImagePermute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
-  void operator=(const vtkImageVariance3D&);  // Not implemented.
+  void operator=(const vtkImageVariance3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

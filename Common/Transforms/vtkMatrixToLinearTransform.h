@@ -68,7 +68,7 @@ protected:
   vtkMatrix4x4 *Input;
 private:
   vtkMatrixToLinearTransform(const vtkMatrixToLinearTransform&);  // Not implemented.
-  void operator=(const vtkMatrixToLinearTransform&);  // Not implemented.
+  void operator=(const vtkMatrixToLinearTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

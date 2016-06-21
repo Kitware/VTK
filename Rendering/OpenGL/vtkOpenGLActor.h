@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
-  void operator=(const vtkOpenGLActor&);  // Not implemented.
+  void operator=(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

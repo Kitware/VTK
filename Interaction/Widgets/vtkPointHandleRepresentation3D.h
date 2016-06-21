@@ -244,7 +244,7 @@ protected:
 
 private:
   vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkPointHandleRepresentation3D&);  //Not implemented
+  void operator=(const vtkPointHandleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

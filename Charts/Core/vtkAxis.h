@@ -595,7 +595,7 @@ protected:
 
 private:
   vtkAxis(const vtkAxis &); // Not implemented.
-  void operator=(const vtkAxis &);   // Not implemented.
+  void operator=(const vtkAxis &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Return true if the value is in range, false otherwise.

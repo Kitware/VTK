@@ -611,7 +611,7 @@ protected:
 
 private:
   vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented
-  void operator=(const vtkImagePlaneWidget&);  //Not implemented
+  void operator=(const vtkImagePlaneWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

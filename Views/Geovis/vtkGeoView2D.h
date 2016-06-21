@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkGeoView2D(const vtkGeoView2D&); // Not implemented
-  void operator=(const vtkGeoView2D&); // Not implemented
+  void operator=(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

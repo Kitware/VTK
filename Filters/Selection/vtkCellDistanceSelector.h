@@ -122,7 +122,7 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 
  private:
   vtkCellDistanceSelector(const vtkCellDistanceSelector &); // Not implemented
-  void operator= (const vtkCellDistanceSelector &); // Not implemented
+  void operator= (const vtkCellDistanceSelector &) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkCellDistanceSelector_h */

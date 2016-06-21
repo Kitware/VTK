@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataReader&);  // Not implemented.
+  void operator=(const vtkXMLStructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

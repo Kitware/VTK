@@ -86,7 +86,7 @@ private:
   vtkMatrix4x4 *Matrix; //associated matrix
 
 private:
-  void operator=(const vtkAssemblyNode&); // Not implemented.
+  void operator=(const vtkAssemblyNode&) VTK_DELETE_FUNCTION;
   vtkAssemblyNode(const vtkAssemblyNode&); // Not implemented.
 };
 

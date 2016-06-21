@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkGraphicsFactory(const vtkGraphicsFactory&);  // Not implemented.
-  void operator=(const vtkGraphicsFactory&);  // Not implemented.
+  void operator=(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

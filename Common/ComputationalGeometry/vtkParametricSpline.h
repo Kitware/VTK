@@ -166,7 +166,7 @@ protected:
 
 private:
   vtkParametricSpline(const vtkParametricSpline&);  // Not implemented.
-  void operator=(const vtkParametricSpline&);  // Not implemented.
+  void operator=(const vtkParametricSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

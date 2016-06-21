@@ -61,7 +61,7 @@ private:
 
 private:
   vtkLightCollection(const vtkLightCollection&);  // Not implemented.
-  void operator=(const vtkLightCollection&);  // Not implemented.
+  void operator=(const vtkLightCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

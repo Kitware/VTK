@@ -116,7 +116,7 @@ protected:
  private:
   vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&); // Not implemented.
 
-  void operator=(const vtkRectilinearGridToTetrahedra&); // Not implemented.
+  void operator=(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Determine how to Divide each cell (voxel) in the RectilinearGrid

@@ -73,7 +73,7 @@ private:
   bool Jitter;
 
   vtkAssignCoordinates(const vtkAssignCoordinates&);  // Not implemented.
-  void operator=(const vtkAssignCoordinates&);  // Not implemented.
+  void operator=(const vtkAssignCoordinates&) VTK_DELETE_FUNCTION;
 };
 
 #endif

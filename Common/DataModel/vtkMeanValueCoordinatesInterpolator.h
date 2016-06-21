@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkMeanValueCoordinatesInterpolator(const vtkMeanValueCoordinatesInterpolator&);  // Not implemented.
-  void operator=(const vtkMeanValueCoordinatesInterpolator&);  // Not implemented.
+  void operator=(const vtkMeanValueCoordinatesInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

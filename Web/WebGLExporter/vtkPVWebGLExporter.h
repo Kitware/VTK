@@ -40,7 +40,7 @@ protected:
 
 private:
   vtkPVWebGLExporter(const vtkPVWebGLExporter&);  // Not implemented.
-  void operator=(const vtkPVWebGLExporter&);  // Not implemented.
+  void operator=(const vtkPVWebGLExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

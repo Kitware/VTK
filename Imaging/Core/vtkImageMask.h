@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkImageMask(const vtkImageMask&);  // Not implemented.
-  void operator=(const vtkImageMask&);  // Not implemented.
+  void operator=(const vtkImageMask&) VTK_DELETE_FUNCTION;
 };
 
 #endif

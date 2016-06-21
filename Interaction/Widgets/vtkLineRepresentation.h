@@ -304,7 +304,7 @@ protected:
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&);  //Not implemented
-  void operator=(const vtkLineRepresentation&);  //Not implemented
+  void operator=(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

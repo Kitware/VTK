@@ -245,7 +245,7 @@ protected:
 
 private:
   vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
-  void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
+  void operator=(const vtkDataSetSurfaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -135,7 +135,7 @@ protected:
 
 private:
   vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &); // Not implemented.
-  void operator=(const vtkPlotParallelCoordinates &); // Not implemented.
+  void operator=(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
 
 };
 

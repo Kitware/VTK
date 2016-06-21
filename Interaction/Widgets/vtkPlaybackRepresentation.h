@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkPlaybackRepresentation(const vtkPlaybackRepresentation&);  //Not implemented
-  void operator=(const vtkPlaybackRepresentation&);  //Not implemented
+  void operator=(const vtkPlaybackRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

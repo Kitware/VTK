@@ -98,7 +98,7 @@ private:
   GeoJSONReaderInternal *Internal;
 
   vtkGeoJSONReader(const vtkGeoJSONReader&);  // Not implemented
-  void operator=(const vtkGeoJSONReader&);    // Not implemented
+  void operator=(const vtkGeoJSONReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoJSONReader_h

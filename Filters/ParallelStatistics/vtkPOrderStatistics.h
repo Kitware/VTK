@@ -91,7 +91,7 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
   vtkMultiProcessController* Controller;
  private:
   vtkPOrderStatistics(const vtkPOrderStatistics&); // Not implemented.
-  void operator=(const vtkPOrderStatistics&); // Not implemented.
+  void operator=(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

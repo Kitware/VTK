@@ -198,7 +198,7 @@ protected:
 
 private:
   vtkTriangle(const vtkTriangle&);  // Not implemented.
-  void operator=(const vtkTriangle&);  // Not implemented.
+  void operator=(const vtkTriangle&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

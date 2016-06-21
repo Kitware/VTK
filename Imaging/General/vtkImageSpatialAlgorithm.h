@@ -60,7 +60,7 @@ protected:
 
 private:
   vtkImageSpatialAlgorithm(const vtkImageSpatialAlgorithm&);  // Not implemented.
-  void operator=(const vtkImageSpatialAlgorithm&);  // Not implemented.
+  void operator=(const vtkImageSpatialAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

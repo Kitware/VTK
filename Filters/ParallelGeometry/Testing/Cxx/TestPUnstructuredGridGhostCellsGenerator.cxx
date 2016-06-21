@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkRTAnalyticSource2(const vtkRTAnalyticSource2&);  // Not implemented.
-  void operator=(const vtkRTAnalyticSource2&);  // Not implemented.
+  void operator=(const vtkRTAnalyticSource2&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkRTAnalyticSource2);

@@ -91,7 +91,7 @@ private:
   vtkObjectFactory* ObjectFactory;
 private:
   vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
-  void operator=(const vtkOverrideInformation&);  // Not implemented.
+  void operator=(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

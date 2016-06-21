@@ -63,7 +63,7 @@ private:
 
 private:
   vtkPolyDataCollection(const vtkPolyDataCollection&);  // Not implemented.
-  void operator=(const vtkPolyDataCollection&);  // Not implemented.
+  void operator=(const vtkPolyDataCollection&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkHierarchicalGraphPipeline(const vtkHierarchicalGraphPipeline&); // Not implemented
-  void operator=(const vtkHierarchicalGraphPipeline&); // Not implemented
+  void operator=(const vtkHierarchicalGraphPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -185,7 +185,7 @@ protected:
 
 private:
   vtkTextProperty(const vtkTextProperty&);  // Not implemented.
-  void operator=(const vtkTextProperty&);  // Not implemented.
+  void operator=(const vtkTextProperty&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )

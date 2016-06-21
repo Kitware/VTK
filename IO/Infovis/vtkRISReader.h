@@ -77,7 +77,7 @@ public:
 
 private:
   vtkRISReader(const vtkRISReader&); // Not implemented
-  void operator=(const vtkRISReader&);   // Not implemented
+  void operator=(const vtkRISReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

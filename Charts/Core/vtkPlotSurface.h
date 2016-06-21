@@ -143,7 +143,7 @@ protected:
 
 private:
   vtkPlotSurface(const vtkPlotSurface &); // Not implemented.
-  void operator=(const vtkPlotSurface &); // Not implemented.
+  void operator=(const vtkPlotSurface &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkImageNonMaximumSuppression(const vtkImageNonMaximumSuppression&);  // Not implemented.
-  void operator=(const vtkImageNonMaximumSuppression&);  // Not implemented.
+  void operator=(const vtkImageNonMaximumSuppression&) VTK_DELETE_FUNCTION;
 };
 
 #endif

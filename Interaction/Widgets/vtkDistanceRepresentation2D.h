@@ -99,7 +99,7 @@ protected:
 
 private:
   vtkDistanceRepresentation2D(const vtkDistanceRepresentation2D&);  //Not implemented
-  void operator=(const vtkDistanceRepresentation2D&);  //Not implemented
+  void operator=(const vtkDistanceRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

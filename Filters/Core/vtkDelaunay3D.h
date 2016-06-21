@@ -266,7 +266,7 @@ private: //members added for performance
 
 private:
   vtkDelaunay3D(const vtkDelaunay3D&);  // Not implemented.
-  void operator=(const vtkDelaunay3D&);  // Not implemented.
+  void operator=(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

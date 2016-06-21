@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkPPairwiseExtractHistogram2D(const vtkPPairwiseExtractHistogram2D&); // Not implemented
-  void operator=(const vtkPPairwiseExtractHistogram2D&);   // Not implemented
+  void operator=(const vtkPPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

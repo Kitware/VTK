@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkAssignCoordinatesLayoutStrategy(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkAssignCoordinatesLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkAssignCoordinatesLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

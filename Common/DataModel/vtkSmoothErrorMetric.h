@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkSmoothErrorMetric(const vtkSmoothErrorMetric&);  // Not implemented.
-  void operator=(const vtkSmoothErrorMetric&);  // Not implemented.
+  void operator=(const vtkSmoothErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

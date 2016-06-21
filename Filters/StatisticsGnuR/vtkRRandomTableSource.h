@@ -221,7 +221,7 @@ protected:
 
 private:
   vtkRRandomTableSource(const vtkRRandomTableSource&); // Not implemented
-  void operator=(const vtkRRandomTableSource&);   // Not implemented
+  void operator=(const vtkRRandomTableSource&) VTK_DELETE_FUNCTION;
 
   int NumberOfRows;
 

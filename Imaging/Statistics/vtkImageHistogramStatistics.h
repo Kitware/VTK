@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkImageHistogramStatistics(const vtkImageHistogramStatistics&);  // Not implemented.
-  void operator=(const vtkImageHistogramStatistics&);  // Not implemented.
+  void operator=(const vtkImageHistogramStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -61,7 +61,7 @@ protected:
 
 private:
     vtkInformationKeyLookup(const vtkInformationKeyLookup&); // Not implemented
-    void operator=(const vtkInformationKeyLookup&); // Not implemented
+    void operator=(const vtkInformationKeyLookup&) VTK_DELETE_FUNCTION;
 
     typedef std::pair<std::string, std::string> Identifier; // Location, Name
     typedef std::map<Identifier, vtkInformationKey*> KeyMap;

@@ -174,6 +174,6 @@ protected:
 
 private:
   vtkHyperTreeCursor(const vtkHyperTreeCursor&);  // Not implemented.
-  void operator=(const vtkHyperTreeCursor&);    // Not implemented.
+  void operator=(const vtkHyperTreeCursor&) VTK_DELETE_FUNCTION;
 };
 #endif

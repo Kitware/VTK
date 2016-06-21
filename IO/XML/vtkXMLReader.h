@@ -329,7 +329,7 @@ private:
 
 private:
   vtkXMLReader(const vtkXMLReader&);  // Not implemented.
-  void operator=(const vtkXMLReader&);  // Not implemented.
+  void operator=(const vtkXMLReader&) VTK_DELETE_FUNCTION;
 
   vtkCommand *ReaderErrorObserver;
   vtkCommand *ParserErrorObserver;

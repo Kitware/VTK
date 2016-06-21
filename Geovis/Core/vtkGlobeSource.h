@@ -149,7 +149,7 @@ protected:
 
 private:
   vtkGlobeSource(const vtkGlobeSource&);  // Not implemented.
-  void operator=(const vtkGlobeSource&);  // Not implemented.
+  void operator=(const vtkGlobeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

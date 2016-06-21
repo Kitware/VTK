@@ -101,7 +101,7 @@ protected:
   int Mode;
 private:
   vtkLandmarkTransform(const vtkLandmarkTransform&);  // Not implemented.
-  void operator=(const vtkLandmarkTransform&);  // Not implemented.
+  void operator=(const vtkLandmarkTransform&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkLandmarkTransform::GetModeAsString()

@@ -138,7 +138,7 @@ private:
                                 double& xe, double& ye);
 
   vtkEllipticalButtonSource(const vtkEllipticalButtonSource&);  // Not implemented.
-  void operator=(const vtkEllipticalButtonSource&);  // Not implemented.
+  void operator=(const vtkEllipticalButtonSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

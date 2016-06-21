@@ -216,7 +216,7 @@ protected:
 
 private:
   vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.
-  void operator=(const vtkAOSDataArrayTemplate&); // Not implemented.
+  void operator=(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;

@@ -203,7 +203,7 @@ protected:
 
 private:
   vtkClipHyperOctree(const vtkClipHyperOctree&);  // Not implemented.
-  void operator=(const vtkClipHyperOctree&);  // Not implemented.
+  void operator=(const vtkClipHyperOctree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

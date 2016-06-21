@@ -163,7 +163,7 @@ private:
 
 private:
   vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&);  // Not implemented.
-  void operator=(const vtkTemporalInterpolatedVelocityField&);  // Not implemented.
+  void operator=(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

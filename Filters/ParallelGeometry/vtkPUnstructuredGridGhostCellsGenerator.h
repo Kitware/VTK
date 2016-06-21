@@ -168,7 +168,7 @@ private:
   vtkInternals *Internals;
 
   vtkPUnstructuredGridGhostCellsGenerator(const vtkPUnstructuredGridGhostCellsGenerator&); // Not implemented
-  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&); // Not implemented
+  void operator=(const vtkPUnstructuredGridGhostCellsGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

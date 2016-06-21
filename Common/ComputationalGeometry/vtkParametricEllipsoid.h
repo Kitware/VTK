@@ -109,7 +109,7 @@ protected:
 
 private:
   vtkParametricEllipsoid(const vtkParametricEllipsoid&);  // Not implemented.
-  void operator=(const vtkParametricEllipsoid&);  // Not implemented.
+  void operator=(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
 
 };
 

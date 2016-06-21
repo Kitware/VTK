@@ -43,7 +43,7 @@ protected:
 
 private:
   vtkHierarchicalDataSetGeometryFilter(const vtkHierarchicalDataSetGeometryFilter&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataSetGeometryFilter&);  // Not implemented.
+  void operator=(const vtkHierarchicalDataSetGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

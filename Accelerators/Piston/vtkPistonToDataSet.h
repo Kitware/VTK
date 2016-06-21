@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkPistonToDataSet(const vtkPistonToDataSet&);  // Not implemented.
-  void operator=(const vtkPistonToDataSet&);  // Not implemented.
+  void operator=(const vtkPistonToDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -192,7 +192,7 @@ protected:
 
 private:
   vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ); // Not implemented
-  void operator=(const vtkAMRBaseParticlesReader& ); // Not implemented
+  void operator=(const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRBaseParticlesReader_h */

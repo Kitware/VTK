@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkGL2PSUtilities(const vtkGL2PSUtilities &); // Not implemented
-  void operator=(const vtkGL2PSUtilities&); // Not implemented
+  void operator=(const vtkGL2PSUtilities&) VTK_DELETE_FUNCTION;
 
   static vtkRenderWindow *RenderWindow;
   static bool TextAsPath;

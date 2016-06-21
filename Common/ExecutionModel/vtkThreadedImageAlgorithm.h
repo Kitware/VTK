@@ -156,7 +156,7 @@ protected:
 
 private:
   vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
-  void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.
+  void operator=(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
 
   friend class vtkThreadedImageAlgorithmFunctor;
 };

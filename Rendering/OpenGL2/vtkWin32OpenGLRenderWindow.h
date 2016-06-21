@@ -250,7 +250,7 @@ protected:
 
 private:
   vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkWin32OpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 

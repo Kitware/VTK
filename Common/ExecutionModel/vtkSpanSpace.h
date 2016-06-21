@@ -139,7 +139,7 @@ private:
 
 private:
   vtkSpanSpace(const vtkSpanSpace&);  // Not implemented.
-  void operator=(const vtkSpanSpace&);  // Not implemented.
+  void operator=(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
 };
 
 #endif

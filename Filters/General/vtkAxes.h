@@ -71,7 +71,7 @@ protected:
   int ComputeNormals;
 private:
   vtkAxes(const vtkAxes&);  // Not implemented.
-  void operator=(const vtkAxes&);  // Not implemented.
+  void operator=(const vtkAxes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

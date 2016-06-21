@@ -176,7 +176,7 @@ protected:
 
 private:
   vtkProjectedTerrainPath(const vtkProjectedTerrainPath&);  // Not implemented.
-  void operator=(const vtkProjectedTerrainPath&);  // Not implemented.
+  void operator=(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
 
 };
 

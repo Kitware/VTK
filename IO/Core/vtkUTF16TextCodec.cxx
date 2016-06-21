@@ -109,7 +109,7 @@ namespace
 
   private:
     testIterator(const testIterator&); // Not implemented
-    const testIterator& operator=(const testIterator&); // Not Implemented
+    const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
   };
 
 

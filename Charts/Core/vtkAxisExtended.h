@@ -121,5 +121,5 @@ protected:
 
 private:
   vtkAxisExtended(const vtkAxisExtended&); // Not implemented.
-  void operator=(const vtkAxisExtended&);  // Not implemented.
+  void operator=(const vtkAxisExtended&) VTK_DELETE_FUNCTION;
 };

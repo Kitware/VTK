@@ -32,7 +32,7 @@ class FuncCall
 {
   T& o;
 
-  void operator=(const FuncCall&); // not implemented
+  void operator=(const FuncCall&) VTK_DELETE_FUNCTION;
 
 public:
   void operator() (const tbb::blocked_range<vtkIdType>& r) const

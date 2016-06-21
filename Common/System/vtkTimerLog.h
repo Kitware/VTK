@@ -194,7 +194,7 @@ protected:
 
 private:
   vtkTimerLog(const vtkTimerLog&);  // Not implemented.
-  void operator=(const vtkTimerLog&);  // Not implemented.
+  void operator=(const vtkTimerLog&) VTK_DELETE_FUNCTION;
 };
 
 

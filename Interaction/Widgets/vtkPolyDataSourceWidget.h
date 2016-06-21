@@ -89,7 +89,7 @@ private:
   // or assignment will trigger linker errors; the class is not meant to
   // be used in these ways.  I couldn't resist adding this explanation. :)
   vtkPolyDataSourceWidget(const vtkPolyDataSourceWidget&);  // Not implemented.
-  void operator=(const vtkPolyDataSourceWidget&);  // Not implemented.
+  void operator=(const vtkPolyDataSourceWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkImageRGBToHSI(const vtkImageRGBToHSI&);  // Not implemented.
-  void operator=(const vtkImageRGBToHSI&);  // Not implemented.
+  void operator=(const vtkImageRGBToHSI&) VTK_DELETE_FUNCTION;
 };
 
 #endif

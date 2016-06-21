@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkPistonAlgorithm(const vtkPistonAlgorithm&);  // Not implemented.
-  void operator=(const vtkPistonAlgorithm&);  // Not implemented.
+  void operator=(const vtkPistonAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

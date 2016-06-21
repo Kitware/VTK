@@ -80,7 +80,7 @@ private:
   vtkX3DExporterXMLNodeInfoStack* InfoStack;
 
   vtkX3DExporterXMLWriter(const vtkX3DExporterXMLWriter&); // Not implemented.
-  void operator=(const vtkX3DExporterXMLWriter&); // Not implemented.
+  void operator=(const vtkX3DExporterXMLWriter&) VTK_DELETE_FUNCTION;
 
 };
 

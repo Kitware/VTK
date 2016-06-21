@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkAffineRepresentation(const vtkAffineRepresentation&);  //Not implemented
-  void operator=(const vtkAffineRepresentation&);  //Not implemented
+  void operator=(const vtkAffineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

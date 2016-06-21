@@ -122,7 +122,7 @@ protected:
 
 private:
   vtkThresholdTable(const vtkThresholdTable&); // Not implemented
-  void operator=(const vtkThresholdTable&);   // Not implemented
+  void operator=(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

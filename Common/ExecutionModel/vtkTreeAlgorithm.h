@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkTreeAlgorithm(const vtkTreeAlgorithm&);  // Not implemented.
-  void operator=(const vtkTreeAlgorithm&);  // Not implemented.
+  void operator=(const vtkTreeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

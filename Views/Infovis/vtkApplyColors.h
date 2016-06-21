@@ -239,7 +239,7 @@ protected:
 
 private:
   vtkApplyColors(const vtkApplyColors&);  // Not implemented.
-  void operator=(const vtkApplyColors&);  // Not implemented.
+  void operator=(const vtkApplyColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

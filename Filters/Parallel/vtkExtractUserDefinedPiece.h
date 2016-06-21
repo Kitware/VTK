@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkExtractUserDefinedPiece(const vtkExtractUserDefinedPiece&); // Not implemented
-  void operator=(const vtkExtractUserDefinedPiece&); // Not implemented
+  void operator=(const vtkExtractUserDefinedPiece&) VTK_DELETE_FUNCTION;
 
   void *ConstantData;
   int ConstantDataLen;

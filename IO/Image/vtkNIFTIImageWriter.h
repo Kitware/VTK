@@ -185,7 +185,7 @@ protected:
 
 private:
   vtkNIFTIImageWriter(const vtkNIFTIImageWriter&);  // Not implemented.
-  void operator=(const vtkNIFTIImageWriter&);  // Not implemented.
+  void operator=(const vtkNIFTIImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkNIFTIImageWriter_h

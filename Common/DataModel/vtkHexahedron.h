@@ -112,7 +112,7 @@ protected:
 
 private:
   vtkHexahedron(const vtkHexahedron&);  // Not implemented.
-  void operator=(const vtkHexahedron&);  // Not implemented.
+  void operator=(const vtkHexahedron&) VTK_DELETE_FUNCTION;
 };
 
 #endif

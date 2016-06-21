@@ -150,7 +150,7 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
 
  private:
   vtkQuadRotationalExtrusionFilter(const vtkQuadRotationalExtrusionFilter&);  // Not implemented.
-  void operator=(const vtkQuadRotationalExtrusionFilter&);  // Not implemented.
+  void operator=(const vtkQuadRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

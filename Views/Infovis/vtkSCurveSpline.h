@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkSCurveSpline(const vtkSCurveSpline&);  // Not implemented.
-  void operator=(const vtkSCurveSpline&);  // Not implemented.
+  void operator=(const vtkSCurveSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

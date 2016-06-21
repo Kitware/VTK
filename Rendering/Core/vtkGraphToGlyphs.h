@@ -120,7 +120,7 @@ protected:
 
 private:
   vtkGraphToGlyphs(const vtkGraphToGlyphs&);  // Not implemented.
-  void operator=(const vtkGraphToGlyphs&);  // Not implemented.
+  void operator=(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

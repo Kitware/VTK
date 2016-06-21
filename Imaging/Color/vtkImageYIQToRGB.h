@@ -46,7 +46,7 @@ protected:
                        int ext[6], int id);
 private:
   vtkImageYIQToRGB(const vtkImageYIQToRGB&);  // Not implemented.
-  void operator=(const vtkImageYIQToRGB&);  // Not implemented.
+  void operator=(const vtkImageYIQToRGB&) VTK_DELETE_FUNCTION;
 };
 
 #endif

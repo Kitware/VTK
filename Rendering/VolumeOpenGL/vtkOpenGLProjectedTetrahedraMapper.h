@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkOpenGLProjectedTetrahedraMapper(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
-  void operator=(const vtkOpenGLProjectedTetrahedraMapper &);  // Not Implemented.
+  void operator=(const vtkOpenGLProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals *Internals;

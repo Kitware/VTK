@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkCollectPolyData(const vtkCollectPolyData&); // Not implemented
-  void operator=(const vtkCollectPolyData&); // Not implemented
+  void operator=(const vtkCollectPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

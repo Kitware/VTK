@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkFunctionSet(const vtkFunctionSet&);  // Not implemented.
-  void operator=(const vtkFunctionSet&);  // Not implemented.
+  void operator=(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkTransmitPolyDataPiece(const vtkTransmitPolyDataPiece&); // Not implemented
-  void operator=(const vtkTransmitPolyDataPiece&); // Not implemented
+  void operator=(const vtkTransmitPolyDataPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

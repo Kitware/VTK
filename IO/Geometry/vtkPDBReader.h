@@ -43,7 +43,7 @@ protected:
 
 private:
   vtkPDBReader(const vtkPDBReader&);  // Not implemented.
-  void operator=(const vtkPDBReader&);  // Not implemented.
+  void operator=(const vtkPDBReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

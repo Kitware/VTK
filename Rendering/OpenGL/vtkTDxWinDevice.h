@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkTDxWinDevice(const vtkTDxWinDevice&);  // Not implemented.
-  void operator=(const vtkTDxWinDevice&);  // Not implemented.
+  void operator=(const vtkTDxWinDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

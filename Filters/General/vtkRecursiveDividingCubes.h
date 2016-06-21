@@ -82,7 +82,7 @@ protected:
   vtkVoxel *Voxel;
 private:
   vtkRecursiveDividingCubes(const vtkRecursiveDividingCubes&); // Not implemented.
-  void operator=(const vtkRecursiveDividingCubes&);  // Not implemented.
+  void operator=(const vtkRecursiveDividingCubes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

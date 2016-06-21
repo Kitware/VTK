@@ -216,7 +216,7 @@ protected:
 
 private:
   vtkMultiThreader(const vtkMultiThreader&);  // Not implemented.
-  void operator=(const vtkMultiThreader&);  // Not implemented.
+  void operator=(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

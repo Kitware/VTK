@@ -141,7 +141,7 @@ protected:
 
 private:
   vtkContext3D(const vtkContext3D &);   // Not implemented.
-  void operator=(const vtkContext3D &); // Not implemented.
+  void operator=(const vtkContext3D &) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTKCONTEXT3D_H

@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkArrayNorm(const vtkArrayNorm&); // Not implemented
-  void operator=(const vtkArrayNorm&);   // Not implemented
+  void operator=(const vtkArrayNorm&) VTK_DELETE_FUNCTION;
 
   int Dimension;
   int L;

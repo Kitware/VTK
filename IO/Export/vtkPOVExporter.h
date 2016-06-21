@@ -116,7 +116,7 @@ protected:
 
 private:
     vtkPOVExporter(const vtkPOVExporter&);  // Not implemented.
-    void operator=(const vtkPOVExporter&);  // Not implemented.
+    void operator=(const vtkPOVExporter&) VTK_DELETE_FUNCTION;
 
     vtkPOVInternals *Internals;
 };

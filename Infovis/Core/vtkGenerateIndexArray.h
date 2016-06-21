@@ -110,7 +110,7 @@ protected:
 
 private:
   vtkGenerateIndexArray(const vtkGenerateIndexArray&);  // Not implemented.
-  void operator=(const vtkGenerateIndexArray&);  // Not implemented.
+  void operator=(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
 };
 
 #endif

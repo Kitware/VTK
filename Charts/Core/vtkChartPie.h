@@ -128,7 +128,7 @@ protected:
 
 private:
   vtkChartPie(const vtkChartPie &); // Not implemented.
-  void operator=(const vtkChartPie &);   // Not implemented.
+  void operator=(const vtkChartPie &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Try to locate a point within the plots to display in a tooltip

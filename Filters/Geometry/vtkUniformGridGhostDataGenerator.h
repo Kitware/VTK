@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkUniformGridGhostDataGenerator(const vtkUniformGridGhostDataGenerator&); // Not implemented
-  void operator=(const vtkUniformGridGhostDataGenerator&); // Not implemented
+  void operator=(const vtkUniformGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkUniformGridGhostDataGenerator_h */

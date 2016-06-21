@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkBoostLogWeighting(const vtkBoostLogWeighting&); // Not implemented
-  void operator=(const vtkBoostLogWeighting&);   // Not implemented
+  void operator=(const vtkBoostLogWeighting&) VTK_DELETE_FUNCTION;
 
   int Base;
   bool EmitProgress;

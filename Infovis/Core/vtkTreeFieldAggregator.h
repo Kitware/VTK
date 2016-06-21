@@ -80,7 +80,7 @@ private:
   bool LogScale;
   double MinValue;
   vtkTreeFieldAggregator(const vtkTreeFieldAggregator&);  // Not implemented.
-  void operator=(const vtkTreeFieldAggregator&);  // Not implemented.
+  void operator=(const vtkTreeFieldAggregator&) VTK_DELETE_FUNCTION;
   double GetDoubleValue(vtkAbstractArray* arr, vtkIdType id);
   static void SetDoubleValue(vtkAbstractArray* arr, vtkIdType id, double value);
 };

@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkCameraActor(const vtkCameraActor&);  // Not implemented.
-  void operator=(const vtkCameraActor&);  // Not implemented.
+  void operator=(const vtkCameraActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

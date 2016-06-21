@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkContextClip(const vtkContextClip &); // Not implemented.
-  void operator=(const vtkContextClip &);   // Not implemented.
+  void operator=(const vtkContextClip &) VTK_DELETE_FUNCTION;
 
 };
 

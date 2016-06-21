@@ -86,7 +86,7 @@ protected:
   int OutputsInitialized;
 private:
   vtkExtractVectorComponents(const vtkExtractVectorComponents&);  // Not implemented.
-  void operator=(const vtkExtractVectorComponents&);  // Not implemented.
+  void operator=(const vtkExtractVectorComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

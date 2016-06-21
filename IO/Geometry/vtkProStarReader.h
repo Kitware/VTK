@@ -105,6 +105,6 @@ private:
   bool ReadCelFile(vtkUnstructuredGrid *output, const idMapping& pointMapping);
 
   vtkProStarReader(const vtkProStarReader&); // Not implemented.
-  void operator=(const vtkProStarReader&); // Not implemented.
+  void operator=(const vtkProStarReader&) VTK_DELETE_FUNCTION;
 };
 #endif

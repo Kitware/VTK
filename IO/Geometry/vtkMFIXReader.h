@@ -231,7 +231,7 @@ protected:
 
 private:
   vtkMFIXReader(const vtkMFIXReader&);  // Not implemented.
-  void operator=(const vtkMFIXReader&);  // Not implemented.
+  void operator=(const vtkMFIXReader&) VTK_DELETE_FUNCTION;
 
   void MakeMesh(vtkUnstructuredGrid *output);
   void SwapDouble(double &value);

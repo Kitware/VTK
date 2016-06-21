@@ -77,7 +77,7 @@ protected:
 
 private:
   vtkGenericProbeFilter(const vtkGenericProbeFilter&);  // Not implemented.
-  void operator=(const vtkGenericProbeFilter&);  // Not implemented.
+  void operator=(const vtkGenericProbeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

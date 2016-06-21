@@ -60,7 +60,7 @@ private:
 
 private:
   vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);  // Not implemented.
-  void operator=(const vtkOverrideInformationCollection&);  // Not implemented.
+  void operator=(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)

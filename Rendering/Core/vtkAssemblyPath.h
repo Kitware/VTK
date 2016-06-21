@@ -108,7 +108,7 @@ private:
 
 private:
   vtkAssemblyPath(const vtkAssemblyPath&);  // Not implemented.
-  void operator=(const vtkAssemblyPath&);  // Not implemented.
+  void operator=(const vtkAssemblyPath&) VTK_DELETE_FUNCTION;
 };
 
 #endif

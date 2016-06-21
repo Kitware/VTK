@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkButtonSource(const vtkButtonSource&);  // Not implemented.
-  void operator=(const vtkButtonSource&);  // Not implemented.
+  void operator=(const vtkButtonSource&) VTK_DELETE_FUNCTION;
 
 };
 

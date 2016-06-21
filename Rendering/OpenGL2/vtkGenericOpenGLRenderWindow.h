@@ -120,7 +120,7 @@ protected:
 
 private:
   vtkGenericOpenGLRenderWindow(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkGenericOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkGenericOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

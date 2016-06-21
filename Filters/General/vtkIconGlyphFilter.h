@@ -149,7 +149,7 @@ protected:
 
 private:
   vtkIconGlyphFilter(const vtkIconGlyphFilter&);  // Not implemented.
-  void operator=(const vtkIconGlyphFilter&);  // Not implemented.
+  void operator=(const vtkIconGlyphFilter&) VTK_DELETE_FUNCTION;
 
   void IconConvertIndex(int id, int & j, int & k);
 };

@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkOpenGLContextActor(const vtkOpenGLContextActor&);  // Not implemented.
-  void operator=(const vtkOpenGLContextActor&);  // Not implemented.
+  void operator=(const vtkOpenGLContextActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

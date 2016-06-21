@@ -178,7 +178,7 @@ protected:
 
 private:
   vtkContextTransform(const vtkContextTransform &); // Not implemented.
-  void operator=(const vtkContextTransform &);   // Not implemented.
+  void operator=(const vtkContextTransform &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -187,7 +187,7 @@ protected:
 
 private:
   vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLHAVSVolumeMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

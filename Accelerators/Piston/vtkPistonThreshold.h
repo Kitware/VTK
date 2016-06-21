@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkPistonThreshold(const vtkPistonThreshold&);  // Not implemented.
-  void operator=(const vtkPistonThreshold&);  // Not implemented.
+  void operator=(const vtkPistonThreshold&) VTK_DELETE_FUNCTION;
 
 };
 

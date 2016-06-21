@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkCompressCompositer(const vtkCompressCompositer&); // Not implemented
-  void operator=(const vtkCompressCompositer&); // Not implemented
+  void operator=(const vtkCompressCompositer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

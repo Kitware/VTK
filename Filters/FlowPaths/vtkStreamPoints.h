@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
-  void operator=(const vtkStreamPoints&);  // Not implemented.
+  void operator=(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

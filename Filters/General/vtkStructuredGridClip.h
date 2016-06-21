@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkStructuredGridClip(const vtkStructuredGridClip&);  // Not implemented.
-  void operator=(const vtkStructuredGridClip&);  // Not implemented.
+  void operator=(const vtkStructuredGridClip&) VTK_DELETE_FUNCTION;
 };
 
 

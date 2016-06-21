@@ -38,7 +38,7 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
 private:
   vtkTStripsPainter(const vtkTStripsPainter&); // Not implemented.
-  void operator=(const vtkTStripsPainter&); // Not implemented.
+  void operator=(const vtkTStripsPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

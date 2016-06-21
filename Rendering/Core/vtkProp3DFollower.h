@@ -108,7 +108,7 @@ protected:
 
 private:
   vtkProp3DFollower(const vtkProp3DFollower&);  // Not implemented.
-  void operator=(const vtkProp3DFollower&);  // Not implemented.
+  void operator=(const vtkProp3DFollower&) VTK_DELETE_FUNCTION;
 };
 
 #endif

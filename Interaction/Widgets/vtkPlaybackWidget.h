@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkPlaybackWidget(const vtkPlaybackWidget&);  //Not implemented
-  void operator=(const vtkPlaybackWidget&);  //Not implemented
+  void operator=(const vtkPlaybackWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

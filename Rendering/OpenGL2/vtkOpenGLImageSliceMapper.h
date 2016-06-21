@@ -124,7 +124,7 @@ protected:
 
 private:
   vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLImageSliceMapper&);  // Not implemented.
+  void operator=(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

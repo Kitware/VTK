@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkParametricFigure8Klein(const vtkParametricFigure8Klein&);  // Not implemented.
-  void operator=(const vtkParametricFigure8Klein&);  // Not implemented.
+  void operator=(const vtkParametricFigure8Klein&) VTK_DELETE_FUNCTION;
 
 };
 

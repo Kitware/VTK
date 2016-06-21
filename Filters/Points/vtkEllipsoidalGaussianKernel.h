@@ -163,7 +163,7 @@ protected:
 
 private:
   vtkEllipsoidalGaussianKernel(const vtkEllipsoidalGaussianKernel&);  // Not implemented.
-  void operator=(const vtkEllipsoidalGaussianKernel&);  // Not implemented.
+  void operator=(const vtkEllipsoidalGaussianKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

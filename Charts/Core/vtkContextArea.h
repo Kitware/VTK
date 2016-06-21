@@ -235,7 +235,7 @@ protected:
 
 private:
   vtkContextArea(const vtkContextArea &); // Not implemented.
-  void operator=(const vtkContextArea &); // Not implemented.
+  void operator=(const vtkContextArea &) VTK_DELETE_FUNCTION;
 
   // Smart pointers for axis lifetime management. See this->Axes.
   vtkNew<vtkAxis> TopAxis;

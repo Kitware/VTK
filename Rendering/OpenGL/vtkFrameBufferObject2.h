@@ -306,7 +306,7 @@ protected:
 
 private:
   vtkFrameBufferObject2(const vtkFrameBufferObject2&); // Not implemented.
-  void operator=(const vtkFrameBufferObject2&); // Not implemented.
+  void operator=(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
 
   friend class vtkRenderbuffer; // needs access to LoadRequiredExtentsions
 

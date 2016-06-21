@@ -168,7 +168,7 @@ private:
 
 private:
   vtkVRMLImporter(const vtkVRMLImporter&);  // Not implemented.
-  void operator=(const vtkVRMLImporter&);  // Not implemented.
+  void operator=(const vtkVRMLImporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

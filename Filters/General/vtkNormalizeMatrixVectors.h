@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkNormalizeMatrixVectors(const vtkNormalizeMatrixVectors&); // Not implemented
-  void operator=(const vtkNormalizeMatrixVectors&);   // Not implemented
+  void operator=(const vtkNormalizeMatrixVectors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

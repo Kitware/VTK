@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkAngularPeriodicDataArray(const vtkAngularPeriodicDataArray &); // Not implemented.
-  void operator=(const vtkAngularPeriodicDataArray &); // Not implemented.
+  void operator=(const vtkAngularPeriodicDataArray &) VTK_DELETE_FUNCTION;
 
   double Angle;            // Rotation angle in degrees
   double AngleInRadians;   // Rotation angle in radians

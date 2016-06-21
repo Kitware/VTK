@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkInformationIterator(const vtkInformationIterator&);  // Not implemented.
-  void operator=(const vtkInformationIterator&);  // Not implemented.
+  void operator=(const vtkInformationIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

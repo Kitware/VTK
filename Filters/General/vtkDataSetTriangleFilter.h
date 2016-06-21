@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);  // Not implemented.
-  void operator=(const vtkDataSetTriangleFilter&);  // Not implemented.
+  void operator=(const vtkDataSetTriangleFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

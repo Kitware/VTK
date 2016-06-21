@@ -411,7 +411,7 @@ protected:
 
 private:
   vtkChartXYZ(const vtkChartXYZ &);    // Not implemented.
-  void operator=(const vtkChartXYZ &); // Not implemented.
+  void operator=(const vtkChartXYZ &) VTK_DELETE_FUNCTION;
 };
 
 #endif

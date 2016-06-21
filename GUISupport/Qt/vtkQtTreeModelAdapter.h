@@ -111,7 +111,7 @@ protected:
 
 private:
   vtkQtTreeModelAdapter(const vtkQtTreeModelAdapter &);  // Not implemented
-  void operator=(const vtkQtTreeModelAdapter&);  // Not implemented.
+  void operator=(const vtkQtTreeModelAdapter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

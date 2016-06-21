@@ -74,7 +74,7 @@ protected:
 
 private:
   vtkDiskSource(const vtkDiskSource&);  // Not implemented.
-  void operator=(const vtkDiskSource&);  // Not implemented.
+  void operator=(const vtkDiskSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

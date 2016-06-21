@@ -500,7 +500,7 @@ protected:
 
 private:
    vtkStructuredAMRGridConnectivity(const vtkStructuredAMRGridConnectivity&); // Not implemented
-   void operator=(const vtkStructuredAMRGridConnectivity&); // Not implemented
+   void operator=(const vtkStructuredAMRGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================

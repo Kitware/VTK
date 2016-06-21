@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkLogoRepresentation(const vtkLogoRepresentation&);  //Not implemented
-  void operator=(const vtkLogoRepresentation&);  //Not implemented
+  void operator=(const vtkLogoRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

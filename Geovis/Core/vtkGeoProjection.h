@@ -131,7 +131,7 @@ protected:
 
 private:
   vtkGeoProjection( const vtkGeoProjection& ); // Not implemented.
-  void operator = ( const vtkGeoProjection& ); // Not implemented.
+  void operator = ( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

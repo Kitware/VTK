@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkQuad(const vtkQuad&);  // Not implemented.
-  void operator=(const vtkQuad&);  // Not implemented.
+  void operator=(const vtkQuad&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuad::GetParametricCenter(double pcoords[3])

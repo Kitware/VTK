@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkStructuredGridAlgorithm(const vtkStructuredGridAlgorithm&);  // Not implemented.
-  void operator=(const vtkStructuredGridAlgorithm&);  // Not implemented.
+  void operator=(const vtkStructuredGridAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

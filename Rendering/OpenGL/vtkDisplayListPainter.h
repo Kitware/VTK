@@ -63,7 +63,7 @@ protected:
 
 private:
   vtkDisplayListPainter(const vtkDisplayListPainter&); // Not implemented.
-  void operator=(const vtkDisplayListPainter&); // Not implemented.
+  void operator=(const vtkDisplayListPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkMaskPolyData(const vtkMaskPolyData&);  // Not implemented.
-  void operator=(const vtkMaskPolyData&);  // Not implemented.
+  void operator=(const vtkMaskPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

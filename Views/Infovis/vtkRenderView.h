@@ -262,7 +262,7 @@ protected:
 
 private:
   vtkRenderView(const vtkRenderView&);  // Not implemented.
-  void operator=(const vtkRenderView&);  // Not implemented.
+  void operator=(const vtkRenderView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

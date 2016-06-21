@@ -87,7 +87,7 @@ protected:
 
 private:
   vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
-  void operator=(const vtkProjectedTetrahedraMapper &);  // Not Implemented.
+  void operator=(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;
 };
 
 #endif

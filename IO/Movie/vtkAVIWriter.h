@@ -96,7 +96,7 @@ protected:
 
 private:
   vtkAVIWriter(const vtkAVIWriter&); // Not implemented
-  void operator=(const vtkAVIWriter&); // Not implemented
+  void operator=(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

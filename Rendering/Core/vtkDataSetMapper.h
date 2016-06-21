@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkDataSetMapper(const vtkDataSetMapper&);  // Not implemented.
-  void operator=(const vtkDataSetMapper&);  // Not implemented.
+  void operator=(const vtkDataSetMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

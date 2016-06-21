@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkArrayDataAlgorithm(const vtkArrayDataAlgorithm&);  // Not implemented.
-  void operator=(const vtkArrayDataAlgorithm&);  // Not implemented.
+  void operator=(const vtkArrayDataAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -67,7 +67,7 @@ private:
 
 private:
  vtkBackgroundColorMonitor(const vtkBackgroundColorMonitor&); // Not implemented
- void operator=(const vtkBackgroundColorMonitor&); // Not implemented
+ void operator=(const vtkBackgroundColorMonitor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

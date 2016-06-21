@@ -208,7 +208,7 @@ protected:
   int GetInputArrays(vtkDataArray*& col1, vtkDataArray*& col2);
 private:
   vtkExtractHistogram2D(const vtkExtractHistogram2D&); // Not implemented
-  void operator=(const vtkExtractHistogram2D&);   // Not implemented
+  void operator=(const vtkExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

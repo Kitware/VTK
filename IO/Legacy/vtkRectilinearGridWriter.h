@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
+  void operator=(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

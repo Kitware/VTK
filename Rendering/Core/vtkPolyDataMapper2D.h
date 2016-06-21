@@ -201,7 +201,7 @@ protected:
   int ArrayAccessMode;
 private:
   vtkPolyDataMapper2D(const vtkPolyDataMapper2D&);  // Not implemented.
-  void operator=(const vtkPolyDataMapper2D&);  // Not implemented.
+  void operator=(const vtkPolyDataMapper2D&) VTK_DELETE_FUNCTION;
 };
 
 

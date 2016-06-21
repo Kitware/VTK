@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkGraphWeightFilter(const vtkGraphWeightFilter&);  // Not implemented.
-  void operator=(const vtkGraphWeightFilter&);  // Not implemented.
+  void operator=(const vtkGraphWeightFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

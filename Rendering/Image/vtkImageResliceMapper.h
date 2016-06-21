@@ -231,7 +231,7 @@ protected:
 
 private:
   vtkImageResliceMapper(const vtkImageResliceMapper&);  // Not implemented.
-  void operator=(const vtkImageResliceMapper&);  // Not implemented.
+  void operator=(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

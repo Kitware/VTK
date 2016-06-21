@@ -374,7 +374,7 @@ protected:
 
 private:
   vtkLookupTable(const vtkLookupTable&);  // Not implemented.
-  void operator=(const vtkLookupTable&);  // Not implemented.
+  void operator=(const vtkLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

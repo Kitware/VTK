@@ -275,7 +275,7 @@ protected:
 
 private:
   vtkSphereWidget(const vtkSphereWidget&);  //Not implemented
-  void operator=(const vtkSphereWidget&);  //Not implemented
+  void operator=(const vtkSphereWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

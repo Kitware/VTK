@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkDSPFilterDefinition(const vtkDSPFilterDefinition&); // Not implemented
-  void operator=(const vtkDSPFilterDefinition&); // Not implemented
+  void operator=(const vtkDSPFilterDefinition&) VTK_DELETE_FUNCTION;
 };
 
 

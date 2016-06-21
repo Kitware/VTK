@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkStringOutputWindow(const vtkStringOutputWindow&);  // Not implemented.
-  void operator=(const vtkStringOutputWindow&);  // Not implemented.
+  void operator=(const vtkStringOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

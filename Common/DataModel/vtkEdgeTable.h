@@ -164,7 +164,7 @@ protected:
 
 private:
   vtkEdgeTable(const vtkEdgeTable&);  // Not implemented.
-  void operator=(const vtkEdgeTable&);  // Not implemented.
+  void operator=(const vtkEdgeTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

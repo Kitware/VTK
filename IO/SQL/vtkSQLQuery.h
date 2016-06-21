@@ -202,7 +202,7 @@ protected:
 
 private:
   vtkSQLQuery(const vtkSQLQuery &); // Not implemented.
-  void operator=(const vtkSQLQuery &); // Not implemented.
+  void operator=(const vtkSQLQuery &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkSQLQuery_h

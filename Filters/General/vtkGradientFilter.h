@@ -210,7 +210,7 @@ protected:
 
 private:
   vtkGradientFilter(const vtkGradientFilter &); // Not implemented
-  void operator=(const vtkGradientFilter &);    // Not implemented
+  void operator=(const vtkGradientFilter &) VTK_DELETE_FUNCTION;
 };
 
 #endif //_vtkGradientFilter_h

@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkGraphToPolyData(const vtkGraphToPolyData&);  // Not implemented.
-  void operator=(const vtkGraphToPolyData&);  // Not implemented.
+  void operator=(const vtkGraphToPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

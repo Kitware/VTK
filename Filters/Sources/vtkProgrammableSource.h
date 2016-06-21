@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkProgrammableSource(const vtkProgrammableSource&);  // Not implemented.
-  void operator=(const vtkProgrammableSource&);  // Not implemented.
+  void operator=(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

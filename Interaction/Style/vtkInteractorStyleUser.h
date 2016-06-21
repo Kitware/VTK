@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
-  void operator=(const vtkInteractorStyleUser&);  // Not implemented.
+  void operator=(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
 };
 
 #endif

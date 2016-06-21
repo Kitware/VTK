@@ -41,7 +41,7 @@ protected:
 
 private:
   vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
+  void operator=(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

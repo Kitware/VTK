@@ -194,7 +194,7 @@ protected:
 
 private:
   vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&); // Not implemented.
-  void operator=(const vtkSOADataArrayTemplate&); // Not implemented.
+  void operator=(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const

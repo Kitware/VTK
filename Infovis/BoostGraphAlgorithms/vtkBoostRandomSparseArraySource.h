@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&); // Not implemented
-  void operator=(const vtkBoostRandomSparseArraySource&);   // Not implemented
+  void operator=(const vtkBoostRandomSparseArraySource&) VTK_DELETE_FUNCTION;
 
   vtkArrayExtents Extents;
 

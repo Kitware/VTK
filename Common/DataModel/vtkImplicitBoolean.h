@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkImplicitBoolean(const vtkImplicitBoolean&);  // Not implemented.
-  void operator=(const vtkImplicitBoolean&);  // Not implemented.
+  void operator=(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

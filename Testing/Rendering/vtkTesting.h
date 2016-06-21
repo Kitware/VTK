@@ -287,7 +287,7 @@ protected:
 
 private:
   vtkTesting(const vtkTesting&);  // Not implemented.
-  void operator=(const vtkTesting&);  // Not implemented.
+  void operator=(const vtkTesting&) VTK_DELETE_FUNCTION;
 };
 
 #endif

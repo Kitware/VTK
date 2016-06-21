@@ -165,7 +165,7 @@ protected:
 
 private:
   vtkMNIObjectWriter(const vtkMNIObjectWriter&); // Not implemented
-  void operator=(const vtkMNIObjectWriter&);  // Not implemented
+  void operator=(const vtkMNIObjectWriter&) VTK_DELETE_FUNCTION;
 
 };
 

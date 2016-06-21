@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkInformationVariantKey(const vtkInformationVariantKey&);  // Not implemented.
-  void operator=(const vtkInformationVariantKey&);  // Not implemented.
+  void operator=(const vtkInformationVariantKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

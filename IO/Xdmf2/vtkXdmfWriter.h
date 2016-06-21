@@ -191,7 +191,7 @@ protected:
 
 private:
   vtkXdmfWriter(const vtkXdmfWriter&); // Not implemented
-  void operator=(const vtkXdmfWriter&); // Not implemented
+  void operator=(const vtkXdmfWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkXdmfWriter_h */

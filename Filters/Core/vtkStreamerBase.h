@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkStreamerBase(const vtkStreamerBase &); // Not implemented.
-  void operator=(const vtkStreamerBase &);        // Not implemented.
+  void operator=(const vtkStreamerBase &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -74,7 +74,7 @@ private:
 
 private:
   vtkVolumeCollection(const vtkVolumeCollection&);  // Not implemented.
-  void operator=(const vtkVolumeCollection&);  // Not implemented.
+  void operator=(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

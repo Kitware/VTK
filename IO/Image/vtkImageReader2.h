@@ -277,7 +277,7 @@ protected:
   virtual void ComputeDataIncrements();
 private:
   vtkImageReader2(const vtkImageReader2&);  // Not implemented.
-  void operator=(const vtkImageReader2&);  // Not implemented.
+  void operator=(const vtkImageReader2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

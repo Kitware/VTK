@@ -223,7 +223,7 @@ protected:
 
 private:
   vtkNetCDFReader(const vtkNetCDFReader &);     // Not implemented
-  void operator=(const vtkNetCDFReader &);      // Not implemented
+  void operator=(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
 
   int UpdateExtent[6];
   char *TimeUnits;

@@ -213,7 +213,7 @@ protected:
 private:
   int SizeOfInt;
   vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&);  // Not implemented.
-  void operator=(const vtkEnSightGoldBinaryReader&);  // Not implemented.
+  void operator=(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

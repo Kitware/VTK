@@ -73,7 +73,7 @@ protected:
 
 private:
   vtkProcess(const vtkProcess&);  // Not implemented.
-  void operator=(const vtkProcess&);  // Not implemented.
+  void operator=(const vtkProcess&) VTK_DELETE_FUNCTION;
 };
 
 #endif

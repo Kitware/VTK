@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkPixel(const vtkPixel&);  // Not implemented.
-  void operator=(const vtkPixel&);  // Not implemented.
+  void operator=(const vtkPixel&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

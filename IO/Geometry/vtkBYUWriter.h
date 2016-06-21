@@ -105,7 +105,7 @@ protected:
 
 private:
   vtkBYUWriter(const vtkBYUWriter&);  // Not implemented.
-  void operator=(const vtkBYUWriter&);  // Not implemented.
+  void operator=(const vtkBYUWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

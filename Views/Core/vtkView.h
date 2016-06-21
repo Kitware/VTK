@@ -213,7 +213,7 @@ protected:
 
 private:
   vtkView(const vtkView&);  // Not implemented.
-  void operator=(const vtkView&);  // Not implemented.
+  void operator=(const vtkView&) VTK_DELETE_FUNCTION;
 
   class vtkImplementation;
   vtkImplementation* Implementation;

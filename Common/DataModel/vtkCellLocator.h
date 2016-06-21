@@ -200,7 +200,7 @@ protected:
 
 private:
   vtkCellLocator(const vtkCellLocator&);  // Not implemented.
-  void operator=(const vtkCellLocator&);  // Not implemented.
+  void operator=(const vtkCellLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkTransformToGrid(const vtkTransformToGrid&);  // Not implemented.
-  void operator=(const vtkTransformToGrid&);  // Not implemented.
+  void operator=(const vtkTransformToGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

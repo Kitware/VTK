@@ -91,7 +91,7 @@ protected:
 
 private:
   vtkWebGLExporter(const vtkWebGLExporter&); // Not implemented
-  void operator=(const vtkWebGLExporter&);   // Not implemented
+  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&);  // Not implemented.
-  void operator=(const vtkExtractPolyDataGeometry&);  // Not implemented.
+  void operator=(const vtkExtractPolyDataGeometry&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

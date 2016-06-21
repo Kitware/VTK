@@ -215,7 +215,7 @@ private:
 
   vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other); // Not implemented
 
-  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other); // Not implemented
+  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeGradientOpacityTable_h

@@ -148,7 +148,7 @@ private:
 
   //
   vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationObjectBaseVectorKey&);  // Not implemented.
+  void operator=(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

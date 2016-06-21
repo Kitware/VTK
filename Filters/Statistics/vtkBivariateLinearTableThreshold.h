@@ -198,7 +198,7 @@ protected:
   int ThresholdBetween(double x, double y);
 private:
   vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&); // Not implemented
-  void operator=(const vtkBivariateLinearTableThreshold&); // Not implemented
+  void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

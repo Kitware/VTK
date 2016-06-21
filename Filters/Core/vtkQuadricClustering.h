@@ -350,7 +350,7 @@ protected:
 
 private:
   vtkQuadricClustering(const vtkQuadricClustering&);  // Not implemented.
-  void operator=(const vtkQuadricClustering&);  // Not implemented.
+  void operator=(const vtkQuadricClustering&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -127,7 +127,7 @@ private:
     vtkAbstractArray *abstract,vtkVariant value);
 
   vtkBoostPrimMinimumSpanningTree(const vtkBoostPrimMinimumSpanningTree&);  // Not implemented.
-  void operator=(const vtkBoostPrimMinimumSpanningTree&);  // Not implemented.
+  void operator=(const vtkBoostPrimMinimumSpanningTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

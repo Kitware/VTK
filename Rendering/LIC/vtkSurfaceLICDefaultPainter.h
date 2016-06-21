@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkSurfaceLICDefaultPainter(const vtkSurfaceLICDefaultPainter&); // Not implemented.
-  void operator=(const vtkSurfaceLICDefaultPainter&); // Not implemented.
+  void operator=(const vtkSurfaceLICDefaultPainter&) VTK_DELETE_FUNCTION;
 
 };
 

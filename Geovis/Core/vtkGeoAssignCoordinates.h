@@ -93,7 +93,7 @@ private:
   vtkAbstractTransform* Transform;
 
   vtkGeoAssignCoordinates(const vtkGeoAssignCoordinates&);  // Not implemented.
-  void operator=(const vtkGeoAssignCoordinates&);  // Not implemented.
+  void operator=(const vtkGeoAssignCoordinates&) VTK_DELETE_FUNCTION;
 };
 
 #endif

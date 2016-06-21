@@ -137,7 +137,7 @@ protected:
 
 private:
   vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
-  void operator = ( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
+  void operator = ( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCosmicTreeLayoutStrategy_h

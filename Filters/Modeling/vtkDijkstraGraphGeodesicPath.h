@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&);  // Not implemented.
-  void operator=(const vtkDijkstraGraphGeodesicPath&);  // Not implemented.
+  void operator=(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
 
 };
 

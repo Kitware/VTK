@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkStructuredGridWriter(const vtkStructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkStructuredGridWriter&);  // Not implemented.
+  void operator=(const vtkStructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

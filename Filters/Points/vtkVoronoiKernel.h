@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkVoronoiKernel(const vtkVoronoiKernel&);  // Not implemented.
-  void operator=(const vtkVoronoiKernel&);  // Not implemented.
+  void operator=(const vtkVoronoiKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

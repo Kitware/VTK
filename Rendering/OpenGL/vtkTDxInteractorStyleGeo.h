@@ -50,6 +50,6 @@ protected:
 
 private:
   vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleGeo&);  // Not implemented.
+  void operator=(const vtkTDxInteractorStyleGeo&) VTK_DELETE_FUNCTION;
 };
 #endif

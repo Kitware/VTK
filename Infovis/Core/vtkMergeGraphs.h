@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkMergeGraphs(const vtkMergeGraphs&); // Not implemented
-  void operator=(const vtkMergeGraphs&);   // Not implemented
+  void operator=(const vtkMergeGraphs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -91,7 +91,7 @@ protected:
   double DataOrigin[3];
 private:
   vtkVolumeReader(const vtkVolumeReader&);  // Not implemented.
-  void operator=(const vtkVolumeReader&);  // Not implemented.
+  void operator=(const vtkVolumeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

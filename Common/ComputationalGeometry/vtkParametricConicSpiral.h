@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkParametricConicSpiral(const vtkParametricConicSpiral&);  // Not implemented.
-  void operator=(const vtkParametricConicSpiral&);  // Not implemented.
+  void operator=(const vtkParametricConicSpiral&) VTK_DELETE_FUNCTION;
 };
 
 #endif

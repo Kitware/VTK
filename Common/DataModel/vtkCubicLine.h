@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkCubicLine(const vtkCubicLine&);  // Not implemented.
-  void operator=(const vtkCubicLine&);  // Not implemented.
+  void operator=(const vtkCubicLine&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

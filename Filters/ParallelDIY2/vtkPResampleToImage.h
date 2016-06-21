@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkPResampleToImage(const vtkPResampleToImage&);  // Not implemented.
-  void operator=(const vtkPResampleToImage&);  // Not implemented.
+  void operator=(const vtkPResampleToImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

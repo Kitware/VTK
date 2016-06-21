@@ -332,7 +332,7 @@ protected:
 
 private:
   vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&); // Not implemented
-  void operator=(const vtkParallelCoordinatesRepresentation&);   // Not implemented
+  void operator=(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

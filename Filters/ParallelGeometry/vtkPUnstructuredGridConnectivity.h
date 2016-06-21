@@ -290,7 +290,7 @@ protected:
 
 private:
   vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&); // Not implemented
-  void operator=(const vtkPUnstructuredGridConnectivity&); // Not implemented
+  void operator=(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

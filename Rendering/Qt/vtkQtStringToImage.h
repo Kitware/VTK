@@ -80,7 +80,7 @@ protected:
 
 private:
   vtkQtStringToImage(const vtkQtStringToImage &); // Not implemented.
-  void operator=(const vtkQtStringToImage &);   // Not implemented.
+  void operator=(const vtkQtStringToImage &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkQtStringToImage_h

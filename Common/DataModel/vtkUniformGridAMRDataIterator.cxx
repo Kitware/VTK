@@ -100,7 +100,7 @@ protected:
   int InternalIdx;
 private:
   AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&);  //Not implemented
-  void operator=(const AMRLoadedDataIndexIterator&);  //Not implemented
+  void operator=(const AMRLoadedDataIndexIterator&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(AMRLoadedDataIndexIterator);
 

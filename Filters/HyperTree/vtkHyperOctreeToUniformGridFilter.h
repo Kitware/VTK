@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkHyperOctreeToUniformGridFilter(const vtkHyperOctreeToUniformGridFilter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeToUniformGridFilter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeToUniformGridFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

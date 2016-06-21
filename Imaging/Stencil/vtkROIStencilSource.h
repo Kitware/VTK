@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkROIStencilSource(const vtkROIStencilSource&);  // Not implemented.
-  void operator=(const vtkROIStencilSource&);  // Not implemented.
+  void operator=(const vtkROIStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

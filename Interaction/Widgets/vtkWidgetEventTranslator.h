@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkWidgetEventTranslator(const vtkWidgetEventTranslator&);  //Not implemented
-  void operator=(const vtkWidgetEventTranslator&);  //Not implemented
+  void operator=(const vtkWidgetEventTranslator&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkImplicitSum(const vtkImplicitSum&);  // Not implemented.
-  void operator=(const vtkImplicitSum&);  // Not implemented.
+  void operator=(const vtkImplicitSum&) VTK_DELETE_FUNCTION;
 };
 
 #endif

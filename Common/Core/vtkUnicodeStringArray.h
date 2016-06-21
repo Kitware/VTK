@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkUnicodeStringArray(const vtkUnicodeStringArray&);  // Not implemented.
-  void operator=(const vtkUnicodeStringArray&);  // Not implemented.
+  void operator=(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
 
   class Implementation;
   Implementation* Internal;

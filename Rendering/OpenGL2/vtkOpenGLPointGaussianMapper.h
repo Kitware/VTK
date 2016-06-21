@@ -52,7 +52,7 @@ protected:
 
 private:
   vtkOpenGLPointGaussianMapper(const vtkOpenGLPointGaussianMapper&); // Not implemented.
-  void operator=(const vtkOpenGLPointGaussianMapper&); // Not implemented.
+  void operator=(const vtkOpenGLPointGaussianMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

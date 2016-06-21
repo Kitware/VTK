@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkShrinkFilter(const vtkShrinkFilter&);  // Not implemented.
-  void operator=(const vtkShrinkFilter&);  // Not implemented.
+  void operator=(const vtkShrinkFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

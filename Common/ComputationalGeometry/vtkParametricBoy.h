@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkParametricBoy(const vtkParametricBoy&);  // Not implemented.
-  void operator=(const vtkParametricBoy&);  // Not implemented.
+  void operator=(const vtkParametricBoy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

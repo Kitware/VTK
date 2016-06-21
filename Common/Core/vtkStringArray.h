@@ -291,7 +291,7 @@ protected:
 
 private:
   vtkStringArray(const vtkStringArray&);  // Not implemented.
-  void operator=(const vtkStringArray&);  // Not implemented.
+  void operator=(const vtkStringArray&) VTK_DELETE_FUNCTION;
 
   vtkStringArrayLookup* Lookup;
   void UpdateLookup();

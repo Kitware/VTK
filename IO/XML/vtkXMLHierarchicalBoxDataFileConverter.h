@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkXMLHierarchicalBoxDataFileConverter(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
-  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&); // Not implemented.
+  void operator=(const vtkXMLHierarchicalBoxDataFileConverter&) VTK_DELETE_FUNCTION;
 
 };
 

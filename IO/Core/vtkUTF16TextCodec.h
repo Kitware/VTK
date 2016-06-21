@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkUTF16TextCodec(const vtkUTF16TextCodec &) ; // Not implemented.
-  void operator=(const vtkUTF16TextCodec &) ; // Not implemented.
+  void operator=(const vtkUTF16TextCodec &)  VTK_DELETE_FUNCTION;
 
 };
 

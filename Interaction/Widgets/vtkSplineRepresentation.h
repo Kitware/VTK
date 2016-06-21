@@ -115,7 +115,7 @@ protected:
 
 private:
   vtkSplineRepresentation(const vtkSplineRepresentation&); // Not implemented.
-  void operator=(const vtkSplineRepresentation&); // Not implemented.
+  void operator=(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
 
 };
 

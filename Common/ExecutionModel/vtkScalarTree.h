@@ -133,7 +133,7 @@ protected:
 
 private:
   vtkScalarTree(const vtkScalarTree&);  // Not implemented.
-  void operator=(const vtkScalarTree&);  // Not implemented.
+  void operator=(const vtkScalarTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkPruneTreeFilter(const vtkPruneTreeFilter&); // Not implemented
-  void operator=(const vtkPruneTreeFilter&);   // Not implemented
+  void operator=(const vtkPruneTreeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

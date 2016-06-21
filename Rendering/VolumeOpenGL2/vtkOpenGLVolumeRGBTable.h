@@ -210,7 +210,7 @@ private:
 
   vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other); // Not implemented
 
-  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other); // Not implemented
+  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeRGBTable_h

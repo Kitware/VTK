@@ -146,6 +146,6 @@ protected:
 
 private:
   vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.
-  void operator=(const vtkGenericContourFilter&);  // Not implemented.
+  void operator=(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkMergeColumns(const vtkMergeColumns&); // Not implemented
-  void operator=(const vtkMergeColumns&);   // Not implemented
+  void operator=(const vtkMergeColumns&) VTK_DELETE_FUNCTION;
 };
 
 #endif

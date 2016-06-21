@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&);  // Not implemented.
-  void operator=(const vtkDirectedAcyclicGraph&);  // Not implemented.
+  void operator=(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

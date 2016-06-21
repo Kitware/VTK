@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkImageImportExecutive(const vtkImageImportExecutive&);  // Not implemented.
-  void operator=(const vtkImageImportExecutive&);  // Not implemented.
+  void operator=(const vtkImageImportExecutive&) VTK_DELETE_FUNCTION;
 };
 
 #endif

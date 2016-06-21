@@ -61,7 +61,7 @@ protected:
 
 private:
   vtkTableFFT(const vtkTableFFT &);     // Not implemented
-  void operator=(const vtkTableFFT &);  // Not implemented
+  void operator=(const vtkTableFFT &) VTK_DELETE_FUNCTION;
 };
 
 

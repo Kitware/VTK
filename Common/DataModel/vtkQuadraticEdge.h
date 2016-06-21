@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkQuadraticEdge(const vtkQuadraticEdge&);  // Not implemented.
-  void operator=(const vtkQuadraticEdge&);  // Not implemented.
+  void operator=(const vtkQuadraticEdge&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticEdge::GetParametricCenter(double pcoords[3])

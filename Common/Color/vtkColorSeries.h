@@ -309,7 +309,7 @@ protected:
 
 private:
   vtkColorSeries(const vtkColorSeries &); // Not implemented.
-  void operator=(const vtkColorSeries &);   // Not implemented.
+  void operator=(const vtkColorSeries &) VTK_DELETE_FUNCTION;
 
 };
 

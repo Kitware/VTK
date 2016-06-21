@@ -122,7 +122,7 @@ protected:
 
 private:
   vtkImageThreshold(const vtkImageThreshold&);  // Not implemented.
-  void operator=(const vtkImageThreshold&);  // Not implemented.
+  void operator=(const vtkImageThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

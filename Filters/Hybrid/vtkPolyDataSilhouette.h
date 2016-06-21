@@ -159,7 +159,7 @@ protected:
 
 private:
   vtkPolyDataSilhouette(const vtkPolyDataSilhouette&);  // Not implemented.
-  void operator=(const vtkPolyDataSilhouette&);  // Not implemented.
+  void operator=(const vtkPolyDataSilhouette&) VTK_DELETE_FUNCTION;
 };
 
 #endif

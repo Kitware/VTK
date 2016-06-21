@@ -74,7 +74,7 @@ protected:
 
 private:
   vtkChartHistogram2D(const vtkChartHistogram2D &); // Not implemented.
-  void operator=(const vtkChartHistogram2D &);   // Not implemented.
+  void operator=(const vtkChartHistogram2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkChartHistogram2D_h

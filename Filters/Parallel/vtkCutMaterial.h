@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkCutMaterial(const vtkCutMaterial&);  // Not implemented.
-  void operator=(const vtkCutMaterial&);  // Not implemented.
+  void operator=(const vtkCutMaterial&) VTK_DELETE_FUNCTION;
 };
 
 #endif

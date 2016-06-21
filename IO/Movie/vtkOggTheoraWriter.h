@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkOggTheoraWriter(const vtkOggTheoraWriter&); // Not implemented
-  void operator=(const vtkOggTheoraWriter&); // Not implemented
+  void operator=(const vtkOggTheoraWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

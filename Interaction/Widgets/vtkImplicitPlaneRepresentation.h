@@ -397,7 +397,7 @@ protected:
 
 private:
   vtkImplicitPlaneRepresentation(const vtkImplicitPlaneRepresentation&);  //Not implemented
-  void operator=(const vtkImplicitPlaneRepresentation&);  //Not implemented
+  void operator=(const vtkImplicitPlaneRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

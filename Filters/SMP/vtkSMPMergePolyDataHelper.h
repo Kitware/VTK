@@ -77,7 +77,7 @@ protected:
 
 private:
   vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&);  // Not implemented.
-  void operator=(const vtkSMPMergePolyDataHelper&);  // Not implemented.
+  void operator=(const vtkSMPMergePolyDataHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

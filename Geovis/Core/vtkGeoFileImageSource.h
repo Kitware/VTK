@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkGeoFileImageSource(const vtkGeoFileImageSource&); // Not implemented
-  void operator=(const vtkGeoFileImageSource&); // Not implemented
+  void operator=(const vtkGeoFileImageSource&) VTK_DELETE_FUNCTION;
 
   char* Path;
 };

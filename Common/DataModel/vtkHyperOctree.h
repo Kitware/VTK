@@ -553,7 +553,7 @@ protected:
 
 private:
   vtkHyperOctree(const vtkHyperOctree&);  // Not implemented.
-  void operator=(const vtkHyperOctree&);    // Not implemented.
+  void operator=(const vtkHyperOctree&) VTK_DELETE_FUNCTION;
 };
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor

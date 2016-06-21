@@ -106,7 +106,7 @@ protected:
 
 private:
   vtkChooserPainter(const vtkChooserPainter &); // Not implemented
-  void operator=(const vtkChooserPainter &);    // Not implemented
+  void operator=(const vtkChooserPainter &) VTK_DELETE_FUNCTION;
 };
 
 #endif //_vtkChooserPainter_h

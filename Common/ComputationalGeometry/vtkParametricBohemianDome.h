@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkParametricBohemianDome(const vtkParametricBohemianDome&);  // Not implemented.
-  void operator=(const vtkParametricBohemianDome&);  // Not implemented.
+  void operator=(const vtkParametricBohemianDome&) VTK_DELETE_FUNCTION;
 };
 
 #endif

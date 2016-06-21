@@ -62,7 +62,7 @@ protected:
   double Vector[3];
 private:
   vtkSimpleElevationFilter(const vtkSimpleElevationFilter&);  // Not implemented.
-  void operator=(const vtkSimpleElevationFilter&);  // Not implemented.
+  void operator=(const vtkSimpleElevationFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

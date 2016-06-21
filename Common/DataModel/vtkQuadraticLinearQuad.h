@@ -125,7 +125,7 @@ protected:
 
 private:
   vtkQuadraticLinearQuad (const vtkQuadraticLinearQuad &);  // Not implemented.
-  void operator = (const vtkQuadraticLinearQuad &);  // Not implemented.
+  void operator = (const vtkQuadraticLinearQuad &) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticLinearQuad::GetParametricCenter(double pcoords[3])

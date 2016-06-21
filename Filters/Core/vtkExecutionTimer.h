@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkExecutionTimer(const vtkExecutionTimer&);  // Not implemented.
-  void operator=(const vtkExecutionTimer&);     // Not implemented.
+  void operator=(const vtkExecutionTimer&) VTK_DELETE_FUNCTION;
 
 };
 

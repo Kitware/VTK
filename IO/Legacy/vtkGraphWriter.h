@@ -49,7 +49,7 @@ protected:
 
 private:
   vtkGraphWriter(const vtkGraphWriter&);  // Not implemented.
-  void operator=(const vtkGraphWriter&);  // Not implemented.
+  void operator=(const vtkGraphWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

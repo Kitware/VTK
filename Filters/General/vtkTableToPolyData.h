@@ -123,7 +123,7 @@ protected:
   bool PreserveCoordinateColumnsAsDataArrays;
 private:
   vtkTableToPolyData(const vtkTableToPolyData&); // Not implemented.
-  void operator=(const vtkTableToPolyData&); // Not implemented.
+  void operator=(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkSpherePuzzleArrows(const vtkSpherePuzzleArrows&); // Not implemented
-  void operator=(const vtkSpherePuzzleArrows&); // Not implemented
+  void operator=(const vtkSpherePuzzleArrows&) VTK_DELETE_FUNCTION;
 };
 
 #endif

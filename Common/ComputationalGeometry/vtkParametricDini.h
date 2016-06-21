@@ -102,7 +102,7 @@ protected:
 
 private:
   vtkParametricDini(const vtkParametricDini&);  // Not implemented.
-  void operator=(const vtkParametricDini&);  // Not implemented.
+  void operator=(const vtkParametricDini&) VTK_DELETE_FUNCTION;
 };
 
 #endif

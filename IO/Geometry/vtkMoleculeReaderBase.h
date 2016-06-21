@@ -89,7 +89,7 @@ protected:
 
 private:
   vtkMoleculeReaderBase(const vtkMoleculeReaderBase&);  // Not implemented.
-  void operator=(const vtkMoleculeReaderBase&);  // Not implemented.
+  void operator=(const vtkMoleculeReaderBase&) VTK_DELETE_FUNCTION;
 };
 
 #endif

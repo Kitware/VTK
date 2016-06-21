@@ -209,7 +209,7 @@ protected:
 
 private:
   vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);  // Not implemented.
-  void operator=(const vtkEncodedGradientEstimator&);  // Not implemented.
+  void operator=(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
 };
 
 

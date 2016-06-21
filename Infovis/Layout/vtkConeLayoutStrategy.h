@@ -122,7 +122,7 @@ protected:
 
 private:
   vtkConeLayoutStrategy(const vtkConeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkConeLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

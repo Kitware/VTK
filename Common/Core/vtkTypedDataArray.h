@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkTypedDataArray(const vtkTypedDataArray &); // Not implemented.
-  void operator=(const vtkTypedDataArray &);   // Not implemented.
+  void operator=(const vtkTypedDataArray &) VTK_DELETE_FUNCTION;
 
   friend class vtkGenericDataArray<vtkTypedDataArray<Scalar>, Scalar>;
 };

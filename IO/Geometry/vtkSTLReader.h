@@ -92,7 +92,7 @@ protected:
   int GetSTLFileType(const char *filename);
 private:
   vtkSTLReader(const vtkSTLReader&);  // Not implemented.
-  void operator=(const vtkSTLReader&);  // Not implemented.
+  void operator=(const vtkSTLReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

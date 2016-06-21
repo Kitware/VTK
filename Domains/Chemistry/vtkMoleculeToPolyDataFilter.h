@@ -43,7 +43,7 @@ protected:
 
 private:
   vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
+  void operator=(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

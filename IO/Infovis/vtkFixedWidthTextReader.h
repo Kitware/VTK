@@ -100,7 +100,7 @@ public:
 
 private:
   vtkFixedWidthTextReader(const vtkFixedWidthTextReader&); // Not implemented
-  void operator=(const vtkFixedWidthTextReader&);   // Not implemented
+  void operator=(const vtkFixedWidthTextReader&) VTK_DELETE_FUNCTION;
   vtkCommand *TableErrorObserver;
 };
 

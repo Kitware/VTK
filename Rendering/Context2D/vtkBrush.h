@@ -153,7 +153,7 @@ protected:
 
 private:
   vtkBrush(const vtkBrush &); // Not implemented.
-  void operator=(const vtkBrush &);   // Not implemented.
+  void operator=(const vtkBrush &) VTK_DELETE_FUNCTION;
 
 };
 

@@ -155,7 +155,7 @@ protected:
 
 private:
   vtkTemporalInterpolator(const vtkTemporalInterpolator&);  // Not implemented.
-  void operator=(const vtkTemporalInterpolator&);  // Not implemented.
+  void operator=(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 

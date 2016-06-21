@@ -91,7 +91,7 @@ private:
   float EdgeWeightMultiplier;
 
   vtkBoostKruskalMinimumSpanningTree(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
-  void operator=(const vtkBoostKruskalMinimumSpanningTree&);  // Not implemented.
+  void operator=(const vtkBoostKruskalMinimumSpanningTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

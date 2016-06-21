@@ -231,6 +231,6 @@ protected:
   int CreateCubicOctants;
 
   vtkOctreePointLocator(const vtkOctreePointLocator&); // Not implemented
-  void operator=(const vtkOctreePointLocator&); // Not implemented
+  void operator=(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
 };
 #endif

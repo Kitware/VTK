@@ -56,7 +56,7 @@ protected:
 
 private:
   vtkTDxQtUnixDevices(const vtkTDxQtUnixDevices&);  // Not implemented.
-  void operator=(const vtkTDxQtUnixDevices&);  // Not implemented.
+  void operator=(const vtkTDxQtUnixDevices&) VTK_DELETE_FUNCTION;
 };
 
 #endif

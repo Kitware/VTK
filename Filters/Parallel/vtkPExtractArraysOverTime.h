@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&);  // Not implemented.
-  void operator=(const vtkPExtractArraysOverTime&);  // Not implemented.
+  void operator=(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
 };
 
 #endif

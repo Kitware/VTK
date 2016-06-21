@@ -43,7 +43,7 @@ protected:
   void WritePData(vtkIndent indent);
 private:
   vtkXMLPUnstructuredDataWriter(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLPUnstructuredDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

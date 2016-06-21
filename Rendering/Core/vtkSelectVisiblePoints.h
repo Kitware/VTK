@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkSelectVisiblePoints(const vtkSelectVisiblePoints&);  // Not implemented.
-  void operator=(const vtkSelectVisiblePoints&);  // Not implemented.
+  void operator=(const vtkSelectVisiblePoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

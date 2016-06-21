@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkQuadric(const vtkQuadric&);  // Not implemented.
-  void operator=(const vtkQuadric&);  // Not implemented.
+  void operator=(const vtkQuadric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

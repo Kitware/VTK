@@ -58,7 +58,7 @@ protected:
 
 private:
   vtkMarkerUtilities(const vtkMarkerUtilities &); // Not implemented.
-  void operator=(const vtkMarkerUtilities &); // Not implemented.
+  void operator=(const vtkMarkerUtilities &) VTK_DELETE_FUNCTION;
 
 };
 

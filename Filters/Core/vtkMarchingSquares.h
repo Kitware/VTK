@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkMarchingSquares(const vtkMarchingSquares&);  // Not implemented.
-  void operator=(const vtkMarchingSquares&);  // Not implemented.
+  void operator=(const vtkMarchingSquares&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

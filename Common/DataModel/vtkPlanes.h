@@ -114,7 +114,7 @@ private:
 
 private:
   vtkPlanes(const vtkPlanes&);  // Not implemented.
-  void operator=(const vtkPlanes&);  // Not implemented.
+  void operator=(const vtkPlanes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

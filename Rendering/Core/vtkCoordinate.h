@@ -159,7 +159,7 @@ protected:
 
 private:
   vtkCoordinate(const vtkCoordinate&);  // Not implemented.
-  void operator=(const vtkCoordinate&);  // Not implemented.
+  void operator=(const vtkCoordinate&) VTK_DELETE_FUNCTION;
 };
 
 #endif

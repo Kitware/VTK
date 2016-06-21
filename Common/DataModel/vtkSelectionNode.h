@@ -254,7 +254,7 @@ protected:
 
 private:
   vtkSelectionNode(const vtkSelectionNode&);  // Not implemented.
-  void operator=(const vtkSelectionNode&);  // Not implemented.
+  void operator=(const vtkSelectionNode&) VTK_DELETE_FUNCTION;
 
 };
 

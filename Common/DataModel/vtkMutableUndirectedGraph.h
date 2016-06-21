@@ -306,7 +306,7 @@ protected:
 
 private:
   vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&);  // Not implemented.
-  void operator=(const vtkMutableUndirectedGraph&);  // Not implemented.
+  void operator=(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

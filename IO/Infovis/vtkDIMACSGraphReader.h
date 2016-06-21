@@ -118,7 +118,7 @@ private:
   vtkStdString dimacsProblemStr;
 
   vtkDIMACSGraphReader(const vtkDIMACSGraphReader&);  // Not implemented.
-  void operator=(const vtkDIMACSGraphReader&);  // Not implemented.
+  void operator=(const vtkDIMACSGraphReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkDIMACSGraphReader_h

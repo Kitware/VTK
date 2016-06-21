@@ -123,7 +123,7 @@ protected:
 
 private:
   vtkProgrammableFilter(const vtkProgrammableFilter&);  // Not implemented.
-  void operator=(const vtkProgrammableFilter&);  // Not implemented.
+  void operator=(const vtkProgrammableFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

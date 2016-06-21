@@ -194,7 +194,7 @@ protected:
 
 private:
   vtkCompassRepresentation(const vtkCompassRepresentation&); //Not implemented
-  void operator=(const vtkCompassRepresentation&); //Not implemented
+  void operator=(const vtkCompassRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

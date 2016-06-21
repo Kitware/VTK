@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkIdentityTransform(const vtkIdentityTransform&);  // Not implemented.
-  void operator=(const vtkIdentityTransform&);  // Not implemented.
+  void operator=(const vtkIdentityTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

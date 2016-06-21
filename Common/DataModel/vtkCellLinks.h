@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkCellLinks(const vtkCellLinks&);  // Not implemented.
-  void operator=(const vtkCellLinks&);  // Not implemented.
+  void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

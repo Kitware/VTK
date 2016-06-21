@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&);  //Not implemented
-  void operator=(const vtkProp3DButtonRepresentation&);  //Not implemented
+  void operator=(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

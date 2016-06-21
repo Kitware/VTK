@@ -115,7 +115,7 @@ protected:
 
 private:
   vtkSynchronizedTemplates2D(const vtkSynchronizedTemplates2D&);  // Not implemented.
-  void operator=(const vtkSynchronizedTemplates2D&);  // Not implemented.
+  void operator=(const vtkSynchronizedTemplates2D&) VTK_DELETE_FUNCTION;
 };
 
 

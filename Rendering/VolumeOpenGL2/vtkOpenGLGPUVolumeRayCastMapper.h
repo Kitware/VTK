@@ -158,7 +158,7 @@ private:
 
   vtkOpenGLGPUVolumeRayCastMapper(
     const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.
-  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&); // Not implemented.
+  void operator=(const vtkOpenGLGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLGPUVolumeRayCastMapper_h

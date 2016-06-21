@@ -93,7 +93,7 @@ protected:
 
 private:
   vtkWebGLObject(const vtkWebGLObject&); // Not implemented
-  void operator=(const vtkWebGLObject&);   // Not implemented
+  void operator=(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

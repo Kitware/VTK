@@ -160,7 +160,7 @@ protected:
 
 private:
   vtkGridSynchronizedTemplates3D(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
-  void operator=(const vtkGridSynchronizedTemplates3D&);  // Not implemented.
+  void operator=(const vtkGridSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
 };
 
 

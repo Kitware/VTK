@@ -215,7 +215,7 @@ protected:
 
 private:
   vtkTemporalFractal(const vtkTemporalFractal&);  // Not implemented.
-  void operator=(const vtkTemporalFractal&);  // Not implemented.
+  void operator=(const vtkTemporalFractal&) VTK_DELETE_FUNCTION;
 };
 
 

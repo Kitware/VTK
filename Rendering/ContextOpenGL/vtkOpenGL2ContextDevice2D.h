@@ -83,7 +83,7 @@ protected:
 
 private:
   vtkOpenGL2ContextDevice2D(const vtkOpenGL2ContextDevice2D &); // Not implemented.
-  void operator=(const vtkOpenGL2ContextDevice2D &);   // Not implemented.
+  void operator=(const vtkOpenGL2ContextDevice2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkOpenGL2ContextDevice2D_h

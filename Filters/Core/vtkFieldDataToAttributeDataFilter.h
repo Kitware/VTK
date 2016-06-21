@@ -287,7 +287,7 @@ protected:
 
 private:
   vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&);  // Not implemented.
-  void operator=(const vtkFieldDataToAttributeDataFilter&);  // Not implemented.
+  void operator=(const vtkFieldDataToAttributeDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

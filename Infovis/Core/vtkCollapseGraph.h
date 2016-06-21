@@ -68,7 +68,7 @@ protected:
 
 private:
   vtkCollapseGraph(const vtkCollapseGraph&); // Not implemented
-  void operator=(const vtkCollapseGraph&);   // Not implemented
+  void operator=(const vtkCollapseGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -94,7 +94,7 @@ protected:
 
 private:
   vtkGaussianKernel(const vtkGaussianKernel&);  // Not implemented.
-  void operator=(const vtkGaussianKernel&);  // Not implemented.
+  void operator=(const vtkGaussianKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

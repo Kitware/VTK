@@ -64,7 +64,7 @@ protected:
 
 private:
   vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&); // Not implemented
-  void operator=(const vtkTransmitUnstructuredGridPiece&); // Not implemented
+  void operator=(const vtkTransmitUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

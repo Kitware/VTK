@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkProcrustesAlignmentFilter(const vtkProcrustesAlignmentFilter&);  // Not implemented.
-  void operator=(const vtkProcrustesAlignmentFilter&);  // Not implemented.
+  void operator=(const vtkProcrustesAlignmentFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

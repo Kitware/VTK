@@ -104,7 +104,7 @@ protected:
 
 private:
   vtkPlotPie(const vtkPlotPie &);     // Not implemented.
-  void operator=(const vtkPlotPie &); // Not implemented.
+  void operator=(const vtkPlotPie &) VTK_DELETE_FUNCTION;
 
   vtkPlotPiePrivate *Private;
 

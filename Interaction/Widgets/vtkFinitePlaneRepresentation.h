@@ -274,7 +274,7 @@ protected:
 
 private:
   vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&);  //Not implemented
-  void operator=(const vtkFinitePlaneRepresentation&);  //Not implemented
+  void operator=(const vtkFinitePlaneRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

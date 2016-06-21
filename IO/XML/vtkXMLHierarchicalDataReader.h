@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&);  // Not implemented.
-  void operator=(const vtkXMLHierarchicalDataReader&);  // Not implemented.
+  void operator=(const vtkXMLHierarchicalDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -128,7 +128,7 @@ protected:
 
 private:
   vtkProcessGroup(const vtkProcessGroup &);     // Not implemented
-  void operator=(const vtkProcessGroup &);      // Not implemented
+  void operator=(const vtkProcessGroup &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkProcessGroup_h

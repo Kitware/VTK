@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
 
   private:
     vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&); // Not implemented
-    void operator=(const vtkHierarchicalBoxDataIterator&); // Not implemented
+    void operator=(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKHIERARCHICALBOXDATAITERATOR_H_ */

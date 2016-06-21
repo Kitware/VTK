@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkXMLImageDataWriter(const vtkXMLImageDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLImageDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLImageDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

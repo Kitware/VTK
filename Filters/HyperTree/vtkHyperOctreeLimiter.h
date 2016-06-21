@@ -72,7 +72,7 @@ protected:
 
 private:
   vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeLimiter&);  // Not implemented.
+  void operator=(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

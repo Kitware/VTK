@@ -324,7 +324,7 @@ protected:
 
 private:
   vtkCocoaRenderWindow(const vtkCocoaRenderWindow&);  // Not implemented.
-  void operator=(const vtkCocoaRenderWindow&);  // Not implemented.
+  void operator=(const vtkCocoaRenderWindow&) VTK_DELETE_FUNCTION;
 
 private:
   // Important: this class cannot contain Objective-C instance

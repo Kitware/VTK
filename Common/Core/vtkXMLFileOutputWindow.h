@@ -69,7 +69,7 @@ protected:
 
 private:
   vtkXMLFileOutputWindow(const vtkXMLFileOutputWindow&);  // Not implemented.
-  void operator=(const vtkXMLFileOutputWindow&);  // Not implemented.
+  void operator=(const vtkXMLFileOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkQuaternionInterpolator(const vtkQuaternionInterpolator&);  // Not implemented.
-  void operator=(const vtkQuaternionInterpolator&);  // Not implemented.
+  void operator=(const vtkQuaternionInterpolator&) VTK_DELETE_FUNCTION;
 
 };
 

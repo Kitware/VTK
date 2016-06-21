@@ -136,7 +136,7 @@ protected:
 
 private:
   vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkStackedTreeLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkStackedTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

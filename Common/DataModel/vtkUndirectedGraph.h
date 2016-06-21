@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkUndirectedGraph(const vtkUndirectedGraph&);  // Not implemented.
-  void operator=(const vtkUndirectedGraph&);  // Not implemented.
+  void operator=(const vtkUndirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

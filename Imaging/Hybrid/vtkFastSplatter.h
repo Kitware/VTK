@@ -138,7 +138,7 @@ protected:
 
 private:
   vtkFastSplatter(const vtkFastSplatter &); // Not implemented
-  void operator=(const vtkFastSplatter &); // Not implemented
+  void operator=(const vtkFastSplatter &) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

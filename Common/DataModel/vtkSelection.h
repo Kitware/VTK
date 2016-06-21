@@ -119,7 +119,7 @@ protected:
 
 private:
   vtkSelection(const vtkSelection&);  // Not implemented.
-  void operator=(const vtkSelection&);  // Not implemented.
+  void operator=(const vtkSelection&) VTK_DELETE_FUNCTION;
 
   vtkSelectionInternals* Internal;
 

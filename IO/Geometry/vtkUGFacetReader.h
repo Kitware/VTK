@@ -93,7 +93,7 @@ protected:
   vtkIncrementalPointLocator *Locator;
 private:
   vtkUGFacetReader(const vtkUGFacetReader&);  // Not implemented.
-  void operator=(const vtkUGFacetReader&);  // Not implemented.
+  void operator=(const vtkUGFacetReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

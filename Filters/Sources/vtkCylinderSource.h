@@ -84,7 +84,7 @@ protected:
 
 private:
   vtkCylinderSource(const vtkCylinderSource&);  // Not implemented.
-  void operator=(const vtkCylinderSource&);  // Not implemented.
+  void operator=(const vtkCylinderSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

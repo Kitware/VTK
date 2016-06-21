@@ -62,7 +62,7 @@ protected:
 
 private:
   vtkMultiBlockDataGroupFilter(const vtkMultiBlockDataGroupFilter&);  // Not implemented.
-  void operator=(const vtkMultiBlockDataGroupFilter&);  // Not implemented.
+  void operator=(const vtkMultiBlockDataGroupFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

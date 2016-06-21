@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkMatrix4x4(const vtkMatrix4x4&);  // Not implemented
-  void operator= (const vtkMatrix4x4&);  // Not implemented
+  void operator= (const vtkMatrix4x4&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

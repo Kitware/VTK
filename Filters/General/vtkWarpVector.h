@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkWarpVector(const vtkWarpVector&);  // Not implemented.
-  void operator=(const vtkWarpVector&);  // Not implemented.
+  void operator=(const vtkWarpVector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

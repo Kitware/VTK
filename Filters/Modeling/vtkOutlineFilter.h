@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.
-  void operator=(const vtkOutlineFilter&);  // Not implemented.
+  void operator=(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

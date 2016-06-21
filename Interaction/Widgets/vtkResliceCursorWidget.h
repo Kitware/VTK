@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkResliceCursorWidget(const vtkResliceCursorWidget&);  //Not implemented
-  void operator=(const vtkResliceCursorWidget&);  //Not implemented
+  void operator=(const vtkResliceCursorWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -993,7 +993,7 @@ protected:
   static vtkMathInternal Internal;
 private:
   vtkMath(const vtkMath&);  // Not implemented.
-  void operator=(const vtkMath&);  // Not implemented.
+  void operator=(const vtkMath&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

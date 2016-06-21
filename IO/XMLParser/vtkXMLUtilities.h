@@ -132,7 +132,7 @@ protected:
 
 private:
   vtkXMLUtilities(const vtkXMLUtilities&); // Not implemented
-  void operator=(const vtkXMLUtilities&); // Not implemented
+  void operator=(const vtkXMLUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -79,7 +79,7 @@ protected:
 
 private:
   vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
-  void operator=(const vtkStructuredGridPartitioner &); // Not implemented
+  void operator=(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkStructuredGridPartitioner_h */

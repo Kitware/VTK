@@ -51,7 +51,7 @@ protected:
 
 private:
   vtkImageCacheFilter(const vtkImageCacheFilter&);  // Not implemented.
-  void operator=(const vtkImageCacheFilter&);  // Not implemented.
+  void operator=(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
 };
 
 

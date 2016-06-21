@@ -43,7 +43,7 @@ protected:
 
 private:
   vtkBlockIdScalars(const vtkBlockIdScalars&); // Not implemented.
-  void operator=(const vtkBlockIdScalars&); // Not implemented.
+  void operator=(const vtkBlockIdScalars&) VTK_DELETE_FUNCTION;
 
 };
 

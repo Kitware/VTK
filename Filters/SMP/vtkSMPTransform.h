@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkSMPTransform (const vtkSMPTransform&);  // Not implemented
-  void operator=(const vtkSMPTransform&);  // Not implemented
+  void operator=(const vtkSMPTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkViewNodeFactory(const vtkViewNodeFactory&); // Not implemented.
-  void operator=(const vtkViewNodeFactory&); // Not implemented.
+  void operator=(const vtkViewNodeFactory&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals *Internals;

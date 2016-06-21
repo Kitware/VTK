@@ -46,7 +46,7 @@ protected:
                        int ext[6], int id);
 private:
   vtkImageRGBToYIQ(const vtkImageRGBToYIQ&);  // Not implemented.
-  void operator=(const vtkImageRGBToYIQ&);  // Not implemented.
+  void operator=(const vtkImageRGBToYIQ&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkInteractorStyleSwitch(const vtkInteractorStyleSwitch&);  // Not implemented.
-  void operator=(const vtkInteractorStyleSwitch&);  // Not implemented.
+  void operator=(const vtkInteractorStyleSwitch&) VTK_DELETE_FUNCTION;
 };
 
 #endif

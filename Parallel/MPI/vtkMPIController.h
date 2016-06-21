@@ -320,7 +320,7 @@ protected:
   static int UseSsendForRMI;
 private:
   vtkMPIController(const vtkMPIController&);  // Not implemented.
-  void operator=(const vtkMPIController&);  // Not implemented.
+  void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
 
 };
 

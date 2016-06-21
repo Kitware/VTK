@@ -219,7 +219,7 @@ protected:
 
 private:
   vtkBridgeAttribute(const vtkBridgeAttribute&); // Not implemented
-  void operator=(const vtkBridgeAttribute&); // Not implemented
+  void operator=(const vtkBridgeAttribute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

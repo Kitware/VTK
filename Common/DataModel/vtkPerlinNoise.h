@@ -86,7 +86,7 @@ protected:
 
 private:
   vtkPerlinNoise(const vtkPerlinNoise&); // Not implemented
-  void operator=(const vtkPerlinNoise&); // Not implemented
+  void operator=(const vtkPerlinNoise&) VTK_DELETE_FUNCTION;
 };
 
 #endif

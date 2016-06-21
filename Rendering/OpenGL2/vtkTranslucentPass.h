@@ -54,7 +54,7 @@ public:
 
  private:
   vtkTranslucentPass(const vtkTranslucentPass&);  // Not implemented.
-  void operator=(const vtkTranslucentPass&);  // Not implemented.
+  void operator=(const vtkTranslucentPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

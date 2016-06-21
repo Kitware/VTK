@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkHomogeneousTransform(const vtkHomogeneousTransform&);  // Not implemented.
-  void operator=(const vtkHomogeneousTransform&);  // Not implemented.
+  void operator=(const vtkHomogeneousTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
-  void operator=(const vtkContextInteractorStyle&); // Not implemented
+  void operator=(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
 
   void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
   bool ProcessMousePress(const vtkContextMouseEvent &event);

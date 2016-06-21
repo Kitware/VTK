@@ -148,7 +148,7 @@ protected:
 
 private:
   vtkODBCQuery(const vtkODBCQuery &); // Not implemented.
-  void operator=(const vtkODBCQuery &); // Not implemented.
+  void operator=(const vtkODBCQuery &) VTK_DELETE_FUNCTION;
 
   void ClearCurrentRow();
   bool CacheCurrentRow();

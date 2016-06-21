@@ -305,7 +305,7 @@ protected:
   int IsIdentity;
 private:
   vtkProp3D(const vtkProp3D&);  // Not implemented.
-  void operator=(const vtkProp3D&);  // Not implemented.
+  void operator=(const vtkProp3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

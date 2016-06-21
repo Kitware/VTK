@@ -56,7 +56,7 @@ protected:
   double MaximumSpeed;
 private:
   vtkBrownianPoints(const vtkBrownianPoints&);  // Not implemented.
-  void operator=(const vtkBrownianPoints&);  // Not implemented.
+  void operator=(const vtkBrownianPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

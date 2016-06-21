@@ -116,7 +116,7 @@ protected:
 
 private:
   vtkImplicitPolyDataDistance(const vtkImplicitPolyDataDistance&);  // Not implemented.
-  void operator=(const vtkImplicitPolyDataDistance&);  // Not implemented.
+  void operator=(const vtkImplicitPolyDataDistance&) VTK_DELETE_FUNCTION;
 };
 
 #endif

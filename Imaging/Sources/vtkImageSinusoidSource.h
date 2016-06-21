@@ -72,7 +72,7 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 private:
   vtkImageSinusoidSource(const vtkImageSinusoidSource&);  // Not implemented.
-  void operator=(const vtkImageSinusoidSource&);  // Not implemented.
+  void operator=(const vtkImageSinusoidSource&) VTK_DELETE_FUNCTION;
 };
 
 

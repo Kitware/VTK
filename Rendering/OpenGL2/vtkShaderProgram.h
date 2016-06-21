@@ -296,7 +296,7 @@ private:
   int FindUniform(const char *name);
 
   vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
-  void operator=(const vtkShaderProgram&);  // Not implemented.
+  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
 
 };
 

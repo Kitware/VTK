@@ -169,7 +169,7 @@ protected:
 
 private:
   vtkMNITagPointWriter(const vtkMNITagPointWriter&); // Not implemented
-  void operator=(const vtkMNITagPointWriter&);  // Not implemented
+  void operator=(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
 
 };
 

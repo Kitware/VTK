@@ -815,6 +815,6 @@ protected:
   double Progress;
 
   vtkKdTree(const vtkKdTree&); // Not implemented
-  void operator=(const vtkKdTree&); // Not implemented
+  void operator=(const vtkKdTree&) VTK_DELETE_FUNCTION;
 };
 #endif

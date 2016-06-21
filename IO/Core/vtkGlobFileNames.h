@@ -108,7 +108,7 @@ private:
 
 private:
   vtkGlobFileNames(const vtkGlobFileNames&);  // Not implemented.
-  void operator=(const vtkGlobFileNames&);  // Not implemented.
+  void operator=(const vtkGlobFileNames&) VTK_DELETE_FUNCTION;
 };
 
 #endif

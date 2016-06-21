@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkDSPFilterGroup(const vtkDSPFilterGroup&); // Not implemented
-  void operator=(const vtkDSPFilterGroup&); // Not implemented
+  void operator=(const vtkDSPFilterGroup&) VTK_DELETE_FUNCTION;
 };
 
 #endif

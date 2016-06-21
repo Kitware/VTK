@@ -186,7 +186,7 @@ protected:
   ~vtkLinearTransform() {}
 private:
   vtkLinearTransform(const vtkLinearTransform&);  // Not implemented.
-  void operator=(const vtkLinearTransform&);  // Not implemented.
+  void operator=(const vtkLinearTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

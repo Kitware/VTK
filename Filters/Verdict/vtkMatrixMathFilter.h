@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkMatrixMathFilter(const vtkMatrixMathFilter&); // Not implemented
-  void operator=(const vtkMatrixMathFilter&); // Not implemented
+  void operator=(const vtkMatrixMathFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkMatrixMathFilter_h

@@ -254,7 +254,7 @@ protected:
 
 private:
   vtkCurveRepresentation(const vtkCurveRepresentation&); // Not implemented.
-  void operator=(const vtkCurveRepresentation&); // Not implemented.
+  void operator=(const vtkCurveRepresentation&) VTK_DELETE_FUNCTION;
 
 };
 

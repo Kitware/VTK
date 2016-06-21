@@ -65,7 +65,7 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 private:
   vtkImageNoiseSource(const vtkImageNoiseSource&);  // Not implemented.
-  void operator=(const vtkImageNoiseSource&);  // Not implemented.
+  void operator=(const vtkImageNoiseSource&) VTK_DELETE_FUNCTION;
 };
 
 

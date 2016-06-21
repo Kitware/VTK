@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkPolyDataAlgorithm(const vtkPolyDataAlgorithm&);  // Not implemented.
-  void operator=(const vtkPolyDataAlgorithm&);  // Not implemented.
+  void operator=(const vtkPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

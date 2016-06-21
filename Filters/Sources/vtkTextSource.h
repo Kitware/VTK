@@ -86,7 +86,7 @@ protected:
   int OutputPointsPrecision;
 private:
   vtkTextSource(const vtkTextSource&);  // Not implemented.
-  void operator=(const vtkTextSource&);  // Not implemented.
+  void operator=(const vtkTextSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

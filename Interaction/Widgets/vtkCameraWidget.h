@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkCameraWidget(const vtkCameraWidget&);  //Not implemented
-  void operator=(const vtkCameraWidget&);  //Not implemented
+  void operator=(const vtkCameraWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

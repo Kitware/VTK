@@ -232,7 +232,7 @@ protected:
 
 private:
   vtkCellTreeLocator(const vtkCellTreeLocator&);  // Not implemented.
-  void operator=(const vtkCellTreeLocator&);      // Not implemented.
+  void operator=(const vtkCellTreeLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

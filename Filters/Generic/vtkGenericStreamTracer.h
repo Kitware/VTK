@@ -403,7 +403,7 @@ protected:
 
 private:
   vtkGenericStreamTracer(const vtkGenericStreamTracer&);  // Not implemented.
-  void operator=(const vtkGenericStreamTracer&);  // Not implemented.
+  void operator=(const vtkGenericStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

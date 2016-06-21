@@ -79,7 +79,7 @@ private:
 
 private:
   vtkJPEGWriter(const vtkJPEGWriter&);  // Not implemented.
-  void operator=(const vtkJPEGWriter&);  // Not implemented.
+  void operator=(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

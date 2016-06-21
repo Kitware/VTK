@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkContextView(const vtkContextView&);  // Not implemented.
-  void operator=(const vtkContextView&);  // Not implemented.
+  void operator=(const vtkContextView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

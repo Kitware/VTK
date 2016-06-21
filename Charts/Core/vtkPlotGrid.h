@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkPlotGrid(const vtkPlotGrid &); // Not implemented.
-  void operator=(const vtkPlotGrid &);   // Not implemented.
+  void operator=(const vtkPlotGrid &) VTK_DELETE_FUNCTION;
 
 };
 

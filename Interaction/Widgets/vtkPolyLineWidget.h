@@ -66,7 +66,7 @@ protected:
 
 private:
   vtkPolyLineWidget(const vtkPolyLineWidget&); // Not implemented.
-  void operator=(const vtkPolyLineWidget&); // Not implemented.
+  void operator=(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
 
 };
 

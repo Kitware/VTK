@@ -99,7 +99,7 @@ protected:
 
 private:
   vtkWarpScalar(const vtkWarpScalar&);  // Not implemented.
-  void operator=(const vtkWarpScalar&);  // Not implemented.
+  void operator=(const vtkWarpScalar&) VTK_DELETE_FUNCTION;
 };
 
 #endif

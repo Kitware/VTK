@@ -243,7 +243,7 @@ private:
 
 private:
   vtkSpiderPlotActor(const vtkSpiderPlotActor&);  // Not implemented.
-  void operator=(const vtkSpiderPlotActor&);  // Not implemented.
+  void operator=(const vtkSpiderPlotActor&) VTK_DELETE_FUNCTION;
 };
 
 

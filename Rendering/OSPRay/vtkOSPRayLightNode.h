@@ -46,7 +46,7 @@ protected:
 
 private:
   vtkOSPRayLightNode(const vtkOSPRayLightNode&); // Not implemented.
-  void operator=(const vtkOSPRayLightNode&); // Not implemented.
+  void operator=(const vtkOSPRayLightNode&) VTK_DELETE_FUNCTION;
 
   static double LightScale;
 };

@@ -48,7 +48,7 @@ protected:
   char *FileName;
 private:
   vtkAbstractPolyDataReader(const vtkAbstractPolyDataReader&);  // Not implemented.
-  void operator=(const vtkAbstractPolyDataReader&);  // Not implemented.
+  void operator=(const vtkAbstractPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

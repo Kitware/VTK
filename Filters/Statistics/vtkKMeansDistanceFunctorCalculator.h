@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ); // Not implemented.
-  void operator = ( const vtkKMeansDistanceFunctorCalculator& ); // Not implemented.
+  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkKMeansDistanceFunctorCalculator_h

@@ -95,7 +95,7 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
   vtkGraphHierarchicalBundle(const vtkGraphHierarchicalBundle&);  // Not implemented.
-  void operator=(const vtkGraphHierarchicalBundle&);  // Not implemented.
+  void operator=(const vtkGraphHierarchicalBundle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

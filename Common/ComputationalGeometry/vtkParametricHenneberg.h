@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkParametricHenneberg(const vtkParametricHenneberg&);  // Not implemented.
-  void operator=(const vtkParametricHenneberg&);  // Not implemented.
+  void operator=(const vtkParametricHenneberg&) VTK_DELETE_FUNCTION;
 };
 
 #endif

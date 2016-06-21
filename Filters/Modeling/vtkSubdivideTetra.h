@@ -39,7 +39,7 @@ protected:
 
 private:
   vtkSubdivideTetra(const vtkSubdivideTetra&);  // Not implemented.
-  void operator=(const vtkSubdivideTetra&);  // Not implemented.
+  void operator=(const vtkSubdivideTetra&) VTK_DELETE_FUNCTION;
 };
 
 #endif

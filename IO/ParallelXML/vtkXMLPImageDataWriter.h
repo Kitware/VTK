@@ -59,7 +59,7 @@ protected:
 
 private:
   vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPImageDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

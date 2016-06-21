@@ -137,7 +137,7 @@ protected:
 
 private:
   vtkHyperOctreeFractalSource(const vtkHyperOctreeFractalSource&);  // Not implemented.
-  void operator=(const vtkHyperOctreeFractalSource&);  // Not implemented.
+  void operator=(const vtkHyperOctreeFractalSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

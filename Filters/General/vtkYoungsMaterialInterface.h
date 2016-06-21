@@ -182,7 +182,7 @@ protected:
 
 private:
   vtkYoungsMaterialInterface(const vtkYoungsMaterialInterface&); // Not implemented
-  void operator=(const vtkYoungsMaterialInterface&); // Not implemented
+  void operator=(const vtkYoungsMaterialInterface&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTK_YOUNGS_MATERIAL_INTERFACE_H */

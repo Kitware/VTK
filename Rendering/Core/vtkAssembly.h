@@ -161,7 +161,7 @@ protected:
 
 private:
   vtkAssembly(const vtkAssembly&);  // Not implemented.
-  void operator=(const vtkAssembly&);  // Not implemented.
+  void operator=(const vtkAssembly&) VTK_DELETE_FUNCTION;
 };
 
 #endif

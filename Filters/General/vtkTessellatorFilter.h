@@ -185,7 +185,7 @@ protected:
 
 private:
   vtkTessellatorFilter( const vtkTessellatorFilter& ); // Not implemented.
-  void operator = ( const vtkTessellatorFilter& ); // Not implemented.
+  void operator = ( const vtkTessellatorFilter& ) VTK_DELETE_FUNCTION;
 };
 
 inline int vtkTessellatorFilter::GetOutputDimension() const

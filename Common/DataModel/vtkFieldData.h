@@ -330,7 +330,7 @@ protected:
 
 private:
   vtkFieldData(const vtkFieldData&);  // Not implemented.
-  void operator=(const vtkFieldData&);  // Not implemented.
+  void operator=(const vtkFieldData&) VTK_DELETE_FUNCTION;
 
 public:
 

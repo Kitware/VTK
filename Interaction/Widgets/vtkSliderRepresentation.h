@@ -167,7 +167,7 @@ protected:
 
 private:
   vtkSliderRepresentation(const vtkSliderRepresentation&);  //Not implemented
-  void operator=(const vtkSliderRepresentation&);  //Not implemented
+  void operator=(const vtkSliderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

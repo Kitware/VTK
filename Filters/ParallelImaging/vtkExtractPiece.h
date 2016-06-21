@@ -77,7 +77,7 @@ protected:
                                vtkCompositeDataIterator* iter);
 private:
   vtkExtractPiece(const vtkExtractPiece&); // Not implemented.
-  void operator=(const vtkExtractPiece&); // Not implemented.
+  void operator=(const vtkExtractPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

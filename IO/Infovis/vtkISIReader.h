@@ -75,7 +75,7 @@ public:
 
 private:
   vtkISIReader(const vtkISIReader&); // Not implemented
-  void operator=(const vtkISIReader&);   // Not implemented
+  void operator=(const vtkISIReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

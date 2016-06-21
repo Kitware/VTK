@@ -150,7 +150,7 @@ protected:
 
 private:
   vtkKCoreLayout(const vtkKCoreLayout&);   // Not implemented
-  void operator=(const vtkKCoreLayout&);   // Not implemented
+  void operator=(const vtkKCoreLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

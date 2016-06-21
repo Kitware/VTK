@@ -359,7 +359,7 @@ protected:
 
 private:
   vtkSPHInterpolator(const vtkSPHInterpolator&);  // Not implemented.
-  void operator=(const vtkSPHInterpolator&);  // Not implemented.
+  void operator=(const vtkSPHInterpolator&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -97,7 +97,7 @@ protected:
 
 private:
   vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&);  //Not implemented
-  void operator=(const vtkFocalPlanePointPlacer&);  //Not implemented
+  void operator=(const vtkFocalPlanePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

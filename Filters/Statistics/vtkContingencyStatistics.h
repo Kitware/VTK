@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkContingencyStatistics(const vtkContingencyStatistics&); // Not implemented
-  void operator=(const vtkContingencyStatistics&);   // Not implemented
+  void operator=(const vtkContingencyStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

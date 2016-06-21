@@ -257,7 +257,7 @@ protected:
   int IntegrationEigenvector;
 private:
   vtkHyperStreamline(const vtkHyperStreamline&);  // Not implemented.
-  void operator=(const vtkHyperStreamline&);  // Not implemented.
+  void operator=(const vtkHyperStreamline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

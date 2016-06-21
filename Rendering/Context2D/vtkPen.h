@@ -147,7 +147,7 @@ protected:
 
 private:
   vtkPen(const vtkPen &); // Not implemented.
-  void operator=(const vtkPen &);   // Not implemented.
+  void operator=(const vtkPen &) VTK_DELETE_FUNCTION;
 
 };
 

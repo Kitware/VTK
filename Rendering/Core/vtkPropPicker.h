@@ -74,7 +74,7 @@ protected:
   vtkWorldPointPicker *WorldPointPicker;
 private:
   vtkPropPicker(const vtkPropPicker&);  // Not implemented.
-  void operator=(const vtkPropPicker&);  // Not implemented.
+  void operator=(const vtkPropPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

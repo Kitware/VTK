@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkGraphAnnotationLayersFilter(const vtkGraphAnnotationLayersFilter&); // Not implemented.
-  void operator=(const vtkGraphAnnotationLayersFilter&); // Not implemented.
+  void operator=(const vtkGraphAnnotationLayersFilter&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkAppendPolyData> HullAppend;
   vtkSmartPointer<vtkAppendPolyData> OutlineAppend;

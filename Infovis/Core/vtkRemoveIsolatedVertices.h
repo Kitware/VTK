@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkRemoveIsolatedVertices(const vtkRemoveIsolatedVertices&); // Not implemented
-  void operator=(const vtkRemoveIsolatedVertices&);   // Not implemented
+  void operator=(const vtkRemoveIsolatedVertices&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -65,7 +65,7 @@ protected:
 
 private:
   vtkGraphEdge(const vtkGraphEdge&);  // Not implemented.
-  void operator=(const vtkGraphEdge&);  // Not implemented.
+  void operator=(const vtkGraphEdge&) VTK_DELETE_FUNCTION;
 };
 
 #endif

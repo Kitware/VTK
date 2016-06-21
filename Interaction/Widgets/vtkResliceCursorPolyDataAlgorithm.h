@@ -130,7 +130,7 @@ protected:
 
 private:
   vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&);  // Not implemented.
-  void operator=(const vtkResliceCursorPolyDataAlgorithm&);  // Not implemented.
+  void operator=(const vtkResliceCursorPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
 
 };
 

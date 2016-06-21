@@ -140,7 +140,7 @@ protected:
   double InverseTolerance;
 private:
   vtkWarpTransform(const vtkWarpTransform&);  // Not implemented.
-  void operator=(const vtkWarpTransform&);  // Not implemented.
+  void operator=(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

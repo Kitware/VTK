@@ -155,7 +155,7 @@ protected:
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
   vtkSplitField(const vtkSplitField&);  // Not implemented.
-  void operator=(const vtkSplitField&);  // Not implemented.
+  void operator=(const vtkSplitField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

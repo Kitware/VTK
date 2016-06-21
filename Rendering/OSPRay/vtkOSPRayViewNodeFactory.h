@@ -38,7 +38,7 @@ protected:
 
 private:
   vtkOSPRayViewNodeFactory(const vtkOSPRayViewNodeFactory&); // Not implemented.
-  void operator=(const vtkOSPRayViewNodeFactory&); // Not implemented.
+  void operator=(const vtkOSPRayViewNodeFactory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

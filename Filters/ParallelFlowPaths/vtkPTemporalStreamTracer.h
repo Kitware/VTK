@@ -116,7 +116,7 @@ public:
 
 private:
   vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&);  // Not implemented.
-  void operator=(const vtkPTemporalStreamTracer&);  // Not implemented.
+  void operator=(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -159,7 +159,7 @@ protected:
 
 private:
   vtkImageResize(const vtkImageResize&);  // Not implemented.
-  void operator=(const vtkImageResize&);  // Not implemented.
+  void operator=(const vtkImageResize&) VTK_DELETE_FUNCTION;
 };
 
 #endif

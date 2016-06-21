@@ -139,7 +139,7 @@ protected:
 
 private:
   vtkImageActorPointPlacer(const vtkImageActorPointPlacer&);  //Not implemented
-  void operator=(const vtkImageActorPointPlacer&);  //Not implemented
+  void operator=(const vtkImageActorPointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

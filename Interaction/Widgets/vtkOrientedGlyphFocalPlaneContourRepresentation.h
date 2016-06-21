@@ -171,7 +171,7 @@ protected:
 
 private:
   vtkOrientedGlyphFocalPlaneContourRepresentation(const vtkOrientedGlyphFocalPlaneContourRepresentation&);  //Not implemented
-  void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&);  //Not implemented
+  void operator=(const vtkOrientedGlyphFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

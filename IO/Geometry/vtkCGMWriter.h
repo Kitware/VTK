@@ -118,7 +118,7 @@ protected:
 
 private:
   vtkCGMWriter(const vtkCGMWriter&);  // Not implemented.
-  void operator=(const vtkCGMWriter&);  // Not implemented.
+  void operator=(const vtkCGMWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

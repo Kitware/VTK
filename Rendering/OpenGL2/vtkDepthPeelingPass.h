@@ -167,7 +167,7 @@ public:
 
  private:
   vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
-  void operator=(const vtkDepthPeelingPass&);  // Not implemented.
+  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

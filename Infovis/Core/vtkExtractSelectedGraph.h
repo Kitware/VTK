@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkExtractSelectedGraph(const vtkExtractSelectedGraph&); // Not implemented
-  void operator=(const vtkExtractSelectedGraph&);   // Not implemented
+  void operator=(const vtkExtractSelectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

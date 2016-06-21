@@ -324,7 +324,7 @@ protected:
 
 private:
   vtkCell(const vtkCell&);  // Not implemented.
-  void operator=(const vtkCell&);  // Not implemented.
+  void operator=(const vtkCell&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -113,7 +113,7 @@ protected:
 
 private:
   vtkXMLStructuredDataWriter(const vtkXMLStructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLStructuredDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

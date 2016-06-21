@@ -50,7 +50,7 @@ protected:
 
 private:
   vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
 
   typedef std::map<int, std::vector<int> > ExtentsType;
   ExtentsType Extents;

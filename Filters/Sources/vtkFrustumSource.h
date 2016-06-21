@@ -98,7 +98,7 @@ protected:
 
 private:
   vtkFrustumSource(const vtkFrustumSource&);  // Not implemented.
-  void operator=(const vtkFrustumSource&);  // Not implemented.
+  void operator=(const vtkFrustumSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

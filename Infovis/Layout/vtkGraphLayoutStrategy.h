@@ -89,7 +89,7 @@ protected:
 private:
 
   vtkGraphLayoutStrategy(const vtkGraphLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkGraphLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkGraphLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

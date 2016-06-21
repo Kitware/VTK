@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkTextureMapToSphere(const vtkTextureMapToSphere&);  // Not implemented.
-  void operator=(const vtkTextureMapToSphere&);  // Not implemented.
+  void operator=(const vtkTextureMapToSphere&) VTK_DELETE_FUNCTION;
 };
 
 #endif

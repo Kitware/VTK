@@ -277,7 +277,7 @@ protected:
 
 private:
   vtkXMLDataElement(const vtkXMLDataElement&);  // Not implemented.
-  void operator=(const vtkXMLDataElement&);  // Not implemented.
+  void operator=(const vtkXMLDataElement&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

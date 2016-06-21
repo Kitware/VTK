@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&);  // Not implemented.
-  void operator=(const vtkQtTreeRingLabelMapper&);  // Not implemented.
+  void operator=(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
 };
 
 

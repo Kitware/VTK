@@ -146,7 +146,7 @@ protected:
 
 private:
   vtkActor2D(const vtkActor2D&);  // Not implemented.
-  void operator=(const vtkActor2D&);  // Not implemented.
+  void operator=(const vtkActor2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -122,7 +122,7 @@ protected:
 
 private:
   vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
-  void operator=(const vtkAnnotationLink&);  // Not implemented.
+  void operator=(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
 
   class Command;
   friend class Command;

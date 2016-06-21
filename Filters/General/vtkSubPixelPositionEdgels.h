@@ -80,7 +80,7 @@ protected:
   double TargetValue;
 private:
   vtkSubPixelPositionEdgels(const vtkSubPixelPositionEdgels&);  // Not implemented.
-  void operator=(const vtkSubPixelPositionEdgels&);  // Not implemented.
+  void operator=(const vtkSubPixelPositionEdgels&) VTK_DELETE_FUNCTION;
 };
 
 #endif

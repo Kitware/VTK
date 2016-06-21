@@ -128,7 +128,7 @@ private:
 
   vtkCellLocatorInterpolatedVelocityField
     ( const vtkCellLocatorInterpolatedVelocityField & );  // Not implemented.
-  void operator = ( const vtkCellLocatorInterpolatedVelocityField & );  // Not implemented.
+  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

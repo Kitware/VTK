@@ -279,7 +279,7 @@ protected:
 
 private:
   vtkBoxRepresentation(const vtkBoxRepresentation&);  //Not implemented
-  void operator=(const vtkBoxRepresentation&);  //Not implemented
+  void operator=(const vtkBoxRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

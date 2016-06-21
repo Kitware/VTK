@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkPolyPlane(const vtkPolyPlane&);  // Not implemented.
-  void operator=(const vtkPolyPlane&);  // Not implemented.
+  void operator=(const vtkPolyPlane&) VTK_DELETE_FUNCTION;
 };
 
 #endif

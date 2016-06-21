@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkHierarchicalDataLevelFilter(const vtkHierarchicalDataLevelFilter&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataLevelFilter&);  // Not implemented.
+  void operator=(const vtkHierarchicalDataLevelFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -183,7 +183,7 @@ protected:
 
 private:
   vtkMINCImageReader(const vtkMINCImageReader&); // Not implemented
-  void operator=(const vtkMINCImageReader&);  // Not implemented
+  void operator=(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;
 
 };
 

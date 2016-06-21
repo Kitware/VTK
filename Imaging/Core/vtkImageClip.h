@@ -78,7 +78,7 @@ protected:
 
 private:
   vtkImageClip(const vtkImageClip&);  // Not implemented.
-  void operator=(const vtkImageClip&);  // Not implemented.
+  void operator=(const vtkImageClip&) VTK_DELETE_FUNCTION;
 };
 
 

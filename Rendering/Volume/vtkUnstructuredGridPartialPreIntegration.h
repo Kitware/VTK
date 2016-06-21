@@ -101,7 +101,7 @@ protected:
 
 private:
   vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
 };
 
 inline float vtkUnstructuredGridPartialPreIntegration::Psi(float taufD,

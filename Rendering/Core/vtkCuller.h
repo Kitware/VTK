@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkCuller(const vtkCuller&);  // Not implemented.
-  void operator=(const vtkCuller&);    // Not implemented.
+  void operator=(const vtkCuller&) VTK_DELETE_FUNCTION;
 };
 
 #endif

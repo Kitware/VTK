@@ -313,7 +313,7 @@ protected:
 
 private:
   vtkMutableDirectedGraph(const vtkMutableDirectedGraph&);  // Not implemented.
-  void operator=(const vtkMutableDirectedGraph&);  // Not implemented.
+  void operator=(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

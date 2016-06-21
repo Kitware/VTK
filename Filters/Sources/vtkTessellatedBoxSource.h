@@ -140,7 +140,7 @@ protected:
 
 private:
   vtkTessellatedBoxSource(const vtkTessellatedBoxSource&);  // Not implemented.
-  void operator=(const vtkTessellatedBoxSource&);  // Not implemented.
+  void operator=(const vtkTessellatedBoxSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

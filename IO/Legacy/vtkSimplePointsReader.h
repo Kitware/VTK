@@ -50,7 +50,7 @@ protected:
                   vtkInformationVector*);
 private:
   vtkSimplePointsReader(const vtkSimplePointsReader&);  // Not implemented.
-  void operator=(const vtkSimplePointsReader&);  // Not implemented.
+  void operator=(const vtkSimplePointsReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

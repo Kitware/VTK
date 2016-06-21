@@ -230,7 +230,7 @@ protected:
 
 private:
   vtkDiscretizableColorTransferFunction(const vtkDiscretizableColorTransferFunction&); // Not implemented.
-  void operator=(const vtkDiscretizableColorTransferFunction&); // Not implemented.
+  void operator=(const vtkDiscretizableColorTransferFunction&) VTK_DELETE_FUNCTION;
 
   template<typename T, typename VectorGetter>
     void MapVectorToOpacity (

@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkHeap(const vtkHeap&); // Not implemented.
-  void operator=(const vtkHeap&);  // Not implemented.
+  void operator=(const vtkHeap&) VTK_DELETE_FUNCTION;
 };
 
 #endif

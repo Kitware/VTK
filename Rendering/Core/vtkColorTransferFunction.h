@@ -339,7 +339,7 @@ protected:
 
 private:
   vtkColorTransferFunction(const vtkColorTransferFunction&);  // Not implemented.
-  void operator=(const vtkColorTransferFunction&);  // Not implemented.
+  void operator=(const vtkColorTransferFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

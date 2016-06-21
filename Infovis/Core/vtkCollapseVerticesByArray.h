@@ -116,7 +116,7 @@ protected:
 private:
   // Description:
   vtkCollapseVerticesByArray(const vtkCollapseVerticesByArray&); // Not implemented
-  void operator=(const vtkCollapseVerticesByArray&);             // Not implemented
+  void operator=(const vtkCollapseVerticesByArray&) VTK_DELETE_FUNCTION;
 
 
 protected:

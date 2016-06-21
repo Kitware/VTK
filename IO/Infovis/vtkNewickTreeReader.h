@@ -69,7 +69,7 @@ protected:
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:
   vtkNewickTreeReader(const vtkNewickTreeReader&);  // Not implemented.
-  void operator=(const vtkNewickTreeReader&);  // Not implemented.
+  void operator=(const vtkNewickTreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

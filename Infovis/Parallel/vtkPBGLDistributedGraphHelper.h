@@ -206,7 +206,7 @@ class VTKINFOVISPARALLEL_EXPORT vtkPBGLDistributedGraphHelper : public vtkDistri
 
  private:
   vtkPBGLDistributedGraphHelper(const vtkPBGLDistributedGraphHelper&); // Not implemented
-  void operator=(const vtkPBGLDistributedGraphHelper&); // Not implemented
+  void operator=(const vtkPBGLDistributedGraphHelper&) VTK_DELETE_FUNCTION;
 
   friend class vtkPBGLDistributedGraphHelperInternals;
 

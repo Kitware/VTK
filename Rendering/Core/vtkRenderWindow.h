@@ -636,7 +636,7 @@ protected:
 
 private:
   vtkRenderWindow(const vtkRenderWindow&);  // Not implemented.
-  void operator=(const vtkRenderWindow&);  // Not implemented.
+  void operator=(const vtkRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

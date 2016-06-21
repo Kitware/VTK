@@ -206,7 +206,7 @@ protected:
 
 private:
   vtkOSOpenGLRenderWindow(const vtkOSOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOSOpenGLRenderWindow&);  // Not implemented.
+  void operator=(const vtkOSOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 

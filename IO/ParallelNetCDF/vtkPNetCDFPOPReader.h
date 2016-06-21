@@ -110,7 +110,7 @@ protected:
 
 private:
   vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&);  // Not implemented.
-  void operator=(const vtkPNetCDFPOPReader&);  // Not implemented.
+  void operator=(const vtkPNetCDFPOPReader&) VTK_DELETE_FUNCTION;
 
   vtkPNetCDFPOPReaderInternal* Internals;
 };

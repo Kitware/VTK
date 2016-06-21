@@ -747,7 +747,7 @@ protected:
   friend class vtkPExodusIIReader;
 private:
   vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
-  void operator=(const vtkExodusIIReader&); // Not implemented
+  void operator=(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
 
   void AddDisplacements(vtkUnstructuredGrid* output);
   int ModeShapesRange[2];

@@ -234,7 +234,7 @@ protected:
 
 private:
   vtkVolume(const vtkVolume&);  // Not implemented.
-  void operator=(const vtkVolume&);  // Not implemented.
+  void operator=(const vtkVolume&) VTK_DELETE_FUNCTION;
 };
 
 #endif

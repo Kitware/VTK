@@ -89,7 +89,7 @@ protected:
   vtkMultiProcessController* Controller;
 private:
   vtkPContingencyStatistics(const vtkPContingencyStatistics&); // Not implemented.
-  void operator=(const vtkPContingencyStatistics&); // Not implemented.
+  void operator=(const vtkPContingencyStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

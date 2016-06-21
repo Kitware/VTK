@@ -54,7 +54,7 @@ protected:
 
 private:
   vtkHyperOctreeDepth(const vtkHyperOctreeDepth&);  // Not implemented.
-  void operator=(const vtkHyperOctreeDepth&);  // Not implemented.
+  void operator=(const vtkHyperOctreeDepth&) VTK_DELETE_FUNCTION;
 };
 
 #endif

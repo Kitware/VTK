@@ -85,7 +85,7 @@ protected:
 
 private:
   vtkRenderLargeImage(const vtkRenderLargeImage&);  // Not implemented.
-  void operator=(const vtkRenderLargeImage&);  // Not implemented.
+  void operator=(const vtkRenderLargeImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

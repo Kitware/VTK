@@ -48,7 +48,7 @@ protected:
 
 private:
   vtkImageDivergence(const vtkImageDivergence&);  // Not implemented.
-  void operator=(const vtkImageDivergence&);  // Not implemented.
+  void operator=(const vtkImageDivergence&) VTK_DELETE_FUNCTION;
 };
 
 #endif

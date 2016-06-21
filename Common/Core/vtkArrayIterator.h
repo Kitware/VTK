@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkArrayIterator(const vtkArrayIterator&); // Not implemented.
-  void operator=(const vtkArrayIterator&); // Not implemented.
+  void operator=(const vtkArrayIterator&) VTK_DELETE_FUNCTION;
 };
 
 

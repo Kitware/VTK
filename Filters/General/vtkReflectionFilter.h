@@ -107,7 +107,7 @@ protected:
 
 private:
   vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented
-  void operator=(const vtkReflectionFilter&);  // Not implemented
+  void operator=(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

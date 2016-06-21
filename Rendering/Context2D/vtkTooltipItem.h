@@ -92,7 +92,7 @@ protected:
 
 private:
   vtkTooltipItem(const vtkTooltipItem &); // Not implemented.
-  void operator=(const vtkTooltipItem &);   // Not implemented.
+  void operator=(const vtkTooltipItem &) VTK_DELETE_FUNCTION;
 
 };
 

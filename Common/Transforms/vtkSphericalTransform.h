@@ -71,7 +71,7 @@ protected:
 
 private:
   vtkSphericalTransform(const vtkSphericalTransform&); // Not implemented.
-  void operator=(const vtkSphericalTransform&); // Not implemented.
+  void operator=(const vtkSphericalTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

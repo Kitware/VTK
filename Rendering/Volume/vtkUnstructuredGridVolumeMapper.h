@@ -82,7 +82,7 @@ protected:
 
 private:
   vtkUnstructuredGridVolumeMapper(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeMapper&);  // Not implemented.
+  void operator=(const vtkUnstructuredGridVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

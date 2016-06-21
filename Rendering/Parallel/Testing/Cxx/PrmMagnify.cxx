@@ -67,7 +67,7 @@ protected:
 
 private:
   vtkTestMagnifyRenderManager(const vtkTestMagnifyRenderManager &);  // Not implemented.
-  void operator=(const vtkTestMagnifyRenderManager &);  // Not implemented.
+  void operator=(const vtkTestMagnifyRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkTestMagnifyRenderManager);

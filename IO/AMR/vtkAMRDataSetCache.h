@@ -95,7 +95,7 @@ protected:
 
 private:
   vtkAMRDataSetCache( const vtkAMRDataSetCache& ); // Not implemented
-  void operator=( const vtkAMRDataSetCache& ); // Not implemented
+  void operator=( const vtkAMRDataSetCache& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRDataSetCache_h */

@@ -263,7 +263,7 @@ protected:
 
 private:
   vtkPointWidget(const vtkPointWidget&);  //Not implemented
-  void operator=(const vtkPointWidget&);  //Not implemented
+  void operator=(const vtkPointWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

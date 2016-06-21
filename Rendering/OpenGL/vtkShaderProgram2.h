@@ -411,7 +411,7 @@ protected:
 
 private:
   vtkShaderProgram2(const vtkShaderProgram2&); // Not implemented.
-  void operator=(const vtkShaderProgram2&); // Not implemented.
+  void operator=(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
 };
 
 // ----------------------------------------------------------------------------

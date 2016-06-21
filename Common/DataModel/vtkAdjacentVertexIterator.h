@@ -88,7 +88,7 @@ protected:
 
 private:
   vtkAdjacentVertexIterator(const vtkAdjacentVertexIterator&);  // Not implemented.
-  void operator=(const vtkAdjacentVertexIterator&);  // Not implemented.
+  void operator=(const vtkAdjacentVertexIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

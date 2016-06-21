@@ -170,7 +170,7 @@ protected:
 
 private:
   vtkDataObjectTree(const vtkDataObjectTree&); // Not implemented.
-  void operator=(const vtkDataObjectTree&); // Not implemented.
+  void operator=(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
 
 };
 

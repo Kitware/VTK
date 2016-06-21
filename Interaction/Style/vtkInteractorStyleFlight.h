@@ -156,7 +156,7 @@ protected:
 
 private:
   vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
-  void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
+  void operator=(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

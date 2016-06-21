@@ -174,7 +174,7 @@ private:
 
   vtkCenteredSliderRepresentation
     (const vtkCenteredSliderRepresentation&); // Not implemented
-  void operator=(const vtkCenteredSliderRepresentation&);  //Not implemented
+  void operator=(const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

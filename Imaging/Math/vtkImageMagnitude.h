@@ -42,7 +42,7 @@ protected:
 
 private:
   vtkImageMagnitude(const vtkImageMagnitude&);  // Not implemented.
-  void operator=(const vtkImageMagnitude&);  // Not implemented.
+  void operator=(const vtkImageMagnitude&) VTK_DELETE_FUNCTION;
 };
 
 #endif

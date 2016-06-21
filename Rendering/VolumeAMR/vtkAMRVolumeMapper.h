@@ -286,7 +286,7 @@ protected:
 
 private:
   vtkAMRVolumeMapper(const vtkAMRVolumeMapper&);  // Not implemented.
-  void operator=(const vtkAMRVolumeMapper&);  // Not implemented.
+  void operator=(const vtkAMRVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

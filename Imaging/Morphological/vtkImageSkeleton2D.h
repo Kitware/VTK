@@ -67,7 +67,7 @@ protected:
     int id);
 private:
   vtkImageSkeleton2D(const vtkImageSkeleton2D&);  // Not implemented.
-  void operator=(const vtkImageSkeleton2D&);  // Not implemented.
+  void operator=(const vtkImageSkeleton2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

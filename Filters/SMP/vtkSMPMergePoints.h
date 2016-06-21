@@ -103,7 +103,7 @@ protected:
 
 private:
   vtkSMPMergePoints(const vtkSMPMergePoints&); // Not implemented
-  void operator=(const vtkSMPMergePoints&); // Not implemented
+  void operator=(const vtkSMPMergePoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkSMPMergePoints_h

@@ -217,7 +217,7 @@ protected:
 
 private:
   vtkChacoReader(const vtkChacoReader&); // Not implemented
-  void operator=(const vtkChacoReader&); // Not implemented
+  void operator=(const vtkChacoReader&) VTK_DELETE_FUNCTION;
 
   double ReadVal(FILE *infile, int *end_flag);
   vtkIdType ReadInt(FILE *infile, int *end_flag);

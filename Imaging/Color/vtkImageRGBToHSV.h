@@ -51,7 +51,7 @@ protected:
                        int ext[6], int id);
 private:
   vtkImageRGBToHSV(const vtkImageRGBToHSV&);  // Not implemented.
-  void operator=(const vtkImageRGBToHSV&);  // Not implemented.
+  void operator=(const vtkImageRGBToHSV&) VTK_DELETE_FUNCTION;
 };
 
 #endif

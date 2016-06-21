@@ -85,6 +85,6 @@ protected:
 
 private:
   vtkExternalOpenGLRenderWindow(const vtkExternalOpenGLRenderWindow&); // Not implemented
-  void operator=(const vtkExternalOpenGLRenderWindow&); // Not implemented
+  void operator=(const vtkExternalOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 #endif //vtkExternalOpenGLRenderWindow_h

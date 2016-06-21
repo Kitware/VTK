@@ -53,7 +53,7 @@ protected:
 
 private:
   vtkCMLMoleculeReader(const vtkCMLMoleculeReader&);  // Not implemented.
-  void operator=(const vtkCMLMoleculeReader&);  // Not implemented.
+  void operator=(const vtkCMLMoleculeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

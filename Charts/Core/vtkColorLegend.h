@@ -151,7 +151,7 @@ protected:
 
 private:
   vtkColorLegend(const vtkColorLegend &); // Not implemented.
-  void operator=(const vtkColorLegend &);   // Not implemented.
+  void operator=(const vtkColorLegend &) VTK_DELETE_FUNCTION;
 };
 
 #endif

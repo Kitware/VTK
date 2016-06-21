@@ -76,7 +76,7 @@ protected:
 
 private:
   vtkReebGraphToJoinSplitTreeFilter(const vtkReebGraphToJoinSplitTreeFilter&); // Not implemented.
-  void operator=(const vtkReebGraphToJoinSplitTreeFilter&); // Not implemented.
+  void operator=(const vtkReebGraphToJoinSplitTreeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

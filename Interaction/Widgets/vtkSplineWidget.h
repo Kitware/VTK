@@ -341,7 +341,7 @@ protected:
 
 private:
   vtkSplineWidget(const vtkSplineWidget&);  //Not implemented
-  void operator=(const vtkSplineWidget&);  //Not implemented
+  void operator=(const vtkSplineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

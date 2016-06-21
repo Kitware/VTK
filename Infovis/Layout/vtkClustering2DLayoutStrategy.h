@@ -161,7 +161,7 @@ private:
   void ResolveCoincidentVertices();
 
   vtkClustering2DLayoutStrategy(const vtkClustering2DLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkClustering2DLayoutStrategy&);  // Not implemented.
+  void operator=(const vtkClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -114,7 +114,7 @@ protected:
 
 private:
   vtkAbstractContextBufferId(const vtkAbstractContextBufferId &); // Not implemented.
-  void operator=(const vtkAbstractContextBufferId &);   // Not implemented.
+  void operator=(const vtkAbstractContextBufferId &) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkAbstractContextBufferId_h

@@ -75,7 +75,7 @@ protected:
 
 private:
   vtkTIFFWriter(const vtkTIFFWriter&);  // Not implemented.
-  void operator=(const vtkTIFFWriter&);  // Not implemented.
+  void operator=(const vtkTIFFWriter&) VTK_DELETE_FUNCTION;
 
   template<typename T> void WriteVolume(T *buffer);
 };

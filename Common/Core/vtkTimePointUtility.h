@@ -152,7 +152,7 @@ protected:
 
 private:
   vtkTimePointUtility(const vtkTimePointUtility&);  // Not implemented.
-  void operator=(const vtkTimePointUtility&);  // Not implemented.
+  void operator=(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkTerrainDataPointPlacer(const vtkTerrainDataPointPlacer&);  //Not implemented
-  void operator=(const vtkTerrainDataPointPlacer&);  //Not implemented
+  void operator=(const vtkTerrainDataPointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

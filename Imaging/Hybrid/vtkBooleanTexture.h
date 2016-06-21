@@ -135,7 +135,7 @@ protected:
 
 private:
   vtkBooleanTexture(const vtkBooleanTexture&);  // Not implemented.
-  void operator=(const vtkBooleanTexture&);  // Not implemented.
+  void operator=(const vtkBooleanTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

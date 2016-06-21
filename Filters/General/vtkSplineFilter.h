@@ -157,7 +157,7 @@ protected:
 
 private:
   vtkSplineFilter(const vtkSplineFilter&);  // Not implemented.
-  void operator=(const vtkSplineFilter&);  // Not implemented.
+  void operator=(const vtkSplineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

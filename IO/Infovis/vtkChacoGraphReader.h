@@ -73,7 +73,7 @@ private:
   char* FileName;
 
   vtkChacoGraphReader(const vtkChacoGraphReader&);  // Not implemented.
-  void operator=(const vtkChacoGraphReader&);  // Not implemented.
+  void operator=(const vtkChacoGraphReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkChacoGraphReader_h

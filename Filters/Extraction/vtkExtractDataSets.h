@@ -57,7 +57,7 @@ protected:
 
 private:
   vtkExtractDataSets(const vtkExtractDataSets&); // Not implemented.
-  void operator=(const vtkExtractDataSets&); // Not implemented.
+  void operator=(const vtkExtractDataSets&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

@@ -121,7 +121,7 @@ protected:
 
 private:
   vtkPistonDataObject(const vtkPistonDataObject&); // Not implemented
-  void operator=(const vtkPistonDataObject&); // Not implemented
+  void operator=(const vtkPistonDataObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

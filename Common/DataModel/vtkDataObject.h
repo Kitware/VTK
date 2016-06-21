@@ -377,7 +377,7 @@ private:
 
 private:
   vtkDataObject(const vtkDataObject&);  // Not implemented.
-  void operator=(const vtkDataObject&);  // Not implemented.
+  void operator=(const vtkDataObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

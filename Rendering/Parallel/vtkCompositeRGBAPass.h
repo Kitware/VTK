@@ -92,7 +92,7 @@ public:
 
  private:
   vtkCompositeRGBAPass(const vtkCompositeRGBAPass&);  // Not implemented.
-  void operator=(const vtkCompositeRGBAPass&);  // Not implemented.
+  void operator=(const vtkCompositeRGBAPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

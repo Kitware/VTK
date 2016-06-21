@@ -130,7 +130,7 @@ protected:
   vtkGetMacro(ContinuingExecution, bool);
 private:
   vtkXMLPDataWriter(const vtkXMLPDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataWriter&);  // Not implemented.
+  void operator=(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Method used to delete all written files.
