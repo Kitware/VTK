@@ -183,6 +183,7 @@ vtkChartXY::vtkChartXY()
 
   this->ForceAxesToBounds = false;
   this->ZoomWithMouseWheel = true;
+  this->AdjustLowerBoundForLogPlot = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -812,6 +813,19 @@ void vtkChartXY::RecalculatePlotBounds()
         return;
       }
 
+    if (this->AdjustLowerBoundForLogPlot && axis->GetLogScale() &&
+        range[0] <= 0.)
+      {
+      if (range[1] <= 0.)
+        {
+        // All of the data is negative, so we arbitrarily set the axis range to
+        // be positive and show no data
+        range[1] = 1.;
+        }
+      // The minimum value is set to either 4 decades below the max or to 1,
+      // regardless of the true minimum value (which is less than 0)
+      range[0] = (range[1] < 1.e4 ? range[1] / 1.e4 : 1.);
+      }
     if (this->ForceAxesToBounds)
       {
       axis->SetMinimumLimit(range[0]);
