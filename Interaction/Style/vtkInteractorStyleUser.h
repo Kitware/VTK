@@ -85,6 +85,8 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  virtual void OnMouseWheelForward();
+  virtual void OnMouseWheelBackward();
 
   // Description:
   // Keyboard functions
