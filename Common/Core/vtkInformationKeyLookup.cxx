@@ -15,6 +15,7 @@
 
 #include "vtkInformationKeyLookup.h"
 
+#include "vtkInformationKey.h"
 #include "vtkObjectFactory.h"
 
 vtkStandardNewMacro(vtkInformationKeyLookup)
@@ -29,7 +30,7 @@ void vtkInformationKeyLookup::PrintSelf(std::ostream &os, vtkIndent indent)
   for (KeyMap::iterator i = keys.begin(), iEnd = keys.end(); i != iEnd; ++i)
     {
     os << indent << i->first.first << "::" << i->first.second
-       << " @" << i->second << "\n";
+       << " @" << i->second << " (" << i->second->GetClassName() << ")\n";
     }
 }
 
