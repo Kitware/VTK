@@ -315,6 +315,12 @@ public:
   int Read(double *);
 
   // Description:
+  // Read @a n character from the stream into @a str, then reset the stream
+  // position. Returns the number of characters actually read.
+  size_t Peek(char *str, size_t n);
+
+
+  // Description:
   // Close the vtk file.
   void CloseVTKFile();
 
@@ -378,6 +384,8 @@ protected:
   int ReadGlobalIds(vtkDataSetAttributes *a, int num);
   int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
   int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
+
+  int ReadInformation(vtkInformation *info);
 
   int ReadDataSetData(vtkDataSet *ds);
 

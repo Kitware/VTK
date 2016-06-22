@@ -34,6 +34,7 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkFieldData;
 class vtkGraph;
+class vtkInformation;
 class vtkPoints;
 class vtkTable;
 
@@ -247,6 +248,8 @@ protected:
   int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
   int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
   int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
+
+  int WriteInformation(ostream *fp, vtkInformation *info);
 
 private:
   vtkDataWriter(const vtkDataWriter&);  // Not implemented.

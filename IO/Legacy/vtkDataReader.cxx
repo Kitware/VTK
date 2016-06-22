@@ -25,6 +25,15 @@
 #include "vtkGraph.h"
 #include "vtkIdTypeArray.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIdTypeKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationKeyLookup.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIntArray.h"
 #include "vtkLegacyReaderVersion.h"
@@ -356,6 +365,25 @@ int vtkDataReader::Read(double *result)
   return 1;
 }
 
+size_t vtkDataReader::Peek(char *str, size_t n)
+{
+  if (n == 0)
+    {
+    return 0;
+    }
+
+  this->IS->read(str, n);
+  std::streamsize len = this->IS->gcount();
+
+  if (!*this->IS)
+    {
+    this->IS->clear();
+    }
+
+  this->IS->seekg(-len, std::ios_base::cur);
+
+  return len;
+}
 
 // Open a vtk data file. Returns zero if error.
 int vtkDataReader::OpenVTKFile()
@@ -403,7 +431,7 @@ int vtkDataReader::OpenVTKFile()
       this->SetErrorCode( vtkErrorCode::CannotOpenFileError );
       return 0;
       }
-    this->IS = new ifstream(this->FileName, ios::in);
+    this->IS = new ifstream(this->FileName, ios::in | ios::binary);
     if (this->IS->fail())
       {
       vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
@@ -1867,6 +1895,99 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
     }
 
   free(type);
+
+  // Pop off any blank lines, these get added occasionally by the writer
+  // when the data is a certain length:
+  bool readyToCheckMetaData = false;
+  char line[256];
+  size_t peekSize = this->Peek(line, 256);
+  do
+    {
+    // Strip leading whitespace, check for newlines:
+    for (size_t i = 0; i < peekSize; ++i)
+      {
+      switch (line[i])
+        {
+        case ' ':
+          continue;
+        case '\n':
+          // pop line, peek at next
+          if (!this->ReadLine(line))
+            {
+            return array;
+            }
+          peekSize = this->Peek(line, 256);
+          i = peekSize; // Break outer loop
+          if (peekSize == 0) // EOF
+            {
+            return array;
+            }
+          break;
+        default: // Made it past all of the whitespace.
+          readyToCheckMetaData = true;
+          i = peekSize; // Break outer loop
+          break;
+        }
+      }
+    }
+  while (!readyToCheckMetaData && peekSize > 0);
+
+  // Peek at the next line to see if there's any array metadata:
+  if (this->Peek(line, 8) < 8) // looking for "metadata"
+    {
+    return array; // EOF?
+    }
+
+  this->LowerCase(&line[0], 8);
+  if (strncmp(line, "metadata", 8) != 0)
+    { // No metadata
+    return array;
+    }
+
+  // Pop off the meta data line:
+  if (!this->ReadLine(line))
+    {
+    return array;
+    }
+  this->LowerCase(line, 256);
+  assert("sanity check" && strncmp(line, "metadata", 8) == 0);
+
+  while (this->ReadLine(line))
+    {
+    this->LowerCase(line, 256);
+
+    // Blank line indicates end of metadata:
+    if (strncmp(line, "metadata_end", 12) == 0)
+      {
+      break;
+      }
+
+    if (strncmp(line, "component_names", 15) == 0)
+      {
+      char decoded[256];
+      for (int i = 0; i < numComp; ++i)
+        {
+        if (!this->ReadLine(line))
+          {
+          vtkErrorMacro("Error reading component name " << i << " for array '"
+                        << array->GetName() << "'.");
+          continue;
+          }
+
+        this->DecodeString(decoded, line);
+        array->SetComponentName(static_cast<vtkIdType>(i), decoded);
+        }
+      continue;
+      }
+
+    if (strncmp(line, "information", 11) == 0)
+      {
+      vtkInformation *info = array->GetInformation();
+      this->ReadInformation(info);
+      continue;
+      }
+    }
+
   return array;
 }
 
@@ -2503,6 +2624,286 @@ int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, int numPts)
 
   float progress = this->GetProgress();
   this->UpdateProgress(progress + 0.5*(1.0 - progress));
+
+  return 1;
+}
+
+int vtkDataReader::ReadInformation(vtkInformation *info)
+{
+  // Assuming that the opening INFORMATION line has been read.
+  char line[256];
+  char name[256];
+  char location[256];
+  for (;;)
+    {
+    if (!this->ReadLine(line))
+      {
+      vtkErrorMacro("Unexpected EOF while parsing INFORMATION section.");
+      return 0;
+      }
+
+    if (strlen(line) == 0)
+      { // Skip empty lines
+      continue;
+      }
+    if (strncmp("INFORMATION_END", line, 15) == 0)
+      { // End of information
+      break;
+      }
+    else if (strncmp("NAME ", line, 5) == 0)
+      { // New key
+      if (sscanf(line, "NAME %s LOCATION %s", name, location) != 2)
+        {
+        vtkWarningMacro("Invalid line in information specification: " << line);
+        continue;
+        }
+
+      vtkInformationKey *key = vtkInformationKeyLookup::Find(name, location);
+      if (!key)
+        {
+        vtkWarningMacro("Could not locate key " << location << "::" << name
+                        << ". Is the module in which it is defined linked?");
+        continue;
+        }
+
+      vtkInformationDoubleKey *dKey = NULL;
+      vtkInformationDoubleVectorKey *dvKey = NULL;
+      vtkInformationIdTypeKey *idKey = NULL;
+      vtkInformationIntegerKey *iKey = NULL;
+      vtkInformationIntegerVectorKey *ivKey = NULL;
+      vtkInformationStringKey *sKey = NULL;
+      vtkInformationStringVectorKey *svKey = NULL;
+      vtkInformationUnsignedLongKey *ulKey = NULL;
+      if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
+        {
+        double value;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&value))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        info->Set(dKey, value);
+        continue;
+        }
+      else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+        {
+        int length;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&length))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        if (length == 0)
+          {
+          info->Set(dvKey, NULL, 0);
+          continue;
+          }
+
+        std::vector<double> values;
+        values.reserve(length);
+        for (int i = 0; i < length; ++i)
+          {
+          double value;
+          if (!this->Read(&value))
+            {
+            vtkWarningMacro("Malformed data block for key " << location << "::"
+                            << name << ".");
+            break;
+            }
+          values.push_back(value);
+          }
+        if (values.size() == static_cast<size_t>(length))
+          {
+          info->Set(dvKey, &values[0], length);
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        continue;
+        }
+      else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
+        {
+        vtkIdType value;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&value))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        info->Set(idKey, value);
+        continue;
+        }
+      else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
+        {
+        int value;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&value))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        info->Set(iKey, value);
+        continue;
+        }
+      else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
+        {
+        int length;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&length))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        if (length == 0)
+          {
+          info->Set(ivKey, NULL, 0);
+          continue;
+          }
+
+        std::vector<int> values;
+        values.reserve(length);
+        for (int i = 0; i < length; ++i)
+          {
+          int value;
+          if (!this->Read(&value))
+            {
+            vtkWarningMacro("Malformed data block for key " << location << "::"
+                            << name << ".");
+            break;
+            }
+          values.push_back(value);
+          }
+        if (values.size() == static_cast<size_t>(length))
+          {
+          info->Set(ivKey, &values[0], length);
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        continue;
+        }
+      else if ((sKey = vtkInformationStringKey::SafeDownCast(key)))
+        {
+        if (!this->ReadLine(line))
+          {
+          vtkWarningMacro("Unexpected EOF while parsing key " << location
+                          << "::" << name << ".");
+          continue;
+          }
+
+        char value[256];
+        if (sscanf(line, "DATA %s", value) != 1)
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        char decoded[256];
+        this->DecodeString(decoded, value);
+
+        info->Set(sKey, decoded);
+        }
+      else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
+        {
+        int length;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&length))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        if (length == 0)
+          {
+          info->Set(svKey, NULL, 0);
+          continue;
+          }
+
+        // Just build the string vector information by appending, as these
+        // don't really implement the RequiredLength feature like the other
+        // vector keys.
+        bool success = true;
+        for (int i = 0; i < length; ++i)
+          {
+          char value[256];
+          if (!this->ReadLine(value))
+            {
+            vtkWarningMacro("Malformed data block for key " << location << "::"
+                            << name << ".");
+            success = false;
+            break;
+            }
+
+          char decoded[256];
+          this->DecodeString(decoded, value);
+
+          info->Append(svKey, decoded);
+          }
+        if (!success)
+          {
+          info->Remove(svKey);
+          }
+        continue;
+        }
+      else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
+        {
+        unsigned long value;
+        if (!this->ReadString(line) || strncmp("DATA", line, 4) != 0 ||
+            !this->Read(&value))
+          {
+          vtkWarningMacro("Malformed data block for key " << location << "::"
+                          << name << ".");
+          continue;
+          }
+
+        // Pop off the trailing newline:
+        this->ReadLine(line);
+
+        info->Set(ulKey, value);
+        continue;
+        }
+      else
+        {
+        vtkWarningMacro("Could not deserialize information with key "
+                        << key->GetLocation() << "::" << key->GetName() << ": "
+                        "key type '" << key->GetClassName()
+                        << "' is not serializable.");
+        continue;
+        }
+      }
+    else
+      {
+      vtkWarningMacro("Ignoring line in INFORMATION block: " << line);
+      }
+    }
 
   return 1;
 }
