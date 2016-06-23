@@ -164,4 +164,12 @@
 # define VTK_FINAL
 #endif
 
+/** std::auto_ptr is deprecated in C++11 and will be removed in C++17
+ *  use std::unique_ptr in C++11 and later compilers.
+ */
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >=1700)\
+ || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
+# define VTK_HAS_STD_UNIQUE_PTR
 #endif
+
+#endif // vtkConfigure_h

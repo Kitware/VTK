@@ -150,7 +150,11 @@ public:
   typedef FunctorImpl<R, Parm1> Impl;
   typedef R ResultType;
 
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  Functor() : spImpl_()
+#else
   Functor() : spImpl_(0)
+#endif
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -175,7 +179,12 @@ public:
   ResultType operator()(Parm1& p1)
     { return  (*spImpl_)(p1); }
 private:
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  std::unique_ptr<Impl> spImpl_;
+#else
   std::auto_ptr<Impl> spImpl_;
+#endif
+
 };
 
 }
@@ -295,7 +304,11 @@ public:
   typedef FunctorImpl<R, Parm1,Parm2> Impl;
   typedef R ResultType;
 
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  Functor() : spImpl_()
+#else
   Functor() : spImpl_(0)
+#endif
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -319,7 +332,11 @@ public:
   ResultType operator()(Parm1& p1,Parm2& p2)
     { return  (*spImpl_)(p1,p2); }
 private:
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  std::unique_ptr<Impl> spImpl_;
+#else
   std::auto_ptr<Impl> spImpl_;
+#endif
 };
 }
 
