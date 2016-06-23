@@ -25,6 +25,8 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+#include <string> // for std::string compat
+
 class VTKCOMMONCORE_EXPORT vtkInformationStringVectorKey : public vtkInformationKey
 {
 public:
@@ -50,6 +52,8 @@ public:
   // information object.
   void Append(vtkInformation* info, const char* value);
   void Set(vtkInformation* info, const char* value, int idx = 0);
+  void Append(vtkInformation* info, const std::string &value);
+  void Set(vtkInformation* info, const std::string &value, int idx = 0);
   const char* Get(vtkInformation* info, int idx = 0);
   int Length(vtkInformation* info);
 

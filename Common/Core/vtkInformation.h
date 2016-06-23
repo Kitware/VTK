@@ -28,6 +28,8 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
+#include <string> // for std::string compat
+
 // If being "compiled" by gccxml, pretend VTKCOMMONCORE_EXPORT is nothing
 // for this header file. The per-method usage of VTKCOMMONCORE_EXPORT in
 // this header file leads to gccxml errors without this workaround.
@@ -204,6 +206,8 @@ public:
   // Get/Set a string-vector-valued entry.
   VTKCOMMONCORE_EXPORT void Append(vtkInformationStringVectorKey* key, const char* value);
   VTKCOMMONCORE_EXPORT void Set(vtkInformationStringVectorKey* key, const char* value, int idx = 0);
+  VTKCOMMONCORE_EXPORT void Append(vtkInformationStringVectorKey* key, const std::string &value);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationStringVectorKey* key, const std::string &value, int idx = 0);
   VTKCOMMONCORE_EXPORT const char*  Get(vtkInformationStringVectorKey* key, int idx = 0);
   VTKCOMMONCORE_EXPORT int Length(vtkInformationStringVectorKey* key);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationStringVectorKey* key);
@@ -322,6 +326,7 @@ public:
   // Description:
   // Get/Set a string-valued entry.
   VTKCOMMONCORE_EXPORT void Set(vtkInformationStringKey* key, const char*);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationStringKey* key, const std::string&);
   VTKCOMMONCORE_EXPORT const char* Get(vtkInformationStringKey* key);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationStringKey* key);
   VTKCOMMONCORE_EXPORT int Has(vtkInformationStringKey* key);
