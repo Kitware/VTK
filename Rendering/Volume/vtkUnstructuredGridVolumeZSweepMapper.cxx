@@ -2098,8 +2098,8 @@ protected:
   // 1: value for negative orientation.
 
 private:
-  vtkFace(); // not implemented
-  vtkFace(const vtkFace &other); // not implemented
+  vtkFace() VTK_DELETE_FUNCTION;
+  vtkFace(const vtkFace &other) VTK_DELETE_FUNCTION;
   vtkFace &operator=(const vtkFace &other) VTK_DELETE_FUNCTION;
 };
 

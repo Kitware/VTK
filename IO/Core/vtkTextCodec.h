@@ -70,7 +70,7 @@ public:
     OutputIterator() {}    virtual ~OutputIterator() {}
 
   private:
-    OutputIterator(const OutputIterator&); // Not implemented
+    OutputIterator(const OutputIterator&) VTK_DELETE_FUNCTION;
     const OutputIterator& operator=(const OutputIterator&) VTK_DELETE_FUNCTION;
   };
 

@@ -66,7 +66,7 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ); // Not implemented
+  vtkAMRToMultiBlockFilter(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
   void operator=(const vtkAMRToMultiBlockFilter& ) VTK_DELETE_FUNCTION;
 };
 

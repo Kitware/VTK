@@ -363,7 +363,7 @@ class TestVTKFiles:
         if foundcopy < 1:
             self.Print( "File: %s does not define copy constructor" %
                         self.FileName )
-            self.Print( "Should be:\n%s(const %s&); // Not implemented" %
+            self.Print( "Should be:\n%s(const %s&) VTK_DELETE_FUNCTION;" %
                         (self.ClassName, self.ClassName) )
             self.Error("No private copy constructor")
         if foundcopy > 1:

@@ -111,7 +111,7 @@ protected:
   int AppendFieldData;
 
 private:
-  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ); // Not implemented.
+  vtkAppendCompositeDataLeaves ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkAppendCompositeDataLeaves& ) VTK_DELETE_FUNCTION;
 };
 

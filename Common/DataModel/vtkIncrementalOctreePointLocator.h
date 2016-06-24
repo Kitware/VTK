@@ -431,7 +431,7 @@ private:
     ( vtkIncrementalOctreeNode * leafNode, const double point[3] );
 
   vtkIncrementalOctreePointLocator
-    ( const vtkIncrementalOctreePointLocator & ); // Not implemented
+    ( const vtkIncrementalOctreePointLocator & ) VTK_DELETE_FUNCTION;
   void operator = ( const vtkIncrementalOctreePointLocator & ) VTK_DELETE_FUNCTION;
 
 };

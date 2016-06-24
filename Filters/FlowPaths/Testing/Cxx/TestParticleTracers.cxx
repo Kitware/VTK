@@ -227,7 +227,7 @@ protected:
 
 
 private:
-  TestTimeSource(const TestTimeSource&); // Not implemented.
+  TestTimeSource(const TestTimeSource&) VTK_DELETE_FUNCTION;
   void operator=(const TestTimeSource&) VTK_DELETE_FUNCTION;
 
   vector<double> TimeSteps;

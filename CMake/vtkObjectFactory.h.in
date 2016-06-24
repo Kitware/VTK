@@ -35,7 +35,7 @@ protected:
   @vtk-module@ObjectFactory();
 
 private:
-  @vtk-module@ObjectFactory(const @vtk-module@ObjectFactory&); // Not implemented
+  @vtk-module@ObjectFactory(const @vtk-module@ObjectFactory&) VTK_DELETE_FUNCTION;
   void operator=(const @vtk-module@ObjectFactory&) VTK_DELETE_FUNCTION;
 };
 

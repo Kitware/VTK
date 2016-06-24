@@ -108,7 +108,7 @@ namespace
     virtual ~testIterator() {}
 
   private:
-    testIterator(const testIterator&); // Not implemented
+    testIterator(const testIterator&) VTK_DELETE_FUNCTION;
     const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
   };
 

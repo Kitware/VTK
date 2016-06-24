@@ -190,7 +190,7 @@ public:
   vtkIntersectionPolyDataFilter *ParentFilter;
 
 protected:
-  Impl(const Impl&); // Not implemented
+  Impl(const Impl&) VTK_DELETE_FUNCTION;
   void operator=(const Impl&) VTK_DELETE_FUNCTION;
 
 };

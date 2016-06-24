@@ -155,7 +155,7 @@ private:
   bool LastOpaqueCheckValue;
   double ColorResult[3];
   vtkCompositeSurfaceLICMapper(
-    const vtkCompositeSurfaceLICMapper&); // Not implemented.
+    const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCompositeSurfaceLICMapper&) VTK_DELETE_FUNCTION;
 };
 

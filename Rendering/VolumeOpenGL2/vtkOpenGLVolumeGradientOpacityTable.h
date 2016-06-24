@@ -211,9 +211,9 @@ private:
   unsigned int NumberOfTables;
   vtkOpenGLVolumeGradientOpacityTable* Tables;
 
-  vtkOpenGLVolumeGradientOpacityTables(); // Not implemented
+  vtkOpenGLVolumeGradientOpacityTables() VTK_DELETE_FUNCTION;
 
-  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other); // Not implemented
+  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
 
   vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
 };

@@ -81,7 +81,7 @@ protected:
 
 private:
   vtkOpenGLVertexArrayObject(
-    const vtkOpenGLVertexArrayObject&); // Not implemented
+    const vtkOpenGLVertexArrayObject&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenGLVertexArrayObject&) VTK_DELETE_FUNCTION;
   class Private;
   Private *Internal;

@@ -92,7 +92,7 @@ protected:
   }
 
 private:
-  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&); // Not implemented.
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
 
   static const char* GetClassNameInternalCachedName()

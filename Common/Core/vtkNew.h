@@ -103,7 +103,7 @@ public:
     }
 
 private:
-  vtkNew(vtkNew<T> const&); // Not implemented.
+  vtkNew(vtkNew<T> const&) VTK_DELETE_FUNCTION;
   void operator=(vtkNew<T> const&) VTK_DELETE_FUNCTION;
   T* Object;
 };

@@ -70,7 +70,7 @@ protected:
 
 private:
   vtkPolyDataContourLineInterpolator(
-      const vtkPolyDataContourLineInterpolator&);  //Not implemented
+      const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
   void operator=(const vtkPolyDataContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
