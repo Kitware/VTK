@@ -168,10 +168,14 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+      spImpl_.swap(copy.spImpl_);
+#else
       // swap auto_ptrs by hand
       Impl* p = spImpl_.release();
       spImpl_.reset(copy.spImpl_.release());
       copy.spImpl_.reset(p);
+#endif
       return *this;
   }
 
@@ -322,10 +326,13 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
-      // swap auto_ptrs by hand
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+      spImpl_.swap(copy.spImpl_);
+#else      // swap auto_ptrs by hand
       Impl* p = spImpl_.release();
       spImpl_.reset(copy.spImpl_.release());
       copy.spImpl_.reset(p);
+#endif
       return *this;
   }
 
