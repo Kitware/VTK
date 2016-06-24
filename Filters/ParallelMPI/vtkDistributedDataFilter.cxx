@@ -713,6 +713,7 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
     }
 
   output->ShallowCopy(expandedGrid);
+  output->GetFieldData()->ShallowCopy(input->GetFieldData());
 
   expandedGrid->Delete();
 
