@@ -80,7 +80,6 @@ protected:
 private:
   ArrayType* Array;
 
-  // Not implemented.
   vtkTestDataArray(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTestDataArray &) VTK_DELETE_FUNCTION;
 };
