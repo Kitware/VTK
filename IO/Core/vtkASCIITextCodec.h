@@ -72,8 +72,8 @@ protected:
   ~vtkASCIITextCodec() ;
 
 private:
-  vtkASCIITextCodec(const vtkASCIITextCodec &)  VTK_DELETE_FUNCTION;
-  void operator=(const vtkASCIITextCodec &)  VTK_DELETE_FUNCTION;
+  vtkASCIITextCodec(const vtkASCIITextCodec &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkASCIITextCodec &) VTK_DELETE_FUNCTION;
 
 };
 
