@@ -704,15 +704,21 @@ VTK_AUTOINIT(${vtk-module})
     set(${vtk-module}${target_suffix}_EXPORT_CODE
       ${${vtk-module}_EXPORT_CODE})
   endif()
-  generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
+  vtk_generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
   if (BUILD_SHARED_LIBS)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
-    add_compiler_export_flags(my_abi_flags)
-    set_property(TARGET ${vtk-module}${target_suffix} APPEND
-      PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    if(CMAKE_VERSION VERSION_LESS 3.0)
+      #CMake 3.0 deprecates add_compiler_export_flags
+      add_compiler_export_flags(my_abi_flags)
+      set_property(TARGET ${vtk-module}${target_suffix} APPEND
+        PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    else()
+      set_property(TARGET ${vtk-module}${target_suffix}
+        PROPERTY CXX_VISIBILITY_PRESET "hidden")
+    endif()
   endif()
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)
