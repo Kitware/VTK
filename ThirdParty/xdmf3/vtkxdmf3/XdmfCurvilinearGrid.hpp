@@ -24,12 +24,14 @@
 #ifndef XDMFCURVILINEARGRID_HPP_
 #define XDMFCURVILINEARGRID_HPP_
 
-// Forward Declarations
-class XdmfArray;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfGrid.hpp"
+
+#ifdef __cplusplus
+
+// Forward Declarations
+class XdmfArray;
 
 /**
  * @brief A curvilinear (or structured) grid consisting of cells and
@@ -220,6 +222,10 @@ public:
    */
   shared_ptr<XdmfGeometry> getGeometry();
 
+  virtual void read();
+
+  virtual void release();
+
   /**
    * Set the dimensions of the grid, the number of points in each
    * direction.
@@ -275,6 +281,8 @@ public:
    */
   void setGeometry(const shared_ptr<XdmfGeometry> geometry);
 
+  XdmfCurvilinearGrid(XdmfCurvilinearGrid &);
+
 protected:
 
   XdmfCurvilinearGrid(const shared_ptr<XdmfArray> numPoints);
@@ -290,12 +298,46 @@ private:
    * PIMPL
    */
   class XdmfCurvilinearGridImpl;
-
-  XdmfCurvilinearGrid(const XdmfCurvilinearGrid &);  // Not implemented.
+  XdmfCurvilinearGrid(const XdmfCurvilinearGrid &); // Not implemented.
   void operator=(const XdmfCurvilinearGrid &);  // Not implemented.
 
-  XdmfCurvilinearGridImpl * mImpl;
-
+  void
+  copyGrid(shared_ptr<XdmfGrid> sourceGrid);
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFCURVILINEARGRID; // Simply as a typedef to ensure correct typing
+typedef struct XDMFCURVILINEARGRID XDMFCURVILINEARGRID;
+
+XDMF_EXPORT XDMFCURVILINEARGRID * XdmfCurvilinearGridNew2D(unsigned int xNumPoints,
+                                                           unsigned int yNumPoints);
+
+XDMF_EXPORT XDMFCURVILINEARGRID * XdmfCurvilinearGridNew3D(unsigned int xNumPoints,
+                                                           unsigned int yNumPoints,
+                                                           unsigned int zNumPoints);
+
+XDMF_EXPORT XDMFCURVILINEARGRID * XdmfCurvilinearGridNew(XDMFARRAY * numPoints, int * status);
+
+XDMF_EXPORT XDMFARRAY * XdmfCurvilinearGridGetDimensions(XDMFCURVILINEARGRID * grid, int * status);
+
+XDMF_EXPORT XDMFGEOMETRY * XdmfCurvilinearGridGetGeometry(XDMFCURVILINEARGRID * grid);
+
+XDMF_EXPORT void XdmfCurvilinearGridSetDimensions(XDMFCURVILINEARGRID * grid, XDMFARRAY * dimensions, int passControl, int * status);
+
+XDMF_EXPORT void XdmfCurvilinearGridSetGeometry(XDMFCURVILINEARGRID * grid, XDMFGEOMETRY * geometry, int passControl);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfCurvilinearGrid, XDMFCURVILINEARGRID, XDMF)
+XDMF_GRID_C_CHILD_DECLARE(XdmfCurvilinearGrid, XDMFCURVILINEARGRID, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFCURVILINEARGRID_HPP_ */

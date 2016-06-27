@@ -24,13 +24,13 @@
 #ifndef XDMFGRIDCOLLECTION_HPP_
 #define XDMFGRIDCOLLECTION_HPP_
 
-// Forward Declarations
-class XdmfGridCollectionType;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfDomain.hpp"
 #include "XdmfGrid.hpp"
+#include "XdmfGridCollectionType.hpp"
+
+#ifdef __cplusplus
 
 /**
  * @brief A spatial or temporal collection of XdmfGrids.
@@ -43,7 +43,7 @@ class XdmfGridCollectionType;
  * It is valid to nest collections. A spatial collection inside a
  * temporal collection is commonly used.
  */
-class XDMF_EXPORT XdmfGridCollection : public XdmfDomain,
+class XDMF_EXPORT XdmfGridCollection : public virtual XdmfDomain,
                                        public XdmfGrid {
 
 public:
@@ -131,6 +131,10 @@ public:
    */
   void insert(const shared_ptr<XdmfInformation> information);
 
+  void read();
+
+  void release();
+
   /**
    * Set the XdmfGridCollectionType associated with this grid
    * collection.
@@ -159,6 +163,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfGridCollection(XdmfGridCollection &);
+
 protected:
 
   XdmfGridCollection();
@@ -168,12 +174,47 @@ protected:
                const std::vector<shared_ptr<XdmfItem> > & childItems,
                const XdmfCoreReader * const reader);
 
+  void copyGrid(shared_ptr<XdmfGrid> sourceGrid);
+
 private:
+
+  /**
+   * PIMPL
+   */
+  class XdmfGridCollectionImpl;
 
   XdmfGridCollection(const XdmfGridCollection &);  // Not implemented.
   void operator=(const XdmfGridCollection &);  // Not implemented.
 
   shared_ptr<const XdmfGridCollectionType> mType;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#ifndef XDMFGRIDCOLLECTIONCDEFINE
+#define XDMFGRIDCOLLECTIONCDEFINE
+struct XDMFGRIDCOLLECTION; // Simply as a typedef to ensure correct typing
+typedef struct XDMFGRIDCOLLECTION XDMFGRIDCOLLECTION;
+#endif
+
+XDMF_EXPORT XDMFGRIDCOLLECTION * XdmfGridCollectionNew();
+
+XDMF_EXPORT int XdmfGridCollectionGetType(XDMFGRIDCOLLECTION * collection, int * status);
+
+XDMF_EXPORT void XdmfGridCollectionSetType(XDMFGRIDCOLLECTION * collection, int type, int * status);
+
+XDMF_DOMAIN_C_CHILD_DECLARE(XdmfGridCollection, XDMFGRIDCOLLECTION, XDMF)
+XDMF_GRID_C_CHILD_DECLARE(XdmfGridCollection, XDMFGRIDCOLLECTION, XDMF)
+XDMF_ITEM_C_CHILD_DECLARE(XdmfGridCollection, XDMFGRIDCOLLECTION, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFGRID_HPP_ */

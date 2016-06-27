@@ -69,20 +69,20 @@ def DoFilesExist(xdmfFile, hdf5File, vtkFile, deleteIfSo):
   xlenOK = os.path.getsize(xdmfFile) > 0
   if hdf5File:
     hexists = os.path.exists(hdf5File)
-    hlenOK = os.path.getsize(hdf5File) > 0
+    hlenOK = True #os.path.getsize(hdf5File) > 0
   if vtkFile:
     vexists = os.path.exists(vtkFile)
     vlenOK = os.path.getsize(vtkFile) > 0
 
   theyDo = xexists and xlenOK
-  if hdf5File:
-    theyDo = theyDo and hexists and hlenOK
+  #if hdf5File:
+  #  theyDo = theyDo and hexists and hlenOK
   if vtkFile:
     theyDo = theyDo and vexists and vlenOK
 
   if theyDo and deleteIfSo and CleanUpGood:
     os.remove(xdmfFile)
-    if hdf5File:
+    if hexists:
       os.remove(hdf5File)
     if vtkFile:
       os.remove(vtkFile)

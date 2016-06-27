@@ -1,8 +1,12 @@
 #ifndef XDMFSETTYPE_HPP_
 #define XDMFSETTYPE_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
+
+#ifdef __cplusplus
+
+// Includes
 #include "XdmfItemProperty.hpp"
 
 /**
@@ -71,6 +75,10 @@ protected:
    */
   XdmfSetType(const std::string & name);
 
+  static std::map<std::string, shared_ptr<const XdmfSetType>(*)()> mSetDefinitions;
+
+  static void InitTypes();
+
 private:
 
   XdmfSetType(const XdmfSetType &); // Not implemented.
@@ -81,5 +89,29 @@ private:
 
   std::string mName;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_SET_TYPE_NO_SET_TYPE 600
+#define XDMF_SET_TYPE_NODE        601
+#define XDMF_SET_TYPE_CELL        602
+#define XDMF_SET_TYPE_FACE        603
+#define XDMF_SET_TYPE_EDGE        604
+
+XDMF_EXPORT int XdmfSetTypeNoSetType();
+XDMF_EXPORT int XdmfSetTypeNode();
+XDMF_EXPORT int XdmfSetTypeCell();
+XDMF_EXPORT int XdmfSetTypeFace();
+XDMF_EXPORT int XdmfSetTypeEdge();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFSETTYPE_HPP_ */
