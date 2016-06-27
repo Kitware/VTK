@@ -891,23 +891,34 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
   this->Textures[this->FrontSource]->Activate();
   this->Textures[Back]->Activate();
 
-  /* The final pixel (including the opaque layer is:
+  /* Peeling is done, time to blend the front and back peel textures with the
+   * opaque geometry in the existing framebuffer. First, we'll underblend the
+   * back texture beneath the front texture in the shader:
    *
-   * C = (1 - b.a) * f.a * o.a * o.rgb + f.a * (b.a * b.rgb) + f.rgb
+   * Blend 'b' under 'f' to form 't':
+   * t.rgb = f.a * b.a * b.rgb + f.rgb
+   * t.a   = (1 - b.a) * f.a
    *
-   * ( C = final color; o = opaque frag; b = back frag; f = front frag )
+   * ( t = translucent layer (back + front), f = front layer, b = back layer )
    *
-   * This is obtained from repeatedly applying the underblend equations:
+   * Also in the shader, we adjust the translucent layer's alpha so that it
+   * can be used for back-to-front blending, so
    *
-   * C = f.a * b.a * b.rgb + f.rgb
-   * a = (1 - b.a) * f.a
+   * alphaOverBlend = 1. - alphaUnderBlend
+   *
+   * To blend the translucent layer over the opaque layer, use regular
+   * overblending via glBlendEquation/glBlendFunc:
+   *
+   * Blend 't' over 'o'
+   * C = t.rgb + o.rgb * (1 - t.a)
+   * a = t.a + o.a * (1 - t.a)
    *
    * These blending parameters and fragment shader perform this work.
    * Note that the opaque fragments are assumed to have premultiplied alpha
    * in this implementation. */
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   typedef vtkOpenGLRenderUtilities GLUtil;
 
@@ -928,7 +939,10 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
           "  front.a = 1. - front.a; // stored as (1 - alpha)\n"
           "  // Underblend. Back color is premultiplied:\n"
           "  gl_FragData[0].rgb = (front.rgb + back.rgb * front.a);\n"
-          "  gl_FragData[0].a = front.a * (1 - back.a);\n"
+          "  // The first '1. - ...' is to convert the 'underblend' alpha to\n"
+          "  // an 'overblend' alpha, since we'll be letting GL do the\n"
+          "  // transparent-over-opaque blending pass.\n"
+          "  gl_FragData[0].a = (1. - front.a * (1. - back.a));\n"
           );
     this->BlendProgram = renWin->GetShaderCache()->ReadyShaderProgram(
           GLUtil::GetFullScreenQuadVertexShader().c_str(),
