@@ -1,4 +1,4 @@
-include(GenerateExportHeader)
+include(VTKGenerateExportHeader)
 include(vtkPythonWrapping)
 
 set(Module_SRCS

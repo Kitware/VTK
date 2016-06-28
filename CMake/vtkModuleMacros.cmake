@@ -3,7 +3,7 @@ get_filename_component(_VTKModuleMacros_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(_VTKModuleMacros_DEFAULT_LABEL "VTKModular")
 
 include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
-include(GenerateExportHeader)
+include(VTKGenerateExportHeader)
 include(vtkWrapping)
 if(VTK_MAKE_INSTANTIATORS)
   include(vtkMakeInstantiator)
@@ -638,7 +638,7 @@ function(vtk_module_library name)
           COMPILE_DEFINITIONS ${${vtk-module}_KIT}_EXPORTS)
       set_target_properties(${vtk-module}Objects
         PROPERTIES
-          # Tell generate_export_header what kit-wide export symbol we use.
+          # Tell vtk_generate_export_header what kit-wide export symbol we use.
           DEFINE_SYMBOL ${${vtk-module}_KIT}_EXPORTS
           POSITION_INDEPENDENT_CODE TRUE)
     endif()
@@ -712,7 +712,7 @@ VTK_AUTOINIT(${vtk-module})
     # time to do that, we skip visibility flags for static libraries.
     if(CMAKE_VERSION VERSION_LESS 3.0)
       #CMake 3.0 deprecates add_compiler_export_flags
-      add_compiler_export_flags(my_abi_flags)
+      vtk_add_compiler_export_flags(my_abi_flags)
       set_property(TARGET ${vtk-module}${target_suffix} APPEND
         PROPERTY COMPILE_FLAGS "${my_abi_flags}")
     else()
