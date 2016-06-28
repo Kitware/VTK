@@ -3360,6 +3360,15 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         {
         this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
         }
+      else if (currToken == '(')
+        {
+        vtkGenericWarningMacro("Found a list containing scalar data followed "
+                               "by a nested list, but this reader only "
+                               "supports nested lists that precede all "
+                               "scalars. Discarding nested list data.");
+        vtkFoamEntryValue tmp(this->UpperEntryPtr);
+        tmp.ReadList(io);
+        }
       else
         {
         throw vtkFoamError() << "Expected a number, found " << currToken;
