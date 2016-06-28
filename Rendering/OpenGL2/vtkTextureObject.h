@@ -600,6 +600,19 @@ public:
                            int width,
                            int height);
 
+  // Description:
+  // Get the shift and scale required in the shader to
+  // return the texture values to their original range.
+  // Thsi is useful when for example you have unsigned char
+  // data and it is being accessed using the floating point
+  // texture calls. In that case OpenGL maps the uchar
+  // range to a different floating point range under the hood.
+  // Applying the shift and scale will return the data to
+  // its original values in the shader. The texture's
+  // internal format must be set before calling these
+  // routines. Creating the texture does set it.
+  void GetShiftAndScale(float &shift, float &scale);
+
 protected:
   vtkTextureObject();
   ~vtkTextureObject();

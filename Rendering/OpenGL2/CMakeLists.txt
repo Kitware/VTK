@@ -38,6 +38,7 @@ set(Module_SRCS
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLHelper.cxx
+  vtkOpenGLImageAlgorithmHelper.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLIndexBufferObject.cxx
