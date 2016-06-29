@@ -228,18 +228,16 @@ OPTION(NETCDF_ENABLE_CXX "Build netcdf C++ API" ON)
 mark_as_advanced(NETCDF_ENABLE_CXX)
 SET(CXX NETCDF_ENABLE_CXX)
 
-# NetCDF4 needs HDF5 HL support. Check that's available.
-set (USE_NETCDF4 OFF)
-if (NOT VTK_USE_SYSTEM_HDF5)
-  # using VTK's HDF5, we always build that with HL support.
-  set (USE_NETCDF4 ON)
-elseif(HDF5_HL_LIBRARY OR HDF5_hdf5_hl_LIBRARY OR HDF5_hdf5_hl_LIBRARY_DEBUG OR HDF5_hdf5_hl_LIBRARY_RELEASE)
-  set (USE_NETCDF4 ON)
-else()
-  message(STATUS "Disabling NETCDF4 support since HDF5_HL or HDF5_hdf5_hl is missing.")
-endif ()
+# NetCDF4 needs HDF5 HL support. VTK's usage of HDF5 will always require
+# the presence of HL libraries so we no longer need to explicitly check
+# for them
+set (USE_NETCDF4 ON)
 
 if (USE_NETCDF4)
+  set(HAVE_HDF5_H ON)
+  set(HAVE_LIBHDF5 ON)
+  set(HAVE_LIBHDF5_HL ON)
+
   # message(STATUS "NETCDF4 support is enabled.")
   set(NETCDF4_DEFAULT_CHUNK_SIZE 4194304 CACHE STRING "Specify default size of chunks in bytes.")
   mark_as_advanced(NETCDF4_DEFAULT_CHUNK_SIZE)
