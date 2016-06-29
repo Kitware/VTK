@@ -9,7 +9,7 @@ endif()
 PROJECT (Step5)
 
 find_package(VTK REQUIRED)
-vtk_module_config(VTK(
+vtk_module_config(VTK
   vtkCommonCore
   vtkFiltersSources
   vtkInteractionStyle
