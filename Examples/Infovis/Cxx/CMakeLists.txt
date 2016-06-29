@@ -6,6 +6,15 @@ endif()
 project(Infovis)
 
 find_package(VTK REQUIRED)
+vtk_module_config(VTK
+  vtkCommonCore
+  vtkFiltersSources
+  vtkInteractionStyle
+  vtkRenderingLabel
+  vtkInfovisLayout
+  vtkIOInfovis
+  vtkRendering${VTK_RENDERING_BACKEND}
+)
 include(${VTK_USE_FILE})
 
 add_executable(TreeLayout TreeLayout.cxx)
