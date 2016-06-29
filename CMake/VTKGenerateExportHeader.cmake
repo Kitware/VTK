@@ -1,12 +1,20 @@
+# This version of GenerateExportHeader has been modified from the CMake
+# official version to add support for adding arbitrary additional information
+# through the EXPORT_CODE define. Because of this modification we need to
+# namespace all the function calls to make sure that consumers properly call
+# our version instead of the CMake official version.
+#
+#
+#
 # - Function for generation of export macros for libraries
 # This module provides the function GENERATE_EXPORT_HEADER() and the
 # accompanying ADD_COMPILER_EXPORT_FLAGS() function.
 #
-# The GENERATE_EXPORT_HEADER function can be used to generate a file suitable
+# The VTK_GENERATE_EXPORT_HEADER function can be used to generate a file suitable
 # for preprocessor inclusion which contains EXPORT macros to be used in
 # library classes.
 #
-# GENERATE_EXPORT_HEADER( LIBRARY_TARGET
+# VTK_GENERATE_EXPORT_HEADER( LIBRARY_TARGET
 #             [BASE_NAME <base_name>]
 #             [EXPORT_MACRO_NAME <export_macro_name>]
 #             [EXPORT_FILE_NAME <export_file_name>]
@@ -20,7 +28,7 @@
 #
 # ADD_COMPILER_EXPORT_FLAGS( [FATAL_WARNINGS] )
 #
-# By default GENERATE_EXPORT_HEADER() generates macro names in a file name
+# By default VTK_GENERATE_EXPORT_HEADER() generates macro names in a file name
 # determined by the name of the library. The ADD_COMPILER_EXPORT_FLAGS function
 # adds -fvisibility=hidden to CMAKE_CXX_FLAGS if supported, and is a no-op on
 # Windows which does not need extra compiler flags for exporting support. You
@@ -33,7 +41,7 @@
 #
 #   add_compiler_export_flags()
 #   add_library(somelib someclass.cpp)
-#   generate_export_header(somelib)
+#   vtk_generate_export_header(somelib)
 #   install(TARGETS somelib DESTINATION ${LIBRARY_INSTALL_DIR})
 #   install(FILES
 #    someclass.h
@@ -57,7 +65,7 @@
 # used for the macros
 #
 #   add_library(somelib someclass.cpp)
-#   generate_export_header(somelib
+#   vtk_generate_export_header(somelib
 #     BASE_NAME other_name
 #   )
 #
@@ -68,7 +76,7 @@
 # For example:
 #
 #   add_library(somelib someclass.cpp)
-#   generate_export_header(somelib
+#   vtk_generate_export_header(somelib
 #     EXPORT_MACRO_NAME OTHER_NAME_EXPORT
 #   )
 #
@@ -76,7 +84,7 @@
 # and the generated file name is as default.
 #
 #   add_library(somelib someclass.cpp)
-#   generate_export_header(somelib
+#   vtk_generate_export_header(somelib
 #     DEPRECATED_MACRO_NAME KDE_DEPRECATED
 #   )
 #
@@ -90,7 +98,7 @@
 #
 #   add_library(shared_variant SHARED ${lib_SRCS})
 #   add_library(static_variant ${lib_SRCS})
-#   generate_export_header(shared_variant BASE_NAME libshared_and_static)
+#   vtk_generate_export_header(shared_variant BASE_NAME libshared_and_static)
 #   set_target_properties(static_variant PROPERTIES
 #     COMPILE_FLAGS -DLIBSHARED_AND_STATIC_STATIC_DEFINE)
 #
@@ -105,7 +113,7 @@
 #   if (EXCLUDE_DEPRECATED)
 #     set(NO_BUILD_DEPRECATED DEFINE_NO_DEPRECATED)
 #   endif()
-#   generate_export_header(somelib ${NO_BUILD_DEPRECATED})
+#   vtk_generate_export_header(somelib ${NO_BUILD_DEPRECATED})
 #
 # And then in somelib:
 #
@@ -126,7 +134,7 @@
 #
 # For example:
 #
-#   generate_export_header(somelib PREFIX_NAME VTK_)
+#   vtk_generate_export_header(somelib PREFIX_NAME VTK_)
 #
 # Generates the macros VTK_SOMELIB_EXPORT etc.
 
@@ -147,7 +155,7 @@ include(CMakeParseArguments)
 include(CheckCXXCompilerFlag)
 
 # TODO: Install this macro separately?
-macro(_check_cxx_compiler_attribute _ATTRIBUTE _RESULT)
+macro(_vtk_check_cxx_compiler_attribute _ATTRIBUTE _RESULT)
   check_cxx_source_compiles("${_ATTRIBUTE} int somefunc() { return 0; }
     int main() { return somefunc();}" ${_RESULT}
     # Some compilers do not fail with a bad flag
@@ -160,7 +168,7 @@ macro(_check_cxx_compiler_attribute _ATTRIBUTE _RESULT)
   )
 endmacro()
 
-macro(_test_compiler_hidden_visibility)
+macro(_vtk_test_compiler_hidden_visibility)
 
   if(CMAKE_COMPILER_IS_GNUCXX)
     execute_process(COMMAND ${CMAKE_C_COMPILER} --version
@@ -212,7 +220,7 @@ macro(_test_compiler_hidden_visibility)
   endif()
 endmacro()
 
-macro(_test_compiler_has_deprecated)
+macro(_vtk_test_compiler_has_deprecated)
   if(CMAKE_CXX_COMPILER_ID MATCHES "Borland"
       OR CMAKE_CXX_COMPILER_ID MATCHES "HP"
       OR GCC_TOO_OLD
@@ -221,22 +229,22 @@ macro(_test_compiler_has_deprecated)
     set(COMPILER_HAS_DEPRECATED "" CACHE INTERNAL
       "Compiler support for a deprecated attribute")
   else()
-    _check_cxx_compiler_attribute("__attribute__((__deprecated__))"
+    _vtk_check_cxx_compiler_attribute("__attribute__((__deprecated__))"
       COMPILER_HAS_DEPRECATED_ATTR)
     if(COMPILER_HAS_DEPRECATED_ATTR)
       set(COMPILER_HAS_DEPRECATED "${COMPILER_HAS_DEPRECATED_ATTR}"
         CACHE INTERNAL "Compiler support for a deprecated attribute")
     else()
-      _check_cxx_compiler_attribute("__declspec(deprecated)"
+      _vtk_check_cxx_compiler_attribute("__declspec(deprecated)"
         COMPILER_HAS_DEPRECATED)
     endif()
   endif()
 endmacro()
 
-get_filename_component(_GENERATE_EXPORT_HEADER_MODULE_DIR
+get_filename_component(_VTK_GENERATE_EXPORT_HEADER_MODULE_DIR
   "${CMAKE_CURRENT_LIST_FILE}" PATH)
 
-macro(_DO_SET_MACRO_VALUES TARGET_LIBRARY)
+macro(_vtk_do_set_macro_values TARGET_LIBRARY)
   set(DEFINE_DEPRECATED)
   set(DEFINE_EXPORT)
   set(DEFINE_IMPORT)
@@ -262,7 +270,7 @@ macro(_DO_SET_MACRO_VALUES TARGET_LIBRARY)
   endif()
 endmacro()
 
-macro(_DO_GENERATE_EXPORT_HEADER TARGET_LIBRARY)
+macro(_vtk_do_generate_export_header TARGET_LIBRARY)
   # Option overrides
   set(options DEFINE_NO_DEPRECATED)
   set(oneValueArgs PREFIX_NAME BASE_NAME EXPORT_MACRO_NAME EXPORT_FILE_NAME
@@ -337,11 +345,11 @@ macro(_DO_GENERATE_EXPORT_HEADER TARGET_LIBRARY)
     set(EXPORT_IMPORT_CONDITION ${TARGET_LIBRARY}_EXPORTS)
   endif()
 
-  configure_file("${_GENERATE_EXPORT_HEADER_MODULE_DIR}/exportheader.cmake.in"
+  configure_file("${_VTK_GENERATE_EXPORT_HEADER_MODULE_DIR}/vtkexportheader.cmake.in"
     "${EXPORT_FILE_NAME}" @ONLY)
 endmacro()
 
-function(GENERATE_EXPORT_HEADER TARGET_LIBRARY)
+function(VTK_GENERATE_EXPORT_HEADER TARGET_LIBRARY)
   get_property(type TARGET ${TARGET_LIBRARY} PROPERTY TYPE)
   if(type STREQUAL "MODULE")
     message(WARNING "This macro should not be used with libraries of type MODULE")
@@ -351,16 +359,16 @@ function(GENERATE_EXPORT_HEADER TARGET_LIBRARY)
     message(WARNING "This macro can only be used with libraries")
     return()
   endif()
-  _test_compiler_hidden_visibility()
-  _test_compiler_has_deprecated()
-  _do_set_macro_values(${TARGET_LIBRARY})
-  _do_generate_export_header(${TARGET_LIBRARY} ${ARGN})
+  _vtk_test_compiler_hidden_visibility()
+  _vtk_test_compiler_has_deprecated()
+  _vtk_do_set_macro_values(${TARGET_LIBRARY})
+  _vtk_do_generate_export_header(${TARGET_LIBRARY} ${ARGN})
 endfunction()
 
-function(add_compiler_export_flags)
+function(vtk_add_compiler_export_flags)
 
-  _test_compiler_hidden_visibility()
-  _test_compiler_has_deprecated()
+  _vtk_test_compiler_hidden_visibility()
+  _vtk_test_compiler_has_deprecated()
 
   if(NOT (USE_COMPILER_HIDDEN_VISIBILITY AND COMPILER_HAS_HIDDEN_VISIBILITY))
     # Just return if there are no flags to add.
