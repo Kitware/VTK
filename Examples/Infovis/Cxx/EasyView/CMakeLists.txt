@@ -14,7 +14,17 @@ endif()
 
 project(EasyView)
 
-find_package(VTK)
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkGUISupportQt
+  vtkIOInfovis
+  vtkInfovisCore
+  vtkViewsCore
+  vtkViewsInfovis
+  vtkViewsQt
+)
 include(${VTK_USE_FILE})
 
 if("${VTK_QT_VERSION}" STREQUAL "")
@@ -46,14 +56,25 @@ if(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
 endif(CMAKE_BUILD_TOOL MATCHES "(msdev|devenv)")
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-
-  find_package(Qt5 COMPONENTS Widgets)
-
+  # We have ui files, this will bring in the macro: qt5_wrap_ui
+  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
   qt5_wrap_ui(UI_Srcs ${UIs})
   qt5_add_resources(Rcs_Srcs ${Rcs})
 
-  set_source_files_PROPERTIES(${Srcs} PROPERTIES
-                              OBJECT_DEPENDS "${UI_Srcs}")
+  source_group("Resources" FILES
+    ${UIs}
+    ${Rcs}
+    ${EXE_ICON} # Not present
+  )
+
+  source_group("Generated" FILES
+    ${UI_Srcs}
+    ${MOC_Srcs}
+    ${Rcs_Srcs}
+  )
+
+  #  set_source_files_PROPERTIES(${Srcs} PROPERTIES
+  #                              OBJECT_DEPENDS "${UI_Srcs}")
 
   add_executable(EasyView
     MACOSX_BUNDLE  ${Srcs} ${Hdrs} ${UI_Srcs} ${MOC_Hdrs} ${Rcs_Srcs})

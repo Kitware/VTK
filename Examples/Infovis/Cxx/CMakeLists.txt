@@ -9,11 +9,14 @@ find_package(VTK REQUIRED)
 vtk_module_config(VTK
   vtkCommonCore
   vtkFiltersSources
+  vtkGUISupportQt
+  vtkIOInfovis
+  vtkIOSQL
+  vtkInfovisLayout
   vtkInteractionStyle
   vtkRenderingLabel
-  vtkInfovisLayout
-  vtkIOInfovis
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkViewsInfovis
+  vtkViewsQt
 )
 include(${VTK_USE_FILE})
 
@@ -38,7 +41,9 @@ endif()
 if(vtkGUISupportQt_LOADED)
   add_subdirectory(EasyView)
   add_subdirectory(CustomLinkView)
-  add_subdirectory(StatsView)
+  if(vtkIOSQL_LOADED)
+    add_subdirectory(StatsView)
+  endif()
 endif()
 
 if(vtkInfovisParallel_LOADED)
