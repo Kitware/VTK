@@ -6,14 +6,28 @@ endif()
 project(Infovis)
 
 find_package(VTK REQUIRED)
-vtk_module_config(VTK
+# List of VTK_Modules required from VTK
+# for all examples in this directory and its subdirectories to work.
+set(VTK_Modules
   vtkCommonCore
   vtkFiltersSources
+  vtkIOInfovis
+  vtkIOSQL
+  vtkInfovisLayout
   vtkInteractionStyle
   vtkRenderingLabel
-  vtkInfovisLayout
-  vtkIOInfovis
-  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkViewsInfovis
+)
+if(TARGET vtkGUISupportQt AND
+   TARGET vtkViewsQt)
+  set(VTK_Modules ${VTK_Modules}
+    vtkGUISupportQt
+    vtkViewsQt
+  )
+endif()
+
+vtk_module_config(VTK
+  ${VTK_Modules}
 )
 include(${VTK_USE_FILE})
 
@@ -35,10 +49,12 @@ if(vtkViewsInfovis_LOADED)
 endif()
 
 # If Qt is enabled include the QT based examples
-if(vtkGUISupportQt_LOADED)
+if(vtkGUISupportQt_LOADED AND vtkViewsQt_LOADED)
   add_subdirectory(EasyView)
   add_subdirectory(CustomLinkView)
-  add_subdirectory(StatsView)
+  if(vtkIOSQL_LOADED)
+    add_subdirectory(StatsView)
+  endif()
 endif()
 
 if(vtkInfovisParallel_LOADED)
