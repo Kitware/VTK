@@ -273,9 +273,14 @@ def reindent(filename):
         ofile = open(filename, 'w')
         ofile.writelines(lines)
         ofile.close()
+        return True
+
+    return False
 
 
 if __name__ == "__main__":
 
     for filename in sys.argv[1:]:
-         reindent(filename)
+        # repeat until no further changes occur
+        while reindent(filename):
+            pass
