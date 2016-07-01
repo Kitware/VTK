@@ -710,8 +710,9 @@ VTK_AUTOINIT(${vtk-module})
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
-    if(CMAKE_VERSION VERSION_LESS 3.0)
-      #CMake 3.0 deprecates add_compiler_export_flags
+    if(CMAKE_VERSION VERSION_LESS 3.3)
+      #CMake 3.3 deprecates add_compiler_export_flags and also has policy
+      #CMP0063 which properly propagates visibility flags to OBJECT libs
       vtk_add_compiler_export_flags(my_abi_flags)
       set_property(TARGET ${vtk-module}${target_suffix} APPEND
         PROPERTY COMPILE_FLAGS "${my_abi_flags}")
