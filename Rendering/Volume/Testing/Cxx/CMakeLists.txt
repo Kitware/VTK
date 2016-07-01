@@ -65,6 +65,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastIndependentComponentsLightParameters.cxx
+  TestGPURayCastIndependentVectorMode.cxx
   TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
