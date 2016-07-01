@@ -113,9 +113,13 @@ public:
   // Description:
   // Set/get the viewport to position/size this widget.
   // Default is bottom left corner (0,0,0.2,0.2).
-  void SetViewport(double minX, double minY, double maxX, double maxY);
-  void SetViewport(double viewport[4]);
-  double* GetViewport();
+  // Note that this viewport is scaled with respect to the viewport of the
+  // current renderer i.e. if the viewport of the current renderer is
+  // (0.5, 0.5, 0.75, 0.75) and Viewport is set to (0, 0, 1, 1), the orientation
+  // marker will be confined to a viewport of (0.5, 0.5, 0.75, 0.75).
+  // \sa SetCurrentRenderer()
+  vtkSetVector4Macro(Viewport, double);
+  vtkGetVector4Macro(Viewport, double);
 
   // Description:
   // The tolerance representing the distance to the widget (in pixels)
@@ -150,6 +154,9 @@ protected:
   int Tolerance;
   int Moving;
 
+  // viewport to position/size this widget
+  double Viewport[4];
+
   // used to compute relative movements
   int StartPosition[2];
 
@@ -183,6 +190,7 @@ protected:
 
   void SquareRenderer();
   void UpdateOutline();
+  void UpdateViewport();
 
 private:
   vtkOrientationMarkerWidget(const vtkOrientationMarkerWidget&);  // Not implemented
