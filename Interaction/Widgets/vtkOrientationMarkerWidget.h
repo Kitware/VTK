@@ -112,11 +112,14 @@ public:
 
   // Description:
   // Set/get the viewport to position/size this widget.
+  // Coordinates are expressed as (xmin,ymin,xmax,ymax), where each
+  // coordinate is 0 <= coordinate <= 1.0.
   // Default is bottom left corner (0,0,0.2,0.2).
   // Note that this viewport is scaled with respect to the viewport of the
   // current renderer i.e. if the viewport of the current renderer is
   // (0.5, 0.5, 0.75, 0.75) and Viewport is set to (0, 0, 1, 1), the orientation
-  // marker will be confined to a viewport of (0.5, 0.5, 0.75, 0.75).
+  // marker will be confined to a viewport of (0.5, 0.5, 0.75, 0.75) in the
+  // render window.
   // \sa SetCurrentRenderer()
   vtkSetVector4Macro(Viewport, double);
   vtkGetVector4Macro(Viewport, double);
