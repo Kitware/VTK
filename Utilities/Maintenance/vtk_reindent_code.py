@@ -1,16 +1,23 @@
 #!/usr/bin/env python
 """
+Usage: python vtk_reindent_code.py [--test] <file1> [<file2> ...]
+
 This script takes old-style "Whitesmiths" indented VTK source files as
 input, and re-indents the braces according to the new VTK style.
 Only the brace indentation is modified.
+
+If called with the --test option, then it will print an error message
+for each file that it would modify, but it will not actually modify the
+files.
 
 Written by David Gobbi on Sep 30, 2015.
 """
 
 import sys
+import os
 import re
 
-def reindent(filename):
+def reindent(filename, dry_run=False):
     """Reindent a file from Whitesmiths style to Allman style"""
 
     # This first part of this function clears all strings and comments
@@ -269,10 +276,23 @@ def reindent(filename):
             lines[i] = trailing.sub("", lines[i])
         while n > 0 and lines[n-1].rstrip() == "":
             n -= 1
-        # rewrite the file
-        ofile = open(filename, 'w')
-        ofile.writelines(lines)
-        ofile.close()
+        if dry_run:
+            errcount = len(lines_changed)
+            line_numbers = list(lines_changed.keys())
+            line_numbers.sort()
+            line_numbers = [str(l + 1) for l in line_numbers[0:10] ]
+            if errcount > len(line_numbers):
+                line_numbers.append("...")
+            sys.stderr.write("Warning: " + filename +
+                             ": incorrect brace indentation on " +
+                             str(errcount) +
+                             (" lines: ", "line: ")[errcount == 1] +
+                             ", ".join(line_numbers) + "\n")
+        else:
+            # rewrite the file
+            ofile = open(filename, 'w')
+            ofile.writelines(lines)
+            ofile.close()
         return True
 
     return False
@@ -280,7 +300,33 @@ def reindent(filename):
 
 if __name__ == "__main__":
 
-    for filename in sys.argv[1:]:
+    files = []
+    opt_ignore = False # ignore all further options
+    opt_test = False # the --test option
+
+    for arg in sys.argv[1:]:
+        if arg[0:1] == '-' and not opt_ignore:
+            if arg == '--':
+                opt_ignore = True
+            elif arg == '--test':
+                opt_test = True
+            else:
+                sys.stderr.write("%s: unrecognized option %s\n" %
+                                 (os.path.split(sys.argv[0])[-1], arg))
+                sys.exit(1)
+        else:
+            files.append(arg)
+
+    # if --test was set, whenever a file needs modification, we set
+    # "failed" and continue checking the rest of the files
+    failed = False
+
+    for filename in files:
         # repeat until no further changes occur
-        while reindent(filename):
-            pass
+        while reindent(filename, dry_run=opt_test):
+            if opt_test:
+                failed = True
+                break
+
+    if failed:
+        sys.exit(1)
