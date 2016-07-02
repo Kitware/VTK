@@ -136,7 +136,8 @@ def reindent(filename, dry_run=False):
     dstack = []
 
     directive = re.compile(r" *# *(..)")
-    label = re.compile(r""" *(case  *)?(' '|""|[A-Za-z0-9_]| *:: *)+ *:$""")
+    label = re.compile(r"""(\s*(case[(\s]+)?(' '|""|\w|\s*::\s*)+[)\s]*:)+$""")
+    cflow = re.compile(r"\s*(if|else|for|do|while|switch)(\W|\Z)")
     delims = re.compile(r"[{}()\[\]]")
     spaces = re.compile(r" *")
     cplusplus = re.compile(r" *# *ifdef  *__cplusplus")
@@ -201,7 +202,7 @@ def reindent(filename, dry_run=False):
         # all statements end with ':', ';', '{', or '}'
         if len(line) > 0:
             if (new_context or line[-1] in ('{', '}', ';') or
-                (label.match(line) and not continuation)):
+                cflow.match(line) or label.match(line)):
                 continuation = False
                 new_context = False
             elif not is_directive:
@@ -300,6 +301,9 @@ def reindent(filename, dry_run=False):
 
 if __name__ == "__main__":
 
+    # ignore generated files
+    ignorefiles = ["lex.yy.c", "vtkParse.tab.c"]
+
     files = []
     opt_ignore = False # ignore all further options
     opt_test = False # the --test option
@@ -314,7 +318,7 @@ if __name__ == "__main__":
                 sys.stderr.write("%s: unrecognized option %s\n" %
                                  (os.path.split(sys.argv[0])[-1], arg))
                 sys.exit(1)
-        else:
+        elif os.path.split(arg)[-1] not in ignorefiles:
             files.append(arg)
 
     # if --test was set, whenever a file needs modification, we set
