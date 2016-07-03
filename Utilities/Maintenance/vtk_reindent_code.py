@@ -20,21 +20,28 @@ import re
 def reindent(filename, dry_run=False):
     """Reindent a file from Whitesmiths style to Allman style"""
 
-    # This first part of this function clears all strings and comments
-    # where non-grammatical braces might be hiding.
+    # The first part of this function clears all strings and comments
+    # where non-grammatical braces might be hiding.  These changes will
+    # not be saved back to the file, they just simplify the parsing.
 
+    # look for ', ", /*, and //
     keychar = re.compile(r"""[/"']""")
+    # comments of the form /* */
     c_comment = re.compile(r"\/\*(\*(?!\/)|[^*])*\*\/")
     c_comment_start = re.compile(r"\/\*(\*(?!\/)|[^*])*$")
     c_comment_end = re.compile(r"^(\*(?!\/)|[^*])*\*\/")
+    # comments of the form //
     cpp_comment = re.compile(r"\/\/.*")
+    # string literals ""
     string_literal = re.compile(r'"([^\\"]|\\.)*"')
     string_literal_start = re.compile(r'"([^\\"]|\\.)*\\$')
     string_literal_end = re.compile(r'^([^\\"]|\\.)*"')
+    # character literals ''
     char_literal = re.compile(r"'([^\\']|\\.)*'")
     char_literal_start = re.compile(r"'([^\\']|\\.)*\\$")
     char_literal_end = re.compile(r"^([^\\']|\\.)*'")
 
+    # read the file
     try:
         f = open(filename)
         lines = f.readlines()
@@ -44,26 +51,34 @@ def reindent(filename, dry_run=False):
         sys.stderr.write(str(sys.exc_info()[1]) + "\n")
         sys.exit(1)
 
-    n = len(lines)
-    newlines = []
+    # convert strings to "", char constants to '', and remove comments
+    n = len(lines) # 'lines' is the input
+    newlines = []  # 'newlines' is the output
 
-    cont = None
+    cont = None    # set if e.g. we found /* and we are looking for */
 
     for i in range(n):
         line = lines[i].rstrip()
+
         if cont is not None:
+            # look for closing ' or " or */
             match = cont.match(line)
             if match:
+                # found closing ' or " or */
                 line = line[match.end():]
                 cont = None
             else:
+                # this whole line is in the middle of a string or comment
                 if cont is c_comment_end:
+                    # still looking for */, clear the whole line
                     newlines.append("")
                     continue
                 else:
+                    # still looking for ' or ", set line to backslash
                     newlines.append('\\')
                     continue
 
+        # start at column 0 and search for ', ", /*, or //
         pos = 0
         while True:
             match = keychar.search(line, pos)
@@ -71,11 +86,13 @@ def reindent(filename, dry_run=False):
                 break
             pos = match.start()
             end = match.end()
+            # was the match /* ... */ ?
             match = c_comment.match(line, pos)
             if match:
                 line = line[0:pos] + " " + line[match.end():]
                 pos += 1
                 continue
+            # does the line have /* ... without the */ ?
             match = c_comment_start.match(line, pos)
             if match:
                 if line[-1] == '\\':
@@ -84,6 +101,7 @@ def reindent(filename, dry_run=False):
                     line = line[0:pos]
                 cont = c_comment_end
                 break
+            # does the line have // ?
             match = cpp_comment.match(line, pos)
             if match:
                 if line[-1] == '\\':
@@ -91,69 +109,89 @@ def reindent(filename, dry_run=False):
                 else:
                     line = line[0:pos]
                 break
+            # did we find "..." ?
             match = string_literal.match(line, pos)
             if match:
                 line = line[0:pos] + "\"\"" + line[match.end():]
                 pos += 2
                 continue
+            # did we find "... without the final " ?
             match = string_literal_start.match(line, pos)
             if match:
                 line = line[0:pos] + "\"\"\\"
                 cont = string_literal_end
                 break
+            # did we find '...' ?
             match = char_literal.match(line, pos)
             if match:
                 line = line[0:pos] + "\' \'" + line[match.end():]
                 pos += 3
                 continue
+            # did we find '... without the final ' ?
             match = char_literal_start.match(line, pos)
             if match:
                 line = line[0:pos] + "\' \'\\"
                 cont = char_literal_end
                 break
+            # if we got to here, we found / that wasn't /* or //
             pos += 1
 
+        # strip any trailing whitespace!
         newlines.append(line.rstrip())
 
+    # The second part of this function looks for braces in the simplified
+    # code that we wrote to "newlines" after removing the contents of all
+    # string literals, character literals, and comments.
+
+    # Whenever we encounter an opening brace, we push its position onto a
+    # stack.  Whenever we encounter the matching closing brace, we indent
+    # the braces as a pair.
+
+    # For #if directives, we check whether there are mismatched braces
+    # within the conditional block, and if so, we print a warning and reset
+    # the stack to the depth that it had at the start of the block.
+
+    # For #define directives, we save the stack and then restart counting
+    # braces until the end of the #define.  Then we restore the stack.
+
     # all changes go through this function
-    lines_changed = {}
+    lines_changed = {} # keeps track of each line that was changed
     def changeline(i, newtext, lines_changed=lines_changed):
          if newtext != lines[i]:
               lines[i] = newtext
               lines_changed[i] = newtext
 
-    # Use a stack to keep track of braces and, whenever a closing brace is
-    # found, properly indent it and its opening brace.
-    # For #if directives, check whether there are mismatched braces within
-    # the conditional block, and if so, print a warning and reset the stack
-    # to the depth that it had at the start of the block.
-
-    # stack holds tuples (delim, row, col, newcol)
+    # we push a tuple (delim, row, col, newcol) onto this stack whenever
+    # we find a {, (, or [ delimiter, this keeps track of where we found
+    # the delimeter and what column we want to move it to
     stack = []
     lastdepth = 0
 
-    # save the stack for conditional compilation blocks
+    # this is a superstack that allows us to save the entire stack when we
+    # enter into an #if conditional block
     dstack = []
 
+    # these are syntactic elements we need to look for
     directive = re.compile(r" *# *(..)")
-    label = re.compile(r""" *(case  *)?(' '|""|[A-Za-z0-9_]| *:: *)+ *:$""")
+    label = re.compile(r"""(\s*(case[(\s]+)?(' '|""|\w|\s*::\s*)+[)\s]*:)+$""")
+    cflow = re.compile(r"\s*(if|else|for|do|while|switch)(\W|\Z)")
     delims = re.compile(r"[{}()\[\]]")
     spaces = re.compile(r" *")
     cplusplus = re.compile(r" *# *ifdef  *__cplusplus")
 
-    lastpos = 0
-    newpos = 0
-    continuation = False
-    new_context = True
-    in_else = False
-    in_define = False
-    in_assign = False
-    leaving_define = False
-    save_stack = None
+    lastpos = 0  # previous indentation column
+    newpos = 0   # current indentation column
+    continuation = False   # true if line continues an unfinished statement
+    new_context = True     # also set when we enter a #define statement
+    in_else = False        # set if in an #else
+    in_define = False      # set if in #define
+    in_assign = False      # set to deal with "= {" or #define x {"
+    leaving_define = False # set if at the end of a #define
+    save_stack = None      # save stack when entering a #define
 
     for i in range(n):
         line = newlines[i]
-        pos = 0
+        pos = 0 # column position
 
         # restore stack when leaving #define
         if leaving_define:
@@ -198,10 +236,11 @@ def reindent(filename, dry_run=False):
             match = spaces.match(line)
             newpos = match.end()
 
-        # all statements end with ':', ';', '{', or '}'
+        # check for end of statement vs. continuation of statement
         if len(line) > 0:
+            # if #define, {, }, ;, flow control keyword, or label
             if (new_context or line[-1] in ('{', '}', ';') or
-                (label.match(line) and not continuation)):
+                cflow.match(line) or label.match(line)):
                 continuation = False
                 new_context = False
             elif not is_directive:
@@ -300,6 +339,9 @@ def reindent(filename, dry_run=False):
 
 if __name__ == "__main__":
 
+    # ignore generated files
+    ignorefiles = ["lex.yy.c", "vtkParse.tab.c"]
+
     files = []
     opt_ignore = False # ignore all further options
     opt_test = False # the --test option
@@ -314,7 +356,7 @@ if __name__ == "__main__":
                 sys.stderr.write("%s: unrecognized option %s\n" %
                                  (os.path.split(sys.argv[0])[-1], arg))
                 sys.exit(1)
-        else:
+        elif os.path.split(arg)[-1] not in ignorefiles:
             files.append(arg)
 
     # if --test was set, whenever a file needs modification, we set
