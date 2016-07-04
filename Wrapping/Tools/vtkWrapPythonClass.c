@@ -554,7 +554,7 @@ void vtkWrapPython_GenerateObjectType(
   if (strcmp(classname, "vtkCollection") == 0)
   {
     fprintf(fp,
-      "  PyvtkCollection_iter, // tp_iter\n"
+      "  PyvtkCollection_Iter, // tp_iter\n"
       "  0, // tp_iternext\n");
   }
   else
@@ -562,8 +562,8 @@ void vtkWrapPython_GenerateObjectType(
     if(strcmp(classname, "vtkCollectionIterator") == 0)
     {
       fprintf(fp,
-        "  PyvtkCollectionIterator_iter, // tp_iter\n"
-        "  PyvtkCollectionIterator_next, // tp_iternext\n");
+        "  PyvtkCollectionIterator_Iter, // tp_iter\n"
+        "  PyvtkCollectionIterator_Next, // tp_iternext\n");
     }
     else
     {
