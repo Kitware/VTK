@@ -332,8 +332,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % ( self.ClassName, self.ClassName)
-        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\)\s*;\s*\/\/\s*Not\s*[iI]mplemented(\.)*" % self.ClassName
+        copyoperator = "^\s*%s\s*\(\s*const\s*%s\s*&\s*\) VTK_DELETE_FUNCTION;" % ( self.ClassName, self.ClassName)
+        asgnoperator = "^\s*void\s*operator\s*=\s*\(\s*const\s*%s\s*&\s*\) VTK_DELETE_FUNCTION;" % self.ClassName
         #self.Print( copyoperator
         regx1 = re.compile(copyoperator)
         regx2 = re.compile(asgnoperator)
