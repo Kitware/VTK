@@ -413,9 +413,9 @@ int vtkWrapPython_WrapTemplatedClass(
 
       fprintf(fp,
             "  if (o && PyVTKTemplate_AddItem(temp, o) != 0)\n"
-            "    {\n"
+            "  {\n"
             "    Py_DECREF(o);\n"
-            "    }\n"
+            "  }\n"
             "\n");
 
       free((char *)instantiations[k]);

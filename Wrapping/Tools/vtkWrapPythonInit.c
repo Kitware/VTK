@@ -98,10 +98,10 @@ static void CreateImplFile(const char *libName,
 
   fprintf(fout,"  PyObject *d = PyModule_GetDict(m);\n");
   fprintf(fout,"  if (!d)\n");
-  fprintf(fout,"    {\n");
+  fprintf(fout,"  {\n");
   fprintf(fout,"    Py_FatalError(\"can't get dictionary for module %s\");\n",
     libName);
-  fprintf(fout,"    }\n");
+  fprintf(fout,"  }\n");
 
   for (i = 0; i < numFiles; i++)
   {

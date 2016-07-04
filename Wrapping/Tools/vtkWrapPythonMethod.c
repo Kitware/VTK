@@ -137,7 +137,7 @@ void vtkWrapPython_DeclareVariables(
         }
         fprintf(fp,
               "  if (ap.GetArgSize(%d) > 0)\n"
-              "    {\n"
+              "  {\n"
               "    size%d = %d;\n"
               "    temp%d = store%d;\n",
               i,
@@ -150,7 +150,7 @@ void vtkWrapPython_DeclareVariables(
               i, i, arg->Count);
         }
         fprintf(fp,
-              "    }\n");
+              "  }\n");
       }
       else
       {
@@ -419,13 +419,13 @@ void vtkWrapPython_ReturnValue(
 
     fprintf(fp,
             "    if (PyErr_Occurred() == NULL)\n"
-            "      {\n");
+            "    {\n");
   }
   else
   {
     fprintf(fp,
             "    if (!ap.ErrorOccurred())\n"
-            "      {\n");
+            "    {\n");
   }
 
   if (val && vtkWrap_IsRef(val))
@@ -460,10 +460,10 @@ void vtkWrapPython_ReturnValue(
     {
       fprintf(fp,
             "      if (result && PyVTKObject_Check(result))\n"
-            "        {\n"
+            "      {\n"
             "        PyVTKObject_GetObject(result)->UnRegister(0);\n"
             "        PyVTKObject_SetFlag(result, VTK_PYTHON_IGNORE_UNREGISTER, 1);\n"
-            "        }\n");
+            "      }\n");
     }
   }
   else if (vtkWrap_IsSpecialObject(val) &&
@@ -534,7 +534,7 @@ void vtkWrapPython_ReturnValue(
   }
 
   fprintf(fp,
-          "      }\n");
+          "    }\n");
 }
 
 
@@ -692,7 +692,7 @@ static void vtkWrapPython_GenerateMethodCall(
     {
       fprintf(fp,
               "    if (ap.IsBound())\n"
-              "      {\n"
+              "    {\n"
               "  ");
     }
   }
@@ -761,9 +761,9 @@ static void vtkWrapPython_GenerateMethodCall(
                 i, i, i);
         fprintf(fp,
                 "      if (temp%d != Py_None)\n"
-                "        {\n"
+                "      {\n"
                 "        Py_INCREF(temp%d);\n"
-                "        }\n"
+                "      }\n"
                 "      %sArgDelete(\n"
                 "        (temp%d == Py_None ? NULL : vtkPythonVoidFuncArgDelete)",
                 i, i, methodname, i);
@@ -799,15 +799,15 @@ static void vtkWrapPython_GenerateMethodCall(
       else if (k == 0)
       {
         fprintf(fp, ";\n"
-                "      }\n"
+                "    }\n"
                 "    else\n"
-                "      {\n"
+                "    {\n"
                 "  ");
       }
       else
       {
         fprintf(fp, ";\n"
-                "      }\n");
+                "    }\n");
       }
     }
     else
@@ -869,9 +869,9 @@ static void vtkWrapPython_WriteBackToArgs(
     {
       fprintf(fp,
               "    if (!ap.ErrorOccurred())\n"
-              "      {\n"
+              "    {\n"
               "      ap.SetArgValue(%d, temp%d);\n"
-              "      }\n",
+              "    }\n",
               i, i);
     }
 
@@ -898,7 +898,7 @@ static void vtkWrapPython_WriteBackToArgs(
 
       fprintf(fp, ") &&\n"
               "        !ap.ErrorOccurred())\n"
-              "      {\n");
+              "    {\n");
 
       if (vtkWrap_IsNArray(arg))
       {
@@ -914,7 +914,7 @@ static void vtkWrapPython_WriteBackToArgs(
       }
 
       fprintf(fp,
-              "      }\n"
+              "    }\n"
               "\n");
     }
   }
@@ -942,9 +942,9 @@ static void vtkWrapPython_FreeTemporaries(
       fprintf(fp,
               "#if PY_VERSION_HEX >= 0x02060000\n"
               "  if (pbuf%d.obj != 0)\n"
-              "    {\n"
+              "  {\n"
               "    PyBuffer_Release(&pbuf%d);\n"
-              "    }\n"
+              "  }\n"
               "#endif\n",
               i, i);
     }
@@ -1080,7 +1080,7 @@ void vtkWrapPython_GenerateOneMethod(
 
       /* finished getting all the arguments */
       fprintf(fp, ")\n"
-              "    {\n");
+              "  {\n");
 
       /* get size for variable-size return arrays */
       if (theOccurrence->ReturnValue && theOccurrence->ReturnValue->CountHint)
@@ -1114,7 +1114,7 @@ void vtkWrapPython_GenerateOneMethod(
 
       /* close off the big "if" */
       fprintf(fp,
-              "    }\n"
+              "  }\n"
               "\n");
 
       /* free any temporary values that were constructed or allocated */

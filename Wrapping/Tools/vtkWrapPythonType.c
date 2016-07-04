@@ -92,11 +92,11 @@ static void vtkWrapPython_NewDeleteProtocol(
     "Py%s_New(PyTypeObject *, PyObject *args, PyObject *kwds)\n"
     "{\n"
     "  if (kwds && PyDict_Size(kwds))\n"
-    "    {\n"
+    "  {\n"
     "    PyErr_SetString(PyExc_TypeError,\n"
     "                    \"this function takes no keyword arguments\");\n"
     "    return NULL;\n"
-    "    }\n"
+    "  }\n"
     "\n"
     "  return Py%s_%*.*s(NULL, args);\n"
     "}\n"
@@ -156,9 +156,9 @@ static void vtkWrapPython_PrintProtocol(
       "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
       "  std::ostringstream os;\n"
       "  if (obj->vtk_ptr)\n"
-      "    {\n"
+      "  {\n"
       "    os << *static_cast<const %s *>(obj->vtk_ptr);\n"
-      "    }\n"
+      "  }\n"
       "  const std::string &s = os.str();\n"
       "  return PyString_FromStringAndSize(s.data(), s.size());\n"
       "}\n"
@@ -271,22 +271,22 @@ static void vtkWrapPython_RichCompareProtocol(
        * at least one of the args will already be the correct type */
       fprintf(fp,
         "  if (Py%s_CheckExact(o%d))\n"
-        "    {\n"
+        "  {\n"
         "    PyVTKSpecialObject *s%d = (PyVTKSpecialObject *)o%d;\n"
         "    so%d = static_cast<const %s *>(s%d->vtk_ptr);\n"
-        "    }\n"
+        "  }\n"
         "  else\n"
-        "    {\n"
+        "  {\n"
         "    so%d = static_cast<const %s *>(\n"
         "      vtkPythonUtil::GetPointerFromSpecialObject(\n"
         "        o%d, \"%s\", &n%d));\n"
         "    if (so%d == NULL)\n"
-        "      {\n"
+        "    {\n"
         "      PyErr_Clear();\n"
         "      Py_INCREF(Py_NotImplemented);\n"
         "      return Py_NotImplemented;\n"
-        "      }\n"
         "    }\n"
+        "  }\n"
         "\n",
         classname, i, i, i, i, data->Name, i, i, data->Name,
         i, classname, i, i);
@@ -295,7 +295,7 @@ static void vtkWrapPython_RichCompareProtocol(
     /* the switch statement for all possible compare ops */
     fprintf(fp,
       "  switch (opid)\n"
-      "    {\n");
+      "  {\n");
 
     for (i = 0; i < 6; i++)
     {
@@ -317,28 +317,28 @@ static void vtkWrapPython_RichCompareProtocol(
     }
 
     fprintf(fp,
-      "    }\n"
+      "  }\n"
       "\n");
 
     /* delete temporary objects, there will be at most one */
     fprintf(fp,
       "  if (n1)\n"
-      "    {\n"
+      "  {\n"
       "    Py_DECREF(n1);\n"
-      "    }\n"
+      "  }\n"
       "  else if (n2)\n"
-      "    {\n"
+      "  {\n"
       "    Py_DECREF(n2);\n"
-      "    }\n"
+      "  }\n"
       "\n");
 
     /* return the result */
     fprintf(fp,
       "  if (result == -1)\n"
-      "    {\n"
+      "  {\n"
       "    PyErr_SetString(PyExc_TypeError, \"operation not available\");\n"
       "    return NULL;\n"
-      "    }\n"
+      "  }\n"
       "\n"
       "  // avoids aliasing issues with Py_INCREF(Py_False)\n"
       "  return PyBool_FromLong((long)result);\n"
@@ -410,11 +410,11 @@ static void vtkWrapPython_SequenceProtocol(
             "  temp0 = static_cast<%s>(i);\n"
             "\n"
             "  if (temp0 < 0 || temp0 >= op->%s)\n"
-            "    {\n"
+            "  {\n"
             "    PyErr_SetString(PyExc_IndexError, \"index out of range\");\n"
-            "    }\n"
+            "  }\n"
             "  else\n"
-            "    {\n",
+            "  {\n",
             vtkWrap_GetTypeName(getItemFunc->Parameters[0]),
             getItemFunc->SizeHint);
 
@@ -429,7 +429,7 @@ static void vtkWrapPython_SequenceProtocol(
     vtkWrapPython_ReturnValue(fp, data, getItemFunc->ReturnValue, 1);
 
     fprintf(fp,
-            "    }\n"
+            "  }\n"
             "\n"
             "  return result;\n"
             "}\n\n");
@@ -456,9 +456,9 @@ static void vtkWrapPython_SequenceProtocol(
               "  temp0 = static_cast<%s>(i);\n"
               "\n"
               "  if (temp0 < 0 || temp0 >= op->%s)\n"
-              "    {\n"
+              "  {\n"
               "    PyErr_SetString(PyExc_IndexError, \"index out of range\");\n"
-              "    }\n"
+              "  }\n"
               "  else if (",
               vtkWrap_GetTypeName(setItemFunc->Parameters[0]),
               getItemFunc->SizeHint);
@@ -467,7 +467,7 @@ static void vtkWrapPython_SequenceProtocol(
         fp, data, 1, setItemFunc->ReturnValue, 1);
 
       fprintf(fp,")\n"
-              "    {\n"
+              "  {\n"
               "    (*op)[temp0] = %stemp1;\n"
               "\n",
               ((vtkWrap_IsRef(getItemFunc->ReturnValue) &&
@@ -475,10 +475,10 @@ static void vtkWrapPython_SequenceProtocol(
 
       fprintf(fp,
               "    if (PyErr_Occurred() == NULL)\n"
-              "      {\n"
+              "    {\n"
               "      result = 0;\n"
-              "      }\n"
               "    }\n"
+              "  }\n"
               "\n"
               "  return result;\n"
               "}\n\n");
@@ -549,9 +549,9 @@ static void vtkWrapPython_HashProtocol(
       "  const vtkVariant *op = static_cast<const vtkVariant *>(obj->vtk_ptr);\n"
       "  long h = obj->vtk_hash;\n"
       "  if (h != -1)\n"
-      "    {\n"
+      "  {\n"
       "    return h;\n"
-      "    }\n"
+      "  }\n"
       "  h = vtkPythonUtil::VariantHash(op);\n"
       "  obj->vtk_hash = h;\n"
       "  return h;\n"
@@ -799,9 +799,9 @@ void vtkWrapPython_GenerateSpecialType(
     "static void *Py%s_CCopy(const void *obj)\n"
     "{\n"
     "  if (obj)\n"
-    "    {\n"
+    "  {\n"
     "    return new %s(*static_cast<const %s*>(obj));\n"
-    "    }\n"
+    "  }\n"
     "  return 0;\n"
     "}\n"
     "\n",
@@ -863,9 +863,9 @@ void vtkWrapPython_GenerateSpecialType(
   /* if type is already ready, then return */
   fprintf(fp,
     "  if ((pytype->tp_flags & Py_TPFLAGS_READY) != 0)\n"
-    "    {\n"
+    "  {\n"
     "    return (PyObject *)pytype;\n"
-    "    }\n\n");
+    "  }\n\n");
 
   /* call the superclass New (initialize in dependency order) */
   if (has_superclass)

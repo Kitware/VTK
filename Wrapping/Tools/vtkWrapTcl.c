@@ -194,7 +194,7 @@ void use_hints(FILE *fp)
 #define INDENT "    "
 
   fprintf(fp,INDENT "if(temp%i)\n",MAX_ARGS);
-  fprintf(fp,INDENT "  {\n");
+  fprintf(fp,INDENT "{\n");
   fprintf(fp,INDENT "  char tempResult[1024];\n");
   fprintf(fp,INDENT "  *tempResult = '\\0';\n");
 
@@ -322,11 +322,11 @@ void use_hints(FILE *fp)
   }
 
   fprintf(fp,INDENT "  Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
-  fprintf(fp,INDENT "  }\n");
+  fprintf(fp,INDENT "}\n");
   fprintf(fp,INDENT "else\n");
-  fprintf(fp,INDENT "  {\n");
+  fprintf(fp,INDENT "{\n");
   fprintf(fp,INDENT "  Tcl_SetResult(interp, const_cast<char *>(\"\"), TCL_VOLATILE);\n");
-  fprintf(fp,INDENT "  }\n");
+  fprintf(fp,INDENT "}\n");
 
 #undef INDENT
 }
@@ -455,9 +455,9 @@ void return_result(FILE *fp)
       fprintf(fp,"    Tcl_SetResult(interp, const_cast<char *>(temp%i->c_str()), TCL_VOLATILE);\n",MAX_ARGS);
       break;
     case VTK_PARSE_CHAR_PTR:
-      fprintf(fp,"    if (temp%i)\n      {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
-      fprintf(fp,"      }\n    else\n      {\n");
-      fprintf(fp,"      Tcl_ResetResult(interp);\n      }\n");
+      fprintf(fp,"    if (temp%i)\n    {\n      Tcl_SetResult(interp, const_cast<char *>(temp%i), TCL_VOLATILE);\n",MAX_ARGS,MAX_ARGS);
+      fprintf(fp,"    }\n    else\n    {\n");
+      fprintf(fp,"      Tcl_ResetResult(interp);\n    }\n");
       break;
     case VTK_PARSE_CHAR:
       fprintf(fp,"    char tempResult[1024];\n");
@@ -962,7 +962,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
     {
       fprintf(fp,"#if !defined(VTK_LEGACY_REMOVE)\n");
     }
-    fprintf(fp,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == %i))\n    {\n",
+    fprintf(fp,"  if ((!strcmp(\"%s\",argv[1]))&&(argc == %i))\n  {\n",
             currentFunction->Name, required_args + 2);
 
     /* process the args */
@@ -990,7 +990,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
       {
         get_args(fp,i);
       }
-      fprintf(fp,"    if (!error)\n    {\n");
+      fprintf(fp,"    if (!error)\n  {\n");
     }
 
     switch (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE)
@@ -1039,10 +1039,10 @@ void outputFunction(FILE *fp, ClassInfo *data)
     /* close the if error */
     if (currentFunction->NumberOfArguments)
     {
-      fprintf(fp,"    }\n");
+      fprintf(fp,"  }\n");
     }
 
-    fprintf(fp,"    }\n");
+    fprintf(fp,"  }\n");
     if(currentFunction->IsLegacy)
     {
       fprintf(fp,"#endif\n");
@@ -1161,9 +1161,9 @@ int main(int argc, char *argv[])
   }
   fprintf(fp,"int VTKTCL_EXPORT %sCppCommand(%s *op, Tcl_Interp *interp,\n             int argc, char *argv[]);\n",data->Name,data->Name);
   fprintf(fp,"\nint %sCommand(ClientData cd, Tcl_Interp *interp,\n             int argc, char *argv[])\n{\n",data->Name);
-  fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n    {\n");
+  fprintf(fp,"  if ((argc == 2)&&(!strcmp(\"Delete\",argv[1]))&& !vtkTclInDelete(interp))\n  {\n");
   fprintf(fp,"    Tcl_DeleteCommand(interp,argv[0]);\n");
-  fprintf(fp,"    return TCL_OK;\n    }\n");
+  fprintf(fp,"    return TCL_OK;\n  }\n");
   fprintf(fp,"   return %sCppCommand(static_cast<%s *>(static_cast<vtkTclCommandArgStruct *>(cd)->Pointer),interp, argc, argv);\n}\n",data->Name,data->Name);
 
   fprintf(fp,"\nint VTKTCL_EXPORT %s_TclCreate(Tcl_Interp *interp)\n{\n",data->Name);
@@ -1185,15 +1185,15 @@ int main(int argc, char *argv[])
   fprintf(fp,"  temps[0] = 0;\n");
   fprintf(fp,"\n");
 
-  fprintf(fp,"  if (argc < 2)\n    {\n    Tcl_SetResult(interp,const_cast<char *>(\"Could not find requested method.\"), TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
+  fprintf(fp,"  if (argc < 2)\n  {\n    Tcl_SetResult(interp,const_cast<char *>(\"Could not find requested method.\"), TCL_VOLATILE);\n    return TCL_ERROR;\n  }\n");
 
   /* stick in the typecasting and delete functionality here */
-  fprintf(fp,"  if (!interp)\n    {\n");
-  fprintf(fp,"    if (!strcmp(\"DoTypecasting\",argv[0]))\n      {\n");
-  fprintf(fp,"      if (!strcmp(\"%s\",argv[1]))\n        {\n",
+  fprintf(fp,"  if (!interp)\n  {\n");
+  fprintf(fp,"    if (!strcmp(\"DoTypecasting\",argv[0]))\n    {\n");
+  fprintf(fp,"      if (!strcmp(\"%s\",argv[1]))\n      {\n",
           data->Name);
   fprintf(fp,"        argv[2] = static_cast<char *>(static_cast<void *>(op));\n");
-  fprintf(fp,"        return TCL_OK;\n        }\n");
+  fprintf(fp,"        return TCL_OK;\n      }\n");
 
   /* check our superclasses */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
@@ -1201,25 +1201,25 @@ int main(int argc, char *argv[])
     char *safe_name = vtkWrap_SafeSuperclassName(data->SuperClasses[i]);
     const char *safe_superclass = safe_name ? safe_name : data->SuperClasses[i];
 
-    fprintf(fp,"      if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n        {\n",
+    fprintf(fp,"      if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n      {\n",
             safe_superclass, data->SuperClasses[i]);
-    fprintf(fp,"        return TCL_OK;\n        }\n");
+    fprintf(fp,"        return TCL_OK;\n      }\n");
 
     free(safe_name);
   }
-  fprintf(fp,"      }\n    return TCL_ERROR;\n    }\n\n");
+  fprintf(fp,"    }\n    return TCL_ERROR;\n  }\n\n");
 
   /* add the GetSuperClassName */
   if (data->NumberOfSuperClasses)
   {
     fprintf(fp,"  if (!strcmp(\"GetSuperClassName\",argv[1]))\n");
-    fprintf(fp,"    {\n");
+    fprintf(fp,"  {\n");
     fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(\"%s\"), TCL_VOLATILE);\n",data->SuperClasses[0]);
     fprintf(fp,"    return TCL_OK;\n");
-    fprintf(fp,"    }\n\n");
+    fprintf(fp,"  }\n\n");
   }
 
-  fprintf(fp,"  try\n    {\n");
+  fprintf(fp,"  try\n  {\n");
 
   /* insert function handling code here */
   for (i = 0; i < data->NumberOfFunctions; i++)
@@ -1229,12 +1229,12 @@ int main(int argc, char *argv[])
   }
 
   /* add the ListInstances method */
-  fprintf(fp,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n    {\n");
+  fprintf(fp,"\n  if (!strcmp(\"ListInstances\",argv[1]))\n  {\n");
   fprintf(fp,"    vtkTclListInstances(interp,(ClientData)(%sCommand));\n",data->Name);
-  fprintf(fp,"    return TCL_OK;\n    }\n");
+  fprintf(fp,"    return TCL_OK;\n  }\n");
 
   /* add the ListMethods method */
-  fprintf(fp,"\n  if (!strcmp(\"ListMethods\",argv[1]))\n    {\n");
+  fprintf(fp,"\n  if (!strcmp(\"ListMethods\",argv[1]))\n  {\n");
   /* recurse up the tree */
   for (i = 0; i < data->NumberOfSuperClasses; i++)
   {
@@ -1291,11 +1291,11 @@ int main(int argc, char *argv[])
       fprintf(fp,"#endif\n");
     }
   }
-  fprintf(fp,"    return TCL_OK;\n    }\n");
+  fprintf(fp,"    return TCL_OK;\n  }\n");
 
 
   /* add the DescribeMethods method */
-  fprintf(fp,"\n  if (!strcmp(\"DescribeMethods\",argv[1]))\n    {\n");
+  fprintf(fp,"\n  if (!strcmp(\"DescribeMethods\",argv[1]))\n  {\n");
   fprintf(fp,"    if(argc>3) {\n" );
   fprintf(fp,"      Tcl_SetResult ( interp, const_cast<char*>(\"Wrong number of arguments: object DescribeMethods <MethodName>\"), TCL_VOLATILE ); \n" );
   fprintf(fp,"      return TCL_ERROR;\n }\n" );
@@ -1335,7 +1335,7 @@ int main(int argc, char *argv[])
   fprintf(fp,"  Tcl_DStringResult ( interp, &dString );\n" );
   fprintf(fp,"  Tcl_DStringFree ( &dString );\n" );
   fprintf(fp,"  Tcl_DStringFree ( &dStringParent );\n" );
-  fprintf(fp,"    return TCL_OK;\n    }\n");
+  fprintf(fp,"    return TCL_OK;\n  }\n");
 
   /* Now handle if we are asked for a specific function */
   fprintf(fp,"    if(argc==3) {\n" );
@@ -1477,7 +1477,7 @@ int main(int argc, char *argv[])
      fprintf(fp,"    /* Closing for %s */\n\n", currentFunction->Name );
      fprintf(fp,"    Tcl_DStringResult ( interp, &dString );\n" );
      fprintf(fp,"    Tcl_DStringFree ( &dString );\n" );
-     fprintf(fp,"    return TCL_OK;\n    }\n");
+     fprintf(fp,"    return TCL_OK;\n  }\n");
 
      if(currentFunction->IsLegacy)
      {
@@ -1487,7 +1487,7 @@ int main(int argc, char *argv[])
   /* Didn't find anything, return an error */
   fprintf(fp,"   Tcl_SetResult ( interp, const_cast<char*>(\"Could not find method\"), TCL_VOLATILE ); \n" );
   fprintf(fp,"   return TCL_ERROR;\n" );
-  fprintf(fp,"   }\n" );
+  fprintf(fp," }\n" );
   fprintf(fp," }\n" );
 
 
@@ -1499,7 +1499,7 @@ int main(int argc, char *argv[])
 
     fprintf(fp,"\n  if (%sCppCommand(static_cast<%s *>(op),interp,argc,argv) == TCL_OK)\n",
             safe_superclass, data->SuperClasses[i]);
-    fprintf(fp,"    {\n    return TCL_OK;\n    }\n");
+    fprintf(fp,"  {\n    return TCL_OK;\n  }\n");
 
     free(safe_name);
   }
@@ -1508,53 +1508,53 @@ int main(int argc, char *argv[])
   /* Add the Print method to vtkObjectBase. */
   if (!strcmp("vtkObjectBase",data->Name))
   {
-    fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n    {\n");
+    fprintf(fp,"  if ((!strcmp(\"Print\",argv[1]))&&(argc == 2))\n  {\n");
     fprintf(fp,"    std::ostringstream buf_with_warning_C4701;\n");
     fprintf(fp,"    op->Print(buf_with_warning_C4701);\n");
     fprintf(fp,"    buf_with_warning_C4701.put('\\0');\n");
     fprintf(fp,"    Tcl_SetResult(interp,const_cast<char *>(buf_with_warning_C4701.str().c_str()),\n");
     fprintf(fp,"      TCL_VOLATILE);\n");
-    fprintf(fp,"    return TCL_OK;\n    }\n");
+    fprintf(fp,"    return TCL_OK;\n  }\n");
   }
 
   /* Add the AddObserver method to vtkObject. */
   if (!strcmp("vtkObject",data->Name))
   {
-    fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc >= 4))\n    {\n");
+    fprintf(fp,"  if ((!strcmp(\"AddObserver\",argv[1]))&&(argc >= 4))\n  {\n");
     fprintf(fp,"    error = 0;\n");
     fprintf(fp,"    if (argc > 4 && Tcl_GetDouble(interp,argv[4],&tempd) != TCL_OK) error = 1;\n");
-    fprintf(fp,"    if (!error)\n      {\n");
+    fprintf(fp,"    if (!error)\n    {\n");
     fprintf(fp,"      vtkTclCommand *cbc = vtkTclCommand::New();\n");
     fprintf(fp,"      cbc->SetInterp(interp);\n");
     fprintf(fp,"      cbc->SetStringCommand(argv[3]);\n");
     fprintf(fp,"      unsigned long      temp20;\n");
-    fprintf(fp,"      if (argc > 4)\n        {\n");
+    fprintf(fp,"      if (argc > 4)\n      {\n");
     fprintf(fp,"        temp20 = op->AddObserver(argv[2],cbc,tempd);\n");
-    fprintf(fp,"        }\n      else\n        {\n");
+    fprintf(fp,"      }\n      else\n      {\n");
     fprintf(fp,"        temp20 = op->AddObserver(argv[2],cbc);\n");
-    fprintf(fp,"        }\n");
+    fprintf(fp,"      }\n");
     fprintf(fp,"      cbc->Delete();\n");
     fprintf(fp,"      char tempResult[1024];\n");
     fprintf(fp,"      sprintf(tempResult,\"%%li\",temp20);\n");
     fprintf(fp,"      Tcl_SetResult(interp,tempResult,TCL_VOLATILE);\n");
-    fprintf(fp,"      return TCL_OK;\n      }\n");
-    fprintf(fp,"    }\n");
+    fprintf(fp,"      return TCL_OK;\n    }\n");
+    fprintf(fp,"  }\n");
   }
 
   /* i.e. If this is vtkObjectBase (or whatever the top of the class hierarchy will be) */
   /* then report the error */
   if (data->NumberOfSuperClasses == 0)
   {
-    fprintf(fp,"\n  if (argc >= 2)\n    {\n");
-    fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_SetResult(interp,temps2,TCL_VOLATILE);\n    return TCL_ERROR;\n    }\n");
+    fprintf(fp,"\n  if (argc >= 2)\n  {\n");
+    fprintf(fp,"    char temps2[256];\n    sprintf(temps2,\"Object named: %%s, could not find requested method: %%s\\nor the method was called with incorrect arguments.\\n\",argv[0],argv[1]);\n    Tcl_SetResult(interp,temps2,TCL_VOLATILE);\n    return TCL_ERROR;\n  }\n");
   }
 
-  fprintf(fp,"    }\n");
+  fprintf(fp,"  }\n");
   fprintf(fp,"  catch (std::exception &e)\n");
-  fprintf(fp,"    {\n");
+  fprintf(fp,"  {\n");
   fprintf(fp,"    Tcl_AppendResult(interp, \"Uncaught exception: \",  e.what(), \"\\n\", NULL);\n");
   fprintf(fp,"    return TCL_ERROR;\n");
-  fprintf(fp,"    }\n");
+  fprintf(fp,"  }\n");
   fprintf(fp,"  return TCL_ERROR;\n}\n");
 
   vtkParse_Free(file_info);

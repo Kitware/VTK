@@ -103,9 +103,9 @@ void vtkWrapPython_AddEnumType(
   fprintf(fp,
           "%s%s = (PyObject *)&Py%s%s%s_Type;\n"
           "%sif (PyDict_SetItemString(%s, \"%s\", %s) != 0)\n"
-          "%s  {\n"
+          "%s{\n"
           "%s  Py_DECREF(%s);\n"
-          "%s  }\n",
+          "%s}\n",
           indent, objvar,
           (scope ? scope : ""), (scope ? "_" : ""), cls->Name,
           indent, dictvar, cls->Name, objvar,

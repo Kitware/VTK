@@ -509,9 +509,9 @@ int main(int argc, char *argv[])
       fprintf(fp,
             "  o = PyVTKNamespace_%s();\n"
             "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
-            "    {\n"
+            "  {\n"
             "    Py_DECREF(o);\n"
-            "    }\n"
+            "  }\n"
             "\n",
             contents->Namespaces[j]->Name,
             contents->Namespaces[j]->Name);
@@ -535,28 +535,28 @@ int main(int argc, char *argv[])
       /* Add template specializations to dict */
       fprintf(fp,
              "  if (o)\n"
-             "    {\n"
+             "  {\n"
              "    PyObject *l = PyObject_CallMethod(o, (char *)\"values\", 0);\n"
              "    Py_ssize_t n = PyList_GET_SIZE(l);\n"
              "    for (Py_ssize_t i = 0; i < n; i++)\n"
-             "      {\n"
+             "    {\n"
              "      PyObject *ot = PyList_GET_ITEM(l, i);\n"
              "      const char *nt = NULL;\n"
              "      if (PyType_Check(ot))\n"
-             "        {\n"
+             "      {\n"
              "        nt = ((PyTypeObject *)ot)->tp_name;\n"
-             "        }\n"
-             "      else if (PyCFunction_Check(ot))\n"
-             "        {\n"
-             "        nt = ((PyCFunctionObject *)ot)->m_ml->ml_name;\n"
-             "        }\n"
-             "      if (nt)\n"
-             "        {\n"
-             "        PyDict_SetItemString(dict, nt, ot);\n"
-             "        }\n"
              "      }\n"
-             "    Py_DECREF(l);\n"
+             "      else if (PyCFunction_Check(ot))\n"
+             "      {\n"
+             "        nt = ((PyCFunctionObject *)ot)->m_ml->ml_name;\n"
+             "      }\n"
+             "      if (nt)\n"
+             "      {\n"
+             "        PyDict_SetItemString(dict, nt, ot);\n"
+             "      }\n"
              "    }\n"
+             "    Py_DECREF(l);\n"
+             "  }\n"
              "\n");
     }
     else if (is_vtkobject)
@@ -578,9 +578,9 @@ int main(int argc, char *argv[])
 
     fprintf(fp,
             "  if (o && PyDict_SetItemString(dict, \"%s\", o) != 0)\n"
-            "    {\n"
+            "  {\n"
             "    Py_DECREF(o);\n"
-            "    }\n"
+            "  }\n"
             "\n",
             data->Name);
   }

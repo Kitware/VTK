@@ -618,7 +618,7 @@ void vtkWrapPython_OverloadMasterMethod(
 
   fprintf(fp,
           "  switch(nargs)\n"
-          "    {\n");
+          "  {\n");
 
   /* find all occurrences of this method */
   occCounter = 0;
@@ -678,7 +678,7 @@ void vtkWrapPython_OverloadMasterMethod(
   }
 
   fprintf(fp,
-          "    }\n"
+          "  }\n"
           "\n");
 
   fprintf(fp,

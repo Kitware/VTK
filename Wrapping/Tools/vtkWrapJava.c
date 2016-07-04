@@ -1361,11 +1361,11 @@ int main(int argc, char *argv[])
     fprintf(fp,"  const char* name = \"\";\n");
     fprintf(fp,"  %s *op;\n", data->Name);
     fprintf(fp,"  if(id != 0)\n");
-    fprintf(fp,"    {\n");
+    fprintf(fp,"  {\n");
     fprintf(fp,"    op = reinterpret_cast<%s*>(id);\n", data->Name);
     //fprintf(fp,"    std::cout << \"cast pointer \" << id << std::endl;\n");
     fprintf(fp,"    name = op->GetClassName();\n");
-    fprintf(fp,"    }\n");
+    fprintf(fp,"  }\n");
     fprintf(fp,"  return vtkJavaMakeJavaString(env,name);\n");
     fprintf(fp,"}\n");
 

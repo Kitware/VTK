@@ -721,10 +721,10 @@ if (!data->NumberOfSuperClasses)
     fprintf(fp,"  protected int vtkId = 0;\n");
 
     /* beans */
-    fprintf(fp,"  public void addPropertyChangeListener(PropertyChangeListener l)\n    {\n");
-    fprintf(fp,"    changes.addPropertyChangeListener(l);\n    }\n");
-    fprintf(fp,"  public void removePropertyChangeListener(PropertyChangeListener l)\n    {\n");
-    fprintf(fp,"    changes.removePropertyChangeListener(l);\n    }\n");
+    fprintf(fp,"  public void addPropertyChangeListener(PropertyChangeListener l)\n  {\n");
+    fprintf(fp,"    changes.addPropertyChangeListener(l);\n  }\n");
+    fprintf(fp,"  public void removePropertyChangeListener(PropertyChangeListener l)\n  {\n");
+    fprintf(fp,"    changes.removePropertyChangeListener(l);\n  }\n");
     fprintf(fp,"  protected PropertyChangeSupport changes = new PropertyChangeSupport(this);\n\n");
 
     /* if we are a base class and have a delete method */

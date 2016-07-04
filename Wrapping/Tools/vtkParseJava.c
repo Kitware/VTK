@@ -788,7 +788,7 @@ void outputFunction(FILE *fp, ClassInfo *data)
         fprintf(fp,");\n");
         fprintf(fp,"\n    if (temp == 0) return null;");
         fprintf(fp,"\n    return (%s)vtkObjectBase.JAVA_OBJECT_MANAGER.getJavaObject(temp);", currentFunction->ReturnClass);
-        fprintf(fp,"\n  }\n");
+        fprintf(fp,"\n}\n");
       }
       else
       {
@@ -906,7 +906,7 @@ int main(int argc, char *argv[])
       fprintf(fp,"\n  public %s() {", data->Name);
       fprintf(fp,"\n    this.vtkId = this.VTKInit();");
       fprintf(fp,"\n    vtkObjectBase.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
-      fprintf(fp,"\n  }\n");
+      fprintf(fp,"\n}\n");
     }
     else
     {
@@ -917,7 +917,7 @@ int main(int argc, char *argv[])
     fprintf(fp,"\n    this.vtkId = id;");
     fprintf(fp,"\n    this.VTKRegister();");
     fprintf(fp,"\n    vtkObjectBase.JAVA_OBJECT_MANAGER.registerJavaObject(this.vtkId, this);");
-    fprintf(fp,"\n  }\n");
+    fprintf(fp,"\n}\n");
     fprintf(fp,"\n  protected long vtkId;\n");
     fprintf(fp,"\n  public long GetVTKId() { return this.vtkId; }");
 

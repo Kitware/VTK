@@ -173,10 +173,10 @@ void vtkWrapPython_AddConstantHelper(
   {
     fprintf(fp,
             "%sif (%s)\n"
-            "%s  {\n"
+            "%s{\n"
             "%s  PyDict_SetItemString(%s, %s%s%s, %s);\n"
             "%s  Py_DECREF(%s);\n"
-            "%s  }\n",
+            "%s}\n",
             indent, objvar, indent, indent, dictvar,
             (attrib ? "" : "\""), (attrib ? attrib : valname),
             (attrib ? "" : "\""), objvar,
@@ -292,7 +292,7 @@ void vtkWrapPython_AddPublicConstants(
     /* generate the code */
     fprintf(fp,
       "%sfor (int c = 0; c < %d; c++)\n"
-      "%s  {\n",
+      "%s{\n",
       indent, count, indent);
 
     if (scopeType)
@@ -331,7 +331,7 @@ void vtkWrapPython_AddPublicConstants(
       "constants[c].name", "constants[c].value", firstval);
 
     fprintf(fp,
-      "%s  }\n\n",
+      "%s}\n\n",
       indent);
   }
 }
