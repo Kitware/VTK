@@ -45,8 +45,9 @@
 // VTK 4.4+, machine-independent behavior is not automatically
 // assured because of these dependencies.
 
-// .SECTION see also
-// vtkWindow vtkRenderLargeImage
+// .SECTION See Also
+// vtkRendererSource vtkRendererPointCloudSource vtkWindow
+// vtkRenderLargeImage
 
 #ifndef vtkWindowToImageFilter_h
 #define vtkWindowToImageFilter_h
