@@ -52,6 +52,7 @@
 #include "vtkPointData.h"
 #include "vtkTransform.h"
 #include "vtkType.h"
+#include <algorithm>
 
 // This macro can be wrapped around MPI function calls to easily report errors.
 // Reporting errors is more important with file I/O because, unlike network I/O,
@@ -295,15 +296,24 @@ void vtkMPIImageReader::ReadSlice(int slice, const int extent[6], void *buffer)
   length *= extent[3]-extent[2]+1;
   if (this->GetFileDimensionality() == 3) length *= extent[5]-extent[4]+1;
 
-  if (length > VTK_INT_MAX)
+  vtkIdType pos = 0;
+  while (length > pos)
     {
-    vtkErrorMacro(<< "Cannot read more than " << VTK_INT_MAX
-                  << " bytes at a time.");
+    MPI_Status stat;
+    // we know this will fit in an int because it can't exceed VTK_INT_MAX.
+   const int remaining = static_cast<int>(std::min(length - pos,
+                                  static_cast<vtkIdType>(VTK_INT_MAX)));
+   MPICall(MPI_File_read(file.Handle, (static_cast<char*>(buffer)) + pos, remaining,
+                         MPI_BYTE, &stat));
+   int rd = 0;
+   MPICall(MPI_Get_elements(&stat, MPI_BYTE, &rd));
+   if (MPI_UNDEFINED == rd)
+      {
+      vtkErrorMacro("Error obtaining number of values read in " << remaining <<
+      "-byte read.");
+      }
+      pos += static_cast<vtkIdType>(rd);
     }
-
-  // Do the read.  This is a coordinated parallel operation for efficiency.
-  MPICall(MPI_File_read_all(file.Handle, buffer, static_cast<int>(length),
-                            MPI_BYTE, MPI_STATUS_IGNORE));
 
   MPICall(MPI_File_close(&file.Handle));
 }
