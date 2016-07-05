@@ -172,12 +172,13 @@ def reindent(filename, dry_run=False):
     dstack = []
 
     # these are syntactic elements we need to look for
-    directive = re.compile(r" *# *(..)")
-    label = re.compile(r"""(\s*(case[(\s]+)?(' '|""|\w|\s*::\s*)+[)\s]*:)+$""")
-    cflow = re.compile(r"\s*(if|else|for|do|while|switch)(\W|\Z)")
-    delims = re.compile(r"[{}()\[\]]")
-    spaces = re.compile(r" *")
-    cplusplus = re.compile(r" *# *ifdef  *__cplusplus")
+    directive = re.compile(r"\s*#\s*(..)")
+    label = re.compile(r"""(case(?!\w)([^:]|::)+|\w+\s*(::\s*)*\s*:(?!:))""")
+    cflow = re.compile(r"(if|else|for|do|while|switch)(?!\w)")
+    delims = re.compile(r"[{}()\[\];]")
+    spaces = re.compile(r"\s*")
+    other = re.compile(r"(\w+|[^{}()\[\];\w\s]+)\s*")
+    cplusplus = re.compile(r"\s*#\s*ifdef\s+__cplusplus")
 
     lastpos = 0  # previous indentation column
     newpos = 0   # current indentation column
@@ -191,7 +192,6 @@ def reindent(filename, dry_run=False):
 
     for i in range(n):
         line = newlines[i]
-        pos = 0 # column position
 
         # restore stack when leaving #define
         if leaving_define:
@@ -207,17 +207,22 @@ def reindent(filename, dry_run=False):
         if match:
             is_directive = True
             if match.groups()[0] == 'if':
-                dstack.append((list(stack), line))
+                dstack.append((list(stack), lastpos, newpos, continuation,
+                               line))
             elif match.groups()[0] in ('en', 'el'):
-                oldstack, dline = dstack.pop()
+                oldstack, oldlast, oldnew, oldcont, dline = dstack.pop()
                 if len(stack) > len(oldstack) and not cplusplus.match(dline):
                     sys.stderr.write(filename + ":" + str(i) + ": ")
                     sys.stderr.write("mismatched delimiter in \"" +
                                      dline + "\" block\n")
                 if match.groups()[0] == 'el':
                     in_else = True
+                    lastpos = oldlast
+                    newpos = oldnew
+                    continuation = oldcont
                     stack = oldstack
-                    dstack.append((list(stack), line))
+                    dstack.append((list(stack), lastpos, newpos, continuation,
+                                  line))
             elif match.groups()[0] == 'de':
                 in_define = True
                 leaving_define = False
@@ -235,24 +240,64 @@ def reindent(filename, dry_run=False):
             # what is the indentation of the current line?
             match = spaces.match(line)
             newpos = match.end()
+            continuation = True
 
-        # check for end of statement vs. continuation of statement
-        if len(line) > 0:
-            # if #define, {, }, ;, flow control keyword, or label
-            if (new_context or line[-1] in ('{', '}', ';') or
-                cflow.match(line) or label.match(line)):
+        # new_context marks beginning of a file or a macro
+        if new_context:
+            continuation = False
+            lastpos = 0
+            newpos = 0
+            new_context = False
+
+        # skip initial whitespace
+        if is_directive:
+            pos = directive.match(line).end()
+        else:
+            pos = spaces.match(line).end()
+
+        # check for a label e.g. case
+        match = label.match(line, pos)
+        if match:
+            base = True
+            for item in stack:
+                if item[0] != '{':
+                    base = False
+            if base:
+                lastpos = pos
+                newpos = pos
                 continuation = False
-                new_context = False
-            elif not is_directive:
-                continuation = True
+                # check for multiple labels on the same line
+                while match:
+                    pos = spaces.match(line, match.end()).end()
+                    match = label.match(line, pos)
 
-        # search for braces
-        while True:
-            match = delims.search(line, pos)
-            if match is None:
-                break
-            pos = match.start()
+        # parse the line
+        while pos != len(line):
+            # check for if, else, for, while, do, switch
+            match = cflow.match(line, pos)
+            if match:
+                # if we are at the beginning of the line
+                if spaces.match(line).end() == pos:
+                    lastpos = pos
+                    newpos = pos
+                continuation = False
+                pos = spaces.match(line, match.end()).end()
+                continue
+
+            # check for a delimiter {} () [] or ;
+            match = delims.match(line, pos)
+            if not match:
+                # check for any other identifiers, operators
+                match = other.match(line, pos)
+                if match:
+                    pos = match.end()
+                    continue
+                else:
+                    break
+
+            # found a delimiter
             delim = line[pos]
+
             if delim in ('(', '['):
                 # save delim, row, col, and current indentation
                 stack.append((delim, i, pos, newpos))
@@ -270,6 +315,9 @@ def reindent(filename, dry_run=False):
                     stack.append((delim, i, pos, lastpos))
                 newpos = pos + 2
                 lastpos = newpos
+                continuation = False
+            elif delim == ';':
+                continuation = False
             else:
                 # found a ')', ']', or '}' delimiter, so pop its partner
                 try:
@@ -286,7 +334,11 @@ def reindent(filename, dry_run=False):
                     indent = " "*newpos
                     changeline(i, spaces.sub(indent, lines[i], count=1))
                     changeline(j, spaces.sub(indent, lines[j], count=1))
-            pos += 1
+                if delim == '}':
+                    continuation = False
+
+            # eat whitespace and continue
+            pos = spaces.match(line, match.end()).end()
 
         # check for " = " and #define assignments for the sake of
         # the { inializer list } that might be on the following line
