@@ -385,6 +385,8 @@ protected:
   int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
   int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
 
+  // Description:
+  // Format is detailed \ref IOLegacyInformationFormat "here".
   int ReadInformation(vtkInformation *info);
 
   int ReadDataSetData(vtkDataSet *ds);

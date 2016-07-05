@@ -249,6 +249,8 @@ protected:
   int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
   int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
 
+  // Description:
+  // Format is detailed \ref IOLegacyInformationFormat "here".
   int WriteInformation(ostream *fp, vtkInformation *info);
 
 private:
