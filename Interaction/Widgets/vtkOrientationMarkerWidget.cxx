@@ -72,7 +72,6 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
   this->Viewport[3] = 0.2;
 
   this->Renderer = vtkRenderer::New();
-  //this->Renderer->SetViewport( 0.0, 0.0, 0.2, 0.2 );
   this->Renderer->SetLayer( 1 );
   this->Renderer->InteractiveOff();
 
@@ -934,28 +933,6 @@ double* vtkOrientationMarkerWidget::GetOutlineColor()
 {
   return this->OutlineActor->GetProperty()->GetColor();
 }
-
-////-------------------------------------------------------------------------
-//void vtkOrientationMarkerWidget::SetViewport(double minX, double minY,
-//                                  double maxX, double maxY)
-//{
-//  double vp[4];
-//  vp[0] = minX; vp[2] = maxX;
-//  vp[1] = minY; vp[3] = maxY;
-//  this->SetViewport( vp );
-//}
-//
-////-------------------------------------------------------------------------
-//void vtkOrientationMarkerWidget::SetViewport(double viewport[4])
-//{
-//  this->Renderer->SetViewport(viewport);
-//}
-//
-////-------------------------------------------------------------------------
-//double* vtkOrientationMarkerWidget::GetViewport()
-//{
-//  return this->Renderer->GetViewport();
-//}
 
 //-------------------------------------------------------------------------
 void vtkOrientationMarkerWidget::UpdateViewport()
