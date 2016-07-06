@@ -1080,13 +1080,16 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
       this->AdvanceVoxelIds(eCase,eIds);
       }
 
-    // advance along voxel row
-    ePtr[0]++; ePtr[1]++; ePtr[2]++; ePtr[3]++;
-    eCase = this->GetEdgeCase(ePtr);
+    // advance along voxel row if not at the end
+    if ( i < dim0Wall )
+      {
+      ePtr[0]++; ePtr[1]++; ePtr[2]++; ePtr[3]++;
+      eCase = this->GetEdgeCase(ePtr);
 
-    ++ijk[0];
-    sPtr += incs[0];
-    x[0] += xSpace;
+      ++ijk[0];
+      sPtr += incs[0];
+      x[0] += xSpace;
+      }//if not at end of voxel row
     } //for all non-trimmed cells along this x-edge
 }
 
