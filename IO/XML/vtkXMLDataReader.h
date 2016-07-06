@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkXMLDataReader - Superclass for VTK XML file readers.
 // .SECTION Description
-// vtkXMLDataReader provides functionality common to all VTK XML file
-// readers.  Concrete subclasses call upon this functionality when
-// needed.
+// vtkXMLDataReader provides functionality common to all file readers for
+// <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML formats</a>.
+// Concrete subclasses call upon this functionality when needed.
 
 // .SECTION See Also
 // vtkXMLPDataReader
