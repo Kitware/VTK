@@ -67,12 +67,14 @@ public:
   virtual int Parse(const char* inputString, unsigned int length);
 
   // Description:
-  // When parsing fragments of XML, or streaming XML, use the following
-  // three methods:  InitializeParser initializes the parser but
-  // does not perform any actual parsing.  ParseChunk parses a framgent
-  // of XML; this has to match to what was already parsed.
-  // CleanupParser finishes parsing. If there were errors,
-  // CleanupParser will report them.
+  // When parsing fragments of XML, or when streaming XML,
+  // use the following three methods:
+  // - InitializeParser() initializes the parser
+  //   but does not perform any actual parsing.
+  // - ParseChunk() parses a fragment of XML;
+  //   this has to match to what was already parsed.
+  // - CleanupParser() finishes parsing;
+  //   if there were errors, it will report them.
   virtual int InitializeParser();
   virtual int ParseChunk(const char* inputString, unsigned int length);
   virtual int CleanupParser();
