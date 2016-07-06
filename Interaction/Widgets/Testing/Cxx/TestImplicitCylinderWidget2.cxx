@@ -286,10 +286,10 @@ public:
 
   virtual void Execute(vtkObject *caller, unsigned long, void*)
   {
-    vtkImplicitCylinderWidget *planeWidget =
+    vtkImplicitCylinderWidget *cylWidget =
       reinterpret_cast<vtkImplicitCylinderWidget*>(caller);
     vtkImplicitCylinderRepresentation *rep =
-      reinterpret_cast<vtkImplicitCylinderRepresentation*>(planeWidget->GetRepresentation());
+      reinterpret_cast<vtkImplicitCylinderRepresentation*>(cylWidget->GetRepresentation());
     rep->GetCylinder(this->Cylinder);
     this->Actor->VisibilityOn();
   }
@@ -379,11 +379,11 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetPlaceFactor(1.25);
   rep->PlaceWidget(glyph->GetOutput()->GetBounds());
 
-  vtkSmartPointer<vtkImplicitCylinderWidget> planeWidget =
+  vtkSmartPointer<vtkImplicitCylinderWidget> cylWidget =
     vtkSmartPointer<vtkImplicitCylinderWidget>::New();
-  planeWidget->SetInteractor(iren);
-  planeWidget->SetRepresentation(rep);
-  planeWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
+  cylWidget->SetInteractor(iren);
+  cylWidget->SetRepresentation(rep);
+  cylWidget->AddObserver(vtkCommand::InteractionEvent,myCallback);
 
   ren1->AddActor(maceActor);
   ren1->AddActor(selectActor);
@@ -396,7 +396,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // Tests
   double wbounds[6];
   double center[3], center1[3], center2[3];
-  planeWidget->SetEnabled(1);
+  cylWidget->SetEnabled(1);
   rep->GetCenter(center);
 
   // #1: With ConstrainCenter on, center SHOULD NOT be settable outside widget bounds
@@ -433,7 +433,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
 
   rep->SetCenter(center);
-  planeWidget->SetEnabled(0);
+  cylWidget->SetEnabled(0);
 
   // #3: With ConstrainCenter on and OutsideBounds off, the translation of the
   // widget should be limited
