@@ -1,3 +1,20 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    TestRemoveVolumeNonCurrentContext.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+=========================================================================*/
+// Test for releasing graphics resources from a non-current
+// render window with vtkGPUVolumeRayCastMapper
+// Thanks to Stephan Rademacher for providing the testing code.
+
 #include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
 #include "vtkNew.h"
@@ -606,8 +623,6 @@ public:
 
     if (strcmp(pressedKey, "9") == 0)
       {
-      //std::cout << "Removing all view props of the OTHER renderer - this will cause at least OpenGL errors" << std::endl;
-      renderer2->RemoveAllViewProps();
       renderWindow1->Render();
       renderWindow2->Render();
       }
@@ -668,7 +683,8 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   renderer1->SetBackground(1.0, 1.0, 1.0);
 
   // Create the second renderwindow/renderer/mapper.
-  // This is the renderer we later remove all the actors from, triggering the problems in the first renderer
+  // This is the renderer we later remove all the actors from,
+  // triggering the problems in the first renderer
   vtkNew<vtkSmartVolumeMapper> smartMapper2;
   smartMapper2->SetInputConnection(pointsReader->GetOutputPort());
 
