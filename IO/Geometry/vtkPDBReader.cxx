@@ -70,7 +70,6 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
     sscanf(&linebuf[0],"%6s", c);
     std::string command = c;
     StdStringToUpper(command);
-
     if (command == "ATOM" || command == "HETATM")
       {
       sscanf(&linebuf[12], "%4s", dum1);
@@ -78,11 +77,13 @@ void vtkPDBReader::ReadSpecificMolecule(FILE* fp)
       chain = linebuf[21];
       sscanf(&linebuf[22], "%d", &resi);
       sscanf(&linebuf[30],"%8f%8f%8f", x, x+1, x+2);
-      if (strlen(linebuf) > 55)
-          sscanf(&linebuf[76], "%2s", elem);
-
+      if (strnlen(linebuf, 80) >= 78)
+        {
+        sscanf(&linebuf[76], "%2s", elem);
+        }
       if (elem[0] == '\0')
         {
+        // if element symbol was not specified, just use the "Atom name".
         strncpy(elem, dum1, 2);
         }
 
