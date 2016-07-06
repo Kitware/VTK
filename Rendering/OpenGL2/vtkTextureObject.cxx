@@ -506,6 +506,8 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
 
   if (rwin)
     {
+    // Ensure that the context is current before releasing any graphics
+    // resources tied to it.
     rwin->MakeCurrent();
     if (this->Handle)
       {
