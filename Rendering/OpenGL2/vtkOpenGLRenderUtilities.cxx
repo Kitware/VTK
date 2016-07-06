@@ -164,10 +164,10 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLVertexArrayObject *vao
     GLUtil::FullScreenQuadVerts = vtkOpenGLBufferObject::New();
 
     // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
-    float verts[4][4] = { { 1.f, 1.f, 1.f, 1.f },
-                          {-1.f, 1.f, 0.f, 1.f },
-                          { 1.f,-1.f, 1.f, 0.f },
-                          {-1.f,-1.f, 0.f, 0.f } };
+    float verts[16] = {  1.f, 1.f, 1.f, 1.f,
+                        -1.f, 1.f, 0.f, 1.f,
+                         1.f,-1.f, 1.f, 0.f,
+                        -1.f,-1.f, 0.f, 0.f };
 
     GLUtil::FullScreenQuadVerts->SetType(vtkOpenGLBufferObject::ArrayBuffer);
     res = GLUtil::FullScreenQuadVerts->Upload(
