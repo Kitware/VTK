@@ -138,8 +138,8 @@ protected:
   int* VariableBasicType;  // FLOAT or INTEGER
   int* VariableByteCount;  // Number of bytes in basic type
   long int* VariableOffset;  // Offset into data file
-  unsigned BlockSize;   // Size of every data block
-  unsigned GBlockSize;  // Size of every data block
+  size_t BlockSize;   // Size of every data block
+  size_t GBlockSize;  // Size of every data block
 
   vtkFloatArray** Data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
