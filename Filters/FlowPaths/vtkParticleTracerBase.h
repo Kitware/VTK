@@ -156,10 +156,8 @@ public:
   int GetIntegratorType();
 
   // Description:
-  // Setting TerminationTime to a positive value will cause particles
-  // to terminate when the time is reached. Use a vlue of zero to
-  // diable termination. The units of time should be consistent with the
-  // primary time variable.
+  // Set the time value for particle tracing to begin. The units of time should
+  // be consistent with the primary time variable.
   vtkGetMacro(StartTime, double);
   void SetStartTime(double t);
 
