@@ -736,7 +736,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   double from = this->CurrentTimeStep==this->StartTimeStep? this->StartTime : this->GetCacheDataTime(0);
   this->CurrentTimeValue =
-    this->CurrentTimeStep==this->StartTimeStep? StartTime:
+    this->CurrentTimeStep==this->StartTimeStep? this->StartTime:
     (this->CurrentTimeStep==this->TerminationTimeStep? this->TerminationTime : this->GetCacheDataTime(1));
 
   //set up the output
@@ -812,7 +812,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   //
   // Make sure the Particle Positions are initialized with Seed particles
   //
-  if (this->StartTime==this->CurrentTimeValue)
+  if (this->StartTimeStep==this->CurrentTimeStep)
     {
     Assert(!this->HasCache); //shouldn't have cache if restarting
     int seedPointId=0;
