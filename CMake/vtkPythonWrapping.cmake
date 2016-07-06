@@ -1,5 +1,12 @@
-find_package(PythonLibs REQUIRED)
+if (VTK_UNDEFINED_SYMBOLS_ALLOWED)
+  set(_QUIET_LIBRARY "QUIET")
+else()
+  set(_QUIET_LIBRARY "REQUIRED")
+endif()
+find_package(PythonLibs ${_QUIET_LIBRARY})
 include(vtkWrapPython)
+include(vtkTargetLinkLibrariesWithDynamicLookup)
+
 if(PYTHONINTERP_FOUND AND PYTHONLIBS_FOUND)
   set(_interp_version "${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
   set(_libs_version "${PYTHON_MAJOR_VERSION}.${PYTHON_MINOR_VERSION}")
@@ -104,7 +111,9 @@ function(vtk_add_python_wrapping_library module srcs)
       PROPERTY INCLUDE_DIRECTORIES ${_python_include_dirs})
   endif()
   target_link_libraries(${module}PythonD LINK_PUBLIC
-    vtkWrappingPythonCore ${extra_links} ${VTK_PYTHON_LIBRARIES})
+    vtkWrappingPythonCore ${extra_links})
+  vtk_target_link_libraries_with_dynamic_lookup(
+    ${module}PythonD LINK_PUBLIC ${VTK_PYTHON_LIBRARIES})
 
   if (MSVC)
     set_target_properties(${module}PythonD

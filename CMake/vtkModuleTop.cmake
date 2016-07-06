@@ -503,6 +503,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkObjectFactory.h.in
                 CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
+                CMake/vtkTargetLinkLibrariesWithDynamicLookup.cmake
                 CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
                 CMake/vtkWrapHierarchy.cmake
