@@ -334,37 +334,37 @@ public:
 
   // Description:
   // Dot product of two 3-vectors (float version).
-  static float Dot(const float x[3], const float y[3]) {
-    return ( x[0] * y[0] + x[1] * y[1] + x[2] * y[2] );};
+  static float Dot(const float a[3], const float b[3]) {
+    return ( a[0] * b[0] + a[1] * b[1] + a[2] * b[2] );};
 
   // Description:
   // Dot product of two 3-vectors (double-precision version).
-  static double Dot(const double x[3], const double y[3]) {
-    return ( x[0] * y[0] + x[1] * y[1] + x[2] * y[2] );};
+  static double Dot(const double a[3], const double b[3]) {
+    return ( a[0] * b[0] + a[1] * b[1] + a[2] * b[2] );};
 
   // Description:
   // Outer product of two 3-vectors (float version).
-  static void Outer(const float x[3], const float y[3], float A[3][3]) {
+  static void Outer(const float a[3], const float b[3], float C[3][3]) {
     for (int i=0; i < 3; i++)
       for (int j=0; j < 3; j++)
-        A[i][j] = x[i] * y[j];
+        C[i][j] = a[i] * b[j];
   }
   // Description:
   // Outer product of two 3-vectors (double-precision version).
-  static void Outer(const double x[3], const double y[3], double A[3][3]) {
+  static void Outer(const double a[3], const double b[3], double C[3][3]) {
     for (int i=0; i < 3; i++)
       for (int j=0; j < 3; j++)
-        A[i][j] = x[i] * y[j];
+        C[i][j] = a[i] * b[j];
   }
 
   // Description:
-  // Cross product of two 3-vectors. Result (a x b) is stored in z.
-  static void Cross(const float x[3], const float y[3], float z[3]);
+  // Cross product of two 3-vectors. Result (a x b) is stored in c.
+  static void Cross(const float a[3], const float b[3], float c[3]);
 
   // Description:
-  // Cross product of two 3-vectors. Result (a x b) is stored in z. (double-precision
-  // version)
-  static void Cross(const double x[3], const double y[3], double z[3]);
+  // Cross product of two 3-vectors. Result (a x b) is stored in c.
+  // (double-precision version)
+  static void Cross(const double a[3], const double b[3], double c[3]);
 
   // Description:
   // Compute the norm of n-vector. x is the vector, n is its length.
@@ -373,32 +373,32 @@ public:
 
   // Description:
   // Compute the norm of 3-vector.
-  static float Norm(const float x[3]) {
-    return static_cast<float> (sqrt( x[0] * x[0] + x[1] * x[1] + x[2] * x[2] ) );};
+  static float Norm(const float v[3]) {
+    return static_cast<float> (sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] ) );};
 
   // Description:
   // Compute the norm of 3-vector (double-precision version).
-  static double Norm(const double x[3]) {
-    return sqrt( x[0] * x[0] + x[1] * x[1] + x[2] * x[2] );};
+  static double Norm(const double v[3]) {
+    return sqrt( v[0] * v[0] + v[1] * v[1] + v[2] * v[2] );};
 
   // Description:
   // Normalize (in place) a 3-vector. Returns norm of vector.
-  static float Normalize(float x[3]);
+  static float Normalize(float v[3]);
 
   // Description:
   // Normalize (in place) a 3-vector. Returns norm of vector
   // (double-precision version).
-  static double Normalize(double x[3]);
+  static double Normalize(double v[3]);
 
   // Description:
-  // Given a unit vector x, find two unit vectors y and z such that
-  // x cross y = z (i.e. the vectors are perpendicular to each other).
+  // Given a unit vector v1, find two unit vectors v2 and v3 such that
+  // v1 cross v2 = v3 (i.e. the vectors are perpendicular to each other).
   // There is an infinite number of such vectors, specify an angle theta
   // to choose one set.  If you want only one perpendicular vector,
-  // specify NULL for z.
-  static void Perpendiculars(const double x[3], double y[3], double z[3],
+  // specify NULL for v3.
+  static void Perpendiculars(const double v1[3], double v2[3], double v3[3],
                              double theta);
-  static void Perpendiculars(const float x[3], float y[3], float z[3],
+  static void Perpendiculars(const float v1[3], float v2[3], float v3[3],
                              double theta);
 
   // Description:
@@ -409,7 +409,7 @@ public:
   static bool ProjectVector(const double a[3], const double b[3], double projection[3]);
 
   // Description:
-  // Compute the projection of 2D vector 'a' on 2D vector 'b' and returns the result
+  // Compute the projection of 2D vector a on 2D vector b and returns the result
   // in projection[2].
   // If b is a zero vector, the function returns false and 'projection' is invalid.
   // Otherwise, it returns true.
@@ -417,12 +417,13 @@ public:
   static bool ProjectVector2D(const double a[2], const double b[2], double projection[2]);
 
   // Description:
-  // Compute distance squared between two points x and y.
-  static float Distance2BetweenPoints(const float x[3], const float y[3]);
+  // Compute distance squared between two points p1 and p2.
+  static float Distance2BetweenPoints(const float p1[3], const float p2[3]);
 
   // Description:
-  // Compute distance squared between two points x and y(double precision version).
-  static double Distance2BetweenPoints(const double x[3], const double y[3]);
+  // Compute distance squared between two points p1 and p2
+  // (double precision version).
+  static double Distance2BetweenPoints(const double p1[3], const double p2[3]);
 
   // Description:
   // Compute angle in radians between two vectors.
@@ -498,12 +499,12 @@ public:
 
   // Description:
   // Normalize (in place) a 2-vector. Returns norm of vector.
-  static float Normalize2D(float x[2]);
+  static float Normalize2D(float v[2]);
 
   // Description:
   // Normalize (in place) a 2-vector. Returns norm of vector.
   // (double-precision version).
-  static double Normalize2D(double x[2]);
+  static double Normalize2D(double v[2]);
 
   // Description:
   // Compute determinant of 2x2 matrix. Two columns of matrix are input.
@@ -1071,56 +1072,56 @@ inline T vtkMath::Max(const T & a, const T & b)
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Normalize(float x[3])
+inline float vtkMath::Normalize(float v[3])
 {
-  float den = vtkMath::Norm( x );
+  float den = vtkMath::Norm( v );
   if ( den != 0.0 )
     {
     for (int i=0; i < 3; i++)
       {
-      x[i] /= den;
+      v[i] /= den;
       }
     }
   return den;
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Normalize(double x[3])
+inline double vtkMath::Normalize(double v[3])
 {
-  double den = vtkMath::Norm( x );
+  double den = vtkMath::Norm( v );
   if ( den != 0.0 )
     {
     for (int i=0; i < 3; i++)
       {
-      x[i] /= den;
+      v[i] /= den;
       }
     }
   return den;
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Normalize2D(float x[3])
+inline float vtkMath::Normalize2D(float v[3])
 {
-  float den = vtkMath::Norm2D( x );
+  float den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
     {
     for (int i=0; i < 2; i++)
       {
-      x[i] /= den;
+      v[i] /= den;
       }
     }
   return den;
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Normalize2D(double x[3])
+inline double vtkMath::Normalize2D(double v[3])
 {
-  double den = vtkMath::Norm2D( x );
+  double den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
     {
     for (int i=0; i < 2; i++)
       {
-      x[i] /= den;
+      v[i] /= den;
       }
     }
   return den;
@@ -1155,41 +1156,41 @@ inline double vtkMath::Determinant3x3(double a1, double a2, double a3,
 }
 
 //----------------------------------------------------------------------------
-inline float vtkMath::Distance2BetweenPoints(const float x[3],
-                                             const float y[3])
+inline float vtkMath::Distance2BetweenPoints(const float p1[3],
+                                             const float p2[3])
 {
-  return ( ( x[0] - y[0] ) * ( x[0] - y[0] )
-           + ( x[1] - y[1] ) * ( x[1] - y[1] )
-           + ( x[2] - y[2] ) * ( x[2] - y[2] ) );
+  return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] )
+           + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
+           + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
 }
 
 //----------------------------------------------------------------------------
-inline double vtkMath::Distance2BetweenPoints(const double x[3],
-                                              const double y[3])
+inline double vtkMath::Distance2BetweenPoints(const double p1[3],
+                                              const double p2[3])
 {
-  return ( ( x[0] - y[0] ) * ( x[0] - y[0] )
-           + ( x[1] - y[1] ) * ( x[1] - y[1] )
-           + ( x[2] - y[2] ) * ( x[2] - y[2] ) );
+  return ( ( p1[0] - p2[0] ) * ( p1[0] - p2[0] )
+           + ( p1[1] - p2[1] ) * ( p1[1] - p2[1] )
+           + ( p1[2] - p2[2] ) * ( p1[2] - p2[2] ) );
 }
 
 //----------------------------------------------------------------------------
-// Cross product of two 3-vectors. Result (a x b) is stored in z[3].
-inline void vtkMath::Cross(const float x[3], const float y[3], float z[3])
+// Cross product of two 3-vectors. Result (a x b) is stored in c[3].
+inline void vtkMath::Cross(const float a[3], const float b[3], float c[3])
 {
-  float Zx = x[1] * y[2] - x[2] * y[1];
-  float Zy = x[2] * y[0] - x[0] * y[2];
-  float Zz = x[0] * y[1] - x[1] * y[0];
-  z[0] = Zx; z[1] = Zy; z[2] = Zz;
+  float Cx = a[1] * b[2] - a[2] * b[1];
+  float Cy = a[2] * b[0] - a[0] * b[2];
+  float Cz = a[0] * b[1] - a[1] * b[0];
+  c[0] = Cx; c[1] = Cy; c[2] = Cz;
 }
 
 //----------------------------------------------------------------------------
-// Cross product of two 3-vectors. Result (a x b) is stored in z[3].
-inline void vtkMath::Cross(const double x[3], const double y[3], double z[3])
+// Cross product of two 3-vectors. Result (a x b) is stored in c[3].
+inline void vtkMath::Cross(const double a[3], const double b[3], double c[3])
 {
-  double Zx = x[1] * y[2] - x[2] * y[1];
-  double Zy = x[2] * y[0] - x[0] * y[2];
-  double Zz = x[0] * y[1] - x[1] * y[0];
-  z[0] = Zx; z[1] = Zy; z[2] = Zz;
+  double Cx = a[1] * b[2] - a[2] * b[1];
+  double Cy = a[2] * b[0] - a[0] * b[2];
+  double Cz = a[0] * b[1] - a[1] * b[0];
+  c[0] = Cx; c[1] = Cy; c[2] = Cz;
 }
 
 //----------------------------------------------------------------------------
