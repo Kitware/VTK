@@ -70,9 +70,7 @@
 #endif /* EXODUSII_HAVE_MALLOC_H */
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
+#define snprintf _snprintf
 #endif
 
 /// Define this to get printouts summarizing array glomming process
@@ -4099,7 +4097,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s",
+          snprintf( tmpName, 255, "Unnamed block ID: %d Type: %s",
               ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
           binfo.Name = tmpName;
           }
@@ -4229,7 +4227,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
+          snprintf( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
           sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
@@ -4261,7 +4259,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Name = obj_names[obj];
         if (minfo.Name.length() == 0)
           { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          SNPRINTF( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
+          snprintf( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
           minfo.Name = tmpName;
           }
         sortedObjects[minfo.Id] = (int) this->MapInfo[obj_types[i]].size();

@@ -49,9 +49,7 @@
 #include <cstdio> // for snprintf
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-#  define SNPRINTF _snprintf
-#else
-#  define SNPRINTF snprintf
+#define snprintf _snprintf
 #endif
 
 #undef VTK_DBG_LAYOUT
@@ -1329,7 +1327,7 @@ void vtkScalarBarActor::LayoutTicks()
         }
       }
 
-    SNPRINTF(string, 511, this->LabelFormat, val);
+    snprintf(string, 511, this->LabelFormat, val);
     this->P->TextActors[i]->SetInput(string);
 
     // Shallow copy here so that the size of the label prop is not affected
