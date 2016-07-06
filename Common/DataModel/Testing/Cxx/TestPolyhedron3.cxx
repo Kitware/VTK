@@ -43,12 +43,8 @@ const char inputDataStream[] =
 // Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=15026
 int TestPolyhedron3(int argc, char *argv[])
 {
-  // the next two lines are only in the test to get rid of compiler warnings
-  // I cannot make the function without the parameters, because that is what
-  // is expected. At the same time, I also can't not reference them, because
-  // that give a warning.
-  if (argc < 0 && argc > 0) return 1; // reference one formal parameter
-  if (!argv && argv) return 1;        // reference another formal parameter
+  (void)argc;
+  (void)argv;
 
   vtkNew<vtkUnstructuredGridReader> reader;
   reader->SetInputString(inputDataStream);
