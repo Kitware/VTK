@@ -1176,48 +1176,73 @@ void vtkLineIntegralConvolution2D::SetNormalizeVectors(int val)
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetVTShader(vtkShaderProgram * prog)
 {
-  this->VTShader->Program = prog;
+  if (this->VTShader)
+    {
+    this->VTShader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLIC0Shader(vtkShaderProgram * prog)
 {
-  this->LIC0Shader->Program = prog;
+  if (this->LIC0Shader)
+    {
+    this->LIC0Shader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLICIShader(vtkShaderProgram * prog)
 {
-  this->LICIShader->Program = prog;
+  if (this->LICIShader)
+    {
+    this->LICIShader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetLICNShader(vtkShaderProgram * prog)
 {
-  this->LICNShader->Program = prog;
+  if (this->LICNShader)
+    {
+    this->LICNShader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetEEShader(vtkShaderProgram * prog)
 {
-  this->EEShader->Program = prog;
+  if (this->EEShader)
+    {
+    this->EEShader->Program = prog;
+    }
 }
+
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetCEShader(vtkShaderProgram * prog)
 {
-  this->CEShader->Program = prog;
+  if (this->CEShader)
+    {
+    this->CEShader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetAAHShader(vtkShaderProgram * prog)
 {
-  this->AAHShader->Program = prog;
+  if (this->AAHShader)
+    {
+    this->AAHShader->Program = prog;
+    }
 }
 
 // ----------------------------------------------------------------------------
 void vtkLineIntegralConvolution2D::SetAAVShader(vtkShaderProgram * prog)
 {
-  this->AAVShader->Program = prog;
+  if (this->AAVShader)
+    {
+    this->AAVShader->Program = prog;
+    }
 }
 
 namespace {
