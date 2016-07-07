@@ -279,7 +279,7 @@ it to the project history.  For example:
 
 The `git gitlab-push` command is actually an alias for the
 [git-gitlab-push](/Utilities/GitSetup/git-gitlab-push) script.
-In addition to pushing the topic branch to Gerrit the script also detects
+In addition to pushing the topic branch to GitLab the script also detects
 content links added or modified by the commits in the topic.
 It reads the data object hashes from the content links and looks for
 matching `refs/data/` entries in the local Git repository.
