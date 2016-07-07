@@ -302,9 +302,9 @@ def reindent(filename, dry_run=False):
                 # save delim, row, col, and current indentation
                 stack.append((delim, i, pos, newpos))
             elif delim == '{':
-                if in_assign:
+                if in_assign or line[0:pos-1].rstrip()[-1:] == "=":
                     # do not adjust braces for initializer lists
-                    stack.append((delim, i, pos, pos))
+                    stack.append((delim, i, -1, pos))
                 elif ((in_else or in_define) and spaces.sub("", line) == "{"):
                     # for opening braces that might have no match
                     indent = " "*lastpos
@@ -312,9 +312,10 @@ def reindent(filename, dry_run=False):
                     stack.append((delim, i, lastpos, lastpos))
                 else:
                     # save delim, row, col, and previous indentation
-                    stack.append((delim, i, pos, lastpos))
-                newpos = pos + 2
-                lastpos = newpos
+                    stack.append((delim, i, pos, newpos))
+                if spaces.sub("", newlines[i][0:pos]) == "":
+                    newpos = pos + 2
+                    lastpos = newpos
                 continuation = False
             elif delim == ';':
                 continuation = False
@@ -322,18 +323,22 @@ def reindent(filename, dry_run=False):
                 # found a ')', ']', or '}' delimiter, so pop its partner
                 try:
                     ldelim, j, k, newpos = stack.pop()
+                    in_assign = (k < 0)
                 except IndexError:
                     ldelim = ""
                 if ldelim != {'}':'{', ')':'(', ']':'['}[delim]:
                     sys.stderr.write(filename + ":" + str(i) + ": ")
                     sys.stderr.write("mismatched \'" + delim + "\'\n")
                 # adjust the indentation of matching '{', '}'
-                if (ldelim == '{' and delim == '}' and
-                    spaces.sub("", lines[i][0:pos]) == "" and
-                    spaces.sub("", lines[j][0:k]) == ""):
-                    indent = " "*newpos
-                    changeline(i, spaces.sub(indent, lines[i], count=1))
-                    changeline(j, spaces.sub(indent, lines[j], count=1))
+                if (ldelim == '{' and delim == '}' and not in_assign and
+                      spaces.sub("", line[0:pos]) == ""):
+                    if spaces.sub("", newlines[j][0:k]) == "":
+                        indent = " "*newpos
+                        changeline(j, spaces.sub(indent, lines[j], count=1))
+                        changeline(i, spaces.sub(indent, lines[i], count=1))
+                    elif i != j:
+                        indent = " "*newpos
+                        changeline(i, spaces.sub(indent, lines[i], count=1))
                 if delim == '}':
                     continuation = False
 
