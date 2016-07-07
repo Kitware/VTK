@@ -924,7 +924,7 @@ int vtkPolygon::NonDegenerateTriangulate(vtkIdList *outTris)
 
     for(int i=0; i<numPolygonPts; i++)
       {
-      ptId = start+i;
+      ptId = (start+i) % numPts;
 
       if(matchingIds->GetValue(ptId) >= 0)
         {
