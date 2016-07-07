@@ -125,7 +125,7 @@ vtkDataArray* vtkAbstractMapper::GetScalars(vtkDataSet *input,
 {
   vtkAbstractArray* abstractScalars =
     vtkAbstractMapper::GetAbstractScalars(input, scalarMode, arrayAccessMode, arrayId, arrayName, cellFlag);
-  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+  vtkDataArray* scalars = vtkArrayDownCast<vtkDataArray>(abstractScalars);
   return scalars;
 }
 

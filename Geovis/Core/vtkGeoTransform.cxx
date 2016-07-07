@@ -64,8 +64,8 @@ void vtkGeoTransform::TransformPoints( vtkPoints* srcPts, vtkPoints* dstPts )
     return;
     }
 
-  vtkDoubleArray* srcCoords = vtkDoubleArray::SafeDownCast( srcPts->GetData() );
-  vtkDoubleArray* dstCoords = vtkDoubleArray::SafeDownCast( dstPts->GetData() );
+  vtkDoubleArray* srcCoords = vtkArrayDownCast<vtkDoubleArray>( srcPts->GetData() );
+  vtkDoubleArray* dstCoords = vtkArrayDownCast<vtkDoubleArray>( dstPts->GetData() );
   if ( ! srcCoords || ! dstCoords )
     { // data not in a form we can use directly anyway...
     this->Superclass::TransformPoints( srcPts, dstPts );

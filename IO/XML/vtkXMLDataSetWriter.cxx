@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkXMLDataSetWriter.h"
 
+#include "vtkAlgorithmOutput.h"
 #include "vtkCallbackCommand.h"
 #include "vtkDataSet.h"
 #include "vtkHyperOctree.h"
@@ -22,6 +23,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkPolyData.h"
 #include "vtkRectilinearGrid.h"
+#include "vtkSmartPointer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkUnstructuredGrid.h"
 #include "vtkXMLHyperOctreeWriter.h"
@@ -30,7 +32,6 @@
 #include "vtkXMLRectilinearGridWriter.h"
 #include "vtkXMLStructuredGridWriter.h"
 #include "vtkXMLUnstructuredGridWriter.h"
-#include "vtkAlgorithmOutput.h"
 
 vtkStandardNewMacro(vtkXMLDataSetWriter);
 
@@ -62,82 +63,65 @@ vtkDataSet* vtkXMLDataSetWriter::GetInput()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLDataSetWriter::WriteInternal()
+vtkXMLWriter* vtkXMLDataSetWriter::NewWriter(int dataset_type)
 {
-  vtkAlgorithmOutput* input = this->GetInputConnection(0, 0);
-  vtkXMLWriter* writer = 0;
-
   // Create a writer based on the data set type.
-  switch (this->GetInput()->GetDataObjectType())
+  switch (dataset_type)
     {
     case VTK_UNIFORM_GRID:
     case VTK_IMAGE_DATA:
     case VTK_STRUCTURED_POINTS:
-      {
-      vtkXMLImageDataWriter* w = vtkXMLImageDataWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLImageDataWriter::New();
     case VTK_STRUCTURED_GRID:
-      {
-      vtkXMLStructuredGridWriter* w = vtkXMLStructuredGridWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLStructuredGridWriter::New();
     case VTK_RECTILINEAR_GRID:
-      {
-      vtkXMLRectilinearGridWriter* w = vtkXMLRectilinearGridWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLRectilinearGridWriter::New();
     case VTK_UNSTRUCTURED_GRID:
-      {
-      vtkXMLUnstructuredGridWriter* w = vtkXMLUnstructuredGridWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLUnstructuredGridWriter::New();
     case VTK_POLY_DATA:
-      {
-      vtkXMLPolyDataWriter* w = vtkXMLPolyDataWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLPolyDataWriter::New();
     case VTK_HYPER_OCTREE:
-      {
-      vtkXMLHyperOctreeWriter* w = vtkXMLHyperOctreeWriter::New();
-      w->SetInputConnection(input);
-      writer = w;
-      } break;
+      return vtkXMLHyperOctreeWriter::New();
+    }
+  return NULL;
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataSetWriter::WriteInternal()
+{
+  // Create a writer based on the data set type.
+  vtkXMLWriter* writer =
+    vtkXMLDataSetWriter::NewWriter(this->GetInput()->GetDataObjectType());
+  if (writer)
+    {
+    writer->SetInputConnection(this->GetInputConnection(0, 0));
+
+    // Copy the settings to the writer.
+    writer->SetDebug(this->GetDebug());
+    writer->SetFileName(this->GetFileName());
+    writer->SetByteOrder(this->GetByteOrder());
+    writer->SetCompressor(this->GetCompressor());
+    writer->SetBlockSize(this->GetBlockSize());
+    writer->SetDataMode(this->GetDataMode());
+    writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
+    writer->SetHeaderType(this->GetHeaderType());
+    writer->SetIdType(this->GetIdType());
+    writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
+
+    // Try to write.
+    int result = writer->Write();
+
+    // Cleanup.
+    writer->RemoveObserver(this->ProgressObserver);
+    writer->Delete();
+    return result;
     }
 
   // Make sure we got a valid writer for the data set.
-  if (!writer)
-    {
-    vtkErrorMacro("Cannot write dataset type: "
-                  << this->GetInput()->GetDataObjectType() << " which is a "
-                  << this->GetInput()->GetClassName());
-    return 0;
-    }
-
-  // Copy the settings to the writer.
-  writer->SetDebug(this->GetDebug());
-  writer->SetFileName(this->GetFileName());
-  writer->SetByteOrder(this->GetByteOrder());
-  writer->SetCompressor(this->GetCompressor());
-  writer->SetBlockSize(this->GetBlockSize());
-  writer->SetDataMode(this->GetDataMode());
-  writer->SetEncodeAppendedData(this->GetEncodeAppendedData());
-  writer->SetHeaderType(this->GetHeaderType());
-  writer->SetIdType(this->GetIdType());
-  writer->AddObserver(vtkCommand::ProgressEvent, this->ProgressObserver);
-
-  // Try to write.
-  int result = writer->Write();
-
-  // Cleanup.
-  writer->RemoveObserver(this->ProgressObserver);
-  writer->Delete();
-  return result;
+  vtkErrorMacro("Cannot write dataset type: "
+                << this->GetInput()->GetDataObjectType() << " which is a "
+                << this->GetInput()->GetClassName());
+  return 0;
 }
 
 //----------------------------------------------------------------------------

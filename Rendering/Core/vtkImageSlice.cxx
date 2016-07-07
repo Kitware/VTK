@@ -124,7 +124,7 @@ void vtkImageSlice::SetMapper(vtkImageMapper3D *mapper)
     if (this->Mapper != NULL)
       {
       this->Mapper->Register(this);
-      vtkImageToImageMapper3DFriendship::SetCurrentProp(mapper, this);
+      vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, this);
       }
     this->Modified();
     }

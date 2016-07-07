@@ -49,6 +49,7 @@ interpolator.SetInputData(probe)
 interpolator.SetSourceData(output)
 interpolator.SetKernel(gaussianKernel)
 interpolator.SetLocator(locator)
+interpolator.SetNullPointsStrategyToClosestPoint()
 
 # Time execution
 timer = vtk.vtkTimerLog()

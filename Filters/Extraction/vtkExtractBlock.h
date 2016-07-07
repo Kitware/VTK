@@ -64,7 +64,6 @@ public:
   vtkGetMacro(MaintainStructure, int);
   vtkBooleanMacro(MaintainStructure, int);
 
-//BTX
 protected:
   vtkExtractBlock();
   ~vtkExtractBlock();
@@ -95,7 +94,7 @@ private:
   class vtkSet;
   vtkSet *Indices;
   vtkSet *ActiveIndices;
-//ETX
+
 };
 
 #endif

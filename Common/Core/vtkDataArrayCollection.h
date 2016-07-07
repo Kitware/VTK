@@ -48,13 +48,11 @@ public:
   vtkDataArray *GetItem(int i) {
     return static_cast<vtkDataArray *>(this->GetItemAsObject(i));};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkDataArray *GetNextDataArray(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkDataArray *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkDataArrayCollection() {}

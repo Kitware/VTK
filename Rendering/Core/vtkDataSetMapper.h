@@ -64,7 +64,7 @@ protected:
   vtkDataSetSurfaceFilter *GeometryExtractor;
   vtkPolyDataMapper *PolyDataMapper;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);

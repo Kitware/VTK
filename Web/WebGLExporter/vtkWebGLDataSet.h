@@ -46,9 +46,7 @@ public:
   void GenerateBinaryData();
   bool HasChanged();
 
-  //BTX
   std::string GetMD5();
-  //ETX
 
 protected:
   vtkWebGLDataSet();

@@ -64,7 +64,6 @@ public:
   // Add every input table column to the output matrix.
   void AddAllColumns();
 
-//BTX
 protected:
   vtkTableToArray();
   ~vtkTableToArray();
@@ -82,7 +81,7 @@ private:
 
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

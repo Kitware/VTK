@@ -22,10 +22,15 @@
 /*****************************************************************************/
 
 #include <cctype>
+#include <cmath>
 #include <sstream>
 #include <utility>
+#include <vector>
+#include "string.h"
 #include "XdmfError.hpp"
 #include "XdmfTopologyType.hpp"
+
+std::map<std::string, shared_ptr<const XdmfTopologyType>(*)()> XdmfTopologyType::mTopologyDefinitions;
 
 // Supported XdmfTopologyTypes
 shared_ptr<const XdmfTopologyType>
@@ -142,6 +147,15 @@ XdmfTopologyType::Hexahedron()
   faces.push_back(XdmfTopologyType::Quadrilateral());
   static shared_ptr<const XdmfTopologyType>
     p(new XdmfTopologyType(8, 6, faces, 12, "Hexahedron", Linear, 0x9));
+  return p;
+}
+
+shared_ptr<const XdmfTopologyType>
+XdmfTopologyType::Polyhedron()
+{
+  std::vector<shared_ptr<const XdmfTopologyType> > faces;
+  static shared_ptr<const XdmfTopologyType>
+    p(new XdmfTopologyType(0, 0, faces, 0, "Polyhedron", Linear, 0x10));
   return p;
 }
 
@@ -440,6 +454,79 @@ XdmfTopologyType::Mixed()
   return p;
 }
 
+void
+XdmfTopologyType::InitTypes()
+{
+  mTopologyDefinitions["NOTOPOLOGY"] = NoTopologyType;
+  mTopologyDefinitions["POLYVERTEX"] = Polyvertex;
+  mTopologyDefinitions["TRIANGLE"] = Triangle;
+  mTopologyDefinitions["QUADRILATERAL"] = Quadrilateral;
+  mTopologyDefinitions["TETRAHEDRON"] = Tetrahedron;
+  mTopologyDefinitions["PYRAMID"] = Pyramid;
+  mTopologyDefinitions["WEDGE"] = Wedge;
+  mTopologyDefinitions["HEXAHEDRON"] = Hexahedron;
+  mTopologyDefinitions["POLYHEDRON"] = Polyhedron;
+  mTopologyDefinitions["EDGE_3"] = Edge_3;
+  mTopologyDefinitions["TRIANGLE_6"] = Triangle_6;
+  mTopologyDefinitions["QUADRILATERAL_8"] = Quadrilateral_8;
+  mTopologyDefinitions["QUADRILATERAL_9"] = Quadrilateral_9;
+  mTopologyDefinitions["TETRAHEDRON_10"] = Tetrahedron_10;
+  mTopologyDefinitions["PYRAMID_13"] = Pyramid_13;
+  mTopologyDefinitions["WEDGE_15"] = Wedge_15;
+  mTopologyDefinitions["WEDGE_18"] = Wedge_18;
+  mTopologyDefinitions["HEXAHEDRON_20"] = Hexahedron_20;
+  mTopologyDefinitions["HEXAHEDRON_24"] = Hexahedron_24;
+  mTopologyDefinitions["HEXAHEDRON_27"] = Hexahedron_27;
+  mTopologyDefinitions["HEXAHEDRON_64"] = Hexahedron_64;
+  mTopologyDefinitions["HEXAHEDRON_125"] = Hexahedron_125;
+  mTopologyDefinitions["HEXAHEDRON_216"] = Hexahedron_216;
+  mTopologyDefinitions["HEXAHEDRON_343"] = Hexahedron_343;
+  mTopologyDefinitions["HEXAHEDRON_512"] = Hexahedron_512;
+  mTopologyDefinitions["HEXAHEDRON_729"] = Hexahedron_729;
+  mTopologyDefinitions["HEXAHEDRON_1000"] = Hexahedron_1000;
+  mTopologyDefinitions["HEXAHEDRON_1331"] = Hexahedron_1331;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_64"] = Hexahedron_Spectral_64;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_125"] = Hexahedron_Spectral_125;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_216"] = Hexahedron_Spectral_216;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_343"] = Hexahedron_Spectral_343;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_512"] = Hexahedron_Spectral_512;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_729"] = Hexahedron_Spectral_729;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_1000"] = Hexahedron_Spectral_1000;
+  mTopologyDefinitions["HEXAHEDRON_SPECTRAL_1331"] = Hexahedron_Spectral_1331;
+  mTopologyDefinitions["MIXED"] = Mixed;
+}
+
+unsigned int
+XdmfTopologyType::calculateHypercubeNumElements(unsigned int numDims,
+                                                unsigned int elementNumDims) const
+{
+  if (elementNumDims > numDims) {
+    return 0;
+  }
+  else if (elementNumDims == numDims) {
+    return 1;
+  }
+  else {
+    // The calculation has 3 parts
+    // First is the 2 taken to the power of
+    // the object's dimensionality minus the element's dimensionality.
+    unsigned int part1 = std::pow((double)2, (double)(numDims - elementNumDims));
+    // The second part is numDims!/(numDims-elementdims)!
+    unsigned int part2 = 1;
+    for (unsigned int i = numDims; i > (numDims - elementNumDims); --i)
+    {
+      part2 *= i;
+    }
+    // The third part is elementDims!
+    unsigned int part3 = 1;
+    for (unsigned int i = 1; i <= elementNumDims; ++i)
+    {
+      part3 *= i;
+    }
+    return part1 * (part2 / part3);
+  }
+}
+
 shared_ptr<const XdmfTopologyType>
 XdmfTopologyType::New(const unsigned int id)
 {
@@ -472,6 +559,9 @@ XdmfTopologyType::New(const unsigned int id)
   }
   else if(id == XdmfTopologyType::Hexahedron()->getID()) {
     return XdmfTopologyType::Hexahedron();
+  }
+  else if(id == XdmfTopologyType::Polyhedron()->getID()) {
+    return XdmfTopologyType::Polyhedron();
   }
   else if(id == XdmfTopologyType::Edge_3()->getID()) {
     return XdmfTopologyType::Edge_3();
@@ -584,6 +674,8 @@ XdmfTopologyType::~XdmfTopologyType()
 shared_ptr<const XdmfTopologyType>
 XdmfTopologyType::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
+
   std::map<std::string, std::string>::const_iterator type =
     itemProperties.find("Type");
   if(type == itemProperties.end()) {
@@ -594,135 +686,39 @@ XdmfTopologyType::New(const std::map<std::string, std::string> & itemProperties)
                        "Neither 'Type' nor 'TopologyType' found in "
                        "itemProperties in XdmfTopologyType::New");
   }
-  std::string typeVal = type->second;
-  std::transform(typeVal.begin(),
-                 typeVal.end(),
-                 typeVal.begin(),
-                 (int(*)(int))toupper);
+  std::string typeVal = ConvertToUpper(type->second);
 
   std::map<std::string, std::string>::const_iterator nodesPerElement =
     itemProperties.find("NodesPerElement");
 
-  if(typeVal.compare("NOTOPOLOGY") == 0) {
-    return NoTopologyType();
-  }
-  else if(typeVal.compare("POLYVERTEX") == 0) {
-    return Polyvertex();
-  }
-  else if(typeVal.compare("POLYLINE") == 0) {
-    if(nodesPerElement != itemProperties.end()) {
-      return Polyline(atoi(nodesPerElement->second.c_str()));
+  std::map<std::string, shared_ptr<const XdmfTopologyType>(*)()>::const_iterator returnType
+    = mTopologyDefinitions.find(typeVal);
+
+  if (returnType == mTopologyDefinitions.end()) {
+    if(typeVal.compare("POLYLINE") == 0) {
+      if(nodesPerElement != itemProperties.end()) {
+        return Polyline(atoi(nodesPerElement->second.c_str()));
+      }
+      XdmfError::message(XdmfError::FATAL,
+                         "'NodesPerElement' not in itemProperties and type "
+                         "'POLYLINE' selected in XdmfTopologyType::New");
     }
-    XdmfError::message(XdmfError::FATAL,
-                       "'NodesPerElement' not in itemProperties and type "
-                       "'POLYLINE' selected in XdmfTopologyType::New");
-  }
-  else if(typeVal.compare("POLYGON") == 0) {
-    if(nodesPerElement != itemProperties.end()) {
-      return Polygon(atoi(nodesPerElement->second.c_str()));
+    else if(typeVal.compare("POLYGON") == 0) {
+      if(nodesPerElement != itemProperties.end()) {
+        return Polygon(atoi(nodesPerElement->second.c_str()));
+      }
+      XdmfError::message(XdmfError::FATAL,
+                         "'NodesPerElement' not in itemProperties and type "
+                         "'POLYGON' selected in XdmfTopologyType::New");
     }
-    XdmfError::message(XdmfError::FATAL,
-                       "'NodesPerElement' not in itemProperties and type "
-                       "'POLYGON' selected in XdmfTopologyType::New");
+    else {
+      XdmfError::message(XdmfError::FATAL,
+                         "Invalid Type selected in XdmfTopologyType::New");
+
+    }
   }
-  else if(typeVal.compare("TRIANGLE") == 0) {
-    return Triangle();
-  }
-  else if(typeVal.compare("QUADRILATERAL") == 0) {
-    return Quadrilateral();
-  }
-  else if(typeVal.compare("TETRAHEDRON") == 0) {
-    return Tetrahedron();
-  }
-  else if(typeVal.compare("PYRAMID") == 0) {
-    return Pyramid();
-  }
-  else if(typeVal.compare("WEDGE") == 0) {
-    return Wedge();
-  }
-  else if(typeVal.compare("HEXAHEDRON") == 0) {
-    return Hexahedron();
-  }
-  else if(typeVal.compare("EDGE_3") == 0) {
-    return Edge_3();
-  }
-  else if(typeVal.compare("TRIANGLE_6") == 0) {
-    return Triangle_6();
-  }
-  else if(typeVal.compare("QUADRILATERAL_8") == 0) {
-    return Quadrilateral_8();
-  }
-  else if(typeVal.compare("QUADRILATERAL_9") == 0) {
-    return Quadrilateral_9();
-  }
-  else if(typeVal.compare("TETRAHEDRON_10") == 0) {
-    return Tetrahedron_10();
-  }
-  else if(typeVal.compare("PYRAMID_13") == 0) {
-    return Pyramid_13();
-  }
-  else if(typeVal.compare("WEDGE_15") == 0) {
-    return Wedge_15();
-  }
-  else if(typeVal.compare("HEXAHEDRON_20") == 0) {
-    return Hexahedron_20();
-  }
-  else if(typeVal.compare("HEXAHEDRON_24") == 0) {
-    return Hexahedron_24();
-  }
-  else if(typeVal.compare("HEXAHEDRON_27") == 0) {
-    return Hexahedron_27();
-  }
-  else if(typeVal.compare("HEXAHEDRON_64") == 0) {
-    return Hexahedron_64();
-  }
-  else if(typeVal.compare("HEXAHEDRON_125") == 0) {
-    return Hexahedron_125();
-  }
-  else if(typeVal.compare("HEXAHEDRON_216") == 0) {
-    return Hexahedron_216();
-  }
-  else if(typeVal.compare("HEXAHEDRON_343") == 0) {
-    return Hexahedron_343();
-  }
-  else if(typeVal.compare("HEXAHEDRON_512") == 0) {
-    return Hexahedron_512();
-  }
-  else if(typeVal.compare("HEXAHEDRON_729") == 0) {
-    return Hexahedron_729();
-  }
-  else if(typeVal.compare("HEXAHEDRON_1000") == 0) {
-    return Hexahedron_1000();
-  }
-  else if(typeVal.compare("HEXAHEDRON_1331") == 0) {
-    return Hexahedron_1331();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_64") == 0) {
-    return Hexahedron_Spectral_64();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_125") == 0) {
-    return Hexahedron_Spectral_125();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_216") == 0) {
-    return Hexahedron_Spectral_216();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_343") == 0) {
-    return Hexahedron_Spectral_343();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_512") == 0) {
-    return Hexahedron_Spectral_512();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_729") == 0) {
-    return Hexahedron_Spectral_729();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_1000") == 0) {
-    return Hexahedron_Spectral_1000();
-  }
-  else if(typeVal.compare("HEXAHEDRON_SPECTRAL_1331") == 0) {
-    return Hexahedron_Spectral_1331();
-  }
-  else if(typeVal.compare("MIXED") == 0) {
-    return Mixed();
+  else {
+    return (*(returnType->second))();
   }
 
   XdmfError::message(XdmfError::FATAL,
@@ -745,7 +741,7 @@ XdmfTopologyType::getEdgesPerElement() const
 }
 
 shared_ptr<const XdmfTopologyType>
-XdmfTopologyType::getFaceType()
+XdmfTopologyType::getFaceType() const
 {
   if (mFaces.size() == 0) {
     return XdmfTopologyType::NoTopologyType();
@@ -789,4 +785,482 @@ XdmfTopologyType::getProperties(std::map<std::string, std::string> & collectedPr
     collectedProperties.insert(std::make_pair("NodesPerElement",
                                               nodesPerElement.str()));
   }
+}
+
+// C Wrappers
+
+int XdmfTopologyTypePolyvertex()
+{
+  return XDMF_TOPOLOGY_TYPE_POLYVERTEX;
+}
+
+int XdmfTopologyTypePolyline()
+{
+  return XDMF_TOPOLOGY_TYPE_POLYLINE;
+}
+
+int XdmfTopologyTypePolygon()
+{
+  return XDMF_TOPOLOGY_TYPE_POLYGON;
+}
+
+int XdmfTopologyTypeTriangle()
+{
+  return XDMF_TOPOLOGY_TYPE_TRIANGLE;
+}
+
+int XdmfTopologyTypeQuadrilateral()
+{
+  return XDMF_TOPOLOGY_TYPE_QUADRILATERAL;
+}
+
+int XdmfTopologyTypeTetrahedron()
+{
+  return XDMF_TOPOLOGY_TYPE_TETRAHEDRON;
+}
+
+int XdmfTopologyTypePyramid()
+{
+  return XDMF_TOPOLOGY_TYPE_PYRAMID;
+}
+
+int XdmfTopologyTypeWedge()
+{
+  return XDMF_TOPOLOGY_TYPE_WEDGE;
+}
+
+int XdmfTopologyTypeHexahedron()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON;
+}
+
+int XdmfTopologyTypePolyhedron()
+{
+  return XDMF_TOPOLOGY_TYPE_POLYHEDRON;
+}
+
+int XdmfTopologyTypeEdge_3()
+{
+  return XDMF_TOPOLOGY_TYPE_EDGE_3;
+}
+
+int XdmfTopologyTypeTriangle_6()
+{
+  return XDMF_TOPOLOGY_TYPE_TRIANGLE_6;
+}
+
+int XdmfTopologyTypeQuadrilateral_8()
+{
+  return XDMF_TOPOLOGY_TYPE_QUADRILATERAL_8;
+}
+
+int XdmfTopologyTypeQuadrilateral_9()
+{
+  return XDMF_TOPOLOGY_TYPE_QUADRILATERAL_9;
+}
+
+int XdmfTopologyTypeTetrahedron_10()
+{
+  return XDMF_TOPOLOGY_TYPE_TETRAHEDRON_10;
+}
+
+int XdmfTopologyTypePyramid_13()
+{
+  return XDMF_TOPOLOGY_TYPE_PYRAMID_13;
+}
+
+int XdmfTopologyTypeWedge_15()
+{
+  return XDMF_TOPOLOGY_TYPE_WEDGE_15;
+}
+
+int XdmfTopologyTypeWedge_18()
+{
+  return XDMF_TOPOLOGY_TYPE_WEDGE_18;
+}
+
+int XdmfTopologyTypeHexahedron_20()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_20;
+}
+
+int XdmfTopologyTypeHexahedron_24()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_24;
+}
+
+int XdmfTopologyTypeHexahedron_27()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_27;
+}
+
+int XdmfTopologyTypeHexahedron_64()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_64;
+}
+
+int XdmfTopologyTypeHexahedron_125()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_125;
+}
+
+int XdmfTopologyTypeHexahedron_216()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_216;
+}
+
+int XdmfTopologyTypeHexahedron_343()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_343;
+}
+
+int XdmfTopologyTypeHexahedron_512()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_512;
+}
+
+int XdmfTopologyTypeHexahedron_729()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_729;
+}
+
+int XdmfTopologyTypeHexahedron_1000()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1000;
+}
+
+int XdmfTopologyTypeHexahedron_1331()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1331;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_64()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_64;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_125()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_125;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_216()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_216;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_343()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_343;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_512()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_512;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_729()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_729;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_1000()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1000;
+}
+
+int XdmfTopologyTypeHexahedron_Spectral_1331()
+{
+  return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1331;
+}
+
+int XdmfTopologyTypeMixed()
+{
+  return XDMF_TOPOLOGY_TYPE_MIXED;
+}
+
+shared_ptr<const XdmfTopologyType> intToType(int type, int nodes = 0)
+{
+  switch (type) {
+    case XDMF_TOPOLOGY_TYPE_POLYVERTEX:
+      return XdmfTopologyType::Polyvertex();
+      break;
+    case XDMF_TOPOLOGY_TYPE_POLYLINE:
+      return XdmfTopologyType::Polyline(nodes);
+      break;
+    case XDMF_TOPOLOGY_TYPE_POLYGON:
+      return XdmfTopologyType::Polygon(nodes);
+      break;
+    case XDMF_TOPOLOGY_TYPE_TRIANGLE:
+      return XdmfTopologyType::Triangle();
+      break;
+    case XDMF_TOPOLOGY_TYPE_QUADRILATERAL:
+      return XdmfTopologyType::Quadrilateral();
+      break;
+    case XDMF_TOPOLOGY_TYPE_TETRAHEDRON:
+      return XdmfTopologyType::Tetrahedron();
+      break;
+    case XDMF_TOPOLOGY_TYPE_PYRAMID:
+      return XdmfTopologyType::Pyramid();
+      break;
+    case XDMF_TOPOLOGY_TYPE_WEDGE:
+      return XdmfTopologyType::Wedge();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON:
+      return XdmfTopologyType::Hexahedron();
+      break;
+    case XDMF_TOPOLOGY_TYPE_POLYHEDRON:
+      return XdmfTopologyType::Polyhedron();
+      break;
+    case XDMF_TOPOLOGY_TYPE_EDGE_3:
+      return XdmfTopologyType::Edge_3();
+      break;
+    case XDMF_TOPOLOGY_TYPE_TRIANGLE_6:
+      return XdmfTopologyType::Triangle_6();
+      break;
+    case XDMF_TOPOLOGY_TYPE_QUADRILATERAL_8:
+      return XdmfTopologyType::Quadrilateral_8();
+      break;
+    case XDMF_TOPOLOGY_TYPE_QUADRILATERAL_9:
+      return XdmfTopologyType::Quadrilateral_9();
+      break;
+    case XDMF_TOPOLOGY_TYPE_TETRAHEDRON_10:
+      return XdmfTopologyType::Tetrahedron_10();
+      break;
+    case XDMF_TOPOLOGY_TYPE_PYRAMID_13:
+      return XdmfTopologyType::Pyramid_13();
+      break;
+    case XDMF_TOPOLOGY_TYPE_WEDGE_15:
+      return XdmfTopologyType::Wedge_15();
+      break;
+    case XDMF_TOPOLOGY_TYPE_WEDGE_18:
+      return XdmfTopologyType::Wedge_18();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_20:
+      return XdmfTopologyType::Hexahedron_20();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_24:
+      return XdmfTopologyType::Hexahedron_24();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_27:
+      return XdmfTopologyType::Hexahedron_27();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_64:
+      return XdmfTopologyType::Hexahedron_64();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_125:
+      return XdmfTopologyType::Hexahedron_125();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_216:
+      return XdmfTopologyType::Hexahedron_216();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_343:
+      return XdmfTopologyType::Hexahedron_343();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_512:
+      return XdmfTopologyType::Hexahedron_512();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_729:
+      return XdmfTopologyType::Hexahedron_729();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1000:
+      return XdmfTopologyType::Hexahedron_1000();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1331:
+      return XdmfTopologyType::Hexahedron_1331();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_64:
+      return XdmfTopologyType::Hexahedron_Spectral_64();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_125:
+      return XdmfTopologyType::Hexahedron_Spectral_125();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_216:
+      return XdmfTopologyType::Hexahedron_Spectral_216();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_343:
+      return XdmfTopologyType::Hexahedron_Spectral_343();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_512:
+      return XdmfTopologyType::Hexahedron_Spectral_512();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_729:
+      return XdmfTopologyType::Hexahedron_Spectral_729();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1000:
+      return XdmfTopologyType::Hexahedron_Spectral_1000();
+      break;
+    case XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1331:
+      return XdmfTopologyType::Hexahedron_Spectral_1331();
+      break;
+    case XDMF_TOPOLOGY_TYPE_MIXED:
+      return XdmfTopologyType::Mixed();
+      break;
+    default:
+      return shared_ptr<const XdmfTopologyType>();
+      break;
+  }
+}
+
+int typeToInt(shared_ptr<const XdmfTopologyType> type)
+{
+  if (type->getID() == XdmfTopologyType::Polyvertex()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_POLYVERTEX;
+  }
+  else if (type->getID() == XdmfTopologyType::Polyline(0)->getID()) {
+    return XDMF_TOPOLOGY_TYPE_POLYLINE;
+  }
+  else if (type->getID() == XdmfTopologyType::Polygon(0)->getID()) {
+    return XDMF_TOPOLOGY_TYPE_POLYGON;
+  }
+  else if (type->getID() == XdmfTopologyType::Triangle()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_TRIANGLE;
+  }
+  else if (type->getID() == XdmfTopologyType::Quadrilateral()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_QUADRILATERAL;
+  }
+  else if (type->getID() == XdmfTopologyType::Tetrahedron()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_TETRAHEDRON;
+  }
+  else if (type->getID() == XdmfTopologyType::Pyramid()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_PYRAMID;
+  }
+  else if (type->getID() == XdmfTopologyType::Wedge()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_WEDGE;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON;
+  }
+  else if (type->getID() == XdmfTopologyType::Polyhedron()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_POLYHEDRON;
+  }
+  else if (type->getID() == XdmfTopologyType::Edge_3()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_EDGE_3;
+  }
+  else if (type->getID() == XdmfTopologyType::Triangle_6()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_TRIANGLE_6;
+  }
+  else if (type->getID() == XdmfTopologyType::Quadrilateral_8()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_QUADRILATERAL_8;
+  }
+  else if (type->getID() == XdmfTopologyType::Quadrilateral_9()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_QUADRILATERAL_9;
+  }
+  else if (type->getID() == XdmfTopologyType::Tetrahedron_10()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_TETRAHEDRON_10;
+  }
+  else if (type->getID() == XdmfTopologyType::Pyramid_13()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_PYRAMID_13;
+  }
+  else if (type->getID() == XdmfTopologyType::Wedge_15()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_WEDGE_15;
+  }
+  else if (type->getID() == XdmfTopologyType::Wedge_18()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_WEDGE_18;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_20()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_20;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_24()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_24;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_27()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_27;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_64()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_64;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_125()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_125;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_216()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_216;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_343()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_343;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_512()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_512;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_729()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_729;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_1000()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1000;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_1331()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_1331;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_64()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_64;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_125()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_125;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_216()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_216;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_343()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_343;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_512()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_512;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_729()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_729;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_1000()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1000;
+  }
+  else if (type->getID() == XdmfTopologyType::Hexahedron_Spectral_1331()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_HEXAHEDRON_SPECTRAL_1331;
+  }
+  else if (type->getID() == XdmfTopologyType::Mixed()->getID()) {
+    return XDMF_TOPOLOGY_TYPE_MIXED;
+  }
+  else {
+    return -1;
+  }
+}
+
+int XdmfTopologyTypeGetCellType(int type)
+{
+  return intToType(type)->getCellType();
+}
+
+unsigned int XdmfTopologyTypeGetEdgesPerElement(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  return  intToType(type)->getEdgesPerElement();
+  XDMF_ERROR_WRAP_END(status)
+  return 0;
+}
+
+unsigned int XdmfTopologyTypeGetFacesPerElement(int type, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  return  intToType(type)->getFacesPerElement();
+  XDMF_ERROR_WRAP_END(status)
+  return 0;
+}
+
+int XdmfTopologyTypeGetFaceType(int type)
+{
+  return typeToInt(intToType(type)->getFaceType());
+}
+
+unsigned int XdmfTopologyTypeGetID(int type)
+{
+  return intToType(type)->getID();
+}
+
+char * XdmfTopologyTypeGetName(int type)
+{
+  char * returnPointer = strdup(intToType(type)->getName().c_str());
+  return returnPointer;
+}
+
+unsigned int XdmfTopologyTypeGetNodesPerElement(int type)
+{
+  return  intToType(type)->getNodesPerElement();
 }

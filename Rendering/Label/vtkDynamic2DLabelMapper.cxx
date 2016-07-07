@@ -50,9 +50,7 @@
 using std::ofstream;
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
+#define snprintf _snprintf
 #endif
 
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
@@ -160,7 +158,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     {
     vtkDebugMacro(<<"Rebuilding labels");
 
-    vtkIntArray *typeArr = vtkIntArray::SafeDownCast(
+    vtkIntArray *typeArr = vtkArrayDownCast<vtkIntArray>(
       this->GetInputAbstractArrayToProcess(0, input));
 
     // figure out what to label, and if we can label it
@@ -217,9 +215,9 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                     this->FieldDataArray : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
         }
-      numericData = vtkDataArray::SafeDownCast(abstractData);
-      stringData = vtkStringArray::SafeDownCast(abstractData);
-      uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+      numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+      stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+      uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
       }; break;
       }
 
@@ -428,7 +426,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
             }
           else // the user specified a label format
             {
-            SNPRINTF(TempString, 1023, LiveFormatString,
+            snprintf(TempString, 1023, LiveFormatString,
                      stringData->GetValue(i).c_str());
               ResultString = TempString;
             } // done printing strings with label format

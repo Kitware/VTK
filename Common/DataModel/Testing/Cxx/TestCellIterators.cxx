@@ -331,7 +331,7 @@ double benchmarkPointsIteration(vtkUnstructuredGrid *grid)
   vtkIdType cellSize;
 
   vtkPoints *points = grid->GetPoints();
-  vtkFloatArray *pointDataArray = vtkFloatArray::SafeDownCast(points->GetData());
+  vtkFloatArray *pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
   if (!pointDataArray)
     {
     return -1.0;
@@ -411,7 +411,7 @@ double benchmarkPointsIteration(vtkCellIterator *iter)
     return -1.0;
     }
   vtkFloatArray *pointArray =
-      vtkFloatArray::SafeDownCast(iter->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(iter->GetPoints()->GetData());
   float *pointsData;
   float *pointsDataEnd;
 
@@ -489,7 +489,7 @@ double benchmarkPiecewiseIteration(vtkUnstructuredGrid *grid)
 
   // Setup for points:
   vtkPoints *points = grid->GetPoints();
-  vtkFloatArray *pointDataArray = vtkFloatArray::SafeDownCast(points->GetData());
+  vtkFloatArray *pointDataArray = vtkArrayDownCast<vtkFloatArray>(points->GetData());
   if (!pointDataArray)
     {
     return -1.0;

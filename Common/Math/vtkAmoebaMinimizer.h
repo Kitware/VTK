@@ -154,11 +154,9 @@ protected:
   vtkAmoebaMinimizer();
   ~vtkAmoebaMinimizer();
 
-//BTX
   void (*Function)(void *);
   void (*FunctionArgDelete)(void *);
   void *FunctionArg;
-//ETX
 
   int NumberOfParameters;
   char **ParameterNames;
@@ -177,7 +175,7 @@ protected:
 
 private:
 // specific to amoeba simplex minimization
-//BTX
+
   double **AmoebaVertices;
   double *AmoebaValues;
   double *AmoebaSum;
@@ -191,7 +189,6 @@ private:
   double TryAmoeba(double sum[], int high, double fac);
   int PerformAmoeba();
   int CheckParameterTolerance();
-//ETX
 
   vtkAmoebaMinimizer(const vtkAmoebaMinimizer&);  // Not implemented.
   void operator=(const vtkAmoebaMinimizer&);  // Not implemented.

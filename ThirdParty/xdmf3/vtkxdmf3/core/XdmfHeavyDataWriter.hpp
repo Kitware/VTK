@@ -24,15 +24,18 @@
 #ifndef XDMFHEAVYDATAWRITER_HPP_
 #define XDMFHEAVYDATAWRITER_HPP_
 
+#include "XdmfCore.hpp"
+#include "XdmfArrayType.hpp"
+#include "XdmfHeavyDataController.hpp"
+#include "XdmfVisitor.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArray;
 
 // Includes
 #include <string>
-#include "XdmfCore.hpp"
-#include "XdmfArrayType.hpp"
-#include "XdmfHeavyDataController.hpp"
-#include "XdmfVisitor.hpp"
 #include <list>
 
 /**
@@ -476,9 +479,15 @@ protected:
   XdmfHeavyDataWriter(const std::string & filePath, const double compression = 1, const unsigned int overhead = 0);
 
   virtual shared_ptr<XdmfHeavyDataController>
-  createController(const shared_ptr<XdmfHeavyDataController> & refController) = 0;
+  createController(const std::string & filePath,
+                   const std::string & descriptor,
+                   const shared_ptr<const XdmfArrayType> type,
+                   const std::vector<unsigned int> & start,
+                   const std::vector<unsigned int> & stride,
+                   const std::vector<unsigned int> & dimensions,
+                   const std::vector<unsigned int> & dataspaceDimensions) = 0;
 
-  virtual int getDataSetSize(const std::string & fileName, const std::string & dataSetName, const int fapl) = 0;
+  virtual int getDataSetSize(shared_ptr<XdmfHeavyDataController> descriptionController) = 0;
 
   bool mAllowSplitDataSets;
   int mDataSetId;
@@ -492,9 +501,140 @@ protected:
 
 private:
 
-  XdmfHeavyDataWriter(const XdmfHeavyDataWriter &);  // Not implemented.
+  XdmfHeavyDataWriter(const XdmfHeavyDataWriter &); // Not implemented.
   void operator=(const XdmfHeavyDataWriter &);  // Not implemented.
 
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct XDMFHEAVYDATAWRITER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFHEAVYDATAWRITER XDMFHEAVYDATAWRITER;
+
+#define XDMF_HEAVY_WRITER_MODE_DEFAULT   20
+#define XDMF_HEAVY_WRITER_MODE_OVERWRITE 21
+#define XDMF_HEAVY_WRITER_MODE_APPEND    22
+#define XDMF_HEAVY_WRITER_MODE_HYPERSLAB 23
+
+// C wrappers go here
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterFree(XDMFHEAVYDATAWRITER * item);
+
+XDMFCORE_EXPORT int XdmfHeavyDataWriterGetAllowSetSplitting(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT int XdmfHeavyDataWriterGetFileIndex(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT unsigned int XdmfHeavyDataWriterGetFileOverhead(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT char * XdmfHeavyDataWriterGetFilePath(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT int XdmfHeavyDataWriterGetFileSizeLimit(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT int XdmfHeavyDataWriterGetMode(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT int XdmfHeavyDataWriterGetReleaseData(XDMFHEAVYDATAWRITER * writer);
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterSetAllowSetSplitting(XDMFHEAVYDATAWRITER * writer, int newAllow);
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterSetFileIndex(XDMFHEAVYDATAWRITER * writer, int newIndex);
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterSetFileSizeLimit(XDMFHEAVYDATAWRITER * writer, int newSize);
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterSetMode(XDMFHEAVYDATAWRITER * writer, int mode, int * status);
+
+XDMFCORE_EXPORT void XdmfHeavyDataWriterSetReleaseData(XDMFHEAVYDATAWRITER * writer, int releaseData);
+
+#define XDMF_HEAVYWRITER_C_CHILD_DECLARE(ClassName, CClassName, Level)                        \
+                                                                                              \
+Level##_EXPORT void ClassName##Free( CClassName * item);                                      \
+Level##_EXPORT int ClassName##GetAllowSetSplitting( CClassName * writer);                     \
+Level##_EXPORT int ClassName##GetFileIndex( CClassName * writer);                             \
+Level##_EXPORT unsigned int ClassName##GetFileOverhead( CClassName * writer);                 \
+Level##_EXPORT char * ClassName##GetFilePath( CClassName * writer);                           \
+Level##_EXPORT int ClassName##GetFileSizeLimit( CClassName * writer);                         \
+Level##_EXPORT int ClassName##GetMode( CClassName * writer);                                  \
+Level##_EXPORT int ClassName##GetReleaseData( CClassName * writer);                           \
+Level##_EXPORT void ClassName##SetAllowSetSplitting( CClassName * writer, int newAllow);      \
+Level##_EXPORT void ClassName##SetFileIndex( CClassName * writer, int newIndex);              \
+Level##_EXPORT void ClassName##SetFileSizeLimit( CClassName * writer, int newSize);           \
+Level##_EXPORT void ClassName##SetMode( CClassName * writer, int mode, int * status);         \
+Level##_EXPORT void ClassName##SetReleaseData( CClassName * writer, int releaseData);
+
+
+
+#define XDMF_HEAVYWRITER_C_CHILD_WRAPPER(ClassName, CClassName)                               \
+                                                                                              \
+void  ClassName##Free( CClassName * item)                                                     \
+{                                                                                             \
+  XdmfHeavyDataWriterFree((XDMFHEAVYDATAWRITER *)((void *)item));                             \
+}                                                                                             \
+                                                                                              \
+int ClassName##GetAllowSetSplitting( CClassName * writer)                                     \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetAllowSetSplitting((XDMFHEAVYDATAWRITER *)((void *)writer));    \
+}                                                                                             \
+                                                                                              \
+int ClassName##GetFileIndex( CClassName * writer)                                             \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetFileIndex((XDMFHEAVYDATAWRITER *)((void *)writer));            \
+}                                                                                             \
+                                                                                              \
+unsigned int ClassName##GetFileOverhead( CClassName * writer)                                 \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetFileOverhead((XDMFHEAVYDATAWRITER *)((void *)writer));         \
+}                                                                                             \
+                                                                                              \
+char * ClassName##GetFilePath( CClassName * writer)                                           \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetFilePath((XDMFHEAVYDATAWRITER *)((void *)writer));             \
+}                                                                                             \
+                                                                                              \
+int ClassName##GetFileSizeLimit( CClassName * writer)                                         \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetFileSizeLimit((XDMFHEAVYDATAWRITER *)((void *)writer));        \
+}                                                                                             \
+                                                                                              \
+int ClassName##GetMode( CClassName * writer)                                                  \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetMode((XDMFHEAVYDATAWRITER *)((void *)writer));                 \
+}                                                                                             \
+                                                                                              \
+int ClassName##GetReleaseData( CClassName * writer)                                           \
+{                                                                                             \
+  return XdmfHeavyDataWriterGetReleaseData((XDMFHEAVYDATAWRITER *)((void *)writer));          \
+}                                                                                             \
+                                                                                              \
+void ClassName##SetAllowSetSplitting( CClassName * writer, int newAllow)                      \
+{                                                                                             \
+  XdmfHeavyDataWriterSetAllowSetSplitting((XDMFHEAVYDATAWRITER *)((void *)writer), newAllow); \
+}                                                                                             \
+                                                                                              \
+void ClassName##SetFileIndex( CClassName * writer, int newIndex)                              \
+{                                                                                             \
+  XdmfHeavyDataWriterSetFileIndex((XDMFHEAVYDATAWRITER *)((void *)writer), newIndex);         \
+}                                                                                             \
+                                                                                              \
+void ClassName##SetFileSizeLimit( CClassName * writer, int newSize)                           \
+{                                                                                             \
+  XdmfHeavyDataWriterSetFileSizeLimit((XDMFHEAVYDATAWRITER *)((void *)writer), newSize);      \
+}                                                                                             \
+                                                                                              \
+void ClassName##SetMode( CClassName * writer, int mode, int * status)                         \
+{                                                                                             \
+  XdmfHeavyDataWriterSetMode((XDMFHEAVYDATAWRITER *)((void *)writer), mode, status);          \
+}                                                                                             \
+                                                                                              \
+void ClassName##SetReleaseData( CClassName * writer, int releaseData)                         \
+{                                                                                             \
+  XdmfHeavyDataWriterSetReleaseData((XDMFHEAVYDATAWRITER *)((void *)writer), releaseData);    \
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFHEAVYDATAWRITER_HPP_ */

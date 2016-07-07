@@ -95,7 +95,7 @@ public:
   ~vtkParallelTimerBuffer();
 
   vtkParallelTimerBuffer(const vtkParallelTimerBuffer &other);
-  void operator=(const vtkParallelTimerBuffer &other);
+  vtkParallelTimerBuffer& operator=(const vtkParallelTimerBuffer &other);
 
   // Description:
   // Access state and internal data.
@@ -179,15 +179,16 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer(const vtkParallelTimerBuffer &oth
 }
 
 //-----------------------------------------------------------------------------
-void vtkParallelTimerBuffer::operator=(const vtkParallelTimerBuffer &other)
+vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator=(const vtkParallelTimerBuffer &other)
 {
   if (this == &other)
     {
-    return;
+    return *this;
     }
   this->Clear();
   this->Resize(other.GetSize());
   memcpy(this->Data, other.Data, other.GetSize());
+  return *this;
 }
 
 //-----------------------------------------------------------------------------

@@ -109,7 +109,6 @@ public:
 
   int FillInputPortInformation(int port, vtkInformation* info);
 
-//BTX
   enum Units
   {
     TIME_UNIT,
@@ -135,7 +134,6 @@ public:
     OUT_OF_STEPS = 5,
     STAGNATION = 6
   };
-//ETX
 
   // Description:
   // Set/get the integrator type to be used in the stream line
@@ -261,14 +259,12 @@ public:
     this->SetMaximumIntegrationStepUnit(unit);
     }
 
-//BTX
   enum
   {
     FORWARD,
     BACKWARD,
     BOTH
   };
-//ETX
 
   // Description:
   // Specify whether the streamtrace will be generated in the
@@ -363,7 +359,6 @@ protected:
 
   double LastUsedTimeStep;
 
-//BTX
   struct IntervalInformation
   {
     double Interval;
@@ -388,7 +383,6 @@ protected:
                              double cellLength, double speed);
   void ConvertIntervals(double& step, double& minStep, double& maxStep,
                         int direction, double cellLength, double speed);
-//ETX
 
   void InitializeSeeds(vtkDataArray*& seeds,
                        vtkIdList*& seedIds,

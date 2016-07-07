@@ -106,14 +106,12 @@ public:
   // (min,max) values, then t is clamped.
   void InterpolateTransform(double t, vtkTransform *xform);
 
-//BTX
   // Description:
   // Enums to control the type of interpolation to use.
   enum {INTERPOLATION_TYPE_LINEAR=0,
         INTERPOLATION_TYPE_SPLINE,
         INTERPOLATION_TYPE_MANUAL
   };
-//ETX
 
   // Description:
   // These are convenience methods to switch between linear and spline

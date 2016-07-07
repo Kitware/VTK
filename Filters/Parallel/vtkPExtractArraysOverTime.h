@@ -50,12 +50,10 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-//BTX
   enum Tags
   {
     EXCHANGE_DATA = 1972
   };
-//ETX
 
 protected:
   vtkPExtractArraysOverTime();

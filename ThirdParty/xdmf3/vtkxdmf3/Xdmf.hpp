@@ -76,6 +76,9 @@
 * a topology could be shared across multiple grids or a grid
 * could be included in multiple grid collections and/or the domain.
 *
+* Comparing objects is done by comparing pointer addresses,
+* a deep copy will not produce an equivalent object.
+*
 *
 * C++ Examples:
 *
@@ -149,13 +152,13 @@
 # undef XDMFDSM_TEMPLATE
 # define XDMFDSM_TEMPLATE extern
 
-# ifdef vtkxdmf3_EXPORTS
+# ifdef XDMF_EXPORTS
 # define XDMF_EXPORT __declspec(dllexport)
 # define XDMF_TEMPLATE
-# else /* vtkxdmf3_EXPORTS */
+# else /* XDMF_EXPORTS */
 # define XDMF_EXPORT __declspec(dllimport)
 # define XDMF_TEMPLATE extern
-# endif /* vtkxdmf3_EXPORTS */
+# endif /* XDMF_EXPORTS */
 #endif
 
 /* Compiler Warnings */

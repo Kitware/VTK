@@ -107,7 +107,7 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
     levelFilter->Update();
     vtkTree* levelTree = levelFilter->GetOutput();
 
-    vtkIntArray *levelArray = vtkIntArray::SafeDownCast(
+    vtkIntArray *levelArray = vtkArrayDownCast<vtkIntArray>(
         levelTree->GetVertexData()->GetAbstractArray("level"));
     int max_level = 0;
     for( int i = 0; i < levelTree->GetNumberOfVertices(); i++ )
@@ -231,7 +231,7 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
   vtkTree* levelTree = levelFilter->GetOutput();
   outputTree->ShallowCopy( levelTree );
 
-  vtkIntArray* levelArray = vtkIntArray::SafeDownCast(
+  vtkIntArray* levelArray = vtkArrayDownCast<vtkIntArray>(
       levelTree->GetVertexData()->GetAbstractArray("level"));
 
   double exteriorRadius = VTK_DOUBLE_MAX;
@@ -482,7 +482,7 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
       {
       return vertex;
       }
-    vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
+    vtkFloatArray *boundsInfo = vtkArrayDownCast<vtkFloatArray>(array);
 
     // Now try to find the vertex that contains the point
     boundsInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
@@ -534,7 +534,7 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
       {
       return vertex;
       }
-    vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
+    vtkFloatArray *boundsInfo = vtkArrayDownCast<vtkFloatArray>(array);
 
     // Now try to find the vertex that contains the point
     boundsInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root

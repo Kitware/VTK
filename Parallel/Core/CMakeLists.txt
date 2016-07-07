@@ -4,8 +4,10 @@ set(Module_SRCS
   vtkDummyController.cxx
   vtkMultiProcessController.cxx
   vtkMultiProcessStream.cxx
+  vtkPDirectory.cxx
   vtkProcess.cxx
   vtkProcessGroup.cxx
+  vtkPSystemTools.cxx
   vtkSocketCommunicator.cxx
   vtkSocketController.cxx
   vtkSubCommunicator.cxx

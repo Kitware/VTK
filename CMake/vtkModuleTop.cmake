@@ -478,8 +478,8 @@ write_basic_package_version_file(
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
                 ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
-                CMake/exportheader.cmake.in
-                CMake/GenerateExportHeader.cmake
+                CMake/vtkexportheader.cmake.in
+                CMake/VTKGenerateExportHeader.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
                 CMake/FindTCL.cmake
@@ -503,6 +503,7 @@ if (NOT VTK_INSTALL_NO_DEVELOPMENT)
                 CMake/vtkObjectFactory.h.in
                 CMake/vtkPythonPackages.cmake
                 CMake/vtkPythonWrapping.cmake
+                CMake/vtkTargetLinkLibrariesWithDynamicLookup.cmake
                 CMake/vtkTclWrapping.cmake
                 CMake/vtkThirdParty.cmake
                 CMake/vtkWrapHierarchy.cmake

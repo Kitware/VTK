@@ -730,7 +730,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
     float strokeWidth, const std::string &label)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
@@ -876,7 +876,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
     float strokeWidth, const std::string &/*label*/)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
@@ -1033,7 +1033,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
     float strokeWidth, const std::string &label)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())

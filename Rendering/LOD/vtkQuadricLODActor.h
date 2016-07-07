@@ -84,7 +84,6 @@ public:
   vtkGetMacro(Static, int);
   vtkBooleanMacro(Static, int);
 
-//BTX
   enum DataConfigurationEnum
   {
     UNKNOWN = 0,
@@ -92,7 +91,7 @@ public:
     XYPLANE, XZPLANE, YZPLANE,
     XYZVOLUME
   };
-//ETX
+
   // Description:
   // Force the binning of the quadric clustering according to application
   // knowledge relative to the dimension of the data. For example, if you
@@ -150,13 +149,12 @@ public:
   vtkSetClampMacro(MaximumDisplayListSize, int, 1000, VTK_INT_MAX);
   vtkGetMacro(MaximumDisplayListSize, int);
 
-//BTX
   enum PropTypeEnum
   {
     FOLLOWER = 0,
     ACTOR
   };
-//ETX
+
   // Description:
   // Indicate that this actor is actually a follower.
   // By default, the prop type is a vtkActor.

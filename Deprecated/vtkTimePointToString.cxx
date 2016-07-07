@@ -126,7 +126,7 @@ int vtkTimePointToString::RequestData(
   output->ShallowCopy(input);
 
   // Get the input array
-  vtkTypeUInt64Array* inputArray = vtkTypeUInt64Array::SafeDownCast(
+  vtkTypeUInt64Array* inputArray = vtkArrayDownCast<vtkTypeUInt64Array>(
     this->GetInputAbstractArrayToProcess(0, inputVector));
 
   if (inputArray == NULL)

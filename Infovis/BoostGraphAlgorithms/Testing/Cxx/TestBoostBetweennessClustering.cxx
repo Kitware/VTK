@@ -113,7 +113,7 @@ int TestBoostBetweennessClustering(int vtkNotUsed(argc),
     return 1;
     }
 
-  vtkIntArray* compArray = vtkIntArray::SafeDownCast(og->GetVertexData()->
+  vtkIntArray* compArray = vtkArrayDownCast<vtkIntArray>(og->GetVertexData()->
                                                      GetArray("component"));
   if(!compArray)
     {

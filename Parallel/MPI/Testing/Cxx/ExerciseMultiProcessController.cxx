@@ -220,8 +220,8 @@ static int CompareFieldData(vtkFieldData *fd1, vtkFieldData *fd2)
     // the same order.
     if (!array1->GetName()) continue;
     vtkAbstractArray *array2 = fd2->GetAbstractArray(array1->GetName());
-    if (!CompareDataArrays(vtkDataArray::SafeDownCast(array1),
-                           vtkDataArray::SafeDownCast(array2))) return 0;
+    if (!CompareDataArrays(vtkArrayDownCast<vtkDataArray>(array1),
+                           vtkArrayDownCast<vtkDataArray>(array2))) return 0;
     }
 
   return 1;

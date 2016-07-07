@@ -58,10 +58,10 @@ int TestTableSplitColumnComponents(int, char*[])
     return EXIT_FAILURE;
     }
   vtkIntArray* arrays[4];
-  arrays[0] = vtkIntArray::SafeDownCast(out->GetColumn(0));
-  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
-  arrays[2] = vtkIntArray::SafeDownCast(out->GetColumn(2));
-  arrays[3] = vtkIntArray::SafeDownCast(out->GetColumn(3));
+  arrays[0] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(0));
+  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
+  arrays[2] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(2));
+  arrays[3] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(3));
   if (arrays[0] == 0 || arrays[1] == 0 || arrays[2] == 0 || arrays[3] == 0)
     {
     vtkGenericWarningMacro(<< "One of the output arrays was zero - type change?");
@@ -90,7 +90,7 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNumberWithUnderscores();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
   if (strcmp(arrays[1]->GetName(), "Multi_0") != 0)
     {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
@@ -100,7 +100,7 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNamesWithParens();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
   if (strcmp(arrays[1]->GetName(), "Multi (X)") != 0)
     {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");
@@ -110,7 +110,7 @@ int TestTableSplitColumnComponents(int, char*[])
   split->SetNamingModeToNamesWithUnderscores();
   split->Update();
   out = split->GetOutput(0);
-  arrays[1] = vtkIntArray::SafeDownCast(out->GetColumn(1));
+  arrays[1] = vtkArrayDownCast<vtkIntArray>(out->GetColumn(1));
   if (strcmp(arrays[1]->GetName(), "Multi_X") != 0)
     {
     vtkGenericWarningMacro("Incorrect name. NamingMode not being respected correctly.");

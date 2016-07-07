@@ -143,13 +143,11 @@ public:
   vtkBooleanMacro(PerformHandshake, int);
   vtkGetMacro(PerformHandshake, int);
 
-  //BTX
   // Description:
   // Get/Set the output stream to which communications should be
   // logged.  This is intended as a debugging feature.
   virtual void SetLogStream(ostream* stream);
   virtual ostream* GetLogStream();
-  //ETX
 
   // Description:
   // Log messages to the given file.  The file is truncated unless the
@@ -210,7 +208,6 @@ public:
   // Returns true if there are any messages in the receive buffer.
   bool HasBufferredMessages();
 
-//BTX
 protected:
 
   vtkClientSocket* Socket;
@@ -270,7 +267,6 @@ private:
   class vtkMessageBuffer;
   vtkMessageBuffer* ReceivedMessageBuffer;
 
-//ETX
 };
 
 #endif

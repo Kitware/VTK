@@ -17,7 +17,6 @@
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCommand.h"
-#include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
 #include "vtkImageData.h"
@@ -28,7 +27,6 @@
 #include "vtkMath.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
-#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLActor.h"
 #include "vtkOpenGLBufferObject.h"
@@ -36,6 +34,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLIndexBufferObject.h"
+#include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
 #include "vtkOpenGLShaderCache.h"
@@ -73,7 +72,6 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->InternalColorTexture = 0;
   this->PopulateSelectionSettings = 1;
   this->LastSelectionState = vtkHardwareSelector::MIN_KNOWN_PASS - 1;
-  this->LastDepthPeeling = 0;
   this->CurrentInput = 0;
   this->TempMatrix4 = vtkMatrix4x4::New();
   this->TempMatrix3 = vtkMatrix3x3::New();
@@ -201,6 +199,13 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
     }
+  if (this->TimerQuery)
+    {
+#if GL_ES_VERSION_2_0 != 1 && GL_ES_VERSION_3_0 != 1
+    glDeleteQueries(1, &this->TimerQuery);
+#endif
+    this->TimerQuery = 0;
+    }
   this->VBOBuildString = "";
   this->IBOBuildString = "";
   this->Modified();
@@ -311,6 +316,70 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(
 }
 
 //-----------------------------------------------------------------------------
+unsigned long vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
+{
+  vtkInformation *info = actor->GetPropertyKeys();
+  unsigned long int renderPassMTime = 0;
+
+  int curRenderPasses = 0;
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    curRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  int lastRenderPasses = 0;
+  if (this->LastRenderPassInfo->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    lastRenderPasses =
+        this->LastRenderPassInfo->Length(vtkOpenGLRenderPass::RenderPasses());
+    }
+
+  // Determine the last time a render pass changed stages:
+  if (curRenderPasses != lastRenderPasses)
+    {
+    // Number of passes changed, definitely need to update.
+    // Fake the time to force an update:
+    renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+    }
+  else
+    {
+    // Compare the current to the previous render passes:
+    for (int i = 0; i < curRenderPasses; ++i)
+      {
+      vtkObjectBase *curRP = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkObjectBase *lastRP =
+          this->LastRenderPassInfo->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+
+      if (curRP != lastRP)
+        {
+        // Render passes have changed. Force update:
+        renderPassMTime = VTK_UNSIGNED_LONG_MAX;
+        break;
+        }
+      else
+        {
+        // Render passes have not changed -- check MTime.
+        vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(curRP);
+        renderPassMTime = std::max(renderPassMTime, rp->GetShaderStageMTime());
+        }
+      }
+    }
+
+  // Cache the current set of render passes for next time:
+  if (info)
+    {
+    this->LastRenderPassInfo->CopyEntry(info,
+                                        vtkOpenGLRenderPass::RenderPasses());
+    }
+  else
+    {
+    this->LastRenderPassInfo->Clear();
+    }
+
+  return renderPassMTime;
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *actor)
@@ -350,6 +419,37 @@ void vtkOpenGLPolyDataMapper::GetShaderTemplate(
     }
 }
 
+//------------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper::ReplaceShaderRenderPass(
+    std::map<vtkShader::Type, vtkShader *> shaders, vtkRenderer *,
+    vtkActor *act)
+{
+  std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
+  std::string GSSource = shaders[vtkShader::Geometry]->GetSource();
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+
+  vtkInformation *info = act->GetPropertyKeys();
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
+    {
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+      {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (!rp->ReplaceShaderValues(VSSource, GSSource, FSSource, this, act))
+        {
+        vtkErrorMacro("vtkOpenGLRenderPass::ReplaceShaderValues failed for "
+                      << rp->GetClassName());
+        }
+      }
+    }
+
+  shaders[vtkShader::Vertex]->SetSource(VSSource);
+  shaders[vtkShader::Geometry]->SetSource(GSSource);
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *actor)
@@ -953,42 +1053,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPicking(
   shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
-void vtkOpenGLPolyDataMapper::ReplaceShaderDepthPeeling(
-  std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *actor)
-{
-  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
-
-  // are we using depth peeling?
-  vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()))
-    {
-    vtkShaderProgram::Substitute(FSSource, "//VTK::DepthPeeling::Dec",
-      "uniform vec2 screenSize;\n"
-      "uniform sampler2D opaqueZTexture;\n"
-      "uniform sampler2D translucentZTexture;\n");
-    // the .0000001 below is an epsilon.  It turns out that
-    // graphics cards can render the same polygon two times
-    // in a row with different z values. I suspect it has to
-    // do with how rasterization of the polygon is broken up.
-    // A different breakup across fragment shaders can result in
-    // very slightly different z values for some of the pixels.
-    // The end result is that with depth peeling, you can end up
-    // counting/accumulating pixels of the same surface twice
-    // simply due to this randomness in z values. So we introduce
-    // an epsilon into the transparent test to require some
-    // minimal z seperation between pixels
-    vtkShaderProgram::Substitute(FSSource, "//VTK::DepthPeeling::Impl",
-      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z >= odepth) { discard; }\n"
-      "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragCoord.z <= tdepth + .0000001) { discard; }\n"
-      //  "gl_FragData[0] = vec4(odepth*odepth,tdepth*tdepth,gl_FragCoord.z*gl_FragCoord.z,1.0);"
-      );
-    }
-  shaders[vtkShader::Fragment]->SetSource(FSSource);
-}
-
 void vtkOpenGLPolyDataMapper::ReplaceShaderClip(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *, vtkActor *)
@@ -1097,10 +1161,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           // view are probably not orthogonal. Which is why when we cross result that with
           // the line gradient again we get a reasonable normal. It will be othogonal to
           // the line (which is a plane but maximally aligned with the camera view.
+          vtkShaderProgram::Substitute(
+                FSSource,"//VTK::UniformFlow::Impl",
+                "  vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+                "  //VTK::UniformFlow::Impl\n" // For further replacements
+                );
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
             "vec3 normalVCVSOutput;\n"
-            "  vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+            "  fdx = normalize(fdx);\n"
+            "  fdy = normalize(fdy);\n"
             "  if (abs(fdx.x) > 0.0)\n"
             "    { normalVCVSOutput = normalize(cross(vec3(fdx.y, -fdx.x, 0.0), fdx)); }\n"
             "  else { normalVCVSOutput = normalize(cross(vec3(fdy.y, -fdy.x, 0.0), fdy));}"
@@ -1112,9 +1182,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
             "//VTK::Normal::Dec",
             "uniform int cameraParallel;");
 
+          vtkShaderProgram::Substitute(
+                FSSource,"//VTK::UniformFlow::Impl",
+                "vec3 fdx = vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z));\n"
+                "  vec3 fdy = vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z));\n"
+                "  //VTK::UniformFlow::Impl\n" // For further replacements
+                );
           vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
-            "vec3 fdx = normalize(vec3(dFdx(vertexVC.x),dFdx(vertexVC.y),dFdx(vertexVC.z)));\n"
-            "  vec3 fdy = normalize(vec3(dFdy(vertexVC.x),dFdy(vertexVC.y),dFdy(vertexVC.z)));\n"
+            "  fdx = normalize(fdx);\n"
+            "  fdy = normalize(fdy);\n"
             "  vec3 normalVCVSOutput = normalize(cross(fdx,fdy));\n"
             // the code below is faster, but does not work on some devices
             //"vec3 normalVC = normalize(cross(dFdx(vertexVC.xyz), dFdy(vertexVC.xyz)));\n"
@@ -1248,9 +1324,10 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
     if (factor != 0.0)
       {
       vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Coincident::Impl",
+        "//VTK::UniformFlow::Impl",
         "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
         "  gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n"
+        "  //VTK::UniformFlow::Impl\n" // for other replacements
         );
       }
     else
@@ -1268,12 +1345,12 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   std::map<vtkShader::Type, vtkShader *> shaders,
   vtkRenderer *ren, vtkActor *actor)
 {
+  this->ReplaceShaderRenderPass(shaders, ren, actor);
   this->ReplaceShaderColor(shaders, ren, actor);
   this->ReplaceShaderNormal(shaders, ren, actor);
   this->ReplaceShaderLight(shaders, ren, actor);
   this->ReplaceShaderTCoord(shaders, ren, actor);
   this->ReplaceShaderPicking(shaders, ren, actor);
-  this->ReplaceShaderDepthPeeling(shaders, ren, actor);
   this->ReplaceShaderClip(shaders, ren, actor);
   this->ReplaceShaderPrimID(shaders, ren, actor);
   this->ReplaceShaderPositionVC(shaders, ren, actor);
@@ -1353,15 +1430,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     this->LastLightComplexity[&cellBO] = lightComplexity;
     }
 
-  // check for prop keys
-  vtkInformation *info = actor->GetPropertyKeys();
-  int dp = (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit())) ? 1 : 0;
-
-  if (this->LastDepthPeeling != dp)
-    {
-    this->DepthPeelingChanged.Modified();
-    this->LastDepthPeeling = dp;
-    }
+  // Have the renderpasses changed?
+  unsigned long int renderPassMTime = this->GetRenderPassStageMTime(actor);
 
   // has something changed that would require us to recreate the shader?
   // candidates are
@@ -1373,7 +1443,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < actor->GetMTime() ||
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
-      cellBO.ShaderSourceTime < this->DepthPeelingChanged ||
+      cellBO.ShaderSourceTime < renderPassMTime ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO])
     {
     return true;
@@ -1453,13 +1523,18 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
     {
     cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "vertexMC", this->VBO->VertexOffset,
-                                    this->VBO->Stride, VTK_FLOAT, 3, false))
+    if (cellBO.Program->IsAttributeUsed("vertexMC"))
       {
-      vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "vertexMC", this->VBO->VertexOffset,
+                                         this->VBO->Stride, VTK_FLOAT, 3,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'vertexMC' in shader VAO.");
+        }
       }
-    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0)
+    if (this->VBO->NormalOffset && this->LastLightComplexity[&cellBO] > 0 &&
+        cellBO.Program->IsAttributeUsed("normalMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "normalMC", this->VBO->NormalOffset,
@@ -1468,7 +1543,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'normalMC' in shader VAO.");
         }
       }
-    if (this->VBO->TCoordComponents && !this->DrawingEdges)
+    if (this->VBO->TCoordComponents && !this->DrawingEdges &&
+        cellBO.Program->IsAttributeUsed("tcoordMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", this->VBO->TCoordOffset,
@@ -1477,7 +1553,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
         }
       }
-    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges)
+    if (this->VBO->ColorComponents != 0 && !this->DrawingEdges &&
+        cellBO.Program->IsAttributeUsed("scalarColor"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "scalarColor", this->VBO->ColorOffset,
@@ -1487,7 +1564,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'scalarColor' in shader VAO.");
         }
       }
-    if (this->AppleBugPrimIDs.size())
+    if (this->AppleBugPrimIDs.size() &&
+        cellBO.Program->IsAttributeUsed("appleBugPrimID"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program,
           this->AppleBugPrimIDBuffer,
@@ -1511,7 +1589,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       {
       texture = actor->GetProperty()->GetTexture(0);
       }
-    if (texture)
+    if (texture && cellBO.Program->IsUniformUsed("texture1"))
       {
       int tunit = vtkOpenGLTexture::SafeDownCast(texture)->GetTextureUnit();
       cellBO.Program->SetUniformi("texture1", tunit);
@@ -1519,7 +1597,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     // check for tcoord transform matrix
     vtkInformation *info = actor->GetPropertyKeys();
     vtkOpenGLCheckErrorMacro("failed after Render");
-    if (info && info->Has(vtkProp::GeneralTextureTransform()))
+    if (info && info->Has(vtkProp::GeneralTextureTransform()) &&
+        cellBO.Program->IsUniformUsed("tcMatrix"))
       {
       double *dmatrix = info->Get(vtkProp::GeneralTextureTransform());
       float fmatrix[16];
@@ -1535,38 +1614,39 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       }
     }
 
-  if (this->HaveCellScalars || this->HavePickScalars)
+  if ((this->HaveCellScalars || this->HavePickScalars) &&
+      cellBO.Program->IsUniformUsed("textureC"))
     {
     int tunit = this->CellScalarTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureC", tunit);
     }
 
-  if (this->HaveCellNormals)
+  if (this->HaveCellNormals && cellBO.Program->IsUniformUsed("textureN"))
     {
     int tunit = this->CellNormalTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureN", tunit);
     }
 
-  // if depth peeling set the required uniforms
+  // Handle render pass setup:
   vtkInformation *info = actor->GetPropertyKeys();
-  if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()) &&
-      info->Has(vtkDepthPeelingPass::TranslucentZTextureUnit()))
+  if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
     {
-    int otunit = info->Get(vtkDepthPeelingPass::OpaqueZTextureUnit());
-    int ttunit = info->Get(vtkDepthPeelingPass::TranslucentZTextureUnit());
-    cellBO.Program->SetUniformi("opaqueZTexture", otunit);
-    cellBO.Program->SetUniformi("translucentZTexture", ttunit);
-
-    int *renSize = info->Get(vtkDepthPeelingPass::DestinationSize());
-    float screenSize[2];
-    screenSize[0] = renSize[0];
-    screenSize[1] = renSize[1];
-    cellBO.Program->SetUniform2f("screenSize", screenSize);
+    int numRenderPasses = info->Length(vtkOpenGLRenderPass::RenderPasses());
+    for (int i = 0; i < numRenderPasses; ++i)
+      {
+      vtkObjectBase *rpBase = info->Get(vtkOpenGLRenderPass::RenderPasses(), i);
+      vtkOpenGLRenderPass *rp = static_cast<vtkOpenGLRenderPass*>(rpBase);
+      if (!rp->SetShaderParameters(cellBO.Program, this, actor))
+        {
+        vtkErrorMacro("RenderPass::SetShaderParameters failed for renderpass: "
+                      << rp->GetClassName());
+        }
+      }
     }
 
   vtkHardwareSelector* selector = ren->GetSelector();
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
-  if (picking)
+  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
     {
     if (selector)
       {
@@ -1584,7 +1664,9 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
       }
     }
 
-  if (this->GetNumberOfClippingPlanes())
+  if (this->GetNumberOfClippingPlanes() &&
+      cellBO.Program->IsUniformUsed("numClipPlanes") &&
+      cellBO.Program->IsUniformUsed("clipPlanes"))
     {
     // add all the clipping planes
     int numClipPlanes = this->GetNumberOfClippingPlanes();
@@ -1609,7 +1691,8 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     }
 
   // handle wide lines
-  if (this->HaveWideLines(ren, actor))
+  if (this->HaveWideLines(ren, actor) &&
+      cellBO.Program->IsUniformUsed("lineWidthNVC"))
     {
       int vp[4];
       glGetIntegerv(GL_VIEWPORT, vp);
@@ -1625,7 +1708,11 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     float factor, offset;
     this->GetCoincidentParameters(actor,factor,offset);
     cellBO.Program->SetUniformf("coffset",offset);
-    cellBO.Program->SetUniformf("cfactor",factor);
+    // cfactor isn't always used when coffset is.
+    if (cellBO.Program->IsUniformUsed("cfactor"))
+      {
+      cellBO.Program->SetUniformf("cfactor", factor);
+      }
     }
 }
 
@@ -1766,40 +1853,82 @@ void vtkOpenGLPolyDataMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
 
   vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
 
-  vtkMatrix4x4 *wcdc;
-  vtkMatrix4x4 *wcvc;
-  vtkMatrix3x3 *norms;
-  vtkMatrix4x4 *vcdc;
-  cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
+  // [WMVD]C == {world, model, view, display} coordinates
+  // E.g., WCDC == world to display coordinate transformation
+  vtkMatrix4x4* wcdc;
+  vtkMatrix4x4* wcvc;
+  vtkMatrix3x3* norms;
+  vtkMatrix4x4* vcdc;
+  cam->GetKeyMatrices(ren, wcvc, norms, vcdc, wcdc);
 
-  if (!actor->GetIsIdentity())
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
     {
-    vtkMatrix4x4 *mcwc;
-    vtkMatrix3x3 *anorms;
-    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
-    program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-    if (program->IsUniformUsed("MCVCMatrix"))
+    if (!actor->GetIsIdentity())
       {
-      vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+      vtkMatrix4x4* mcwc;
+      vtkMatrix3x3* anorms;
+      ((vtkOpenGLActor*)actor)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+      vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), mcwc, this->TempMatrix4);
+        vtkMatrix4x4::Multiply4x4(this->TempMatrix4, wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        }
       }
-    if (program->IsUniformUsed("normalMatrix"))
+    else
       {
-      vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-      program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+      vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(this->VBOShiftScale.GetPointer(), wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        program->SetUniformMatrix("normalMatrix", norms);
+        }
       }
     }
   else
     {
-    program->SetUniformMatrix("MCDCMatrix", wcdc);
-    if (program->IsUniformUsed("MCVCMatrix"))
+    if (!actor->GetIsIdentity())
       {
-      program->SetUniformMatrix("MCVCMatrix", wcvc);
+      vtkMatrix4x4 *mcwc;
+      vtkMatrix3x3 *anorms;
+      ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
+      program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+        program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+        program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+        }
       }
-    if (program->IsUniformUsed("normalMatrix"))
+    else
       {
-      program->SetUniformMatrix("normalMatrix", norms);
+      program->SetUniformMatrix("MCDCMatrix", wcdc);
+      if (program->IsUniformUsed("MCVCMatrix"))
+        {
+        program->SetUniformMatrix("MCVCMatrix", wcvc);
+        }
+      if (program->IsUniformUsed("normalMatrix"))
+        {
+        program->SetUniformMatrix("normalMatrix", norms);
+        }
       }
     }
 
@@ -2434,13 +2563,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
        if (selector->GetUseProcessIdFromData())
         {
         mapArray = this->ProcessIdArrayName ?
-          vtkUnsignedIntArray::SafeDownCast(
+          vtkArrayDownCast<vtkUnsignedIntArray>(
             pd->GetArray(this->ProcessIdArrayName)) : NULL;
         }
         break;
       case vtkHardwareSelector::COMPOSITE_INDEX_PASS:
         mapArray = this->CompositeIdArrayName ?
-          vtkUnsignedIntArray::SafeDownCast(
+          vtkArrayDownCast<vtkUnsignedIntArray>(
             cd->GetArray(this->CompositeIdArrayName)) : NULL;
         break;
       case vtkHardwareSelector::ID_LOW24:
@@ -2449,13 +2578,13 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
           vtkDataObject::FIELD_ASSOCIATION_POINTS)
           {
           mapArrayId = this->PointIdArrayName ?
-            vtkIdTypeArray::SafeDownCast(
+            vtkArrayDownCast<vtkIdTypeArray>(
               pd->GetArray(this->PointIdArrayName)) : NULL;
           }
         else
           {
           mapArrayId = this->CellIdArrayName ?
-            vtkIdTypeArray::SafeDownCast(
+            vtkArrayDownCast<vtkIdTypeArray>(
               cd->GetArray(this->CellIdArrayName)) : NULL;
           }
         break;
@@ -2888,6 +3017,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
+#ifndef NDEBUG
     static bool warnedAboutBrokenAppleDriver = false;
     if (!warnedAboutBrokenAppleDriver)
       {
@@ -2897,6 +3027,7 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
         << (const char *)glGetString(GL_VERSION));
       warnedAboutBrokenAppleDriver = true;
       }
+#endif
     if (n)
       {
       n = (act->GetProperty()->GetInterpolation() != VTK_FLAT) ?
@@ -2954,6 +3085,19 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
         c ? (unsigned char *)c->GetVoidPointer(0) : NULL,
         c ? c->GetNumberOfComponents() : 0);
 
+    // If the VBO coordinates were shifted and scaled, prepare the inverse transform
+    // for application to the model->view matrix:
+    if (this->VBO->GetCoordShiftAndScaleEnabled())
+      {
+      double shift[3];
+      double scale[3];
+      this->VBO->GetCoordShift(shift);
+      this->VBO->GetCoordScale(scale);
+      this->VBOInverseTransform->Identity();
+      this->VBOInverseTransform->Translate(shift[0], shift[1], shift[2]);
+      this->VBOInverseTransform->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+      this->VBOInverseTransform->GetTranspose(this->VBOShiftScale.GetPointer());
+      }
     this->VBOBuildTime.Modified();
     this->VBOBuildString = toString.str();
     }
@@ -3151,6 +3295,12 @@ void vtkOpenGLPolyDataMapper::ShallowCopy(vtkAbstractMapper *mapper)
 
   // Now do superclass
   this->vtkPolyDataMapper::ShallowCopy(mapper);
+}
+
+void vtkOpenGLPolyDataMapper::SetVBOShiftScaleMethod(int m)
+{
+  this->VBO->SetCoordShiftAndScaleMethod(
+    static_cast<vtkOpenGLVertexBufferObject::ShiftScaleMethod>(m));
 }
 
 //-----------------------------------------------------------------------------

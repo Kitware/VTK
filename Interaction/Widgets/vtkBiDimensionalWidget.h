@@ -137,14 +137,12 @@ public:
   // becomes valid after two of the four points are placed.
   int IsMeasureValid();
 
-  //BTX
   // Description:
   // Events.
   enum
   {
   EndWidgetSelectEvent = 10050
   };
-  //ETX
 
   // Description:
   // Methods to change the whether the widget responds to interaction.
@@ -155,9 +153,8 @@ public:
   // Enum defining the state of the widget. By default the widget is in Start mode,
   // and expects to be interactively placed. While placing the points the widget
   // transitions to Define state. Once placed, the widget enters the Manipulate state.
-  //BTX
+
   enum {Start=0,Define,Manipulate};
-  //ETX
 
   // Description:
   // Set the state of the widget. If the state is set to "Manipulate" then it
@@ -212,9 +209,7 @@ protected:
   void StartBiDimensionalInteraction();
   virtual void EndBiDimensionalInteraction();
 
-//BTX
   friend class vtkBiDimensionalWidgetCallback;
-//ETX
 
 private:
   vtkBiDimensionalWidget(const vtkBiDimensionalWidget&);  //Not implemented

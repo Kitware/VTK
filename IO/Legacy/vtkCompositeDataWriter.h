@@ -47,7 +47,6 @@ public:
   vtkCompositeDataSet* GetInput();
   vtkCompositeDataSet* GetInput(int port);
 
-//BTX
 protected:
   vtkCompositeDataWriter();
   ~vtkCompositeDataWriter();
@@ -67,7 +66,7 @@ protected:
 private:
   vtkCompositeDataWriter(const vtkCompositeDataWriter&); // Not implemented
   void operator=(const vtkCompositeDataWriter&); // Not implemented
-//ETX
+
 };
 
 #endif

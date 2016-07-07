@@ -25,9 +25,7 @@
 #include "vtkFiltersExtractionModule.h" // For export macro
 #include "vtkExtractDataSets.h"
 
-//BTX
 struct vtkHierarchicalDataExtractDataSetsInternals;
-//ETX
 
 class VTKFILTERSEXTRACTION_EXPORT vtkHierarchicalDataExtractDataSets :
   public vtkExtractDataSets

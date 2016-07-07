@@ -50,11 +50,6 @@ void vtkParse_IncludeDirectory(const char *dirname);
 const char *vtkParse_FindIncludeFile(const char *filename);
 
 /**
- * Ignore BTX/ETX markers
- */
-void vtkParse_SetIgnoreBTX(int option);
-
-/**
  * Set the command name, for error reporting and diagnostics.
  */
 void vtkParse_SetCommandName(const char *name);

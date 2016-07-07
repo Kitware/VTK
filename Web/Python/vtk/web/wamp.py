@@ -375,7 +375,7 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
         self.renderLoop = False
 
     def connectionLost(self, reason):
-        self.viewToCapture = []
+        self.viewToCapture = {}
         self.renderLoop = False
 
     def startRenderLoop(self):

@@ -98,7 +98,6 @@ public:
   // Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -174,7 +173,12 @@ public:
   void UpdateScalarOpacityforSampleSize(vtkRenderer *ren,
                                         float sample_distance);
 
-//ETX
+  /// Used by vtkHardwareSelector to determine if the prop supports hardware
+  /// selection.
+  /// @warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
+  /// DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
+  virtual bool GetSupportsSelection()
+   { return true; }
 
 protected:
   vtkVolume();

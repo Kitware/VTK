@@ -134,11 +134,11 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
 {
   // Copy the points into our data structure for rendering - pack x, y, z...
   vtkDataArray *xArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(xName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(xName.c_str()));
   vtkDataArray *yArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(yName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(yName.c_str()));
   vtkDataArray *zArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(zName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(zName.c_str()));
 
   // Ensure that we have valid data arrays, and that they are of the same length.
   assert(xArr);
@@ -190,7 +190,7 @@ void vtkPlot3D::SetInputData(vtkTable *input, const vtkStdString &xName,
   this->SetInputData(input, xName, yName, zName);
 
   vtkDataArray *colorArr =
-      vtkDataArray::SafeDownCast(input->GetColumnByName(colorName.c_str()));
+      vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(colorName.c_str()));
   this->SetColors(colorArr);
 }
 

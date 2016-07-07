@@ -52,11 +52,9 @@ public:
   void SetEventTranslator(vtkWidgetEventTranslator *t);
   vtkGetObjectMacro(EventTranslator,vtkWidgetEventTranslator);
 
-//BTX
   // Description:
   // Convenient typedef for working with callbacks.
   typedef void (*CallbackType)(vtkAbstractWidget*);
-//ETX
 
   // Description:
   // This class works with the class vtkWidgetEventTranslator to set up the

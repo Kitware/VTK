@@ -46,7 +46,6 @@ public:
   // Implement base class method.
   void BackfaceRender(vtkActor *a, vtkRenderer *ren);
 
-  //BTX
   // Description:
   // This method is called after the actor has been rendered.
   // Don't call this directly. This method cleans up
@@ -73,7 +72,6 @@ public:
   // Description:
   // Get the vtkShaderProgram2 object in use.
   vtkGetObjectMacro(CurrentShaderProgram2, vtkShaderProgram2);
-  //ETX
 
   // Description:
   // Provide values to initialize shader variables.

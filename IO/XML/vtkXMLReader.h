@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkXMLReader - Superclass for VTK's XML format readers.
 // .SECTION Description
-// vtkXMLReader uses vtkXMLDataParser to parse a VTK XML input file.
-// Concrete subclasses then traverse the parsed file structure and
-// extract data.
+// vtkXMLReader uses vtkXMLDataParser to parse a
+// <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML</a> input file.
+// Concrete subclasses then traverse the parsed file structure and extract data.
 
 #ifndef vtkXMLReader_h
 #define vtkXMLReader_h
@@ -49,10 +49,10 @@ public:
   vtkGetStringMacro(FileName);
 
   // Description:
-  // Enable writing to an InputString instead of the default, a file.
-  vtkSetMacro(ReadFromInputString,int);
-  vtkGetMacro(ReadFromInputString,int);
-  vtkBooleanMacro(ReadFromInputString,int);
+  // Enable reading from an InputString instead of the default, a file.
+  vtkSetMacro(ReadFromInputString, int);
+  vtkGetMacro(ReadFromInputString, int);
+  vtkBooleanMacro(ReadFromInputString, int);
   void SetInputString(std::string s) { this->InputString = s; }
 
   // Description:
@@ -125,13 +125,13 @@ public:
   // Set/get the ErrorObserver for the internal reader
   // This is useful for applications that want to catch error messages.
   void SetReaderErrorObserver(vtkCommand *);
-  vtkGetObjectMacro(ReaderErrorObserver,vtkCommand);
+  vtkGetObjectMacro(ReaderErrorObserver, vtkCommand);
 
   // Description:
   // Set/get the ErrorObserver for the internal xml parser
   // This is useful for applications that want to catch error messages.
   void SetParserErrorObserver(vtkCommand *);
-  vtkGetObjectMacro(ParserErrorObserver,vtkCommand);
+  vtkGetObjectMacro(ParserErrorObserver, vtkCommand);
 
 protected:
   vtkXMLReader();
@@ -217,10 +217,8 @@ protected:
   void SetDataArraySelections(vtkXMLDataElement* eDSA,
                               vtkDataArraySelection* sel);
 
-//BTX
   int SetFieldDataInfo(vtkXMLDataElement *eDSA, int association,
   int numTuples, vtkInformationVector *(&infoVector));
-//ETX
 
   // Check whether the given array element is an enabled array.
   int PointDataArrayIsEnabled(vtkXMLDataElement* ePDA);

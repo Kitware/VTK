@@ -25,13 +25,12 @@
 #ifndef vtkFrameBufferObject_h
 #define vtkFrameBufferObject_h
 
-#include "vtkObject.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkRenderingOpenGLModule.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
-//BTX
+
 #include <vector> // for the lists of logical buffers.
-//ETX
 
 class vtkRenderWindow;
 class vtkTextureObject;
@@ -40,11 +39,11 @@ class vtkPixelBufferObject;
 class vtkOpenGLExtensionManager;
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkObject
+class VTKRENDERINGOPENGL_EXPORT vtkFrameBufferObject : public vtkFrameBufferObjectBase
 {
 public:
   static vtkFrameBufferObject* New();
-  vtkTypeMacro(vtkFrameBufferObject, vtkObject);
+  vtkTypeMacro(vtkFrameBufferObject, vtkFrameBufferObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -167,7 +166,6 @@ public:
   // prints detected errors to vtkErrorMacro.
   int CheckFrameBufferStatus(unsigned int mode);
 
-//BTX
 protected:
   // Description:
   // Load all necessary extensions.
@@ -244,7 +242,7 @@ protected:
 private:
   vtkFrameBufferObject(const vtkFrameBufferObject&); // Not implemented.
   void operator=(const vtkFrameBufferObject&); // Not implemented.
-//ETX
+
 };
 
 #endif

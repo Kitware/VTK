@@ -40,7 +40,6 @@ public:
   void RemoveLevel(unsigned int level);
   void RemoveAllLevels();
 
-//BTX
 protected:
   vtkExtractLevel();
   ~vtkExtractLevel();
@@ -61,7 +60,7 @@ private:
 
   class vtkSet;
   vtkSet* Levels;
-//ETX
+
 };
 
 #endif

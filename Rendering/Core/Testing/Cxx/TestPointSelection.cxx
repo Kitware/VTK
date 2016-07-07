@@ -67,7 +67,7 @@ public:
     if (selActor && (selActor->GetMapper() == this->Mapper))
       {
       // Separate the selection ids into atoms and bonds
-      vtkIdTypeArray *selIds = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray *selIds = vtkArrayDownCast<vtkIdTypeArray>(
             node->GetSelectionList());
       if (selIds)
         {

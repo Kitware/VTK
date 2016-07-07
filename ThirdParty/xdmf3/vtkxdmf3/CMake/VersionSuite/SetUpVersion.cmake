@@ -14,11 +14,16 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/CMake/VersionSuite)
 # Default incase CalculateVerison is not called
 SET(vMajor "0")
 SET(vMinor "0")
+SET(vPatch "0")
 
 # This Macro allows you to set up the Version in a one liner
-MACRO(VersionCreate versionName versionMajor export_name)
+MACRO(VersionCreate versionName versionMajor versionMinor versionPatch export_name)
     VersionMajorSet(${versionMajor})
-    VersionCalculate()
+    VersionMinorSet(${versionMinor})
+    VersionPatchSet(${versionPatch})
+    
+# Manually generating minor version
+#   VersionCalculate()
     VersionWrite(${versionName} ${export_name} "${ARGN}")
 ENDMACRO()
 
@@ -26,6 +31,14 @@ ENDMACRO()
 MACRO(VersionMajorSet versionMajor)
         SET(vMajor ${versionMajor})
 ENDMACRO()
+
+MACRO(VersionMinorSet versionMinor)
+        SET(vMinor ${versionMinor})
+ENDMACRO(VersionMinorSet)
+
+MACRO(VersionPatchSet versionPatch)
+        SET(vPatch ${versionPatch})
+ENDMACRO(VersionPatchSet)
 
 # This Macro calculates the number of tags from your git repo
 MACRO(VersionCalculate)
@@ -53,6 +66,7 @@ MACRO(VersionWrite vProjectName export_name)
 "/* Current Version of ${vProjectName}
  * Major is: ${vMajor}
  * Minor is: ${vMinor}
+ * Patch is: ${vPatch}
  */
 ${includes}
 \#include \"ProjectVersion.hpp\"
@@ -64,6 +78,6 @@ extern ${export_name} ProjectVersion ${vProjectName}Version;\n"
  * Make sure to include this file in your built sources
  */
 \#include \"${vProjectName}Version.hpp\"
-ProjectVersion ${vProjectName}Version = ProjectVersion(\"${vProjectName}\", \"${vMajor}\", \"${vMinor}\");\n"
+ProjectVersion ${vProjectName}Version = ProjectVersion(\"${vProjectName}\", \"${vMajor}\", \"${vMinor}\", \"${vPatch}\");\n"
         )
 ENDMACRO()

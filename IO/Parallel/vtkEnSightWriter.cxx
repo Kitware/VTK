@@ -355,16 +355,7 @@ void vtkEnSightWriter::WriteData()
       this->WriteStringToFile("part",fd);
       this->WriteIntToFile(part,fd);
       //cout << "part is " << part << endl;
-      int exodusIndex=-1;
-      if (exodusIndex!=-1)
-        {
-        sprintf(charBuffer,"Exodus-%s-%d",blockNames[exodusIndex],part);
-        this->WriteStringToFile(charBuffer,fd);
-        }
-      else
-        {
-        this->WriteStringToFile("VTK Part",fd);
-        }
+      this->WriteStringToFile("VTK Part",fd);
       this->WriteStringToFile("coordinates",fd);
       }
 

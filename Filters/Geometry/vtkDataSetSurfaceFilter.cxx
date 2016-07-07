@@ -133,15 +133,6 @@ vtkDataSetSurfaceFilter::vtkDataSetSurfaceFilter()
 //----------------------------------------------------------------------------
 vtkDataSetSurfaceFilter::~vtkDataSetSurfaceFilter()
 {
-  if (this->QuadHash)
-    {
-    this->DeleteQuadHash();
-    }
-  if (this->OriginalCellIds != NULL)
-    {
-    this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
-    }
   this->SetOriginalCellIdsName(NULL);
   this->SetOriginalPointIdsName(NULL);
 }
@@ -172,6 +163,7 @@ int vtkDataSetSurfaceFilter::RequestData(
 
   if (numCells == 0)
     {
+    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
     return 1;
     }
 
@@ -192,10 +184,7 @@ int vtkDataSetSurfaceFilter::RequestData(
     case  VTK_UNSTRUCTURED_GRID:
     case  VTK_UNSTRUCTURED_GRID_BASE:
       {
-      if (!this->UnstructuredGridExecute(input, output))
-        {
-        return 1;
-        }
+      this->UnstructuredGridExecute(input, output);
       output->CheckAttributes();
       return 1;
       }
@@ -341,8 +330,8 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
 
   if( this->UseStrips )
     {
-      vtkWarningMacro( "Strips are not supported for uniform grid!" );
-      return 0;
+    vtkErrorMacro( "Strips are not supported for uniform grid!" );
+    return 0;
     }
 
   vtkIdType numPoints,numCells;
@@ -410,18 +399,18 @@ int vtkDataSetSurfaceFilter::UniformGridExecute(
     this->ExecuteFaceQuads(input, output, 1, ext, 2,1,0, wholeExt, true );
 
   output->Squeeze();
-  if (this->OriginalCellIds != NULL)
-   {
-    this->OriginalCellIds->Delete();
-    this->OriginalCellIds = NULL;
-   }
-  if (this->OriginalPointIds != NULL)
-   {
-    this->OriginalPointIds->Delete();
-    this->OriginalPointIds = NULL;
-   }
   this->PassThroughCellIds = originalPassThroughCellIds;
 
+  if (this->OriginalPointIds)
+    {
+    this->OriginalPointIds->Delete();
+    this->OriginalPointIds = NULL;
+    }
+  if (this->OriginalCellIds)
+    {
+    this->OriginalCellIds->Delete();
+    this->OriginalPointIds = NULL;
+    }
   return 1;
 }
 
@@ -525,8 +514,9 @@ int vtkDataSetSurfaceFilter::StructuredExecute(vtkDataSet *input,
       }
     default:
       dataType = VTK_DOUBLE;
-      vtkWarningMacro("Invalid data set type.");
-      break;
+      vtkErrorMacro("Invalid data set type: " << input->GetDataObjectType());
+      outPoints->Delete();
+      return 1;
     }
 
   outPoints->SetDataType(dataType);
@@ -1069,6 +1059,7 @@ int vtkDataSetSurfaceFilter::DataSetExecute(vtkDataSet *input,
   vtkCellData *outputCD = output->GetCellData();
   if (numCells == 0)
     {
+    vtkWarningMacro(<<"Number of cells is zero, no data to process.");
     return 1;
     }
 
@@ -1273,7 +1264,7 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  if (this->UseStrips)
+  if (this->GetUseStrips())
     {
     os << indent << "UseStripsOn\n";
     }
@@ -1282,15 +1273,15 @@ void vtkDataSetSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
     os << indent << "UseStripsOff\n";
     }
 
-  os << indent << "PieceInvariant: " << this->PieceInvariant << endl;
-  os << indent << "PassThroughCellIds: " << (this->PassThroughCellIds ? "On\n" : "Off\n");
-  os << indent << "PassThroughPointIds: " << (this->PassThroughPointIds ? "On\n" : "Off\n");
+  os << indent << "PieceInvariant: " << this->GetPieceInvariant() << endl;
+  os << indent << "PassThroughCellIds: " << (this->GetPassThroughCellIds() ? "On\n" : "Off\n");
+  os << indent << "PassThroughPointIds: " << (this->GetPassThroughPointIds() ? "On\n" : "Off\n");
 
   os << indent << "OriginalCellIdsName: " << this->GetOriginalCellIdsName() << endl;
   os << indent << "OriginalPointIdsName: " << this->GetOriginalPointIdsName() << endl;
 
   os << indent << "NonlinearSubdivisionLevel: "
-     << this->NonlinearSubdivisionLevel << endl;
+     << this->GetNonlinearSubdivisionLevel() << endl;
 }
 
 //========================================================================
@@ -2090,7 +2081,7 @@ void vtkDataSetSurfaceFilter::InsertQuadInHash(vtkIdType a, vtkIdType b,
     // c should be independent of point order.
     if (quad->numPts == 4 && c == quad->ptArray[2])
       {
-      // Check boh orders for b and d.
+      // Check both orders for b and d.
       if ((b == quad->ptArray[1] && d == quad->ptArray[3]) || (b == quad->ptArray[3] && d == quad->ptArray[1]))
         {
         // We have a match.

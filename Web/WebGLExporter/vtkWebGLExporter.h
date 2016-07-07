@@ -63,7 +63,6 @@ public:
   void SetMaxAllowedSize(int mesh, int lines);
   void SetMaxAllowedSize(int size);
 
-  //BTX
   static void ComputeMD5(const unsigned char* content, int size, std::string &hash);
 protected:
   vtkWebGLExporter();
@@ -96,7 +95,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-  //ETX
+
 };
 
 #endif

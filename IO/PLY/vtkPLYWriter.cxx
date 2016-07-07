@@ -305,7 +305,7 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
       {
       return NULL;
       }
-    else if ( (rgbArray=vtkUnsignedCharArray::SafeDownCast(da)) != NULL &&
+    else if ( (rgbArray=vtkArrayDownCast<vtkUnsignedCharArray>(da)) != NULL &&
               numComp == 3 )
       {//have unsigned char array of three components, copy it
       colors = c = new unsigned char[3*num];
@@ -318,6 +318,21 @@ unsigned char *vtkPLYWriter::GetColors(vtkIdType num,
         }
       return colors;
       }
+    else if ( (rgbArray=vtkArrayDownCast<vtkUnsignedCharArray>(da)) != NULL &&
+              numComp == 4 )
+      {//have unsigned char array of four components (RGBA), copy it without the `A`.
+      colors = c = new unsigned char[3*num];
+      const unsigned char *rgba = rgbArray->GetPointer(0);
+      for (i=0; i<num; i++)
+        {
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        *c++ = *rgba++;
+        rgba++;
+        }
+      return colors;
+      }
+
     else if ( this->LookupTable != NULL )
       {//use the data array mapped through lookup table
       colors = c = new unsigned char[3*num];
@@ -346,7 +361,7 @@ const float *vtkPLYWriter::GetTextureCoordinates(vtkIdType num, vtkDataSetAttrib
     return NULL;
 
   vtkFloatArray *textureArray;
-  if ( (textureArray = vtkFloatArray::SafeDownCast(tCoords)) == NULL )
+  if ( (textureArray = vtkArrayDownCast<vtkFloatArray>(tCoords)) == NULL )
     vtkErrorMacro(<< "PLY writer only supports float texture coordinates");
 
   return textureArray->GetPointer(0);

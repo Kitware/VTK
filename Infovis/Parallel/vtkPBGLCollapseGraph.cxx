@@ -87,7 +87,7 @@ int vtkPBGLCollapseGraphRequestData(
   typedef vtkDistributedVertexPropertyMapType<vtkAbstractArray>::type
     DistributedLabelMap;
   DistributedLabelMap distrib_input_arr
-    = MakeDistributedVertexPropertyMap(input, vtkAbstractArray::SafeDownCast(input_arr));
+    = MakeDistributedVertexPropertyMap(input, vtkArrayDownCast<vtkAbstractArray>(input_arr));
 
   // Create directed or undirected graph
   MutableGraph* builder = MutableGraph::New();

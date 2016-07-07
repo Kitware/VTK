@@ -99,7 +99,6 @@ public:
   // are specified.
   virtual void BuildRepresentation();
 
-//BTX
 protected:
   vtkSplineRepresentation();
   ~vtkSplineRepresentation();
@@ -117,7 +116,7 @@ protected:
 private:
   vtkSplineRepresentation(const vtkSplineRepresentation&); // Not implemented.
   void operator=(const vtkSplineRepresentation&); // Not implemented.
-//ETX
+
 };
 
 #endif

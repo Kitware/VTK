@@ -109,7 +109,6 @@ public:
   // Get the array name to color by.
   vtkStdString GetColorArrayName();
 
-//BTX
 protected:
   vtkPlotParallelCoordinates();
   ~vtkPlotParallelCoordinates();
@@ -138,7 +137,6 @@ private:
   vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &); // Not implemented.
   void operator=(const vtkPlotParallelCoordinates &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlotParallelCoordinates_h

@@ -121,7 +121,6 @@ public:
   static vtkMultiThreshold* New();
   virtual void PrintSelf( ostream& os, vtkIndent indent );
 
-  //BTX
   /// Whether the endpoint value of an interval should be included or excluded.
   enum Closure {
     OPEN=0,   //!< Specify an open interval
@@ -141,7 +140,6 @@ public:
     WOR, //!< Include elements that belong to an odd number of input sets (a kind of "winding XOR")
     NAND //!< Only include elements that don't belong to any input set
   };
-  //ETX
 
   // Description:
   // Add a mesh subset to be computed by thresholding an attribute of the input mesh.
@@ -212,7 +210,6 @@ public:
   // Remove all the intervals currently defined.
   void Reset();
 
-  //BTX
   /// A pointer to a function that returns a norm (or a single component) of a tuple with 1 or more components.
   typedef double (*TupleNorm)( vtkDataArray* arr, vtkIdType tuple, int component );
 
@@ -331,14 +328,12 @@ public:
     virtual void PrintNode( ostream& os );
     virtual BooleanSet* GetBooleanSetPointer();
   };
-  //ETX
 
 protected:
 
   vtkMultiThreshold();
   virtual ~vtkMultiThreshold();
 
-  //BTX
   // Description:
   // When an interval is evaluated, its value is used to update a truth table.
   // If its value allows the output of the truth table to be determined, then
@@ -357,7 +352,6 @@ protected:
     INCLUDE=-2,
     EXCLUDE=-3
   };
-  //ETX
 
   // Description:
   // This function performs the actual thresholding.
@@ -379,7 +373,6 @@ protected:
   // The number of output datasets.
   int NumberOfOutputs;
 
-  //BTX
   /// A list of pointers to IntervalSets.
   typedef std::vector<Interval*> IntervalList;
   /// A map describing the IntervalSets that share a common attribute and norm.
@@ -413,8 +406,6 @@ protected:
   // Description:
   // A utility method called by the public AddInterval members.
   int AddIntervalSet( NormKey& nk, double xmin, double xmax, int omin, int omax );
-
-  //ETX
 
   // Description:
   // Print out a graphviz-formatted text description of all the sets.

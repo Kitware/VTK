@@ -153,7 +153,6 @@ public:
   void SetDirty(bool isDirty);
   bool GetDirty()const;
 
-//BTX
   // Description:
   // Release graphics resources hold by the scene.
   void ReleaseGraphicsResources();
@@ -300,7 +299,7 @@ private:
                    const vtkContextMouseEvent& event,
                    MouseEvents eventPtr);
   void EventCopy(const vtkContextMouseEvent &event);
-//ETX
+
 };
 
 #endif //vtkContextScene_h

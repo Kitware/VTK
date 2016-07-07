@@ -75,7 +75,7 @@ int TestDataArrayComponentNames(int,char *[])
 
 
   //Test Down cast
-  vtkDoubleArray *downcast = vtkDoubleArray::SafeDownCast( farray );
+  vtkDoubleArray *downcast = vtkArrayDownCast<vtkDoubleArray>( farray );
   if (  strcmp(downcast->GetComponentName(0),"a") != 0||
         strcmp(downcast->GetComponentName(1),"b") != 0||
         strcmp(downcast->GetComponentName(2),"c") != 0)

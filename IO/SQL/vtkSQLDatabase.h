@@ -101,7 +101,7 @@ public:
 
   // Description:
   // Return an empty query on this database.
-  virtual vtkSQLQuery* GetQueryInstance() = 0;
+  virtual VTK_NEWINSTANCE vtkSQLQuery* GetQueryInstance() = 0;
 
   // Description:
   // Did the last operation generate an error
@@ -187,17 +187,15 @@ public:
   // Create a the proper subclass given a URL.
   // The URL format for SQL databases is a true URL of the form:
   //   'protocol://'[[username[':'password]'@']hostname[':'port]]'/'[dbname] .
-  static vtkSQLDatabase* CreateFromURL( const char* URL );
+  static VTK_NEWINSTANCE vtkSQLDatabase* CreateFromURL( const char* URL );
 
   // Description:
   // Effect a database schema.
   virtual bool EffectSchema( vtkSQLDatabaseSchema*, bool dropIfExists = false );
 
-//BTX
   // Description:
   // Type for CreateFromURL callback.
   typedef vtkSQLDatabase* (*CreateFunction)(const char* URL);
-//ETX
 
   // Description:
   // Provides mechanism to register/unregister additional callbacks to create
@@ -216,7 +214,6 @@ public:
   // information (full text)for specific documents.
   static vtkInformationObjectBaseKey* DATABASE();
 
-//BTX
 protected:
   vtkSQLDatabase();
   ~vtkSQLDatabase();
@@ -235,7 +232,7 @@ private:
   // Datastructure used to store registered callbacks.
   class vtkCallbackVector;
   static vtkCallbackVector* Callbacks;
-//ETX
+
 };
 
 #endif // vtkSQLDatabase_h

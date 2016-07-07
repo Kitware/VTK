@@ -1058,6 +1058,12 @@ void vtkPlaneWidget::MovePoint1(double *p1, double *p2)
   double n02 = vtkMath::Norm(p02);
   double n32 = vtkMath::Norm(p32);
 
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
+
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
   double d1 = (vN/n02) * vtkMath::Dot(v,p02) / (vN*n02);
@@ -1109,6 +1115,12 @@ void vtkPlaneWidget::MovePoint2(double *p1, double *p2)
   double n31 = vtkMath::Norm(p31);
   double n01 = vtkMath::Norm(p01);
 
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
+
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
   double d1 = (vN/n31) * vtkMath::Dot(v,p31) / (vN*n31);
@@ -1153,6 +1165,12 @@ void vtkPlaneWidget::MovePoint3(double *p1, double *p2)
   double vN = vtkMath::Norm(v);
   double n10 = vtkMath::Norm(p10);
   double n20 = vtkMath::Norm(p20);
+
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length

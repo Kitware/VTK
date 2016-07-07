@@ -91,7 +91,7 @@ class vtkUnsignedCharArray;
 class vtkIntArray;
 class vtkStructuredGrid;
 class vtkMultiProcessController;
-
+class vtkMultiBlockPLOT3DReaderRecord;
 struct vtkMultiBlockPLOT3DReaderInternals;
 
 class VTKIOPARALLEL_EXPORT vtkMultiBlockPLOT3DReader : public vtkMultiBlockDataSetAlgorithm
@@ -239,13 +239,11 @@ public:
   void SetController(vtkMultiProcessController *c);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-//BTX
   enum
   {
     FILE_BIG_ENDIAN=0,
     FILE_LITTLE_ENDIAN=1
   };
-//ETX
 
 protected:
   vtkMultiBlockPLOT3DReader();
@@ -269,15 +267,18 @@ protected:
   virtual int ReadIntScalar(
     void* vfp,
     int extent[6], int wextent[6],
-    vtkDataArray* scalar, vtkTypeUInt64 offset);
+    vtkDataArray* scalar, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   virtual int ReadScalar(
     void* vfp,
     int extent[6], int wextent[6],
-    vtkDataArray* scalar, vtkTypeUInt64 offset);
+    vtkDataArray* scalar, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   virtual int ReadVector(
     void* vfp,
     int extent[6], int wextent[6],
-    int numDims, vtkDataArray* vector, vtkTypeUInt64 offset);
+    int numDims, vtkDataArray* vector, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   virtual int OpenFileForDataRead(void*& fp, const char* fname);
   virtual void CloseFile(void* fp);
 

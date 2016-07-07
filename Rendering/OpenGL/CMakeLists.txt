@@ -77,9 +77,7 @@ set(Module_SRCS
   vtkPolyDataPainter.cxx
   vtkPolygonsPainter.cxx
   vtkPrimitivePainter.cxx
-  vtkRenderPass.cxx
   vtkRenderPassCollection.cxx
-  vtkRenderState.cxx
   vtkRenderbuffer.cxx
   vtkRepresentationPainter.cxx
   vtkScalarsToColorsPainter.cxx
@@ -138,8 +136,6 @@ set(${vtk-module}_HDRS
 set_source_files_properties(
   vtkImageProcessingPass
   vtkOpenGLRenderWindow
-  vtkRenderPass
-  vtkRenderState
   vtkPainter
   vtkPolyDataPainter
   vtkPrimitivePainter
@@ -148,7 +144,6 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkLightingHelper
-  vtkRenderState
   vtkOpenGLState
   vtkOpenGLGL2PSHelper
   vtkShader2

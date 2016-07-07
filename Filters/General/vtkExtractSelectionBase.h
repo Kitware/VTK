@@ -46,7 +46,6 @@ public:
   vtkGetMacro(PreserveTopology, int);
   vtkBooleanMacro(PreserveTopology, int);
 
-//BTX
 protected:
   vtkExtractSelectionBase();
   ~vtkExtractSelectionBase();
@@ -63,7 +62,7 @@ protected:
 private:
   vtkExtractSelectionBase(const vtkExtractSelectionBase&); // Not implemented.
   void operator=(const vtkExtractSelectionBase&); // Not implemented.
-//ETX
+
 };
 
 #endif

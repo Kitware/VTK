@@ -51,14 +51,12 @@ protected:
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;
 
-  //BTX
   enum ColorType
     {
     WHITE,
     GRAY,
     BLACK
     };
-  //ETX
 
 private:
   vtkTreeBFSIterator(const vtkTreeBFSIterator &);  // Not implemented.

@@ -28,11 +28,8 @@ class vtkDataArrayCollection;
 class vtkDataArraySelection;
 class vtkIdListCollection;
 
-//BTX
 class TranslationTableType;
-//ETX
 
-//BTX
 // Cell/Point Ids store mode:
 // Sparse Mode is supposed to be for a large number of distributed processes (Unstructured)
 // Non Sparse Mode is supposed to be for a small number of distributed processes (Unstructured)
@@ -44,7 +41,6 @@ enum EnsightReaderCellIdMode
     NON_SPARSE_MODE,
     IMPLICIT_STRUCTURED_MODE
     };
-//ETX
 
 class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
 {
@@ -164,7 +160,6 @@ public:
   void SetPointArrayStatus(const char* name, int status);
   void SetCellArrayStatus(const char* name, int status);
 
-  //BTX
   enum FileTypes
   {
     ENSIGHT_6             = 0,
@@ -173,7 +168,6 @@ public:
     ENSIGHT_GOLD_BINARY   = 3,
     ENSIGHT_MASTER_SERVER = 4
   };
-  //ETX
 
   // Description:
   // Set the byte order of the file (remember, more Unix workstations
@@ -186,14 +180,12 @@ public:
   vtkGetMacro(ByteOrder, int);
   const char *GetByteOrderAsString();
 
-//BTX
   enum
   {
     FILE_BIG_ENDIAN=0,
     FILE_LITTLE_ENDIAN=1,
     FILE_UNKNOWN_ENDIAN=2
   };
-//ETX
 
   // Description:
   // Get the Geometry file name. Made public to allow access from

@@ -357,12 +357,10 @@ public:
   // The extent type is a 3D extent
   virtual int GetExtentType() { return VTK_3D_EXTENT; };
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkImageData* GetData(vtkInformation* info);
   static vtkImageData* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkImageData();
@@ -403,9 +401,7 @@ private:
   void InternalImageDataCopy(vtkImageData *src);
 private:
 
-  //BTX
   friend class vtkUniformGrid;
-  //ETX
 
   // for the GetCell method
   vtkVertex *Vertex;

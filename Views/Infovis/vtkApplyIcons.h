@@ -106,7 +106,6 @@ public:
   vtkSetStringMacro(IconOutputArrayName);
   vtkGetStringMacro(IconOutputArrayName);
 
-  //BTX
   enum
   {
     SELECTED_ICON,
@@ -114,7 +113,6 @@ public:
     ANNOTATION_ICON,
     IGNORE_SELECTION
   };
-  //ETX
 
   // Description:
   // Changes the behavior of the icon to use for selected items.
@@ -164,10 +162,8 @@ protected:
   int SelectionMode;
   int AttributeType;
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
 private:
   vtkApplyIcons(const vtkApplyIcons&);  // Not implemented.

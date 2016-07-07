@@ -192,7 +192,7 @@ vtkIdTypeArray* vtkBivariateLinearTableThreshold::GetSelectedRowIds(int selectio
   if (!table)
     return NULL;
 
-  return vtkIdTypeArray::SafeDownCast(table->GetColumn(selection));
+  return vtkArrayDownCast<vtkIdTypeArray>(table->GetColumn(selection));
 }
 
 int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold, vtkIdTypeArray* acceptedIds)
@@ -209,8 +209,8 @@ int vtkBivariateLinearTableThreshold::ApplyThreshold(vtkTable* tableToThreshold,
   this->GetColumnToThreshold(0,column1,component1);
   this->GetColumnToThreshold(1,column2,component2);
 
-  vtkDataArray* a1 = vtkDataArray::SafeDownCast(tableToThreshold->GetColumn(column1));
-  vtkDataArray* a2 = vtkDataArray::SafeDownCast(tableToThreshold->GetColumn(column2));
+  vtkDataArray* a1 = vtkArrayDownCast<vtkDataArray>(tableToThreshold->GetColumn(column1));
+  vtkDataArray* a2 = vtkArrayDownCast<vtkDataArray>(tableToThreshold->GetColumn(column2));
 
   if (!a1 || !a2)
     {

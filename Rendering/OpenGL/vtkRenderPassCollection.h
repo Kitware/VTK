@@ -48,12 +48,10 @@ class VTKRENDERINGOPENGL_EXPORT vtkRenderPassCollection : public vtkCollection
   // Get the last RenderPass in the list.
   vtkRenderPass *GetLastRenderPass();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkRenderPassCollection();

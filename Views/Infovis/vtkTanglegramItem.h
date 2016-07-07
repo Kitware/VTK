@@ -108,8 +108,6 @@ public:
   float GetTreeLineWidth();
   void SetTreeLineWidth(float width);
 
-  // BTX
-
   // Description:
   // Returns true if the transform is interactive, false otherwise.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -118,8 +116,6 @@ public:
   // Propagate any double click onto the dendrograms to check if any
   // subtrees should be collapsed or expanded.
   virtual bool MouseDoubleClickEvent(const vtkContextMouseEvent &event);
-
-  //ETX
 
 protected:
   vtkTanglegramItem();

@@ -42,7 +42,6 @@ public:
 
   static vtkXMLParser* New();
 
-  //BTX
   // Description:
   // Get/Set the input stream.
   vtkSetMacro(Stream, istream*);
@@ -54,7 +53,6 @@ public:
   // work-around stream bugs on various platforms.
   vtkTypeInt64 TellG();
   void SeekG(vtkTypeInt64 position);
-  //ETX
 
   // Description:
   // Parse the XML input.
@@ -67,12 +65,14 @@ public:
   virtual int Parse(const char* inputString, unsigned int length);
 
   // Description:
-  // When parsing fragments of XML or streaming XML, use the following
-  // three methods.  InitializeParser method initialize parser but
-  // does not perform any actual parsing.  ParseChunk parses framgent
-  // of XML. This has to match to what was already
-  // parsed. CleanupParser finishes parsing. If there were errors,
-  // CleanupParser will report them.
+  // When parsing fragments of XML, or when streaming XML,
+  // use the following three methods:
+  // - InitializeParser() initializes the parser
+  //   but does not perform any actual parsing.
+  // - ParseChunk() parses a fragment of XML;
+  //   this has to match to what was already parsed.
+  // - CleanupParser() finishes parsing;
+  //   if there were errors, it will report them.
   virtual int InitializeParser();
   virtual int ParseChunk(const char* inputString, unsigned int length);
   virtual int CleanupParser();
@@ -178,11 +178,9 @@ protected:
   // routine.
   static int IsSpace(char c);
 
-  //BTX
   friend void vtkXMLParserStartElement(void*, const char*, const char**);
   friend void vtkXMLParserEndElement(void*, const char*);
   friend void vtkXMLParserCharacterDataHandler(void*, const char*, int);
-  //ETX
 
   int IgnoreCharacterData;
 

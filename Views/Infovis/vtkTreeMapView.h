@@ -59,11 +59,9 @@ protected:
   vtkTreeMapView();
   ~vtkTreeMapView();
 
-  //BTX
   vtkSmartPointer<vtkBoxLayoutStrategy> BoxLayout;
   vtkSmartPointer<vtkSliceAndDiceLayoutStrategy> SliceAndDiceLayout;
   vtkSmartPointer<vtkSquarifyLayoutStrategy> SquarifyLayout;
-  //ETX
 
 private:
   vtkTreeMapView(const vtkTreeMapView&);  // Not implemented.

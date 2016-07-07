@@ -145,9 +145,9 @@ void vtkHighestDensityRegionsStatistics::Learn(vtkTable* inData,
 
     // Verify column types
     vtkDataArray *inputColX =
-      vtkDataArray::SafeDownCast(inData->GetColumnByName(colX.c_str()));
+      vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colX.c_str()));
     vtkDataArray *inputColY =
-      vtkDataArray::SafeDownCast(inData->GetColumnByName(colY.c_str()));
+      vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName(colY.c_str()));
     if (!inputColX || !inputColY)
       {
       vtkErrorMacro(

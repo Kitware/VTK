@@ -184,7 +184,7 @@ void vtkAreaLayout::GetBoundingArea(vtkIdType id, float *sinfo)
     return;
     }
 
-  vtkFloatArray *sectorInfo = vtkFloatArray::SafeDownCast(array);
+  vtkFloatArray *sectorInfo = vtkArrayDownCast<vtkFloatArray>(array);
   sectorInfo->GetTypedTuple(id, sinfo);
 }
 

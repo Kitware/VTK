@@ -67,7 +67,7 @@ public:
 
   //
   vtkTable* GetOutputTable();
-//BTX
+
   enum InputPorts
   {
     INPUT_TABLE_DATA=0,
@@ -79,7 +79,6 @@ public:
     OUTPUT_SELECTED_ROWS=0,
     OUTPUT_SELECTED_TABLE_DATA
   };
-//ETX
 
   // Description:
   // Set the source table data, from which data will be filtered.

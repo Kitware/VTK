@@ -37,7 +37,6 @@ class VTKRENDERINGOPENGL_EXPORT vtkTextureObject : public vtkObject
 {
 public:
 
-  //BTX
   // DepthTextureCompareFunction values.
   enum
   {
@@ -57,7 +56,7 @@ public:
   {
     Luminance=0, // (R,G,B,A)=(r,r,r,1)
     Intensity, // (R,G,B,A)=(r,r,r,r)
-    Alpha, // (R.G.B.A)=(0,0,0,r)
+    Alpha, // (R,G,B,A)=(0,0,0,r)
     NumberOfDepthTextureModes
   };
 
@@ -94,8 +93,6 @@ public:
     Float32,
     NumberOfDepthFormats
   };
-
-  //ETX
 
   static vtkTextureObject* New();
   vtkTypeMacro(vtkTextureObject, vtkObject);
@@ -197,24 +194,24 @@ public:
 
   // Description:
   // Create a 2D depth texture but does not initialize its values.
-  bool AllocateDepth(unsigned int width,unsigned int height,
+  bool AllocateDepth(unsigned int width, unsigned int height,
                      int internalFormat);
 
   // Description:
   // Create a 1D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
-  bool Allocate1D(unsigned int width, int numComps,int vtkType);
+  bool Allocate1D(unsigned int width, int numComps, int vtkType);
 
   // Description:
   // Create a 2D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
-  bool Allocate2D(unsigned int width,unsigned int height, int numComps,
+  bool Allocate2D(unsigned int width, unsigned int height, int numComps,
                   int vtkType);
 
   // Description:
   // Create a 3D color texture but does not initialize its values.
   // Internal format is deduced from numComps and vtkType.
-  bool Allocate3D(unsigned int width,unsigned int height,
+  bool Allocate3D(unsigned int width, unsigned int height,
                   unsigned int depth, int numComps,
                   int vtkType);
 
@@ -270,18 +267,18 @@ public:
   // formats. If supported extensions will be loaded, however
   // loading will fail if the extension is required but not
   // available.
-  vtkSetMacro(RequireTextureFloat,bool);
-  vtkGetMacro(RequireTextureFloat,bool);
-  vtkGetMacro(SupportsTextureFloat,bool);
+  vtkSetMacro(RequireTextureFloat, bool);
+  vtkGetMacro(RequireTextureFloat, bool);
+  vtkGetMacro(SupportsTextureFloat, bool);
 
   // Description:
   // Optional, require support for integer texture
   // formats. If supported extensions will be loaded, however
   // loading will fail if the extension is required but not
   // available.
-  vtkSetMacro(RequireTextureInteger,bool);
-  vtkGetMacro(RequireTextureInteger,bool);
-  vtkGetMacro(SupportsTextureInteger,bool);
+  vtkSetMacro(RequireTextureInteger, bool);
+  vtkGetMacro(RequireTextureInteger, bool);
+  vtkGetMacro(SupportsTextureInteger, bool);
 
   // Description:
   // Wrap mode for the first texture coordinate "s"
@@ -292,8 +289,8 @@ public:
   // - ClampToBorder
   // - MirroredRepeat
   // Initial value is Repeat (as in OpenGL spec)
-  vtkGetMacro(WrapS,int);
-  vtkSetMacro(WrapS,int);
+  vtkGetMacro(WrapS, int);
+  vtkSetMacro(WrapS, int);
 
   // Description:
   // Wrap mode for the first texture coordinate "t"
@@ -304,8 +301,8 @@ public:
   // - ClampToBorder
   // - MirroredRepeat
   // Initial value is Repeat (as in OpenGL spec)
-  vtkGetMacro(WrapT,int);
-  vtkSetMacro(WrapT,int);
+  vtkGetMacro(WrapT, int);
+  vtkSetMacro(WrapT, int);
 
   // Description:
   // Wrap mode for the first texture coordinate "r"
@@ -316,8 +313,8 @@ public:
   // - ClampToBorder
   // - MirroredRepeat
   // Initial value is Repeat (as in OpenGL spec)
-  vtkGetMacro(WrapR,int);
-  vtkSetMacro(WrapR,int);
+  vtkGetMacro(WrapR, int);
+  vtkSetMacro(WrapR, int);
 
   // Description:
   // Minification filter mode.
@@ -328,11 +325,11 @@ public:
   // - NearestMipmapLinear
   // - LinearMipmapNearest
   // - LinearMipmapLinear
-  // Initial value is Nearest (note initial value in OpenGL spec
+  // Initial value is Nearest. (Note initial value in OpenGL spec
   // is NearestMipMapLinear but this is error-prone because it makes the
-  // texture object incomplete. ).
-  vtkGetMacro(MinificationFilter,int);
-  vtkSetMacro(MinificationFilter,int);
+  // texture object incomplete.)
+  vtkGetMacro(MinificationFilter, int);
+  vtkSetMacro(MinificationFilter, int);
 
   // Description:
   // Magnification filter mode.
@@ -340,8 +337,8 @@ public:
   // - Nearest
   // - Linear
   // Initial value is Nearest
-  vtkGetMacro(MagnificationFilter,int);
-  vtkSetMacro(MagnificationFilter,int);
+  vtkGetMacro(MagnificationFilter, int);
+  vtkSetMacro(MagnificationFilter, int);
 
   // Description:
   // Tells if the magnification mode is linear (true) or nearest (false).
@@ -354,43 +351,43 @@ public:
 
   // Description:
   // Border Color (RGBA). The values can be any valid float value,
-  // if the gpu supports it. Initial value is (0.0f,0.0f,0.0f,0.0f)
-  // , as in OpenGL spec.
-  vtkSetVector4Macro(BorderColor,float);
-  vtkGetVector4Macro(BorderColor,float);
+  // if the gpu supports it. Initial value is (0.0f, 0.0f, 0.0f, 0.0f),
+  // as in OpenGL spec.
+  vtkSetVector4Macro(BorderColor, float);
+  vtkGetVector4Macro(BorderColor, float);
 
   // Description:
   // Priority of the texture object to be resident on the card for higher
-  // performance in the range [0.0f,1.0f].
+  // performance in the range [0.0f, 1.0f].
   // Initial value is 1.0f, as in OpenGL spec.
-  vtkSetMacro(Priority,float);
-  vtkGetMacro(Priority,float);
+  vtkSetMacro(Priority, float);
+  vtkGetMacro(Priority, float);
 
   // Description:
   // Lower-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is -1000.0f, as in OpenGL spec.
-  vtkSetMacro(MinLOD,float);
-  vtkGetMacro(MinLOD,float);
+  vtkSetMacro(MinLOD, float);
+  vtkGetMacro(MinLOD, float);
 
   // Description:
   // Upper-clamp the computed LOD against this value. Any float value is valid.
   // Initial value is 1000.0f, as in OpenGL spec.
-  vtkSetMacro(MaxLOD,float);
-  vtkGetMacro(MaxLOD,float);
+  vtkSetMacro(MaxLOD, float);
+  vtkGetMacro(MaxLOD, float);
 
   // Description:
   // Level of detail of the first texture image. A texture object is a list of
   // texture images. It is a non-negative integer value.
   // Initial value is 0, as in OpenGL spec.
-  vtkSetMacro(BaseLevel,int);
-  vtkGetMacro(BaseLevel,int);
+  vtkSetMacro(BaseLevel, int);
+  vtkGetMacro(BaseLevel, int);
 
   // Description:
   // Level of detail of the first texture image. A texture object is a list of
   // texture images. It is a non-negative integer value.
   // Initial value is 1000, as in OpenGL spec.
-  vtkSetMacro(MaxLevel,int);
-  vtkGetMacro(MaxLevel,int);
+  vtkSetMacro(MaxLevel, int);
+  vtkGetMacro(MaxLevel, int);
 
   // Description:
   // Tells if the output of a texture unit with a depth texture uses
@@ -401,8 +398,8 @@ public:
   // r=D_t.
   // Initial value is false, as in OpenGL spec.
   // Ignored if the texture object is not a depth texture.
-  vtkGetMacro(DepthTextureCompare,bool);
-  vtkSetMacro(DepthTextureCompare,bool);
+  vtkGetMacro(DepthTextureCompare, bool);
+  vtkSetMacro(DepthTextureCompare, bool);
 
   // Description:
   // In case DepthTextureCompare is true, specify the comparison function in
@@ -423,8 +420,8 @@ public:
   // once to R).
   // Initial value is Lequal, as in OpenGL spec.
   // Ignored if the texture object is not a depth texture.
-  vtkGetMacro(DepthTextureCompareFunction,int);
-  vtkSetMacro(DepthTextureCompareFunction,int);
+  vtkGetMacro(DepthTextureCompareFunction, int);
+  vtkSetMacro(DepthTextureCompareFunction, int);
 
   // Description:
   // Defines the mapping from depth component `r' to RGBA components.
@@ -432,17 +429,17 @@ public:
   // Valid modes are:
   // - Luminance: (R,G,B,A)=(r,r,r,1)
   // - Intensity: (R,G,B,A)=(r,r,r,r)
-  // - Alpha: (R.G.B.A)=(0,0,0,r)
+  // - Alpha: (R,G,B,A)=(0,0,0,r)
   // Initial value is Luminance, as in OpenGL spec.
-  vtkGetMacro(DepthTextureMode,int);
-  vtkSetMacro(DepthTextureMode,int);
+  vtkGetMacro(DepthTextureMode, int);
+  vtkSetMacro(DepthTextureMode, int);
 
   // Description:
   // Tells the hardware to generate mipmap textures from the first texture
   // image at BaseLevel.
   // Initial value is false, as in OpenGL spec.
-  vtkGetMacro(GenerateMipmap,bool);
-  vtkSetMacro(GenerateMipmap,bool);
+  vtkGetMacro(GenerateMipmap, bool);
+  vtkSetMacro(GenerateMipmap, bool);
 
   // Description:
   // Returns if the context supports the required extensions. If flags
@@ -511,9 +508,6 @@ public:
                            int width,
                            int height);
 
-
-
-//BTX
 protected:
   vtkTextureObject();
   ~vtkTextureObject();
@@ -576,7 +570,7 @@ protected:
 private:
   vtkTextureObject(const vtkTextureObject&); // Not implemented.
   void operator=(const vtkTextureObject&); // Not implemented.
-//ETX
+
 };
 
 #endif

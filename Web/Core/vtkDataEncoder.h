@@ -81,7 +81,6 @@ public:
   // Take an image data and synchronously convert it to a base-64 encoded jpg.
   const char* EncodeAsBase64Jpg(vtkImageData* img, int quality=50);
 
-//BTX
 protected:
   vtkDataEncoder();
   ~vtkDataEncoder();
@@ -92,7 +91,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

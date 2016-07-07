@@ -1817,7 +1817,7 @@ void vtkKdTree::BuildLocatorFromPoints(vtkPoints **ptArrays, int numPtArrays)
     if (pointArrayType == VTK_FLOAT)
       {
       vtkDataArray *da = ptArrays[i]->GetData();
-      vtkFloatArray *fa = vtkFloatArray::SafeDownCast(da);
+      vtkFloatArray *fa = vtkArrayDownCast<vtkFloatArray>(da);
       memcpy(points + ptId, fa->GetPointer(0), sizeof(float) * nvals );
       ptId += nvals;
       }

@@ -59,11 +59,10 @@ class vtkVoxel;
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeGrid : public vtkDataSet
 {
 public:
-//BTX
+
   class vtkHyperTreeSimpleCursor;
   class vtkHyperTreeIterator;
   struct vtkHyperTreeGridSuperCursor;
-//ETX
 
   static vtkInformationIntegerKey* LEVELS();
   static vtkInformationIntegerKey* DIMENSION();
@@ -322,8 +321,7 @@ public:
   // Generate the table before calling InitializeSuperCursorChild.
   void GenerateSuperCursorTraversalTable();
 
-//BTX
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
   // Description:
   // Initialize a super cursor to point to one of the root trees
   // in the grid.  The super cursor points to a node in a tree and
@@ -342,7 +340,6 @@ public:
                                    vtkHyperTreeGridSuperCursor* child,
                                    unsigned int childIdx );
 #endif
-//ETX
 
   // Description:
   // The number of children each node can have.
@@ -393,8 +390,7 @@ protected:
   void DeleteInternalArrays();
   void DeleteTrees();
 
-//BTX
-#if !defined(__WRAP__) && !defined(__WRAP_GCCXML__)
+#if !defined(__VTK_WRAP__) && !defined(__WRAP_GCCXML__)
   void TraverseDualRecursively( vtkHyperTreeGridSuperCursor*, unsigned int );
 
   void TraverseDualMaskedLeaf( vtkHyperTreeGridSuperCursor* );
@@ -403,7 +399,6 @@ protected:
 
   void EvaluateDualCorner( vtkHyperTreeSimpleCursor* );
 #endif
-//ETX
 
   // Used to advance the super cursor; One Entry per cursor node.
   // Private.
@@ -431,15 +426,12 @@ protected:
   vtkCellLinks* Links;
   void BuildLinks();
 
-//BTX
   vtkIdType RecursiveFindPoint( double x[3],
                                 vtkHyperTreeSimpleCursor* cursor,
                                 double* origin, double* size);
-//ETX
 
 public:
 
-//BTX
   // A simplified hyper tree cursor, to be used by the hyper tree
   // grid supercursor.
   class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeSimpleCursor
@@ -506,7 +498,6 @@ public:
       return this->Cursors + this->MiddleCursorId + idx;
     }
   };
-//ETX
 
 private:
   vtkHyperTreeGrid(const vtkHyperTreeGrid&);  // Not implemented.

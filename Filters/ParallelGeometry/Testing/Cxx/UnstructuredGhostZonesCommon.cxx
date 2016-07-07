@@ -39,7 +39,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
 
   // check node fields by the iteration number
   vtkDoubleArray* nodeXYZ =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           ghostGrid->GetPointData()->GetArray("NodeXYZ"));
   assert("pre: nodeXYZ != NULL" && (nodeXYZ != NULL) );
   assert("pre: nodeXYZ numtuples mismatch!" &&
@@ -80,7 +80,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
 
   // likewise, check cell-fields
   vtkDoubleArray* cellXYZ =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           ghostGrid->GetCellData()->GetArray("CentroidXYZ"));
   assert("pre: nodeXYZ numtuples mismatch!" &&
           (ghostGrid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));
@@ -146,7 +146,7 @@ void UpdateGrid(const int iteration)
 {
   // increment node fields by the iteration number
   vtkDoubleArray* nodeXYZ =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           global::Grid->GetPointData()->GetArray("NodeXYZ"));
   assert("pre: nodeXYZ != NULL" && (nodeXYZ != NULL) );
   assert("pre: nodeXYZ numtuples mismatch!" &&
@@ -164,7 +164,7 @@ void UpdateGrid(const int iteration)
 
   // increment cell fields by the iteration number
   vtkDoubleArray* cellXYZ =
-      vtkDoubleArray::SafeDownCast(
+      vtkArrayDownCast<vtkDoubleArray>(
           global::Grid->GetCellData()->GetArray("CentroidXYZ"));
   assert("pre: nodeXYZ numtuples mismatch!" &&
           (global::Grid->GetNumberOfCells()==cellXYZ->GetNumberOfTuples()));

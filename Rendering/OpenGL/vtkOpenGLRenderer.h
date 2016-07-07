@@ -48,7 +48,7 @@ public:
   // Description:
   // Internal method temporarily removes lights before reloading them
   // into graphics pipeline.
-  void ClearLights(void);
+  virtual void ClearLights(void);
 
   virtual void Clear(void);
 
@@ -63,18 +63,10 @@ public:
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
   int GetDepthPeelingHigherLayer();
 
-  //BTX
   // Description:
   //
   vtkGetObjectMacro(ShaderProgram, vtkShaderProgram2);
   virtual void SetShaderProgram(vtkShaderProgram2 *program);
-  //ETX
-
-  // Description:
-  // Set/Get a custom render pass.
-  // Initial value is NULL.
-  void SetPass(vtkRenderPass *p);
-  vtkGetObjectMacro(Pass, vtkRenderPass);
 
 protected:
   vtkOpenGLRenderer();
@@ -87,7 +79,6 @@ protected:
   // Internal method to release graphics resources in any derived renderers.
   virtual void ReleaseGraphicsResources(vtkWindow *w);
 
-  //BTX
   // Picking functions to be implemented by sub-classes
   virtual void DevicePickRender();
   virtual void StartPick(unsigned int pickFromSize);
@@ -100,7 +91,6 @@ protected:
 
   // Ivars used in picking
   class vtkGLPickInfo* PickInfo;
-  //ETX
 
   double PickedZ;
 
@@ -112,12 +102,10 @@ protected:
   // \pre positive_layer: layer>=0
   int RenderPeel(int layer);
 
-  //BTX
   friend class vtkOpenGLProperty;
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
-  //ETX
 
   // Description:
   // Access to the OpenGL program shader uniform variable "useTexture" from the
@@ -168,7 +156,6 @@ protected:
   vtkShaderProgram2 *ShaderProgram;
 
   friend class vtkRenderPass;
-  vtkRenderPass *Pass;
 
 private:
   vtkOpenGLRenderer(const vtkOpenGLRenderer&);  // Not implemented.

@@ -71,9 +71,7 @@ protected:
 
   int SocketDescriptor;
 
-  //BTX
   friend class vtkSocketCollection;
-  //ETX
 
   // Description:
   // Creates an endpoint for communication and returns the descriptor.

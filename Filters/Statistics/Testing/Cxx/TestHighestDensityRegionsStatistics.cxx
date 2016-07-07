@@ -106,7 +106,7 @@ int TestHighestDensityRegionsStatistics(int , char * [])
 
   std::stringstream ss;
   ss << "HDR (" << namev1 << "," << namev2 << ")";
-  vtkDoubleArray* HDRArray = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray* HDRArray = vtkArrayDownCast<vtkDoubleArray>(
     outputMetaLearn->GetColumnByName(ss.str().c_str()));
   if (!HDRArray)
     {

@@ -29,6 +29,12 @@
 #include <sstream>
 #include <string>
 
+// NOTE:
+// In this code, we referred to various spaces described below:
+// Object space: Raw coordinates in space defined by volume matrix
+// Dataset space: Raw coordinates
+// Eye space: Coordinates in eye space (as referred in computer graphics)
+
 namespace vtkvolume
 {
   //--------------------------------------------------------------------------
@@ -78,20 +84,7 @@ namespace vtkvolume
     return std::string(
       "\n  // For point dataset, we offset the texture coordinate\
        \n  // to account for OpenGL treating voxel at the center of the cell.\
-       \n  vec3 spacingSign = vec3(1.0);\
-       \n  if (in_cellSpacing.x < 0.0)\
-       \n    {\
-      \n     spacingSign.x = -1.0;\
-       \n    }\
-       \n  if (in_cellSpacing.y < 0.0)\
-       \n    {\
-       \n     spacingSign.y = -1.0;\
-       \n    }\
-       \n  if (in_cellSpacing.z < 0.0)\
-       \n    {\
-       \n     spacingSign.z = -1.0;\
-       \n    }\
-       \n  vec3 uvx = spacingSign * (in_vertexPos - in_volumeExtentsMin) /\
+       \n  vec3 uvx = sign(in_cellSpacing) * (in_vertexPos - in_volumeExtentsMin) /\
        \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
        \n  if (in_cellFlag)\
        \n    {\
@@ -185,24 +178,24 @@ namespace vtkvolume
       \n// Others\
       \nuniform bool in_cellFlag;\
       \n uniform bool in_useJittering;\
+      \n uniform bool in_clampDepthToBackface;\
       ");
-
-    if (hasGradientOpacity || lightingComplexity > 0)
-      {
-      shaderStr += std::string("\
-        \nvec3 g_xvec;\
-        \nvec3 g_yvec;\
-        \nvec3 g_zvec;"
-      );
-      }
 
     if (lightingComplexity > 0 || hasGradientOpacity)
       {
       shaderStr += std::string("\
         \nuniform bool in_twoSidedLighting;\
+        \nvec3 g_xvec;\
+        \nvec3 g_yvec;\
+        \nvec3 g_zvec;");
+      }
+
+    if (hasGradientOpacity)
+      {
+      shaderStr += std::string("\
+        \nvec3 g_aspect;\
         \nvec3 g_cellSpacing;\
-        \nfloat g_avgSpacing;"
-      );
+        \nfloat g_avgSpacing;");
       }
 
     if (lightingComplexity == 3)
@@ -241,9 +234,7 @@ namespace vtkvolume
         \nvec4 g_lightPosObj;\
         \nvec3 g_ldir;\
         \nvec3 g_vdir;\
-        \nvec3 g_h;\
-        \nvec3 g_aspect;"
-      );
+        \nvec3 g_h;");
       }
 
     if (noOfComponents > 1 && independentComponents)
@@ -318,7 +309,7 @@ namespace vtkvolume
 
       shaderStr += std::string("\
         \n\
-        \n  // Eye position in object space\
+        \n  // Eye position in dataset space\
         \n  g_eyePosObj = (in_inverseVolumeMatrix * vec4(in_cameraPos, 1.0));\
         \n  if (g_eyePosObj.w != 0.0)\
         \n    {\
@@ -328,7 +319,7 @@ namespace vtkvolume
         \n    g_eyePosObj.w = 1.0;\
         \n    }\
         \n\
-        \n  // Getting the ray marching direction (in object space);\
+        \n  // Getting the ray marching direction (in dataset space);\
         \n  vec3 rayDir = computeRayDirection();\
         \n\
         \n  // Multiply the raymarching direction with the step size to get the\
@@ -352,7 +343,7 @@ namespace vtkvolume
     if (vol->GetProperty()->GetShade() && lightingComplexity == 1)
       {
         shaderStr += std::string("\
-          \n  // Light position in object space\
+          \n  // Light position in dataset space\
           \n  g_lightPosObj = (in_inverseVolumeMatrix *\
           \n                      vec4(in_cameraPos, 1.0));\
           \n  if (g_lightPosObj.w != 0.0)\
@@ -372,12 +363,6 @@ namespace vtkvolume
          glMapper->GetCurrentPass() != vtkOpenGLGPUVolumeRayCastMapper::DepthPass)
       {
       shaderStr += std::string("\
-        \n  g_cellSpacing = vec3(in_cellSpacing[0],\
-        \n                       in_cellSpacing[1],\
-        \n                       in_cellSpacing[2]);\
-        \n  g_avgSpacing = (g_cellSpacing[0] +\
-        \n                  g_cellSpacing[1] +\
-        \n                  g_cellSpacing[2])/3.0;\
         \n  g_xvec = vec3(in_cellStep[0], 0.0, 0.0);\
         \n  g_yvec = vec3(0.0, in_cellStep[1], 0.0);\
         \n  g_zvec = vec3(0.0, 0.0, in_cellStep[2]);"
@@ -387,6 +372,12 @@ namespace vtkvolume
     if (vol->GetProperty()->HasGradientOpacity())
       {
       shaderStr += std::string("\
+        \n  g_cellSpacing = vec3(in_cellSpacing[0],\
+        \n                       in_cellSpacing[1],\
+        \n                       in_cellSpacing[2]);\
+        \n  g_avgSpacing = (g_cellSpacing[0] +\
+        \n                  g_cellSpacing[1] +\
+        \n                  g_cellSpacing[2])/3.0;\
         \n  // Adjust the aspect\
         \n  g_aspect.x = g_cellSpacing[0] * 2.0 / g_avgSpacing;\
         \n  g_aspect.y = g_cellSpacing[1] * 2.0 / g_avgSpacing;\
@@ -1276,6 +1267,78 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
+  std::string PickingActorPassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+    {
+    return std::string("\
+    \n  // Special coloring mode which renders the Prop Id in fragments that\
+    \n  // have accumulated certain level of opacity. Used during the selection\
+    \n  // pass vtkHardwareSelection::ACTOR_PASS.\
+    \n  if (g_fragColor.a > 3.0/ 255.0)\
+    \n    {\
+    \n    gl_FragData[0] = vec4(in_propId, 1.0);\
+    \n    }\
+    \n  else\
+    \n    {\
+    \n    gl_FragData[0] = vec4(0.0);\
+    \n    }\
+    \n  return;");
+    };
+
+  //--------------------------------------------------------------------------
+  std::string PickingIdLow24PassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  // Special coloring mode which renders the voxel index in fragments that\
+  \n  // have accumulated certain level of opacity. Used during the selection\
+  \n  // pass vtkHardwareSelection::ID_LOW24.\
+  \n  if (g_fragColor.a > 3.0/ 255.0)\
+  \n    {\
+  \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
+  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
+  \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
+  \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
+  \n    gl_FragData[0] = vec4(float(idx % uint(256)) / 255.0,\
+  \n      float((idx / uint(256)) % uint(256)) / 255.0,\
+  \n      float((idx / uint(65536)) % uint(256)) / 255.0, 1.0);\
+  \n    }\
+  \n  else\
+  \n    {\
+  \n    gl_FragData[0] = vec4(0.0);\
+  \n    }\
+  \n  return;");
+  };
+
+  //--------------------------------------------------------------------------
+  std::string PickingIdMid24PassExit(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  // Special coloring mode which renders the voxel index in fragments that\
+  \n  // have accumulated certain level of opacity. Used during the selection\
+  \n  // pass vtkHardwareSelection::ID_MID24.\
+  \n  if (g_fragColor.a > 3.0/ 255.0)\
+  \n    {\
+  \n    uvec3 volumeDim = uvec3(in_textureExtentsMax - in_textureExtentsMin);\
+  \n    uvec3 voxelCoords = uvec3(volumeDim * g_dataPos);\
+  \n    // vtkHardwareSelector assumes index 0 to be empty space, so add uint(1).\
+  \n    uint idx = volumeDim.x * volumeDim.y * voxelCoords.z +\
+  \n      volumeDim.x * voxelCoords.y + voxelCoords.x + uint(1);\
+  \n    idx = ((idx & 0xff000000) >> 24);\
+  \n    gl_FragData[0] = vec4(float(idx % uint(256)) / 255.0,\
+  \n      float((idx / uint(256)) % uint(256)) / 255.0,\
+  \n      float(idx / uint(65536)) / 255.0, 1.0);\
+  \n    }\
+  \n  else\
+  \n    {\
+  \n    gl_FragData[0] = vec4(0.0);\
+  \n    }\
+  \n  return;");
+  };
+
+  //--------------------------------------------------------------------------
   std::string ShadingExit(vtkRenderer* vtkNotUsed(ren),
                           vtkVolumeMapper* mapper,
                           vtkVolume* vtkNotUsed(vol),
@@ -1385,6 +1448,14 @@ namespace vtkvolume
     }
 
   //--------------------------------------------------------------------------
+  std::string PickingActorPassDeclaration(vtkRenderer* vtkNotUsed(ren),
+    vtkVolumeMapper* vtkNotUsed(mapper), vtkVolume* vtkNotUsed(vol))
+  {
+  return std::string("\
+  \n  uniform vec3 in_propId;");
+  };
+
+  //--------------------------------------------------------------------------
   std::string TerminationInit(vtkRenderer* vtkNotUsed(ren),
                               vtkVolumeMapper* vtkNotUsed(mapper),
                               vtkVolume* vtkNotUsed(vol))
@@ -1464,19 +1535,12 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n    // sign function performs component wise operation and returns -1\
-      \n    // if the difference is less than 0, 0 if equal to 0, and 1 if\
-      \n    // above 0. So if the ray is inside the volume, dot product will\
-      \n    // always be 3.\
-      \n    stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
-      \n             < 3.0;\
-      \n\
-      \n    // If the stopping condition is true we brek out of the ray marching\
-      \n    // loop\
-      \n    if (stop)\
+      \n    if(any(greaterThan(g_dataPos, l_texMax)) ||\
+      \n      any(lessThan(g_dataPos, l_texMin)))\
       \n      {\
       \n      break;\
       \n      }\
+      \n\
       \n    // Early ray termination\
       \n    // if the currently composited colour alpha is already fully saturated\
       \n    // we terminated the loop or if we have hit an obstacle in the\
@@ -1662,7 +1726,7 @@ namespace vtkvolume
   }
 
   //--------------------------------------------------------------------------
-  std::string ClippingInit(vtkRenderer* vtkNotUsed(ren),
+  std::string ClippingInit(vtkRenderer* ren,
                            vtkVolumeMapper* mapper,
                            vtkVolume* vtkNotUsed(vol))
   {
@@ -1670,67 +1734,111 @@ namespace vtkvolume
       {
       return std::string();
       }
+
+    std::string shaderStr;
+    if (!ren->GetActiveCamera()->GetParallelProjection())
+      {
+      shaderStr = std::string("\
+        vec4 temp = in_volumeMatrix * vec4(rayDir, 0.0);\
+        \n    if (temp.w != 0.0)\
+        \n      {\
+        \n      temp = temp/temp.w;\
+        \n      temp.w = 1.0;\
+        \n      }\
+        vec3 objRayDir = temp.xyz;");
+      }
     else
       {
-      return std::string("\
-        \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
-        \n  vec4 objDataPos = vec4(0.0);\
-        \n  mat4 textureToObjMat = in_volumeMatrix *\
-        \n                             in_textureDatasetMatrix;\
-        \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
-        \n    {\
-        \n    if (in_useJittering)\
-        \n      {\
-        \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
-        \n                                           * jitterValue), 1.0);\
-        \n      }\
-        \n    else\
-        \n      {\
-        \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
-        \n      }\
-        \n    if (objDataPos.w != 0.0)\
-        \n      {\
-        \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
-        \n      }\
-        \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
-        \n                            in_clippingPlanes[i + 2],\
-        \n                            in_clippingPlanes[i + 3]);\
-        \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
-        \n                            in_clippingPlanes[i + 5],\
-        \n                            in_clippingPlanes[i + 6]);\
-        \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
-        \n\
-        \n    float planeD = -planeOrigin[0] * normalizedPlaneNormal[0] - planeOrigin[1]\
-        \n                      * normalizedPlaneNormal[1] - planeOrigin[2] * normalizedPlaneNormal[2];\
-        \n    bool frontFace = dot(rayDir, normalizedPlaneNormal) > 0;\
-        \n    float dist = dot(rayDir, normalizedPlaneNormal);\
-        \n    if (dist != 0.0) { dist = (-planeD - dot(normalizedPlaneNormal, objDataPos.xyz)) / dist; }\
-        \n    if (frontFace && dist > 0.0 && dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0)\
-        \n      {\
-        \n      vec4 newObjDataPos = vec4(objDataPos.xyz + dist * rayDir, 1.0);\
-        \n      newObjDataPos = in_inverseTextureDatasetMatrix\
-        \n                        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
-        \n      if (newObjDataPos.w != 0.0)\
-        \n        {\
-        \n        newObjDataPos /= newObjDataPos.w;\
-        \n        }\
-        \n     if (in_useJittering)\
-        \n       {\
-        \n       g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
-        \n       }\
-        \n     else\
-        \n       {\
-        \n       g_dataPos = newObjDataPos.xyz + g_dirStep;\
-        \n       }\
-        \n       bool stop = dot(sign(g_dataPos - l_texMin), sign(l_texMax - g_dataPos))\
-        \n                     < 3.0;\
-        \n      if (stop)\
-        \n        {\
-        \n        discard;\
-        \n        }\
-        \n      }\
-        \n  }");
+      shaderStr = std::string("\
+        vec3 objRayDir = normalize(in_projectionDirection);");
       }
+
+    shaderStr += std::string("\
+      \n  int clippingPlanesSize = int(in_clippingPlanes[0]);\
+      \n  vec4 objDataPos = vec4(0.0);\
+      \n  mat4 textureToObjMat = in_volumeMatrix *\
+      \n                             in_textureDatasetMatrix;\
+      \n\
+      \n  vec4 terminatePointObj = textureToObjMat * terminatePoint;\
+      \n  if (terminatePointObj.w != 0.0)\
+      \n   {\
+      \n   terminatePointObj = terminatePointObj/ terminatePointObj.w ;\
+      \n   terminatePointObj.w = 1.0;\
+      \n   }\
+      \n\
+      \n  for (int i = 0; i < clippingPlanesSize; i = i + 6)\
+      \n    {\
+      \n    if (in_useJittering)\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - (g_dirStep\
+      \n                                           * jitterValue), 1.0);\
+      \n      }\
+      \n    else\
+      \n      {\
+      \n      objDataPos = textureToObjMat * vec4(g_dataPos - g_dirStep, 1.0);\
+      \n      }\
+      \n    if (objDataPos.w != 0.0)\
+      \n      {\
+      \n      objDataPos = objDataPos/objDataPos.w; objDataPos.w = 1.0;\
+      \n      }\
+      \n    vec3 planeOrigin = vec3(in_clippingPlanes[i + 1],\
+      \n                            in_clippingPlanes[i + 2],\
+      \n                            in_clippingPlanes[i + 3]);\
+      \n    vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
+      \n                            in_clippingPlanes[i + 5],\
+      \n                            in_clippingPlanes[i + 6]);\
+      \n    vec3 normalizedPlaneNormal = normalize(planeNormal);\
+      \n\
+      \n    float rayDotNormal = dot(objRayDir, normalizedPlaneNormal);\
+      \n    bool frontFace = rayDotNormal > 0;\
+      \n    float distance = dot(normalizedPlaneNormal, planeOrigin - objDataPos.xyz);\
+      \n\
+      \n    if (frontFace && // Observing from the clipped side (plane's front face)\
+      \n      distance > 0.0) // Ray-entry lies on the clipped side.\
+      \n      {\
+      \n      // Scale the point-plane distance to the ray direction and update the\
+      \n      // entry point.\
+      \n      float rayScaledDist = distance / rayDotNormal;\
+      \n      vec4 newObjDataPos = vec4(objDataPos.xyz + rayScaledDist * objRayDir, 1.0);\
+      \n      newObjDataPos = in_inverseTextureDatasetMatrix\
+      \n        * in_inverseVolumeMatrix * vec4(newObjDataPos.xyz, 1.0);\
+      \n      if (newObjDataPos.w != 0.0)\
+      \n        {\
+      \n        newObjDataPos /= newObjDataPos.w;\
+      \n        }\
+      \n      if (in_useJittering)\
+      \n        {\
+      \n        g_dataPos = newObjDataPos.xyz + g_dirStep * jitterValue;\
+      \n        }\
+      \n      else\
+      \n        {\
+      \n        g_dataPos = newObjDataPos.xyz + g_dirStep;\
+      \n        }\
+      \n\
+      \n      bool stop = any(greaterThan(g_dataPos, l_texMax)) || any(lessThan(g_dataPos, l_texMin));\
+      \n      if (stop)\
+      \n        {\
+      \n        // The ray exits the bounding box before ever intersecting the plane (only\
+      \n        // the clipped space is hit).\
+      \n        discard;\
+      \n        }\
+      \n\
+      \n      bool behindGeometry = dot(terminatePointObj.xyz - planeOrigin.xyz, normalizedPlaneNormal) < 0.0;\
+      \n      if (behindGeometry)\
+      \n        {\
+      \n        // Geometry appears in front of the plane.\
+      \n        discard;\
+      \n        }\
+      \n\
+      \n      // Update the number of ray marching steps to account for the clipped entry point (\
+      \n      // this is necessary in case the ray hits geometry after marching behind the plane,\
+      \n      // given that the number of steps was assumed to be from the not-clipped entry).\
+      \n      l_terminatePointMax = length(terminatePoint.xyz - g_dataPos.xyz) /\
+      \n        length(g_dirStep);\
+      \n      }\
+      \n  }");
+
+    return shaderStr;
   }
 
   //--------------------------------------------------------------------------
@@ -1758,7 +1866,7 @@ namespace vtkvolume
         \n      vec3 planeNormal = vec3(in_clippingPlanes[i + 4],\
         \n                              in_clippingPlanes[i + 5],\
         \n                              in_clippingPlanes[i + 6]);\
-        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(rayDir, planeNormal) < 0)\
+        \n      if (dot(vec3(objDataPos.xyz - planeOrigin), planeNormal) < 0 && dot(objRayDir, planeNormal) < 0)\
         \n        {\
         \n         l_skip = true;\
         \n         g_exit = true;\
@@ -1922,7 +2030,11 @@ namespace vtkvolume
                                 vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n  vec3 l_opaqueFragPos = g_dataPos;\
+    \n  vec3 l_opaqueFragPos = vec3(-1.0);\
+    \n  if(in_clampDepthToBackface)\
+    \n    {\
+    \n    l_opaqueFragPos = g_dataPos;\
+    \n    }\
     \n  bool l_updateDepth = true;"
   );
   }
@@ -1947,11 +2059,20 @@ namespace vtkvolume
                                 vtkVolume* vtkNotUsed(vol))
   {
   return std::string("\
-    \n  vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
-    \n                  in_volumeMatrix * in_textureDatasetMatrix *\
-    \n                  vec4(l_opaqueFragPos, 1.0);\
-    \n  gl_FragData[1] = vec4(vec3((depthValue.z/depthValue.w) * 0.5 + 0.5),\
-    \n                        1.0);"
+    \n  if (l_opaqueFragPos == vec3(-1.0))\
+    \n    {\
+    \n    gl_FragData[1] = vec4(1.0);\
+    \n    }\
+    \n  else\
+    \n    {\
+    \n    vec4 depthValue = in_projectionMatrix * in_modelViewMatrix *\
+    \n                      in_volumeMatrix * in_textureDatasetMatrix *\
+    \n                      vec4(l_opaqueFragPos, 1.0);\
+    \n    depthValue /= depthValue.w;\
+    \n    gl_FragData[1] = vec4(vec3(0.5 * (gl_DepthRange.far -\
+    \n                       gl_DepthRange.near) * depthValue.z + 0.5 *\
+    \n                      (gl_DepthRange.far + gl_DepthRange.near)), 1.0);\
+    \n    }"
   );
   }
 

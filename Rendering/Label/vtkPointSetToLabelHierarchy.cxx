@@ -212,17 +212,17 @@ int vtkPointSetToLabelHierarchy::RequestData(
     pdata = ptset->GetPointData();
     }
 
-  vtkDataArray* priorities = vtkDataArray::SafeDownCast(
+  vtkDataArray* priorities = vtkArrayDownCast<vtkDataArray>(
     this->GetInputAbstractArrayToProcess( 0, inputVector ) );
-  vtkDataArray* sizes = vtkDataArray::SafeDownCast(
+  vtkDataArray* sizes = vtkArrayDownCast<vtkDataArray>(
     this->GetInputAbstractArrayToProcess( 1, inputVector ) );
   vtkAbstractArray* labels =
     this->GetInputAbstractArrayToProcess( 2, inputVector );
-  vtkIntArray* iconIndices = vtkIntArray::SafeDownCast(
+  vtkIntArray* iconIndices = vtkArrayDownCast<vtkIntArray>(
     this->GetInputAbstractArrayToProcess( 3, inputVector ) );
-  vtkDataArray* orientations = vtkDataArray::SafeDownCast(
+  vtkDataArray* orientations = vtkArrayDownCast<vtkDataArray>(
     this->GetInputAbstractArrayToProcess( 4, inputVector ) );
-  vtkDataArray* boundedSizes = vtkDataArray::SafeDownCast(
+  vtkDataArray* boundedSizes = vtkArrayDownCast<vtkDataArray>(
     this->GetInputAbstractArrayToProcess( 5, inputVector ) );
 
   if ( ! ouData->GetPoints() )
@@ -244,8 +244,8 @@ int vtkPointSetToLabelHierarchy::RequestData(
   ouData->SetPriorities( priorities );
   if ( labels )
     {
-    if ( ( this->UseUnicodeStrings && vtkUnicodeStringArray::SafeDownCast( labels ) ) ||
-         ( !this->UseUnicodeStrings && vtkStringArray::SafeDownCast( labels ) ) )
+    if ( ( this->UseUnicodeStrings && vtkArrayDownCast<vtkUnicodeStringArray>( labels ) ) ||
+         ( !this->UseUnicodeStrings && vtkArrayDownCast<vtkStringArray>( labels ) ) )
       {
       ouData->SetLabels( labels );
       }

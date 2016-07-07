@@ -219,7 +219,7 @@ void vtkChartXYZ::Update()
       {
       vtkSelectionNode *node = selection->GetNode(0);
       vtkIdTypeArray *idArray =
-          vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+          vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       for (size_t i = 0; i < this->Plots.size(); ++i)
         {
         this->Plots[i]->SetSelection(idArray);

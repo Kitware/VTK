@@ -53,12 +53,11 @@ public:
   vtkTypeMacro(vtkSimple3DCirclesStrategy,vtkGraphLayoutStrategy);
   void PrintSelf( ostream& os, vtkIndent indent );
 
-//BTX
   enum
     {
     FixedRadiusMethod = 0, FixedDistanceMethod = 1
     };
-//ETX
+
   // Description:
   // Set or get cicrle generating method (FixedRadiusMethod/FixedDistanceMethod). Default is FixedRadiusMethod.
   vtkSetMacro(Method,int);
@@ -131,7 +130,7 @@ public:
   // Set graph (warning: HierarchicalOrder and HierarchicalLayers will set to zero. These reference counts will be decreased!)
   virtual void SetGraph( vtkGraph * graph );
 protected:
-//BTX
+
   vtkSimple3DCirclesStrategy( void );
   virtual ~vtkSimple3DCirclesStrategy( void );
 
@@ -150,9 +149,9 @@ protected:
 
   vtkIntArray * HierarchicalLayers;
   vtkIdTypeArray * HierarchicalOrder;
-//ETX
+
 private:
-//BTX
+
   // Description:
   // Search and fill in target all zero input degree vertices where the output degree is more than zero. The finded vertices hierarchical
   // layer ID will be zero.
@@ -165,7 +164,6 @@ private:
   virtual void BuildPointOrder( vtkDirectedGraph * input, vtkSimple3DCirclesStrategyInternal *source, vtkSimple3DCirclesStrategyInternal *StandAlones, vtkIntArray * layers, vtkIdTypeArray * order );
 
   double T[3][3];
-//ETX
 
   vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&);  // Not implemented.
   void operator=(const vtkSimple3DCirclesStrategy&);  // Not implemented.

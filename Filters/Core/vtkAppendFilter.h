@@ -41,13 +41,11 @@ public:
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Get any input of this filter.
   vtkDataSet *GetInput(int idx);
   vtkDataSet *GetInput()
     {return this->GetInput( 0 );}
-//ETX
 
   // Description:
   // Get if the filter should merge coincidental points

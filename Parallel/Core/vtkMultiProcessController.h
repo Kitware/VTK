@@ -61,7 +61,6 @@ class vtkOutputWindow;
 class vtkProcessGroup;
 class vtkProcess;
 
-//BTX
 // The type of function that gets called when new processes are initiated.
 typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
                                        void *userData);
@@ -70,8 +69,6 @@ typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
 typedef void (*vtkRMIFunctionType)(void *localArg,
                                    void *remoteArg, int remoteArgLength,
                                    int remoteProcessId);
-//ETX
-
 
 class VTKPARALLELCORE_EXPORT vtkMultiProcessController : public vtkObject
 {
@@ -111,7 +108,6 @@ public:
   void SetNumberOfProcesses(int num);
   int GetNumberOfProcesses();
 
-  //BTX
   // Description:
   // Set the SingleMethod to f() and the UserData of the
   // for the method to be executed by all of the processes
@@ -124,7 +120,6 @@ public:
   // some function pointer and user data, a vtkProcess object is passed
   // where the method to execute is Execute() and the data the object itself.
   void SetSingleProcessObject(vtkProcess *p);
-  //ETX
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
@@ -132,14 +127,12 @@ public:
   // all the processes finish executing their methods.
   virtual void SingleMethodExecute() = 0;
 
-  //BTX
   // Description:
   // Set the MultipleMethod to f() and the UserData of the
   // for the method to be executed by the process index
   // when MultipleMethodExecute is called.  This is for having each
   // process start with a different function and data argument.
   void SetMultipleMethod(int index, vtkProcessFunctionType, void *data);
-  //ETX
 
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
@@ -190,7 +183,7 @@ public:
                                                          int localKey);
 
   //------------------ RMIs --------------------
-  //BTX
+
   // Description:
   // Register remote method invocation in the receiving process
   // which makes the call.  It must have a unique tag as an RMI id.
@@ -233,8 +226,6 @@ public:
   // Description:
   // Remove a callback. Returns true is the remove was successful.
   virtual bool RemoveRMICallback(unsigned long id);
-
-  //ETX
 
   // Description:
   // A method to trigger a method invocation in another process.
@@ -315,8 +306,6 @@ public:
   static int GetRMITag() { return RMI_TAG; }
   static int GetRMIArgTag() { return RMI_ARG_TAG; }
 
-//BTX
-
   enum Errors
   {
     RMI_NO_ERROR,
@@ -337,8 +326,6 @@ public:
     BREAK_RMI_TAG  = 3,
     XML_WRITER_DATA_INFO = 4
   };
-
-//ETX
 
   // Description:
   // This method can be used to synchronize processes.
@@ -376,7 +363,6 @@ public:
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
 
-//BTX
   // Description:
   // Send a stream to another process. vtkMultiProcessStream makes it possible
   // to send data with arbitrary length and different base types to the other
@@ -384,7 +370,6 @@ public:
   // arguments, it's generally more efficient to push the arguments into the
   // stream and the send the stream over.
   int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
 
   // Description:
   // This method receives data from a corresponding send. It blocks
@@ -414,11 +399,11 @@ public:
   int Receive(unsigned long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
-//BTX
+
   // Description:
   // Receive a stream from the other processes.
   int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
+
   vtkDataObject *ReceiveDataObject(int remoteId, int tag);
 
   // Description:
@@ -488,11 +473,10 @@ public:
   int Broadcast(vtkDataArray *data, int srcProcessId) {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
-//BTX
+
   int Broadcast(vtkMultiProcessStream& stream, int srcProcessId) {
     return this->Communicator->Broadcast(stream, srcProcessId);
   }
-//ETX
 
   // Description:
   // Gather collects arrays in the process with id \c destProcessId.  Each
@@ -1171,7 +1155,6 @@ public:
                                       operation, destProcessId);
   }
 
-//BTX
   // Description:
   // Reduce an array to the given destination process.  This version of Reduce
   // takes a custom operation as a subclass of vtkCommunicator::Operation.
@@ -1267,7 +1250,6 @@ public:
     return this->Communicator->Reduce(sendBuffer, recvBuffer,
                                       operation, destProcessId);
   }
-//ETX
 
   // Description:
   // Same as Reduce except that the result is placed in all of the processes.
@@ -1348,7 +1330,7 @@ public:
                 int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-//BTX
+
   int AllReduce(const int *sendBuffer, int *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
@@ -1426,7 +1408,6 @@ public:
                 vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-//ETX
 
 // Internally implemented RMI to break the process loop.
 
@@ -1487,10 +1468,9 @@ private:
 
   unsigned long RMICount;
 
-//BTX
   class vtkInternal;
   vtkInternal *Internal;
-//ETX
+
 };
 
 

@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkFlyingEdgesPlaneCutter.h"
 
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
@@ -36,9 +37,6 @@ vtkCxxSetObjectMacro(vtkFlyingEdgesPlaneCutter,Plane,vtkPlane);
 
 //----------------------------------------------------------------------------
 namespace {
-#include "vtkArrayListTemplate.h" // For processing attribute data
-
-
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdgesPlaneCutter populates the information in this class and
 // then invokes Contour() to actually initiate execution.

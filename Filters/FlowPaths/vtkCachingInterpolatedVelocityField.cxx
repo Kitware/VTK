@@ -68,13 +68,13 @@ void IVFDataSetInfo::SetDataSet(vtkDataSet *data, char *velocity, bool staticdat
     this->DataSet->GetLength() * IVFDataSetInfo::TOLERANCE_SCALE;
   //
   vtkDataArray *vectors = this->DataSet->GetPointData()->GetArray(velocity);
-  if (vtkFloatArray::SafeDownCast(vectors))
+  if (vtkArrayDownCast<vtkFloatArray>(vectors))
     {
-    this->VelocityFloat = vtkFloatArray::SafeDownCast(vectors)->GetPointer(0);
+    this->VelocityFloat = vtkArrayDownCast<vtkFloatArray>(vectors)->GetPointer(0);
     }
-  else if (vtkDoubleArray::SafeDownCast(vectors))
+  else if (vtkArrayDownCast<vtkDoubleArray>(vectors))
     {
-    this->VelocityDouble = vtkDoubleArray::SafeDownCast(vectors)->GetPointer(0);
+    this->VelocityDouble = vtkArrayDownCast<vtkDoubleArray>(vectors)->GetPointer(0);
     }
   else
     {

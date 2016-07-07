@@ -73,9 +73,8 @@ public:
   vtkViewportCoordinateMacro(Position);
   vtkViewportCoordinateMacro(Position2);
 
-//BTX
   enum {BORDER_OFF=0,BORDER_ON,BORDER_ACTIVE};
-//ETX
+
   // Description:
   // Specify when and if the border should appear. If ShowBorder is "on",
   // then the border will always appear. If ShowBorder is "off" then the
@@ -149,7 +148,6 @@ public:
   vtkGetMacro(Moving,int);
   vtkBooleanMacro(Moving,int);
 
-//BTX
   // Description:
   // Define the various states that the representation can be in.
   enum _InteractionState
@@ -165,7 +163,11 @@ public:
     AdjustingE2,
     AdjustingE3
   };
-//ETX
+
+  // Description:
+  // Return the MTime of this object. It takes into account MTimes
+  // of position coordinates and border's property.
+  virtual unsigned long GetMTime();
 
   // Description:
   // Subclasses should implement these methods. See the superclasses'

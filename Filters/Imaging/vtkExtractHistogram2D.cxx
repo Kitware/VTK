@@ -255,15 +255,15 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
     vtkStdString colName;
 
     this->Internals->GetColumnForRequest( 0, (this->SwapColumns != 0), colName );
-    col1 = vtkDataArray::SafeDownCast( inData->GetColumnByName( colName ) );
+    col1 = vtkArrayDownCast<vtkDataArray>( inData->GetColumnByName( colName ) );
 
     this->Internals->GetColumnForRequest( 0, (this->SwapColumns == 0), colName );
-    col2 = vtkDataArray::SafeDownCast( inData->GetColumnByName( colName ) );
+    col2 = vtkArrayDownCast<vtkDataArray>( inData->GetColumnByName( colName ) );
     }
   else
     {
-    col1 = vtkDataArray::SafeDownCast( inData->GetColumn( 0 ) );
-    col2 = vtkDataArray::SafeDownCast( inData->GetColumn( 1 ) );
+    col1 = vtkArrayDownCast<vtkDataArray>( inData->GetColumn( 0 ) );
+    col2 = vtkArrayDownCast<vtkDataArray>( inData->GetColumn( 1 ) );
     }
 
   if (!col2)

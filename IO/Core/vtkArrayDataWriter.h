@@ -95,7 +95,6 @@ public:
   // Write an arbitrary array to a file, without using the pipeline.
   static bool Write(vtkArrayData* array, const vtkStdString& file_name, bool WriteBinary = false);
 
-//BTX
   // Description:
   // Write input port 0 data to an arbitrary stream.  Note: streams should always be opened in
   // binary mode, to prevent problems reading files on Windows.
@@ -105,7 +104,6 @@ public:
   // Write arbitrary data to a stream without using the pipeline.  Note: streams should always
   // be opened in binary mode, to prevent problems reading files on Windows.
   static bool Write(vtkArrayData* array, ostream& stream, bool WriteBinary = false);
-//ETX
 
   // Description:
   // Write input port 0 data to a string. Note that the WriteBinary argument is not

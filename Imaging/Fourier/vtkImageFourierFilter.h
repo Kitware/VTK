@@ -25,8 +25,6 @@
 #include "vtkImagingFourierModule.h" // For export macro
 #include "vtkImageDecomposeFilter.h"
 
-
-//BTX
 /*******************************************************************
                         COMPLEX number stuff
 *******************************************************************/
@@ -82,7 +80,6 @@ typedef struct{
 }
 
 /******************* End of COMPLEX number stuff ********************/
-//ETX
 
 class VTKIMAGINGFOURIER_EXPORT vtkImageFourierFilter : public vtkImageDecomposeFilter
 {
@@ -91,7 +88,6 @@ public:
 
 
   // public for templated functions of this object
-  //BTX
 
   // Description:
   // This function calculates the whole fft of an array.
@@ -106,20 +102,16 @@ public:
   // (It is engineered for no decimation)
   void ExecuteRfft(vtkImageComplex *in, vtkImageComplex *out, int N);
 
-  //ETX
-
 protected:
   vtkImageFourierFilter() {}
   ~vtkImageFourierFilter() {}
 
-  //BTX
   void ExecuteFftStep2(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int fb);
   void ExecuteFftStepN(vtkImageComplex *p_in, vtkImageComplex *p_out,
                        int N, int bsize, int n, int fb);
   void ExecuteFftForwardBackward(vtkImageComplex *in, vtkImageComplex *out,
                                  int N, int fb);
-  //ETX
 
   // Description:
   // Override to change extent splitting rules.

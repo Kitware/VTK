@@ -158,6 +158,18 @@ public:
                            const double bottomToTop[3]);
 
   // Description:
+  // Set the image to use for WindowLevel interaction.
+  // Any images for which the Pickable flag is off are ignored.
+  // Images are counted back-to-front, so 0 is the rearmost image.
+  // Negative values can be used to count front-to-back, so -1 is
+  // the frontmost image, -2 is the image behind that one, etc.
+  // The default is to use the frontmost image for interaction.
+  // If the specified image does not exist, then no WindowLevel
+  // interaction will take place.
+  virtual void SetCurrentImageNumber(int i);
+  int GetCurrentImageNumber() { return this->CurrentImageNumber; }
+
+  // Description:
   // Get the current image property, which is set when StartWindowLevel
   // is called immediately before StartWindowLevelEvent is generated.
   // This is the image property of the topmost vtkImageSlice in the
@@ -169,12 +181,11 @@ protected:
   vtkInteractorStyleImage();
   ~vtkInteractorStyleImage();
 
-  void SetCurrentImageToNthImage(int i);
-
   int WindowLevelStartPosition[2];
   int WindowLevelCurrentPosition[2];
   double WindowLevelInitial[2];
   vtkImageProperty *CurrentImageProperty;
+  int CurrentImageNumber;
 
   int InteractionMode;
   double XViewRightVector[3];

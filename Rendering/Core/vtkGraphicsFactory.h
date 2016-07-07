@@ -32,6 +32,7 @@ public:
   // Create and return an instance of the named vtk object.
   // This method first checks the vtkObjectFactory to support
   // dynamic loading.
+  VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname);
 
   // Description:

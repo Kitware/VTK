@@ -71,7 +71,7 @@ void vtkRendererSource::RequestData(vtkInformation*,
 
   output->AllocateScalars(info);
   vtkUnsignedCharArray *outScalars =
-    vtkUnsignedCharArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkUnsignedCharArray>(output->GetPointData()->GetScalars());
 
   if (this->Input == NULL)
     {

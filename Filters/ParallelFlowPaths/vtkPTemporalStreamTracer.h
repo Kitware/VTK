@@ -28,10 +28,8 @@
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkTemporalStreamTracer.h"
 
-//BTX
 #include <vector> // STL Header
 #include <list>   // STL Header
-//ETX
 
 class vtkMultiProcessController;
 
@@ -79,7 +77,7 @@ public:
                             vtkInformationVector* outputVector);
 
 //
-//BTX
+
 //
 
     // Description : Before starting the particle trace, classify
@@ -110,7 +108,7 @@ public:
       vtkTemporalStreamTracerNamespace::ParticleInformation &info);
 
 //
-//ETX
+
 //
 
   // MPI controller needed when running in parallel

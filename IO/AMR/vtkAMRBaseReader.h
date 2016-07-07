@@ -254,10 +254,7 @@ protected:
   vtkOverlappingAMR *Metadata;
   bool LoadedMetaData;
 
-
-  //BTX
     std::vector<int> BlockMap;
-  //ETX
 
 private:
   vtkAMRBaseReader( const vtkAMRBaseReader& ); // Not implemented

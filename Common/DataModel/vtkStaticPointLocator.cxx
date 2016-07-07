@@ -23,11 +23,13 @@
 #include "vtkPolyData.h"
 #include "vtkSMPTools.h"
 
+#include <vector>
+
 vtkStandardNewMacro(vtkStaticPointLocator);
 
 // There are stack-allocated bucket neighbor lists. This is the initial
 // value. Too small and heap allocation kicks in.
-static const int VTK_INITIAL_BUCKET_SIZE=1000;
+static const int VTK_INITIAL_BUCKET_SIZE=10000;
 
 //-----------------------------------------------------------------------------
 // The following code supports threaded point locator construction. The locator
@@ -157,33 +159,35 @@ public:
 
   int *GetPoint(vtkIdType i)
     {
-      return (this->Count > i ?  &(this->P[3*i]) : 0);
+      return this->P + 3*i;
+//      return (this->Count > i ?  this->P + 3*i : 0);
     }
 
   vtkIdType InsertNextBucket(const int x[3])
     {
       // Re-allocate if beyond the current max size.
       // (Increase by VTK_INITIAL_BUCKET_SIZE)
-      if (this->Count == this->MaxSize)
-        {
-        int *tmp = this->P;
+      int *tmp;
+      vtkIdType offset=this->Count*3;
 
-        this->MaxSize += VTK_INITIAL_BUCKET_SIZE;
+      if (this->Count >= this->MaxSize)
+        {
+        tmp = this->P;
+        this->MaxSize *= 2;
         this->P = new int[this->MaxSize*3];
 
-        for(vtkIdType i=0; i<3*this->Count; i++)
+        memcpy(this->P, tmp, offset*sizeof(int));
+
+        if ( tmp != this->InitialBuffer )
           {
-          this->P[i] = tmp[i];
-          }
-        if ( tmp != &(this->InitialBuffer[0]) )
-          {
-          delete[] tmp;
+          delete [] tmp;
           }
         }
 
-      this->P[3*this->Count] = x[0];
-      this->P[3*this->Count+1] = x[1];
-      this->P[3*this->Count+2] = x[2];
+      tmp = this->P + offset;
+      *tmp++ = *x++;
+      *tmp++ = *x++;
+      *tmp   = *x;
       this->Count++;
       return this->Count-1;
     }
@@ -1046,52 +1050,62 @@ FindClosestNPoints(int N, const double x[3], vtkIdList *result)
 }
 
 //-----------------------------------------------------------------------------
+// The Radius defines a block of buckets which the sphere of radis R may
+// touch.
 template <typename TIds> void BucketList<TIds>::
 FindPointsWithinRadius(double R, const double x[3], vtkIdList *result)
 {
-  int i, j;
   double dist2;
   double pt[3];
   vtkIdType ptId, cno, numIds;
-  int ijk[3], *nei;
   double R2 = R*R;
-  NeighborBuckets buckets;
   const LocatorTuple<TIds> *ids;
+  double xMin[3], xMax[3];
+  int i, j, k, ii, jOffset, kOffset, ijkMin[3], ijkMax[3];
 
-  //  Find the bucket the point is in.
-  //
-  this->GetBucketIndices(x, ijk);
+  // Determine the range of indices in each direction based on radius R
+  xMin[0] = x[0] - R;
+  xMin[1] = x[1] - R;
+  xMin[2] = x[2] - R;
+  xMax[0] = x[0] + R;
+  xMax[1] = x[1] + R;
+  xMax[2] = x[2] + R;
 
-  // Get all buckets within a distance
-  this->GetOverlappingBuckets (&buckets, x, ijk, R, 0);
-
-  // add the original bucket
-  buckets.InsertNextBucket(ijk);
+  //  Find the footprint in the locator
+  this->GetBucketIndices(xMin, ijkMin);
+  this->GetBucketIndices(xMax, ijkMax);
 
   // Clear out previous results
   result->Reset();
 
-  // Add points within radius
-  for (i=0; i<buckets.GetNumberOfNeighbors(); i++)
+  // Add points within footprint and radius
+  for ( k=ijkMin[2]; k <= ijkMax[2]; ++k)
     {
-    nei = buckets.GetPoint(i);
-    cno = nei[0] + nei[1]*this->xD + nei[2]*this->xyD;
-
-    if ( (numIds = this->GetNumberOfIds(cno)) > 0 )
+    kOffset = k*this->xyD;
+    for ( j=ijkMin[1]; j <= ijkMax[1]; ++j)
       {
-      ids = this->GetIds(cno);
-      for (j=0; j < numIds; j++)
+      jOffset = j*this->xD;
+      for ( i=ijkMin[0]; i <= ijkMax[0]; ++i)
         {
-        ptId = ids[j].PtId;
-        this->DataSet->GetPoint(ptId, pt);
-        dist2 = vtkMath::Distance2BetweenPoints(x,pt);
-        if (dist2 <= R2)
+        cno = i + jOffset + kOffset;
+
+        if ( (numIds = this->GetNumberOfIds(cno)) > 0 )
           {
-          result->InsertNextId(ptId);
-          }
-        }
-      }
-    }
+          ids = this->GetIds(cno);
+          for (ii=0; ii < numIds; ii++)
+            {
+            ptId = ids[ii].PtId;
+            this->DataSet->GetPoint(ptId, pt);
+            dist2 = vtkMath::Distance2BetweenPoints(x,pt);
+            if (dist2 <= R2)
+              {
+              result->InsertNextId(ptId);
+              }
+            }//for all points in bucket
+          }//if points in bucket
+        }//i-footprint
+      }//j-footprint
+    }//k-footprint
 }
 
 //-----------------------------------------------------------------------------
@@ -1326,6 +1340,7 @@ vtkStaticPointLocator::vtkStaticPointLocator()
   this->Divisions[0] = this->Divisions[1] = this->Divisions[2] = 50;
   this->H[0] = this->H[1] = this->H[2] = 0.0;
   this->Buckets = NULL;
+  this->LargeIds = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1391,6 +1406,7 @@ void vtkStaticPointLocator::BuildLocator()
   // hopefully it is cached or otherwise accelerated.
   //
   bounds = this->DataSet->GetBounds();
+  int numNonZeroWidths = 3;
   for (i=0; i<3; i++)
     {
     this->Bounds[2*i] = bounds[2*i];
@@ -1398,19 +1414,34 @@ void vtkStaticPointLocator::BuildLocator()
     if ( this->Bounds[2*i+1] <= this->Bounds[2*i] ) //prevent zero width
       {
       this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
+      numNonZeroWidths--;
       }
     }
 
   if ( this->Automatic )
     {
-    level = static_cast<double>(numPts) / this->NumberOfPointsPerBucket;
-    level = ceil( pow(static_cast<double>(level),
-                      static_cast<double>(0.33333333)));
+    if ( numNonZeroWidths > 0 )
+      {
+      level = static_cast<double>(numPts) / this->NumberOfPointsPerBucket;
+      level = ceil( pow(static_cast<double>(level),
+                        static_cast<double>(1.0/static_cast<double>(numNonZeroWidths))));
+      }
+    else
+      {
+      level = 1; //all points end up in thesame bucket and are concident!
+      }
     for (i=0; i<3; i++)
       {
-      ndivs[i] = static_cast<int>(level);
+      if ( bounds[2*i+1] > bounds[2*i] )
+        {
+        ndivs[i] = static_cast<int>(level);
+        }
+      else
+        {
+        ndivs[i] = 1;
+        }
       }
-    }
+    }//automatic
   else
     {
     for (i=0; i<3; i++)
@@ -1440,14 +1471,14 @@ void vtkStaticPointLocator::BuildLocator()
   // This is done for performance (e.g., the sort is faster) and significant
   // memory savings.
   //
-  if ( numPts >= VTK_INT_MAX )
+  if ( numPts >= VTK_INT_MAX || numBuckets >= VTK_INT_MAX )
     {
-    this->LargeIds = 1;
+    this->LargeIds = true;
     this->Buckets = new BucketList<vtkIdType>(this,numPts,numBuckets);
     }
   else
     {
-    this->LargeIds = 0;
+    this->LargeIds = false;
     this->Buckets = new BucketList<int>(this,numPts,numBuckets);
     }
 
@@ -1463,6 +1494,11 @@ void vtkStaticPointLocator::BuildLocator()
 // with the templated BucketList class. Note that a lot of the complexity here
 // is due to the desire to use different id types (int versus vtkIdType) for the
 // purposes of increasing speed and reducing memory.
+//
+// You're probably wondering why an if check (on LargeIds) is used to
+// static_cast on BukcetList<T> type, when virtual inheritance could be
+// used. Benchmarking shows a small speed difference due to inlining, which
+// the use of virtual methods short circuits.
 
 //-----------------------------------------------------------------------------
 // Given a position x, return the id of the point closest to it.

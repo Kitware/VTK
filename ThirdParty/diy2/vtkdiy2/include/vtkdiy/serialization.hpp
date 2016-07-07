@@ -11,6 +11,7 @@
 #if __cplusplus > 199711L           // C++11
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <type_traits>              // this is used for a safety check for default serialization
 #endif
 #endif
@@ -327,6 +328,33 @@ namespace diy
       for (size_t i = 0; i < s; ++i)
       {
         std::pair<K,V> p;
+        diy::load(bb, p);
+        m.emplace(std::move(p));
+      }
+    }
+  };
+
+  // save/load for std::unordered_set<T>
+  template<class T>
+  struct Serialization< std::unordered_set<T> >
+  {
+    typedef             std::unordered_set<T>           Set;
+
+    static void         save(BinaryBuffer& bb, const Set& m)
+    {
+      size_t s = m.size();
+      diy::save(bb, s);
+      for (auto& x : m)
+        diy::save(bb, x);
+    }
+
+    static void         load(BinaryBuffer& bb, Set& m)
+    {
+      size_t s;
+      diy::load(bb, s);
+      for (size_t i = 0; i < s; ++i)
+      {
+        T p;
         diy::load(bb, p);
         m.emplace(std::move(p));
       }

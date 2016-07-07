@@ -428,7 +428,7 @@ int CheckGrid(vtkDataSet* grid)
     return 1;
     }
 
-  vtkDoubleArray* array=vtkDoubleArray::SafeDownCast(PD->GetArray("NODE-XYZ"));
+  vtkDoubleArray* array=vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("NODE-XYZ"));
   if( array==NULL )
     {
     std::cerr << "ERROR: null vtkDataArray!\n";

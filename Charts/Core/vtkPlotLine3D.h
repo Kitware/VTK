@@ -45,7 +45,6 @@ public:
   // Paint event for the XYZ plot, called whenever the chart needs to be drawn.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
 protected:
   vtkPlotLine3D();
   ~vtkPlotLine3D();
@@ -54,7 +53,6 @@ private:
   vtkPlotLine3D(const vtkPlotLine3D &); // Not implemented.
   void operator=(const vtkPlotLine3D &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlotLine3D_h

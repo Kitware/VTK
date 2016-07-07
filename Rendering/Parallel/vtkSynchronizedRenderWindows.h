@@ -89,7 +89,6 @@ public:
   vtkSetMacro(RootProcessId, int);
   vtkGetMacro(RootProcessId, int);
 
-//BTX
   enum
     {
     SYNC_RENDER_TAG = 15001,
@@ -136,7 +135,7 @@ private:
   class vtkObserver;
   vtkObserver* Observer;
   friend class vtkObserver;
-//ETX
+
 };
 
 #endif

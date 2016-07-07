@@ -338,10 +338,10 @@ class vtkPlotStackedSegment : public vtkObject {
       painter->ApplyPen(pen);
       painter->ApplyBrush(brush);
       int n = this->Points->GetNumberOfPoints();
-      float *data_extent = vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+      float *data_extent = vtkArrayDownCast<vtkFloatArray>(this->Points->GetData())->GetPointer(0);
       float *data_base = 0;
       if (this->Previous)
-        data_base = vtkFloatArray::SafeDownCast(this->Previous->Points->GetData())->GetPointer(0);
+        data_base = vtkArrayDownCast<vtkFloatArray>(this->Previous->Points->GetData())->GetPointer(0);
 
       if (n >= 2)
         {
@@ -796,7 +796,7 @@ bool vtkPlotStacked::UpdateTableCache(vtkTable *table)
 
   for ( it = this->Private->AdditionalSeries.begin(); it != this->Private->AdditionalSeries.end(); ++it )
     {
-    y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
+    y = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName((*it).second.c_str()));
     prev = this->Private->AddSegment(x,y,prev);
     }
 

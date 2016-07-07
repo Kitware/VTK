@@ -38,14 +38,12 @@ public:
   vtkTypeMacro(vtkDiagonalMatrixSource, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Determines whether the output matrix will be dense or sparse
   enum StorageType
   {
     DENSE,
     SPARSE
   };
-//ETX
 
   vtkGetMacro(ArrayType, int);
   vtkSetMacro(ArrayType, int);

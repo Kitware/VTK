@@ -618,8 +618,8 @@ void vtkDataSetAttributes::CopyStructuredData(vtkDataSetAttributes *fromPd,
 
     // We get very little performance improvement from this, but we'll leave the
     // legacy code around until we've done through benchmarking.
-    vtkDataArray *inDA = vtkDataArray::SafeDownCast(inArray);
-    vtkDataArray *outDA = vtkDataArray::SafeDownCast(outArray);
+    vtkDataArray *inDA = vtkArrayDownCast<vtkDataArray>(inArray);
+    vtkDataArray *outDA = vtkArrayDownCast<vtkDataArray>(outArray);
     if (!inDA || !outDA) // String array, etc
       {
       vtkArrayIterator* srcIter = inArray->NewIterator();
@@ -716,10 +716,10 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
           {
           newAA->Allocate(aa->GetNumberOfTuples());
           }
-        vtkDataArray* newDA = vtkDataArray::SafeDownCast(newAA);
+        vtkDataArray* newDA = vtkArrayDownCast<vtkDataArray>(newAA);
         if (newDA)
           {
-          vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
+          vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(aa);
           newDA->SetLookupTable(da->GetLookupTable());
           }
         }
@@ -1153,7 +1153,7 @@ int vtkDataSetAttributes::SetActiveAttribute(int index, int attributeType)
     {
     if (attributeType != PEDIGREEIDS)
       {
-      vtkDataArray* darray = vtkDataArray::SafeDownCast(
+      vtkDataArray* darray = vtkArrayDownCast<vtkDataArray>(
         this->Data[index]);
       if (!darray)
         {
@@ -1259,7 +1259,7 @@ vtkDataArray* vtkDataSetAttributes::GetAttribute(int attributeType)
     }
   else
     {
-    return vtkDataArray::SafeDownCast(this->Data[index]);
+    return vtkArrayDownCast<vtkDataArray>(this->Data[index]);
     }
 }
 
@@ -1283,7 +1283,7 @@ vtkAbstractArray* vtkDataSetAttributes::GetAbstractAttribute(int attributeType)
 // which is an enum defined vtkDataSetAttributes)
 int vtkDataSetAttributes::SetAttribute(vtkAbstractArray* aa, int attributeType)
 {
-  if (aa && attributeType != PEDIGREEIDS && !vtkDataArray::SafeDownCast(aa))
+  if (aa && attributeType != PEDIGREEIDS && !vtkArrayDownCast<vtkDataArray>(aa))
     {
     vtkWarningMacro("Can not set attribute "
                     << vtkDataSetAttributes::AttributeNames[attributeType]
@@ -1575,14 +1575,6 @@ int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::RemoveArray(const char *name)
-{
-  int i;
-  this->GetAbstractArray(name, i);
-  this->RemoveArray(i);
-}
-
-//--------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyAllocate(
   vtkDataSetAttributes::FieldList& list,
   vtkIdType sze, vtkIdType ext)
@@ -1642,7 +1634,7 @@ void vtkDataSetAttributes::InternalCopyAllocate(
         newAA->Allocate(list.NumberOfTuples,ext);
         }
 
-      if ( (newDA = vtkDataArray::SafeDownCast(newAA)) )
+      if ( (newDA = vtkArrayDownCast<vtkDataArray>(newAA)) )
         {
         newDA->SetLookupTable(list.LUT[i]);
         }
@@ -2236,9 +2228,9 @@ void vtkDataSetAttributes::FieldList::SetField(
 
   // Store the lookup table
   this->LUT[index]=0;
-  if (vtkDataArray::SafeDownCast(aa))
+  if (vtkArrayDownCast<vtkDataArray>(aa))
     {
-    this->LUT[index]=vtkDataArray::SafeDownCast(aa)->GetLookupTable();
+    this->LUT[index]= vtkArrayDownCast<vtkDataArray>(aa)->GetLookupTable();
     }
   // Store the information
   this->FieldInformation[index] = 0;

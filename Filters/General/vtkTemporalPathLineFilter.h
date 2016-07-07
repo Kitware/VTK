@@ -41,13 +41,11 @@ class vtkCellArray;
 class vtkMergePoints;
 class vtkFloatArray;
 
-//BTX
 #include "vtkSmartPointer.h" // for memory safety
 #include <set>        // Because we want to use it
 class ParticleTrail;
 class vtkTemporalPathLineFilterInternals;
 typedef vtkSmartPointer<ParticleTrail> TrailPointer;
-//ETX
 
 class VTKFILTERSGENERAL_EXPORT vtkTemporalPathLineFilter : public vtkPolyDataAlgorithm
 {
@@ -139,11 +137,10 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
-//BTX
   TrailPointer GetTrail(vtkIdType i);
   void IncrementTrail(
     TrailPointer trail, vtkDataSet *input, vtkIdType i);
-//ETX
+
   // internal data variables
   int           NumberOfTimeSteps;
   int           MaskPoints;
@@ -156,7 +153,7 @@ protected:
   int           KeepDeadTrails;
   int           UsingSelection;
   //
-//BTX
+
   vtkSmartPointer<vtkCellArray>                       PolyLines;
   vtkSmartPointer<vtkCellArray>                       Vertices;
   vtkSmartPointer<vtkPoints>                          LineCoordinates;
@@ -164,7 +161,7 @@ protected:
   vtkSmartPointer<vtkFloatArray>                      TrailId;
   vtkSmartPointer<vtkTemporalPathLineFilterInternals> Internals;
   std::set<vtkIdType>                              SelectionIds;
-//ETX
+
   //
 private:
   vtkTemporalPathLineFilter(const vtkTemporalPathLineFilter&);  // Not implemented.

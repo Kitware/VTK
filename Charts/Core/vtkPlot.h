@@ -87,7 +87,6 @@ public:
   virtual void SetTooltipPrecision(int precision);
   virtual int GetTooltipPrecision();
 
-//BTX
   // Description:
   // Generate and return the tooltip label string for this plot
   // The segmentIndex parameter is ignored, except for vtkPlotBar
@@ -110,7 +109,6 @@ public:
   // Description:
   // Select all points in the specified polygon.
   virtual bool SelectPointsInPolygon(const vtkContextPolygon &polygon);
-//ETX
 
   // Description:
   // Set the plot color
@@ -296,15 +294,12 @@ public:
   // Default implementation is empty.
   virtual void UpdateCache() {}
 
-//BTX
   // Description:
   // A General setter/getter that should be overridden. It can silently drop
   // options, case is important
   virtual void SetProperty(const vtkStdString &property, const vtkVariant &var);
   virtual vtkVariant GetProperty(const vtkStdString &property);
-//ETX
 
-//BTX
 protected:
   vtkPlot();
   ~vtkPlot();
@@ -392,7 +387,6 @@ private:
   vtkPlot(const vtkPlot &); // Not implemented.
   void operator=(const vtkPlot &); // Not implemented.
 
-//ETX
 };
 
 #endif //vtkPlot_h

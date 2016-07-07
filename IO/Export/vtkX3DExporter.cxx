@@ -50,7 +50,7 @@
 using namespace vtkX3D;
 
 // forward declarations
-static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor);
+static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* anActor);
 static bool vtkX3DExporterWriterRenderFaceSet(
   int cellType,
   int representation,
@@ -484,8 +484,10 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
   colors  = mapper->MapScalars(255.0);
 
-  // Are we using cell colors.
-  bool cell_colors = vtkX3DExporterWriterUsingCellColors(anActor);
+  // Are we using cell colors? Pass the temporary mapper we created here since
+  // we're assured that that mapper only has vtkPolyData as input and hence
+  // don't run into issue when dealing with composite datasets.
+  bool cell_colors = vtkX3DExporterWriterUsingCellColors(mapper);
 
   normals = pntData->GetNormals();
 
@@ -880,10 +882,11 @@ int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
   return 0;
 }
 
-static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor)
+// Determine if we're using cell data for scalar coloring. Returns true if
+// that's the case.
+static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* mapper)
 {
   int cellFlag = 0;
-  vtkMapper* mapper = anActor->GetMapper();
   vtkAbstractMapper::GetScalars(
     mapper->GetInput(),
     mapper->GetScalarMode(),

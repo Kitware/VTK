@@ -103,9 +103,7 @@ public:
   void SetDirectionToBackToFront() { this->SetDirection(BACK_TO_FRONT); }
   void SetDirectionToFrontToBack() { this->SetDirection(FRONT_TO_BACK); }
 
-//BTX
   enum { BACK_TO_FRONT, FRONT_TO_BACK };
-//ETX
 
   // Description:
   // Overwritten to enable garbage collection.

@@ -281,7 +281,6 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
-//BTX
 protected:
   vtkOpenGLContextDevice2D();
   virtual ~vtkOpenGLContextDevice2D();
@@ -358,7 +357,6 @@ private:
   // not be used directly -- use GetMarker, which caches results, instead.
   vtkImageData * GenerateMarker(int shape, int size, bool highlight);
 
-//ETX
 };
 
 #endif //vtkOpenGLContextDevice2D_h

@@ -36,10 +36,10 @@ class vtkFloatArray;
 class vtkStdString;
 class vtkMultiProcessController;
 class vtkInformation;
-//BTX
+
 class VPICDataSet;
 class GridExchange;
-//ETX
+
 class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
 public:

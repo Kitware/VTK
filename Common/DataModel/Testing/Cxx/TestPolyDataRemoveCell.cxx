@@ -114,8 +114,8 @@ int TestPolyDataRemoveCell(int , char *[])
     }
 
   // the arrays should have been changed so get them again...
-  cellTypes = vtkIntArray::SafeDownCast(poly->GetCellData()->GetArray(ctName));
-  cellPoints = vtkIdTypeArray::SafeDownCast(poly->GetCellData()->GetArray(cpName));
+  cellTypes = vtkArrayDownCast<vtkIntArray>(poly->GetCellData()->GetArray(ctName));
+  cellPoints = vtkArrayDownCast<vtkIdTypeArray>(poly->GetCellData()->GetArray(cpName));
 
   // check the cell types and arrays
   for(i=0;i<poly->GetNumberOfCells();i++)

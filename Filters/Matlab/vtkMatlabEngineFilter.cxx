@@ -423,7 +423,7 @@ int vtkMatlabEngineFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
       if(tableinp->GetColumnByName(VectorIterator->VTKArrName.c_str()))
         {
-        currentArray = vtkDataArray::SafeDownCast(tableinp->GetColumnByName(VectorIterator->VTKArrName.c_str()));
+        currentArray = vtkArrayDownCast<vtkDataArray>(tableinp->GetColumnByName(VectorIterator->VTKArrName.c_str()));
         }
 
       if(currentArray)

@@ -56,8 +56,11 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
+  TestGPURayCastClippingUserTransform.cxx
+  TestGPURayCastClippingPolyData.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
+  TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
@@ -73,6 +76,8 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestProjectedTetrahedraTransform.cxx
+  TestGPURayCastVolumePicking.cxx
   )
 
 # everyone gets these tests

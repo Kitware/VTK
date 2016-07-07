@@ -220,7 +220,7 @@ int vtkExtractSelectedFrustum::RequestData(
       }
     if (node && node->GetContentType() == vtkSelectionNode::FRUSTUM)
       {
-      vtkDoubleArray *corners = vtkDoubleArray::SafeDownCast(
+      vtkDoubleArray *corners = vtkArrayDownCast<vtkDoubleArray>(
         node->GetSelectionList());
       this->CreateFrustum(corners->GetPointer(0));
       if (node->GetProperties()->Has(vtkSelectionNode::INVERSE()))

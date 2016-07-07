@@ -80,7 +80,7 @@ public:
   virtual void ShallowCopy(vtkFieldData *pd);
 
   // -- attribute types -----------------------------------------------------
-//BTX
+
   // Always keep NUM_ATTRIBUTES as the last entry
   enum AttributeTypes
   {
@@ -101,7 +101,6 @@ public:
     EXACT,
     NOLIMIT
   };
-//ETX
 
   // ----------- ghost points and ghost cells -------------------------------------------
   //The following bit fields are consistent with VisIt ghost zones specification
@@ -256,7 +255,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name);
+  using vtkFieldData::RemoveArray;
   virtual void RemoveArray(int index);
 
 
@@ -268,7 +267,6 @@ public:
 
   // -- attribute copy properties ------------------------------------------
 
-//BTX
   enum AttributeCopyOperations
   {
     COPYTUPLE=0,
@@ -276,7 +274,6 @@ public:
     PASSDATA=2,
     ALLCOPY  //all of the above
   };
-//ETX
 
   // Description:
   // Specify whether to copy the data attribute referred to by index.
@@ -576,7 +573,6 @@ public:
                        vtkDataSetAttributes *from2,
                        vtkIdType id, double t);
 
-//BTX
   class FieldList;
 
   // field list copy operations ------------------------------------------
@@ -616,9 +612,7 @@ public:
     vtkIdList *ids, double *weights);
 
   friend class vtkDataSetAttributes::FieldList;
-//ETX
 
-//BTX
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
@@ -730,7 +724,7 @@ public:
     int CurrentInput;
 
   };
-//ETX
+
 };
 
 #endif

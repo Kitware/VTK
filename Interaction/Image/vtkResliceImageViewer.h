@@ -69,13 +69,12 @@ public:
 
   // Description:
   // Set/get the slice orientation
-  //BTX
+
   enum
   {
     RESLICE_AXIS_ALIGNED = 0,
     RESLICE_OBLIQUE = 1
   };
-  //ETX
 
   vtkGetMacro(ResliceMode, int);
   virtual void SetResliceMode(int resliceMode);

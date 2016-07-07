@@ -127,7 +127,6 @@ public:
   vtkBooleanMacro(ComputeTolerance, bool);
   vtkGetMacro(ComputeTolerance, bool);
 
-//BTX
 protected:
   vtkProbeFilter();
   ~vtkProbeFilter();
@@ -200,7 +199,7 @@ private:
 
   class vtkVectorOfArrays;
   vtkVectorOfArrays* CellArrays;
-//ETX
+
 };
 
 #endif

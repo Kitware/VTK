@@ -473,7 +473,7 @@ void vtkPolyDataConnectivityFilter::TraverseAndMark ()
           if ( this->PointMap[ptId=pts[j]] < 0 )
             {
             this->PointMap[ptId] = this->PointNumber++;
-            vtkIdTypeArray::SafeDownCast(this->NewScalars)->SetValue(
+            vtkArrayDownCast<vtkIdTypeArray>(this->NewScalars)->SetValue(
               this->PointMap[ptId], this->RegionNumber);
 
             this->Mesh->GetPointCells(ptId,ncells,cells);

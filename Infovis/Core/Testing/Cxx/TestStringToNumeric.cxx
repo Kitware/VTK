@@ -51,34 +51,34 @@ int ArrayTypesTest(int argc, char* argv[])
 
   cerr << "Testing array types..." << endl;
   int errors = 0;
-  if (!vtkStringArray::SafeDownCast(table->GetColumnByName("Author")))
+  if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Author")))
     {
     cerr << "ERROR: Author array missing" << endl;
     ++errors;
     }
-  if (!vtkStringArray::SafeDownCast(table->GetColumnByName("Affiliation")))
+  if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Affiliation")))
     {
     cerr << "ERROR: Affiliation array missing" << endl;
     ++errors;
     }
-  if (!vtkStringArray::SafeDownCast(table->GetColumnByName("Alma Mater")))
+  if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Alma Mater")))
     {
     cerr << "ERROR: Alma Mater array missing" << endl;
     ++errors;
     }
-  if (!vtkStringArray::SafeDownCast(table->GetColumnByName("Categories")))
+  if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Categories")))
     {
     cerr << "ERROR: Categories array missing" << endl;
     ++errors;
     }
-  if (!vtkIntArray::SafeDownCast(table->GetColumnByName("Age")))
+  if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Age")))
     {
     cerr << "ERROR: Age array missing or not converted to int" << endl;
     ++errors;
     }
   else
     {
-    vtkIntArray* age = vtkIntArray::SafeDownCast(table->GetColumnByName("Age"));
+    vtkIntArray* age = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Age"));
     int sum = 0;
     for (vtkIdType i = 0; i < age->GetNumberOfTuples(); i++)
       {
@@ -90,14 +90,14 @@ int ArrayTypesTest(int argc, char* argv[])
       ++errors;
       }
     }
-  if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("Coolness")))
+  if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Coolness")))
     {
     cerr << "ERROR: Coolness array missing or not converted to double" << endl;
     ++errors;
     }
   else
     {
-    vtkDoubleArray* cool = vtkDoubleArray::SafeDownCast(table->GetColumnByName("Coolness"));
+    vtkDoubleArray* cool = vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Coolness"));
     double sum = 0;
     for (vtkIdType i = 0; i < cool->GetNumberOfTuples(); i++)
       {
@@ -116,7 +116,7 @@ int ArrayTypesTest(int argc, char* argv[])
   numeric->ForceDoubleOn();
   numeric->Update();
   table = vtkTable::SafeDownCast(numeric->GetOutput());
-  if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("Age")))
+  if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Age")))
     {
     cerr << "ERROR: Arrays should have been forced to double" << endl;
     ++errors;
@@ -157,7 +157,7 @@ int WhitespaceAndEmptyCellsTest()
 
   cerr << "Testing handling whitespace and empty cells..." << endl;
   int errors = 0;
-  if (!vtkIntArray::SafeDownCast(table->GetColumnByName("IntegerColumn")))
+  if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn")))
     {
     cerr << "ERROR: IntegerColumn array missing or not converted to int" << endl;
     ++errors;
@@ -165,7 +165,7 @@ int WhitespaceAndEmptyCellsTest()
   else
     {
     vtkIntArray* column =
-        vtkIntArray::SafeDownCast(table->GetColumnByName("IntegerColumn"));
+        vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn"));
     if (defaultIntValue != column->GetValue(0))
       {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
@@ -180,7 +180,7 @@ int WhitespaceAndEmptyCellsTest()
       }
     }
 
-  if (!vtkDoubleArray::SafeDownCast(table->GetColumnByName("DoubleColumn")))
+  if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn")))
     {
     cerr << "ERROR: DoubleColumn array missing or not converted to double"
          << endl;
@@ -189,7 +189,7 @@ int WhitespaceAndEmptyCellsTest()
   else
     {
     vtkDoubleArray* column =
-        vtkDoubleArray::SafeDownCast(table->GetColumnByName("DoubleColumn"));
+        vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn"));
     if (!vtkMath::IsNan(column->GetValue(0)))
       {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)

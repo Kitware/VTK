@@ -42,13 +42,6 @@ public:
   void SetStripPainter(vtkPolyDataPainter*);
 
   // Description:
-  // When set, the lines painter is used for drawing wireframes (off by
-  // default, except on Mac, where it's on by default).
-  vtkSetMacro(UseLinesPainterForWireframes, int);
-  vtkGetMacro(UseLinesPainterForWireframes, int);
-  vtkBooleanMacro(UseLinesPainterForWireframes, int);
-
-  // Description:
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release. Merely propagates the call to the painter.
@@ -111,7 +104,6 @@ protected:
   vtkRenderer *LastRenderer;
   vtkTimeStamp PaintersChoiceTime;
 
-  int UseLinesPainterForWireframes;
 private:
   vtkChooserPainter(const vtkChooserPainter &); // Not implemented
   void operator=(const vtkChooserPainter &);    // Not implemented

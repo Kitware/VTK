@@ -187,7 +187,7 @@ public:
   // Description:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkRenderWindow* renWin);
-//BTX
+
 protected:
   vtkDataTransferHelper();
   ~vtkDataTransferHelper();
@@ -215,7 +215,7 @@ protected:
 private:
   vtkDataTransferHelper(const vtkDataTransferHelper&); // Not implemented.
   void operator=(const vtkDataTransferHelper&); // Not implemented.
-//ETX
+
 };
 
 #endif

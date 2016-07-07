@@ -28,10 +28,9 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkPolyDataAlgorithm.h"
-//BTX
+
 #include <vector> // STL Header
 #include <list>   // STL Header
-//ETX
 
 class vtkAbstractInterpolatedVelocityField;
 class vtkAbstractParticleWriter;
@@ -52,7 +51,6 @@ class vtkPoints;
 class vtkPolyData;
 class vtkTemporalInterpolatedVelocityField;
 
-//BTX
 namespace vtkParticleTracerBaseNamespace
 {
   typedef struct { double x[4]; } Position;
@@ -90,7 +88,6 @@ namespace vtkParticleTracerBaseNamespace
   typedef std::list<ParticleInformation>    ParticleDataList;
   typedef ParticleDataList::iterator           ParticleListIterator;
 };
-//ETX
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkParticleTracerBase : public vtkPolyDataAlgorithm
 {
@@ -159,10 +156,8 @@ public:
   int GetIntegratorType();
 
   // Description:
-  // Setting TerminationTime to a positive value will cause particles
-  // to terminate when the time is reached. Use a vlue of zero to
-  // diable termination. The units of time should be consistent with the
-  // primary time variable.
+  // Set the time value for particle tracing to begin. The units of time should
+  // be consistent with the primary time variable.
   vtkGetMacro(StartTime, double);
   void SetStartTime(double t);
 

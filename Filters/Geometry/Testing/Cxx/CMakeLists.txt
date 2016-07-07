@@ -13,6 +13,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests no_data_tests
   TestStructuredAMRGridConnectivity.cxx
   TestStructuredGridConnectivity.cxx
   TestStructuredGridGhostDataGenerator.cxx
+  UnitTestDataSetSurfaceFilter.cxx
   )
 
 set(all_tests

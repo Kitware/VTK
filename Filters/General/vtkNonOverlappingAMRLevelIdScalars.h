@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkNonOverlappingAMRLevelIdScalars,vtkNonOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkNonOverlappingAMRLevelIdScalars();
   ~vtkNonOverlappingAMRLevelIdScalars();
@@ -50,7 +49,7 @@ protected:
 private:
   vtkNonOverlappingAMRLevelIdScalars(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
   void operator=(const vtkNonOverlappingAMRLevelIdScalars&); // Not implemented.
-//ETX
+
 };
 
 #endif

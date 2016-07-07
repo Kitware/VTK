@@ -77,14 +77,14 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
 protected:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkImplicitFunction *ImplicitFunction;
   double WindowRange[2];

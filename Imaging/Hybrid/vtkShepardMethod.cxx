@@ -337,7 +337,7 @@ int vtkShepardMethod::RequestData(
   vtkIdType numPts, numNewPts;
   vtkIdType min[3], max[3];
   vtkFloatArray *newScalars =
-    vtkFloatArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetScalars());
 
   vtkDebugMacro(<< "Executing Shepard method");
 

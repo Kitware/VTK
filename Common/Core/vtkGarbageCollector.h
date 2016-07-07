@@ -166,10 +166,8 @@ private:
   static void ClassInitialize();
   static void ClassFinalize();
 
-  //BTX
   friend class vtkGarbageCollectorManager;
   friend class vtkObjectBaseToGarbageCollectorFriendship;
-  //ETX
 
   // Internal report callback and friend function that calls it.
   virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
@@ -183,7 +181,6 @@ private:
   void operator=(const vtkGarbageCollector&);  // Not implemented.
 };
 
-//BTX
 class vtkSmartPointerBase;
 
 // Description:
@@ -201,7 +198,6 @@ void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr,
 {
   vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
 }
-//ETX
 
 #endif
 // VTK-HeaderTest-Exclude: vtkGarbageCollector.h

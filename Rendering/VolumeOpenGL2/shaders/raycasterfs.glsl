@@ -71,6 +71,8 @@ uniform vec4 in_volume_bias;
 
 //VTK::ComputeRayDirection::Dec
 
+//VTK::Picking::Dec
+
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
@@ -139,6 +141,8 @@ void main()
   //VTK::Clipping::Exit
 
   //VTK::Shading::Exit
+
+  //VTK::Picking::Exit
 
   g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
   g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;

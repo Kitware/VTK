@@ -43,9 +43,16 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkUnsignedCharArray.h"
 
+// Dual depth peeling requires GL_MAX blending, which is unavailable on ES2.
+#if GL_ES_VERSION_2_0 != 1
+#include "vtkDualDepthPeelingPass.h"
+#endif
+
 #include <cmath>
 #include <cassert>
+#include <cstdlib>
 #include <list>
+#include <string>
 
 class vtkGLPickInfo
 {
@@ -57,8 +64,6 @@ public:
 };
 
 vtkStandardNewMacro(vtkOpenGLRenderer);
-
-vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);
 
 vtkOpenGLRenderer::vtkOpenGLRenderer()
 {
@@ -72,8 +77,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->DepthPeelingHigherLayer=0;
 
   this->BackgroundTexture = 0;
-  this->Pass = 0;
-
   this->HaveApplePrimitiveIdBugValue = false;
   this->HaveApplePrimitiveIdBugChecked = false;
 }
@@ -281,7 +284,68 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     {
     if (!this->DepthPeelingPass)
       {
-      this->DepthPeelingPass = vtkDepthPeelingPass::New();
+      // Dual depth peeling requires:
+      // - float textures (ARB_texture_float)
+      // - RG textures (ARB_texture_rg)
+      // - MAX blending (not available in ES2, but added in ES3).
+      bool dualDepthPeelingSupported = false;
+#if GL_ES_VERSION_2_0 != 1
+      dualDepthPeelingSupported = context->GetContextSupportsOpenGL32() ||
+          (GLEW_ARB_texture_float && GLEW_ARB_texture_rg);
+#elif GL_ES_VERSION_3_0 == 1
+      // ES3 is supported:
+      dualDepthPeelingSupported = true;
+#endif
+
+      // There's a bug on current mesa master that prevents dual depth peeling
+      // from functioning properly, something in the texture sampler is causing
+      // all lookups to return NaN. See discussion on
+      // https://bugs.freedesktop.org/show_bug.cgi?id=94955
+      // We'll always fallback to regular depth peeling until this is fixed.
+      // Only disable for mesa + llvmpipe/SWR, since those are the drivers that
+      // seem to be affected by this.
+      std::string glVersion =
+          reinterpret_cast<const char *>(glGetString(GL_VERSION));
+      if (glVersion.find("Mesa") != std::string::npos)
+        {
+        std::string glRenderer =
+            reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+        if (glRenderer.find("llvmpipe") != std::string::npos ||
+            glRenderer.find("SWR") != std::string::npos)
+          {
+          vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
+                        "GL_VERSION = '" << glVersion << "'; "
+                        "GL_RENDERER = '" << glRenderer << "'.");
+          dualDepthPeelingSupported = false;
+          }
+        }
+
+      // The old implemention can be force by defining the environment var
+      // "VTK_USE_LEGACY_DEPTH_PEELING":
+      if (dualDepthPeelingSupported)
+        {
+        const char *forceLegacy = getenv("VTK_USE_LEGACY_DEPTH_PEELING");
+        if (forceLegacy)
+          {
+          vtkDebugMacro("Disabling dual depth peeling -- "
+                        "VTK_USE_LEGACY_DEPTH_PEELING defined in environment.");
+          dualDepthPeelingSupported = false;
+          }
+        }
+
+      if (dualDepthPeelingSupported)
+        {
+#if GL_ES_VERSION_2_0 != 1 // vtkDualDepthPeelingPass is not built on ES2
+        vtkDebugMacro("Using dual depth peeling.");
+        this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
+#endif
+        }
+      else
+        {
+        vtkDebugMacro("Using standard depth peeling (dual depth peeling not "
+                      "supported by the graphics card/driver).");
+        this->DepthPeelingPass = vtkDepthPeelingPass::New();
+        }
       vtkTranslucentPass *tp = vtkTranslucentPass::New();
       this->DepthPeelingPass->SetTranslucentPass(tp);
       tp->Delete();
@@ -307,15 +371,6 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
-  os << indent << "Pass:";
-  if(this->Pass!=0)
-    {
-      os << "exists" << endl;
-    }
-  else
-    {
-      os << "null" << endl;
-    }
 }
 
 
@@ -661,19 +716,29 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     }
 
 #ifdef __APPLE__
-  // working AMD APPLE systems
+  // Known working Apple+AMD systems:
   // OpenGL vendor string:  ATI Technologies Inc.
   // OpenGL version string:   4.1 ATI-1.38.3
   // OpenGL version string:   4.1 ATI-1.40.15
   // OpenGL renderer string:    AMD Radeon R9 M370X OpenGL Engine
+
   // OpenGL version string:   4.1 ATI-1.40.16
   // OpenGL renderer string:    AMD Radeon HD - FirePro D500 OpenGL Engine
   // OpenGL renderer string:    AMD Radeon HD 5770 OpenGL Engine
+  // OpenGL renderer string:    AMD Radeon R9 M395 OpenGL Engine
 
-  // known bad APPLE AMD systems
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  ATI Radeon HD 5770 OpenGL Engine
+  // OpenGL version string:  4.1 ATI-1.42.6
+
+  // Known buggy Apple+AMD systems:
   // OpenGL vendor string:  ATI Technologies Inc.
   // OpenGL version string:   3.3 ATI-10.0.40
   // OpenGL renderer string:    ATI Radeon HD 2600 PRO OpenGL Engine
+
+  // OpenGL vendor string:  ATI Technologies Inc.
+  // OpenGL renderer string:  AMD Radeon HD - FirePro D300 OpenGL Engine
+  // OpenGL version string:  4.1 ATI-1.24.39
 
   std::string vendor = (const char *)glGetString(GL_VENDOR);
   if (vendor.find("ATI") != std::string::npos ||
@@ -686,14 +751,26 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     // but exclude systems we know do not have it
     std::string renderer = (const char *)glGetString(GL_RENDERER);
     std::string version = (const char *)glGetString(GL_VERSION);
+    int minorVersion = 0;
+    int patchVersion = 0;
+    // try to extract some minor version numbers
+    if (version.find("4.1 ATI-1.") == 0)
+      {
+      std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
+      if (minorVer.find(".") == 2)
+        {
+        minorVersion = atoi(minorVer.substr(0,2).c_str());
+        patchVersion = atoi(minorVer.substr(3,std::string::npos).c_str());
+        }
+      }
     if (
         ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
           version.find("4.1 ATI-1.40.15") != std::string::npos) &&
           (renderer.find("AMD Radeon R9 M370X OpenGL Engine") != std::string::npos)) ||
-        (version.find("4.1 ATI-1.40.16") != std::string::npos &&
-          (renderer.find("ATI Radeon HD 5770 OpenGL Engine") != std::string::npos ||
-           renderer.find("AMD Radeon HD - FirePro D500 OpenGL Engine") != std::string::npos))
-        )
+          // assume anything with 1.40.16 or later is good?
+          minorVersion > 40 ||
+          (minorVersion == 40 && patchVersion >= 16)
+         )
       {
       this->HaveApplePrimitiveIdBugValue = false;
       }

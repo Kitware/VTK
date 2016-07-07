@@ -213,7 +213,6 @@ public:
     }
   };
 
-  //BTX
   // Description:
   // Enum for Orientation.
   enum
@@ -232,7 +231,6 @@ public:
   // Collapse or expand a subtree when the user double clicks on an
   // internal node.
   virtual bool MouseDoubleClickEvent( const vtkContextMouseEvent &event);
-  //ETX
 
 protected:
   vtkDendrogramItem();

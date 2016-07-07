@@ -126,8 +126,6 @@ protected:
 
 private:
 
-  //BTX
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct
@@ -146,7 +144,6 @@ private:
   vtkSmartPointer<vtkFloatArray>          RepulsionArray;
   vtkSmartPointer<vtkFloatArray>          AttractionArray;
   vtkSmartPointer<vtkIntArray>            EdgeCountArray;
-  //ETX
 
   vtkLayoutEdge *EdgeArray;
 

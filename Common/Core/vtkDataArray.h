@@ -343,6 +343,7 @@ public:
   // VTK_UNSIGNED_LONG, VTK_DOUBLE, VTK_DOUBLE, VTK_ID_TYPE.
   // Note that the data array returned has be deleted by the
   // user.
+  VTK_NEWINSTANCE
   static vtkDataArray* CreateDataArray(int dataType);
 
   // Description:
@@ -413,17 +414,21 @@ private:
 //------------------------------------------------------------------------------
 inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
 {
-  switch (source->GetArrayType())
+  if (source)
     {
-    case AoSDataArrayTemplate:
-    case SoADataArrayTemplate:
-    case TypedDataArray:
-    case DataArray:
-    case MappedDataArray:
-      return static_cast<vtkDataArray*>(source);
-    default:
-      return NULL;
+    switch (source->GetArrayType())
+      {
+      case AoSDataArrayTemplate:
+      case SoADataArrayTemplate:
+      case TypedDataArray:
+      case DataArray:
+      case MappedDataArray:
+        return static_cast<vtkDataArray*>(source);
+      default:
+        break;
+      }
     }
+  return NULL;
 }
 
 vtkArrayDownCast_FastCastMacro(vtkDataArray)

@@ -55,6 +55,7 @@ public:
   // If the requested class is abstract, set isAbstract to true. Otherwise
   // it is assumed that an instance of 'vtkclassname' will be instantiated
   // by the caller when no override is found.
+  VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname,
                                    bool isAbstract = false);
 
@@ -180,11 +181,9 @@ public:
   // This returns the path to a dynamically loaded factory.
   vtkGetStringMacro(LibraryPath);
 
-  //BTX
   typedef vtkObject* (*CreateFunction)();
-  //ETX
+
 protected:
-  //BTX
 
   // Description:
   // Register object creation information with the factory.
@@ -194,9 +193,6 @@ protected:
                         int enableFlag,
                         CreateFunction createFunction);
 
-  //ETX
-
-
   // Description:
   // This method is provided by sub-classes of vtkObjectFactory.
   // It should create the named vtk object or return 0 if that object
@@ -205,7 +201,7 @@ protected:
 
   vtkObjectFactory();
   ~vtkObjectFactory();
-  //BTX
+
   struct OverrideInformation
   {
     char* Description;
@@ -213,7 +209,7 @@ protected:
     int EnabledFlag;
     CreateFunction CreateCallback;
   };
-  //ETX
+
   OverrideInformation* OverrideArray;
   char** OverrideClassNames;
   int SizeOverrideArray;

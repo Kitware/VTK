@@ -40,9 +40,7 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-//BTX
   enum {REFERENCE_SEA_LEVEL=0,REFERENCE_ELEVATION_BOUNDS};
-//ETX
 
   // Description:
   // Specify the elevation origin to use. By default, the elevation origin

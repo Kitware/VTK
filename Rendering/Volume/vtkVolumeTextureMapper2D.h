@@ -63,8 +63,6 @@ public:
   vtkSetMacro( MaximumStorageSize, int );
   vtkGetMacro( MaximumStorageSize, int );
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -87,9 +85,6 @@ public:
   int GetSaveTextures() {return this->SaveTextures;};
 
   unsigned char *GetTexture() {return this->Texture;};
-
-//ETX
-
 
 protected:
   vtkVolumeTextureMapper2D();

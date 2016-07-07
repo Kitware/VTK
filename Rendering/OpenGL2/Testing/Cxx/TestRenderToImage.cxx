@@ -62,7 +62,7 @@ int TestRenderToImage(int argc, char* argv[])
   image->SetDimensions(size[0], size[1], 1);
   image->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
   renderWindow->GetPixelData(0, 0, size[0] - 1, size[1] - 1, 0,
-    vtkUnsignedCharArray::SafeDownCast(image->GetPointData()->GetScalars()));
+    vtkArrayDownCast<vtkUnsignedCharArray>(image->GetPointData()->GetScalars()));
   glRenderWindow->SetUseOffScreenBuffers(false);
 
   // Now add the actor
@@ -74,7 +74,7 @@ int TestRenderToImage(int argc, char* argv[])
   renderWindow->Render();
   // Capture the framebuffer to the image, again
   renderWindow->GetPixelData(0, 0, size[0]-1, size[1]-1, 0,
-    vtkUnsignedCharArray::SafeDownCast(image->GetPointData()->GetScalars()));
+    vtkArrayDownCast<vtkUnsignedCharArray>(image->GetPointData()->GetScalars()));
   glRenderWindow->SetUseOffScreenBuffers(false);
 
   // Create a new image actor and remove the geometry one

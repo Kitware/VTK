@@ -41,7 +41,6 @@ public:
   // Get the next implicit function in the list.
   vtkImplicitFunction *GetNextItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
@@ -51,7 +50,6 @@ public:
       return static_cast<vtkImplicitFunction *>(
         this->GetNextItemAsObject(cookie));
     };
-  //ETX
 
 protected:
   vtkImplicitFunctionCollection() {}

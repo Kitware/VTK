@@ -55,13 +55,24 @@ set(QVTKNonMocHeaders
   )
 
 if(VTK_QT_VERSION VERSION_GREATER "4")
-  find_package(Qt5 COMPONENTS Widgets REQUIRED QUIET)
+  set(qt_component_x11extras)
+  if(VTK_USE_X)
+    set(qt_component_x11extras X11Extras)
+  endif()
+
+  find_package(Qt5 COMPONENTS Widgets ${qt_component_x11extras} REQUIRED QUIET)
   include_directories(${Qt5Widgets_INCLUDE_DIRS})
   add_definitions(${Qt5Widgets_DEFINITIONS})
+
+  if(qt_component_x11extras)
+    include_directories(${Qt5X11Extras_INCLUDE_DIRS})
+    add_definitions(${Qt5X11Extras_DEFINITIONS})
+  endif()
 
   qt5_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
 
   set(QT_LIBRARIES ${Qt5Widgets_LIBRARIES})
+  set(QT_LIBRARIES_PRIVATE ${Qt5X11Extras_LIBRARIES})
 
   # When this module is loaded by an app, load Qt too.
   vtk_module_export_code_find_package(Qt5Widgets)
@@ -73,6 +84,7 @@ else()
   include(${QT_USE_FILE})
 
   qt4_wrap_cpp(QVTKLibMocSrcs ${QVTKMocHeaders})
+  set(QT_LIBRARIES_PRIVATE)
 endif()
 
 foreach(opt
@@ -92,6 +104,9 @@ vtk_module_library(${vtk-module}
   )
 
 vtk_module_link_libraries(${vtk-module} LINK_PUBLIC ${QT_LIBRARIES})
+if(QT_LIBRARIES_PRIVATE)
+  vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${QT_LIBRARIES_PRIVATE})
+endif()
 
 if(VTK_USE_X)
   vtk_module_link_libraries(${vtk-module} LINK_PRIVATE ${X11_LIBRARIES})

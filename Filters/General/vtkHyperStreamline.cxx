@@ -28,7 +28,7 @@ vtkStandardNewMacro(vtkHyperStreamline);
 
 //
 // Special classes for manipulating data
-//BTX
+//
 class vtkHyperPoint { //;prevent man page generation
 public:
     vtkHyperPoint(); // method sets up storage
@@ -46,7 +46,6 @@ public:
     double   S;       // scalar value
     double   D;       // distance travelled so far
 };
-//ETX
 
 class vtkHyperArray { //;prevent man page generation
 public:

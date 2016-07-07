@@ -1100,6 +1100,7 @@ void vtkUnstructuredGrid::SetCells(int *types, vtkCellArray *cells)
     if (types[i] == VTK_POLYHEDRON)
       {
       containPolyhedron = true;
+      break; // We can terminate early
       }
     }
 

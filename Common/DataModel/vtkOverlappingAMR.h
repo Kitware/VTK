@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   //Description:
   //Get/Set the global origin of the amr data set
@@ -76,14 +76,12 @@ public:
 
   static vtkInformationIdTypeKey* NUMBER_OF_BLANKED_POINTS();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkOverlappingAMR* GetData(vtkInformation* info)
     { return vtkOverlappingAMR::SafeDownCast(Superclass::GetData(info)); }
   static vtkOverlappingAMR* GetData(vtkInformationVector* v, int i=0)
     { return vtkOverlappingAMR::SafeDownCast(Superclass::GetData(v, i)); }
-  //ETX
 
   // Description:
   // Sets the refinement of a given level. The spacing at level

@@ -1278,7 +1278,7 @@ bool vtkXdmfHeavyData::ReadGhostSets(vtkDataSet* dataSet, XdmfGrid* xmfGrid,
       continue;
       }
 
-    vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+    vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
       dsa->GetArray(vtkDataSetAttributes::GhostArrayName()));
     if (!ghosts)
       {

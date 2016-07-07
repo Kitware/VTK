@@ -189,7 +189,8 @@ int vtkMNITagPointReader::ReadLineAfterComments(
       {
       delete [] this->Comments;
       this->Comments = new char[comments.length() + 1];
-      strcpy(this->Comments, comments.c_str());
+      strncpy(this->Comments, comments.c_str(), comments.length());
+      this->Comments[comments.length()] = '\0';
 
       return 1;
       }
@@ -661,7 +662,7 @@ vtkStringArray *vtkMNITagPointReader::GetLabelText()
 
   if (output)
     {
-    return vtkStringArray::SafeDownCast(
+    return vtkArrayDownCast<vtkStringArray>(
       output->GetPointData()->GetAbstractArray("LabelText"));
     }
 
@@ -678,7 +679,7 @@ vtkDoubleArray *vtkMNITagPointReader::GetWeights()
 
   if (output)
     {
-    return vtkDoubleArray::SafeDownCast(
+    return vtkArrayDownCast<vtkDoubleArray>(
       output->GetPointData()->GetArray("Weights"));
     }
 
@@ -695,7 +696,7 @@ vtkIntArray *vtkMNITagPointReader::GetStructureIds()
 
   if (output)
     {
-    return vtkIntArray::SafeDownCast(
+    return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("StructureIds"));
     }
 
@@ -712,7 +713,7 @@ vtkIntArray *vtkMNITagPointReader::GetPatientIds()
 
   if (output)
     {
-    return vtkIntArray::SafeDownCast(
+    return vtkArrayDownCast<vtkIntArray>(
       output->GetPointData()->GetArray("PatientIds"));
     }
 

@@ -133,7 +133,7 @@ vtkParticleTracerBase::vtkParticleTracerBase()
   this->SetNumberOfInputPorts(2);
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-#ifdef WIN32
+#ifdef _WIN32
   vtkDebugMacro(<<"Setting vtkH5PartWriter");
   vtkH5PartWriter *writer = vtkH5PartWriter::New();
 #else
@@ -736,7 +736,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
 
   double from = this->CurrentTimeStep==this->StartTimeStep? this->StartTime : this->GetCacheDataTime(0);
   this->CurrentTimeValue =
-    this->CurrentTimeStep==this->StartTimeStep? StartTime:
+    this->CurrentTimeStep==this->StartTimeStep? this->StartTime:
     (this->CurrentTimeStep==this->TerminationTimeStep? this->TerminationTime : this->GetCacheDataTime(1));
 
   //set up the output
@@ -812,7 +812,7 @@ vtkPolyData* vtkParticleTracerBase::Execute(vtkInformationVector** inputVector)
   //
   // Make sure the Particle Positions are initialized with Seed particles
   //
-  if (this->StartTime==this->CurrentTimeValue)
+  if (this->StartTimeStep==this->CurrentTimeStep)
     {
     Assert(!this->HasCache); //shouldn't have cache if restarting
     int seedPointId=0;
@@ -1647,55 +1647,55 @@ void vtkParticleTracerBase::GetPointDataArrayNames(
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAge(vtkPointData* pd)
 {
-  return vtkFloatArray::SafeDownCast(pd->GetArray("ParticleAge"));
+  return vtkArrayDownCast<vtkFloatArray>(pd->GetArray("ParticleAge"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetParticleIds(vtkPointData* pd)
 {
-  return vtkIntArray::SafeDownCast(pd->GetArray("ParticleId"));
+  return vtkArrayDownCast<vtkIntArray>(pd->GetArray("ParticleId"));
 }
 
 //---------------------------------------------------------------------------
 vtkCharArray* vtkParticleTracerBase::GetParticleSourceIds(vtkPointData* pd)
 {
-  return vtkCharArray::SafeDownCast(pd->GetArray("ParticleSourceId"));
+  return vtkArrayDownCast<vtkCharArray>(pd->GetArray("ParticleSourceId"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedPointIds(vtkPointData* pd)
 {
-  return vtkIntArray::SafeDownCast(pd->GetArray("InjectedPointId"));
+  return vtkArrayDownCast<vtkIntArray>(pd->GetArray("InjectedPointId"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetInjectedStepIds(vtkPointData* pd)
 {
-  return vtkIntArray::SafeDownCast(pd->GetArray("InjectionStepId"));
+  return vtkArrayDownCast<vtkIntArray>(pd->GetArray("InjectionStepId"));
 }
 
 //---------------------------------------------------------------------------
 vtkIntArray* vtkParticleTracerBase::GetErrorCodeArr(vtkPointData* pd)
 {
-  return vtkIntArray::SafeDownCast(pd->GetArray("ErrorCode"));
+  return vtkArrayDownCast<vtkIntArray>(pd->GetArray("ErrorCode"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleVorticity(vtkPointData* pd)
 {
-  return vtkFloatArray::SafeDownCast(pd->GetArray("Vorticity"));
+  return vtkArrayDownCast<vtkFloatArray>(pd->GetArray("Vorticity"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleRotation(vtkPointData* pd)
 {
-  return vtkFloatArray::SafeDownCast(pd->GetArray("Rotation"));
+  return vtkArrayDownCast<vtkFloatArray>(pd->GetArray("Rotation"));
 }
 
 //---------------------------------------------------------------------------
 vtkFloatArray*  vtkParticleTracerBase::GetParticleAngularVel(vtkPointData* pd)
 {
-  return vtkFloatArray::SafeDownCast(pd->GetArray("AngularVelocity"));
+  return vtkArrayDownCast<vtkFloatArray>(pd->GetArray("AngularVelocity"));
 }
 
 //---------------------------------------------------------------------------

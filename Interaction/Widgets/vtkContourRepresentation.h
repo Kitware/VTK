@@ -15,36 +15,37 @@
 // .NAME vtkContourRepresentation - represent the vtkContourWidget
 // .SECTION Description
 // The vtkContourRepresentation is a superclass for various types of
-// representations for the vtkContourWidget.
+// representations for vtkContourWidget.
 //
 // .SECTION Managing contour points
 // The classes vtkContourRepresentationNode, vtkContourRepresentationInternals,
-// vtkContourRepresentationPoint manage the data structure used to represent
+// and vtkContourRepresentationPoint manage the data structure used to represent
 // nodes and points on a contour. A contour may contain several nodes and
-// several more points. Nodes are usually the result of user clicked points on
-// the contour. Additional points are created between nodes to generate a
-// smooth curve using some Interpolator. See the method \c SetLineInterpolator.
+// several additional points. Nodes are usually the result of user-clicked points
+// on the contour. Additional points are created between nodes to generate a
+// smooth curve using some Interpolator -- see the method \c SetLineInterpolator.
+//
 // \par
 // The data structure stores both the world and display positions for every
 // point. (This may seem like a duplication.) The default behaviour of this
 // class is to use the WorldPosition to do all the math. Typically a point is
 // added at a given display position. Its corresponding world position is
-// computed using the point placer and stored. Any query of the display
+// computed using the point placer, and stored. Any query of the display
 // position of a stored point is done via the Renderer, which computes the
 // display position given a world position.
 //
 // \par
-// So why maintain the display position ? Consider drawing a contour on a
+// So why maintain the display position? Consider drawing a contour on a
 // volume widget. You might want the contour to be located at a certain world
 // position in the volume or you might want to be overlayed over the window
 // like an Actor2D. The default behaviour of this class is to provide the
 // former behaviour.
 //
 // \par
-// To achieve the latter behaviour override the methods that return the display
+// To achieve the latter behaviour, override the methods that return the display
 // position (to return the set display position instead of computing it from
 // the world positions) and the method \c BuildLines() to interpolate lines
-// using their display positions intead of world positions.
+// using their display positions instead of world positions.
 //
 // .SECTION See Also
 // vtkContourWidget
@@ -434,11 +435,9 @@ protected:
 
   virtual void BuildLines()=0;
 
-  // This method is called when something changes in the point
-  // placer. It will cause all points to
-  // be updates, and all lines to be regenerated.
-  // Should be extended to detect changes in the line interpolator
-  // too.
+  // This method is called when something changes in the point placer.
+  // It will cause all points to be updated, and all lines to be regenerated.
+  // It should be extended to detect changes in the line interpolator too.
   virtual int  UpdateContour();
   vtkTimeStamp ContourBuildTime;
 
@@ -452,7 +451,7 @@ protected:
   // Description:
   // Build a contour representation from externally supplied PolyData. This
   // is very useful when you use an external program to compute a set of
-  // contour nodes, let's say based on image features. Subsequently, you want
+  // contour nodes (let's say based on image features) and subsequently want
   // to build and display a contour that runs through those points.
   // This method is protected and accessible only from
   // vtkContourWidget::Initialize. The idlist here may be used to initialize

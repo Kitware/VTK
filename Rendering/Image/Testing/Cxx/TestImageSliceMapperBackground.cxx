@@ -20,15 +20,17 @@
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 
-#include "vtkRenderWindowInteractor.h"
-#include "vtkInteractorStyleImage.h"
-#include "vtkRenderWindow.h"
-#include "vtkRenderer.h"
 #include "vtkCamera.h"
 #include "vtkImageData.h"
-#include "vtkImageSliceMapper.h"
 #include "vtkImageProperty.h"
 #include "vtkImageSlice.h"
+#include "vtkImageSliceMapper.h"
+#include "vtkInteractorStyleImage.h"
+#include "vtkNew.h"
+#include "vtkPlane.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
+#include "vtkRenderer.h"
 #include "vtkTIFFReader.h"
 
 int TestImageSliceMapperBackground(int argc, char* argv[])
@@ -63,6 +65,10 @@ int TestImageSliceMapperBackground(int argc, char* argv[])
     imageMapper->SetInputConnection(reader->GetOutputPort());
     imageMapper->CroppingOn();
     imageMapper->SetCroppingRegion(100, 107, 100, 107, 0, 0);
+    vtkNew<vtkPlane> cplane;
+    cplane->SetNormal(-0.5,0.5,0);
+    cplane->SetOrigin(105,105,0);
+    imageMapper->AddClippingPlane(cplane.Get());
 
     double *bounds = imageMapper->GetBounds();
     double point[3];

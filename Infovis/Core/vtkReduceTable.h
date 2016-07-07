@@ -79,7 +79,6 @@ public:
   // the specified column.
   void SetReductionMethodForColumn(vtkIdType col, int method);
 
-  //BTX
   // Description:
   // Enum for methods of reduction
   enum
@@ -88,7 +87,6 @@ public:
     MEDIAN,
     MODE
     };
-  //ETX
 
 protected:
   vtkReduceTable();

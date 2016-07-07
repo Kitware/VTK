@@ -196,7 +196,7 @@ void vtkPExtractArraysOverTime::MergeTables(
     return;
     }
 
-  vtkUnsignedCharArray* rValidPts = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray* rValidPts = vtkArrayDownCast<vtkUnsignedCharArray>(
     routput->GetRowData()->GetArray("vtkValidPointMask"));
 
   // Copy the valid values

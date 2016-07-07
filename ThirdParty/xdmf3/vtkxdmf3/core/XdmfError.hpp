@@ -1,11 +1,15 @@
 #ifndef XDMFERROR_HPP_
 #define XDMFERROR_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+
+#ifdef __cplusplus
+
+// Includes
 #include <iosfwd>
 #include <sstream>
 #include <exception>
-
-#include "XdmfCore.hpp"
 
 class XDMFCORE_EXPORT XdmfError  : public std::exception
 {
@@ -83,6 +87,16 @@ public:
     Level getLevel() const;
 
     /**
+     * Gets whether C errors are Fatal. If set to false a status will be returned
+     * to C when an error is thrown. Otherwise there will be no handling and the
+     * program will exit since C cannot handle exceptions.
+     *
+     * @param   status  Whether the C wrappers are to pass an integer value to
+     *                  C on failure instead of exiting.
+     */
+    static void setCErrorsAreFatal(bool status);
+
+    /**
      * Sets the level limit for Errors. This determines what level of errors will be thrown with message.
      *
      * Example of use:
@@ -125,6 +139,16 @@ public:
      * @param   l       The new minimum error level to display a message
      */
     static void setSuppressionLevel(Level l);
+
+    /**
+     * Gets whether C errors are Fatal. If set to false a status will be returned
+     * to C when an error is thrown. Otherwise there will be no handling and the
+     * program will exit since C cannot handle exceptions.
+     *
+     * @return  Whether the C wrappers with pass an integer value to C
+     *          instead of stopping the program
+     */
+    static bool getCErrorsAreFatal();
 
     /**
      * Gets the level limit for Errors.
@@ -240,9 +264,63 @@ private:
     static Level mLevelLimit;
     static Level mSuppressLevel;
     static std::streambuf* mBuf;
+    static bool mCErrorsAreFatal;
     std::string mMessage;
 
     static void WriteToStream(std::string msg);
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_SUCCESS  1
+#define XDMF_FAIL    -1
+
+#define XDMF_ERROR_FATAL   40
+#define XDMF_ERROR_WARNING 41
+#define XDMF_ERROR_DEBUG   42
+
+XDMFCORE_EXPORT void XdmfErrorSetCErrorsAreFatal(int status);
+
+XDMFCORE_EXPORT void XdmfErrorSetLevelLimit(int level, int * status);
+
+XDMFCORE_EXPORT void XdmfErrorSetSuppressionLevel(int level, int * status);
+
+XDMFCORE_EXPORT int XdmfErrorGetCErrorsAreFatal();
+
+XDMFCORE_EXPORT int XdmfErrorGetLevelLimit();
+
+XDMFCORE_EXPORT int XdmfErrorGetSuppressionLevel();
+
+#ifdef __cplusplus
+
+//Use these macros to catch Exceptions for C code
+
+#define XDMF_ERROR_WRAP_START(status)    \
+if (status) {                            \
+  *status = XDMF_SUCCESS;                \
+}                                        \
+try {
+
+#define XDMF_ERROR_WRAP_END(status)      \
+}                                        \
+catch (XdmfError & e) {                  \
+  if (XdmfError::getCErrorsAreFatal()) { \
+    throw e;                             \
+  }                                      \
+  else {                                 \
+    if (status) {                        \
+    *status = XDMF_FAIL;                 \
+    }                                    \
+  }                                      \
+}
+
+}
+#endif
 
 #endif

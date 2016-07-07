@@ -119,7 +119,6 @@ public:
   void DumpTable();
   void LoadFactor();
 
-//BTX
 class PointEntry
 {
 public:
@@ -153,7 +152,7 @@ public:
     this->Reference = other.Reference;
     }
 
-  void operator=(const PointEntry &other)
+  PointEntry& operator=(const PointEntry &other)
     {
     if(this != &other)
       {
@@ -172,6 +171,7 @@ public:
       memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
       this->Reference = other.Reference;
       }
+    return *this;
     }
 };
 
@@ -204,11 +204,11 @@ public:
     this->CellId = copy.CellId;
     }
 
-  void operator=(const EdgeEntry& entry)
+  EdgeEntry& operator=(const EdgeEntry& entry)
     {
     if(this == &entry)
       {
-      return;
+      return *this;
       }
     this->E1 = entry.E1;
     this->E2 = entry.E2;
@@ -216,9 +216,9 @@ public:
     this->ToSplit = entry.ToSplit;
     this->PtId = entry.PtId;
     this->CellId = entry.CellId;
+    return *this;
     }
 };
-//ETX
 
 protected:
   vtkGenericEdgeTable();

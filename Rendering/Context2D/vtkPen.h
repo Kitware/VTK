@@ -38,7 +38,6 @@ public:
 
   static vtkPen *New();
 
-//BTX
   // Description:
   // Enum of the available line types.
   enum {
@@ -48,7 +47,6 @@ public:
     DOT_LINE,
     DASH_DOT_LINE,
     DASH_DOT_DOT_LINE};
-//ETX
 
   // Description:
   // Set the type of line that the pen should draw. The default is solid (1).
@@ -130,7 +128,6 @@ public:
   // Make a deep copy of the supplied pen.
   void DeepCopy(vtkPen *pen);
 
-//BTX
 protected:
   vtkPen();
   ~vtkPen();
@@ -151,7 +148,7 @@ protected:
 private:
   vtkPen(const vtkPen &); // Not implemented.
   void operator=(const vtkPen &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkPen_h

@@ -70,7 +70,6 @@ public:
     Outside=0,
     Inside
   };
-//ETX
 
   // Description:
   // These methods control the appearance of the button as it is being

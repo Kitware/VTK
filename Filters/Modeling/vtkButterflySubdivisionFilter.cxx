@@ -462,7 +462,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
     }
   else
     {
-      vtkWarningMacro (<< "bad p5, p4 " << p5 << ", " << p4);
+      vtkWarningMacro (<< "bad p6, p4 " << p6 << ", " << p4);
     }
 
   if (p7 != -1)
@@ -488,7 +488,7 @@ void vtkButterflySubdivisionFilter::GenerateButterflyStencil (
     }
   else
     {
-      vtkWarningMacro (<< "bad p7, p8 " << p7 << ", " << p3);
+      vtkWarningMacro (<< "bad p8, p3 " << p8 << ", " << p3);
     }
 
 

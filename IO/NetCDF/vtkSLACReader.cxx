@@ -246,12 +246,13 @@ public:
     (*this->ReferenceCount)++;
   }
 
-  void operator=(const vtkSLACReaderAutoCloseNetCDF &src)
+  vtkSLACReaderAutoCloseNetCDF& operator=(const vtkSLACReaderAutoCloseNetCDF &src)
   {
     this->UnReference();
     this->FileDescriptor = src.FileDescriptor;
     this->ReferenceCount = src.ReferenceCount;
     (*this->ReferenceCount)++;
+    return *this;
   }
 
   operator int() const { return this->FileDescriptor; }

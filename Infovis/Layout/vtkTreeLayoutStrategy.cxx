@@ -113,7 +113,7 @@ void vtkTreeLayoutStrategy::Layout()
       vtkErrorMacro("Distance array not found.");
       return;
       }
-    distanceArr = vtkDataArray::SafeDownCast(aa);
+    distanceArr = vtkArrayDownCast<vtkDataArray>(aa);
     if (!distanceArr)
       {
       vtkErrorMacro("Distance array must be a data array.");
@@ -370,7 +370,7 @@ void vtkTreeLayoutStrategy::Layout()
       {
       reordered->SetPoint(i, 0, 0, 0);
       }
-    vtkIdTypeArray* graphVertexIdArr = vtkIdTypeArray::SafeDownCast(
+    vtkIdTypeArray* graphVertexIdArr = vtkArrayDownCast<vtkIdTypeArray>(
       tree->GetVertexData()->GetAbstractArray("GraphVertexId"));
     for (vtkIdType i = 0; i < graphVertexIdArr->GetNumberOfTuples(); i++)
       {

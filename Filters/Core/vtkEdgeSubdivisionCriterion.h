@@ -165,12 +165,8 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
     void operator = ( const vtkEdgeSubdivisionCriterion& ); // Not implemented.
 };
 
-//BTX
-
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldIds() const { return this->FieldIds; }
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldOffsets() const { return this->FieldOffsets; }
 inline int vtkEdgeSubdivisionCriterion::GetNumberOfFields() const { return this->NumberOfFields; }
-
-//ETX
 
 #endif // vtkEdgeSubdivisionCriterion_h

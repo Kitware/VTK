@@ -24,9 +24,12 @@
 
 #include "vtkAlgorithm.h"
 #include "vtkFiltersCoreModule.h" // For export macro
+#include "vtkNew.h" // For vtkCompositeDataProbeFilter member variable
 
-class vtkDataSet;
+
+class vtkDataObject;
 class vtkImageData;
+class vtkCompositeDataProbeFilter;
 
 class VTKFILTERSCORE_EXPORT vtkResampleToImage : public vtkAlgorithm
 {
@@ -74,12 +77,31 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation *);
   virtual int FillOutputPortInformation(int, vtkInformation *);
 
-  static void SetBlankPointsAndCells(vtkImageData *data,
-                                     const char *maskArrayName);
+  // Description:
+  // Get the name of the valid-points mask array.
+  const char* GetMaskArrayName() const;
+
+  // Description:
+  // Resample input vtkDataObject to a vtkImageData with the specified bounds
+  // and extent.
+  void PerformResampling(vtkDataObject *input, const double samplingBounds[6],
+                         bool computeProbingExtent, const double inputBounds[6],
+                         vtkImageData *output);
+
+  // Description:
+  // Mark invalid points and cells of vtkImageData as hidden
+  void SetBlankPointsAndCells(vtkImageData *data);
+
+  // Description:
+  // Helper function to compute the bounds of the given vtkDataSet or
+  // vtkCompositeDataSet
+  static void ComputeDataBounds(vtkDataObject *data, double bounds[6]);
+
 
   bool UseInputBounds;
   double SamplingBounds[6];
   int SamplingDimensions[3];
+  vtkNew<vtkCompositeDataProbeFilter> Prober;
 
 private:
   vtkResampleToImage(const vtkResampleToImage&);  // Not implemented.

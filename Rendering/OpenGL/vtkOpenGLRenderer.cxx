@@ -51,7 +51,6 @@ public:
 vtkStandardNewMacro(vtkOpenGLRenderer);
 
 vtkCxxSetObjectMacro(vtkOpenGLRenderer,ShaderProgram,vtkShaderProgram2);
-vtkCxxSetObjectMacro(vtkOpenGLRenderer, Pass, vtkRenderPass);
 
 #define VTK_MAX_LIGHTS 8
 
@@ -84,7 +83,6 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
 
   this->ShaderProgram=0;
   this->BackgroundTexture = 0;
-  this->Pass = 0;
 }
 
 // Internal method temporarily removes lights before reloading them
@@ -392,7 +390,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       // Mesa 8 with GMA945 renderer supports depth peeling
       // ATI Radeon HD XXXXX on Windows chokes on PROXY_TEXTURE_RECTANGLE_ARB
       // memory querries however if those are not used all the tests pass.
-      // ATI Radeon HD on Mac OSX PROXY_TEXTURE_RECTANGLE_ARB are fine but
+      // ATI Radeon HD on Mac OS X PROXY_TEXTURE_RECTANGLE_ARB are fine but
       // TestTranslucentLUTDepthPeeling fails. So leave it disabled on Apple
       int driver_support
         = (!(extensions->DriverIsATI()
@@ -1086,15 +1084,6 @@ void vtkOpenGLRenderer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "PickedId" << this->PickInfo->PickedId<< "\n";
   os << indent << "NumPicked" << this->PickInfo->NumPicked<< "\n";
   os << indent << "PickedZ " << this->PickedZ << "\n";
-  os << indent << "Pass:";
-  if(this->Pass!=0)
-    {
-      os << "exists" << endl;
-    }
-  else
-    {
-      os << "null" << endl;
-    }
 }
 
 
@@ -1228,9 +1217,13 @@ void vtkOpenGLRenderer::StartPick(unsigned int pickFromSize)
 
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 {
-  if (w && this->Pass)
+  if (w)
     {
-    this->Pass->ReleaseGraphicsResources(w);
+    vtkRenderer::ReleaseGraphicsResources(w);
+    if (this->Pass)
+      {
+      this->Pass->ReleaseGraphicsResources(w);
+      }
     }
 }
 

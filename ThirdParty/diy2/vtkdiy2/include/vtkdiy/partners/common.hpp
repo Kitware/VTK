@@ -19,17 +19,18 @@ struct RegularPartners
     int size;           // group size
   };
 
-  // The part of RegularDecomposer that we need works the same with either Bounds (so we fix them arbitrarily)
-  typedef       DiscreteBounds                      Bounds;
-  typedef       RegularDecomposer<Bounds>           Decomposer;
-
   typedef       std::vector<int>                    CoordVector;
   typedef       std::vector<int>                    DivisionVector;
   typedef       std::vector<DimK>                   KVSVector;
 
-                RegularPartners(int dim, int nblocks, int k, bool contiguous = true):
-                  divisions_(dim, 0),
-                  contiguous_(contiguous)                       { Decomposer::fill_divisions(dim, nblocks, divisions_); factor(k, divisions_, kvs_); fill_steps(); }
+  // The part of RegularDecomposer that we need works the same with either Bounds (so we fix them arbitrarily)
+  typedef       DiscreteBounds                      Bounds;
+  typedef       RegularDecomposer<Bounds>           Decomposer;
+
+  template<class Decomposer_>
+                RegularPartners(const Decomposer_& decomposer, int k, bool contiguous = true):
+                  divisions_(decomposer.divisions),
+                  contiguous_(contiguous)                       { factor(k, divisions_, kvs_); fill_steps(); }
                 RegularPartners(const DivisionVector&   divs,
                                 const KVSVector&        kvs,
                                 bool  contiguous = true):
@@ -73,7 +74,7 @@ fill_steps()
   {
     std::vector<int>    cur_steps(divisions().size(), 1);
 
-    for (int r = 0; r < rounds(); ++r)
+    for (size_t r = 0; r < rounds(); ++r)
     {
       steps_.push_back(cur_steps[kvs_[r].dim]);
       cur_steps[kvs_[r].dim] *= kvs_[r].size;
@@ -81,7 +82,7 @@ fill_steps()
   } else
   {
     std::vector<int>    cur_steps(divisions().begin(), divisions().end());
-    for (int r = 0; r < rounds(); ++r)
+    for (size_t r = 0; r < rounds(); ++r)
     {
       cur_steps[kvs_[r].dim] /= kvs_[r].size;
       steps_.push_back(cur_steps[kvs_[r].dim]);
@@ -152,7 +153,7 @@ factor(int k, const DivisionVector& divisions, KVSVector& kvs)
     bool changed = false;
     for (unsigned i = 0; i < divisions.size(); ++i)
     {
-      if (round_per_dim[i] == tmp_kvs[i].size())
+      if (round_per_dim[i] == (int) tmp_kvs[i].size())
         continue;
       kvs.push_back(DimK(i, tmp_kvs[i][round_per_dim[i]++]));
       changed = true;

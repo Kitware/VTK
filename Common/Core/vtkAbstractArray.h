@@ -287,13 +287,11 @@ public:
   vtkIdType GetMaxId()
     {return this->MaxId;}
 
-//BTX
   enum DeleteMethod
   {
     VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE
   };
-//ETX
 
   // Description:
   // This method lets the user specify data to be held by the array.  The
@@ -345,6 +343,7 @@ public:
   // VTK_STRING.
   // Note that the data array returned has to be deleted by the
   // user.
+  VTK_NEWINSTANCE
   static vtkAbstractArray* CreateArray(int dataType);
 
   // Description:
@@ -355,6 +354,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right kind
   // of templated vtkArrayIteratorTemplate.
+  VTK_NEWINSTANCE
   virtual vtkArrayIterator* NewIterator() = 0;
 
   // Description:
@@ -470,7 +470,7 @@ public:
   // Inquire if this array has an instance of vtkInformation
   // already associated with it.
   bool HasInformation(){ return this->Information!=0; }
-  //BTX
+
   // Description:
   // Copy information instance. Arrays use information objects
   // in a variety of ways. It is important to have flexibility in
@@ -482,7 +482,6 @@ public:
   // keys they do not wish to be coppied. The subclass will not need to
   // explicilty copy the keys as it's handled here.
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
-  //ETX
 
   // Description:
   // This key is a hint to end user interface that this array
@@ -584,10 +583,8 @@ protected:
 
   vtkInformation* Information;
 
-  //BTX
   class vtkInternalComponentNames;
   vtkInternalComponentNames* ComponentNames; //names for each component
-  //ETX
 
 private:
   vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.

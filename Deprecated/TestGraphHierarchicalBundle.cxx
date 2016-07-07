@@ -278,7 +278,7 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       extendedNameArray->InsertNextValue(kitNames->GetValue(k));
       }
 
-    vtkStringArray* fileArray = vtkStringArray::SafeDownCast(
+    vtkStringArray* fileArray = vtkArrayDownCast<vtkStringArray>(
       graph->GetVertexData()->GetAbstractArray("filename"));
     for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
       {

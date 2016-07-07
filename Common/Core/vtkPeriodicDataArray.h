@@ -62,7 +62,7 @@ public:
 
   // Description:
   // Not implemented
-  vtkArrayIterator *NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
 
   // Description:
   // Not implemented

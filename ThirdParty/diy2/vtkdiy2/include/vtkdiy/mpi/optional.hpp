@@ -21,14 +21,17 @@ namespace mpi
 
                 operator bool() const           { return init_; }
 
-    T&          operator*()                     { return *reinterpret_cast<T*>(buf_); }
-    const T&    operator*() const               { return *reinterpret_cast<const T*>(buf_); }
+    T&          operator*()                     { return *static_cast<T*>(address()); }
+    const T&    operator*() const               { return *static_cast<const T*>(address()); }
 
     T*          operator->()                    { return &(operator*()); }
     const T*    operator->() const              { return &(operator*()); }
 
     private:
-      void      clear()                         { reinterpret_cast<T*>(buf_)->~T(); }
+      void      clear()                         { static_cast<T*>(address())->~T(); }
+
+      void*         address()                   { return buf_; }
+      const void*   address() const             { return buf_; }
 
     private:
       bool init_;

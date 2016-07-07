@@ -42,7 +42,6 @@ public:
   // Paint event for the item.
   virtual bool Paint(vtkContext2D *painter);
 
-//BTX
   // Description:
   // Returns true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -66,11 +65,9 @@ public:
   // Description:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
-//ETX
 
   void UpdatePositions();
 
-//BTX
 protected:
   vtkGraphItem();
   ~vtkGraphItem();
@@ -89,7 +86,7 @@ protected:
 private:
   vtkGraphItem(const vtkGraphItem &); // Not implemented.
   void operator=(const vtkGraphItem &);   // Not implemented.
-//ETX
+
 };
 
 #endif //vtkGraphItem_h

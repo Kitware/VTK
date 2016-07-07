@@ -117,7 +117,6 @@ public:
   // properly render the data within the chart.
   void RecalculateTransform();
 
-  //BTX
   // Description:
   // Returns true if the transform is interactive, false otherwise.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -139,7 +138,6 @@ public:
   // different 2D views.  "x" changes the view so we're looking down the X axis.
   // Similar behavior occurs for "y" or "z".
   virtual bool KeyPressEvent(const vtkContextKeyEvent &key);
-  //ETX
 
 protected:
   vtkChartXYZ();

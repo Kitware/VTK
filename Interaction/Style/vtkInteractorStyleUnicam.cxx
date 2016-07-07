@@ -39,7 +39,7 @@
 vtkStandardNewMacro(vtkInteractorStyleUnicam);
 
 // define 'TheTime()' function-- returns time in elapsed seconds
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
 # include "vtkWindows.h"
 
 static double TheTime()

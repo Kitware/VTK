@@ -18,6 +18,7 @@
 
 #include "vtkActor2D.h"
 #include "vtkCellArray.h"
+#include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -38,6 +39,7 @@
 #include "vtkProperty.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
+#include "vtkTransform.h"
 #include "vtkUnsignedCharArray.h"
 #include "vtkViewport.h"
 
@@ -61,6 +63,7 @@ vtkOpenGLPolyDataMapper2D::vtkOpenGLPolyDataMapper2D()
   this->LastBoundBO = 0;
   this->HaveCellScalars = false;
   this->PrimitiveIDOffset = 0;
+  this->LastPickState = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -127,7 +130,8 @@ bool vtkOpenGLPolyDataMapper2D::GetNeedToRebuildShaders(
   if (cellBO.Program == 0 ||
       cellBO.ShaderSourceTime < this->GetMTime() ||
       cellBO.ShaderSourceTime < actor->GetMTime() ||
-      cellBO.ShaderSourceTime < this->GetInput()->GetMTime())
+      cellBO.ShaderSourceTime < this->GetInput()->GetMTime() ||
+      cellBO.ShaderSourceTime < this->PickStateChanged)
     {
     return true;
     }
@@ -276,6 +280,12 @@ void vtkOpenGLPolyDataMapper2D::BuildShaders(
         "gl_PrimitiveID = gl_PrimitiveIDIn;");
       }
     }
+
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  if (ren && ren->GetRenderWindow()->GetIsPicking())
+    {
+    this->ReplaceShaderPicking(FSSource, ren, actor);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -332,7 +342,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       {
       vtkErrorMacro(<< "Error setting 'vertexWC' in shader program.");
       }
-    if (this->VBO->TCoordComponents)
+    if (this->VBO->TCoordComponents && cellBO.Program->IsAttributeUsed("tcoordMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "tcoordMC", this->VBO->TCoordOffset,
@@ -341,7 +351,7 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
         vtkErrorMacro(<< "Error setting 'tcoordMC' in shader VAO.");
         }
       }
-    if (this->VBO->ColorComponents != 0)
+    if (this->VBO->ColorComponents && cellBO.Program->IsAttributeUsed("diffuseColor"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "diffuseColor", this->VBO->ColorOffset,
@@ -393,6 +403,16 @@ void vtkOpenGLPolyDataMapper2D::SetMapperShaderParameters(
       lineWidth[1] = 2.0*actor->GetProperty()->GetLineWidth()/vp[3];
       cellBO.Program->SetUniform2f("lineWidthNVC",lineWidth);
     }
+
+  vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
+  bool picking = ren && ren->GetRenderWindow()->GetIsPicking();
+  if (picking && cellBO.Program->IsUniformUsed("mapperIndex"))
+    {
+    unsigned int idx = ren->GetCurrentPickId();
+    float color[3];
+    vtkHardwareSelector::Convert(idx, color);
+    cellBO.Program->SetUniform3f("mapperIndex", color);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -413,6 +433,18 @@ void vtkOpenGLPolyDataMapper2D::SetPropertyShaderParameters(
 
     program->SetUniform4f("diffuseColor", diffuseColor);
     }
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLPolyDataMapper2D::ReplaceShaderPicking(
+  std::string & fssource,
+  vtkRenderer *, vtkActor2D *)
+{
+  vtkShaderProgram::Substitute(fssource, "//VTK::Picking::Dec",
+    "uniform vec3 mapperIndex;");
+  vtkShaderProgram::Substitute(fssource,
+    "//VTK::Picking::Impl",
+    "gl_FragData[0] = vec4(mapperIndex,1.0);\n");
 }
 
 //-----------------------------------------------------------------------------
@@ -501,6 +533,14 @@ void vtkOpenGLPolyDataMapper2D::SetCameraShaderParameters(
   // XXX(cppcheck): possible division by zero
   tmpMat->SetElement(2,3,-1.0*(farV+nearV)/(farV-nearV));
   tmpMat->Transpose();
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
+    {
+    this->VBOTransformInverse->GetTranspose(this->VBOShiftScale.GetPointer());
+    // Pre-multiply the inverse of the VBO's transform:
+    vtkMatrix4x4::Multiply4x4(
+      this->VBOShiftScale.GetPointer(), tmpMat, tmpMat);
+    }
+
   program->SetUniformMatrix("WCVCMatrix", tmpMat);
 
   tmpMat->Delete();
@@ -556,6 +596,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
      this->AppleBugPrimIDs, vtkOpenGLBufferObject::ArrayBuffer);
     this->AppleBugPrimIDBuffer->Release();
 
+#ifndef NDEBUG
     static bool warnAppleBugOnce = true;
     if (warnAppleBugOnce)
       {
@@ -564,7 +605,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
                       << (const char *)glGetString(GL_RENDERER));
       warnAppleBugOnce = false;
       }
-
+#endif
     }
 
   // if we have cell scalars then we have to
@@ -666,6 +707,20 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     c ? (unsigned char *) c->GetVoidPointer(0) : NULL,
     c ? c->GetNumberOfComponents() : 0);
 
+  if (this->VBO->GetCoordShiftAndScaleEnabled())
+    {
+    // The poly points are far from the origin relative to their
+    // variations so the VBO removed their mean coordinate and scaled...
+    // Generate an inverse of the VBO's transform:
+    double shift[3];
+    double scale[3];
+    this->VBO->GetCoordShift(shift);
+    this->VBO->GetCoordScale(scale);
+    this->VBOTransformInverse->Identity();
+    this->VBOTransformInverse->Translate(shift[0], shift[1], shift[2]);
+    this->VBOTransformInverse->Scale(1.0/scale[0], 1.0/scale[1], 1.0/scale[2]);
+    }
+
   this->Points.IBO->IndexCount =
     this->Points.IBO->CreatePointIndexBuffer(prims[0]);
   this->Lines.IBO->IndexCount =
@@ -730,6 +785,14 @@ void vtkOpenGLPolyDataMapper2D::RenderOverlay(vtkViewport* viewport,
   if ( this->LookupTable == NULL )
     {
     this->CreateDefaultLookupTable();
+    }
+
+  vtkRenderWindow *renWin = vtkRenderWindow::SafeDownCast(viewport->GetVTKWindow());
+  int picking = renWin->GetIsPicking();
+  if (picking != this->LastPickState)
+    {
+    this->LastPickState = picking;
+    this->PickStateChanged.Modified();
     }
 
   // Assume we want to do Zbuffering for now.

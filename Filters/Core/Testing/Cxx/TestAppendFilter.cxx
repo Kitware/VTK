@@ -139,7 +139,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
 
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
     {
-    vtkIntArray* outputArray = vtkIntArray::SafeDownCast(dataArrays->GetArray(arrayIndex));
+    vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* outputArrayName = outputArray->GetName();
     std::cout << "Array " << arrayIndex << " - ";
     std::cout << (outputArrayName ? outputArrayName : "(null)")  << ": [ ";
@@ -162,7 +162,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
   // Test the output
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
     {
-    vtkIntArray* outputArray = vtkIntArray::SafeDownCast(dataArrays->GetArray(arrayIndex));
+    vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* arrayName = outputArray->GetName();
     if (arrayName == NULL)
       {

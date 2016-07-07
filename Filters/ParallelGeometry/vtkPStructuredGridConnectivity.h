@@ -115,7 +115,6 @@ protected:
   int Rank;
   bool Initialized;
 
-  // BTX
   std::vector< int > GridRanks; // Corresponding rank for each grid
   std::vector< int > GridIds;   // List of GridIds, owned by this process
 
@@ -140,7 +139,6 @@ protected:
 
   // Array of MPI requests
   vtkMPICommunicator::Request *MPIRequests;
-  // ETX
 
   // Description:
   // Returns true if the two extents are equal, otherwise false.

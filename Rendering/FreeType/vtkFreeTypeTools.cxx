@@ -1239,6 +1239,17 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
+  if (str.empty())
+    {
+    data->Initialize();
+    if (textDims)
+      {
+      textDims[0] = 0;
+      textDims[1] = 0;
+      }
+    return true;
+    }
+
   ImageMetaData metaData;
 
   // Setup the metadata cache

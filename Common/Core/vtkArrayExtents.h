@@ -202,9 +202,9 @@ public:
     ostream& stream, const vtkArrayExtents& rhs);
 
 private:
-  //BTX
+
   std::vector<vtkArrayRange> Storage;
-  //ETX
+
 };
 
 #endif

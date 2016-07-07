@@ -224,7 +224,7 @@ int vtkExtractSelectedGraph::RequestData(
     if (list)
       {
       // Append the selection list to the selection
-      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkIdTypeArray* curList = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (curList)
         {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());

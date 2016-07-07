@@ -1,5 +1,5 @@
-#ifndef __WidgetTestingMacros_h
-#define __WidgetTestingMacros_h
+#ifndef vtkWidgetTestingMacros_h
+#define vtkWidgetTestingMacros_h
 
 #include <vtkAbstractTransform.h>
 #include <vtkActor.h>

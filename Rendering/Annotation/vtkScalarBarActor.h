@@ -187,9 +187,7 @@ public:
   // Get the texture actor.. you may want to change some properties on it
   vtkGetObjectMacro(TextureActor, vtkTexturedActor2D);
 
-//BTX
   enum { PrecedeScalarBar = 0, SucceedScalarBar };
-//ETX
 
   // Description:
   // Should the title and tick marks precede the scalar bar or succeed it?
@@ -391,6 +389,13 @@ protected:
   // not be set or relied upon as subsequent layout steps may alter
   // their placement.
   virtual void RebuildLayout(vtkViewport* viewport);
+
+  // Description:
+  // Calls RebuildLayout if it is needed such as when
+  // positions etc have changed. Return 1 on success
+  // zero on error
+  virtual int RebuildLayoutIfNeeded(vtkViewport* viewport);
+
 
   // Description:
   // Free internal storage used by the previous layout.

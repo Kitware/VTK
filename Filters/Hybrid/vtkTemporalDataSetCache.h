@@ -52,12 +52,9 @@ protected:
 
   int CacheSize;
 
-//BTX
   typedef std::map<double,std::pair<unsigned long,vtkDataObject *> >
   CacheType;
   CacheType Cache;
-//ETX
-
 
   // Description:
   // see vtkAlgorithm for details

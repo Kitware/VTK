@@ -348,7 +348,7 @@ public:
 
   // Description:
   // Report object referenced by instances of this class.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Description:
   // Convenient methods for switching between nearest-neighbor and linear

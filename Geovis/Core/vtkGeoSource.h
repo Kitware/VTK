@@ -105,10 +105,8 @@ protected:
   bool StopThread;
   bool Initialized;
 
-  //BTX
   class implementation;
   implementation* Implementation;
-  //ETX
 
 private:
   vtkGeoSource(const vtkGeoSource&); // Not implemented

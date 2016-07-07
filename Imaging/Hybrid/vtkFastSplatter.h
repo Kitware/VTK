@@ -65,9 +65,7 @@ public:
   vtkSetVector3Macro( OutputDimensions, int );
   vtkGetVector3Macro( OutputDimensions, int );
 
-//BTX
   enum { NoneLimit, ClampLimit, ScaleLimit, FreezeScaleLimit };
-//ETX
 
   // Description:
   // Set/get the way voxel values will be limited.  If this is set to None (the
@@ -142,8 +140,6 @@ private:
   vtkFastSplatter(const vtkFastSplatter &); // Not implemented
   void operator=(const vtkFastSplatter &); // Not implemented
 };
-
-//BTX
 
 //-----------------------------------------------------------------------------
 
@@ -258,7 +254,5 @@ void vtkFastSplatterFrozenScale(T *array,
       }
     }
 }
-
-//ETX
 
 #endif //vtkFastSplatter_h

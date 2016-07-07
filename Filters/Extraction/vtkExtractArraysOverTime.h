@@ -86,7 +86,6 @@ public:
   vtkGetMacro(ReportStatisticsOnly,int);
   vtkBooleanMacro(ReportStatisticsOnly,int);
 
-//BTX
 protected:
   vtkExtractArraysOverTime();
   ~vtkExtractArraysOverTime();
@@ -147,7 +146,6 @@ private:
   class vtkInternal;
   vtkInternal *Internal;
 
-//ETX
 };
 
 #endif

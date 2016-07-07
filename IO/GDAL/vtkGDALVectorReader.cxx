@@ -42,9 +42,16 @@ int vtkGDALVectorReader::OGRRegistered = 0;
 class vtkGDALVectorReader::Internal
 {
 public:
-  Internal( const char* srcName, int srcMode, int appendFeatures, int addFeatIds )
+  Internal( const char* srcName, int appendFeatures, int addFeatIds )
     {
-    this->Source = OGRSFDriverRegistrar::Open( srcName, srcMode, &this->Driver );
+#if GDAL_VERSION_MAJOR < 2
+    OGRSFDriver* driver;
+    this->Source = OGRSFDriverRegistrar::Open( srcName, 0, &driver );
+#else
+    GDALAllRegister();
+    this->Source = static_cast<GDALDataset*>(
+      GDALOpenEx(srcName, GDAL_OF_VECTOR, NULL, NULL, NULL));
+#endif
     if ( ! this->Source )
       {
       this->LastError = CPLGetLastErrorMsg();
@@ -61,7 +68,11 @@ public:
     {
     if ( this->Source )
       {
+#if GDAL_VERSION_MAJOR < 2
       OGRDataSource::DestroyDataSource( this->Source );
+#else
+      GDALClose(this->Source);
+#endif
       }
     }
 
@@ -175,7 +186,7 @@ public:
         switch ( ffdef->GetType() )
           {
         case OFTInteger:
-          iarr = vtkIntArray::SafeDownCast( fields[f] );
+          iarr = vtkArrayDownCast<vtkIntArray>( fields[f] );
           ival = feat->GetFieldAsInteger( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -183,7 +194,7 @@ public:
             }
           break;
         case OFTReal:
-          rarr = vtkDoubleArray::SafeDownCast( fields[f] );
+          rarr = vtkArrayDownCast<vtkDoubleArray>( fields[f] );
           rval = feat->GetFieldAsDouble( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -192,7 +203,7 @@ public:
           break;
         case OFTString:
         default:
-          sarr = vtkStringArray::SafeDownCast( fields[f] );
+          sarr = vtkArrayDownCast<vtkStringArray>( fields[f] );
           sval = feat->GetFieldAsString( f );
           for ( i = 0; i < nPoly; ++i )
             {
@@ -202,7 +213,7 @@ public:
         }
       if (this->AddFeatureIds)
         {
-        vtkIdTypeArray* idarr = vtkIdTypeArray::SafeDownCast(fields[numFields]);
+        vtkIdTypeArray* idarr = vtkArrayDownCast<vtkIdTypeArray>(fields[numFields]);
         for ( i = 0; i < nPoly; ++i )
           {
           idarr->InsertNextValue(feat->GetFID());
@@ -302,13 +313,77 @@ public:
 
     case wkbNone:
       return 0;
+#if GDAL_VERSION_MAJOR >= 2
+    case wkbCircularString:
+    case wkbCircularStringZ:
+    case wkbCompoundCurve:
+    case wkbCompoundCurveZ:
+    case wkbCurvePolygon:
+    case wkbCurvePolygonZ:
+    case wkbMultiCurve:
+    case wkbMultiCurveZ:
+    case wkbMultiSurface:
+    case wkbMultiSurfaceZ:
+      return 0;
+#endif
+#if GDAL_VERSION_MAJOR >= 3 || \
+   (GDAL_VERSION_MAJOR == 2 && GDAL_VERSION_MINOR > 0)
+    case wkbCircularStringM:
+    case wkbCircularStringZM:
+    case wkbCompoundCurveM:
+    case wkbCompoundCurveZM:
+    case wkbCurve:
+    case wkbCurveM:
+    case wkbCurvePolygonM:
+    case wkbCurvePolygonZM:
+    case wkbCurveZ:
+    case wkbCurveZM:
+    case wkbGeometryCollectionM:
+    case wkbGeometryCollectionZM:
+    case wkbLineStringM:
+    case wkbLineStringZM:
+    case wkbMultiCurveM:
+    case wkbMultiCurveZM:
+    case wkbMultiLineStringM:
+    case wkbMultiLineStringZM:
+    case wkbMultiPointM:
+    case wkbMultiPointZM:
+    case wkbMultiPolygonM:
+    case wkbMultiPolygonZM:
+    case wkbMultiSurfaceM:
+    case wkbMultiSurfaceZM:
+    case wkbPointM:
+    case wkbPointZM:
+    case wkbPolygonM:
+    case wkbPolygonZM:
+    case wkbPolyhedralSurface:
+    case wkbPolyhedralSurfaceM:
+    case wkbPolyhedralSurfaceZ:
+    case wkbPolyhedralSurfaceZM:
+    case wkbSurface:
+    case wkbSurfaceM:
+    case wkbSurfaceZ:
+    case wkbSurfaceZM:
+    case wkbTIN:
+    case wkbTINM:
+    case wkbTINZ:
+    case wkbTINZM:
+    case wkbTriangle:
+    case wkbTriangleM:
+    case wkbTriangleZ:
+    case wkbTriangleZM:
+      return 0;
+#endif
       }
 
     return nCells;
     }
 
+#if GDAL_VERSION_MAJOR < 2
   OGRDataSource* Source;
-  OGRSFDriver* Driver;
+#else
+  GDALDataset* Source;
+#endif
   const char* LastError;
   int LayerIdx;
   int AppendFeatures;
@@ -559,7 +634,7 @@ int vtkGDALVectorReader::InitializeInternal()
   if ( !this->Implementation )
     {
     this->Implementation = new vtkGDALVectorReader::Internal(
-                             this->FileName, 0 ,
+                             this->FileName,
                              this->AppendFeatures, this->AddFeatureIds );
     if ( ! this->Implementation || this->Implementation->LastError )
       {

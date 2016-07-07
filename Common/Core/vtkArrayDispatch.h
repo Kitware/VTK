@@ -279,7 +279,7 @@ struct Dispatch2ByArrayWithSameValueType;
 // If all types are to be considered, use vtkArrayDispatch::AllTypes for the
 // first two template parameters.
 // The entry point is:
-// bool Dispatch2BySameValueType::Execute<...>(
+// bool Dispatch2BySameValueType<...>::Execute(
 //     vtkDataArray *a1, vtkDataArray *a2, Worker &worker).
 template <typename ValueTypeList>
 struct Dispatch2BySameValueType;

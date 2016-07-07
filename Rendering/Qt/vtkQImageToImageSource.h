@@ -22,9 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-//BTX
 class QImage;
-//ETX
 
 class VTKRENDERINGQT_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {

@@ -263,7 +263,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
       // Turn the color array into a property map
       vtkIdTypeArray* colorArray
-        = vtkIdTypeArray::SafeDownCast
+        = vtkArrayDownCast<vtkIdTypeArray>
             (output->GetVertexData()->GetAbstractArray("Color"));
       vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type colorMap
         = MakeDistributedVertexPropertyMap(output, colorArray);
@@ -332,7 +332,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
       // Turn the component array into a property map
       vtkIdTypeArray* componentArray
-        = vtkIdTypeArray::SafeDownCast
+        = vtkArrayDownCast<vtkIdTypeArray>
             (output->GetVertexData()->GetAbstractArray("Component"));
       vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type componentMap
         = MakeDistributedVertexPropertyMap(output, componentArray);

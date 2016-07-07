@@ -127,12 +127,10 @@ public:
   virtual void CopyInformationFromPipeline(vtkInformation *info);
   virtual void CopyInformationToPipeline(vtkInformation *info);
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkImageStencilData* GetData(vtkInformation* info);
   static vtkImageStencilData* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Add merges the stencil supplied as argument into Self.
@@ -199,7 +197,6 @@ private:
   friend class vtkImageStencilIteratorFriendship;
 };
 
-//BTX
 // Description:
 // This is a helper class for stencil creation.  It is a raster with
 // infinite resolution in the X direction (approximately, since it uses
@@ -259,7 +256,6 @@ private:
   vtkImageStencilRaster(const vtkImageStencilRaster&);  // Not implemented.
   void operator=(const vtkImageStencilRaster&);  // Not implemented.
 };
-//ETX
 
 #endif
 

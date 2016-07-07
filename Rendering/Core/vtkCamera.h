@@ -593,10 +593,9 @@ protected:
   vtkTransform *ModelViewTransform;
 
   double FocalDisk;
-  //BTX
+
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;
-  //ETX
 
   // ViewingRaysMtime keeps track of camera modifications which will
   // change the calculation of viewing rays for the camera before it is

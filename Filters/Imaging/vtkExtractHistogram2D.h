@@ -58,12 +58,10 @@ public:
   vtkTypeMacro(vtkExtractHistogram2D, vtkStatisticsAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum OutputIndices
   {
     HISTOGRAM_IMAGE=3
   };
-//ETX
 
   // Description:
   // Set/get the number of bins to be used per dimension (x,y)

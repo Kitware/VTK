@@ -76,7 +76,6 @@ public:
   void* GetInteractiveConsolePyObject();
   void* GetInteractiveConsoleLocalsPyObject();
 
-//BTX
 protected:
   vtkPythonInteractiveInterpreter();
   ~vtkPythonInteractiveInterpreter();
@@ -89,7 +88,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

@@ -103,7 +103,6 @@ public:
   vtkTypeMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum LightKitType {
     TKeyLight,
     TFillLight,
@@ -120,8 +119,6 @@ public:
     KBRatio,
     KHRatio
   };
-
-  //ETX
 
   // Description:
   // Set/Get the intensity of the key light.  The key light is the

@@ -55,7 +55,7 @@ protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int port, vtkInformation *info);

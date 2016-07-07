@@ -71,7 +71,7 @@ public:
   // Handle double click
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
-//BTX
+
 protected:
   vtkWebInteractionEvent();
   ~vtkWebInteractionEvent();
@@ -87,7 +87,7 @@ protected:
 private:
   vtkWebInteractionEvent(const vtkWebInteractionEvent&); // Not implemented
   void operator=(const vtkWebInteractionEvent&); // Not implemented
-//ETX
+
 };
 
 #endif

@@ -733,7 +733,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     if(s->GetFrameBuffer() != NULL)
       {
-      s->GetFrameBuffer()->Bind();
+      vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
       }
 #if GL_ES_VERSION_2_0 != 1
     glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));

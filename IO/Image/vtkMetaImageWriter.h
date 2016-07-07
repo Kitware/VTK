@@ -63,9 +63,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageWriter.h"
 
-//BTX
 namespace vtkmetaio { class MetaImage; } // forward declaration
-//ETX
 
 class VTKIOIMAGE_EXPORT vtkMetaImageWriter : public vtkImageWriter
 {
@@ -112,9 +110,7 @@ private:
   vtkMetaImageWriter(const vtkMetaImageWriter&);  // Not implemented.
   void operator=(const vtkMetaImageWriter&);  // Not implemented.
 
-//BTX
   vtkmetaio::MetaImage * MetaImagePtr;
-//ETX
 
 };
 

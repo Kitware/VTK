@@ -45,13 +45,11 @@ public:
   virtual void SetSpline(vtkSpline* s);
   vtkGetObjectMacro(Spline, vtkSpline);
 
-  //BTX
   enum
     {
     BSPLINE = 0,
     CUSTOM
     };
-  //ETX
 
   // Description:
   // Spline type used by the filter.
@@ -83,11 +81,9 @@ protected:
 
   int SplineType;
 
-  //BTX
   vtkSmartPointer<vtkSpline> XSpline;
   vtkSmartPointer<vtkSpline> YSpline;
   vtkSmartPointer<vtkSpline> ZSpline;
-  //ETX
 
   vtkIdType NumberOfSubdivisions;
 

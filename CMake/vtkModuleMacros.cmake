@@ -3,8 +3,9 @@ get_filename_component(_VTKModuleMacros_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
 set(_VTKModuleMacros_DEFAULT_LABEL "VTKModular")
 
 include(${_VTKModuleMacros_DIR}/vtkModuleAPI.cmake)
-include(GenerateExportHeader)
+include(VTKGenerateExportHeader)
 include(vtkWrapping)
+include(vtkTargetLinkLibrariesWithDynamicLookup)
 if(VTK_MAKE_INSTANTIATORS)
   include(vtkMakeInstantiator)
 endif()
@@ -22,6 +23,7 @@ endif()
 #  DEPENDS = Modules that will be publicly linked to this module
 #  PRIVATE_DEPENDS = Modules that will be privately linked to this module
 #  COMPILE_DEPENDS = Modules that are needed at compile time by this module
+#  OPTIONAL_PYTHON_LINK = Optionally link the python library to this module
 #  TEST_DEPENDS = Modules that are needed by this modules testing executables
 #  DESCRIPTION = Free text description of the module
 #  TCL_NAME = Alternative name for the TCL wrapping (cannot contain numbers)
@@ -47,6 +49,7 @@ macro(vtk_module _name)
   set(${vtk-module-test}_DECLARED 1)
   set(${vtk-module}_DEPENDS "")
   set(${vtk-module}_COMPILE_DEPENDS "")
+  set(${vtk-module}_OPTIONAL_PYTHON_LINK 0)
   set(${vtk-module}_PRIVATE_DEPENDS "")
   set(${vtk-module-test}_DEPENDS "${vtk-module}")
   set(${vtk-module}_IMPLEMENTS "")
@@ -79,6 +82,9 @@ macro(vtk_module _name)
     elseif("${arg}" STREQUAL "IMPLEMENTATION_REQUIRED_BY_BACKEND")
       set(_doing "")
       set(${vtk-module}_IMPLEMENTATION_REQUIRED_BY_BACKEND 1)
+    elseif("${arg}" STREQUAL "OPTIONAL_PYTHON_LINK")
+      set(_doing "")
+      set(${vtk-module}_OPTIONAL_PYTHON_LINK 1)
     elseif("${arg}" MATCHES "^[A-Z][A-Z][A-Z]$" AND
            NOT "${arg}" MATCHES "^(ON|OFF|MPI)$")
       set(_doing "")
@@ -638,7 +644,7 @@ function(vtk_module_library name)
           COMPILE_DEFINITIONS ${${vtk-module}_KIT}_EXPORTS)
       set_target_properties(${vtk-module}Objects
         PROPERTIES
-          # Tell generate_export_header what kit-wide export symbol we use.
+          # Tell vtk_generate_export_header what kit-wide export symbol we use.
           DEFINE_SYMBOL ${${vtk-module}_KIT}_EXPORTS
           POSITION_INDEPENDENT_CODE TRUE)
     endif()
@@ -649,6 +655,11 @@ function(vtk_module_library name)
       add_dependencies(${vtk-module} ${${dep}_LIBRARIES})
     endif()
   endforeach()
+
+  # Optionally link the module to the python library
+  if(${${vtk-module}_OPTIONAL_PYTHON_LINK})
+    vtk_target_link_libraries_with_dynamic_lookup(${vtk-module} LINK_PUBLIC ${vtkPython_LIBRARIES})
+  endif()
 
   # Handle the private dependencies, setting up link/include directories.
   foreach(dep IN LISTS ${vtk-module}_PRIVATE_DEPENDS)
@@ -704,15 +715,22 @@ VTK_AUTOINIT(${vtk-module})
     set(${vtk-module}${target_suffix}_EXPORT_CODE
       ${${vtk-module}_EXPORT_CODE})
   endif()
-  generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
+  vtk_generate_export_header(${vtk-module}${export_symbol_object} EXPORT_FILE_NAME ${vtk-module}Module.h)
   if (BUILD_SHARED_LIBS)
     # export flags are only added when building shared libs, they cause
     # mismatched visibility warnings when building statically since not all
     # libraries that VTK builds don't set visibility flags. Until we get a
     # time to do that, we skip visibility flags for static libraries.
-    add_compiler_export_flags(my_abi_flags)
-    set_property(TARGET ${vtk-module}${target_suffix} APPEND
-      PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    if(CMAKE_VERSION VERSION_LESS 3.3)
+      #CMake 3.3 deprecates add_compiler_export_flags and also has policy
+      #CMP0063 which properly propagates visibility flags to OBJECT libs
+      vtk_add_compiler_export_flags(my_abi_flags)
+      set_property(TARGET ${vtk-module}${target_suffix} APPEND
+        PROPERTY COMPILE_FLAGS "${my_abi_flags}")
+    else()
+      set_property(TARGET ${vtk-module}${target_suffix}
+        PROPERTY CXX_VISIBILITY_PRESET "hidden")
+    endif()
   endif()
 
   if(BUILD_TESTING AND PYTHON_EXECUTABLE AND NOT ${vtk-module}_NO_HeaderTest AND VTK_SOURCE_DIR)

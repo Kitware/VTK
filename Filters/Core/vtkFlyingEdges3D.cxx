@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkFlyingEdges3D.h"
 
+#include "vtkArrayListTemplate.h" // For processing attribute data
 #include "vtkMath.h"
 #include "vtkImageData.h"
 #include "vtkCellArray.h"
@@ -34,8 +35,6 @@ vtkStandardNewMacro(vtkFlyingEdges3D);
 
 //----------------------------------------------------------------------------
 namespace {
-#include "vtkArrayListTemplate.h" // For processing attribute data
-
 // This templated class implements the heart of the algorithm.
 // vtkFlyingEdges3D populates the information in this class and
 // then invokes Contour() to actually initiate execution.
@@ -1058,6 +1057,7 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
   const T* sPtr = rowPtr + xL*incs[0];
   const double xSpace = this->Spacing[0];
   const vtkIdType dim0Wall = this->Dims[0]-2;
+  const vtkIdType endVoxel = xR-1;
 
   for (i=xL; i < xR; ++i)
     {
@@ -1081,13 +1081,16 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
       this->AdvanceVoxelIds(eCase,eIds);
       }
 
-    // advance along voxel row
-    ePtr[0]++; ePtr[1]++; ePtr[2]++; ePtr[3]++;
-    eCase = this->GetEdgeCase(ePtr);
+    // Advance along voxel row if not at the end. Saves a little work.
+    if ( i < endVoxel )
+      {
+      ePtr[0]++; ePtr[1]++; ePtr[2]++; ePtr[3]++;
+      eCase = this->GetEdgeCase(ePtr);
 
-    ++ijk[0];
-    sPtr += incs[0];
-    x[0] += xSpace;
+      ++ijk[0];
+      sPtr += incs[0];
+      x[0] += xSpace;
+      }//if not at end of voxel row
     } //for all non-trimmed cells along this x-edge
 }
 

@@ -77,16 +77,16 @@ void CheckEqual(vtkTable* table, vector<vector<double> > & stdTable)
       double val;
       if (arr->IsA("vtkVariantArray"))
         {
-        val = vtkVariantArray::SafeDownCast(arr)->GetValue(i).ToDouble();
+        val = vtkArrayDownCast<vtkVariantArray>(arr)->GetValue(i).ToDouble();
         }
       else if (arr->IsA("vtkStringArray"))
         {
-        vtkVariant v(vtkStringArray::SafeDownCast(arr)->GetValue(i));
+        vtkVariant v(vtkArrayDownCast<vtkStringArray>(arr)->GetValue(i));
         val = v.ToDouble();
         }
       else if (arr->IsA("vtkDataArray"))
         {
-        val = vtkDataArray::SafeDownCast(arr)->GetTuple1(i);
+        val = vtkArrayDownCast<vtkDataArray>(arr)->GetTuple1(i);
         }
       else
         {

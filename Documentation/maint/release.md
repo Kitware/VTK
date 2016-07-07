@@ -275,7 +275,7 @@ should create a window on the desktop.
 When tagging the release, use:
 
 ```sh
-$ git tag -a -m "VTK $version" v$version $commit_to_be_tagged
+$ git tag -s -m "VTK $version" v$version $commit_to_be_tagged
 ```
 
 ### Uploading

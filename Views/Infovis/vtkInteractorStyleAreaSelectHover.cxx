@@ -212,13 +212,13 @@ void vtkInteractorStyleAreaSelectHover::OnMouseMove()
     if (absArray != NULL && id > -1 )
       {
       vtkStdString str;
-      if (vtkStringArray::SafeDownCast(absArray))
+      if (vtkArrayDownCast<vtkStringArray>(absArray))
         {
-        str = vtkStringArray::SafeDownCast(absArray)->GetValue(id);
+        str = vtkArrayDownCast<vtkStringArray>(absArray)->GetValue(id);
         }
-      if (vtkDataArray::SafeDownCast(absArray))
+      if (vtkArrayDownCast<vtkDataArray>(absArray))
         {
-        str = vtkVariant(vtkDataArray::SafeDownCast(absArray)->GetTuple(id)[0]).ToString();
+        str = vtkVariant(vtkArrayDownCast<vtkDataArray>(absArray)->GetTuple(id)[0]).ToString();
         }
       this->Balloon->SetBalloonText(str);
       double z = 0.02;

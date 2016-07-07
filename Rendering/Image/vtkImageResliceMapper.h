@@ -209,7 +209,7 @@ protected:
 
   // Description:
   // Garbage collection for reference loops.
-  void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 

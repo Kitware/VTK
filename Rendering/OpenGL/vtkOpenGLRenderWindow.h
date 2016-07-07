@@ -182,12 +182,10 @@ public:
   // hasn't already been set up.
   vtkOpenGLHardwareSupport* GetHardwareSupport();
 
-  //BTX
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
   vtkTextureUnitManager *GetTextureUnitManager();
-  //ETX
 
   // Description:
   // Block the thread until the actual rendering is finished().

@@ -128,8 +128,8 @@ void vtkPairwiseExtractHistogram2D::Learn(vtkTable *inData,
     // fill it up with new histogram filters
     for (int i=0; i<numHistograms; i++)
       {
-      vtkDataArray* col1 = vtkDataArray::SafeDownCast(inData->GetColumn(i));
-      vtkDataArray* col2 = vtkDataArray::SafeDownCast(inData->GetColumn(i+1));
+      vtkDataArray* col1 = vtkArrayDownCast<vtkDataArray>(inData->GetColumn(i));
+      vtkDataArray* col2 = vtkArrayDownCast<vtkDataArray>(inData->GetColumn(i+1));
 
       if (!col1 || !col2)
         {

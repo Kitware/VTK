@@ -109,7 +109,6 @@ public:
   // Sets the HWND id of the window that WILL BE created.
   void SetParentInfo(char*);
 
-  //BTX
   virtual void *GetGenericDisplayId() { return (void*)this->ContextId; }
   virtual void *GetGenericWindowId()  { return (void*)this->WindowId; }
   virtual void *GetGenericParentId()  { return (void*)this->ParentId; }
@@ -153,8 +152,6 @@ public:
   // This is the generic prototype as required by the vtkRenderWindow
   // parent.
   virtual void SetNextWindowId(void *arg);
-
-  //ETX
 
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
@@ -259,14 +256,13 @@ protected:
 
   int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
 
-  //BTX
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message,
                               WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message,
                                   WPARAM wParam, LPARAM lParam);
-  //ETX
+
   int CursorHidden;
   int ForceMakeCurrent;
 

@@ -67,14 +67,12 @@ public:
   vtkSetClampMacro(CornerOffset,double,0.0,0.4);
   vtkGetMacro(CornerOffset,double);
 
-//BTX
   enum {
     TopSlider=0,
     RightSlider,
     BottomSlider,
     LeftSlider
   };
-//ETX
 
   // Description:
   // This method is invoked by the vtkCheckerboardWidget() when a value of some

@@ -39,7 +39,6 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-//BTX
 protected:
   vtkPProbeFilter();
   ~vtkPProbeFilter();
@@ -59,7 +58,7 @@ protected:
 private:
   vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
   void operator=(const vtkPProbeFilter&);  // Not implemented.
-//ETX
+
 };
 
 #endif

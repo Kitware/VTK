@@ -148,11 +148,10 @@ protected:
   int NumberOfFiles;
   char **FileNames;
   int NumberOfFileNames;
-//BTX
+
   std::vector<vtkExodusIIReader*> ReaderList;
   std::vector<int> NumberOfPointsPerFile;
   std::vector<int> NumberOfCellsPerFile;
-//ETX
 
   int LastCommonTimeStep;
 

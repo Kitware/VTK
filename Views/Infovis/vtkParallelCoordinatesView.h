@@ -55,11 +55,9 @@ public:
   static vtkParallelCoordinatesView *New();
   void PrintSelf(ostream &os, vtkIndent indent);
 
-  //BTX
   enum {VTK_BRUSH_LASSO=0,VTK_BRUSH_ANGLE,VTK_BRUSH_FUNCTION,VTK_BRUSH_AXISTHRESHOLD,VTK_BRUSH_MODECOUNT};
   enum {VTK_BRUSHOPERATOR_ADD=0,VTK_BRUSHOPERATOR_SUBTRACT,VTK_BRUSHOPERATOR_INTERSECT,VTK_BRUSHOPERATOR_REPLACE,VTK_BRUSHOPERATOR_MODECOUNT};
   enum {VTK_INSPECT_MANIPULATE_AXES=0, VTK_INSPECT_SELECT_DATA, VTK_INSPECT_MODECOUNT};
-  //ETX
 
   void SetBrushMode(int);
   void SetBrushModeToLasso() { this->SetBrushMode(VTK_BRUSH_LASSO); }
@@ -93,12 +91,11 @@ protected:
   virtual ~vtkParallelCoordinatesView();
 
   int SelectedAxisPosition;
-  //BTX
+
   enum {VTK_HIGHLIGHT_CENTER=0,VTK_HIGHLIGHT_MIN,VTK_HIGHLIGHT_MAX};
   vtkSmartPointer<vtkOutlineSource> HighlightSource;
   vtkSmartPointer<vtkPolyDataMapper2D> HighlightMapper;
   vtkSmartPointer<vtkActor2D> HighlightActor;
-  //ETX
 
   int InspectMode;
   int BrushMode;
@@ -106,11 +103,10 @@ protected:
   int MaximumNumberOfBrushPoints;
   int NumberOfBrushPoints;
   int CurrentBrushClass;
-  //BTX
+
   vtkSmartPointer<vtkPolyData> BrushData;
   vtkSmartPointer<vtkPolyDataMapper2D> BrushMapper;
   vtkSmartPointer<vtkActor2D> BrushActor;
-  //ETX
 
   int FirstFunctionBrushLineDrawn;
   int AxisHighlightPosition;

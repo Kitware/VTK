@@ -38,14 +38,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
   // Returns object type (see vtkType.h for definitions).
   virtual int GetDataObjectType() {return VTK_NON_OVERLAPPING_AMR; }
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkNonOverlappingAMR* GetData(vtkInformation* info)
   { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(info)); }
   static vtkNonOverlappingAMR* GetData(vtkInformationVector* v, int i=0)
   { return vtkNonOverlappingAMR::SafeDownCast(Superclass::GetData(v, i)); }
-  //ETX
 
  protected:
   vtkNonOverlappingAMR();

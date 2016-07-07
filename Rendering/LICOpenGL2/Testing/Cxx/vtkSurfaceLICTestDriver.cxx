@@ -33,6 +33,7 @@
 #include "vtkCompositePolyDataMapper2.h"
 
 #include "vtkCompositeSurfaceLICMapper.h"
+#include "vtkSurfaceLICInterface.h"
 
 #include "vtk_glew.h"
 
@@ -175,7 +176,7 @@ int vtkSurfaceLICTestDriver(
     }
   renWin->Render();
 
-  if (!vtkSurfaceLICMapper::IsSupported(renWin))
+  if (!vtkSurfaceLICInterface::IsSupported(renWin))
     {
     cerr
       << "WARNING: The rendering context does not support required extensions."
@@ -289,33 +290,34 @@ int vtkSurfaceLICTestDriver(
     }
 
   // Pass parameters.
-  mapper->SetNumberOfSteps(num_steps);
-  mapper->SetStepSize(step_size);
-  mapper->SetEnhancedLIC(enhanced_lic);
-  mapper->SetGenerateNoiseTexture(generate_noise_texture);
-  mapper->SetNoiseType(noise_type);
-  mapper->SetNormalizeVectors(normalize_vectors);
-  mapper->SetNoiseTextureSize(noise_texture_size);
-  mapper->SetNoiseGrainSize(noise_grain_size);
-  mapper->SetMinNoiseValue(min_noise_value);
-  mapper->SetMaxNoiseValue(max_noise_value);
-  mapper->SetNumberOfNoiseLevels(number_of_noise_levels);
-  mapper->SetImpulseNoiseProbability(impulse_noise_prob);
-  mapper->SetImpulseNoiseBackgroundValue(impulse_noise_bg_value);
-  mapper->SetNoiseGeneratorSeed(noise_gen_seed);
-  mapper->SetEnhanceContrast(enhance_contrast);
-  mapper->SetLowLICContrastEnhancementFactor(low_lic_contrast_enhancement_factor);
-  mapper->SetHighLICContrastEnhancementFactor(high_lic_contrast_enhancement_factor);
-  mapper->SetLowColorContrastEnhancementFactor(low_color_contrast_enhancement_factor);
-  mapper->SetHighColorContrastEnhancementFactor(high_color_contrast_enhancement_factor);
-  mapper->SetAntiAlias(anti_alias);
-  mapper->SetColorMode(color_mode);
-  mapper->SetLICIntensity(lic_intensity);
-  mapper->SetMapModeBias(map_mode_bias);
-  mapper->SetMaskOnSurface(mask_on_surface);
-  mapper->SetMaskThreshold(mask_threshold);
-  mapper->SetMaskIntensity(mask_intensity);
-  mapper->SetMaskColor(&mask_color_rgb[0]);
+  vtkSurfaceLICInterface *li = mapper->GetLICInterface();
+  li->SetNumberOfSteps(num_steps);
+  li->SetStepSize(step_size);
+  li->SetEnhancedLIC(enhanced_lic);
+  li->SetGenerateNoiseTexture(generate_noise_texture);
+  li->SetNoiseType(noise_type);
+  li->SetNormalizeVectors(normalize_vectors);
+  li->SetNoiseTextureSize(noise_texture_size);
+  li->SetNoiseGrainSize(noise_grain_size);
+  li->SetMinNoiseValue(min_noise_value);
+  li->SetMaxNoiseValue(max_noise_value);
+  li->SetNumberOfNoiseLevels(number_of_noise_levels);
+  li->SetImpulseNoiseProbability(impulse_noise_prob);
+  li->SetImpulseNoiseBackgroundValue(impulse_noise_bg_value);
+  li->SetNoiseGeneratorSeed(noise_gen_seed);
+  li->SetEnhanceContrast(enhance_contrast);
+  li->SetLowLICContrastEnhancementFactor(low_lic_contrast_enhancement_factor);
+  li->SetHighLICContrastEnhancementFactor(high_lic_contrast_enhancement_factor);
+  li->SetLowColorContrastEnhancementFactor(low_color_contrast_enhancement_factor);
+  li->SetHighColorContrastEnhancementFactor(high_color_contrast_enhancement_factor);
+  li->SetAntiAlias(anti_alias);
+  li->SetColorMode(color_mode);
+  li->SetLICIntensity(lic_intensity);
+  li->SetMapModeBias(map_mode_bias);
+  li->SetMaskOnSurface(mask_on_surface);
+  li->SetMaskThreshold(mask_threshold);
+  li->SetMaskIntensity(mask_intensity);
+  li->SetMaskColor(&mask_color_rgb[0]);
 
   vtkSmartPointer<vtkActor> actor
     = vtkSmartPointer<vtkActor>::New();

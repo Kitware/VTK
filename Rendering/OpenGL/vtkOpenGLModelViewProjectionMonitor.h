@@ -51,12 +51,10 @@ public:
   // this is done automatically in SateChanged.
   void Update();
 
-  //BTX
   // Description:
   // Set the matrix data.
   void SetProjection(float *val);
   void SetModelView(float *val);
-  //ETX
 
 protected:
   vtkOpenGLModelViewProjectionMonitor() : UpTime(0)

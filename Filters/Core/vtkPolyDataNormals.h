@@ -23,9 +23,9 @@
 // (using SetNormals()) of the PointData and/or the CellData (respectively)
 // of the output PolyData. The name of these arrays is "Normals", so they
 // can be retrieved either with
-// vtkFloatArray::SafeDownCast(output->GetPointData()->GetNormals())
+// vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetNormals())
 // or with
-// vtkFloatArray::SafeDownCast(output->GetPointData()->GetArray("Normals"))
+// vtkArrayDownCast<vtkFloatArray>(output->GetPointData()->GetArray("Normals"))
 //
 // The filter can reorder polygons to insure consistent
 // orientation across polygon neighbors. Sharp edges can be split and points

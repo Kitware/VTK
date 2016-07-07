@@ -477,7 +477,7 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   fseek(this->Internal->FilePtr, this->VariableOffset[tempg], SEEK_SET);
   if (fread(tempgData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading tempgData.");
@@ -485,7 +485,7 @@ void vtkWindBladeReader::CalculatePressure(int pressure, int prespre,
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
   if (fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading densityData.");
@@ -516,7 +516,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   fseek(this->Internal->FilePtr, this->VariableOffset[uvw], SEEK_SET);
   if (fread(uData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading uData.");
@@ -524,7 +524,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   fseek(this->Internal->FilePtr, (2 * sizeof(int)), SEEK_SET);
   if (fread(vData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading vData.");
@@ -535,7 +535,7 @@ void vtkWindBladeReader::CalculateVorticity(int vort, int uvw, int density)
   fseek(this->Internal->FilePtr, this->VariableOffset[density], SEEK_SET);
   if (fread(densityData, sizeof(float), this->BlockSize, this->Internal->FilePtr) != this->BlockSize)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading densityData.");
@@ -570,9 +570,9 @@ void vtkWindBladeReader::LoadVariableData(int var)
     // Read the block of data
     size_t cnt;
     if ((cnt = fread(block, sizeof(float), this->BlockSize, this->Internal->FilePtr)) !=
-        static_cast<size_t>(this->BlockSize) )
+        this->BlockSize )
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                      << " Premature EOF while reading block of data."
@@ -752,13 +752,13 @@ bool vtkWindBladeReader::FindVariableOffsets()
   int byteCount;
   if (fread(&byteCount, sizeof(int), 1, this->Internal->FilePtr) != 1)
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading byteCount.");
     }
 
-  this->BlockSize = byteCount / BYTES_PER_DATA;
+  this->BlockSize = static_cast<size_t>(byteCount / BYTES_PER_DATA);
 
   for (int var = 0; var < this->NumberOfFileVariables; var++)
     {
@@ -937,7 +937,7 @@ void vtkWindBladeReader::CreateCoordinates()
     this->CreateZTopography(this->ZTopographicValues);
 
     this->ZMinValue = this->ZTopographicValues[0];
-    for (unsigned int k = 0; k < this->BlockSize; k++)
+    for (size_t k = 0; k < this->BlockSize; k++)
       {
       if (this->ZMinValue > this->ZTopographicValues[k])
         {
@@ -970,7 +970,7 @@ void vtkWindBladeReader::CreateZTopography(float* zValues)
   fseek(filePtr, BYTES_PER_DATA, SEEK_SET);  // Fortran byte count
   if(fread(topoData, sizeof(float), blockSize, filePtr) != static_cast<size_t>(blockSize) )
     {
-    // This is really and error, but for the time being we report a
+    // This is really an error, but for the time being we report a
     // warning
     vtkWarningMacro ("WindBladeReader error reading file: " << this->Filename
                    << " Premature EOF while reading topoData.");
@@ -1458,7 +1458,7 @@ void vtkWindBladeReader::SetUpVorticityData(float* uData, float* vData,
                                             const float *densityData, float* vortData)
 {
   // Divide U and V components by Density
-  for (unsigned int i = 0; i < this->BlockSize; i++)
+  for (size_t i = 0; i < this->BlockSize; i++)
     {
     uData[i] /= densityData[i];
     vData[i] /= densityData[i];
@@ -1691,37 +1691,18 @@ bool vtkWindBladeReader::SetUpGlobalData(const std::string &fileName,
 void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
 {
   // Initial z coordinate processing
-  float* zedge = new float[this->Dimension[2] + 1];
-  float* z     = new float[this->Dimension[2]];
+  std::vector<float> z(this->Dimension[2]);
   float  zb;
-  int    ibctopbot = 1;
 
-  if (ibctopbot == 1)
+  zb = this->Dimension[2] * this->Step[2];
+  for (int k = 0; k < this->Dimension[2]; k++)
     {
-    for (int k = 0; k <= this->Dimension[2]; k++)
-      {
-      zedge[k] = k * this->Step[2];
-      }
-    zb = zedge[this->Dimension[2]];
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2] + 0.5 * this->Step[2];
-      }
-    }
-
-  else
-    {
-    for (int k = 0; k < this->Dimension[2]; k++)
-      {
-      z[k] = k * this->Step[2];
-      }
-    zb = z[this->Dimension[2] - 1];
+    z[k] = k * this->Step[2] + 0.5 * this->Step[2];
     }
 
   // Use cubic spline or deformation to calculate z values
   int npoints = 31;
-  float* zdata = new float[npoints];
-  float* zcoeff = new float[npoints];
+  std::vector<float> zdata(npoints), zcoeff(npoints);
   float zcrdata[] = {
         0.0 ,    2.00,    4.00,     6.00,      8.00,
        10.00,   14.00,   18.00,    22.00,     26.00,
@@ -1739,7 +1720,7 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
       }
 
     // Call spline with zcoeff being the answer
-    this->Spline(zdata, zcrdata, npoints, 99.0e31, 99.0e31, zcoeff);
+    this->Spline(&zdata[0], zcrdata, npoints, 99.0e31, 99.0e31, &zcoeff[0]);
     }
 
   // Fill the zValues array depending on compression
@@ -1760,7 +1741,7 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
           {
           // Use spline interpolation
           float zinterp;
-          this->Splint(zdata, zcrdata, zcoeff, npoints, z[k], &zinterp, flag);
+          this->Splint(&zdata[0], zcrdata, &zcoeff[0], npoints, z[k], &zinterp, flag);
           zValues[index] = zinterp;
           }
         else
@@ -1772,11 +1753,6 @@ void vtkWindBladeReader::ProcessZCoords(float *topoData, float *zValues)
         }
       }
     }
-
-  delete [] zedge;
-  delete [] z;
-  delete [] zdata;
-  delete [] zcoeff;
 }
 
 //----------------------------------------------------------------------------

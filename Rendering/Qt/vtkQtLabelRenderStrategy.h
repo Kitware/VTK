@@ -80,10 +80,8 @@ protected:
   vtkQtLabelRenderStrategy();
   ~vtkQtLabelRenderStrategy();
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
   vtkQImageToImageSource* QImageToImage;
   vtkPlaneSource* PlaneSource;

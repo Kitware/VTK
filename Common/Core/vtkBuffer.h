@@ -148,17 +148,8 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
 {
   if (newsize == 0) { return this->Allocate(0); }
 
-  // OS X's realloc does not free memory if the new block is smaller.  This
-  // is a very serious problem and causes huge amount of memory to be
-  // wasted. Do not use realloc on the Mac.
-  bool dontUseRealloc=false;
-#if defined __APPLE__
-  dontUseRealloc=true;
-#endif
-
   if (this->Pointer &&
-      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE ||
-       dontUseRealloc))
+      (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
     {
     ScalarType* newArray =
         static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));

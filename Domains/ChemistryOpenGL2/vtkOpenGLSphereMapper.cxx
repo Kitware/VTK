@@ -73,7 +73,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
   // we create vertexVC below, so turn off the default
   // implementation
   vtkShaderProgram::Substitute(FSSource,
-    "//VTK::PositionVC::Impl","");
+    "//VTK::PositionVC::Impl",
+    "vec4 vertexVC = vertexVCVSOutput;\n");
 
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
@@ -87,7 +88,6 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
 
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
-    "vec4 vertexVC = vertexVCVSOutput;\n"
     "  vec3 EyePos;\n"
     "  vec3 EyeDir;\n"
     "  if (cameraParallel != 0) {\n"
@@ -167,22 +167,31 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(
   vtkMatrix3x3 *norms;
   vtkMatrix4x4 *vcdc;
   cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
-  program->SetUniformMatrix("VCDCMatrix", vcdc);
-
-  if (!actor->GetIsIdentity())
+  if (program->IsUniformUsed("VCDCMatrix"))
     {
-    vtkMatrix4x4 *mcwc;
-    vtkMatrix3x3 *anorms;
-    ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
-    }
-  else
-    {
-    program->SetUniformMatrix("MCVCMatrix", wcvc);
+    program->SetUniformMatrix("VCDCMatrix", vcdc);
     }
 
-  cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+  if (program->IsUniformUsed("MCVCMatrix"))
+    {
+    if (!actor->GetIsIdentity())
+      {
+      vtkMatrix4x4 *mcwc;
+      vtkMatrix3x3 *anorms;
+      ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
+      vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+      }
+    else
+      {
+      program->SetUniformMatrix("MCVCMatrix", wcvc);
+      }
+    }
+
+  if (program->IsUniformUsed("cameraParallel"))
+    {
+    cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -191,7 +200,8 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
   vtkRenderer *ren, vtkActor *actor)
 {
   if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
-      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
+      cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime) &&
+      cellBO.Program->IsAttributeUsed("offsetMC"))
     {
     cellBO.VAO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
@@ -202,7 +212,11 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
       }
     }
 
-  cellBO.Program->SetUniformf("invertedDepth", this->Invert ? -1.0 : 1.0);
+  if (cellBO.Program->IsUniformUsed("invertedDepth"))
+    {
+    cellBO.Program->SetUniformf("invertedDepth", this->Invert ? -1.0 : 1.0);
+    }
+
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 }
 

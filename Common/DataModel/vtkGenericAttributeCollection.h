@@ -175,13 +175,11 @@ public:
   // \post positive_result: result>=0
   vtkGetMacro(NumberOfAttributesToInterpolate, int);
 
-  //BTX
   // Description:
   // Indices of attributes to interpolate.
   // \pre not_empty: !IsEmpty()
   // \post valid_result: GetNumberOfAttributesToInterpolate()>0
   int *GetAttributesToInterpolate();
-  //ETX
 
   // Description
   // Does the array `attributes' of size `size' have `attribute'?

@@ -73,7 +73,6 @@ public:
   // Build the representation for the poly line.
   virtual void BuildRepresentation();
 
-//BTX
 protected:
   vtkPolyLineRepresentation();
   ~vtkPolyLineRepresentation();
@@ -87,7 +86,7 @@ protected:
 private:
   vtkPolyLineRepresentation(const vtkPolyLineRepresentation&); // Not implemented.
   void operator=(const vtkPolyLineRepresentation&); // Not implemented.
-//ETX
+
 };
 
 #endif

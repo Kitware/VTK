@@ -1409,7 +1409,7 @@ void vtkPUnstructuredGridConnectivity::ProcessRemoteGrid(
   // Get the GlobalID array of the output GhostGrid. This method grows that
   // array accordingly as ghost nodes are inserted.
   vtkIdTypeArray* ghostGridGlobalIdArray =
-      vtkIdTypeArray::SafeDownCast(
+      vtkArrayDownCast<vtkIdTypeArray>(
          this->GhostedGrid->GetPointData()->GetArray(this->GlobalIDFieldName));
   assert("pre: cannot get global ID field from GhostedGrid" &&
          (ghostGridGlobalIdArray != NULL) );

@@ -160,6 +160,7 @@ public:
   // Return an instance of a templated hypertree for given branch
   // factor and dimension
   // This is done to hide templates.
+  VTK_NEWINSTANCE
   static vtkHyperTree* CreateInstance( unsigned int branchFactor,
                                        unsigned int dimension );
 

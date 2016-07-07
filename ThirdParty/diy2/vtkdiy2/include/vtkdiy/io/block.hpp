@@ -174,65 +174,45 @@ namespace io
  * \ingroup IO
  * \brief Read blocks from storage collectively from one shared file
  */
-  inline
-  void
-  read_blocks(const std::string&           infilename,     //!< input file name
-              const mpi::communicator&     comm,           //!< communicator
-              Assigner&                    assigner,       //!< assigner object
-              Master&                      master,         //!< master object
-              MemoryBuffer&                extra,          //!< user-defined metadata in file header
-              Master::LoadBlock            load = 0)       //!< load block function in case different than or unefined in the master
-  {
-    if (!load) load = master.loader();      // load is likely to be different from master.load()
-
-    typedef detail::offset_t                offset_t;
-    typedef detail::GidOffsetCount          GidOffsetCount;
-
-    mpi::io::file f(comm, infilename, mpi::io::file::rdonly);
-
-    offset_t    footer_offset = f.size() - sizeof(size_t);
-    size_t footer_size;
-
-    // Read the size
-    try
+    inline
+    void
+    read_blocks(const std::string&           infilename,     //!< input file name
+                const mpi::communicator&     comm,           //!< communicator
+                Assigner&                    assigner,       //!< assigner object
+                Master&                      master,         //!< master object
+                MemoryBuffer&                extra,          //!< user-defined metadata in file header
+                Master::LoadBlock            load = 0)       //!< load block function in case different than or unefined in the master
     {
+        if (!load) load = master.loader();      // load is likely to be different from master.load()
+
+        typedef detail::offset_t                offset_t;
+        typedef detail::GidOffsetCount          GidOffsetCount;
+
+        mpi::io::file f(comm, infilename, mpi::io::file::rdonly);
+
+        offset_t    footer_offset = f.size() - sizeof(size_t);
+        size_t footer_size;
+
+        // Read the size
         f.read_at_all(footer_offset, (char*) &footer_size, sizeof(footer_size));
-    }
-    catch(...)
-    {
-        fprintf(stderr, "Error reading footer size\n");
-        throw(1);
-    }
 
-    // Read all_offset_counts
-    footer_offset -= footer_size;
-    MemoryBuffer footer;
-    try
-    {
+        // Read all_offset_counts
+        footer_offset -= footer_size;
+        MemoryBuffer footer;
         footer.buffer.resize(footer_size);
         f.read_at_all(footer_offset, footer.buffer);
-    }
-    catch(...)
-    {
-        fprintf(stderr, "Error reading footer\n");
-        throw(1);
-    }
 
-    std::vector<GidOffsetCount>  all_offset_counts;
-    diy::load(footer, all_offset_counts);
-    diy::load(footer, extra);
-    extra.reset();
+        std::vector<GidOffsetCount>  all_offset_counts;
+        diy::load(footer, all_offset_counts);
+        diy::load(footer, extra);
+        extra.reset();
 
-    // Get local gids from assigner
-    size_t size = all_offset_counts.size();
-    assigner.set_nblocks(size);
-    std::vector<int> gids;
-    assigner.local_gids(comm.rank(), gids);
+        // Get local gids from assigner
+        size_t size = all_offset_counts.size();
+        assigner.set_nblocks(size);
+        std::vector<int> gids;
+        assigner.local_gids(comm.rank(), gids);
 
-    // Read our blocks;
-    // TODO: use collective IO, when possible
-    try
-    {
         for (unsigned i = 0; i < gids.size(); ++i)
         {
             if (gids[i] != all_offset_counts[gids[i]].gid)
@@ -251,12 +231,6 @@ namespace io
             master.add(gids[i], b, l);
         }
     }
-    catch(...)
-    {
-        fprintf(stderr, "Error reading blocks\n");
-        throw(1);
-    }
-  }
 
 
   // Functions without the extra buffer, for compatibility with the old code

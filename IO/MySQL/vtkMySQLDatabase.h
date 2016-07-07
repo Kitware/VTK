@@ -43,9 +43,8 @@ class vtkMySQLDatabasePrivate;
 
 class VTKIOMYSQL_EXPORT vtkMySQLDatabase : public vtkSQLDatabase
 {
-//BTX
+
   friend class vtkMySQLQuery;
-//ETX
 
 public:
   vtkTypeMacro(vtkMySQLDatabase, vtkSQLDatabase);
@@ -201,9 +200,7 @@ private:
   int ServerPort;
   int Reconnect;
 
-//BTX
   vtkMySQLDatabasePrivate* const Private;
-//ETX
 
   vtkMySQLDatabase(const vtkMySQLDatabase &); // Not implemented.
   void operator=(const vtkMySQLDatabase &); // Not implemented.

@@ -60,8 +60,8 @@ public:
 
   // Description:
   // Initiate garbage collection when a reference is removed.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Copy all information entries from the given vtkInformation
@@ -81,7 +81,7 @@ protected:
   int NumberOfInformationObjects;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 private:
   vtkInformationVector(const vtkInformationVector&);  // Not implemented.
   void operator=(const vtkInformationVector&);  // Not implemented.

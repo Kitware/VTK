@@ -64,7 +64,6 @@ public:
   vtkSetClampMacro(Tolerance,int,1,100);
   vtkGetMacro(Tolerance,int);
 
-//BTX
   // Enums define the state of the representation relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
   // widget.
@@ -75,7 +74,6 @@ public:
     ShearEEdge, ShearWEdge, ShearNEdge, ShearSEdge,
     MoveOriginX, MoveOriginY, MoveOrigin
   };
-//ETX
 
   // Description:
   // Methods to make this class properly act like a vtkWidgetRepresentation.

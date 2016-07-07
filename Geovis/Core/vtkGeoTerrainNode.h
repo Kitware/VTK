@@ -111,9 +111,7 @@ protected:
   vtkGeoTerrainNode();
   ~vtkGeoTerrainNode();
 
-//BTX
   vtkSmartPointer<vtkPolyData> Model;
-//ETX
 
   double BoundingSphereRadius;
   double BoundingSphereCenter[3];

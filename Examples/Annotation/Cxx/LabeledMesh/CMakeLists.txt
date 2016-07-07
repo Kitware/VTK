@@ -8,7 +8,8 @@ endif()
 
 PROJECT (LabeledMesh)
 
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
   vtkCommonCore
   vtkCommonDataModel
   vtkFiltersSources

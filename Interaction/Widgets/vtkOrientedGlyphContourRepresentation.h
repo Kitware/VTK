@@ -49,7 +49,7 @@ public:
 
   // Description:
   // Specify the cursor shape. Keep in mind that the shape will be
-  // aligned with the  constraining plane by orienting it such that
+  // aligned with the constraining plane by orienting it such that
   // the x axis of the geometry lies along the normal of the plane.
   void SetCursorShape(vtkPolyData *cursorShape);
   vtkPolyData *GetCursorShape();

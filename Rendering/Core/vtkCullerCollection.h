@@ -53,7 +53,6 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
   // Get the last Culler in the list.
   vtkCuller *GetLastItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
@@ -61,7 +60,6 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
     {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
     }
-  //ETX
 
 protected:
   vtkCullerCollection() {}

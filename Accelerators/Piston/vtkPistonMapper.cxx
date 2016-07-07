@@ -241,15 +241,15 @@ void vtkPistonMapper::RenderOnCPU()
 
   int vertsPer = vtkpiston::QueryVertsPer(id);
 
-  vtkFloatArray *normals = vtkFloatArray::SafeDownCast(
+  vtkFloatArray *normals = vtkArrayDownCast<vtkFloatArray>(
       od->GetPointData()->GetNormals());
   if (!normals)
     {
-     normals = vtkFloatArray::SafeDownCast(
+     normals = vtkArrayDownCast<vtkFloatArray>(
        od->GetPointData()->GetArray("Normals"));
     }
 
-  vtkFloatArray *scalars = vtkFloatArray::SafeDownCast(
+  vtkFloatArray *scalars = vtkArrayDownCast<vtkFloatArray>(
       od->GetPointData()->GetScalars());
   if (scalars)
     {

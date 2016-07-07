@@ -60,7 +60,6 @@
 
 #define VTK_LOG_EVENT_LENGTH 40
 
-//BTX
 typedef struct
 {
   double WallTime;
@@ -68,7 +67,6 @@ typedef struct
   char Event[VTK_LOG_EVENT_LENGTH];
   unsigned char Indent;
 } vtkTimerLogEntry;
-//ETX
 
 class VTKCOMMONSYSTEM_EXPORT vtkTimerLog : public vtkObject
 {
@@ -91,12 +89,10 @@ public:
   static void SetMaxEntries(int a);
   static int  GetMaxEntries();
 
-//BTX
   // Description:
   // Record a timing event.  The event is represented by a formatted
   // string.
   static void FormatAndMarkEvent(const char *EventString, ...);
-//ETX
 
   // Description:
   // Write the timing table out to a file.  Calculate some helpful
@@ -109,9 +105,8 @@ public:
   // nested. The standard Dumplog ignores the indents.
   static void MarkStartEvent(const char *EventString);
   static void MarkEndEvent(const char *EventString);
-//BTX
+
   static void DumpLogWithIndents(ostream *os, double threshold);
-//ETX
 
   // Description:
   // Programatic access to events.  Indexed from 0 to num-1.
@@ -194,10 +189,8 @@ protected:
   double StartTime;
   double EndTime;
 
-  //BTX
   static void DumpEntry(ostream& os, int index, double time, double deltatime,
                         int tick, int deltatick, const char *event);
-  //ETX
 
 private:
   vtkTimerLog(const vtkTimerLog&);  // Not implemented.

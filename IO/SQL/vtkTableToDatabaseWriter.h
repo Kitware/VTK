@@ -65,9 +65,8 @@ protected:
 
   vtkSQLDatabase *Database;
   vtkTable *Input;
-  //BTX
+
   std::string TableName;
-  //ETX
 
 private:
   vtkTableToDatabaseWriter(const vtkTableToDatabaseWriter&);  // Not implemented.

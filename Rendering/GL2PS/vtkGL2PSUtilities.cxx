@@ -362,7 +362,7 @@ void vtkGL2PSUtilities::DrawPathPS(vtkPath *path, double rasterPos[3],
                                    float strokeWidth, const char *label)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
@@ -500,7 +500,7 @@ void vtkGL2PSUtilities::DrawPathPDF(vtkPath *path, double rasterPos[3],
                                     const char *)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
@@ -648,7 +648,7 @@ void vtkGL2PSUtilities::DrawPathSVG(vtkPath *path, double rasterPos[3],
                                     float strokeWidth, const char *label)
 {
   vtkFloatArray *points =
-      vtkFloatArray::SafeDownCast(path->GetPoints()->GetData());
+      vtkArrayDownCast<vtkFloatArray>(path->GetPoints()->GetData());
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())

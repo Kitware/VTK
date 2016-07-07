@@ -73,13 +73,14 @@ vtkRungeKutta45::~vtkRungeKutta45()
 void vtkRungeKutta45::Initialize()
 {
   this->vtkInitialValueProblemSolver::Initialize();
-  if (!this->Initialized)
+  if (!this->FunctionSet || !this->Initialized)
     {
     return;
     }
   // Allocate memory for temporary derivatives array
   for(int i=0; i<6; i++)
     {
+    delete[] this->NextDerivs[i];
     this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
     }
@@ -196,7 +197,6 @@ int vtkRungeKutta45::ComputeNextStep(double* xprev, double* dxprev,
       }
     }
 
-  delTActual = delT;
   return 0;
 }
 

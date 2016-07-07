@@ -51,7 +51,6 @@ public:
   virtual void WidgetInteraction(double eventPos[2]) = 0;
 //  virtual void Highlight(int);
 
-//BTX
   // Enums are used to describe what is selected
   enum _InteractionState
   {
@@ -59,7 +58,6 @@ public:
     Inside,
     Adjusting
   };
-//ETX
 
   // Set/Get the value
   virtual void SetValue(double value);

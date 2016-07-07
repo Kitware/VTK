@@ -26,16 +26,20 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkPolyDataMapper2D.h"
+#include "vtkNew.h" // used for ivars
 #include "vtkOpenGLHelper.h" // used for ivars
 #include <string> // For API.
 #include <vector> //for ivars
 
+class vtkActor2D;
+class vtkMatrix4x4;
 class vtkOpenGLBufferObject;
 class vtkOpenGLHelper;
 class vtkOpenGLVertexBufferObject;
 class vtkPoints;
 class vtkRenderer;
 class vtkTextureObject;
+class vtkTransform;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper2D : public vtkPolyDataMapper2D
 {
@@ -53,6 +57,9 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
+
+  /// Return the mapper's vertex buffer object.
+  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
 
 protected:
   vtkOpenGLPolyDataMapper2D();
@@ -97,6 +104,13 @@ protected:
   void SetPropertyShaderParameters(vtkOpenGLHelper &cellBO, vtkViewport *viewport, vtkActor2D *act);
 
   // Description:
+  // Perform string replacments on the shader templates, called from
+  // ReplaceShaderValues
+  virtual void ReplaceShaderPicking(
+    std::string & fssource,
+    vtkRenderer *ren, vtkActor2D *act);
+
+  // Description:
   // Update the scene when necessary.
   void UpdateVBO(vtkActor2D *act, vtkViewport *viewport);
 
@@ -117,6 +131,11 @@ protected:
 
   vtkTimeStamp VBOUpdateTime; // When was the VBO updated?
   vtkPoints *TransformedPoints;
+  vtkNew<vtkTransform> VBOTransformInverse;
+  vtkNew<vtkMatrix4x4> VBOShiftScale;
+
+  int LastPickState;
+  vtkTimeStamp PickStateChanged;
 
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);

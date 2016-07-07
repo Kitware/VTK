@@ -310,6 +310,7 @@ int vtkStructuredGridLIC2DTestDriver(int argc, char* argv[])
         break;
       case VTK_XZ_PLANE:
         renderer->GetActiveCamera()->Elevation(90);
+        renderer->GetActiveCamera()->SetViewUp(0,0,-1);
         break;
       }
     }

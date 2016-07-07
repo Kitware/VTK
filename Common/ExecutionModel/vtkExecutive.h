@@ -149,8 +149,8 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Information key to store the executive/port number producing an
@@ -175,10 +175,9 @@ public:
   static vtkInformationIntegerKey* ALGORITHM_DIRECTION();
   static vtkInformationIntegerKey* FORWARD_DIRECTION();
   static vtkInformationKeyVectorKey* KEYS_TO_COPY();
-  //BTX
+
   enum { RequestUpstream, RequestDownstream };
   enum { BeforeForward, AfterForward };
-  //ETX
 
   // Description:
   // An API to CallAlgorithm that allows you to pass in the info objects to
@@ -219,7 +218,7 @@ protected:
   virtual int UpdateDataObject()=0;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   virtual void SetAlgorithm(vtkAlgorithm* algorithm);
 
@@ -242,9 +241,8 @@ private:
   // Internal implementation details.
   vtkExecutiveInternals* ExecutiveInternal;
 
-  //BTX
   friend class vtkAlgorithmToExecutiveFriendship;
-  //ETX
+
 private:
   vtkExecutive(const vtkExecutive&);  // Not implemented.
   void operator=(const vtkExecutive&);  // Not implemented.

@@ -314,7 +314,7 @@ int vtkXGMLReader::RequestData(
         if (property_table[i].Data->GetDataType() == VTK_INT)
           {
           assert(tok.Type == vtkXGMLReaderToken::INT);
-          vtkIntArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], tok.IntValue);
+          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)->SetValue(nodeIdMap[id], tok.IntValue);
           }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
           {
@@ -324,12 +324,12 @@ int vtkXGMLReader::RequestData(
             d = (double)tok.IntValue;
           else
             vtkErrorMacro(<<"Expected double or int.\n");
-          vtkDoubleArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], d);
+          vtkArrayDownCast<vtkDoubleArray>(property_table[i].Data)->SetValue(nodeIdMap[id], d);
           }
         else
           {
           assert(tok.Type == vtkXGMLReaderToken::TEXT);
-          vtkStringArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], tok.StringValue);
+          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)->SetValue(nodeIdMap[id], tok.StringValue);
           }
         }
       vtkXGMLReaderNextToken(fin, tok);
@@ -385,7 +385,7 @@ int vtkXGMLReader::RequestData(
         if (property_table[i].Data->GetDataType() == VTK_INT)
           {
           assert(tok.Type == vtkXGMLReaderToken::INT);
-          vtkIntArray::SafeDownCast(property_table[i].Data)->SetValue(edgeIdMap[id], tok.IntValue);
+          vtkArrayDownCast<vtkIntArray>(property_table[i].Data)->SetValue(edgeIdMap[id], tok.IntValue);
           }
         else if (property_table[i].Data->GetDataType() == VTK_DOUBLE)
           {
@@ -395,12 +395,12 @@ int vtkXGMLReader::RequestData(
             d = (double)tok.IntValue;
           else
             vtkErrorMacro(<<"Expected double or int.\n");
-          vtkDoubleArray::SafeDownCast(property_table[i].Data)->SetValue(nodeIdMap[id], d);
+          vtkArrayDownCast<vtkDoubleArray>(property_table[i].Data)->SetValue(nodeIdMap[id], d);
           }
         else
           {
           assert(tok.Type == vtkXGMLReaderToken::TEXT);
-          vtkStringArray::SafeDownCast(property_table[i].Data)->SetValue(edgeIdMap[id], tok.StringValue);
+          vtkArrayDownCast<vtkStringArray>(property_table[i].Data)->SetValue(edgeIdMap[id], tok.StringValue);
           }
         }
       vtkXGMLReaderNextToken(fin, tok);

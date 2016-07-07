@@ -80,11 +80,9 @@ protected:
   // Representations may add their own pre-render logic here.
   virtual void PrepareForRendering(vtkRenderView* view);
 
-  //BTX
   friend class vtkRenderView;
   class Internals;
   Internals* Implementation;
-  //ETX
 
   int LabelRenderMode;
 

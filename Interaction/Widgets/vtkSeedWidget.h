@@ -161,7 +161,7 @@ public:
   vtkGetMacro( WidgetState, int );
 
   // The state of the widget
-  //BTX
+
   enum
     {
     Start = 1,
@@ -169,7 +169,6 @@ public:
     PlacedSeeds = 4,
     MovingSeed = 8
     };
-  //ETX
 
 protected:
   vtkSeedWidget();

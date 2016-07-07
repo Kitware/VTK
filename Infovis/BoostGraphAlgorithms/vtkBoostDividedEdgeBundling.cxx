@@ -48,7 +48,7 @@ public:
     : Outer(alg), Graph(g)
     {
     this->Nodes = reinterpret_cast<vtkVector3f*>(
-      vtkFloatArray::SafeDownCast(g->GetPoints()->GetData())->GetPointer(0));
+      vtkArrayDownCast<vtkFloatArray>(g->GetPoints()->GetData())->GetPointer(0));
     this->Edges.resize(g->GetNumberOfEdges());
     for (vtkIdType e = 0; e < g->GetNumberOfEdges(); ++e)
       {

@@ -177,7 +177,7 @@ vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
   // Okay now what type of array is it
   if (abstract->IsNumeric())
     {
-    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstract);
+    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
     for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
       {
@@ -189,7 +189,7 @@ vtkIdType vtkBoostBreadthFirstSearchTree::GetVertexIndex(
     }
   else
     {
-    vtkStringArray *stringArray = vtkStringArray::SafeDownCast(abstract);
+    vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
     vtkStdString stringValue(value.ToString());
     for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
       {

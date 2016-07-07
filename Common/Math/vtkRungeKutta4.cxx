@@ -40,13 +40,14 @@ vtkRungeKutta4::~vtkRungeKutta4()
 void vtkRungeKutta4::Initialize()
 {
   this->vtkInitialValueProblemSolver::Initialize();
-  if (!this->Initialized)
+  if (!this->FunctionSet || !this->Initialized)
     {
     return;
     }
   // Allocate memory for temporary derivatives array
   for(int i=0; i<3; i++)
     {
+    delete[] this->NextDerivs[i];
     this->NextDerivs[i] =
       new double[this->FunctionSet->GetNumberOfFunctions()];
     }
@@ -98,6 +99,7 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
     }
   else if ( !this->FunctionSet->FunctionValues(this->Vals, this->Derivs) )
     {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
     return OUT_OF_DOMAIN;
     }
 
@@ -110,6 +112,8 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   // 2
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[0]))
     {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT/2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
     }
 
@@ -122,6 +126,8 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   // 3
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[1]))
     {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT/2.0; // we've been able to take half a step
     return OUT_OF_DOMAIN;
     }
 
@@ -134,6 +140,8 @@ int vtkRungeKutta4::ComputeNextStep(double* xprev, double* dxprev, double* xnext
   // 4
   if (!this->FunctionSet->FunctionValues(this->Vals, this->NextDerivs[2]))
     {
+    memcpy(xnext, this->Vals, (numVals-1)*sizeof(double));
+    delTActual = delT; // we've been able to take a full step but couldn't finish the algorithm
     return OUT_OF_DOMAIN;
     }
 

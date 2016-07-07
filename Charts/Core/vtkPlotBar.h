@@ -172,7 +172,6 @@ public:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
-//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
@@ -241,7 +240,6 @@ private:
 
   vtkPlotBarPrivate *Private;
 
-//ETX
 };
 
 #endif //vtkPlotBar_h

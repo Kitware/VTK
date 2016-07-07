@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 
 vtkStandardNewMacro(vtkShepardKernel);
 
@@ -61,7 +62,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
       {
       d = pow(sqrt(vtkMath::Distance2BetweenPoints(x,y)), this->PowerParameter);
       }
-    if ( d == 0.0 ) //precise hit on existing point
+    if ( vtkMathUtilities::FuzzyCompare(d, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
       {
       pIds->SetNumberOfIds(1);
       pIds->SetId(0,id);
@@ -77,7 +78,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
     }//over all points
 
   // Normalize
-  if ( sum != 0.0 )
+  if ( this->NormalizeWeights && sum != 0.0 )
     {
     for (i=0; i<numPts; ++i)
       {
@@ -94,5 +95,5 @@ void vtkShepardKernel::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Power Parameter: "
-     << this->PowerParameter << "\n";
+     << this->GetPowerParameter() << "\n";
 }

@@ -237,9 +237,9 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
     {
     vtkAbstractArray* arr = this->GetColumn(i);
     int comps = arr->GetNumberOfComponents();
-    if (vtkDataArray::SafeDownCast(arr))
+    if (vtkArrayDownCast<vtkDataArray>(arr))
       {
-      vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
+      vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr);
       double* tuple = new double[comps];
       for (int j = 0; j < comps; j++)
         {
@@ -248,25 +248,25 @@ vtkIdType vtkTable::InsertNextBlankRow(double default_num_val)
       data->InsertNextTuple(tuple);
       delete[] tuple;
       }
-    else if (vtkStringArray::SafeDownCast(arr))
+    else if (vtkArrayDownCast<vtkStringArray>(arr))
       {
-      vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+      vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
       for (int j = 0; j < comps; j++)
         {
         data->InsertNextValue(vtkStdString(""));
         }
       }
-    else if (vtkVariantArray::SafeDownCast(arr))
+    else if (vtkArrayDownCast<vtkVariantArray>(arr))
       {
-      vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+      vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
       for (int j = 0; j < comps; j++)
         {
         data->InsertNextValue(vtkVariant());
         }
       }
-    else if (vtkUnicodeStringArray::SafeDownCast(arr))
+    else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr))
       {
-      vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+      vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr);
       for (int j = 0; j < comps; j++)
         {
         data->InsertNextValue(vtkUnicodeString::from_utf8(""));
@@ -306,25 +306,25 @@ void vtkTable::RemoveRow(vtkIdType row)
     {
     vtkAbstractArray* arr = this->GetColumn(i);
     int comps = arr->GetNumberOfComponents();
-    if (vtkDataArray::SafeDownCast(arr))
+    if (vtkArrayDownCast<vtkDataArray>(arr))
       {
-      vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
+      vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr);
       data->RemoveTuple(row);
       }
-    else if (vtkStringArray::SafeDownCast(arr))
+    else if (vtkArrayDownCast<vtkStringArray>(arr))
       {
       // Manually move all elements past the index back one place.
-      vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+      vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
       for (int j = comps*row; j < comps*data->GetNumberOfTuples() - 1; j++)
         {
         data->SetValue(j, data->GetValue(j+1));
         }
       data->Resize(data->GetNumberOfTuples() - 1);
       }
-    else if (vtkVariantArray::SafeDownCast(arr))
+    else if (vtkArrayDownCast<vtkVariantArray>(arr))
       {
       // Manually move all elements past the index back one place.
-      vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+      vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
       for (int j = comps*row; j < comps*data->GetNumberOfTuples() - 1; j++)
         {
         data->SetValue(j, data->GetValue(j+1));
@@ -404,19 +404,19 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
     return;
     }
   int comps = arr->GetNumberOfComponents();
-  if (vtkDataArray::SafeDownCast(arr))
+  if (vtkArrayDownCast<vtkDataArray>(arr))
     {
-    vtkDataArray* data = vtkDataArray::SafeDownCast(arr);
+    vtkDataArray* data = vtkArrayDownCast<vtkDataArray>(arr);
     if (comps == 1)
       {
       data->SetVariantValue(row, value);
       }
     else
       {
-      if (value.IsArray() && vtkDataArray::SafeDownCast(value.ToArray()) &&
+      if (value.IsArray() && vtkArrayDownCast<vtkDataArray>(value.ToArray()) &&
           value.ToArray()->GetNumberOfComponents() == comps)
         {
-        data->SetTuple(row, vtkDataArray::SafeDownCast(value.ToArray())->GetTuple(0));
+        data->SetTuple(row, vtkArrayDownCast<vtkDataArray>(value.ToArray())->GetTuple(0));
         }
       else
         {
@@ -425,19 +425,19 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
         }
       }
     }
-  else if (vtkStringArray::SafeDownCast(arr))
+  else if (vtkArrayDownCast<vtkStringArray>(arr))
     {
-    vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+    vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
     if (comps == 1)
       {
       data->SetValue(row, value.ToString());
       }
     else
       {
-      if (value.IsArray() && vtkStringArray::SafeDownCast(value.ToArray()) &&
+      if (value.IsArray() && vtkArrayDownCast<vtkStringArray>(value.ToArray()) &&
           value.ToArray()->GetNumberOfComponents() == comps)
         {
-        data->SetTuple(row, 0, vtkStringArray::SafeDownCast(value.ToArray()));
+        data->SetTuple(row, 0, vtkArrayDownCast<vtkStringArray>(value.ToArray()));
         }
       else
         {
@@ -446,9 +446,9 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
         }
       }
     }
-  else if (vtkVariantArray::SafeDownCast(arr))
+  else if (vtkArrayDownCast<vtkVariantArray>(arr))
     {
-    vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+    vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
     if (comps == 1)
       {
       data->SetValue(row, value);
@@ -466,19 +466,19 @@ void vtkTable::SetValue(vtkIdType row, vtkIdType col, vtkVariant value)
         }
       }
     }
-  else if(vtkUnicodeStringArray::SafeDownCast(arr))
+  else if(vtkArrayDownCast<vtkUnicodeStringArray>(arr))
     {
-    vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+    vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr);
     if(comps==1)
       {
       data->SetValue(row, value.ToUnicodeString());
       }
     else
       {
-      if(value.IsArray() && vtkUnicodeStringArray::SafeDownCast(value.ToArray()) &&
+      if(value.IsArray() && vtkArrayDownCast<vtkUnicodeStringArray>(value.ToArray()) &&
          value.ToArray()->GetNumberOfComponents() == comps)
         {
-        data->SetTuple(row, 0, vtkUnicodeStringArray::SafeDownCast(value.ToArray()));
+        data->SetTuple(row, 0, vtkArrayDownCast<vtkUnicodeStringArray>(value.ToArray()));
         }
       else
         {
@@ -527,7 +527,7 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
     {
     return vtkVariant();
     }
-  if (vtkDataArray::SafeDownCast(arr))
+  if (vtkArrayDownCast<vtkDataArray>(arr))
     {
     if (comps == 1)
       {
@@ -553,9 +553,9 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
       return v;
       }
     }
-  else if (vtkStringArray::SafeDownCast(arr))
+  else if (vtkArrayDownCast<vtkStringArray>(arr))
     {
-    vtkStringArray* data = vtkStringArray::SafeDownCast(arr);
+    vtkStringArray* data = vtkArrayDownCast<vtkStringArray>(arr);
     if (comps == 1)
       {
       return vtkVariant(data->GetValue(row));
@@ -571,9 +571,9 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
       return v;
       }
     }
-  else if (vtkUnicodeStringArray::SafeDownCast(arr))
+  else if (vtkArrayDownCast<vtkUnicodeStringArray>(arr))
     {
-    vtkUnicodeStringArray* data = vtkUnicodeStringArray::SafeDownCast(arr);
+    vtkUnicodeStringArray* data = vtkArrayDownCast<vtkUnicodeStringArray>(arr);
     if (comps == 1)
       {
       return vtkVariant(data->GetValue(row));
@@ -589,9 +589,9 @@ vtkVariant vtkTable::GetValue(vtkIdType row, vtkIdType col)
       return v;
       }
     }
-  else if (vtkVariantArray::SafeDownCast(arr))
+  else if (vtkArrayDownCast<vtkVariantArray>(arr))
     {
-    vtkVariantArray* data = vtkVariantArray::SafeDownCast(arr);
+    vtkVariantArray* data = vtkArrayDownCast<vtkVariantArray>(arr);
     if (comps == 1)
       {
       return data->GetValue(row);

@@ -217,7 +217,6 @@ public:
   // ReleasePixBuffers() gets called.
   vtkProp* GetPropFromID(int id);
 
-//BTX
   enum PassTypes
     {
     PROCESS_PASS,
@@ -345,7 +344,7 @@ private:
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

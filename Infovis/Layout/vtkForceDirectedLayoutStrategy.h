@@ -139,7 +139,6 @@ protected:
   int RandomInitialPoints; //Boolean for having random points
 private:
 
-  //BTX
   // A vertex contains a position and a displacement.
   typedef struct
   {
@@ -154,7 +153,6 @@ private:
     int t;
     int u;
   } vtkLayoutEdge;
-  //ETX
 
   int RandomSeed;
   int IterationsPerLayout;

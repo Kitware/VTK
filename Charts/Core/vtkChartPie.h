@@ -78,7 +78,6 @@ public:
   // Set the vtkContextScene for the item, always set for an item in a scene.
   virtual void SetScene(vtkContextScene *scene);
 
-//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -106,9 +105,7 @@ public:
   // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
 
-//BTX
 protected:
   vtkChartPie();
   ~vtkChartPie();
@@ -141,7 +138,6 @@ private:
   // Private implementation details
   vtkChartPiePrivate *Private;
 
-//ETX
 };
 
 #endif //vtkChartPie_h

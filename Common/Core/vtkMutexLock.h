@@ -25,8 +25,6 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
-
 #ifdef VTK_USE_SPROC
 #include <abi_mutex.h> // Needed for SPROC implementation of mutex
 typedef abilock_t vtkMutexType;
@@ -78,8 +76,6 @@ private:
   vtkSimpleMutexLock& operator=(const vtkSimpleMutexLock& rhs); // no copy assignment
 };
 
-//ETX
-
 class VTKCOMMONCORE_EXPORT vtkMutexLock : public vtkObject
 {
 public:
@@ -97,9 +93,8 @@ public:
   void Unlock( void );
 
 protected:
-  //BTX
+
   friend class vtkConditionVariable; // needs to get at SimpleMutexLock.
-  //ETX
 
   vtkSimpleMutexLock   SimpleMutexLock;
   vtkMutexLock() {}

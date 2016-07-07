@@ -106,9 +106,9 @@ protected:
   ~vtkHoverWidget();
 
   // The state of the widget
-//BTX
+
   enum {Start=0,Timing,TimedOut};
-//ETX
+
   int WidgetState;
 
   // Callback interface to execute events

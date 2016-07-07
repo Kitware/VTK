@@ -34,12 +34,10 @@ public:
   static vtkInputStream *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the real input stream.
   vtkSetMacro(Stream, istream*);
   vtkGetMacro(Stream, istream*);
-  //ETX
 
   // Description:
   // Called after the stream position has been set by the caller, but

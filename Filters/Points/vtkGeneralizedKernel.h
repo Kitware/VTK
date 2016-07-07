@@ -33,7 +33,9 @@
 // the interpolation process. For example, it is possible to choose between a
 // radius-based kernel selection, and one based on the N nearest
 // neighbors. Note that the performance and mathematical properties of
-// kernels may vary greatly depending on which kernel style is selected.
+// kernels may vary greatly depending on which kernel style is selected. For
+// example, if a radius-based kernel footprint is used, and the radius is too
+// big, the algorithm can perform in n^3 fashion.
 //
 // Finally, in advanced usage, probability functions can be applied to the
 // interpolation weights (prior to normalization). These probability
@@ -68,13 +70,19 @@ class VTKFILTERSPOINTS_EXPORT vtkGeneralizedKernel : public vtkInterpolationKern
 public:
   // Description:
   // Standard methods for type and printing.
-  vtkTypeMacro(vtkGeneralizedKernel,vtkInterpolationKernel);
+  vtkTypeMacro(vtkGeneralizedKernel, vtkInterpolationKernel)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Based on the kernel style, invoke the appropriate locator method to obtain
-  // the points making up the basis.
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
+  // Based on the kernel style, invoke the appropriate locator method to
+  // obtain the points making up the basis. Given a point x (and optional
+  // associated point id), determine the points around x which form an
+  // interpolation basis. The user must provide the vtkIdList pIds, which
+  // will be dynamically resized as necessary. The method returns the number
+  // of points in the basis. Typically this method is called before
+  // ComputeWeights(). Note that ptId is optional in most cases, although in
+  // some kernels it is used to facilitate basis computation.
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0);
 
   // Description:
   // Given a point x, a list of basis points pIds, and a probability
@@ -142,6 +150,14 @@ public:
   vtkSetClampMacro(NumberOfPoints,int,1,VTK_INT_MAX);
   vtkGetMacro(NumberOfPoints,int);
 
+  // Description:
+  // Indicate whether the interpolation weights should be normalized after they
+  // are computed. Generally this is left on as it results in more reasonable
+  // behavior.
+  vtkSetMacro(NormalizeWeights,bool);
+  vtkGetMacro(NormalizeWeights,bool);
+  vtkBooleanMacro(NormalizeWeights,bool);
+
 protected:
   vtkGeneralizedKernel();
   ~vtkGeneralizedKernel();
@@ -149,6 +165,7 @@ protected:
   int KernelFootprint;
   double Radius;
   int NumberOfPoints;
+  bool NormalizeWeights;
 
 private:
   vtkGeneralizedKernel(const vtkGeneralizedKernel&);  // Not implemented.

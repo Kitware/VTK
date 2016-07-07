@@ -74,7 +74,7 @@ read(const DiscreteBounds& bounds, T* buffer, bool collective, int chunk) const
   int dim   = shape_.size();
   int total = 1;
   std::vector<int> subsizes;
-  for (unsigned i = 0; i < dim; ++i)
+  for (int i = 0; i < dim; ++i)
   {
     subsizes.push_back(bounds.max[i] - bounds.min[i] + 1);
     total *= subsizes.back();
@@ -88,15 +88,15 @@ read(const DiscreteBounds& bounds, T* buffer, bool collective, int chunk) const
     // create an MPI struct of size chunk to read the data in those chunks
     // (this allows to work around MPI-IO weirdness where crucial quantities
     // are ints, which are too narrow of a type)
-    const int             array_of_blocklengths[]  = { chunk };
-    const MPI_Aint        array_of_displacements[] = { 0 };
-    const MPI_Datatype    array_of_types[]         = { mpi::detail::get_mpi_datatype<T>() };
+    int             array_of_blocklengths[]  = { chunk };
+    MPI_Aint        array_of_displacements[] = { 0 };
+    MPI_Datatype    array_of_types[]         = { mpi::detail::get_mpi_datatype<T>() };
     MPI_Type_create_struct(1, array_of_blocklengths, array_of_displacements, array_of_types, &T_type);
     MPI_Type_commit(&T_type);
   }
 
   MPI_Datatype fileblk;
-  MPI_Type_create_subarray(dim, &shape_[0], &subsizes[0], &bounds.min[0], MPI_ORDER_C, T_type, &fileblk);
+  MPI_Type_create_subarray(dim, (int*) &shape_[0], &subsizes[0], (int*) &bounds.min[0], MPI_ORDER_C, T_type, &fileblk);
   MPI_Type_commit(&fileblk);
 
   MPI_File_set_view(f_.handle(), offset_, T_type, fileblk, "native", MPI_INFO_NULL);
@@ -128,7 +128,7 @@ write(const DiscreteBounds& bounds, const T* buffer, const DiscreteBounds& core,
   int dim   = shape_.size();
   std::vector<int> subsizes;
   std::vector<int> buffer_shape, buffer_start;
-  for (unsigned i = 0; i < dim; ++i)
+  for (int i = 0; i < dim; ++i)
   {
     buffer_shape.push_back(bounds.max[i] - bounds.min[i] + 1);
     buffer_start.push_back(core.min[i] - bounds.min[i]);
@@ -141,16 +141,16 @@ write(const DiscreteBounds& bounds, const T* buffer, const DiscreteBounds& core,
   else
   {
     // assume T is a binary block and create an MPI struct of appropriate size
-    const int             array_of_blocklengths[]  = { chunk };
-    const MPI_Aint        array_of_displacements[] = { 0 };
-    const MPI_Datatype    array_of_types[]         = { mpi::detail::get_mpi_datatype<T>() };
+    int             array_of_blocklengths[]  = { chunk };
+    MPI_Aint        array_of_displacements[] = { 0 };
+    MPI_Datatype    array_of_types[]         = { mpi::detail::get_mpi_datatype<T>() };
     MPI_Type_create_struct(1, array_of_blocklengths, array_of_displacements, array_of_types, &T_type);
     MPI_Type_commit(&T_type);
   }
 
   MPI_Datatype fileblk, subbuffer;
-  MPI_Type_create_subarray(dim, &shape_[0],       &subsizes[0], &bounds.min[0],   MPI_ORDER_C, T_type, &fileblk);
-  MPI_Type_create_subarray(dim, &buffer_shape[0], &subsizes[0], &buffer_start[0], MPI_ORDER_C, T_type, &subbuffer);
+  MPI_Type_create_subarray(dim, (int*) &shape_[0],       &subsizes[0], (int*) &bounds.min[0],   MPI_ORDER_C, T_type, &fileblk);
+  MPI_Type_create_subarray(dim, (int*) &buffer_shape[0], &subsizes[0], (int*) &buffer_start[0], MPI_ORDER_C, T_type, &subbuffer);
   MPI_Type_commit(&fileblk);
   MPI_Type_commit(&subbuffer);
 

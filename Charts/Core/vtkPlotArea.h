@@ -78,8 +78,6 @@ public:
   virtual bool PaintLegend(vtkContext2D *painter, const vtkRectf& rect,
                            int legendIndex);
 
-//BTX
-
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated, or
@@ -110,7 +108,7 @@ private:
   vtkTableCache* TableCache;
 
   vtkTimeStamp UpdateTime;
-//ETX
+
 };
 
 #endif

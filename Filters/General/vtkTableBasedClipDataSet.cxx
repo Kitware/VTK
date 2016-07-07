@@ -1237,7 +1237,7 @@ void vtkTableBasedClipperVolumeFromVolume::
   vtkCellData  * outCD = output->GetCellData();
 
   vtkIntArray * newOrigNodes = NULL;
-  vtkIntArray * origNodes = vtkIntArray::SafeDownCast
+  vtkIntArray * origNodes = vtkArrayDownCast<vtkIntArray>
                 (  inPD->GetArray( "avtOriginalNodeNumbers" )  );
   //
   // If the isovolume only affects a small part of the dataset, we can save

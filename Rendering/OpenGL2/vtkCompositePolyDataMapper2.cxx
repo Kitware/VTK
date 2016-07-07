@@ -625,7 +625,7 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
         this->CanUseTextureMapForColoringValue = 0;
         }
       if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-           vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+           vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
           this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
         {
         // Don't use texture is direct coloring using RGB unsigned chars is
@@ -658,6 +658,18 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
 
   this->CanUseTextureMapForColoringSet = true;
   return this->CanUseTextureMapForColoringValue;
+}
+
+//-------------------------------------------------------------------------
+bool vtkCompositePolyDataMapper2::GetNeedToRebuildBufferObjects(
+  vtkRenderer *ren, vtkActor *act)
+{
+  if (vtkCompositePolyDataMapper2::Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
+      (this->GetInput() && this->VBOBuildTime < this->GetInput()->GetMTime()))
+    {
+    return true;
+    }
+  return false;
 }
 
 //-------------------------------------------------------------------------

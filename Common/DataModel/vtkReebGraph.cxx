@@ -1232,11 +1232,11 @@ double vtkReebGraph::Implementation::ComputeCustomMetric(
 {
   int edgeId = -1, start = -1, end = -1;
 
-  vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(
+  vtkDataArray *vertexInfo = vtkArrayDownCast<vtkDataArray>(
     this->Parent->GetVertexData()->GetAbstractArray("Vertex Ids"));
   if(!vertexInfo) return vtkReebGraphGetArcPersistence(this, a);
 
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     this->Parent->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   if(!edgeInfo) return vtkReebGraphGetArcPersistence(this, a);
 
@@ -1565,7 +1565,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
 
   vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
   this->Parent->GetEdges(eIt);
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     this->Parent->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   vtkDataArray    *vertexInfo =
       this->Parent->GetVertexData()->GetArray("Vertex Ids");

@@ -62,7 +62,7 @@ vtkDoubleArray* vtkPCAStatisticsGnuR::CalculatePValues(vtkIdTypeArray* dimCol,
   ri->EvalRscript( rs.str().c_str() );
 
   // Retrieve the p-values
-  vtkDoubleArray* testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  vtkDoubleArray* testCol = vtkArrayDownCast<vtkDoubleArray>( ri->AssignRVariableToVTKDataArray( "p" ) );
   if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
     {
     vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );

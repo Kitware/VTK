@@ -79,14 +79,13 @@ public:
   // description of vtkRenderViewBase.
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
-  //BTX
   enum
     {
     INTERACTION_MODE_2D,
     INTERACTION_MODE_3D,
     INTERACTION_MODE_UNKNOWN
     };
-  //ETX
+
   void SetInteractionMode(int mode);
   vtkGetMacro(InteractionMode, int);
 
@@ -120,12 +119,10 @@ public:
   vtkGetMacro(DisplayHoverText, bool);
   vtkBooleanMacro(DisplayHoverText, bool);
 
-  //BTX
   enum {
     SURFACE = 0,
     FRUSTUM = 1
   };
-  //ETX
 
   // Description:
   // Sets the selection mode for the render view.
@@ -165,13 +162,11 @@ public:
   int* GetDisplaySize();
   void GetDisplaySize(int &dsx, int &dsy);
 
-  //BTX
   enum
     {
     NO_OVERLAP,
     ALL
     };
-  //ETX
 
   // Description:
   // Label placement mode.
@@ -186,13 +181,11 @@ public:
   virtual void SetLabelPlacementModeToAll()
     { this->SetLabelPlacementMode(ALL); }
 
-  //BTX
   enum
     {
     FREETYPE,
     QT
     };
-  //ETX
 
   // Description:
   // Label render mode.
@@ -260,14 +253,12 @@ protected:
   int InteractionMode;
   bool RenderOnMouseMove;
 
-  //BTX
   vtkSmartPointer<vtkRenderer>                 LabelRenderer;
   vtkSmartPointer<vtkBalloonRepresentation>    Balloon;
   vtkSmartPointer<vtkLabelPlacementMapper>     LabelPlacementMapper;
   vtkSmartPointer<vtkTexturedActor2D>          LabelActor;
   vtkSmartPointer<vtkHoverWidget>              HoverWidget;
   vtkSmartPointer<vtkHardwareSelector>         Selector;
-  //ETX
 
 private:
   vtkRenderView(const vtkRenderView&);  // Not implemented.

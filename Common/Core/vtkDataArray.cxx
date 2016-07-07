@@ -95,29 +95,6 @@ struct DeepCopyWorker
   }
 };
 
-//--Round integer types, but not floating point types. Used for interpolation---
-template <class T>
-inline void vtkDataArrayRoundIfNecessary(double val, T* retVal)
-{
-  val = std::max(val, static_cast<double>(vtkTypeTraits<T>::Min()));
-  val = std::min(val, static_cast<double>(vtkTypeTraits<T>::Max()));
-  *retVal = static_cast<T>((val>=0.0)?(val + 0.5):(val - 0.5));
-}
-
-//--------------------------------------------------------------------------
-template<>
-inline void vtkDataArrayRoundIfNecessary(double val, double* retVal)
-{
-  *retVal = val;
-}
-
-//--------------------------------------------------------------------------
-template<>
-inline void vtkDataArrayRoundIfNecessary(double val, float* retVal)
-{
-  *retVal = static_cast<float>(val);
-}
-
 //------------InterpolateTuple workers------------------------------------------
 struct InterpolateMultiTupleWorker
 {
@@ -153,7 +130,7 @@ struct InterpolateMultiTupleWorker
         val += weight * static_cast<double>(s.Get(t, c));
         }
       DestType valT;
-      vtkDataArrayRoundIfNecessary(val, &valT);
+      vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
       d.Insert(this->DestTuple, c, valT);
       }
   }
@@ -190,7 +167,7 @@ struct InterpolateTupleWorker
       {
       val = s1.Get(this->SrcTuple1, c) * oneMinusT +
             s2.Get(this->SrcTuple2, c) * this->Weight;
-      vtkDataArrayRoundIfNecessary(val, &valT);
+      vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
       d.Insert(this->DstTuple, c, valT);
       }
   }
@@ -330,7 +307,8 @@ struct SetTuplesRangeWorker
       NumTuples(numTuples)
   {}
 
-  // Generic implementation:
+  // Generic implementation. We perform the obvious optimizations for AOS/SOA
+  // in the derived class implementations.
   template <typename SrcArrayT, typename DstArrayT>
   void operator()(SrcArrayT *src, DstArrayT *dst)
   {
@@ -355,37 +333,6 @@ struct SetTuplesRangeWorker
         }
       ++srcT;
       ++dstT;
-      }
-  }
-
-  // Specialize for AoS
-  template <typename ValueType>
-  void operator()(vtkAOSDataArrayTemplate<ValueType> *src,
-                  vtkAOSDataArrayTemplate<ValueType> *dst)
-  {
-    int numComps = src->GetNumberOfComponents();
-    ValueType *srcBegin = src->GetPointer(this->SrcStartTuple * numComps);
-    ValueType *srcEnd = srcBegin + (this->NumTuples * numComps);
-    ValueType *dstBegin = dst->GetPointer(this->DstStartTuple * numComps);
-
-    std::copy(srcBegin, srcEnd, dstBegin);
-  }
-
-  // Specialize for SoA
-  template <typename ValueType>
-  void operator()(vtkSOADataArrayTemplate<ValueType> *src,
-                  vtkSOADataArrayTemplate<ValueType> *dst)
-  {
-    int numComps = src->GetNumberOfComponents();
-    for (int c = 0; c < numComps; ++c)
-      {
-      ValueType *srcBegin = src->GetComponentArrayPointer(c);
-      srcBegin += this->SrcStartTuple;
-      ValueType *srcEnd = srcBegin + this->NumTuples;
-      ValueType *dstBegin = dst->GetComponentArrayPointer(c);
-      dstBegin += this->DstStartTuple;
-
-      std::copy(srcBegin, srcEnd, dstBegin);
       }
   }
 };
@@ -821,7 +768,15 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *tupleIds,
     return;
     }
 
-  int numComp = da->GetNumberOfComponents();
+  int numComps = this->GetNumberOfComponents();
+  if (da->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << source->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
   vtkIdType numIds=tupleIds->GetNumberOfIds();
   vtkIdType *ids=tupleIds->GetPointer(0);
 
@@ -846,7 +801,7 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *tupleIds,
     double typeMin = this->GetDataTypeMin();
     double typeMax = this->GetDataTypeMax();
 
-    for (int c = 0; c < numComp; ++c)
+    for (int c = 0; c < numComps; ++c)
       {
       double val = 0.;
       for (vtkIdType j = 0; j < numIds; ++j)
@@ -904,11 +859,12 @@ void vtkDataArray::InterpolateTuple(vtkIdType dstTuple,
     return;
     }
 
-  vtkDataArray *src1DA = vtkDataArray::SafeDownCast(source1);
-  vtkDataArray *src2DA = vtkDataArray::SafeDownCast(source2);
+  vtkDataArray *src1DA = vtkDataArray::FastDownCast(source1);
+  vtkDataArray *src2DA = vtkDataArray::FastDownCast(source2);
   if (!src1DA || !src2DA)
     {
     vtkErrorMacro("Both arrays must be vtkDataArray subclasses.");
+    return;
     }
 
   bool fallback = type == VTK_BIT;
@@ -1351,7 +1307,7 @@ unsigned long vtkDataArray::GetActualMemorySize()
 vtkDataArray* vtkDataArray::CreateDataArray(int dataType)
 {
   vtkAbstractArray* aa = vtkAbstractArray::CreateArray(dataType);
-  vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
+  vtkDataArray* da = vtkDataArray::FastDownCast(aa);
   if (!da && aa)
     {
     // Requested array is not a vtkDataArray. Delete the allocated array.
@@ -1366,13 +1322,15 @@ void vtkDataArray::GetTuples(vtkIdList *tupleIds, vtkAbstractArray *aa)
   vtkDataArray *da = vtkDataArray::FastDownCast(aa);
   if (!da)
     {
-    vtkWarningMacro("Input is not a vtkDataArray.");
+    vtkErrorMacro("Input is not a vtkDataArray, but " << aa->GetClassName());
     return;
     }
 
   if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
     {
-    vtkWarningMacro("Number of components for input and output do not match");
+    vtkErrorMacro("Number of components for input and output do not match.\n"
+                  "Source: " << this->GetNumberOfComponents() << "\n"
+                  "Destination: " << da->GetNumberOfComponents());
     return;
     }
 
@@ -1387,7 +1345,7 @@ void vtkDataArray::GetTuples(vtkIdList *tupleIds, vtkAbstractArray *aa)
 //----------------------------------------------------------------------------
 void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *aa)
 {
-  vtkDataArray* da = vtkDataArray::SafeDownCast(aa);
+  vtkDataArray* da = vtkDataArray::FastDownCast(aa);
   if (!da)
     {
     vtkWarningMacro("Input is not a vtkDataArray.");
@@ -1396,7 +1354,9 @@ void vtkDataArray::GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *aa)
 
   if ((da->GetNumberOfComponents() != this->GetNumberOfComponents()))
     {
-    vtkWarningMacro("Number of components for input and output do not match");
+    vtkErrorMacro("Number of components for input and output do not match.\n"
+                  "Source: " << this->GetNumberOfComponents() << "\n"
+                  "Destination: " << da->GetNumberOfComponents());
     return;
     }
 
@@ -1575,7 +1535,7 @@ struct ScalarRangeDispatchWrapper
   bool Success;
   double *Range;
 
-  ScalarRangeDispatchWrapper(double *range) : Range(range) {}
+  ScalarRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
 
   template <typename ArrayT>
   void operator()(ArrayT *array)
@@ -1591,7 +1551,7 @@ struct VectorRangeDispatchWrapper
   bool Success;
   double *Range;
 
-  VectorRangeDispatchWrapper(double *range) : Range(range) {}
+  VectorRangeDispatchWrapper(double *range) : Success(false), Range(range) {}
 
   template <typename ArrayT>
   void operator()(ArrayT *array)

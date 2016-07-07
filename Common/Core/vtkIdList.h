@@ -120,11 +120,9 @@ public:
   // when being truncated).
   vtkIdType *Resize(const vtkIdType sz);
 
-  //BTX
   // This method should become legacy
   void IntersectWith(vtkIdList& otherIds) {
     this->IntersectWith(&otherIds); };
-  //ETX
 
 protected:
   vtkIdList();
@@ -158,7 +156,7 @@ inline vtkIdType vtkIdList::InsertNextId(const vtkIdType vtkid)
 {
   if ( this->NumberOfIds >= this->Size )
     {
-    if (!this->Resize(this->NumberOfIds+1))
+    if (!this->Resize(2*this->NumberOfIds+1)) //grow by factor of 2
       {
       return this->NumberOfIds-1;
       }

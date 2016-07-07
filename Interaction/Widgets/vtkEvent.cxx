@@ -35,48 +35,48 @@ vtkEvent::~vtkEvent()
 }
 
 // Comparison against event with no modifiers
-int vtkEvent::operator==(unsigned long VTKEvent)
+bool vtkEvent::operator==(unsigned long VTKEvent)
 {
   if ( this->EventId == VTKEvent )
     {
-    return 1;
+    return true;
     }
   else
     {
-    return 0;
+    return false;
     }
 }
 
 // Comparison against event with modifiers
-int vtkEvent::operator==(vtkEvent *e)
+bool vtkEvent::operator==(vtkEvent *e)
 {
   if ( this->EventId != e->EventId )
     {
-    return 0;
+    return false;
     }
   if ( this->Modifier != vtkEvent::AnyModifier &&
        e->Modifier != vtkEvent::AnyModifier &&
        this->Modifier != e->Modifier )
     {
-    return 0;
+    return false;
     }
   if ( this->KeyCode != '\0' && e->KeyCode != '\0' &&
        this->KeyCode != e->KeyCode )
     {
-    return 0;
+    return false;
     }
   if ( this->RepeatCount != 0 && e->RepeatCount != 0 &&
        this->RepeatCount != e->RepeatCount )
     {
-    return 0;
+    return false;
     }
   if ( this->KeySym != NULL && e->KeySym != NULL &&
        strcmp(this->KeySym,e->KeySym) != 0 )
     {
-    return 0;
+    return false;
     }
 
-  return 1;
+  return true;
 }
 
 //----------------------------------------------------------------------------

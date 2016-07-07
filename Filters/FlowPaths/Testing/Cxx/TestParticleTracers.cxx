@@ -62,7 +62,7 @@ public:
 protected:
   TestTimeSource()
   {
-    NumRequestData=0;
+    this->NumRequestData=0;
     this->SetNumberOfInputPorts(0);
     this->SetNumberOfOutputPorts(1);
     for(int i=0; i<10 ;i++)
@@ -70,19 +70,19 @@ protected:
       this->TimeSteps.push_back(i);
       }
 
-    Extent[0] = 0;
-    Extent[1] = 1;
-    Extent[2] = 0;
-    Extent[3] = 1;
-    Extent[4] = 0;
-    Extent[5] = 1;
+    this->Extent[0] = 0;
+    this->Extent[1] = 1;
+    this->Extent[2] = 0;
+    this->Extent[3] = 1;
+    this->Extent[4] = 0;
+    this->Extent[5] = 1;
 
-    BoundingBox[0]=0;
-    BoundingBox[1]=1;
-    BoundingBox[2]=0;
-    BoundingBox[3]=1;
-    BoundingBox[4]=0;
-    BoundingBox[5]=1;
+    this->BoundingBox[0]=0;
+    this->BoundingBox[1]=1;
+    this->BoundingBox[2]=0;
+    this->BoundingBox[3]=1;
+    this->BoundingBox[4]=0;
+    this->BoundingBox[5]=1;
   }
   void GetSpacing(double dx[3])
   {
@@ -177,7 +177,7 @@ protected:
       return 0 ;
       }
 
-    vtkDataArray* outArray = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+    vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
     outArray->SetName("Gradients");
     outArray->SetNumberOfComponents(3);
     outArray->SetNumberOfTuples(outImage->GetNumberOfPoints());
@@ -269,7 +269,7 @@ int TestParticlePathFilter()
   vtkPolyData* out = filter->GetOutput();
   vtkCellArray* lines = out->GetLines();
   vtkNew<vtkIdList> polyLine;
-//  vtkIntArray* particleIds = vtkIntArray::SafeDownCast(out->GetPointData()->GetArray("ParticleId"));
+//  vtkIntArray* particleIds = vtkArrayDownCast<vtkIntArray>(out->GetPointData()->GetArray("ParticleId"));
 
 
 
@@ -332,6 +332,37 @@ int TestParticlePathFilter()
   return EXIT_SUCCESS;
 }
 
+int TestParticlePathFilterStartTime()
+{
+  vtkNew<TestTimeSource> imageSource;
+  imageSource->SetBoundingBox(-1,1,-1,1,-1,1);
+
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0.5,0,0);
+
+  vtkNew<vtkPolyData> ps;
+  ps->SetPoints(points.GetPointer());
+
+  vtkNew<vtkParticlePathFilter> filter;
+  filter->SetStartTime(2.0);
+  filter->SetInputConnection(0,imageSource->GetOutputPort());
+  filter->SetInputData(1,ps.GetPointer());
+
+  filter->SetTerminationTime(5.3);
+  filter->Update();
+
+  vtkPolyData* out = filter->GetOutput();
+  EXPECT(out->GetNumberOfCells() == 1, "Wrong number of particle paths for non-zero start time");
+
+  vtkCell* cell = out->GetCell(0);
+  EXPECT(cell->GetNumberOfPoints() == 6, "Wrong number of points for non-zero particle path start time");
+  double pt[3];
+  out->GetPoint(cell->GetPointId(5), pt);
+  EXPECT(fabs(pt[0]-0.179085) < 0.01 && fabs(pt[1]) < 0.01 && fabs(pt[2]-0.466826) < 0.01,
+         "Wrong end point for particle path with non-zero start time");
+
+  return EXIT_SUCCESS;
+}
 
 int TestStreaklineFilter()
 {
@@ -358,7 +389,7 @@ int TestStreaklineFilter()
 
   vtkCellArray* lines = out->GetLines();
   vtkNew<vtkIdList> polyLine;
-  vtkFloatArray* particleAge = vtkFloatArray::SafeDownCast(out->GetPointData()->GetArray("ParticleAge"));
+  vtkFloatArray* particleAge = vtkArrayDownCast<vtkFloatArray>(out->GetPointData()->GetArray("ParticleAge"));
 
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))
@@ -463,6 +494,7 @@ int TestParticleTracers(int, char*[])
 
 
   EXPECT(TestParticlePathFilter()==EXIT_SUCCESS,"");
+  EXPECT(TestParticlePathFilterStartTime()==EXIT_SUCCESS,"");
   EXPECT(TestStreaklineFilter()==EXIT_SUCCESS,"");
 
   return EXIT_SUCCESS;

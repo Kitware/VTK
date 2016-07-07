@@ -124,8 +124,7 @@ int vtkGraphReader::RequestData(
     builder = undir_builder;
     }
 
-  int done = 0;
-  while(!done)
+  while(true)
     {
     if(!this->ReadString(line))
       {

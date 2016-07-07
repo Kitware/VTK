@@ -207,7 +207,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
 
   // Since topology is a vtkIntArray.
   vtkAbstractArray* a = this->CreateArray(tElem);
-  vtkDataArray *tda = vtkDataArray::SafeDownCast(a);
+  vtkDataArray *tda = vtkArrayDownCast<vtkDataArray>(a);
   if (!tda)
     {
     if (a)
@@ -234,7 +234,7 @@ void vtkXMLHyperOctreeReader::ReadTopology(vtkXMLDataElement *elem)
     return;
     }
 
-  vtkIntArray *ta = vtkIntArray::SafeDownCast(tda);
+  vtkIntArray *ta = vtkArrayDownCast<vtkIntArray>(tda);
   if (!ta)
     {
     tda->Delete();

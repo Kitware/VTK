@@ -39,11 +39,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataWriter* New();
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkPolyData* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
