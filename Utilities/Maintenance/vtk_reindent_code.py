@@ -180,8 +180,7 @@ def reindent(filename, dry_run=False):
     other = re.compile(r"(\w+|[^{}()\[\];\w\s]+)\s*")
     cplusplus = re.compile(r"\s*#\s*ifdef\s+__cplusplus")
 
-    lastpos = 0  # previous indentation column
-    newpos = 0   # current indentation column
+    indentation = 0        # current indentation column
     continuation = False   # true if line continues an unfinished statement
     new_context = True     # also set when we enter a #define statement
     in_else = False        # set if in an #else
@@ -195,7 +194,7 @@ def reindent(filename, dry_run=False):
 
         # restore stack when leaving #define
         if leaving_define:
-            stack, lastpos, newpos, continuation = save_stack
+            stack, indentation, continuation = save_stack
             save_stack = None
             in_define = False
             leaving_define = False
@@ -207,26 +206,25 @@ def reindent(filename, dry_run=False):
         if match:
             is_directive = True
             if match.groups()[0] == 'if':
-                dstack.append((list(stack), lastpos, newpos, continuation,
+                dstack.append((list(stack), indentation, continuation,
                                line))
             elif match.groups()[0] in ('en', 'el'):
-                oldstack, oldlast, oldnew, oldcont, dline = dstack.pop()
+                oldstack, oldindent, oldcont, dline = dstack.pop()
                 if len(stack) > len(oldstack) and not cplusplus.match(dline):
                     sys.stderr.write(filename + ":" + str(i) + ": ")
                     sys.stderr.write("mismatched delimiter in \"" +
                                      dline + "\" block\n")
                 if match.groups()[0] == 'el':
                     in_else = True
-                    lastpos = oldlast
-                    newpos = oldnew
+                    indentation = oldindent
                     continuation = oldcont
                     stack = oldstack
-                    dstack.append((list(stack), lastpos, newpos, continuation,
+                    dstack.append((list(stack), indentation, continuation,
                                   line))
             elif match.groups()[0] == 'de':
                 in_define = True
                 leaving_define = False
-                save_stack = (stack, lastpos, newpos, continuation)
+                save_stack = (stack, indentation, continuation)
                 stack = []
                 new_context = True
 
@@ -239,14 +237,14 @@ def reindent(filename, dry_run=False):
         if not is_directive and len(line) > 0 and not continuation:
             # what is the indentation of the current line?
             match = spaces.match(line)
-            newpos = match.end()
-            continuation = True
+            if not line[match.end()] == '{':
+                indentation = match.end()
+                continuation = True
 
         # new_context marks beginning of a file or a macro
         if new_context:
             continuation = False
-            lastpos = 0
-            newpos = 0
+            indentation = 0
             new_context = False
 
         # skip initial whitespace
@@ -263,8 +261,9 @@ def reindent(filename, dry_run=False):
                 if item[0] != '{':
                     base = False
             if base:
-                lastpos = pos
-                newpos = pos
+                word = re.match(r"\w*", match.group())
+                if word in ("case", "default"):
+                    indentation = pos
                 continuation = False
                 # check for multiple labels on the same line
                 while match:
@@ -278,9 +277,7 @@ def reindent(filename, dry_run=False):
             if match:
                 # if we are at the beginning of the line
                 if spaces.match(line).end() == pos:
-                    lastpos = pos
-                    newpos = pos
-                continuation = False
+                    indentation = pos
                 pos = spaces.match(line, match.end()).end()
                 continue
 
@@ -300,29 +297,30 @@ def reindent(filename, dry_run=False):
 
             if delim in ('(', '['):
                 # save delim, row, col, and current indentation
-                stack.append((delim, i, pos, newpos))
+                stack.append((delim, i, pos, indentation))
             elif delim == '{':
                 if in_assign or line[0:pos-1].rstrip()[-1:] == "=":
                     # do not adjust braces for initializer lists
-                    stack.append((delim, i, -1, pos))
+                    stack.append((delim, i, -1, indentation))
                 elif ((in_else or in_define) and spaces.sub("", line) == "{"):
                     # for opening braces that might have no match
-                    indent = " "*lastpos
+                    indent = " "*indentation
                     changeline(i, spaces.sub(indent, lines[i], count=1))
-                    stack.append((delim, i, lastpos, lastpos))
+                    stack.append((delim, i, pos, indentation))
                 else:
                     # save delim, row, col, and previous indentation
-                    stack.append((delim, i, pos, newpos))
+                    stack.append((delim, i, pos, indentation))
                 if spaces.sub("", newlines[i][0:pos]) == "":
-                    newpos = pos + 2
-                    lastpos = newpos
+                    indentation += 2
                 continuation = False
             elif delim == ';':
-                continuation = False
+                # ';' marks end of statement unless inside for (;;)
+                if len(stack) == 0 or stack[-1][0] == '{':
+                    continuation = False
             else:
                 # found a ')', ']', or '}' delimiter, so pop its partner
                 try:
-                    ldelim, j, k, newpos = stack.pop()
+                    ldelim, j, k, indentation = stack.pop()
                     in_assign = (k < 0)
                 except IndexError:
                     ldelim = ""
@@ -333,11 +331,11 @@ def reindent(filename, dry_run=False):
                 if (ldelim == '{' and delim == '}' and not in_assign and
                       spaces.sub("", line[0:pos]) == ""):
                     if spaces.sub("", newlines[j][0:k]) == "":
-                        indent = " "*newpos
+                        indent = " "*indentation
                         changeline(j, spaces.sub(indent, lines[j], count=1))
                         changeline(i, spaces.sub(indent, lines[i], count=1))
                     elif i != j:
-                        indent = " "*newpos
+                        indent = " "*indentation
                         changeline(i, spaces.sub(indent, lines[i], count=1))
                 if delim == '}':
                     continuation = False
@@ -353,8 +351,6 @@ def reindent(filename, dry_run=False):
                 in_assign = True
             elif not is_directive:
                 in_assign = False
-
-        lastpos = newpos
 
     if len(dstack) != 0:
         sys.stderr.write(filename + ": ")
