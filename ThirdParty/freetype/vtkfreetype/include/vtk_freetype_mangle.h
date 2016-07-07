@@ -305,5 +305,6 @@ used when the shared library is loaded/unloaded from an executable.
 #define TT_New_Context vtk_freetype_TT_New_Context
 #define TT_RunIns vtk_freetype_TT_RunIns
 #define winfnt_driver_class vtk_freetype_winfnt_driver_class
+#define FT_Stream_OpenGzip vtk_freetype_FT_Stream_OpenGzip
 
 #endif
