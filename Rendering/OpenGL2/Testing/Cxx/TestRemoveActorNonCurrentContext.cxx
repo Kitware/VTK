@@ -40,7 +40,7 @@ public:
 
   virtual void Execute(vtkObject* caller,
                        unsigned long eventId,
-                       void* callData)
+                       void* vtkNotUsed(callData))
     {
     if (eventId != vtkCommand::KeyPressEvent)
       {
