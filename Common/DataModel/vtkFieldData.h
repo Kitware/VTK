@@ -98,13 +98,9 @@ public:
   int AddArray(vtkAbstractArray *array);
 
   // Description:
-  // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name)
-    {
-      int i;
-      this->GetAbstractArray(name, i);
-      this->RemoveArray(i);
-    }
+  // Remove an array (with the given name or index) from the list of arrays.
+  virtual void RemoveArray(const char *name);
+  virtual void RemoveArray(int index);
 
   // Description:
   // Return the ith array in the field. A NULL is returned if the
@@ -310,8 +306,6 @@ protected:
   // Description:
   // Set an array to define the field.
   void SetArray(int i, vtkAbstractArray *array);
-
-  virtual void RemoveArray(int index);
 
   // Description:
   // Release all data but do not delete object.

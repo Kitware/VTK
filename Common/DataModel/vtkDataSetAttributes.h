@@ -255,7 +255,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name);
+  using vtkFieldData::RemoveArray;
   virtual void RemoveArray(int index);
 
 
