@@ -1057,6 +1057,7 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
   const T* sPtr = rowPtr + xL*incs[0];
   const double xSpace = this->Spacing[0];
   const vtkIdType dim0Wall = this->Dims[0]-2;
+  const vtkIdType endVoxel = xR-1;
 
   for (i=xL; i < xR; ++i)
     {
@@ -1080,8 +1081,8 @@ GenerateOutput(double value, T* rowPtr, vtkIdType row, vtkIdType slice)
       this->AdvanceVoxelIds(eCase,eIds);
       }
 
-    // advance along voxel row if not at the end
-    if ( i < dim0Wall )
+    // Advance along voxel row if not at the end. Saves a little work.
+    if ( i < endVoxel )
       {
       ePtr[0]++; ePtr[1]++; ePtr[2]++; ePtr[3]++;
       eCase = this->GetEdgeCase(ePtr);
