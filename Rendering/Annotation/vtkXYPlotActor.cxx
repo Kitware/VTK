@@ -41,9 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkViewport.h"
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
+#define snprintf _snprintf
 #endif
 
 struct  _xmlNode;
@@ -2276,7 +2274,7 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   switch( this->YTitlePosition )
     {
     case VTK_XYPLOT_Y_AXIS_TOP:
-      SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
+      snprintf( tmp, len, "%s", YTitleActor->GetInput() );
       textMapper->SetInput( tmp );
       break;
     case VTK_XYPLOT_Y_AXIS_HCENTER:

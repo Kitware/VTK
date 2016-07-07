@@ -47,9 +47,7 @@ vtkStandardNewMacro(vtkLabeledDataMapper);
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
 
 #if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
+#define snprintf _snprintf
 #endif
 
 // ----------------------------------------------------------------------
@@ -612,7 +610,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           }
         else // the user specified a label format
           {
-          SNPRINTF(TempString, 1023, LiveFormatString,
+          snprintf(TempString, 1023, LiveFormatString,
                    stringData->GetValue(i).c_str());
           ResultString = TempString;
           } // done printing strings with label format
