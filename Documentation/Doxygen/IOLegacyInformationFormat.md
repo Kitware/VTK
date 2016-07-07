@@ -12,7 +12,7 @@ vector-valued. Only the information objects attached to arrays are encoded.
 
 A block of metadata may immediately follow the specification of an array.
 Whitespace is permitted between the array data and the opening `METADATA` tag.
-The metadata block is terminated by the `METADATA_END` tag.
+The metadata block is terminated by an empty line..
 
 ```
 # vtk DataFile Version 4.1
@@ -28,7 +28,7 @@ COMPONENT_NAMES
 X%20coordinates
 Y%20coordinates
 Z%20coordinates
-INFORMATION
+INFORMATION 8
 NAME Double LOCATION TestKey
 DATA 1
 NAME DoubleVector LOCATION TestKey
@@ -48,8 +48,7 @@ Second%20(with%20whitespace!)
 Third%20(with%0Anewline!)
 NAME UnsignedLong LOCATION TestKey
 DATA 9
-INFORMATION_END
-METADATA_END
+
 CELLS 3 15
 4 0 1 2 3
 4 0 4 1 5
@@ -67,15 +66,15 @@ vtkGhostType 1 3 unsigned_char
 METADATA
 COMPONENT_NAMES
 Ghost%20level%20information
-INFORMATION
+INFORMATION 1
 NAME UNITS_LABEL LOCATION vtkDataArray
 DATA radians
-INFORMATION_END
-METADATA_END
+
 ```
 
 As shown, a metadata block can have two sections, `COMPONENT_NAMES` and
-`INFORMATION`.
+`INFORMATION`. The `INFORMATION` tag is followed by the number of information
+keys that follow.
 
 ## COMPONENT_NAMES ##
 
@@ -85,9 +84,9 @@ must be one line per component.
 
 ## INFORMATION ##
 
-If the `METADATA` block contains the line `INFORMATION`, every line until the
-terminating `INFORMATION_END` tag is interpreted as `vtkInformation` data. The
-general form of a single valued information entry is:
+If the `METADATA` block contains the line `INFORMATION`, the number of information
+keys is read from the INFORMATION line and `vtkInformation` data that follows is
+parsed. The general form of a single valued information entry is:
 
 ```
 NAME [key name] LOCATION [key location (e.g. class name)]

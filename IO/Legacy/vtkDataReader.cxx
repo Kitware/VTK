@@ -1957,7 +1957,7 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
     this->LowerCase(line, 256);
 
     // Blank line indicates end of metadata:
-    if (strncmp(line, "metadata_end", 12) == 0)
+    if (strlen(line) == 0)
       {
       break;
       }
@@ -1982,8 +1982,15 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
 
     if (strncmp(line, "information", 11) == 0)
       {
+      int numKeys;
+      if (sscanf(line, "information %d", &numKeys) != 1)
+        {
+        vtkWarningMacro("Invalid information header: " << line);
+        continue;
+        }
+
       vtkInformation *info = array->GetInformation();
-      this->ReadInformation(info);
+      this->ReadInformation(info, numKeys);
       continue;
       }
     }
@@ -2628,29 +2635,25 @@ int vtkDataReader::ReadEdgeFlags(vtkDataSetAttributes *a, int numPts)
   return 1;
 }
 
-int vtkDataReader::ReadInformation(vtkInformation *info)
+int vtkDataReader::ReadInformation(vtkInformation *info, int numKeys)
 {
   // Assuming that the opening INFORMATION line has been read.
   char line[256];
   char name[256];
   char location[256];
-  for (;;)
+  for (int keyIdx = 0; keyIdx < numKeys; ++keyIdx)
     {
-    if (!this->ReadLine(line))
+    do
       {
-      vtkErrorMacro("Unexpected EOF while parsing INFORMATION section.");
-      return 0;
+      if (!this->ReadLine(line))
+        {
+        vtkErrorMacro("Unexpected EOF while parsing INFORMATION section.");
+        return 0;
+        }
       }
+    while (strlen(line) == 0); // Skip empty lines
 
-    if (strlen(line) == 0)
-      { // Skip empty lines
-      continue;
-      }
-    if (strncmp("INFORMATION_END", line, 15) == 0)
-      { // End of information
-      break;
-      }
-    else if (strncmp("NAME ", line, 5) == 0)
+    if (strncmp("NAME ", line, 5) == 0)
       { // New key
       if (sscanf(line, "NAME %s LOCATION %s", name, location) != 2)
         {

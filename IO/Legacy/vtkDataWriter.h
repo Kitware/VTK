@@ -35,6 +35,7 @@ class vtkDataSet;
 class vtkFieldData;
 class vtkGraph;
 class vtkInformation;
+class vtkInformationKey;
 class vtkPoints;
 class vtkTable;
 
@@ -248,6 +249,8 @@ protected:
   int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
   int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
   int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
+
+  bool CanWriteInformationKey(vtkInformation *info, vtkInformationKey *key);
 
   // Description:
   // Format is detailed \ref IOLegacyInformationFormat "here".

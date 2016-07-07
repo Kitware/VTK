@@ -1357,7 +1357,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       this->WriteInformation(fp, info);
       }
 
-    *fp << "METADATA_END" << endl;
+    *fp << endl;
     }
 
   fp->flush();
@@ -1786,6 +1786,56 @@ int vtkDataWriter::WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int 
   return this->WriteArray(fp, edgeFlags->GetDataType(), edgeFlags, format, num, 1);
 }
 
+bool vtkDataWriter::CanWriteInformationKey(vtkInformation *info,
+                                           vtkInformationKey *key)
+{
+  vtkInformationDoubleKey *dKey = NULL;
+  vtkInformationDoubleVectorKey *dvKey = NULL;
+  if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
+    {
+    // Skip keys with NaNs/infs
+    double value = info->Get(dKey);
+    if (!vtkMath::IsFinite(value))
+      {
+      vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
+                      << key->GetName() << "': bad value: " << value);
+      return false;
+      }
+    return true;
+    }
+  else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+    {
+    // Skip keys with NaNs/infs
+    int length = dvKey->Length(info);
+    bool valid = true;
+    for (int i = 0; i < length; ++i)
+      {
+      double value = info->Get(dvKey, i);
+      if (!vtkMath::IsFinite(value))
+        {
+        vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
+                        << key->GetName() << "': bad value: " << value);
+        valid = false;
+        break;
+        }
+      }
+    return valid;
+    }
+  else if (vtkInformationIdTypeKey::SafeDownCast(key) ||
+           vtkInformationIntegerKey::SafeDownCast(key) ||
+           vtkInformationIntegerVectorKey::SafeDownCast(key) ||
+           vtkInformationStringKey::SafeDownCast(key) ||
+           vtkInformationStringVectorKey::SafeDownCast(key) ||
+           vtkInformationUnsignedLongKey::SafeDownCast(key))
+    {
+    return true;
+    }
+  vtkDebugMacro("Could not serialize information with key "
+                << key->GetLocation() << "::" << key->GetName() << ": "
+                "Unsupported data type '" << key->GetClassName() << "'.");
+  return false;
+}
+
 namespace {
 void writeInfoHeader(std::ostream *fp, vtkInformationKey *key)
 {
@@ -1796,11 +1846,24 @@ void writeInfoHeader(std::ostream *fp, vtkInformationKey *key)
 
 int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
 {
-  *fp << "INFORMATION\n";
-  vtkNew<vtkInformationIterator> iter;
-  char buffer[1024];
-  iter->SetInformationWeak(info);
+  // This will contain the serializable keys:
+  vtkNew<vtkInformation> keys;
   vtkInformationKey *key = NULL;
+  vtkNew<vtkInformationIterator> iter;
+  iter->SetInformationWeak(info);
+  for (iter->InitTraversal(); (key = iter->GetCurrentKey());
+       iter->GoToNextItem())
+    {
+    if (this->CanWriteInformationKey(info, key))
+      {
+      keys->CopyEntry(info, key);
+      }
+    }
+
+  *fp << "INFORMATION " << keys->GetNumberOfKeys() << "\n";
+
+  iter->SetInformationWeak(keys.Get());
+  char buffer[1024];
   for (iter->InitTraversal(); (key = iter->GetCurrentKey());
        iter->GoToNextItem())
     {
@@ -1814,15 +1877,6 @@ int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
     vtkInformationUnsignedLongKey *ulKey = NULL;
     if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
       {
-      // Skip keys with NaNs/infs
-      double value = info->Get(dKey);
-      if (!vtkMath::IsFinite(value))
-        {
-        vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
-                        << key->GetName() << "': bad value: " << value);
-        continue;
-        }
-
       writeInfoHeader(fp, key);
       // "%lg" is used to write double array data in ascii, using the same
       // precision here.
@@ -1831,28 +1885,10 @@ int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
       }
     else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
       {
-      // Skip keys with NaNs/infs
-      int length = dvKey->Length(info);
-      bool valid = true;
-      for (int i = 0; i < length; ++i)
-        {
-        double value = info->Get(dvKey, i);
-        if (!vtkMath::IsFinite(value))
-          {
-          vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
-                          << key->GetName() << "': bad value: " << value);
-          valid = false;
-          break;
-          }
-        }
-      if (!valid)
-        {
-        continue;
-        }
-
       writeInfoHeader(fp, key);
 
       // Size first:
+      int length = dvKey->Length(info);
       snprintf(buffer, 1024, "%d", length);
       *fp << buffer << " ";
 
@@ -1932,7 +1968,6 @@ int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
                     "Unsupported data type '" << key->GetClassName() << "'.");
       }
     }
-  *fp << "INFORMATION_END\n";
   return 1;
 }
 

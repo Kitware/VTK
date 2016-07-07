@@ -387,7 +387,7 @@ protected:
 
   // Description:
   // Format is detailed \ref IOLegacyInformationFormat "here".
-  int ReadInformation(vtkInformation *info);
+  int ReadInformation(vtkInformation *info, int numKeys);
 
   int ReadDataSetData(vtkDataSet *ds);
 
