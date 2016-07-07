@@ -43,7 +43,7 @@ Before you begin, perform initial setup:
     "Subscribe to this project" on the right of VTK.
 
 [GitLab Access]: https://gitlab.kitware.com/users/sign_in
-[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/fork/new
+[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/forks/new
 [developer setup script]: /Utilities/SetupForDevelopment.sh
 
 Workflow
