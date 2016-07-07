@@ -310,7 +310,7 @@ void vtkExodusIIWriter::WriteData ()
   this->RemoveGhostCells ();
 
   // move check parameters up here and then if there's a change, new file.
-  if (this->WriteAllTimeSteps && !newHierarchy)
+  if (this->WriteAllTimeSteps && this->CurrentTimeIndex != 0 && !newHierarchy)
     {
     if (!this->WriteNextTimeStep ())
       {
