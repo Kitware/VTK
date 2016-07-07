@@ -602,7 +602,8 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
       // by randomly jumping to a place that doesn't
       // have another vertex
       bool collision = true;
-      float jumpDistance = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
+      float jumpDistanceX = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
+      float jumpDistanceY = 5.0*(paddedBounds[3]-paddedBounds[2])/yDim; // 2.5 grid spaces max
       int collisionOps = 0;
 
       // You get 10 trys and then we have to punt
@@ -611,8 +612,8 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
         collisionOps++;
 
         // Move
-        rawPointData[rawIndex] += jumpDistance*(vtkMath::Random() - .5);
-        rawPointData[rawIndex+1] += jumpDistance*(vtkMath::Random() - .5);
+        rawPointData[rawIndex] += jumpDistanceX*(vtkMath::Random() - .5);
+        rawPointData[rawIndex+1] += jumpDistanceY*(vtkMath::Random() - .5);
 
         // Test
         indexX = static_cast<int>(
