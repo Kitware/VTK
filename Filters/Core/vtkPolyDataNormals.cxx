@@ -77,7 +77,6 @@ int vtkPolyDataNormals::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkIdType npts = 0;
-  vtkIdType i;
   vtkIdType *pts = 0;
   vtkIdType numNewPts;
   double flipDirection=1.0;
@@ -89,7 +88,7 @@ int vtkPolyDataNormals::RequestData(
   vtkPoints *newPts = NULL;
   vtkFloatArray *newNormals;
   vtkPointData *pd, *outPD;
-  vtkCellData *outCD;
+  vtkDataSetAttributes* outCD = output->GetCellData();
   double n[3];
   vtkCellArray *newPolys;
   vtkIdType ptId, oldId;
@@ -132,7 +131,6 @@ int vtkPolyDataNormals::RequestData(
   this->OldMesh->SetPoints(inPts);
   if ( numStrips > 0 ) //have to decompose strips into triangles
     {
-    vtkDataSetAttributes* outCD = output->GetCellData();
     vtkDataSetAttributes* inCD = input->GetCellData();
     // When we have triangle strips, make sure to create and copy
     // the cell data appropriately. Since strips are broken into
@@ -181,8 +179,6 @@ int vtkPolyDataNormals::RequestData(
 
   pd = input->GetPointData();
   outPD = output->GetPointData();
-
-  outCD = output->GetCellData();
 
   this->NewMesh = vtkPolyData::New();
   this->NewMesh->SetPoints(inPts);
@@ -378,7 +374,7 @@ int vtkPolyDataNormals::RequestData(
     //
     this->Map = vtkIdList::New();
     this->Map->SetNumberOfIds(numPts);
-    for (i=0; i < numPts; i++)
+    for (vtkIdType i=0; i < numPts; i++)
       {
       this->Map->SetId(i,i);
       }
@@ -468,7 +464,7 @@ int vtkPolyDataNormals::RequestData(
     for (cellId=0, newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);
          ++cellId)
       {
-      for (i = 0; i < npts; ++i)
+      for (vtkIdType i = 0; i < npts; ++i)
         {
         fNormals[3 * pts[i]] += fPolyNormals[3 * cellId];
         fNormals[3 * pts[i] + 1] += fPolyNormals[3 * cellId + 1];
@@ -476,7 +472,7 @@ int vtkPolyDataNormals::RequestData(
         }
       }
 
-    for (i = 0; i < numNewPts; ++i)
+    for (vtkIdType i = 0; i < numNewPts; ++i)
       {
       const double length = sqrt(fNormals[3 * i] * fNormals[3 * i] +
                                  fNormals[3 * i + 1] * fNormals[3 * i + 1] +
