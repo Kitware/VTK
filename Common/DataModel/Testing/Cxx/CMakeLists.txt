@@ -58,6 +58,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   UnitTestCells.cxx
   UnitTestImplicitDataSet.cxx
   UnitTestImplicitVolume.cxx
+  UnitTestLine.cxx
   UnitTestPlanesIntersection.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests data_tests
