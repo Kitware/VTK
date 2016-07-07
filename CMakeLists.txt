@@ -37,7 +37,8 @@ else()
 endif()
 if (VTK_USE_CXX11_FEATURES)
   set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED True)
+  set(CMAKE_CXX_EXTENSIONS False)
 endif()
 
 # Objective-C++ compile flags.
