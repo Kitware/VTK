@@ -296,6 +296,13 @@ for `refs/data/` in your VTK GitLab fork, fetches them, erases the refs
 from your fork, and uploads them to a location that we
 [tell ExternalData to search](/CMake/vtkExternalData.cmake) at build time.
 
+To verify that the data has been uploaded as expected, you may direct
+a web browser to the location where ExternalData has uploaded the files.
+For VTK, that location is currently
+`http://www.vtk.org/files/ExternalData/MD5/XXXX` where `XXXX` is the
+complete MD5 hash stored in the content link file (e.g., the text in
+`MyTest.png.md5`).
+
 ### Publishing Data for an External Branch ###
 
 The above [workflow](#workflow) works well for developers working on a
