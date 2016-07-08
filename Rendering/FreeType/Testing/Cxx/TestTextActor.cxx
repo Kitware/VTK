@@ -118,10 +118,10 @@ int TestTextActor(int, char *[])
 
       actor->SetPosition(x[col], y[row]);
 
-      actor->SetDrawFrame((row + col) % 2 == 0);
-      actor->GetFrameProperty()->SetColor(
+      actor->GetTextProperty()->SetFrame((row + col) % 2 == 0);
+      actor->GetTextProperty()->SetFrameColor(
         col > 0 ? 1. : 0., col == 1 ? 1. : 0., col < 2 ? 1. : 0.);
-      actor->GetFrameProperty()->SetLineWidth((row) % 3 + 1);
+      actor->GetTextProperty()->SetFrameWidth((row) % 3 + 1);
 
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());
