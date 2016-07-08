@@ -69,10 +69,6 @@
 #  include <malloc.h>
 #endif /* EXODUSII_HAVE_MALLOC_H */
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-
 /// Define this to get printouts summarizing array glomming process
 #undef VTK_DBG_GLOM
 

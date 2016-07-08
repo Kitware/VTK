@@ -172,4 +172,12 @@
 # define VTK_HAS_STD_UNIQUE_PTR
 #endif
 
+/* MS Visual Studio 2015 finally supports C99/C++11's snprintf but
+ * for older versions, use _snprintf instead. Annoyingly, its semantics
+ * are slightly different, but still better than using sprintf.
+ */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+# define snprintf _snprintf
+#endif
+
 #endif // vtkConfigure_h
