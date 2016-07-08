@@ -121,14 +121,7 @@ endif()
 # If we are wrapping python, let's include it in the top level
 if(XDMF_WRAP_PYTHON)
   find_package(PythonInterp ${REQUESTED_PYTHON_VERSION} REQUIRED)
-
-  if (VTK_UNDEFINED_SYMBOLS_ALLOWED)
-    set(_QUIET_LIBRARY "QUIET")
-  else()
-    set(_QUIET_LIBRARY "${REQUESTED_PYTHON_VERSION}" "REQUIRED")
-  endif()
-  find_package(PythonLibs ${_QUIET_LIBRARY})
-
+  find_package(PythonLibs ${REQUESTED_PYTHON_VERSION} REQUIRED)
   if (XDMF_BUILD_DSM)
     find_package (MPI4PY REQUIRED)
     if (MPI4PY_FOUND)
