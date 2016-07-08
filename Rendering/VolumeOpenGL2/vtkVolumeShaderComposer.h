@@ -549,7 +549,7 @@ namespace vtkvolume
 
   //--------------------------------------------------------------------------
   std::string ComputeLightingDeclaration(vtkRenderer* vtkNotUsed(ren),
-                                         vtkVolumeMapper* vtkNotUsed(mapper),
+                                         vtkVolumeMapper* mapper,
                                          vtkVolume* vol,
                                          int noOfComponents,
                                          int independentComponents,
@@ -563,7 +563,13 @@ namespace vtkvolume
       \n  vec4 finalColor = vec4(0.0);"
     );
 
-    if (volProperty->GetShade() || volProperty->HasGradientOpacity())
+    int shadeReqd = volProperty->GetShade() &&
+                    (mapper->GetBlendMode() !=
+                     vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND) &&
+                    (mapper->GetBlendMode() !=
+                     vtkVolumeMapper::MINIMUM_INTENSITY_BLEND);
+
+    if (shadeReqd || volProperty->HasGradientOpacity())
       {
       shaderStr += std::string("\
         \n  // Compute gradient function only once\
@@ -571,7 +577,7 @@ namespace vtkvolume
       );
       }
 
-    if (volProperty->GetShade())
+    if (shadeReqd)
       {
       if (lightingComplexity == 1)
         {
