@@ -504,23 +504,27 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin && this->Handle)
+  if (rwin)
     {
+    // Ensure that the context is current before releasing any graphics
+    // resources tied to it.
     rwin->MakeCurrent();
-
-    rwin->ActivateTexture(this);
-    this->UnBind();
-    rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
-    this->Handle = 0;
-    this->NumberOfDimensions = 0;
-    this->Target =0;
-    this->InternalFormat = 0;
-    this->Format = 0;
-    this->Type = 0;
-    this->Components = 0;
-    this->Width = this->Height = this->Depth = 0;
+    if (this->Handle)
+      {
+      rwin->ActivateTexture(this);
+      this->UnBind();
+      rwin->DeactivateTexture(this);
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->Handle = 0;
+      this->NumberOfDimensions = 0;
+      this->Target =0;
+      this->InternalFormat = 0;
+      this->Format = 0;
+      this->Type = 0;
+      this->Components = 0;
+      this->Width = this->Height = this->Depth = 0;
+      }
     }
   if (this->ShaderProgram)
     {

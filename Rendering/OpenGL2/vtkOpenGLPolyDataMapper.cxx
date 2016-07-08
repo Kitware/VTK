@@ -167,6 +167,15 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
+  vtkOpenGLRenderWindow *rwin =
+   vtkOpenGLRenderWindow::SafeDownCast(win);
+  if (rwin)
+    {
+    // Ensure that the context is current before releasing any
+    // graphics resources tied to it.
+    rwin->MakeCurrent();
+    }
+
   this->VBO->ReleaseGraphicsResources();
   this->Points.ReleaseGraphicsResources(win);
   this->Lines.ReleaseGraphicsResources(win);
