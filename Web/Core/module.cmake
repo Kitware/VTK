@@ -6,14 +6,12 @@ vtk_module(vtkWebCore
   PRIVATE_DEPENDS
     vtksys
     vtkFiltersGeneral
+    vtkPython
     vtkIOCore
     vtkIOImage
     vtkRenderingCore
     vtkParallelCore
     vtkWebGLExporter
-  COMPILE_DEPENDS
-    vtkPython
-  OPTIONAL_PYTHON_LINK
   TEST_DEPENDS
     vtkImagingSources
     vtkTestingCore

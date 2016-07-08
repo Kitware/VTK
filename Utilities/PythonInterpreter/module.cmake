@@ -1,10 +1,8 @@
 vtk_module(vtkPythonInterpreter
   DEPENDS
     vtkCommonCore
-    vtksys
-  COMPILE_DEPENDS
     vtkPython
-  OPTIONAL_PYTHON_LINK
+    vtksys
   KIT
     vtkWrapping
 )
