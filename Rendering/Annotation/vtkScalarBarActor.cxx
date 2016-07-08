@@ -48,10 +48,6 @@
 
 #include <cstdio> // for snprintf
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-
 #undef VTK_DBG_LAYOUT
 
 vtkStandardNewMacro(vtkScalarBarActor);
