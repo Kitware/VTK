@@ -533,7 +533,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
     {
     currentAddr = algo.SPts[pEnd].Addr;
     pStart = pEnd;
-    while ( currentAddr == algo.SPts[pEnd].Addr && pEnd < npts )
+    while ( pEnd < npts && currentAddr == algo.SPts[pEnd].Addr )
       {
       pEnd++;
       }
