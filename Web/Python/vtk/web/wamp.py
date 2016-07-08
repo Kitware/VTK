@@ -27,9 +27,9 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from vtk.web import protocols
 
 try:
-    from vtkWebCore import vtkWebApplication
+    from vtk.vtkWebCore import vtkWebApplication
 except:
-    from vtkWebCorePython import vtkWebApplication
+    from vtk.vtkWebCorePython import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
