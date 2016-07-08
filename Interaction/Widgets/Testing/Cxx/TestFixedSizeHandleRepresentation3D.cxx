@@ -563,7 +563,7 @@ class vtkHandleCallback : public vtkCommand
 public:
   static vtkHandleCallback *New()
     { return new vtkHandleCallback; }
-  virtual void Execute(vtkObject*, unsigned long eid, void*)
+  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
     {
     if ( eid == vtkCommand::InteractionEvent )
       {

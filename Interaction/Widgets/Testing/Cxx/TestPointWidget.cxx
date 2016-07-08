@@ -528,7 +528,7 @@ class vtkmyPWCallback : public vtkCommand
 public:
   static vtkmyPWCallback *New()
   { return new vtkmyPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkPointWidget *pointWidget = reinterpret_cast<vtkPointWidget*>(caller);
     pointWidget->GetPolyData(this->PolyData);

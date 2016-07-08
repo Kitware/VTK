@@ -197,15 +197,15 @@ public:
   vtkTypeMacro(vtkGarbageCollectorImpl, vtkGarbageCollector);
 
   vtkGarbageCollectorImpl();
-  ~vtkGarbageCollectorImpl();
+  ~vtkGarbageCollectorImpl() VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
+  void Register(vtkObjectBase*) VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void UnRegister(vtkObjectBase*);
+  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
 
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
@@ -359,7 +359,7 @@ public:
 
   // Callback from objects to report references.
   void Report(vtkObjectBase* obj, void* ptr);
-  virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
+  void Report(vtkObjectBase* obj, void* ptr, const char* desc) VTK_OVERRIDE;
 
   // Collect the objects of the given leaked component.
   void CollectComponent(ComponentType* c);

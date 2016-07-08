@@ -43,12 +43,12 @@ public:
 
 protected:
   vtkDummyImageFilter() {};
-  ~vtkDummyImageFilter() {};
+  ~vtkDummyImageFilter() VTK_OVERRIDE {};
 
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 private:
   vtkDummyImageFilter(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;

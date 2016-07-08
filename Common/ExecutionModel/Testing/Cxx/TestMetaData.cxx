@@ -54,9 +54,9 @@ protected:
     this->Result = -1;
   }
 
-  virtual int RequestInformation(vtkInformation*,
+  int RequestInformation(vtkInformation*,
                                  vtkInformationVector**,
-                                 vtkInformationVector* outputVector)
+                                 vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkPolyData* pd = vtkPolyData::New();
@@ -64,9 +64,9 @@ protected:
     pd->Delete();
     return 1;
   }
-  virtual int RequestData(vtkInformation*,
+  int RequestData(vtkInformation*,
                           vtkInformationVector**,
-                          vtkInformationVector* outputVector)
+                          vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     // Here we verify that a request set at the end of the pipeline
     // made it to here properly.

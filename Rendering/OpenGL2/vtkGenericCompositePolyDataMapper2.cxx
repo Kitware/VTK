@@ -62,40 +62,40 @@ protected:
     this->LastNormalsOffset = 0;
     this->LastTCoordComponents = 0;
     };
-  ~vtkCompositeMapperHelper() {};
+  ~vtkCompositeMapperHelper() VTK_OVERRIDE {};
 
   // Description:
   // Set the shader parameteres related to the property, called by UpdateShader
-  virtual void SetPropertyShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetPropertyShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Set the shader parameteres related to lighting, called by UpdateShader
-  virtual void SetLightingShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetLightingShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Set the shader parameteres related to the Camera, called by UpdateShader
-  virtual void SetCameraShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetCameraShaderParameters(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShaders(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  bool GetNeedToRebuildShaders(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Make sure an appropriate shader is defined, compiled and bound.  This method
   // orchistrates the process, much of the work is done in other methods
-  virtual void UpdateShaders(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void UpdateShaders(
+    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Perform string replacments on the shader templates, called from
   // ReplaceShaderValues
-  virtual void ReplaceShaderColor(
+  void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
 private:
   vtkCompositeMapperHelper(const vtkCompositeMapperHelper&) VTK_DELETE_FUNCTION;

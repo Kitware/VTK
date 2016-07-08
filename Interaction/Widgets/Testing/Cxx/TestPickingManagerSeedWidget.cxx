@@ -468,7 +468,7 @@ public:
   static vtkPickingManagerCallback *New()
     {return new vtkPickingManagerCallback;}
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
@@ -517,7 +517,7 @@ public:
   static vtkPMSCubeCallback *New()
   { return new vtkPMSCubeCallback; }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);
@@ -570,7 +570,7 @@ public:
     this->logTime = vtkTimerLog::New();
   }
 
-  ~vtkPMSRecordPerfCallback()
+  ~vtkPMSRecordPerfCallback() VTK_OVERRIDE
   {
     if (this->performanceReport.is_open())
       {
@@ -581,7 +581,7 @@ public:
     this->logTime->Delete();
   }
 
-  virtual void Execute(vtkObject* vtkNotUsed(caller), unsigned long, void*)
+  void Execute(vtkObject* vtkNotUsed(caller), unsigned long, void*) VTK_OVERRIDE
   {
     // vtkRenderWindowInteractor *iren =
     //   static_cast<vtkRenderWindowInteractor*>(caller);

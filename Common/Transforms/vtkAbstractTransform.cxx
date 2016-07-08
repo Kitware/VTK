@@ -365,8 +365,8 @@ public:
     vtkDebugLeaks::ConstructClass("vtkSimpleTransform");
 #endif
     return new vtkSimpleTransform; };
-  vtkAbstractTransform *MakeTransform() { return vtkSimpleTransform::New(); };
-  void Inverse() { this->Matrix->Invert(); this->Modified(); };
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE { return vtkSimpleTransform::New(); };
+  void Inverse() VTK_OVERRIDE { this->Matrix->Invert(); this->Modified(); };
 protected:
   vtkSimpleTransform() {};
   vtkSimpleTransform(const vtkSimpleTransform&);

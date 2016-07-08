@@ -234,7 +234,7 @@ class vtkLW2Callback : public vtkCommand
 public:
   static vtkLW2Callback *New()
   { return new vtkLW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkLineWidget2 *lineWidget = reinterpret_cast<vtkLineWidget2*>(caller);
     vtkLineRepresentation *rep =

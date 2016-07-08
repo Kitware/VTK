@@ -38,7 +38,7 @@ class vtkBiDimensionalWidgetCallback : public vtkCommand
 public:
   static vtkBiDimensionalWidgetCallback *New()
     { return new vtkBiDimensionalWidgetCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
+  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
     {
       switch (eventId)
         {

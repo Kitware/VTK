@@ -41,7 +41,7 @@ protected:
 
   int RequestInformation(vtkInformation * request,
                          vtkInformationVector **inputVector,
-                         vtkInformationVector *outputVector)
+                         vtkInformationVector *outputVector) VTK_OVERRIDE
   {
     // get the info objects
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -56,7 +56,7 @@ protected:
     return 1;
   }
 
-  virtual void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo)
+  void ExecuteDataWithInformation(vtkDataObject *output, vtkInformation *outInfo) VTK_OVERRIDE
   {
     Superclass::ExecuteDataWithInformation(output, outInfo);
 

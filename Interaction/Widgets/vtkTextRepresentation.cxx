@@ -32,7 +32,7 @@ public:
     {
     this->Target = t;
     }
-  virtual void Execute(vtkObject* o, unsigned long event, void *p)
+  void Execute(vtkObject* o, unsigned long event, void *p) VTK_OVERRIDE
     {
     if (this->Target)
       {

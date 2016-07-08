@@ -45,7 +45,7 @@ class vtkCenteredSlider2DCallback : public vtkCommand
 public:
   static vtkCenteredSlider2DCallback *New()
   { return new vtkCenteredSlider2DCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkCenteredSliderWidget *sliderWidget =
       reinterpret_cast<vtkCenteredSliderWidget*>(caller);

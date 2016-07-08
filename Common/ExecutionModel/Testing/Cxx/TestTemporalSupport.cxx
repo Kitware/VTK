@@ -42,7 +42,7 @@ public:
   vtkGetMacro(NumRequestUpdateTime, int);
   vtkGetMacro(NumRequestTimeDependentInformation, int);
 
-  virtual int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector)
+  int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE
   {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
     {
@@ -112,7 +112,7 @@ public:
     this->HasTimeDependentData=false;
   }
 
-  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
     vtkImageData *outImage = vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -125,7 +125,7 @@ public:
     return 1;
   }
 
-  virtual int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector)
+  int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     vtkInformation *outInfo = outputVector->GetInformationObject(0);
     double range[2]= {0,9};
@@ -139,7 +139,7 @@ public:
     return 1;
   }
 
-  int FillOutputPortInformation(int, vtkInformation *info)
+  int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;
@@ -162,21 +162,21 @@ public:
   vtkSetMacro(StartTime, double);
   vtkSetMacro(TimeIterations, int);
 
-  void PrintSelf(ostream&, vtkIndent){}
+  void PrintSelf(ostream&, vtkIndent) VTK_OVERRIDE{}
 
-  int FillInputPortInformation(int, vtkInformation *info)
+  int FillInputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
   {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataObject");
     return 1;
   }
 
-  int FillOutputPortInformation(int, vtkInformation *info)
+  int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;
   }
 
-  int RequestData(vtkInformation* request, vtkInformationVector**in, vtkInformationVector* )
+  int RequestData(vtkInformation* request, vtkInformationVector**in, vtkInformationVector* ) VTK_OVERRIDE
   {
     cout<<"Has TD: "<<
       in[0]->GetInformationObject(0)->Get(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
@@ -193,7 +193,7 @@ public:
     return 1;
   }
 
-  int RequestUpdateExtent(vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*)
+  int RequestUpdateExtent(vtkInformation*, vtkInformationVector** inputVector, vtkInformationVector*) VTK_OVERRIDE
   {
     vtkInformation *inInfo  = inputVector[0]->GetInformationObject(0);
     double timeStep=  this->StartTime + (double)this->TimeIndex;

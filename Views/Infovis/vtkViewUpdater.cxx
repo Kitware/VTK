@@ -35,7 +35,7 @@ class vtkViewUpdater::vtkViewUpdaterInternals : public vtkCommand
 {
 public:
 
-  virtual void Execute(vtkObject*, unsigned long, void*)
+  void Execute(vtkObject*, unsigned long, void*) VTK_OVERRIDE
   {
     for (unsigned int i = 0; i < this->Views.size(); ++i)
       {

@@ -603,9 +603,9 @@ public:
     return new TestRemoveVolumeNonCurrentContextCallback;
     }
 
-  virtual void Execute(vtkObject* caller,
+  void Execute(vtkObject* caller,
                        unsigned long eventId,
-                       void* vtkNotUsed(callData))
+                       void* vtkNotUsed(callData)) VTK_OVERRIDE
     {
     if (eventId != vtkCommand::KeyPressEvent)
       {
