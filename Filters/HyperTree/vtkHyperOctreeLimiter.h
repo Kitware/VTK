@@ -71,8 +71,8 @@ protected:
   int AccumSize;
 
 private:
-  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeLimiter&);  // Not implemented.
+  vtkHyperOctreeLimiter(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeLimiter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

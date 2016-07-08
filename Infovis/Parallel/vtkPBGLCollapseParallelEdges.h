@@ -46,8 +46,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkPBGLCollapseParallelEdges(const vtkPBGLCollapseParallelEdges&); // Not implemented
-  void operator=(const vtkPBGLCollapseParallelEdges&);   // Not implemented
+  vtkPBGLCollapseParallelEdges(const vtkPBGLCollapseParallelEdges&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLCollapseParallelEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

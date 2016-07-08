@@ -63,8 +63,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&); // Not implemented
-  void operator=(const vtkTransmitUnstructuredGridPiece&); // Not implemented
+  vtkTransmitUnstructuredGridPiece(const vtkTransmitUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransmitUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

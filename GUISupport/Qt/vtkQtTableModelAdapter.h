@@ -29,6 +29,7 @@
 #ifndef vtkQtTableModelAdapter_h
 #define vtkQtTableModelAdapter_h
 
+#include "vtkConfigure.h"
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 #include <QImage> // Needed for icon support
@@ -137,8 +138,8 @@ private:
   class vtkInternal;
   vtkInternal* Internal;
 
-  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &);  // Not implemented
-  void operator=(const vtkQtTableModelAdapter&);  // Not implemented.
+  vtkQtTableModelAdapter(const vtkQtTableModelAdapter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTableModelAdapter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

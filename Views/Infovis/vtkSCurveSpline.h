@@ -62,8 +62,8 @@ protected:
   double NodeWeight;
 
 private:
-  vtkSCurveSpline(const vtkSCurveSpline&);  // Not implemented.
-  void operator=(const vtkSCurveSpline&);  // Not implemented.
+  vtkSCurveSpline(const vtkSCurveSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSCurveSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

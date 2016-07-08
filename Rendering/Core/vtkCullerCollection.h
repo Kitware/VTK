@@ -73,8 +73,8 @@ private:
     }
 
 private:
-  vtkCullerCollection(const vtkCullerCollection&);  // Not implemented.
-  void operator=(const vtkCullerCollection&);  // Not implemented.
+  vtkCullerCollection(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
 };
 
 

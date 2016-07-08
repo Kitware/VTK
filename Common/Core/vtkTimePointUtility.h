@@ -151,8 +151,8 @@ protected:
   ~vtkTimePointUtility() {}
 
 private:
-  vtkTimePointUtility(const vtkTimePointUtility&);  // Not implemented.
-  void operator=(const vtkTimePointUtility&);  // Not implemented.
+  vtkTimePointUtility(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTimePointUtility&) VTK_DELETE_FUNCTION;
 };
 
 #endif

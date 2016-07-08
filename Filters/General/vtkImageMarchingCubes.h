@@ -138,8 +138,8 @@ protected:
   vtkIdType *GetLocatorPointer(int cellX, int cellY, int edge);
 
 private:
-  vtkImageMarchingCubes(const vtkImageMarchingCubes&);  // Not implemented.
-  void operator=(const vtkImageMarchingCubes&);  // Not implemented.
+  vtkImageMarchingCubes(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMarchingCubes&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

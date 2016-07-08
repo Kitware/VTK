@@ -369,8 +369,8 @@ protected:
 
 private:
   // Hide these from the user and the compiler.
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
 
   void Cleanup();
 };

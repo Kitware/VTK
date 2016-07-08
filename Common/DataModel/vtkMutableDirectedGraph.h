@@ -312,8 +312,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&);  // Not implemented.
-  void operator=(const vtkMutableDirectedGraph&);  // Not implemented.
+  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

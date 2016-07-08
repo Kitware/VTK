@@ -122,8 +122,8 @@ protected:
   double N2;
 
 private:
-  vtkParametricSuperEllipsoid(const vtkParametricSuperEllipsoid&);  // Not implemented.
-  void operator=(const vtkParametricSuperEllipsoid&);  // Not implemented.
+  vtkParametricSuperEllipsoid(const vtkParametricSuperEllipsoid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricSuperEllipsoid&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Calculate sign(x)*(abs(x)^n).

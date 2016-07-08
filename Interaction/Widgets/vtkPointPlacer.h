@@ -142,8 +142,8 @@ protected:
   double       WorldTolerance;
 
 private:
-  vtkPointPlacer(const vtkPointPlacer&);  //Not implemented
-  void operator=(const vtkPointPlacer&);  //Not implemented
+  vtkPointPlacer(const vtkPointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -190,8 +190,8 @@ private:
   int PerformAmoeba();
   int CheckParameterTolerance();
 
-  vtkAmoebaMinimizer(const vtkAmoebaMinimizer&);  // Not implemented.
-  void operator=(const vtkAmoebaMinimizer&);  // Not implemented.
+  vtkAmoebaMinimizer(const vtkAmoebaMinimizer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAmoebaMinimizer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

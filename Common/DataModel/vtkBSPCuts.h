@@ -148,8 +148,8 @@ protected:
 
   double Bounds[6];
 
-  vtkBSPCuts(const vtkBSPCuts&); // Not implemented
-  void operator=(const vtkBSPCuts&); // Not implemented
+  vtkBSPCuts(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
 };
 
 #endif

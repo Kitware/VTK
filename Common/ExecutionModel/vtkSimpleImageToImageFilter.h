@@ -64,8 +64,8 @@ protected:
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;
 
 private:
-  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&);  // Not implemented.
-  void operator=(const vtkSimpleImageToImageFilter&);  // Not implemented.
+  vtkSimpleImageToImageFilter(const vtkSimpleImageToImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimpleImageToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

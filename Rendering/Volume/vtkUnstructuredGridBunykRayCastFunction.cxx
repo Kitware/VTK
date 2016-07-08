@@ -375,8 +375,8 @@ protected:
   vtkIdType                                              CurrentTetra;
 
 private:
-  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
-  void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);

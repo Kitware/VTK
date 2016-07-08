@@ -88,8 +88,8 @@ protected:
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
 private:
-  vtkBitArrayIterator(const vtkBitArrayIterator&); // Not implemented.
-  void operator=(const vtkBitArrayIterator&); // Not implemented.
+  vtkBitArrayIterator(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

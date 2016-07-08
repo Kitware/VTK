@@ -38,8 +38,8 @@ protected:
   vtkLogLookupTable(int sze = 256, int ext = 256);
   ~vtkLogLookupTable() {}
 private:
-  vtkLogLookupTable(const vtkLogLookupTable&);  // Not implemented.
-  void operator=(const vtkLogLookupTable&);  // Not implemented.
+  vtkLogLookupTable(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLogLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

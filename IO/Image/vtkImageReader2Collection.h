@@ -57,8 +57,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImageReader2Collection(const vtkImageReader2Collection&);  // Not implemented.
-  void operator=(const vtkImageReader2Collection&);  // Not implemented.
+  vtkImageReader2Collection(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

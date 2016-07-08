@@ -215,8 +215,8 @@ protected:
   friend class vtkImageViewer2Callback;
 
 private:
-  vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.
-  void operator=(const vtkImageViewer2&);  // Not implemented.
+  vtkImageViewer2(const vtkImageViewer2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageViewer2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

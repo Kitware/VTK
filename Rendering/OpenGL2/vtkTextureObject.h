@@ -676,8 +676,8 @@ protected:
   vtkOpenGLBufferObject *BufferObject;
 
 private:
-  vtkTextureObject(const vtkTextureObject&); // Not implemented.
-  void operator=(const vtkTextureObject&); // Not implemented.
+  vtkTextureObject(const vtkTextureObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextureObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

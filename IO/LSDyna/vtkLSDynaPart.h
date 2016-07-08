@@ -190,8 +190,8 @@ protected:
   InternalCurrentPointInfo *CurrentPointPropInfo;
 
 private:
-  vtkLSDynaPart( const vtkLSDynaPart& ); // Not implemented.
-  void operator = ( const vtkLSDynaPart& ); // Not implemented.
+  vtkLSDynaPart( const vtkLSDynaPart& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLSDynaPart& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTKLSDYNAPART

@@ -48,8 +48,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkGenericOutlineFilter(const vtkGenericOutlineFilter&);  // Not implemented.
-  void operator=(const vtkGenericOutlineFilter&);  // Not implemented.
+  vtkGenericOutlineFilter(const vtkGenericOutlineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

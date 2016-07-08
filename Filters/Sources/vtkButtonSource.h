@@ -102,8 +102,8 @@ protected:
   int    TwoSided;
 
 private:
-  vtkButtonSource(const vtkButtonSource&);  // Not implemented.
-  void operator=(const vtkButtonSource&);  // Not implemented.
+  vtkButtonSource(const vtkButtonSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkButtonSource&) VTK_DELETE_FUNCTION;
 
 };
 

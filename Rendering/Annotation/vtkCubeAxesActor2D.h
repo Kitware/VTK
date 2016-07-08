@@ -325,8 +325,8 @@ private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 private:
-  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&);  // Not implemented.
-  void operator=(const vtkCubeAxesActor2D&);  // Not implemented.
+  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

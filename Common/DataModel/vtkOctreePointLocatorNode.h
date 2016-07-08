@@ -254,8 +254,8 @@ private:
   // the point in the data set.
   int MinID;
 
-  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&); // Not implemented
-  void operator=(const vtkOctreePointLocatorNode&); // Not implemented
+  vtkOctreePointLocatorNode(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOctreePointLocatorNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

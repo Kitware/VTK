@@ -64,8 +64,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkDataArrayCollection(const vtkDataArrayCollection&);  // Not implemented.
-  void operator=(const vtkDataArrayCollection&);  // Not implemented.
+  vtkDataArrayCollection(const vtkDataArrayCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataArrayCollection&) VTK_DELETE_FUNCTION;
 };
 
 

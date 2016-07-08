@@ -54,8 +54,8 @@ protected:
   vtkTestingInteractor() {}
 
 private:
-  vtkTestingInteractor(const vtkTestingInteractor&); // Not implemented
-  void operator=(const vtkTestingInteractor&);       // Not implemented
+  vtkTestingInteractor(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
 
 };
 

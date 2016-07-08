@@ -62,8 +62,8 @@ protected:
 private:
   PWindBladeReaderInternal * PInternal;
 
-  vtkPWindBladeReader(const vtkPWindBladeReader &); // Not implemented.
-  void operator=(const vtkPWindBladeReader &); // Not implemented.
+  vtkPWindBladeReader(const vtkPWindBladeReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPWindBladeReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif

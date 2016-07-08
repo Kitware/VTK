@@ -84,8 +84,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkTexturedSphereSource(const vtkTexturedSphereSource&);  // Not implemented.
-  void operator=(const vtkTexturedSphereSource&);  // Not implemented.
+  vtkTexturedSphereSource(const vtkTexturedSphereSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTexturedSphereSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

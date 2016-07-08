@@ -177,8 +177,8 @@ virtual void Set##name (const char* _arg) \
   void ConstructClass(const char*);
 
 private:
-  vtkInformationKey(const vtkInformationKey&);  // Not implemented.
-  void operator=(const vtkInformationKey&);  // Not implemented.
+  vtkInformationKey(const vtkInformationKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationKey&) VTK_DELETE_FUNCTION;
 };
 
 // Macros to define an information key instance in a C++ source file.

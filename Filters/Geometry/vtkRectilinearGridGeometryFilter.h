@@ -70,8 +70,8 @@ protected:
 
   int Extent[6];
 private:
-  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridGeometryFilter&);  // Not implemented.
+  vtkRectilinearGridGeometryFilter(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -82,8 +82,8 @@ protected:
   int CroppingPlaneId;
 
 private:
-  vtkVolumePicker(const vtkVolumePicker&);  // Not implemented.
-  void operator=(const vtkVolumePicker&);  // Not implemented.
+  vtkVolumePicker(const vtkVolumePicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumePicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -82,8 +82,8 @@ private:
   char* EdgeWeightArrayName;
   char* OutputSelectionType;
 
-  vtkPBGLMinimumSpanningTree(const vtkPBGLMinimumSpanningTree&);  // Not implemented.
-  void operator=(const vtkPBGLMinimumSpanningTree&);  // Not implemented.
+  vtkPBGLMinimumSpanningTree(const vtkPBGLMinimumSpanningTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLMinimumSpanningTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

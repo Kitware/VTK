@@ -84,8 +84,8 @@ protected:
   Implementation* Impl;
 
 private:
-  vtkGraphItem(const vtkGraphItem &); // Not implemented.
-  void operator=(const vtkGraphItem &);   // Not implemented.
+  vtkGraphItem(const vtkGraphItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphItem &) VTK_DELETE_FUNCTION;
 
 };
 

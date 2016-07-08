@@ -111,8 +111,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&);  // Not implemented.
-  void operator=(const vtkPolyDataToImageStencil&);  // Not implemented.
+  vtkPolyDataToImageStencil(const vtkPolyDataToImageStencil&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataToImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

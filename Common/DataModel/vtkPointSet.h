@@ -126,8 +126,8 @@ private:
 
   void Cleanup();
 
-  vtkPointSet(const vtkPointSet&);  // Not implemented.
-  void operator=(const vtkPointSet&);  // Not implemented.
+  vtkPointSet(const vtkPointSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSet&) VTK_DELETE_FUNCTION;
 };
 
 inline vtkIdType vtkPointSet::GetNumberOfPoints()

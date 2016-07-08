@@ -146,8 +146,8 @@ protected:
   int NumberOfRulerTicks;
 
 private:
-  vtkDistanceRepresentation(const vtkDistanceRepresentation&);  //Not implemented
-  void operator=(const vtkDistanceRepresentation&);  //Not implemented
+  vtkDistanceRepresentation(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDistanceRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

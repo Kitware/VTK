@@ -66,8 +66,8 @@ protected:
   ~vtkLinearKernel();
 
 private:
-  vtkLinearKernel(const vtkLinearKernel&);  // Not implemented.
-  void operator=(const vtkLinearKernel&);  // Not implemented.
+  vtkLinearKernel(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLinearKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

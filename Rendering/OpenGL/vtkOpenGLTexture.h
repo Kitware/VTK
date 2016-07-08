@@ -74,8 +74,8 @@ protected:
   vtkPixelBufferObject *PBO;
 
 private:
-  vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
-  void operator=(const vtkOpenGLTexture&);  // Not implemented.
+  vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Handle loading in extension support

@@ -74,8 +74,8 @@ protected:
   int NumberOfTimeSteps;
 
 private:
-  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&);  // Not implemented.
-  void operator=(const vtkExtractTemporalFieldData&);  // Not implemented.
+  vtkExtractTemporalFieldData(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractTemporalFieldData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -55,8 +55,8 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx);
 
 private:
-  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&); // Not implemented.
-  void operator=(const vtkXMLUniformGridAMRWriter&); // Not implemented.
+  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
 
 };
 

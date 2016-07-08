@@ -280,8 +280,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImplicitModeller(const vtkImplicitModeller&);  // Not implemented.
-  void operator=(const vtkImplicitModeller&);  // Not implemented.
+  vtkImplicitModeller(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitModeller&) VTK_DELETE_FUNCTION;
 };
 
 #endif

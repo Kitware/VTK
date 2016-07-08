@@ -70,8 +70,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkPlatonicSolidSource(const vtkPlatonicSolidSource&);  // Not implemented.
-  void operator=(const vtkPlatonicSolidSource&);  // Not implemented.
+  vtkPlatonicSolidSource(const vtkPlatonicSolidSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlatonicSolidSource&) VTK_DELETE_FUNCTION;
 
 };
 

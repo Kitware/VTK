@@ -121,8 +121,8 @@ protected:
   vtkPlaneCollection *ClippingPlanes;
 
 private:
-  vtkAbstractMapper(const vtkAbstractMapper&);  // Not implemented.
-  void operator=(const vtkAbstractMapper&);  // Not implemented.
+  vtkAbstractMapper(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

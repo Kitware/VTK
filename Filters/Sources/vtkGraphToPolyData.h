@@ -80,8 +80,8 @@ protected:
   int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphToPolyData(const vtkGraphToPolyData&);  // Not implemented.
-  void operator=(const vtkGraphToPolyData&);  // Not implemented.
+  vtkGraphToPolyData(const vtkGraphToPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphToPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

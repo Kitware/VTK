@@ -85,8 +85,8 @@ protected:
   vtkIdList *PtIds; // list of points of the cell
 
 private:
-  vtkBridgePointIteratorOnCell(const vtkBridgePointIteratorOnCell&); // Not implemented
-  void operator=(const vtkBridgePointIteratorOnCell&); // Not implemented
+  vtkBridgePointIteratorOnCell(const vtkBridgePointIteratorOnCell&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgePointIteratorOnCell&) VTK_DELETE_FUNCTION;
 };
 
 #endif

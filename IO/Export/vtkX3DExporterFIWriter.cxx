@@ -90,8 +90,8 @@ private:
 
   int WriteToOutputString;
 
-  vtkX3DExporterFIByteWriter(const vtkX3DExporterFIByteWriter&); // Not implemented
-  void operator=(const vtkX3DExporterFIByteWriter&); // Not implemented
+  vtkX3DExporterFIByteWriter(const vtkX3DExporterFIByteWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkX3DExporterFIByteWriter&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

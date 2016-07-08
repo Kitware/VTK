@@ -162,8 +162,8 @@ protected:
   int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
 
 private:
-  vtkPExodusIIReader( const vtkPExodusIIReader& ); // Not implemented
-  void operator = ( const vtkPExodusIIReader& ); // Not implemented
+  vtkPExodusIIReader( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

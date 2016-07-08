@@ -196,8 +196,8 @@ protected:
   double ZViewUpVector[3];
 
 private:
-  vtkInteractorStyleImage(const vtkInteractorStyleImage&);  // Not implemented.
-  void operator=(const vtkInteractorStyleImage&);  // Not implemented.
+  vtkInteractorStyleImage(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

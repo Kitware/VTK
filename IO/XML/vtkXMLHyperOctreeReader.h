@@ -83,8 +83,8 @@ protected:
   int ArrayIndex;
 
 private:
-  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&);  // Not implemented.
-  void operator=(const vtkXMLHyperOctreeReader&);  // Not implemented.
+  vtkXMLHyperOctreeReader(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHyperOctreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

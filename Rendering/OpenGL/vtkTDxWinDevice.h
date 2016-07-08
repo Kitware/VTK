@@ -102,8 +102,8 @@ protected:
   bool IsListening;
 
 private:
-  vtkTDxWinDevice(const vtkTDxWinDevice&);  // Not implemented.
-  void operator=(const vtkTDxWinDevice&);  // Not implemented.
+  vtkTDxWinDevice(const vtkTDxWinDevice&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxWinDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

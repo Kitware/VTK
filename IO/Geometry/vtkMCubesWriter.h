@@ -78,8 +78,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkMCubesWriter(const vtkMCubesWriter&);  // Not implemented.
-  void operator=(const vtkMCubesWriter&);  // Not implemented.
+  vtkMCubesWriter(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMCubesWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -63,8 +63,8 @@ protected:
   vtkTestReferenceLoop* Other;
 
 private:
-  vtkTestReferenceLoop(const vtkTestReferenceLoop&);  // Not implemented.
-  void operator=(const vtkTestReferenceLoop&);  // Not implemented.
+  vtkTestReferenceLoop(const vtkTestReferenceLoop&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTestReferenceLoop&) VTK_DELETE_FUNCTION;
 };
 
 // A callback that reports when it is called.

@@ -122,8 +122,8 @@ protected:
   int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkRTAnalyticSource(const vtkRTAnalyticSource&);  // Not implemented.
-  void operator=(const vtkRTAnalyticSource&);  // Not implemented.
+  vtkRTAnalyticSource(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRTAnalyticSource&) VTK_DELETE_FUNCTION;
 };
 
 

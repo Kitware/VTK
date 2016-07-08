@@ -102,8 +102,8 @@ protected:
   int **PieceExtents;
 
 private:
-  vtkPDataSetReader(const vtkPDataSetReader&); // Not implemented
-  void operator=(const vtkPDataSetReader&); // Not implemented
+  vtkPDataSetReader(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

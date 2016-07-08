@@ -76,8 +76,8 @@ protected:
   vtkAbstractArray *NodeNameArray;
 
 private:
-  vtkNewickTreeWriter(const vtkNewickTreeWriter&);  // Not implemented.
-  void operator=(const vtkNewickTreeWriter&);  // Not implemented.
+  vtkNewickTreeWriter(const vtkNewickTreeWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNewickTreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

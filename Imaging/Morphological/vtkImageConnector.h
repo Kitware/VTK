@@ -86,8 +86,8 @@ protected:
   vtkImageConnectorSeed *Seeds;
   vtkImageConnectorSeed *LastSeed;
 private:
-  vtkImageConnector(const vtkImageConnector&);  // Not implemented.
-  void operator=(const vtkImageConnector&);  // Not implemented.
+  vtkImageConnector(const vtkImageConnector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageConnector&) VTK_DELETE_FUNCTION;
 };
 
 

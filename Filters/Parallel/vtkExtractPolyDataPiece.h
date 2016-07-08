@@ -53,8 +53,8 @@ protected:
 
   int CreateGhostCells;
 private:
-  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&);  // Not implemented.
-  void operator=(const vtkExtractPolyDataPiece&);  // Not implemented.
+  vtkExtractPolyDataPiece(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractPolyDataPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

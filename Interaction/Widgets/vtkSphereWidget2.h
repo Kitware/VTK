@@ -142,8 +142,8 @@ protected:
   int ScalingEnabled;
 
 private:
-  vtkSphereWidget2(const vtkSphereWidget2&);  //Not implemented
-  void operator=(const vtkSphereWidget2&);  //Not implemented
+  vtkSphereWidget2(const vtkSphereWidget2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphereWidget2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

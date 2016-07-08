@@ -121,8 +121,8 @@ protected:
   int Mode;
 
 private:
-  vtkThresholdTable(const vtkThresholdTable&); // Not implemented
-  void operator=(const vtkThresholdTable&);   // Not implemented
+  vtkThresholdTable(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

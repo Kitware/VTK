@@ -61,8 +61,8 @@ protected:
   virtual void CalculatePValues(vtkTable*);
 
 private:
-  vtkContingencyStatisticsGnuR(const vtkContingencyStatisticsGnuR&); // Not implemented
-  void operator=(const vtkContingencyStatisticsGnuR&); // Not implemented
+  vtkContingencyStatisticsGnuR(const vtkContingencyStatisticsGnuR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContingencyStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

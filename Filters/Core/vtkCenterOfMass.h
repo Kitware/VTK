@@ -68,8 +68,8 @@ protected:
 
 private:
 
-  vtkCenterOfMass(const vtkCenterOfMass&);  // Not implemented.
-  void operator=(const vtkCenterOfMass&);  // Not implemented.
+  vtkCenterOfMass(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCenterOfMass&) VTK_DELETE_FUNCTION;
 
   bool UseScalarsAsWeights;
   double Center[3];

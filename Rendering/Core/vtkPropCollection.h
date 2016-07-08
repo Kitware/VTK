@@ -70,8 +70,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPropCollection(const vtkPropCollection&);  // Not implemented.
-  void operator=(const vtkPropCollection&);  // Not implemented.
+  vtkPropCollection(const vtkPropCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPropCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPropCollection::AddItem(vtkProp *a)

@@ -107,8 +107,8 @@ protected:
   ~vtkMultiBlockDataSet();
 
 private:
-  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&); // Not implemented.
-  void operator=(const vtkMultiBlockDataSet&); // Not implemented.
+  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
 
 };
 

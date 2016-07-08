@@ -48,8 +48,8 @@ protected:
 
   unsigned long  MemoryLimit;
 private:
-  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
-  void operator=(const vtkMemoryLimitImageDataStreamer&);  // Not implemented.
+  vtkMemoryLimitImageDataStreamer(const vtkMemoryLimitImageDataStreamer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMemoryLimitImageDataStreamer&) VTK_DELETE_FUNCTION;
 };
 
 

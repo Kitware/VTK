@@ -229,8 +229,8 @@ protected:
                                            vtkInformation *outInfo);
 
 private:
-  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
+  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

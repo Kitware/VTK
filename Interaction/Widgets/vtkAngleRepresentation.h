@@ -139,8 +139,8 @@ protected:
   char *LabelFormat;
 
 private:
-  vtkAngleRepresentation(const vtkAngleRepresentation&);  //Not implemented
-  void operator=(const vtkAngleRepresentation&);  //Not implemented
+  vtkAngleRepresentation(const vtkAngleRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAngleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

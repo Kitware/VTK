@@ -102,8 +102,8 @@ public:
   virtual void RenderFilteredOverlay(const vtkRenderState *s);
 
  private:
-  vtkDefaultPass(const vtkDefaultPass&);  // Not implemented.
-  void operator=(const vtkDefaultPass&);  // Not implemented.
+  vtkDefaultPass(const vtkDefaultPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDefaultPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

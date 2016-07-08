@@ -32,8 +32,8 @@ protected:
   vtkBar2() {}
   ~vtkBar2() {}
 private:
-  vtkBar2(const vtkBar2&);  // Not implemented.
-  void operator=(const vtkBar2&);  // Not implemented.
+  vtkBar2(const vtkBar2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBar2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

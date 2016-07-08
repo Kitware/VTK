@@ -200,8 +200,8 @@ protected:
   vtkCameraList *CameraList;
 
 private:
-  vtkCameraInterpolator(const vtkCameraInterpolator&);  // Not implemented.
-  void operator=(const vtkCameraInterpolator&);  // Not implemented.
+  vtkCameraInterpolator(const vtkCameraInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCameraInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

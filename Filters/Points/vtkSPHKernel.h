@@ -169,8 +169,8 @@ protected:
   bool UseArraysForVolume; //if both mass and density arrays are present
 
 private:
-  vtkSPHKernel(const vtkSPHKernel&);  // Not implemented.
-  void operator=(const vtkSPHKernel&);  // Not implemented.
+  vtkSPHKernel(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

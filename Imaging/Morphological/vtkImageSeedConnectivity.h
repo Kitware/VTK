@@ -87,8 +87,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&);  // Not implemented.
-  void operator=(const vtkImageSeedConnectivity&);  // Not implemented.
+  vtkImageSeedConnectivity(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageSeedConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -74,8 +74,8 @@ protected:
   virtual bool IsStructureValid(vtkGraph *g);
 
 private:
-  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&);  // Not implemented.
-  void operator=(const vtkDirectedAcyclicGraph&);  // Not implemented.
+  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

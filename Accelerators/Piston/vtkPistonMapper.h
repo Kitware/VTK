@@ -123,8 +123,8 @@ protected:
   int GhostLevel;
 
 private:
-  vtkPistonMapper(const vtkPistonMapper&); // Not implemented.
-  void operator=(const vtkPistonMapper&);  // Not implemented.
+  vtkPistonMapper(const vtkPistonMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonMapper&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Allocates buffers that are shared between CUDA and GL

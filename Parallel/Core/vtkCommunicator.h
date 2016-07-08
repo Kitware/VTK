@@ -1341,8 +1341,8 @@ protected:
   vtkIdType Count;
 
 private:
-  vtkCommunicator(const vtkCommunicator&);  // Not implemented.
-  void operator=(const vtkCommunicator&);  // Not implemented.
+  vtkCommunicator(const vtkCommunicator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCommunicator_h

@@ -46,8 +46,8 @@ protected:
   // Usual data generation method
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkTriangularTCoords(const vtkTriangularTCoords&);  // Not implemented.
-  void operator=(const vtkTriangularTCoords&);  // Not implemented.
+  vtkTriangularTCoords(const vtkTriangularTCoords&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTriangularTCoords&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -260,8 +260,8 @@ protected:
   double                              AbsoluteMinimumThickness;
 
 private:
-  vtkParallelopipedRepresentation(const vtkParallelopipedRepresentation&);  //Not implemented
-  void operator=(const vtkParallelopipedRepresentation&);  //Not implemented
+  vtkParallelopipedRepresentation(const vtkParallelopipedRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelopipedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

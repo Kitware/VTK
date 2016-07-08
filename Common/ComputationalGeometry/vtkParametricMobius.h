@@ -88,8 +88,8 @@ protected:
   double Radius;
 
 private:
-  vtkParametricMobius(const vtkParametricMobius&);  // Not implemented.
-  void operator=(const vtkParametricMobius&);  // Not implemented.
+  vtkParametricMobius(const vtkParametricMobius&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricMobius&) VTK_DELETE_FUNCTION;
 };
 
 #endif

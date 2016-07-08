@@ -164,8 +164,8 @@ protected:
   vtkWTI2DHelperClass *StoredData;
 
 private:
-  vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.
-  void operator=(const vtkWindowToImageFilter&);  // Not implemented.
+  vtkWindowToImageFilter(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

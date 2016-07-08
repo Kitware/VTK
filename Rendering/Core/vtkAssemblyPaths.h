@@ -80,8 +80,8 @@ private:
   int  IsItemPresent(vtkObject *o)
     { return this->vtkCollection::IsItemPresent(o); }
 private:
-  vtkAssemblyPaths(const vtkAssemblyPaths&);  // Not implemented.
-  void operator=(const vtkAssemblyPaths&);  // Not implemented.
+  vtkAssemblyPaths(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAssemblyPaths&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkAssemblyPaths::AddItem(vtkAssemblyPath *p)

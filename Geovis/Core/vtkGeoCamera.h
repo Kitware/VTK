@@ -208,8 +208,8 @@ protected:
   double Position[3];
 
 private:
-  vtkGeoCamera(const vtkGeoCamera&);  // Not implemented.
-  void operator=(const vtkGeoCamera&);  // Not implemented.
+  vtkGeoCamera(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

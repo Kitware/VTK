@@ -100,8 +100,8 @@ protected:
   virtual void Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output);
 
 private:
-  vtkPointInterpolator2D(const vtkPointInterpolator2D&);  // Not implemented.
-  void operator=(const vtkPointInterpolator2D&);  // Not implemented.
+  vtkPointInterpolator2D(const vtkPointInterpolator2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointInterpolator2D&) VTK_DELETE_FUNCTION;
 
 };
 

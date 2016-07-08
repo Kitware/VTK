@@ -66,8 +66,8 @@ protected:
                       vtkUniformGrid* output);
 
 private:
-  vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&);  // Not implemented.
-  void operator=(const vtkImageDataToUniformGrid&);  // Not implemented.
+  vtkImageDataToUniformGrid(const vtkImageDataToUniformGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageDataToUniformGrid&) VTK_DELETE_FUNCTION;
 
   int Reverse;
 };

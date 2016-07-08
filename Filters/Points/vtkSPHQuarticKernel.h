@@ -85,8 +85,8 @@ protected:
   ~vtkSPHQuarticKernel();
 
 private:
-  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&);  // Not implemented.
-  void operator=(const vtkSPHQuarticKernel&);  // Not implemented.
+  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

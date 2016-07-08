@@ -254,8 +254,8 @@ private:
   void DeepCopy(vtkDataArray &da) {this->vtkDataArray::DeepCopy(&da);}
 
 private:
-  vtkBitArray(const vtkBitArray&);  // Not implemented.
-  void operator=(const vtkBitArray&);  // Not implemented.
+  vtkBitArray(const vtkBitArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBitArray&) VTK_DELETE_FUNCTION;
 
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();

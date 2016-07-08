@@ -50,8 +50,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridWriter&);  // Not implemented.
+  vtkUnstructuredGridWriter(const vtkUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

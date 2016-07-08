@@ -159,9 +159,11 @@
 #ifdef VTK_USE_CXX11_FEATURES
 # define VTK_OVERRIDE override
 # define VTK_FINAL final
+# define VTK_DELETE_FUNCTION =delete
 #else
 # define VTK_OVERRIDE
 # define VTK_FINAL
+# define VTK_DELETE_FUNCTION
 #endif
 
 /** std::auto_ptr is deprecated in C++11 and will be removed in C++17

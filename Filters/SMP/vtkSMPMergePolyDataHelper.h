@@ -21,6 +21,7 @@
 #ifndef vtkSMPMergePolyDataHelper_h
 #define vtkSMPMergePolyDataHelper_h
 
+#include "vtkConfigure.h"
 #include "vtkFiltersSMPModule.h"
 
 #include <vector>
@@ -75,8 +76,8 @@ protected:
   ~vtkSMPMergePolyDataHelper();
 
 private:
-  vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&);  // Not implemented.
-  void operator=(const vtkSMPMergePolyDataHelper&);  // Not implemented.
+  vtkSMPMergePolyDataHelper(const vtkSMPMergePolyDataHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSMPMergePolyDataHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -182,8 +182,8 @@ protected:
   int previousAllowRandomGeneration;
 
 private:
-  vtkParametricRandomHills(const vtkParametricRandomHills&);  // Not implemented.
-  void operator=(const vtkParametricRandomHills&);  // Not implemented.
+  vtkParametricRandomHills(const vtkParametricRandomHills&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricRandomHills&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Initialise the random number generator.

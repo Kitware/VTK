@@ -72,8 +72,8 @@ protected:
   int NumberOfSubdivisions;
 
 private:
-  vtkGeoEdgeStrategy(const vtkGeoEdgeStrategy&);  // Not implemented.
-  void operator=(const vtkGeoEdgeStrategy&);  // Not implemented.
+  vtkGeoEdgeStrategy(const vtkGeoEdgeStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoEdgeStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

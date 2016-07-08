@@ -172,8 +172,8 @@ protected:
   int FindIndex(int size, double t);
 
 private:
-  vtkSpline(const vtkSpline&);  // Not implemented.
-  void operator=(const vtkSpline&);  // Not implemented.
+  vtkSpline(const vtkSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

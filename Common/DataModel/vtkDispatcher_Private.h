@@ -110,8 +110,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +134,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
 };
 
 
@@ -267,8 +265,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,8 +291,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

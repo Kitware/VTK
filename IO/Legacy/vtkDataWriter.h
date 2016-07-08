@@ -249,8 +249,8 @@ protected:
   int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
 
 private:
-  vtkDataWriter(const vtkDataWriter&);  // Not implemented.
-  void operator=(const vtkDataWriter&);  // Not implemented.
+  vtkDataWriter(const vtkDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -100,8 +100,8 @@ protected:
   vtkProperty                       * ThickSlabProperty[3];
 
 private:
-  vtkResliceCursorActor(const vtkResliceCursorActor&);  // Not implemented.
-  void operator=(const vtkResliceCursorActor&);  // Not implemented.
+  vtkResliceCursorActor(const vtkResliceCursorActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

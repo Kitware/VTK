@@ -51,8 +51,8 @@ protected:
   ~vtkQuadraturePointInterpolator();
 
 private:
-  vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator &); // Not implemented
-  void operator=(const vtkQuadraturePointInterpolator &); // Not implemented
+  vtkQuadraturePointInterpolator(const vtkQuadraturePointInterpolator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraturePointInterpolator &) VTK_DELETE_FUNCTION;
   //
   void Clear();
   // Description:

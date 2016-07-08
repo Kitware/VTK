@@ -40,8 +40,8 @@ protected:
   ~vtkOpenGLLight() {}
 
 private:
-  vtkOpenGLLight(const vtkOpenGLLight&);  // Not implemented.
-  void operator=(const vtkOpenGLLight&);  // Not implemented.
+  vtkOpenGLLight(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

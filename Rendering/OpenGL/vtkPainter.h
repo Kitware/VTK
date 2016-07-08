@@ -239,8 +239,8 @@ protected:
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
                          // This is not reference counted.
 private:
-  vtkPainter(const vtkPainter &); // Not implemented.
-  void operator=(const vtkPainter &);   // Not implemented.
+  vtkPainter(const vtkPainter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPainter &) VTK_DELETE_FUNCTION;
 
   vtkDataObject* Input;
 

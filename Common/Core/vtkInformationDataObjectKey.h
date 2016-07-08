@@ -62,8 +62,8 @@ public:
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
 private:
-  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&);  // Not implemented.
-  void operator=(const vtkInformationDataObjectKey&);  // Not implemented.
+  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -347,8 +347,8 @@ protected:
   int WritePointData (int timestep, vtkDataArray *buffer);
 
 private:
-  vtkExodusIIWriter (const vtkExodusIIWriter&); // Not Implemented
-  void operator= (const vtkExodusIIWriter&); // Not Implemented
+  vtkExodusIIWriter (const vtkExodusIIWriter&) VTK_DELETE_FUNCTION;
+  void operator= (const vtkExodusIIWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

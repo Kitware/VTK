@@ -101,8 +101,8 @@ protected:
   vtkIdType InsertPointInMap(vtkIdType i, vtkPoints *inPts, vtkPoints *newPts, vtkIdType *pointMap);
 
 private:
-  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&);  // Not implemented.
-  void operator=(const vtkExtractPolyDataGeometry&);  // Not implemented.
+  vtkExtractPolyDataGeometry(const vtkExtractPolyDataGeometry&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractPolyDataGeometry&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

@@ -72,8 +72,8 @@ private:
                                vtkIdList *stencilIds, double *weights);
 
 private:
-  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkButterflySubdivisionFilter&);  // Not implemented.
+  vtkButterflySubdivisionFilter(const vtkButterflySubdivisionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkButterflySubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -138,8 +138,8 @@ private:
   vtkIdType CurrentNumCells; //number of cells on the current span row
 
 private:
-  vtkSpanSpace(const vtkSpanSpace&);  // Not implemented.
-  void operator=(const vtkSpanSpace&);  // Not implemented.
+  vtkSpanSpace(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
 };
 
 #endif

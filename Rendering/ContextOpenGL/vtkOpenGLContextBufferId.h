@@ -87,8 +87,8 @@ protected:
   vtkTextureObject *Texture;
 
 private:
-  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &); // Not implemented.
-  void operator=(const vtkOpenGLContextBufferId &);   // Not implemented.
+  vtkOpenGLContextBufferId(const vtkOpenGLContextBufferId &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLContextBufferId &) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkOpenGLContextBufferId_h

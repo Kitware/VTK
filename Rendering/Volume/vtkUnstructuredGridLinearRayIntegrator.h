@@ -92,8 +92,8 @@ protected:
   int NumIndependentComponents;
 
 private:
-  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridLinearRayIntegrator&);  // Not implemented.
+  vtkUnstructuredGridLinearRayIntegrator(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridLinearRayIntegrator&) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridLinearRayIntegrator_h

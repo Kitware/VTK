@@ -446,8 +446,8 @@ protected:
   vtkContext3D *Context3D; // May be very temporary - get at a 3D version.
 
 private:
-  vtkContext2D(const vtkContext2D &); // Not implemented.
-  void operator=(const vtkContext2D &);   // Not implemented.
+  vtkContext2D(const vtkContext2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContext2D &) VTK_DELETE_FUNCTION;
 
   // Description:
   // Calculate position of text for rendering in a rectangle.

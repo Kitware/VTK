@@ -61,8 +61,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&);  // Not implemented.
-  void operator=(const vtkImplicitFunctionCollection&);  // Not implemented.
+  vtkImplicitFunctionCollection(const vtkImplicitFunctionCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitFunctionCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkImplicitFunctionCollection::AddItem(vtkImplicitFunction *f)

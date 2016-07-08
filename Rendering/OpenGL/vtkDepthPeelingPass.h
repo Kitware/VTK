@@ -183,8 +183,8 @@ public:
   int OpaqueShadowTexUnit; // texture unit allocated for the opaque shadow tex.
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
-  void operator=(const vtkDepthPeelingPass&);  // Not implemented.
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

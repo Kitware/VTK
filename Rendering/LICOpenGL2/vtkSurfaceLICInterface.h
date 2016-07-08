@@ -492,8 +492,8 @@ protected:
   int PrevFbo;
 
 private:
-  vtkSurfaceLICInterface(const vtkSurfaceLICInterface&); // Not implemented.
-  void operator=(const vtkSurfaceLICInterface&); // Not implemented.
+  vtkSurfaceLICInterface(const vtkSurfaceLICInterface&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSurfaceLICInterface&) VTK_DELETE_FUNCTION;
 };
 
 #endif

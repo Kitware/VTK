@@ -67,8 +67,8 @@ protected:
   vtkIdType* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationIdTypeKey(const vtkInformationIdTypeKey&);  // Not implemented.
-  void operator=(const vtkInformationIdTypeKey&);  // Not implemented.
+  vtkInformationIdTypeKey(const vtkInformationIdTypeKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationIdTypeKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

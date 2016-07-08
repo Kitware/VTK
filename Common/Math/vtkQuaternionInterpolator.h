@@ -137,8 +137,8 @@ protected:
   vtkQuaternionList *QuaternionList; //used for linear quaternion interpolation
 
 private:
-  vtkQuaternionInterpolator(const vtkQuaternionInterpolator&);  // Not implemented.
-  void operator=(const vtkQuaternionInterpolator&);  // Not implemented.
+  vtkQuaternionInterpolator(const vtkQuaternionInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuaternionInterpolator&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -50,8 +50,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkArrayToTable(const vtkArrayToTable&); // Not implemented
-  void operator=(const vtkArrayToTable&);   // Not implemented
+  vtkArrayToTable(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

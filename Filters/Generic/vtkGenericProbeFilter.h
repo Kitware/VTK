@@ -76,8 +76,8 @@ protected:
   vtkIdTypeArray *ValidPoints;
 
 private:
-  vtkGenericProbeFilter(const vtkGenericProbeFilter&);  // Not implemented.
-  void operator=(const vtkGenericProbeFilter&);  // Not implemented.
+  vtkGenericProbeFilter(const vtkGenericProbeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericProbeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

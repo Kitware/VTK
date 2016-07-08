@@ -55,8 +55,8 @@ protected:
   virtual int FillOutputPortInformation(int port,vtkInformation *info);
 
 private:
-  vtkExtractLevel(const vtkExtractLevel&); // Not implemented.
-  void operator=(const vtkExtractLevel&); // Not implemented.
+  vtkExtractLevel(const vtkExtractLevel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractLevel&) VTK_DELETE_FUNCTION;
 
   class vtkSet;
   vtkSet* Levels;

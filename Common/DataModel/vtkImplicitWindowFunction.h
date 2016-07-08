@@ -91,8 +91,8 @@ protected:
   double WindowValues[2];
 
 private:
-  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);  // Not implemented.
-  void operator=(const vtkImplicitWindowFunction&);  // Not implemented.
+  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

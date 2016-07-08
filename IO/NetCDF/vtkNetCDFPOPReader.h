@@ -92,8 +92,8 @@ protected:
   int Stride[3];
 
 private:
-  vtkNetCDFPOPReader(const vtkNetCDFPOPReader&);  // Not implemented.
-  void operator=(const vtkNetCDFPOPReader&);  // Not implemented.
+  vtkNetCDFPOPReader(const vtkNetCDFPOPReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNetCDFPOPReader&) VTK_DELETE_FUNCTION;
 
   vtkNetCDFPOPReaderInternal* Internals;
 };

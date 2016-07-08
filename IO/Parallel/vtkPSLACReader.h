@@ -127,8 +127,8 @@ protected:
   int RequestedPieceCache;
 
 private:
-  vtkPSLACReader(const vtkPSLACReader &);       // Not implemented
-  void operator=(const vtkPSLACReader &);       // Not implemented
+  vtkPSLACReader(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPSLACReader_h

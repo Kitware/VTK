@@ -285,8 +285,8 @@ protected:
   bool UseDefaultThreading;
 
 private:
-  vtkAMRVolumeMapper(const vtkAMRVolumeMapper&);  // Not implemented.
-  void operator=(const vtkAMRVolumeMapper&);  // Not implemented.
+  vtkAMRVolumeMapper(const vtkAMRVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

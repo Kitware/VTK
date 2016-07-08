@@ -133,8 +133,8 @@ protected:
   int PickFromList;
   vtkPropCollection *PickList;
 private:
-  vtkAbstractPicker(const vtkAbstractPicker&);  // Not implemented.
-  void operator=(const vtkAbstractPicker&);  // Not implemented.
+  vtkAbstractPicker(const vtkAbstractPicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

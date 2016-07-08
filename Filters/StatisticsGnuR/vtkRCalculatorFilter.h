@@ -177,8 +177,8 @@ protected:
 
 private:
 
-  vtkRCalculatorFilter(const vtkRCalculatorFilter&);  // Not implemented.
-  void operator=(const vtkRCalculatorFilter&);  // Not implemented.
+  vtkRCalculatorFilter(const vtkRCalculatorFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRCalculatorFilter&) VTK_DELETE_FUNCTION;
 
   // Implementation details
   vtkRCalculatorFilterInternals* rcfi;

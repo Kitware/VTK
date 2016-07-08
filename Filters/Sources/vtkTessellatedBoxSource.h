@@ -139,8 +139,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkTessellatedBoxSource(const vtkTessellatedBoxSource&);  // Not implemented.
-  void operator=(const vtkTessellatedBoxSource&);  // Not implemented.
+  vtkTessellatedBoxSource(const vtkTessellatedBoxSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTessellatedBoxSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

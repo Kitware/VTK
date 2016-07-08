@@ -242,8 +242,8 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
-  void operator=(const vtkObjectFactory&);  // Not implemented.
+  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
 };
 
 // Macro to create an object creation function.

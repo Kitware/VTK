@@ -90,8 +90,8 @@ protected:
   double Radius;
 
 private:
-  vtkParametricRoman(const vtkParametricRoman&);  // Not implemented.
-  void operator=(const vtkParametricRoman&);  // Not implemented.
+  vtkParametricRoman(const vtkParametricRoman&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricRoman&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -76,8 +76,8 @@ public:
   int MaxRecords;
 
 private:
-  vtkRISReader(const vtkRISReader&); // Not implemented
-  void operator=(const vtkRISReader&);   // Not implemented
+  vtkRISReader(const vtkRISReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRISReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

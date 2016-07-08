@@ -130,8 +130,8 @@ protected:
   float  Coverage;
 
 private:
-  vtkGeoTerrainNode(const vtkGeoTerrainNode&);  // Not implemented.
-  void operator=(const vtkGeoTerrainNode&);  // Not implemented.
+  vtkGeoTerrainNode(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTerrainNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

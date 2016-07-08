@@ -293,8 +293,8 @@ protected:
 
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 private:
-  vtkGenericDataArray(const vtkGenericDataArray&); // Not implemented.
-  void operator=(const vtkGenericDataArray&); // Not implemented.
+  vtkGenericDataArray(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
 
   std::vector<double> LegacyTuple;
   std::vector<ValueType> LegacyValueRange;

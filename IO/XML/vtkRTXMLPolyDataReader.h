@@ -81,8 +81,8 @@ protected:
   vtkRTXMLPolyDataReaderInternals* Internal;
 
 private:
-  vtkRTXMLPolyDataReader(const vtkRTXMLPolyDataReader&);  // Not implemented.
-  void operator=(const vtkRTXMLPolyDataReader&);  // Not implemented.
+  vtkRTXMLPolyDataReader(const vtkRTXMLPolyDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRTXMLPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

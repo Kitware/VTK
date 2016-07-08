@@ -135,8 +135,8 @@ protected:
   int NumberOfPoints;
   double **MatrixW;
 private:
-  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&);  // Not implemented.
-  void operator=(const vtkThinPlateSplineTransform&);  // Not implemented.
+  vtkThinPlateSplineTransform(const vtkThinPlateSplineTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThinPlateSplineTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

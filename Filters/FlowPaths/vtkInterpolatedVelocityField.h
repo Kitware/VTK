@@ -106,9 +106,9 @@ protected:
 
 private:
   vtkInterpolatedVelocityField
-    ( const vtkInterpolatedVelocityField & );  // Not implemented.
+    ( const vtkInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
   void operator =
-    ( const vtkInterpolatedVelocityField & );  // Not implemented.
+    ( const vtkInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

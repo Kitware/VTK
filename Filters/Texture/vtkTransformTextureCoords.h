@@ -106,8 +106,8 @@ protected:
   int FlipS; //boolean indicates whether to flip texture around s-axis
   int FlipT; //boolean indicates whether to flip texture around t-axis
 private:
-  vtkTransformTextureCoords(const vtkTransformTextureCoords&);  // Not implemented.
-  void operator=(const vtkTransformTextureCoords&);  // Not implemented.
+  vtkTransformTextureCoords(const vtkTransformTextureCoords&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformTextureCoords&) VTK_DELETE_FUNCTION;
 };
 
 #endif

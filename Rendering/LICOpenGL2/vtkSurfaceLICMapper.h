@@ -116,8 +116,8 @@ protected:
   vtkSurfaceLICInterface *LICInterface;
 
 private:
-  vtkSurfaceLICMapper(const vtkSurfaceLICMapper&); // Not implemented.
-  void operator=(const vtkSurfaceLICMapper&); // Not implemented.
+  vtkSurfaceLICMapper(const vtkSurfaceLICMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSurfaceLICMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

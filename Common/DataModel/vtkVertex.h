@@ -118,8 +118,8 @@ protected:
   ~vtkVertex() {}
 
 private:
-  vtkVertex(const vtkVertex&);  // Not implemented.
-  void operator=(const vtkVertex&);  // Not implemented.
+  vtkVertex(const vtkVertex&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVertex&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

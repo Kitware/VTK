@@ -47,8 +47,8 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&);  // Not implemented.
-  void operator=(const vtkSMPContourGridManyPieces&);  // Not implemented.
+  vtkSMPContourGridManyPieces(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSMPContourGridManyPieces&) VTK_DELETE_FUNCTION;
 };
 
 #endif

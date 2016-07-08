@@ -201,8 +201,8 @@ protected:
   double Threshold;
 
 private:
-  vtkHyperOctreeSampleFunction(const vtkHyperOctreeSampleFunction&);  // Not implemented.
-  void operator=(const vtkHyperOctreeSampleFunction&);  // Not implemented.
+  vtkHyperOctreeSampleFunction(const vtkHyperOctreeSampleFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeSampleFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif
