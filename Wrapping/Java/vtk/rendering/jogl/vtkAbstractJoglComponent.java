@@ -1,8 +1,8 @@
 package vtk.rendering.jogl;
 
-import javax.media.opengl.GLAutoDrawable;
-import javax.media.opengl.GLContext;
-import javax.media.opengl.GLEventListener;
+import com.jogamp.opengl.GLAutoDrawable;
+import com.jogamp.opengl.GLContext;
+import com.jogamp.opengl.GLEventListener;
 
 import vtk.vtkGenericOpenGLRenderWindow;
 import vtk.vtkObject;
@@ -46,7 +46,7 @@ public class vtkAbstractJoglComponent<T extends java.awt.Component> extends vtkA
         // Init VTK OpenGL RenderWindow
         vtkAbstractJoglComponent.this.glRenderWindow.SetMapped(1);
         vtkAbstractJoglComponent.this.glRenderWindow.SetPosition(0, 0);
-        vtkAbstractJoglComponent.this.setSize(drawable.getWidth(), drawable.getHeight());
+        vtkAbstractJoglComponent.this.setSize(drawable.getSurfaceWidth(), drawable.getSurfaceHeight());
         vtkAbstractJoglComponent.this.glRenderWindow.OpenGLInit();
       }
 
