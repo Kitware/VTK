@@ -950,8 +950,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
   vtkSmartPointer< vtkDoubleArray > angleList =
     vtkSmartPointer< vtkDoubleArray >::New();
   angleList->Allocate(points->GetNumberOfPoints());
-  bool *interPtBool;
-  interPtBool = new bool[points->GetNumberOfPoints()];
+  bool *interPtBool = new bool[points->GetNumberOfPoints()];
 
   for (vtkIdType ptId = 0; ptId < points->GetNumberOfPoints(); ptId++)
     {
@@ -1063,6 +1062,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
       {
       splitCells->Delete();
       splitCells = NULL;
+      delete [] interPtBool;
       return splitCells;
       }
     //For each loop, orient and triangulate
@@ -1077,8 +1077,7 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
         vtkSmartPointer<vtkCellArray>::New();
       std::list<simPoint>::iterator it;
       int ptiter=0;
-      int *pointMapper;
-      pointMapper = new int[loops[k].points.size()];
+      int *pointMapper = new int[loops[k].points.size()];
       for (it = loops[k].points.begin(); it != loops[k].points.end(); ++it)
         {
         if (ptiter < (int) loops[k].points.size()-1)
@@ -1155,6 +1154,8 @@ vtkCellArray* vtkIntersectionPolyDataFilter::Impl
 
           splitCells->Delete();
           splitCells = NULL;
+          delete [] pointMapper;
+          delete [] interPtBool;
           return splitCells;
           }
         }
