@@ -67,8 +67,8 @@ public:
   vtkOpenGLHelper Quad;
 
  private:
-  vtkOpenGLImageAlgorithmHelper(const vtkOpenGLImageAlgorithmHelper&);  // Not implemented.
-  void operator=(const vtkOpenGLImageAlgorithmHelper&);  // Not implemented.
+  vtkOpenGLImageAlgorithmHelper(const vtkOpenGLImageAlgorithmHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLImageAlgorithmHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif
