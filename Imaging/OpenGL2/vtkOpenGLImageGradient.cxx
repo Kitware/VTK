@@ -152,7 +152,7 @@ void vtkOpenGLImageGradient::ThreadedRequestData(
     fragShader +=
       "  float dz = textureOffset(inputTex1, vec3(tcoordVSOutput, zPos), ivec3(0,0,1)).r\n"
       "    - textureOffset(inputTex1, vec3(tcoordVSOutput, zPos), ivec3(0,0,-1)).r;\n"
-      "  dz = inputScale*0.5*dz/spacing.z;\n";
+      "  dz = inputScale*0.5*dz/spacing.z;\n"
       "  gl_FragData[0] = vec4(dx, dy, dz, 1.0);\n"
       "}\n";
     }
