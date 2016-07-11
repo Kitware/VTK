@@ -689,12 +689,12 @@ public:
     friend class vtkDataSetAttributes;
 
   protected:
-    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
-    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
-
     void SetFieldIndex(int i, int index)
       { this->FieldIndices[i] = index; }
   private:
+    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
+    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
+
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
     void ClearFields();
