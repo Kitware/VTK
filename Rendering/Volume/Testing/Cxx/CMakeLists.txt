@@ -54,6 +54,7 @@ endif()
 set (VolumeOpenGL2CxxTests
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastCameraInsideTransformation.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
