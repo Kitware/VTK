@@ -1,3 +1,8 @@
+if(BUILD_SHARED_LIBS)
+  set(HDF5_USE_STATIC_LIBS FALSE)
+else()
+  set(HDF5_USE_STATIC_LIBS ON)
+endif()
 vtk_module(vtkhdf5
   DEPENDS
     vtkzlib

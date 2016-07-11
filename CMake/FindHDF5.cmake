@@ -3,7 +3,7 @@
 # (BUG #0014363).
 
 # include the default FindHDF5.cmake.
-if(CMAKE_VERSION VERSION_LESS 3.6.0)
+if(CMAKE_VERSION VERSION_LESS 3.6.1)
   include(${CMAKE_CURRENT_LIST_DIR}/NewCMake/FindHDF5.cmake)
 else()
   include(${CMAKE_ROOT}/Modules/FindHDF5.cmake)
