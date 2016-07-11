@@ -51,7 +51,6 @@ struct simPoint
 {
   vtkIdType id;
   double pt[3];
-  int concave;
 };
 
 struct simPolygon
