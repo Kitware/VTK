@@ -13,12 +13,16 @@
 
 =========================================================================*/
 // .NAME vtkEllipseArcSource - create an elliptical arc
+
 // .SECTION Description
 // vtkEllipseArcSource is a source object that creates an elliptical arc
 // defined by a normal, a center and the major radius vector.
 // You can define an angle to draw only a section of the ellipse. The number of
 // segments composing the polyline is controlled by setting the object
 // resolution.
+
+// .SECTION See Also
+// vtkArcSource
 
 #ifndef vtkEllipseArcSource_h
 #define vtkEllipseArcSource_h

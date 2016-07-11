@@ -12,7 +12,8 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArcSource - create a circular arc between two end points
+// .NAME vtkArcSource - create a circular arc
+
 // .SECTION Description
 // vtkArcSource is a source object that creates an arc defined by two
 // endpoints and a center. The number of segments composing the polyline
@@ -28,6 +29,9 @@
 // and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique,
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
 // by Philippe Pebay, Kitware SAS 2012.
+
+// .SECTION See Also
+// vtkEllipseArcSource
 
 #ifndef vtkArcSource_h
 #define vtkArcSource_h
