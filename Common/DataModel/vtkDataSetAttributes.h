@@ -689,8 +689,8 @@ public:
     friend class vtkDataSetAttributes;
 
   protected:
-    FieldList(const FieldList&) {} //prevent these methods from being used
-    void operator=(const FieldList&) {}
+    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
+    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
 
     void SetFieldIndex(int i, int index)
       { this->FieldIndices[i] = index; }
