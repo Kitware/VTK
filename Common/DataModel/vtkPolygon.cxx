@@ -242,8 +242,9 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
 bool vtkPolygon::IsConvex(int numPts, vtkIdType *pts, vtkPoints *p)
 {
   int i;
-  double v[3][3], *v0=v[0], *v1=v[1], *v2=v[2], *tmp, a[3], b[3];
-  double n[2][3] = {{0.,0.,0.},{0.,0.,0.}}, *n1=n[0], *n2=n[1];
+  double v[3][3], *v0=v[0], *v1=v[1], *v2=v[2], *tmp, a[3], aMag, b[3], bMag;
+  double n[3] = {0.,0.,0.}, ni[3] = {0.,0.,0.};
+  bool n_computed = false;
 
   if ( numPts < 3 )
     {
@@ -285,12 +286,22 @@ bool vtkPolygon::IsConvex(int numPts, vtkIdType *pts, vtkPoints *p)
     // order is important!!! to maintain consistency with polygon vertex order
     a[0] = v2[0] - v1[0]; a[1] = v2[1] - v1[1]; a[2] = v2[2] - v1[2];
     b[0] = v0[0] - v1[0]; b[1] = v0[1] - v1[1]; b[2] = v0[2] - v1[2];
-    tmp = n1;
-    n1 = n2;
-    n2 = tmp;
-    vtkMath::Cross(a,b,n2);
 
-    if (i != 0 && vtkMath::Dot(n1,n2) < 0.)
+    if (!n_computed)
+      {
+      aMag = vtkMath::Norm(a);
+      bMag = vtkMath::Norm(b);
+      if (aMag > VTK_DBL_EPSILON && bMag > VTK_DBL_EPSILON)
+        {
+        vtkMath::Cross(a,b,n);
+        n_computed =
+          vtkMath::Norm(n) > VTK_DBL_EPSILON*(aMag < bMag ? bMag : aMag);
+        }
+      continue;
+      }
+
+    vtkMath::Cross(a,b,ni);
+    if (vtkMath::Norm(ni) > VTK_DBL_EPSILON && vtkMath::Dot(n,ni) < 0.)
       {
       return false;
       }

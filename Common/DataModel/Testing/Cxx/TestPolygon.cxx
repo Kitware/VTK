@@ -104,6 +104,61 @@ int TestPolygon(int,char *[])
     }
   }
 
+  // Next, create an element with a colinear point and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 1.0, 1.0, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+    {
+    idArray->InsertNextValue(i);
+    }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
+                                     polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+    {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+    }
+  }
+
+
+  // Finally, create an element with a degenerate point and test it.
+  {
+  polygon->GetPoints()->SetPoint(3, 2.0, 2.0, 0.0);
+
+  vtkIdType idTypeArray[4] = {0,1,2,3};
+
+  vtkSmartPointer<vtkIdTypeArray> idArray =
+    vtkSmartPointer<vtkIdTypeArray>::New();
+  for(int i = 0; i < polygon->GetNumberOfPoints(); i++)
+    {
+    idArray->InsertNextValue(i);
+    }
+
+  bool convex;
+  convex = polygon->IsConvex();
+  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
+                                     polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints());
+
+  if (!convex)
+    {
+    cerr << "ERROR:  polygon should be classified as convex" << endl;
+    return EXIT_FAILURE;
+    }
+  }
+
   // return the element to its original state.
   polygon->GetPoints()->SetPoint(3, 0.0, 2.0, 0.0);
 

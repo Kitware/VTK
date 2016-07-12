@@ -35,6 +35,8 @@ enum Shape
   dodecahedron,
   u_shape,
   cube,
+  colinear_cube,
+  degenerate_cube,
   convex_pyramid,
   nonconvex_pyramid
 };
@@ -185,6 +187,98 @@ bool IsConvex(Shape shape)
       polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
       }
     }
+  else if (shape == colinear_cube)
+    {
+    // create a cube with two rectangles comprising one of the faces.
+    const int nPoints = 10;
+    const int nFaces = 7;
+
+    double cubeShapePoint[nPoints][3] = {{.5,   .5,  .5},
+                                         {0.,   .5,  .5},
+                                         {-.5,  .5,  .5},
+                                         {-.5, -.5,  .5},
+                                         {.5,  -.5,  .5},
+                                         {.5,   .5, -.5},
+                                         {0.,   .5, -.5},
+                                         {-.5,  .5, -.5},
+                                         {-.5, -.5, -.5},
+                                         {.5,  -.5, -.5}};
+
+    polyhedronPoints->SetNumberOfPoints(nPoints);
+    for (int i = 0; i < nPoints; i++)
+      {
+      polyhedronPoints->SetPoint(i,cubeShapePoint[i]);
+      polyhedronPointsIds.push_back(i);
+      }
+
+    vtkIdType f1[5] = {0, 1, 2, 3, 4};
+    vtkIdType f2[5] = {9, 8, 7, 6, 5};
+    vtkIdType f3[4] = {0, 4, 9, 5};
+    vtkIdType f4[4] = {7, 2, 1, 6};
+    vtkIdType f5[4] = {5, 6, 1, 0};
+    vtkIdType f6[4] = {8, 3, 2, 7};
+    vtkIdType f7[4] = {9, 4, 3, 8};
+
+    vtkIdType* cubeShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6, f7};
+
+    for (int i = 0; i < nFaces; i++)
+      {
+      if (i < 2)
+        {
+        polyhedronFaces->InsertNextCell(5,cubeShapeFace[i]);
+        }
+      else
+        {
+        polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
+        }
+      }
+    }
+  else if (shape == degenerate_cube)
+    {
+    // create a cube with two degenerate points.
+    const int nPoints = 10;
+    const int nFaces = 7;
+
+    double cubeShapePoint[nPoints][3] = {{.5,   .5,  .5},
+                                         {.5,   .5,  .5},
+                                         {-.5,  .5,  .5},
+                                         {-.5, -.5,  .5},
+                                         {.5,  -.5,  .5},
+                                         {.5,   .5, -.5},
+                                         {.5,   .5, -.5},
+                                         {-.5,  .5, -.5},
+                                         {-.5, -.5, -.5},
+                                         {.5,  -.5, -.5}};
+
+    polyhedronPoints->SetNumberOfPoints(nPoints);
+    for (int i = 0; i < nPoints; i++)
+      {
+      polyhedronPoints->SetPoint(i,cubeShapePoint[i]);
+      polyhedronPointsIds.push_back(i);
+      }
+
+    vtkIdType f1[5] = {0, 1, 2, 3, 4};
+    vtkIdType f2[5] = {9, 8, 7, 6, 5};
+    vtkIdType f3[4] = {0, 4, 9, 5};
+    vtkIdType f4[4] = {7, 2, 1, 6};
+    vtkIdType f5[4] = {5, 6, 1, 0};
+    vtkIdType f6[4] = {8, 3, 2, 7};
+    vtkIdType f7[4] = {9, 4, 3, 8};
+
+    vtkIdType* cubeShapeFace[nFaces] = {f1,f2,f3,f4,f5,f6, f7};
+
+    for (int i = 0; i < nFaces; i++)
+      {
+      if (i < 2)
+        {
+        polyhedronFaces->InsertNextCell(5,cubeShapeFace[i]);
+        }
+      else
+        {
+        polyhedronFaces->InsertNextCell(4,cubeShapeFace[i]);
+        }
+      }
+    }
   else if (shape == convex_pyramid)
     {
     // create a simple convex pyramid
@@ -284,6 +378,18 @@ int TestPolyhedronConvexity(int argc, char* argv[])
   if (IsConvex(cube) != true)
     {
     cerr << "convex cube incorrectly classified as non-convex" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  if (IsConvex(colinear_cube) != true)
+    {
+    cerr << "convex colinear cube incorrectly classified as non-convex" << std::endl;
+    return EXIT_FAILURE;
+    }
+
+  if (IsConvex(degenerate_cube) != true)
+    {
+    cerr << "convex degenerate cube incorrectly classified as non-convex" << std::endl;
     return EXIT_FAILURE;
     }
 
