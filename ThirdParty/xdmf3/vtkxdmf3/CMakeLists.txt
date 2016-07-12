@@ -192,7 +192,7 @@ if(XDMF_WRAP_PYTHON)
         PARENT_SCOPE)
     endif()
 
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${python_name}.py
+    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${python_name}.py
       DESTINATION lib/python)
     install(TARGETS ${SWIG_MODULE_${python_name}Python_REAL_NAME}
       DESTINATION lib/python)

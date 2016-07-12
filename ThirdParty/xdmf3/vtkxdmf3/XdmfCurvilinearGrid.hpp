@@ -221,6 +221,7 @@ public:
    * @return    The geometry associated with this grid.
    */
   shared_ptr<XdmfGeometry> getGeometry();
+  using XdmfGrid::getGeometry;
 
   virtual void read();
 
