@@ -15,7 +15,8 @@ reader.Update()
 
 tree = vtk.vtkSpanSpace()
 
-contour = vtk.vtkSMPContourGrid()
+#contour = vtk.vtkSMPContourGrid()
+contour = vtk.vtkContourGrid()
 contour.SetInputConnection(reader.GetOutputPort())
 contour.SetInputArrayToProcess(0, 0, 0, vtk.vtkAssignAttribute.POINT_DATA, "CH4")
 contour.SetValue(0, 0.000718448)
@@ -26,6 +27,7 @@ contour.Update()
 
 mapper = vtk.vtkCompositePolyDataMapper2()
 mapper.SetInputConnection(contour.GetOutputPort())
+mapper.ScalarVisibilityOff()
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
