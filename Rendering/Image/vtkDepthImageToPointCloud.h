@@ -161,8 +161,8 @@ protected:
   virtual int FillOutputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&); VTK_DELETE_FUNCTION;
-  void operator=(const vtkDepthImageToPointCloud&); VTK_DELETE_FUNCTION;
+  vtkDepthImageToPointCloud(const vtkDepthImageToPointCloud&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthImageToPointCloud&) VTK_DELETE_FUNCTION;
 
 };
 
