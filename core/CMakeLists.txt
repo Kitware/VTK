@@ -236,6 +236,11 @@ file(GLOB_RECURSE
   "*.hpp" "*.tpp" "*.i"
   "../CMake/VersionSuite/*.hpp")
 file(GLOB LokiHeaders loki/*.h)
+
+set(XdmfCoreHeaders
+      ${XdmfCoreHeaders}
+      ${CMAKE_CURRENT_BINARY_DIR}/XdmfCoreConfig.hpp)
+
 install(FILES ${XdmfCoreHeaders} DESTINATION include)
 install(FILES ${LokiHeaders} DESTINATION include/loki)
 install(TARGETS XdmfCore
