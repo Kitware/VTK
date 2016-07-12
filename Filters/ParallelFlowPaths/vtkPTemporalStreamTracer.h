@@ -115,8 +115,8 @@ public:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&);  // Not implemented.
-  void operator=(const vtkPTemporalStreamTracer&);  // Not implemented.
+  vtkPTemporalStreamTracer(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPTemporalStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

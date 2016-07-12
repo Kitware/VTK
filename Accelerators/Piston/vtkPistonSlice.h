@@ -58,8 +58,8 @@ protected:
   vtkPlane* Plane;
 
 private:
-  vtkPistonSlice(const vtkPistonSlice&);  // Not implemented.
-  void operator=(const vtkPistonSlice&);  // Not implemented.
+  vtkPistonSlice(const vtkPistonSlice&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonSlice&) VTK_DELETE_FUNCTION;
 
 };
 

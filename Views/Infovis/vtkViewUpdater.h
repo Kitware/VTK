@@ -51,8 +51,8 @@ protected:
   ~vtkViewUpdater();
 
 private:
-  vtkViewUpdater(const vtkViewUpdater&);  // Not implemented.
-  void operator=(const vtkViewUpdater&);  // Not implemented.
+  vtkViewUpdater(const vtkViewUpdater&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewUpdater&) VTK_DELETE_FUNCTION;
 
   class vtkViewUpdaterInternals;
   vtkViewUpdaterInternals* Internals;

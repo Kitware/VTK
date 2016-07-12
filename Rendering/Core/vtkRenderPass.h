@@ -117,8 +117,8 @@ class VTKRENDERINGCORE_EXPORT vtkRenderPass : public vtkObject
   int NumberOfRenderedProps;
 
  private:
-  vtkRenderPass(const vtkRenderPass&);  // Not implemented.
-  void operator=(const vtkRenderPass&);  // Not implemented.
+  vtkRenderPass(const vtkRenderPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

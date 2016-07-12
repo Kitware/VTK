@@ -111,8 +111,8 @@ protected:
                       vtkIdType npts, vtkIdType *pts);
 
 private:
-  vtkPolyDataPointSampler(const vtkPolyDataPointSampler&);  // Not implemented.
-  void operator=(const vtkPolyDataPointSampler&);  // Not implemented.
+  vtkPolyDataPointSampler(const vtkPolyDataPointSampler&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataPointSampler&) VTK_DELETE_FUNCTION;
 };
 
 #endif

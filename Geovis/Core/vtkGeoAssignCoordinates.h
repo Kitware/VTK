@@ -92,8 +92,8 @@ private:
   bool CoordinatesInArrays;
   vtkAbstractTransform* Transform;
 
-  vtkGeoAssignCoordinates(const vtkGeoAssignCoordinates&);  // Not implemented.
-  void operator=(const vtkGeoAssignCoordinates&);  // Not implemented.
+  vtkGeoAssignCoordinates(const vtkGeoAssignCoordinates&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoAssignCoordinates&) VTK_DELETE_FUNCTION;
 };
 
 #endif

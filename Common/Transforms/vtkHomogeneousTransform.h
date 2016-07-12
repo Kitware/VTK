@@ -96,8 +96,8 @@ protected:
   vtkMatrix4x4 *Matrix;
 
 private:
-  vtkHomogeneousTransform(const vtkHomogeneousTransform&);  // Not implemented.
-  void operator=(const vtkHomogeneousTransform&);  // Not implemented.
+  vtkHomogeneousTransform(const vtkHomogeneousTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHomogeneousTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

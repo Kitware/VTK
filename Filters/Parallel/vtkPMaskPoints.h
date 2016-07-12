@@ -50,8 +50,8 @@ protected:
 
   vtkMultiProcessController* Controller;
 private:
-  vtkPMaskPoints(const vtkPMaskPoints&);  // Not implemented.
-  void operator=(const vtkPMaskPoints&);  // Not implemented.
+  vtkPMaskPoints(const vtkPMaskPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPMaskPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

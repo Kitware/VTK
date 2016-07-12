@@ -381,8 +381,8 @@ protected:
   virtual int SafeLoadExtension(const char *name);
 
 private:
-  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
-  void operator=(const vtkOpenGLExtensionManager&); // Not implemented
+  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
 
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
 

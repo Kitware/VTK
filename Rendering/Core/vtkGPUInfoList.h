@@ -70,8 +70,8 @@ protected:
   vtkGPUInfoListArray *Array;
 
 private:
-  vtkGPUInfoList(const vtkGPUInfoList&); // Not implemented.
-  void operator=(const vtkGPUInfoList&); // Not implemented.
+  vtkGPUInfoList(const vtkGPUInfoList&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGPUInfoList&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -370,8 +370,8 @@ protected:
   int NumberOfFrames;
 
 private:
-  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &); // Not implemented.
-  void operator=(const vtkScatterPlotMatrix &); // Not implemented.
+  vtkScatterPlotMatrix(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScatterPlotMatrix &) VTK_DELETE_FUNCTION;
 
   class PIMPL;
   PIMPL *Private;

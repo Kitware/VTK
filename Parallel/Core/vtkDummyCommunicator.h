@@ -52,8 +52,8 @@ protected:
   virtual ~vtkDummyCommunicator();
 
 private:
-  vtkDummyCommunicator(const vtkDummyCommunicator &);   // Not implemented
-  void operator=(const vtkDummyCommunicator &);         // Not implemented
+  vtkDummyCommunicator(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDummyCommunicator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkDummyCommunicator_h

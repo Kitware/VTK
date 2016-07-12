@@ -41,8 +41,8 @@ protected:
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
 
 private:
-  vtkPolygonsPainter(const vtkPolygonsPainter&); // Not implemented.
-  void operator=(const vtkPolygonsPainter&); // Not implemented.
+  vtkPolygonsPainter(const vtkPolygonsPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolygonsPainter&) VTK_DELETE_FUNCTION;
 
 };
 

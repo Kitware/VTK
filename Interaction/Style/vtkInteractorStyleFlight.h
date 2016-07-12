@@ -155,8 +155,8 @@ protected:
   CPIDControl  *PID_Pitch;
 
 private:
-  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
-  void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
+  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

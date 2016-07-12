@@ -257,8 +257,8 @@ protected:
     std::vector<int> BlockMap;
 
 private:
-  vtkAMRBaseReader( const vtkAMRBaseReader& ); // Not implemented
-  void operator=( const vtkAMRBaseReader& ); // Not implemented
+  vtkAMRBaseReader( const vtkAMRBaseReader& ) VTK_DELETE_FUNCTION;
+  void operator=( const vtkAMRBaseReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRBaseReader_h */

@@ -64,8 +64,8 @@ protected:
   FT_Error CreateFTCManager();
 
 private:
-  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &); // Not implemented.
-  void operator=(const vtkFontConfigFreeTypeTools &);   // Not implemented.
+  vtkFontConfigFreeTypeTools(const vtkFontConfigFreeTypeTools &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFontConfigFreeTypeTools &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkFontConfigFreeTypeTools_h

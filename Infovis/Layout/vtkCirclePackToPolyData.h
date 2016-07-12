@@ -63,8 +63,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&);  // Not implemented.
-  void operator=(const vtkCirclePackToPolyData&);  // Not implemented.
+  vtkCirclePackToPolyData(const vtkCirclePackToPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCirclePackToPolyData&) VTK_DELETE_FUNCTION;
   void CreateCircle(const double& x,
                     const double& y,
                     const double& z,

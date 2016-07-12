@@ -504,23 +504,27 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin && this->Handle)
+  if (rwin)
     {
+    // Ensure that the context is current before releasing any graphics
+    // resources tied to it.
     rwin->MakeCurrent();
-
-    rwin->ActivateTexture(this);
-    this->UnBind();
-    rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
-    this->Handle = 0;
-    this->NumberOfDimensions = 0;
-    this->Target =0;
-    this->InternalFormat = 0;
-    this->Format = 0;
-    this->Type = 0;
-    this->Components = 0;
-    this->Width = this->Height = this->Depth = 0;
+    if (this->Handle)
+      {
+      rwin->ActivateTexture(this);
+      this->UnBind();
+      rwin->DeactivateTexture(this);
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->Handle = 0;
+      this->NumberOfDimensions = 0;
+      this->Target =0;
+      this->InternalFormat = 0;
+      this->Format = 0;
+      this->Type = 0;
+      this->Components = 0;
+      this->Width = this->Height = this->Depth = 0;
+      }
     }
   if (this->ShaderProgram)
     {
@@ -745,6 +749,88 @@ void vtkTextureObject::SetInternalFormat(unsigned int glInternalFormat)
 }
 
 //----------------------------------------------------------------------------
+static int vtkGetVTKType(GLenum gltype)
+{
+   // DON'T DEAL with VTK_CHAR as this is platform dependent.
+  switch (gltype)
+    {
+  case GL_BYTE:
+    return VTK_SIGNED_CHAR;
+
+  case GL_UNSIGNED_BYTE:
+    return VTK_UNSIGNED_CHAR;
+
+  case GL_SHORT:
+    return VTK_SHORT;
+
+  case GL_UNSIGNED_SHORT:
+    return VTK_UNSIGNED_SHORT;
+
+  case GL_INT:
+    return VTK_INT;
+
+  case GL_UNSIGNED_INT:
+    return VTK_UNSIGNED_INT;
+
+  case GL_FLOAT:
+    return VTK_FLOAT;
+    }
+
+  return 0;
+}
+
+void vtkTextureObject::GetShiftAndScale(float &shift, float &scale)
+{
+  shift = 1.0;
+  scale = 1.0;
+
+  // check to see if this is an int format
+  GLenum iresult = this->Context->GetDefaultTextureInternalFormat(
+    vtkGetVTKType(this->Type), this->Components, true, false);
+
+  // using an int texture format, no shift scale
+  if (iresult == this->InternalFormat)
+    {
+    return;
+    }
+
+  // for all float type internal formats
+  switch (this->Type)
+    {
+    case GL_BYTE:
+      scale = (VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN)/2.0;
+      shift = scale + VTK_SIGNED_CHAR_MIN;
+      break;
+    case GL_UNSIGNED_BYTE:
+      scale = VTK_UNSIGNED_CHAR_MAX;
+      shift = 0.0;
+      break;
+    case GL_SHORT:
+      // this may be off a tad
+      scale = (VTK_SHORT_MAX - VTK_SHORT_MIN)/2.0;
+      shift = scale + VTK_SHORT_MIN;
+      break;
+    case GL_UNSIGNED_SHORT:
+      scale = VTK_UNSIGNED_SHORT_MAX;
+      shift = 0.0;
+      break;
+    case GL_INT:
+      // this may be off a tad
+      scale = (1.0*VTK_INT_MAX - VTK_INT_MIN)/2.0;
+      shift = scale + VTK_INT_MIN;
+      break;
+    case GL_UNSIGNED_INT:
+      scale = VTK_UNSIGNED_INT_MAX;
+      shift = 0.0;
+      break;
+    case GL_FLOAT:
+    default:
+      break;
+    }
+}
+
+
+//----------------------------------------------------------------------------
 unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
                                          bool shaderSupportsTextureInt)
 {
@@ -846,59 +932,28 @@ int vtkTextureObject::GetDefaultDataType(int vtk_scalar_type)
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
   switch (vtk_scalar_type)
     {
-  case VTK_SIGNED_CHAR:
-    return GL_BYTE;
+    case VTK_SIGNED_CHAR:
+      return GL_BYTE;
 
-  case VTK_UNSIGNED_CHAR:
-    return GL_UNSIGNED_BYTE;
+    case VTK_UNSIGNED_CHAR:
+      return GL_UNSIGNED_BYTE;
 
-  case VTK_SHORT:
-    return GL_SHORT;
+    case VTK_SHORT:
+      return GL_SHORT;
 
-  case VTK_UNSIGNED_SHORT:
-    return GL_UNSIGNED_SHORT;
+    case VTK_UNSIGNED_SHORT:
+      return GL_UNSIGNED_SHORT;
 
-  case VTK_INT:
-    return GL_INT;
+    case VTK_INT:
+      return GL_INT;
 
-  case VTK_UNSIGNED_INT:
-    return GL_UNSIGNED_INT;
+    case VTK_UNSIGNED_INT:
+      return GL_UNSIGNED_INT;
 
-  case VTK_FLOAT:
-  case VTK_VOID: // used for depth component textures.
-    return GL_FLOAT;
+    case VTK_FLOAT:
+    case VTK_VOID: // used for depth component textures.
+      return GL_FLOAT;
     }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-static int vtkGetVTKType(GLenum gltype)
-{
-   // DON'T DEAL with VTK_CHAR as this is platform dependent.
-  switch (gltype)
-    {
-  case GL_BYTE:
-    return VTK_SIGNED_CHAR;
-
-  case GL_UNSIGNED_BYTE:
-    return VTK_UNSIGNED_CHAR;
-
-  case GL_SHORT:
-    return VTK_SHORT;
-
-  case GL_UNSIGNED_SHORT:
-    return VTK_UNSIGNED_SHORT;
-
-  case GL_INT:
-    return VTK_INT;
-
-  case GL_UNSIGNED_INT:
-    return VTK_UNSIGNED_INT;
-
-  case GL_FLOAT:
-    return VTK_FLOAT;
-    }
-
   return 0;
 }
 

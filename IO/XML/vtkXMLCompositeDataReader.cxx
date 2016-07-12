@@ -18,6 +18,7 @@
 #include "vtkCompositeDataSet.h"
 #include "vtkDataArraySelection.h"
 #include "vtkDataSet.h"
+#include "vtkEventForwarderCommand.h"
 #include "vtkHierarchicalBoxDataSet.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
@@ -25,6 +26,7 @@
 #include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkMultiBlockDataSet.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkSmartPointer.h"
 #include "vtkUniformGrid.h"
@@ -185,6 +187,16 @@ vtkXMLReader* vtkXMLCompositeDataReader::GetReaderOfType(const char* type)
     }
   if (reader)
     {
+    if (this->GetParserErrorObserver())
+      {
+      reader->SetParserErrorObserver(this->GetParserErrorObserver());
+      }
+    if (this->HasObserver("ErrorEvent"))
+      {
+      vtkNew<vtkEventForwarderCommand> fwd;
+      fwd->SetTarget(this);
+      reader->AddObserver("ErrorEvent", fwd.GetPointer());
+      }
     this->Internal->Readers[type] = reader;
     reader->Delete();
     }

@@ -85,8 +85,8 @@ private:
   static vtkDebugLeaksObserver* Observer;
   static int ExitError;
 
-  vtkDebugLeaks(const vtkDebugLeaks&);  // Not implemented.
-  void operator=(const vtkDebugLeaks&);  // Not implemented.
+  vtkDebugLeaks(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDebugLeaks&) VTK_DELETE_FUNCTION;
 };
 
 // This class defines callbacks for debugging tools. The callbacks are not for general use.

@@ -222,8 +222,8 @@ protected:
   vtkLeaderActor2D    *HYAxis;
 
 private:
-  vtkAffineRepresentation2D(const vtkAffineRepresentation2D&);  //Not implemented
-  void operator=(const vtkAffineRepresentation2D&);  //Not implemented
+  vtkAffineRepresentation2D(const vtkAffineRepresentation2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAffineRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

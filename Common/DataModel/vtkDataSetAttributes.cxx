@@ -1575,14 +1575,6 @@ int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 }
 
 //--------------------------------------------------------------------------
-void vtkDataSetAttributes::RemoveArray(const char *name)
-{
-  int i;
-  this->GetAbstractArray(name, i);
-  this->RemoveArray(i);
-}
-
-//--------------------------------------------------------------------------
 void vtkDataSetAttributes::CopyAllocate(
   vtkDataSetAttributes::FieldList& list,
   vtkIdType sze, vtkIdType ext)

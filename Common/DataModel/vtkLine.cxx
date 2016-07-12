@@ -54,7 +54,7 @@ int vtkLine::EvaluatePosition(double x[3], double* closestPoint,
   this->Points->GetPoint(0, a1);
   this->Points->GetPoint(1, a2);
 
-  // DistanceToLine sets pcoords[0] to a value t, 0 <= t <= 1
+  // DistanceToLine sets pcoords[0] to a value t
   dist2 = this->DistanceToLine(x,a1,a2,pcoords[0],closestPoint);
 
   // pcoords[0] == t, need weights to be 1-t and t
@@ -90,10 +90,11 @@ void vtkLine::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
 }
 
 //----------------------------------------------------------------------------
-// Performs intersection of two finite 3D lines. An intersection is found if
-// the projection of the two lines onto the plane perpendicular to the cross
-// product of the two lines intersect. The parameters (u,v) are the
-// parametric coordinates of the lines at the position of closest approach.
+// Performs intersection of the projection of two finite 3D lines onto a 2D
+// plane. An intersection is found if the projection of the two lines onto
+// the plane perpendicular to the cross product of the two lines intersect.
+// The parameters (u,v) are the parametric coordinates of the lines at the
+// position of closest approach.
 int vtkLine::Intersection (double a1[3], double a2[3],
                            double b1[3], double b2[3],
                            double& u, double& v)
@@ -126,6 +127,25 @@ int vtkLine::Intersection (double a1[3], double a2[3],
   //  Solve the system of equations
   if ( vtkMath::SolveLinearSystem(A,c,2) == 0 )
     {
+    // The lines are colinear. Therefore, one of the four endpoints is the
+    // point of closest approach
+    double minDist = VTK_DOUBLE_MAX;
+    double* p[4] = {a1,a2,b1,b2};
+    double* l1[4] = {b1,b1,a1,a1};
+    double* l2[4] = {b2,b2,a2,a2};
+    double* uv1[4] = {&v,&v,&u,&u};
+    double* uv2[4] = {&u,&u,&v,&v};
+    double dist,t;
+    for (unsigned i=0;i<4;i++)
+      {
+      dist = vtkLine::DistanceToLine(p[i],l1[i],l2[i],t);
+      if (dist < minDist)
+        {
+        minDist = dist;
+        *(uv1[i]) = t;
+        *(uv2[i]) = static_cast<double>(i%2); // the corresponding extremum
+        }
+      }
     return VTK_ON_LINE;
     }
   else
@@ -143,6 +163,41 @@ int vtkLine::Intersection (double a1[3], double a2[3],
     {
     return VTK_NO_INTERSECTION;
     }
+}
+
+//----------------------------------------------------------------------------
+int vtkLine::Intersection3D(double a1[3], double a2[3],
+                            double b1[3], double b2[3],
+                            double& u, double& v)
+{
+  // Description:
+  // Performs intersection of two finite 3D lines. An intersection is found if
+  // the projection of the two lines onto the plane perpendicular to the cross
+  // product of the two lines intersect, and if the distance between the
+  // closest points of approach are within a relative tolerance. The parameters
+  // (u,v) are the parametric coordinates of the lines at the position of
+  // closest approach.
+  int projectedIntersection = vtkLine::Intersection(a1,a2,b1,b2,u,v);
+
+  if (projectedIntersection == VTK_YES_INTERSECTION)
+    {
+    double a_i,b_i;
+    double lenA = 0.;
+    double lenB = 0.;
+    double dist = 0.;
+    for (unsigned i=0;i<3;i++)
+      {
+      a_i = a1[i] + (a2[i]-a1[i])*u;
+      b_i = b1[i] + (b2[i]-b1[i])*v;
+      lenA += (a2[i]-a1[i])*(a2[i]-a1[i]);
+      lenB += (b2[i]-b1[i])*(b2[i]-b1[i]);
+      dist += (a_i-b_i)*(a_i-b_i);
+      }
+    if (dist > 1.e-6*(lenA > lenB ? lenA : lenB))
+      return VTK_NO_INTERSECTION;
+    }
+
+  return projectedIntersection;
 }
 
 //----------------------------------------------------------------------------
@@ -331,108 +386,33 @@ double vtkLine::DistanceBetweenLineSegments(
 
   if (D < 1e-6)
     {
-
-    // the lines are almost parallel. Where on the line is the closest point.
-    // First check if the lines overlap. If they do, then the distance is
-    // just the distance between the infinite lines..
-
-    double dist;
-
-    dist = vtkLine::DistanceToLine( l0, m0, m1, t2, closestPt2 );
-    if (t2 >= 0.0 && t2 <= 1.0)
+    // The lines are colinear. Therefore, one of the four endpoints is the
+    // point of closest approach
+    double minDist = VTK_DOUBLE_MAX;
+    double* p[4] = {l0,l1,m0,m1};
+    double* a1[4] = {m0,m0,l0,l0};
+    double* a2[4] = {m1,m1,l1,l1};
+    double* uv1[4] = {&t2,&t2,&t1,&t1};
+    double* uv2[4] = {&t1,&t1,&t2,&t2};
+    double* pn1[4] = {closestPt2,closestPt2,closestPt1,closestPt1};
+    double* pn2[4] = {closestPt1,closestPt1,closestPt2,closestPt2};
+    double dist,t,pn_[3];
+    for (unsigned i=0;i<4;i++)
       {
-      t1 = 0.0;
-      closestPt1[0] = l0[0];
-      closestPt1[1] = l0[1];
-      closestPt1[2] = l0[2];
-      return dist;
+      dist = vtkLine::DistanceToLine(p[i],a1[i],a2[i],t,pn_);
+      if (dist < minDist)
+        {
+        minDist = dist;
+        *(uv1[i]) = (t < 0. ? 0. : (t > 1. ? 1. : t));
+        *(uv2[i]) = static_cast<double>(i%2); // the corresponding extremum
+        for (unsigned j=0;j<3;j++)
+          {
+          pn1[i][j] = pn_[j];
+          pn2[i][j] = p[i][j];
+          }
+        }
       }
-
-    dist = vtkLine::DistanceToLine( l1, m0, m1, t2, closestPt2 );
-    if (t2 >= 0.0 && t2 <= 1.0)
-      {
-      t1 = 1.0;
-      closestPt1[0] = l1[0];
-      closestPt1[1] = l1[1];
-      closestPt1[2] = l1[2];
-      return dist;
-      }
-
-    dist = vtkLine::DistanceToLine( m0, l0, l1, t1, closestPt1 );
-    if (t1 >= 0.0 && t1 <= 1.0)
-      {
-      t1 = 0.0;
-      closestPt2[0] = m0[0];
-      closestPt2[1] = m0[1];
-      closestPt2[2] = m0[2];
-      return dist;
-      }
-
-    dist = vtkLine::DistanceToLine( m1, l0, l1, t1, closestPt1 );
-    if (t1 >= 0.0 && t1 <= 1.0)
-      {
-      t1 = 1.0;
-      closestPt2[0] = m1[0];
-      closestPt2[1] = m1[1];
-      closestPt2[2] = m1[2];
-      return dist;
-      }
-
-    // The lines don't overlap.... The shortest distance is the min of the
-    // distance between the end points.
-
-    const double d1 = vtkMath::Distance2BetweenPoints( l0, m0 );
-    const double d2 = vtkMath::Distance2BetweenPoints( l0, m1 );
-    const double d3 = vtkMath::Distance2BetweenPoints( l1, m0 );
-    const double d4 = vtkMath::Distance2BetweenPoints( l1, m1 );
-
-    if (d1 <= d2 && d1 <= d3 && d1 <= d4)
-      {
-      t1 = t2 = 0.0;
-      closestPt1[0] = l0[0];
-      closestPt1[1] = l0[1];
-      closestPt1[2] = l0[2];
-      closestPt2[0] = m0[0];
-      closestPt2[1] = m0[1];
-      closestPt2[2] = m0[2];
-      return d1;
-      }
-    if (d2 <= d1 && d2 <= d3 && d2 <= d4)
-      {
-      t1 = 0.0; t2 = 1.0;
-      closestPt1[0] = l0[0];
-      closestPt1[1] = l0[1];
-      closestPt1[2] = l0[2];
-      closestPt2[0] = m1[0];
-      closestPt2[1] = m1[1];
-      closestPt2[2] = m1[2];
-      return d2;
-      }
-    if (d3 <= d1 && d3 <= d2 && d3 <= d4)
-      {
-      t1 = 1.0; t2 = 0.0;
-      closestPt1[0] = l1[0];
-      closestPt1[1] = l1[1];
-      closestPt1[2] = l1[2];
-      closestPt2[0] = m0[0];
-      closestPt2[1] = m0[1];
-      closestPt2[2] = m0[2];
-      return d3;
-      }
-    if (d4 <= d1 && d4 <= d2 && d4 <= d3)
-      {
-      t1 = t2 = 1.0;
-      closestPt1[0] = l1[0];
-      closestPt1[1] = l1[1];
-      closestPt1[2] = l1[2];
-      closestPt2[0] = m1[0];
-      closestPt2[1] = m1[1];
-      closestPt2[2] = m1[2];
-      return d4;
-      }
-
-    // Can never get here.
-    return 0.0;
+    return minDist;
     }
 
   // The lines aren't parallel.
@@ -875,4 +855,3 @@ void vtkLine::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
-

@@ -95,8 +95,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkTableAlgorithm(const vtkTableAlgorithm&);  // Not implemented.
-  void operator=(const vtkTableAlgorithm&);  // Not implemented.
+  vtkTableAlgorithm(const vtkTableAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

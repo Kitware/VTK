@@ -141,8 +141,8 @@ protected:
   vtkDoubleArray *Scalars;  //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkBiQuadraticQuadraticWedge (const vtkBiQuadraticQuadraticWedge &);  // Not implemented.
-  void operator = (const vtkBiQuadraticQuadraticWedge &);  // Not implemented.
+  vtkBiQuadraticQuadraticWedge (const vtkBiQuadraticQuadraticWedge &) VTK_DELETE_FUNCTION;
+  void operator = (const vtkBiQuadraticQuadraticWedge &) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 // Return the center of the quadratic wedge in parametric coordinates.

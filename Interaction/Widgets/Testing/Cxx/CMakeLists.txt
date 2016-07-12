@@ -48,6 +48,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
   TestProgrammaticPlacement.cxx
+  TestProgressBarWidget.cxx
   TestProp3DButtonRepresentation.cxx,NO_VALID
   TestRectilinearWipeWidget.cxx
   TestResliceCursorWidget2.cxx

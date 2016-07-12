@@ -88,8 +88,8 @@ protected:
 private:
   static vtkOutputWindow* Instance;
 private:
-  vtkOutputWindow(const vtkOutputWindow&);  // Not implemented.
-  void operator=(const vtkOutputWindow&);  // Not implemented.
+  vtkOutputWindow(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -25,6 +25,7 @@
 #include "vtkWindow.h"
 #include "vtkObjectFactory.h"
 
+#include <algorithm>
 #include <cassert>
 
 vtkStandardNewMacro(vtkBorderRepresentation);
@@ -108,6 +109,16 @@ vtkBorderRepresentation::~vtkBorderRepresentation()
   this->BWMapper->Delete();
   this->BWActor->Delete();
   this->BorderProperty->Delete();
+}
+
+//----------------------------------------------------------------------------
+unsigned long int vtkBorderRepresentation::GetMTime()
+{
+  unsigned long mTime = this->Superclass::GetMTime();
+  mTime = std::max(mTime, this->PositionCoordinate->GetMTime());
+  mTime = std::max(mTime, this->Position2Coordinate->GetMTime());
+  mTime = std::max(mTime, this->BorderProperty->GetMTime());
+  return mTime;
 }
 
 //-------------------------------------------------------------------------

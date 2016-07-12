@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   //Description:
   //Get/Set the global origin of the amr data set
@@ -153,8 +153,8 @@ public:
   virtual ~vtkOverlappingAMR();
 
 private:
-  vtkOverlappingAMR(const vtkOverlappingAMR&);  // Not implemented.
-  void operator=(const vtkOverlappingAMR&);  // Not implemented.
+  vtkOverlappingAMR(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

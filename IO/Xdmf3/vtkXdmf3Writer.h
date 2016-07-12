@@ -85,8 +85,8 @@ protected:
   bool WriteAllTimeSteps;
 
 private:
-  vtkXdmf3Writer(const vtkXdmf3Writer&); // Not implemented
-  void operator=(const vtkXdmf3Writer&); // Not implemented
+  vtkXdmf3Writer(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXdmf3Writer&) VTK_DELETE_FUNCTION;
 
   class Internals;
   Internals *Internal;

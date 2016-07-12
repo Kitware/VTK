@@ -251,8 +251,8 @@ protected:
   float  ShadowAttenuation;
 
 private:
-  vtkLight(const vtkLight&);  // Not implemented.
-  void operator=(const vtkLight&);  // Not implemented.
+  vtkLight(const vtkLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

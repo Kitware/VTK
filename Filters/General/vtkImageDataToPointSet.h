@@ -55,8 +55,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkImageDataToPointSet(const vtkImageDataToPointSet &); // Not implemented
-  void operator=(const vtkImageDataToPointSet &);         // Not implemented
+  vtkImageDataToPointSet(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageDataToPointSet &) VTK_DELETE_FUNCTION;
 
   int CopyStructure(vtkStructuredGrid *outData, vtkImageData *inData);
 };

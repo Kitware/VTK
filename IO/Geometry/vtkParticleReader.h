@@ -180,8 +180,8 @@ protected:
   size_t NumberOfPoints;
 
 private:
-  vtkParticleReader(const vtkParticleReader&);  // Not implemented.
-  void operator=(const vtkParticleReader&);  // Not implemented.
+  vtkParticleReader(const vtkParticleReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParticleReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -60,8 +60,8 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&);  // Not implemented.
-  void operator=(const vtkImageContinuousDilate3D&);  // Not implemented.
+  vtkImageContinuousDilate3D(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageContinuousDilate3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

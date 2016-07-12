@@ -1406,6 +1406,7 @@ void vtkStaticPointLocator::BuildLocator()
   // hopefully it is cached or otherwise accelerated.
   //
   bounds = this->DataSet->GetBounds();
+  int numNonZeroWidths = 3;
   for (i=0; i<3; i++)
     {
     this->Bounds[2*i] = bounds[2*i];
@@ -1413,19 +1414,34 @@ void vtkStaticPointLocator::BuildLocator()
     if ( this->Bounds[2*i+1] <= this->Bounds[2*i] ) //prevent zero width
       {
       this->Bounds[2*i+1] = this->Bounds[2*i] + 1.0;
+      numNonZeroWidths--;
       }
     }
 
   if ( this->Automatic )
     {
-    level = static_cast<double>(numPts) / this->NumberOfPointsPerBucket;
-    level = ceil( pow(static_cast<double>(level),
-                      static_cast<double>(0.33333333)));
+    if ( numNonZeroWidths > 0 )
+      {
+      level = static_cast<double>(numPts) / this->NumberOfPointsPerBucket;
+      level = ceil( pow(static_cast<double>(level),
+                        static_cast<double>(1.0/static_cast<double>(numNonZeroWidths))));
+      }
+    else
+      {
+      level = 1; //all points end up in thesame bucket and are concident!
+      }
     for (i=0; i<3; i++)
       {
-      ndivs[i] = static_cast<int>(level);
+      if ( bounds[2*i+1] > bounds[2*i] )
+        {
+        ndivs[i] = static_cast<int>(level);
+        }
+      else
+        {
+        ndivs[i] = 1;
+        }
       }
-    }
+    }//automatic
   else
     {
     for (i=0; i<3; i++)

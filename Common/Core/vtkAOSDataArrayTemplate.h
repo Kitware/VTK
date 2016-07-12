@@ -177,7 +177,7 @@ public:
   }
 
   virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
-  virtual vtkArrayIterator *NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   virtual bool HasStandardMemoryLayout() { return true; }
   virtual void ShallowCopy(vtkDataArray *other);
 
@@ -215,8 +215,8 @@ protected:
   vtkBuffer<ValueType> *Buffer;
 
 private:
-  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.
-  void operator=(const vtkAOSDataArrayTemplate&); // Not implemented.
+  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;

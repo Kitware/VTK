@@ -149,8 +149,8 @@ class VTKFILTERSCORE_EXPORT vtkDataSetEdgeSubdivisionCriterion : public vtkEdgeS
     int ActiveFieldCriteria;
 
   private:
-    vtkDataSetEdgeSubdivisionCriterion( const vtkDataSetEdgeSubdivisionCriterion& ); // Not implemented.
-    void operator = ( const vtkDataSetEdgeSubdivisionCriterion& ); // Not implemented.
+    vtkDataSetEdgeSubdivisionCriterion( const vtkDataSetEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
+    void operator = ( const vtkDataSetEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
 
 };
 

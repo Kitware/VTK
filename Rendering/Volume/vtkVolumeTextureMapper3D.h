@@ -240,8 +240,8 @@ protected:
     }
 
 private:
-  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&);  // Not implemented.
-  void operator=(const vtkVolumeTextureMapper3D&);  // Not implemented.
+  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

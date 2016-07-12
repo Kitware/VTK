@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
 
 #include <cmath>
 #include <cassert>
+#include <cstdlib>
 #include <list>
 #include <string>
 
@@ -315,6 +316,19 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
           vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
                         "GL_VERSION = '" << glVersion << "'; "
                         "GL_RENDERER = '" << glRenderer << "'.");
+          dualDepthPeelingSupported = false;
+          }
+        }
+
+      // The old implemention can be force by defining the environment var
+      // "VTK_USE_LEGACY_DEPTH_PEELING":
+      if (dualDepthPeelingSupported)
+        {
+        const char *forceLegacy = getenv("VTK_USE_LEGACY_DEPTH_PEELING");
+        if (forceLegacy)
+          {
+          vtkDebugMacro("Disabling dual depth peeling -- "
+                        "VTK_USE_LEGACY_DEPTH_PEELING defined in environment.");
           dualDepthPeelingSupported = false;
           }
         }

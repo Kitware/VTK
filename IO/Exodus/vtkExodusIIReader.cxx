@@ -69,12 +69,6 @@
 #  include <malloc.h>
 #endif /* EXODUSII_HAVE_MALLOC_H */
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
-#endif
-
 /// Define this to get printouts summarizing array glomming process
 #undef VTK_DBG_GLOM
 
@@ -3840,17 +3834,25 @@ int vtkExodusIIReaderPrivate::UpdateTimeInformation()
   int exoid = this->Exoid;
   int itmp[5];
   int num_timesteps;
+  int i;
 
   VTK_EXO_FUNC( ex_inquire( exoid, EX_INQ_TIME, itmp, 0, 0 ), "Inquire for EX_INQ_TIME failed" );
   num_timesteps = itmp[0];
 
   this->Times.clear();
-  // If there are zero or one timesteps, then there is only one file containing
-  // the data to be read. So, we treat both instances in the same manner.
-  if ( num_timesteps > 1 )
+  if ( num_timesteps > 0 )
     {
     this->Times.resize( num_timesteps );
-    VTK_EXO_FUNC( ex_get_all_times( this->Exoid, &this->Times[0] ), "Could not retrieve time values." );
+
+    int exo_err = ex_get_all_times( this->Exoid, &this->Times[0] );
+    if ( exo_err < 0)
+      {
+      for ( i = 0; i < num_timesteps; ++i )
+        {
+          this->Times[i] = i;
+        }
+      vtkWarningMacro("Could not retrieve time values, assuming times equal to timesteps");
+      }
     }
   return 0;
 }
@@ -4091,7 +4093,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         blockEntryFileOffset += binfo.Size;
         if (binfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed block ID: %d Type: %s",
+          snprintf( tmpName, 255, "Unnamed block ID: %d Type: %s",
               ids[obj], binfo.TypeName.length() ? binfo.TypeName.c_str() : "NULL");
           binfo.Name = tmpName;
           }
@@ -4221,7 +4223,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         this->GetInitialObjectStatus(obj_types[i], &sinfo);
         if (sinfo.Name.length() == 0)
           {
-          SNPRINTF( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
+          snprintf( tmpName, 255, "Unnamed set ID: %d", ids[obj]);
           sinfo.Name = tmpName;
           }
         sortedObjects[sinfo.Id] = (int) this->SetInfo[obj_types[i]].size();
@@ -4253,7 +4255,7 @@ int vtkExodusIIReaderPrivate::RequestInformation()
         minfo.Name = obj_names[obj];
         if (minfo.Name.length() == 0)
           { // make up a name. FIXME: Possible buffer overflow w/ sprintf
-          SNPRINTF( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
+          snprintf( tmpName, 255, "Unnamed map ID: %d", ids[obj] );
           minfo.Name = tmpName;
           }
         sortedObjects[minfo.Id] = (int) this->MapInfo[obj_types[i]].size();

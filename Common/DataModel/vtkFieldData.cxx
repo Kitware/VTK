@@ -554,6 +554,14 @@ int vtkFieldData::AddArray(vtkAbstractArray *array)
   return index;
 }
 
+//--------------------------------------------------------------------------
+void vtkFieldData::RemoveArray(const char *name)
+{
+  int i;
+  this->GetAbstractArray(name, i);
+  this->RemoveArray(i);
+}
+
 //----------------------------------------------------------------------------
 void vtkFieldData::RemoveArray(int index)
 {

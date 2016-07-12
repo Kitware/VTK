@@ -155,7 +155,7 @@ public:
 
   // Description:
   // Turn on/off the ability to move the widget outside of the bounds
-  // specified in the initial PlaceWidget() invocation.
+  // specified in the PlaceWidget() invocation.
   vtkSetMacro(OutsideBounds,int);
   vtkGetMacro(OutsideBounds,int);
   vtkBooleanMacro(OutsideBounds,int);
@@ -169,13 +169,15 @@ public:
   vtkGetVector6Macro(WidgetBounds, double);
 
   // Description:
-  // Turn on/off whether the center should be constrained to the widget bounds.
-  // If on, the center will not be allowed to move outside the set widget bounds.
-  // If off, the center can be freely moved and the widget outline will change
-  // accordingly. The default is on.
-  vtkSetMacro(ConstrainCenter, int);
-  vtkGetMacro(ConstrainCenter, int);
-  vtkBooleanMacro(ConstrainCenter, int);
+  // Turn on/off whether the cylinder should be constrained to the widget bounds.
+  // If on, the center will not be allowed to move outside the set widget bounds
+  // and the radius will be limited by MinRadius and MaxRadius. This is the
+  // default behaviour.
+  // If off, the center can be freely moved and the radius can be set to
+  // arbitrary values. The widget outline will change accordingly.
+  vtkSetMacro(ConstrainToWidgetBounds, int);
+  vtkGetMacro(ConstrainToWidgetBounds, int);
+  vtkBooleanMacro(ConstrainToWidgetBounds, int);
 
   // Description:
   // Turn on/off the ability to scale the widget with the mouse.
@@ -332,7 +334,7 @@ protected:
   int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
   double WidgetBounds[6];
-  int ConstrainCenter;
+  int ConstrainToWidgetBounds;
 
   // The cut cylinder is produced with a vtkCutter
   vtkPolyData       *Cyl;
@@ -413,8 +415,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&);  //Not implemented
-  void operator=(const vtkImplicitCylinderRepresentation&);  //Not implemented
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

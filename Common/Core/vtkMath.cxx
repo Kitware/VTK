@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "vtkBoxMuellerRandomSequence.h"
@@ -280,36 +281,36 @@ void vtkMath::FreeCombination( int* r )
 }
 
 //----------------------------------------------------------------------------
-// Given a unit vector 'x', find two other unit vectors 'y' and 'z' which
+// Given a unit vector v1, find two other unit vectors v2 and v3 which
 // which form an orthonormal set.
 template<class T1, class T2, class T3>
-inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
+inline void vtkMathPerpendiculars(const T1 v1[3], T2 v2[3], T3 v3[3],
                                   double theta)
 {
-  int dx,dy,dz;
+  int dv1,dv2,dv3;
 
-  double x2 = x[0]*x[0];
-  double y2 = x[1]*x[1];
-  double z2 = x[2]*x[2];
-  double r = sqrt(x2 + y2 + z2);
+  double v1sq = v1[0]*v1[0];
+  double v2sq = v1[1]*v1[1];
+  double v3sq = v1[2]*v1[2];
+  double r = sqrt(v1sq + v2sq + v3sq);
 
   // transpose the vector to avoid divide-by-zero error
-  if (x2 > y2 && x2 > z2)
+  if (v1sq > v2sq && v1sq > v3sq)
     {
-    dx = 0; dy = 1; dz = 2;
+    dv1 = 0; dv2 = 1; dv3 = 2;
     }
-  else if (y2 > z2)
+  else if (v2sq > v3sq)
     {
-    dx = 1; dy = 2; dz = 0;
+    dv1 = 1; dv2 = 2; dv3 = 0;
     }
   else
     {
-    dx = 2; dy = 0; dz = 1;
+    dv1 = 2; dv2 = 0; dv3 = 1;
     }
 
-  double a = x[dx]/r;
-  double b = x[dy]/r;
-  double c = x[dz]/r;
+  double a = v1[dv1]/r;
+  double b = v1[dv2]/r;
+  double c = v1[dv3]/r;
 
   double tmp = sqrt(a*a+c*c);
 
@@ -318,48 +319,48 @@ inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
     double sintheta = sin(theta);
     double costheta = cos(theta);
 
-    if (y)
+    if (v2)
       {
-      y[dx] = (c*costheta - a*b*sintheta)/tmp;
-      y[dy] = sintheta*tmp;
-      y[dz] = (-a*costheta - b*c*sintheta)/tmp;
+      v2[dv1] = (c*costheta - a*b*sintheta)/tmp;
+      v2[dv2] = sintheta*tmp;
+      v2[dv3] = (-a*costheta - b*c*sintheta)/tmp;
       }
 
-    if (z)
+    if (v3)
       {
-      z[dx] = (-c*sintheta - a*b*costheta)/tmp;
-      z[dy] = costheta*tmp;
-      z[dz] = (a*sintheta - b*c*costheta)/tmp;
+      v3[dv1] = (-c*sintheta - a*b*costheta)/tmp;
+      v3[dv2] = costheta*tmp;
+      v3[dv3] = (a*sintheta - b*c*costheta)/tmp;
       }
     }
   else
     {
-    if (y)
+    if (v2)
       {
-      y[dx] = c/tmp;
-      y[dy] = 0;
-      y[dz] = -a/tmp;
+      v2[dv1] = c/tmp;
+      v2[dv2] = 0;
+      v2[dv3] = -a/tmp;
       }
 
-    if (z)
+    if (v3)
       {
-      z[dx] = -a*b/tmp;
-      z[dy] = tmp;
-      z[dz] = -b*c/tmp;
+      v3[dv1] = -a*b/tmp;
+      v3[dv2] = tmp;
+      v3[dv3] = -b*c/tmp;
       }
     }
 }
 
-void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
+void vtkMath::Perpendiculars(const double v1[3], double v2[3], double v3[3],
                              double theta)
 {
-  vtkMathPerpendiculars(x, y, z, theta);
+  vtkMathPerpendiculars(v1, v2, v3, theta);
 }
 
-void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
+void vtkMath::Perpendiculars(const float v1[3], float v2[3], float v3[3],
                              double theta)
 {
-  vtkMathPerpendiculars(x, y, z, theta);
+  vtkMathPerpendiculars(v1, v2, v3, theta);
 }
 
 #define VTK_SMALL_NUMBER 1.0e-12
@@ -378,7 +379,9 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 
     det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
 
-    if (det == 0.0)
+    static const double eps = 256*std::numeric_limits<double>::epsilon();
+
+    if (std::fabs(det) < eps)
       {
       // Unable to solve linear system
       return 0;

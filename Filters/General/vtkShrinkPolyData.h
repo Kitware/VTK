@@ -61,8 +61,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   double ShrinkFactor;
 private:
-  vtkShrinkPolyData(const vtkShrinkPolyData&);  // Not implemented.
-  void operator=(const vtkShrinkPolyData&);  // Not implemented.
+  vtkShrinkPolyData(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShrinkPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

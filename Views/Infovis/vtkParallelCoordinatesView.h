@@ -145,8 +145,8 @@ protected:
 
 
 private:
-  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&); // Not implemented
-  void operator=(const vtkParallelCoordinatesView&); // Not implemented
+  vtkParallelCoordinatesView(const vtkParallelCoordinatesView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelCoordinatesView&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -151,8 +151,8 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkSQLiteQuery(const vtkSQLiteQuery &); // Not implemented.
-  void operator=(const vtkSQLiteQuery &); // Not implemented.
+  vtkSQLiteQuery(const vtkSQLiteQuery &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLiteQuery &) VTK_DELETE_FUNCTION;
 
   vtk_sqlite3_stmt *Statement;
   bool InitialFetch;

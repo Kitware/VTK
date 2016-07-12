@@ -240,7 +240,7 @@ public:
 
   // Description:
   // Returns a vtkArrayIteratorTemplate<vtkStdString>.
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   // Description:
   // Returns the size of the data in DataTypeSize units. Thus, the number of bytes
@@ -290,8 +290,8 @@ protected:
   int SaveUserArray;
 
 private:
-  vtkStringArray(const vtkStringArray&);  // Not implemented.
-  void operator=(const vtkStringArray&);  // Not implemented.
+  vtkStringArray(const vtkStringArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStringArray&) VTK_DELETE_FUNCTION;
 
   vtkStringArrayLookup* Lookup;
   void UpdateLookup();

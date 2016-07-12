@@ -256,14 +256,11 @@ private:
   unsigned int NumberOfTables;
   vtkOpenGLVolumeOpacityTable *Tables;
 
-  // vtkOpenGLVolumeOpacityTables (Not implemented)
-  vtkOpenGLVolumeOpacityTables();
+  vtkOpenGLVolumeOpacityTables() VTK_DELETE_FUNCTION;
 
-  // vtkOpenGLVolumeOpacityTables (Not implemented)
-  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other);
+  vtkOpenGLVolumeOpacityTables(const vtkOpenGLVolumeOpacityTables &other) VTK_DELETE_FUNCTION;
 
-  // operator = (Not implemented)
-  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other);
+  vtkOpenGLVolumeOpacityTables &operator=(const vtkOpenGLVolumeOpacityTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeOpacityTable_h

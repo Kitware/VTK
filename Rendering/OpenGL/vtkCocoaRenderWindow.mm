@@ -746,7 +746,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[vtkCocoaFullScreenWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSBorderlessWindowMask
+                             styleMask:NSWindowStyleMaskBorderless
                                backing:NSBackingStoreBuffered
                                  defer:NO];
 
@@ -775,10 +775,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[NSWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSTitledWindowMask |
-                                       NSClosableWindowMask |
-                                       NSMiniaturizableWindowMask |
-                                       NSResizableWindowMask
+                             styleMask:NSWindowStyleMaskTitled |
+                                       NSWindowStyleMaskClosable |
+                                       NSWindowStyleMaskMiniaturizable |
+                                       NSWindowStyleMaskResizable
                                backing:NSBackingStoreBuffered
                                  defer:NO];
       }

@@ -88,8 +88,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkAreaContourSpectrumFilter(const vtkAreaContourSpectrumFilter&); // Not implemented.
-  void operator=(const vtkAreaContourSpectrumFilter&); // Not implemented.
+  vtkAreaContourSpectrumFilter(const vtkAreaContourSpectrumFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAreaContourSpectrumFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

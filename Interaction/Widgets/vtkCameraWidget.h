@@ -70,8 +70,8 @@ protected:
   virtual void SelectRegion(double eventPos[2]);
 
 private:
-  vtkCameraWidget(const vtkCameraWidget&);  //Not implemented
-  void operator=(const vtkCameraWidget&);  //Not implemented
+  vtkCameraWidget(const vtkCameraWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCameraWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -69,8 +69,8 @@ protected:
   std::string TableName;
 
 private:
-  vtkTableToDatabaseWriter(const vtkTableToDatabaseWriter&);  // Not implemented.
-  void operator=(const vtkTableToDatabaseWriter&);  // Not implemented.
+  vtkTableToDatabaseWriter(const vtkTableToDatabaseWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableToDatabaseWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ protected:
   vtkTransform *Transform; // Used for internal intermediate calculation.
 
 private:
-  vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleGeo&);  // Not implemented.
+  vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxInteractorStyleGeo&) VTK_DELETE_FUNCTION;
 };
 #endif

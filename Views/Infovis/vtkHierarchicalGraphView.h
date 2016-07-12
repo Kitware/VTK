@@ -111,8 +111,8 @@ protected:
   virtual vtkRenderedHierarchyRepresentation* GetHierarchyRepresentation();
 
 private:
-  vtkHierarchicalGraphView(const vtkHierarchicalGraphView&);  // Not implemented.
-  void operator=(const vtkHierarchicalGraphView&);  // Not implemented.
+  vtkHierarchicalGraphView(const vtkHierarchicalGraphView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalGraphView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

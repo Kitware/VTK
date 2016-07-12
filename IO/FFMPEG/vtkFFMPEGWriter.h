@@ -92,8 +92,8 @@ protected:
   bool Compression;
 
 private:
-  vtkFFMPEGWriter(const vtkFFMPEGWriter&); // Not implemented
-  void operator=(const vtkFFMPEGWriter&); // Not implemented
+  vtkFFMPEGWriter(const vtkFFMPEGWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFFMPEGWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

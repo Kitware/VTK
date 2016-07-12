@@ -24,14 +24,19 @@
 #ifndef XDMFARRAY_HPP_
 #define XDMFARRAY_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+#include "XdmfArrayReference.hpp"
+#include "XdmfHeavyDataController.hpp"
+#include "XdmfItem.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfArrayType;
 class XdmfHeavyDataController;
 
 // Includes
-#include "XdmfCore.hpp"
-#include "XdmfItem.hpp"
-#include "XdmfArrayReference.hpp"
 #include <boost/shared_array.hpp>
 #include <boost/variant.hpp>
 
@@ -859,7 +864,7 @@ public:
    * @skipline #//isInitialized
    * @until #//isInitialized
    */
-  bool isInitialized() const;
+  virtual bool isInitialized() const;
 
   /**
    * Copy a value to the back of this array
@@ -964,6 +969,34 @@ public:
    */
   void
   setHeavyDataController(shared_ptr<XdmfHeavyDataController> newController);
+
+  /**
+   * Sets the controllers attached to this array to the ones contained
+   * in the provided vector.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfArray.cpp
+   * @skipline //#initialization
+   * @until //#initialization
+   * @skipline //#setHeavyDataControllerVector
+   * @until //#setHeavyDataControllerVector
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleArray.py
+   * @skipline #//initialization
+   * @until #//initialization
+   * @skipline #//setHeavyDataControllerVector
+   * @until #//setHeavyDataControllerVector
+   *
+   * @param     newControllers  The controllers to be set to the array.
+   */
+  void
+  setHeavyDataController(std::vector<shared_ptr<XdmfHeavyDataController> > & newControllers);
+
 
   /**
    * Read data from disk into memory.
@@ -1423,6 +1456,10 @@ public:
    */
   void swap(const shared_ptr<XdmfArray> array);
 
+  virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
+
+  XdmfArray(XdmfArray &);
+
 protected:
 
   XdmfArray();
@@ -1488,16 +1525,484 @@ private:
     boost::shared_array<const unsigned short>,
     boost::shared_array<const unsigned int>  > ArrayVariant;
   
-  ArrayVariant mArray;
   unsigned int mArrayPointerNumValues;
   std::vector<unsigned int> mDimensions;
   std::string mName;
   unsigned int mTmpReserveSize;
   ReadMode mReadMode;
   shared_ptr<XdmfArrayReference> mReference;
-
+  ArrayVariant mArray;
 };
 
 #include "XdmfArray.tpp"
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define XDMF_ARRAY_READ_MODE_CONTROLLER  10
+#define XDMF_ARRAY_READ_MODE_REFERENCE   11
+
+// C wrappers go here
+
+struct XDMFARRAY; // Simply as a typedef to ensure correct typing
+typedef struct XDMFARRAY XDMFARRAY;
+
+XDMFCORE_EXPORT XDMFARRAY * XdmfArrayNew();
+
+XDMFCORE_EXPORT void XdmfArrayClear(XDMFARRAY * array);
+
+XDMFCORE_EXPORT void XdmfArrayErase(XDMFARRAY * array, unsigned int index);
+
+XDMFCORE_EXPORT int XdmfArrayGetArrayType(XDMFARRAY * array, int * status);
+
+XDMFCORE_EXPORT unsigned int XdmfArrayGetCapacity(XDMFARRAY * array);
+
+XDMFCORE_EXPORT unsigned int * XdmfArrayGetDimensions(XDMFARRAY * array);
+
+XDMFCORE_EXPORT char * XdmfArrayGetDimensionsString(XDMFARRAY * array);
+
+XDMFCORE_EXPORT XDMFHEAVYDATACONTROLLER * XdmfArrayGetHeavyDataController(XDMFARRAY * array, unsigned int index);
+
+XDMFCORE_EXPORT int XdmfArrayGetReadMode(XDMFARRAY * array, int * status);
+
+XDMFCORE_EXPORT char * XdmfArrayGetName(XDMFARRAY * array);
+
+XDMFCORE_EXPORT unsigned int XdmfArrayGetNumberDimensions(XDMFARRAY * array);
+
+XDMFCORE_EXPORT unsigned int XdmfArrayGetNumberHeavyDataControllers(XDMFARRAY * array);
+
+XDMFCORE_EXPORT unsigned int XdmfArrayGetSize(XDMFARRAY * array);
+
+XDMFCORE_EXPORT XDMFARRAYREFERENCE * XdmfArrayGetReference(XDMFARRAY * array);
+
+XDMFCORE_EXPORT void * XdmfArrayGetValue(XDMFARRAY * array, unsigned int index, int arrayType, int * status);
+
+XDMFCORE_EXPORT void * XdmfArrayGetValues(XDMFARRAY * array, unsigned int startIndex, int arrayType, unsigned int numValues, unsigned int arrayStride, unsigned int valueStride, int * status);
+
+XDMFCORE_EXPORT void * XdmfArrayGetValuesInternal(XDMFARRAY * array);
+
+XDMFCORE_EXPORT char * XdmfArrayGetValuesString(XDMFARRAY * array);
+
+XDMFCORE_EXPORT void XdmfArrayInitialize(XDMFARRAY * array, int * dims, int numDims, int arrayType, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayInsertDataFromPointer(XDMFARRAY * array, void * values, int arrayType, unsigned int startIndex, unsigned int numVals, unsigned int arrayStride, unsigned int valueStride, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayInsertDataFromXdmfArray(XDMFARRAY * array, XDMFARRAY * valArray, int * arrayStarts, int * valueStarts, int * arrayCounts, int * valueCounts, int * arrayStrides, int * valueStrides, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayInsertHeavyDataController(XDMFARRAY * array, XDMFHEAVYDATACONTROLLER * controller, int passControl);
+
+XDMFCORE_EXPORT void XdmfArrayInsertValue(XDMFARRAY * array, unsigned int index, void * value, int arrayType, int * status);
+
+XDMFCORE_EXPORT int XdmfArrayIsInitialized(XDMFARRAY * array);
+
+XDMFCORE_EXPORT void XdmfArrayPushBack(XDMFARRAY * array, void * value, int arrayType, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayRead(XDMFARRAY * array, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayReadController(XDMFARRAY * array, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayReadReference(XDMFARRAY * array, int * status);
+
+XDMFCORE_EXPORT void XdmfArrayRelease(XDMFARRAY * array);
+
+XDMFCORE_EXPORT void XdmfArrayRemoveHeavyDataController(XDMFARRAY * array, unsigned int index);
+
+XDMFCORE_EXPORT void XdmfArrayReserve(XDMFARRAY * array, int size);
+
+XDMFCORE_EXPORT void XdmfArrayResize(XDMFARRAY * array, int * dims, int numDims, int arrayType, int * status);
+
+XDMFCORE_EXPORT void XdmfArraySetReadMode(XDMFARRAY * array, int readMode, int * status);
+
+XDMFCORE_EXPORT void XdmfArraySetReference(XDMFARRAY * array, XDMFARRAYREFERENCE * reference, int passControl);
+
+XDMFCORE_EXPORT void XdmfArraySetName(XDMFARRAY * array, char * name, int * status);
+
+XDMFCORE_EXPORT void XdmfArraySetValuesInternal(XDMFARRAY * array, void * pointer, unsigned int numValues, int arrayType, int transferOwnership, int * status);
+
+XDMFCORE_EXPORT void XdmfArraySwapWithXdmfArray(XDMFARRAY * array, XDMFARRAY * swapArray);
+
+XDMFCORE_EXPORT void XdmfArraySwapWithArray(XDMFARRAY * array, void ** pointer, int numValues, int arrayType, int * status);
+
+// C Wrappers for parent classes are generated by macros
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfArray, XDMFARRAY, XDMFCORE)
+
+
+#define XDMF_ARRAY_C_CHILD_DECLARE(ClassName, CClassName, Level)                                                     \
+                                                                                                                     \
+Level##_EXPORT void ClassName##Clear( CClassName * array);                                                           \
+Level##_EXPORT void ClassName##Erase( CClassName * array, unsigned int index);                                       \
+Level##_EXPORT int ClassName##GetArrayType( CClassName * array, int * status);                                       \
+Level##_EXPORT unsigned int ClassName##GetCapacity( CClassName * array);                                             \
+Level##_EXPORT unsigned int * ClassName##GetDimensions( CClassName * array);                                         \
+Level##_EXPORT char * ClassName##GetDimensionsString( CClassName * array);                                           \
+Level##_EXPORT XDMFHEAVYDATACONTROLLER * ClassName##GetHeavyDataController( CClassName * array, unsigned int index); \
+Level##_EXPORT int ClassName##GetReadMode( CClassName * array, int * status);                                        \
+Level##_EXPORT char * ClassName##GetName( CClassName * array);                                                       \
+Level##_EXPORT unsigned int ClassName##GetNumberDimensions( CClassName * array);                                     \
+Level##_EXPORT unsigned int ClassName##GetNumberHeavyDataControllers( CClassName * array);                           \
+Level##_EXPORT unsigned int ClassName##GetSize( CClassName * array);                                                 \
+Level##_EXPORT XDMFARRAYREFERENCE * ClassName##GetReference( CClassName * array);                                    \
+Level##_EXPORT void * ClassName##GetValue( CClassName * array,                                                       \
+                                           unsigned int index,                                                       \
+                                           int arrayType,                                                            \
+                                           int * status);                                                            \
+Level##_EXPORT void * ClassName##GetValues( CClassName * array,                                                      \
+                                            unsigned int startIndex,                                                 \
+                                            int arrayType,                                                           \
+                                            unsigned int numValues,                                                  \
+                                            unsigned int arrayStride,                                                \
+                                            unsigned int valueStride,                                                \
+                                            int * status);                                                           \
+Level##_EXPORT void * ClassName##GetValuesInternal( CClassName * array);                                             \
+Level##_EXPORT char * ClassName##GetValuesString( CClassName * array);                                               \
+Level##_EXPORT void ClassName##Initialize( CClassName * array,                                                       \
+                                           int * dims,                                                               \
+                                           int numDims,                                                              \
+                                           int arrayType,                                                            \
+                                           int * status);                                                            \
+Level##_EXPORT void ClassName##InsertDataFromPointer( CClassName * array,                                            \
+                                                      void * values,                                                 \
+                                                      int arrayType,                                                 \
+                                                      unsigned int startIndex,                                       \
+                                                      unsigned int numVals,                                          \
+                                                      unsigned int arrayStride,                                      \
+                                                      unsigned int valueStride,                                      \
+                                                      int * status);                                                 \
+Level##_EXPORT void ClassName##InsertDataFromXdmfArray( CClassName * array,                                          \
+                                                        XDMFARRAY * valArray,                                        \
+                                                        int * arrayStarts,                                           \
+                                                        int * valueStarts,                                           \
+                                                        int * arrayCounts,                                           \
+                                                        int * valueCounts,                                           \
+                                                        int * arrayStrides,                                          \
+                                                        int * valueStrides,                                          \
+                                                        int * status);                                               \
+Level##_EXPORT void ClassName##InsertHeavyDataController( CClassName * array,                                        \
+                                                          XDMFHEAVYDATACONTROLLER * controller,                      \
+                                                         int passControl);                                           \
+Level##_EXPORT void ClassName##InsertValue( CClassName * array,                                                      \
+                                            unsigned int index,                                                      \
+                                            void * value,                                                            \
+                                            int arrayType,                                                           \
+                                            int * status);                                                           \
+Level##_EXPORT int ClassName##IsInitialized( CClassName * array);                                                    \
+Level##_EXPORT void ClassName##PushBack( CClassName * array,                                                         \
+                                         void * value,                                                               \
+                                         int arrayType,                                                              \
+                                         int * status);                                                              \
+Level##_EXPORT void ClassName##Read( CClassName * array, int * status);                                              \
+Level##_EXPORT void ClassName##ReadController( CClassName * array, int * status);                                    \
+Level##_EXPORT void ClassName##ReadReference( CClassName * array, int * status);                                     \
+Level##_EXPORT void ClassName##Release( CClassName * array);                                                         \
+Level##_EXPORT void ClassName##RemoveHeavyDataController( CClassName * array, unsigned int index);                   \
+Level##_EXPORT void ClassName##Reserve( CClassName * array, int size);                                               \
+Level##_EXPORT void ClassName##Resize( CClassName * array,                                                           \
+                                       int * dims,                                                                   \
+                                       int numDims,                                                                  \
+                                       int arrayType,                                                                \
+                                       int * status);                                                                \
+Level##_EXPORT void ClassName##SetReadMode( CClassName * array, int readMode, int * status);                         \
+Level##_EXPORT void ClassName##SetReference( CClassName * array, XDMFARRAYREFERENCE * reference, int passControl);   \
+Level##_EXPORT void ClassName##SetName( CClassName * array, char * name, int * status);                              \
+Level##_EXPORT void ClassName##SetValuesInternal( CClassName * array,                                                \
+                                                  void * pointer,                                                    \
+                                                  unsigned int numValues,                                            \
+                                                  int arrayType,                                                     \
+                                                  int transferOwnership,                                             \
+                                                  int * status);                                                     \
+Level##_EXPORT void ClassName##SwapWithXdmfArray( CClassName * array, XDMFARRAY * swapArray);                        \
+Level##_EXPORT void ClassName##SwapWithArray( CClassName * array,                                                    \
+                                              void ** pointer,                                                       \
+                                              int numValues,                                                         \
+                                              int arrayType,                                                         \
+                                              int * status);
+
+
+#define XDMF_ARRAY_C_CHILD_WRAPPER(ClassName, CClassName)                                                            \
+                                                                                                                     \
+void ClassName##Clear( CClassName * array)                                                                           \
+{                                                                                                                    \
+  XdmfArrayClear((XDMFARRAY *)((void *)array));                                                                      \
+}                                                                                                                    \
+                                                                                                                     \
+void ClassName##Erase( CClassName * array, unsigned int index)                                                       \
+{                                                                                                                    \
+  XdmfArrayErase((XDMFARRAY *)((void *)array), index);                                                               \
+}                                                                                                                    \
+                                                                                                                     \
+int ClassName##GetArrayType( CClassName * array, int * status)                                                       \
+{                                                                                                                    \
+  return XdmfArrayGetArrayType((XDMFARRAY *)((void *)array), status);                                                \
+}                                                                                                                    \
+                                                                                                                     \
+unsigned int ClassName##GetCapacity( CClassName * array)                                                             \
+{                                                                                                                    \
+  return XdmfArrayGetCapacity((XDMFARRAY *)((void *)array));                                                         \
+}                                                                                                                    \
+                                                                                                                     \
+unsigned int *                                                                                                       \
+ClassName##GetDimensions( CClassName * array)                                                                        \
+{                                                                                                                    \
+  return XdmfArrayGetDimensions((XDMFARRAY *)((void *)array));                                                       \
+}                                                                                                                    \
+                                                                                                                     \
+char *                                                                                                               \
+ClassName##GetDimensionsString( CClassName * array)                                                                  \
+{                                                                                                                    \
+  return XdmfArrayGetDimensionsString((XDMFARRAY *)((void *)array));                                                 \
+}                                                                                                                    \
+                                                                                                                     \
+XDMFHEAVYDATACONTROLLER *                                                                                            \
+ClassName##GetHeavyDataController( CClassName * array, unsigned int index)                                           \
+{                                                                                                                    \
+  return XdmfArrayGetHeavyDataController((XDMFARRAY *)((void *)array), index);                                       \
+}                                                                                                                    \
+                                                                                                                     \
+char *                                                                                                               \
+ClassName##GetName( CClassName * array)                                                                              \
+{                                                                                                                    \
+  return XdmfArrayGetName((XDMFARRAY *)((void *)array));                                                             \
+}                                                                                                                    \
+                                                                                                                     \
+unsigned int                                                                                                         \
+ClassName##GetNumberDimensions( CClassName * array)                                                                  \
+{                                                                                                                    \
+  return XdmfArrayGetNumberDimensions((XDMFARRAY *)((void *)array));                                                 \
+}                                                                                                                    \
+                                                                                                                     \
+unsigned int                                                                                                         \
+ClassName##GetNumberHeavyDataControllers( CClassName * array)                                                        \
+{                                                                                                                    \
+  return XdmfArrayGetNumberHeavyDataControllers((XDMFARRAY *)((void *)array));                                       \
+}                                                                                                                    \
+                                                                                                                     \
+unsigned int                                                                                                         \
+ClassName##GetSize( CClassName * array)                                                                              \
+{                                                                                                                    \
+  return XdmfArrayGetSize((XDMFARRAY *)((void *)array));                                                             \
+}                                                                                                                    \
+                                                                                                                     \
+int                                                                                                                  \
+ClassName##GetReadMode( CClassName * array, int * status)                                                            \
+{                                                                                                                    \
+  return XdmfArrayGetReadMode((XDMFARRAY *)((void *)array), status);                                                 \
+}                                                                                                                    \
+                                                                                                                     \
+XDMFARRAYREFERENCE *                                                                                                 \
+ClassName##GetReference( CClassName * array)                                                                         \
+{                                                                                                                    \
+  return XdmfArrayGetReference((XDMFARRAY *)((void *)array));                                                        \
+}                                                                                                                    \
+                                                                                                                     \
+void *                                                                                                               \
+ClassName##GetValue( CClassName * array, unsigned int index, int arrayType, int * status)                            \
+{                                                                                                                    \
+  return XdmfArrayGetValue((XDMFARRAY *)((void *)array), index, arrayType, status);                                  \
+}                                                                                                                    \
+                                                                                                                     \
+void *                                                                                                               \
+ClassName##GetValues( CClassName * array,                                                                            \
+                      unsigned int startIndex,                                                                       \
+                      int arrayType,                                                                                 \
+                      unsigned int numValues,                                                                        \
+                      unsigned int arrayStride,                                                                      \
+                      unsigned int valueStride,                                                                      \
+                      int * status)                                                                                  \
+{                                                                                                                    \
+  return  XdmfArrayGetValues((XDMFARRAY *)((void *)array),                                                           \
+                             startIndex,                                                                             \
+                             arrayType,                                                                              \
+                             numValues,                                                                              \
+                             arrayStride,                                                                            \
+                             valueStride,                                                                            \
+                             status);                                                                                \
+}                                                                                                                    \
+                                                                                                                     \
+void *                                                                                                               \
+ClassName##GetValuesInternal( CClassName * array)                                                                    \
+{                                                                                                                    \
+  return XdmfArrayGetValuesInternal((XDMFARRAY *)((void *)array));                                                   \
+}                                                                                                                    \
+                                                                                                                     \
+char *                                                                                                               \
+ClassName##GetValuesString( CClassName * array)                                                                      \
+{                                                                                                                    \
+  return XdmfArrayGetValuesString((XDMFARRAY *)((void *)array));                                                     \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##Initialize( CClassName * array, int * dims, int numDims, int arrayType, int * status)                     \
+{                                                                                                                    \
+  XdmfArrayInitialize((XDMFARRAY *)((void *)array), dims, numDims, arrayType, status);                               \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##InsertDataFromPointer( CClassName * array,                                                                \
+                                  void * values,                                                                     \
+                                  int arrayType,                                                                     \
+                                  unsigned int startIndex,                                                           \
+                                  unsigned int numVals,                                                              \
+                                  unsigned int arrayStride,                                                          \
+                                  unsigned int valueStride,                                                          \
+                                  int * status)                                                                      \
+{                                                                                                                    \
+  XdmfArrayInsertDataFromPointer((XDMFARRAY *)((void *)array),                                                       \
+                                 values,                                                                             \
+                                 arrayType,                                                                          \
+                                 startIndex,                                                                         \
+                                 numVals,                                                                            \
+                                 arrayStride,                                                                        \
+                                 valueStride,                                                                        \
+                                 status);                                                                            \
+}                                                                                                                    \
+                                                                                                                     \
+void ClassName##InsertDataFromXdmfArray( CClassName * array,                                                         \
+                                         XDMFARRAY * valArray,                                                       \
+                                         int * arrayStarts,                                                          \
+                                         int * valueStarts,                                                          \
+                                         int * arrayCounts,                                                          \
+                                         int * valueCounts,                                                          \
+                                         int * arrayStrides,                                                         \
+                                         int * valueStrides,                                                         \
+                                         int * status)                                                               \
+{                                                                                                                    \
+  XdmfArrayInsertDataFromXdmfArray((XDMFARRAY *)((void *)array),                                                     \
+                                   valArray,                                                                         \
+                                   arrayStarts,                                                                      \
+                                   valueStarts,                                                                      \
+                                   arrayCounts,                                                                      \
+                                   valueCounts,                                                                      \
+                                   arrayStrides,                                                                     \
+                                   valueStrides,                                                                     \
+                                   status);                                                                          \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##InsertHeavyDataController( CClassName * array, XDMFHEAVYDATACONTROLLER * controller, int passControl)     \
+{                                                                                                                    \
+  XdmfArrayInsertHeavyDataController((XDMFARRAY *)((void *)array), controller, passControl);                         \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##InsertValue( CClassName * array,                                                                          \
+                        unsigned int index,                                                                          \
+                        void * value,                                                                                \
+                        int arrayType,                                                                               \
+                        int * status)                                                                                \
+{                                                                                                                    \
+  XdmfArrayInsertValue((XDMFARRAY *)((void *)array), index, value, arrayType, status);                               \
+}                                                                                                                    \
+                                                                                                                     \
+int                                                                                                                  \
+ClassName##IsInitialized( CClassName * array)                                                                        \
+{                                                                                                                    \
+  return XdmfArrayIsInitialized((XDMFARRAY *)((void *)array));                                                       \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##PushBack( CClassName * array, void * value, int arrayType, int * status)                                  \
+{                                                                                                                    \
+  XdmfArrayPushBack((XDMFARRAY *)((void *)array), value, arrayType, status);                                         \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##Read( CClassName * array, int * status)                                                                   \
+{                                                                                                                    \
+  XdmfArrayRead((XDMFARRAY *)((void *)array), status);                                                               \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##ReadController( CClassName * array, int * status)                                                         \
+{                                                                                                                    \
+  XdmfArrayReadController((XDMFARRAY *)((void *)array), status);                                                     \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##ReadReference( CClassName * array, int * status)                                                          \
+{                                                                                                                    \
+  XdmfArrayReadReference((XDMFARRAY *)((void *)array), status);                                                      \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##Release( CClassName * array)                                                                              \
+{                                                                                                                    \
+  XdmfArrayRelease((XDMFARRAY *)((void *)array));                                                                    \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##RemoveHeavyDataController( CClassName * array, unsigned int index)                                        \
+{                                                                                                                    \
+  XdmfArrayRemoveHeavyDataController((XDMFARRAY *)((void *)array), index);                                           \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##Reserve( CClassName * array, int size)                                                                    \
+{                                                                                                                    \
+  XdmfArrayReserve((XDMFARRAY *)((void *)array), size);                                                              \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##Resize( CClassName * array, int * dims, int numDims, int arrayType, int * status)                         \
+{                                                                                                                    \
+  XdmfArrayResize((XDMFARRAY *)((void *)array), dims, numDims, arrayType, status);                                   \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SetReadMode( CClassName * array, int readMode, int * status)                                              \
+{                                                                                                                    \
+  XdmfArraySetReadMode((XDMFARRAY *)((void *)array), readMode, status);                                              \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SetReference( CClassName * array, XDMFARRAYREFERENCE * reference, int passControl)                        \
+{                                                                                                                    \
+  XdmfArraySetReference((XDMFARRAY *)((void *)array), reference, passControl);                                       \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SetName( CClassName * array, char * name, int * status)                                                   \
+{                                                                                                                    \
+  XdmfArraySetName((XDMFARRAY *)((void *)array), name, status);                                                      \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SetValuesInternal( CClassName * array,                                                                    \
+                              void * pointer,                                                                        \
+                              unsigned int numValues,                                                                \
+                              int arrayType,                                                                         \
+                              int transferOwnership,                                                                 \
+                              int * status)                                                                          \
+{                                                                                                                    \
+  XdmfArraySetValuesInternal((XDMFARRAY *)((void *)array),                                                           \
+                             pointer,                                                                                \
+                             numValues,                                                                              \
+                             arrayType,                                                                              \
+                             transferOwnership,                                                                      \
+                             status);                                                                                \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SwapWithXdmfArray( CClassName * array, XDMFARRAY * swapArray)                                             \
+{                                                                                                                    \
+  XdmfArraySwapWithXdmfArray((XDMFARRAY *)((void *)array), swapArray);                                               \
+}                                                                                                                    \
+                                                                                                                     \
+void                                                                                                                 \
+ClassName##SwapWithArray( CClassName * array,                                                                        \
+                          void ** pointer,                                                                           \
+                          int numValues,                                                                             \
+                          int arrayType,                                                                             \
+                          int * status)                                                                              \
+{                                                                                                                    \
+  XdmfArraySwapWithArray((XDMFARRAY *)((void *)array), pointer, numValues, arrayType, status);                       \
+}
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFARRAY_HPP_ */

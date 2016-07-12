@@ -112,8 +112,8 @@ protected:
   virtual int UpdateImageActor();
 
 private:
-  vtkTextActor3D(const vtkTextActor3D&);  // Not implemented.
-  void operator=(const vtkTextActor3D&);  // Not implemented.
+  vtkTextActor3D(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextActor3D&) VTK_DELETE_FUNCTION;
 };
 
 

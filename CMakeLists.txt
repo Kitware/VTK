@@ -13,6 +13,7 @@ foreach(p
     CMP0025 # CMake 3.0
     CMP0053 # CMake 3.1
     CMP0054 # CMake 3.1
+    CMP0063 # CMake 3.3
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -36,7 +37,8 @@ else()
 endif()
 if (VTK_USE_CXX11_FEATURES)
   set(CMAKE_CXX_STANDARD 11)
-  set(CMAKE_CXX_STANDARD_REQUIRED 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED True)
+  set(CMAKE_CXX_EXTENSIONS False)
 endif()
 
 # Objective-C++ compile flags.

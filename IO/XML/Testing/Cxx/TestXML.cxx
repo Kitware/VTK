@@ -33,8 +33,8 @@ protected:
   void EndElement(const char*) {}
 
 private:
-  vtkMyXML(const vtkMyXML&); // Not implemented
-  void operator=(const vtkMyXML&); // Not implemented
+  vtkMyXML(const vtkMyXML&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMyXML&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkMyXML);

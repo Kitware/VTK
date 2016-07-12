@@ -47,8 +47,8 @@ protected:
   vtkTable *Input;
 
 private:
-  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&);  // Not implemented.
-  void operator=(const vtkTableToSQLiteWriter&);  // Not implemented.
+  vtkTableToSQLiteWriter(const vtkTableToSQLiteWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableToSQLiteWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

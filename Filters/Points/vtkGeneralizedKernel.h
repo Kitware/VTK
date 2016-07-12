@@ -74,9 +74,15 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Based on the kernel style, invoke the appropriate locator method to obtain
-  // the points making up the basis.
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
+  // Based on the kernel style, invoke the appropriate locator method to
+  // obtain the points making up the basis. Given a point x (and optional
+  // associated point id), determine the points around x which form an
+  // interpolation basis. The user must provide the vtkIdList pIds, which
+  // will be dynamically resized as necessary. The method returns the number
+  // of points in the basis. Typically this method is called before
+  // ComputeWeights(). Note that ptId is optional in most cases, although in
+  // some kernels it is used to facilitate basis computation.
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0);
 
   // Description:
   // Given a point x, a list of basis points pIds, and a probability
@@ -162,8 +168,8 @@ protected:
   bool NormalizeWeights;
 
 private:
-  vtkGeneralizedKernel(const vtkGeneralizedKernel&);  // Not implemented.
-  void operator=(const vtkGeneralizedKernel&);  // Not implemented.
+  vtkGeneralizedKernel(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeneralizedKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

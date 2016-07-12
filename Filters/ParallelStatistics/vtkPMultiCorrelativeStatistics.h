@@ -66,8 +66,8 @@ protected:
   virtual vtkOrderStatistics* CreateOrderStatisticsInstance();
 
 private:
-  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&); // Not implemented.
-  void operator=(const vtkPMultiCorrelativeStatistics&); // Not implemented.
+  vtkPMultiCorrelativeStatistics(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPMultiCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

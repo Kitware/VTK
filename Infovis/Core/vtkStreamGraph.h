@@ -86,8 +86,8 @@ protected:
   char* EdgeWindowArrayName;
 
 private:
-  vtkStreamGraph(const vtkStreamGraph&); // Not implemented
-  void operator=(const vtkStreamGraph&);   // Not implemented
+  vtkStreamGraph(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

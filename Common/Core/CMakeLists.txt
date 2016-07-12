@@ -155,6 +155,7 @@ SET(Module_SRCS
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIterator.cxx
+  vtkArrayIteratorTemplate.txx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -202,6 +203,7 @@ SET(Module_SRCS
   vtkInformationIntegerVectorKey.cxx
   vtkInformationIterator.cxx
   vtkInformationKey.cxx
+  vtkInformationKeyLookup.cxx
   vtkInformationKeyVectorKey.cxx
   vtkInformationObjectBaseKey.cxx
   vtkInformationObjectBaseVectorKey.cxx
@@ -289,9 +291,7 @@ set(${vtk-module}_HDRS
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
-  vtkArrayIteratorTemplate.h
   vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAssume.h
@@ -539,7 +539,6 @@ set_source_files_properties(
   vtkAbstractArray
   vtkArray
   vtkArrayIterator
-  vtkArrayIteratorTemplate
   vtkCallbackCommand
   vtkCommand
   vtkCommonInformationKeyManager

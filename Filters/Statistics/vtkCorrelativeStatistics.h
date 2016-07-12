@@ -102,8 +102,8 @@ protected:
                                     AssessFunctor*& dfunc );
 
 private:
-  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
-  void operator=(const vtkCorrelativeStatistics&);   // Not implemented
+  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

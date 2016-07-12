@@ -39,8 +39,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkTrivialConsumer(const vtkTrivialConsumer&);  // Not implemented.
-  void operator=(const vtkTrivialConsumer&);  // Not implemented.
+  vtkTrivialConsumer(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

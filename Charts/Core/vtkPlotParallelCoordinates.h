@@ -134,8 +134,8 @@ protected:
   vtkStdString ColorArrayName;
 
 private:
-  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &); // Not implemented.
-  void operator=(const vtkPlotParallelCoordinates &); // Not implemented.
+  vtkPlotParallelCoordinates(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotParallelCoordinates &) VTK_DELETE_FUNCTION;
 
 };
 

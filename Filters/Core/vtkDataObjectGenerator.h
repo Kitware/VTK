@@ -113,8 +113,8 @@ protected:
   void MakeValues(vtkDataSet *ds);
 
 private:
-  vtkDataObjectGenerator(const vtkDataObjectGenerator&);  // Not implemented.
-  void operator=(const vtkDataObjectGenerator&);  // Not implemented.
+  vtkDataObjectGenerator(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -132,8 +132,8 @@ protected:
   int SplitLen;
 
 private:
-  vtkExtentTranslator(const vtkExtentTranslator&);  // Not implemented.
-  void operator=(const vtkExtentTranslator&);  // Not implemented.
+  vtkExtentTranslator(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtentTranslator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

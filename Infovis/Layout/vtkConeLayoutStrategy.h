@@ -121,8 +121,8 @@ protected:
   double SumOfRadii;
 
 private:
-  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkConeLayoutStrategy&);  // Not implemented.
+  vtkConeLayoutStrategy(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkConeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -61,8 +61,8 @@ protected:
                     double coefficients[][4]);
 
 private:
-  vtkCardinalSpline(const vtkCardinalSpline&);  // Not implemented.
-  void operator=(const vtkCardinalSpline&);  // Not implemented.
+  vtkCardinalSpline(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCardinalSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

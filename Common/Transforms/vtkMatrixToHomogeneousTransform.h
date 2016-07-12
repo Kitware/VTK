@@ -66,8 +66,8 @@ protected:
   int InverseFlag;
   vtkMatrix4x4 *Input;
 private:
-  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&);  // Not implemented.
-  void operator=(const vtkMatrixToHomogeneousTransform&);  // Not implemented.
+  vtkMatrixToHomogeneousTransform(const vtkMatrixToHomogeneousTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatrixToHomogeneousTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

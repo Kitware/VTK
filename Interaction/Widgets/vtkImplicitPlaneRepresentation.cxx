@@ -83,7 +83,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
-  this->ConstrainOrigin = 1;
+  this->ConstrainToWidgetBounds = 1;
 
   this->Cutter = vtkCutter::New();
   this->Cutter->SetInputData(this->Box);
@@ -680,8 +680,8 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: "
      << (this->OutsideBounds ? "On" : "Off") << "\n";
-  os << indent << "Constrain Origin: "
-     << (this->ConstrainOrigin ? "On" : "Off") << "\n";
+  os << indent << "Constrain to Widget Bounds: "
+     << (this->ConstrainToWidgetBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
@@ -1251,24 +1251,33 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     double *origin = this->Plane->GetOrigin();
     double *normal = this->Plane->GetNormal();
 
+    double bounds[6];
+    std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
+
     double p2[3];
     if ( !this->OutsideBounds )
       {
-      double *bounds = this->InitialBounds;
+      // restrict the origin inside InitialBounds
+      double *ibounds = this->InitialBounds;
       for (int i=0; i<3; i++)
         {
-        if ( origin[i] < bounds[2*i] )
+        if ( origin[i] < ibounds[2*i] )
           {
-          origin[i] = bounds[2*i];
+          origin[i] = ibounds[2*i];
           }
-        else if ( origin[i] > bounds[2*i+1] )
+        else if ( origin[i] > ibounds[2*i+1] )
           {
-          origin[i] = bounds[2*i+1];
+          origin[i] = ibounds[2*i+1];
           }
         }
-      if ( this->ConstrainOrigin )
+      }
+
+    if ( this->ConstrainToWidgetBounds )
+      {
+      if ( !this->OutsideBounds )
         {
-        bounds = this->Box->GetBounds();
+        // origin cannot move outside InitialBounds. Therefore, restrict
+        // movement of the Box.
         double v[3] = { 0.0, 0.0, 0.0 };
         for (int i = 0; i < 3; ++i)
           {
@@ -1283,28 +1292,9 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
           bounds[2*i] += v[i];
           bounds[2*i + 1] += v[i];
           }
-        this->Box->SetOrigin(bounds[0], bounds[2], bounds[4]);
-        this->Outline->Update();
         }
-      }
 
-    if ( !this->ConstrainOrigin )
-      {
-      double offset = this->Box->GetLength() * 0.02;
-      double boxBounds[6];
-      for (int i = 0; i < 3; ++i)
-        {
-        boxBounds[2*i] = vtkMath::Min(origin[i] - offset, this->WidgetBounds[2*i]);
-        boxBounds[2*i + 1] = vtkMath::Max(origin[i] + offset, this->WidgetBounds[2*i + 1]);
-        }
-      this->Box->SetOrigin(boxBounds[0], boxBounds[2], boxBounds[4]);
-      this->Box->SetSpacing(boxBounds[1]-boxBounds[0], boxBounds[3]-boxBounds[2],
-                            boxBounds[5]-boxBounds[4]);
-      this->Outline->Update();
-      }
-    else
-      {
-      double *bounds = this->Box->GetBounds();
+      // restrict origin inside bounds
       for (int i = 0; i < 3; ++i)
         {
         if (origin[i] <= bounds[2*i])
@@ -1317,6 +1307,21 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
           }
         }
       }
+    else // plane can move freely, adjust the bounds to change with it
+      {
+      double offset = this->Box->GetLength() * 0.02;
+      for (int i = 0; i < 3; ++i)
+        {
+        bounds[2*i] = vtkMath::Min(origin[i] - offset, this->WidgetBounds[2*i]);
+        bounds[2*i + 1] = vtkMath::Max(origin[i] + offset, this->WidgetBounds[2*i + 1]);
+        }
+      }
+
+    this->Box->SetOrigin(bounds[0],bounds[2],bounds[4]);
+    this->Box->SetSpacing((bounds[1]-bounds[0]),(bounds[3]-bounds[2]),
+                          (bounds[5]-bounds[4]));
+    this->Outline->Update();
+
 
     // Setup the plane normal
     double d = this->Outline->GetOutput()->GetLength();

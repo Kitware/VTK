@@ -66,8 +66,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkContextMapper2D(const vtkContextMapper2D &); // Not implemented.
-  void operator=(const vtkContextMapper2D &); // Not implemented.
+  vtkContextMapper2D(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
 
 };
 

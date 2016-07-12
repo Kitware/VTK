@@ -56,8 +56,8 @@ public:
   double Background[3];
 
  private:
-  vtkClearRGBPass(const vtkClearRGBPass&);  // Not implemented.
-  void operator=(const vtkClearRGBPass&);  // Not implemented.
+  vtkClearRGBPass(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClearRGBPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

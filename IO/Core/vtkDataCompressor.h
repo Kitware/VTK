@@ -92,8 +92,8 @@ protected:
                                   unsigned char* uncompressedData,
                                   size_t uncompressedSize)=0;
 private:
-  vtkDataCompressor(const vtkDataCompressor&);  // Not implemented.
-  void operator=(const vtkDataCompressor&);  // Not implemented.
+  vtkDataCompressor(const vtkDataCompressor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataCompressor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

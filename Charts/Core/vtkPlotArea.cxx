@@ -252,9 +252,7 @@ private:
         UseLog(useLog)
     {}
 
-    // Silence warning C4512 on MSVC2015: "assignment operator could not be
-    // generated.". This class is never copied, so no need for assignment.
-    CopyToPoints& operator=(const CopyToPoints &) { return *this; }
+    CopyToPoints& operator=(const CopyToPoints &) VTK_DELETE_FUNCTION;
 
     // Use input array:
     template <class ArrayT>

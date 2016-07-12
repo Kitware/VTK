@@ -122,8 +122,8 @@ protected:
   // Initialize only once, finialize on destruction.
   static int Initialized;
 private:
-  vtkSocketController(const vtkSocketController&);  // Not implemented.
-  void operator=(const vtkSocketController&);  // Not implemented.
+  vtkSocketController(const vtkSocketController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSocketController&) VTK_DELETE_FUNCTION;
 };
 
 

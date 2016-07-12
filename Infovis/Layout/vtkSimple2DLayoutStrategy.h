@@ -154,8 +154,8 @@ private:
   float RestDistance;
   bool Jitter;
 
-  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkSimple2DLayoutStrategy&);  // Not implemented.
+  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

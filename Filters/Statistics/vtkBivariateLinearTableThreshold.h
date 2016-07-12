@@ -197,8 +197,8 @@ protected:
   // Determine if x,y is between ANY TWO of the specified lines.
   int ThresholdBetween(double x, double y);
 private:
-  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&); // Not implemented
-  void operator=(const vtkBivariateLinearTableThreshold&); // Not implemented
+  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

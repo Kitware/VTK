@@ -29,6 +29,11 @@
 // By default the kernel computes local particle volume from the spatial step^3.
 // However, if both an optional mass and density arrays are provided then they are
 // used to compute local volume.
+//
+// Also be default, the local neighborhood around a point to be interpolated is
+// computed as the CutoffFactor * SpatialStep. (Note the CutoffFactor varies for
+// each type of SPH kernel.) However, the user may specify a CutoffArray which
+// enables variable cutoff distances per each point.
 
 // .SECTION Caveats
 // For more information see D.J. Price, Smoothed particle hydrodynamics and
@@ -37,7 +42,7 @@
 
 // .SECTION Acknowledgments
 // The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
 // more information.
 
 // .SECTION See Also
@@ -78,14 +83,27 @@ public:
   vtkGetMacro(Dimension,int);
 
   // Description:
-  // Specify the density array. Used with the mass array to compute local particle
-  // volumes.
+  // Return the cutoff factor. This is hard wired into the kernel (e.g., the
+  // vtkSPHQuinticKernel has a cutoff factor = 3.0).
+  vtkGetMacro(CutoffFactor,double);
+
+  // Description:
+  // Specify the (optional) array defining a cutoff distance. If provided this
+  // distance is used to find the interpolating points within the local
+  // neighborbood. Otherwise the cutoff distance is defined as the cutoff
+  // factor times the spatial step size.
+  virtual void SetCutoffArray(vtkDataArray*);
+  vtkGetObjectMacro(CutoffArray,vtkDataArray);
+
+  // Description:
+  // Specify the (optional) density array. Used with the mass array to
+  // compute local particle volumes.
   virtual void SetDensityArray(vtkDataArray*);
   vtkGetObjectMacro(DensityArray,vtkDataArray);
 
   // Description:
-  // Specify the mass array. Used with the density array to compute local particle
-  // volumes.
+  // Specify the (optional) mass array. Used with the density array to
+  // compute local particle volumes.
   virtual void SetMassArray(vtkDataArray*);
   vtkGetObjectMacro(MassArray,vtkDataArray);
 
@@ -96,13 +114,13 @@ public:
                           vtkPointData *pd);
 
   // Description:
-  // Given a point x, determine the points around x which form an
-  // interpolation basis. The user must provide the vtkIdList pids, which will
-  // be dynamically resized as necessary. The method returns the number of
-  // points in the basis. Typically this method is called before
-  // ComputeWeights(). In SPH interpolation, the basis consists of points
-  // found in the sphere located within the cutoff radius.
-  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds);
+  // Given a point x (and optional associated ptId), determine the points
+  // around x which form an interpolation basis. The user must provide the
+  // vtkIdList pIds, which will be dynamically resized as necessary. The
+  // method returns the number of points in the basis. Typically this method
+  // is called before ComputeWeights(). Note that while ptId is optional in most
+  // cases, if a cutoff array is provided, then ptId must be provided.
+  virtual vtkIdType ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType ptId=0);
 
   // Description:
   // Given a point x, and a list of basis points pIds, compute interpolation
@@ -135,6 +153,7 @@ protected:
   int Dimension; //sptial dimension of the kernel
 
   // Optional arrays aid in the interpolation process (computes volume)
+  vtkDataArray *CutoffArray;
   vtkDataArray *DensityArray;
   vtkDataArray *MassArray;
 
@@ -146,11 +165,12 @@ protected:
   double DistNorm; //distance normalization factor 1/(spatial step)
   double DimNorm; //dimensional normalization factor sigma/(spatial step)^Dimension
   double DefaultVolume; //if mass and density arrays not specified, use this
+  bool UseCutoffArray; //if single component cutoff array provided
   bool UseArraysForVolume; //if both mass and density arrays are present
 
 private:
-  vtkSPHKernel(const vtkSPHKernel&);  // Not implemented.
-  void operator=(const vtkSPHKernel&);  // Not implemented.
+  vtkSPHKernel(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

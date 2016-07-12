@@ -282,6 +282,7 @@ void vtkSphereRepresentation::Scale(double *p1, double *p2,
   this->HandlePosition[1] = c[1]+sf*(this->HandlePosition[1]-c[1]);
   this->HandlePosition[2] = c[2]+sf*(this->HandlePosition[2]-c[2]);
   this->HandleSource->SetCenter(this->HandlePosition);
+  this->AdaptCenterCursorBounds();
 }
 
 //----------------------------------------------------------------------
@@ -643,6 +644,20 @@ int vtkSphereRepresentation::ComputeInteractionState(int X, int Y, int vtkNotUse
 }
 
 //----------------------------------------------------------------------
+void vtkSphereRepresentation::AdaptCenterCursorBounds()
+{
+  double center[3], newBounds[6];
+  this->CenterCursorSource->GetFocalPoint(center);
+  double radius = this->SizeHandlesInPixels(2.0,center);
+  for (int i=0; i<3; i++)
+    {
+    newBounds[2*i] = center[i] - radius;
+    newBounds[2*i+1] = center[i] + radius;
+    }
+  this->CenterCursorSource->SetModelBounds(newBounds);
+}
+
+//----------------------------------------------------------------------
 void vtkSphereRepresentation::SetInteractionState(int state)
 {
   // Clamp to allowable values
@@ -703,6 +718,7 @@ void vtkSphereRepresentation::BuildRepresentation()
     vtkInteractorObserver::ComputeWorldToDisplay(this->Renderer, hc[0], hc[1], hc[2], tc);
     this->HandleTextActor->GetPositionCoordinate()->SetValue(tc[0]+10,tc[1]+10);
     }
+  this->AdaptCenterCursorBounds();
 }
 
 //----------------------------------------------------------------------------

@@ -191,6 +191,48 @@ void vtkInteractorStyleUser::OnRightButtonUp()
 }
 
 //----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnMouseWheelForward()
+{
+  if (this->HasObserver(vtkCommand::MouseWheelForwardEvent))
+    {
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    this->InvokeEvent(vtkCommand::MouseWheelForwardEvent, NULL);
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
+    }
+  else
+    {
+    this->vtkInteractorStyle::OnMouseWheelForward();
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInteractorStyleUser::OnMouseWheelBackward()
+{
+  if (this->HasObserver(vtkCommand::MouseWheelBackwardEvent))
+    {
+    int x = this->Interactor->GetEventPosition()[0];
+    int y = this->Interactor->GetEventPosition()[1];
+    this->CtrlKey  = this->Interactor->GetControlKey();
+    this->ShiftKey = this->Interactor->GetShiftKey();
+    this->LastPos[0] = x;
+    this->LastPos[1] = y;
+    this->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, NULL);
+    this->OldPos[0] = x;
+    this->OldPos[1] = y;
+    }
+  else
+    {
+    this->vtkInteractorStyle::OnMouseWheelBackward();
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkInteractorStyleUser::OnMiddleButtonDown()
 {
   this->Button = 2;

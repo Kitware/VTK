@@ -24,9 +24,11 @@
 #ifndef XDMFTIME_HPP_
 #define XDMFTIME_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfItem.hpp"
+
+#ifdef __cplusplus
 
 /**
  * @brief Time specification for an XdmfGrid.
@@ -118,6 +120,8 @@ public:
    */
   void setValue(const double & time);
 
+  XdmfTime(XdmfTime &);
+
 protected:
 
   XdmfTime(const double & value);
@@ -134,5 +138,28 @@ private:
 
   double mValue;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFTIME; // Simply as a typedef to ensure correct typing
+typedef struct XDMFTIME XDMFTIME;
+
+XDMF_EXPORT XDMFTIME * XdmfTimeNew(double value);
+
+XDMF_EXPORT double XdmfTimeGetValue(XDMFTIME * timePointer);
+
+XDMF_EXPORT void XdmfTimeSetValue(XDMFTIME * timePointer, double time);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfTime, XDMFTIME, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFTIME_HPP_ */

@@ -147,8 +147,8 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticPyramid(const vtkQuadraticPyramid&);  // Not implemented.
-  void operator=(const vtkQuadraticPyramid&);  // Not implemented.
+  vtkQuadraticPyramid(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraticPyramid&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 // Return the center of the quadratic pyramid in parametric coordinates.

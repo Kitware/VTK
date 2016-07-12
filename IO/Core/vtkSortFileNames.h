@@ -139,8 +139,8 @@ protected:
 
 
 private:
-  vtkSortFileNames(const vtkSortFileNames&);  // Not implemented.
-  void operator=(const vtkSortFileNames&);  // Not implemented.
+  vtkSortFileNames(const vtkSortFileNames&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSortFileNames&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -50,7 +50,6 @@ public:
   // Description:
   // See vtkDataSet for additional information.
   vtkIdType GetNumberOfPoints();
-  double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
   void GetPoint(vtkIdType ptId, double x[3]) {this->Points->GetPoint(ptId,x);};
   virtual vtkIdType FindPoint(double x[3]);
   vtkIdType FindPoint(double x, double y, double z) {
@@ -62,6 +61,13 @@ public:
                              vtkGenericCell *gencell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
                              double *weights);
+
+  // Description:
+  // See vtkDataSet for additional information.
+  // WARNING: Just don't use this error-prone method, the returned pointer
+  // and its values are only valid as long as another method invocation is not
+  // performed. Prefer GetPoint() with the return value in argument.
+  double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
 
   // Description:
   // Return an iterator that traverses the cells in this data set.
@@ -120,8 +126,8 @@ private:
 
   void Cleanup();
 
-  vtkPointSet(const vtkPointSet&);  // Not implemented.
-  void operator=(const vtkPointSet&);  // Not implemented.
+  vtkPointSet(const vtkPointSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSet&) VTK_DELETE_FUNCTION;
 };
 
 inline vtkIdType vtkPointSet::GetNumberOfPoints()

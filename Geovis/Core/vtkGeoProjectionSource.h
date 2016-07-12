@@ -74,8 +74,8 @@ protected:
   vtkAbstractTransform* Transform;
 
 private:
-  vtkGeoProjectionSource(const vtkGeoProjectionSource&); // Not implemented
-  void operator=(const vtkGeoProjectionSource&); // Not implemented
+  vtkGeoProjectionSource(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoProjectionSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

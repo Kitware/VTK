@@ -66,8 +66,8 @@ protected:
   vtkXMLDataElement* PPointsElement;
 
 private:
-  vtkXMLPStructuredGridReader(const vtkXMLPStructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredGridReader&);  // Not implemented.
+  vtkXMLPStructuredGridReader(const vtkXMLPStructuredGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPStructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

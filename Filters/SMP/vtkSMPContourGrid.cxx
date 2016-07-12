@@ -36,7 +36,7 @@
 #include "vtkSMPMergePolyDataHelper.h"
 #include "vtkInformationVector.h"
 #include "vtkDemandDrivenPipeline.h"
-#include "vtkSimpleScalarTree.h"
+#include "vtkSpanSpace.h"
 
 #include "vtkTimerLog.h"
 
@@ -589,15 +589,14 @@ int vtkSMPContourGrid::RequestData(
 
   // Create scalar tree if necessary and if requested
   int useScalarTree = this->GetUseScalarTree();
-  vtkScalarTree *scalarTree = this->ScalarTree;
   if ( useScalarTree )
     {
-    if ( scalarTree == NULL )
+    if ( this->ScalarTree == NULL )
       {
-      scalarTree = vtkSimpleScalarTree::New();
+      this->ScalarTree = vtkSpanSpace::New();
       }
-    scalarTree->SetDataSet(input);
-    scalarTree->SetScalars(inScalars);
+    this->ScalarTree->SetDataSet(input);
+    this->ScalarTree->SetScalars(inScalars);
     }
 
   // Actually execute the contouring operation

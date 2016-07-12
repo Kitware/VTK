@@ -113,8 +113,8 @@ protected:
   int RequestedDataType;
 
 private:
-  vtkProgrammableSource(const vtkProgrammableSource&);  // Not implemented.
-  void operator=(const vtkProgrammableSource&);  // Not implemented.
+  vtkProgrammableSource(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProgrammableSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

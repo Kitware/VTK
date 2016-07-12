@@ -121,8 +121,8 @@ protected:
   ~vtkContextDevice3D();
 
 private:
-  vtkContextDevice3D(const vtkContextDevice3D &); // Not implemented.
-  void operator=(const vtkContextDevice3D &);   // Not implemented.
+  vtkContextDevice3D(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextDevice3D &) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -100,8 +100,8 @@ public:
   size_t RawZBufferSize;
 
  private:
-  vtkCompositeZPass(const vtkCompositeZPass&);  // Not implemented.
-  void operator=(const vtkCompositeZPass&);  // Not implemented.
+  vtkCompositeZPass(const vtkCompositeZPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeZPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

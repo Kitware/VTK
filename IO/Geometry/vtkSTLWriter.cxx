@@ -53,21 +53,21 @@ void vtkSTLWriter::WriteData()
   polys = input->GetPolys();
   strips = input->GetStrips();
   pts = input->GetPoints();
-  if (pts == NULL || polys == NULL )
+  if (pts == NULL || polys == NULL)
     {
     vtkErrorMacro(<<"No data to write!");
     this->SetErrorCode(vtkErrorCode::UnknownError);
     return;
     }
 
-  if ( this->FileName == NULL)
+  if (this->FileName == NULL)
     {
     vtkErrorMacro(<< "Please specify FileName to write");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return;
     }
 
-  if ( this->FileType == VTK_BINARY )
+  if (this->FileType == VTK_BINARY)
     {
     this->WriteBinarySTL(pts,polys,strips);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
@@ -100,7 +100,7 @@ void vtkSTLWriter::WriteAsciiSTL(
   if ((fp = fopen(this->FileName, "w")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
-                  << vtksys::SystemTools::GetLastSystemError() );
+                  << vtksys::SystemTools::GetLastSystemError());
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
@@ -115,7 +115,7 @@ void vtkSTLWriter::WriteAsciiSTL(
 //
   vtkSmartPointer<vtkCellArray> polyStrips =
     vtkSmartPointer<vtkCellArray>::New();
-  if ( strips->GetNumberOfCells() > 0 )
+  if (strips->GetNumberOfCells() > 0)
     {
     vtkIdType *ptIds = 0;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)
@@ -192,7 +192,7 @@ void vtkSTLWriter::WriteBinarySTL(
   if ((fp = fopen(this->FileName, "wb")) == NULL)
     {
     vtkErrorMacro(<< "Couldn't open file: " << this->FileName << " Reason: "
-                  << vtksys::SystemTools::GetLastSystemError() );
+                  << vtksys::SystemTools::GetLastSystemError());
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return;
     }
@@ -228,7 +228,7 @@ void vtkSTLWriter::WriteBinarySTL(
 //
   vtkSmartPointer<vtkCellArray> polyStrips =
     vtkSmartPointer<vtkCellArray>::New();
-  if ( strips->GetNumberOfCells() > 0 )
+  if (strips->GetNumberOfCells() > 0)
     {
     vtkIdType *ptIds = 0;
     for (strips->InitTraversal(); strips->GetNextCell(npts,ptIds);)

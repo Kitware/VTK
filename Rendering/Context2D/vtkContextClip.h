@@ -67,8 +67,8 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &); // Not implemented.
-  void operator=(const vtkContextClip &);   // Not implemented.
+  vtkContextClip(const vtkContextClip &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextClip &) VTK_DELETE_FUNCTION;
 
 };
 

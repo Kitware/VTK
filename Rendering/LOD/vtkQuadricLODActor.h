@@ -231,8 +231,8 @@ protected:
   vtkIdType GetDisplayListSize(vtkPolyData *pd);
 
 private:
-  vtkQuadricLODActor(const vtkQuadricLODActor&);  // Not implemented.
-  void operator=(const vtkQuadricLODActor&);  // Not implemented.
+  vtkQuadricLODActor(const vtkQuadricLODActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadricLODActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

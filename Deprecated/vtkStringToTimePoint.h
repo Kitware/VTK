@@ -75,8 +75,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkStringToTimePoint(const vtkStringToTimePoint&); // Not implemented
-  void operator=(const vtkStringToTimePoint&);   // Not implemented
+  vtkStringToTimePoint(const vtkStringToTimePoint&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStringToTimePoint&) VTK_DELETE_FUNCTION;
 };
 
 #endif

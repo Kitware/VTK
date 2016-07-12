@@ -175,8 +175,8 @@ protected:
   // return the aspect ratio of the current window
   double WindowAspect();
 private:
-  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&);  // Not implemented.
-  void operator=(const vtkInteractorStyleUnicam&);  // Not implemented.
+  vtkInteractorStyleUnicam(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleUnicam&) VTK_DELETE_FUNCTION;
 };
 
 #endif  // vtkInteractorStyleUnicam_h

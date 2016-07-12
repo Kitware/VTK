@@ -422,7 +422,7 @@ int vtkContourGrid::RequestData(
     {
     if ( scalarTree == NULL )
       {
-      scalarTree = vtkSimpleScalarTree::New();
+      this->ScalarTree = scalarTree = vtkSimpleScalarTree::New();
       }
     scalarTree->SetDataSet(input);
     scalarTree->SetScalars(inScalars);

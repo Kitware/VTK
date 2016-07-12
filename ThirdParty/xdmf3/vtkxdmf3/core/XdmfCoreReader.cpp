@@ -32,7 +32,6 @@
 #include <utility>
 #include "XdmfArray.hpp"
 #include "XdmfArrayType.hpp"
-#include "XdmfHDF5Controller.hpp"
 #include "XdmfCoreItemFactory.hpp"
 #include "XdmfCoreReader.hpp"
 #include "XdmfError.hpp"
@@ -141,7 +140,6 @@ public:
   readSingleNode(const xmlNodePtr currNode,
                  std::vector<shared_ptr<XdmfItem> > & myItems)
   {
-    
     // Deal with proper resolution of XIncludes
     if(xmlStrcmp(currNode->name, (xmlChar*)"include") == 0) {
       
@@ -211,52 +209,47 @@ public:
       else {
         // Otherwise, generate a new XdmfItem from the node
         std::map<std::string, std::string> itemProperties;
-        
+
         xmlNodePtr childNode = currNode->children;
         // generate content if an array or arrayReference
-        if (XdmfArray::ItemTag.compare((char *)currNode->name) == 0 ||
-            strcmp("DataStructure", (char *)currNode->name) == 0 ||
-            XdmfFunction::ItemTag.compare((char *)currNode->name) == 0 ||
-            XdmfSubset::ItemTag.compare((char *)currNode->name) == 0) {
+        if (mItemFactory->isArrayTag((char *)currNode->name)) {
           while(childNode != NULL) {
             if(childNode->type == XML_TEXT_NODE && childNode->content) {
-/*
-            const char * content = (char*)childNode->content;
+#if 1 //ARL's side
+              const char * content = (char*)childNode->content;
 
-            // Determine if content is whitespace
-            bool whitespace = true;
+              // Determine if content is whitespace
+              bool whitespace = true;
 
-            const char * contentPtr = content;
-            // Step through to end of pointer
-            while(contentPtr != NULL) {
-              // If not a whitespace character, break
-              if(!isspace(*contentPtr++)) {
-                whitespace = false;
+              const char * contentPtr = content;
+              // Step through to end of pointer
+              while(contentPtr != NULL) {
+                // If not a whitespace character, break
+                if(!isspace(*contentPtr++)) {
+                  whitespace = false;
+                  break;
+                }
+              }
+              if(!whitespace) {
+                itemProperties.insert(std::make_pair("Content", content));
+                itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
               }
-            }
-
-            if(!whitespace) {
-              itemProperties.insert(std::make_pair("Content", content));
-              itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
-              break;
-            }
-*/
-//*
+#else //VTK's side, breaks XDMF's tests, revisit if problematic in VTK
               std::string content((char *)childNode->content);
               boost::algorithm::trim(content);
-              
+
               if(content.size() != 0) {
                 itemProperties.insert(std::make_pair("Content", content));
                 itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
               }
-//*/
+#endif
             }
             childNode = childNode->next;
           }
         }
-        
+
         // Pull attributes from node
         xmlAttrPtr currAttribute = currNode->properties;
         while(currAttribute != NULL) {
@@ -264,21 +257,21 @@ public:
                                                (char *)currAttribute->children->content));
           currAttribute = currAttribute->next;
         }
-        
+
         // Build XdmfItem
         const std::vector<shared_ptr<XdmfItem> > childItems =
           this->read(currNode->children);
-        shared_ptr<XdmfItem> newItem = 
+        shared_ptr<XdmfItem> newItem =
           mItemFactory->createItem((const char *)currNode->name,
                                    itemProperties,
                                    childItems);
-        
+
         if(newItem == NULL) {
-          XdmfError::message(XdmfError::FATAL, 
+          XdmfError::message(XdmfError::FATAL,
                              "mItemFactory failed to createItem in "
                              "XdmfCoreReader::XdmfCoreReaderImpl::readSingleNode");
         }
-        
+
 
         // Populate built XdmfItem
         newItem->populateItem(itemProperties,
@@ -322,6 +315,33 @@ XdmfCoreReader::XdmfCoreReader(const shared_ptr<const XdmfCoreItemFactory> itemF
 XdmfCoreReader::~XdmfCoreReader()
 {
   delete mImpl;
+}
+
+XdmfItem *
+XdmfCoreReader::DuplicatePointer(shared_ptr<XdmfItem> original) const
+{
+  if (mImpl == NULL) {
+    XdmfError::message(XdmfError::FATAL, "Error: Reader Internal Object is NULL");
+  }
+  return mImpl->mItemFactory->DuplicatePointer(original);
+}
+
+std::vector<shared_ptr<XdmfHeavyDataController> >
+XdmfCoreReader::generateHeavyDataControllers(std::map<std::string, std::string> controllerProperties,
+                                             const std::vector<unsigned int> & passedDimensions,
+                                             shared_ptr<const XdmfArrayType> passedArrayType,
+                                             const std::string & passedFormat) const
+{
+  return mImpl->mItemFactory->generateHeavyDataControllers(controllerProperties,
+                                                           passedDimensions,
+                                                           passedArrayType,
+                                                           passedFormat);
+}
+
+shared_ptr<XdmfHeavyDataWriter>
+XdmfCoreReader::generateHeavyDataWriter(std::string typeName, std::string path) const
+{
+  return mImpl->mItemFactory->generateHeavyDataWriter(typeName, path);
 }
 
 shared_ptr<XdmfItem >
@@ -381,3 +401,14 @@ XdmfCoreReader::readPathObjects(const std::string & xPath) const
   return toReturn;
 }
 
+// C Wrappers
+
+XDMFITEM *
+XdmfCoreReaderRead(XDMFCOREREADER * reader, char * filePath, int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  shared_ptr<XdmfItem> returnItem = ((XdmfCoreReader *)reader)->read(filePath);
+  return (XDMFITEM *)((void *)((XdmfItem *)((XdmfCoreReader *)reader)->DuplicatePointer(returnItem)));
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}

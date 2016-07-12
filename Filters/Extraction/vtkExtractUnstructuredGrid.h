@@ -139,8 +139,8 @@ protected:
   int Merging;
   vtkIncrementalPointLocator *Locator;
 private:
-  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGrid&);  // Not implemented.
+  vtkExtractUnstructuredGrid(const vtkExtractUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

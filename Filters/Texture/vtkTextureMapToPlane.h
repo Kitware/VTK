@@ -105,8 +105,8 @@ protected:
   int AutomaticPlaneGeneration;
 
 private:
-  vtkTextureMapToPlane(const vtkTextureMapToPlane&);  // Not implemented.
-  void operator=(const vtkTextureMapToPlane&);  // Not implemented.
+  vtkTextureMapToPlane(const vtkTextureMapToPlane&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextureMapToPlane&) VTK_DELETE_FUNCTION;
 };
 
 #endif

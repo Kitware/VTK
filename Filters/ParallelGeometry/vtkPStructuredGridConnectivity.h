@@ -342,8 +342,8 @@ protected:
       int *rcvbuffer, vtkIdType &N, const int processId );
 
 private:
-  vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity& ); // Not implemented
-  void operator=(const vtkPStructuredGridConnectivity& ); // Not implemented
+  vtkPStructuredGridConnectivity(const vtkPStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================

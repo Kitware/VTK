@@ -110,8 +110,8 @@ protected:
   int                UsingMesaDrivers;
 
 private:
-  vtkGeoView(const vtkGeoView&);  // Not implemented.
-  void operator=(const vtkGeoView&);  // Not implemented.
+  vtkGeoView(const vtkGeoView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

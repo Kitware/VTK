@@ -248,8 +248,8 @@ protected:
   vtkIdType NumberOfComponents;
 
 private:
-  vtkGenericEdgeTable(const vtkGenericEdgeTable&);  // Not implemented.
-  void operator=(const vtkGenericEdgeTable&);  // Not implemented.
+  vtkGenericEdgeTable(const vtkGenericEdgeTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericEdgeTable&) VTK_DELETE_FUNCTION;
 
 };
 

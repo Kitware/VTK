@@ -88,8 +88,8 @@ protected:
   int   ThreeDimensionalLayout;  //Boolean for a third dimension.
 private:
 
-  vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkRandomLayoutStrategy&);  // Not implemented.
+  vtkRandomLayoutStrategy(const vtkRandomLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRandomLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

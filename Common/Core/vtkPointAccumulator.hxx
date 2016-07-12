@@ -170,8 +170,8 @@ class vtkPointAccumulator
     }
 
   private:
-    vtkPointAccumulator(const vtkPointAccumulator &); // Not implemented
-    vtkPointAccumulator &operator=(const vtkPointAccumulator &); // Not implemented
+    vtkPointAccumulator(const vtkPointAccumulator &) VTK_DELETE_FUNCTION;
+    vtkPointAccumulator &operator=(const vtkPointAccumulator &) VTK_DELETE_FUNCTION;
 
     T_CPP *PtStore;
     vtkIdType NPts;

@@ -122,10 +122,11 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     {
     this->SetErrorCode(vtkErrorCode::NoError);
 
-    if (!this->Stream && !this->FileName)
+    if (!this->Stream && !this->FileName && !this->WriteToOutputString)
       {
       this->SetErrorCode(vtkErrorCode::NoFileNameError);
-      vtkErrorMacro("The FileName or Stream must be set first.");
+      vtkErrorMacro("The FileName or Stream must be set first or "
+        "the output must be written to a string.");
       return 0;
       }
 

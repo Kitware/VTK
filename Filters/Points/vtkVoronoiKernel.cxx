@@ -33,7 +33,7 @@ vtkVoronoiKernel::~vtkVoronoiKernel()
 
 //----------------------------------------------------------------------------
 vtkIdType vtkVoronoiKernel::
-ComputeBasis(double x[3], vtkIdList *pIds)
+ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType)
 {
   pIds->SetNumberOfIds(1);
   vtkIdType pId = this->Locator->FindClosestPoint(x);

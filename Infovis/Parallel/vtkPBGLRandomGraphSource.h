@@ -172,8 +172,8 @@ protected:
                                 vtkInformationVector* outputVector);
 
 private:
-  vtkPBGLRandomGraphSource(const vtkPBGLRandomGraphSource&); // Not implemented
-  void operator=(const vtkPBGLRandomGraphSource&);   // Not implemented
+  vtkPBGLRandomGraphSource(const vtkPBGLRandomGraphSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLRandomGraphSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

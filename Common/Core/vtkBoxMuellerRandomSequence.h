@@ -58,8 +58,8 @@ protected:
   vtkRandomSequence *UniformSequence;
   double Value;
 private:
-  vtkBoxMuellerRandomSequence(const vtkBoxMuellerRandomSequence&);  // Not implemented.
-  void operator=(const vtkBoxMuellerRandomSequence&);  // Not implemented.
+  vtkBoxMuellerRandomSequence(const vtkBoxMuellerRandomSequence&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoxMuellerRandomSequence&) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkBoxMuellerRandomSequence_h

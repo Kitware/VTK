@@ -498,15 +498,16 @@ void vtkDualDepthPeelingPass::Prepare()
   // blending.
   // The back-blending may discard fragments, so the back peel accumulator needs
   // initialization as well.
-  unsigned int targets[2] = { Back, this->FrontSource };
+  unsigned int targets[2] = { static_cast<unsigned int>(Back),
+                              static_cast<unsigned int>(this->FrontSource) };
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   // Fill both depth buffers with -1, -1. This lets us discard fragments in
   // CopyOpaqueDepthBuffers, which gives a moderate performance boost.
-  targets[0] = this->DepthSource;
-  targets[1] = this->DepthDestination;
+  targets[0] = static_cast<unsigned int>(this->DepthSource);
+  targets[1] = static_cast<unsigned int>(this->DepthDestination);
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
   glClearColor(-1, -1, 0, 0);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -547,7 +548,9 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
   // and write to DepthSource using MAX blending, so we need both to have opaque
   // fragments (src/dst seem reversed because they're named for their usage in
   // PeelRender).
-  unsigned int targets[2] = { this->DepthSource, this->DepthDestination };
+  unsigned int targets[2] = { static_cast<unsigned int>(this->DepthSource),
+                              static_cast<unsigned int>(this->DepthDestination)
+                            };
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
   this->Textures[OpaqueDepth]->Activate();
 
@@ -618,7 +621,9 @@ void vtkDualDepthPeelingPass::InitializeDepth()
   // polydata shaders as they expect gl_FragData[0] to be RGBA. The front
   // destination buffer is cleared prior to peeling, so it's just a dummy
   // buffer at this point.
-  unsigned int targets[2] = { this->FrontDestination, this->DepthSource };
+  unsigned int targets[2] = { static_cast<unsigned int>(this->FrontDestination),
+                              static_cast<unsigned int>(this->DepthSource)
+                            };
   this->Framebuffer->ActivateDrawBuffers(targets, 2);
 
   this->SetCurrentStage(InitializingDepth);
@@ -661,7 +666,11 @@ void vtkDualDepthPeelingPass::InitializeTargets()
 {
   // Initialize destination buffers to their minima, since we're MAX blending,
   // this ensures that valid outputs are captured.
-  unsigned int destColorBuffers[2] = { this->FrontDestination, BackTemp };
+  unsigned int destColorBuffers[2] =
+                        {
+                        static_cast<unsigned int>(this->FrontDestination),
+                        static_cast<unsigned int>(BackTemp)
+                        };
   this->Framebuffer->ActivateDrawBuffers(destColorBuffers, 2);
   glClearColor(0.f, 0.f, 0.f, 0.f);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -675,8 +684,10 @@ void vtkDualDepthPeelingPass::InitializeTargets()
 void vtkDualDepthPeelingPass::PeelRender()
 {
   // Enable the destination targets:
-  unsigned int targets[3] = { BackTemp, this->FrontDestination,
-                              this->DepthDestination };
+  unsigned int targets[3] = { static_cast<unsigned int>(BackTemp),
+                              static_cast<unsigned int>(this->FrontDestination),
+                              static_cast<unsigned int>(this->DepthDestination)
+                            };
   this->Framebuffer->ActivateDrawBuffers(targets, 3);
 
   // Use MAX blending to capture peels:
@@ -891,23 +902,34 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
   this->Textures[this->FrontSource]->Activate();
   this->Textures[Back]->Activate();
 
-  /* The final pixel (including the opaque layer is:
+  /* Peeling is done, time to blend the front and back peel textures with the
+   * opaque geometry in the existing framebuffer. First, we'll underblend the
+   * back texture beneath the front texture in the shader:
    *
-   * C = (1 - b.a) * f.a * o.a * o.rgb + f.a * (b.a * b.rgb) + f.rgb
+   * Blend 'b' under 'f' to form 't':
+   * t.rgb = f.a * b.a * b.rgb + f.rgb
+   * t.a   = (1 - b.a) * f.a
    *
-   * ( C = final color; o = opaque frag; b = back frag; f = front frag )
+   * ( t = translucent layer (back + front), f = front layer, b = back layer )
    *
-   * This is obtained from repeatedly applying the underblend equations:
+   * Also in the shader, we adjust the translucent layer's alpha so that it
+   * can be used for back-to-front blending, so
    *
-   * C = f.a * b.a * b.rgb + f.rgb
-   * a = (1 - b.a) * f.a
+   * alphaOverBlend = 1. - alphaUnderBlend
+   *
+   * To blend the translucent layer over the opaque layer, use regular
+   * overblending via glBlendEquation/glBlendFunc:
+   *
+   * Blend 't' over 'o'
+   * C = t.rgb + o.rgb * (1 - t.a)
+   * a = t.a + o.a * (1 - t.a)
    *
    * These blending parameters and fragment shader perform this work.
    * Note that the opaque fragments are assumed to have premultiplied alpha
    * in this implementation. */
   glEnable(GL_BLEND);
   glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
   typedef vtkOpenGLRenderUtilities GLUtil;
 
@@ -928,7 +950,10 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
           "  front.a = 1. - front.a; // stored as (1 - alpha)\n"
           "  // Underblend. Back color is premultiplied:\n"
           "  gl_FragData[0].rgb = (front.rgb + back.rgb * front.a);\n"
-          "  gl_FragData[0].a = front.a * (1 - back.a);\n"
+          "  // The first '1. - ...' is to convert the 'underblend' alpha to\n"
+          "  // an 'overblend' alpha, since we'll be letting GL do the\n"
+          "  // transparent-over-opaque blending pass.\n"
+          "  gl_FragData[0].a = (1. - front.a * (1. - back.a));\n"
           );
     this->BlendProgram = renWin->GetShaderCache()->ReadyShaderProgram(
           GLUtil::GetFullScreenQuadVertexShader().c_str(),

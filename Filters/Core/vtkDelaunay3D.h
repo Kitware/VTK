@@ -265,8 +265,8 @@ private: //members added for performance
   vtkIdList *NeiTetras; //used by InsertPoint
 
 private:
-  vtkDelaunay3D(const vtkDelaunay3D&);  // Not implemented.
-  void operator=(const vtkDelaunay3D&);  // Not implemented.
+  vtkDelaunay3D(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

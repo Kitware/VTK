@@ -70,8 +70,8 @@ protected:
                                   double derivative[3][3]);
 
 private:
-  vtkSphericalTransform(const vtkSphericalTransform&); // Not implemented.
-  void operator=(const vtkSphericalTransform&); // Not implemented.
+  vtkSphericalTransform(const vtkSphericalTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphericalTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

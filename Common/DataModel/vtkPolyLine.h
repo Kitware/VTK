@@ -88,8 +88,8 @@ protected:
   vtkLine *Line;
 
 private:
-  vtkPolyLine(const vtkPolyLine&);  // Not implemented.
-  void operator=(const vtkPolyLine&);  // Not implemented.
+  vtkPolyLine(const vtkPolyLine&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyLine&) VTK_DELETE_FUNCTION;
 };
 
 #endif

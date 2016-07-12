@@ -121,7 +121,7 @@ public:
 
   // Description:
   // Get an iterator to traverse the objects in this collection.
-  vtkCollectionIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCollectionIterator* NewIterator();
 
   // Description:
   // Participate in garbage collection.
@@ -144,8 +144,8 @@ protected:
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector* collector);
 private:
-  vtkCollection(const vtkCollection&); // Not implemented
-  void operator=(const vtkCollection&); // Not implemented
+  vtkCollection(const vtkCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCollection&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -120,8 +120,8 @@ protected:
   friend class vtkPostgreSQLDatabase;
 
 private:
-  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ); // Not implemented.
-  void operator = ( const vtkPostgreSQLQuery& ); // Not implemented.
+  vtkPostgreSQLQuery( const vtkPostgreSQLQuery& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkPostgreSQLQuery& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPostgreSQLQuery_h

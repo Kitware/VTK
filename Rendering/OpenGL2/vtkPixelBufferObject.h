@@ -330,8 +330,8 @@ protected:
   vtkWeakPointer<vtkRenderWindow> Context;
   unsigned int Handle;
 private:
-  vtkPixelBufferObject(const vtkPixelBufferObject&); // Not implemented.
-  void operator=(const vtkPixelBufferObject&); // Not implemented.
+  vtkPixelBufferObject(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPixelBufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

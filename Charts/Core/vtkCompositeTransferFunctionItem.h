@@ -51,8 +51,8 @@ protected:
   vtkPiecewiseFunction* OpacityFunction;
 
 private:
-  vtkCompositeTransferFunctionItem(const vtkCompositeTransferFunctionItem&); // Not implemented.
-  void operator=(const vtkCompositeTransferFunctionItem&); // Not implemented
+  vtkCompositeTransferFunctionItem(const vtkCompositeTransferFunctionItem&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeTransferFunctionItem&) VTK_DELETE_FUNCTION;
 };
 
 #endif

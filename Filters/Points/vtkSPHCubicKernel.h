@@ -25,7 +25,7 @@
 
 // .SECTION Acknowledgments
 // The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
 // more information.
 
 // .SECTION See Also
@@ -53,6 +53,12 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Produce the computational parameters for the kernel. Invoke this method
+  // after setting initial values like SpatialStep.
+  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
+                          vtkPointData *pd);
+
+  // Description:
   // Compute weighting factor given a normalized distance from a sample point.
   virtual double ComputeFunctionWeight(const double d)
   {
@@ -76,8 +82,8 @@ protected:
   ~vtkSPHCubicKernel();
 
 private:
-  vtkSPHCubicKernel(const vtkSPHCubicKernel&);  // Not implemented.
-  void operator=(const vtkSPHCubicKernel&);  // Not implemented.
+  vtkSPHCubicKernel(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

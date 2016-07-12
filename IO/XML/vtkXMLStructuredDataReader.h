@@ -110,8 +110,8 @@ protected:
     vtkAbstractArray* array, FieldType type);
 
 private:
-  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&);  // Not implemented.
-  void operator=(const vtkXMLStructuredDataReader&);  // Not implemented.
+  vtkXMLStructuredDataReader(const vtkXMLStructuredDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLStructuredDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

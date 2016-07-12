@@ -146,8 +146,8 @@ protected:
   int LineType;
 
 private:
-  vtkPen(const vtkPen &); // Not implemented.
-  void operator=(const vtkPen &);   // Not implemented.
+  vtkPen(const vtkPen &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPen &) VTK_DELETE_FUNCTION;
 
 };
 

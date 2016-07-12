@@ -274,8 +274,8 @@ protected:
   virtual void SizeHandles();
 
 private:
-  vtkSphereWidget(const vtkSphereWidget&);  //Not implemented
-  void operator=(const vtkSphereWidget&);  //Not implemented
+  vtkSphereWidget(const vtkSphereWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphereWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

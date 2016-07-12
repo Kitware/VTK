@@ -110,8 +110,8 @@ protected:
   int PointMode;
 
 private:
-  vtkExtentSplitter(const vtkExtentSplitter&);  // Not implemented.
-  void operator=(const vtkExtentSplitter&);  // Not implemented.
+  vtkExtentSplitter(const vtkExtentSplitter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtentSplitter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -67,8 +67,8 @@ private:
 
   char* OutputArrayName;
 
-  vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&);  // Not implemented.
-  void operator=(const vtkBoostBiconnectedComponents&);  // Not implemented.
+  vtkBoostBiconnectedComponents(const vtkBoostBiconnectedComponents&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostBiconnectedComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

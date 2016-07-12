@@ -146,8 +146,8 @@ protected:
   int ShowBounds;
 
 private:
-  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&);  // Not implemented.
-  void operator=(const vtkExtractSelectedFrustum&);  // Not implemented.
+  vtkExtractSelectedFrustum(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedFrustum&) VTK_DELETE_FUNCTION;
 
 };
 

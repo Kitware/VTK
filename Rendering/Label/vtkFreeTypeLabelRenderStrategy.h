@@ -77,8 +77,8 @@ protected:
   vtkActor2D* Actor;
 
 private:
-  vtkFreeTypeLabelRenderStrategy(const vtkFreeTypeLabelRenderStrategy&);  // Not implemented.
-  void operator=(const vtkFreeTypeLabelRenderStrategy&);  // Not implemented.
+  vtkFreeTypeLabelRenderStrategy(const vtkFreeTypeLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFreeTypeLabelRenderStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

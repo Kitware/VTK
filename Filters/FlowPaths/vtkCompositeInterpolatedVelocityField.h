@@ -113,8 +113,8 @@ protected:
 
 private:
   vtkCompositeInterpolatedVelocityField
-    ( const vtkCompositeInterpolatedVelocityField & );  // Not implemented.
-  void operator = ( const vtkCompositeInterpolatedVelocityField & );  // Not implemented.
+    ( const vtkCompositeInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkCompositeInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 typedef std::vector< vtkDataSet * > DataSetsTypeBase;

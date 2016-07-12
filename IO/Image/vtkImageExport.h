@@ -171,8 +171,8 @@ protected:
   unsigned long LastPipelineMTime;
 
 private:
-  vtkImageExport(const vtkImageExport&);  // Not implemented.
-  void operator=(const vtkImageExport&);  // Not implemented.
+  vtkImageExport(const vtkImageExport&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageExport&) VTK_DELETE_FUNCTION;
 
   static void UpdateInformationCallbackFunction(void*);
   static int PipelineModifiedCallbackFunction(void*);

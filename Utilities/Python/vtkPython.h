@@ -16,6 +16,7 @@
 #define vtkPython_h
 
 #include "vtkPythonConfigure.h"
+#include "vtkConfigure.h"
 #include "vtkABI.h"
 
 /*
@@ -152,8 +153,8 @@ private:
   bool Force;
   bool NoRelease;
 
-  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&); // Not implemented.
-  void operator=(const vtkPythonScopeGilEnsurer&); // Not implemented.
+  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
 };
 
 

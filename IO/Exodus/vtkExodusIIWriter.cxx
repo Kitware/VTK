@@ -310,7 +310,7 @@ void vtkExodusIIWriter::WriteData ()
   this->RemoveGhostCells ();
 
   // move check parameters up here and then if there's a change, new file.
-  if (this->WriteAllTimeSteps && !newHierarchy)
+  if (this->WriteAllTimeSteps && this->CurrentTimeIndex != 0 && !newHierarchy)
     {
     if (!this->WriteNextTimeStep ())
       {
@@ -540,6 +540,11 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name,
       changed = true;
       }
     this->NewFlattenedInput.push_back (output);
+    if (!name)
+      {
+      // Setting an arbitary name for datasets that have not been assigned one.
+      name = "block";
+      }
     this->NewFlattenedNames.push_back (name);
     }
   else

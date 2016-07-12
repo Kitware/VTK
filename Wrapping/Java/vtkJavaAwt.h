@@ -118,9 +118,9 @@ Java_vtk_vtkPanel_RenderCreate(JNIEnv *env, jobject canvas, jobject id0)
   temp0->SetParentId((void *)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
-  JAWT_MacOSXDrawingSurfaceInfo* dsi_mac;
-  dsi_mac = (JAWT_MacOSXDrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId(dsi_mac->cocoaViewRef);
+  JAWT_DrawingSurfaceInfo* dsi_mac;
+  dsi_mac = (JAWT_DrawingSurfaceInfo*)dsi->platformInfo;
+  // temp0->SetWindowId(dsi_mac->cocoaViewRef); // Wrong but allow compilation
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;
@@ -219,9 +219,9 @@ Java_vtk_rendering_awt_vtkInternalAwtComponent_RenderCreate(JNIEnv *env, jobject
   temp0->SetParentId((void *)dsi_win->hdc);
 // use mac code
 #elif defined(__APPLE__)
-  JAWT_MacOSXDrawingSurfaceInfo* dsi_mac;
-  dsi_mac = (JAWT_MacOSXDrawingSurfaceInfo*)dsi->platformInfo;
-  temp0->SetWindowId(dsi_mac->cocoaViewRef);
+  JAWT_DrawingSurfaceInfo* dsi_mac;
+  dsi_mac = (JAWT_DrawingSurfaceInfo*)dsi->platformInfo;
+  // temp0->SetWindowId(dsi_mac->cocoaViewRef); // Wrong but allow compilation
 // otherwise use X11 code
 #else
   JAWT_X11DrawingSurfaceInfo* dsi_x11;

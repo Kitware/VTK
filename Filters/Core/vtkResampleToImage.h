@@ -104,8 +104,8 @@ protected:
   vtkNew<vtkCompositeDataProbeFilter> Prober;
 
 private:
-  vtkResampleToImage(const vtkResampleToImage&);  // Not implemented.
-  void operator=(const vtkResampleToImage&);  // Not implemented.
+  vtkResampleToImage(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResampleToImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

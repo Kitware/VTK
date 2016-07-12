@@ -1245,32 +1245,9 @@ void vtkRenderer::ResetCameraClippingRange(double xmin, double xmax,
 // no reference counting!
 void vtkRenderer::SetRenderWindow(vtkRenderWindow *renwin)
 {
-  vtkProp *aProp;
-
   if (renwin != this->RenderWindow)
     {
-    // This renderer is be dis-associated with its previous render window.
-    // this information needs to be passed to the renderer's actors and
-    // volumes so they can release and render window specific (or graphics
-    // context specific) information (such as display lists and texture ids)
-    vtkCollectionSimpleIterator pit;
-    this->Props->InitTraversal(pit);
-    for ( aProp = this->Props->GetNextProp(pit);
-          aProp != NULL;
-          aProp = this->Props->GetNextProp(pit) )
-      {
-      aProp->ReleaseGraphicsResources(this->RenderWindow);
-      }
-    // what about lights?
-    // what about cullers?
-
     this->ReleaseGraphicsResources(this->RenderWindow);
-
-    if(this->BackgroundTexture != 0 && this->RenderWindow!=0)
-      {
-      this->BackgroundTexture->ReleaseGraphicsResources(this->RenderWindow);
-      }
-
     this->VTKWindow = renwin;
     this->RenderWindow = renwin;
     }

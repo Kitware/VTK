@@ -295,8 +295,8 @@ private:
   int FindAttributeArray(const char *name);
   int FindUniform(const char *name);
 
-  vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
-  void operator=(const vtkShaderProgram&);  // Not implemented.
+  vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
 
 };
 

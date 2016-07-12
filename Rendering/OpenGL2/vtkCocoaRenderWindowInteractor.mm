@@ -192,7 +192,7 @@ static void VTKStopNSApplicationEventLoop(void)
   NSApplication *application = [NSApplication sharedApplication];
   [application stop:application];
 
-  NSEvent *event = [NSEvent otherEventWithType:NSApplicationDefined
+  NSEvent *event = [NSEvent otherEventWithType:NSEventTypeApplicationDefined
                                       location:NSZeroPoint
                                  modifierFlags:0
                                      timestamp:0

@@ -94,8 +94,8 @@ public:
   bool SupportProbed;
 
  private:
-  vtkGaussianBlurPass(const vtkGaussianBlurPass&);  // Not implemented.
-  void operator=(const vtkGaussianBlurPass&);  // Not implemented.
+  vtkGaussianBlurPass(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGaussianBlurPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

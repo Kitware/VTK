@@ -245,9 +245,8 @@ private:
   vtkOpenFOAMReaderPrivate();
   ~vtkOpenFOAMReaderPrivate();
 
-  // not implemented.
-  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &);
-  void operator=(const vtkOpenFOAMReaderPrivate &);
+  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
 
   // clear mesh construction
   void ClearInternalMeshes();
@@ -3359,6 +3358,15 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       if (currToken.Is<float>())
         {
         this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
+        }
+      else if (currToken == '(')
+        {
+        vtkGenericWarningMacro("Found a list containing scalar data followed "
+                               "by a nested list, but this reader only "
+                               "supports nested lists that precede all "
+                               "scalars. Discarding nested list data.");
+        vtkFoamEntryValue tmp(this->UpperEntryPtr);
+        tmp.ReadList(io);
         }
       else
         {

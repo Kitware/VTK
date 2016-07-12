@@ -55,8 +55,8 @@ protected:
     int outExt[6],
     int threadId);
 private:
-  vtkImageFFT(const vtkImageFFT&);  // Not implemented.
-  void operator=(const vtkImageFFT&);  // Not implemented.
+  vtkImageFFT(const vtkImageFFT&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFFT&) VTK_DELETE_FUNCTION;
 };
 
 #endif

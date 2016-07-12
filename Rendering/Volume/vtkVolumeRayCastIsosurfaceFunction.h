@@ -76,8 +76,8 @@ protected:
                                    vtkVolumeRayCastMapper *mapper );
 
 private:
-  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
+  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

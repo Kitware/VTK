@@ -48,8 +48,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkPolyDataWriter(const vtkPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkPolyDataWriter&);  // Not implemented.
+  vtkPolyDataWriter(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

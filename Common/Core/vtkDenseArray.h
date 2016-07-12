@@ -162,8 +162,8 @@ protected:
   ~vtkDenseArray();
 
 private:
-  vtkDenseArray(const vtkDenseArray&); // Not implemented
-  void operator=(const vtkDenseArray&); // Not implemented
+  vtkDenseArray(const vtkDenseArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDenseArray&) VTK_DELETE_FUNCTION;
 
   void InternalResize(const vtkArrayExtents& extents);
   void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label);

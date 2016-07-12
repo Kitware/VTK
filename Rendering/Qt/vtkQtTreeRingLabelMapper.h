@@ -139,8 +139,8 @@ protected:
   int WindowSize[2];
 
 private:
-  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&);  // Not implemented.
-  void operator=(const vtkQtTreeRingLabelMapper&);  // Not implemented.
+  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
 };
 
 

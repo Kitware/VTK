@@ -166,8 +166,8 @@ protected:
 
   ifstream *IFile;
 private:
-  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&);  // Not implemented.
-  void operator=(const vtkEnSight6BinaryReader&);  // Not implemented.
+  vtkEnSight6BinaryReader(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEnSight6BinaryReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

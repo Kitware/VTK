@@ -389,8 +389,8 @@ protected:
   MouseClickActions ActionsClick;
 
 private:
-  vtkChart(const vtkChart &); // Not implemented.
-  void operator=(const vtkChart &);   // Not implemented.
+  vtkChart(const vtkChart &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkChart &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkChart_h

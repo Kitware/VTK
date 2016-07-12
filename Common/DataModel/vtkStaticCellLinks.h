@@ -91,8 +91,8 @@ protected:
   vtkStaticCellLinksTemplate<vtkIdType> *Impl;
 
 private:
-  vtkStaticCellLinks(const vtkStaticCellLinks&);  // Not implemented.
-  void operator=(const vtkStaticCellLinks&);  // Not implemented.
+  vtkStaticCellLinks(const vtkStaticCellLinks&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStaticCellLinks&) VTK_DELETE_FUNCTION;
 
 };
 

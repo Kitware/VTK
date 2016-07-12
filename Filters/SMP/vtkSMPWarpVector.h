@@ -44,8 +44,8 @@ protected :
                   vtkInformationVector *);
 
 private :
-  vtkSMPWarpVector(const vtkSMPWarpVector&);  // Not implemented.
-  void operator=(const vtkSMPWarpVector&);  // Not implemented.
+  vtkSMPWarpVector(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSMPWarpVector&) VTK_DELETE_FUNCTION;
 
 };
 

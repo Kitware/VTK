@@ -192,8 +192,8 @@ protected:
   static int BreakLoopFlag;
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

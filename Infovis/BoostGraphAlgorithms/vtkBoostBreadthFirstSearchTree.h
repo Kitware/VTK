@@ -99,8 +99,8 @@ private:
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
 
-  vtkBoostBreadthFirstSearchTree(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.
-  void operator=(const vtkBoostBreadthFirstSearchTree&);  // Not implemented.
+  vtkBoostBreadthFirstSearchTree(const vtkBoostBreadthFirstSearchTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostBreadthFirstSearchTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

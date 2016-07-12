@@ -136,7 +136,7 @@ struct ProbePoints
         {
         this->Input->GetPoint(ptId,x);
 
-        if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
+        if ( (numWeights=this->Kernel->ComputeBasis(x, pIds, ptId)) > 0 )
           {
           if ( ! this->ComputeDerivArrays )
             {
@@ -227,7 +227,7 @@ struct ImageProbePoints : public ProbePoints
             x[0] = origin[0] + i*spacing[0];
             ptId = i + jOffset + kOffset;
 
-            if ( (numWeights=this->Kernel->ComputeBasis(x, pIds)) > 0 )
+            if ( (numWeights=this->Kernel->ComputeBasis(x, pIds, ptId)) > 0 )
               {
               if ( ! this->ComputeDerivArrays )
                 {
@@ -279,6 +279,8 @@ vtkSPHInterpolator::vtkSPHInterpolator()
   this->Locator = vtkStaticPointLocator::New();
 
   this->Kernel = vtkSPHQuinticKernel::New();
+
+  this->CutoffArrayName = "";
 
   this->DensityArrayName = "Rho";
   this->MassArrayName = "";
@@ -362,9 +364,10 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 
   // Set up the interpolation process
   vtkIdType numPts = input->GetNumberOfPoints();
-  vtkPointData *inPD = source->GetPointData();
+  vtkPointData *inPD = input->GetPointData();
+  vtkPointData *sourcePD = source->GetPointData();
   vtkPointData *outPD = output->GetPointData();
-  outPD->InterpolateAllocate(inPD,numPts);
+  outPD->InterpolateAllocate(sourcePD,numPts);
 
   // Masking if requested
   char *mask=NULL;
@@ -388,9 +391,10 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   // Initialize the SPH kernel
   if ( this->Kernel->GetRequiresInitialization() )
     {
-    this->Kernel->SetDensityArray(inPD->GetArray(this->DensityArrayName));
-    this->Kernel->SetMassArray(inPD->GetArray(this->MassArrayName));
-    this->Kernel->Initialize(this->Locator, source, inPD);
+    this->Kernel->SetCutoffArray(inPD->GetArray(this->CutoffArrayName));
+    this->Kernel->SetDensityArray(sourcePD->GetArray(this->DensityArrayName));
+    this->Kernel->SetMassArray(sourcePD->GetArray(this->MassArrayName));
+    this->Kernel->Initialize(this->Locator, source, sourcePD);
     }
 
   // Now loop over input points, finding closest points and invoking kernel.
@@ -402,12 +406,12 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     double origin[3], spacing[3];
     this->ExtractImageDescription(imgInput,dims,origin,spacing);
     ImageProbePoints imageProbe(this, imgInput, dims, origin,
-                                spacing, inPD, outPD, mask, shepardArray);
+                                spacing, sourcePD, outPD, mask, shepardArray);
     vtkSMPTools::For(0, dims[2], imageProbe);//over slices
     }
   else
     {
-    ProbePoints probe(this, input, inPD, outPD, mask, shepardArray);
+    ProbePoints probe(this, input, sourcePD, outPD, mask, shepardArray);
     vtkSMPTools::For(0, numPts, probe);
     }
 
@@ -598,6 +602,8 @@ void vtkSPHInterpolator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Source: " << source << "\n";
   os << indent << "Locator: " << this->Locator << "\n";
   os << indent << "Kernel: " << this->Kernel << "\n";
+
+  os << indent << "Cutoff Array Name: " << this->CutoffArrayName << "\n";
 
   os << indent << "Density Array Name: " << this->DensityArrayName << "\n";
   os << indent << "Mass Array Name: " << this->MassArrayName << "\n";
