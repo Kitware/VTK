@@ -231,7 +231,9 @@ public:
                 }
               }
               if(!whitespace) {
-                itemProperties.insert(std::make_pair("Content", content));
+                std::string contentString(content);
+                boost::algorithm::trim(contentString);
+                itemProperties.insert(std::make_pair("Content", contentString));
                 itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
               }

@@ -124,6 +124,7 @@ public:
    * @return    The geometry associated with this grid.
    */
   shared_ptr<XdmfGeometry> getGeometry();
+  using XdmfGrid::getGeometry;
 
   virtual std::string getItemTag() const;
 
@@ -155,6 +156,7 @@ public:
    * @return    The topology associated with this grid.
    */
   shared_ptr<XdmfTopology> getTopology();
+  using XdmfGrid::getTopology;
 
   virtual void read();
 
