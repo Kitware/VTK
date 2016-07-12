@@ -55,7 +55,7 @@ vtkProgressBarRepresentation::vtkProgressBarRepresentation()
   // Create the geometry in canonical coordinates
   this->Points = vtkPoints::New();
   this->Points->SetDataTypeToDouble();
-  this->Points->SetNumberOfPoints(10);
+  this->Points->SetNumberOfPoints(8);
   this->Points->SetPoint(0, 0.2, 0.2, 0.0);
   this->Points->SetPoint(1, 0.2, PROGRESS_BAR_HEIGHT, 0.0);
   this->Points->SetPoint(2, PROGRESS_BAR_WIDTH,
