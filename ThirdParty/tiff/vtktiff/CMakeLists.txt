@@ -690,11 +690,6 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libtiff-4.pc
         DESTINATION "${CMAKE_INSTALL_FULL_LIBDIR}/pkgconfig")
 endif ()
 
-# XXX(kitware): force vtk settings
-set(CMAKE_INSTALL_FULL_INCLUDEDIR "${VTK_INSTALL_INCLUDE_DIR}/vtktiff")
-set(ZLIB_LIBRARIES vtkzlib)
-set(JPEG_LIBRARIES vtkjpeg)
-
 # Includes used by libtiff (and tests)
 if(ZLIB_INCLUDE_DIRS)
   list(APPEND TIFF_INCLUDES ${ZLIB_INCLUDE_DIRS})

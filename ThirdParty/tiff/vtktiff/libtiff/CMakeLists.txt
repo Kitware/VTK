@@ -126,7 +126,6 @@ endif ()
 vtk_add_library(vtktiff ${tiff_SOURCES} ${tiff_HEADERS} ${nodist_tiff_HEADERS}
             ${tiff_port_SOURCES} ${tiff_DEFS})
 target_link_libraries(vtktiff ${TIFF_LIBRARY_DEPS})
-set_target_properties(vtktiff PROPERTIES SOVERSION ${SO_COMPATVERSION})
 if(NOT CYGWIN)
     # This property causes shared libraries on Linux to have the full version
     # encoded into their final filename.  We disable this on Cygwin because
@@ -135,7 +134,6 @@ if(NOT CYGWIN)
     if (FALSE) # XXX(kitware): mangle library name
     set_target_properties(tiff PROPERTIES VERSION ${SO_VERSION})
     endif ()
-    set_target_properties(vtktiff PROPERTIES VERSION ${SO_VERSION})
 endif()
 if(HAVE_LD_VERSION_SCRIPT)
   if (FALSE) # XXX(kitware): mangle library name
