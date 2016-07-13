@@ -882,7 +882,7 @@ public:
 
   // Description:
   // Are the bounds initialized?
-  static int AreBoundsInitialized(double bounds[6]){
+  static vtkTypeBool AreBoundsInitialized(double bounds[6]){
     if ( bounds[1]-bounds[0]<0.0 )
       {
       return 0;
@@ -938,19 +938,19 @@ public:
   // Description:
   // Return true if first 3D extent is within second 3D extent
   // Extent is x-min, x-max, y-min, y-max, z-min, z-max
-  static int ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
+  static vtkTypeBool ExtentIsWithinOtherExtent(int extent1[6], int extent2[6]);
 
   // Description:
   // Return true if first 3D bounds is within the second 3D bounds
   // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
   // Delta is the error margin along each axis (usually a small number)
-  static int BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3]);
+  static vtkTypeBool BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3]);
 
   // Description:
   // Return true if point is within the given 3D bounds
   // Bounds is x-min, x-max, y-min, y-max, z-min, z-max
   // Delta is the error margin along each axis (usually a small number)
-  static int PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
+  static vtkTypeBool PointIsWithinBounds(double point[3], double bounds[6], double delta[3]);
 
   // Description:
   // In Euclidean space, there is a unique circle passing through any given
@@ -976,11 +976,11 @@ public:
 
   // Description:
   // Test if a number is equal to the special floating point value infinity.
-  static int IsInf(double x);
+  static vtkTypeBool IsInf(double x);
 
   // Description:
   // Test if a number is equal to the special floating point value Not-A-Number (Nan).
-  static int IsNan(double x);
+  static vtkTypeBool IsNan(double x);
 
   // Description:
   // Test if a number has finite value i.e. it is normal, subnormal or zero, but not infinite or Nan.
@@ -1340,7 +1340,7 @@ inline void RoundDoubleToIntegralIfNecessary(double val, float* retVal)
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISINF) || defined(VTK_HAS_STD_ISINF)
 #define VTK_MATH_ISINF_IS_INLINE
-inline int vtkMath::IsInf(double x)
+inline vtkTypeBool vtkMath::IsInf(double x)
 {
 #if defined(VTK_HAS_STD_ISINF)
   return std::isinf(x);
@@ -1353,7 +1353,7 @@ inline int vtkMath::IsInf(double x)
 //-----------------------------------------------------------------------------
 #if defined(VTK_HAS_ISNAN) || defined(VTK_HAS_STD_ISNAN)
 #define VTK_MATH_ISNAN_IS_INLINE
-inline int vtkMath::IsNan(double x)
+inline vtkTypeBool vtkMath::IsNan(double x)
 {
 #if defined(VTK_HAS_STD_ISNAN)
   return std::isnan(x);

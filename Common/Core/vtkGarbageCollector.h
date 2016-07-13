@@ -31,11 +31,11 @@
 //  public:
 //   virtual void Register(vtkObjectBase* o)
 //     {
-//     this->RegisterInternal(o, 1);
+//     this->RegisterInternal(o, true);
 //     }
 //   virtual void UnRegister(vtkObjectBase* o)
 //     {
-//     this->UnRegisterInternal(o, 1);
+//     this->UnRegisterInternal(o, true);
 //     }
 //
 //  protected:
