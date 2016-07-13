@@ -28,8 +28,8 @@ from vtk.web import protocols
 
 try:
     from vtk.vtkWebCore import vtkWebApplication
-except:
-    from vtk.vtkWebCorePython import vtkWebApplication
+except ImportError:
+    from vtkWebCore import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
