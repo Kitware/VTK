@@ -1,7 +1,6 @@
 #ifndef vtkLabelHierarchyPrivate_h
 #define vtkLabelHierarchyPrivate_h
 
-#include "vtkObject.h" // for vtkstd
 #include <set>
 
 #include "octree/octree"
