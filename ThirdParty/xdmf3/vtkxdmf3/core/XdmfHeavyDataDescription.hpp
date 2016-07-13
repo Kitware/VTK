@@ -80,14 +80,6 @@ private:
   std::string mPortDescription;
 };
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-shared_ptr<Loki::BaseVisitor>;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-Loki::Visitor<shared_ptr<XdmfHeavyDataDescription>,
-              shared_ptr<XdmfItem> >;
-#endif
-
 #endif
 
 #ifdef __cplusplus
