@@ -36,6 +36,7 @@ vtkCxxSetObjectMacro(vtkPResampleFilter, Controller, vtkMultiProcessController);
 
 //----------------------------------------------------------------------------
 vtkPResampleFilter::vtkPResampleFilter()
+  : UseInputBounds(0)
 {
   this->Controller = 0;
   this->SetController(vtkMultiProcessController::GetGlobalController());
