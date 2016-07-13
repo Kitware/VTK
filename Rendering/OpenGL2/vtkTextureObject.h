@@ -208,6 +208,13 @@ public:
   bool CreateTextureBuffer(unsigned int numValues, int numComps,
                            int dataType, vtkOpenGLBufferObject *bo);
 
+  // Description:
+  // Create a cube texture from 6 buffers from client memory.
+  // Image data must be provided in the following order: +X -X +Y -Y +Z -Z.
+  // numComps must be in [1-4].
+  bool CreateCubeFromRaw(unsigned int width, unsigned int height,
+                         int numComps, int dataType, void *data[6]);
+
 // 1D  textures are not supported in ES 2.0 or 3.0
 #if GL_ES_VERSION_2_0 != 1
 
