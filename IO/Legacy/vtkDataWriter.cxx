@@ -1155,7 +1155,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       {
       sprintf (str, format, "double"); *fp << str;
       double *s=static_cast<vtkDoubleArray *>(data)->GetPointer(0);
-      vtkWriteDataArray(fp, s, this->FileType, "%lg ", num, numComp);
+      vtkWriteDataArray(fp, s, this->FileType, "%.11lg ", num, numComp);
       }
     break;
 
