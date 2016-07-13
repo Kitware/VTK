@@ -72,3 +72,5 @@ public:
 };
 
 #endif
+
+// VTK-HeaderTest-Exclude: vtkOpenGLImageAlgorithmHelper.h
