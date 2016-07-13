@@ -38,7 +38,6 @@ public:
   vtkTubePoint &operator=(const vtkTubePoint& hp); //for resizing
 
   double   X[3];    // position
-  double   *V[3];   // pointers to eigenvectors
   double   V0[3];   // the line tangent
   double   V1[3];   // the normal to the line
   double   V2[3];   // another, orthogonal normal to the line
@@ -74,24 +73,21 @@ public:
 //-----------------------------------------------------------------------------
 vtkTubePoint::vtkTubePoint()
 {
-  this->V[0] = this->V0;
-  this->V[1] = this->V1;
-  this->V[2] = this->V2;
 }
 
 //-----------------------------------------------------------------------------
 vtkTubePoint& vtkTubePoint::operator=(const vtkTubePoint& hp)
 {
-  int i, j;
-
-  for (i=0; i<3; i++)
+  for (int i=0; i<3; i++)
     {
     this->X[i] = hp.X[i];
-    for (j=0; j<3; j++)
-      {
-      this->V[j][i] = hp.V[j][i];
-      }
+    this->V0[i] = hp.V0[i];
+    this->V1[i] = hp.V1[i];
+    this->V2[i] = hp.V2[i];
     }
+  this->Vector[0] = hp.Vector[0];
+  this->Vector[1] = hp.Vector[1];
+  this->Vector[2] = hp.Vector[2];
 
   return *this;
 }
@@ -252,9 +248,9 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
       // The normal to the line
       normal = newNormals->GetTuple(idx);
-      sPtr->V[1][0] = normal[0];
-      sPtr->V[1][1] = normal[1];
-      sPtr->V[1][2] = normal[2];
+      sPtr->V1[0] = normal[0];
+      sPtr->V1[1] = normal[1];
+      sPtr->V1[2] = normal[2];
       }
 
     // Okay build the rest of the coordinate system. We've got to find the
@@ -267,16 +263,16 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
       if ( idx == 0 )
         {
         sNext = this->Tubes[k].GetTubePoint(1);
-        sPtr->V[0][0] = sNext->X[0] - sPtr->X[0];
-        sPtr->V[0][1] = sNext->X[1] - sPtr->X[1];
-        sPtr->V[0][2] = sNext->X[2] - sPtr->X[2];
+        sPtr->V0[0] = sNext->X[0] - sPtr->X[0];
+        sPtr->V0[1] = sNext->X[1] - sPtr->X[1];
+        sPtr->V0[2] = sNext->X[2] - sPtr->X[2];
         }
       else if ( idx == (npts-1) )
         {
         sPrev = this->Tubes[k].GetTubePoint(npts-2);
-        sPtr->V[0][0] = sPtr->X[0] - sPrev->X[0];
-        sPtr->V[0][1] = sPtr->X[1] - sPrev->X[1];
-        sPtr->V[0][2] = sPtr->X[2] - sPrev->X[2];
+        sPtr->V0[0] = sPtr->X[0] - sPrev->X[0];
+        sPtr->V0[1] = sPtr->X[1] - sPrev->X[1];
+        sPtr->V0[2] = sPtr->X[2] - sPrev->X[2];
         }
       else
         {
@@ -290,17 +286,17 @@ int vtkUncertaintyTubeFilter::RequestData(vtkInformation *vtkNotUsed(request),
         v1[1] = sNext->X[1] - sPtr->X[1];
         v1[2] = sNext->X[2] - sPtr->X[2];
         vtkMath::Normalize(v1);
-        sPtr->V[0][0] = (v0[0]+v1[0]) / 2.0; //average vector
-        sPtr->V[0][1] = (v0[1]+v1[1]) / 2.0;
-        sPtr->V[0][2] = (v0[2]+v1[2]) / 2.0;
+        sPtr->V0[0] = (v0[0]+v1[0]) / 2.0; //average vector
+        sPtr->V0[1] = (v0[1]+v1[1]) / 2.0;
+        sPtr->V0[2] = (v0[2]+v1[2]) / 2.0;
         }
-      vtkMath::Normalize(sPtr->V[0]);
+      vtkMath::Normalize(sPtr->V0);
 
       // Produce orthogonal axis
-      vtkMath::Cross(sPtr->V[0], sPtr->V[1], sPtr->V[2]);
-      vtkMath::Normalize(sPtr->V[2]);
-      vtkMath::Cross(sPtr->V[2],sPtr->V[0],sPtr->V[1]);
-      vtkMath::Normalize(sPtr->V[1]);
+      vtkMath::Cross(sPtr->V0, sPtr->V1, sPtr->V2);
+      vtkMath::Normalize(sPtr->V2);
+      vtkMath::Cross(sPtr->V2,sPtr->V0,sPtr->V1);
+      vtkMath::Normalize(sPtr->V1);
 
       }//for all points in polyline
     }//for all polylines
@@ -365,8 +361,8 @@ int vtkUncertaintyTubeFilter::BuildTubes(vtkPointData *pd, vtkPointData *outPD,
       for (j=0; j<3; j++) //compute point in center of tube
         {
         x[j] = sPtr->X[j];
-        r1[j] = sPtr->V[1][j];
-        r2[j] = sPtr->V[2][j];
+        r1[j] = sPtr->V1[j];
+        r2[j] = sPtr->V2[j];
         }
       vector = sPtr->Vector;
 
