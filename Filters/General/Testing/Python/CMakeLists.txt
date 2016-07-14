@@ -7,6 +7,7 @@ vtk_add_test_python(
   TestCurvatures.py
   TestDeformPointSet.py
   TestDiscreteMarchingCubes.py
+  TestDiscreteMarchingCubesAdjacentScalars.py
   TestGraphLayoutFilter.py
   TestMultiBlockStreamer.py
   TestRectilinearGridToTetrahedra.py
