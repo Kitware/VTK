@@ -65,7 +65,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   double origin[3], double spacing[3],
   vtkIncrementalPointLocator *locator,
   vtkDataArray *newCellScalars,
-  vtkDataArray *newNeighbours,
+  vtkDataArray *newPointScalars,
   vtkCellArray *newPolys, double *values,
   int numValues)
 {
@@ -80,7 +80,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   vtkIdType ptIds[3];
   int extent[6];
   int ComputeScalars = newCellScalars != NULL;
-  int ComputeAdjacentScalars = newNeighbours != NULL;
+  int ComputeAdjacentScalars = newPointScalars != NULL;
   double t, *x1, *x2, x[3], min, max;
   double pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
@@ -227,11 +227,11 @@ void vtkDiscreteMarchingCubesComputeGradient(
                     // check which vert holds the neighbour value
                     if (s[vert[0]] == value)
                        {
-                       newNeighbours->InsertTuple(ptIds[ii],&s[vert[1]]);
+                       newPointScalars->InsertTuple(ptIds[ii],&s[vert[1]]);
                        }
                     else
                        {
-                       newNeighbours->InsertTuple(ptIds[ii],&s[vert[0]]);
+                       newPointScalars->InsertTuple(ptIds[ii],&s[vert[0]]);
                        }
                     }
                  }
@@ -272,7 +272,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newCellScalars;
-  vtkFloatArray *newNeighbours;
+  vtkFloatArray *newPointScalars;
   vtkImageData *input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pd;
@@ -355,12 +355,12 @@ int vtkDiscreteMarchingCubes::RequestData(
 
   if (this->ComputeAdjacentScalars)
     {
-    newNeighbours = vtkFloatArray::New();
-    newNeighbours->Allocate(estimatedSize,estimatedSize/2);
+    newPointScalars = vtkFloatArray::New();
+    newPointScalars->Allocate(estimatedSize,estimatedSize/2);
     }
   else
     {
-    newNeighbours = NULL;
+    newPointScalars = NULL;
     }
 
   if (inScalars->GetNumberOfComponents() == 1 )
@@ -373,7 +373,7 @@ int vtkDiscreteMarchingCubes::RequestData(
                                                 static_cast<VTK_TT*>(scalars),
                                                 dims, origin, spacing,
                                                 this->Locator, newCellScalars,
-                                                newNeighbours,
+                                                newPointScalars,
                                                 newPolys, values, numContours)
         );
       } //switch
@@ -397,7 +397,7 @@ int vtkDiscreteMarchingCubes::RequestData(
                                             spacing,
                                             this->Locator,
                                             newCellScalars,
-                                            newNeighbours,
+                                            newPointScalars,
                                             newPolys,
                                             values,
                                             numContours);
@@ -422,11 +422,11 @@ int vtkDiscreteMarchingCubes::RequestData(
     output->GetCellData()->SetScalars(newCellScalars);
     newCellScalars->Delete();
     }
-  if (newNeighbours)
+  if (newPointScalars)
     {
-    int idx = output->GetPointData()->AddArray(newNeighbours);
+    int idx = output->GetPointData()->AddArray(newPointScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
-    newNeighbours->Delete();
+    newPointScalars->Delete();
     }
   output->Squeeze();
   if (this->Locator)
