@@ -79,6 +79,7 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
   TestProjectedTetrahedraTransform.cxx
+  TestProjectedTetrahedraOffscreen.cxx
   TestRemoveVolumeNonCurrentContext.cxx
   )
 

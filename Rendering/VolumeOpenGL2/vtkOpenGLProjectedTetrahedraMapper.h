@@ -105,7 +105,8 @@ protected:
   float *SqrtTable;
   float SqrtTableBias;
 
-  virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume);
+  virtual void ProjectTetrahedra(vtkRenderer *renderer, vtkVolume *volume,
+    vtkOpenGLRenderWindow* renWin);
 
   float GetCorrectedDepth(float x, float y, float z1, float z2,
                           const float inverse_projection_mat[16],
