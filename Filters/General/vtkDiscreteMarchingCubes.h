@@ -43,7 +43,7 @@
 // filters that can handle non-manifold polydata
 // (e.g. vtkWindowedSincPolyDataFilter).
 // Also note, Normals and Gradients are not computed.
-// If ComputeNeighbours is on (default is off), each output point will have
+// If ComputeAdjacentScalars is on (default is off), each output point will have
 // point data that contains the label value of the neighbouring voxel.
 // This allows to remove regions of the resulting vtkPolyData that are
 // adjacent to specific label meshes. For example, if the input is a label
@@ -72,9 +72,9 @@ public:
 
   // Description:
   // Set/Get the computation of neighbouring voxel values.
-  vtkSetMacro(ComputeNeighbours,int);
-  vtkGetMacro(ComputeNeighbours,int);
-  vtkBooleanMacro(ComputeNeighbours,int);
+  vtkSetMacro(ComputeAdjacentScalars,int);
+  vtkGetMacro(ComputeAdjacentScalars,int);
+  vtkBooleanMacro(ComputeAdjacentScalars,int);
 
 protected:
   vtkDiscreteMarchingCubes();
@@ -82,7 +82,7 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
-  int ComputeNeighbours;
+  int ComputeAdjacentScalars;
 
 private:
   vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;

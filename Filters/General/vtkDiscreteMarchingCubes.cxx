@@ -42,13 +42,13 @@ vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
-// of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and ComputeNeighbours is off.
+// of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and ComputeAdjacentScalars is off.
 vtkDiscreteMarchingCubes::vtkDiscreteMarchingCubes()
 {
   this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
-  this->ComputeNeighbours = 0;
+  this->ComputeAdjacentScalars = 0;
 }
 
 vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
@@ -80,7 +80,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   vtkIdType ptIds[3];
   int extent[6];
   int ComputeScalars = newCellScalars != NULL;
-  int ComputeNeighbours = newNeighbours != NULL;
+  int ComputeAdjacentScalars = newNeighbours != NULL;
   double t, *x1, *x2, x[3], min, max;
   double pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
@@ -222,7 +222,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
               // add point
               if ( locator->InsertUniquePoint(x, ptIds[ii]) )
                  {
-                 if (ComputeNeighbours)
+                 if (ComputeAdjacentScalars)
                     {
                     // check which vert holds the neighbour value
                     if (s[vert[0]] == value)
@@ -353,7 +353,7 @@ int vtkDiscreteMarchingCubes::RequestData(
     newCellScalars = NULL;
     }
 
-  if (this->ComputeNeighbours)
+  if (this->ComputeAdjacentScalars)
     {
     newNeighbours = vtkFloatArray::New();
     newNeighbours->Allocate(estimatedSize,estimatedSize/2);
