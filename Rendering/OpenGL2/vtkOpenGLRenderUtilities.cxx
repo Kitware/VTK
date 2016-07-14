@@ -19,21 +19,6 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
 
-// Static initializion:
-vtkOpenGLBufferObject *vtkOpenGLRenderUtilities::FullScreenQuadVerts = NULL;
-struct vtkOpenGLRenderUtilities::FSQVertsCleanUp
-{
-  ~FSQVertsCleanUp()
-  {
-    if (vtkOpenGLRenderUtilities::FullScreenQuadVerts)
-      {
-      vtkOpenGLRenderUtilities::FullScreenQuadVerts->Delete();
-      vtkOpenGLRenderUtilities::FullScreenQuadVerts = NULL;
-      }
-  }
-};
-vtkOpenGLRenderUtilities::FSQVertsCleanUp vtkFSQVertsCleanUp;
-
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities()
 {
@@ -153,36 +138,30 @@ std::string vtkOpenGLRenderUtilities::GetFullScreenQuadGeometryShader()
 }
 
 //------------------------------------------------------------------------------
-bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLVertexArrayObject *vao,
+bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
+                                                 vtkOpenGLVertexArrayObject *vao,
                                                  vtkShaderProgram *prog)
 {
   bool res;
   typedef vtkOpenGLRenderUtilities GLUtil;
 
-  if (!GLUtil::FullScreenQuadVerts)
+  // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
+  float verts[16] = {  1.f, 1.f, 1.f, 1.f,
+                      -1.f, 1.f, 0.f, 1.f,
+                       1.f,-1.f, 1.f, 0.f,
+                      -1.f,-1.f, 0.f, 0.f };
+
+  vertBuf->SetType(vtkOpenGLBufferObject::ArrayBuffer);
+  res = vertBuf->Upload(verts, 16, vtkOpenGLBufferObject::ArrayBuffer);
+  if (!res)
     {
-    GLUtil::FullScreenQuadVerts = vtkOpenGLBufferObject::New();
-
-    // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
-    float verts[16] = {  1.f, 1.f, 1.f, 1.f,
-                        -1.f, 1.f, 0.f, 1.f,
-                         1.f,-1.f, 1.f, 0.f,
-                        -1.f,-1.f, 0.f, 0.f };
-
-    GLUtil::FullScreenQuadVerts->SetType(vtkOpenGLBufferObject::ArrayBuffer);
-    res = GLUtil::FullScreenQuadVerts->Upload(
-          verts, 16, vtkOpenGLBufferObject::ArrayBuffer);
-    if (!res)
-      {
-      vtkGenericWarningMacro("Error uploading fullscreen quad vertex data.");
-      return false;
-      }
+    vtkGenericWarningMacro("Error uploading fullscreen quad vertex data.");
+    return false;
     }
 
   vao->Bind();
 
-  res = vao->AddAttributeArray(prog, GLUtil::FullScreenQuadVerts, "ndCoordIn",
-                               0, 4 * sizeof(float),
+  res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
                                VTK_FLOAT, 2, false);
   if (!res)
     {
@@ -191,9 +170,8 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLVertexArrayObject *vao
     return false;
     }
 
-  res = vao->AddAttributeArray(prog, GLUtil::FullScreenQuadVerts, "texCoordIn",
-                               2 * sizeof(float), 4 * sizeof(float),
-                               VTK_FLOAT, 2, false);
+  res = vao->AddAttributeArray(prog, vertBuf, "texCoordIn", 2 * sizeof(float),
+                               4 * sizeof(float), VTK_FLOAT, 2, false);
   if (!res)
     {
     vao->Release();
