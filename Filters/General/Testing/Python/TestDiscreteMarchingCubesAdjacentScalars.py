@@ -76,10 +76,12 @@ while i < n:
 discrete = vtk.vtkDiscreteMarchingCubes()
 discrete.SetInputData(blobImage)
 discrete.GenerateValues(n, 1, n)
+discrete.ComputeAdjacentScalarsOn() # creates PointScalars
 
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(discrete.GetOutputPort())
 mapper.SetLookupTable(lut)
+mapper.SetScalarModeToUseCellData() # default is to use PointScalars, which get created with ComputeAdjacentScalarsOn
 mapper.SetScalarRange(0, lut.GetNumberOfColors())
 
 actor = vtk.vtkActor()
