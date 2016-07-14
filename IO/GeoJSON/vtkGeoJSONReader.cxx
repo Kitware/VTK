@@ -353,19 +353,19 @@ GeoJSONReaderInternal::InsertFeatureProperties(vtkPolyData *polyData,
     switch (array->GetDataType())
       {
       case VTK_BIT:
-        vtkBitArray::SafeDownCast(array)->InsertNextValue(value.ToChar());
+        vtkArrayDownCast<vtkBitArray>(array)->InsertNextValue(value.ToChar());
         break;
 
       case VTK_DOUBLE:
-        vtkDoubleArray::SafeDownCast(array)->InsertNextValue(value.ToDouble());
+        vtkArrayDownCast<vtkDoubleArray>(array)->InsertNextValue(value.ToDouble());
         break;
 
       case VTK_INT:
-        vtkIntArray::SafeDownCast(array)->InsertNextValue(value.ToInt());
+        vtkArrayDownCast<vtkIntArray>(array)->InsertNextValue(value.ToInt());
         break;
 
       case VTK_STRING:
-        vtkStringArray::SafeDownCast(array)->InsertNextValue(value.ToString());
+        vtkArrayDownCast<vtkStringArray>(array)->InsertNextValue(value.ToString());
         break;
       }
     }

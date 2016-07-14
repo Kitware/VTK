@@ -39,7 +39,6 @@ public:
   // connection.
   vtkGetMacro(ConnectingSide, bool);
 
-//BTX
 protected:
   vtkClientSocket();
   ~vtkClientSocket();
@@ -48,9 +47,9 @@ protected:
   bool ConnectingSide;
   friend class vtkServerSocket;
 private:
-  vtkClientSocket(const vtkClientSocket&); // Not implemented.
-  void operator=(const vtkClientSocket&); // Not implemented.
-//ETX
+  vtkClientSocket(const vtkClientSocket&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClientSocket&) VTK_DELETE_FUNCTION;
+
 };
 
 

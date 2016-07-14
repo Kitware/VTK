@@ -50,11 +50,6 @@ ELSE()
      SET(VTK_REQUIRED_CXX_FLAGS
          "${VTK_REQUIRED_CXX_FLAGS} -timplicit_local -no_implicit_include")
   ENDIF()
-  IF(CMAKE_SYSTEM MATCHES "IRIX.*")
-    SET(VTK_REQUIRED_CXX_FLAGS
-      "${VTK_REQUIRED_CXX_FLAGS} -Wl,-woff84 -woff 15 -woff 84 -woff 3439 -woff 1424 -woff 3201")
-    SET(VTK_REQUIRED_C_FLAGS "${VTK_REQUIRED_C_FLAGS} -woff 3439")
-  ENDIF()
   IF(CMAKE_SYSTEM MATCHES "AIX.*")
     # allow t-ypeid and d-ynamic_cast usage (normally off by default on xlC)
     SET(VTK_REQUIRED_CXX_FLAGS "${VTK_REQUIRED_CXX_FLAGS} -qrtti=all")

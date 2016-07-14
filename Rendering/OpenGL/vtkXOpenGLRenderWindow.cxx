@@ -930,7 +930,7 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
         }
       } // if not hardware offscreen
     }
-  this->Mapped = 0;
+  this->Mapped = 1;
   this->Size[0] = width;
   this->Size[1] = height;
 
@@ -997,6 +997,7 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
         }
       }
     }
+  this->Mapped = 0;
 }
 
 void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
@@ -1100,7 +1101,7 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
 
   if (this->FullScreen == arg) return;
 
-  if (!this->Mapped)
+  if (!this->Mapped || this->OffScreenRendering)
     {
     this->PrefFullScreen();
     return;
@@ -1198,8 +1199,7 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-    this->Size[0] = width;
-    this->Size[1] = height;
+    this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
       {
@@ -1210,7 +1210,7 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       {
       this->ResizeOffScreenWindow(width,height);
       }
-    else if(this->WindowId && this->Mapped)
+    else if(this->WindowId && this->Mapped && ! this->OffScreenRendering)
       {
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
@@ -1497,7 +1497,7 @@ int *vtkXOpenGLRenderWindow::GetPosition(void)
   Window child;
 
   // if we aren't mapped then just return the ivar
-  if (!this->Mapped)
+  if (!this->Mapped || this->OffScreenRendering)
     {
     return this->Position;
     }
@@ -1541,7 +1541,7 @@ Window vtkXOpenGLRenderWindow::GetWindowId()
 void vtkXOpenGLRenderWindow::SetPosition(int x, int y)
 {
   // if we aren't mapped then just set the ivars
-  if (!this->Mapped)
+  if (!this->Mapped || this->OffScreenRendering)
     {
     if ((this->Position[0] != x)||(this->Position[1] != y))
       {
@@ -1770,7 +1770,7 @@ void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
 
   this->vtkOpenGLRenderWindow::SetWindowName( name );
 
-  if (this->Mapped)
+  if (this->Mapped && ! this->OffScreenRendering)
     {
     if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
       {
@@ -1825,7 +1825,7 @@ void vtkXOpenGLRenderWindow::Render()
   // To avoid the expensive XGetWindowAttributes call,
   // compute size at the start of a render and use
   // the ivar other times.
-  if (this->Mapped)
+  if (this->Mapped && ! this->OffScreenRendering)
     {
     //  Find the current window size
     XGetWindowAttributes(this->DisplayId,

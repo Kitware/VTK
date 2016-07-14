@@ -77,8 +77,15 @@ int main(int, char*[])
   graph->GetVertexData()->AddArray(labels);
 
   vtkTree* tree = vtkTree::New();
-  tree->CheckedShallowCopy(graph);
-
+  bool validTree = tree->CheckedShallowCopy(graph);
+  if (!validTree)
+    {
+    std::cout << "ERROR: Invalid tree" << std::endl;
+    graph->Delete();
+    labels->Delete();
+    tree->Delete();
+    return EXIT_FAILURE;
+    }
   vtkGraphLayoutView* view = vtkGraphLayoutView::New();
   vtkDataRepresentation* rep =
     view->SetRepresentationFromInput(tree);
@@ -118,6 +125,6 @@ int main(int, char*[])
   link->Delete();
   update->Delete();
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 

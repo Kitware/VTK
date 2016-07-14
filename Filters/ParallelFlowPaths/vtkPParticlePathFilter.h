@@ -51,7 +51,7 @@ protected:
   vtkIntArray* SimulationTimeStep;
 
 private:
-  vtkPParticlePathFilter(const vtkPParticlePathFilter&);  // Not implemented.
-  void operator=(const vtkPParticlePathFilter&); // Not implemented
+  vtkPParticlePathFilter(const vtkPParticlePathFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPParticlePathFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

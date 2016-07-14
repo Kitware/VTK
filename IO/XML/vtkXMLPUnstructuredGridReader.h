@@ -59,13 +59,15 @@ protected:
   vtkXMLDataReader* CreatePieceReader();
   virtual int FillOutputPortInformation(int, vtkInformation*);
 
+  virtual void SqueezeOutputArrays(vtkDataObject*);
+
   // The index of the cell in the output where the current piece
   // begins.
   vtkIdType StartCell;
 
 private:
-  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredGridReader&);  // Not implemented.
+  vtkXMLPUnstructuredGridReader(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPUnstructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

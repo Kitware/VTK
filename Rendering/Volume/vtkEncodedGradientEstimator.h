@@ -165,16 +165,14 @@ public:
   // The time at which the normals were last built
   vtkTimeStamp          BuildTime;
 
-//BTX
   vtkGetVectorMacro( InputSize, int, 3 );
   vtkGetVectorMacro( InputAspect, float, 3 );
-//ETX
 
 protected:
   vtkEncodedGradientEstimator();
   ~vtkEncodedGradientEstimator();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // The number of threads to use when encoding normals
   int                        NumberOfThreads;
@@ -210,8 +208,8 @@ protected:
   int                        ZeroPad;
 
 private:
-  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);  // Not implemented.
-  void operator=(const vtkEncodedGradientEstimator&);  // Not implemented.
+  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -93,9 +93,5 @@ int TestSystemInformation(int argc, char* argv[])
     vtkSystemInformationPrintFile(fname.c_str(), cout);
     }
 
-#if defined(__sgi) && !defined(__GNUC__) && defined(_COMPILER_VERSION)
-  cout << "SGI compiler version: " << int(_COMPILER_VERSION) << endl;
-#endif
-
   return 0;
 }

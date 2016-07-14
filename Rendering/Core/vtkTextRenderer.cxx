@@ -110,8 +110,8 @@ void vtkTextRenderer::SetInstance(vtkTextRenderer *instance)
 
 //----------------------------------------------------------------------------
 vtkTextRenderer::vtkTextRenderer()
-  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.+[^\\]\\$")),
-    MathTextRegExp2(new vtksys::RegularExpression("^\\$.+[^\\]\\$")),
+  : MathTextRegExp(new vtksys::RegularExpression("[^\\]\\$.*[^\\]\\$")),
+    MathTextRegExp2(new vtksys::RegularExpression("^\\$.*[^\\]\\$")),
     DefaultBackend(Detect)
 {
 }
@@ -132,9 +132,9 @@ int vtkTextRenderer::DetectBackend(const vtkStdString &str)
     // branching, so we check the first character to see which regexp to use:
     //
     // Find unescaped "$...$" patterns where "$" is not the first character:
-    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    //   MathTextRegExp  = "[^\\]\\$.*[^\\]\\$"
     // Find unescaped "$...$" patterns where "$" is the first character:
-    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
     if ((str[0] == '$' && this->MathTextRegExp2->find(str)) ||
         this->MathTextRegExp->find(str))
       {
@@ -153,9 +153,9 @@ int vtkTextRenderer::DetectBackend(const vtkUnicodeString &str)
     // branching, so we check the first character to see which regexp to use:
     //
     // Find unescaped "$...$" patterns where "$" is not the first character:
-    //   MathTextRegExp  = "[^\\]\\$.+[^\\]\\$"
+    //   MathTextRegExp  = "[^\\]\\$.*[^\\]\\$"
     // Find unescaped "$...$" patterns where "$" is the first character:
-    //   MathTextRegExp2 = "^\\$.+[^\\]\\$"
+    //   MathTextRegExp2 = "^\\$.*[^\\]\\$"
     if ((str[0] == '$' && this->MathTextRegExp2->find(str.utf8_str())) ||
         this->MathTextRegExp->find(str.utf8_str()))
       {

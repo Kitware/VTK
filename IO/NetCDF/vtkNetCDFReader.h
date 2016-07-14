@@ -133,7 +133,6 @@ protected:
   vtkTimeStamp FileNameMTime;
   vtkTimeStamp MetaDataMTime;
 
-//BTX
   // Description:
   // The dimension ids of the arrays being loaded into the data.
   vtkSmartPointer<vtkIntArray> LoadingDimensions;
@@ -149,7 +148,6 @@ protected:
   // Description:
   // Placeholder for structure returned from GetAllDimensions().
   vtkStringArray *AllDimensions;
-//ETX
 
   int ReplaceFillValueWithNan;
 
@@ -193,7 +191,6 @@ protected:
   // a given file.
   virtual int IsTimeDimension(int ncFD, int dimId);
 
-//BTX
   // Description:
   // Given a dimension already determined to be a time dimension (via a call to
   // IsTimeDimension) returns an array with time values.  The default
@@ -201,7 +198,6 @@ protected:
   // should override this function if there is a convention that identifies time
   // values.  This method returns 0 on error, 1 otherwise.
   virtual vtkSmartPointer<vtkDoubleArray> GetTimeValues(int ncFD, int dimId);
-//ETX
 
   // Description:
   // Called internally to determine whether a variable with the given set of
@@ -226,8 +222,8 @@ protected:
                            vtkDataSet *output);
 
 private:
-  vtkNetCDFReader(const vtkNetCDFReader &);     // Not implemented
-  void operator=(const vtkNetCDFReader &);      // Not implemented
+  vtkNetCDFReader(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNetCDFReader &) VTK_DELETE_FUNCTION;
 
   int UpdateExtent[6];
   char *TimeUnits;

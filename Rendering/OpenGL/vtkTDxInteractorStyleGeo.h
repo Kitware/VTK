@@ -37,12 +37,10 @@ public:
   vtkTypeMacro(vtkTDxInteractorStyleGeo,vtkTDxInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Action on motion event.
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
-  //ETX
 
 protected:
   vtkTDxInteractorStyleGeo();
@@ -51,7 +49,7 @@ protected:
   vtkTransform *Transform; // Used for internal intermediate calculation.
 
 private:
-  vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleGeo&);  // Not implemented.
+  vtkTDxInteractorStyleGeo(const vtkTDxInteractorStyleGeo&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxInteractorStyleGeo&) VTK_DELETE_FUNCTION;
 };
 #endif

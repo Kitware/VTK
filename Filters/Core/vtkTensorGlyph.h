@@ -153,13 +153,11 @@ public:
   vtkGetMacro(ColorGlyphs,int);
   vtkBooleanMacro(ColorGlyphs,int);
 
-//BTX
   enum
   {
       COLOR_BY_SCALARS,
       COLOR_BY_EIGENVALUES
   };
-//ETX
 
   // Description:
   // Set the color mode to be used for the glyphs.  This can be set to
@@ -212,8 +210,8 @@ protected:
   int Symmetric; // Boolean controls drawing a "mirror" of each glyph
   double Length; // Distance, in x, from the origin to the end of the glyph
 private:
-  vtkTensorGlyph(const vtkTensorGlyph&);  // Not implemented.
-  void operator=(const vtkTensorGlyph&);  // Not implemented.
+  vtkTensorGlyph(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTensorGlyph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,12 +49,6 @@
 #include <fstream>
 using std::ofstream;
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
-#endif
-
 vtkStandardNewMacro(vtkDynamic2DLabelMapper);
 
 //----------------------------------------------------------------------------
@@ -160,7 +154,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     {
     vtkDebugMacro(<<"Rebuilding labels");
 
-    vtkIntArray *typeArr = vtkIntArray::SafeDownCast(
+    vtkIntArray *typeArr = vtkArrayDownCast<vtkIntArray>(
       this->GetInputAbstractArrayToProcess(0, input));
 
     // figure out what to label, and if we can label it
@@ -217,9 +211,9 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                     this->FieldDataArray : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
         }
-      numericData = vtkDataArray::SafeDownCast(abstractData);
-      stringData = vtkStringArray::SafeDownCast(abstractData);
-      uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+      numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+      stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+      uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
       }; break;
       }
 
@@ -303,19 +297,10 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
           case VTK_ID_TYPE:
             FormatString = vtkTypeTraits<vtkIdType>::ParseFormat(); break;
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
           case VTK_LONG_LONG:
             FormatString = vtkTypeTraits<long long>::ParseFormat(); break;
           case VTK_UNSIGNED_LONG_LONG:
             FormatString = vtkTypeTraits<unsigned long long>::ParseFormat(); break;
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-          case VTK___INT64:
-            FormatString = vtkTypeTraits<__int64>::ParseFormat(); break;
-          case VTK_UNSIGNED___INT64:
-            FormatString = vtkTypeTraits<unsigned __int64>::ParseFormat(); break;
-#endif
 
           case VTK_FLOAT:
             FormatString = vtkTypeTraits<float>::ParseFormat(); break;
@@ -437,7 +422,7 @@ void vtkDynamic2DLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
             }
           else // the user specified a label format
             {
-            SNPRINTF(TempString, 1023, LiveFormatString,
+            snprintf(TempString, 1023, LiveFormatString,
                      stringData->GetValue(i).c_str());
               ResultString = TempString;
             } // done printing strings with label format

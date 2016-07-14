@@ -254,7 +254,6 @@ public:
   vtkSetMacro(ReplacementCharacter, vtkTypeUInt32);
   vtkGetMacro(ReplacementCharacter, vtkTypeUInt32);
 
-//BTX
 protected:
   vtkDelimitedTextReader();
   ~vtkDelimitedTextReader();
@@ -293,9 +292,9 @@ protected:
   vtkTypeUInt32 ReplacementCharacter;
 
 private:
-  vtkDelimitedTextReader(const vtkDelimitedTextReader&); // Not implemented
-  void operator=(const vtkDelimitedTextReader&);   // Not implemented
-//ETX
+  vtkDelimitedTextReader(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDelimitedTextReader&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

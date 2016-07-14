@@ -14,6 +14,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestTextActorDepthPeeling.cxx
   TestTextActor3DAlphaBlending.cxx
   TestTextActor3DDepthPeeling.cxx
+  TestTextActorScaleModeProp.cxx
   TestTextMapper.cxx
   )
 

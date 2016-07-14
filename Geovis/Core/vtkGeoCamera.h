@@ -176,10 +176,8 @@ protected:
   void UpdateVTKCamera();
   void UpdateAngleRanges();
 
-//BTX
   vtkSmartPointer<vtkCamera> VTKCamera;
   vtkSmartPointer<vtkTransform> Transform;
-//ETX
 
   // This point is shifted to 0,0,0 to avoid openGL issues.
   double OriginLatitude;
@@ -210,8 +208,8 @@ protected:
   double Position[3];
 
 private:
-  vtkGeoCamera(const vtkGeoCamera&);  // Not implemented.
-  void operator=(const vtkGeoCamera&);  // Not implemented.
+  vtkGeoCamera(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

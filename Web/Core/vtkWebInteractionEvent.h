@@ -33,7 +33,7 @@ public:
     {
     LEFT_BUTTON = 0x01,
     MIDDLE_BUTTON = 0x02,
-    RIGHT_BUTTON = 0x04,
+    RIGHT_BUTTON = 0x04
     };
 
   enum ModifierKeys
@@ -71,7 +71,7 @@ public:
   // Handle double click
   vtkSetMacro(RepeatCount, int);
   vtkGetMacro(RepeatCount, int);
-//BTX
+
 protected:
   vtkWebInteractionEvent();
   ~vtkWebInteractionEvent();
@@ -85,9 +85,9 @@ protected:
   int RepeatCount;
 
 private:
-  vtkWebInteractionEvent(const vtkWebInteractionEvent&); // Not implemented
-  void operator=(const vtkWebInteractionEvent&); // Not implemented
-//ETX
+  vtkWebInteractionEvent(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

@@ -95,7 +95,7 @@ public:
   ~vtkParallelTimerBuffer();
 
   vtkParallelTimerBuffer(const vtkParallelTimerBuffer &other);
-  void operator=(const vtkParallelTimerBuffer &other);
+  vtkParallelTimerBuffer& operator=(const vtkParallelTimerBuffer &other);
 
   // Description:
   // Access state and internal data.
@@ -179,15 +179,16 @@ vtkParallelTimerBuffer::vtkParallelTimerBuffer(const vtkParallelTimerBuffer &oth
 }
 
 //-----------------------------------------------------------------------------
-void vtkParallelTimerBuffer::operator=(const vtkParallelTimerBuffer &other)
+vtkParallelTimerBuffer& vtkParallelTimerBuffer::operator=(const vtkParallelTimerBuffer &other)
 {
   if (this == &other)
     {
-    return;
+    return *this;
     }
   this->Clear();
   this->Resize(other.GetSize());
   memcpy(this->Data, other.Data, other.GetSize());
+  return *this;
 }
 
 //-----------------------------------------------------------------------------
@@ -510,10 +511,9 @@ void vtkParallelTimer::StartEvent(const char *event)
   cerr << "=====vtkParallelTimer::StartEvent" << endl;
   #endif
 
-  double walls = 0.0;
   timeval wallt;
   gettimeofday(&wallt, 0x0);
-  walls = static_cast<double>(wallt.tv_sec)
+  double walls = static_cast<double>(wallt.tv_sec)
     + static_cast<double>(wallt.tv_usec)/1.0E6;
 
   #if vtkParallelTimerDEBUG < 0
@@ -544,10 +544,9 @@ void vtkParallelTimer::EndEvent(const char *event)
   cerr << "=====vtkParallelTimer::EndEvent" << endl;
   #endif
 
-  double walle = 0.0;
   timeval wallt;
   gettimeofday(&wallt, 0x0);
-  walle = static_cast<double>(wallt.tv_sec)
+  double walle = static_cast<double>(wallt.tv_sec)
     + static_cast<double>(wallt.tv_usec)/1.0E6;
 
   #if vtkParallelTimerDEBUG > 0

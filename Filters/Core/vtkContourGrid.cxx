@@ -37,7 +37,7 @@
 #include "vtkPointLocator.h"
 #include "vtkIncrementalPointLocator.h"
 #include "vtkContourHelper.h"
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkContourGrid);
 
@@ -122,11 +122,34 @@ void vtkContourGridExecute(vtkContourGrid *self, vtkDataSet *input,
   vtkCellArray *newVerts, *newLines, *newPolys;
   vtkPoints *newPts;
   vtkIdType numCells, estimatedSize;
-  vtkPointData *inPd=input->GetPointData(), *outPd=output->GetPointData();
-  vtkCellData *inCd=input->GetCellData(), *outCd=output->GetCellData();
   vtkDataArray *cellScalars;
   Scalar *cellScalarPtr;
   vtkIdType numCellScalars;
+
+  vtkPointData *inPdOriginal = input->GetPointData();
+
+  // We don't want to change the active scalars in the input, but we
+  // need to set the active scalars to match the input array to
+  // process so that the point data copying works as expected. Create
+  // a shallow copy of point data so that we can do this without
+  // changing the input.
+  vtkSmartPointer<vtkPointData> inPd = vtkSmartPointer<vtkPointData>::New();
+  inPd->ShallowCopy(inPdOriginal);
+
+  // Keep track of the old active scalars because when we set the new
+  // scalars, the old scalars are removed from the point data entirely
+  // and we have to add them back.
+  vtkAbstractArray* oldScalars = inPd->GetScalars();
+  inPd->SetScalars(inScalars);
+  if (oldScalars)
+    {
+    inPd->AddArray(oldScalars);
+    }
+  vtkPointData *outPd = output->GetPointData();
+
+  vtkCellData *inCd = input->GetCellData();
+  vtkCellData *outCd = output->GetCellData();
+
   //In this case, we know that the input is an unstructured grid.
   vtkUnstructuredGridBase *grid = static_cast<vtkUnstructuredGridBase *>(input);
   int needCell = 0;
@@ -399,7 +422,7 @@ int vtkContourGrid::RequestData(
     {
     if ( scalarTree == NULL )
       {
-      scalarTree = vtkSimpleScalarTree::New();
+      this->ScalarTree = scalarTree = vtkSimpleScalarTree::New();
       }
     scalarTree->SetDataSet(input);
     scalarTree->SetScalars(inScalars);
@@ -425,12 +448,10 @@ int vtkContourGrid::RequestData(
     tempInput->ShallowCopy(output);
     normalsFilter->SetInputData(tempInput.GetPointer());
     normalsFilter->SetFeatureAngle(180.);
-    normalsFilter->SetUpdateExtent(
-      0,
+    normalsFilter->UpdatePiece(
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()),
       info->Get(vtkStreamingDemandDrivenPipeline:: UPDATE_NUMBER_OF_PIECES()),
       info->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()));
-    normalsFilter->Update();
     output->ShallowCopy(normalsFilter->GetOutput());
     }
 

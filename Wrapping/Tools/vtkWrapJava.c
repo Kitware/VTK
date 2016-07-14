@@ -145,11 +145,6 @@ void use_hints(FILE *fp)
               MAX_ARGS, currentFunction->HintSize);
       break;
 
-    case VTK_PARSE___INT64_PTR:
-      fprintf(fp,"    return vtkJavaMakeJArrayOfIntFrom__Int64(env,temp%i,%i);\n",
-              MAX_ARGS, currentFunction->HintSize);
-      break;
-
     case VTK_PARSE_SIGNED_CHAR_PTR:
       fprintf(fp,"    return vtkJavaMakeJArrayOfIntFromSignedChar(env,temp%i,%i);\n",
               MAX_ARGS, currentFunction->HintSize);
@@ -1050,7 +1045,7 @@ int checkFunctionSignature(ClassInfo *data)
 void outputFunction(FILE *fp, ClassInfo *data)
 {
   int i;
-  int args_ok = 1;
+  int args_ok;
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   const char *jniFunction = 0;
@@ -1253,6 +1248,9 @@ int main(int argc, char *argv[])
   FILE *fp;
   int i;
 
+  /* pre-define a macro to identify the language */
+  vtkParse_DefineMacro("__VTK_WRAP_JAVA__", 0);
+
   /* get command-line args and parse the header file */
   file_info = vtkParse_Main(argc, argv);
 
@@ -1275,13 +1273,14 @@ int main(int argc, char *argv[])
   if ((data = file_info->MainClass) == NULL)
     {
     fclose(fp);
-    exit(0);
+    exit(1);
     }
 
   /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileName)
+  if (options->HierarchyFileNames)
     {
-    hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    hierarchyInfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
     if (hierarchyInfo)
       {
       /* resolve using declarations within the header files */

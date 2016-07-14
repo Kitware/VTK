@@ -35,12 +35,24 @@ Changes by Greg Schussman, Aug. 2014
 
 Changes by Alex Tsui, Apr. 2015
  Port from PyQt4 to PyQt5.
+
+Changes by Fabian Wenzel, Jan. 2016
+ Support for Python3
 """
 
 # Check whether a specific PyQt implementation was chosen
 try:
     import vtk.qt
     PyQtImpl = vtk.qt.PyQtImpl
+except ImportError:
+    pass
+
+# Check whether a specific QVTKRenderWindowInteractor base
+# class was chosen, can be set to "QGLWidget"
+QVTKRWIBase = "QWidget"
+try:
+    import vtk.qt
+    QVTKRWIBase = vtk.qt.QVTKRWIBase
 except ImportError:
     pass
 
@@ -61,6 +73,8 @@ if PyQtImpl is None:
                 raise ImportError("Cannot load either PyQt or PySide")
 
 if PyQtImpl == "PyQt5":
+    if QVTKRWIBase == "QGLWidget":
+        from PyQt5.QtOpenGL import QGLWidget
     from PyQt5.QtWidgets import QWidget
     from PyQt5.QtWidgets import QSizePolicy
     from PyQt5.QtWidgets import QApplication
@@ -70,6 +84,8 @@ if PyQtImpl == "PyQt5":
     from PyQt5.QtCore import QSize
     from PyQt5.QtCore import QEvent
 elif PyQtImpl == "PyQt4":
+    if QVTKRWIBase == "QGLWidget":
+        from PyQt4.QtOpenGL import QGLWidget
     from PyQt4.QtGui import QWidget
     from PyQt4.QtGui import QSizePolicy
     from PyQt4.QtGui import QApplication
@@ -79,6 +95,8 @@ elif PyQtImpl == "PyQt4":
     from PyQt4.QtCore import QSize
     from PyQt4.QtCore import QEvent
 elif PyQtImpl == "PySide":
+    if QVTKRWIBase == "QGLWidget":
+        from PySide.QtOpenGL import QGLWidget
     from PySide.QtGui import QWidget
     from PySide.QtGui import QSizePolicy
     from PySide.QtGui import QApplication
@@ -90,7 +108,15 @@ elif PyQtImpl == "PySide":
 else:
     raise ImportError("Unknown PyQt implementation " + repr(PyQtImpl))
 
-class QVTKRenderWindowInteractor(QWidget):
+# Define types for base class, based on string
+if QVTKRWIBase == "QWidget":
+    QVTKRWIBaseClass = QWidget
+elif QVTKRWIBase == "QGLWidget":
+    QVTKRWIBaseClass = QGLWidget
+else:
+    raise ImportError("Unknown base class for QVTKRenderWindowInteractor " + QVTKRWIBase)
+
+class QVTKRenderWindowInteractor(QVTKRWIBaseClass):
 
     """ A QVTKRenderWindowInteractor for Python and Qt.  Uses a
     vtkGenericRenderWindowInteractor to handle the interactions.  Use
@@ -174,7 +200,7 @@ class QVTKRenderWindowInteractor(QWidget):
         10: Qt.CrossCursor,          # VTK_CURSOR_CROSSHAIR
     }
 
-    def __init__(self, parent=None, wflags=Qt.WindowFlags(), **kw):
+    def __init__(self, parent=None, **kw):
         # the current button
         self._ActiveButton = Qt.NoButton
 
@@ -183,6 +209,7 @@ class QVTKRenderWindowInteractor(QWidget):
         self.__saveY = 0
         self.__saveModifiers = Qt.NoModifier
         self.__saveButtons = Qt.NoButton
+        self.__wheelDelta = 0
 
         # do special handling of some keywords:
         # stereo, rw
@@ -197,8 +224,15 @@ class QVTKRenderWindowInteractor(QWidget):
         except KeyError:
             rw = None
 
-        # create qt-level widget
-        QWidget.__init__(self, parent, wflags|Qt.MSWindowsOwnDC)
+        # create base qt-level widget
+        if QVTKRWIBase == "QWidget":
+            if "wflags" in kw:
+                wflags = kw['wflags']
+            else:
+                wflags = Qt.WindowFlags()
+            QWidget.__init__(self, parent, wflags | Qt.MSWindowsOwnDC)
+        elif QVTKRWIBase == "QGLWidget":
+            QGLWidget.__init__(self, parent)
 
         if rw: # user-supplied render window
             self._RenderWindow = rw
@@ -207,6 +241,7 @@ class QVTKRenderWindowInteractor(QWidget):
 
         WId = self.winId()
 
+        # Python2
         if type(WId).__name__ == 'PyCObject':
             from ctypes import pythonapi, c_void_p, py_object
 
@@ -214,6 +249,20 @@ class QVTKRenderWindowInteractor(QWidget):
             pythonapi.PyCObject_AsVoidPtr.argtypes = [py_object]
 
             WId = pythonapi.PyCObject_AsVoidPtr(WId)
+
+        # Python3
+        elif type(WId).__name__ == 'PyCapsule':
+            from ctypes import pythonapi, c_void_p, py_object, c_char_p
+
+            pythonapi.PyCapsule_GetName.restype = c_char_p
+            pythonapi.PyCapsule_GetName.argtypes = [py_object]
+
+            name = pythonapi.PyCapsule_GetName(WId)
+
+            pythonapi.PyCapsule_GetPointer.restype  = c_void_p
+            pythonapi.PyCapsule_GetPointer.argtypes = [py_object, c_char_p]
+
+            WId = pythonapi.PyCapsule_GetPointer(WId, name)
 
         self._RenderWindow.SetWindowInfo(str(int(WId)))
 
@@ -408,10 +457,17 @@ class QVTKRenderWindowInteractor(QWidget):
         self._Iren.KeyReleaseEvent()
 
     def wheelEvent(self, ev):
-        if ev.delta() >= 0:
-            self._Iren.MouseWheelForwardEvent()
+        if hasattr(ev, 'delta'):
+            self.__wheelDelta += ev.delta()
         else:
+            self.__wheelDelta += ev.angleDelta().y()
+
+        if self.__wheelDelta >= 120:
+            self._Iren.MouseWheelForwardEvent()
+            self.__wheelDelta = 0
+        elif self.__wheelDelta <= -120:
             self._Iren.MouseWheelBackwardEvent()
+            self.__wheelDelta = 0
 
     def GetRenderWindow(self):
         return self._RenderWindow
@@ -562,5 +618,5 @@ def _qt_key_to_key_sym(key):
 
 
 if __name__ == "__main__":
-    print PyQtImpl
+    print(PyQtImpl)
     QVTKRenderWidgetConeExample()

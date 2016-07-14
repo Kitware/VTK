@@ -51,7 +51,6 @@ vtkLargeInteger::vtkLargeInteger(void)
     this->Sig = 0;
 }
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
 vtkLargeInteger::vtkLargeInteger(long long n)
 {
   this->Negative = n < 0 ? 1 : 0;
@@ -80,38 +79,6 @@ vtkLargeInteger::vtkLargeInteger(unsigned long long n)
   this->Sig = BIT_INCREMENT - 1;
   this->Contract(); // remove leading 0s
 }
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-vtkLargeInteger::vtkLargeInteger(__int64 n)
-{
-  this->Negative = n < 0 ? 1 : 0;
-  n = n < 0 ? -n : n; // strip of sign
-  this->Number = new char[BIT_INCREMENT];
-  for (unsigned int i = 0; i < BIT_INCREMENT; i++)
-    {
-    this->Number[i] = n & 1;
-    n >>= 1;
-    }
-  this->Max = BIT_INCREMENT - 1;
-  this->Sig = BIT_INCREMENT - 1;
-  this->Contract(); // remove leading 0s
-}
-
-vtkLargeInteger::vtkLargeInteger(unsigned __int64 n)
-{
-  this->Negative = 0;
-  this->Number = new char[BIT_INCREMENT];
-  for (unsigned int i = 0; i < BIT_INCREMENT; i++)
-    {
-    this->Number[i] = n & 1;
-    n >>= 1;
-    }
-  this->Max = BIT_INCREMENT - 1;
-  this->Sig = BIT_INCREMENT - 1;
-  this->Contract(); // remove leading 0s
-}
-#endif
 
 vtkLargeInteger::vtkLargeInteger(long n)
 {
@@ -303,109 +270,109 @@ void vtkLargeInteger::Complement(void)
     }
 }
 
-int vtkLargeInteger::operator==(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator==(const vtkLargeInteger& n) const
 {
   if (this->Sig != n.Sig) // check size
     {
-    return 0;
+    return false;
     }
 
   if (this->Negative != n.Negative) // check sign
     {
-    return 0;
+    return false;
     }
 
   for (int i = this->Sig; i >= 0; i--)
     {
     if (this->Number[i] != n.Number[i]) // check bits
       {
-      return 0;
+      return false;
       }
     }
 
-  return 1;
+  return true;
 }
 
-int vtkLargeInteger::operator!=(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator!=(const vtkLargeInteger& n) const
 {
   return !(*this == n);
 }
 
-int vtkLargeInteger::IsSmaller(const vtkLargeInteger& n) const
+bool vtkLargeInteger::IsSmaller(const vtkLargeInteger& n) const
 {
   if (this->Sig < n.Sig) // check size
     {
-    return 1;
+    return true;
     }
   if (this->Sig > n.Sig) // check size
     {
-    return 0;
+    return false;
     }
 
   for (int i = this->Sig; i >= 0; i--)
     {
     if (this->Number[i] < n.Number[i]) // check bits
       {
-      return 1;
+      return true;
       }
     if (this->Number[i] > n.Number[i])
       {
-      return 0;
+      return false;
       }
     }
 
-  return 0;
+  return false;
 }
 
-int vtkLargeInteger::IsGreater(const vtkLargeInteger& n) const
+bool vtkLargeInteger::IsGreater(const vtkLargeInteger& n) const
 {
   if (this->Sig > n.Sig) // check size
     {
-    return 1;
+    return true;
     }
   if (this->Sig < n.Sig) // check sign
     {
-    return 0;
+    return false;
     }
 
   for (int i = this->Sig; i >= 0; i--)
     {
     if (this->Number[i] > n.Number[i]) // check bits
       {
-      return 1;
+      return true;
       }
     if (this->Number[i] < n.Number[i])
       {
-      return 0;
+      return false;
       }
     }
 
-  return 0;
+  return false;
 }
 
-int vtkLargeInteger::operator<(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator<(const vtkLargeInteger& n) const
 {
     if (this->Negative & !n.Negative) // try to make judgement using signs
-        return 1;
+        return true;
     else if ((!this->Negative) & n.Negative)
-        return 0;
+        return false;
     else if (this->Negative)
         return !this->IsSmaller(n);
     else
         return this->IsSmaller(n);
 }
 
-int vtkLargeInteger::operator<=(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator<=(const vtkLargeInteger& n) const
 {
   return *this < n || *this == n;
 }
 
-int vtkLargeInteger::operator>(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator>(const vtkLargeInteger& n) const
 {
   return !(*this <= n);
 }
 
-int vtkLargeInteger::operator>=(const vtkLargeInteger& n) const
+bool vtkLargeInteger::operator>=(const vtkLargeInteger& n) const
 {
   return !(*this < n);
 }

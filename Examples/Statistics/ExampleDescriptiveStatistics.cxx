@@ -151,7 +151,7 @@ int main( int, char *[] )
   cout << "done.\n";
 
   // Prepare first test with data
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable1 );
   datasetTable1->Delete();
 
   // Select Columns of Interest
@@ -239,10 +239,10 @@ int main( int, char *[] )
        << maxdev
        << " for metric 1:\n";
 
-  vtkDoubleArray* vals0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 0" ) );
-  vtkDoubleArray* vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
-  vtkDoubleArray* devs0 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 0)" ) );
-  vtkDoubleArray* devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
+  vtkDoubleArray* vals0 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 0" ) );
+  vtkDoubleArray* vals1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 1" ) );
+  vtkDoubleArray* devs0 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 0)" ) );
+  vtkDoubleArray* devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs0 || ! devs1 || ! vals0 || ! vals1 )
     {
@@ -326,15 +326,15 @@ int main( int, char *[] )
   modifiedModel->SetBlock( 1, modifiedDerived );
 
   // Run with Assess option only (do not recalculate nor rederive a model)
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, modifiedModel );
   ds1->SetLearnOption( false );
   ds1->SetDeriveOption( false );
   ds1->SetTestOption( true );
   ds1->SetAssessOption( true );
   ds1->Update();
 
-  vals1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "Metric 1" ) );
-  devs1 = vtkDoubleArray::SafeDownCast( outputData1->GetColumnByName( "d(Metric 1)" ) );
+  vals1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "Metric 1" ) );
+  devs1 = vtkArrayDownCast<vtkDoubleArray>( outputData1->GetColumnByName( "d(Metric 1)" ) );
 
   if ( ! devs1 || ! vals1 )
     {
@@ -404,7 +404,7 @@ int main( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds2 = vtkDescriptiveStatistics::New();
-  ds2->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  ds2->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
 
   // Select Columns of Interest (all of them)
   for ( int i = 0; i< nMetrics; ++ i )
@@ -441,11 +441,11 @@ int main( int, char *[] )
   ds2->Delete();
 
   // Test model aggregation by adding new data to engine which already has a model
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
   datasetTable2->Delete();
   vtkMultiBlockDataSet* model = vtkMultiBlockDataSet::New();
   model->ShallowCopy( outputMetaDS1 );
-  ds1->SetInput( vtkStatisticsAlgorithm::INPUT_MODEL, model );
+  ds1->SetInputData( vtkStatisticsAlgorithm::INPUT_MODEL, model );
   model->Delete();
 
   // Update with Learn and Derive options only
@@ -548,7 +548,7 @@ int main( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds3 = vtkDescriptiveStatistics::New();
-  ds3->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
+  ds3->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, simpleTable );
   simpleTable->Delete();
 
   // Select column of interest
@@ -673,7 +673,7 @@ int main( int, char *[] )
 
   // Set descriptive statistics algorithm and its input data port
   vtkDescriptiveStatistics* ds4 = vtkDescriptiveStatistics::New();
-  ds4->SetInput( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
+  ds4->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, gaussianTable );
   gaussianTable->Delete();
 
   // Select Column of Interest

@@ -67,7 +67,7 @@ public:
 
   //
   vtkTable* GetOutputTable();
-//BTX
+
   enum InputPorts
   {
     INPUT_TABLE_DATA=0,
@@ -79,7 +79,6 @@ public:
     OUTPUT_SELECTED_ROWS=0,
     OUTPUT_SELECTED_TABLE_DATA
   };
-//ETX
 
   // Description:
   // Set the source table data, from which data will be filtered.
@@ -126,8 +125,8 @@ protected:
   // fits inside those thresholds.
   virtual int FillOutlierIds(vtkTable* data, vtkCollection* thresholds, vtkIdTypeArray* rowIds, vtkTable* outTable);
 private:
-  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&); // Not implemented
-  void operator=(const vtkComputeHistogram2DOutliers&);   // Not implemented
+  vtkComputeHistogram2DOutliers(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkComputeHistogram2DOutliers&) VTK_DELETE_FUNCTION;
 };
 
 #endif

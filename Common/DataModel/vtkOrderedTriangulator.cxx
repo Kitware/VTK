@@ -45,17 +45,6 @@ vtkStandardNewMacro(vtkOrderedTriangulator);
 # include <new>
 #endif
 
-// Old HP compiler does not support operator delete that is called
-// when a constructor called by operator new throws.
-#if defined(__HP_aCC) && (__HP_aCC < 061200)
-# define VTK_NO_PLACEMENT_DELETE
-#endif
-// SGI compiler does not support placement delete that is called when
-// a constructor called by placement new throws.
-#if defined(__sgi) && !defined(__GNUC__)
-# define VTK_NO_PLACEMENT_DELETE
-#endif
-
 // Classes are used to represent points, faces, and tetras-------------------
 // This data structure consists of points and tetras, with the face used
 // temporarily as a place holder during triangulation.
@@ -112,9 +101,7 @@ struct OTFace //used during tetra construction
 {
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
-#if !defined(VTK_NO_PLACEMENT_DELETE)
   void operator delete(void*,vtkHeap*) {}
-#endif
 
   OTPoint *Points[3]; //the three points of the face
   OTTetra *Neighbor;
@@ -161,9 +148,7 @@ struct OTTetra
 {
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
-#if !defined(VTK_NO_PLACEMENT_DELETE)
   void operator delete(void*,vtkHeap*) {}
-#endif
 
   OTTetra() : Radius2(0.0L), CurrentPointId(-1), Type(OutsideCavity)
     {
@@ -266,9 +251,7 @@ struct OTTemplate
     }
   void *operator new(size_t size, vtkHeap *heap)
     {return heap->AllocateMemory(size);}
-#if !defined(VTK_NO_PLACEMENT_DELETE)
   void operator delete(void*,vtkHeap*) {}
-#endif
 };
 
 

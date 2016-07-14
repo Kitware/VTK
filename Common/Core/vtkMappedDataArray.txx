@@ -95,6 +95,15 @@ void vtkMappedDataArray<Scalar>::SetVoidArray(void *, vtkIdType, int)
 
 //------------------------------------------------------------------------------
 template<class Scalar>
+void vtkMappedDataArray<Scalar>::SetVoidArray(void *, vtkIdType, int, int)
+{
+  vtkErrorMacro(<<"SetVoidArray not supported for vtkMappedDataArray "
+                "subclasses.");
+  return;
+}
+
+//------------------------------------------------------------------------------
+template<class Scalar>
 void vtkMappedDataArray<Scalar>::DataChanged()
 {
   if (!this->TemporaryScalarPointer)
@@ -123,16 +132,21 @@ void vtkMappedDataArray<Scalar>::DataChanged()
 template<class Scalar> inline vtkMappedDataArray<Scalar>*
 vtkMappedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
 {
-  switch (source->GetArrayType())
+  if (source)
     {
-    case vtkAbstractArray::MappedDataArray:
-      if (source->GetDataType() == vtkTypeTraits<Scalar>::VTK_TYPE_ID)
-        {
-        return static_cast<vtkMappedDataArray<Scalar>*>(source);
-        }
-    default:
-      return NULL;
+    switch (source->GetArrayType())
+      {
+      case vtkAbstractArray::MappedDataArray:
+        if (vtkDataTypesCompare(source->GetDataType(),
+                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+          {
+          return static_cast<vtkMappedDataArray<Scalar>*>(source);
+          }
+      default:
+        break;
+      }
     }
+  return NULL;
 }
 
 //------------------------------------------------------------------------------

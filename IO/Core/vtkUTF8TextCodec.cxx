@@ -55,8 +55,8 @@ namespace
     virtual ~testIterator() {}
 
   private:
-    testIterator(const testIterator&); // Not implemented
-    const testIterator& operator=(const testIterator&); // Not Implemented
+    testIterator(const testIterator&) VTK_DELETE_FUNCTION;
+    const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
   };
 
 
@@ -106,7 +106,7 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
       }
     else
       {
-      throw ef;
+      throw;
       }
     }
 }

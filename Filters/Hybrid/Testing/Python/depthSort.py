@@ -56,6 +56,10 @@ depthSort.Update()
 mapper = vtk.vtkPolyDataMapper()
 mapper.SetInputConnection(depthSort.GetOutputPort())
 mapper.SetScalarRange(0,depthSort.GetOutput().GetNumberOfCells())
+mapper.SetScalarVisibility(1);
+mapper.SelectColorArray("sortedCellIds");
+mapper.SetUseLookupTableScalarRange(0);
+mapper.SetScalarMode(vtk.VTK_SCALAR_MODE_USE_CELL_FIELD_DATA);
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
 actor.GetProperty().SetOpacity(0.5)

@@ -141,12 +141,7 @@ void TestDirectedGraph()
     {
     (cout << "  Breadth-first search...").flush();
     }
-  bfs->UpdateInformation();
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), myRank);
-  bfs->Update();
+  bfs->Update(myRank, numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)
@@ -157,7 +152,7 @@ void TestDirectedGraph()
   graph = vtkMutableDirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
   vtkIntArray *distArray
-    = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
+    = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
     {
@@ -273,12 +268,7 @@ void TestUndirectedGraph()
     {
     (cout << "  Breadth-first search...").flush();
     }
-  bfs->UpdateInformation();
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), numProcs);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), myRank);
-  bfs->Update();
+  bfs->Update(myRank numProcs, 0);
 
   // Verify the results of the breadth-first search
   if (myRank == 0)
@@ -289,7 +279,7 @@ void TestUndirectedGraph()
   graph = vtkMutableUndirectedGraph::SafeDownCast(bfs->GetOutput());
   int index;
   vtkIntArray *distArray
-    = vtkIntArray::SafeDownCast(graph->GetVertexData()->GetArray("BFS", index));
+    = vtkArrayDownCast<vtkIntArray>(graph->GetVertexData()->GetArray("BFS", index));
   assert(distArray);
   for (vtkIdType i = 0; i < verticesPerNode; ++i)
     {

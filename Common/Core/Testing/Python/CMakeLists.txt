@@ -4,11 +4,12 @@ vtk_add_test_python(
   TestArrays.py
   TestArrayArguments.py
   TestBuffer.py
+  TestDefaultArgs.py
   TestEmptyInput.py
   TestEnums.py
   TestExecuteMethodFinalizeCrash.py
   TestGhost.py
-  TestIgnoreBTX.py
+  TestIterateCollection.py
   TestMutable.py
   TestNumpySupport.py
   TestNumpyInterface.py
@@ -23,4 +24,5 @@ vtk_add_test_python(
   TestVariant.py
   TestWeakref.py
   TestCommand.py
+  TestInvokeEvent.py
   )

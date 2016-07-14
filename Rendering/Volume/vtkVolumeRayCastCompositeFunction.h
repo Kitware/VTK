@@ -22,6 +22,7 @@
 
 // .SECTION See Also
 // vtkVolumeRayCastMapper vtkVolumeProperty vtkVolume
+// @deprecated
 
 #ifndef vtkVolumeRayCastCompositeFunction_h
 #define vtkVolumeRayCastCompositeFunction_h
@@ -29,6 +30,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 #define VTK_COMPOSITE_CLASSIFY_FIRST 0
 #define VTK_COMPOSITE_INTERPOLATE_FIRST 1
 
@@ -50,29 +52,26 @@ public:
     {this->SetCompositeMethod(VTK_COMPOSITE_CLASSIFY_FIRST);}
   const char *GetCompositeMethodAsString(void);
 
-//BTX
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo);
 
   float GetZeroOpacityThreshold( vtkVolume *vol );
-//ETX
 
 protected:
   vtkVolumeRayCastCompositeFunction();
   ~vtkVolumeRayCastCompositeFunction();
 
-//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
-//ETX
 
   int           CompositeMethod;
 private:
-  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
+  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
 };
 
 
+#endif // VTK_LEGACY_REMOVE
 #endif

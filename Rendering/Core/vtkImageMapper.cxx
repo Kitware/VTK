@@ -194,8 +194,7 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
       return;
       }
 
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(), this->DisplayExtent);
+    this->GetInputAlgorithm()->UpdateExtent(this->DisplayExtent);
 
     // set the position adjustment
     this->PositionAdjustment[0] = this->DisplayExtent[0];
@@ -210,15 +209,13 @@ void vtkImageMapper::RenderStart(vtkViewport* viewport, vtkActor2D* actor)
     this->DisplayExtent[4] = this->ZSlice;
     this->DisplayExtent[5] = this->ZSlice;
     //
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      this->GetInputInformation());
     // clear the position adjustment
     this->PositionAdjustment[0] = 0;
     this->PositionAdjustment[1] = 0;
+    this->GetInputAlgorithm()->UpdateWholeExtent();
     }
 
   // Get the region from the input
-  this->GetInputAlgorithm()->Update();
   data = this->GetInput();
   if ( !data)
     {

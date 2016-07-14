@@ -67,8 +67,8 @@ protected:
   double* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationDoubleKey(const vtkInformationDoubleKey&);  // Not implemented.
-  void operator=(const vtkInformationDoubleKey&);  // Not implemented.
+  vtkInformationDoubleKey(const vtkInformationDoubleKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDoubleKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

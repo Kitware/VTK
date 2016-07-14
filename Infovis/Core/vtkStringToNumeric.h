@@ -156,8 +156,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkStringToNumeric(const vtkStringToNumeric&); // Not implemented
-  void operator=(const vtkStringToNumeric&);   // Not implemented
+  vtkStringToNumeric(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStringToNumeric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

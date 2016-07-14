@@ -37,22 +37,48 @@ endif()
 # Remove any old output (in case conversion fails)
 file(REMOVE "${PNGFILE}")
 
-# Get the bounding box
-execute_process(COMMAND "${GS_EXECUTABLE}" -sSAFER -sBATCH -sNOPAUSE -sDEVICE=bbox "${PSFILE}"
-  RESULT_VARIABLE EXITCODE ERROR_VARIABLE BBOXOUT)
+# Get the bounding box from the file metadata (always added by GL2PS)
+file(READ "${PSFILE}" BBOXOUT)
 
-if(NOT ${EXITCODE} EQUAL 0)
-  message(FATAL_ERROR "GhostScript exited with status ${EXITCODE}:\n${BBOXOUT}")
+if (NOT BBOXOUT)
+  message(FATAL_ERROR "The input file is empty: ${PSFILE}")
 endif()
 
 string(REGEX MATCH "%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
-  BBOX ${BBOXOUT})
+  BBOX "${BBOXOUT}")
+
+# If the metadata isn't provided, ask ghostscript to find out.
+# Beware, GhostScript computes a tight bbox and treats white pixels as
+# transparent, so the gs bbox is dependent on the contents of the image.
+if(NOT BBOX)
+  message("No '%%BoundingBox <x> <y> <w> <h>' header found. Asking ghostscript...")
+
+  execute_process(COMMAND
+    "${GS_EXECUTABLE}" -sSAFER -sBATCH -sNOPAUSE -sDEVICE=bbox "${PSFILE}"
+    RESULT_VARIABLE EXITCODE
+    ERROR_VARIABLE BBOXOUT
+  )
+
+  if(NOT ${EXITCODE} EQUAL 0)
+    message(FATAL_ERROR "GhostScript exited with status ${EXITCODE}:\n${BBOXOUT}")
+  endif()
+
+  string(REGEX MATCH "%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+[0-9]+[ ]+[0-9]+"
+    BBOX "${BBOXOUT}")
+
+  if(NOT BBOX)
+    message("Ghostscript couldn't figure it out either :(\nOutput:\n${BBOXOUT}")
+  endif()
+endif()
 
 string(REGEX REPLACE
   "^%%BoundingBox:[ ]+[0-9-]+[ ]+[0-9-]+[ ]+([0-9]+)[ ]+([0-9]+)"
-  "\\1x\\2" BBOX ${BBOX})
+  "\\1x\\2" BBOX "${BBOX}")
 
-execute_process(COMMAND "${GS_EXECUTABLE}" -sSAFER -sBATCH -sNOPAUSE -sDEVICE=png16m "-sOutputFile=${PNGFILE}" -g${BBOX} "${PSFILE}"
+execute_process(
+  COMMAND "${GS_EXECUTABLE}"
+    -sSAFER -sBATCH -sNOPAUSE -sDEVICE=png16m "-sOutputFile=${PNGFILE}"
+    "-g${BBOX}" "${PSFILE}"
   RESULT_VARIABLE EXITCODE OUTPUT_VARIABLE ERRORSTR)
 
 if(NOT ${EXITCODE} EQUAL 0)

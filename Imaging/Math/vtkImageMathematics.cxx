@@ -20,7 +20,7 @@
 #include "vtkInformationVector.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageMathematics);
 

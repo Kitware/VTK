@@ -132,7 +132,6 @@ public:
   unsigned short * GetMinNonZeroScalarIndex();
   unsigned char  * GetMinNonZeroGradientMagnitudeIndex();
 
-  //BTX
   // Description:
   // Pointer to the pre-computed gradient magnitude structure. This is pre-
   // computed by the vtkFixedPointVolumeRayCastMapper class. This should be
@@ -145,7 +144,6 @@ public:
   // component by the vtkFixedPointVolumeRayCastMapper
   void SetScalarOpacityTable( int c, unsigned short * t);
   void SetGradientOpacityTable( int c, unsigned short * t );
-  //ETX
 
   // Description:
   // INTERNAL - Do not use
@@ -154,12 +152,10 @@ public:
   vtkIdType ComputeOffset(const int ext[6], const int wholeExt[6],
       int nComponents);
 
-  //BTX
   // This method helps debug. It writes out a specific component of the
   // computed min-max-volume structure
   //static void WriteMinMaxVolume( int component, unsigned short *minMaxVolume,
   //                           int minMaxVolumeSize[4], const char *filename );
-  //ETX
 
 protected:
   vtkVolumeRayCastSpaceLeapingImageFilter();
@@ -233,8 +229,8 @@ protected:
                                            vtkInformation *outInfo);
 
 private:
-  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&);  // Not implemented.
+  vtkVolumeRayCastSpaceLeapingImageFilter(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastSpaceLeapingImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

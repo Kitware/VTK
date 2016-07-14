@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <vtksys/SystemTools.hxx>
 
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkSortFileNames);
 

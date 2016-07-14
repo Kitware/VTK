@@ -69,11 +69,17 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
 
     void  Clear(void);
 
+    /** Set/Get the maximum value. */
     void Maximum(float val) { m_Maximum = val; }
     float Maximum() const { return m_Maximum; }
 
+    /** Set/Get the radius value. */
     void Radius(float val) { m_Radius = val; }
     float Radius() const { return m_Radius; }
+
+    /** Set/Get the sigma value. */
+    void Sigma(float val) { m_Sigma = val; }
+    float Sigma() const { return m_Sigma; }
 
   ////
   //
@@ -84,15 +90,23 @@ class METAIO_EXPORT MetaGaussian : public MetaObject
 
     void  M_Destroy(void);
 
+    /** Set up the fields to read a MetaGaussian file. */
     void  M_SetupReadFields(void);
 
+    /** Set up the fields to write a MetaGaussian file. */
     void  M_SetupWriteFields(void);
 
+    /** Read the MetaGaussian file properties. */
     bool  M_Read(void);
 
+    /** The maximum value of the MetaGaussian object. */
     float m_Maximum;
 
+    /** The radius of the MetaGaussian object. */
     float m_Radius;
+
+    /** The standard deviation of the MetaGaussian object. */
+    float m_Sigma;
 
   };
 

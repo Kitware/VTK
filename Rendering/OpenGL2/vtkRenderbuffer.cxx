@@ -47,6 +47,10 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
   if (glwin)
     {
 #if GL_ES_VERSION_2_0 != 1
+    if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+      {
+      return true;
+      }
     bool floatTex = (glewIsSupported("GL_ARB_texture_float") != 0);
     bool floatDepth = (glewIsSupported("GL_ARB_depth_buffer_float") != 0);
 #else

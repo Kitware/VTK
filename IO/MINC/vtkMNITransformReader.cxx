@@ -63,7 +63,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkInformationVector.h"
 #include "vtkPoints.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -205,7 +205,8 @@ int vtkMNITransformReader::ReadLineAfterComments(
       {
       delete [] this->Comments;
       this->Comments = new char[comments.length() + 1];
-      strcpy(this->Comments, comments.c_str());
+      strncpy(this->Comments, comments.c_str(), comments.length());
+      this->Comments[comments.length()] = '\0';
       return 1;
       }
     }

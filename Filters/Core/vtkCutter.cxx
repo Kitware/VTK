@@ -14,10 +14,13 @@
 =========================================================================*/
 #include "vtkCutter.h"
 
+#include "vtkArrayDispatch.h"
+#include "vtkAssume.h"
 #include "vtkCellArray.h"
 #include "vtkCellData.h"
 #include "vtkCellIterator.h"
 #include "vtkContourValues.h"
+#include "vtkDataArrayAccessor.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
@@ -48,7 +51,7 @@
 #include "vtkContourHelper.h"
 
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCutter);
 vtkCxxSetObjectMacro(vtkCutter,CutFunction,vtkImplicitFunction);
@@ -198,6 +201,39 @@ void vtkCutter::StructuredPointsCutter(vtkDataSet *dataSetInput,
   contourData->Delete();
 }
 
+namespace {
+struct CutFunctionWorker
+{
+  vtkImplicitFunction *CutFunction;
+  vtkFloatArray *Output;
+
+  CutFunctionWorker(vtkImplicitFunction *cutFunction, vtkFloatArray *output)
+    : CutFunction(cutFunction), Output(output) {}
+
+  template <typename ArrayT>
+  void operator()(ArrayT *input)
+  {
+    VTK_ASSUME(input->GetNumberOfComponents() == 3);
+    VTK_ASSUME(this->Output->GetNumberOfComponents() == 1);
+
+    vtkIdType numTuples = input->GetNumberOfTuples();
+    assert(numTuples == this->Output->GetNumberOfTuples());
+
+    vtkDataArrayAccessor<ArrayT> src(input);
+
+    double in[3];
+    for (vtkIdType tIdx = 0; tIdx < numTuples; ++tIdx)
+      {
+      in[0] = static_cast<double>(src.Get(tIdx, 0));
+      in[1] = static_cast<double>(src.Get(tIdx, 1));
+      in[2] = static_cast<double>(src.Get(tIdx, 2));
+      this->Output->SetComponent(tIdx, 0,
+                                 this->CutFunction->FunctionValue(in));
+      }
+  }
+};
+} // end anon namespace
+
 //----------------------------------------------------------------------------
 void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
                                      vtkPolyData *thisOutput)
@@ -212,8 +248,8 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     }
 
   vtkFloatArray *cutScalars = vtkFloatArray::New();
-  cutScalars->SetNumberOfTuples(numPts);
   cutScalars->SetName("cutScalars");
+  cutScalars->SetNumberOfTuples(numPts);
 
   vtkStructuredGrid *contourData = vtkStructuredGrid::New();
   contourData->ShallowCopy(input);
@@ -226,13 +262,13 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
     contourData->GetPointData()->AddArray(cutScalars);
     }
 
-  int i;
-  double scalar;
-  for (i = 0; i < numPts; i++)
+  vtkDataArray* dataArrayInput = input->GetPoints()->GetData();
+  CutFunctionWorker worker(this->CutFunction, cutScalars);
+  if (!vtkArrayDispatch::Dispatch::Execute(dataArrayInput, worker))
     {
-    scalar = this->CutFunction->FunctionValue(input->GetPoint(i));
-    cutScalars->SetComponent(i, 0, scalar);
+    worker(dataArrayInput); // Use vtkDataArray API if dispatch fails.
     }
+
   int numContours = this->GetNumberOfContours();
 
   this->GridSynchronizedTemplates->SetDebug(this->GetDebug());
@@ -242,7 +278,7 @@ void vtkCutter::StructuredGridCutter(vtkDataSet *dataSetInput,
   this->GridSynchronizedTemplates->
     SetInputArrayToProcess(0,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,"cutScalars");
   this->GridSynchronizedTemplates->SetNumberOfContours(numContours);
-  for (i = 0; i < numContours; i++)
+  for (int i = 0; i < numContours; i++)
     {
     this->GridSynchronizedTemplates->SetValue(i, this->GetValue(i));
     }

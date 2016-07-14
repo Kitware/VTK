@@ -20,6 +20,7 @@
 
 // .SECTION see also
 // vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkVolumeTextureMapper2D_h
 #define vtkVolumeTextureMapper2D_h
@@ -27,6 +28,7 @@
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeTextureMapper.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper2D : public vtkVolumeTextureMapper
 {
 public:
@@ -61,8 +63,6 @@ public:
   vtkSetMacro( MaximumStorageSize, int );
   vtkGetMacro( MaximumStorageSize, int );
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -85,9 +85,6 @@ public:
   int GetSaveTextures() {return this->SaveTextures;};
 
   unsigned char *GetTexture() {return this->Texture;};
-
-//ETX
-
 
 protected:
   vtkVolumeTextureMapper2D();
@@ -118,11 +115,11 @@ protected:
   void           RenderSavedTexture();
 
 private:
-  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&);  // Not implemented.
-  void operator=(const vtkVolumeTextureMapper2D&);  // Not implemented.
+  vtkVolumeTextureMapper2D(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeTextureMapper2D&) VTK_DELETE_FUNCTION;
 };
 
-
+#endif // VTK_LEGACY_REMOVE
 #endif
 
 

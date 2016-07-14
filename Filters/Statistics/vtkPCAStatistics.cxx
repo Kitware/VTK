@@ -64,8 +64,8 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
     vtkErrorMacro(<<"NULL table pointer!");
     }
 
-  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
-  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+  vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkArrayDownCast<vtkStringArray>(outputMeta->GetColumnByName("Column"));
 
   eigenvalues->SetNumberOfComponents(1);
 
@@ -133,8 +133,8 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
     vtkErrorMacro(<<"NULL table pointer!");
     }
 
-  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
-  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+  vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkArrayDownCast<vtkStringArray>(outputMeta->GetColumnByName("Column"));
 
   eigenvectors->SetNumberOfComponents(numberOfEigenvalues);
 
@@ -152,11 +152,11 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
       for(int val = 0; val < numberOfEigenvalues; val++)
         {
         // The first two columns will always be "Column" and "Mean", so start with the next one
-        vtkDoubleArray* currentCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumn(val+2));
+        vtkDoubleArray* currentCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumn(val+2));
         eigenvector.push_back(currentCol->GetValue(i));
         }
 
-      eigenvectors->InsertNextTupleValue(&eigenvector.front());
+      eigenvectors->InsertNextTypedTuple(&eigenvector.front());
       eval++;
       }
     }
@@ -177,12 +177,12 @@ void vtkPCAStatistics::GetEigenvector(int request, int i, vtkDoubleArray* eigenv
   this->GetEigenvectors(request, eigenvectors);
 
   double* evec = new double[eigenvectors->GetNumberOfComponents()];
-  eigenvectors->GetTupleValue(i, evec);
+  eigenvectors->GetTypedTuple(i, evec);
 
   eigenvector->Reset();
   eigenvector->Squeeze();
   eigenvector->SetNumberOfComponents(eigenvectors->GetNumberOfComponents());
-  eigenvector->InsertNextTupleValue(evec);
+  eigenvector->InsertNextTypedTuple(evec);
   delete[] evec;
 }
 
@@ -204,7 +204,7 @@ public:
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;
@@ -234,7 +234,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
 
   // Put the PCA basis into a matrix form we can use.
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
-  vtkDoubleArray* evalm = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
+  vtkDoubleArray* evalm = vtkArrayDownCast<vtkDoubleArray>( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
   if ( ! evalm )
     {
     vtkGenericWarningMacro( "No \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column in request." );
@@ -334,7 +334,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkPCAAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
+void vtkPCAAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
 {
   vtkIdType i;
   result->SetNumberOfValues( this->BasisSize );
@@ -1043,14 +1043,14 @@ void vtkPCAStatistics::Assess( vtkTable* inData,
       }
 
     // Something to hold assessed values for a single input datum
-    vtkVariantArray* singleResult = vtkVariantArray::New();
+    vtkDoubleArray* singleResult = vtkDoubleArray::New();
     // Loop over all the input data and assess each datum:
     for ( vtkIdType row = 0; row < nRow; ++ row )
       {
       (*dfunc)( singleResult, row );
       for ( comp = 0; comp < pcafunc->BasisSize; ++ comp )
         {
-        assessValues[comp][row] = singleResult->GetValue( comp ).ToDouble();
+        assessValues[comp][row] = singleResult->GetValue( comp );
         }
       }
     delete dfunc;

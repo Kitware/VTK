@@ -18,10 +18,13 @@
 #ifndef vtkOpenGLPolyDataMapper_h
 #define vtkOpenGLPolyDataMapper_h
 
+#include "vtkNew.h" // For vtkNew
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include "vtkNew.h" // for ivars
 #include "vtkPolyDataMapper.h"
 #include "vtkShader.h" // for methods
 #include "vtkOpenGLHelper.h" // used for ivars
+
 #include <vector> //for ivars
 #include <map> //for methods
 
@@ -32,6 +35,7 @@ class vtkOpenGLTexture;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
+class vtkTransform;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -153,7 +157,30 @@ public:
   // Make a shallow copy of this mapper.
   void ShallowCopy(vtkAbstractMapper *m);
 
+  // Description:
+  // Override the normal test for the apple bug
+  void ForceHaveAppleBugOff()
+  {
+    this->HaveAppleBugForce = 1;
+    this->Modified();
+  }
+  void ForceHaveAppleBugOn()
+  {
+    this->HaveAppleBugForce = 2;
+    this->Modified();
+  }
 
+  // Description:
+  // Get the value of HaveAppleBug
+  bool GetHaveAppleBug() { return this->HaveAppleBug; }
+
+  /// Return the mapper's vertex buffer object.
+  vtkGetObjectMacro(VBO,vtkOpenGLVertexBufferObject);
+
+  /**\brief A convenience method for enabling/disabling
+    *   the VBO's shift+scale transform.
+    */
+  void SetVBOShiftScaleMethod(int m);
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
@@ -163,8 +190,13 @@ protected:
   // Apple devices with AMD graphics hardware. See apple
   // bug ID 20747550
   bool HaveAppleBug;
+  int HaveAppleBugForce; // 0 = default 1 = 0ff 2 = on
   std::vector<float> AppleBugPrimIDs;
   vtkOpenGLBufferObject *AppleBugPrimIDBuffer;
+
+  // Description:
+  // helper function to get the appropriate coincident params
+  void GetCoincidentParameters(vtkActor *actor, float &factor, float &offset);
 
   // Description:
   // Called in GetBounds(). When this method is called, the consider the input
@@ -204,6 +236,9 @@ protected:
   // Description:
   // Perform string replacments on the shader templates, called from
   // ReplaceShaderValues
+  virtual void ReplaceShaderRenderPass(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
@@ -216,9 +251,6 @@ protected:
   virtual void ReplaceShaderPicking(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
-  virtual void ReplaceShaderDepthPeeling(
-    std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderPrimID(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
@@ -229,6 +261,9 @@ protected:
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
   virtual void ReplaceShaderPositionVC(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderCoincidentOffset(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
 
@@ -287,18 +322,28 @@ protected:
   int LastSelectionState;
   vtkTimeStamp SelectionStateChanged;
 
-  int LastDepthPeeling;
-  vtkTimeStamp DepthPeelingChanged;
+  // Caches the vtkOpenGLRenderPass::RenderPasses() information.
+  // Note: Do not dereference the pointers held by this object. There is no
+  // guarantee that they are still valid!
+  vtkNew<vtkInformation> LastRenderPassInfo;
+
+  // Check the renderpasses in actor's property keys to see if they've changed
+  // render stages:
+  unsigned long GetRenderPassStageMTime(vtkActor *actor);
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?
+  std::string VBOBuildString; // used for determining whento rebuild the VBO
+  std::string IBOBuildString; // used for determining whento rebuild the IBOs
   vtkOpenGLTexture* InternalColorTexture;
 
   int PopulateSelectionSettings;
   int PrimitiveIDOffset;
 
-  vtkMatrix4x4 *TempMatrix4;
-  vtkMatrix3x3 *TempMatrix3;
+  vtkMatrix4x4* TempMatrix4;
+  vtkMatrix3x3* TempMatrix3;
+  vtkNew<vtkTransform> VBOInverseTransform;
+  vtkNew<vtkMatrix4x4> VBOShiftScale;
 
   // if set to true, tcoords will be passed to the
   // VBO even if the mapper knows of no texture maps
@@ -335,8 +380,6 @@ protected:
   char* ProcessIdArrayName;
   char* CompositeIdArrayName;
 
-  int TextureComponents;
-
   class ReplacementSpec
     {
     public:
@@ -368,10 +411,11 @@ protected:
   char *VertexShaderCode;
   char *FragmentShaderCode;
   char *GeometryShaderCode;
+  unsigned int TimerQuery;
 
 private:
-  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&); // Not implemented.
-  void operator=(const vtkOpenGLPolyDataMapper&); // Not implemented.
+  vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

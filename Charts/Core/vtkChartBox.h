@@ -102,7 +102,6 @@ public:
   // only contain one plot, this will replace the previous plot.
   virtual void SetPlot(vtkPlotBox *plot);
 
-//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -119,8 +118,6 @@ public:
   // Mouse button release event.
   virtual bool MouseButtonReleaseEvent(const vtkContextMouseEvent &mouse);
 
-//ETX
-
   // Description:
   // Set the vtkTooltipItem object that will be displayed by the chart.
   virtual void SetTooltip(vtkTooltipItem *tooltip);
@@ -135,7 +132,7 @@ public:
                               const vtkVector2d &,
                               vtkIdType, vtkPlot*,
                               vtkIdType segmentIndex = -1);
-//BTX
+
 protected:
   vtkChartBox();
   ~vtkChartBox();
@@ -185,9 +182,9 @@ protected:
                         vtkPlot *plot, vtkIdType &segmentIndex);
 
 private:
-  vtkChartBox(const vtkChartBox &); // Not implemented.
-  void operator=(const vtkChartBox &);   // Not implemented.
-//ETX
+  vtkChartBox(const vtkChartBox &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkChartBox &) VTK_DELETE_FUNCTION;
+
 };
 
 // Description:

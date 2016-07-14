@@ -109,7 +109,6 @@ public:
   // Sets the HWND id of the window that WILL BE created.
   void SetParentInfo(char*);
 
-  //BTX
   virtual void *GetGenericDisplayId() { return (void*)this->ContextId; }
   virtual void *GetGenericWindowId()  { return (void*)this->WindowId; }
   virtual void *GetGenericParentId()  { return (void*)this->ParentId; }
@@ -154,8 +153,6 @@ public:
   // parent.
   virtual void SetNextWindowId(void *arg);
 
-  //ETX
-
   // Description:
   // Prescribe that the window be created in a stereo-capable mode. This
   // method must be called before the window is realized. This method
@@ -184,7 +181,7 @@ public:
   int IsDirect();
 
   // Description:
-  // Check to see if a mouse button has been pressed.
+  // Check to see if a mouse button has been pressed or mouse wheel activated.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
@@ -259,14 +256,13 @@ protected:
 
   int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
 
-  //BTX
   // message handler
   virtual LRESULT MessageProc(HWND hWnd, UINT message,
                               WPARAM wParam, LPARAM lParam);
 
   static LRESULT APIENTRY WndProc(HWND hWnd, UINT message,
                                   WPARAM wParam, LPARAM lParam);
-  //ETX
+
   int CursorHidden;
   int ForceMakeCurrent;
 
@@ -284,8 +280,8 @@ protected:
   void CleanUpRenderers();
 
 private:
-  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
+  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWin32OpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -102,6 +102,7 @@ vtkQtListView::~vtkQtListView()
 {
   delete this->ListView;
   delete this->TableAdapter;
+  delete this->TableSorter;
 }
 
 //----------------------------------------------------------------------------

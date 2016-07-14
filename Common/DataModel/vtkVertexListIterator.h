@@ -78,8 +78,8 @@ protected:
   vtkIdType  End;
 
 private:
-  vtkVertexListIterator(const vtkVertexListIterator&);  // Not implemented.
-  void operator=(const vtkVertexListIterator&);  // Not implemented.
+  vtkVertexListIterator(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVertexListIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

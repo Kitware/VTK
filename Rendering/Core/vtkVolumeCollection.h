@@ -55,13 +55,11 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
   vtkVolume *GetNextItem()
     { return this->GetNextVolume(); }
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkVolume *GetNextVolume(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkVolume *>(this->GetNextItemAsObject(cookie)); }
-  //ETX
 
 protected:
   vtkVolumeCollection() {}
@@ -75,8 +73,8 @@ private:
     { this->vtkPropCollection::AddItem(o); }
 
 private:
-  vtkVolumeCollection(const vtkVolumeCollection&);  // Not implemented.
-  void operator=(const vtkVolumeCollection&);  // Not implemented.
+  vtkVolumeCollection(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

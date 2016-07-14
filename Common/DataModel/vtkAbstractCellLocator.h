@@ -22,11 +22,9 @@
 // When deriving a class from vtkAbstractCellLocator, one should include the
 // 'hidden' member functions by the following construct in the derived class
 // \verbatim
-// //BTX
 //  using vtkAbstractCellLocator::IntersectWithLine;
 //  using vtkAbstractCellLocator::FindClosestPoint;
 //  using vtkAbstractCellLocator::FindClosestPointWithinRadius;
-// //ETX
 // \endverbatim
 
 //
@@ -259,13 +257,11 @@ protected:
   int LazyEvaluation;
   int UseExistingSearchStructure;
   vtkGenericCell *GenericCell;
-//BTX - begin tcl exclude
   double (*CellBounds)[6];
-//ETX - end tcl exclude
 
 private:
-  vtkAbstractCellLocator(const vtkAbstractCellLocator&);  // Not implemented.
-  void operator=(const vtkAbstractCellLocator&);  // Not implemented.
+  vtkAbstractCellLocator(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractCellLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

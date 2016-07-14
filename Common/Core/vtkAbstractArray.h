@@ -35,6 +35,19 @@
 // change this name using the SetName() method.  (The array name is
 // used for data manipulation.)
 //
+// This class (and subclasses) use two forms of addressing elements:
+// - Value Indexing: The index of an element assuming an array-of-structs
+//   memory layout.
+// - Tuple/Component Indexing: Explicitly specify the tuple and component
+//   indices.
+//
+// It is also worth pointing out that the behavior of the "Insert*" methods
+// of classes in this hierarchy may not behave as expected. They work exactly
+// as the corresponding "Set*" methods, except that memory allocation will
+// be performed if acting on a value past the end of the array. If the data
+// already exists, "inserting" will overwrite existing values, rather than shift
+// the array contents and insert the new data at the specified location.
+//
 // .SECTION See Also
 // vtkDataArray vtkStringArray vtkCellArray
 
@@ -59,15 +72,17 @@ class vtkVariantArray;
 class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
-  friend class vtkDataArrayTemplateHelper;
-
   vtkTypeMacro(vtkAbstractArray,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000) = 0;
+  // This method will reset MaxId to -1 and resize the array capacity such that
+  // this->Size >= numValues.
+  // If numValues is 0, all memory will be freed.
+  // Return 1 on success, 0 on failure.
+  virtual int Allocate(vtkIdType numValues, vtkIdType ext=1000) = 0;
 
   // Description:
   // Release storage and reset array to initial state.
@@ -123,24 +138,43 @@ public:
   // Also note that if allocation is performed no copy is performed so
   // existing data will be lost (if data conservation is sought, one may
   // use the Resize method instead).
-  virtual void SetNumberOfTuples(vtkIdType number) = 0;
+  virtual void SetNumberOfTuples(vtkIdType numTuples) = 0;
 
   // Description:
-  // Get the number of tuples (a component group) in the array.
+  // Specify the number of values (tuples * components) for this object to hold.
+  // Does an allocation as well as setting the MaxId ivar. Used in conjunction
+  // with SetValue() method for fast insertion.
+  virtual void SetNumberOfValues(vtkIdType numValues);
+
+  // Description:
+  // Get the number of complete tuples (a component group) in the array.
   vtkIdType GetNumberOfTuples()
     {return (this->MaxId + 1)/this->NumberOfComponents;}
 
   // Description:
-  // Set the tuple at the ith location using the jth tuple in the source array.
-  // This method assumes that the two arrays have the same type
-  // and structure. Note that range checking and memory allocation is not
-  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
+  // Get the total number of values in the array. This is typically equivalent
+  // to (numTuples * numComponents). The exception is during incremental array
+  // construction for subclasses that support component insertion, which may
+  // result in an incomplete trailing tuple.
+  inline vtkIdType GetNumberOfValues() const
+    {
+    return (this->MaxId + 1);
+    }
 
   // Description:
-  // Insert the jth tuple in the source array, at ith location in this array.
+  // Set the tuple at dstTupleIdx in this array to the tuple at srcTupleIdx in
+  // the source array. This method assumes that the two arrays have the same
+  // type and structure. Note that range checking and memory allocation is not
+  // performed; use in conjunction with SetNumberOfTuples() to allocate space.
+  virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                        vtkAbstractArray *source) = 0;
+
+  // Description:
+  // Insert the tuple at srcTupleIdx in the source array into this array at
+  // dstTupleIdx.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source) = 0;
+  virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                           vtkAbstractArray* source) = 0;
 
   // Description:
   // Copy the tuples indexed in srcIds from the source array to the tuple
@@ -157,19 +191,20 @@ public:
                             vtkAbstractArray* source) = 0;
 
   // Description:
-  // Insert the jth tuple in the source array, at the end in this array.
-  // Note that memory allocation is performed as necessary to hold the data.
-  // Returns the location at which the data was inserted.
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) = 0;
+  // Insert the tuple from srcTupleIdx in the source array at the end of this
+  // array. Note that memory allocation is performed as necessary to hold the
+  // data. Returns the tuple index at which the data was inserted.
+  virtual vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
+                                    vtkAbstractArray* source) = 0;
 
   // Description:
-  // Given a list of point ids, return an array of tuples.
+  // Given a list of tuple ids, return an array of tuples.
   // You must insure that the output array has been previously
   // allocated with enough space to hold the data.
-  virtual void GetTuples(vtkIdList *ptIds, vtkAbstractArray* output);
+  virtual void GetTuples(vtkIdList *tupleIds, vtkAbstractArray* output);
 
   // Description:
-  // Get the tuples for the range of points ids specified
+  // Get the tuples for the range of tuple ids specified
   // (i.e., p1->p2 inclusive). You must insure that the output array has
   // been previously allocated with enough space to hold the data.
   virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
@@ -179,23 +214,15 @@ public:
   // VTK user guide, e.g. a contiguous array:
   // {t1c1, t1c2, t1c3, ... t1cM, t2c1, ... tNcM}
   // where t1c2 is the second component of the first tuple.
-  //
-  // If the array does not have the standard memory layout GetVoidPointer should
-  // not be used, as a deep copy of the data must be made. Instead, use a
-  // vtkTypedDataArrayIterator to get pointer-like semantics that can safely
-  // access the data values.
-  //
-  // Subclasses that return false here must derive from vtkMappedDataArray
-  // to ensure that they will work safely with the rest of the pipeline.
   virtual bool HasStandardMemoryLayout();
 
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
-  // If the data is simply being iterated over, consider using
-  // vtkDataArrayIteratorMacro for safety and efficiency, rather than using this
-  // member directly.
-  virtual void *GetVoidPointer(vtkIdType id) = 0;
+  // Use of this method is discouraged, as newer arrays require a deep-copy of
+  // the array data in order to return a suitable pointer. See vtkArrayDispatch
+  // for a safer alternative for fast data access.
+  virtual void *GetVoidPointer(vtkIdType valueIdx) = 0;
 
   // Description:
   // Deep copy of data. Implementation left to subclasses, which
@@ -207,24 +234,24 @@ public:
   virtual void DeepCopy(vtkAbstractArray* da);
 
   // Description:
-  // Set the ith tuple in this array as the interpolated tuple value,
-  // given the ptIndices in the source array and associated
-  // interpolation weights.
+  // Set the tuple at dstTupleIdx in this array to the interpolated tuple value,
+  // given the ptIndices in the source array and associated interpolation
+  // weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
-  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights) = 0;
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
+                                vtkAbstractArray* source,  double* weights) = 0;
 
   // Description
-  // Insert the ith tuple in this array as interpolated from the two values,
-  // p1 and p2, and an interpolation factor, t.
-  // The interpolation factor ranges from (0,1),
-  // with t=0 located at p1. This method assumes that the three arrays are of
-  // the same type. p1 is value at index id1 in source1, while, p2 is
-  // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i,
-    vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t) =0;
+  // Insert the tuple at dstTupleIdx in this array to the tuple interpolated
+  // from the two tuple indices, srcTupleIdx1 and srcTupleIdx2, and an
+  // interpolation factor, t. The interpolation factor ranges from (0,1),
+  // with t=0 located at the tuple described by srcTupleIdx1. This method
+  // assumes that the three arrays are of the same type, srcTupleIdx1 is an
+  // index to array source1, and srcTupleIdx2 is an index to array source2.
+  virtual void InterpolateTuple(vtkIdType dstTupleIdx,
+    vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) =0;
 
   // Description:
   // Free any unnecessary memory.
@@ -233,8 +260,13 @@ public:
   virtual void Squeeze() = 0;
 
   // Description:
-  // Resize the array while conserving the data.  Returns 1 if
-  // resizing succeeded and 0 otherwise.
+  // Resize the array to the requested number of tuples and preserve data.
+  // Increasing the array size may allocate extra memory beyond what was
+  // requested. MaxId will not be modified when increasing array size.
+  // Decreasing the array size will trim memory to the requested size and
+  // may update MaxId if the valid id range is truncated.
+  // Requesting an array size of 0 will free all memory.
+  // Returns 1 if resizing succeeded and 0 otherwise.
   virtual int Resize(vtkIdType numTuples) = 0;
 
   // Description:
@@ -255,22 +287,34 @@ public:
   vtkIdType GetMaxId()
     {return this->MaxId;}
 
+  enum DeleteMethod
+  {
+    VTK_DATA_ARRAY_FREE,
+    VTK_DATA_ARRAY_DELETE
+  };
+
   // Description:
   // This method lets the user specify data to be held by the array.  The
-  // array argument is a pointer to the data.  size is the size of
-  // the array supplied by the user.  Set save to 1 to keep the class
-  // from deleting the array when it cleans up or reallocates memory.
-  // The class uses the actual array provided; it does not copy the data
-  // from the supplied array.
+  // array argument is a pointer to the data.  size is the size of the array
+  // supplied by the user.  Set save to 1 to keep the class from deleting the
+  // array when it cleans up or reallocates memory.  The class uses the
+  // actual array provided; it does not copy the data from the supplied
+  // array. If specified, the delete method determines how the data array
+  // will be deallocated. If the delete method is VTK_DATA_ARRAY_FREE, free()
+  // will be used. If the delete method is DELETE, delete[] will be used. The
+  // default is FREE. (Note not all subclasses can support deleteMethod.)
   virtual void SetVoidArray(void *vtkNotUsed(array),
                             vtkIdType vtkNotUsed(size),
                             int vtkNotUsed(save)) =0;
+  virtual void SetVoidArray(void *array, vtkIdType size, int save,
+                            int vtkNotUsed(deleteMethod))
+    {this->SetVoidArray(array,size,save);};
 
   // Description:
   // This method copies the array data to the void pointer specified
   // by the user.  It is up to the user to allocate enough memory for
   // the void pointer.
-  virtual void ExportToVoidPointer(void *vtkNotUsed(out_ptr)) {}
+  virtual void ExportToVoidPointer(void *out_ptr);
 
   // Description:
   // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
@@ -299,6 +343,7 @@ public:
   // VTK_STRING.
   // Note that the data array returned has to be deleted by the
   // user.
+  VTK_NEWINSTANCE
   static vtkAbstractArray* CreateArray(int dataType);
 
   // Description:
@@ -309,6 +354,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right kind
   // of templated vtkArrayIteratorTemplate.
+  VTK_NEWINSTANCE
   virtual vtkArrayIterator* NewIterator() = 0;
 
   // Description:
@@ -322,23 +368,23 @@ public:
     }
 
   // Description:
-  // Return the indices where a specific value appears.
+  // Return the value indices where a specific value appears.
   virtual vtkIdType LookupValue(vtkVariant value) = 0;
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids) = 0;
+  virtual void LookupValue(vtkVariant value, vtkIdList* valueIds) = 0;
 
   // Description:
   // Retrieve value from the array as a variant.
-  virtual vtkVariant GetVariantValue(vtkIdType idx);
+  virtual vtkVariant GetVariantValue(vtkIdType valueIdx);
 
   // Description:
   // Insert a value into the array from a variant.  This method does
   // bounds checking.
-  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value) = 0;
+  virtual void InsertVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
 
   // Description:
   // Set a value in the array from a variant.  This method does NOT do
   // bounds checking.
-  virtual void SetVariantValue(vtkIdType idx, vtkVariant value) = 0;
+  virtual void SetVariantValue(vtkIdType valueIdx, vtkVariant value) = 0;
 
   // Description:
   // Tell the array explicitly that the data has changed.
@@ -424,7 +470,7 @@ public:
   // Inquire if this array has an instance of vtkInformation
   // already associated with it.
   bool HasInformation(){ return this->Information!=0; }
-  //BTX
+
   // Description:
   // Copy information instance. Arrays use information objects
   // in a variety of ways. It is important to have flexibility in
@@ -436,7 +482,6 @@ public:
   // keys they do not wish to be coppied. The subclass will not need to
   // explicilty copy the keys as it's handled here.
   virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
-  //ETX
 
   // Description:
   // This key is a hint to end user interface that this array
@@ -486,13 +531,17 @@ public:
   enum {
     AbstractArray = 0,
     DataArray,
+    AoSDataArrayTemplate,
+    SoADataArrayTemplate,
     TypedDataArray,
-    DataArrayTemplate,
-    MappedDataArray
+    MappedDataArray,
+
+    DataArrayTemplate = AoSDataArrayTemplate //! Legacy
     };
 
   // Description:
-  // Method for type-checking in FastDownCast implementations.
+  // Method for type-checking in FastDownCast implementations. See also
+  // vtkArrayDownCast.
   virtual int GetArrayType()
   {
     return AbstractArray;
@@ -534,14 +583,75 @@ protected:
 
   vtkInformation* Information;
 
-  //BTX
   class vtkInternalComponentNames;
   vtkInternalComponentNames* ComponentNames; //names for each component
-  //ETX
 
 private:
-  vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.
-  void operator=(const vtkAbstractArray&);  // Not implemented.
+  vtkAbstractArray(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
 };
+
+// Description:
+// Implementation of vtkArrayDownCast. The templating/etc is moved to this
+// worker struct to get around limitations of template functions (no partial
+// specialization, ambiguities, etc).
+template <typename ArrayT>
+struct vtkArrayDownCast_impl
+{
+  inline ArrayT* operator()(vtkAbstractArray* array)
+  {
+    return ArrayT::SafeDownCast(array);
+  }
+};
+
+// Description:
+// vtkArrayDownCast is to be used by generic (e.g. templated) code for quickly
+// downcasting vtkAbstractArray pointers to more derived classes.
+// The typical VTK downcast pattern (SafeDownCast) performs a string comparison
+// on the class names in the object's inheritance hierarchy, which is quite
+// expensive and can dominate computational resource usage when downcasting is
+// needed in a worker function.
+// To address this, certain arrays support a FastDownCast method, which replaces
+// the chain of string comparisons with 1-2 integer comparisons and thus is
+// significantly more efficient.
+// However, not all arrays support the FastDownCast mechanism. vtkArrayDownCast
+// exists to select between the two; Arrays that support FastDownCast will use
+// it, while others will fallback to the slower SafeDownCast.
+//
+// A more detailed description of this class and related tools can be found
+// \ref VTK-7-1-ArrayDispatch "here".
+template <typename ArrayT>
+ArrayT* vtkArrayDownCast(vtkAbstractArray *array)
+{
+  // The default vtkArrayDownCast_impl struct uses SafeDownCast, but is
+  // specialized for arrays that support FastDownCast.
+  return vtkArrayDownCast_impl<ArrayT>()(array);
+}
+
+// Description:
+// This macro is used to tell vtkArrayDownCast to use FastDownCast instead of
+// SafeDownCast.
+#define vtkArrayDownCast_FastCastMacro(ArrayT) \
+  template <> struct vtkArrayDownCast_impl<ArrayT> \
+  { \
+    inline ArrayT* operator()(vtkAbstractArray *array) \
+    { \
+      return ArrayT::FastDownCast(array); \
+    } \
+  };
+
+// Description:
+// Same as vtkArrayDownCast_FastCastMacro, but treats ArrayT as a
+// single-parameter template (the parameter is the value type). Defines a
+// vtkArrayDownCast implementation that uses the specified array template class
+// with any value type.
+#define vtkArrayDownCast_TemplateFastCastMacro(ArrayT) \
+  template <typename ValueT> struct vtkArrayDownCast_impl<ArrayT<ValueT> > \
+  { \
+    inline ArrayT<ValueT>* operator()(vtkAbstractArray *array) \
+    { \
+      return ArrayT<ValueT>::FastDownCast(array); \
+    } \
+  };
 
 #endif

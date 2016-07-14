@@ -41,7 +41,7 @@ vtkImageMapToColors mapToRGBA
 mapToRGBA SetInputConnection [reader GetOutputPort]
 mapToRGBA SetOutputFormatToRGBA
 mapToRGBA SetLookupTable LUT
-mapToRGBA AddObserver "EndEvent" changeLUT
+#mapToRGBA AddObserver "EndEvent" changeLUT
 
 vtkImageDataStreamer imageStreamer
 imageStreamer SetInputConnection [mapToRGBA GetOutputPort]

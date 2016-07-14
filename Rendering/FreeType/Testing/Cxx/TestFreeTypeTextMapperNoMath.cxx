@@ -36,29 +36,6 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
     }
 
   vtkStdString uncodeFontFile(argv[1]);
-
-  // Remove any override to the class to ensure that the actual vtkTextMapper
-  // class is being tested:
-  vtkNew<vtkOverrideInformationCollection> overrides;
-  vtkObjectFactory::GetOverrideInformation("vtkTextMapper",
-                                           overrides.GetPointer());
-  overrides->InitTraversal();
-  while (vtkOverrideInformation *override = overrides->GetNextItem())
-    {
-    if (vtkObjectFactory *factory = override->GetObjectFactory())
-      {
-      vtkObjectFactory::UnRegisterFactory(factory);
-      }
-    }
-
-  vtkNew<vtkTextMapper> nameChecker;
-  if (vtkStdString(nameChecker->GetClassName()) != "vtkTextMapper")
-    {
-    cerr << "Needed a vtkTextMapper instance, got "
-         << nameChecker->GetClassName() << " instead!" << endl;
-    return EXIT_FAILURE;
-    }
-
   vtkStdString str = "Sample multiline\ntext rendered\nusing FreeTypeTools.";
 
   vtkNew<vtkTextMapper> mapper1;
@@ -195,6 +172,19 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   mapper11->SetInput("oTeVaVoVAW");
   actor11->SetPosition(300, 200);
 
+  // Empty string, solid background: should not render
+  vtkNew<vtkTextMapper> mapper12;
+  vtkNew<vtkActor2D> actor12;
+  actor12->SetMapper(mapper12.GetPointer());
+  mapper12->GetTextProperty()->SetFontSize(16);
+  mapper12->GetTextProperty()->SetColor(1.0, 0.0, 0.0);
+  mapper12->GetTextProperty()->SetBackgroundColor(1.0, 0.5, 1.0);
+  mapper12->GetTextProperty()->SetBackgroundOpacity(1.0);
+  mapper12->GetTextProperty()->SetJustificationToRight();
+  mapper12->GetTextProperty()->SetVerticalJustificationToCentered();
+  mapper12->SetInput("");
+  actor12->SetPosition(0, 0);
+
   // Boring rendering setup....
 
   vtkNew<vtkRenderer> ren;
@@ -216,6 +206,7 @@ int TestFreeTypeTextMapperNoMath(int argc, char *argv[])
   ren->AddActor(actor9.GetPointer());
   ren->AddActor(actor10.GetPointer());
   ren->AddActor(actor11.GetPointer());
+  ren->AddActor(actor12.GetPointer());
 
   win->SetMultiSamples(0);
   win->Render();

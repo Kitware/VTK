@@ -1037,7 +1037,7 @@ int vtkCommunicator::GatherVElementalDataObject(
       for (int i = 0; i < this->NumberOfProcesses; ++i)
         {
         if (! vtkCommunicator::UnMarshalDataObject(
-              vtkCharArray::SafeDownCast(recvBuffers[i].GetPointer()),
+              vtkArrayDownCast<vtkCharArray>(recvBuffers[i].GetPointer()),
               receiveData[i]))
           {
           return 0;

@@ -16,6 +16,29 @@
 #define vtkType_h
 
 #include "vtkConfigure.h"
+#include "vtk_kwiml.h"
+
+#define VTK_SIZEOF_CHAR KWIML_ABI_SIZEOF_CHAR
+#define VTK_SIZEOF_SHORT KWIML_ABI_SIZEOF_SHORT
+#define VTK_SIZEOF_INT KWIML_ABI_SIZEOF_INT
+#define VTK_SIZEOF_LONG KWIML_ABI_SIZEOF_LONG
+#define VTK_SIZEOF_LONG_LONG KWIML_ABI_SIZEOF_LONG_LONG
+#define VTK_SIZEOF_FLOAT KWIML_ABI_SIZEOF_FLOAT
+#define VTK_SIZEOF_DOUBLE KWIML_ABI_SIZEOF_DOUBLE
+#define VTK_SIZEOF_VOID_P KWIML_ABI_SIZEOF_DATA_PTR
+
+/* Whether type "long long" is enabled as a unique fundamental type.  */
+#define VTK_TYPE_USE_LONG_LONG
+#if VTK_SIZEOF_LONG_LONG == 0
+# error "No 'long long' type available."
+#endif
+
+/* Whether type "char" is signed (it may be signed or unsigned).  */
+#if defined(KWIML_ABI_CHAR_IS_SIGNED)
+# define VTK_TYPE_CHAR_IS_SIGNED 1
+#else
+# define VTK_TYPE_CHAR_IS_SIGNED 0
+#endif
 
 /*--------------------------------------------------------------------------*/
 /* Define a unique integer identifier for each native scalar type.  */
@@ -41,14 +64,13 @@
 #define VTK_STRING         13
 #define VTK_OPAQUE         14
 
-/* These types are enabled if VTK_TYPE_USE_LONG_LONG is defined.  */
 #define VTK_LONG_LONG          16
 #define VTK_UNSIGNED_LONG_LONG 17
 
-/* This type is enabled if VTK_TYPE_USE___INT64 is defined.  */
+/* Legacy.  This type is never enabled.  */
 #define VTK___INT64            18
 
-/* This type is enabled if VTK_TYPE_USE___INT64 is defined.  */
+/* Legacy.  This type is never enabled.  */
 #define VTK_UNSIGNED___INT64   19
 
 /* These types are required by vtkVariant and vtkVariantArray */
@@ -139,30 +161,10 @@
 #define VTK_FLOAT_MAX               VTK_TYPE_CAST(float,  1.0e+38f)
 #define VTK_DOUBLE_MIN              VTK_TYPE_CAST(double, -1.0e+299)
 #define VTK_DOUBLE_MAX              VTK_TYPE_CAST(double,  1.0e+299)
-#if defined(VTK_SIZEOF_LONG_LONG)
-# define VTK_LONG_LONG_MIN          VTK_TYPE_CAST(long long, ~(~0ull >> 1))
-# define VTK_LONG_LONG_MAX          VTK_TYPE_CAST(long long, ~0ull >> 1)
-# define VTK_UNSIGNED_LONG_LONG_MIN VTK_TYPE_CAST(unsigned long long, 0ull)
-# define VTK_UNSIGNED_LONG_LONG_MAX VTK_TYPE_CAST(unsigned long long, ~0ull)
-#endif
-#if defined(VTK_SIZEOF___INT64)
-# if defined(VTK_TYPE_SAME_LONG_AND___INT64)
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ul >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ul >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ul)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ul)
-# elif defined(VTK_TYPE_SAME_LONG_LONG_AND___INT64)
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ull >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ull >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ull)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ull)
-# else
-#  define VTK___INT64_MIN           VTK_TYPE_CAST(__int64, ~(~0ui64 >> 1))
-#  define VTK___INT64_MAX           VTK_TYPE_CAST(__int64, ~0ui64 >> 1)
-#  define VTK_UNSIGNED___INT64_MIN  VTK_TYPE_CAST(unsigned __int64, 0ui64)
-#  define VTK_UNSIGNED___INT64_MAX  VTK_TYPE_CAST(unsigned __int64, ~0ui64)
-# endif
-#endif
+#define VTK_LONG_LONG_MIN           VTK_TYPE_CAST(long long, ~(~0ull >> 1))
+#define VTK_LONG_LONG_MAX           VTK_TYPE_CAST(long long, ~0ull >> 1)
+#define VTK_UNSIGNED_LONG_LONG_MIN  VTK_TYPE_CAST(unsigned long long, 0ull)
+#define VTK_UNSIGNED_LONG_LONG_MAX  VTK_TYPE_CAST(unsigned long long, ~0ull)
 
 /*--------------------------------------------------------------------------*/
 /* Define named types and constants corresponding to specific integer
@@ -213,7 +215,7 @@ typedef signed long   vtkTypeInt32;
 #endif
 
 /* Select a 64-bit integer type.  */
-#if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+#if VTK_SIZEOF_LONG_LONG == 8
 typedef unsigned long long vtkTypeUInt64;
 typedef signed long long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG_LONG
@@ -223,11 +225,6 @@ typedef unsigned long vtkTypeUInt64;
 typedef signed long   vtkTypeInt64;
 # define VTK_TYPE_UINT64 VTK_UNSIGNED_LONG
 # define VTK_TYPE_INT64 VTK_LONG
-#elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
-typedef unsigned __int64 vtkTypeUInt64;
-typedef signed __int64   vtkTypeInt64;
-# define VTK_TYPE_UINT64 VTK_UNSIGNED___INT64
-# define VTK_TYPE_INT64 VTK___INT64
 #else
 # error "No native data type can represent a 64-bit integer."
 #endif
@@ -252,24 +249,18 @@ typedef double vtkTypeFloat64;
 /* Choose an implementation for vtkIdType.  */
 #define VTK_HAS_ID_TYPE
 #ifdef VTK_USE_64BIT_IDS
-# if defined(VTK_TYPE_USE_LONG_LONG) && VTK_SIZEOF_LONG_LONG == 8
+# if VTK_SIZEOF_LONG_LONG == 8
 typedef long long vtkIdType;
 #  define VTK_ID_TYPE_IMPL VTK_LONG_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG_LONG
 #  define VTK_ID_MIN VTK_LONG_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_LONG_MAX
-# elif defined(VTK_SIZEOF_LONG) && VTK_SIZEOF_LONG == 8
+# elif VTK_SIZEOF_LONG == 8
 typedef long vtkIdType;
 #  define VTK_ID_TYPE_IMPL VTK_LONG
 #  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF_LONG
 #  define VTK_ID_MIN VTK_LONG_MIN
 #  define VTK_ID_MAX VTK_LONG_MAX
-# elif defined(VTK_TYPE_USE___INT64) && VTK_SIZEOF___INT64 == 8
-typedef __int64 vtkIdType;
-#  define VTK_ID_TYPE_IMPL VTK___INT64
-#  define VTK_SIZEOF_ID_TYPE VTK_SIZEOF___INT64
-#  define VTK_ID_MIN VTK___INT64_MIN
-#  define VTK_ID_MAX VTK___INT64_MAX
 # else
 #  error "VTK_USE_64BIT_IDS is ON but no 64-bit integer type is available."
 # endif
@@ -281,13 +272,28 @@ typedef int vtkIdType;
 # define VTK_ID_MAX VTK_INT_MAX
 #endif
 
+/*--------------------------------------------------------------------------*/
+/* If not already defined, define vtkTypeBool. When VTK was started, some   */
+/* compilers did not yet support the bool type, and so VTK often used int   */
+/* where it should have used bool. Eventually vtkTypeBool will switch to    */
+/* real bool. */
+#ifndef VTK_TYPE_BOOL_TYPEDEFED
+# define VTK_TYPE_BOOL_TYPEDEFED
+# if 1
+   typedef int vtkTypeBool;
+# else
+   typedef bool vtkTypeBool;
+# endif
+#endif
+
+
 #if defined(__cplusplus)
 /* Description:
  * Returns true if data type tags a and b point to the same data type. This
  * is intended to handle vtkIdType, which does not have the same tag as its
  * underlying data type.
  * @note This method is only available when included from a C++ source file. */
-inline int vtkDataTypesCompare(int a, int b)
+inline vtkTypeBool vtkDataTypesCompare(int a, int b)
 {
   return (a == b ||
           ((a == VTK_ID_TYPE || a == VTK_ID_TYPE_IMPL) &&

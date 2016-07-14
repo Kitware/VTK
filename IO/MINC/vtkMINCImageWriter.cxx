@@ -81,7 +81,7 @@ POSSIBILITY OF SUCH DAMAGES.
 #endif
 
 #include <cstdlib>
-#include <float.h>
+#include <cfloat>
 #include <ctime>
 #include <string>
 #include <vector>
@@ -218,7 +218,7 @@ int vtkMINCImageWriter::CloseNetCDFFile(int ncid)
 // this is a macro so the vtkErrorMacro will report a useful line number
 #define vtkMINCImageWriterFailAndClose(ncid, status) \
 { \
-  if (status != NC_NOERR) \
+  if ((status) != NC_NOERR) \
     { \
     vtkErrorMacro("There was an error with the MINC file \"" \
                   << this->GetFileName() << "\":\n" \
@@ -437,7 +437,7 @@ std::string vtkMINCImageWriterCreateIdentString()
 #else
   int processId = getpid();
 #endif
-  sprintf(buf, "%i%s%i", processId, itemsep, identx++);
+  snprintf(buf, 1024, "%i%s%i", processId, itemsep, identx++);
   ident.append(buf);
 
   return ident;
@@ -494,11 +494,15 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(
 }
 
 //-------------------------------------------------------------------------
-// These macro is only for use in WriteMINCFileAttributes
+// These macros are only for use in WriteMINCFileAttributes.
+
+// Note: Until VTK 7.0, this macro added a terminating null byte to all
+// text attributes.  As of VTK 7.1, it does not.  The attribute length
+// should be the string length, not the string length "plus one".
 #define vtkMINCImageWriterPutAttributeTextMacro(name, text) \
   if (status == NC_NOERR) \
     { \
-    status = nc_put_att_text(ncid, varid, name, strlen(text)+1, text); \
+    status = nc_put_att_text(ncid, varid, name, strlen(text), text); \
     }
 
 #define vtkMINCImageWriterPutAttributeDoubleMacro(name, count, ptr) \
@@ -967,7 +971,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
             // Don't set valid_range if the default is suitable
             if (this->ComputeValidRangeFromScalarRange ||
                 (this->ImageAttributes &&
-                 vtkDoubleArray::SafeDownCast(
+                 vtkArrayDownCast<vtkDoubleArray>(
                    this->ImageAttributes->GetAttributeValueAsArray(
                      MIimage, MIvalid_range))))
               {
@@ -1231,7 +1235,7 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
   vtkDoubleArray *rangearray = 0;
   if (this->ImageAttributes)
     {
-    rangearray = vtkDoubleArray::SafeDownCast(
+    rangearray = vtkArrayDownCast<vtkDoubleArray>(
       this->ImageAttributes->GetAttributeValueAsArray(
         MIimage, MIvalid_range));
     }
@@ -2144,7 +2148,7 @@ int vtkMINCImageWriter::RequestData(
           input,
           timeStep,
           vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo),
-          vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo)) == 0)
+          inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT())) == 0)
       {
       return 0;
       }

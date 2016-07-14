@@ -37,7 +37,7 @@ public:
   static vtkGlyph3DMapper* New();
   vtkTypeMacro(vtkGlyph3DMapper, vtkMapper);
   void PrintSelf(ostream& os, vtkIndent indent);
-  //BTX
+
   enum ArrayIndexes
     {
     SCALE = 0,
@@ -46,7 +46,6 @@ public:
     ORIENTATION = 3,
     SELECTIONID = 4
     };
-  //ETX
 
   // Description:
   // Specify a source object at a specified table location. New style.
@@ -99,14 +98,13 @@ public:
   vtkSetMacro(ScaleFactor, double);
   vtkGetMacro(ScaleFactor, double);
 
-  //BTX
   enum ScaleModes
     {
     NO_DATA_SCALING = 0,
     SCALE_BY_MAGNITUDE = 1,
     SCALE_BY_COMPONENTS = 2
     };
-  //ETX
+
   void SetScaleModeToScaleByMagnitude()
     { this->SetScaleMode(SCALE_BY_MAGNITUDE); }
   void SetScaleModeToScaleByVectorComponents()
@@ -139,13 +137,12 @@ public:
   void SetOrientationModeToRotation()
     { this->SetOrientationMode(vtkGlyph3DMapper::ROTATION); }
   const char* GetOrientationModeAsString();
-  //BTX
+
   enum OrientationModes
     {
     DIRECTION=0,
     ROTATION=1
     };
-  //ETX
 
   // Description:
   // Turn on/off clamping of data values to scale with to the specified range.
@@ -325,7 +322,7 @@ public:
   // selection.
   virtual bool GetSupportsSelection()
     { return true; }
-  //BTX
+
 protected:
   vtkGlyph3DMapper();
   ~vtkGlyph3DMapper();
@@ -364,13 +361,13 @@ protected:
   int SelectMode;
 
 private:
-  vtkGlyph3DMapper(const vtkGlyph3DMapper&); // Not implemented.
-  void operator=(const vtkGlyph3DMapper&); // Not implemented.
+  vtkGlyph3DMapper(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGlyph3DMapper&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Returns true when valid bounds are returned.
   bool GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6]);
-  //ETX
+
 };
 
 #endif

@@ -46,7 +46,6 @@ int TestOBJImporter( int argc, char * argv [] )
       texfile2 = argv[5];
       }
 
-    std::vector<std::string> tmp1,tmp2;
     std::string texture_path1 = vtksys::SystemTools::GetFilenamePath(texfile1);
     std::string texture_path2 = vtksys::SystemTools::GetFilenamePath(texfile2);
     if( 0 != texture_path1.compare(texture_path2) )

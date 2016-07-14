@@ -45,8 +45,8 @@ protected:
   virtual void PostRenderProcessing();
 
 private:
-  vtkImageRenderManager(const vtkImageRenderManager &);//Not implemented
-  void operator=(const vtkImageRenderManager &);  //Not implemented
+  vtkImageRenderManager(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageRenderManager &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkImageRenderManager_h

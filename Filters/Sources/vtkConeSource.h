@@ -112,8 +112,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkConeSource(const vtkConeSource&);  // Not implemented.
-  void operator=(const vtkConeSource&);  // Not implemented.
+  vtkConeSource(const vtkConeSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkConeSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

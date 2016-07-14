@@ -38,11 +38,9 @@ public:
   vtkTypeMacro(vtkXMLRectilinearGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkRectilinearGrid* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -70,8 +68,8 @@ protected:
   virtual void DeletePositionArrays();
 
 private:
-  vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLRectilinearGridWriter&);  // Not implemented.
+  vtkXMLRectilinearGridWriter(const vtkXMLRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

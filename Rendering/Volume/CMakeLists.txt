@@ -51,6 +51,28 @@ set_source_files_properties(
   ABSTRACT
   )
 
+if (VTK_LEGACY_REMOVE)
+  set_source_files_properties(
+    vtkVolumeRayCastCompositeFunction.h
+    vtkVolumeRayCastCompositeFunction.cxx
+    vtkVolumeRayCastFunction.h
+    vtkVolumeRayCastFunction.cxx
+    vtkVolumeRayCastIsosurfaceFunction.h
+    vtkVolumeRayCastIsosurfaceFunction.cxx
+    vtkVolumeRayCastMIPFunction.h
+    vtkVolumeRayCastMIPFunction.cxx
+    vtkVolumeRayCastMapper.h
+    vtkVolumeRayCastMapper.cxx
+    vtkVolumeTextureMapper2D.h
+    vtkVolumeTextureMapper2D.cxx
+    vtkVolumeTextureMapper3D.h
+    vtkVolumeTextureMapper3D.cxx
+    PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+    )
+endif()
+
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set_source_files_properties(
     vtkGPUVolumeRayCastMapper.cxx APPEND PROPERTIES

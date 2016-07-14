@@ -77,14 +77,12 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   // vector (0,0,1), and point (0,0,0).
   static vtkQuadRotationalExtrusionFilter *New();
 
-//BTX
   enum RotationAxis
     {
       USE_X = 0,
       USE_Y = 1,
       USE_Z = 2
     };
-//ETX
 
   // Description:
   // Set the axis of rotation to use. It is set by default to Z.
@@ -148,13 +146,11 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   double Translation;
   double DeltaRadius;
 
-//BTX
   std::map<vtkIdType,double> PerBlockAngles;
-//ETX
 
  private:
-  vtkQuadRotationalExtrusionFilter(const vtkQuadRotationalExtrusionFilter&);  // Not implemented.
-  void operator=(const vtkQuadRotationalExtrusionFilter&);  // Not implemented.
+  vtkQuadRotationalExtrusionFilter(const vtkQuadRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadRotationalExtrusionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

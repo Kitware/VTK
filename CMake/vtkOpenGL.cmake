@@ -22,10 +22,8 @@ option(VTK_OPENGL_HAS_OSMESA
 # EGL offscreen rendering
 option(VTK_USE_OFFSCREEN_EGL
   "Use EGL for OpenGL client API for offscreen rendering." OFF)
-if (NOT DEFINED VTK_EGL_DEVICE_INDEX)
-  set(VTK_EGL_DEVICE_INDEX 0 CACHE STRING
-      "Index of the EGL device (graphics card) to use." FORCE)
-endif()
+set(VTK_EGL_DEVICE_INDEX 0 CACHE STRING
+  "Index of the EGL device (graphics card) to use.")
 
 if (VTK_USE_OFFSCREEN_EGL AND VTK_RENDERING_BACKEND STREQUAL "OpenGL")
   message(FATAL_ERROR "You can use VTK_USE_OFFSCREEN_EGL only for OpenGL2")
@@ -53,7 +51,7 @@ else()
 endif()
 
 mark_as_advanced(VTK_USE_X VTK_OPENGL_HAS_OSMESA VTK_USE_OFFSCREEN_EGL
-  VTK_USE_OFFSCREEN)
+  VTK_USE_OFFSCREEN VTK_EGL_DEVICE_INDEX)
 
 if(VTK_USE_OSMESA)
   find_package(OSMesa REQUIRED)
@@ -64,6 +62,21 @@ elseif(VTK_USE_OFFSCREEN_EGL)
 else()
   find_package(OpenGL REQUIRED)
   include_directories(SYSTEM ${OPENGL_INCLUDE_DIR})
+  if(APPLE)
+    # Remove the deprecated AGL framework found by FindOpenGL.cmake
+    # (this is only required for CMake 3.4.1 and earlier)
+    set(_new_libs)
+    foreach(_lib ${OPENGL_LIBRARIES})
+      get_filename_component(_name "${_lib}" NAME)
+      string(TOLOWER "${_name}" _name)
+      if(NOT "${_name}" STREQUAL "agl.framework")
+        list(APPEND _new_libs ${_lib})
+      endif()
+    endforeach()
+    set(OPENGL_LIBRARIES ${_new_libs})
+    unset(_new_libs)
+    unset(_name)
+  endif()
 endif()
 
 # Function to link a VTK target to the necessary OpenGL libraries.

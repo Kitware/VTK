@@ -44,13 +44,11 @@ public:
   // list is reached.
   vtkTransform *GetNextItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkTransform *GetNextTransform(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkTransform *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkTransformCollection() {}
@@ -65,8 +63,8 @@ private:
     }
 
 private:
-  vtkTransformCollection(const vtkTransformCollection&);  // Not implemented.
-  void operator=(const vtkTransformCollection&);  // Not implemented.
+  vtkTransformCollection(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformCollection&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

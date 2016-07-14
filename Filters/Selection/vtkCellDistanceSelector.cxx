@@ -133,7 +133,7 @@ int vtkCellDistanceSelector::RequestData( vtkInformation* vtkNotUsed( request ),
       vtkSelectionNode* selectionNode = *selNodeIt;
       ++ selNodeIt;
 
-      vtkDataArray* selectionList = vtkDataArray::SafeDownCast( selectionNode->GetSelectionList() );
+      vtkDataArray* selectionList = vtkArrayDownCast<vtkDataArray>( selectionNode->GetSelectionList() );
       vtkIdType numSeeds = selectionList->GetNumberOfTuples();
       if ( numSeeds > 0
            && selectionNode->GetContentType() == vtkSelectionNode::INDICES

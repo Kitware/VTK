@@ -46,12 +46,6 @@ vtkStandardNewMacro(vtkLabeledDataMapper);
 
 vtkCxxSetObjectMacro(vtkLabeledDataMapper,Transform,vtkTransform);
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
-#endif
-
 // ----------------------------------------------------------------------
 
 template<typename T>
@@ -398,9 +392,9 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
                   this->FieldDataArray : pd->GetNumberOfArrays() - 1);
       abstractData = pd->GetAbstractArray(arrayNum);
       }
-    numericData = vtkDataArray::SafeDownCast(abstractData);
-    stringData = vtkStringArray::SafeDownCast(abstractData);
-    uStringData = vtkUnicodeStringArray::SafeDownCast(abstractData);
+    numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+    stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
+    uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
     }; break;
     }
 
@@ -491,19 +485,10 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           case VTK_ID_TYPE:
             FormatString = vtkTypeTraits<vtkIdType>::ParseFormat(); break;
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
           case VTK_LONG_LONG:
             FormatString = vtkTypeTraits<long long>::ParseFormat(); break;
           case VTK_UNSIGNED_LONG_LONG:
             FormatString = vtkTypeTraits<unsigned long long>::ParseFormat(); break;
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-          case VTK___INT64:
-            FormatString = vtkTypeTraits<__int64>::ParseFormat(); break;
-          case VTK_UNSIGNED___INT64:
-            FormatString = vtkTypeTraits<unsigned __int64>::ParseFormat(); break;
-#endif
 
           case VTK_FLOAT:
             FormatString = vtkTypeTraits<float>::ParseFormat(); break;
@@ -550,7 +535,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
   const char *LiveFormatString = FormatString.c_str();
   char TempString[1024];
 
-  vtkIntArray *typeArr = vtkIntArray::SafeDownCast(
+  vtkIntArray *typeArr = vtkArrayDownCast<vtkIntArray>(
     this->GetInputAbstractArrayToProcess(0, input));
   for (i=0; i < numCurLabels; i++)
     {
@@ -621,7 +606,7 @@ void vtkLabeledDataMapper::BuildLabelsInternal(vtkDataSet* input)
           }
         else // the user specified a label format
           {
-          SNPRINTF(TempString, 1023, LiveFormatString,
+          snprintf(TempString, 1023, LiveFormatString,
                    stringData->GetValue(i).c_str());
           ResultString = TempString;
           } // done printing strings with label format

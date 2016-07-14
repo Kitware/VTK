@@ -557,6 +557,17 @@ const char *vtkWrapText_FormatComment(
               }
             j = text->len;
             i = l;
+
+            /* remove these two tags from the output text */
+            if (strncmp(&cp[l+1], "brief", 5) == 0 ||
+                strncmp(&cp[l+1], "short", 5) == 0)
+              {
+              i = l + 6;
+              while (cp[i] == ' ')
+                {
+                i++;
+                }
+              }
             }
           }
 

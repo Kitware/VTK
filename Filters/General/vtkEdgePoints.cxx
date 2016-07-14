@@ -142,7 +142,7 @@ int vtkEdgePoints::RequestData(
         {
         above = 1;
         }
-      else if ( cellScalars->GetComponent(ptId,0) < this->Value )
+      else
         {
         below = 1;
         }

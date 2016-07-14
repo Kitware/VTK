@@ -46,7 +46,7 @@
 //-----------------------------------------------------------------------------
 static inline void vtkMultiplyColorsWithAlpha(vtkDataArray* array)
 {
-  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(array);
+  vtkUnsignedCharArray* colors = vtkArrayDownCast<vtkUnsignedCharArray>(array);
   if (!colors || colors->GetNumberOfComponents() != 4)
     {
     return;
@@ -385,7 +385,7 @@ int vtkScalarsToColorsPainter::CanUseTextureMapForColoring(vtkDataObject* input)
       }
 
     if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+         vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
         this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
       {
       // Don't use texture is direct coloring using RGB unsigned chars is
@@ -566,7 +566,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     return;
     }
 
-  vtkDataArray* scalars = vtkDataArray::SafeDownCast(abstractScalars);
+  vtkDataArray* scalars = vtkArrayDownCast<vtkDataArray>(abstractScalars);
 
   // Let subclasses know that scalar coloring was employed in the current pass.
   this->UsingScalarColoring = 1;
@@ -627,7 +627,6 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
     }
 
   // Get rid of old colors.
-  colors = 0;
   orig_alpha = lut->GetAlpha();
   lut->SetAlpha(alpha);
   colors = lut->MapScalars(abstractScalars, this->ColorMode, arraycomponent);
@@ -679,7 +678,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
         {
         // Use only the requested tuple's color
         unsigned char color[4];
-        scalarColors->GetTupleValue(this->FieldDataTupleId, color);
+        scalarColors->GetTypedTuple(this->FieldDataTupleId, color);
 
         vtkUnsignedCharArray* newColors = vtkUnsignedCharArray::New();
         newColors->SetNumberOfComponents(4);
@@ -687,7 +686,7 @@ void vtkScalarsToColorsPainter::MapScalars(vtkDataSet* output,
         newColors->SetName("Color");
         for (vtkIdType i = 0; i < input->GetNumberOfCells(); ++i)
           {
-          newColors->SetTupleValue(i, color);
+          newColors->SetTypedTuple(i, color);
           }
         opfd->AddArray(newColors);
 

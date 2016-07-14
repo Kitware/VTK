@@ -139,13 +139,13 @@ namespace vtkToDax
                                                          attributeType);
           }
       }
-      catch(dax::cont::ErrorControlOutOfMemory error)
+      catch(const dax::cont::ErrorControlOutOfMemory& error)
         {
         std::cerr << "Ran out of memory trying to use the GPU" << std::endl;
         std::cerr << error.GetMessage() << std::endl;
         result = 0;
         }
-      catch(dax::cont::ErrorExecution error)
+      catch(const dax::cont::ErrorExecution& error)
         {
         std::cerr << "Got ErrorExecution from Dax." << std::endl;
         std::cerr << error.GetMessage() << std::endl;

@@ -403,7 +403,7 @@ void RandomSampleStatistics( vtkMultiProcessController* controller, void* arg )
       if ( relDevArr )
         {
         // Assessed column should be an array of doubles
-        vtkDoubleArray* relDev = vtkDoubleArray::SafeDownCast( relDevArr );
+        vtkDoubleArray* relDev = vtkArrayDownCast<vtkDoubleArray>( relDevArr );
         if ( relDev )
           {
           // Allocate and initialize counters

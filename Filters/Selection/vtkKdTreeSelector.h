@@ -112,8 +112,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkKdTreeSelector(const vtkKdTreeSelector&); // Not implemented
-  void operator=(const vtkKdTreeSelector&);   // Not implemented
+  vtkKdTreeSelector(const vtkKdTreeSelector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkKdTreeSelector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

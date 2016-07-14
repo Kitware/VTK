@@ -6,6 +6,15 @@
 # to load VTK's settings for an external project.
 @VTK_CONFIG_CODE@
 
+set(VTK_USE_CXX11_FEATURES @VTK_USE_CXX11_FEATURES@)
+if (VTK_USE_CXX11_FEATURES)
+  if (CMAKE_VERSION VERSION_LESS "3.1")
+    message(FATAL_ERROR "VTK was built with C++11 features using CMake's CXX_STANDARD_REQUIRED feature.  Configuring projects this way requires a newer version of CMake.  Please update to CMake 3.1 or newer")
+  endif()
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED 11)
+endif()
+
 # The C and C++ flags added by VTK to the cmake-configured flags.
 SET(VTK_REQUIRED_C_FLAGS "@VTK_REQUIRED_C_FLAGS@")
 SET(VTK_REQUIRED_CXX_FLAGS "@VTK_REQUIRED_CXX_FLAGS@")
@@ -75,6 +84,7 @@ SET(VTK_WRAP_PYTHON "@VTK_WRAP_PYTHON@")
 SET(VTK_WRAP_TCL "@VTK_WRAP_TCL@")
 SET(VTK_WRAP_JAVA "@VTK_WRAP_JAVA@")
 SET(VTK_QT_VERSION "@VTK_QT_VERSION@")
+SET(VTK_ENABLE_KITS "@VTK_ENABLE_KITS@")
 
 # Do not add options or information here that is specific to a
 # particular module.  Instead set <module>_EXPORT_OPTIONS and/or

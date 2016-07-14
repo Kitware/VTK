@@ -132,7 +132,6 @@ public:
   vtkSetStringMacro(ScalarArrayName);
   vtkGetStringMacro(ScalarArrayName);
 
-  //BTX
   // Description:
   // These are function pointer types for the pipeline connection
   // callbacks.  See further documentation on each individual callback.
@@ -238,8 +237,6 @@ public:
   vtkSetMacro(CallbackUserData, void*);
   vtkGetMacro(CallbackUserData, void*);
 
-  //ETX
-
   // Description:
   // Invoke the appropriate callbacks
   int InvokePipelineModifiedCallbacks();
@@ -270,7 +267,6 @@ protected:
   char *ScalarArrayName;
   void* CallbackUserData;
 
-  //BTX
   UpdateInformationCallbackType     UpdateInformationCallback;
   PipelineModifiedCallbackType      PipelineModifiedCallback;
   WholeExtentCallbackType           WholeExtentCallback;
@@ -282,13 +278,12 @@ protected:
   UpdateDataCallbackType            UpdateDataCallback;
   DataExtentCallbackType            DataExtentCallback;
   BufferPointerCallbackType         BufferPointerCallback;
-  //ETX
 
   virtual void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo);
 
 private:
-  vtkImageImport(const vtkImageImport&);  // Not implemented.
-  void operator=(const vtkImageImport&);  // Not implemented.
+  vtkImageImport(const vtkImageImport&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageImport&) VTK_DELETE_FUNCTION;
 };
 
 #endif

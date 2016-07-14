@@ -45,8 +45,9 @@
 // VTK 4.4+, machine-independent behavior is not automatically
 // assured because of these dependencies.
 
-// .SECTION see also
-// vtkWindow vtkRenderLargeImage
+// .SECTION See Also
+// vtkRendererSource vtkRendererPointCloudSource vtkWindow
+// vtkRenderLargeImage
 
 #ifndef vtkWindowToImageFilter_h
 #define vtkWindowToImageFilter_h
@@ -108,7 +109,8 @@ public:
   // Description:
   // Set/get the extents to be used to generate the image. Initial value is
   // {0,0,1,1} (This option does not work if Magnification > 1.)
-  vtkSetVector4Macro(Viewport,double);
+  void SetViewport(double, double, double, double);
+  void SetViewport(double*);
   vtkGetVectorMacro(Viewport,double,4);
 
   // Description:
@@ -163,8 +165,8 @@ protected:
   vtkWTI2DHelperClass *StoredData;
 
 private:
-  vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.
-  void operator=(const vtkWindowToImageFilter&);  // Not implemented.
+  vtkWindowToImageFilter(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

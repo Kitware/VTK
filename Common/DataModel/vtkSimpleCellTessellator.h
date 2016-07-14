@@ -378,13 +378,12 @@ protected:
   int PointIdsCapacity;
 
 private:
-  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&);  // Not implemented.
-  void operator=(const vtkSimpleCellTessellator&);  // Not implemented.
+  vtkSimpleCellTessellator(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimpleCellTessellator&) VTK_DELETE_FUNCTION;
 
-  //BTX
   friend class vtkTetraTile;
   friend class vtkTriangleTile;
-  //ETX
+
 };
 
 #endif

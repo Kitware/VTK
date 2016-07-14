@@ -80,17 +80,15 @@ protected:
   // Representations may add their own pre-render logic here.
   virtual void PrepareForRendering(vtkRenderView* view);
 
-  //BTX
   friend class vtkRenderView;
   class Internals;
   Internals* Implementation;
-  //ETX
 
   int LabelRenderMode;
 
 private:
-  vtkRenderedRepresentation(const vtkRenderedRepresentation&); // Not implemented
-  void operator=(const vtkRenderedRepresentation&);   // Not implemented
+  vtkRenderedRepresentation(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

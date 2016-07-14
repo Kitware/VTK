@@ -28,9 +28,7 @@
 #include "vtkRenderWindowInteractor.h"
 #include "vtkObjectFactoryCollection.h" // Generated object overrides
 
-//BTX
 #include <string> // STL Header; Required for string
-//ETX
 
 class VTKTESTINGRENDERING_EXPORT vtkTestingInteractor : public vtkRenderWindowInteractor
 {
@@ -56,8 +54,8 @@ protected:
   vtkTestingInteractor() {}
 
 private:
-  vtkTestingInteractor(const vtkTestingInteractor&); // Not implemented
-  void operator=(const vtkTestingInteractor&);       // Not implemented
+  vtkTestingInteractor(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTestingInteractor&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -42,6 +42,7 @@ vec3 g_dataPos;
 vec3 g_dirStep;
 vec4 g_srcColor;
 vec4 g_eyePosObj;
+bool g_exit;
 
 uniform vec4 in_volume_scale;
 uniform vec4 in_volume_bias;
@@ -70,6 +71,8 @@ uniform vec4 in_volume_bias;
 
 //VTK::ComputeRayDirection::Dec
 
+//VTK::Picking::Dec
+
 /// We support only 8 clipping planes for now
 /// The first value is the size of the data array for clipping
 /// planes (origin, normal)
@@ -88,6 +91,7 @@ void main()
   g_fragColor = vec4(0.0);
   g_dirStep = vec3(0.0);
   g_srcColor = vec4(0.0);
+  g_exit = false;
 
   //VTK::Base::Init
 
@@ -99,10 +103,12 @@ void main()
 
   //VTK::Clipping::Init
 
-  //VTK::RenderToImage::Depth::Init
+  //VTK::RenderToImage::Init
+
+  //VTK::DepthPass::Init
 
   /// For all samples along the ray
-  while (true)
+  while (!g_exit)
     {
     //VTK::Base::Impl
 
@@ -116,7 +122,9 @@ void main()
 
     //VTK::Shading::Impl
 
-    //VTK::RenderToImage::Depth::Impl
+    //VTK::RenderToImage::Impl
+
+    //VTK::DepthPass::Impl
 
     /// Advance ray
     g_dataPos += g_dirStep;
@@ -134,10 +142,14 @@ void main()
 
   //VTK::Shading::Exit
 
+  //VTK::Picking::Exit
+
   g_fragColor.r = g_fragColor.r * in_scale + in_bias * g_fragColor.a;
   g_fragColor.g = g_fragColor.g * in_scale + in_bias * g_fragColor.a;
   g_fragColor.b = g_fragColor.b * in_scale + in_bias * g_fragColor.a;
   gl_FragData[0] = g_fragColor;
 
-  //VTK::RenderToImage::Depth::Exit
+  //VTK::RenderToImage::Exit
+
+  //VTK::DepthPass::Exit
   }

@@ -209,11 +209,11 @@ outlineActor.SetMapper(mapOutline)
 outlineActor.GetProperty().SetColor(0, 0, 0)
 
 # Create source for streamtubes
-streamer = vtk.vtkStreamPoints()
+streamer = vtk.vtkStreamTracer()
 streamer.SetInputConnection(reader.GetOutputPort())
 streamer.SetStartPosition(0.1, 2.1, 0.5)
-streamer.SetMaximumPropagationTime(500)
-streamer.SetTimeIncrement(0.5)
+streamer.SetMaximumPropagation(500)
+streamer.SetInitialIntegrationStep(0.2)
 streamer.SetIntegrationDirectionToForward()
 
 cone = vtk.vtkConeSource()
@@ -222,6 +222,7 @@ cones = vtk.vtkGlyph3D()
 cones.SetInputConnection(streamer.GetOutputPort())
 cones.SetSourceConnection(cone.GetOutputPort())
 cones.SetScaleFactor(0.5)
+cones.SetInputArrayToProcess(1, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, "vectors")
 cones.SetScaleModeToScaleByVector()
 
 mapCones = vtk.vtkPolyDataMapper()

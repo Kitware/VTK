@@ -24,7 +24,6 @@
 #include "vtkPointData.h"
 #include "vtkPointSet.h"
 #include "vtkPoints.h"
-#include "vtkTypeTemplate.h" // For vtkTypeTemplate
 
 
 //----------------------------------------------------------------------------

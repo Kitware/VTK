@@ -60,7 +60,7 @@ public:
   // encoded stream into the output buffer. Return the length of
   // the encoded stream. Note that the output buffer must be allocated
   // by the caller (length * 1.5 should be a safe estimate).
-  // If 'mark_end' is true than an extra set of 4 bytes is added
+  // If 'mark_end' is true then an extra set of 4 bytes is added
   // to the end of the stream if the input is a multiple of 3 bytes.
   // These bytes are invalid chars and therefore they will stop the decoder
   // thus enabling the caller to decode a stream without actually knowing
@@ -75,6 +75,7 @@ public:
 
   // Description:
   // Decode 4 bytes into 3 bytes.
+  // Return the number of bytes actually decoded (0 to 3, inclusive).
   static int DecodeTriplet(unsigned char i0,
                            unsigned char i1,
                            unsigned char i2,
@@ -88,23 +89,37 @@ public:
   // into the output buffer until 'length' bytes have been decoded.
   // Return the real length of the decoded stream (which should be equal to
   // 'length'). Note that the output buffer must be allocated by the caller.
-  // If 'max_input_length' is not null, then it specifies the number of
+  // If 'max_input_length' is not 0, then it specifies the number of
   // encoded bytes that should be at most read from the input buffer. In
   // that case the 'length' parameter is ignored. This enables the caller
   // to decode a stream without actually knowing how much decoded data to
   // expect (of course, the buffer must be large enough).
-  static unsigned long Decode(const unsigned char *input,
-                              unsigned long length,
-                              unsigned char *output,
-                              unsigned long max_input_length = 0);
+  // \deprecated: This method can easily overrun its buffers, use DecodeSafely.
+  VTK_LEGACY(static unsigned long Decode(const unsigned char *input,
+                                         unsigned long length,
+                                         unsigned char *output,
+                                         unsigned long max_input_length = 0));
+
+  // Description:
+  // Decode 4 bytes at a time from the input buffer and store the decoded
+  // stream into the output buffer. The required output buffer size must be
+  // determined and allocated by the caller. The needed output space is
+  // always less than the input buffer size, so a good first order
+  // approximation is to allocate the same size. Base64 encoding is about
+  // 4/3 overhead, so a tighter bound is possible.
+  // Return the number of bytes atually placed into the output buffer.
+  static size_t DecodeSafely(const unsigned char *input,
+                             size_t inputLen,
+                             unsigned char *output,
+                             size_t outputLen);
 
 protected:
   vtkBase64Utilities() {}
   ~vtkBase64Utilities() {}
 
 private:
-  vtkBase64Utilities(const vtkBase64Utilities&);  // Not implemented.
-  void operator=(const vtkBase64Utilities&);  // Not implemented.
+  vtkBase64Utilities(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif

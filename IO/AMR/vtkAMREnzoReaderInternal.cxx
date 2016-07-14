@@ -538,7 +538,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkFloatArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     float  * arrayPtr = static_cast < float * >
-     (vtkFloatArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkFloatArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -548,7 +548,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkDoubleArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     double  * arrayPtr = static_cast < double * >
-     (vtkDoubleArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkDoubleArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -558,7 +558,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     int  * arrayPtr = static_cast < int * >
-     (vtkIntArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkIntArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -568,7 +568,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkUnsignedIntArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned int  * arrayPtr = static_cast < unsigned int * >
-     (vtkUnsignedIntArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkUnsignedIntArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -578,7 +578,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     short  * arrayPtr = static_cast < short * >
-     (vtkShortArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkShortArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -588,7 +588,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkUnsignedShortArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned short  * arrayPtr = static_cast < unsigned short * >
-     (vtkUnsignedShortArray::SafeDownCast( this->DataArray )->GetPointer( 0 ));
+     (vtkArrayDownCast<vtkUnsignedShortArray>( this->DataArray )->GetPointer( 0 ));
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -599,7 +599,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkUnsignedCharArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     unsigned char  * arrayPtr = static_cast < unsigned char * >
-     (vtkUnsignedCharArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkUnsignedCharArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -609,7 +609,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     long  * arrayPtr = static_cast < long * >
-     (vtkLongArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     (vtkArrayDownCast<vtkLongArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -619,7 +619,7 @@ int vtkEnzoReaderInternal::LoadAttribute( const char *atribute, int blockIdx )
     this->DataArray = vtkLongLongArray::New();
     this->DataArray->SetNumberOfTuples( numTupls );
     long long  * arrayPtr = static_cast < long long * >
-     ( vtkLongLongArray::SafeDownCast( this->DataArray )->GetPointer( 0 )  );
+     ( vtkArrayDownCast<vtkLongLongArray>( this->DataArray )->GetPointer( 0 )  );
     H5Dread( attrIndx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT, arrayPtr );
     arrayPtr = NULL;
     }
@@ -981,7 +981,7 @@ void vtkEnzoReaderInternal::GetAttributeNames()
        )
       {
       if (  !wasFound ||
-           ( wasFound && tmpBlock.NumberOfParticles > 0 )
+           ( tmpBlock.NumberOfParticles > 0 )
          )
         {
         numCells = tempNumb;

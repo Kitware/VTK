@@ -35,17 +35,14 @@
 
 class vtkVariantArrayLookup;
 
-//BTX
 /// Forward declaration required for Boost serialization
 namespace boost { namespace serialization { class access; } }
-//ETX
 
 class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
 {
-//BTX
+
   /// Friendship required for Boost serialization
   friend class boost::serialization::access;
-//ETX
 
 public:
   static vtkVariantArray* New();
@@ -170,9 +167,8 @@ public:
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
   // from the supplied array.
-  virtual void SetVoidArray(void *arr,
-                            vtkIdType size,
-                            int save);
+  virtual void SetVoidArray(void *arr, vtkIdType size, int save);
+  virtual void SetVoidArray(void *arr, vtkIdType size, int save, int deleteM);
 
   // Description:
   // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
@@ -190,7 +186,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right
   // kind of templated vtkArrayIteratorTemplate.
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   //
   // Additional functions
@@ -224,7 +220,6 @@ public:
   // Return the array index of the inserted value.
   vtkIdType InsertNextValue(vtkVariant value);
 
-  //BTX
   // Description:
   // Return a pointer to the location in the internal array at the specified index.
   vtkVariant* GetPointer(vtkIdType id);
@@ -232,7 +227,6 @@ public:
   // Description:
   // Set the internal array used by this object.
   void SetArray(vtkVariant* arr, vtkIdType size, int save);
-  //ETX
 
   // Description:
   // Specify the number of values for this object to hold. Does an
@@ -280,18 +274,17 @@ protected:
   vtkVariantArray();
 
   // Pointer to data
-  //BTX
+
   vtkVariant* Array;
 
   // Function to resize data
   vtkVariant* ResizeAndExtend(vtkIdType sz);
-  //ETX
 
   int SaveUserArray;
 
 private:
-  vtkVariantArray(const vtkVariantArray&);  // Not implemented.
-  void operator=(const vtkVariantArray&);  // Not implemented.
+  vtkVariantArray(const vtkVariantArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVariantArray&) VTK_DELETE_FUNCTION;
 
   vtkVariantArrayLookup* Lookup;
   void UpdateLookup();

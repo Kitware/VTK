@@ -367,7 +367,7 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
   vtkDebugMacro(<<"RenderOverlay called");
 
   vtkRenderer *ren = NULL;
-  if (this->Input)
+  if (this->Input && this->Input[0])
     {
     vtkWindow *win = viewport->GetVTKWindow();
     if (!win)
@@ -394,15 +394,15 @@ void vtkTextMapper::RenderOverlay(vtkViewport *viewport, vtkActor2D *actor)
       info->Set(vtkProp::GeneralTextureUnit(),
         this->Texture->GetTextureUnit());
       }
-    }
 
-  vtkDebugMacro(<<"PolyData::RenderOverlay called");
-  this->Mapper->RenderOverlay(viewport, actor);
+    vtkDebugMacro(<<"PolyData::RenderOverlay called");
+    this->Mapper->RenderOverlay(viewport, actor);
 
-  // clean up
-  if (ren)
-    {
-    this->Texture->PostRender(ren);
+    // clean up
+    if (ren)
+      {
+      this->Texture->PostRender(ren);
+      }
     }
 
   vtkDebugMacro(<<"Superclass::RenderOverlay called");
@@ -457,7 +457,7 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     float tcYMax = std::min(1.0f,
                             (((2.f * th - 1.f) / (2.f)) + 0.000001f) / ih);
     if (vtkFloatArray *tc =
-        vtkFloatArray::SafeDownCast(
+        vtkArrayDownCast<vtkFloatArray>(
           this->PolyData->GetPointData()->GetTCoords()))
       {
       vtkDebugMacro(<<"Setting tcoords: xmin, xmax, ymin, ymax: "
@@ -502,6 +502,8 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     else
       {
       vtkErrorMacro(<<"Could not locate vtkTextRenderer object.");
+      text_bbox[0] = 0;
+      text_bbox[2] = 0;
       }
 
     double x = static_cast<double>(text_bbox[0]);

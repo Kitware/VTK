@@ -48,13 +48,11 @@ public:
   vtkIdList *GetItem(int i) {
     return static_cast<vtkIdList *>(this->GetItemAsObject(i));};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkIdList *GetNextIdList(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkIdList *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkIdListCollection() {}
@@ -66,8 +64,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkIdListCollection(const vtkIdListCollection&);  // Not implemented.
-  void operator=(const vtkIdListCollection&);  // Not implemented.
+  vtkIdListCollection(const vtkIdListCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkIdListCollection&) VTK_DELETE_FUNCTION;
 };
 
 

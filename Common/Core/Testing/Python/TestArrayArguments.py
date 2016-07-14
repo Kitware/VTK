@@ -34,8 +34,8 @@ class TestArrayArguments(Testing.vtkTest):
             a.SetNumberOfTuples(1)
             ti = [0, a.GetDataTypeValueMin(), a.GetDataTypeValueMax()]
             to = [0, 0, 0]
-            a.SetTupleValue(0, ti)
-            a.GetTupleValue(0, to);
+            a.SetTypedTuple(0, ti)
+            a.GetTypedTuple(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
             d2 = [float(x) for x in ti]
@@ -50,8 +50,8 @@ class TestArrayArguments(Testing.vtkTest):
             a.SetNumberOfTuples(1)
             ti = [0, a.GetDataTypeValueMin(), a.GetDataTypeValueMax()]
             to = [0, 0, 0]
-            a.SetTupleValue(0, ti)
-            a.GetTupleValue(0, to);
+            a.SetTypedTuple(0, ti)
+            a.GetTypedTuple(0, to);
             self.assertEqual(ti, to)
             d1 = a.GetTuple(0)
             d2 = [float(x) for x in ti]
@@ -64,10 +64,10 @@ class TestArrayArguments(Testing.vtkTest):
         a.SetNumberOfComponents(3)
         a.SetNumberOfTuples(1)
         ti = "opn"
-        a.SetTupleValue(0, ti)
+        a.SetTypedTuple(0, ti)
         # python strings are immutable, so this should NOT work
         #to = "***"
-        #a.GetTupleValue(0, to);
+        #a.GetTypedTuple(0, to);
         d1 = list(a.GetTuple(0))
         d2 = [ord(x) for x in ti]
         self.assertEqual(d1, d2)
@@ -98,6 +98,27 @@ class TestArrayArguments(Testing.vtkTest):
         info = a.GetOutputInformation(0)
         t = info.Get(vtk.vtkDataObject.SPACING())
         self.assertEqual(t, spacing)
+
+    def testArrayIterator(self):
+        # try a string array
+        a = vtk.vtkStringArray()
+        a.InsertNextValue("hello")
+        i = a.NewIterator()
+        self.assertEqual(a.GetValue(0), i.GetValue(0))
+        # try the various data array subclasses
+        for arrayClass in arrays:
+            a = arrayClass()
+            a.SetNumberOfComponents(2)
+            a.SetNumberOfTuples(1)
+            tupleIn = (a.GetDataTypeValueMin(), a.GetDataTypeValueMax())
+            a.SetTypedTuple(0, tupleIn)
+            i = a.NewIterator()
+            # make sure iterator's GetTuple method is wrapped
+            tupleOut = i.GetTuple(0)
+            self.assertEqual(tupleIn, tupleOut)
+            # make sure the GetValue method returns expected result
+            self.assertEqual(tupleIn[0], i.GetValue(0))
+            self.assertEqual(tupleIn[1], i.GetValue(1))
 
 if __name__ == "__main__":
     Testing.main([(TestArrayArguments, 'test')])

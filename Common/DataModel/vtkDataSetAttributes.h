@@ -80,7 +80,7 @@ public:
   virtual void ShallowCopy(vtkFieldData *pd);
 
   // -- attribute types -----------------------------------------------------
-//BTX
+
   // Always keep NUM_ATTRIBUTES as the last entry
   enum AttributeTypes
   {
@@ -101,7 +101,6 @@ public:
     EXACT,
     NOLIMIT
   };
-//ETX
 
   // ----------- ghost points and ghost cells -------------------------------------------
   //The following bit fields are consistent with VisIt ghost zones specification
@@ -256,7 +255,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name);
+  using vtkFieldData::RemoveArray;
   virtual void RemoveArray(int index);
 
 
@@ -268,7 +267,6 @@ public:
 
   // -- attribute copy properties ------------------------------------------
 
-//BTX
   enum AttributeCopyOperations
   {
     COPYTUPLE=0,
@@ -276,7 +274,6 @@ public:
     PASSDATA=2,
     ALLCOPY  //all of the above
   };
-//ETX
 
   // Description:
   // Specify whether to copy the data attribute referred to by index.
@@ -576,7 +573,6 @@ public:
                        vtkDataSetAttributes *from2,
                        vtkIdType id, double t);
 
-//BTX
   class FieldList;
 
   // field list copy operations ------------------------------------------
@@ -616,9 +612,7 @@ public:
     vtkIdList *ids, double *weights);
 
   friend class vtkDataSetAttributes::FieldList;
-//ETX
 
-//BTX
 protected:
   vtkDataSetAttributes();
   ~vtkDataSetAttributes();
@@ -656,8 +650,8 @@ private:
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
 
 private:
-  vtkDataSetAttributes(const vtkDataSetAttributes&);  // Not implemented.
-  void operator=(const vtkDataSetAttributes&);  // Not implemented.
+  vtkDataSetAttributes(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
 
 public:
   // This public class is used to perform set operations, other misc.
@@ -695,12 +689,12 @@ public:
     friend class vtkDataSetAttributes;
 
   protected:
-    FieldList(const FieldList&) {} //prevent these methods from being used
-    void operator=(const FieldList&) {}
-
     void SetFieldIndex(int i, int index)
       { this->FieldIndices[i] = index; }
   private:
+    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
+    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
+
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
     void ClearFields();
@@ -730,7 +724,7 @@ public:
     int CurrentInput;
 
   };
-//ETX
+
 };
 
 #endif

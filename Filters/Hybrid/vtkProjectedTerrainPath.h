@@ -96,9 +96,7 @@ public:
   // Note: vtkImageData* is required
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-//BTX
   enum {SIMPLE_PROJECTION=0,NONOCCLUDED_PROJECTION,HUG_PROJECTION};
-//ETX
 
   // Description:
   // Determine how to control the projection process. Simple projection
@@ -177,8 +175,8 @@ protected:
   vtkEdgeList *EdgeList;
 
 private:
-  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&);  // Not implemented.
-  void operator=(const vtkProjectedTerrainPath&);  // Not implemented.
+  vtkProjectedTerrainPath(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProjectedTerrainPath&) VTK_DELETE_FUNCTION;
 
 };
 

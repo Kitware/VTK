@@ -72,6 +72,15 @@ if(NOT EGL_gldispatch_LIBRARY)
       /usr/lib
     )
   endif()
+
+  # For the NVIDIA 358 drivers there isn't a libGLdispath.so. The
+  # proper one gets installed as libGLdispatch.so.0.
+  if(NOT EGL_gldispatch_LIBRARY)
+    find_library(EGL_gldispatch_LIBRARY libGLdispatch.so.0 PATHS
+      /usr/local/lib
+      /usr/lib
+    )
+  endif()
 endif()
 
 set(EGL_LIBRARIES ${EGL_LIBRARY} ${EGL_opengl_LIBRARY} ${EGL_gldispatch_LIBRARY})

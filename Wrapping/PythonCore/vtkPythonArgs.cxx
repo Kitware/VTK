@@ -227,24 +227,20 @@ static bool vtkPythonGetValue(
       reinterpret_cast<char *>(p), &s, "p_void");
 #ifdef VTK_PY3K
     Py_DECREF(bytes);
-#endif
-    if (s >= 0)
+    if (s != 0)
       {
-      return true;
+      PyErr_SetString(PyExc_TypeError, "requires a _addr_p_void string");
+      return false;
       }
+#else
     if (s == -1)
       {
-      char buf[128];
-      sprintf(buf, "value is %.80s, required type is p_void",
-        reinterpret_cast<char *>(p));
-      PyErr_SetString(PyExc_TypeError, buf);
-      return false;
+      // matched _addr_ but not p_void, assume it isn't a swig ptr string:
+      // use the buffer's pointer as the argument
+      a = p;
       }
-    else
-      {
-      PyErr_SetString(PyExc_TypeError, "cannot get a void pointer");
-      return false;
-      }
+#endif
+    return true;
     }
   else if (p && sz >= 0)
     {
@@ -473,7 +469,6 @@ bool vtkPythonGetValue(PyObject *o, unsigned int &a)
 #endif
 }
 
-#ifdef VTK_TYPE_USE_LONG_LONG
 inline
 bool vtkPythonGetValue(PyObject *o, long long &a)
 {
@@ -485,22 +480,6 @@ bool vtkPythonGetValue(PyObject *o, unsigned long long &a)
 {
   return vtkPythonGetUnsignedLongLongValue(o, a);
 }
-#endif
-
-#ifdef VTK_TYPE_USE___INT64
-inline
-bool vtkPythonGetValue(PyObject *o, __int64 &a)
-{
-  return vtkPythonGetLongLongValue(o, a);
-}
-
-inline
-bool vtkPythonGetValue(PyObject *o, unsigned __int64 &a)
-{
-  return vtkPythonGetUnsignedLongLongValue(o, i);
-}
-#endif
-
 
 //--------------------------------------------------------------------
 // Method for setting a C++ array from a Python sequence.
@@ -833,14 +812,8 @@ VTK_PYTHON_BUILD_TUPLE(int)
 VTK_PYTHON_BUILD_TUPLE(unsigned int)
 VTK_PYTHON_BUILD_TUPLE(long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_BUILD_TUPLE(long long)
 VTK_PYTHON_BUILD_TUPLE(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_BUILD_TUPLE(__int64)
-VTK_PYTHON_BUILD_TUPLE(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // If "self" is a class, get real "self" from arg list
@@ -1043,14 +1016,8 @@ VTK_PYTHON_GET_ARG(int)
 VTK_PYTHON_GET_ARG(unsigned int)
 VTK_PYTHON_GET_ARG(long)
 VTK_PYTHON_GET_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_GET_ARG(long long)
 VTK_PYTHON_GET_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_GET_ARG(__int64)
-VTK_PYTHON_GET_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Define all the GetArray methods in the class.
@@ -1079,14 +1046,8 @@ VTK_PYTHON_GET_ARRAY_ARG(int)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned int)
 VTK_PYTHON_GET_ARRAY_ARG(long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_GET_ARRAY_ARG(long long)
 VTK_PYTHON_GET_ARRAY_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_GET_ARRAY_ARG(__int64)
-VTK_PYTHON_GET_ARRAY_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Define all the GetNArray methods in the class.
@@ -1115,14 +1076,8 @@ VTK_PYTHON_GET_NARRAY_ARG(int)
 VTK_PYTHON_GET_NARRAY_ARG(unsigned int)
 VTK_PYTHON_GET_NARRAY_ARG(long)
 VTK_PYTHON_GET_NARRAY_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_GET_NARRAY_ARG(long long)
 VTK_PYTHON_GET_NARRAY_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_GET_NARRAY_ARG(__int64)
-VTK_PYTHON_GET_NARRAY_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Define the special function pointer GetValue method
@@ -1202,14 +1157,8 @@ VTK_PYTHON_SET_ARG(int)
 VTK_PYTHON_SET_ARG(unsigned int)
 VTK_PYTHON_SET_ARG(long)
 VTK_PYTHON_SET_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_SET_ARG(long long)
 VTK_PYTHON_SET_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_SET_ARG(__int64)
-VTK_PYTHON_SET_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting array args
@@ -1242,14 +1191,8 @@ VTK_PYTHON_SET_ARRAY_ARG(int)
 VTK_PYTHON_SET_ARRAY_ARG(unsigned int)
 VTK_PYTHON_SET_ARRAY_ARG(long)
 VTK_PYTHON_SET_ARRAY_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_SET_ARRAY_ARG(long long)
 VTK_PYTHON_SET_ARRAY_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_SET_ARRAY_ARG(__int64)
-VTK_PYTHON_SET_ARRAY_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Define all the SetArgValue methods for setting multi-dim array args
@@ -1283,14 +1226,8 @@ VTK_PYTHON_SET_NARRAY_ARG(int)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned int)
 VTK_PYTHON_SET_NARRAY_ARG(long)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned long)
-#ifdef VTK_TYPE_USE_LONG_LONG
 VTK_PYTHON_SET_NARRAY_ARG(long long)
 VTK_PYTHON_SET_NARRAY_ARG(unsigned long long)
-#endif
-#ifdef VTK_TYPE_USE___INT64
-VTK_PYTHON_SET_NARRAY_ARG(__int64)
-VTK_PYTHON_SET_NARRAY_ARG(unsigned __int64)
-#endif
 
 //--------------------------------------------------------------------
 // Raise an exception about incorrect arg count.
@@ -1408,3 +1345,48 @@ int vtkPythonArgs::GetArgSize(int i)
     }
   return size;
 }
+
+//--------------------------------------------------------------------
+// Check if 'm' equals 'n', and report an error for arg i if not.
+bool vtkPythonArgs::CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n)
+{
+  if (this->M + i < this->N)
+    {
+    if (m != n)
+      {
+      PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+      return vtkPythonSequenceError(o, n, m);
+      }
+    }
+  return true;
+}
+
+//--------------------------------------------------------------------
+// Use stack space for small arrays, heap for large arrays.
+template<class T>
+vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
+{
+  if (n > basicsize)
+    {
+    this->Pointer = new T[n];
+    }
+  else if (n != 0)
+    {
+    this->Pointer = this->Storage;
+    }
+}
+
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<bool>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<float>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<double>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<signed char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<short>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned short>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<int>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned int>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long long>;

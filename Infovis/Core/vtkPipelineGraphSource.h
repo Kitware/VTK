@@ -35,7 +35,6 @@ public:
   void AddSink(vtkObject* object);
   void RemoveSink(vtkObject* object);
 
-//BTX
   // Description:
   // Generates a GraphViz DOT file that describes the VTK pipeline
   // terminating at the given sink.
@@ -57,9 +56,9 @@ protected:
   vtkCollection* Sinks;
 
 private:
-  vtkPipelineGraphSource(const vtkPipelineGraphSource&); // Not implemented
-  void operator=(const vtkPipelineGraphSource&);   // Not implemented
-//ETX
+  vtkPipelineGraphSource(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPipelineGraphSource&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

@@ -21,35 +21,37 @@
 #ifndef vtkSignedCharArray_h
 #define vtkSignedCharArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkSignedCharArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE signed char
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<signed char>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<signed char>
 #endif
 class VTKCOMMONCORE_EXPORT vtkSignedCharArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkSignedCharArray, vtkDataArray)
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkSignedCharArray* New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(signed char);
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkSignedCharArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkSignedCharArray*>(Superclass::FastDownCast(source));
+  }
 
   // Description:
   // Get the minimum data value in its native type.
@@ -64,11 +66,14 @@ protected:
   ~vtkSignedCharArray();
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<signed char> RealSuperclass;
-  //ETX
-  vtkSignedCharArray(const vtkSignedCharArray&);  // Not implemented.
-  void operator=(const vtkSignedCharArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<signed char> RealSuperclass;
+
+  vtkSignedCharArray(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSignedCharArray&) VTK_DELETE_FUNCTION;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkSignedCharArray)
 
 #endif

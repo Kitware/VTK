@@ -285,6 +285,12 @@ void vtkPlaneWidget::SetEnabled(int enabling)
                    this->EventCallbackCommand, this->Priority);
     i->AddObserver(vtkCommand::RightButtonReleaseEvent,
                    this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::StartPinchEvent,
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::PinchEvent,
+                   this->EventCallbackCommand, this->Priority);
+    i->AddObserver(vtkCommand::EndPinchEvent,
+                   this->EventCallbackCommand, this->Priority);
 
     // Add the plane
     this->CurrentRenderer->AddActor(this->PlaneActor);
@@ -385,6 +391,15 @@ void vtkPlaneWidget::ProcessEvents(vtkObject* vtkNotUsed(object),
       break;
     case vtkCommand::MouseMoveEvent:
       self->OnMouseMove();
+      break;
+    case vtkCommand::StartPinchEvent:
+      self->OnStartPinch();
+      break;
+    case vtkCommand::PinchEvent:
+      self->OnPinch();
+      break;
+    case vtkCommand::EndPinchEvent:
+      self->OnEndPinch();
       break;
     }
 }
@@ -580,6 +595,87 @@ void vtkPlaneWidget::HighlightPlane(int highlight)
     {
     this->PlaneActor->SetProperty(this->PlaneProperty);
     }
+}
+
+void vtkPlaneWidget::OnStartPinch()
+{
+  int X = this->Interactor->GetEventPosition()[0];
+  int Y = this->Interactor->GetEventPosition()[1];
+
+  // Okay, make sure that the pick is in the current renderer
+  if (!this->CurrentRenderer || !this->CurrentRenderer->IsInViewport(X, Y))
+    {
+    this->State = vtkPlaneWidget::Outside;
+    return;
+    }
+
+  // Okay, we can process this. try to pick the plane.
+  vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->PlanePicker);
+
+  if ( path != NULL )
+    {
+    this->State = vtkPlaneWidget::Pinching;
+    this->HighlightPlane(1);
+    this->StartInteraction();
+    this->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
+    }
+}
+
+void vtkPlaneWidget::OnPinch()
+{
+  if ( this->State != vtkPlaneWidget::Pinching)
+    {
+    return;
+    }
+
+  double sf = this->Interactor->GetScale()/this->Interactor->GetLastScale();
+  double *o = this->PlaneSource->GetOrigin();
+  double *pt1 = this->PlaneSource->GetPoint1();
+  double *pt2 = this->PlaneSource->GetPoint2();
+
+  double center[3];
+  center[0] = 0.5 * ( pt1[0] + pt2[0] );
+  center[1] = 0.5 * ( pt1[1] + pt2[1] );
+  center[2] = 0.5 * ( pt1[2] + pt2[2] );
+
+  // Move the corner points
+  double origin[3], point1[3], point2[3];
+  for (int i=0; i<3; i++)
+    {
+    origin[i] = sf * (o[i] - center[i]) + center[i];
+    point1[i] = sf * (pt1[i] - center[i]) + center[i];
+    point2[i] = sf * (pt2[i] - center[i]) + center[i];
+    }
+
+  this->PlaneSource->SetOrigin(origin);
+  this->PlaneSource->SetPoint1(point1);
+  this->PlaneSource->SetPoint2(point2);
+  this->PlaneSource->Update();
+
+  this->PositionHandles();
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  this->Interactor->Render();
+}
+
+void vtkPlaneWidget::OnEndPinch()
+{
+  if ( this->State != vtkPlaneWidget::Pinching)
+    {
+    return;
+    }
+
+  this->State = vtkPlaneWidget::Start;
+  this->HighlightHandle(NULL);
+  this->HighlightPlane(0);
+  this->HighlightNormal(0);
+  this->SizeHandles();
+
+  this->EventCallbackCommand->SetAbortFlag(1);
+  this->EndInteraction();
+  this->InvokeEvent(vtkCommand::EndInteractionEvent,NULL);
+  this->Interactor->Render();
 }
 
 void vtkPlaneWidget::OnLeftButtonDown()
@@ -962,6 +1058,12 @@ void vtkPlaneWidget::MovePoint1(double *p1, double *p2)
   double n02 = vtkMath::Norm(p02);
   double n32 = vtkMath::Norm(p32);
 
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
+
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
   double d1 = (vN/n02) * vtkMath::Dot(v,p02) / (vN*n02);
@@ -1013,6 +1115,12 @@ void vtkPlaneWidget::MovePoint2(double *p1, double *p2)
   double n31 = vtkMath::Norm(p31);
   double n01 = vtkMath::Norm(p01);
 
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
+
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length
   double d1 = (vN/n31) * vtkMath::Dot(v,p31) / (vN*n31);
@@ -1057,6 +1165,12 @@ void vtkPlaneWidget::MovePoint3(double *p1, double *p2)
   double vN = vtkMath::Norm(v);
   double n10 = vtkMath::Norm(p10);
   double n20 = vtkMath::Norm(p20);
+
+  // if there is no motion then return
+  if (vN == 0.0)
+    {
+    return;
+    }
 
   // Project v onto these vector to determine the amount of motion
   // Scale it by the relative size of the motion to the vector length

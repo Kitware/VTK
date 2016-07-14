@@ -38,12 +38,10 @@ public:
   vtkTypeMacro(vtkLightsPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
  protected:
   // Description:
@@ -55,8 +53,8 @@ public:
   virtual ~vtkLightsPass();
 
  private:
-  vtkLightsPass(const vtkLightsPass&);  // Not implemented.
-  void operator=(const vtkLightsPass&);  // Not implemented.
+  vtkLightsPass(const vtkLightsPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightsPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

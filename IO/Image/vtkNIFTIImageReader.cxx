@@ -39,8 +39,8 @@
 // Header for zlib
 #include "vtk_zlib.h"
 
-#include <ctype.h>
-#include <string.h>
+#include <cctype>
+#include <cstring>
 #include <string>
 
 vtkStandardNewMacro(vtkNIFTIImageReader);

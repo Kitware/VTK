@@ -245,9 +245,7 @@ public:
   vtkGetMacro(MagnifyImages, int);
   vtkBooleanMacro(MagnifyImages, int);
 
-//BTX
   enum { NEAREST, LINEAR };
-//ETX
 
   // Description:
   // Sets the method used to magnify images.  Nearest simply replicates
@@ -333,7 +331,6 @@ public:
   vtkSetVector2Macro(ForcedRenderWindowSize, int);
   vtkGetVector2Macro(ForcedRenderWindowSize, int);
 
-//BTX
   enum Tags {
     RENDER_RMI_TAG=34532,
     COMPUTE_VISIBLE_PROP_BOUNDS_RMI_TAG=54636,
@@ -346,7 +343,6 @@ public:
 
   virtual void CheckForAbortRender() {}
   virtual int CheckForAbortComposite() {return 0;}
-//ETX
 
   //Description:
   //The default is to allow the use of the back buffer for compositing.
@@ -372,7 +368,6 @@ public:
   virtual void GenericStartRenderCallback();
   virtual void GenericEndRenderCallback();
 
-//BTX
 protected:
   vtkParallelRenderManager();
   ~vtkParallelRenderManager();
@@ -579,9 +574,9 @@ protected:
   static bool DefaultRenderEventPropagation;
 
 private:
-  vtkParallelRenderManager(const vtkParallelRenderManager &); //Not implemented
-  void operator=(const vtkParallelRenderManager &);  //Not implemented
-//ETX
+  vtkParallelRenderManager(const vtkParallelRenderManager &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelRenderManager &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkParalleRenderManager_h

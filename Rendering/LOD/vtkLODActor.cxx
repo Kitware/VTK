@@ -26,7 +26,7 @@
 #include "vtkTexture.h"
 #include "vtkTimerLog.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkLODActor);
 vtkCxxSetObjectMacro(vtkLODActor, LowResFilter, vtkPolyDataAlgorithm);

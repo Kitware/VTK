@@ -33,10 +33,8 @@
 
 class vtkStringArray;
 
-//BTX
 // this is a helper class defined in the .cxx file
 class vtkStringArrayVector;
-//ETX
 
 class VTKIOCORE_EXPORT vtkSortFileNames : public vtkObject
 {
@@ -141,8 +139,8 @@ protected:
 
 
 private:
-  vtkSortFileNames(const vtkSortFileNames&);  // Not implemented.
-  void operator=(const vtkSortFileNames&);  // Not implemented.
+  vtkSortFileNames(const vtkSortFileNames&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSortFileNames&) VTK_DELETE_FUNCTION;
 };
 
 #endif

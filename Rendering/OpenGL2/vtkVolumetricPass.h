@@ -38,12 +38,10 @@ public:
   vtkTypeMacro(vtkVolumetricPass,vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
  protected:
   // Description:
@@ -55,8 +53,8 @@ public:
   virtual ~vtkVolumetricPass();
 
  private:
-  vtkVolumetricPass(const vtkVolumetricPass&);  // Not implemented.
-  void operator=(const vtkVolumetricPass&);  // Not implemented.
+  vtkVolumetricPass(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

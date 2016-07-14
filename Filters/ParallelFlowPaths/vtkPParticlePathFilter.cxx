@@ -89,8 +89,8 @@ int vtkPParticlePathFilter::OutputParticles(vtkPolyData* particles)
     this->GetErrorCodeArr(tailPD)->InsertValue(tempId, info.ErrorCode);
     this->GetParticleAge(tailPD)->InsertValue(tempId, info.age);
 
-    vtkDoubleArray::SafeDownCast(tailPD->GetArray("SimulationTime"))->InsertValue(tempId, info.SimulationTime);
-    vtkIntArray::SafeDownCast(tailPD->GetArray("SimulationTimeStep"))->InsertValue(tempId, info.InjectedStepId+info.TimeStepAge);
+    vtkArrayDownCast<vtkDoubleArray>(tailPD->GetArray("SimulationTime"))->InsertValue(tempId, info.SimulationTime);
+    vtkArrayDownCast<vtkIntArray>(tailPD->GetArray("SimulationTimeStep"))->InsertValue(tempId, info.InjectedStepId+info.TimeStepAge);
 
     if(this->GetComputeVorticity())
       {

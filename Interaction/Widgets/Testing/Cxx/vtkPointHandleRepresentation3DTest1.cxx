@@ -5,7 +5,7 @@
 
 #include "WidgetTestingMacros.h"
 
-#include <vtkProperty.h>
+#include "vtkProperty.h"
 
 int vtkPointHandleRepresentation3DTest1(int , char * [] )
 {

@@ -303,7 +303,7 @@ void vtkPhyloXMLTreeWriter::WriteColorElement(vtkTree* const input,
                                               vtkIdType vertex,
                                               vtkXMLDataElement *element)
 {
-  vtkUnsignedCharArray *colorArray = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray *colorArray = vtkArrayDownCast<vtkUnsignedCharArray>(
     input->GetVertexData()->GetAbstractArray("color"));
   if (!colorArray)
     {

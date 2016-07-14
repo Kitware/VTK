@@ -93,14 +93,12 @@ protected:
 
   int PowerOfTwo(int val);
 
-//BTX
   vtkSmartPointer<vtkImageData> Image;
   vtkSmartPointer<vtkTexture> Texture;
-//ETX
 
 private:
-  vtkGeoImageNode(const vtkGeoImageNode&);  // Not implemented.
-  void operator=(const vtkGeoImageNode&);  // Not implemented.
+  vtkGeoImageNode(const vtkGeoImageNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoImageNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

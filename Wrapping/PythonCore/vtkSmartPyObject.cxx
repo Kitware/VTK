@@ -30,18 +30,24 @@ vtkSmartPyObject::vtkSmartPyObject(PyObject *obj) :
 vtkSmartPyObject::vtkSmartPyObject(const vtkSmartPyObject &other) :
   Object(other.Object)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XINCREF(this->Object);
 }
 
 //--------------------------------------------------------------------
 vtkSmartPyObject::~vtkSmartPyObject()
 {
-  Py_XDECREF(this->Object);
+  if (Py_IsInitialized())
+    {
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    Py_XDECREF(this->Object);
+    }
 }
 
 //--------------------------------------------------------------------
 vtkSmartPyObject &vtkSmartPyObject::operator=(const vtkSmartPyObject &other)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XDECREF(this->Object);
   this->Object = other.Object;
   Py_XINCREF(this->Object);
@@ -51,6 +57,7 @@ vtkSmartPyObject &vtkSmartPyObject::operator=(const vtkSmartPyObject &other)
 //--------------------------------------------------------------------
 vtkSmartPyObject &vtkSmartPyObject::operator=(PyObject *obj)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XDECREF(this->Object);
   this->Object = obj;
   Py_XINCREF(this->Object);
@@ -60,6 +67,7 @@ vtkSmartPyObject &vtkSmartPyObject::operator=(PyObject *obj)
 //--------------------------------------------------------------------
 void vtkSmartPyObject::TakeReference(PyObject *obj)
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XDECREF(this->Object);
   this->Object = obj;
 }
@@ -99,6 +107,7 @@ PyObject *vtkSmartPyObject::GetPointer() const
 //--------------------------------------------------------------------
 PyObject *vtkSmartPyObject::GetAndIncreaseReferenceCount()
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   Py_XINCREF(this->Object);
   return this->Object;
 }

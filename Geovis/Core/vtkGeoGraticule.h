@@ -53,13 +53,11 @@ public:
   vtkSetVector2Macro(LongitudeBounds,double);
   vtkGetVector2Macro(LongitudeBounds,double);
 
-  //BTX
   enum LevelLimits {
     LEVEL_MIN = 0,
     LEVEL_MAX = 11,
     NUMBER_OF_LEVELS = ( LEVEL_MAX - LEVEL_MIN + 1 )
   };
-  //ETX
 
   // Description:
   // The frequency level of latitude lines.
@@ -89,12 +87,10 @@ public:
   vtkSetMacro(GeometryType,int);
   vtkGetMacro(GeometryType,int);
 
-  //BTX
   enum GeometryType {
     POLYLINES      = 0x1,
     QUADRILATERALS = 0x2
   };
-  //ETX
 
 protected:
   vtkGeoGraticule();
@@ -117,8 +113,8 @@ protected:
   int ComputeLineLevel( int ticId, int baseLevel, const double* levelIncrements );
 
 private:
-  vtkGeoGraticule( const vtkGeoGraticule& ); // Not implemented.
-  void operator = ( const vtkGeoGraticule& ); // Not implemented.
+  vtkGeoGraticule( const vtkGeoGraticule& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkGeoGraticule& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGeoGraticule_h

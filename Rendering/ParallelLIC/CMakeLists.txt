@@ -46,13 +46,10 @@ if (VTK_RENDERINGPARALLELLIC_LINEINTEGRALCONVLOLUTION2D_TIMER)
 endif()
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
-  set_source_files_properties(
-    vtkPSurfaceLICComposite.cxx
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2)
   list(APPEND Module_SRCS
-    vtkPSurfaceLICMapper.cxx
+    vtkPSurfaceLICInterface.cxx
     )
-  vtk_add_override(vtkSurfaceLICMapper vtkPSurfaceLICMapper)
+  vtk_add_override(vtkSurfaceLICInterface vtkPSurfaceLICInterface)
   set(shader_files
     vtkPSurfaceLICComposite_CompFS.glsl
     )

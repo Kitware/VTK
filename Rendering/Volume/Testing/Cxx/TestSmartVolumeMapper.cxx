@@ -24,6 +24,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkVolumeProperty.h"
@@ -129,10 +130,10 @@ int TestSmartVolumeMapper(int argc,
   renWin->Render();
 
   // 3D texture mode. For coverage.
-#ifndef VTK_OPENGL2
+#if !defined(VTK_LEGACY_REMOVE) && !defined(VTK_OPENGL2)
   volumeMapper->SetRequestedRenderModeToRayCastAndTexture();
   renWin->Render();
-#endif
+#endif // VTK_LEGACY_REMOVE
 
   // Software mode, for coverage. It also makes sure we will get the same
   // regression image on all platforms.

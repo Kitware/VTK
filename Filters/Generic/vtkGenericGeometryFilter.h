@@ -145,7 +145,6 @@ protected:
   void UnstructuredGridExecute();
   void StructuredGridExecute();
   int RequestUpdateExtent(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
-  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
   int FillInputPortInformation(int, vtkInformation*);
 
@@ -167,8 +166,8 @@ protected:
   int PassThroughCellIds;
 
 private:
-  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&);  // Not implemented.
-  void operator=(const vtkGenericGeometryFilter&);  // Not implemented.
+  vtkGenericGeometryFilter(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

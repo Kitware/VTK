@@ -375,7 +375,7 @@ public:
     {
     if (image->GetScalarType() != VTK_UNSIGNED_CHAR)
       {
-      cout << "Error = not an unsigned char..." << endl;
+      vtkGenericWarningMacro("Invalid image format: expected unsigned char.");
       return 0;
       }
     int bytesPerPixel = image->GetNumberOfScalarComponents();

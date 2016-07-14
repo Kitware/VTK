@@ -23,6 +23,7 @@
 #include "vtkInformation.h"
 #include "vtkIntArray.h"
 #include "vtkLongArray.h"
+#include "vtkLongLongArray.h"
 #include "vtkMath.h"
 #include "vtkMinimalStandardRandomSequence.h"
 #include "vtkShortArray.h"
@@ -32,6 +33,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkUnsignedLongArray.h"
+#include "vtkUnsignedLongLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
 #include "vtkInformationVector.h"
@@ -41,16 +43,6 @@
 #include "vtkInformationVariantVectorKey.h"
 #include "vtkNew.h"
 #include "vtkUnicodeString.h" // for vtkSuperExtraExtendedTemplateMacro
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# include "vtkLongLongArray.h"
-# include "vtkUnsignedLongLongArray.h"
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-# include "vtk__Int64Array.h"
-# include "vtkUnsigned__Int64Array.h"
-#endif
 
 #include <algorithm>
 #include <iterator>
@@ -192,6 +184,15 @@ int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
   return 0;
 }
 
+//----------------------------------------------------------------------------
+void vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
+{
+  if (this->Resize(std::ceil(numValues /
+                             static_cast<float>(this->NumberOfComponents))))
+    {
+    this->MaxId = numValues - 1;
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetInformation(vtkInformation *args)
@@ -213,7 +214,7 @@ void vtkAbstractArray::SetInformation(vtkInformation *args)
 }
 
 //----------------------------------------------------------------------------
-void vtkAbstractArray::GetTuples(vtkIdList* ptIds, vtkAbstractArray* aa)
+void vtkAbstractArray::GetTuples(vtkIdList* tupleIds, vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
     {
@@ -222,10 +223,10 @@ void vtkAbstractArray::GetTuples(vtkIdList* ptIds, vtkAbstractArray* aa)
     }
   // Here we give the slowest implementation. Subclasses can override
   // to use the knowledge about the data.
-  vtkIdType num = ptIds->GetNumberOfIds();
+  vtkIdType num = tupleIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < num; i++)
     {
-    aa->SetTuple(i, ptIds->GetId(i), this);
+    aa->SetTuple(i, tupleIds->GetId(i), this);
     }
 }
 
@@ -257,11 +258,33 @@ bool vtkAbstractArray::HasStandardMemoryLayout()
 //----------------------------------------------------------------------------
 void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 {
-  if (da && da->HasInformation() && da!=this)
+  if (!da || da == this)
+    {
+    return;
+    }
+
+  if (da->HasInformation())
     {
     this->CopyInformation(da->GetInformation(),/*deep=*/1);
     }
+  else
+    {
+    this->SetInformation(NULL);
+    }
+
+  this->SetName(da->Name);
+
   this->CopyComponentNames( da );
+}
+
+//----------------------------------------------------------------------------
+void vtkAbstractArray::ExportToVoidPointer(void *dest)
+{
+  if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
+    {
+    void *src = this->GetVoidPointer(0);
+    memcpy(dest, src, ((this->MaxId + 1) * this->GetDataTypeSize()));
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -359,21 +382,11 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
     case VTK_UNSIGNED_LONG:
       return vtkUnsignedLongArray::New();
 
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       return vtkLongLongArray::New();
 
     case VTK_UNSIGNED_LONG_LONG:
       return vtkUnsignedLongLongArray::New();
-#endif
-
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:
-      return vtk__Int64Array::New();
-
-    case VTK_UNSIGNED___INT64:
-      return vtkUnsigned__Int64Array::New();
-#endif
 
     case VTK_FLOAT:
       return vtkFloatArray::New();
@@ -410,13 +423,13 @@ vtkVariant vtkAbstractArrayGetVariantValue(T* arr, vtkIdType index)
 }
 
 //----------------------------------------------------------------------------
-vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType i)
+vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
 {
   vtkVariant val;
   switch(this->GetDataType())
     {
     vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
-      static_cast<VTK_TT*>(this->GetVoidPointer(0)), i));
+      static_cast<VTK_TT*>(this->GetVoidPointer(0)), valueIdx));
     }
   return val;
 }

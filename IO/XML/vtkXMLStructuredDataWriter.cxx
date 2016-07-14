@@ -72,8 +72,12 @@ void vtkXMLStructuredDataWriter::SetInputUpdateExtent(int piece)
 {
   vtkInformation* inInfo =
     this->GetExecutive()->GetInputInformation(0, 0);
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo,
-    piece, this->NumberOfPieces, this->GhostLevel);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER(),
+    piece);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES(),
+    this->NumberOfPieces);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+    this->GhostLevel);
   if ((this->WriteExtent[0] == 0) && (this->WriteExtent[1] == -1) &&
      (this->WriteExtent[2] == 0) && (this->WriteExtent[3] == -1) &&
      (this->WriteExtent[4] == 0) && (this->WriteExtent[5] == -1))
@@ -118,10 +122,11 @@ int vtkXMLStructuredDataWriter::ProcessRequest(
     {
     this->SetErrorCode(vtkErrorCode::NoError);
 
-    if (!this->Stream && !this->FileName)
+    if (!this->Stream && !this->FileName && !this->WriteToOutputString)
       {
       this->SetErrorCode(vtkErrorCode::NoFileNameError);
-      vtkErrorMacro("The FileName or Stream must be set first.");
+      vtkErrorMacro("The FileName or Stream must be set first or "
+        "the output must be written to a string.");
       return 0;
       }
 

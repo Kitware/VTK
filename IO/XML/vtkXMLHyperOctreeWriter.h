@@ -40,11 +40,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLHyperOctreeWriter* New();
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkHyperOctree* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -88,8 +86,8 @@ protected:
   OffsetsManagerGroup * CellDataOM;
 
 private:
-  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&);  // Not implemented.
-  void operator=(const vtkXMLHyperOctreeWriter&);  // Not implemented.
+  vtkXMLHyperOctreeWriter(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHyperOctreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

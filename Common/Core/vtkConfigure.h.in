@@ -18,6 +18,37 @@
 /* This header is configured by VTK's build process.  */
 
 /*--------------------------------------------------------------------------*/
+/* Compiler backend                                                         */
+/* Be careful modifying this -- order is important.                         */
+#if defined(_MSC_VER)
+/* MSVC 2015+ can use a clang frontend, so we want to label it only as MSVC
+ * and not MSVC and clang. */
+#define VTK_COMPILER_MSVC
+
+#elif defined(__INTEL_COMPILER)
+/* Intel 14+ on OSX uses a clang frontend, so again we want to label them as
+ * intel only, and not intel and clang. */
+#define VTK_COMPILER_ICC
+
+#elif defined(__PGI)
+/* PGI reports as GNUC as it generates the same ABI, so we need to check for
+ * it before gcc. */
+#define VTK_COMPILER_PGI
+
+#elif defined(__clang__)
+/* Check for clang before GCC, as clang says it is GNUC since it has ABI
+ * compliance. */
+#define VTK_COMPILER_CLANG
+
+#elif defined(__GNUC__)
+/* Several compilers pretend to be GCC but have minor differences. Try to
+ * compensate for that, by checking for those compilers first. */
+#define VTK_COMPILER_GCC
+#define VTK_COMPILER_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + \
+                                  __GNUC_PATCHLEVEL__)
+#endif
+
+/*--------------------------------------------------------------------------*/
 /* Platform Features                                                        */
 
 /* Byte order.  */
@@ -42,60 +73,13 @@
 
 /* Atomic operations */
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
-#if defined(WIN32)
+#if defined(_WIN32)
  #cmakedefine VTK_HAS_INTERLOCKEDADD
 #endif
 
-/* Size of fundamental data types.  */
-/* Mac OS X uses two data models, ILP32 (in which integers, long integers,
-   and pointers are 32-bit quantities) and LP64 (in which integers are 32-bit
-   quantities and long integers and pointers are 64-bit quantities). In order
-   to support Universal Binaries on Mac OS X, we rely on this knowledge
-   instead of testing the sizes of the building machine.
-   On other platforms we use the result of the TRY_RUN. */
-#if !defined(__APPLE__)
-# define VTK_SIZEOF_CHAR   @VTK_SIZEOF_CHAR@
-# define VTK_SIZEOF_SHORT  @VTK_SIZEOF_SHORT@
-# define VTK_SIZEOF_INT    @VTK_SIZEOF_INT@
-# define VTK_SIZEOF_LONG   @VTK_SIZEOF_LONG@
-# define VTK_SIZEOF_FLOAT  @VTK_SIZEOF_FLOAT@
-# define VTK_SIZEOF_DOUBLE @VTK_SIZEOF_DOUBLE@
-# define VTK_SIZEOF_VOID_P @VTK_SIZEOF_VOID_P@
-#else
-# define VTK_SIZEOF_CHAR   1
-# define VTK_SIZEOF_SHORT  2
-# define VTK_SIZEOF_INT    4
-# if defined(__LP64__) && __LP64__
-#  define VTK_SIZEOF_LONG  8
-#  define VTK_SIZEOF_VOID_P 8
-# else
-#  define VTK_SIZEOF_LONG  4
-#  define VTK_SIZEOF_VOID_P 4
-# endif
-# define VTK_SIZEOF_FLOAT  4
-# define VTK_SIZEOF_DOUBLE 8
-#endif
-
-/* Define size of long long and/or __int64 bit integer type only if the type
-   exists.  */
-#if !defined(__APPLE__)
- #cmakedefine VTK_SIZEOF_LONG_LONG @VTK_SIZEOF_LONG_LONG@
-#else
- #cmakedefine VTK_SIZEOF_LONG_LONG 8
-#endif
-#cmakedefine VTK_SIZEOF___INT64   @VTK_SIZEOF___INT64@
-
-/* Whether types "long long" and "__int64" are enabled.  If a type is
-   enabled then it is a unique fundamental type.  */
-#cmakedefine VTK_TYPE_USE_LONG_LONG
-#cmakedefine VTK_TYPE_USE___INT64
-
-/* Some properties of the available types.  */
-#cmakedefine VTK_TYPE_SAME_LONG_AND___INT64
-#cmakedefine VTK_TYPE_SAME_LONG_LONG_AND___INT64
-
-/* Whether type "char" is signed (it may be signed or unsigned).  */
-#define VTK_TYPE_CHAR_IS_SIGNED @VTK_TYPE_CHAR_IS_SIGNED@
+/* vtkSMPTools back-end */
+#define VTK_SMP_@VTK_SMP_IMPLEMENTATION_TYPE@
+#define VTK_SMP_BACKEND "@VTK_SMP_IMPLEMENTATION_TYPE@"
 
 /* Compiler features.  */
 #cmakedefine VTK_HAVE_GETSOCKNAME_WITH_SOCKLEN_T
@@ -131,6 +115,9 @@
 /* Debug leaks support.  */
 #cmakedefine VTK_DEBUG_LEAKS
 
+/* Print warning on vtkArrayDispatch failure.  */
+#cmakedefine VTK_WARN_ON_DISPATCH_FAILURE
+
 /* Should all New methods use the object factory override. */
 #cmakedefine VTK_ALL_NEW_OBJECT_FACTORY
 
@@ -140,11 +127,6 @@
 /* We now always use standard streams.  */
 #ifndef VTK_LEGACY_REMOVE
 # define VTK_USE_ANSI_STDLIB
-#endif
-
-/* Setup vtkstd, a portable namespace for std.  */
-#ifndef VTK_LEGACY_REMOVE
-# define vtkstd std
 #endif
 
 /* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
@@ -168,4 +150,31 @@
 # define VTK_MAXPATH 32767 // Possible with Windows "extended paths"
 #endif
 
+#cmakedefine VTK_USE_CXX11_FEATURES
+#ifdef VTK_USE_CXX11_FEATURES
+# define VTK_OVERRIDE override
+# define VTK_FINAL final
+# define VTK_DELETE_FUNCTION =delete
+#else
+# define VTK_OVERRIDE
+# define VTK_FINAL
+# define VTK_DELETE_FUNCTION
 #endif
+
+/** std::auto_ptr is deprecated in C++11 and will be removed in C++17
+ *  use std::unique_ptr in C++11 and later compilers.
+ */
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >=1700)\
+ || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
+# define VTK_HAS_STD_UNIQUE_PTR
+#endif
+
+/* MS Visual Studio 2015 finally supports C99/C++11's snprintf but
+ * for older versions, use _snprintf instead. Annoyingly, its semantics
+ * are slightly different, but still better than using sprintf.
+ */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+# define snprintf _snprintf
+#endif
+
+#endif // vtkConfigure_h

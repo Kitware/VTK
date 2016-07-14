@@ -88,7 +88,6 @@ public:
 
 protected:
 
-  //BTX
   /// How are node sizes specified?
   enum RadiusMode
     {
@@ -96,12 +95,10 @@ protected:
     LEAVES,   //!< Only leaf node sizes specified... parents are calculated during layout.
     ALL       //!< All node sizes specified (overconstrained, so a scale factor for each parent is calculated during layout).
     };
-  //ETX
 
   vtkCosmicTreeLayoutStrategy();
   virtual ~vtkCosmicTreeLayoutStrategy();
 
-  //BTX
   // Description:
   // Recursive routine used to lay out tree nodes. Called from Layout().
   void LayoutChildren(
@@ -116,7 +113,6 @@ protected:
   void OffsetChildren(
     vtkTree* tree, vtkPoints* pts, vtkDoubleArray* radii, vtkDoubleArray* scale,
     double parent[4], vtkIdType root, int depth, RadiusMode mode );
-  //ETX
 
   // Description:
   // Create an array to hold radii, named appropriately (depends on \a NodeSizeArrayName)
@@ -140,8 +136,8 @@ protected:
   char* NodeSizeArrayName;
 
 private:
-  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
-  void operator = ( const vtkCosmicTreeLayoutStrategy& ); // Not implemented.
+  vtkCosmicTreeLayoutStrategy( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkCosmicTreeLayoutStrategy& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCosmicTreeLayoutStrategy_h

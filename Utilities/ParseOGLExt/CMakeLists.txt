@@ -23,9 +23,6 @@
 
 vtk_module_export_info()
 
-include_directories(${VTK_SOURCE_DIR}/Common/Core
-  ${VTK_BINARY_DIR}/Common/Core)
-
 IF(NOT CMAKE_CROSSCOMPILING)
   ADD_EXECUTABLE(vtkParseOGLExt Tokenizer.cxx ParseOGLExt.cxx)
   vtk_compile_tools_target(vtkParseOGLExt)

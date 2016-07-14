@@ -755,6 +755,13 @@ void vtkGeometryFilter::UnstructuredGridExecute(vtkDataSet *dataSetInput,
 
         case VTK_PIXEL:
           polys->InsertNextCell(npts);
+          // pixelConvert (in the following loop) is an int[4]. GCC 5.1.1
+          // warns about pixelConvert[4] being uninitialized due to loop
+          // unrolling -- forcibly restricting npts <= 4 prevents this warning.
+          if (npts > 4)
+            {
+            npts = 4;
+            }
           for ( int i=0; i < npts; i++)
             {
             polys->InsertCellPoint(pts[pixelConvert[i]]);

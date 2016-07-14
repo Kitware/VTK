@@ -36,11 +36,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPDataSetWriter* New();
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkDataSet* GetInput();
-  //ETX
 
 protected:
   vtkXMLPDataSetWriter();
@@ -58,8 +56,8 @@ protected:
   vtkXMLWriter* CreatePieceWriter(int index);
 
 private:
-  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataSetWriter&);  // Not implemented.
+  vtkXMLPDataSetWriter(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

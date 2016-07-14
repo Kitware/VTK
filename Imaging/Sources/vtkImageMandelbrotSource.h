@@ -140,8 +140,8 @@ protected:
                                   vtkInformationVector *);
   double EvaluateSet(double p[4]);
 private:
-  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&);  // Not implemented.
-  void operator=(const vtkImageMandelbrotSource&);  // Not implemented.
+  vtkImageMandelbrotSource(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMandelbrotSource&) VTK_DELETE_FUNCTION;
 };
 
 

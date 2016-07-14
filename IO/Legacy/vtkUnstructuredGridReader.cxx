@@ -98,7 +98,6 @@ int vtkUnstructuredGridReader::RequestData(
   int piece, numPieces, skip1, read2, skip3, tmp;
   vtkCellArray *cells=NULL;
   int *types=NULL;
-  int done=0;
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   int *tempArray;
@@ -146,7 +145,7 @@ int vtkUnstructuredGridReader::RequestData(
 
     // Might find points, cells, and cell types
     //
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {

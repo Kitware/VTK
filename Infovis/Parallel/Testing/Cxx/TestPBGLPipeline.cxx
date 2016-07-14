@@ -259,16 +259,11 @@ int TestPBGLPipeline(int argc, char* argv[])
 
   // Setup the parallel executive
   vtkAlgorithm* lastFilter = collect;
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(lastFilter->GetExecutive());
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
     vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   int total = num_processes(helper->GetProcessGroup());
   int rank = process_id(helper->GetProcessGroup());
-  lastFilter->UpdateInformation();
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
-  lastFilter->Update();
+  lastFilter->Update(rank, total, 0);
   vtkSmartPointer<vtkDirectedGraph> output = vtkSmartPointer<vtkDirectedGraph>::New();
   output->ShallowCopy(lastFilter->GetOutputDataObject(0));
 

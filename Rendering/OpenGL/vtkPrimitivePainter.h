@@ -48,7 +48,6 @@ protected:
   vtkPrimitivePainter();
   ~vtkPrimitivePainter();
 
-  //BTX
   enum {
     VTK_PDM_NORMALS = 0x001,
     VTK_PDM_COLORS = 0x002,
@@ -60,7 +59,6 @@ protected:
     VTK_PDM_EDGEFLAGS = 0x080,
     VTK_PDM_GENERIC_VERTEX_ATTRIBUTES = 0x100
   };
-  //ETX
 
   // Description:
   // Some subclasses may need to do some preprocessing
@@ -119,8 +117,8 @@ protected:
   bool MultiTextureAttributes;
 
 private:
-  vtkPrimitivePainter(const vtkPrimitivePainter&); // Not implemented.
-  void operator=(const vtkPrimitivePainter&); // Not implemented.
+  vtkPrimitivePainter(const vtkPrimitivePainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPrimitivePainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

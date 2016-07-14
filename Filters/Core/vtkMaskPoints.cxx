@@ -213,87 +213,82 @@ static void SortAndSample(vtkPoints* points, vtkPointData* data,
 
 unsigned long vtkMaskPoints::GetLocalSampleSize(vtkIdType numPts, int np)
 {
-  if(np > 1)
-    {
-    // send number of points to process 0
-    unsigned long send = (unsigned long)numPts;
-    unsigned long* recv = new unsigned long[np];
-    this->InternalGather(&send, recv, 1, 0);
+  // send number of points to process 0
+  unsigned long send = (unsigned long)numPts;
+  unsigned long* recv = new unsigned long[np];
+  this->InternalGather(&send, recv, 1, 0);
 
-    // process 0 figures it out
-    unsigned long* dist = new unsigned long[np];
-    if(this->InternalGetLocalProcessId() == 0)
+  // process 0 figures it out
+  unsigned long* dist = new unsigned long[np];
+  if(this->InternalGetLocalProcessId() == 0)
+    {
+    // sum them
+    unsigned long total = 0;
+    for(int i = 0; i < np; i = i + 1)
       {
-      // sum them
-      unsigned long total = 0;
+      total = total + recv[i];
+      }
+    // find the number of current processing points
+    vtkIdType totalInVtkIdType = static_cast<vtkIdType>(total);
+    vtkIdType numberOfProcessingPoints = std::min(this->MaximumNumberOfPoints, totalInVtkIdType);
+    // if it's greater than 0
+    if(total > 0)
+      {
+      // each process gets a proportional fraction
+      vtkIdType left = numberOfProcessingPoints;
+      double ratio = numberOfProcessingPoints / (double)total;
       for(int i = 0; i < np; i = i + 1)
         {
-        total = total + recv[i];
+        dist[i] = (unsigned long)(recv[i] * ratio);
+        left = left - dist[i];
         }
 
-      // if it's greater than 0
-      if(total > 0)
+      // if it didn't evenly divide, we need to assign the remaining
+      // samples -- doing it completely randomly, though probably a better
+      // way is to weight the randomness by the size of the remaining fraction
+      if(left > 0)
         {
-        // each process gets a proportional fraction
-        vtkIdType left = this->MaximumNumberOfPoints;
-        double ratio = this->MaximumNumberOfPoints / (double)total;
+        unsigned long* rem = new unsigned long[np];
+
         for(int i = 0; i < np; i = i + 1)
           {
-          dist[i] = (unsigned long)(recv[i] * ratio);
-          left = left - dist[i];
+          rem[i] = i < left ? 1 : 0;
           }
 
-        // if it didn't evenly divide, we need to assign the remaining
-        // samples -- doing it completely randomly, though probably a better
-        // way is to weight the randomness by the size of the remaining fraction
-        if(left > 0)
-          {
-          unsigned long* rem = new unsigned long[np];
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            rem[i] = i < left ? 1 : 0;
-            }
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            vtkIdType index = (vtkIdType)(rand() % np);
-            unsigned long temp = rem[index];
-            rem[index] = rem[i];
-            rem[i] = temp;
-            }
-
-          for(int i = 0; i < np; i = i + 1)
-            {
-            dist[i] = dist[i] + rem[i];
-            }
-
-          delete [] rem;
-          }
-        }
-      // no points
-      else
-        {
         for(int i = 0; i < np; i = i + 1)
           {
-          dist[i] = 0;
+          vtkIdType index = (vtkIdType)(rand() % np);
+          unsigned long temp = rem[index];
+          rem[index] = rem[i];
+          rem[i] = temp;
           }
+
+        for(int i = 0; i < np; i = i + 1)
+          {
+          dist[i] = dist[i] + rem[i];
+          }
+
+        delete [] rem;
         }
       }
-
-    // process 0 sends the fraction to each process
-    this->InternalScatter(dist, recv, 1, 0);
-    unsigned long retval = (vtkIdType)recv[0];
-
-    delete [] dist;
-    delete [] recv;
-
-    return retval;
+    // no points
+    else
+      {
+      for(int i = 0; i < np; i = i + 1)
+        {
+        dist[i] = 0;
+        }
+      }
     }
-  else
-    {
-    return this->MaximumNumberOfPoints;
-    }
+
+  // process 0 sends the fraction to each process
+  this->InternalScatter(dist, recv, 1, 0);
+  unsigned long retval = (vtkIdType)recv[0];
+
+  delete [] dist;
+  delete [] recv;
+
+  return retval;
 }
 
 //----------------------------------------------------------------------------
@@ -332,7 +327,7 @@ int vtkMaskPoints::RequestData(
   vtkIdType localMaxPts;
   // Make sure this does not exceed the number of points in the imput array
   localMaxPts = this->MaximumNumberOfPoints > numPts ? numPts : this->MaximumNumberOfPoints;
-  if(this->ProportionalMaximumNumberOfPoints)
+  if(this->InternalGetNumberOfProcesses() > 1 && this->ProportionalMaximumNumberOfPoints)
     {
     localMaxPts = this->GetLocalSampleSize(numPts,
                   this->InternalGetNumberOfProcesses());
@@ -612,8 +607,7 @@ int vtkMaskPoints::RequestData(
 
   output->Squeeze();
 
-  vtkDebugMacro(<<"Masked " << numPts << " original points to "
-                << id+1 << " points");
+  vtkDebugMacro(<<"Masked " << numPts << " original points to " << id+1 << " points");
 
   return 1;
 }
@@ -631,17 +625,18 @@ void vtkMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   os << indent << "Generate Vertices: "
-     << (this->GenerateVertices ? "On\n" : "Off\n");
+     << (this->GetGenerateVertices() ? "On\n" : "Off\n");
   os << indent << "SingleVertexPerCell: "
-     << (this->SingleVertexPerCell ? "On\n" : "Off\n");
+     << (this->GetSingleVertexPerCell() ? "On\n" : "Off\n");
   os << indent << "MaximumNumberOfPoints: "
-     << this->MaximumNumberOfPoints << "\n";
-  os << indent << "On Ratio: " << this->OnRatio << "\n";
-  os << indent << "Offset: " << this->Offset << "\n";
-  os << indent << "Random Mode: " << (this->RandomMode ? "On\n" : "Off\n");
-  os << indent << "Random Mode Type: " << this->RandomModeType << "\n";
+     << this->GetMaximumNumberOfPoints() << "\n";
+  os << indent << "On Ratio: " << this->GetOnRatio() << "\n";
+  os << indent << "Offset: " << this->GetOffset() << "\n";
+  os << indent << "Random Mode: " << (this->GetRandomMode() ? "On\n" : "Off\n");
+  os << indent << "Random Mode Type: " << this->GetRandomModeType() << "\n";
   os << indent << "Proportional Maximum Number of Points: " <<
-                  this->ProportionalMaximumNumberOfPoints << "\n";
+    this->GetProportionalMaximumNumberOfPoints() << "\n";
 
-  os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
+  os << indent << "Output Points Precision: "
+     << this->GetOutputPointsPrecision() << "\n";
 }

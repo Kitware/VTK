@@ -56,7 +56,7 @@ static bool GetLineFromStream(istream& is,
 
   // If no characters are read from the stream, the end of file has
   // been reached.
-  while((is.getline(buffer, bufferSize), is.gcount() > 0))
+  while(((void)(is.getline(buffer, bufferSize)), (is.gcount() > 0)))
     {
     haveData = true;
     line.append(buffer);

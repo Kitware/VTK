@@ -27,12 +27,15 @@
 // vtkVolumeRayCastFunction vtkVolumeRayCastMapper vtkVolumeProperty
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastIsosurfaceFunction
 // vtkVolume vtkVolumeProperty
+// @deprecated
 
 #ifndef vtkVolumeRayCastMIPFunction_h
 #define vtkVolumeRayCastMIPFunction_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkVolumeRayCastFunction.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 #define VTK_MAXIMIZE_SCALAR_VALUE 0
 #define VTK_MAXIMIZE_OPACITY      1
@@ -61,11 +64,8 @@ public:
     {this->SetMaximizeMethod(VTK_MAXIMIZE_OPACITY);}
   const char *GetMaximizeMethodAsString(void);
 
-//BTX
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo );
-//ETX
-
 
 protected:
   vtkVolumeRayCastMIPFunction();
@@ -73,18 +73,16 @@ protected:
 
   int MaximizeMethod;
 
-//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
 
-//ETX
 private:
-  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastMIPFunction&);  // Not implemented.
+  vtkVolumeRayCastMIPFunction(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastMIPFunction&) VTK_DELETE_FUNCTION;
 };
 
 
-
+#endif // VTK_LEGACY_REMOVE
 #endif

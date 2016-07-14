@@ -437,7 +437,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
     vtkTable* inputTitles = vtkTable::SafeDownCast(inTitleInfo->Get(vtkDataObject::DATA_OBJECT()));
     if (inputTitles && inputTitles->GetNumberOfColumns() > 0)
       {
-      titles = vtkStringArray::SafeDownCast(inputTitles->GetColumn(0));
+      titles = vtkArrayDownCast<vtkStringArray>(inputTitles->GetColumn(0));
       }
     }
   // build the input array table.  This is convenience table that gets used
@@ -504,7 +504,7 @@ int vtkParallelCoordinatesRepresentation::RequestData(
 
   vtkIdTypeArray* unselectedRows = NULL;
   if (this->InverseSelection->GetNode(0))
-    unselectedRows = vtkIdTypeArray::SafeDownCast(this->InverseSelection->GetNode(0)->GetSelectionList());
+    unselectedRows = vtkArrayDownCast<vtkIdTypeArray>(this->InverseSelection->GetNode(0)->GetSelectionList());
 
   if (this->UseCurves)
     {
@@ -776,7 +776,7 @@ int vtkParallelCoordinatesRepresentation::ComputeDataProperties()
   // compute axis ranges
   for (int i=0; i<numberOfInputArrays; i++)
     {
-    vtkDataArray* array = vtkDataArray::SafeDownCast(this->InputArrayTable->GetColumn(i));
+    vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(this->InputArrayTable->GetColumn(i));
     double *r = array->GetRange(0);
     this->Mins[i] = r[0];
     this->Maxs[i] = r[1];
@@ -1054,7 +1054,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   if (numCellScalars)
     {
     vtkDoubleArray* scalars =
-      vtkDoubleArray::SafeDownCast(polyData->GetCellData()->GetScalars());
+      vtkArrayDownCast<vtkDoubleArray>(polyData->GetCellData()->GetScalars());
 
     if (!scalars)
       {
@@ -1079,7 +1079,7 @@ int vtkParallelCoordinatesRepresentation::AllocatePolyData(vtkPolyData* polyData
   if (numPointScalars)
     {
     vtkDoubleArray* scalars =
-      vtkDoubleArray::SafeDownCast(polyData->GetPointData()->GetScalars());
+      vtkArrayDownCast<vtkDoubleArray>(polyData->GetPointData()->GetScalars());
 
     if (!scalars)
       {
@@ -1138,7 +1138,7 @@ int vtkParallelCoordinatesRepresentation::PlaceLines(vtkPolyData* polyData,
 
     // get the relevant array information
 //    vtkDataArray* array = this->GetInputArrayAtPosition(position);
-    vtkDataArray* array = vtkDataArray::SafeDownCast(data->GetColumn(position));
+    vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(data->GetColumn(position));
     if (!array)
       return 0;
 
@@ -1202,7 +1202,7 @@ int vtkParallelCoordinatesRepresentation::PlaceCurves(vtkPolyData* polyData,
 
     // get the relevant array information
 //    vtkDataArray* array = this->GetInputArrayAtPosition(position);
-    vtkDataArray* array = vtkDataArray::SafeDownCast(data->GetColumn(position));
+    vtkDataArray* array = vtkArrayDownCast<vtkDataArray>(data->GetColumn(position));
     if (!array)
       {
       return 0;
@@ -1291,7 +1291,7 @@ int vtkParallelCoordinatesRepresentation::PlaceSelection(vtkPolyData* polyData,
                                                          vtkTable* data,
                                                          vtkSelectionNode* selectionNode)
 {
-  vtkIdTypeArray* selectedIds = vtkIdTypeArray::SafeDownCast(selectionNode->GetSelectionList());
+  vtkIdTypeArray* selectedIds = vtkArrayDownCast<vtkIdTypeArray>(selectionNode->GetSelectionList());
 
   if (!selectedIds)
     return 0;
@@ -1825,7 +1825,7 @@ void vtkParallelCoordinatesRepresentation::SelectRows(vtkIdType brushClass,
     node = selection->GetNode(brushClass);
     }
 
-  vtkIdTypeArray* oldSelectedIds = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+  vtkIdTypeArray* oldSelectedIds = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
 
   // no selection list yet? that shouldn't be possible...it was allocated above
   if (!oldSelectedIds)
@@ -1921,7 +1921,7 @@ void vtkParallelCoordinatesRepresentation::BuildInverseSelection()
     for (int j=0; j<numNodes; j++)
       {
 
-      vtkIdTypeArray* a = vtkIdTypeArray::SafeDownCast(selection->GetNode(j)->GetSelectionList());
+      vtkIdTypeArray* a = vtkArrayDownCast<vtkIdTypeArray>(selection->GetNode(j)->GetSelectionList());
       if (!a || idxs[j] >= a->GetNumberOfTuples())
         {
         continue;

@@ -83,7 +83,7 @@ void vtkPlotBag::Update()
 
   // Check if we have an input
   vtkTable *table = this->Data->GetInput();
-  vtkDataArray *density = vtkDataArray::SafeDownCast(
+  vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
     this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
   if (!table || !density)
     {
@@ -311,7 +311,7 @@ vtkStringArray* vtkPlotBag::GetLabels()
   else if (this->Data->GetInput())
     {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
-    vtkDataArray *density = vtkDataArray::SafeDownCast(
+    vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
       this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
     if (density)
       {
@@ -332,7 +332,7 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
         this->TooltipDefaultLabelFormat : this->TooltipLabelFormat;
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
-  vtkDataArray *density = vtkDataArray::SafeDownCast(
+  vtkDataArray *density = vtkArrayDownCast<vtkDataArray>(
     this->Data->GetInputAbstractArrayToProcess(2, this->GetInput()));
   for (size_t i = 0; i < format.length(); ++i)
     {
@@ -372,7 +372,7 @@ vtkStdString vtkPlotBag::GetTooltipLabel(const vtkVector2d &plotPos,
           break;
         case 'C':
           {
-          vtkAbstractArray *colName = vtkAbstractArray::SafeDownCast(
+          vtkAbstractArray *colName = vtkArrayDownCast<vtkAbstractArray>(
             this->GetInput()->GetColumnByName("ColName"));
           std::stringstream ss;
           if (colName)

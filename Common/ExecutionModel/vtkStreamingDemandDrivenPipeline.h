@@ -60,11 +60,33 @@ public:
   virtual int UpdateWholeExtent();
 
   // Description:
+  // This method enables the passing of data requests to the algorithm
+  // to be used during execution (in addition to bringing a particular
+  // port up-to-date). The requests argument should contain an information
+  // object for each port that requests need to be passed. For each
+  // of those, the pipeline will copy all keys to the output information
+  // before execution. This is equivalent to:
+  // \verbatim
+  // executive->UpdateInformation();
+  // for (int i=0; i<executive->GetNumberOfOutputPorts(); i++)
+  // {
+  //   vtkInformation* portRequests = requests->GetInformationObject(i);
+  //   if (portRequests)
+  //     {
+  //     executive->GetOutputInformation(i)->Append(portRequests);
+  //     }
+  // }
+  // executive->Update();
+  // \endverbatim
+  // Available requests include UPDATE_PIECE_NUMBER(), UPDATE_NUMBER_OF_PIECES()
+  // UPDATE_EXTENT() etc etc.
+  virtual int Update(int port, vtkInformationVector* requests);
+
+  // Description:
   // Propagate the update request from the given output port back
   // through the pipeline.  Should be called only when information is
   // up to date.
   int PropagateUpdateExtent(int outputPort);
-
 
   // Description:
   // Propagate time through the pipeline. this is a special pass
@@ -79,42 +101,6 @@ public:
   static int SetWholeExtent(vtkInformation *, int extent[6]);
   static void GetWholeExtent(vtkInformation *, int extent[6]);
   static int* GetWholeExtent(vtkInformation *);
-
-  // Description:
-  // If the whole input extent is required to generate the requested output
-  // extent, this method can be called to set the input update extent to the
-  // whole input extent. This method assumes that the whole extent is known
-  // (that UpdateInformation has been called)
-  int SetUpdateExtentToWholeExtent(int port);
-  static int SetUpdateExtentToWholeExtent(vtkInformation *);
-
-  // Description:
-  // Get/Set the update extent for output ports that use 3D extents.
-  int SetUpdateExtent(int port, int extent[6]);
-  int SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1);
-  static int SetUpdateExtent(vtkInformation *, int extent[6]);
-  static void GetUpdateExtent(vtkInformation *, int extent[6]);
-  static int* GetUpdateExtent(vtkInformation *);
-
-  // Description:
-  // Set/Get the update piece, update number of pieces, and update
-  // number of ghost levels for an output port.  Similar to update
-  // extent in 3D.
-  int SetUpdateExtent(int port,
-                      int piece, int numPieces, int ghostLevel);
-  static int SetUpdateExtent(vtkInformation *,
-                             int piece, int numPieces, int ghostLevel);
-  static int SetUpdatePiece(vtkInformation *, int piece);
-  static int GetUpdatePiece(vtkInformation *);
-  static int SetUpdateNumberOfPieces(vtkInformation *, int n);
-  static int GetUpdateNumberOfPieces(vtkInformation *);
-  static int SetUpdateGhostLevel(vtkInformation *, int n);
-  static int GetUpdateGhostLevel(vtkInformation *);
-
-  // Description:
-  // Get/Set the update extent for output ports that use Temporal Extents
-  int SetUpdateTimeStep(int port, double time);
-  static int SetUpdateTimeStep(vtkInformation *, double time);
 
   // Description:
   // This request flag indicates whether the requester can handle more
@@ -213,6 +199,41 @@ public:
   // \ingroup InformationKeys
   static vtkInformationDoubleVectorKey *BOUNDS();
 
+  // Description:
+  // If the whole input extent is required to generate the requested output
+  // extent, this method can be called to set the input update extent to the
+  // whole input extent. This method assumes that the whole extent is known
+  // (that UpdateInformation has been called)
+  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
+  VTK_LEGACY(static int SetUpdateExtentToWholeExtent(vtkInformation *));
+
+  // Description:
+  // Get/Set the update extent for output ports that use 3D extents.
+  VTK_LEGACY(int SetUpdateExtent(int port, int extent[6]));
+  VTK_LEGACY(int SetUpdateExtent(int port, int x0, int x1, int y0, int y1, int z0, int z1));
+  VTK_LEGACY(static int SetUpdateExtent(vtkInformation *, int extent[6]));
+  static void GetUpdateExtent(vtkInformation *, int extent[6]);
+  static int* GetUpdateExtent(vtkInformation *);
+  // Description:
+  // Set/Get the update piece, update number of pieces, and update
+  // number of ghost levels for an output port.  Similar to update
+  // extent in 3D.
+  VTK_LEGACY(int SetUpdateExtent(int port,
+                      int piece, int numPieces, int ghostLevel));
+  VTK_LEGACY(static int SetUpdateExtent(vtkInformation *,
+                             int piece, int numPieces, int ghostLevel));
+  VTK_LEGACY(static int SetUpdatePiece(vtkInformation *, int piece));
+  static int GetUpdatePiece(vtkInformation *);
+  VTK_LEGACY(static int SetUpdateNumberOfPieces(vtkInformation *, int n));
+  static int GetUpdateNumberOfPieces(vtkInformation *);
+  VTK_LEGACY(static int SetUpdateGhostLevel(vtkInformation *, int n));
+  static int GetUpdateGhostLevel(vtkInformation *);
+
+  // Description:
+  // Get/Set the update extent for output ports that use Temporal Extents
+  VTK_LEGACY(int SetUpdateTimeStep(int port, double time));
+  VTK_LEGACY(static int SetUpdateTimeStep(vtkInformation *, double time));
+
 protected:
   vtkStreamingDemandDrivenPipeline();
   ~vtkStreamingDemandDrivenPipeline();
@@ -282,8 +303,8 @@ protected:
   int LastPropogateUpdateExtentShortCircuited;
 
 private:
-  vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
-  void operator=(const vtkStreamingDemandDrivenPipeline&);  // Not implemented.
+  vtkStreamingDemandDrivenPipeline(const vtkStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

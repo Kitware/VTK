@@ -101,19 +101,14 @@ void TestPSQLGraphReader()
   reader->SetVertexIdField("id");
   reader->SetSourceField("source");
   reader->SetTargetField("target");
-  vtkStreamingDemandDrivenPipeline* exec =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(reader->GetExecutive());
   vtkSmartPointer<vtkPBGLDistributedGraphHelper> helper =
     vtkSmartPointer<vtkPBGLDistributedGraphHelper>::New();
   int total = num_processes(helper->GetProcessGroup());
   int rank = process_id(helper->GetProcessGroup());
-  reader->UpdateInformation();
-  exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), total);
-  exec->SetUpdatePiece(exec->GetOutputInformation(0), rank);
-  reader->Update();
+  reader->Update(rank, total, 0);
   vtkGraph* output = reader->GetOutput();
-  vtkAbstractArray* idArr = vtkAbstractArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("id"));
-  vtkStringArray* nameArr = vtkStringArray::SafeDownCast(output->GetVertexData()->GetAbstractArray("name"));
+  vtkAbstractArray* idArr = vtkArrayDownCast<vtkAbstractArray>(output->GetVertexData()->GetAbstractArray("id"));
+  vtkStringArray* nameArr = vtkArrayDownCast<vtkStringArray>(output->GetVertexData()->GetAbstractArray("name"));
   vtkSmartPointer<vtkVertexListIterator> vit =
     vtkSmartPointer<vtkVertexListIterator>::New();
   output->GetVertices(vit);
@@ -128,7 +123,7 @@ void TestPSQLGraphReader()
       << "," << name
       << "," << id << endl;
     }
-  nameArr = vtkStringArray::SafeDownCast(output->GetEdgeData()->GetAbstractArray("name"));
+  nameArr = vtkArrayDownCast<vtkStringArray>(output->GetEdgeData()->GetAbstractArray("name"));
   vtkSmartPointer<vtkEdgeListIterator> it =
     vtkSmartPointer<vtkEdgeListIterator>::New();
   output->GetEdges(it);

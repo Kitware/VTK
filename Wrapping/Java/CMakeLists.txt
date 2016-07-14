@@ -47,7 +47,7 @@ if(VTK_JAVA_SWT_COMPONENT)
 endif()
 
 # Add the option for build the JOGL component to VTK.
-set(JOGL_VERSION "2.0.2")
+set(JOGL_VERSION "2.3.2")
 option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
 
 if(VTK_JAVA_JOGL_COMPONENT)
@@ -319,9 +319,9 @@ if(JOGL_GLUE)
 endif()
 
 # Set the javac source version
-set(VTK_JAVA_SOURCE_VERSION "1.5" CACHE STRING "javac source version")
+set(VTK_JAVA_SOURCE_VERSION "1.6" CACHE STRING "javac source version")
 mark_as_advanced(VTK_JAVA_SOURCE_VERSION)
-set(VTK_JAVA_TARGET_VERSION "1.5" CACHE STRING "javac target version")
+set(VTK_JAVA_TARGET_VERSION "1.6" CACHE STRING "javac target version")
 mark_as_advanced(VTK_JAVA_TARGET_VERSION)
 
 # On machines with long paths to VTK (or windows where the command line length

@@ -71,7 +71,7 @@ int vtkBoostExtractLargestComponent::RequestData(vtkInformation *vtkNotUsed(requ
   connectedComponents->SetInputData(inputCopy);
   connectedComponents->Update();
 
-  vtkIntArray* components = vtkIntArray::SafeDownCast(
+  vtkIntArray* components = vtkArrayDownCast<vtkIntArray>(
     connectedComponents->GetOutput()->GetVertexData()->GetArray("component"));
 
   // Create an array to store the count of the number of vertices

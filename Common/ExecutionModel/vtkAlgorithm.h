@@ -170,8 +170,8 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the AbortExecute flag for the process object. Process objects
@@ -459,6 +459,56 @@ public:
   virtual void Update(int port);
   virtual void Update();
 
+  // Description:
+  // This method enables the passing of data requests to the algorithm
+  // to be used during execution (in addition to bringing a particular
+  // port up-to-date). The requests argument should contain an information
+  // object for each port that requests need to be passed. For each
+  // of those, the pipeline will copy all keys to the output information
+  // before execution. This is equivalent to:
+  // \verbatim
+  // algorithm->UpdateInformation();
+  // for (int i=0; i<algorithm->GetNumberOfOutputPorts(); i++)
+  // {
+  //   vtkInformation* portRequests = requests->GetInformationObject(i);
+  //   if (portRequests)
+  //     {
+  //     algorithm->GetOutputInformation(i)->Append(portRequests);
+  //     }
+  // }
+  // algorithm->Update();
+  // \endverbatim
+  // Available requests include UPDATE_PIECE_NUMBER(), UPDATE_NUMBER_OF_PIECES()
+  // UPDATE_EXTENT() etc etc.
+  virtual int Update(int port, vtkInformationVector* requests);
+
+  // Description:
+  // Convenience method to update an algorithm after passing requests
+  // to its first output port. See documentation for
+  // Update(int port, vtkInformationVector* requests) for details.
+  virtual int Update(vtkInformation* requests);
+
+  // Description:
+  // Convenience method to update an algorithm after passing requests
+  // to its first output port. See documentation for
+  // Update(int port, vtkInformationVector* requests) for details.
+  // Supports piece and extent (optional) requests.
+  virtual int UpdatePiece(
+    int piece, int numPieces, int ghostLevels, const int extents[6]=0);
+
+  // Description:
+  // Convenience method to update an algorithm after passing requests
+  // to its first output port.
+  // Supports extent request.
+  virtual int UpdateExtent(const int extents[6]);
+
+  // Description:
+  // Convenience method to update an algorithm after passing requests
+  // to its first output port. See documentation for
+  // Update(int port, vtkInformationVector* requests) for details.
+  // Supports time, piece (optional) and extent (optional) requests.
+  virtual int UpdateTimeStep(double time,
+    int piece=-1, int numPieces=1, int ghostLevels=0, const int extents[6]=0);
 
   // Description:
   // Bring the algorithm's information up-to-date.
@@ -513,37 +563,32 @@ public:
   // If the whole output extent is required, this method can be called to set
   // the output update extent to the whole extent. This method assumes that
   // the whole extent is known (that UpdateInformation has been called).
-  int SetUpdateExtentToWholeExtent(int port);
+  VTK_LEGACY(int SetUpdateExtentToWholeExtent(int port));
 
   // Description:
   // Convenience function equivalent to SetUpdateExtentToWholeExtent(0)
   // This method assumes that the whole extent is known (that UpdateInformation
   // has been called).
-  int SetUpdateExtentToWholeExtent();
+  VTK_LEGACY(int SetUpdateExtentToWholeExtent());
 
   // Description:
   // Set the output update extent in terms of piece and ghost levels.
-  void SetUpdateExtent(int port,
-                       int piece,int numPieces, int ghostLevel);
+  VTK_LEGACY(void SetUpdateExtent(int port,
+                       int piece,int numPieces, int ghostLevel));
 
   // Description:
   // Convenience function equivalent to SetUpdateExtent(0, piece,
   // numPieces, ghostLevel)
-  void SetUpdateExtent(int piece,int numPieces, int ghostLevel)
-  {
-    this->SetUpdateExtent(0, piece, numPieces, ghostLevel);
-  }
+  VTK_LEGACY(void SetUpdateExtent(
+    int piece,int numPieces, int ghostLevel));
 
   // Description:
   // Set the output update extent for data objects that use 3D extents
-  void SetUpdateExtent(int port, int extent[6]);
+  VTK_LEGACY(void SetUpdateExtent(int port, int extent[6]));
 
   // Description:
   // Convenience function equivalent to SetUpdateExtent(0, extent)
-  void SetUpdateExtent(int extent[6])
-  {
-    this->SetUpdateExtent(0, extent);
-  }
+  VTK_LEGACY(void SetUpdateExtent(int extent[6]));
 
   // Description:
   // These functions return the update extent for output ports that
@@ -737,7 +782,7 @@ protected:
   char  *ProgressText;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // executive methods below
 
@@ -783,8 +828,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&);  // Not implemented.
-  void operator=(const vtkAlgorithm&);  // Not implemented.
+  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

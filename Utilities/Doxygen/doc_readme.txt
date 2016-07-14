@@ -28,7 +28,7 @@ process. Thus, you might browse or download a pre-built documentation here:
 Nevertheless, Doxygen might still be useful to generate additional
 PDF, Postscript or plain LaTeX output.
 
-This package is made of he following Perl scripts:
+This package is made of the following Perl scripts:
 
 - doc_header2doxygen.pl: convert the VTK headers to the Doxygen format
 - doc_version.pl: extract the VTK version and add it to the documentation set

@@ -38,9 +38,12 @@ typedef ptrdiff_t GLsizeiptr;
 
 #include "vtkCommand.h"
 #include "vtkIdList.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
+#include "vtkOpenGLShaderCache.h"
 #include "vtkRendererCollection.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkStringOutputWindow.h"
 
 #include "vtksys/SystemTools.hxx"
 
@@ -69,10 +72,8 @@ private:
   // how about abstracting this a bit?
 
   // support for Pixmap based offscreen rendering
-  Pixmap pixmap;
   GLXContext PixmapContextId;
   Window PixmapWindowId;
-
 
   // support for Pbuffer based offscreen rendering
   GLXContext PbufferContextId;
@@ -374,10 +375,6 @@ void vtkXOpenGLRenderWindow::Frame()
     glXSwapBuffers(this->DisplayId, this->WindowId);
     vtkDebugMacro(<< " glXSwapBuffers\n");
     }
-  else
-    {
-    glFlush();
-    }
 }
 
 bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
@@ -423,6 +420,14 @@ extern "C"
   int vtkXOGLPbufferErrorHandler(Display*, XErrorEvent*)
   {
     PbufferAllocFail = 1;
+    return 1;
+  }
+}
+
+extern "C"
+{
+  int vtkXOGLContextCreationErrorHandler(Display*, XErrorEvent*)
+  {
     return 1;
   }
 }
@@ -579,13 +584,23 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
     if (glXCreateContextAttribsARB)
       {
-      this->Internal->ContextId =
-        glXCreateContextAttribsARB( this->DisplayId,
-          this->Internal->FBConfig, 0,
-          GL_TRUE, context_attribs );
-
-      // Sync to ensure any errors generated are processed.
-      XSync( this->DisplayId, False );
+      XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLContextCreationErrorHandler);
+      this->Internal->ContextId = 0;
+      // we believe that these later versions are all compatible with
+      // OpenGL 3.2 so get a more recent context if we can.
+      int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2};
+      for (int i = 0; i < 8 && !this->Internal->ContextId; i++)
+        {
+        context_attribs[1] = attemptedVersions[i*2];
+        context_attribs[3] = attemptedVersions[i*2+1];
+        this->Internal->ContextId =
+          glXCreateContextAttribsARB( this->DisplayId,
+            this->Internal->FBConfig, 0,
+            GL_TRUE, context_attribs );
+        // Sync to ensure any errors generated are processed.
+        XSync( this->DisplayId, False );
+        }
+      XSetErrorHandler(previousHandler);
       if ( this->Internal->ContextId )
         {
         this->SetContextSupportsOpenGL32(true);
@@ -711,19 +726,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   if (this->OwnContext && this->Internal->ContextId)
     {
     this->MakeCurrent();
-    // tell each of the renderers that this render window/graphics context
-    // is being removed (the RendererCollection is removed by vtkRenderWindow's
-    // destructor)
-    vtkRenderer* ren;
-    this->Renderers->InitTraversal();
-    for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
-          ren != NULL;
-          ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-      {
-      ren->SetRenderWindow(NULL);
-      ren->SetRenderWindow(this);
-      }
-    this->ReleaseGraphicsResources();
+    this->ReleaseGraphicsResources(this);
 
     if (this->Internal->ContextId)
       {
@@ -740,12 +743,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     this->WindowId = static_cast<Window>(NULL);
     }
 
-  // if we create the display, we'll delete it
-  if (this->OwnDisplay && this->DisplayId)
-    {
-    XCloseDisplay(this->DisplayId);
-    this->DisplayId = NULL;
-    }
+  this->CloseDisplay();
 
   delete[] this->Capabilities;
   this->Capabilities = 0;
@@ -804,7 +802,6 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
           this->StencilCapable);
         if(fb)
           {
-          XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
           // NOTE: It is not necessary to create or make current to a context before
           // calling glXGetProcAddressARB
           glXCreateContextAttribsARBProc glXCreateContextAttribsARB = 0;
@@ -821,20 +818,30 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
         if (glXCreateContextAttribsARB)
           {
-          this->Internal->PbufferContextId =
-            glXCreateContextAttribsARB( this->DisplayId,
-              fb, 0,
-              GL_TRUE, context_attribs );
-
-          // Sync to ensure any errors generated are processed.
-          XSync( this->DisplayId, False );
-          if ( this->Internal->ContextId )
+          XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLContextCreationErrorHandler);
+          // we believe that these later versions are all compatible with
+          // OpenGL 3.2 so get a more recent context if we can.
+          int attemptedVersions[] = {4,5, 4,4, 4,3, 4,2, 4,1, 4,0, 3,3, 3,2};
+          for (int i = 0; i < 8 && !this->Internal->PbufferContextId; i++)
+            {
+            context_attribs[1] = attemptedVersions[i*2];
+            context_attribs[3] = attemptedVersions[i*2+1];
+            this->Internal->PbufferContextId =
+              glXCreateContextAttribsARB( this->DisplayId,
+                fb, 0,
+                GL_TRUE, context_attribs );
+            // Sync to ensure any errors generated are processed.
+            XSync( this->DisplayId, False );
+            }
+          XSetErrorHandler(previousHandler);
+          if ( this->Internal->PbufferContextId )
             {
             this->SetContextSupportsOpenGL32(true);
             }
           }
 
         // old failsafe
+        XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
         if (this->Internal->PbufferContextId == NULL)
           {
           this->Internal->PbufferContextId =
@@ -890,17 +897,8 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
 void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
 {
-
   // release graphic resources.
-  vtkRenderer *ren;
-  vtkCollectionSimpleIterator rit;
-  this->Renderers->InitTraversal(rit);
-  while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
-    ren->SetRenderWindow(NULL);
-    ren->SetRenderWindow(this);
-    }
-
+  this->ReleaseGraphicsResources(this);
 
 #ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId)
@@ -930,7 +928,6 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
         {
         glXDestroyGLXPixmap(this->DisplayId, this->Internal->PixmapWindowId);
         this->Internal->PixmapWindowId = 0;
-        XFreePixmap(this->DisplayId, this->Internal->pixmap);
         glXDestroyContext( this->DisplayId, this->Internal->PixmapContextId);
         this->Internal->PixmapContextId = NULL;
         }
@@ -1137,8 +1134,7 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
     {
-    this->Size[0] = width;
-    this->Size[1] = height;
+    this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
       {
@@ -1154,7 +1150,25 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
-      XSync(this->DisplayId,False);
+      // this is an async call so we wait until we
+      // know it has been resized. To avoid infinite
+      // loops we put in a count limit just to be safe
+      XWindowAttributes attribs;
+      int count = 20000;
+      do
+        {
+        XSync(this->DisplayId,False);
+
+        //  Find the current window size
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId, &attribs);
+        count--;
+        }
+      while (count && (attribs.width != width || attribs.height != height));
+      if (!count)
+        {
+        vtkWarningMacro("warning window did not resize in the allotted time");
+        }
       }
 
     this->Modified();
@@ -1238,21 +1252,21 @@ void vtkXOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)
 // When uncommented (along with the lines in MakeCurrent)
 // it will cause a segfault upon an XError instead of
 // the normal XError handler
-//  extern "C" {int vtkXError(Display *display, XErrorEvent *err)
-//  {
-//  // cause a segfault
-//    *(float *)(0x01) = 1.0;
-//    return 1;
-//  }}
+ // extern "C" {int vtkXError(Display *display, XErrorEvent *err)
+ // {
+ // // cause a segfault
+ //   *(float *)(0x01) = 1.0;
+ //   return 1;
+ // }}
 
 void vtkXOpenGLRenderWindow::MakeCurrent()
 {
   // when debugging XErrors uncomment the following lines
-//    if (this->DisplayId)
-//      {
-//        XSynchronize(this->DisplayId,1);
-//      }
-//     XSetErrorHandler(vtkXError);
+   // if (this->DisplayId)
+   //   {
+   //     XSynchronize(this->DisplayId,1);
+   //   }
+   //  XSetErrorHandler(vtkXError);
 #ifdef VTK_USE_OSMESA
 
   // set the current window
@@ -1661,25 +1675,16 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   return this->Capabilities;
 }
 
-int vtkXOpenGLRenderWindow::SupportsOpenGL()
+void vtkXOpenGLRenderWindow::CloseDisplay()
 {
-  this->MakeCurrent();
-  if (!this->DisplayId)
+  // if we create the display, we'll delete it
+  if (this->OwnDisplay && this->DisplayId)
     {
-    return 0;
+    XCloseDisplay(this->DisplayId);
+    this->DisplayId = NULL;
+    this->OwnDisplay = 0;
     }
-
-  int value = 0;
-  XVisualInfo *v = this->GetDesiredVisualInfo();
-  if (v)
-    {
-    glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
-    XFree(v);
-    }
-
-  return value;
 }
-
 
 int vtkXOpenGLRenderWindow::IsDirect()
 {

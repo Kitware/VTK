@@ -69,7 +69,7 @@ namespace
         for(int i=extent[0];i<extent[1];i++)
           {
           ijk[0] = i;
-          cellArray->InsertNextTupleValue(ijk);
+          cellArray->InsertNextTypedTuple(ijk);
           }
         }
       }
@@ -79,7 +79,7 @@ namespace
 // Returns 1 on success, 0 otherwise
 //////////////////////////////////////////////////////////////////////////////
   int AppendDatasetsAndCheck(
-    const std::vector<vtkSmartPointer<vtkStructuredGrid> > inputs,
+    const std::vector<vtkSmartPointer<vtkStructuredGrid> >& inputs,
     int outputExtent[6])
   {
     vtkNew<vtkStructuredGridAppend> append;
@@ -102,7 +102,7 @@ namespace
       }
 
     if(vtkDoubleArray* pointArray =
-       vtkDoubleArray::SafeDownCast(output->GetPointData()->GetArray(arrayName)))
+       vtkArrayDownCast<vtkDoubleArray>(output->GetPointData()->GetArray(arrayName)))
       {
       vtkIdType counter = 0;
       for(int k=extent[4];k<=extent[5];k++)
@@ -130,7 +130,7 @@ namespace
       }
 
     if(vtkIntArray* cellArray =
-       vtkIntArray::SafeDownCast(output->GetCellData()->GetArray(arrayName)))
+       vtkArrayDownCast<vtkIntArray>(output->GetCellData()->GetArray(arrayName)))
       {
       vtkIdType counter = 0;
       for(int k=extent[4];k<extent[5];k++)
@@ -140,7 +140,7 @@ namespace
           for(int i=extent[0];i<extent[1];i++)
             {
             int values[3];
-            cellArray->GetTupleValue(counter, values);
+            cellArray->GetTypedTuple(counter, values);
             if(values[0] != i || values[1] != j || values[2] != k)
               {
               vtkGenericWarningMacro("ERROR: Bad cell array tuple value ["

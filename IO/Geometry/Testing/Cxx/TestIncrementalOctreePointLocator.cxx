@@ -147,7 +147,7 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
                                ( argc, argv, "Data/post.vtk" );
   ugReader = vtkUnstructuredGridReader::New();
   ugReader->SetFileName( fileName );
-  delete []  fileName;  fileName = NULL;
+  delete []  fileName;
   ugReader->Update();
   unstruct = ugReader->GetOutput();
   dataPnts = unstruct->GetPoints();
@@ -391,13 +391,21 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
       retValue = ( insrtPts->GetNumberOfPoints() == numExPts ) ? 0 : 1;
       }
     }
-  if ( xtentPts ) free( xtentPts );  xtentPts = NULL;
+  if ( xtentPts )
+    {
+    free( xtentPts );
+    xtentPts = NULL;
+    }
   // =======================================================================//
   // =======================================================================//
 
 
   // reclaim this vtkPoints as it will be never used again
-  if ( insrtPts ) insrtPts->Delete();  insrtPts = NULL;
+  if ( insrtPts )
+    {
+    insrtPts->Delete();
+    insrtPts = NULL;
+    }
 
 
   // =========================================================================
@@ -893,23 +901,71 @@ int TestIncrementalOctreePointLocator( int argc, char * argv[] )
 
   // memory clearance
   dataPnts = NULL;                     unstruct = NULL;
-  if ( ptIdList ) ptIdList->Delete();  ptIdList = NULL;
-  if ( octLocat ) octLocat->Delete();  octLocat = NULL;
-  if ( ugReader ) ugReader->Delete();  ugReader = NULL;
+  if ( ptIdList )
+    {
+    ptIdList->Delete();
+    ptIdList = NULL;
+    }
+  if ( octLocat )
+    {
+    octLocat->Delete();
+    octLocat = NULL;
+    }
+  if ( ugReader )
+    {
+    ugReader->Delete();
+    ugReader = NULL;
+    }
 
-  if ( truthIds ) free( truthIds );    truthIds = NULL;
-  if ( resltIds ) free( resltIds );    resltIds = NULL;
-  if ( pDataPts ) free( pDataPts );    pDataPts = NULL;
-  if ( pLocPnts ) free( pLocPnts );    pLocPnts = NULL;
-  if ( minDist2 ) free( minDist2 );    minDist2 = NULL;
-  if ( maxDist2 ) free( maxDist2 );    maxDist2 = NULL;
-  if ( clzNdst2 ) free( clzNdst2 );    clzNdst2 = NULL;
+  if ( truthIds )
+    {
+    free( truthIds );
+    truthIds = NULL;
+    }
+  if ( resltIds )
+    {
+    free( resltIds );
+    resltIds = NULL;
+    }
+  if ( pDataPts )
+    {
+    free( pDataPts );
+    pDataPts = NULL;
+    }
+  if ( pLocPnts )
+    {
+    free( pLocPnts );
+    pLocPnts = NULL;
+    }
+  if ( minDist2 )
+    {
+    free( minDist2 );
+    minDist2 = NULL;
+    }
+  if ( maxDist2 )
+    {
+    free( maxDist2 );
+    maxDist2 = NULL;
+    }
+  if ( clzNdst2 )
+    {
+    free( clzNdst2 );
+    clzNdst2 = NULL;
+    }
 
-  if ( diskFile ) fclose( diskFile );  diskFile = NULL;
+  if ( diskFile )
+    {
+    fclose( diskFile );
+    diskFile = NULL;
+    }
 
   for ( i = 0; i < 3; i ++ )
     {
-    if ( idxLists[i] ) idxLists[i]->Delete();  idxLists[i] = NULL;
+    if ( idxLists[i] )
+      {
+      idxLists[i]->Delete();
+      idxLists[i] = NULL;
+      }
     }
 
 

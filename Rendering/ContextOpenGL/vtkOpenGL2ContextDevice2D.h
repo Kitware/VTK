@@ -82,8 +82,8 @@ protected:
   virtual bool LoadExtensions(vtkOpenGLExtensionManager *m);
 
 private:
-  vtkOpenGL2ContextDevice2D(const vtkOpenGL2ContextDevice2D &); // Not implemented.
-  void operator=(const vtkOpenGL2ContextDevice2D &);   // Not implemented.
+  vtkOpenGL2ContextDevice2D(const vtkOpenGL2ContextDevice2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGL2ContextDevice2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkOpenGL2ContextDevice2D_h

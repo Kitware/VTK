@@ -55,8 +55,8 @@ protected:
   int DeepCopyInput;
 
 private:
-  vtkPassThrough(const vtkPassThrough&); // Not implemented
-  void operator=(const vtkPassThrough&);   // Not implemented
+  vtkPassThrough(const vtkPassThrough&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPassThrough&) VTK_DELETE_FUNCTION;
 };
 
 #endif

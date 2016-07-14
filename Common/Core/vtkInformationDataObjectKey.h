@@ -45,13 +45,11 @@ public:
     return new vtkInformationDataObjectKey(name, location);
     }
 
-  //BTX
   // Description:
   // Get/Set the value associated with this key in the given
   // information object.
   void Set(vtkInformation* info, vtkDataObject*);
   vtkDataObject* Get(vtkInformation* info);
-  //ETX
 
   // Description:
   // Copy the entry associated with this key from one information
@@ -64,8 +62,8 @@ public:
   virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
 
 private:
-  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&);  // Not implemented.
-  void operator=(const vtkInformationDataObjectKey&);  // Not implemented.
+  vtkInformationDataObjectKey(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDataObjectKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

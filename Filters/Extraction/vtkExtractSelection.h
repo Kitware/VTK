@@ -109,8 +109,8 @@ protected:
   int UseProbeForLocations;
   int ShowBounds;
 private:
-  vtkExtractSelection(const vtkExtractSelection&);  // Not implemented.
-  void operator=(const vtkExtractSelection&);  // Not implemented.
+  vtkExtractSelection(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

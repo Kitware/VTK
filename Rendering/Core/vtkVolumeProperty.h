@@ -70,12 +70,17 @@ public:
   // determine functionality). If IndependentComponents is Off, then you
   // must have either 2 or 4 component data. For 2 component data, the
   // first is passed through the first color transfer function and the
-  // second component is passed through the first opacity transfer function.
-  // Normals will be generated off of the second component. For 4 component
+  // second component is passed through the first scalar opacity (and
+  // gradient opacity) transfer function.
+  // Normals will be generated off of the second component. When using gradient
+  // based opacity modulation, the gradients are computed off of the
+  // second component. For 4 component
   // data, the first three will directly represent RGB (no lookup table).
   // The fourth component will be passed through the first scalar opacity
-  // transfer function for opacity. Normals will be generated from the fourth
-  // component.
+  // transfer function for opacity and first gradient opacity transfer function
+  // for gradient based opacity modulation. Normals will be generated from the
+  // fourth component. When using gradient based opacity modulation, the
+  // gradients are computed off of the fourth component.
   vtkSetClampMacro(IndependentComponents, int, 0, 1);
   vtkGetMacro(IndependentComponents, int);
   vtkBooleanMacro(IndependentComponents, int);
@@ -275,7 +280,6 @@ public:
   double GetSpecularPower()
     { return this->GetSpecularPower(0); }
 
-  //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // UpdateMTimes performs a Modified() on all TimeStamps.
@@ -311,7 +315,6 @@ public:
   vtkTimeStamp GetGrayTransferFunctionMTime(int index);
   vtkTimeStamp GetGrayTransferFunctionMTime()
     { return this->GetGrayTransferFunctionMTime(0); }
-  //ETX
 
 protected:
   vtkVolumeProperty();
@@ -348,8 +351,8 @@ protected:
   virtual void CreateDefaultGradientOpacity(int index);
 
 private:
-  vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
-  void operator=(const vtkVolumeProperty&);  // Not implemented.
+  vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

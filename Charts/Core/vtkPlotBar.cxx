@@ -187,11 +187,11 @@ class vtkPlotBarSegment : public vtkObject {
       painter->ApplyBrush(brush);
       int n = this->Points->GetNumberOfPoints();
       float *f =
-          vtkFloatArray::SafeDownCast(this->Points->GetData())->GetPointer(0);
+          vtkArrayDownCast<vtkFloatArray>(this->Points->GetData())->GetPointer(0);
       float *p = NULL;
       if (this->Previous)
         {
-        p = vtkFloatArray::SafeDownCast(
+        p = vtkArrayDownCast<vtkFloatArray>(
               this->Previous->Points->GetData())->GetPointer(0);
         }
 
@@ -689,7 +689,7 @@ void vtkPlotBar::GetBounds(double bounds[4], bool unscaled)
   for ( it = this->Private->AdditionalSeries.begin(); it !=
                   this->Private->AdditionalSeries.end(); ++it )
     {
-    y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
+    y = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName((*it).second.c_str()));
     y->GetRange(yRange);
     bounds[valuesHigh] += yRange[1];
     }
@@ -763,7 +763,11 @@ void vtkPlotBar::SetColor(double r, double g, double b)
 //-----------------------------------------------------------------------------
 void vtkPlotBar::GetColor(double rgb[3])
 {
-  this->Brush->GetColorF(rgb);
+  double rgba[4];
+  this->Brush->GetColorF(rgba);
+  rgb[0] = rgba[0];
+  rgb[1] = rgba[1];
+  rgb[2] = rgba[2];
 }
 
 //-----------------------------------------------------------------------------
@@ -866,7 +870,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
     {
     vtkDataArray* c =
-      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (c)
       {
@@ -892,7 +896,7 @@ bool vtkPlotBar::UpdateTableCache(vtkTable *table)
   for ( it = this->Private->AdditionalSeries.begin();
         it != this->Private->AdditionalSeries.end(); ++it )
     {
-    y = vtkDataArray::SafeDownCast(table->GetColumnByName((*it).second.c_str()));
+    y = vtkArrayDownCast<vtkDataArray>(table->GetColumnByName((*it).second.c_str()));
     prev = this->Private->AddSegment(x,y, this->GetXAxis(), this->GetYAxis(),prev);
     }
 
@@ -1021,7 +1025,7 @@ void vtkPlotBar::SelectColorArray(vtkIdType arrayNum)
     vtkWarningMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  vtkDataArray *col = vtkArrayDownCast<vtkDataArray>(table->GetColumn(arrayNum));
   // TODO: Should add support for categorical coloring & try enum lookup
   if (!col)
     {

@@ -81,12 +81,8 @@ volumeProperty.SetColor(colorTransferFunction)
 volumeProperty.SetScalarOpacity(opacityTransferFunction)
 volumeProperty.SetInterpolationTypeToLinear()
 
-# The mapper / ray cast function know how to render the data
-compositeFunction = vtk.vtkVolumeRayCastCompositeFunction()
-
-volumeMapper = vtk.vtkVolumeRayCastMapper()
-# vtkVolumeTextureMapper2D = vtk.volumeMapper()
-volumeMapper.SetVolumeRayCastFunction(compositeFunction)
+# The mapper knows how to render the data
+volumeMapper = vtk.vtkFixedPointVolumeRayCastMapper()
 volumeMapper.SetInputConnection(readerSS.GetOutputPort())
 
 # The volume holds the mapper and the property and

@@ -21,6 +21,8 @@
 #include "vtkPointData.h"
 #include "vtkMedicalImageProperties.h"
 
+#include <cassert>
+
 vtkStandardNewMacro(vtkGESignaReader);
 
 
@@ -451,6 +453,8 @@ static void vtkcopygenesisimage(FILE *infp, int width, int height, int compress,
 
       if (compress == 2 || compress == 4)
         { // packed/compacked
+          assert(map_left);
+          assert(map_wide);
           start=map_left[row];
           end=start+map_wide[row];
         }

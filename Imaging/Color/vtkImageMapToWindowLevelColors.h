@@ -20,7 +20,7 @@
 // by a window / level operation. The result is an image of type
 // VTK_UNSIGNED_CHAR. If the lookup table is not set, or is set to NULL, then
 // the input data will be passed through if it is already of type
-// UNSIGNED_CHAR.
+// VTK_UNSIGNED_CHAR.
 //
 // .SECTION See Also
 // vtkLookupTable vtkScalarsToColors
@@ -71,8 +71,8 @@ protected:
   double Level;
 
 private:
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);  // Not implemented.
-  void operator=(const vtkImageMapToWindowLevelColors&);  // Not implemented.
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

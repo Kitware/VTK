@@ -182,12 +182,10 @@ public:
   // and the source generated more than the update extent.
   virtual void Crop(const int* updateExtent);
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkRectilinearGrid* GetData(vtkInformation* info);
   static vtkRectilinearGrid* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkRectilinearGrid();
@@ -215,8 +213,8 @@ private:
   void Cleanup();
 
 private:
-  vtkRectilinearGrid(const vtkRectilinearGrid&);  // Not implemented.
-  void operator=(const vtkRectilinearGrid&);  // Not implemented.
+  vtkRectilinearGrid(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGrid&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

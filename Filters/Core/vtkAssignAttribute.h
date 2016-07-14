@@ -85,8 +85,6 @@ public:
   void Assign(const char* name, const char* attributeType,
               const char* attributeLoc);
 
-
-//BTX
   // Always keep NUM_ATTRIBUTE_LOCS as the last entry
   enum AttributeLocation
   {
@@ -96,17 +94,14 @@ public:
     EDGE_DATA=3,
     NUM_ATTRIBUTE_LOCS
   };
-//ETX
 
 protected:
 
-//BTX
   enum FieldType
   {
     NAME,
     ATTRIBUTE
   };
-//ETX
 
   vtkAssignAttribute();
   virtual ~vtkAssignAttribute();
@@ -124,8 +119,8 @@ protected:
   static char AttributeLocationNames[vtkAssignAttribute::NUM_ATTRIBUTE_LOCS][12];
   static char AttributeNames[vtkDataSetAttributes::NUM_ATTRIBUTES][20];
 private:
-  vtkAssignAttribute(const vtkAssignAttribute&);  // Not implemented.
-  void operator=(const vtkAssignAttribute&);  // Not implemented.
+  vtkAssignAttribute(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAssignAttribute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

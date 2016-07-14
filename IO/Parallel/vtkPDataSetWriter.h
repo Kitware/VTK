@@ -90,7 +90,6 @@ protected:
   vtkPDataSetWriter();
   ~vtkPDataSetWriter();
 
-//BTX
   ostream *OpenFile();
   int WriteUnstructuredMetaData(vtkDataSet *input,
                                 char *root, char *str, ostream *fptr);
@@ -100,7 +99,6 @@ protected:
                                    char *root, char *str, ostream *fptr);
   int WriteStructuredGridMetaData(vtkStructuredGrid *input,
                                   char *root, char *str, ostream *fptr);
-//ETX
 
   int StartPiece;
   int EndPiece;
@@ -119,8 +117,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPDataSetWriter(const vtkPDataSetWriter&); // Not implemented
-  void operator=(const vtkPDataSetWriter&); // Not implemented
+  vtkPDataSetWriter(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

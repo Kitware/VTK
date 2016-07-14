@@ -184,8 +184,8 @@ protected:
   bool PlanarRGB;
 
 private:
-  vtkNIFTIImageWriter(const vtkNIFTIImageWriter&);  // Not implemented.
-  void operator=(const vtkNIFTIImageWriter&);  // Not implemented.
+  vtkNIFTIImageWriter(const vtkNIFTIImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNIFTIImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkNIFTIImageWriter_h

@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkStreamPoints.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkCellArray.h"
 #include "vtkDataSet.h"
 #include "vtkFloatArray.h"
@@ -32,6 +34,8 @@ vtkStreamPoints::vtkStreamPoints()
 {
   this->TimeIncrement = 1.0;
   this->NumberOfStreamers = 0;
+
+  VTK_LEGACY_BODY(vtkStreamPoints::vtkStreamPoints, "VTK 6.3");
 }
 
 int vtkStreamPoints::RequestData(
@@ -173,3 +177,5 @@ void vtkStreamPoints::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Time Increment: " << this->TimeIncrement << " <<\n";
 }
+
+#endif // VTK_LEGACY_REMOVE

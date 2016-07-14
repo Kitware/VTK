@@ -59,20 +59,19 @@
 // .SECTION See Also
 //  vtkInterpolatedVelocityField vtkCellLocatorInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
-//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
+//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
 
 #ifndef vtkAbstractInterpolatedVelocityField_h
 #define vtkAbstractInterpolatedVelocityField_h
 
 #include "vtkFunctionSet.h"
-//BTX
+
 #include <vector> // STL Header; Required for vector
-//ETX
 
 class vtkDataSet;
-//BTX
+
 class vtkDataArray;
-//ETX
+
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractInterpolatedVelocityFieldDataSetsType;
@@ -226,7 +225,6 @@ protected:
   // using FindPoint and comparing distance with tolerance
   virtual bool FindAndUpdateCell(vtkDataSet* ds, double* x);
 
-//BTX
   friend class vtkTemporalInterpolatedVelocityField;
   // Description:
   // If all weights have been computed (parametric coords etc all valid), a
@@ -237,12 +235,11 @@ protected:
   bool InterpolatePoint( vtkPointData * outPD, vtkIdType outIndex );
   vtkGenericCell * GetLastCell()
     { return ( this->LastCellId != -1 ) ? this->GenCell : NULL; }
-//ETX
 
 private:
   vtkAbstractInterpolatedVelocityField
-    ( const vtkAbstractInterpolatedVelocityField & );  // Not implemented.
-  void operator = ( const vtkAbstractInterpolatedVelocityField & );  // Not implemented.
+    ( const vtkAbstractInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkAbstractInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 

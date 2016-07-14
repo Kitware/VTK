@@ -14,8 +14,8 @@
 =========================================================================*/
 #include "vtkWarpVector.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkCellData.h"
-#include "vtkDataArrayIteratorMacro.h"
 #include "vtkImageData.h"
 #include "vtkImageDataToPointSet.h"
 #include "vtkInformation.h"
@@ -30,6 +30,8 @@
 
 #include "vtkNew.h"
 #include "vtkSmartPointer.h"
+
+#include <cstdlib>
 
 vtkStandardNewMacro(vtkWarpVector);
 
@@ -87,51 +89,75 @@ int vtkWarpVector::RequestDataObject(vtkInformation *request,
 }
 
 //----------------------------------------------------------------------------
-template <class InputIterator, class OutputType, class VectorIterator>
-void vtkWarpVectorExecute2(vtkWarpVector *self,
-                           InputIterator begin, InputIterator end,
-                           OutputType *outPts, VectorIterator inVec)
+namespace {
+// Used by the WarpVectorDispatch1Vector worker, defined below:
+template <typename VectorArrayT>
+struct WarpVectorDispatch2Points
 {
-  OutputType scaleFactor = static_cast<OutputType>(self->GetScaleFactor());
+  vtkWarpVector *Self;
+  VectorArrayT *Vectors;
 
-  // Loop over all points, adjusting locations
-  vtkIdType counter = 0;
-  vtkIdType numPts = static_cast<vtkIdType>(end - begin);
-  while (begin != end)
-    {
-    if (!(counter & 0xfff))
+  WarpVectorDispatch2Points(vtkWarpVector *self, VectorArrayT *vectors)
+    : Self(self), Vectors(vectors)
+  {}
+
+  template <typename InPointArrayT, typename OutPointArrayT>
+  void operator()(InPointArrayT *inPtArray, OutPointArrayT *outPtArray)
+  {
+    typedef typename OutPointArrayT::ValueType PointValueT;
+    const vtkIdType numTuples = inPtArray->GetNumberOfTuples();
+    const double scaleFactor = this->Self->GetScaleFactor();
+
+    assert(this->Vectors->GetNumberOfComponents() == 3);
+    assert(inPtArray->GetNumberOfComponents() == 3);
+    assert(outPtArray->GetNumberOfComponents() == 3);
+
+    for (vtkIdType t = 0; t < numTuples; ++t)
       {
-      self->UpdateProgress(static_cast<double>(counter) /
-                           static_cast<double>(numPts+1));
-      if (self->GetAbortExecute())
+      if (!(t & 0xfff))
         {
-        break;
+        this->Self->UpdateProgress(t / static_cast<double>(numTuples));
+        if (this->Self->GetAbortExecute())
+          {
+          return;
+          }
+        }
+
+      for (int c = 0; c < 3; ++c)
+        {
+        PointValueT val = inPtArray->GetTypedComponent(t, c) +
+            scaleFactor * this->Vectors->GetTypedComponent(t, c);
+        outPtArray->SetTypedComponent(t, c, val);
         }
       }
+  }
+};
 
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
-    *outPts++ = *begin++ + scaleFactor * static_cast<OutputType>(*inVec++);
-    }
-}
-
-//----------------------------------------------------------------------------
-template <class InputIterator, class OutputType>
-void vtkWarpVectorExecute(vtkWarpVector *self,
-                          InputIterator begin,
-                          InputIterator end,
-                          OutputType *outPts,
-                          vtkDataArray *vectors)
+// Dispatch just the vector array first, we can cut out some generated code
+// since the point arrays will have the same type.
+struct WarpVectorDispatch1Vector
 {
-  // call templated function
-  switch (vectors->GetDataType())
-    {
-    vtkDataArrayIteratorMacro(vectors,
-      vtkWarpVectorExecute2(self, begin, end, outPts, vtkDABegin));
-    default:
-      break;
-    }
-}
+  vtkWarpVector *Self;
+  vtkDataArray *InPoints;
+  vtkDataArray *OutPoints;
+
+  WarpVectorDispatch1Vector(vtkWarpVector *self,
+                            vtkDataArray *inPoints, vtkDataArray *outPoints)
+    : Self(self), InPoints(inPoints), OutPoints(outPoints)
+  {}
+
+  template <typename VectorArrayT>
+  void operator()(VectorArrayT *vectors)
+  {
+    WarpVectorDispatch2Points<VectorArrayT> worker(this->Self, vectors);
+    if (!vtkArrayDispatch::Dispatch2SameValueType::Execute(
+          this->InPoints, this->OutPoints, worker))
+      {
+      vtkGenericWarningMacro("Error dispatching point arrays.");
+      }
+  }
+};
+} // end anon namespace
 
 //----------------------------------------------------------------------------
 int vtkWarpVector::RequestData(
@@ -203,18 +229,15 @@ int vtkWarpVector::RequestData(
   output->SetPoints(points);
   points->Delete();
 
-  // We know that this array has a standard memory layout, as we just created
-  // it above.
-  void *outPtr = output->GetPoints()->GetVoidPointer(0);
-
-  // call templated function
-  switch (input->GetPoints()->GetDataType())
+  // call templated function.
+  // We use two dispatches since we need to dispatch 3 arrays and two share a
+  // value type. Implementating a second type-restricted dispatch reduces
+  // the amount of generated templated code.
+  WarpVectorDispatch1Vector worker(this, input->GetPoints()->GetData(),
+                                   output->GetPoints()->GetData());
+  if (!vtkArrayDispatch::Dispatch::Execute(vectors, worker))
     {
-    vtkDataArrayIteratorMacro(input->GetPoints()->GetData(),
-      vtkWarpVectorExecute(this, vtkDABegin, vtkDAEnd,
-                           static_cast<vtkDAValueType*>(outPtr), vectors));
-    default:
-      break;
+    vtkWarningMacro("Dispatch failed for vector array.");
     }
 
   // now pass the data.

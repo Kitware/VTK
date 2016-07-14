@@ -152,12 +152,7 @@ void vtkImageWriter::Write()
 {
   // we always write, even if nothing has changed, so send a modified
   this->Modified();
-  this->UpdateInformation();
-  vtkInformation* inInfo = this->GetInputInformation(0, 0);
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-    inInfo,
-    vtkStreamingDemandDrivenPipeline::GetWholeExtent(inInfo));
-  this->Update();
+  this->UpdateWholeExtent();
 }
 
 //----------------------------------------------------------------------------
@@ -237,7 +232,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
 
   // just get the data and write it out
 #ifndef NDEBUG
-  int *ext = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  int *ext = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
 #endif
   vtkDebugMacro("Getting input extent: " << ext[0] << ", " <<
                 ext[1] << ", " << ext[2] << ", " << ext[3] << ", " <<
@@ -280,7 +275,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
   if (file)
     {
     this->WriteFile(file,data,
-                    vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo),
+                    inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),
                     wExt);
     file->flush();
     if (file->fail())
@@ -345,7 +340,9 @@ void vtkImageWriter::RecursiveWrite(int axis,
       this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
       return;
       }
-    this->WriteFile(file,data,vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo),wExt);
+    this->WriteFile(
+      file,data,
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()),wExt);
     file->flush();
     if (file->fail())
       {
@@ -368,7 +365,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
 
   // if the current region is too high a dimension forthe file
   // the we will split the current axis
-  int* updateExtent = vtkStreamingDemandDrivenPipeline::GetUpdateExtent(inInfo);
+  int* updateExtent = inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   cache->GetAxisUpdateExtent(axis, min, max,
                              updateExtent);
 
@@ -379,7 +376,7 @@ void vtkImageWriter::RecursiveWrite(int axis,
     for(idx = max; idx >= min; idx--)
       {
       cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
-      vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), axisUpdateExtent, 6);
       if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
         {
         this->RecursiveWrite(axis - 1, cache, data, inInfo, file);
@@ -395,7 +392,8 @@ void vtkImageWriter::RecursiveWrite(int axis,
     for(idx = min; idx <= max; idx++)
       {
       cache->SetAxisUpdateExtent(axis, idx, idx, updateExtent, axisUpdateExtent);
-      vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+      inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+        axisUpdateExtent, 6);
       if (this->ErrorCode != vtkErrorCode::OutOfDiskSpaceError)
         {
         this->RecursiveWrite(axis - 1, cache, data, inInfo, file);
@@ -409,7 +407,8 @@ void vtkImageWriter::RecursiveWrite(int axis,
 
   // restore original extent
   cache->SetAxisUpdateExtent(axis, min, max, updateExtent, axisUpdateExtent);
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(inInfo, axisUpdateExtent);
+  inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    axisUpdateExtent, 6);
 }
 
 

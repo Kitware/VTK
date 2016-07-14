@@ -107,16 +107,12 @@ public:
   // deleting this controller.
   vtkMultiProcessController *CreateCompliantController();
 
-//BTX
-
   enum Consts {
     ENDIAN_TAG=1010580540,      // 0x3c3c3c3c
     IDTYPESIZE_TAG=1027423549,  // 0x3d3d3d3d
     VERSION_TAG=1044266558,     // 0x3e3e3e3e
     HASH_TAG=0x3f3f3f3f
   };
-
-//ETX
 
 protected:
 
@@ -126,8 +122,8 @@ protected:
   // Initialize only once, finialize on destruction.
   static int Initialized;
 private:
-  vtkSocketController(const vtkSocketController&);  // Not implemented.
-  void operator=(const vtkSocketController&);  // Not implemented.
+  vtkSocketController(const vtkSocketController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSocketController&) VTK_DELETE_FUNCTION;
 };
 
 

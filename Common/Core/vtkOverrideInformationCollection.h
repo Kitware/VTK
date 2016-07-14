@@ -41,7 +41,6 @@ public:
   // Get the next OverrideInformation in the list.
   vtkOverrideInformation *GetNextItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
@@ -49,7 +48,6 @@ public:
     vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkOverrideInformation *>(
       this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkOverrideInformationCollection() {}
@@ -61,8 +59,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);  // Not implemented.
-  void operator=(const vtkOverrideInformationCollection&);  // Not implemented.
+  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)

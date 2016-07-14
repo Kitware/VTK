@@ -26,7 +26,7 @@
 #include "vtkStringArray.h"
 #include "vtkTransform.h"
 
-#include <ctype.h>
+#include <cctype>
 
 vtkStandardNewMacro(vtkGaussianCubeReader);
 

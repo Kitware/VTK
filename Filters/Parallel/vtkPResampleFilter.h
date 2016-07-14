@@ -54,7 +54,6 @@ public:
   vtkSetVector3Macro(SamplingDimension, int);
   vtkGetVector3Macro(SamplingDimension, int);
 
-//BTX
 protected:
   vtkPResampleFilter();
   ~vtkPResampleFilter();
@@ -74,9 +73,9 @@ protected:
   double Bounds[6];
 
 private:
-  vtkPResampleFilter(const vtkPResampleFilter&);  // Not implemented.
-  void operator=(const vtkPResampleFilter&);  // Not implemented.
-//ETX
+  vtkPResampleFilter(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPResampleFilter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

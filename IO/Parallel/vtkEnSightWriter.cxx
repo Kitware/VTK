@@ -61,8 +61,8 @@
 #include "vtkUnstructuredGrid.h"
 
 #include <errno.h>
-#include <math.h>
-#include <ctype.h>
+#include <cmath>
+#include <cctype>
 
 #include <vector>
 #include <list>
@@ -200,11 +200,14 @@ void vtkEnSightWriter::WriteData()
   vtkInformation* inInfo = this->GetInputInformation();
 
   if (this->GhostLevel >
-      vtkStreamingDemandDrivenPipeline::GetUpdateGhostLevel(inInfo))
+      inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()))
     {
     // re-execute pipeline if necessary to obtain ghost cells
 
-    vtkStreamingDemandDrivenPipeline::SetUpdateGhostLevel(inInfo, this->GhostLevel);
+    this->GetInputAlgorithm()->UpdateInformation();
+    inInfo->Set(
+      vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
+      this->GhostLevel);
     this->GetInputAlgorithm()->Update();
     }
 
@@ -254,7 +257,10 @@ void vtkEnSightWriter::WriteData()
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
+      {
+      fclose(fd);
       return;
+      }
     pointArrayFiles.push_back(ftemp);
 
     //write the description line to the file
@@ -273,7 +279,10 @@ void vtkEnSightWriter::WriteData()
       this->TimeStep,fileBuffer);
     FILE* ftemp=OpenFile(charBuffer);
     if (!ftemp)
+      {
+      fclose(fd);
       return;
+      }
     cellArrayFiles.push_back(ftemp);
 
     //write the description line to the file
@@ -346,16 +355,7 @@ void vtkEnSightWriter::WriteData()
       this->WriteStringToFile("part",fd);
       this->WriteIntToFile(part,fd);
       //cout << "part is " << part << endl;
-      int exodusIndex=-1;
-      if (exodusIndex!=-1)
-        {
-        sprintf(charBuffer,"Exodus-%s-%d",blockNames[exodusIndex],part);
-        this->WriteStringToFile(charBuffer,fd);
-        }
-      else
-        {
-        this->WriteStringToFile("VTK Part",fd);
-        }
+      this->WriteStringToFile("VTK Part",fd);
       this->WriteStringToFile("coordinates",fd);
       }
 
@@ -1063,7 +1063,7 @@ void vtkEnSightWriter::WriteElementTypeToFile(int elementType,FILE* fd)
 //----------------------------------------------------------------------------
 bool vtkEnSightWriter::ShouldWriteGeometry()
 {
-  return ((this->TransientGeometry || (!this->TransientGeometry && this->TimeStep==0)));
+  return (this->TransientGeometry || (this->TimeStep==0));
 }
 
 //----------------------------------------------------------------------------

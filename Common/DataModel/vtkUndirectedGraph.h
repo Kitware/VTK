@@ -57,12 +57,10 @@ public:
   // Returns the full degree of the vertex.
   virtual vtkIdType GetInDegree(vtkIdType v);
 
-  //BTX
   // Description:
   // Random-access method for retrieving the in edges of a vertex.
   // For an undirected graph, this is the same as the out edges.
   virtual vtkInEdgeType GetInEdge(vtkIdType v, vtkIdType i);
-  //ETX
 
   // Description:
   // Random-access method for retrieving incoming edges to vertex v.
@@ -72,12 +70,10 @@ public:
   virtual void GetInEdge(vtkIdType v, vtkIdType i, vtkGraphEdge* e)
     { this->Superclass::GetInEdge(v, i, e); }
 
-  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkUndirectedGraph *GetData(vtkInformation *info);
   static vtkUndirectedGraph *GetData(vtkInformationVector *v, int i=0);
-  //ETX
 
   // Description:
   // Initialize the iterator to get the incoming edges to a vertex.
@@ -95,15 +91,13 @@ protected:
   vtkUndirectedGraph();
   ~vtkUndirectedGraph();
 
-  //BTX
   // Description:
   // For iterators, returns the same edge list as GetOutEdges().
   virtual void GetInEdges(vtkIdType v, const vtkInEdgeType *& edges, vtkIdType & nedges);
-  //ETX
 
 private:
-  vtkUndirectedGraph(const vtkUndirectedGraph&);  // Not implemented.
-  void operator=(const vtkUndirectedGraph&);  // Not implemented.
+  vtkUndirectedGraph(const vtkUndirectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUndirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

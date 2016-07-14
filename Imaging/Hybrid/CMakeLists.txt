@@ -1,18 +1,18 @@
 set(Module_SRCS
   vtkBooleanTexture.cxx
-  vtkShepardMethod.cxx
-  vtkVoxelModeller.cxx
-  vtkSurfaceReconstructionFilter.cxx
+  vtkCheckerboardSplatter.cxx
   vtkFastSplatter.cxx
   vtkGaussianSplatter.cxx
-  vtkCheckerboardSplatter.cxx
-  vtkSampleFunction.cxx
-  vtkPointLoad.cxx
   vtkImageCursor3D.cxx
   vtkImageRectilinearWipe.cxx
-  vtkTriangularTexture.cxx
+  vtkImageToPoints.cxx
+  vtkPointLoad.cxx
+  vtkSampleFunction.cxx
+  vtkShepardMethod.cxx
   vtkSliceCubes.cxx
-
+  vtkSurfaceReconstructionFilter.cxx
+  vtkTriangularTexture.cxx
+  vtkVoxelModeller.cxx
   )
 
 vtk_module_library(${vtk-module} ${Module_SRCS})

@@ -274,7 +274,6 @@ public:
         int oglFormat,
         vtkPixelBufferObject *pbo);
 
-//BTX
 protected:
   // Description:
   // Load all necessary extensions.
@@ -300,16 +299,15 @@ protected:
   unsigned int FBOIndex;
   unsigned int PreviousDrawFBO;
   unsigned int PreviousReadFBO;
-  unsigned int DepthBuffer;
   unsigned int PreviousDrawBuffer;
   unsigned int PreviousReadBuffer;
 
 private:
-  vtkFrameBufferObject2(const vtkFrameBufferObject2&); // Not implemented.
-  void operator=(const vtkFrameBufferObject2&); // Not implemented.
+  vtkFrameBufferObject2(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
 
   friend class vtkRenderbuffer; // needs access to LoadRequiredExtentsions
-//ETX
+
 };
 
 #endif

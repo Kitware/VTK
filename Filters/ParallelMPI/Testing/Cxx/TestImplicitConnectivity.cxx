@@ -219,8 +219,7 @@ vtkMultiBlockDataSet* GetDataSet(
 //------------------------------------------------------------------------------
 double exponential_distribution(const int i, const double beta)
 {
-  double xi=0.0;
-  xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
+  double xi = ( ( exp( i*beta ) - 1 ) /( exp( beta ) - 1 ) );
   return( xi );
 }
 
@@ -429,7 +428,7 @@ int CheckGrid(vtkDataSet* grid)
     return 1;
     }
 
-  vtkDoubleArray* array=vtkDoubleArray::SafeDownCast(PD->GetArray("NODE-XYZ"));
+  vtkDoubleArray* array=vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("NODE-XYZ"));
   if( array==NULL )
     {
     std::cerr << "ERROR: null vtkDataArray!\n";

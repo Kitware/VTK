@@ -35,13 +35,14 @@
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkTexturedActor2D.h"
 
-class vtkTextProperty;
-class vtkPolyDataMapper2D;
 class vtkImageData;
+class vtkPoints;
+class vtkPolyData;
+class vtkPolyDataMapper2D;
+class vtkProperty2D;
+class vtkTextProperty;
 class vtkTextRenderer;
 class vtkTransform;
-class vtkPolyData;
-class vtkPoints;
 
 class VTKRENDERINGCORE_EXPORT vtkTextActor : public vtkTexturedActor2D
 {
@@ -100,13 +101,11 @@ public:
   void SetTextScaleModeToViewport()
     { this->SetTextScaleMode(TEXT_SCALE_MODE_VIEWPORT); }
 
-//BTX
   enum {
     TEXT_SCALE_MODE_NONE = 0,
     TEXT_SCALE_MODE_PROP,
     TEXT_SCALE_MODE_VIEWPORT
   };
-//ETX
 
   // Description:
   // Turn on or off the UseBorderAlign option.
@@ -146,6 +145,17 @@ public:
   // Set/Get the text property.
   virtual void SetTextProperty(vtkTextProperty *p);
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
+
+  // Description:
+  // Draw a frame around the text. Default is FALSE.
+  vtkSetMacro(DrawFrame, bool);
+  vtkGetMacro(DrawFrame, bool);
+  vtkBooleanMacro(DrawFrame, bool);
+
+  // Description:
+  // Set/Get the frame property
+  virtual void SetFrameProperty(vtkProperty2D* p);
+  vtkGetObjectMacro(FrameProperty, vtkProperty2D);
 
   // Description:
   // Return the bounding box coordinates of the text in viewport coordinates.
@@ -213,7 +223,6 @@ public:
   // and then resizes based on if that long dimension was 72 DPI.
   static float GetFontScale(vtkViewport *viewport);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -233,7 +242,6 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-//ETX
 
 protected:
   // Description:
@@ -267,6 +275,13 @@ protected:
   double FormerOrientation;
   int RenderedDPI;
 
+  bool DrawFrame;
+
+  vtkProperty2D* FrameProperty;
+  vtkPolyDataMapper2D* FrameMapper;
+  vtkActor2D* FrameActor;
+  vtkPoints* FramePoints;
+
   vtkTextProperty *ScaledTextProperty;
 
   // Stuff needed to display the image text as a texture map.
@@ -290,8 +305,8 @@ protected:
   virtual int UpdateRectangle(vtkViewport* viewport);
 
 private:
-  vtkTextActor(const vtkTextActor&);  // Not implemented.
-  void operator=(const vtkTextActor&);  // Not implemented.
+  vtkTextActor(const vtkTextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextActor&) VTK_DELETE_FUNCTION;
 };
 
 

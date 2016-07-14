@@ -45,8 +45,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkDataSetWriter(const vtkDataSetWriter&);  // Not implemented.
-  void operator=(const vtkDataSetWriter&);  // Not implemented.
+  vtkDataSetWriter(const vtkDataSetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -25,6 +25,7 @@
 #include "vtkPointData.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
+#include <cassert>
 
 vtkStandardNewMacro(vtkStructuredGridAppend);
 
@@ -164,7 +165,7 @@ namespace
   void vtkStructuredGridAppendExecute(int inExt[6], vtkStructuredGrid *inData,
                                       T *inPtr, int outExt[6], T *outPtr,
                                       vtkIdType numComp, bool forCells,
-                                      int* validValues,
+                                      std::vector<int>& validValues,
                                       vtkUnsignedCharArray* ghosts)
   {
     int forPoints = forCells?0:1;
@@ -181,6 +182,7 @@ namespace
           vtkIdType outputIndex = forCells?
             vtkStructuredData::ComputeCellIdForExtent(outExt, ijk) :
             vtkStructuredData::ComputePointIdForExtent(outExt, ijk);
+          assert(static_cast<size_t>(outputIndex) < validValues.size());
           if(skipValue && validValues[outputIndex] <= 1)
             { // current output value for this is not set
             skipValue = false;
@@ -232,7 +234,10 @@ int vtkStructuredGridAppend::RequestData(
   // value set from a ghost entity, 3 means value set from a non-ghost entity.
   // VTK assumes ghost entities have correct values in them but that may not
   // always be the case.
-  std::vector<int> validValues(vtkStructuredData::GetNumberOfPoints(outExt), 0);
+  vtkIdType numPoints = vtkStructuredData::GetNumberOfPoints(outExt);
+  vtkIdType numCells = vtkStructuredData::GetNumberOfCells(outExt);
+  std::vector<int> validValues;
+  validValues.reserve(numPoints);
 
   for (int idx1 = 0; idx1 < this->GetNumberOfInputConnections(0); ++idx1)
     {
@@ -256,6 +261,15 @@ int vtkStructuredGridAppend::RequestData(
         vtkIdType numComp;
 
         vtkUnsignedCharArray* ghosts = input->GetPointGhostArray();
+
+        if(input->GetPointData()->GetNumberOfArrays())
+          { // only zero out the array if we have point arrays
+          validValues.resize(numPoints);
+          for(vtkIdType i=0;i<numPoints;i++)
+            {
+            validValues[i] = 0;
+            }
+          }
 
         //do point associated arrays
         for (vtkIdType ai = 0;
@@ -310,7 +324,7 @@ int vtkStructuredGridAppend::RequestData(
                                              outExt,
                                              static_cast<VTK_TT *>(outPtr),
                                              numComp,
-                                             false, &validValues[0], ghosts));
+                                             false, validValues, ghosts));
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return 0;
@@ -336,16 +350,21 @@ int vtkStructuredGridAppend::RequestData(
                                            static_cast<VTK_TT *>(inPtr),
                                            outExt,
                                            static_cast<VTK_TT *>(outPtr),
-                                           3, false, &validValues[0], ghosts));
+                                           3, false, validValues, ghosts));
           default:
             vtkErrorMacro(<< "Execute: Unknown ScalarType");
             return 0;
           }
 
-        validValues.resize(output->GetNumberOfCells());
-        for(vtkIdType i=0;i<output->GetNumberOfCells();i++)
-          {
-          validValues[i] = 0;
+        // note that we are still using validValues but only for the
+        // cells now so there are less of them than points.
+        if(input->GetCellData()->GetNumberOfArrays())
+          { // only zero out values if we have cell arrays to compute
+          validValues.resize(numCells);
+          for(vtkIdType i=0;i<numCells;i++)
+            {
+            validValues[i] = 0;
+            }
           }
         ghosts = input->GetCellGhostArray();
 
@@ -401,7 +420,7 @@ int vtkStructuredGridAppend::RequestData(
                                              static_cast<VTK_TT *>(inPtr),
                                              outExt,
                                              static_cast<VTK_TT *>(outPtr),
-                                             numComp, true, &validValues[0], ghosts));
+                                             numComp, true, validValues, ghosts));
             default:
               vtkErrorMacro(<< "Execute: Unknown ScalarType");
               return 0;

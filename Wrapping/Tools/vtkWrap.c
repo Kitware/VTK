@@ -16,6 +16,7 @@
 #include "vtkWrap.h"
 #include "vtkParseData.h"
 #include "vtkParseExtras.h"
+#include "vtkParseMain.h"
 #include "vtkParseMerge.h"
 #include "vtkParseString.h"
 #include <stdlib.h>
@@ -422,7 +423,6 @@ int vtkWrap_CountRequiredArguments(FunctionInfo *f)
   for (i = 0; i < totalArgs; i++)
     {
     if (f->Parameters[i]->Value == NULL ||
-        vtkWrap_IsArray(f->Parameters[i]) ||
         vtkWrap_IsNArray(f->Parameters[i]))
       {
       requiredArgs = i+1;
@@ -658,7 +658,8 @@ void vtkWrap_FindCountHints(
     }
 
   /* add hints for array GetTuple methods */
-  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray") ||
+      vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayIterator"))
     {
     countMethod = "GetNumberOfComponents()";
 
@@ -667,7 +668,7 @@ void vtkWrap_FindCountHints(
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetTuple") == 0 ||
-           strcmp(theFunc->Name, "GetTupleValue") == 0) &&
+           strcmp(theFunc->Name, "GetTypedTuple") == 0) &&
           theFunc->ReturnValue && theFunc->ReturnValue->Count == 0 &&
           theFunc->NumberOfParameters == 1 &&
           theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE)
@@ -675,11 +676,11 @@ void vtkWrap_FindCountHints(
         theFunc->ReturnValue->CountHint = countMethod;
         }
       else if ((strcmp(theFunc->Name, "SetTuple") == 0 ||
-                strcmp(theFunc->Name, "SetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "SetTypedTuple") == 0 ||
                 strcmp(theFunc->Name, "GetTuple") == 0 ||
-                strcmp(theFunc->Name, "GetTupleValue") == 0 ||
+                strcmp(theFunc->Name, "GetTypedTuple") == 0 ||
                 strcmp(theFunc->Name, "InsertTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertTupleValue") == 0) &&
+                strcmp(theFunc->Name, "InsertTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 2 &&
                theFunc->Parameters[0]->Type == VTK_PARSE_ID_TYPE &&
                theFunc->Parameters[1]->Count == 0)
@@ -687,7 +688,7 @@ void vtkWrap_FindCountHints(
         theFunc->Parameters[1]->CountHint = countMethod;
         }
       else if ((strcmp(theFunc->Name, "InsertNextTuple") == 0 ||
-                strcmp(theFunc->Name, "InsertNextTupleValue") == 0) &&
+                strcmp(theFunc->Name, "InsertNextTypedTuple") == 0) &&
                theFunc->NumberOfParameters == 1 &&
                theFunc->Parameters[0]->Count == 0)
         {
@@ -772,6 +773,7 @@ void vtkWrap_FindNewInstanceMethods(
 {
   int i;
   FunctionInfo *theFunc;
+  OptionInfo *options;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
@@ -781,25 +783,17 @@ void vtkWrap_FindNewInstanceMethods(
         vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
       {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
-          strcmp(theFunc->Name, "CreateInstance") == 0 ||
-          (strcmp(theFunc->Name, "CreateLookupTable") == 0 &&
-           strcmp(data->Name, "vtkColorSeries") == 0) ||
-          (strcmp(theFunc->Name, "CreateImageReader2") == 0 &&
-           strcmp(data->Name, "vtkImageReader2Factory") == 0) ||
-          (strcmp(theFunc->Name, "CreateDataArray") == 0 &&
-           strcmp(data->Name, "vtkDataArray") == 0) ||
-          (strcmp(theFunc->Name, "CreateArray") == 0 &&
-           strcmp(data->Name, "vtkAbstractArray") == 0) ||
-          (strcmp(theFunc->Name, "CreateArray") == 0 &&
-           strcmp(data->Name, "vtkArray") == 0) ||
-          (strcmp(theFunc->Name, "GetQueryInstance") == 0 &&
-           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
-          (strcmp(theFunc->Name, "CreateFromURL") == 0 &&
-           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
-          (strcmp(theFunc->Name, "MakeTransform") == 0 &&
-           vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractTransform")))
+          strcmp(theFunc->Name, "NewIterator") == 0 ||
+          strcmp(theFunc->Name, "CreateInstance") == 0)
         {
-        theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+        if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)
+          {
+          /* get the command-line options */
+          options = vtkParse_GetCommandLineOptions();
+          fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n",
+            theFunc->Name, options->InputFileName);
+          theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+          }
         }
       }
     }
@@ -872,7 +866,7 @@ void vtkWrap_ApplyUsingDeclarations(
       {
       vtkParseMerge_MergeHelper(
         finfo, finfo->Contents, hinfo, data->SuperClasses[i],
-        NULL, NULL, data);
+        0, NULL, NULL, data);
       }
     }
 }
@@ -1012,7 +1006,8 @@ void vtkWrap_DeclareVariable(
       fprintf(fp, "*");
       }
     /* arrays of unknown size are handled via pointers */
-    else if (val->CountHint || vtkWrap_IsPODPointer(val))
+    else if (val->CountHint || vtkWrap_IsPODPointer(val) ||
+             (vtkWrap_IsArray(val) && val->Value))
       {
       fprintf(fp, "*");
       }
@@ -1037,7 +1032,8 @@ void vtkWrap_DeclareVariable(
         aType != VTK_PARSE_OBJECT_PTR &&
         !vtkWrap_IsQtObject(val) &&
         val->CountHint == NULL &&
-        !vtkWrap_IsPODPointer(val))
+        !vtkWrap_IsPODPointer(val) &&
+        !(vtkWrap_IsArray(val) && val->Value))
       {
       if (val->NumberOfDimensions == 1 && val->Count > 0)
         {
@@ -1114,8 +1110,8 @@ void vtkWrap_DeclareVariableSize(
     {
     fprintf(fp,
             "  %sint %s%s = %d;\n",
-            (val->Count == 0 ? "" : "const "), name, idx,
-            (val->Count == 0 ? 0 : val->Count));
+            ((val->Count == 0 || val->Value != 0) ? "" : "const "),
+            name, idx, (val->Count == 0 ? 0 : val->Count));
     }
   else if (val->NumberOfDimensions == 1)
     {

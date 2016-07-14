@@ -56,7 +56,6 @@ public:
   // Converts vtkErrorCodes and vtkGenericMovieWriter errors to strings.
   static const char *GetStringFromErrorCode(unsigned long event);
 
-  //BTX
   enum MovieWriterErrorIds {
     UserError = 40000, //must match vtkErrorCode::UserError
     InitError,
@@ -65,7 +64,6 @@ public:
     CanNotFormat,
     ChangedResolutionError
   };
-  //ETX
 
 protected:
   vtkGenericMovieWriter();
@@ -75,8 +73,8 @@ protected:
   int Error;
 
 private:
-  vtkGenericMovieWriter(const vtkGenericMovieWriter&); // Not implemented
-  void operator=(const vtkGenericMovieWriter&); // Not implemented
+  vtkGenericMovieWriter(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericMovieWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

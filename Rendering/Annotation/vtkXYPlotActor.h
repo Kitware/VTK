@@ -394,7 +394,6 @@ public:
   vtkGetMacro(AdjustTitlePosition, int);
   vtkBooleanMacro(AdjustTitlePosition, int);
 
-//BTX
 enum Alignment {
   AlignLeft = 0x1,
   AlignRight = 0x2,
@@ -409,7 +408,7 @@ enum Alignment {
   AlignAxisBottom = 0x2000,
   AlignAxisVCenter = 0x4000
 };
-//ETX
+
   // Description:
   // If AdjustTitlePosition is true, the xyplot actor will
   // adjust the position of the title automatically depending on the
@@ -580,7 +579,6 @@ enum Alignment {
   // Write the XY Ploat Actor as a CSV (comma separated value) representation.
   void PrintAsCSV(ostream &os);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -598,7 +596,6 @@ enum Alignment {
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-//ETX
 
   // Description:
   // Set/Get the position of the title of X axis.
@@ -787,16 +784,15 @@ protected:
   void ClipPlotData(int *pos, int *pos2, vtkPolyData *pd);
   double *TransformPoint(int pos[2], int pos2[2], double x[3], double xNew[3]);
 
-//BTX
   vtkSmartPointer<vtkDoubleArray> ActiveCurve;
-//ETX
+
   int YAxisTitleSize;
   int ActiveCurveIndex;
   int PlotColorIndex;
 
 private:
-  vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
-  void operator=(const vtkXYPlotActor&);  // Not implemented.
+  vtkXYPlotActor(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
 
   bool DoesConnectionMatch(int i, vtkAlgorithmOutput* in);
 

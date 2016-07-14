@@ -22,7 +22,7 @@
 #include "vtkPolyData.h"
 #include "vtkSpherePuzzle.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkSpherePuzzleArrows);
 

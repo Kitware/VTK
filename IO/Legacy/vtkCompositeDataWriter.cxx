@@ -263,7 +263,7 @@ bool vtkCompositeDataWriter::WriteCompositeData(
       const vtkAMRBox& box = oamr->GetAMRBox(level,index);
       int tuple[6];
       box.Serialize(tuple);
-      idata->SetTupleValue(metadata_index, tuple);
+      idata->SetTypedTuple(metadata_index, tuple);
       }
     }
   *fp << "AMRBOXES "

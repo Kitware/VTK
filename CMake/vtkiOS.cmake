@@ -51,11 +51,11 @@ macro(compile_vtk_tools)
   ExternalProject_Add(
     vtk-compile-tools
     SOURCE_DIR ${CMAKE_SOURCE_DIR}
-    PREFIX ${PREFIX_DIR}/vtk-compile-tools
-    BINARY_DIR ${BUILD_DIR}/vtk-compile-tools
+    PREFIX ${CMAKE_BINARY_DIR}/CompileTools
+    BINARY_DIR ${CMAKE_BINARY_DIR}/CompileTools
+    INSTALL_COMMAND ""
     ${VTK_BUILD_COMMAND} vtkCompileTools
     ${BUILD_ALWAYS_STRING}
-    INSTALL_DIR ${INSTALL_DIR}/vtk-compile-tools
     CMAKE_CACHE_ARGS
       -DCMAKE_BUILD_TYPE:STRING=Release
       -DVTK_BUILD_ALL_MODULES:BOOL=OFF
@@ -64,7 +64,6 @@ macro(compile_vtk_tools)
       -DBUILD_SHARED_LIBS:BOOL=ON
       -DBUILD_EXAMPLES:BOOL=OFF
       -DBUILD_TESTING:BOOL=OFF
-      -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/vtk-compile-tools
   )
 endmacro()
 compile_vtk_tools()
@@ -81,12 +80,32 @@ mark_as_advanced(
 )
 
 
+# expose some module options
+option(Module_vtkRenderingOpenGL2 "Include Polygonal Rendering Support" ON)
+option(Module_vtkInteractionWidgets "Include InteractionWidgets module" OFF)
+option(Module_vtkIOXML "Include IO/XML Module" OFF)
+option(Module_vtkFiltersModeling "Turn on or off this module" OFF)
+option(Module_vtkFiltersSources "Turn on or off this module" OFF)
+option(Module_vtkIOGeometry "Turn on or off this module" OFF)
+option(Module_vtkIOLegacy "Turn on or off this module" OFF)
+option(Module_vtkIOImage "Turn on or off this module" OFF)
+option(Module_vtkIOPLY "Turn on or off this module" OFF)
+option(Module_vtkIOInfovis "Turn on or off this module" OFF)
+option(Module_vtkRenderingFreeType "Turn on or off this module" OFF)
+
+
+# add volume rendering option for ES 3.0
+if (OPENGL_ES_VERSION STREQUAL "3.0" AND Module_vtkRenderingOpenGL2)
+  option(Module_vtkRenderingVolumeOpenGL2 "Include Volume Rendering Support" ON)
+endif()
+
+mark_as_advanced(Module_${vtk-module})
+
 # Now cross-compile VTK with custom toolchains
 set(ios_cmake_flags
   -DBUILD_SHARED_LIBS:BOOL=OFF
   -DBUILD_TESTING:BOOL=OFF
   -DBUILD_EXAMPLES:BOOL=${BUILD_EXAMPLES}
-  -DVTK_RENDERING_BACKEND:STRING=OpenGL2
   -DOPENGL_ES_VERSION:STRING=${OPENGL_ES_VERSION}
   -DVTK_Group_Rendering:BOOL=OFF
   -DVTK_Group_StandAlone:BOOL=OFF
@@ -96,26 +115,25 @@ set(ios_cmake_flags
   -DVTK_Group_Qt:BOOL=OFF
   -DVTK_Group_Tk:BOOL=OFF
   -DVTK_Group_Web:BOOL=OFF
-  -DModule_vtkFiltersCore:BOOL=ON
-  -DModule_vtkFiltersModeling:BOOL=ON
-  -DModule_vtkFiltersSources:BOOL=ON
-  -DModule_vtkFiltersGeometry:BOOL=ON
-  -DModule_vtkIOGeometry:BOOL=ON
-  -DModule_vtkIOLegacy:BOOL=ON
-  -DModule_vtkIOImage:BOOL=ON
-  -DModule_vtkIOPLY:BOOL=ON
-  -DModule_vtkIOInfovis:BOOL=ON
-  -DModule_vtkImagingCore:BOOL=ON
-  -DModule_vtkInteractionStyle:BOOL=ON
-  -DModule_vtkParallelCore:BOOL=ON
-  -DModule_vtkRenderingCore:BOOL=ON
-  -DModule_vtkRenderingFreeType:BOOL=OFF
+  -DModule_vtkRenderingOpenGL2:BOOL=${Module_vtkRenderingOpenGL2}
+  -DModule_vtkInteractionWidgets:BOOL=${Module_vtkInteractionWidgets}
+  -DModule_vtkFiltersModeling:BOOL=${Module_vtkFiltersModeling}
+  -DModule_vtkFiltersSources:BOOL=${Module_vtkFiltersSources}
+  -DModule_vtkIOGeometry:BOOL=${Module_vtkIOGeometry}
+  -DModule_vtkIOLegacy:BOOL=${Module_vtkIOLegacy}
+  -DModule_vtkIOImage:BOOL=${Module_vtkIOImage}
+  -DModule_vtkIOPLY:BOOL=${Module_vtkIOPLY}
+  -DModule_vtkIOInfovis:BOOL=${Module_vtkIOInfovis}
+  -DModule_vtkRenderingFreeType:BOOL=${Module_vtkRenderingFreeType}
 )
 
-# add volume rendering for ES 3.0
-if (OPENGL_ES_VERSION STREQUAL "3.0")
-  set(ios_cmake_flags ${ios_cmake_flags}
-    -DModule_vtkRenderingVolumeOpenGL2:BOOL=ON
+if (Module_vtkRenderingOpenGL2)
+  set (ios_cmake_flags ${ios_cmake_flags}
+    -DVTK_RENDERING_BACKEND:STRING=OpenGL2
+    )
+else()
+  set (ios_cmake_flags ${ios_cmake_flags}
+    -DVTK_RENDERING_BACKEND:STRING=None
     )
 endif()
 
@@ -133,10 +151,21 @@ macro(crosscompile target toolchain_file archs)
       -DCMAKE_OSX_ARCHITECTURES:STRING=${archs}
       -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
       -DCMAKE_TOOLCHAIN_FILE:FILEPATH=${toolchain_file}
-      -DVTKCompileTools_DIR:PATH=${BUILD_DIR}/vtk-compile-tools
+      -DVTKCompileTools_DIR:PATH=${CMAKE_BINARY_DIR}/CompileTools
       -DCMAKE_INSTALL_PREFIX:PATH=${INSTALL_DIR}/${target}
       ${ios_cmake_flags}
   )
+  #
+  # add an INSTALL_ALLWAYS since we want it and cmake lacks it
+  #
+  ExternalProject_Get_Property(${target} binary_dir)
+  _ep_get_build_command(${target} INSTALL cmd)
+  ExternalProject_Add_Step(${target} always-install
+    COMMAND ${cmd}
+    WORKING_DIRECTORY ${binary_dir}
+    DEPENDEES build install
+    ALWAYS 1
+    )
 endmacro()
 
 crosscompile(vtk-ios-simulator

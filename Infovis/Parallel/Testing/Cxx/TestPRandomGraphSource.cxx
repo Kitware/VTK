@@ -225,12 +225,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
       cerr << "Breadth-first search...";
       }
     boost::mpi::timer timer;
-    bfs->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(bfs->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    bfs->Update();
+    bfs->Update(world.rank(), world.size(), 0);
 
     // Verify the results of the breadth-first search
     if (world.rank() == 0)
@@ -251,12 +246,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
       cerr << "Vertex coloring...";
       }
     boost::mpi::timer timer;
-    coloring->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(coloring->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    coloring->Update();
+    coloring->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {
@@ -273,7 +263,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
       // Turn the color array into a property map
       vtkIdTypeArray* colorArray
-        = vtkIdTypeArray::SafeDownCast
+        = vtkArrayDownCast<vtkIdTypeArray>
             (output->GetVertexData()->GetAbstractArray("Color"));
       vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type colorMap
         = MakeDistributedVertexPropertyMap(output, colorArray);
@@ -325,12 +315,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
       cerr << "Connected components...";
       }
     boost::mpi::timer timer;
-    cc->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(cc->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    cc->Update();
+    cc->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {
@@ -347,7 +332,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
 
       // Turn the component array into a property map
       vtkIdTypeArray* componentArray
-        = vtkIdTypeArray::SafeDownCast
+        = vtkArrayDownCast<vtkIdTypeArray>
             (output->GetVertexData()->GetAbstractArray("Component"));
       vtkDistributedVertexPropertyMapType<vtkIdTypeArray>::type componentMap
         = MakeDistributedVertexPropertyMap(output, componentArray);
@@ -412,12 +397,7 @@ int TestPRandomGraphSource(int argc, char* argv[])
       cerr << "Minimum spanning tree...";
       }
     boost::mpi::timer timer;
-    mst->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline* exec =
-      vtkStreamingDemandDrivenPipeline::SafeDownCast(mst->GetExecutive());
-    exec->SetUpdateNumberOfPieces(exec->GetOutputInformation(0), world.size());
-    exec->SetUpdatePiece(exec->GetOutputInformation(0), world.rank());
-    mst->Update();
+    mst->Update(world.rank(), world.size(), 0);
 
     if (world.rank() == 0)
       {

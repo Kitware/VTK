@@ -482,7 +482,7 @@ void vtkADIOSWriter::Define(const std::string& path,
 }
 
 //----------------------------------------------------------------------------
-bool vtkADIOSWriter::UpdateMTimeTable(const std::string path,
+bool vtkADIOSWriter::UpdateMTimeTable(const std::string& path,
   const vtkObject* value)
 {
   unsigned long &mtimeCurrent = this->LastUpdated[path];

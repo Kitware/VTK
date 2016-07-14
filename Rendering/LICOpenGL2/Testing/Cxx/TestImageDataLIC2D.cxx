@@ -158,7 +158,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     noise = pngReader->GetOutput();
 
     vtkUnsignedCharArray *cVals
-      = vtkUnsignedCharArray::SafeDownCast(noise->GetPointData()->GetScalars());
+      = vtkArrayDownCast<vtkUnsignedCharArray>(noise->GetPointData()->GetScalars());
     if (!cVals)
       {
       cerr << "Error: expected unsigned chars, test fails" << endl;
@@ -317,8 +317,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   // copy into the output.
   for (int kk=0; kk < num_partitions; kk++)
     {
-    filter->SetUpdateExtent(0, kk, num_partitions, 0);
-    filter->Update();
+    filter->UpdatePiece(kk, num_partitions, 0);
 
     vtkImageData *licPieceDataSet = filter->GetOutput();
     vtkDataArray *licPiece = licPieceDataSet->GetPointData()->GetScalars();

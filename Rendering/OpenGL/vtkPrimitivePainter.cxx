@@ -180,16 +180,16 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
   if (!this->DisableScalarColor)
     {
     // are they cell or point scalars
-    c = vtkUnsignedCharArray::SafeDownCast(input->GetPointData()->GetScalars());
+    c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetPointData()->GetScalars());
     if (!c)
       {
-      c = vtkUnsignedCharArray::SafeDownCast(input->GetCellData()->GetScalars());
+      c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetCellData()->GetScalars());
       cellScalars = 1;
       }
 
     if (!c)
       {
-      c = vtkUnsignedCharArray::SafeDownCast(input->GetFieldData()->
+      c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetFieldData()->
         GetArray("Color"));
       fieldScalars = 1; // note when fieldScalars == 1, also cellScalars == 1.
       // this ensures that primitive painters that do not distinguish between

@@ -219,7 +219,6 @@ protected:
   vtkSetStringMacro(IconArrayNameInternal);
   char* IconArrayNameInternal;
 
-  //BTX
   vtkSmartPointer<vtkGlyph3D> CircleGlyph;
   vtkSmartPointer<vtkGlyph3D> CircleOutlineGlyph;
 
@@ -238,20 +237,19 @@ protected:
   vtkSmartPointer<vtkActor> VertexActor;
   vtkSmartPointer<vtkActor> OutlineActor;
   vtkSmartPointer<vtkTexturedActor2D> IconActor;
-  //ETX
 
   // Color maps
   vtkLookupTable* EdgeLookupTable;
   vtkLookupTable* VertexLookupTable;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // see algorithm for more info
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphMapper(const vtkGraphMapper&);  // Not implemented.
-  void operator=(const vtkGraphMapper&);  // Not implemented.
+  vtkGraphMapper(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
 
   // Helper function
   vtkPolyData* CreateCircle(bool filled);

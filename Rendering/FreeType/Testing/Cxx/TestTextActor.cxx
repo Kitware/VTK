@@ -117,6 +117,12 @@ int TestTextActor(int, char *[])
       actor->GetTextProperty()->SetBackgroundOpacity(1.0);
 
       actor->SetPosition(x[col], y[row]);
+
+      actor->SetDrawFrame((row + col) % 2 == 0);
+      actor->GetFrameProperty()->SetColor(
+        col > 0 ? 1. : 0., col == 1 ? 1. : 0., col < 2 ? 1. : 0.);
+      actor->GetFrameProperty()->SetLineWidth((row) % 3 + 1);
+
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());
       }
@@ -164,8 +170,8 @@ int TestTextActor(int, char *[])
 
   // Finally render the scene and compare the image to a reference image
   win->SetMultiSamples(0);
-  win->GetInteractor()->Initialize();
-  win->GetInteractor()->Start();
+  iren->Initialize();
+  iren->Start();
 
   return EXIT_SUCCESS;
 }

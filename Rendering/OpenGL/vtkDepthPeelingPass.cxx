@@ -605,7 +605,7 @@ void vtkDepthPeelingPass::CheckSupport(vtkOpenGLRenderWindow *w)
       // os mesa 9.1.4 some tests fail
       // ATI Radeon HD XXXXX on Windows chokes on PROXY_TEXTURE_RECTANGLE_ARB
       // memory querries however if those are not used all the tests pass.
-      // ATI Radeon HD on Mac OSX PROXY_TEXTURE_RECTANGLE_ARB are fine but
+      // ATI Radeon HD on Mac OS X PROXY_TEXTURE_RECTANGLE_ARB are fine but
       // TestTranslucentLUTDepthPeeling fails. So leave it disabled on Apple
       int driver_support
         = (!(extensions->DriverIsATI()

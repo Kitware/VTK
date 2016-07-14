@@ -31,14 +31,6 @@
 
 #include <map>
 
-template <class T>
-static T vtkClamp(T val, T min, T max)
-{
-  val = val < min? min : val;
-  val = val > max? max : val;
-  return val;
-}
-
 class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 {
 public:
@@ -68,6 +60,7 @@ public:
     this->Mapper->SetInputData(ss);
     ss->Delete();
     this->Mapper->SetPopulateSelectionSettings(0);
+    this->NumberOfPoints = 0;
   };
   ~vtkOpenGLGlyph3DMapperEntry()
   {
@@ -129,13 +122,14 @@ vtkOpenGLGlyph3DMapper::~vtkOpenGLGlyph3DMapper()
 {
   this->ColorMapper->Delete();
 
-  delete this->GlyphValues;
-
   if (this->LastWindow)
     {
     this->ReleaseGraphicsResources(this->LastWindow);
     this->LastWindow = 0;
     }
+
+  delete this->GlyphValues;
+  this->GlyphValues = 0;
 }
 
 // ---------------------------------------------------------------------------
@@ -319,6 +313,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   // rebuild all entries for this DataSet if it
   // has been modified
   if (subarray->BuildTime < dataset->GetMTime() ||
+      subarray->BuildTime < this->GetMTime() ||
       subarray->LastSelectingState != selecting_points )
     {
     rebuild = true;
@@ -328,7 +323,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   vtkBitArray *maskArray = 0;
   if (this->Masking)
     {
-    maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
+    maskArray = vtkArrayDownCast<vtkBitArray>(this->GetMaskArray(dataset));
     if (maskArray == 0)
       {
       vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");
@@ -426,6 +421,17 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
     den = 1.0;
     }
 
+  unsigned char color[4];
+    {
+    const double *actorColor = actor->GetProperty()->GetColor();
+    for (int i = 0; i != 3; ++i)
+      {
+      color[i] = static_cast<unsigned char>(actorColor[i] * 255. + 0.5);
+      }
+    color[3] =
+      static_cast<unsigned char>(actor->GetProperty()->GetOpacity()*255. + 0.5);
+    }
+
   vtkDataArray* orientArray = this->GetOrientationArray(dataset);
   if (orientArray !=0 && orientArray->GetNumberOfComponents() != 3)
     {
@@ -475,7 +481,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
         double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
           indexArray->GetNumberOfComponents());
         index = static_cast<int>((value-this->Range[0])*numEntries/den);
-        index = ::vtkClamp(index, 0, numEntries-1);
+        index = vtkMath::ClampValue(index, 0, numEntries-1);
         }
       numPointsPerSource[index]++;
       }
@@ -524,7 +530,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
         indexArray->GetNumberOfComponents());
       index = static_cast<int>((value-this->Range[0])*numEntries/den);
-      index = ::vtkClamp(index, 0, numEntries-1);
+      index = vtkMath::ClampValue(index, 0, numEntries-1);
       }
 
     // source can be null.
@@ -536,10 +542,10 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
       vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *entry =
         subarray->Entries[index];
 
-      entry->Colors[entry->NumberOfPoints*4] = 255;
-      entry->Colors[entry->NumberOfPoints*4+1] = 255;
-      entry->Colors[entry->NumberOfPoints*4+2] = 255;
-      entry->Colors[entry->NumberOfPoints*4+3] = 255;
+      entry->Colors[entry->NumberOfPoints*4] = color[0];
+      entry->Colors[entry->NumberOfPoints*4+1] = color[1];
+      entry->Colors[entry->NumberOfPoints*4+2] = color[2];
+      entry->Colors[entry->NumberOfPoints*4+3] = color[3];
 
       double scalex = 1.0;
       double scaley = 1.0;
@@ -658,7 +664,7 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 
       if (colors)
         {
-        colors->GetTupleValue(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
+        colors->GetTypedTuple(inPtId, &(entry->Colors[entry->NumberOfPoints*4]));
         }
 
       // scale data if appropriate
@@ -713,13 +719,16 @@ void vtkOpenGLGlyph3DMapper::RebuildStructures(
 // Release any graphics resources that are being consumed by this mapper.
 void vtkOpenGLGlyph3DMapper::ReleaseGraphicsResources(vtkWindow *window)
 {
-  std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
-  for (;miter != this->GlyphValues->Entries.end(); miter++)
+  if (this->GlyphValues)
     {
-    std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
-    for (;miter2 != miter->second->Entries.end(); miter2++)
+    std::map<const vtkDataSet *, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperSubArray *>::iterator miter = this->GlyphValues->Entries.begin();
+    for (;miter != this->GlyphValues->Entries.end(); miter++)
       {
-      miter2->second->Mapper->ReleaseGraphicsResources(window);
+      std::map<size_t, vtkOpenGLGlyph3DMapper::vtkOpenGLGlyph3DMapperEntry *>::iterator miter2 = miter->second->Entries.begin();
+      for (;miter2 != miter->second->Entries.end(); miter2++)
+        {
+        miter2->second->Mapper->ReleaseGraphicsResources(window);
+        }
       }
     }
 }

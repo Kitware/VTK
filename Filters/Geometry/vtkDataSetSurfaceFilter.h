@@ -33,7 +33,6 @@ class vtkPointData;
 class vtkPoints;
 class vtkIdTypeArray;
 
-//BTX
 // Helper structure for hashing faces.
 struct vtkFastGeomQuadStruct
 {
@@ -43,7 +42,6 @@ struct vtkFastGeomQuadStruct
   vtkIdType* ptArray;
 };
 typedef struct vtkFastGeomQuadStruct vtkFastGeomQuad;
-//ETX
 
 class VTKFILTERSGEOMETRY_EXPORT vtkDataSetSurfaceFilter : public vtkPolyDataAlgorithm
 {
@@ -207,9 +205,9 @@ protected:
   vtkIdType *PointMap;
   vtkIdType GetOutputPointId(vtkIdType inPtId, vtkDataSet *input,
                              vtkPoints *outPts, vtkPointData *outPD);
-//BTX
+
   class vtkEdgeInterpolationMap;
-//ETX
+
   vtkEdgeInterpolationMap *EdgeMap;
   vtkIdType GetInterpolatedPointId(vtkIdType edgePtA, vtkIdType edgePtB,
                                    vtkDataSet *input, vtkCell *cell,
@@ -246,8 +244,8 @@ protected:
   int NonlinearSubdivisionLevel;
 
 private:
-  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
-  void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
+  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetSurfaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

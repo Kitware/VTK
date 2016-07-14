@@ -67,12 +67,29 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
+
+  // Description:
+  // Overridden to handle passing the CONTINUE_EXECUTING() flags to the
+  // executive.
+  virtual int ProcessRequest(vtkInformation* request,
+    vtkInformationVector** inputVector, vtkInformationVector* outputVector);
+
 protected:
   vtkXMLPDataWriter();
   ~vtkXMLPDataWriter();
 
+  // Description:
+  // Overridden to make appropriate piece request from upstream.
+  virtual int RequestUpdateExtent(vtkInformation *request,
+    vtkInformationVector **inputVector, vtkInformationVector *outputVector);
+
   // Override writing method from superclass.
   virtual int WriteInternal();
+
+  // Subclasses can override this method to collect information between ranks
+  // before writing the summary file. This method is called on all ranks while
+  // summary file is only written on 1 rank (rank 0).
+  virtual void PrepareSummaryFile();
 
   virtual vtkXMLWriter* CreatePieceWriter(int index)=0;
 
@@ -83,7 +100,6 @@ protected:
 
   char* CreatePieceFileName(int index, const char* path=0);
   void SplitFileName();
-  virtual int WritePieces();
   virtual int WritePiece(int index);
 
   // Callback registered with the ProgressObserver.
@@ -108,9 +124,31 @@ protected:
 
   vtkMultiProcessController* Controller;
 
+  // Description:
+  // Valid at end of WriteInternal to indicate if we're going to continue
+  // execution.
+  vtkGetMacro(ContinuingExecution, bool);
 private:
-  vtkXMLPDataWriter(const vtkXMLPDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPDataWriter&);  // Not implemented.
+  vtkXMLPDataWriter(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPDataWriter&) VTK_DELETE_FUNCTION;
+
+  // Description:
+  // Method used to delete all written files.
+  void DeleteFiles();
+
+  // Description:
+  // Initializes PieceFileNameExtension.
+  void SetupPieceFileNameExtension();
+
+  // Indicates the piece currently being written.
+  int CurrentPiece;
+
+  // Set in WriteInternal() to request continued execution from the executive to
+  // write more pieces.
+  bool ContinuingExecution;
+
+  // Flags used to keep track of which pieces were written out.
+  unsigned char *PieceWrittenFlags;
 };
 
 #endif

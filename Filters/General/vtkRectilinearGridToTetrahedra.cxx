@@ -36,7 +36,7 @@ vtkStandardNewMacro(vtkRectilinearGridToTetrahedra);
 #define VTK_TETRAHEDRALIZE_5                 0
 #define VTK_TETRAHEDRALIZE_5_FLIP            1
 #define VTK_TETRAHEDRALIZE_6                 6
-#define VTK_TETRAHEDRALIZE_12_CONFORM        -1
+#define VTK_TETRAHEDRALIZE_12_CONFORM        (-1)
 #define VTK_TETRAHEDRALIZE_12_CONFORM_FLIP   2
 #define VTK_TETRAHEDRALIZE_12                10
 

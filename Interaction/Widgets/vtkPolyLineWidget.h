@@ -49,7 +49,7 @@ public:
   // Create the default widget representation if one is not set. By default,
   // this is an instance of the vtkPolyLineRepresentation class.
   void CreateDefaultRepresentation();
-//BTX
+
 protected:
   vtkPolyLineWidget();
   ~vtkPolyLineWidget();
@@ -65,9 +65,9 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkPolyLineWidget(const vtkPolyLineWidget&); // Not implemented.
-  void operator=(const vtkPolyLineWidget&); // Not implemented.
-//ETX
+  vtkPolyLineWidget(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyLineWidget&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

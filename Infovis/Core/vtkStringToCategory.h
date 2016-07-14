@@ -77,8 +77,8 @@ protected:
   char *CategoryArrayName;
 
 private:
-  vtkStringToCategory(const vtkStringToCategory&); // Not implemented
-  void operator=(const vtkStringToCategory&);   // Not implemented
+  vtkStringToCategory(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStringToCategory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

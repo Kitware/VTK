@@ -1265,7 +1265,7 @@ namespace
 
     void Send(int msg, int rank, Task* task)
     {
-      if(msg==TaskFinished)
+      if(task && (msg==TaskFinished))
         {
         PRINT("Done in "<<task->Point->GetNumSteps()<<" steps "<<task->NumHops<<" hops");
         }
@@ -1607,7 +1607,7 @@ int vtkPStreamTracer::RequestData(
       }
 
     int resTerm=vtkStreamTracer::OUT_OF_DOMAIN;
-    vtkIntArray* resTermArray = vtkIntArray::SafeDownCast(
+    vtkIntArray* resTermArray = vtkArrayDownCast<vtkIntArray>(
       traceOut->GetCellData()->GetArray("ReasonForTermination"));
     if (resTermArray)
       {

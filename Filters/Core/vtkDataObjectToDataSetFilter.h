@@ -320,8 +320,8 @@ protected:
   void ConstructOrigin(vtkDataObject *input);
 
 private:
-  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&);  // Not implemented.
-  void operator=(const vtkDataObjectToDataSetFilter&);  // Not implemented.
+  vtkDataObjectToDataSetFilter(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectToDataSetFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

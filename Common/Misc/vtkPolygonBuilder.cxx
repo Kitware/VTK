@@ -21,33 +21,33 @@ vtkPolygonBuilder::vtkPolygonBuilder()
 
 void vtkPolygonBuilder::InsertTriangle(vtkIdType* abc)
 {
-  // For each triangle edge, and for each direction (clockwise and
-  // counterclockwise): the number of instances of each edge are recorded, and
-  // edges with exactly one instance are stored
+  // For each triangle edge: the number of instances of each edge are recorded,
+  // and edges with exactly one instance are stored. Triangle edges are only
+  // traversed in a counterclockwise direction.
 
   for (int i=0;i<3;i++)
     {
-    for (int j=1;j>=-1;j-=2)
+    Edge edge(abc[i],abc[(i+1)%3]);
+    Edge inverseEdge(abc[(i+1)%3],abc[i]);
+
+    ++(this->EdgeCounter[edge]);
+
+    if (this->EdgeCounter[inverseEdge] == 0)
       {
-      Edge edge(abc[i],abc[(i+j+3)%3]);
-      size_t nInstances = ++(this->EdgeCounter[edge]);
+      this->Edges.insert(std::make_pair(edge.first,edge.second));
+      }
+    else if (this->EdgeCounter[edge] == 1)
+      {
+      std::pair<EdgeMap::iterator,
+        EdgeMap::iterator> range = Edges.equal_range(inverseEdge.first);
 
-      if (nInstances == 1)
+      EdgeMap::iterator it = range.first;
+      for (; it != range.second; ++it)
         {
-        this->Edges.insert(std::make_pair(edge.first,edge.second));
-        }
-      else if (nInstances == 2)
-        {
-        std::pair<EdgeMap::iterator, EdgeMap::iterator> range = Edges.equal_range(edge.first);
-
-        EdgeMap::iterator it = range.first;
-        for (; it != range.second; ++it)
+        if (it->second == inverseEdge.second)
           {
-          if (it->second == edge.second)
-            {
-            Edges.erase(it);
-            break;
-            }
+          Edges.erase(it);
+          break;
           }
         }
       }
@@ -59,9 +59,9 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
 {
   polys->RemoveAllItems();
 
-  // We now have exactly two instances of each outer edge, corresponding to a
-  // clockwise and counterclockwise traversal
-  if (this->Edges.size()<6)
+  // We now have exactly one instance of each outer edge, corresponding to a
+  // counterclockwise traversal of the polygon
+  if (this->Edges.size()<3)
     {
     return;
     }
@@ -70,33 +70,18 @@ void vtkPolygonBuilder::GetPolygons(vtkIdListCollection* polys)
     {
     vtkIdList* poly = vtkIdList::New();
 
-    Edge edge = *(this->Edges.begin());
     EdgeMap::iterator edgeIt = this->Edges.begin();
+    Edge edge = *(edgeIt);
 
     vtkIdType firstVtx = edge.first;
 
     do
-      {
+     {
       poly->InsertNextId(edge.first);
-
-      // we will find either the inverse to our current edge, or the next edge
-      // in the path.
-      std::pair<EdgeMap::iterator, EdgeMap::iterator> range =
-        this->Edges.equal_range(edge.second);
-
-      edgeIt = range.first;
-      vtkIdType previousVtx = edge.first;
-      while (edgeIt != range.second)
-        {
-        if ((*edgeIt).second != previousVtx)
-          {
-          // we have found the next edge in the path
-          edge.first = edge.second;
-          edge.second = edgeIt->second;
-          }
-        this->Edges.erase(edgeIt++);
-        }
-      }
+      edgeIt = this->Edges.find(edge.second);
+      edge = *(edgeIt);
+      Edges.erase(edgeIt);
+     }
     while (edge.first != firstVtx);
 
     polys->AddItem(poly);

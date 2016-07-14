@@ -67,8 +67,8 @@ protected:
                            unsigned int& dataSetIndex);
 
 private:
-  vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&);  // Not implemented.
-  void operator=(const vtkXMLMultiBlockDataReader&);  // Not implemented.
+  vtkXMLMultiBlockDataReader(const vtkXMLMultiBlockDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLMultiBlockDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

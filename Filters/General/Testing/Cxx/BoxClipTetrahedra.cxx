@@ -104,10 +104,11 @@ public:
     this->Data = bw.Data;
     this->Data->Register(NULL);
   }
-  void operator=(const BadWinding &bw) {
+  BadWinding& operator=(const BadWinding &bw) {
     this->Data->UnRegister(NULL);
     this->Data = bw.Data;
     this->Data->Register(NULL);
+    return *this;
   }
 
   vtkUnstructuredGrid *Data;
@@ -377,7 +378,7 @@ int BoxClipTetrahedra(int, char *[])
     TestBox(renwin, 6, -2.0, 0.0, -2.0, 2.0, -2.0, 2.0);
     TestBox(renwin, 7, 0.0, 2.0, -2.0, 2.0, -2.0, 2.0);
     }
-  catch (BadWinding bw)
+  catch (const BadWinding&)
     {
     std::cout << "Encountered a bad winding.  Aborting test." << std::endl;
     return EXIT_FAILURE;

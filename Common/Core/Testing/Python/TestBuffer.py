@@ -85,8 +85,8 @@ class TestBuffer(Testing.vtkTest):
         # bit array is actually stored as a byte array
         a = vtk.vtkCharArray()
         a.SetNumberOfComponents(5)
-        a.InsertNextTupleValue("hello")
-        a.InsertNextTupleValue("world")
+        a.InsertNextTypedTuple("hello")
+        a.InsertNextTypedTuple("world")
         m = memoryview(a)
         self.assertEqual(m.format, 'c')
         self.assertEqual(m.itemsize, 1)

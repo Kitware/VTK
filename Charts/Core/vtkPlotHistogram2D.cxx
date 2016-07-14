@@ -164,6 +164,7 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
   double bounds[4];
   this->GetBounds(bounds);
   int width = this->Input->GetExtent()[1] - this->Input->GetExtent()[0] + 1;
+  int height = this->Input->GetExtent()[3] - this->Input->GetExtent()[2] + 1;
   int pointX = seriesIndex % width;
   int pointY = seriesIndex / width;
 
@@ -198,9 +199,12 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
             }
           break;
         case 'v':
-          tooltipLabel += this->GetNumber(this->Input->GetScalarComponentAsDouble(
-                                            pointX, pointY, 0, 0),
-                                          NULL);
+          if (pointX >= 0 && pointX < width && pointY >= 0 && pointY < height)
+            {
+            tooltipLabel +=
+              this->GetNumber(this->Input->GetScalarComponentAsDouble(
+                pointX, pointY, 0, 0), NULL);
+            }
           break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";

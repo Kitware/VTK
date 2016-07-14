@@ -24,6 +24,7 @@
 // .SECTION See Also
 // vtkVolumeRayCastCompositeFunction vtkVolumeRayCastMIPFunction
 // vtkVolumeRayCastIsosurfaceFunction vtkVolumeRayCastMapper
+// @deprecated
 
 #ifndef vtkVolumeRayCastFunction_h
 #define vtkVolumeRayCastFunction_h
@@ -35,6 +36,7 @@ class vtkRenderer;
 class vtkVolume;
 class vtkVolumeRayCastMapper;
 
+#if !defined(VTK_LEGACY_REMOVE)
 // Define a couple of structures we need to hold all the important information
 // This first structure hold the dynamic information - stuff that changes per
 // ray
@@ -134,7 +136,6 @@ public:
   vtkTypeMacro(vtkVolumeRayCastFunction,vtkObject);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Do the basic initialization. This includes saving the parameters
   // passed in into local variables, as well as grabbing some useful
@@ -147,7 +148,6 @@ public:
 
   virtual void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                         vtkVolumeRayCastStaticInfo *staticInfo )=0;
-//ETX
 
   // Description:
   // Get the value below which all scalar values are considered to
@@ -155,10 +155,12 @@ public:
   virtual float GetZeroOpacityThreshold( vtkVolume *vol )=0;
 
 protected:
-  vtkVolumeRayCastFunction() {}
+  vtkVolumeRayCastFunction()
+    {
+    VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
+    }
   ~vtkVolumeRayCastFunction() {}
 
-//BTX
   // Description:
   // This method gives the subclass a chance to do any special
   // initialization that it may need to do
@@ -166,10 +168,10 @@ protected:
                                            vtkVolume   *vol,
                                            vtkVolumeRayCastStaticInfo *staticInfo,
                                            vtkVolumeRayCastMapper *mapper )=0;
-//ETX
-private:
-  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastFunction&);  // Not implemented.
-};
 
+private:
+  vtkVolumeRayCastFunction(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastFunction&) VTK_DELETE_FUNCTION;
+};
+#endif // VTK_LEGACY_REMOVE
 #endif

@@ -28,6 +28,7 @@
 #include "vtkInformationIterator.h"
 #include "vtkInformationKeyVectorKey.h"
 #include "vtkInformationObjectBaseKey.h"
+#include "vtkInformationObjectBaseVectorKey.h"
 #include "vtkInformationRequestKey.h"
 #include "vtkInformationStringKey.h"
 #include "vtkInformationStringVectorKey.h"
@@ -215,6 +216,20 @@ void vtkInformation::Copy(vtkInformation* from, int deep)
 }
 
 //----------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformation* from, int deep)
+{
+  if(from)
+    {
+    typedef vtkInformationInternals::MapType MapType;
+    for(MapType::const_iterator i = from->Internal->Map.begin();
+        i != from->Internal->Map.end(); ++i)
+      {
+      this->CopyEntry(from, i->first, deep);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationKey* key, int deep)
 {
@@ -302,6 +317,21 @@ void vtkInformation::CopyEntry(vtkInformation* from,
 //----------------------------------------------------------------------------
 void vtkInformation::CopyEntry(vtkInformation* from,
                                vtkInformationIntegerVectorKey* key, int deep)
+{
+  if (!deep)
+    {
+    key->ShallowCopy(from, this);
+    }
+  else
+    {
+    key->DeepCopy(from, this);
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformation::CopyEntry(vtkInformation *from,
+                               vtkInformationObjectBaseVectorKey *key,
+                               int deep)
 {
   if (!deep)
     {
@@ -474,7 +504,7 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
     key->Append(this, value);                                               \
     }                                                                       \
   void vtkInformation::Set(vtkInformation##name##VectorKey* key,            \
-                           type* value, int length)                         \
+                           type const* value, int length)                         \
     {                                                                       \
     key->Set(this, value, length);                                          \
     }                                                                       \
@@ -572,6 +602,60 @@ int vtkInformation::Has(vtkInformationStringVectorKey* key)
   {
   return key->vtkInformationStringVectorKey::Has(this);
   }
+
+
+//------------------------------------------------------------------------------
+void vtkInformation::Append(vtkInformationObjectBaseVectorKey *key,
+                            vtkObjectBase *data)
+{
+  key->Append(this, data);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Set(vtkInformationObjectBaseVectorKey *key,
+                         vtkObjectBase *value, int idx)
+{
+  key->Set(this, value, idx);
+}
+
+//------------------------------------------------------------------------------
+vtkObjectBase *vtkInformation::Get(vtkInformationObjectBaseVectorKey *key,
+                                   int idx)
+{
+  return key->Get(this, idx);
+}
+
+//------------------------------------------------------------------------------
+int vtkInformation::Length(vtkInformationObjectBaseVectorKey *key)
+{
+  return key->Length(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key)
+{
+  key->Remove(this);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key,
+                            vtkObjectBase *objectToRemove)
+{
+  key->Remove(this, objectToRemove);
+}
+
+//------------------------------------------------------------------------------
+void vtkInformation::Remove(vtkInformationObjectBaseVectorKey *key,
+                            int indexToRemove)
+{
+  key->Remove(this, indexToRemove);
+}
+
+//------------------------------------------------------------------------------
+int vtkInformation::Has(vtkInformationObjectBaseVectorKey *key)
+{
+  return key->Has(this);
+}
 
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Key, vtkInformationKey*);
 #define VTK_INFORMATION_DEFINE_VECTOR_VALUE2_PROPERTY(name, type, atype)    \

@@ -88,9 +88,15 @@ class VTKRENDERINGANNOTATION_EXPORT vtkProp3DAxisFollower
  vtkGetMacro(ViewAngleLODThreshold, double);
 
  // Description:
+ // Set/Get the desired screen vertical offset from the axis.
+ // Convenience method, using a zero horizontal offset
+ double GetScreenOffset();
+ void SetScreenOffset(double offset);
+
+ // Description:
  // Set/Get the desired screen offset from the axis.
- vtkSetMacro(ScreenOffset, double);
- vtkGetMacro(ScreenOffset, double);
+ vtkSetVector2Macro(ScreenOffsetVector, double);
+ vtkGetVector2Macro(ScreenOffsetVector, double);
 
   // Description:
   // Generate the matrix based on ivars. This method overloads its superclasses
@@ -126,7 +132,6 @@ protected:
                                  vtkAxisActor *axis1, double *dop,
                                  vtkViewport *ren);
 
-
  void ComputeRotationAndTranlation(vtkViewport *ren, double translation[3],
                                    double Rx[3], double Ry[3], double Rz[3],
                                    vtkAxisActor *axis);
@@ -134,7 +139,6 @@ protected:
  // \NOTE: Not used as of now.
  void ComputerAutoCenterTranslation(const double& autoScaleFactor,
                                     double translation[3]);
-
 
   int  TestDistanceVisibility();
   void ExecuteViewAngleVisibility(double normal[3]);
@@ -149,13 +153,13 @@ protected:
   int          EnableViewAngleLOD;
   double       ViewAngleLODThreshold;
 
-  double       ScreenOffset;
+  double       ScreenOffsetVector [2];
 
   vtkWeakPointer<vtkAxisActor> Axis;
   vtkWeakPointer<vtkViewport> Viewport;
 private:
-  vtkProp3DAxisFollower(const vtkProp3DAxisFollower&);  // Not implemented.
-  void operator=(const vtkProp3DAxisFollower&);  // Not implemented.
+  vtkProp3DAxisFollower(const vtkProp3DAxisFollower&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp3DAxisFollower&) VTK_DELETE_FUNCTION;
 
   int TextUpsideDown;
   int VisibleAtCurrentViewAngle;

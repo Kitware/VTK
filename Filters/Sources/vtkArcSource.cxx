@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkMath.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkArcSource);
 
@@ -47,26 +47,28 @@ vtkArcSource::vtkArcSource(int res)
   this->Center[1] =  0.0;
   this->Center[2] =  0.0;
 
-  // Default normal vector is unit in Oz direction
-  this->Normal[0] =  1.0;
+  // Default normal vector is unit in the positive Z direction.
+  this->Normal[0] =  0.0;
   this->Normal[1] =  0.0;
-  this->Normal[2] =  0.0;
+  this->Normal[2] =  1.0;
 
-  // Default polar vector
-  this->PolarVector[0] =  0.0;
+  // Default polar vector is unit in the positive X direction.
+  this->PolarVector[0] =  1.0;
   this->PolarVector[1] =  0.0;
-  this->PolarVector[2] =  1.0;
+  this->PolarVector[2] =  0.0;
 
   // Default arc is a quarter-circle
   this->Angle =  90.;
 
-  // Default resolution
+  // Ensure resolution (number of line segments to approximate the arc)
+  // is at least 1
   this->Resolution = (res < 1 ? 1 : res);
 
-  // Default resolution
+  // By default use the shortest angular sector
+  // rather than its complement (a.k.a. negative coterminal)
   this->Negative = false;
 
-  // By default use the original API
+  // By default use the original API (endpoints + center)
   this->UseNormalAndAngle = false;
 
   this->OutputPointsPrecision = SINGLE_PRECISION;
@@ -110,7 +112,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     = vtkPolyData::SafeDownCast( outInfo->Get( vtkDataObject::DATA_OBJECT() ) );
 
   // Calculate vector from origin to first point
-  
+
   // Normal and angle are either specified (consistent API) or calculated (original API)
   double angle = 0.0;
   double radius = 0.5;
@@ -129,11 +131,11 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
 
     // Calculate perpendicular vector with normal which is specified with this API
     vtkMath::Cross( this->Normal, this->PolarVector, perpendicular );
-    
+
     // Calculate radius
     radius = vtkMath::Normalize( v1 );
     }
-  else // if ( this->UseNormalAndRadius )
+  else // if ( this->UseNormalAndAngle )
     {
     // Compute the cross product of the two vectors.
     for ( int i = 0; i < 3; ++ i )
@@ -144,7 +146,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     double v2[3] = { this->Point2[0] - this->Center[0],
                      this->Point2[1] - this->Center[1],
                      this->Point2[2] - this->Center[2] };
-    
+
     double normal[3];
     vtkMath::Cross( v1, v2, normal );
     vtkMath::Cross( normal, v1, perpendicular );
@@ -159,7 +161,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     // Calcute radius
     radius = vtkMath::Normalize( v1 );
     } // else
-  
+
   // Calcute angle increment
   double angleInc = angle / this->Resolution;
 
@@ -256,4 +258,3 @@ void vtkArcSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }
-

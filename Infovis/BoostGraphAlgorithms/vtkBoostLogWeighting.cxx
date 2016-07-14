@@ -34,7 +34,7 @@
   #error "vtkBoostLogWeighting requires Boost 1.34.0 or later"
 #endif
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 
 ///////////////////////////////////////////////////////////////////////////////

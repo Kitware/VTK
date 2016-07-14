@@ -59,9 +59,9 @@ int vtkStringToNumeric::CountItemsToConvert(vtkFieldData *fieldData)
   for (int arr = 0; arr < fieldData->GetNumberOfArrays(); arr++)
     {
     vtkAbstractArray *array = fieldData->GetAbstractArray(arr);
-    vtkStringArray* stringArray = vtkStringArray::SafeDownCast(array);
+    vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(array);
     vtkUnicodeStringArray* unicodeArray =
-      vtkUnicodeStringArray::SafeDownCast(array);
+      vtkArrayDownCast<vtkUnicodeStringArray>(array);
     if (!stringArray && !unicodeArray)
       {
       continue;
@@ -155,9 +155,9 @@ void vtkStringToNumeric::ConvertArrays(vtkFieldData* fieldData)
 {
   for (int arr = 0; arr < fieldData->GetNumberOfArrays(); arr++)
     {
-    vtkStringArray* stringArray = vtkStringArray::SafeDownCast(
+    vtkStringArray* stringArray = vtkArrayDownCast<vtkStringArray>(
       fieldData->GetAbstractArray(arr));
-    vtkUnicodeStringArray* unicodeArray = vtkUnicodeStringArray::SafeDownCast(
+    vtkUnicodeStringArray* unicodeArray = vtkArrayDownCast<vtkUnicodeStringArray>(
       fieldData->GetAbstractArray(arr));
     if (!stringArray && !unicodeArray)
       {

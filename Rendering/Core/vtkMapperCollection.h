@@ -51,13 +51,11 @@ class VTKRENDERINGCORE_EXPORT vtkMapperCollection : public vtkCollection
   vtkMapper *GetLastItem()
     { return this->Bottom ? static_cast<vtkMapper*>(this->Bottom->Item) : 0; }
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkMapper *GetNextMapper(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkMapper *>(this->GetNextItemAsObject(cookie)); }
-  //ETX
 
 protected:
   vtkMapperCollection() {}
@@ -69,8 +67,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkMapperCollection(const vtkMapperCollection&);  // Not implemented.
-  void operator=(const vtkMapperCollection&);  // Not implemented.
+  vtkMapperCollection(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

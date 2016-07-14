@@ -94,7 +94,8 @@ void vtkInformationKeyVectorKey::AppendUnique(vtkInformation* info,
 
 //----------------------------------------------------------------------------
 void vtkInformationKeyVectorKey::Set(vtkInformation* info,
-                                     vtkInformationKey** value, int length)
+                                     vtkInformationKey* const*
+                                     value, int length)
 {
   if(value)
     {

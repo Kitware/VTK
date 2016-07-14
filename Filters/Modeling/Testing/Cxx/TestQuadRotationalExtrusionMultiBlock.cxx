@@ -48,22 +48,25 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   reader1->Update();
   delete [] fName1;
 
-  // Create multi-block data set for quad-based sweep
+  // Create multi-block data set tree for quad-based sweep
   vtkNew<vtkMultiBlockDataSet> inMesh;
   inMesh->SetNumberOfBlocks( 2 );
   inMesh->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Block 0" );
   inMesh->SetBlock( 0, reader0->GetOutput() );
-  inMesh->GetMetaData( static_cast<unsigned>( 1 ) )->Set( vtkCompositeDataSet::NAME(), "Block 1" );
-  inMesh->SetBlock( 1, reader1->GetOutput() );
+  vtkNew<vtkMultiBlockDataSet> inMesh2;
+  inMesh->SetBlock( 1, inMesh2.Get() );
+  inMesh2->SetNumberOfBlocks( 1 );
+  inMesh2->GetMetaData( static_cast<unsigned>( 0 ) )->Set( vtkCompositeDataSet::NAME(), "Block 1" );
+  inMesh2->SetBlock( 0, reader1->GetOutput() );
 
   // Create 3/4 of a cylinder by rotational extrusion
   vtkNew<vtkQuadRotationalExtrusionFilter> sweeper;
   sweeper->SetResolution( 18 );
-  sweeper->SetInputData( inMesh.GetPointer() );
+  sweeper->SetInputData( inMesh.Get() );
   sweeper->SetAxisToX();
   sweeper->SetDefaultAngle( 270 );
   sweeper->AddPerBlockAngle( 1, 90. );
-  sweeper->AddPerBlockAngle( 2, 45.) ;
+  sweeper->AddPerBlockAngle( 3, 45.);
 
   // Turn composite output into single polydata
   vtkNew<vtkCompositeDataGeometryFilter> outMesh;
@@ -76,12 +79,11 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create mapper for surface representation of whole mesh
   vtkNew<vtkPolyDataMapper> outMeshMapper;
   outMeshMapper->SetInputConnection( normals->GetOutputPort() );
-  outMeshMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 0., 1 );
   outMeshMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for surface representation of whole mesh
   vtkNew<vtkActor> outMeshActor;
-  outMeshActor->SetMapper( outMeshMapper.GetPointer() );
+  outMeshActor->SetMapper( outMeshMapper.Get() );
   outMeshActor->GetProperty()->SetRepresentationToSurface();
   outMeshActor->GetProperty()->SetInterpolationToGouraud();
   outMeshActor->GetProperty()->SetColor( .9, .9, .9 );
@@ -90,17 +92,18 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   sweeper->Update();
   vtkMultiBlockDataSet* outMeshMB = sweeper->GetOutput();
   vtkPolyData* outMesh0 = vtkPolyData::SafeDownCast( outMeshMB->GetBlock( 0 ) );
-  vtkPolyData* outMesh1 = vtkPolyData::SafeDownCast( outMeshMB->GetBlock( 1 ) );
+  vtkMultiBlockDataSet* outMeshMB2 =
+    vtkMultiBlockDataSet::SafeDownCast( outMeshMB->GetBlock( 1 ) );
+  vtkPolyData* outMesh1 = vtkPolyData::SafeDownCast( outMeshMB2->GetBlock( 0 ) );
 
   // Create mapper for wireframe representation of block 0
   vtkNew<vtkPolyDataMapper> outBlockMapper0;
   outBlockMapper0->SetInputData( outMesh0 );
-  outBlockMapper0->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper0->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for wireframe representation of block 0
   vtkNew<vtkActor> outBlockActor0;
-  outBlockActor0->SetMapper( outBlockMapper0.GetPointer() );
+  outBlockActor0->SetMapper( outBlockMapper0.Get() );
   outBlockActor0->GetProperty()->SetRepresentationToWireframe();
   outBlockActor0->GetProperty()->SetColor( .9, 0., 0.);
   outBlockActor0->GetProperty()->SetAmbient( 1. );
@@ -110,12 +113,11 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   // Create mapper for wireframe representation of block 1
   vtkNew<vtkPolyDataMapper> outBlockMapper1;
   outBlockMapper1->SetInputData( outMesh1 );
-  outBlockMapper1->SetResolveCoincidentTopologyPolygonOffsetParameters( 1., 1 );
   outBlockMapper1->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for wireframe representation of block 1
   vtkNew<vtkActor> outBlockActor1;
-  outBlockActor1->SetMapper( outBlockMapper1.GetPointer() );
+  outBlockActor1->SetMapper( outBlockMapper1.Get() );
   outBlockActor1->GetProperty()->SetRepresentationToWireframe();
   outBlockActor1->GetProperty()->SetColor( 0., .9, 0.);
   outBlockActor1->GetProperty()->SetAmbient( 1. );
@@ -124,14 +126,14 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
 
   // Create a renderer, add actors to it
   vtkNew<vtkRenderer> ren1;
-  ren1->AddActor( outMeshActor.GetPointer() );
-  ren1->AddActor( outBlockActor0.GetPointer() );
-  ren1->AddActor( outBlockActor1.GetPointer() );
+  ren1->AddActor( outMeshActor.Get() );
+  ren1->AddActor( outBlockActor0.Get() );
+  ren1->AddActor( outBlockActor1.Get() );
   ren1->SetBackground( 1., 1., 1. );
 
   // Create a renderWindow
   vtkNew<vtkRenderWindow> renWin;
-  renWin->AddRenderer( ren1.GetPointer() );
+  renWin->AddRenderer( ren1.Get() );
   renWin->SetSize( 400, 400 );
   renWin->SetMultiSamples( 0 );
 
@@ -142,16 +144,17 @@ int TestQuadRotationalExtrusionMultiBlock( int argc, char * argv [] )
   camera->SetPosition( 37.77735939083618, 0.42739828159854326, 2.988046512725565 );
   camera->SetViewUp( -0.40432906992858864, 0.8891923825021084, 0.21413759621072337 );
   camera->SetViewAngle( 30. );
-  ren1->SetActiveCamera( camera.GetPointer() );
+  ren1->SetActiveCamera( camera.Get() );
+  ren1->ResetCameraClippingRange();
 
   // Create interactor
   vtkNew<vtkRenderWindowInteractor> iren;
-  iren->SetRenderWindow( renWin.GetPointer() );
+  iren->SetRenderWindow( renWin.Get() );
 
   // Render and test
   renWin->Render();
 
-  int retVal = vtkRegressionTestImage( renWin.GetPointer() );
+  int retVal = vtkRegressionTestImage( renWin.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {
     iren->Start();

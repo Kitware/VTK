@@ -114,16 +114,12 @@ def TestDataType(dataType, filter):
             result.SetValue(0, 0)
 
     filter.SetInputConnection(tp.GetOutputPort())
-    filter.UpdateInformation()
-    filter.SetUpdateExtent(rank, nranks, 0)
-    filter.Update()
+    filter.Update(rank, nranks, 0)
 
     if filter.GetOutput().GetNumberOfCells() != ncells.GetValue(0) / nranks:
         result.SetValue(0, 0)
 
-    filter.UpdateInformation()
-    filter.SetUpdateExtent(rank, nranks, 1)
-    filter.Update()
+    filter.Update(rank, nranks, 1)
 
     gl = filter.GetOutput().GetCellData().GetArray(vtk.vtkDataSetAttributes.GhostArrayName())
     if not gl:

@@ -101,6 +101,15 @@ public:
   vtkBooleanMacro(ComputeScalars,int);
 
   // Description:
+  // Indicate whether to interpolate other attribute data. That is, as the
+  // isosurface is generated, interpolate all point attribute data across
+  // the edge. This is independent of scalar interpolation, which is
+  // controlled by the ComputeScalars flag.
+  vtkSetMacro(InterpolateAttributes,int);
+  vtkGetMacro(InterpolateAttributes,int);
+  vtkBooleanMacro(InterpolateAttributes,int);
+
+  // Description:
   // Set a particular contour value at contour number i. The index i ranges
   // between 0<=i<NumberOfContours.
   void SetValue(int i, double value) {this->ContourValues->SetValue(i,value);}
@@ -157,6 +166,7 @@ protected:
   int ComputeNormals;
   int ComputeGradients;
   int ComputeScalars;
+  int InterpolateAttributes;
   int ArrayComponent;
   vtkContourValues *ContourValues;
 
@@ -167,8 +177,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkFlyingEdges3D(const vtkFlyingEdges3D&);  // Not implemented.
-  void operator=(const vtkFlyingEdges3D&);  // Not implemented.
+  vtkFlyingEdges3D(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFlyingEdges3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -490,7 +490,7 @@ void vtkVolumeOutlineSource::GeneratePolys(
             // Color the face
             if (scalars)
               {
-              scalars->InsertNextTupleValue(colors[active]);
+              scalars->InsertNextTypedTuple(colors[active]);
               }
             }
 
@@ -615,7 +615,7 @@ void vtkVolumeOutlineSource::GenerateLines(
                 // Change color if current segment is on active plane
                 if (scalars && active)
                   {
-                  scalars->SetTupleValue(cellId, colors[active]);
+                  scalars->SetTypedTuple(cellId, colors[active]);
                   }
                 foundDuplicate = 1;
                 break;
@@ -632,7 +632,7 @@ void vtkVolumeOutlineSource::GenerateLines(
               // Color the line segment
               if (scalars)
                 {
-                scalars->InsertNextTupleValue(colors[active]);
+                scalars->InsertNextTypedTuple(colors[active]);
                 }
               }
             }

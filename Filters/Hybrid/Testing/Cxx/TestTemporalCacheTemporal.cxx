@@ -123,9 +123,8 @@ int TestTemporalCacheTemporal(int , char *[])
   iren->SetRenderWindow( renWin );
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(geom->GetExecutive());
-  sdd->UpdateInformation();
+  vtkInformation* info = geom->GetOutputInformation(0);
+  geom->UpdateInformation();
 
   double time = 0;
   int i;
@@ -135,7 +134,7 @@ int TestTemporalCacheTemporal(int , char *[])
     for (i = 0; i < 11; ++i)
       {
       time = i/2.0;
-      sdd->SetUpdateTimeStep(0, time);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();

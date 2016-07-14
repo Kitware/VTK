@@ -157,7 +157,7 @@ void vtkXMLPUnstructuredDataReader::SetupOutputData()
     {
     vtkAbstractArray* aa = this->CreateArray(
       this->PPointsElement->GetNestedElement(0));
-    vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if (a)
       {
       a->SetNumberOfTuples(this->GetNumberOfPoints());
@@ -326,10 +326,7 @@ void vtkXMLPUnstructuredDataReader::ReadXMLData()
 int vtkXMLPUnstructuredDataReader::ReadPieceData()
 {
   // Use the internal reader to read the piece.
-  vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-    this->PieceReaders[this->Piece]->GetOutputInformation(0),
-    0, 1, this->UpdateGhostLevel);
-  this->PieceReaders[this->Piece]->Update();
+  this->PieceReaders[this->Piece]->UpdatePiece(0, 1, this->UpdateGhostLevel);
 
   vtkPointSet* input = this->GetPieceInputAsPointSet(this->Piece);
   vtkPointSet* output = vtkPointSet::SafeDownCast(this->GetCurrentOutput());

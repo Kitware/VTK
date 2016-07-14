@@ -61,7 +61,7 @@ static void vtkConvertSelectionDomainFindDomains(
 {
   if (dsa->GetAbstractArray("domain"))
     {
-    vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
+    vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
       dsa->GetAbstractArray("domain"));
     if (!domainArr)
       {

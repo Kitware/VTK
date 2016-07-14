@@ -56,7 +56,6 @@ public:
   void SetCompositeDataDisplayAttributes(vtkCompositeDataDisplayAttributes *attributes);
   vtkGetObjectMacro(CompositeDataDisplayAttributes, vtkCompositeDataDisplayAttributes)
 
-//BTX
 protected:
   vtkCompositePainter();
   ~vtkCompositePainter();
@@ -110,9 +109,9 @@ protected:
   vtkDataObject* OutputData;
   vtkCompositeDataDisplayAttributes *CompositeDataDisplayAttributes;
 private:
-  vtkCompositePainter(const vtkCompositePainter&); // Not implemented.
-  void operator=(const vtkCompositePainter&); // Not implemented.
-//ETX
+  vtkCompositePainter(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositePainter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

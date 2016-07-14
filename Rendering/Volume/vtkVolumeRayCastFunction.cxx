@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeRayCastFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkEncodedGradientEstimator.h"
 #include "vtkEncodedGradientShader.h"
 #include "vtkImageData.h"
@@ -133,3 +135,5 @@ void vtkVolumeRayCastFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 }
+
+#endif // VTK_LEGACY_REMOVE

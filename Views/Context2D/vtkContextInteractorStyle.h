@@ -12,12 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkContextInteractorStyle - An interactor for chart views
+// .NAME vtkContextInteractorStyle - An interactor for chart views.
+//
+// .SECTION Description
 // It observes the user events (mouse events) and propagates them
 // to the scene. If the scene doesn't eat the event, it is propagated
 // to the interactor style superclass.
-//
-// .SECTION Description
 
 #ifndef vtkContextInteractorStyle_h
 #define vtkContextInteractorStyle_h
@@ -149,8 +149,8 @@ protected:
   bool                TimerCallbackInitialized;
 
 private:
-  vtkContextInteractorStyle(const vtkContextInteractorStyle&); // Not implemented
-  void operator=(const vtkContextInteractorStyle&); // Not implemented
+  vtkContextInteractorStyle(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextInteractorStyle&) VTK_DELETE_FUNCTION;
 
   void ConstructMouseEvent(vtkContextMouseEvent &event, int button);
   bool ProcessMousePress(const vtkContextMouseEvent &event);

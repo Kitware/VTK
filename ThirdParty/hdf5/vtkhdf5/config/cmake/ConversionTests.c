@@ -1,6 +1,19 @@
+/* This file performs several undefined behaviors, suppress Undefined
+ * Behavior Sanitizer (UBSan) from warning.
+ */
+#if defined(__clang__)
+    #if __has_attribute(no_sanitize)
+        #define HDF_NO_UBSAN __attribute__((no_sanitize("undefined")))
+    #else
+        #define HDF_NO_UBSAN
+    #endif
+#else
+    #define HDF_NO_UBSAN
+#endif
+
 #ifdef H5_FP_TO_INTEGER_OVERFLOW_WORKS_TEST
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   float f = 2147483648.0f;
   int i;
@@ -15,7 +28,7 @@ int main(void)
 
 #ifdef H5_FP_TO_ULLONG_ACCURATE_TEST
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   float f = 111.60f;
   double d = 222.55L;
@@ -35,7 +48,7 @@ int main(void)
 #endif
 
 #ifdef H5_FP_TO_ULLONG_RIGHT_MAXIMUM_TEST
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   float f =        9701917572145405952.00f;
   double d1 =      9701917572145405952.00L;
@@ -66,7 +79,7 @@ int main(void)
 #include <stdlib.h>
 #include <string.h>
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   void *align;
   long double ld = 9701917572145405952.00L;
@@ -90,7 +103,7 @@ int main(void)
 #endif
 
 #ifdef H5_LDOUBLE_TO_LLONG_ACCURATE_TEST
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   long double ld = 20041683600089727.779961L;
   long long ll;
@@ -131,7 +144,7 @@ int main(void)
 #endif
 
 #ifdef H5_LDOUBLE_TO_UINT_ACCURATE_TEST
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   long double ld = 2733248032.9183987530L;
   unsigned int i;
@@ -147,7 +160,7 @@ int main(void)
 #endif
 
 #ifdef H5_LLONG_TO_LDOUBLE_CORRECT_TEST
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   long double ld;
   long long ll;
@@ -213,7 +226,7 @@ int FC_DUMMY_MAIN()
 #endif
 #endif
 int
-main ()
+main () HDF_NO_UBSAN
 {
 
   char *chp = "beefs";
@@ -255,7 +268,7 @@ main ()
 #include <stdlib.h>
 #include <string.h>
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
   /* General variables */
   int endian;
@@ -331,7 +344,7 @@ int main(void)
 
 #ifdef H5_ULONG_TO_FLOAT_ACCURATE_TEST
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
     int           ret = 0;
     unsigned long l1;
@@ -366,7 +379,7 @@ done:
 #include <string.h>
 
 
-int main(void)
+int main(void) HDF_NO_UBSAN
 {
     unsigned long l1;
     unsigned long l2;

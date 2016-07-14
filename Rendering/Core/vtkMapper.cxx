@@ -16,8 +16,10 @@
 
 #include "vtkAbstractArray.h"
 #include "vtkColorSeries.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkDataArray.h"
 #include "vtkDataSet.h"
+#include "vtkDataObjectTreeIterator.h"
 #include "vtkDoubleArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkExecutive.h"
@@ -26,6 +28,7 @@
 #include "vtkLookupTable.h"
 #include "vtkMath.h"
 #include "vtkPointData.h"
+#include "vtkPolyData.h"
 #include "vtkVariantArray.h"
 
 
@@ -35,9 +38,13 @@ static int vtkMapperGlobalImmediateModeRendering = 0;
 // Initialize static member that controls global coincidence resolution
 static int vtkMapperGlobalResolveCoincidentTopology = VTK_RESOLVE_OFF;
 static double vtkMapperGlobalResolveCoincidentTopologyZShift = 0.01;
-static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 1.0;
-static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 1.0;
 static int vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFaces = 1;
+
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor = 2.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits = 2.0;
+static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = 1.0;
+static double vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits = 0.0;
 
 vtkScalarsToColors *vtkMapper::InvertibleLookupTable = NULL;
 
@@ -78,6 +85,12 @@ vtkMapper::vtkMapper()
 
   this->UseInvertibleColors = false;
   this->InvertibleScalars = NULL;
+
+  this->CoincidentPolygonFactor = 0.0;
+  this->CoincidentPolygonOffset = 0.0;
+  this->CoincidentLineFactor = 0.0;
+  this->CoincidentLineOffset = 0.0;
+  this->CoincidentPointOffset = 0.0;
 
   this->AcquireInvertibleLookupTable();
 }
@@ -220,6 +233,119 @@ void vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(
   units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits;
 }
 
+void vtkMapper::SetRelativeCoincidentTopologyPolygonOffsetParameters(
+                                          double factor, double units)
+{
+  if (factor == this->CoincidentPolygonFactor &&
+      units == this->CoincidentPolygonOffset )
+    {
+    return;
+    }
+  this->CoincidentPolygonFactor = factor;
+  this->CoincidentPolygonOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyPolygonOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = this->CoincidentPolygonFactor;
+  units = this->CoincidentPolygonOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyPolygonOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFactor
+    + this->CoincidentPolygonFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetUnits
+    + this->CoincidentPolygonOffset;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyLineOffsetParameters(
+                                            double factor, double units)
+{
+  if (factor == vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor &&
+      units == vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits )
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor = factor;
+  vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits = units;
+}
+
+void vtkMapper::GetResolveCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits;
+}
+
+void vtkMapper::SetRelativeCoincidentTopologyLineOffsetParameters(
+                                          double factor, double units)
+{
+  if (factor == this->CoincidentLineFactor &&
+      units == this->CoincidentLineOffset )
+    {
+    return;
+    }
+  this->CoincidentLineFactor = factor;
+  this->CoincidentLineOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = this->CoincidentLineFactor;
+  units = this->CoincidentLineOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyLineOffsetParameters(
+                           double& factor, double& units)
+{
+  factor = vtkMapperGlobalResolveCoincidentTopologyLineOffsetFactor
+    + this->CoincidentLineFactor;
+  units = vtkMapperGlobalResolveCoincidentTopologyLineOffsetUnits
+    + this->CoincidentLineOffset;
+}
+
+void vtkMapper::SetResolveCoincidentTopologyPointOffsetParameter(
+                                            double units)
+{
+  if (units == vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits )
+    {
+    return;
+    }
+  vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits = units;
+}
+
+void vtkMapper::GetResolveCoincidentTopologyPointOffsetParameter(
+                           double& units)
+{
+  units = vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits;
+}
+
+void vtkMapper::SetRelativeCoincidentTopologyPointOffsetParameter(
+                                            double units)
+{
+  if (units == this->CoincidentPointOffset )
+    {
+    return;
+    }
+  this->CoincidentPointOffset = units;
+}
+
+void vtkMapper::GetRelativeCoincidentTopologyPointOffsetParameter(
+                           double& units)
+{
+  units = this->CoincidentPointOffset;
+}
+
+void vtkMapper::GetCoincidentTopologyPointOffsetParameter(double& units)
+{
+  units = vtkMapperGlobalResolveCoincidentTopologyPointOffsetUnits
+    + this->CoincidentPointOffset;
+}
+
 void vtkMapper::SetResolveCoincidentTopologyPolygonOffsetFaces(int faces)
 {
   vtkMapperGlobalResolveCoincidentTopologyPolygonOffsetFaces = faces;
@@ -284,7 +410,16 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   vtkDataSet *input = this->GetInput();
-  return this->MapScalars(input,alpha);
+  int cellFlag; //not used
+  return this->MapScalars(input,alpha,cellFlag);
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha, int &cellFlag)
+{
+  vtkDataSet *input = this->GetInput();
+  return this->MapScalars(input,alpha,cellFlag);
 }
 
 //-----------------------------------------------------------------------------
@@ -328,7 +463,7 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
       }
 
     if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+         vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
         this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
       {
       // Don't use texture is direct coloring using RGB unsigned chars is
@@ -340,13 +475,19 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
   return 1;
 }
 
-// a side effect of this is that this->Colors is also set
-// to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
                                             double alpha)
 {
   int cellFlag = 0;
+  return this->MapScalars(input, alpha, cellFlag);
+}
 
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
+                                            double alpha,
+                                            int &cellFlag)
+{
   vtkAbstractArray *scalars = NULL;
   if (!this->UseInvertibleColors)
     {
@@ -383,7 +524,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
       }
 
     // Get the lookup table.
-    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
     if (dataArray && dataArray->GetLookupTable())
       {
       this->SetLookupTable(dataArray->GetLookupTable());
@@ -504,7 +645,8 @@ void vtkMapper::ColorByArrayComponent(const char* arrayName, int component)
     }
   this->Modified();
 
-  strcpy(this->ArrayName, arrayName);
+  strncpy(this->ArrayName, arrayName, sizeof(this->ArrayName) - 1);
+  this->ArrayName[sizeof(this->ArrayName) - 1] = '\0';
   this->ArrayComponent = component;
   this->ArrayAccessMode = VTK_GET_ARRAY_BY_NAME;
 }
@@ -552,7 +694,7 @@ void vtkMapper::CreateDefaultLookupTable()
     GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
     {
     // Use indexed lookup for non-numeric arrays
@@ -641,9 +783,48 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
 {
   //find and hold onto the array to use later
   int cellFlag = 0; // not used
-  vtkAbstractArray* abstractArray = vtkAbstractMapper::
-    GetAbstractScalars(this->GetInput(), scalarMode, arrayAccessMode,
-                       arrayId, arrayName, cellFlag);
+
+  vtkAbstractArray *abstractArray = NULL;
+
+  vtkDataObject *dataObject = this->GetExecutive()->GetInputData(0, 0);
+
+  // Check for a regular data set
+  vtkDataSet *input = vtkDataSet::SafeDownCast(dataObject);
+  if (input)
+    {
+    abstractArray = vtkAbstractMapper::
+      GetAbstractScalars(input, scalarMode, arrayAccessMode,
+                         arrayId, arrayName, cellFlag);
+    }
+
+  // Check for a composite data set
+  vtkCompositeDataSet *compositeInput =
+    vtkCompositeDataSet::SafeDownCast(dataObject);
+  if (compositeInput)
+    {
+    vtkSmartPointer<vtkDataObjectTreeIterator> iter =
+      vtkSmartPointer<vtkDataObjectTreeIterator>::New();
+    iter->SetDataSet(compositeInput);
+    iter->SkipEmptyNodesOn();
+    iter->VisitOnlyLeavesOn();
+    for (iter->InitTraversal();
+         !iter->IsDoneWithTraversal();
+         iter->GoToNextItem())
+      {
+      vtkDataObject *dso = iter->GetCurrentDataObject();
+      vtkPolyData *pd = vtkPolyData::SafeDownCast(dso);
+      if (pd)
+        {
+        abstractArray = vtkAbstractMapper::
+          GetAbstractScalars(pd, scalarMode, arrayAccessMode,
+                             arrayId, arrayName, cellFlag);
+        if (abstractArray)
+          {
+          break;
+          }
+        }
+      }
+    }
 
   if (!abstractArray)
   {
@@ -652,6 +833,13 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
   }
 
   this->Modified();
+
+  // Ensure the scalar range is initialized
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
+  if (dataArray && scalarRange[0] > scalarRange[1])
+    {
+    scalarRange = dataArray->GetRange();
+    }
 
   this->ScalarMode = scalarMode;
   this->ArrayComponent = arrayComponent;
@@ -682,7 +870,6 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = NULL;
     }
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
   if (!dataArray)
     {
     vtkLookupTable* table = vtkLookupTable::New();
@@ -698,6 +885,9 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = vtkMapper::InvertibleLookupTable;
     this->LookupTable->Register(this);
     }
+
+    // Update the component in either case.
+    this->LookupTable->SetVectorComponent(arrayComponent);
 }
 
 //-------------------------------------------------------------------
@@ -716,6 +906,7 @@ void vtkMapper::ClearInvertibleColor()
     }
 }
 
+//-------------------------------------------------------------------
 // Return the method of coloring scalar data.
 const char *vtkMapper::GetColorModeAsString(void)
 {
@@ -1094,4 +1285,53 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << "Shift Z-Buffer" << endl;
     }
+
+  os << indent << "CoincidentPointOffset: "
+     << this->CoincidentPointOffset << "\n";
+  os << indent << "CoincidentLineOffset: "
+     << this->CoincidentLineOffset << "\n";
+  os << indent << "CoincidentPolygonOffset: "
+     << this->CoincidentPolygonOffset << "\n";
+  os << indent << "CoincidentLineFactor: "
+     << this->CoincidentLineFactor << "\n";
+  os << indent << "CoincidentPolygonFactor: "
+     << this->CoincidentPolygonFactor << "\n";
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::ClearColorArrays()
+{
+  if (this->Colors)
+    {
+    this->Colors->Delete();
+    this->Colors = NULL;
+    }
+  if (this->ColorCoordinates)
+    {
+    this->ColorCoordinates->Delete();
+    this->ColorCoordinates = NULL;
+    }
+  if (this->ColorTextureMap)
+    {
+    this->ColorTextureMap->Delete();
+    this->ColorTextureMap = NULL;
+    }
+}
+
+//-------------------------------------------------------------------
+vtkUnsignedCharArray *vtkMapper::GetColorMapColors()
+{
+  return this->Colors;
+}
+
+//-------------------------------------------------------------------
+vtkFloatArray *vtkMapper::GetColorCoordinates()
+{
+  return this->ColorCoordinates;
+}
+
+//-------------------------------------------------------------------
+vtkImageData* vtkMapper::GetColorTextureMap()
+{
+  return this->ColorTextureMap;
 }

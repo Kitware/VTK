@@ -33,7 +33,7 @@
 #include <vector>
 #include <limits>
 #include <list>
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkCirclePackFrontChainLayoutStrategy);
 
@@ -134,7 +134,7 @@ void vtkCirclePackFrontChainLayoutStrategyImplementation::incrListIteratorWrapAr
 {
   if(i != frontChain.end())
     ++i;
-  else if(i == frontChain.end())
+  else
     i = frontChain.begin();
 }
 

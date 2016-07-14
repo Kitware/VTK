@@ -864,8 +864,7 @@ void vtkTemporalFractal::Traverse(int &blockId,
     }
 
   // Get the bounds of the proposed block.
-  int ext[6];
-  ext[0]=x0; ext[1]=x3; ext[2]=y0; ext[3]=y3, ext[4]=z0; ext[5]=z3;
+  int ext[6] = {x0, x3, y0, y3, z0, z3};
   this->CellExtentToBounds(level, ext, bds);
 
   x0 = x0*2;

@@ -551,17 +551,15 @@ protected:
   int DataDescription;
   int WholeExtent[6];
 
-  // BTX
   std::vector< int > GridExtents;
   std::vector< int > GhostedExtents;
   std::vector< unsigned char  > BlockTopology;
   std::vector< std::vector<vtkStructuredNeighbor> > Neighbors;
   std::map< std::pair< int,int >, int > NeighborPair2NeighborListIndex;
-  // ETX
 
 private:
-  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ); // Not implemented
-  void operator=(const vtkStructuredGridConnectivity& ); // Not implemented
+  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================

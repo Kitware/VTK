@@ -104,7 +104,7 @@ void vtkTanglegramItem::SetTable(vtkTable *table)
 
   this->Table = table;
 
-  this->SourceNames = vtkStringArray::SafeDownCast(this->Table->GetColumn(0));
+  this->SourceNames = vtkArrayDownCast<vtkStringArray>(this->Table->GetColumn(0));
   this->GenerateLookupTable();
   this->TreeReordered = false;
 }
@@ -155,11 +155,11 @@ void vtkTanglegramItem::RefreshBuffers(vtkContext2D *painter)
   this->Dendrogram2->GetBounds(this->Tree2Bounds);
   this->LabelWidth2 = this->Dendrogram2->GetLabelWidth();
 
-  this->Tree1Names = vtkStringArray::SafeDownCast(
+  this->Tree1Names = vtkArrayDownCast<vtkStringArray>(
     this->Dendrogram1->GetPrunedTree()->GetVertexData()->
     GetAbstractArray("node name"));
 
-  this->Tree2Names = vtkStringArray::SafeDownCast(
+  this->Tree2Names = vtkArrayDownCast<vtkStringArray>(
     this->Dendrogram2->GetPrunedTree()->GetVertexData()->
     GetAbstractArray("node name"));
 }
@@ -523,7 +523,7 @@ void vtkTanglegramItem::ReorderTree()
 
   vtkTree *tree = this->Dendrogram2->GetTree();
 
-  this->Tree2Names = vtkStringArray::SafeDownCast(
+  this->Tree2Names = vtkArrayDownCast<vtkStringArray>(
     tree->GetVertexData()-> GetAbstractArray("node name"));
 
   vtkNew<vtkTreeBFSIterator> bfsIterator;
@@ -610,7 +610,7 @@ double vtkTanglegramItem::GetPositionScoreForVertex(vtkIdType vertex,
     std::string tree2Name = this->Tree2Names->GetValue(v);
 
     // find where this name appears in the correspondence table
-    vtkDoubleArray *column = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray *column = vtkArrayDownCast<vtkDoubleArray>(
       this->Table->GetColumnByName(tree2Name.c_str()));
 
     if (column == NULL)

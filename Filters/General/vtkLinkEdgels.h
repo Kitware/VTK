@@ -94,8 +94,8 @@ protected:
   double PhiThreshold;
   double LinkThreshold;
 private:
-  vtkLinkEdgels(const vtkLinkEdgels&);  // Not implemented.
-  void operator=(const vtkLinkEdgels&);  // Not implemented.
+  vtkLinkEdgels(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLinkEdgels&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -725,12 +725,7 @@ int checkFunctionSignature(ClassInfo *data)
     VTK_PARSE_SHORT, VTK_PARSE_UNSIGNED_SHORT,
     VTK_PARSE_LONG, VTK_PARSE_UNSIGNED_LONG,
     VTK_PARSE_ID_TYPE, VTK_PARSE_UNSIGNED_ID_TYPE,
-#ifdef VTK_TYPE_USE_LONG_LONG
     VTK_PARSE_LONG_LONG, VTK_PARSE_UNSIGNED_LONG_LONG,
-#endif
-#ifdef VTK_TYPE_USE___INT64
-    VTK_PARSE___INT64, VTK_PARSE_UNSIGNED___INT64,
-#endif
     VTK_PARSE_OBJECT, VTK_PARSE_STRING, VTK_PARSE_UNKNOWN,
     0
   };
@@ -1098,6 +1093,9 @@ int main(int argc, char *argv[])
   FILE *fp;
   int i,j,k;
 
+  /* pre-define a macro to identify the language */
+  vtkParse_DefineMacro("__VTK_WRAP_TCL__", 0);
+
   /* get command-line args and parse the header file */
   file_info = vtkParse_Main(argc, argv);
 
@@ -1120,13 +1118,14 @@ int main(int argc, char *argv[])
   if ((data = file_info->MainClass) == NULL)
     {
     fclose(fp);
-    exit(0);
+    exit(1);
     }
 
   /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileName)
+  if (options->HierarchyFileNames)
     {
-    hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    hierarchyInfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
     if (hierarchyInfo)
       {
       /* resolve using declarations within the header files */

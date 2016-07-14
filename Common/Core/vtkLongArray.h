@@ -26,35 +26,37 @@
 #ifndef vtkLongArray_h
 #define vtkLongArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !defined(vtkLongArray_cxx)
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE long
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<long>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<long>
 #endif
 class VTKCOMMONCORE_EXPORT vtkLongArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkLongArray, vtkDataArray)
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkLongArray* New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(long);
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkLongArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkLongArray*>(Superclass::FastDownCast(source));
+  }
 
   // Description:
   // Get the minimum data value in its native type.
@@ -69,11 +71,14 @@ protected:
   ~vtkLongArray();
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<long> RealSuperclass;
-  //ETX
-  vtkLongArray(const vtkLongArray&);  // Not implemented.
-  void operator=(const vtkLongArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<long> RealSuperclass;
+
+  vtkLongArray(const vtkLongArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLongArray&) VTK_DELETE_FUNCTION;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkLongArray)
 
 #endif

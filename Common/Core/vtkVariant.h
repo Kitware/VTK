@@ -40,7 +40,6 @@
 // The following should be eventually placed in vtkSetGet.h
 //
 
-//BTX
 // This is same as extended template macro with an additional case for VTK_VARIANT
 #define vtkExtraExtendedTemplateMacro(call)                                 \
   vtkExtendedTemplateMacro(call);                                            \
@@ -50,7 +49,6 @@
 #define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
   vtkArrayIteratorTemplateMacro(call);                                                   \
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
-//ETX
 
 class vtkStdString;
 class vtkUnicodeString;
@@ -64,9 +62,7 @@ class vtkVariant;
 #endif
 struct vtkVariantLessThan;
 
-//BTX
 VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-//ETX
 
 class VTKCOMMONCORE_EXPORT vtkVariant
 {
@@ -124,16 +120,6 @@ public:
   // Create an unsigned long variant.
   vtkVariant(unsigned long value);
 
-#if defined(VTK_TYPE_USE___INT64)
-  // Description:
-  // Create an __int64 variant.
-  vtkVariant(__int64 value);
-
-  // Description:
-  // Create an unsigned __int64 variant.
-  vtkVariant(unsigned __int64 value);
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
   // Description:
   // Create a long long variant.
   vtkVariant(long long value);
@@ -141,7 +127,6 @@ public:
   // Description:
   // Create an unsigned long long variant.
   vtkVariant(unsigned long long value);
-#endif
 
   // Description:
   // Create a float variant.
@@ -236,11 +221,11 @@ public:
   bool IsUnsignedLong() const;
 
   // Description:
-  // Get whether the variant is an __int64.
+  // Legacy.  Returns false.  The variant is never an __int64.
   bool Is__Int64() const;
 
   // Description:
-  // Get whether the variant is an unsigned __int64.
+  // Legacy.  Returns false.  The variant is never an unsigned __int64.
   bool IsUnsigned__Int64() const;
 
   // Description:
@@ -316,22 +301,12 @@ public:
   unsigned long ToUnsignedLong(bool *valid) const;
   unsigned long ToUnsignedLong() const {
     return this->ToUnsignedLong(0); };
-#if defined(VTK_TYPE_USE___INT64)
-  __int64 To__Int64(bool *valid) const;
-  __int64 To__Int64() const {
-    return this->To__Int64(0); };
-  unsigned __int64 ToUnsigned__Int64(bool *valid) const;
-  unsigned __int64 ToUnsigned__Int64() const {
-    return this->ToUnsigned__Int64(0); };
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
   long long ToLongLong(bool *valid) const;
   long long ToLongLong() const {
     return this->ToLongLong(0); };
   unsigned long long ToUnsignedLongLong(bool *valid) const;
   unsigned long long ToUnsignedLongLong() const {
     return this->ToUnsignedLongLong(0); };
-#endif
   vtkTypeInt64 ToTypeInt64(bool *valid) const;
   vtkTypeInt64 ToTypeInt64() const {
     return this->ToTypeInt64(0); };
@@ -394,12 +369,10 @@ public:
   bool operator<=(const vtkVariant &other) const;
   bool operator>=(const vtkVariant &other) const;
 
-//BTX
   friend VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-//ETX
 
 private:
-//BTX
+
   template <typename T>
   T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
 
@@ -418,14 +391,8 @@ private:
     unsigned int UnsignedInt;
     long Long;
     unsigned long UnsignedLong;
-#if defined(VTK_TYPE_USE___INT64)
-    __int64 __Int64;
-    unsigned __int64 Unsigned__Int64;
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
     long long LongLong;
     unsigned long long UnsignedLongLong;
-#endif
     vtkObjectBase* VTKObject;
   } Data;
 
@@ -436,10 +403,8 @@ private:
   friend struct vtkVariantEqual;
   friend struct vtkVariantStrictWeakOrder;
   friend struct vtkVariantStrictEquality;
-//ETX
-};
 
-//BTX
+};
 
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
 
@@ -475,8 +440,6 @@ struct VTKCOMMONCORE_EXPORT vtkVariantStrictEquality
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
-
-//ETX
 
 #endif
 // VTK-HeaderTest-Exclude: vtkVariant.h

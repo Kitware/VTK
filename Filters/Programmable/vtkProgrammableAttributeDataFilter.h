@@ -124,7 +124,7 @@ protected:
   ProgrammableMethodCallbackType ExecuteMethodArgDelete;
   void *ExecuteMethodArg;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 private:
   // hide the superclass' AddInput() from the user and the compiler
@@ -132,8 +132,8 @@ private:
     { vtkErrorMacro( << "AddInput() must be called with a vtkDataSet not a vtkDataObject."); };
 
 private:
-  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
-  void operator=(const vtkProgrammableAttributeDataFilter&);  // Not implemented.
+  vtkProgrammableAttributeDataFilter(const vtkProgrammableAttributeDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProgrammableAttributeDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

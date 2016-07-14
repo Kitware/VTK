@@ -29,7 +29,6 @@ public:
   static vtkByteSwap *New();
   vtkTypeMacro(vtkByteSwap,vtkObject);
 
-  //BTX
   // Description:
   // Type-safe swap signatures to swap for storage in either Little
   // Endian or Big Endian format.  Swapping is performed according to
@@ -49,21 +48,14 @@ public:
   VTK_BYTE_SWAP_DECL(short);
   VTK_BYTE_SWAP_DECL(int);
   VTK_BYTE_SWAP_DECL(long);
+  VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(signed char);
   VTK_BYTE_SWAP_DECL(unsigned char);
   VTK_BYTE_SWAP_DECL(unsigned short);
   VTK_BYTE_SWAP_DECL(unsigned int);
   VTK_BYTE_SWAP_DECL(unsigned long);
-#if defined(VTK_TYPE_USE_LONG_LONG)
-  VTK_BYTE_SWAP_DECL(long long);
   VTK_BYTE_SWAP_DECL(unsigned long long);
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-  VTK_BYTE_SWAP_DECL(__int64);
-  VTK_BYTE_SWAP_DECL(unsigned __int64);
-#endif
 #undef VTK_BYTE_SWAP_DECL
-  //ETX
 
   // Description:
   // Swap 2, 4, or 8 bytes for storage as Little Endian.
@@ -119,8 +111,8 @@ protected:
   ~vtkByteSwap();
 
 private:
-  vtkByteSwap(const vtkByteSwap&);  // Not implemented.
-  void operator=(const vtkByteSwap&);  // Not implemented.
+  vtkByteSwap(const vtkByteSwap&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkByteSwap&) VTK_DELETE_FUNCTION;
 };
 
 #endif

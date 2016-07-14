@@ -44,9 +44,8 @@ class vtkODBCQueryInternals;
 
 class VTKIOODBC_EXPORT vtkODBCQuery : public vtkSQLQuery
 {
-//BTX
+
   friend class vtkODBCDatabase;
-//ETX
 
 public:
   vtkTypeMacro(vtkODBCQuery, vtkSQLQuery);
@@ -106,21 +105,21 @@ public:
   // further explanation.  The driver makes internal copies of string
   // and BLOB parameters so you don't need to worry about keeping them
   // in scope until the query finishes executing.
-//BTX
+
   using vtkSQLQuery::BindParameter;
   bool BindParameter(int index, unsigned char value);
   bool BindParameter(int index, signed char value);
   bool BindParameter(int index, unsigned short value);
   bool BindParameter(int index, signed short value);
   bool BindParameter(int index, unsigned int value);
-//ETX
+
   bool BindParameter(int index, int value);
-//BTX
+
   bool BindParameter(int index, unsigned long value);
   bool BindParameter(int index, signed long value);
   bool BindParameter(int index, vtkTypeUInt64 value);
   bool BindParameter(int index, vtkTypeInt64 value);
-//ETX
+
   bool BindParameter(int index, float value);
   bool BindParameter(int index, double value);
   // Description:
@@ -148,8 +147,8 @@ protected:
   char *QueryText;
 
 private:
-  vtkODBCQuery(const vtkODBCQuery &); // Not implemented.
-  void operator=(const vtkODBCQuery &); // Not implemented.
+  vtkODBCQuery(const vtkODBCQuery &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkODBCQuery &) VTK_DELETE_FUNCTION;
 
   void ClearCurrentRow();
   bool CacheCurrentRow();

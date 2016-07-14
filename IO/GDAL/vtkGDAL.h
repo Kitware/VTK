@@ -36,8 +36,8 @@ class VTKIOGDAL_EXPORT vtkGDAL : public vtkObject
  private:
   vtkGDAL();  // Static class
   ~vtkGDAL();
-  vtkGDAL(const vtkGDAL&); // Not implemented.
-  void operator=(const vtkGDAL&); // Not implemented
+  vtkGDAL(const vtkGDAL&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGDAL&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDAL_h

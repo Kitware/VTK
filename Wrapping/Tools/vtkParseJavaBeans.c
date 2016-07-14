@@ -510,7 +510,6 @@ void outputFunction(FILE *fp, ClassInfo *data)
   unsigned int rType =
     (currentFunction->ReturnType & VTK_PARSE_UNQUALIFIED_TYPE);
   unsigned int aType = 0;
-  unsigned int baseType;
   int i;
   /* beans */
   char *beanfunc;
@@ -683,9 +682,10 @@ void vtkParseOutput(FILE *fp, FileInfo *file_info)
   options = vtkParse_GetCommandLineOptions();
 
   /* get the hierarchy info for accurate typing */
-  if (options->HierarchyFileName)
+  if (options->HierarchyFileNames)
     {
-    hierarchyInfo = vtkParseHierarchy_ReadFile(options->HierarchyFileName);
+    hierarchyInfo = vtkParseHierarchy_ReadFiles(
+      options->NumberOfHierarchyFileNames, options->HierarchyFileNames);
     }
 
   fprintf(fp,"// java wrapper for %s object\n//\n",data->Name);

@@ -44,15 +44,15 @@ public:
   // background without locking the main one.
   static void ProcessRMIs();
   static void ProcessRMIs(int reportError, int dont_loop=0);
-//BTX
+
 protected:
   vtkWebUtilities();
   ~vtkWebUtilities();
 
 private:
-  vtkWebUtilities(const vtkWebUtilities&); // Not implemented
-  void operator=(const vtkWebUtilities&); // Not implemented
-//ETX
+  vtkWebUtilities(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebUtilities&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

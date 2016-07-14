@@ -28,6 +28,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkStreamer.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 class VTKFILTERSFLOWPATHS_EXPORT vtkStreamPoints : public vtkStreamer
 {
 public:
@@ -54,8 +56,9 @@ protected:
   double TimeIncrement;
 
 private:
-  vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
-  void operator=(const vtkStreamPoints&);  // Not implemented.
+  vtkStreamPoints(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
 };
 
+#endif // VTK_LEGACY_REMOVE
 #endif

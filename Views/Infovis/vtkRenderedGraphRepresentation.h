@@ -376,7 +376,6 @@ protected:
     vtkInformationVector** inputVector,
     vtkInformationVector* outputVector);
 
-  //BTX
   // Description:
   // Internal filter classes.
   vtkSmartPointer<vtkApplyColors>          ApplyColors;
@@ -407,7 +406,6 @@ protected:
   vtkSmartPointer<vtkIconGlyphFilter>      VertexIconGlyph;
   vtkSmartPointer<vtkPolyDataMapper2D>     VertexIconMapper;
   vtkSmartPointer<vtkTexturedActor2D>      VertexIconActor;
-  //ETX
 
   char* VertexHoverArrayName;
   char* EdgeHoverArrayName;
@@ -434,8 +432,8 @@ protected:
   bool EdgeSelection;
 
 private:
-  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&); // Not implemented
-  void operator=(const vtkRenderedGraphRepresentation&);   // Not implemented
+  vtkRenderedGraphRepresentation(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedGraphRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

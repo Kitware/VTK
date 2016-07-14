@@ -66,8 +66,8 @@ protected:
   ~vtkGraphEdgePoints() { }
 
 private:
-  vtkGraphEdgePoints(const vtkGraphEdgePoints&);  // Not implemented.
-  void operator=(const vtkGraphEdgePoints&);  // Not implemented.
+  vtkGraphEdgePoints(const vtkGraphEdgePoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphEdgePoints&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(vtkGraphEdgePoints);
 
@@ -1923,7 +1923,6 @@ bool vtkGraph::ToDirectedGraph(vtkDirectedGraph* g)
     }
   else
     {
-    g = NULL;
     return false;
     }
 }
@@ -1973,7 +1972,6 @@ bool vtkGraph::ToUndirectedGraph(vtkUndirectedGraph* g)
     }
   else
     {
-    g = NULL;
     return false;
     }
 }

@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     return 0;
     }
   if (colorArray &&
-      vtkDataArray::SafeDownCast(tree->GetVertexData()->GetAbstractArray(colorArray)) == NULL)
+      vtkArrayDownCast<vtkDataArray>(tree->GetVertexData()->GetAbstractArray(colorArray)) == NULL)
     {
     cerr << "ERROR: The color attribute " << colorArray << " does not have numeric values." << endl;
     reader->Delete();
@@ -115,7 +115,7 @@ int main(int argc, char* argv[])
   double colorRange[2] = {0, 1};
   if (colorArray)
     {
-    vtkDataArray* color = vtkDataArray::SafeDownCast(
+    vtkDataArray* color = vtkArrayDownCast<vtkDataArray>(
       tree->GetVertexData()->GetAbstractArray(colorArray));
     color->GetRange(colorRange);
     }

@@ -120,11 +120,6 @@ public:
   double Evaluate(const double point[3]) {
     return this->Evaluate(point[0], point[1], point[2]); }
 
-  // Description:
-  // Internal method.  Override SplitExtent so that the full extent is
-  // available in the direction currently being processed.
-  int SplitExtent(int splitExt[6], int startExt[6], int num, int total);
-
 protected:
   vtkImageBSplineCoefficients();
   ~vtkImageBSplineCoefficients();
@@ -152,8 +147,8 @@ protected:
   int Iteration;
 
 private:
-  vtkImageBSplineCoefficients(const vtkImageBSplineCoefficients&);  // Not implemented.
-  void operator=(const vtkImageBSplineCoefficients&);  // Not implemented.
+  vtkImageBSplineCoefficients(const vtkImageBSplineCoefficients&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageBSplineCoefficients&) VTK_DELETE_FUNCTION;
 };
 
 #endif

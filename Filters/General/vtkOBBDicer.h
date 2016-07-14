@@ -60,8 +60,8 @@ protected:
   vtkPoints *PointsList;
 
 private:
-  vtkOBBDicer(const vtkOBBDicer&);  // Not implemented.
-  void operator=(const vtkOBBDicer&);  // Not implemented.
+  vtkOBBDicer(const vtkOBBDicer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBBDicer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

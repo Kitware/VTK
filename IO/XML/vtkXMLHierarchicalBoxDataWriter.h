@@ -36,15 +36,14 @@ public:
   virtual const char* GetDefaultFileExtension()
     { return "vth"; }
 
-//BTX
 protected:
   vtkXMLHierarchicalBoxDataWriter();
   ~vtkXMLHierarchicalBoxDataWriter();
 
 private:
-  vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
-  void operator=(const vtkXMLHierarchicalBoxDataWriter&); // Not implemented.
-//ETX
+  vtkXMLHierarchicalBoxDataWriter(const vtkXMLHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLHierarchicalBoxDataWriter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

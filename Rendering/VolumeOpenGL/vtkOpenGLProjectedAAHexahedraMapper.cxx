@@ -60,7 +60,7 @@
 #include "vtkShader2Collection.h"
 #include "vtkOpenGLError.h"
 
-#include <math.h>
+#include <cmath>
 #include <algorithm>
 
 // Shader code

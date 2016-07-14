@@ -48,12 +48,10 @@ class VTKRENDERINGOPENGL2_EXPORT vtkRenderPassCollection : public vtkCollection
   // Get the last RenderPass in the list.
   vtkRenderPass *GetLastRenderPass();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkRenderPass *GetNextRenderPass(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkRenderPassCollection();
@@ -64,8 +62,8 @@ private:
   void AddItem(vtkObject *o);
 
 private:
-  vtkRenderPassCollection(const vtkRenderPassCollection&);  // Not implemented.
-  void operator=(const vtkRenderPassCollection&);  // Not implemented.
+  vtkRenderPassCollection(const vtkRenderPassCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderPassCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

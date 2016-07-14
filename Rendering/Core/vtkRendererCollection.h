@@ -56,13 +56,11 @@ public:
   // Return NULL when at the end of the list.
   vtkRenderer *GetFirstRenderer();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkRenderer *GetNextRenderer(vtkCollectionSimpleIterator &cookie)
     { return static_cast<vtkRenderer *>(this->GetNextItemAsObject(cookie)); }
-  //ETX
 
 protected:
   vtkRendererCollection() {}
@@ -73,8 +71,8 @@ private:
   void AddItem(vtkObject *o)
     { this->vtkCollection::AddItem(o); }
 
-  vtkRendererCollection(const vtkRendererCollection&);  // Not implemented.
-  void operator=(const vtkRendererCollection&);  // Not implemented.
+  vtkRendererCollection(const vtkRendererCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRendererCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

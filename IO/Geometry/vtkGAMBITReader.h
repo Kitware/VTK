@@ -78,7 +78,6 @@ protected:
   int NumberOfVelocityComponents;
   ifstream *FileStream;
 
-  //BTX
   enum GAMBITCellType
   {
     EDGE    = 1,
@@ -89,7 +88,6 @@ protected:
     TETRA   = 6,
     PYRAMID = 7
   };
-  //ETX
 
 private:
   void ReadFile(vtkUnstructuredGrid *output);
@@ -103,8 +101,8 @@ private:
   void ReadMaterialTypes(vtkUnstructuredGrid *output);
   void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
 
-  vtkGAMBITReader(const vtkGAMBITReader&);  // Not implemented.
-  void operator=(const vtkGAMBITReader&);  // Not implemented.
+  vtkGAMBITReader(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

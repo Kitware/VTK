@@ -40,12 +40,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
-#if defined(_WIN32) && !defined(__CYGWIN__)
-# define SNPRINTF _snprintf
-#else
-# define SNPRINTF snprintf
-#endif
-
 struct  _xmlNode;
 #define VTK_MAX_PLOTS 50
 
@@ -1083,7 +1077,7 @@ int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
         switch ( this->AdjustTitlePositionMode & ( AlignAxisTop | AlignAxisBottom | AlignAxisVCenter ) )
           {
           case AlignAxisTop:
-            titlePos[1] += this->AdjustTitlePositionMode & AlignTop ? this->Border : -this->Border;
+            titlePos[1] += (this->AdjustTitlePositionMode & AlignTop) ? this->Border : -this->Border;
             break;
           case AlignAxisBottom:
             titlePos[1] -= stringSize[1];
@@ -1471,7 +1465,8 @@ void vtkXYPlotActor::ComputeXRange( double range[2], double *lengths )
   double maxLength=0.0, xPrev[3], x[3];
   vtkDataSet *ds;
 
-  range[0] = VTK_DOUBLE_MAX, range[1] = VTK_DOUBLE_MIN;
+  range[0] = VTK_DOUBLE_MAX;
+  range[1] = VTK_DOUBLE_MIN;
 
   int numDS = this->InputConnectionHolder->GetNumberOfInputConnections( 0 );
   for ( dsNum=0, maxNum=0; dsNum<numDS;  dsNum++)
@@ -1587,7 +1582,8 @@ void vtkXYPlotActor::ComputeYRange( double range[2] )
   double sRange[2];
   int component;
 
-  range[0]=VTK_DOUBLE_MAX, range[1]=VTK_DOUBLE_MIN;
+  range[0] = VTK_DOUBLE_MAX;
+  range[1] = VTK_DOUBLE_MIN;
 
   int numDS = this->InputConnectionHolder->GetNumberOfInputConnections( 0 );
   for ( int dsNum=0, count = 0; dsNum<numDS;  dsNum++, count++)
@@ -2274,7 +2270,7 @@ void vtkXYPlotActor::PlaceAxes( vtkViewport *viewport, int *size,
   switch( this->YTitlePosition )
     {
     case VTK_XYPLOT_Y_AXIS_TOP:
-      SNPRINTF( tmp, len, "%s", YTitleActor->GetInput() );
+      snprintf( tmp, len, "%s", YTitleActor->GetInput() );
       textMapper->SetInput( tmp );
       break;
     case VTK_XYPLOT_Y_AXIS_HCENTER:

@@ -28,6 +28,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkRect.h" // for ivar
 
 class vtkHomogeneousTransform;
 class vtkMatrix4x4;
@@ -493,6 +494,16 @@ public:
   vtkSetMacro(FreezeFocalPoint, bool);
   vtkGetMacro(FreezeFocalPoint, bool);
 
+  // Description:
+  // Enable/Disable the scissor
+  vtkSetMacro(UseScissor, bool);
+  vtkGetMacro(UseScissor, bool);
+
+  // Description:
+  // Set/Get the vtkRect value of the scissor
+  void SetScissorRect(vtkRecti scissorRect);
+  void GetScissorRect(vtkRecti& scissorRect);
+
 protected:
   vtkCamera();
   ~vtkCamera();
@@ -582,20 +593,23 @@ protected:
   vtkTransform *ModelViewTransform;
 
   double FocalDisk;
-  //BTX
+
   vtkCameraCallbackCommand *UserViewTransformCallbackCommand;
   friend class vtkCameraCallbackCommand;
-  //ETX
 
   // ViewingRaysMtime keeps track of camera modifications which will
   // change the calculation of viewing rays for the camera before it is
   // transformed to the camera's location and orientation.
   vtkTimeStamp ViewingRaysMTime;
   bool FreezeFocalPoint;
+  bool UseScissor;
+
+  vtkRecti ScissorRect;
+
 
 private:
-  vtkCamera(const vtkCamera&);  // Not implemented.
-  void operator=(const vtkCamera&);  // Not implemented.
+  vtkCamera(const vtkCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

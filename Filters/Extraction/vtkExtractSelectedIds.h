@@ -60,8 +60,8 @@ protected:
                     vtkDataSet *output);
 
 private:
-  vtkExtractSelectedIds(const vtkExtractSelectedIds&);  // Not implemented.
-  void operator=(const vtkExtractSelectedIds&);  // Not implemented.
+  vtkExtractSelectedIds(const vtkExtractSelectedIds&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedIds&) VTK_DELETE_FUNCTION;
 };
 
 #endif

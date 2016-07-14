@@ -28,9 +28,9 @@
 
 class vtkAbstractArray;
 class vtkArrayIterator;
-//BTX
+
 template <class T> class vtkArrayIteratorTemplate;
-//ETX
+
 class vtkCellData;
 class vtkDataArray;
 class vtkDataCompressor;
@@ -41,35 +41,29 @@ class vtkPointData;
 class vtkPoints;
 class vtkFieldData;
 class vtkXMLDataHeader;
-//BTX
+
 class vtkStdString;
 class OffsetsManager;      // one per piece/per time
 class OffsetsManagerGroup; // array of OffsetsManager
 class OffsetsManagerArray; // array of OffsetsManagerGroup
-//ETX
 
 class VTKIOXML_EXPORT vtkXMLWriter : public vtkAlgorithm
 {
 public:
-  vtkTypeMacro(vtkXMLWriter,vtkAlgorithm);
+  vtkTypeMacro(vtkXMLWriter, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Enumerate big and little endian byte order settings.
   enum { BigEndian, LittleEndian };
-  //ETX
 
-  //BTX
   // Description:
   // Enumerate the supported data modes.
   //   Ascii = Inline ascii data.
   //   Binary = Inline binary data (base64 encoded, possibly compressed).
   //   Appended = Appended binary data (possibly compressed and/or base64).
   enum { Ascii, Binary, Appended };
-  //ETX
 
-  //BTX
   // Description:
   // Enumerate the supported vtkIdType bit lengths.
   //   Int32 = File stores 32-bit values for vtkIdType.
@@ -81,7 +75,6 @@ public:
   //   UInt32 = File stores 32-bit binary data header elements.
   //   UInt64 = File stores 64-bit binary data header elements.
   enum { UInt32=32, UInt64=64 };
-  //ETX
 
   // Description:
   // Get/Set the byte order of data written to the file.  The default
@@ -114,9 +107,9 @@ public:
 
   // Description:
   // Enable writing to an OutputString instead of the default, a file.
-  vtkSetMacro(WriteToOutputString,int);
-  vtkGetMacro(WriteToOutputString,int);
-  vtkBooleanMacro(WriteToOutputString,int);
+  vtkSetMacro(WriteToOutputString, int);
+  vtkGetMacro(WriteToOutputString, int);
+  vtkBooleanMacro(WriteToOutputString, int);
   std::string GetOutputString() { return this->OutputString; }
 
   // Description:
@@ -125,13 +118,11 @@ public:
   virtual void SetCompressor(vtkDataCompressor*);
   vtkGetObjectMacro(Compressor, vtkDataCompressor);
 
-//BTX
   enum CompressorType
     {
     NONE,
     ZLIB
     };
-//ETX
 
   // Description:
   // Convenience functions to set the compressor to certain known types.
@@ -180,7 +171,7 @@ public:
   void SetInputData(vtkDataObject *);
   void SetInputData(int, vtkDataObject*);
   vtkDataObject *GetInput(int port);
-  vtkDataObject *GetInput() { return this->GetInput(0); };
+  vtkDataObject *GetInput() { return this->GetInput(0); }
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -195,20 +186,11 @@ public:
                              vtkInformationVector** inputVector,
                              vtkInformationVector* outputVector);
 
-  // Description:
-  // Which TimeStep to write.
-  vtkSetMacro(TimeStep, int);
-  vtkGetMacro(TimeStep, int);
-
-  // Description:
-  // Which TimeStepRange to write.
-  vtkGetVector2Macro(TimeStepRange, int);
-  vtkSetVector2Macro(TimeStepRange, int);
 
   // Description:
   // Set the number of time steps
-  vtkGetMacro(NumberOfTimeSteps,int);
-  vtkSetMacro(NumberOfTimeSteps,int);
+  vtkGetMacro(NumberOfTimeSteps, int);
+  vtkSetMacro(NumberOfTimeSteps, int);
 
   // Description:
   // API to interface an outside the VTK pipeline control
@@ -263,7 +245,6 @@ protected:
   // appended data offsets for field data
   OffsetsManagerGroup *FieldDataOM;  //one per array
 
-  //BTX
   // We need a 32 bit signed integer type to which vtkIdType will be
   // converted if Int32 is specified for the IdType parameter to this
   // writer.
@@ -276,7 +257,6 @@ protected:
 # else
 #  error "No native data type can represent a signed 32-bit integer."
 # endif
-  //ETX
 
   // Buffer for vtkIdType conversion.
   Int32IdType* Int32IdTypeBuffer;
@@ -304,7 +284,7 @@ protected:
 
   // Method defined by subclasses to write data.  Return 1 for
   // success, 0 for failure.
-  virtual int WriteData() {return 1;};
+  virtual int WriteData() { return 1; }
 
   // Method defined by subclasses to specify the data set's type name.
   virtual const char* GetDataSetName()=0;
@@ -450,11 +430,8 @@ protected:
   void CloseString();
 
   // The timestep currently being written
-  int TimeStep;
   int CurrentTimeIndex;
   int NumberOfTimeSteps;
-  // Store the range of time steps
-  int TimeStepRange[2];
 
   // Dummy boolean var to start/stop the continue executing:
   // when using the Start/Stop/WriteNextTime API
@@ -469,13 +446,12 @@ protected:
   bool UsePreviousVersion;
 
   vtkTypeInt64 *NumberOfTimeValues; //one per piece / per timestep
-  //BTX
+
   friend class vtkXMLWriterHelper;
-  //ETX
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
-  void operator=(const vtkXMLWriter&);  // Not implemented.
+  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

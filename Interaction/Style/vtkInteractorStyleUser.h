@@ -85,6 +85,8 @@ public:
   virtual void OnMiddleButtonUp();
   virtual void OnRightButtonDown();
   virtual void OnRightButtonUp();
+  virtual void OnMouseWheelForward();
+  virtual void OnMouseWheelBackward();
 
   // Description:
   // Keyboard functions
@@ -116,8 +118,8 @@ protected:
   int Button;
 
 private:
-  vtkInteractorStyleUser(const vtkInteractorStyleUser&);  // Not implemented.
-  void operator=(const vtkInteractorStyleUser&);  // Not implemented.
+  vtkInteractorStyleUser(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleUser&) VTK_DELETE_FUNCTION;
 };
 
 #endif

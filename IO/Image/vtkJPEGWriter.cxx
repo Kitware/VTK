@@ -24,17 +24,8 @@
 
 extern "C" {
 #include "vtk_jpeg.h"
-#if defined(__sgi) && !defined(__GNUC__)
-#  if   (_COMPILER_VERSION >= 730)
-#  pragma set woff 3505
-#  endif
-#endif
 #include <setjmp.h>
 }
-
-#if _MSC_VER
-#define snprintf _snprintf
-#endif
 
 vtkStandardNewMacro(vtkJPEGWriter);
 
@@ -104,9 +95,6 @@ void vtkJPEGWriter::Write()
     memcpy(uExtent, wExtent, 4*sizeof(int));
     uExtent[4] = this->FileNumber;
     uExtent[5] = this->FileNumber;
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      this->GetInputInformation(0, 0),
-      uExtent);
     // determine the name
     if (this->FileName)
       {
@@ -125,7 +113,7 @@ void vtkJPEGWriter::Write()
           this->FilePattern, this->FileNumber);
         }
       }
-    this->GetInputExecutive(0, 0)->Update();
+    this->GetInputAlgorithm()->UpdateExtent(uExtent);
     this->WriteSlice(this->GetInput(), uExtent);
     if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
       {

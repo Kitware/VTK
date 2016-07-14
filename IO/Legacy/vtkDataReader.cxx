@@ -47,13 +47,9 @@
 #include "vtkVariantArray.h"
 #include <sstream>
 
-// We only have vtkTypeUInt64Array if we have long long
-// or we have __int64 with conversion to double.
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
 #include "vtkTypeUInt64Array.h"
-#endif
 
-#include <ctype.h>
+#include <cctype>
 #include <sys/stat.h>
 
 // I need a safe way to read a line of arbitrary length.  It exists on
@@ -320,29 +316,6 @@ int vtkDataReader::Read(unsigned long *result)
   return 1;
 }
 
-#if defined(VTK_TYPE_USE___INT64)
-int vtkDataReader::Read(__int64 *result)
-{
-  *this->IS >> *result;
-  if (this->IS->fail())
-    {
-    return 0;
-    }
-  return 1;
-}
-
-int vtkDataReader::Read(unsigned __int64 *result)
-{
-  *this->IS >> *result;
-  if (this->IS->fail())
-    {
-    return 0;
-    }
-  return 1;
-}
-#endif
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
 int vtkDataReader::Read(long long *result)
 {
   *this->IS >> *result;
@@ -362,7 +335,6 @@ int vtkDataReader::Read(unsigned long long *result)
     }
   return 1;
 }
-#endif
 
 int vtkDataReader::Read(float *result)
 {
@@ -1610,9 +1582,6 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
 
   else if ( ! strncmp(type, "vtktypeuint64", 13) )
     {
-// We only have vtkTypeUInt64Array if we have long long
-// or we have __int64.
-#if defined(VTK_TYPE_USE_LONG_LONG) || defined(VTK_TYPE_USE___INT64)
     array = vtkTypeUInt64Array::New();
     array->SetNumberOfComponents(numComp);
     vtkTypeUInt64 *ptr = ((vtkTypeUInt64Array *)array)->WritePointer(0,numTuples*numComp);
@@ -1626,11 +1595,6 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
       {
       vtkReadASCIIData(this, ptr, numTuples, numComp);
       }
-#else
-    vtkErrorMacro("This version of VTK cannot read unsigned 64-bit integers.");
-    free(type);
-    return NULL;
-#endif
     }
 
   else if ( ! strncmp(type, "float", 5) )
@@ -1879,22 +1843,12 @@ vtkAbstractArray *vtkDataReader::ReadArray(const char *dataType, int numTuples, 
           case VTK_DOUBLE:
             v = sv.ToDouble();
             break;
-#ifdef VTK_TYPE_USE_LONG_LONG
           case VTK_LONG_LONG:
             v = sv.ToLongLong();
             break;
           case VTK_UNSIGNED_LONG_LONG:
             v = sv.ToUnsignedLongLong();
             break;
-#endif
-#ifdef VTK_TYPE_USE___INT64
-          case VTK___INT64:
-            v = sv.To__Int64();
-            break;
-          case VTK_UNSIGNED___INT64:
-            v = sv.ToUnsigned__Int64();
-            break;
-#endif
           case VTK_STRING:
             v = sv.ToString();
             break;
@@ -1928,7 +1882,7 @@ int vtkDataReader::ReadPoints(vtkPointSet *ps, int numPts)
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -1962,7 +1916,7 @@ int vtkDataReader::ReadPoints(vtkGraph *g, int numPts)
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -1999,7 +1953,7 @@ int vtkDataReader::ReadCoordinates(vtkRectilinearGrid *rg, int axes,
     return 0;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numCoords, 1));
   if ( !data  )
     {
@@ -2092,7 +2046,7 @@ int vtkDataReader::ReadScalarData(vtkDataSetAttributes *a, int numPts)
     }
 
   // Read the data
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, numComp));
   if ( data != NULL )
     {
@@ -2141,7 +2095,7 @@ int vtkDataReader::ReadVectorData(vtkDataSetAttributes *a, int numPts)
     skipVector = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -2191,7 +2145,7 @@ int vtkDataReader::ReadNormalData(vtkDataSetAttributes *a, int numPts)
     skipNormal = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 3));
   if ( data != NULL )
     {
@@ -2240,7 +2194,7 @@ int vtkDataReader::ReadTensorData(vtkDataSetAttributes *a, int numPts)
     skipTensor = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 9));
   if ( data != NULL )
     {
@@ -2394,7 +2348,7 @@ int vtkDataReader::ReadTCoordsData(vtkDataSetAttributes *a, int numPts)
     skipTCoord = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, dim));
   if ( data != NULL )
     {
@@ -2443,7 +2397,7 @@ int vtkDataReader::ReadGlobalIds(vtkDataSetAttributes *a, int numPts)
     skipGlobalIds = 1;
     }
 
-  data = vtkDataArray::SafeDownCast(
+  data = vtkArrayDownCast<vtkDataArray>(
     this->ReadArray(line, numPts, 1));
   if ( data != NULL )
     {
@@ -2683,6 +2637,10 @@ int vtkDataReader::ReadCells(int size, int *data,
       {
       vtkErrorMacro(<<"Error reading binary cell data!" << " for file: "
                     << (this->FileName?this->FileName:"(Null FileName)"));
+      if (tmp != data)
+        {
+        delete [] tmp;
+        }
       return 0;
       }
     vtkByteSwap::Swap4BERange(tmp,size);
@@ -2770,7 +2728,7 @@ int vtkDataReader::ReadCells(int size, int *data,
 void vtkDataReader::ConvertGhostLevelsToGhostType(
   FieldType fieldType, vtkAbstractArray *data) const
 {
-  vtkUnsignedCharArray* ucData = vtkUnsignedCharArray::SafeDownCast(data);
+  vtkUnsignedCharArray* ucData = vtkArrayDownCast<vtkUnsignedCharArray>(data);
   const char* name = data->GetName();
   int numComp = data->GetNumberOfComponents();
   if (this->FileMajorVersion < 4 && ucData &&

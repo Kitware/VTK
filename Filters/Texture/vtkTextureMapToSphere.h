@@ -87,8 +87,8 @@ protected:
   int PreventSeam;
 
 private:
-  vtkTextureMapToSphere(const vtkTextureMapToSphere&);  // Not implemented.
-  void operator=(const vtkTextureMapToSphere&);  // Not implemented.
+  vtkTextureMapToSphere(const vtkTextureMapToSphere&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextureMapToSphere&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -38,17 +38,14 @@ Ph.D. thesis of Christian BOUCHENY.
 
 #include "vtkDepthImageProcessingPass.h"
 #include "vtkObjectFactory.h"
-#include <assert.h>
+#include <cassert>
 #include "vtkRenderState.h"
 #include "vtkRenderer.h"
 #include "vtkFrameBufferObject.h"
 #include "vtkTextureObject.h"
 #include "vtkOpenGLRenderWindow.h"
 
-#include "vtkPNGWriter.h"
-#include "vtkImageImport.h"
 #include "vtkPixelBufferObject.h"
-#include "vtkImageExtractComponents.h"
 #include "vtkCamera.h"
 #include "vtkMath.h"
 
@@ -187,7 +184,8 @@ void vtkDepthImageProcessingPass::ReadWindowSize(const vtkRenderState* s)
 {
     assert("pre: s_exists" && s!=0);
 
-    vtkFrameBufferObject *fbo=s->GetFrameBuffer();
+    vtkFrameBufferObject *fbo=vtkFrameBufferObject::SafeDownCast
+      (s->GetFrameBuffer());
     vtkRenderer *r = s->GetRenderer();
     if(fbo==0)
     {

@@ -57,9 +57,13 @@
 // Some voxels may never receive a contribution during the splatting process.
 // The final value of these points can be specified with the "NullValue"
 // instance variable.
+//
+// This class has been threaded with vtkSMPTools. Using TBB or other
+// non-sequential type (set in the CMake variable
+// VTK_SMP_IMPLEMENTATION_TYPE) may improve performance significantly.
 
 // .SECTION See Also
-// vtkShepardMethod
+// vtkShepardMethod vtkCheckerboardSplatter
 
 #ifndef vtkGaussianSplatter_h
 #define vtkGaussianSplatter_h
@@ -190,7 +194,6 @@ public:
   void ComputeModelBounds(vtkCompositeDataSet *input, vtkImageData *output,
                           vtkInformation *outInfo);
 
-//BTX
   // Description:
   // Provide access to templated helper class. Note that SamplePoint() method
   // is public here because some compilers don't handle friend functions
@@ -230,7 +233,6 @@ public:
         }
       }//not first visit
   }
-//ETX
 
 protected:
   vtkGaussianSplatter();
@@ -264,7 +266,6 @@ protected:
   double PositionSampling(double)
     {return this->ScaleFactor;}
 
-//BTX
 private:
   double Radius2;
   double (vtkGaussianSplatter::*Sample)(double x[3]);
@@ -278,11 +279,10 @@ private:
   double Spacing[3];
   double SplatDistance[3];
   double NullValue;
-//ETX
 
 private:
-  vtkGaussianSplatter(const vtkGaussianSplatter&);  // Not implemented.
-  void operator=(const vtkGaussianSplatter&);  // Not implemented.
+  vtkGaussianSplatter(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

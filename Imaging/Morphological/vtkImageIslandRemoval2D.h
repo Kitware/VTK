@@ -27,14 +27,12 @@
 #include "vtkImagingMorphologicalModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-//BTX
 typedef struct{
   void *inPtr;
   void *outPtr;
   int idx0;
   int idx1;
   } vtkImage2DIslandPixel;
-//ETX
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageIslandRemoval2D : public vtkImageAlgorithm
 {
@@ -80,8 +78,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&);  // Not implemented.
-  void operator=(const vtkImageIslandRemoval2D&);  // Not implemented.
+  vtkImageIslandRemoval2D(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageIslandRemoval2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

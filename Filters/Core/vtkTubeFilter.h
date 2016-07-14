@@ -29,7 +29,7 @@
 // to length or time.
 //
 // This filter is typically used to create thick or dramatic lines. Another
-// common use is to combine this filter with vtkStreamLine to generate
+// common use is to combine this filter with vtkStreamTracer to generate
 // streamtubes.
 
 // .SECTION Caveats
@@ -42,7 +42,7 @@
 // criteria, then that line is not tubed.
 
 // .SECTION See Also
-// vtkRibbonFilter vtkStreamLine
+// vtkRibbonFilter vtkStreamTracer
 
 // .SECTION Thanks
 // Michael Finch for absolute scalar radius
@@ -225,8 +225,8 @@ protected:
   double Theta;
 
 private:
-  vtkTubeFilter(const vtkTubeFilter&);  // Not implemented.
-  void operator=(const vtkTubeFilter&);  // Not implemented.
+  vtkTubeFilter(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTubeFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

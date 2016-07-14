@@ -23,7 +23,7 @@ public:
   virtual ~vtkMultiCorrelativeAssessFunctor() { }
   virtual bool Initialize( vtkTable* inData, vtkTable* reqModel, bool cholesky = true );
 
-  virtual void operator () ( vtkVariantArray* result, vtkIdType row );
+  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
 
   vtkIdType GetNumberOfColumns() { return static_cast<vtkIdType>( this->Columns.size() ); }
   vtkDataArray* GetColumn( vtkIdType colIdx ) { return this->Columns[colIdx]; }

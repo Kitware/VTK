@@ -95,7 +95,7 @@ void vtkNetworkHierarchy::GetSubnets(unsigned int packedIP, int *subnets)
 unsigned int vtkNetworkHierarchy::ITON(vtkStdString ip)
 {
   unsigned int subnets[4];
-  sscanf(ip.c_str(),"%d.%d.%d.%d",
+  sscanf(ip.c_str(),"%u.%u.%u.%u",
       &(subnets[0]),&(subnets[1]),&(subnets[2]),&(subnets[3]));
   int num = subnets[0];
   num = num << 8;
@@ -125,7 +125,7 @@ int vtkNetworkHierarchy::RequestData(
   // Get the field to filter on
   vtkAbstractArray* arr =
     inputGraph->GetVertexData()->GetAbstractArray(this->IPArrayName);
-  vtkStringArray* ipArray = vtkStringArray::SafeDownCast(arr);
+  vtkStringArray* ipArray = vtkArrayDownCast<vtkStringArray>(arr);
   if (ipArray == NULL)
     {
     vtkErrorMacro(<< "An string based ip array must be specified");
@@ -161,7 +161,7 @@ int vtkNetworkHierarchy::RequestData(
   vtkAbstractArray* pedIDArr = builderVertexData->GetPedigreeIds();
 
   // Get domain. If there isn't one, make one.
-  vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
     builderVertexData->GetAbstractArray("domain"));
   if (pedIDArr && !domainArr)
     {

@@ -64,8 +64,8 @@ protected:
   int DecodeTriplet(unsigned char& c0, unsigned char& c1, unsigned char& c2);
 
 private:
-  vtkBase64InputStream(const vtkBase64InputStream&);  // Not implemented.
-  void operator=(const vtkBase64InputStream&);  // Not implemented.
+  vtkBase64InputStream(const vtkBase64InputStream&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBase64InputStream&) VTK_DELETE_FUNCTION;
 };
 
 #endif

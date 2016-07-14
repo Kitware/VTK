@@ -55,7 +55,44 @@ public:
                                int extent[6], int threadId);
 
   // Description:
-  // Get/Set the number of threads to create when rendering
+  // Enable/Disable SMP for threading.
+  vtkGetMacro(EnableSMP, bool);
+  vtkSetMacro(EnableSMP, bool);
+
+  // Description:
+  // Global Disable SMP for all derived Imaging filters.
+  static void SetGlobalDefaultEnableSMP(bool enable);
+  static bool GetGlobalDefaultEnableSMP();
+
+  // Description:
+  // The minimum piece size when volume is split for execution.
+  // By default, the minimum size is (16,1,1).
+  vtkSetVector3Macro(MinimumPieceSize, int);
+  vtkGetVector3Macro(MinimumPieceSize, int);
+
+  // Description:
+  // The desired bytes per piece when volume is split for execution.
+  // When SMP is enabled, this is used to subdivide the volume into pieces.
+  // Smaller pieces allow for better dynamic load balancing, but increase
+  // the total overhead. The default is 65536 bytes.
+  vtkSetMacro(DesiredBytesPerPiece, vtkIdType);
+  vtkGetMacro(DesiredBytesPerPiece, vtkIdType);
+
+  // Description:
+  // Set the method used to divide the volume into pieces.
+  // Slab mode splits the volume along the Z direction first,
+  // Beam mode splits evenly along the Z and Y directions, and
+  // Block mode splits evenly along all three directions.
+  // Most filters use Slab mode as the default.
+  vtkSetClampMacro(SplitMode, int, 0, 2);
+  void SetSplitModeToSlab() { this->SetSplitMode(SLAB); }
+  void SetSplitModeToBeam() { this->SetSplitMode(BEAM); }
+  void SetSplitModeToBlock() { this->SetSplitMode(BLOCK); }
+  vtkGetMacro(SplitMode, int);
+
+  // Description:
+  // Get/Set the number of threads to create when rendering.
+  // This is ignored if EnableSMP is On.
   vtkSetClampMacro( NumberOfThreads, int, 1, VTK_MAX_THREADS );
   vtkGetMacro( NumberOfThreads, int );
 
@@ -71,6 +108,22 @@ protected:
   vtkMultiThreader *Threader;
   int NumberOfThreads;
 
+  bool EnableSMP;
+  static bool GlobalDefaultEnableSMP;
+
+  enum SplitModeEnum
+  {
+    SLAB = 0,
+    BEAM = 1,
+    BLOCK = 2
+  };
+
+  int SplitMode;
+  int SplitPath[3];
+  int SplitPathLength;
+  int MinimumPieceSize[3];
+  vtkIdType DesiredBytesPerPiece;
+
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
@@ -78,16 +131,34 @@ protected:
                           vtkInformationVector** inputVector,
                           vtkInformationVector* outputVector);
 
+  // Description:
+  // Execute ThreadedRequestData for the given set of pieces.
+  // The extent will be broken into the number of pieces specified,
+  // and ThreadedRequestData will be called for all pieces starting
+  // at "begin" and up to but not including "end".
+  virtual void SMPRequestData(vtkInformation *request,
+                              vtkInformationVector **inputVector,
+                              vtkInformationVector *outputVector,
+                              vtkImageData ***inData,
+                              vtkImageData **outData,
+                              vtkIdType begin, vtkIdType end,
+                              vtkIdType pieces, int extent[6]);
+
+  // Description:
+  // Allocate space for output data and copy attributes from first input.
+  // If the inDataObjects and outDataObjects are not passed as zero, then
+  // they must be large enough to store the data objects for all inputs and
+  // outputs.
+  virtual void PrepareImageData(vtkInformationVector **inputVector,
+                                vtkInformationVector *outputVector,
+                                vtkImageData ***inDataObjects=0,
+                                vtkImageData **outDataObjects=0);
+
 private:
-  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&);  // Not implemented.
-  void operator=(const vtkThreadedImageAlgorithm&);  // Not implemented.
+  vtkThreadedImageAlgorithm(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreadedImageAlgorithm&) VTK_DELETE_FUNCTION;
+
+  friend class vtkThreadedImageAlgorithmFunctor;
 };
 
 #endif
-
-
-
-
-
-
-

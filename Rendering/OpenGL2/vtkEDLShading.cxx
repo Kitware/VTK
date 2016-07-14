@@ -51,7 +51,7 @@ Ph.D. thesis of Christian BOUCHENY.
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
 #include "vtk_glew.h"
-#include <assert.h>
+#include <cassert>
 #include <sstream>
 #include <string>
 
@@ -92,6 +92,8 @@ vtkEDLShading::vtkEDLShading()
     this->EDLNeighbours[c][3] = 0.;
     }
   this->EDLLowResFactor = 2;
+  this->Zn = 0.1;
+  this->Zf = 1.0;
 }
 
 // ----------------------------------------------------------------------------
@@ -392,35 +394,39 @@ bool vtkEDLShading::EDLShadeHigh(
   prog->SetUniformf("SY", SY);
   prog->SetUniform3f("L", L);
   prog->SetUniform4fv("N", 8, this->EDLNeighbours);
-  prog->SetUniformf("Znear", Zn);
-  prog->SetUniformf("Zfar", Zf);
+  prog->SetUniformf("Znear", this->Zn);
+  prog->SetUniformf("Zfar", this->Zf);
 
   // compute the scene bounding box, and set the scene size to the diagonal of it.
   double bb[6];
   vtkMath::UninitializeBounds(bb);
+  bool boundsSet = false;
   for(int i=0; i<s.GetPropArrayCount(); i++)
     {
     double* bounds = s.GetPropArray()[i]->GetBounds();
-    if(i==0)
+    if (bounds)
       {
-      bb[0] = bounds[0];
-      bb[1] = bounds[1];
-      bb[2] = bounds[2];
-      bb[3] = bounds[3];
-      bb[4] = bounds[4];
-      bb[5] = bounds[5];
-      }
-    else
-      {
-      bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
-      bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
-      bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
-      bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
-      bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
-      bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
+      if(!boundsSet)
+        {
+        bb[0] = bounds[0];
+        bb[1] = bounds[1];
+        bb[2] = bounds[2];
+        bb[3] = bounds[3];
+        bb[4] = bounds[4];
+        bb[5] = bounds[5];
+        boundsSet = true;
+        }
+      else
+        {
+        bb[0] = (bb[0] < bounds[0] ? bb[0] : bounds[0]);
+        bb[1] = (bb[1] > bounds[1] ? bb[1] : bounds[1]);
+        bb[2] = (bb[2] < bounds[2] ? bb[2] : bounds[2]);
+        bb[3] = (bb[3] > bounds[3] ? bb[3] : bounds[3]);
+        bb[4] = (bb[4] < bounds[4] ? bb[4] : bounds[4]);
+        bb[5] = (bb[5] > bounds[5] ? bb[5] : bounds[5]);
+        }
       }
     }
-
   float diag = (bb[1]-bb[0])*(bb[1]-bb[0]) + (bb[3]-bb[2])*(bb[3]-bb[2])
                + (bb[5]-bb[4])*(bb[5]-bb[4]);
   diag = sqrt(diag);
@@ -480,8 +486,8 @@ bool vtkEDLShading::EDLShadeLow(
   prog->SetUniformf("SY", SY);
   prog->SetUniform3f("L", L);
   prog->SetUniform4fv("N", 8, this->EDLNeighbours); // USELESS, ALREADY DEFINED IN FULL RES
-  prog->SetUniformf("Znear", Zn);
-  prog->SetUniformf("Zfar", Zf);
+  prog->SetUniformf("Znear", this->Zn);
+  prog->SetUniformf("Zfar", this->Zf);
 
   // RENDER AND FREE ALL
   //
@@ -591,10 +597,6 @@ bool vtkEDLShading::EDLCompose(const vtkRenderState *,
   //  initial depth texture
   this->ProjectionDepthTexture->Activate();
   prog->SetUniformi("s2_Z", this->ProjectionDepthTexture->GetTextureUnit());
-
-  //
-  //prog->SetUniformf("Zn",Zn);
-  //prog->SetUniformf("Zf",Zf);
 
   //  DRAW CONTEXT - prepare blitting
   //
@@ -731,7 +733,7 @@ void vtkEDLShading::Render(const vtkRenderState *s)
     //
     if(s->GetFrameBuffer() != NULL)
       {
-      s->GetFrameBuffer()->Bind();
+      vtkFrameBufferObject::SafeDownCast(s->GetFrameBuffer())->Bind();
       }
 #if GL_ES_VERSION_2_0 != 1
     glDrawBuffer(static_cast<GLenum>(savedCurrentDrawBuffer));

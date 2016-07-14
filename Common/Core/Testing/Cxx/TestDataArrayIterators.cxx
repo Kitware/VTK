@@ -25,6 +25,43 @@
 // undefine this to print benchmark results:
 #define SILENT
 
+// Create a subclass of vtkTypedDataArray:
+namespace
+{
+class MyArray : public vtkTypedDataArray<float>
+{
+  vtkFloatArray *Data;
+public:
+  vtkTypeMacro(MyArray, vtkTypedDataArray<float>)
+  static MyArray *New() { return new MyArray; }
+  void Init(vtkFloatArray *array)
+  {
+    this->Data = array;
+    this->NumberOfComponents = array->GetNumberOfComponents();
+    this->MaxId = array->GetMaxId();
+  }
+  ValueType& GetValueReference(vtkIdType idx)
+  {
+    return *this->Data->GetPointer(idx);
+  }
+
+  // These pure virtuals are no-op -- all we care about is GetValueReference
+  // to test the iterator.
+  void SetTypedTuple(vtkIdType, const ValueType *) {}
+  void InsertTypedTuple(vtkIdType, const ValueType *) {}
+  vtkIdType InsertNextTypedTuple(const ValueType *) { return 0; }
+  vtkIdType LookupTypedValue(ValueType) { return 0; }
+  void LookupTypedValue(ValueType, vtkIdList*) {}
+  ValueType GetValue(vtkIdType) const { return 0; }
+  void SetValue(vtkIdType, ValueType) {}
+  void GetTypedTuple(vtkIdType, ValueType*) const {}
+  vtkIdType InsertNextValue(ValueType) { return 0; }
+  void InsertValue(vtkIdType, ValueType) {}
+  int Allocate(vtkIdType, vtkIdType) { return 0; }
+  int Resize(vtkIdType) { return 0; }
+};
+}
+
 int TestDataArrayIterators(int, char *[])
 {
   vtkIdType numComps = 4;
@@ -42,7 +79,12 @@ int TestDataArrayIterators(int, char *[])
     array->SetValue(i, i % 97);
     }
 
-  // should be vtkDataArrayTemplate<float>::Iterator (float*):
+  // Create the vtkTypedDataArray testing implementation:
+  vtkNew<MyArray> tdaContainer;
+  MyArray *tda = tdaContainer.GetPointer();
+  tda->Init(array);
+
+  // should be vtkAOSDataArrayTemplate<float>::Iterator (float*):
   vtkFloatArray::Iterator datBegin = array->Begin();
   vtkFloatArray::Iterator datIter = array->Begin();
   if (typeid(datBegin) != typeid(float*))
@@ -53,9 +95,9 @@ int TestDataArrayIterators(int, char *[])
 
   // should be vtkTypedDataArrayIterator<float>:
   vtkTypedDataArray<float>::Iterator tdaBegin =
-      vtkTypedDataArray<float>::FastDownCast(array)->Begin();
+      vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
   vtkTypedDataArray<float>::Iterator tdaIter =
-      vtkTypedDataArray<float>::FastDownCast(array)->Begin();
+      vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
   if (typeid(tdaBegin) != typeid(vtkTypedDataArrayIterator<float>))
     {
     std::cerr << "Error: vtkTypedDataArray<float>::Iterator is not a "
@@ -93,7 +135,7 @@ int TestDataArrayIterators(int, char *[])
   timer->StartTimer();
   for (vtkIdType i = 0; i < numValues; ++i)
     {
-    lookupSum += array->GetValueReference(i);
+    lookupSum += *array->GetPointer(i);
     }
   timer->StopTimer();
   double lookupTime = timer->GetElapsedTime();
@@ -110,8 +152,7 @@ int TestDataArrayIterators(int, char *[])
   double datTime = timer->GetElapsedTime();
 
   // vtkTypedDataArrayIterator:
-  vtkTypedDataArray<float>::Iterator tdaEnd =
-      vtkTypedDataArray<float>::FastDownCast(array)->End();
+  vtkTypedDataArray<float>::Iterator tdaEnd = tda->End();
   float tdaSum = 0.f;
   timer->StartTimer();
   while (tdaBegin != tdaEnd)

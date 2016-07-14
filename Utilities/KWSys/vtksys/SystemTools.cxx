@@ -35,10 +35,12 @@
 #include <fstream>
 #include <sstream>
 #include <set>
+#include <vector>
 
 // Work-around CMake dependency scanning limitation.  This must
 // duplicate the above list of headers.
 #if 0
+# include "RegularExpression.hxx.in"
 # include "SystemTools.hxx.in"
 # include "Directory.hxx.in"
 # include "FStream.hxx.in"
@@ -87,6 +89,7 @@
 // Windows API.
 #if defined(_WIN32)
 # include <windows.h>
+# include <winioctl.h>
 # ifndef INVALID_FILE_ATTRIBUTES
 #  define INVALID_FILE_ATTRIBUTES ((DWORD)-1)
 # endif
@@ -408,6 +411,7 @@ class SystemToolsPathCaseMap:
 // adds the elements of the env variable path to the arg passed in
 void SystemTools::GetPath(std::vector<std::string>& path, const char* env)
 {
+  size_t const old_size = path.size();
 #if defined(_WIN32) && !defined(__CYGWIN__)
   const char pathSep = ';';
 #else
@@ -445,7 +449,7 @@ void SystemTools::GetPath(std::vector<std::string>& path, const char* env)
       done = true;
       }
     }
-  for(std::vector<std::string>::iterator i = path.begin();
+  for(std::vector<std::string>::iterator i = path.begin() + old_size;
       i != path.end(); ++i)
     {
     SystemTools::ConvertToUnixSlashes(*i);
@@ -1365,15 +1369,18 @@ bool SystemTools::Touch(const std::string& filename, bool create)
   struct timeval mtime;
   gettimeofday(&mtime, 0);
 # if KWSYS_CXX_HAS_UTIMES
-  struct timeval times[2] =
-    {
-#  if KWSYS_STAT_HAS_ST_MTIM
-      {st.st_atim.tv_sec, st.st_atim.tv_nsec/1000}, /* tv_sec, tv_usec */
+  struct timeval atime;
+#  if KWSYS_CXX_STAT_HAS_ST_MTIM
+  atime.tv_sec = st.st_atim.tv_sec;
+  atime.tv_usec = st.st_atim.tv_nsec/1000;
+#  elif KWSYS_CXX_STAT_HAS_ST_MTIMESPEC
+  atime.tv_sec = st.st_atimespec.tv_sec;
+  atime.tv_usec = st.st_atimespec.tv_nsec/1000;
 #  else
-      {st.st_atime, 0},
+  atime.tv_sec = st.st_atime;
+  atime.tv_usec = 0;
 #  endif
-      mtime
-    };
+  struct timeval times[2] = { atime, mtime };
   if(utimes(filename.c_str(), times) < 0)
     {
     return false;
@@ -1407,7 +1414,7 @@ bool SystemTools::FileTimeCompare(const std::string& f1,
     {
     return false;
     }
-# if KWSYS_STAT_HAS_ST_MTIM
+# if KWSYS_CXX_STAT_HAS_ST_MTIM
   // Compare using nanosecond resolution.
   if(s1.st_mtim.tv_sec < s2.st_mtim.tv_sec)
     {
@@ -1422,6 +1429,24 @@ bool SystemTools::FileTimeCompare(const std::string& f1,
     *result = -1;
     }
   else if(s1.st_mtim.tv_nsec > s2.st_mtim.tv_nsec)
+    {
+    *result = 1;
+    }
+# elif KWSYS_CXX_STAT_HAS_ST_MTIMESPEC
+  // Compare using nanosecond resolution.
+  if(s1.st_mtimespec.tv_sec < s2.st_mtimespec.tv_sec)
+    {
+    *result = -1;
+    }
+  else if(s1.st_mtimespec.tv_sec > s2.st_mtimespec.tv_sec)
+    {
+    *result = 1;
+    }
+  else if(s1.st_mtimespec.tv_nsec < s2.st_mtimespec.tv_nsec)
+    {
+    *result = -1;
+    }
+  else if(s1.st_mtimespec.tv_nsec > s2.st_mtimespec.tv_nsec)
     {
     *result = 1;
     }
@@ -2365,95 +2390,101 @@ bool SystemTools::CopyFileAlways(const std::string& source, const std::string& d
     }
   mode_t perm = 0;
   bool perms = SystemTools::GetPermissions(source, perm);
-
-  const int bufferSize = 4096;
-  char buffer[bufferSize];
-
-  // If destination is a directory, try to create a file with the same
-  // name as the source in that directory.
-
   std::string real_destination = destination;
-  std::string destination_dir;
-  if(SystemTools::FileExists(destination) &&
-     SystemTools::FileIsDirectory(destination))
+
+  if(SystemTools::FileIsDirectory(source))
     {
-    destination_dir = real_destination;
-    SystemTools::ConvertToUnixSlashes(real_destination);
-    real_destination += '/';
-    std::string source_name = source;
-    real_destination += SystemTools::GetFilenameName(source_name);
+    SystemTools::MakeDirectory(destination);
     }
   else
     {
-    destination_dir = SystemTools::GetFilenamePath(destination);
-    }
+    const int bufferSize = 4096;
+    char buffer[bufferSize];
 
-  // Create destination directory
+    // If destination is a directory, try to create a file with the same
+    // name as the source in that directory.
 
-  SystemTools::MakeDirectory(destination_dir);
-
-  // Open files
-#if defined(_WIN32)
-  kwsys::ifstream fin(Encoding::ToNarrow(
-    SystemTools::ConvertToWindowsExtendedPath(source)).c_str(),
-                std::ios::in | std::ios::binary);
-#else
-  kwsys::ifstream fin(source.c_str(),
-                std::ios::in | std::ios::binary);
-#endif
-  if(!fin)
-    {
-    return false;
-    }
-
-  // try and remove the destination file so that read only destination files
-  // can be written to.
-  // If the remove fails continue so that files in read only directories
-  // that do not allow file removal can be modified.
-  SystemTools::RemoveFile(real_destination);
-
-#if defined(_WIN32)
-  kwsys::ofstream fout(Encoding::ToNarrow(
-    SystemTools::ConvertToWindowsExtendedPath(real_destination)).c_str(),
-                     std::ios::out | std::ios::trunc | std::ios::binary);
-#else
-  kwsys::ofstream fout(real_destination.c_str(),
-                     std::ios::out | std::ios::trunc | std::ios::binary);
-#endif
-  if(!fout)
-    {
-    return false;
-    }
-
-  // This copy loop is very sensitive on certain platforms with
-  // slightly broken stream libraries (like HPUX).  Normally, it is
-  // incorrect to not check the error condition on the fin.read()
-  // before using the data, but the fin.gcount() will be zero if an
-  // error occurred.  Therefore, the loop should be safe everywhere.
-  while(fin)
-    {
-    fin.read(buffer, bufferSize);
-    if(fin.gcount())
+    std::string destination_dir;
+    if(SystemTools::FileIsDirectory(destination))
       {
-      fout.write(buffer, fin.gcount());
+      destination_dir = real_destination;
+      SystemTools::ConvertToUnixSlashes(real_destination);
+      real_destination += '/';
+      std::string source_name = source;
+      real_destination += SystemTools::GetFilenameName(source_name);
       }
     else
       {
-      break;
+      destination_dir = SystemTools::GetFilenamePath(destination);
       }
-    }
 
-  // Make sure the operating system has finished writing the file
-  // before closing it.  This will ensure the file is finished before
-  // the check below.
-  fout.flush();
+    // Create destination directory
 
-  fin.close();
-  fout.close();
+    SystemTools::MakeDirectory(destination_dir);
 
-  if(!fout)
-    {
-    return false;
+    // Open files
+#if defined(_WIN32)
+    kwsys::ifstream fin(Encoding::ToNarrow(
+      SystemTools::ConvertToWindowsExtendedPath(source)).c_str(),
+                  std::ios::in | std::ios::binary);
+#else
+    kwsys::ifstream fin(source.c_str(),
+                  std::ios::in | std::ios::binary);
+#endif
+    if(!fin)
+      {
+      return false;
+      }
+
+    // try and remove the destination file so that read only destination files
+    // can be written to.
+    // If the remove fails continue so that files in read only directories
+    // that do not allow file removal can be modified.
+    SystemTools::RemoveFile(real_destination);
+
+#if defined(_WIN32)
+    kwsys::ofstream fout(Encoding::ToNarrow(
+      SystemTools::ConvertToWindowsExtendedPath(real_destination)).c_str(),
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+#else
+    kwsys::ofstream fout(real_destination.c_str(),
+                     std::ios::out | std::ios::trunc | std::ios::binary);
+#endif
+    if(!fout)
+      {
+      return false;
+      }
+
+    // This copy loop is very sensitive on certain platforms with
+    // slightly broken stream libraries (like HPUX).  Normally, it is
+    // incorrect to not check the error condition on the fin.read()
+    // before using the data, but the fin.gcount() will be zero if an
+    // error occurred.  Therefore, the loop should be safe everywhere.
+    while(fin)
+      {
+      fin.read(buffer, bufferSize);
+      if(fin.gcount())
+        {
+        fout.write(buffer, fin.gcount());
+        }
+      else
+        {
+        break;
+        }
+      }
+
+    // Make sure the operating system has finished writing the file
+    // before closing it.  This will ensure the file is finished before
+    // the check below.
+    fout.flush();
+
+    fin.close();
+    fout.close();
+
+    if(!fout)
+      {
+      return false;
+      }
     }
   if ( perms )
     {
@@ -2726,6 +2757,107 @@ std::string SystemTools::GetLastSystemError()
   return strerror(e);
 }
 
+#ifdef _WIN32
+
+static bool IsJunction(const std::wstring& source)
+{
+#ifdef FSCTL_GET_REPARSE_POINT
+  const DWORD JUNCTION_ATTRS = FILE_ATTRIBUTE_DIRECTORY |
+                               FILE_ATTRIBUTE_REPARSE_POINT;
+  DWORD attrs = GetFileAttributesW(source.c_str());
+  if (attrs == INVALID_FILE_ATTRIBUTES)
+    {
+    return false;
+    }
+  if ((attrs & JUNCTION_ATTRS) != JUNCTION_ATTRS)
+    {
+    return false;
+    }
+
+  // Adjust privileges so that we can succefully open junction points.
+  HANDLE token;
+  TOKEN_PRIVILEGES privs;
+  OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token);
+  LookupPrivilegeValue(NULL, SE_BACKUP_NAME, &privs.Privileges[0].Luid);
+  privs.PrivilegeCount = 1;
+  privs.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+  AdjustTokenPrivileges(token, FALSE, &privs, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
+  CloseHandle(token);
+
+  HANDLE dir = CreateFileW(source.c_str(), GENERIC_READ,
+                           0, NULL, OPEN_EXISTING,
+                           FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (dir == INVALID_HANDLE_VALUE)
+    {
+    return false;
+    }
+
+  // Query whether this is a reparse point or not.
+  BYTE buffer[MAXIMUM_REPARSE_DATA_BUFFER_SIZE];
+  REPARSE_GUID_DATA_BUFFER *reparse_buffer =
+    (REPARSE_GUID_DATA_BUFFER*) buffer;
+  DWORD sentinel;
+
+  BOOL success = DeviceIoControl(
+    dir, FSCTL_GET_REPARSE_POINT,
+    NULL, 0,
+    reparse_buffer, MAXIMUM_REPARSE_DATA_BUFFER_SIZE,
+    &sentinel, NULL);
+
+  CloseHandle(dir);
+
+  return (success && (reparse_buffer->ReparseTag == IO_REPARSE_TAG_MOUNT_POINT));
+#else
+  return false;
+#endif
+}
+
+static bool DeleteJunction(const std::wstring& source)
+{
+#ifdef FSCTL_DELETE_REPARSE_POINT
+  // Adjust privileges so that we can succefully open junction points as
+  // read/write.
+  HANDLE token;
+  TOKEN_PRIVILEGES privs;
+  OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token);
+  LookupPrivilegeValue(NULL, SE_RESTORE_NAME, &privs.Privileges[0].Luid);
+  privs.PrivilegeCount = 1;
+  privs.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+  AdjustTokenPrivileges(token, FALSE, &privs, sizeof(TOKEN_PRIVILEGES), NULL, NULL);
+  CloseHandle(token);
+
+  HANDLE dir = CreateFileW(source.c_str(), GENERIC_READ | GENERIC_WRITE,
+                           0, NULL, OPEN_EXISTING,
+                           FILE_FLAG_OPEN_REPARSE_POINT | FILE_FLAG_BACKUP_SEMANTICS, NULL);
+  if (dir == INVALID_HANDLE_VALUE)
+    {
+    return false;
+    }
+
+  // Set up the structure so that we can delete the junction.
+  std::vector<BYTE> buffer(REPARSE_GUID_DATA_BUFFER_HEADER_SIZE, 0);
+  REPARSE_GUID_DATA_BUFFER *reparse_buffer =
+    (REPARSE_GUID_DATA_BUFFER*) &buffer[0];
+  DWORD sentinel;
+
+  reparse_buffer->ReparseTag = IO_REPARSE_TAG_MOUNT_POINT;
+
+  BOOL success = DeviceIoControl(
+    dir, FSCTL_DELETE_REPARSE_POINT,
+    reparse_buffer, REPARSE_GUID_DATA_BUFFER_HEADER_SIZE,
+    NULL, 0,
+    &sentinel, NULL);
+
+  CloseHandle(dir);
+
+  return !!success;
+#else
+  return false;
+#endif
+}
+
+#endif
+
 bool SystemTools::RemoveFile(const std::string& source)
 {
 #ifdef _WIN32
@@ -2752,6 +2884,10 @@ bool SystemTools::RemoveFile(const std::string& source)
     {
     SetLastError(err);
     return false;
+    }
+  if (IsJunction(ws) && DeleteJunction(ws))
+    {
+    return true;
     }
   if (DeleteFileW(ws.c_str()) ||
       GetLastError() == ERROR_FILE_NOT_FOUND ||
@@ -2940,42 +3076,36 @@ std::string SystemTools::FindProgram(
   const std::vector<std::string>& userPaths,
   bool no_system_path)
 {
-  std::vector<std::string> extensions;
+  std::string tryPath;
+
 #if defined (_WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
-  bool hasExtension = false;
+  std::vector<std::string> extensions;
   // check to see if the name already has a .xxx at
   // the end of it
-  if(name.size() > 3 && name[name.size()-4] == '.')
-    {
-    hasExtension = true;
-    }
   // on windows try .com then .exe
-  if(!hasExtension)
+  if(name.size() <= 3 || name[name.size()-4] != '.')
     {
     extensions.push_back(".com");
     extensions.push_back(".exe");
-    }
-#endif
-  std::string tryPath;
 
-  // first try with extensions if the os supports them
-  for(std::vector<std::string>::iterator i =
-        extensions.begin(); i != extensions.end(); ++i)
-    {
-    tryPath = name;
-    tryPath += *i;
-    if(SystemTools::FileExists(tryPath) &&
-        !SystemTools::FileIsDirectory(tryPath))
+    // first try with extensions if the os supports them
+    for(std::vector<std::string>::iterator i =
+          extensions.begin(); i != extensions.end(); ++i)
       {
-      return SystemTools::CollapseFullPath(tryPath);
+      tryPath = name;
+      tryPath += *i;
+      if(SystemTools::FileExists(tryPath, true))
+        {
+        return SystemTools::CollapseFullPath(tryPath);
+        }
       }
     }
+#endif
+
   // now try just the name
-  tryPath = name;
-  if(SystemTools::FileExists(tryPath) &&
-     !SystemTools::FileIsDirectory(tryPath))
+  if(SystemTools::FileExists(name, true))
     {
-    return SystemTools::CollapseFullPath(tryPath);
+    return SystemTools::CollapseFullPath(name);
     }
   // now construct the path
   std::vector<std::string> path;
@@ -3012,6 +3142,7 @@ std::string SystemTools::FindProgram(
     // Remove double quotes from the path on windows
     SystemTools::ReplaceString(*p, "\"", "");
 #endif
+#if defined (_WIN32) || defined(__CYGWIN__) || defined(__MINGW32__)
     // first try with extensions
     for(std::vector<std::string>::iterator ext
           = extensions.begin(); ext != extensions.end(); ++ext)
@@ -3019,17 +3150,16 @@ std::string SystemTools::FindProgram(
       tryPath = *p;
       tryPath += name;
       tryPath += *ext;
-      if(SystemTools::FileExists(tryPath) &&
-          !SystemTools::FileIsDirectory(tryPath))
+      if(SystemTools::FileExists(tryPath, true))
         {
         return SystemTools::CollapseFullPath(tryPath);
         }
       }
+#endif
     // now try it without them
     tryPath = *p;
     tryPath += name;
-    if(SystemTools::FileExists(tryPath) &&
-       !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3068,8 +3198,7 @@ std::string SystemTools
               const std::vector<std::string>& userPaths)
 {
   // See if the executable exists as written.
-  if(SystemTools::FileExists(name) &&
-     !SystemTools::FileIsDirectory(name))
+  if(SystemTools::FileExists(name, true))
     {
     return SystemTools::CollapseFullPath(name);
     }
@@ -3105,8 +3234,7 @@ std::string SystemTools
     tryPath = *p;
     tryPath += name;
     tryPath += ".framework";
-    if(SystemTools::FileExists(tryPath)
-       && SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileIsDirectory(tryPath))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3115,8 +3243,7 @@ std::string SystemTools
     tryPath = *p;
     tryPath += name;
     tryPath += ".lib";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3125,8 +3252,7 @@ std::string SystemTools
     tryPath += "lib";
     tryPath += name;
     tryPath += ".so";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3134,8 +3260,7 @@ std::string SystemTools
     tryPath += "lib";
     tryPath += name;
     tryPath += ".a";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3143,8 +3268,7 @@ std::string SystemTools
     tryPath += "lib";
     tryPath += name;
     tryPath += ".sl";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3152,8 +3276,7 @@ std::string SystemTools
     tryPath += "lib";
     tryPath += name;
     tryPath += ".dylib";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -3161,8 +3284,7 @@ std::string SystemTools
     tryPath += "lib";
     tryPath += name;
     tryPath += ".dll";
-    if(SystemTools::FileExists(tryPath)
-       && !SystemTools::FileIsDirectory(tryPath))
+    if(SystemTools::FileExists(tryPath, true))
       {
       return SystemTools::CollapseFullPath(tryPath);
       }
@@ -4477,36 +4599,27 @@ bool SystemTools::FileIsFullPath(const char* in_name, size_t len)
 bool SystemTools::GetShortPath(const std::string& path, std::string& shortPath)
 {
 #if defined(_WIN32) && !defined(__CYGWIN__)
-  const int size = int(path.size()) +1; // size of return
-  char *tempPath = new char[size];  // create a buffer
-  DWORD ret;
+  std::string tempPath = path;  // create a buffer
 
   // if the path passed in has quotes around it, first remove the quotes
   if (!path.empty() && path[0] == '"' && *path.rbegin() == '"')
     {
-    strcpy(tempPath,path.c_str()+1);
-    tempPath[size-2] = '\0';
-    }
-  else
-    {
-    strcpy(tempPath,path.c_str());
+    tempPath = path.substr(1, path.length()-2);
     }
 
   std::wstring wtempPath = Encoding::ToWide(tempPath);
-  std::vector<wchar_t> buffer(wtempPath.size()+1);
-  buffer[0] = 0;
+  DWORD ret = GetShortPathNameW(wtempPath.c_str(), NULL, 0);
+  std::vector<wchar_t> buffer(ret);
   ret = GetShortPathNameW(wtempPath.c_str(),
-    &buffer[0], static_cast<DWORD>(wtempPath.size()));
+                          &buffer[0], static_cast<DWORD>(buffer.size()));
 
-  if(buffer[0] == 0 || ret > wtempPath.size())
+  if (ret == 0)
     {
-    delete [] tempPath;
     return false;
     }
   else
     {
     shortPath = Encoding::ToNarrow(&buffer[0]);
-    delete [] tempPath;
     return true;
     }
 #else
@@ -4646,8 +4759,9 @@ bool SystemTools::GetLineFromStream(std::istream& is,
   // been reached.  Clear the fail bit just before reading.
   while(!haveNewline &&
         leftToRead != 0 &&
-        (is.clear(is.rdstate() & ~std::ios::failbit),
-         is.getline(buffer, bufferSize), is.gcount() > 0))
+        (static_cast<void>(is.clear(is.rdstate() & ~std::ios::failbit)),
+         static_cast<void>(is.getline(buffer, bufferSize)),
+         is.gcount() > 0))
     {
     // We have read at least one byte.
     haveData = true;
@@ -4879,11 +4993,8 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
   OSVERSIONINFOEXA osvi;
   BOOL bOsVersionInfoEx;
 
-  // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-  // If that fails, try using the OSVERSIONINFO structure.
-
-  ZeroMemory(&osvi, sizeof(OSVERSIONINFOEXA));
-  osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEXA);
+  ZeroMemory(&osvi, sizeof(osvi));
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
 
 #ifdef KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 # pragma warning (push)
@@ -4893,14 +5004,10 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
 #  pragma warning (disable:4996)
 # endif
 #endif
-  bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO *)&osvi);
+  bOsVersionInfoEx = GetVersionExA((OSVERSIONINFOA *)&osvi);
   if (!bOsVersionInfoEx)
     {
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    if (!GetVersionEx((OSVERSIONINFO *)&osvi))
-      {
-      return 0;
-      }
+    return 0;
     }
 #ifdef KWSYS_WINDOWS_DEPRECATED_GetVersionEx
 # pragma warning (pop)
@@ -4913,10 +5020,56 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
     case VER_PLATFORM_WIN32_NT:
 
       // Test for the specific product family.
+      if (osvi.dwMajorVersion == 10 && osvi.dwMinorVersion == 0)
+        {
+        if (osvi.wProductType == VER_NT_WORKSTATION)
+          {
+          res += "Microsoft Windows 10";
+          }
+        else
+          {
+          res += "Microsoft Windows Server 2016 family";
+          }
+        }
+
+      if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 3)
+        {
+        if (osvi.wProductType == VER_NT_WORKSTATION)
+          {
+          res += "Microsoft Windows 8.1";
+          }
+        else
+          {
+          res += "Microsoft Windows Server 2012 R2 family";
+          }
+        }
+
+      if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 2)
+        {
+        if (osvi.wProductType == VER_NT_WORKSTATION)
+          {
+          res += "Microsoft Windows 8";
+          }
+        else
+          {
+          res += "Microsoft Windows Server 2012 family";
+          }
+        }
+
+      if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 1)
+        {
+        if (osvi.wProductType == VER_NT_WORKSTATION)
+          {
+          res += "Microsoft Windows 7";
+          }
+        else
+          {
+          res += "Microsoft Windows Server 2008 R2 family";
+          }
+        }
 
       if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
         {
-#if (_MSC_VER >= 1300)
         if (osvi.wProductType == VER_NT_WORKSTATION)
           {
           res += "Microsoft Windows Vista";
@@ -4925,9 +5078,6 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
           {
           res += "Microsoft Windows Server 2008 family";
           }
-#else
-        res += "Microsoft Windows Vista or Windows Server 2008";
-#endif
         }
 
       if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2)
@@ -4956,7 +5106,6 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
         {
         // Test for the workstation type.
 
-#if (_MSC_VER >= 1300)
         if (osvi.wProductType == VER_NT_WORKSTATION)
           {
           if (osvi.dwMajorVersion == 4)
@@ -5028,7 +5177,6 @@ std::string SystemTools::GetOperatingSystemNameAndVersion()
               }
             }
           }
-#endif // Visual Studio 7 and up
         }
 
       // Test for specific product on Windows NT 4.0 SP5 and earlier

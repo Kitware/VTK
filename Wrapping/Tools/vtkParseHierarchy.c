@@ -102,6 +102,10 @@ static void sort_hierarchy_entries(HierarchyInfo *info)
         &compare_hierarchy_entries);
 }
 
+/* forward declaration */
+static int vtkParseHierarchy_ReadFileIntoInfo(
+  HierarchyInfo* info, const char *filename);
+
 /* Find an entry with a binary search */
 HierarchyEntry *vtkParseHierarchy_FindEntry(
   const HierarchyInfo *info, const char *classname)
@@ -153,13 +157,53 @@ HierarchyEntry *vtkParseHierarchy_FindEntry(
   return entry;
 }
 
-
-/* read a hierarchy file into a HeirarchyInfo struct, or return NULL */
+/* read a hierarchy file into a HeirarchyInfo struct, or return NULL
+ * XXX DEPRECATED; use vtkParseHierarchy_ReadFiles
+ */
 HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
 {
+  char *fn = (char *)filename;
+  return vtkParseHierarchy_ReadFiles(1, &fn);
+}
+
+/* read hierarchy files into a HierarchyInfo struct, or return NULL */
+HierarchyInfo *vtkParseHierarchy_ReadFiles(int n, char **filenames)
+{
   HierarchyInfo *info;
+  int currentFile = 0;
+
+  info = (HierarchyInfo *)malloc(sizeof(HierarchyInfo));
+  info->MaxNumberOfEntries = 500;
+  info->NumberOfEntries = 0;
+  info->Entries =
+    (HierarchyEntry *)malloc(info->MaxNumberOfEntries*sizeof(HierarchyEntry));
+  info->Strings = (StringCache *)malloc(sizeof(StringCache));
+  vtkParse_InitStringCache(info->Strings);
+
+  for (currentFile = 0; currentFile < n; currentFile++)
+    {
+    if (!vtkParseHierarchy_ReadFileIntoInfo(info, filenames[currentFile]))
+      {
+      vtkParseHierarchy_Free(info);
+      info = NULL;
+      break;
+      }
+    }
+
+  if (info)
+    {
+    sort_hierarchy_entries(info);
+    }
+
+  return info;
+}
+
+/* read hierarchy file into a HierarchyInfo struct, return 1 if success */
+static int vtkParseHierarchy_ReadFileIntoInfo(
+  HierarchyInfo* info, const char *filename)
+{
   HierarchyEntry *entry;
-  int maxClasses = 500;
+
   FILE *fp;
   char *line;
   char *cp;
@@ -168,21 +212,16 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
   size_t i, j, n, m;
   unsigned int bits, pointers;
   static const char *delims = ">,=";
+  int success = 1;
 
   fp = fopen(filename, "r");
 
   if (fp == NULL)
     {
-    return NULL;
+    return 0;
     }
 
   line = (char *)malloc(maxlen);
-
-  info = (HierarchyInfo *)malloc(sizeof(HierarchyInfo));
-  info->NumberOfEntries = 0;
-  info->Entries = (HierarchyEntry *)malloc(maxClasses*sizeof(HierarchyEntry));
-  info->Strings = (StringCache *)malloc(sizeof(StringCache));
-  vtkParse_InitStringCache(info->Strings);
 
   while (fgets(line, (int)maxlen, fp))
     {
@@ -208,11 +247,11 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
       continue;
       }
 
-    if (info->NumberOfEntries == maxClasses)
+    if (info->NumberOfEntries == info->MaxNumberOfEntries)
       {
-      maxClasses *= 2;
+      info->MaxNumberOfEntries *= 2;
       info->Entries = (HierarchyEntry *)realloc(
-        info->Entries, sizeof(HierarchyEntry)*maxClasses*2);
+        info->Entries, sizeof(HierarchyEntry)*info->MaxNumberOfEntries);
       }
 
     entry = &info->Entries[info->NumberOfEntries++];
@@ -523,17 +562,12 @@ HierarchyInfo *vtkParseHierarchy_ReadFile(const char *filename)
 
   if (!feof(fp))
     {
-    vtkParseHierarchy_Free(info);
-    info = NULL;
-    }
-  else
-    {
-    sort_hierarchy_entries(info);
+    success = 0;
     }
 
   fclose(fp);
 
-  return info;
+  return success;
 }
 
 /* free a HierarchyInfo struct */

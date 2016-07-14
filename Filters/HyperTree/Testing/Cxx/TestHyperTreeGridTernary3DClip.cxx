@@ -67,7 +67,6 @@ int TestHyperTreeGridTernary3DClip( int argc, char* argv[] )
   clip->Update();
   double* range = clip->GetOutput()->GetPointData()->GetScalars()->GetRange();
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( clip->GetOutputPort() );
   mapper1->SetScalarRange( range );

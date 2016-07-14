@@ -107,7 +107,7 @@ void vtkStackedTreeLayoutStrategy::Layout(vtkTree* inputTree,
     levelFilter->Update();
     vtkTree* levelTree = levelFilter->GetOutput();
 
-    vtkIntArray *levelArray = vtkIntArray::SafeDownCast(
+    vtkIntArray *levelArray = vtkArrayDownCast<vtkIntArray>(
         levelTree->GetVertexData()->GetAbstractArray("level"));
     int max_level = 0;
     for( int i = 0; i < levelTree->GetNumberOfVertices(); i++ )
@@ -231,7 +231,7 @@ void vtkStackedTreeLayoutStrategy::LayoutEdgePoints(
   vtkTree* levelTree = levelFilter->GetOutput();
   outputTree->ShallowCopy( levelTree );
 
-  vtkIntArray* levelArray = vtkIntArray::SafeDownCast(
+  vtkIntArray* levelArray = vtkArrayDownCast<vtkIntArray>(
       levelTree->GetVertexData()->GetAbstractArray("level"));
 
   double exteriorRadius = VTK_DOUBLE_MAX;
@@ -482,10 +482,10 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
       {
       return vertex;
       }
-    vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
+    vtkFloatArray *boundsInfo = vtkArrayDownCast<vtkFloatArray>(array);
 
     // Now try to find the vertex that contains the point
-    boundsInfo->GetTupleValue(vertex, blimits); // Get the extents of the root
+    boundsInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
     if( ((pnt[1] > blimits[2]) && (pnt[1] < blimits[3])) &&
         ((pnt[0] > blimits[0]) && (pnt[0] < blimits[1])) )
       {
@@ -503,7 +503,7 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
     while (it->HasNext())
       {
       child = it->Next();
-      boundsInfo->GetTupleValue(child, blimits); // Get the extents of the child
+      boundsInfo->GetTypedTuple(child, blimits); // Get the extents of the child
       bool beyond_radial_bounds = false;
       bool beyond_angle_bounds = false;
       if( (pnt[1] < blimits[2]) || (pnt[1] > blimits[3]))
@@ -534,10 +534,10 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
       {
       return vertex;
       }
-    vtkFloatArray *boundsInfo = vtkFloatArray::SafeDownCast(array);
+    vtkFloatArray *boundsInfo = vtkArrayDownCast<vtkFloatArray>(array);
 
     // Now try to find the vertex that contains the point
-    boundsInfo->GetTupleValue(vertex, blimits); // Get the extents of the root
+    boundsInfo->GetTypedTuple(vertex, blimits); // Get the extents of the root
     if( ((polar_location[0] > blimits[2]) && (polar_location[0] < blimits[3])) &&
         ((polar_location[1] > blimits[0]) && (polar_location[1] < blimits[1])) )
       {
@@ -564,7 +564,7 @@ vtkIdType vtkStackedTreeLayoutStrategy::FindVertex(
         {
         continue;
         }
-      boundsInfo->GetTupleValue(child, blimits); // Get the extents of the child
+      boundsInfo->GetTypedTuple(child, blimits); // Get the extents of the child
 
       // the range checking below doesn't work if either or both of blimits > 360
       if ((blimits[0] > 360.0) && (blimits[1] > 360.0))

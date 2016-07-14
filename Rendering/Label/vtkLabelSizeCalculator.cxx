@@ -138,7 +138,7 @@ int vtkLabelSizeCalculator::RequestData(
     vtkErrorMacro( "No input array available." );
     return 0;
     }
-  vtkIntArray* typeArr = vtkIntArray::SafeDownCast(
+  vtkIntArray* typeArr = vtkArrayDownCast<vtkIntArray>(
     this->GetInputAbstractArrayToProcess( 1, inputVector ));
 
   vtkInformation* inArrInfo = this->GetInputArrayInformation( 0 );

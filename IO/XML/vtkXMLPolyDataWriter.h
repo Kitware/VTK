@@ -39,11 +39,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLPolyDataWriter* New();
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkPolyData* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -83,8 +81,8 @@ protected:
   OffsetsManagerArray *PolysOM;
 
 private:
-  vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPolyDataWriter&);  // Not implemented.
+  vtkXMLPolyDataWriter(const vtkXMLPolyDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPolyDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

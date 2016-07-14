@@ -86,7 +86,7 @@ def IncludesToPaths(path, renderingBackend='OpenGL'):
     Build a dict that maps include files to paths.
     '''
     includeToPath = dict()
-    prog = re.compile(r"(vtk.*\.h)")
+    prog = re.compile(r"((?:vtk|QVTK).*\.h)")
     for root, dirs, files in os.walk(path):
         for f in files:
             if prog.match(f):
@@ -125,7 +125,7 @@ def FindIncludes(path):
     Build a set that contains vtk includes.
     '''
     includes = set()
-    includeProg = re.compile(r"(vtk.*\.h)")
+    includeProg = re.compile(r"((?:vtk|QVTK).*\.h)")
     fid = open(path, "r")
     contents = fid.read()
     incs = includeProg.findall(contents)
@@ -168,7 +168,7 @@ def ParseModuleFile(fileName, renderingBackend='OpenGL'):
     languages = ['PYTHON', 'TCL', 'JAVA']
     keywords = ['BACKEND', 'COMPILE_DEPENDS', 'DEPENDS', 'EXCLUDE_FROM_ALL',
                 'EXCLUDE_FROM_WRAPPING', 'GROUPS', 'IMPLEMENTS', 'KIT',
-                'PRIVATE_DEPENDS', 'TEST_DEPENDS'] + \
+                'PRIVATE_DEPENDS', 'TEST_DEPENDS', 'IMPLEMENTATION_REQUIRED_BY_BACKEND'] + \
                map(lambda l: 'EXCLUDE_FROM_%s_WRAPPING' % l, languages)
     moduleName = ""
     depends = []

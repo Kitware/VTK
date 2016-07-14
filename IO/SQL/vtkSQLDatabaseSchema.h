@@ -62,7 +62,6 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkSQLDatabaseSchema* New();
 
-  //BTX
   // Description:
   // Basic data types for database columns
   enum DatabaseColumnType
@@ -101,7 +100,6 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
       BEFORE_DELETE = 4, // Just before a row is deleted
       AFTER_DELETE  = 5  // Just after a row is deleted
     };
-  //ETX
 
   // Description:
   // Add a preamble to the schema
@@ -332,7 +330,6 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   vtkSetStringMacro(Name);
   vtkGetStringMacro(Name);
 
-  //BTX
   // Tokens passed to AddTable to indicate the type of data that follows. Random integers chosen to prevent mishaps.
   enum VarargTokens
     {
@@ -374,20 +371,18 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   // return 0;
   // }
   int AddTableMultipleArguments( const char* tblName, ... );
-  //ETX
 
  protected:
   vtkSQLDatabaseSchema();
   ~vtkSQLDatabaseSchema();
 
   char* Name;
-//BTX
+
   class vtkSQLDatabaseSchemaInternals* Internals;
-//ETX
 
  private:
-  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &); // Not implemented.
-  void operator=(const vtkSQLDatabaseSchema &); // Not implemented.
+  vtkSQLDatabaseSchema(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLDatabaseSchema &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkSQLDatabaseSchema_h

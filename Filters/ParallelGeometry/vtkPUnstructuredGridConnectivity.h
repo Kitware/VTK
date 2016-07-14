@@ -44,6 +44,8 @@
 //         point-to-point communication by processing the communication
 //         links. </li>
 //  </ol>
+// @deprecated Not maintained as of VTK 7.0 and will be removed eventually.
+// Use vtkPUnstructuredGridGhostCellsGenerator instead.
 //
 // .SECTION Caveats
 //  <ul>
@@ -55,13 +57,15 @@
 //  </ul>
 //
 // .SECTION See Also
-//  vtkPUnstructuredGridGhostDataGenerator
+//  vtkPUnstructuredGridGhostDataGenerator vtkPUnstructuredGridGhostCellsGenerator
 
 #ifndef vtkPUnstructuredGridConnectivity_h
 #define vtkPUnstructuredGridConnectivity_h
 
 #include "vtkFiltersParallelGeometryModule.h" // For export macro
 #include "vtkObject.h"
+
+#if !defined(VTK_LEGACY_REMOVE)
 
 // Forward Declarations
 class vtkCell;
@@ -134,10 +138,8 @@ protected:
   vtkUnstructuredGrid* GhostedGrid;   // This is the output from this class.
   vtkMPIController* Controller;       // Supplied MPI controller.
 
-// BTX
   vtk::details::GridInfo* AuxiliaryData; // Data used to build the ghost zones.
   vtk::details::CommunicationLinks* CommLists; // Persistent comm lists.
-// ETX
 
   // Description:
   // Given the deserialized cell-centered ghost data from the given neighboring
@@ -287,8 +289,9 @@ protected:
   void ExtractBoundaryGrid();
 
 private:
-  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&); // Not implemented
-  void operator=(const vtkPUnstructuredGridConnectivity&); // Not implemented
+  vtkPUnstructuredGridConnectivity(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPUnstructuredGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
+#endif //VTK_LEGACY_REMOVE
 #endif /* vtkPUnstructuredGridConnectivity_h */

@@ -197,17 +197,22 @@ public:
   // The class uses the actual array provided; it does not copy the data
   // from the supplied array. If save 0, the array must have been allocated
   // with new[] not malloc.
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
   void SetArray(unsigned char* array, vtkIdType size, int save);
 #endif
   void SetVoidArray(void *array, vtkIdType size, int save)
     {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
     }
+  void SetVoidArray(void *array, vtkIdType size, int save,
+                    int vtkNotUsed(deleteMethod))
+    {
+      this->SetArray(static_cast<unsigned char *>(array), size, save);
+    }
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.
-  vtkArrayIterator* NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   // Description:
   // Return the indices where a specific value appears.
@@ -249,13 +254,12 @@ private:
   void DeepCopy(vtkDataArray &da) {this->vtkDataArray::DeepCopy(&da);}
 
 private:
-  vtkBitArray(const vtkBitArray&);  // Not implemented.
-  void operator=(const vtkBitArray&);  // Not implemented.
+  vtkBitArray(const vtkBitArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBitArray&) VTK_DELETE_FUNCTION;
 
-  //BTX
   vtkBitArrayLookup* Lookup;
   void UpdateLookup();
-  //ETX
+
 };
 
 inline void vtkBitArray::SetNumberOfValues(vtkIdType number)
@@ -326,4 +330,3 @@ inline vtkIdType vtkBitArray::InsertNextValue(int i)
 inline void vtkBitArray::Squeeze() {this->ResizeAndExtend (this->MaxId+1);}
 
 #endif
-

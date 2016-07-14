@@ -56,7 +56,6 @@ public:
   // Get the position of the bottom corner of the image.
   vtkGetVector2Macro(Position, float);
 
-//BTX
 protected:
   vtkImageItem();
   ~vtkImageItem();
@@ -66,9 +65,9 @@ protected:
   vtkImageData *Image;
 
 private:
-  vtkImageItem(const vtkImageItem &); // Not implemented.
-  void operator=(const vtkImageItem &);   // Not implemented.
-//ETX
+  vtkImageItem(const vtkImageItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageItem &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkImageItem_h

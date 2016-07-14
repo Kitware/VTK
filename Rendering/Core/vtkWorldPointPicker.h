@@ -51,8 +51,8 @@ protected:
   ~vtkWorldPointPicker() {}
 
 private:
-  vtkWorldPointPicker(const vtkWorldPointPicker&);  // Not implemented.
-  void operator=(const vtkWorldPointPicker&);  // Not implemented.
+  vtkWorldPointPicker(const vtkWorldPointPicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWorldPointPicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

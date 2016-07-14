@@ -47,8 +47,8 @@ protected:
   bool CheckRequirements(vtkGraph* const graph) const;
 
 private:
-  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&);  // Not implemented.
-  void operator=(const vtkGraphWeightEuclideanDistanceFilter&);  // Not implemented.
+  vtkGraphWeightEuclideanDistanceFilter(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphWeightEuclideanDistanceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

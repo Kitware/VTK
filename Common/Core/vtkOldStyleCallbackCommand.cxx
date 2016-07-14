@@ -17,8 +17,8 @@
 #include "vtkSetGet.h"
 #include "vtkObject.h"
 
-#include <string.h>
-#include <ctype.h>
+#include <cstring>
+#include <cctype>
 
 //----------------------------------------------------------------
 vtkOldStyleCallbackCommand::vtkOldStyleCallbackCommand()

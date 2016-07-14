@@ -33,10 +33,12 @@ set(Module_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
   vtkOpenGLHardwareSelector.cxx
   vtkOpenGLHelper.cxx
+  vtkOpenGLImageAlgorithmHelper.cxx
   vtkOpenGLImageMapper.cxx
   vtkOpenGLImageSliceMapper.cxx
   vtkOpenGLIndexBufferObject.cxx
@@ -46,17 +48,20 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper.cxx
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
-  vtkOpenGLRenderWindow.cxx
+  vtkOpenGLRenderPass.cxx
   vtkOpenGLRenderUtilities.cxx
+  vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
+  vtkOpenGLTextActor.cxx
+  vtkOpenGLTextActor3D.cxx
+  vtkOpenGLTextMapper.cxx
   vtkOpenGLTexture.cxx
   vtkOpenGLVertexArrayObject.cxx
   vtkOpenGLVertexBufferObject.cxx
   vtkOverlayPass.cxx
-  vtkRenderPass.cxx
+  vtkPointFillPass.cxx
   vtkRenderPassCollection.cxx
-  vtkRenderState.cxx
   vtkRenderStepsPass.cxx
   vtkSSAAPass.cxx
   vtkSequencePass.cxx
@@ -67,6 +72,7 @@ set(Module_SRCS
   vtkSobelGradientMagnitudePass.cxx
   vtkTextureObject.cxx
   vtkTextureUnitManager.cxx
+  vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
   vtkVolumetricPass.cxx
@@ -75,6 +81,7 @@ set(Module_SRCS
 if (NOT DEFINED OPENGL_ES_VERSION)
   set(Module_SRCS ${Module_SRCS}
     vtkDataTransferHelper.cxx
+    vtkDualDepthPeelingPass.cxx # Needs GL_MAX
     vtkFrameBufferObject2.cxx
     vtkPixelBufferObject.cxx
     vtkRenderbuffer.cxx
@@ -82,6 +89,7 @@ if (NOT DEFINED OPENGL_ES_VERSION)
 else()
   if (${OPENGL_ES_VERSION} MATCHES 3.0)
     set(Module_SRCS ${Module_SRCS}
+      vtkDualDepthPeelingPass.cxx # Needs GL_MAX
       vtkFrameBufferObject2.cxx
       vtkPixelBufferObject.cxx
       vtkRenderbuffer.cxx
@@ -100,6 +108,7 @@ set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
   vtkFrameBufferObject
   vtkOpenGLBufferObject
+  vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHelper
@@ -108,22 +117,22 @@ set_source_files_properties(
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
   vtkPixelBufferObject
-  vtkRenderState
   vtkRenderbuffer
   vtkTextureObject
   vtkTextureUnitManager
+  vtkTransformFeedback
   WRAP_EXCLUDE)
 
 set_source_files_properties(
   ${CMAKE_CURRENT_BINARY_DIR}/${vtk-module}ObjectFactory.cxx
+  vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
 set_source_files_properties(
+  vtkOpenGLGL2PSHelper
   vtkOpenGLRenderWindow
-  vtkRenderPass
-  vtkRenderState
   ABSTRACT
   )
 
@@ -138,6 +147,7 @@ set(shader_files
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl
   glsl/vtkPointGaussianVS.glsl
+  glsl/vtkPointFillPassFS.glsl
   glsl/vtkPolyData2DFS.glsl
   glsl/vtkPolyData2DVS.glsl
   glsl/vtkPolyDataFS.glsl
@@ -177,19 +187,6 @@ if(VTK_USE_X)
     message(FATAL_ERROR "X11_Xt_LIB could not be found. Required for VTK X lib.")
   endif()
   include_directories(${X11_INCLUDE_DIR} ${X11_Xt_INCLUDE_PATH})
-  # Add some custom overrides
-  list(APPEND vtk_module_overrides "vtkAbstractInteractionDevice")
-  set(vtk_module_vtkAbstractInteractionDevice_override "vtkXInteractionDevice")
-  list(APPEND vtk_module_overrides "vtkAbstractRenderDevice")
-  set(vtk_module_vtkAbstractRenderDevice_override "vtkXOpenGLRenderDevice")
-  list(APPEND Module_SRCS
-    vtkXInteractionDevice.cxx
-    vtkXOpenGLRenderDevice.cxx
-    )
-  set_source_files_properties(
-    vtkXInteractionDevice
-    vtkXOpenGLRenderDevice
-    WRAP_EXCLUDE)
 endif()
 
 # setup factory overrides
@@ -207,6 +204,9 @@ set(opengl_overrides
   PolyDataMapper2D
   Property
   Renderer
+  TextActor
+  TextActor3D
+  TextMapper
   Texture
   )
 

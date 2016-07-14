@@ -39,6 +39,14 @@ public:
   vtkTypeMacro(vtkExtractFunctionalBagPlot, vtkTableAlgorithm);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Density value for the median quartile.
+  vtkSetMacro(DensityForP50, double);
+
+  // Description:
+  // Density value for the user defined quartile.
+  vtkSetMacro(DensityForPUser, double);
+  vtkSetMacro(PUser, int);
+
 protected:
   vtkExtractFunctionalBagPlot();
   virtual ~vtkExtractFunctionalBagPlot();
@@ -47,9 +55,15 @@ protected:
     vtkInformationVector**,
     vtkInformationVector*);
 
+  char *P50String;
+  char *PUserString;
+  double DensityForP50;
+  double DensityForPUser;
+  int PUser;
+
 private:
-  vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ); // Not implemented.
-  void operator = ( const vtkExtractFunctionalBagPlot& ); // Not implemented.
+  vtkExtractFunctionalBagPlot( const vtkExtractFunctionalBagPlot& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkExtractFunctionalBagPlot& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkExtractFunctionalBagPlot_h

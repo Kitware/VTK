@@ -89,18 +89,10 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<long>::New();
         case VTK_UNSIGNED_LONG:
           return vtkDenseArray<unsigned long>::New();
-#if defined(VTK_TYPE_USE_LONG_LONG)
         case VTK_LONG_LONG:
           return vtkDenseArray<long long>::New();
         case VTK_UNSIGNED_LONG_LONG:
           return vtkDenseArray<unsigned long long>::New();
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-        case VTK___INT64:
-          return vtkDenseArray<__int64>::New();
-        case VTK_UNSIGNED___INT64:
-          return vtkDenseArray<unsigned __int64>::New();
-#endif
         case VTK_FLOAT:
           return vtkDenseArray<float>::New();
         case VTK_DOUBLE:
@@ -139,18 +131,10 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<long>::New();
         case VTK_UNSIGNED_LONG:
           return vtkSparseArray<unsigned long>::New();
-#if defined(VTK_TYPE_USE_LONG_LONG)
         case VTK_LONG_LONG:
           return vtkSparseArray<long long>::New();
         case VTK_UNSIGNED_LONG_LONG:
           return vtkSparseArray<unsigned long long>::New();
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-        case VTK___INT64:
-          return vtkSparseArray<__int64>::New();
-        case VTK_UNSIGNED___INT64:
-          return vtkSparseArray<unsigned __int64>::New();
-#endif
         case VTK_FLOAT:
           return vtkSparseArray<float>::New();
         case VTK_DOUBLE:

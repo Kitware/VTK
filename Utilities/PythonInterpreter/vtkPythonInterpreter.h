@@ -113,7 +113,6 @@ public:
   static void SetCaptureStdin(bool);
   static bool GetCaptureStdin();
 
-//BTX
 protected:
   vtkPythonInterpreter();
   ~vtkPythonInterpreter();
@@ -129,8 +128,8 @@ protected:
   static vtkStdString ReadStdin();
 
 private:
-  vtkPythonInterpreter(const vtkPythonInterpreter&); // Not implemented.
-  void operator=(const vtkPythonInterpreter&); // Not implemented.
+  vtkPythonInterpreter(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPythonInterpreter&) VTK_DELETE_FUNCTION;
 
   static bool InitializedOnce;
   static bool CaptureStdin;
@@ -142,7 +141,7 @@ private:
   // Accumulate here output printed to console by the python interpreter.
   static std::string StdErrBuffer;
   static std::string StdOutBuffer;
-//ETX
+
 };
 
 #endif

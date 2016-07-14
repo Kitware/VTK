@@ -40,7 +40,6 @@ public:
   // 1.0 by default.
   vtkSetMacro(Opacity, double);
 
-//BTX
 protected:
   vtkContextItem();
   ~vtkContextItem();
@@ -48,9 +47,9 @@ protected:
   double Opacity;
 
 private:
-  vtkContextItem(const vtkContextItem &); // Not implemented.
-  void operator=(const vtkContextItem &);   // Not implemented.
-//ETX
+  vtkContextItem(const vtkContextItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextItem &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkContextItem_h

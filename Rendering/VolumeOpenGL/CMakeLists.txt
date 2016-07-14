@@ -85,15 +85,31 @@ foreach(file ${shader_files})
     )
 endforeach()
 
+if (VTK_LEGACY_REMOVE)
+  set_source_files_properties(
+    vtkOpenGLVolumeTextureMapper2D.h
+    vtkOpenGLVolumeTextureMapper2D.cxx
+    vtkOpenGLVolumeTextureMapper3D.h
+    vtkOpenGLVolumeTextureMapper3D.cxx
+    PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
+    )
+endif()
+
 # Nwo for the object factory.
 set(opengl_overrides
   HAVSVolumeMapper
   ProjectedAAHexahedraMapper
   ProjectedTetrahedraMapper
   RayCastImageDisplayHelper
-  VolumeTextureMapper2D
-  VolumeTextureMapper3D
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list (APPEND opengl_overrides
+    VolumeTextureMapper2D
+    VolumeTextureMapper3D)
+endif()
 
 if(NOT Module_vtkRenderingVolumeOpenGLNew)
   list(APPEND opengl_overrides GPUVolumeRayCastMapper)

@@ -341,7 +341,7 @@ void vtkBitArray::SetNumberOfTuples(vtkIdType number)
 // performed; use in conjunction with SetNumberOfTuples() to allocate space.
 void vtkBitArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
-  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
   if (!ba)
     {
     vtkWarningMacro("Input and output arrays types do not match.");
@@ -364,7 +364,7 @@ void vtkBitArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 // Note that memory allocation is performed as necessary to hold the data.
 void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
-  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
   if (!ba)
     {
     vtkWarningMacro("Input and output arrays types do not match.");
@@ -384,7 +384,7 @@ void vtkBitArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source
 void vtkBitArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                                vtkAbstractArray *source)
 {
-  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
   if (!ba)
     {
     vtkWarningMacro("Input and output arrays types do not match.");
@@ -421,7 +421,7 @@ void vtkBitArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
 void vtkBitArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
                                vtkIdType srcStart, vtkAbstractArray *source)
 {
-  vtkBitArray* sa = vtkBitArray::SafeDownCast(source);
+  vtkBitArray* sa = vtkArrayDownCast<vtkBitArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -464,7 +464,7 @@ void vtkBitArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
 // Returns the location at which the data was inserted.
 vtkIdType vtkBitArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {
-  vtkBitArray* ba = vtkBitArray::SafeDownCast(source);
+  vtkBitArray* ba = vtkArrayDownCast<vtkBitArray>(source);
   if (!ba)
     {
     vtkWarningMacro("Input and output arrays types do not match.");

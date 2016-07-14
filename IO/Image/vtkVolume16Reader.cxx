@@ -167,7 +167,7 @@ int vtkVolume16Reader::RequestData(
   vtkImageData *output = this->AllocateOutputData(output_do,
                                                   outInfo);
   vtkUnsignedShortArray *newScalars =
-    vtkUnsignedShortArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkUnsignedShortArray>(output->GetPointData()->GetScalars());
 
   // Validate instance variables
   if (this->FilePrefix == NULL)
@@ -355,6 +355,7 @@ void vtkVolume16Reader::ReadVolume(int first, int last,
     if ( !(fp = fopen(filename,"rb")) )
       {
       vtkErrorMacro(<<"Can't find file: " << filename);
+      delete [] slice;
       return;
       }
 
@@ -578,7 +579,7 @@ void vtkVolume16Reader::AdjustSpacingAndOrigin (int dimensions[3], double spacin
 }
 
 //----------------------------------------------------------------------------
-void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[3])
+void vtkVolume16Reader::TransformSlice (unsigned short *slice, unsigned short *pixels, int k, int dimensions[3], int bounds[6])
 {
   int iSize = this->DataDimensions[0];
   int jSize = this->DataDimensions[1];

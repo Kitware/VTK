@@ -25,8 +25,23 @@
 
 vtkStandardNewMacro(vtkMassProperties);
 
-#define  VTK_CUBE_ROOT(x) \
-  ((x<0.0)?(-pow((-x),0.333333333333333)):(pow((x),0.333333333333333)))
+//----------------------------------------------------------------------------
+// TODO: replace with std::cbrt() when C++11 is minimum requirement.
+static inline double vtkCubeRoot(double x)
+{
+  if (x > 0.0)
+    {
+    return pow(x, 1.0/3.0);
+    }
+  else if (x < 0.0)
+    {
+    return -pow(-x, 1.0/3.0);
+    }
+  else
+    {
+    return x;
+    }
+}
 
 //----------------------------------------------------------------------------
 // Constructs with initial 0 values.
@@ -257,7 +272,7 @@ int vtkMassProperties::RequestData(
   this->Volume =  fabs(this->Volume);
   this->VolumeProjected = volumeproj;
   this->NormalizedShapeIndex =
-    (sqrt(surfacearea)/VTK_CUBE_ROOT(this->Volume))/2.199085233;
+    (sqrt(surfacearea)/vtkCubeRoot(this->Volume))/2.199085233;
 
   return 1;
 }

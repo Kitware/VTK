@@ -30,6 +30,8 @@
 
 vtkStandardNewMacro(vtkProbeFilter);
 
+#define CELL_TOLERANCE_FACTOR_SQR  1e-6
+
 class vtkProbeFilter::vtkVectorOfArrays :
   public std::vector<vtkDataArray*>
 {
@@ -141,6 +143,16 @@ void vtkProbeFilter::PassAttributeData(
       {
       output->GetPointData()->AddArray(input->GetPointData()->GetArray(i));
       }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetPointData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetPointData()->SetAttribute(da, i);
+        }
+      }
     }
 
   // copy cell data arrays
@@ -150,6 +162,16 @@ void vtkProbeFilter::PassAttributeData(
     for (int i=0; i<numCellArrays; ++i)
       {
       output->GetCellData()->AddArray(input->GetCellData()->GetArray(i));
+      }
+
+    // Set active attributes in the output to the active attributes in the input
+    for (int i = 0; i < vtkDataSetAttributes::NUM_ATTRIBUTES; ++i)
+      {
+      vtkAbstractArray* da = input->GetCellData()->GetAttribute(i);
+      if (da)
+        {
+        output->GetCellData()->SetAttribute(da, i);
+        }
       }
     }
 
@@ -301,37 +323,8 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
 
   char* maskArray = this->MaskPoints->GetPointer(0);
 
-  if (this->ComputeTolerance)
-    {
-    // Use tolerance as a function of size of source data
-    //
-    tol2 = source->GetLength();
-    tol2 = (tol2 != 0.0) ? tol2*tol2 / 1000.0 : 0.001;
-
-    // the actual sampling rate needs to be considered for a
-    // more appropriate / accurate selection of the tolerance.
-    // Otherwise the tolerance simply determined above might be
-    // so large as to cause incorrect cell location
-    double bounds[6];
-    source->GetBounds(bounds);
-    double minRes = 10000000000.0;
-    double axisRes[3];
-    for ( int  i = 0;  i < 3;  i ++ )
-      {
-      axisRes[i] = ( bounds[i * 2 + 1] - bounds[i * 2] ) / numPts;
-      if ( (axisRes[i] > 0.0) && (axisRes[i] < minRes) )
-        minRes = axisRes[i];
-      }
-    double minRes2 = minRes * minRes;
-    tol2 = tol2 > minRes2 ? minRes2 : tol2;
-
-    // Don't go below epsilon for a double
-    tol2 = (tol2 < VTK_DBL_EPSILON) ? VTK_DBL_EPSILON : tol2;
-    }
-  else
-    {
-    tol2 = this->Tolerance * this->Tolerance;
-    }
+  tol2 = this->ComputeTolerance ? VTK_DOUBLE_MAX :
+         (this->Tolerance * this->Tolerance);
 
   // Loop over all input points, interpolating source data
   //
@@ -360,27 +353,24 @@ void vtkProbeFilter::ProbeEmptyPoints(vtkDataSet *input,
     if (cellId >= 0)
       {
       cell = source->GetCell(cellId);
-      // If we found a cell, let's make sure that the point is within
-      // a certain size of the cell when it is slightly outside.
-      // The tolerance check above is based on the bounds of the whole
-      // dataset which may be significantly larger than the cell. When
-      // that happens, even a small tolerance may lead to finding a cell
-      // when the point is significantly outside that cell. This check
-      // is based on the cell's size. The tolerance here is significantly
-      // larger, 1/10 the size of the cell.
-      double dist2;
-      double closestPoint[3];
-      cell->EvaluatePosition(x, closestPoint, subId,
-                             pcoords, dist2, weights);
-      if (dist2 > cell->GetLength2() * 0.01)
+      if (this->ComputeTolerance)
         {
-        cell = 0;
+        // If ComputeTolerance is set, compute a tolerance proportional to the
+        // cell length.
+        double dist2;
+        double closestPoint[3];
+        cell->EvaluatePosition(x, closestPoint, subId, pcoords, dist2, weights);
+        if (dist2 > (cell->GetLength2() * CELL_TOLERANCE_FACTOR_SQR))
+          {
+          cell = 0;
+          }
         }
       }
     else
       {
       cell = 0;
       }
+
     if (cell)
       {
       // Interpolate the point data
@@ -512,6 +502,7 @@ void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
       continue;
       }
 
+    double userTol2 = this->Tolerance * this->Tolerance;
     for (int iz=idxBounds[4]; iz<=idxBounds[5]; iz++)
       {
       double p[3];
@@ -528,19 +519,15 @@ void vtkProbeFilter::ProbePointsImageData(vtkImageData *input,
           double dist2;
           int subId;
           int inside = cell->EvaluatePosition(p, closestPoint, subId, pcoords,
-            dist2, weights);
+                                              dist2, weights);
 
-          // Ensure the point really falls in the cell. Prevents extrapolation.
-          for (int k=0; k<cell->GetNumberOfPoints(); k++)
-            {
-            if (weights[k]<0)
-              {
-              inside=0;
-              break;
-              }
-            }
+          // If ComputeTolerance is set, compute a tolerance proportional to the
+          // cell length. Otherwise, use the user specified absolute tolerance.
+          double tol2 = this->ComputeTolerance ?
+                        (CELL_TOLERANCE_FACTOR_SQR * cell->GetLength2()) :
+                        userTol2;
 
-          if (inside && (dist2==0)) // ensure it's inside the cell
+          if ((inside == 1) && (dist2 <= tol2))
             {
             vtkIdType ptId = ix + dim[0]*(iy + dim[1]*iz);
 
@@ -645,6 +632,13 @@ int vtkProbeFilter::RequestUpdateExtent(
     }
 
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
+
+  sourceInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
+  if (sourceInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
+    {
+    sourceInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+      sourceInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()), 6);
+    }
 
   if ( ! this->SpatialMatch)
     {

@@ -47,13 +47,11 @@ public:
   vtkPolyData *GetNextItem() {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject());};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkPolyData *GetNextPolyData(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkPolyData *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkPolyDataCollection() {}
@@ -64,8 +62,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPolyDataCollection(const vtkPolyDataCollection&);  // Not implemented.
-  void operator=(const vtkPolyDataCollection&);  // Not implemented.
+  vtkPolyDataCollection(const vtkPolyDataCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataCollection&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -20,12 +20,11 @@
 
 #include "vtkRInterface.h"
 
-#undef HAVE_UINTPTR_T
-#ifdef HAVE_VTK_UINTPTR_T
-#define HAVE_UINTPTR_T HAVE_VTK_UINTPTR_T
-#ifndef WIN32
+// for uintptr_t
+#ifdef _MSC_VER
+#include <stddef.h>
+#else
 #include <stdint.h>
-#endif
 #endif
 
 #include "vtkInformation.h"
@@ -42,7 +41,7 @@ vtkStandardNewMacro(vtkRInterface);
 #include "Rversion.h"
 #include "Rdefines.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #define CSTACK_DEFNS
 #define R_INTERFACE_PTRS
 #include "Rinterface.h"
@@ -76,7 +75,7 @@ public:
     return;
     }
 
-#ifndef WIN32
+#ifndef _WIN32
     R_SignalHandlers = 0;
 #endif
 
@@ -98,7 +97,7 @@ public:
           R_CStackLimit = (uintptr_t)-1;
       #endif
 
-      #ifndef WIN32
+      #ifndef _WIN32
           R_Interactive = static_cast<Rboolean>(TRUE);
       #endif
           setup_Rmainloop();
@@ -113,21 +112,21 @@ public:
     rcommand.append("f<-file(paste(tempdir(), \"/Routput.txt\", sep = \"\"), open=\"wt+\")\nsink(f)\n");
     this->tmpFilePath.clear();
     this->tmpFilePath.append(R_TempDir);
-#ifdef WIN32
+#ifdef _WIN32
     this->tmpFilePath.append("\\Routput.txt");
 #else
     this->tmpFilePath.append("/Routput.txt");
 #endif
 
     ParseStatus status;
-    SEXP cmdSexp, cmdexpr = R_NilValue;
     int error;
 
 
+    SEXP cmdSexp;
     PROTECT(cmdSexp = allocVector(STRSXP, 1));
     SET_STRING_ELT(cmdSexp, 0, mkChar(rcommand.c_str()));
 
-    cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+    SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
     for(int i = 0; i < length(cmdexpr); i++)
       {
       R_tryEval(VECTOR_ELT(cmdexpr, i),NULL,&error);
@@ -228,15 +227,15 @@ int vtkRInterface::EvalRscript(const char *string, bool showRoutput)
 {
 
   ParseStatus status;
-  SEXP cmdSexp, cmdexpr = R_NilValue;
   SEXP ans;
   int i;
   int error;
 
+  SEXP cmdSexp;
   PROTECT(cmdSexp = allocVector(STRSXP, 1));
   SET_STRING_ELT(cmdSexp, 0, mkChar(string));
 
-  cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
+  SEXP cmdexpr = PROTECT(R_ParseVector(cmdSexp, -1, &status, R_NilValue));
   switch (status)
     {
     case PARSE_OK:

@@ -35,18 +35,17 @@ vtkActor psActor
 
 vtkRungeKutta4 rk4
 
-vtkStreamLine streamer
+vtkStreamTracer streamer
     streamer SetInputData $output
     streamer SetSourceData [ps GetOutput]
-    streamer SetMaximumPropagationTime 100
-    streamer SetIntegrationStepLength .2
-    streamer SetStepLength .001
-    streamer SetNumberOfThreads 1
+    streamer SetMaximumPropagation 100
+    streamer SetInitialIntegrationStep .2
     streamer SetIntegrationDirectionToForward
-    streamer VorticityOn
+    streamer SetComputeVorticity 1
     streamer SetIntegrator rk4
 vtkRibbonFilter rf
     rf SetInputConnection [streamer GetOutputPort]
+    rf SetInputArrayToProcess 1 0 0 0 "Normals"
     rf SetWidth 0.1
     rf SetWidthFactor 5
 vtkPolyDataMapper streamMapper

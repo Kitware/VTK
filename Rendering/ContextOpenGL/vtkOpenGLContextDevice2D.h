@@ -281,7 +281,6 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
-//BTX
 protected:
   vtkOpenGLContextDevice2D();
   virtual ~vtkOpenGLContextDevice2D();
@@ -327,8 +326,8 @@ protected:
   vtkOpenGLRenderWindow* RenderWindow;
 
 private:
-  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &); // Not implemented.
-  void operator=(const vtkOpenGLContextDevice2D &);   // Not implemented.
+  vtkOpenGLContextDevice2D(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLContextDevice2D &) VTK_DELETE_FUNCTION;
 
   void AlignText(double orientation, float width, float height, float *p);
 
@@ -358,7 +357,6 @@ private:
   // not be used directly -- use GetMarker, which caches results, instead.
   vtkImageData * GenerateMarker(int shape, int size, bool highlight);
 
-//ETX
 };
 
 #endif //vtkOpenGLContextDevice2D_h

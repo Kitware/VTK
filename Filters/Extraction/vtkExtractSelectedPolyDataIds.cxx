@@ -90,7 +90,7 @@ int vtkExtractSelectedPolyDataIds::RequestData(
     }
 
   vtkIdTypeArray* idArray =
-    vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
 
   if (!idArray)
     {

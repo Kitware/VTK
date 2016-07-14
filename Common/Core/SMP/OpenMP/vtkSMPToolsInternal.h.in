@@ -20,7 +20,7 @@
 
 #include <algorithm> //for std::sort()
 
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace detail
@@ -92,7 +92,7 @@ static void vtkSMPTools_Impl_Sort(RandomAccessIterator begin,
 }//namespace detail
 }//namespace vtk
 
-#endif // __WRAP__
+#endif // __VTK_WRAP__
 
 #endif
 // VTK-HeaderTest-Exclude: vtkSMPToolsInternal.h

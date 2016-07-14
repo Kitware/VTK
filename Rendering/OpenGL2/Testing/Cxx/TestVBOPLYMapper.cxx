@@ -14,7 +14,7 @@
 
 #include "vtkCamera.h"
 #include "vtkRenderer.h"
-#include "vtkRenderWindow.h"
+#include "vtkOpenGLRenderWindow.h"
 #include "vtkActor.h"
 #include "vtkCellArray.h"
 #include "vtkPointData.h"
@@ -31,6 +31,8 @@
 
 #include "vtkRenderWindowInteractor.h"
 
+#include "vtkOpenGLRenderWindow.h"
+
 //----------------------------------------------------------------------------
 int TestVBOPLYMapper(int argc, char *argv[])
 {
@@ -39,13 +41,21 @@ int TestVBOPLYMapper(int argc, char *argv[])
   vtkNew<vtkPolyDataMapper> mapper;
   renderer->SetBackground(0.0, 0.0, 0.0);
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(300, 300);
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
   vtkNew<vtkRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
   vtkNew<vtkLightKit> lightKit;
   lightKit->AddLightsToRenderer(renderer.Get());
+
+  if (!renderWindow->SupportsOpenGL())
+    {
+    cerr << "The platform does not support OpenGL as required\n";
+    cerr << vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get())->GetOpenGLSupportMessage();
+    cerr << renderWindow->ReportCapabilities();
+    return 1;
+    }
 
   const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
                                                                "Data/dragon.ply");
@@ -78,6 +88,9 @@ int TestVBOPLYMapper(int argc, char *argv[])
   timer->StopTimer();
   double firstRender = timer->GetElapsedTime();
   cerr << "first render time: " << firstRender << endl;
+  int major, minor;
+  vtkOpenGLRenderWindow::SafeDownCast(renderWindow.Get())->GetOpenGLVersion(major,minor);
+  cerr << "opengl version " << major << "." << minor << "\n";
 
   timer->StartTimer();
   int numRenders = 8;
@@ -99,8 +112,7 @@ int TestVBOPLYMapper(int argc, char *argv[])
   renderer->GetActiveCamera()->SetFocalPoint(0,0,0);
   renderer->GetActiveCamera()->SetViewUp(0,1,0);
   renderer->ResetCamera();
-
-  renderWindow->SetSize(300, 300);
+  renderWindow->Render();
   renderWindow->Render();
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
@@ -109,5 +121,5 @@ int TestVBOPLYMapper(int argc, char *argv[])
     iren->Start();
     }
 
-  return EXIT_SUCCESS;
+  return !retVal;
 }

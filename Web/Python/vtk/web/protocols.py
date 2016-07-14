@@ -6,7 +6,10 @@ very specific web application.
 from time import time
 import os, sys, logging, types, inspect, traceback, logging, re
 
-from vtkWebCorePython import vtkWebApplication, vtkWebInteractionEvent
+try:
+    from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
+except ImportError:
+    from vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
 from autobahn.wamp import register as exportRpc
 
 # =============================================================================
@@ -16,6 +19,7 @@ from autobahn.wamp import register as exportRpc
 # =============================================================================
 
 class vtkWebProtocol(object):
+
     def setApplication(self, app):
         self.Application = app
 
@@ -60,7 +64,6 @@ class vtkWebProtocol(object):
         Set a vtkRenderWindow to be the active one
         """
         self.Application.GetObjectIdMap().SetActiveObject("VIEW", view)
-
 
 # =============================================================================
 #
@@ -109,6 +112,7 @@ class vtkWebMouseHandler(vtkWebProtocol):
         #pvevent.SetKeyCode(event["charCode"])
         retVal = self.getApplication().HandleInteractionEvent(view, pvevent)
         del pvevent
+
         return retVal
 
 # =============================================================================
@@ -120,11 +124,11 @@ class vtkWebMouseHandler(vtkWebProtocol):
 class vtkWebViewPort(vtkWebProtocol):
 
     @exportRpc("viewport.camera.reset")
-    def resetCamera(self, view):
+    def resetCamera(self, viewId):
         """
         RPC callback to reset camera.
         """
-        view = self.getView(view)
+        view = self.getView(viewId)
         camera = view.GetRenderer().GetActiveCamera()
         camera.ResetCamera()
         try:
@@ -134,28 +138,31 @@ class vtkWebViewPort(vtkWebProtocol):
             pass
 
         self.getApplication().InvalidateCache(view)
+
         return str(self.getGlobalId(view))
 
     @exportRpc("viewport.axes.orientation.visibility.update")
-    def updateOrientationAxesVisibility(self, view, showAxis):
+    def updateOrientationAxesVisibility(self, viewId, showAxis):
         """
         RPC callback to show/hide OrientationAxis.
         """
-        view = self.getView(view)
+        view = self.getView(viewId)
         # FIXME seb: view.OrientationAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+
         return str(self.getGlobalId(view))
 
     @exportRpc("viewport.axes.center.visibility.update")
-    def updateCenterAxesVisibility(self, view, showAxis):
+    def updateCenterAxesVisibility(self, viewId, showAxis):
         """
         RPC callback to show/hide CenterAxesVisibility.
         """
-        view = self.getView(view)
+        view = self.getView(viewId)
         # FIXME seb: view.CenterAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+
         return str(self.getGlobalId(view))
 
     @exportRpc("viewport.camera.update")

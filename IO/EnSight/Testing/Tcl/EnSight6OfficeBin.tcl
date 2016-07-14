@@ -26,11 +26,11 @@ vtkActor outlineActor
     [outlineActor GetProperty] SetColor 0 0 0
 
 # Create source for streamtubes
-vtkStreamPoints streamer
+vtkStreamTracer streamer
     streamer SetInputConnection [reader GetOutputPort]
     streamer SetStartPosition 0.1 2.1 0.5
-    streamer SetMaximumPropagationTime 500
-    streamer SetTimeIncrement 0.5
+    streamer SetMaximumPropagation 500
+    streamer SetInitialIntegrationStep 0.1
     streamer SetIntegrationDirectionToForward
 
 vtkConeSource cone
@@ -38,7 +38,8 @@ vtkConeSource cone
 vtkGlyph3D cones
     cones SetInputConnection [streamer GetOutputPort]
     cones SetSourceConnection [cone GetOutputPort]
-    cones SetScaleFactor 0.9
+    cones SetScaleFactor 3
+    cones SetInputArrayToProcess 1 0 0 0 "vectors"
     cones SetScaleModeToScaleByVector
 
 vtkHierarchicalPolyDataMapper mapCones

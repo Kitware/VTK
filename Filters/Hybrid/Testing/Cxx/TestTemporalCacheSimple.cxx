@@ -60,9 +60,7 @@ public:
   // Save the range of valid timestep index values.
   vtkGetVector2Macro(TimeStepRange, int);
 
-  //BTX
 //  void GetTimeStepValues(std::vector<double> &steps);
-  //ETX
 
  protected:
    vtkTemporalSphereSource();
@@ -233,9 +231,8 @@ int TestTemporalCacheSimple(int , char *[])
   iren->SetRenderWindow( renWin );
 
   // ask for some specific data points
-  vtkStreamingDemandDrivenPipeline *sdd =
-    vtkStreamingDemandDrivenPipeline::SafeDownCast(interp->GetExecutive());
-  sdd->UpdateInformation();
+  vtkInformation *info = interp->GetOutputInformation(0);
+  interp->UpdateInformation();
   double time = 0;
   int i;
   int j;
@@ -244,7 +241,7 @@ int TestTemporalCacheSimple(int , char *[])
     for (i = 0; i < 9; ++i)
       {
       time = i+0.5;
-      sdd->SetUpdateTimeStep(0, time);
+      info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(), time);
       mapper->Modified();
       renderer->ResetCameraClippingRange();
       renWin->Render();

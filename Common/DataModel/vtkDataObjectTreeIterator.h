@@ -94,7 +94,6 @@ public:
   vtkGetMacro(TraverseSubTree, int);
   vtkBooleanMacro(TraverseSubTree, int);
 
-//BTX
 protected:
   vtkDataObjectTreeIterator();
   virtual ~vtkDataObjectTreeIterator();
@@ -118,8 +117,8 @@ protected:
   unsigned int CurrentFlatIndex;
 
 private:
-  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&); // Not implemented.
-  void operator=(const vtkDataObjectTreeIterator&); // Not implemented.
+  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;
@@ -135,7 +134,7 @@ private:
 
   // Cannot be called when this->IsDoneWithTraversal() return 1.
   void UpdateLocation();
-//ETX
+
 };
 
 #endif

@@ -230,7 +230,7 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
 
   pd->RemoveDeletedCells();
 
-  vtkIntArray *newScalars = vtkIntArray::SafeDownCast(pd->GetCellData()->GetScalars());
+  vtkIntArray *newScalars = vtkArrayDownCast<vtkIntArray>(pd->GetCellData()->GetScalars());
 
   int retVal = VTK_SUCCESS;
 

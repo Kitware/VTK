@@ -54,8 +54,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&);  // Not implemented.
-  void operator=(const vtkBlankStructuredGridWithImage&);  // Not implemented.
+  vtkBlankStructuredGridWithImage(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBlankStructuredGridWithImage&) VTK_DELETE_FUNCTION;
 };
 
 #endif

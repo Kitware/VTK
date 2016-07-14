@@ -122,8 +122,8 @@ protected:
   virtual ~vtkMathTextUtilities();
 
 private:
-  vtkMathTextUtilities(const vtkMathTextUtilities&);  // Not implemented.
-  void operator=(const vtkMathTextUtilities&);  // Not implemented.
+  vtkMathTextUtilities(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMathTextUtilities&) VTK_DELETE_FUNCTION;
 
   // Description:
   // The singleton instance and the singleton cleanup instance

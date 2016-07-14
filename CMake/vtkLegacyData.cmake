@@ -30,6 +30,7 @@ foreach(d
     headsq
     Viewpoint
     EnSight
+    Delaunay
     )
   list(APPEND data "DATA{${VTK_TEST_INPUT_DIR}/${d}/,REGEX:.*}")
 endforeach()

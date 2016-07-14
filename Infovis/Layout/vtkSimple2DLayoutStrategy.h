@@ -132,7 +132,6 @@ protected:
 
 private:
 
-  //BTX
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct
@@ -146,7 +145,6 @@ private:
   vtkFloatArray *RepulsionArray;
   vtkFloatArray *AttractionArray;
   vtkLayoutEdge *EdgeArray;
-  //ETX
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -156,8 +154,8 @@ private:
   float RestDistance;
   bool Jitter;
 
-  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkSimple2DLayoutStrategy&);  // Not implemented.
+  vtkSimple2DLayoutStrategy(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimple2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

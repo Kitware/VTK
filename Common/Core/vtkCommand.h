@@ -312,7 +312,19 @@
     _vtk_add_event(WindowIsDirectEvent)\
     _vtk_add_event(UncheckedPropertyModifiedEvent)\
     _vtk_add_event(UpdateShaderEvent)\
-    _vtk_add_event(MessageEvent)
+    _vtk_add_event(MessageEvent)\
+    _vtk_add_event(StartPinchEvent)\
+    _vtk_add_event(PinchEvent)\
+    _vtk_add_event(EndPinchEvent)\
+    _vtk_add_event(StartRotateEvent)\
+    _vtk_add_event(RotateEvent)\
+    _vtk_add_event(EndRotateEvent)\
+    _vtk_add_event(StartPanEvent)\
+    _vtk_add_event(PanEvent)\
+    _vtk_add_event(EndPanEvent)\
+    _vtk_add_event(TapEvent)\
+    _vtk_add_event(LongTapEvent)\
+    _vtk_add_event(SwipeEvent)
 
 #define vtkEventDeclarationMacro(_enum_name)\
   enum _enum_name{\
@@ -382,7 +394,6 @@ public:
   void PassiveObserverOff()
     { this->SetPassiveObserver(0); }
 
-//BTX
   // Description:
   // All the currently defined events are listed here.  Developers can
   // use -- vtkCommand::UserEvent + int to specify their own event
@@ -391,7 +402,6 @@ public:
 #define _vtk_add_event(Enum)  Enum,
   vtkEventDeclarationMacro(EventIds)
 #undef _vtk_add_event
-//ETX
 
 protected:
   int AbortFlag;
@@ -401,10 +411,10 @@ protected:
   virtual ~vtkCommand() {}
 
   friend class vtkSubjectHelper;
-//BTX
+
   vtkCommand(const vtkCommand& c) : vtkObjectBase(c) {}
   void operator=(const vtkCommand&) {}
-//ETX
+
 };
 
 #endif /* vtkCommand_h */

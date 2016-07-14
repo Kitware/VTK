@@ -185,7 +185,7 @@ protected:
   int RequestExtent[6];
 
   // Used to determine whether or not the data getting written is stale
-  bool UpdateMTimeTable(const std::string path, const vtkObject* value);
+  bool UpdateMTimeTable(const std::string& path, const vtkObject* value);
   std::map<std::string, unsigned long> LastUpdated;
 private:
   bool WriteInternal();
@@ -193,8 +193,8 @@ private:
   template<typename T>
   bool DefineAndWrite(vtkDataObject *input);
 
-  vtkADIOSWriter(const vtkADIOSWriter&);  // Not implemented.
-  void operator=(const vtkADIOSWriter&);  // Not implemented.
+  vtkADIOSWriter(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -30,9 +30,9 @@ class vtkIdList;
 class VTKCOMMONCORE_EXPORT vtkPoints2D : public vtkObject
 {
 public:
-//BTX
+
   static vtkPoints2D *New(int dataType);
-//ETX
+
   static vtkPoints2D *New();
 
   vtkTypeMacro(vtkPoints2D, vtkObject);
@@ -185,8 +185,8 @@ protected:
   vtkDataArray *Data;  // Array which represents data
 
 private:
-  vtkPoints2D(const vtkPoints2D&);  // Not implemented.
-  void operator=(const vtkPoints2D&);  // Not implemented.
+  vtkPoints2D(const vtkPoints2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPoints2D&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPoints2D::Reset()

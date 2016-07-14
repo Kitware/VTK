@@ -234,8 +234,8 @@ protected:
   int RequestPiece;
 
 private:
-  vtkADIOSReader(const vtkADIOSReader&);  // Not implemented.
-  void operator=(const vtkADIOSReader&);  // Not implemented.
+  vtkADIOSReader(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkADIOSReader&) VTK_DELETE_FUNCTION;
 };
 
 #define DECLARE_EXPLICIT(T) \

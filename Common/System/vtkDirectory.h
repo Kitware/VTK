@@ -98,8 +98,8 @@ private:
   static int CreateDirectoryInternal(const char* dir);
 
 private:
-  vtkDirectory(const vtkDirectory&);  // Not implemented.
-  void operator=(const vtkDirectory&);  // Not implemented.
+  vtkDirectory(const vtkDirectory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

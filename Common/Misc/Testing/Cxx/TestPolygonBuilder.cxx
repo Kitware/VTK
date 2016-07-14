@@ -27,17 +27,20 @@ int TestPolygonBuilder(int, char* [])
   vtkIdType d = points->InsertNextPoint(1,1,0);
   vtkIdType e = points->InsertNextPoint(0.5,0.5,0);
 
-  vtkIdType corner[4] = {a,b,c,d};
+  // The ordering of the vertices ensures that the normals of all of the
+  // subtriangles are in the same direction (0,0,1)
+  vtkIdType triangles[4][3] = {{e,c,a},
+                               {e,a,b},
+                               {e,b,d},
+                               {e,d,c}};
 
   vtkPolygonBuilder builder;
 
   vtkIdType p[3];
-  p[0] = e;
-
   for (size_t i=0;i<4;i++)
     {
-    p[1] = corner[i];
-    p[2] = corner[(i+1)%4];
+    for (size_t j=0;j<3;j++)
+      p[j] = triangles[i][j];
     builder.InsertTriangle(p);
     }
 

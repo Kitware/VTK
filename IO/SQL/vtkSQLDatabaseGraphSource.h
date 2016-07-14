@@ -93,18 +93,16 @@ protected:
   char* EdgePedigreeIdArrayName;
 
 private:
-  vtkSQLDatabaseGraphSource(const vtkSQLDatabaseGraphSource&); // Not implemented
-  void operator=(const vtkSQLDatabaseGraphSource&);   // Not implemented
+  vtkSQLDatabaseGraphSource(const vtkSQLDatabaseGraphSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLDatabaseGraphSource&) VTK_DELETE_FUNCTION;
 
   // Description:
   // This intercepts events from the graph layout class
   // and re-emits them as if they came from this class.
   vtkEventForwarderCommand *EventForwarder;
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
 
   bool Directed;
 

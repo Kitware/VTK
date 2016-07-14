@@ -49,7 +49,7 @@ public:
   // Get/Set the value associated with this key in the given
   // information object.
   void Append(vtkInformation* info, int value);
-  void Set(vtkInformation* info, int* value, int length);
+  void Set(vtkInformation* info, const int* value, int length);
   void Set(vtkInformation* info);
   int* Get(vtkInformation* info);
   int  Get(vtkInformation* info, int idx);
@@ -77,8 +77,8 @@ protected:
   int* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationIntegerVectorKey(const vtkInformationIntegerVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationIntegerVectorKey&);  // Not implemented.
+  vtkInformationIntegerVectorKey(const vtkInformationIntegerVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationIntegerVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

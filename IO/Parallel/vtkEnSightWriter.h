@@ -149,8 +149,8 @@ protected:
   int GhostLevel;
   vtkUnstructuredGrid* TmpInput;
 
-  vtkEnSightWriter(const vtkEnSightWriter&);  // Not implemented.
-  void operator=(const vtkEnSightWriter&);  // Not implemented.
+  vtkEnSightWriter(const vtkEnSightWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEnSightWriter&) VTK_DELETE_FUNCTION;
 
 };
 

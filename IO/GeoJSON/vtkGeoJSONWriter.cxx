@@ -25,10 +25,6 @@
 
 #include <sstream>
 
-#if _MSC_VER
-#define snprintf _snprintf
-#endif
-
 vtkStandardNewMacro(vtkGeoJSONWriter);
 
 #define VTK_GJWRITER_MAXPOINTS 32000

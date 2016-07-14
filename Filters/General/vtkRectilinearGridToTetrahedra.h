@@ -114,11 +114,10 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
  private:
-  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&); // Not implemented.
+  vtkRectilinearGridToTetrahedra(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
 
-  void operator=(const vtkRectilinearGridToTetrahedra&); // Not implemented.
+  void operator=(const vtkRectilinearGridToTetrahedra&) VTK_DELETE_FUNCTION;
 
-//BTX
   // Description:
   // Determine how to Divide each cell (voxel) in the RectilinearGrid
   // Overwrites VoxelSubdivisionType with flipping information for forming the mesh
@@ -149,7 +148,7 @@ protected:
   // Adds a center point in the middle of the voxel
   static inline void TetrahedralizeAddCenterPoint(vtkIdList *VoxelCorners,
                                                   vtkPoints *NodeList);
-//ETX
+
 };
 
 #endif /* vtkRectilinearGridToTetrahedra_h */

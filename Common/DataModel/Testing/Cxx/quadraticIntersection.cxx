@@ -157,8 +157,7 @@ void IntersectWithCell(unsigned nTest,
 
 int TestIntersectWithLine(int argc, char* argv[])
 {
-  std::ostringstream vtkmsg_with_warning_C4701;
-  ostream& strm = vtkmsg_with_warning_C4701;
+  std::ostringstream strm;
   strm << "Test vtkCell::IntersectWithLine Start" << endl;
 
   vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -506,6 +505,5 @@ int TestIntersectWithLine(int argc, char* argv[])
 
 int quadraticIntersection(int argc, char* argv[])
 {
-  std::ostringstream vtkmsg_with_warning_C4701;
   return TestIntersectWithLine(argc,argv);
 }

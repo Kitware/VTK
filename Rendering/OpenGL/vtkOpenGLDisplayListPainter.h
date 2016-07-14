@@ -39,7 +39,7 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
 protected:
-//BTX
+
   vtkOpenGLDisplayListPainter();
   ~vtkOpenGLDisplayListPainter();
 
@@ -51,12 +51,12 @@ protected:
                               bool forceCompileOnly);
 
 private:
-  vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&); // Not implemented.
-  void operator=(const vtkOpenGLDisplayListPainter&); // Not implemented.
+  vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLDisplayListPainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

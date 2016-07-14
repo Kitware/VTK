@@ -22,7 +22,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkPointData.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkImageNonMaximumSuppression);
 

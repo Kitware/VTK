@@ -29,7 +29,7 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkVariant.h"
-#include <ctype.h>
+#include <cctype>
 
 #include <map>
 #include <utility>
@@ -199,9 +199,9 @@ int vtkMapArrayValues::RequestData(
     }
   vtkAbstractArray *outputArray =
       vtkAbstractArray::CreateArray(this->OutputArrayType);
-  vtkDataArray *outputDataArray = vtkDataArray::SafeDownCast(outputArray);
+  vtkDataArray *outputDataArray = vtkArrayDownCast<vtkDataArray>(outputArray);
   vtkStringArray *outputStringArray =
-      vtkStringArray::SafeDownCast(outputArray);
+      vtkArrayDownCast<vtkStringArray>(outputArray);
   outputArray->SetName(this->OutputArrayName);
 
   // Are we copying the input array values to the output array before

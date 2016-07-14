@@ -182,8 +182,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
 
 private:
-  vtkMINCImageReader(const vtkMINCImageReader&); // Not implemented
-  void operator=(const vtkMINCImageReader&);  // Not implemented
+  vtkMINCImageReader(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMINCImageReader&) VTK_DELETE_FUNCTION;
 
 };
 

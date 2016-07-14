@@ -102,9 +102,9 @@ vtkLogoRepresentation::~vtkLogoRepresentation()
 }
 
 //----------------------------------------------------------------------
-inline void vtkLogoRepresentation::AdjustImageSize(double o[2],
-                                                   double borderSize[2],
-                                                   double imageSize[2])
+void vtkLogoRepresentation::AdjustImageSize(double o[2],
+                                            double borderSize[2],
+                                            double imageSize[2])
 {
   // Scale the image to fit with in the border.
   // Also update the origin so the image is centered.
@@ -172,6 +172,8 @@ void vtkLogoRepresentation::BuildRepresentation()
       this->TexturePoints->SetPoint(1, o[0]+imageSize[0],o[1],0.0);
       this->TexturePoints->SetPoint(2, o[0]+imageSize[0],o[1]+imageSize[1],0.0);
       this->TexturePoints->SetPoint(3, o[0],o[1]+imageSize[1],0.0);
+      // For GL backend 2 it is important to modify the point array
+      this->TexturePoints->Modified();
       }
     }
 
@@ -196,12 +198,14 @@ void vtkLogoRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 //-------------------------------------------------------------------------
 int vtkLogoRepresentation::RenderOverlay(vtkViewport *v)
 {
-  int count = this->Superclass::RenderOverlay(v);
+  int count = 0;
   vtkRenderer* ren = vtkRenderer::SafeDownCast(v);
   if (ren)
     {
     count += this->TextureActor->RenderOverlay(v);
     }
+  // Display border on top of logo
+  count += this->Superclass::RenderOverlay(v);
   return count;
 }
 

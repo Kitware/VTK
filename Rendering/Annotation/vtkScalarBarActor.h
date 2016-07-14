@@ -74,7 +74,7 @@ class vtkTexturedActor2D;
 class VTKRENDERINGANNOTATION_EXPORT vtkScalarBarActor : public vtkActor2D
 {
 public:
-  vtkTypeMacro(vtkScalarBarActor,vtkActor2D);
+  vtkTypeMacro(vtkScalarBarActor, vtkActor2D);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -111,7 +111,7 @@ public:
   // and any annotated values.
   // Annotated values are rendered using vtkTextActor.
   virtual void SetLookupTable(vtkScalarsToColors*);
-  vtkGetObjectMacro(LookupTable,vtkScalarsToColors);
+  vtkGetObjectMacro(LookupTable, vtkScalarsToColors);
 
   // Description:
   // Should be display the opacity as well. This is displayed by changing
@@ -119,9 +119,9 @@ public:
   // given color. For clarity, a texture grid is placed in the background
   // if Opacity is ON. You might also want to play with SetTextureGridWith
   // in that case. [Default: off]
-  vtkSetMacro( UseOpacity, int );
-  vtkGetMacro( UseOpacity, int );
-  vtkBooleanMacro( UseOpacity, int );
+  vtkSetMacro(UseOpacity, int);
+  vtkGetMacro(UseOpacity, int);
+  vtkBooleanMacro(UseOpacity, int);
 
   // Description:
   // Set/Get the maximum number of scalar bar segments to show. This may
@@ -137,7 +137,7 @@ public:
 
   // Description:
   // Control the orientation of the scalar bar.
-  vtkSetClampMacro(Orientation,int,VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
+  vtkSetClampMacro(Orientation, int, VTK_ORIENT_HORIZONTAL, VTK_ORIENT_VERTICAL);
   vtkGetMacro(Orientation, int);
   void SetOrientationToHorizontal()
        {this->SetOrientation(VTK_ORIENT_HORIZONTAL);}
@@ -146,12 +146,17 @@ public:
   // Description:
   // Set/Get the title text property.
   virtual void SetTitleTextProperty(vtkTextProperty* p);
-  vtkGetObjectMacro(TitleTextProperty,vtkTextProperty);
+  vtkGetObjectMacro(TitleTextProperty, vtkTextProperty);
 
   // Description:
   // Set/Get the labels text property.
   virtual void SetLabelTextProperty(vtkTextProperty* p);
-  vtkGetObjectMacro(LabelTextProperty,vtkTextProperty);
+  vtkGetObjectMacro(LabelTextProperty, vtkTextProperty);
+
+  // Description:
+  // Set/Get the annotation text property.
+  virtual void SetAnnotationTextProperty(vtkTextProperty* p);
+  vtkGetObjectMacro(AnnotationTextProperty, vtkTextProperty);
 
   // Description:
   // Set/Get the format with which to print the labels on the scalar
@@ -175,16 +180,14 @@ public:
 
   // Description:
   // Set the width of the texture grid. Used only if UseOpacity is ON.
-  vtkSetMacro( TextureGridWidth, double );
-  vtkGetMacro( TextureGridWidth, double );
+  vtkSetMacro(TextureGridWidth, double);
+  vtkGetMacro(TextureGridWidth, double);
 
   // Description:
   // Get the texture actor.. you may want to change some properties on it
-  vtkGetObjectMacro( TextureActor, vtkTexturedActor2D );
+  vtkGetObjectMacro(TextureActor, vtkTexturedActor2D);
 
-//BTX
   enum { PrecedeScalarBar = 0, SucceedScalarBar };
-//ETX
 
   // Description:
   // Should the title and tick marks precede the scalar bar or succeed it?
@@ -193,12 +196,12 @@ public:
   // Thus, succeed implies the that the text is above scalar bar if
   // the orientation is horizontal or right of scalar bar if the orientation
   // is vertical. Precede is the opposite.
-  vtkSetClampMacro( TextPosition, int, PrecedeScalarBar, SucceedScalarBar);
-  vtkGetMacro( TextPosition, int );
+  vtkSetClampMacro(TextPosition, int, PrecedeScalarBar, SucceedScalarBar);
+  vtkGetMacro(TextPosition, int);
   virtual void SetTextPositionToPrecedeScalarBar()
-    { this->SetTextPosition( vtkScalarBarActor::PrecedeScalarBar ); }
+    { this->SetTextPosition(vtkScalarBarActor::PrecedeScalarBar); }
   virtual void SetTextPositionToSucceedScalarBar()
-    { this->SetTextPosition( vtkScalarBarActor::SucceedScalarBar ); }
+    { this->SetTextPosition(vtkScalarBarActor::SucceedScalarBar); }
 
   // Description:
   // Set/Get the maximum width and height in pixels. Specifying the size as
@@ -206,10 +209,10 @@ public:
   // the size of the actor too much. These methods allow the user to set
   // bounds on the maximum size of the scalar bar in pixels along any
   // direction. Defaults to unbounded.
-  vtkSetMacro( MaximumWidthInPixels, int );
-  vtkGetMacro( MaximumWidthInPixels, int );
-  vtkSetMacro( MaximumHeightInPixels, int );
-  vtkGetMacro( MaximumHeightInPixels, int );
+  vtkSetMacro(MaximumWidthInPixels, int);
+  vtkGetMacro(MaximumWidthInPixels, int);
+  vtkSetMacro(MaximumHeightInPixels, int);
+  vtkGetMacro(MaximumHeightInPixels, int);
 
   // Description:
   // Set/get the padding between the scalar bar and the text annotations.
@@ -235,6 +238,31 @@ public:
   vtkBooleanMacro(DrawNanAnnotation, int);
 
   // Description:
+  // Set/get whether the Below range swatch should be rendered or not.
+  // This only affects rendering when \a DrawAnnotations is true.
+  // The default is false.
+  vtkSetMacro(DrawBelowRangeSwatch, bool);
+  vtkGetMacro(DrawBelowRangeSwatch, bool);
+  vtkBooleanMacro(DrawBelowRangeSwatch, bool);
+
+  // Description:
+  // Set/get the annotation text for "Below Range" values.
+  vtkSetStringMacro(BelowRangeAnnotation);
+  vtkGetStringMacro(BelowRangeAnnotation);
+
+  // Description:
+  // Set/get whether the Above range swatch should be rendered or not.
+  // This only affects rendering when \a DrawAnnotations is true.
+  // The default is false.
+  vtkSetMacro(DrawAboveRangeSwatch, bool);
+  vtkGetMacro(DrawAboveRangeSwatch, bool);
+  vtkBooleanMacro(DrawAboveRangeSwatch, bool);
+
+  // Description:
+  // Set/get the annotation text for "Above Range Swatch" values.
+  vtkSetStringMacro(AboveRangeAnnotation);
+  vtkGetStringMacro(AboveRangeAnnotation);
+  // Description:
   // Set/get how leader lines connecting annotations to values should be colored.
   //
   // When true, leader lines are all the same color (and match the LabelTextProperty color).
@@ -257,8 +285,9 @@ public:
   // If non-zero, the vtkTextActor instances used to render annotation
   // labels will have their TextScaleMode set to viewport-based scaling,
   // which nonlinearly scales font size with the viewport size.
-  vtkSetMacro(AnnotationTextScaling,int);
-  vtkGetMacro(AnnotationTextScaling,int);
+  vtkSetMacro(AnnotationTextScaling, int);
+  vtkGetMacro(AnnotationTextScaling, int);
+  vtkBooleanMacro(AnnotationTextScaling, int);
 
   // Description:
   // Set/Get whether a background should be drawn around the scalar bar.
@@ -290,39 +319,47 @@ public:
   // Description:
   // Set/Get the background property.
   virtual void SetBackgroundProperty(vtkProperty2D* p);
-  vtkGetObjectMacro(BackgroundProperty,vtkProperty2D);
+  vtkGetObjectMacro(BackgroundProperty, vtkProperty2D);
 
   // Description:
   // Set/Get the frame property.
   virtual void SetFrameProperty(vtkProperty2D* p);
-  vtkGetObjectMacro(FrameProperty,vtkProperty2D);
+  vtkGetObjectMacro(FrameProperty, vtkProperty2D);
 
   // Description:
   // Set/get the amount of padding around text boxes.
   // The default is 1 pixel.
-  vtkGetMacro(TextPad,int);
-  vtkSetMacro(TextPad,int);
+  vtkGetMacro(TextPad, int);
+  vtkSetMacro(TextPad, int);
 
   // Description:
   // Set/get the margin in pixels, between the title and the bar,
   // when the \a Orientation is vertical.
   // The default is 0 pixels.
-  vtkGetMacro(VerticalTitleSeparation,int);
-  vtkSetMacro(VerticalTitleSeparation,int);
+  vtkGetMacro(VerticalTitleSeparation, int);
+  vtkSetMacro(VerticalTitleSeparation, int);
 
   // Description:
   // Set/get the thickness of the color bar relative to the widget frame.
   // The default is 0.375 and must always be in the range ]0, 1[.
-  vtkGetMacro(BarRatio,double);
-  vtkSetClampMacro(BarRatio,double,0.,1.);
+  vtkGetMacro(BarRatio, double);
+  vtkSetClampMacro(BarRatio, double, 0., 1.);
 
   // Description:
   // Set/get the ratio of the title height to the tick label height
   // (used only when the \a Orientation is horizontal).
   // The default is 0.5, which attempts to make the labels and title
   // the same size. This must be a number in the range ]0, 1[.
-  vtkGetMacro(TitleRatio,double);
-  vtkSetClampMacro(TitleRatio,double,0.,1.);
+  vtkGetMacro(TitleRatio, double);
+  vtkSetClampMacro(TitleRatio, double, 0., 1.);
+
+  // Description:
+  // Set/Get whether the font size of title and labels is unconstrained. Default is off.
+  // When it is constrained, the size of the scalar bar will constrained the font size
+  // When it is not, the size of the font will always be respected
+  vtkSetMacro(UnconstrainedFontSize, bool);
+  vtkGetMacro(UnconstrainedFontSize, bool);
+  vtkBooleanMacro(UnconstrainedFontSize, bool);
 
 protected:
   vtkScalarBarActor();
@@ -354,6 +391,13 @@ protected:
   virtual void RebuildLayout(vtkViewport* viewport);
 
   // Description:
+  // Calls RebuildLayout if it is needed such as when
+  // positions etc have changed. Return 1 on success
+  // zero on error
+  virtual int RebuildLayoutIfNeeded(vtkViewport* viewport);
+
+
+  // Description:
   // Free internal storage used by the previous layout.
   virtual void FreeLayoutStorage();
 
@@ -377,11 +421,33 @@ protected:
   virtual void ComputeScalarBarThickness();
 
   // Description:
-  // Determine the size of the NaN swatch if it is to be rendered.
-  //
+  // Compute a correct SwatchPad
+  virtual void ComputeSwatchPad();
+
   // This method must set this->P->NanSwatchSize and this->P->NanBox.
   // It may depend on layout performed by ComputeScalarBarThickness.
   virtual void LayoutNanSwatch();
+
+  // Description:
+  // Determine the size of the Below Range if it is to be rendered.
+  //
+  // This method must set this->P->BelowSwatchSize and this->P->BelowBox.
+  // It may depend on layout performed by ComputeScalarBarThickness.
+  virtual void LayoutBelowRangeSwatch();
+
+  // Description:
+  // Determine the size of the Above Range if it is to be rendered.
+  //
+  // This method must set this->P->AboveBox.
+  // It may depend on layout performed by ComputeScalarBarThickness.
+  virtual void LayoutAboveRangeSwatch();
+
+  // Description:
+  // Determine the position of the Above Range if it is to be rendered.
+  //
+  // This method must set this->P->AboveRangeSize.
+  // It may depend on layout performed by ComputeScalarBarLength.
+  virtual void LayoutAboveRangeSwatchPosn();
 
   // Description:
   // Set the title actor's input to the latest title (and subtitle) text.
@@ -397,6 +463,11 @@ protected:
   // way when the tick labels are small due to constraints other
   // than the title box.
   virtual void LayoutTitle();
+
+  // Description:
+  // This method sets the title and tick-box size and position
+  // for the UnconstrainedFontSize mode.
+  virtual void LayoutForUnconstrainedFont();
 
   // Description:
   // Determine how long the scalar bar should be (on an axis parallel
@@ -457,6 +528,11 @@ protected:
   virtual void ConfigureNanSwatch();
 
   // Description:
+  // Generate/configure the above/below range swatch using the laid-out
+  // geometry.
+  virtual void ConfigureAboveBelowRangeSwatch(bool above);
+
+  // Description:
   // Subclasses may override this method to alter this->P->Labels, allowing
   // the addition and removal of annotations. The member maps viewport coordinates
   // along the long axis of the scalar bar to text (which may include MathText;
@@ -510,6 +586,8 @@ protected:
   double TextureGridWidth;
   int TextPosition;
   char* NanAnnotation;
+  char* BelowRangeAnnotation;
+  char* AboveRangeAnnotation;
   double AnnotationLeaderPadding;
   int MaximumWidthInPixels;
   int MaximumHeightInPixels;
@@ -517,6 +595,10 @@ protected:
   int VerticalTitleSeparation;
   double BarRatio;
   double TitleRatio;
+  bool UnconstrainedFontSize;  // off by default
+
+  bool DrawBelowRangeSwatch;
+  bool DrawAboveRangeSwatch;
   //@}
 
   /// Internal state used for rendering
@@ -530,7 +612,8 @@ protected:
   vtkScalarsToColors* LookupTable; //!< The object this actor illustrates
 
   vtkTextProperty* TitleTextProperty; //!< Font for the legend title.
-  vtkTextProperty* LabelTextProperty; //!< Font for tick+annotation labels.
+  vtkTextProperty* LabelTextProperty; //!< Font for tick labels.
+  vtkTextProperty* AnnotationTextProperty; //!< Font for annotation labels.
   vtkTextActor* TitleActor; //!< The legend title text renderer.
 
   vtkPolyData* ScalarBar; //!< Polygon(s) colored by \a LookupTable.
@@ -550,10 +633,9 @@ protected:
   //@}
 
 private:
-  vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
-  void operator=(const vtkScalarBarActor&);  // Not implemented.
+  vtkScalarBarActor(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
 };
-
 
 #endif
 

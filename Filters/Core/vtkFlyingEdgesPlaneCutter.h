@@ -79,6 +79,14 @@ public:
   vtkBooleanMacro(ComputeNormals,int);
 
   // Description:
+  // Indicate whether to interpolate other attribute data besides the input
+  // scalars (which are required). That is, as the isosurface is generated,
+  // interpolate all other point attribute data across intersected edges.
+  vtkSetMacro(InterpolateAttributes,int);
+  vtkGetMacro(InterpolateAttributes,int);
+  vtkBooleanMacro(InterpolateAttributes,int);
+
+  // Description:
   // Set/get which component of the scalar array to contour on; defaults to 0.
   vtkSetMacro(ArrayComponent, int);
   vtkGetMacro(ArrayComponent, int);
@@ -89,6 +97,7 @@ protected:
 
   vtkPlane *Plane;
   int ComputeNormals;
+  int InterpolateAttributes;
   int ArrayComponent;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
@@ -98,8 +107,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&);  // Not implemented.
-  void operator=(const vtkFlyingEdgesPlaneCutter&);  // Not implemented.
+  vtkFlyingEdgesPlaneCutter(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFlyingEdgesPlaneCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

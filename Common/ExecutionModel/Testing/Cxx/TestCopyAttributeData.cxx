@@ -51,8 +51,8 @@ protected:
     vtkInformationVector* outputVector);
 
 private:
-  vtkDummyImageFilter(const vtkDummyImageFilter&);  // Not implemented.
-  void operator=(const vtkDummyImageFilter&);  // Not implemented.
+  vtkDummyImageFilter(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkDummyImageFilter);
@@ -138,15 +138,13 @@ int TestCopyAttributeData(int,char *[])
 
   for (int r = 0; r < 2; r++)
     {
-    filter->UpdateInformation();
-    filter->SetUpdateExtent(outExt);
-    filter->Update();
+    filter->UpdateExtent(outExt);
 
     vtkImageData *output = filter->GetOutput();
 
     vtkDataArray *outPointVectors = output->GetPointData()->GetVectors();
     vtkDataArray *outCellScalars = output->GetCellData()->GetScalars();
-    vtkStringArray *outCellStrings = vtkStringArray::SafeDownCast(
+    vtkStringArray *outCellStrings = vtkArrayDownCast<vtkStringArray>(
       output->GetCellData()->GetAbstractArray("CellStrings"));
 
     for (int zId = outExt[4]; zId <= outExt[5]; zId++)

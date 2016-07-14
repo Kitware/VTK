@@ -62,6 +62,10 @@ if(HDF5_ENABLE_Z_LIB_SUPPORT)
   set(H5_ZLIB_HEADER "vtk_zlib.h")
 endif()
 
+# Ensure that the proper headers are included. Without this, static MSVC builds
+# do not compile.
+set(H5_STDC_HEADERS "On")
+
 add_subdirectory(vtkhdf5)
 
 foreach(lib
@@ -74,3 +78,4 @@ endforeach()
 if(APPLE)
   mark_as_advanced(HDF5_BUILD_WITH_INSTALL_NAME)
 endif()
+mark_as_advanced(BUILD_USER_DEFINED_LIBS)

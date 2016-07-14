@@ -100,20 +100,20 @@ public:
 
   // Description:
   // @deprecated Replaced by vtkBiQuadraticQuad::InterpolateFunctions as of VTK 5.2
-  static void InterpolationFunctions (double pcoords[3], double weights[9]);
+  VTK_LEGACY(static void InterpolationFunctions (double pcoords[3], double weights[9]));
   // Description:
   // @deprecated Replaced by vtkBiQuadraticQuad::InterpolateDerivs as of VTK 5.2
-  static void InterpolationDerivs (double pcoords[3], double derivs[18]);
+  VTK_LEGACY(static void InterpolationDerivs (double pcoords[3], double derivs[18]));
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
   virtual void InterpolateFunctions (double pcoords[3], double weights[9])
     {
-    vtkBiQuadraticQuad::InterpolationFunctions(pcoords,weights);
+    vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords,weights);
     }
   virtual void InterpolateDerivs (double pcoords[3], double derivs[18])
     {
-    vtkBiQuadraticQuad::InterpolationDerivs(pcoords,derivs);
+    vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords,derivs);
     }
 
 protected:
@@ -126,8 +126,11 @@ protected:
   vtkDoubleArray   *Scalars;
 
 private:
-  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&);  // Not implemented.
-  void operator=(const vtkBiQuadraticQuad&);  // Not implemented.
+  vtkBiQuadraticQuad(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBiQuadraticQuad&) VTK_DELETE_FUNCTION;
+
+  static void InterpolationFunctionsPrivate (double pcoords[3], double weights[9]);
+  static void InterpolationDerivsPrivate (double pcoords[3], double derivs[18]);
 };
 //----------------------------------------------------------------------------
 inline int vtkBiQuadraticQuad::GetParametricCenter(double pcoords[3])

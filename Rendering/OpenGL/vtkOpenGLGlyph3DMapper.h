@@ -55,13 +55,13 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *window);
 
 protected:
-  //BTX
+
   vtkOpenGLGlyph3DMapper();
   ~vtkOpenGLGlyph3DMapper();
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Description:
   // Send mapper ivars to sub-mapper.
@@ -88,11 +88,11 @@ protected:
   vtkTimeStamp PainterUpdateTime;
 
 private:
-  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&); // Not implemented.
-  void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
+  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
 
   virtual void Render(vtkRenderer*, vtkActor*, vtkDataSet*);
-  //ETX
+
 };
 
 #endif

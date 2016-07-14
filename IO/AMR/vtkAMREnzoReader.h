@@ -73,18 +73,18 @@ protected:
   // Description:
   // Given the label string, this method parses the attribute label and
   // the string index.
-  void ParseLabel(const std::string labelString,int &idx,std::string &label);
+  void ParseLabel(const std::string &labelString, int &idx, std::string &label);
 
   // Description:
   // Given the label string, this method parses the corresponding attribute
   // index and conversion factor
-  void ParseCFactor(const std::string labelString, int &idx, double &factor );
+  void ParseCFactor(const std::string &labelString, int &idx, double &factor );
 
   // Description:
   // Given the variable name, return the conversion factor used to convert
   // the data to CGS. These conversion factors are read directly from the
   // parameters file when the filename is set.
-  double GetConversionFactor( const std::string name );
+  double GetConversionFactor( const std::string& name );
 
   // Description:
   // See vtkAMRBaseReader::ReadMetaData
@@ -122,8 +122,8 @@ protected:
   bool IsReady;
 
 private:
-  vtkAMREnzoReader( const vtkAMREnzoReader& ); // Not Implemented
-  void operator=(const vtkAMREnzoReader& ); // Not Implemented
+  vtkAMREnzoReader( const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMREnzoReader& ) VTK_DELETE_FUNCTION;
 
   vtkEnzoReaderInternal *Internal;
 

@@ -33,6 +33,7 @@ vtkInformationKeyMacro(vtkLightingMapPass, RENDER_NORMALS, Integer);
 // ----------------------------------------------------------------------------
 vtkLightingMapPass::vtkLightingMapPass()
 {
+  this->RenderType = LUMINANCE;
 }
 
 // ----------------------------------------------------------------------------

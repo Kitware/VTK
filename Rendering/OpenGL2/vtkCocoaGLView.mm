@@ -205,9 +205,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   mouseLoc = [self convertPoint:mouseLoc fromView:nil];
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
   unsigned char charCode = '\0';
   const char *keySym = 0;
@@ -305,9 +305,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
     [self convertPoint:[theEvent locationInWindow] fromView:nil];
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
   interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
                                   static_cast<int>(round(mouseLoc.y)),
@@ -339,9 +339,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   int repeatCount = ((clickCount > 1) ? clickCount - 1 : 0);
 
   NSUInteger flags = [theEvent modifierFlags];
-  int shiftDown = ((flags & NSShiftKeyMask) != 0);
-  int controlDown = ((flags & (NSControlKeyMask | NSCommandKeyMask)) != 0);
-  int altDown = ((flags & NSAlternateKeyMask) != 0);
+  int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
+  int controlDown = ((flags & (NSEventModifierFlagControl | NSEventModifierFlagCommand)) != 0);
+  int altDown = ((flags & NSEventModifierFlagOption) != 0);
 
   interactor->SetEventInformation(static_cast<int>(round(mouseLoc.x)),
                                   static_cast<int>(round(mouseLoc.y)),

@@ -66,8 +66,8 @@ POSSIBILITY OF SUCH DAMAGES.
 #include "vtkMath.h"
 #include "vtkErrorCode.h"
 
-#include <ctype.h>
-#include <math.h>
+#include <cctype>
+#include <cmath>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
 # include <unistd.h> /* unlink */
@@ -647,7 +647,7 @@ int vtkMNIObjectWriter::WriteColors(
       rgba[3] = 255;
       }
 
-    newScalars->SetTupleValue(0, rgba);
+    newScalars->SetTypedTuple(0, rgba);
     scalars = newScalars;
     }
 

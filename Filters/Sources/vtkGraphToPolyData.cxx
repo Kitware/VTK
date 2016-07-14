@@ -74,7 +74,7 @@ int vtkGraphToPolyData::RequestData(
   vtkPolyData *arrowOutput = vtkPolyData::SafeDownCast(
     arrowInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkDataArray* edgeGhostLevels = vtkDataArray::SafeDownCast(
+  vtkDataArray* edgeGhostLevels = vtkArrayDownCast<vtkDataArray>(
     input->GetEdgeData()->GetAbstractArray(vtkDataSetAttributes::GhostArrayName()));
 
   if (edgeGhostLevels == NULL)

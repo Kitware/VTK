@@ -31,11 +31,11 @@
 //  public:
 //   virtual void Register(vtkObjectBase* o)
 //     {
-//     this->RegisterInternal(o, 1);
+//     this->RegisterInternal(o, true);
 //     }
 //   virtual void UnRegister(vtkObjectBase* o)
 //     {
-//     this->UnRegisterInternal(o, 1);
+//     this->UnRegisterInternal(o, true);
 //     }
 //
 //  protected:
@@ -166,10 +166,8 @@ private:
   static void ClassInitialize();
   static void ClassFinalize();
 
-  //BTX
   friend class vtkGarbageCollectorManager;
   friend class vtkObjectBaseToGarbageCollectorFriendship;
-  //ETX
 
   // Internal report callback and friend function that calls it.
   virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
@@ -179,11 +177,10 @@ private:
                                     const char*);
 
 private:
-  vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
-  void operator=(const vtkGarbageCollector&);  // Not implemented.
+  vtkGarbageCollector(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
 };
 
-//BTX
 class vtkSmartPointerBase;
 
 // Description:
@@ -201,7 +198,6 @@ void vtkGarbageCollectorReport(vtkGarbageCollector* collector, T*& ptr,
 {
   vtkGarbageCollectorReportInternal(collector, ptr, &ptr, desc);
 }
-//ETX
 
 #endif
 // VTK-HeaderTest-Exclude: vtkGarbageCollector.h

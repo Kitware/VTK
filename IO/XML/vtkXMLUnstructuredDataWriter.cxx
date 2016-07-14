@@ -130,9 +130,8 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       }
     else
       {
-      float progressRange[2] = {0,0};
-      this->GetProgressRange(progressRange);
-      this->SetProgressRange(progressRange, this->CurrentPiece, this->NumberOfPieces);
+      float wholeProgressRange[2] = {0,1};
+      this->SetProgressRange(wholeProgressRange, this->CurrentPiece, this->NumberOfPieces);
       }
 
     int result = 1;
@@ -144,8 +143,11 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       this->UpdateProgress(0);
 
       // Initialize progress range to entire 0..1 range.
-      float wholeProgressRange[2] = {0,1};
-      this->SetProgressRange(wholeProgressRange, 0, 1);
+      if (this->WritePiece >= 0)
+        {
+        float wholeProgressRange[2] = {0,1};
+        this->SetProgressRange(wholeProgressRange, 0, 1);
+        }
 
       if (!this->OpenStream())
         {
@@ -230,8 +232,8 @@ int vtkXMLUnstructuredDataWriter::ProcessRequest(vtkInformation* request,
       }
     this->NumberOfPieces = numPieces;
 
-    // We have finished writing.
-    this->UpdateProgressDiscrete(1);
+    // We have finished writing (at least this piece)
+    this->SetProgressPartial(1);
     return result;
     }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
@@ -593,7 +595,10 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
                         vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets,
                         vtkIndent indent)
 {
-  this->ConvertCells(cells);
+  if(cells)
+    {
+    this->ConvertCells(cells);
+    }
   this->ConvertFaces(faces, faceOffsets);
 
   this->WriteCellsInlineWorker(name, types, indent);

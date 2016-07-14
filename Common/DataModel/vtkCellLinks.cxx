@@ -23,6 +23,27 @@
 vtkStandardNewMacro(vtkCellLinks);
 
 //----------------------------------------------------------------------------
+vtkCellLinks::~vtkCellLinks()
+{
+  this->Initialize();
+}
+
+//----------------------------------------------------------------------------
+void vtkCellLinks::Initialize()
+{
+  if ( this->Array != NULL )
+    {
+    for (vtkIdType i=0; i<=this->MaxId; i++)
+      {
+      delete [] this->Array[i].cells;
+      }
+
+    delete [] this->Array;
+    this->Array = NULL;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
 {
   static vtkCellLinks::Link linkInit = {0,NULL};
@@ -37,22 +58,6 @@ void vtkCellLinks::Allocate(vtkIdType sz, vtkIdType ext)
     {
     this->Array[i] = linkInit;
     }
-}
-
-//----------------------------------------------------------------------------
-vtkCellLinks::~vtkCellLinks()
-{
-  if ( this->Array == NULL )
-    {
-    return;
-    }
-
-  for (vtkIdType i=0; i<=this->MaxId; i++)
-    {
-    delete [] this->Array[i].cells;
-    }
-
-  delete [] this->Array;
 }
 
 //----------------------------------------------------------------------------

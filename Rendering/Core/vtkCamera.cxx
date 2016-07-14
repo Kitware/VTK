@@ -22,7 +22,7 @@
 #include "vtkCallbackCommand.h"
 #include "vtkRenderer.h"
 
-#include <math.h>
+#include <cmath>
 
 //----------------------------------------------------------------------------
 // Needed when we don't use the vtkStandardNewMacro.
@@ -138,6 +138,7 @@ vtkCamera::vtkCamera()
   this->ComputeCameraLightTransform();
 
   this->FreezeFocalPoint = false;
+  this->UseScissor = false;
 }
 
 //----------------------------------------------------------------------------
@@ -176,6 +177,17 @@ vtkCamera::~vtkCamera()
 }
 
 //----------------------------------------------------------------------------
+void vtkCamera::SetScissorRect(vtkRecti scissorRect)
+{
+  this->ScissorRect = scissorRect;
+}
+
+//----------------------------------------------------------------------------
+void vtkCamera::GetScissorRect(vtkRecti& scissorRect)
+{
+  scissorRect = this->ScissorRect;
+}
+
 //----------------------------------------------------------------------------
 // The first set of methods deal exclusively with the ViewTransform, which
 // is the only transform which is set up entirely in the camera.  The

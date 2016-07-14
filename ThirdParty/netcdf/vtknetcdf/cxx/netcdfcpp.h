@@ -10,6 +10,12 @@
 #ifndef NETCDF_HH
 #define NETCDF_HH
 
+// We've changed the API from upstream in VTK commits 6223f230 and
+// 64cb89e3 to use size_t* instead of long* for (some) overloads of
+// methods like NcVar::get. This define signals users of this header
+// that they should use size_t for these methods.
+#define VTK_NETCDF_USE_SIZE_T
+
 #include "ncvalues.h"          // arrays that know their element type
 
 typedef const char* NcToken;    // names for netCDF objects

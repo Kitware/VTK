@@ -79,8 +79,8 @@ protected:
   char *IdsArrayName;
 
 private:
-  vtkIdFilter(const vtkIdFilter&);  // Not implemented.
-  void operator=(const vtkIdFilter&);  // Not implemented.
+  vtkIdFilter(const vtkIdFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkIdFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -153,8 +153,8 @@ protected:
   double Theta;
 
 private:
-  vtkRibbonFilter(const vtkRibbonFilter&);  // Not implemented.
-  void operator=(const vtkRibbonFilter&);  // Not implemented.
+  vtkRibbonFilter(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRibbonFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

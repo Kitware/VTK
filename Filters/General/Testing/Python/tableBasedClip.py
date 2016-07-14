@@ -9,7 +9,8 @@ class TestClip(Testing.vtkTest):
     def testImage2DScalar(self):
         planes = ['XY', 'XZ', 'YZ']
         expectedNCells = [38, 46, 42]
-        for plane, nCells in zip(planes,expectedNCells):
+        expectedNClippedCells = [104, 104, 106]
+        for plane, nCells, nClippedCells in zip(planes,expectedNCells,expectedNClippedCells):
             r = vtk.vtkRTAnalyticSource()
             r.SetXFreq(600);
             r.SetYFreq(400);
@@ -27,10 +28,12 @@ class TestClip(Testing.vtkTest):
             c.SetUseValueAsOffset(0)
             c.SetValue(150)
             c.SetInsideOut(1)
+            c.SetGenerateClippedOutput(1)
 
             c.Update()
 
             self.assertEqual(c.GetOutput().GetNumberOfCells(), nCells)
+            self.assertEqual(c.GetClippedOutput().GetNumberOfCells(), nClippedCells)
 
     def testImage(self):
         r = vtk.vtkRTAnalyticSource()

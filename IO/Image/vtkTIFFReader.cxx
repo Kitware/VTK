@@ -284,9 +284,9 @@ bool vtkTIFFReader::vtkTIFFReaderInternal::Initialize()
           {
           // look for the number of images
           std::string desc = description[0];
-          int pos = desc.find("images=");
-          int pos2 = desc.find("\n");
-          if ((pos != -1) && (pos2 != -1))
+          std::string::size_type pos = desc.find("images=");
+          std::string::size_type pos2 = desc.find("\n");
+          if ( (pos != std::string::npos) && (pos2 != std::string::npos) )
             {
             this->NumberOfPages = atoi(desc.substr(pos+7,pos2-pos-7).c_str());
             }
@@ -1284,13 +1284,14 @@ void vtkTIFFReader::ReadGenericImage(T* out, unsigned int, unsigned int height)
     }
 
   unsigned int isize = TIFFScanlineSize(this->InternalImage->Image);
-  tdata_t buf = _TIFFmalloc(isize);
 
   if (this->InternalImage->PlanarConfig != PLANARCONFIG_CONTIG)
     {
     vtkErrorMacro(<< "This reader can only do PLANARCONFIG_CONTIG");
     return;
     }
+
+  tdata_t buf = _TIFFmalloc(isize);
 
   T* image;
   if (this->InternalImage->PlanarConfig == PLANARCONFIG_CONTIG)

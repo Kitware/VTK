@@ -34,7 +34,6 @@ public:
   virtual const char* GetDefaultFileExtension()
     { return "vtm"; }
 
-//BTX
 protected:
   vtkXMLMultiBlockDataWriter();
   ~vtkXMLMultiBlockDataWriter();
@@ -47,9 +46,9 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx);
 
 private:
-  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&); // Not implemented.
-  void operator=(const vtkXMLMultiBlockDataWriter&); // Not implemented.
-//ETX
+  vtkXMLMultiBlockDataWriter(const vtkXMLMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

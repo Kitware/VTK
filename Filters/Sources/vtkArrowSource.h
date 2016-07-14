@@ -88,8 +88,8 @@ protected:
 
 
 private:
-  vtkArrowSource(const vtkArrowSource&); // Not implemented.
-  void operator=(const vtkArrowSource&); // Not implemented.
+  vtkArrowSource(const vtkArrowSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrowSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

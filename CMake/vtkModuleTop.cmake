@@ -238,6 +238,8 @@ if(VTK_ENABLE_KITS)
     endforeach()
   endforeach()
 
+  list(REMOVE_DUPLICATES vtk_kits)
+
   # Put all kits in the list (if they are not dependencies of any module, they
   # will be dropped otherwise).
   list(APPEND vtk_modules_and_kits ${vtk_kits})
@@ -290,6 +292,19 @@ foreach(vtk-module ${VTK_MODULES_ALL})
       set_property(CACHE Module_${vtk-module} PROPERTY TYPE BOOL)
     endif()
   endif()
+endforeach()
+
+#hide options of modules that are part of a different backend
+# or are required by the backend
+foreach(backend ${VTK_BACKENDS})
+  foreach(module ${VTK_BACKEND_${backend}_MODULES})
+    if(NOT ${module}_IS_TEST)
+      if((NOT (${backend} STREQUAL "${VTK_RENDERING_BACKEND}")) OR
+        ${module}_IMPLEMENTATION_REQUIRED_BY_BACKEND)
+        set_property(CACHE Module_${module} PROPERTY TYPE INTERNAL)
+      endif()
+    endif()
+  endforeach()
 endforeach()
 
 if(NOT VTK_MODULES_ENABLED)
@@ -463,8 +478,8 @@ write_basic_package_version_file(
 if (NOT VTK_INSTALL_NO_DEVELOPMENT)
   install(FILES ${VTK_BINARY_DIR}/CMakeFiles/VTKConfig.cmake
                 ${VTK_BINARY_DIR}/VTKConfigVersion.cmake
-                CMake/exportheader.cmake.in
-                CMake/GenerateExportHeader.cmake
+                CMake/vtkexportheader.cmake.in
+                CMake/VTKGenerateExportHeader.cmake
                 CMake/pythonmodules.h.in
                 CMake/UseVTK.cmake
                 CMake/FindTCL.cmake

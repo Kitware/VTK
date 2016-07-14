@@ -55,8 +55,8 @@ protected:
   bool InvertSelection;
 
 private:
-  vtkBoostExtractLargestComponent(const vtkBoostExtractLargestComponent&);  // Not implemented.
-  void operator=(const vtkBoostExtractLargestComponent&);  // Not implemented.
+  vtkBoostExtractLargestComponent(const vtkBoostExtractLargestComponent&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostExtractLargestComponent&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -50,6 +50,8 @@ set(Module_SRCS
   vtkDistanceWidget.cxx
   vtkEllipsoidTensorProbeRepresentation.cxx
   vtkEvent.cxx
+  vtkFinitePlaneRepresentation.cxx
+  vtkFinitePlaneWidget.cxx
   vtkFixedSizeHandleRepresentation3D.cxx
   vtkFocalPlaneContourRepresentation.cxx
   vtkFocalPlanePointPlacer.cxx
@@ -93,6 +95,8 @@ set(Module_SRCS
   vtkPolygonalHandleRepresentation3D.cxx
   vtkPolygonalSurfaceContourLineInterpolator.cxx
   vtkPolygonalSurfacePointPlacer.cxx
+  vtkProgressBarRepresentation.cxx
+  vtkProgressBarWidget.cxx
   vtkProp3DButtonRepresentation.cxx
   vtkRectilinearWipeRepresentation.cxx
   vtkRectilinearWipeWidget.cxx

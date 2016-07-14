@@ -78,7 +78,6 @@ public:
   vtkTypeMacro(vtkTesting,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum ReturnValue {
     FAILED = 0,
     PASSED = 1,
@@ -146,8 +145,6 @@ public:
   static int InteractorEventLoop(int argc, char *argv[],
                                  vtkRenderWindowInteractor *iren,
                                  const char *stream = NULL);
-
-//ETX
 
   // Description:
   // Use the front buffer first for regression test comparisons. By
@@ -223,13 +220,11 @@ public:
   void AddArguments(int argc,const char **argv);
   void AddArguments(int argc, char **argv);
 
-  //BTX
   // Description:
   // Search for a specific argument by name and return its value
   // (assumed to be the next on the command tail). Up to caller
   // to delete the returned string.
   char *GetArgument(const char *arg);
-  //ETX
 
   // Description
   // This method delete all arguments in vtkTesting, this way you can reuse
@@ -284,16 +279,15 @@ protected:
   int BorderOffset;
   int Verbose;
 
-//BTX
   std::vector<std::string> Args;
-//ETX
+
   char *DataRoot;
   double StartWallTime;
   double StartCPUTime;
 
 private:
-  vtkTesting(const vtkTesting&);  // Not implemented.
-  void operator=(const vtkTesting&);  // Not implemented.
+  vtkTesting(const vtkTesting&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTesting&) VTK_DELETE_FUNCTION;
 };
 
 #endif

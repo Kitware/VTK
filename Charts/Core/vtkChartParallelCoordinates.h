@@ -92,7 +92,6 @@ public:
   // only contain one plot, this will replace the previous plot.
   virtual void SetPlot(vtkPlotParallelCoordinates *plot);
 
-//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -120,9 +119,7 @@ public:
   // Description:
   // Mouse wheel event, positive delta indicates forward movement of the wheel.
   virtual bool MouseWheelEvent(const vtkContextMouseEvent &mouse, int delta);
-//ETX
 
-//BTX
 protected:
   vtkChartParallelCoordinates();
   ~vtkChartParallelCoordinates();
@@ -152,9 +149,9 @@ protected:
   void SwapAxes(int a1, int a2);
 
 private:
-  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &); // Not implemented.
-  void operator=(const vtkChartParallelCoordinates &);   // Not implemented.
-//ETX
+  vtkChartParallelCoordinates(const vtkChartParallelCoordinates &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkChartParallelCoordinates &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkChartParallelCoordinates_h

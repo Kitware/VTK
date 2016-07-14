@@ -56,6 +56,8 @@
 class vtkInitialValueProblemSolver;
 class vtkMultiThreader;
 
+#ifndef VTK_LEGACY_REMOVE
+
 #define VTK_INTEGRATE_FORWARD 0
 #define VTK_INTEGRATE_BACKWARD 1
 #define VTK_INTEGRATE_BOTH_DIRECTIONS 2
@@ -210,8 +212,6 @@ protected:
   //
   // Special classes for manipulating data
   //
-  //BTX - begin tcl exclude
-  //
   class StreamPoint {
   public:
     double    x[3];    // position
@@ -255,7 +255,7 @@ protected:
     vtkIdType Extend;       // grow array by this amount
     double Direction;       // integration direction
   };
-  //ETX
+
   //
 
   //array of streamers
@@ -310,8 +310,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkStreamer(const vtkStreamer&);  // Not implemented.
-  void operator=(const vtkStreamer&);  // Not implemented.
+  vtkStreamer(const vtkStreamer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamer&) VTK_DELETE_FUNCTION;
 };
 
 // Description:
@@ -332,4 +332,5 @@ inline const char *vtkStreamer::GetIntegrationDirectionAsString()
     }
 }
 
+#endif // VTK_LEGACY_REMOVE
 #endif

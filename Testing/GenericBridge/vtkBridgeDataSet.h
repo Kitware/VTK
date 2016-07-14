@@ -140,7 +140,6 @@ protected:
   vtkBridgeDataSet();
   virtual ~vtkBridgeDataSet();
 
-  //BTX
   friend class vtkBridgeCell;
   friend class vtkBridgeCellIterator;
   friend class vtkBridgeCellIteratorOnDataSet;
@@ -149,7 +148,6 @@ protected:
   friend class vtkBridgePointIteratorOnCell;
   friend class vtkBridgePointIteratorOnDataSet;
   friend class vtkBridgePointIteratorOne;
-  //ETX
 
   // Description:
   // Compute the number of cells for each dimension and the list of types of
@@ -165,8 +163,8 @@ protected:
   vtkTimeStamp ComputeNumberOfCellsTime; // for number of cells and cell types
 
 private:
-  vtkBridgeDataSet(const vtkBridgeDataSet&);  // Not implemented.
-  void operator=(const vtkBridgeDataSet&);    // Not implemented.
+  vtkBridgeDataSet(const vtkBridgeDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgeDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

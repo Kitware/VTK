@@ -38,10 +38,6 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_DIRECTION_SPECIFIED_VECTOR 0
-#define VTK_DIRECTION_SPECIFIED_ORIGIN 1
-#define VTK_DIRECTION_CAMERA_ORIGIN 2
-#define VTK_DIRECTION_CAMERA_VECTOR 3
 
 class vtkCamera;
 class vtkProp3D;
@@ -81,6 +77,14 @@ public:
   vtkSetMacro(PieceInvariant,int);
   vtkGetMacro(PieceInvariant,int);
   vtkBooleanMacro(PieceInvariant,int);
+
+  enum Directions
+  {
+    VTK_DIRECTION_SPECIFIED_VECTOR = 0,
+    VTK_DIRECTION_SPECIFIED_ORIGIN = 1,
+    VTK_DIRECTION_CAMERA_ORIGIN = 2,
+    VTK_DIRECTION_CAMERA_VECTOR = 3
+  };
 
   // Description:
   // Specify how view direction is computed. By default, the
@@ -154,8 +158,8 @@ protected:
   vtkPolyDataEdges* PreComp; // precomputed data for a given point of view
 
 private:
-  vtkPolyDataSilhouette(const vtkPolyDataSilhouette&);  // Not implemented.
-  void operator=(const vtkPolyDataSilhouette&);  // Not implemented.
+  vtkPolyDataSilhouette(const vtkPolyDataSilhouette&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataSilhouette&) VTK_DELETE_FUNCTION;
 };
 
 #endif

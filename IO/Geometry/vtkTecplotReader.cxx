@@ -52,7 +52,7 @@
 
 #include <fstream>
 
-#include <ctype.h> // for isspace(), isalnum()
+#include <cctype> // for isspace(), isalnum()
 
 vtkStandardNewMacro( vtkTecplotReader );
 
@@ -76,10 +76,10 @@ public:
 protected:
   bool Open;
   bool Eof;
-  static const unsigned int BUFF_SIZE = 2048;
+  static const int BUFF_SIZE = 2048;
   char buff[BUFF_SIZE];
-  unsigned int Pos;
-  unsigned int BuffEnd;
+  int Pos;
+  int BuffEnd;
   gzFile file;
   std::string FileName;
 
@@ -398,8 +398,8 @@ public:
 
 private:
 
-  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & );  // Not implemented.
-  void operator = ( const vtkTecplotReaderInternal & );          // Not implemented.
+  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
 };
 // ==========================================================================//
 
@@ -414,17 +414,17 @@ private:
 // ----------------------------------------------------------------------------
 static int GetCoord( const std::string & theToken )
 {
-  if ( theToken == "X" || theToken == "x" || theToken == "I" )
+  if ( theToken == "X" || theToken == "x" || theToken == "I" || theToken == "CoordinateX" )
     {
     return 0;
     }
 
-  if ( theToken == "Y" || theToken == "y" || theToken == "J" )
+  if ( theToken == "Y" || theToken == "y" || theToken == "J" || theToken == "CoordinateY" )
     {
     return 1;
     }
 
-  if ( theToken == "Z" || theToken == "z" || theToken == "K" )
+  if ( theToken == "Z" || theToken == "z" || theToken == "K" || theToken == "CoordinateZ" )
     {
     return 2;
     }
@@ -1307,7 +1307,6 @@ void vtkTecplotReader::GetDataArraysList()
   int             guessedYid = -1;
   int             guessedZid = -1;
   bool            tokenReady = false;
-  std::string  theTpToken = "";
   std::string  noSpaceTok = "";
 
   this->Variables.clear();
@@ -1315,7 +1314,7 @@ void vtkTecplotReader::GetDataArraysList()
 
   this->Internal->Init();
   this->Internal->ASCIIStream.open( this->FileName );
-  theTpToken = this->Internal->GetNextToken();
+  std::string theTpToken = this->Internal->GetNextToken();
 
   while ( !this->Internal->NextCharEOF )
     {

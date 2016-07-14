@@ -144,7 +144,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
     selectionSize = this->Selection->GetNumberOfTuples();
     if (selectionSize)
       {
-      this->Selection->GetTupleValue(selection, &id);
+      this->Selection->GetTypedTuple(selection, &id);
       }
     }
 
@@ -187,7 +187,7 @@ bool vtkPlotParallelCoordinates::Paint(vtkContext2D *painter)
       {
       for (size_t j = 0; j < cols; ++j)
         {
-        this->Selection->GetTupleValue(i, &id);
+        this->Selection->GetTypedTuple(i, &id);
         line[j].Set(this->Storage->AxisPos[j], (*this->Storage)[j][id]);
         }
       painter->DrawPoly(line[0].GetData(), static_cast<int>(cols));
@@ -233,7 +233,7 @@ bool vtkPlotParallelCoordinates::SetSelectionRange(int axis, float low,
     for (vtkIdType i = 0; i < this->Selection->GetNumberOfTuples(); ++i)
       {
       vtkIdType id = 0;
-      this->Selection->GetTupleValue(i, &id);
+      this->Selection->GetTypedTuple(i, &id);
       if (col[id] >= low && col[id] <= high)
         {
         // Remove this point - no longer selected
@@ -324,7 +324,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
     vtkAxis* axis = parent->GetAxis(i);
     col.resize(rows);
     vtkSmartPointer<vtkDataArray> data =
-        vtkDataArray::SafeDownCast(table->GetColumnByName(cols->GetValue(i)));
+        vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(cols->GetValue(i)));
     if (!data)
       {
       if (table->GetColumnByName(cols->GetValue(i))->IsA("vtkStringArray"))
@@ -341,12 +341,12 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
         vtkTable* stringTable = vtkTable::SafeDownCast(stoc->GetOutput(1));
         if (table2)
           {
-          data = vtkDataArray::SafeDownCast(table2->GetColumnByName("enumPC"));
+          data = vtkArrayDownCast<vtkDataArray>(table2->GetColumnByName("enumPC"));
           }
         if (stringTable && stringTable->GetColumnByName("Strings"))
           {
           vtkStringArray* strings =
-              vtkStringArray::SafeDownCast(stringTable->GetColumnByName("Strings"));
+              vtkArrayDownCast<vtkStringArray>(stringTable->GetColumnByName("Strings"));
           vtkSmartPointer<vtkDoubleArray> arr =
               vtkSmartPointer<vtkDoubleArray>::New();
           for (vtkIdType j = 0; j < strings->GetNumberOfTuples(); ++j)
@@ -389,7 +389,7 @@ bool vtkPlotParallelCoordinates::UpdateTableCache(vtkTable *table)
   if (this->ScalarVisibility && !this->ColorArrayName.empty())
     {
     vtkDataArray* c =
-      vtkDataArray::SafeDownCast(table->GetColumnByName(this->ColorArrayName));
+      vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(this->ColorArrayName));
     // TODO: Should add support for categorical coloring & try enum lookup
     if (c)
       {
@@ -497,7 +497,7 @@ void vtkPlotParallelCoordinates::SelectColorArray(vtkIdType arrayNum)
     vtkDebugMacro(<< "SelectColorArray called with no input table set.");
     return;
     }
-  vtkDataArray *col = vtkDataArray::SafeDownCast(table->GetColumn(arrayNum));
+  vtkDataArray *col = vtkArrayDownCast<vtkDataArray>(table->GetColumn(arrayNum));
   // TODO: Should add support for categorical coloring & try enum lookup
   if (!col)
     {

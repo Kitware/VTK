@@ -168,7 +168,7 @@ vtkIdType vtkPBGLShortestPaths::GetVertexIndex(
   // Okay now what type of array is it
   if (abstract->IsNumeric())
     {
-    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstract);
+    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstract);
     int intValue = value.ToInt();
     for(int i=0; i<dataArray->GetNumberOfTuples(); ++i)
       {
@@ -180,7 +180,7 @@ vtkIdType vtkPBGLShortestPaths::GetVertexIndex(
     }
   else
     {
-    vtkStringArray *stringArray = vtkStringArray::SafeDownCast(abstract);
+    vtkStringArray *stringArray = vtkArrayDownCast<vtkStringArray>(abstract);
     vtkStdString stringValue(value.ToString());
     for(int i=0; i<stringArray->GetNumberOfTuples(); ++i)
       {
@@ -290,7 +290,7 @@ int vtkPBGLShortestPaths::RequestData(
       return 1;
       }
 
-    edgeWeightArray = vtkDoubleArray::SafeDownCast(abstractEdgeWeightArray);
+    edgeWeightArray = vtkArrayDownCast<vtkDoubleArray>(abstractEdgeWeightArray);
     if (edgeWeightArray == 0)
       {
       // Edge-weight array does not contain "double" values. We will

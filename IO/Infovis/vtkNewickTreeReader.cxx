@@ -507,7 +507,7 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
       // Find ':' to retrieve distance, if any.
       // At this time *current should equal to ')'
       start = current;
-      while (*current != ':')
+      while (*current != ':' && *current != ';')
       {
         current++;
       }
@@ -516,16 +516,19 @@ vtkIdType vtkNewickTreeReader::BuildTree(char *buffer,
       std::string name(start, strlen(start));
       names->SetValue(node, name);
       *current = temp;
-      current++;
-      start = current;
-      while (*current != '\0' && *current != ';')
+      if (*current != ';')
       {
         current++;
+        start = current;
+        while (*current != '\0' && *current != ';')
+          {
+          current++;
+          }
+        temp = *current;
+        *current = '\0';
+        weights->SetValue(g->GetEdgeId(parent, node), atof(start));
+        *current = temp;
       }
-      temp = *current;
-      *current = '\0';
-      weights->SetValue(g->GetEdgeId(parent, node), atof(start));
-      *current = temp;
     }
   }
 

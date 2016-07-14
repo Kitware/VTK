@@ -40,11 +40,6 @@ public:
   void PrintSelf( ostream& os, vtkIndent indent );
 
   // Description:
-  // Update the volume rendering pipeline by updating the scalar input
-  virtual void Update();
-  virtual void Update(int port);
-
-  // Description:
   // Set / Get the gradient estimator used to estimate normals
   virtual void SetGradientEstimator( vtkEncodedGradientEstimator *gradest );
   vtkGetObjectMacro( GradientEstimator, vtkEncodedGradientEstimator );
@@ -53,7 +48,6 @@ public:
   // Get the gradient shader.
   vtkGetObjectMacro( GradientShader, vtkEncodedGradientShader );
 
-//BTX
   // Description:
   // Allow access to the arrays / variables from the templated functions in the
   // subclasses.
@@ -88,9 +82,11 @@ public:
   virtual float GetGradientMagnitudeBias(int)
     { return this->GetGradientMagnitudeBias(); };
 
-//ETX
-
-
+  // Description:
+  // see vtkAlgorithm for details
+  virtual int ProcessRequest(vtkInformation*,
+                             vtkInformationVector**,
+                             vtkInformationVector*);
 
 protected:
   vtkVolumeTextureMapper();
@@ -98,7 +94,7 @@ protected:
 
   void InitializeRender( vtkRenderer *ren, vtkVolume *vol );
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Objects / variables  needed for shading / gradient magnitude opacity
   vtkEncodedGradientEstimator  *GradientEstimator;
@@ -127,8 +123,8 @@ protected:
 
   vtkRenderWindow *RenderWindow;
 private:
-  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&);  // Not implemented.
-  void operator=(const vtkVolumeTextureMapper&);  // Not implemented.
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -977,6 +977,8 @@ int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
   vtkIdType i, p1, p2;
   int *triUse;
 
+  source->BuildLinks();
+
   // Recover the edges of the mesh
   for ( lines->InitTraversal(); lines->GetNextCell(npts,pts); )
     {
@@ -986,7 +988,7 @@ int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
       p2 = pts[i+1];
       if ( ! this->Mesh->IsEdge(p1,p2) )
         {
-        this->RecoverEdge(p1, p2);
+        this->RecoverEdge(source, p1, p2);
         }
       }
     }
@@ -1000,7 +1002,7 @@ int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
       p2 = pts[(i+1)%npts];
       if ( ! this->Mesh->IsEdge(p1,p2) )
         {
-        this->RecoverEdge(p1, p2);
+        this->RecoverEdge(source, p1, p2);
         }
       }
     }
@@ -1026,7 +1028,7 @@ int *vtkDelaunay2D::RecoverBoundary(vtkPolyData *source)
 // What we do is identify a "submesh" of triangles that includes the edge to recover.
 // Then we split the submesh in two with the recovered edge, and triangulate each of
 // the two halves. If any part of this fails, we leave things alone.
-int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
+int vtkDelaunay2D::RecoverEdge(vtkPolyData* source, vtkIdType p1, vtkIdType p2)
 {
   vtkIdType cellId = 0;
   int i, j, k;
@@ -1053,7 +1055,7 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
   // Container for the edges (2 ids in a set, the order does not matter) we won't check
   std::set<std::set<vtkIdType> > polysEdges;
   // Container for the cells & point ids for the edge that need to be checked
-  std::vector<std::vector<vtkIdType> > newEdges;
+  std::vector<vtkIdType> newEdges;
 
   // Compute a split plane along (p1,p2) and parallel to the z-axis.
   //
@@ -1182,18 +1184,18 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
   nbPts = rightPoly->GetPointIds()->GetNumberOfIds();
   for (i = 0; i < nbPts; i++)
     {
-    std::set<vtkIdType> e;
-    e.insert(rightPoly->GetPointId(i));
-    e.insert(rightPoly->GetPointId((i + 1)%nbPts));
-    polysEdges.insert(e);
+    std::set<vtkIdType> edge;
+    edge.insert(rightPoly->GetPointId(i));
+    edge.insert(rightPoly->GetPointId((i + 1) % nbPts));
+    polysEdges.insert(edge);
     }
   nbPts = leftPoly->GetPointIds()->GetNumberOfIds();
   for (i = 0; i < nbPts; i++)
     {
-    std::set<vtkIdType> e;
-    e.insert(leftPoly->GetPointId(i));
-    e.insert(leftPoly->GetPointId((i + 1)%nbPts));
-    polysEdges.insert(e);
+    std::set<vtkIdType> edge;
+    edge.insert(leftPoly->GetPointId(i));
+    edge.insert(leftPoly->GetPointId((i + 1) % nbPts));
+    polysEdges.insert(edge);
     }
 
   // Now that the to chains are formed, each chain forms a polygon (along with
@@ -1227,23 +1229,27 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, leftTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (k = 0; k < 3; k++)
+    for (int e = 0; e < 3; e++)
       {
-      std::set<vtkIdType> e;
-      vtkIdType vx1 = leftTris[k];
-      vtkIdType vx2 = leftTris[(k + 1)%3];
-      e.insert(vx1);
-      e.insert(vx2);
-      if (polysEdges.find(e) == polysEdges.end())
+      vtkIdType ep1 = leftTris[e];
+      vtkIdType ep2 = leftTris[(e + 1) % 3];
+      vtkIdType ep3 = leftTris[(e + 2) % 3];
+      // Make sure we won't alter a constrained edge
+      if (!source->IsEdge(ep1, ep2)
+        && !source->IsEdge(ep2, ep3)
+        && !source->IsEdge(ep3, ep1))
         {
-        // Add this new edge and remember current triangle and third point ids too
-        std::vector<vtkIdType> v;
-        v.resize(4);
-        v[0] = cellId;
-        v[1] = vx1;
-        v[2] = vx2;
-        v[3] = leftTris[(k + 2)%3];
-        newEdges.push_back(v);
+        std::set<vtkIdType> edge;
+        edge.insert(ep1);
+        edge.insert(ep2);
+        if (polysEdges.find(edge) == polysEdges.end())
+          {
+          // Add this new edge and remember current triangle and third point ids too
+          newEdges.push_back(cellId);
+          newEdges.push_back(ep1);
+          newEdges.push_back(ep2);
+          newEdges.push_back(ep3);
+          }
         }
       }
     }
@@ -1260,43 +1266,47 @@ int vtkDelaunay2D::RecoverEdge(vtkIdType p1, vtkIdType p2)
     this->Mesh->ReplaceLinkedCell(cellId, 3, rightTris);
 
     // Check if the added triangle contains edges which are not in the polygon edges set
-    for (k = 0; k < 3; k++)
+    for (int e = 0; e < 3; e++)
       {
-      std::set<vtkIdType> e;
-      vtkIdType vx1 = rightTris[k];
-      vtkIdType vx2 = rightTris[(k + 1)%3];
-      e.insert(vx1);
-      e.insert(vx2);
-      if (polysEdges.find(e) == polysEdges.end())
+      vtkIdType ep1 = rightTris[e];
+      vtkIdType ep2 = rightTris[(e + 1) % 3];
+      vtkIdType ep3 = rightTris[(e + 2) % 3];
+      // Make sure we won't alter a constrained edge
+      if (!source->IsEdge(ep1, ep2)
+        && !source->IsEdge(ep2, ep3)
+        && !source->IsEdge(ep3, ep1))
         {
-        // Add this new edge and remember current triangle and third point ids too
-        std::vector<vtkIdType> v;
-        v.resize(4);
-        v[0] = cellId;
-        v[1] = vx1;
-        v[2] = vx2;
-        v[3] = rightTris[(k + 2)%3];
-        newEdges.push_back(v);
+        std::set<vtkIdType> edge;
+        edge.insert(ep1);
+        edge.insert(ep2);
+        if (polysEdges.find(edge) == polysEdges.end())
+          {
+          // Add this new edge and remember current triangle and third point ids too
+          newEdges.push_back(cellId);
+          newEdges.push_back(ep1);
+          newEdges.push_back(ep2);
+          newEdges.push_back(ep3);
+          }
         }
       }
     }
 
-  j = static_cast<int>(newEdges.size());
+  j = static_cast<int>(newEdges.size()) / 4;
   // Now check the new suspicious edges
   for (i = 0; i < j; i++)
     {
-    std::vector<vtkIdType> &v = newEdges[i];
+    vtkIdType *v = &newEdges[4*i];
     double x[3];
     this->GetPoint(v[3], x);
     this->CheckEdge(v[3], x, v[1], v[2], v[0], false);
     }
 
-  FAILURE:
-    tris->Delete(); cells->Delete();
-    leftPoly->Delete(); rightPoly->Delete(); neis->Delete();
-    rightPtIds->Delete(); leftPtIds->Delete();
-    rightTriPts->Delete(); leftTriPts->Delete();
-    return success;
+FAILURE:
+  tris->Delete(); cells->Delete();
+  leftPoly->Delete(); rightPoly->Delete(); neis->Delete();
+  rightPtIds->Delete(); leftPtIds->Delete();
+  rightTriPts->Delete(); leftTriPts->Delete();
+  return success;
 }
 
 void vtkDelaunay2D::FillPolygons(vtkCellArray *polys, int *triUse)

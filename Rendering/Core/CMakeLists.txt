@@ -23,6 +23,7 @@ set(Module_SRCS
   vtkDiscretizableColorTransferFunction.cxx
   vtkDistanceToCamera.cxx
   vtkFollower.cxx
+  vtkFrameBufferObjectBase.cxx
   vtkFrustumCoverageCuller.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
@@ -68,6 +69,8 @@ set(Module_SRCS
   vtkRenderer.cxx
   vtkRendererDelegate.cxx
   vtkRendererSource.cxx
+  vtkRenderPass.cxx
+  vtkRenderState.cxx
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
@@ -128,6 +131,7 @@ set(Module_SRCS
   )
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
+  # needed as we do not have vtkRenderingOpenGLConfigure.h here
   set_source_files_properties(
     vtkRenderWindow.cxx  # dummy out painterdevice adapter
     vtkHardwareSelector.cxx # dummy out painter device adapter
@@ -163,6 +167,7 @@ set_source_files_properties(
   vtkAbstractPicker
   vtkAbstractPropPicker
   vtkCuller
+  vtkFrameBufferObjectBase
   vtkGPUInfoList.cxx
   vtkHardwareSelector
   vtkImageMapper3D
@@ -172,6 +177,8 @@ set_source_files_properties(
   vtkProp
   vtkProp3D
   vtkRendererDelegate
+  vtkRenderPass
+  vtkRenderState
   vtkShader
   vtkShaderDeviceAdapter
   vtkShaderDeviceAdapter2
@@ -187,6 +194,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkAbstractInteractionDevice
   vtkAbstractRenderDevice
+  vtkRenderState
   vtkRenderWidget
   WRAP_EXCLUDE
   )

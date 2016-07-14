@@ -52,12 +52,9 @@ protected:
 
   int CacheSize;
 
-//BTX
   typedef std::map<double,std::pair<unsigned long,vtkDataObject *> >
   CacheType;
   CacheType Cache;
-//ETX
-
 
   // Description:
   // see vtkAlgorithm for details
@@ -80,8 +77,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&);  // Not implemented.
-  void operator=(const vtkTemporalDataSetCache&);  // Not implemented.
+  vtkTemporalDataSetCache(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalDataSetCache&) VTK_DELETE_FUNCTION;
 };
 
 

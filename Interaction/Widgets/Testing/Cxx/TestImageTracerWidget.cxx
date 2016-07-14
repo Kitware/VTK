@@ -353,7 +353,6 @@ int TestImageTracerWidget( int argc, char *argv[] )
 
   // Increase polygon offsets to support some OpenGL drivers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters(10,10);
 
 // Start by loading some data.
 //

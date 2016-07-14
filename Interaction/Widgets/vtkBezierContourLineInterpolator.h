@@ -15,7 +15,7 @@
 // .NAME vtkBezierContourLineInterpolator - Interpolates supplied nodes with bezier line segments
 // .SECTION Description
 // The line interpolator interpolates supplied nodes (see InterpolateLine)
-// with bezier line segments. The finess of the curve may be controlled using
+// with Bezier line segments. The fitness of the curve may be controlled using
 // SetMaximumCurveError and SetMaximumNumberOfLineSegments.
 //
 // .SECTION See Also
@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Standard methods for instances of this class.
-  vtkTypeMacro(vtkBezierContourLineInterpolator,vtkContourLineInterpolator);
+  vtkTypeMacro(vtkBezierContourLineInterpolator, vtkContourLineInterpolator);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   virtual int InterpolateLine( vtkRenderer *ren,
@@ -60,25 +60,25 @@ public:
   vtkGetMacro(MaximumCurveLineSegments, int);
 
   // Description:
-  // Span of the interpolator. ie. the number of control points its supposed
+  // Span of the interpolator, i.e. the number of control points it's supposed
   // to interpolate given a node.
   //
   // The first argument is the current nodeIndex.
-  // ie, you'd be trying to interpolate between nodes "nodeIndex" and
-  // "nodeIndex-1", unless you're closing the contour in which case, you're
+  // i.e., you'd be trying to interpolate between nodes "nodeIndex" and
+  // "nodeIndex-1", unless you're closing the contour, in which case you're
   // trying to interpolate "nodeIndex" and "Node=0". The node span is
   // returned in a vtkIntArray.
   //
   // The node span is returned in a vtkIntArray. The node span returned by
   // this interpolator will be a 2-tuple with a span of 4.
-  virtual void GetSpan( int nodeIndex, vtkIntArray *nodeIndices,
-                        vtkContourRepresentation *rep );
+  virtual void GetSpan(int nodeIndex, vtkIntArray *nodeIndices,
+                        vtkContourRepresentation *rep);
 
 protected:
   vtkBezierContourLineInterpolator();
   ~vtkBezierContourLineInterpolator();
 
-  void ComputeMidpoint( double p1[3], double p2[3], double mid[3] )
+  void ComputeMidpoint(double p1[3], double p2[3], double mid[3])
     {
       mid[0] = (p1[0] + p2[0])/2;
       mid[1] = (p1[1] + p2[1])/2;
@@ -89,8 +89,8 @@ protected:
   int    MaximumCurveLineSegments;
 
 private:
-  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&);  //Not implemented
-  void operator=(const vtkBezierContourLineInterpolator&);  //Not implemented
+  vtkBezierContourLineInterpolator(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBezierContourLineInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -61,7 +61,7 @@
       } \
   }
 
-#include <ctype.h>
+#include <cctype>
 
 class vtkNetCDFReaderPrivate {
 public:
@@ -242,21 +242,32 @@ int vtkNetCDFReader::RequestInformation(
       compositeTimeValues->SetNumberOfComponents(1);
       while ((oldTime < oldTimeEnd) || (newTime < newTimeEnd))
         {
+        double nextTimeValue;
         if (   (newTime >= newTimeEnd)
             || ((oldTime < oldTimeEnd) && (*oldTime < *newTime)) )
           {
-          compositeTimeValues->InsertNextTuple1(*oldTime);
+          nextTimeValue = *oldTime;
           oldTime++;
           }
         else if ((oldTime >= oldTimeEnd) || (*newTime < *oldTime))
           {
-          compositeTimeValues->InsertNextTuple1(*newTime);
+          nextTimeValue = *newTime;
           newTime++;
           }
         else // *oldTime == *newTime
           {
-          compositeTimeValues->InsertNextTuple1(*oldTime);
+          nextTimeValue = *oldTime;
           oldTime++;  newTime++;
+          }
+        compositeTimeValues->InsertNextTuple1(nextTimeValue);
+
+        // Obviously, time values should be monotonically increasing. If they
+        // are not, that is indicative of an error. Often this means just a
+        // garbage time slice. Because we still want to see the other time
+        // slices, just dump those with bad time values.
+        while ((newTime < newTimeEnd) && (*newTime <= nextTimeValue))
+          {
+          newTime++;
           }
         }
       timeValues = compositeTimeValues;
@@ -401,7 +412,8 @@ int vtkNetCDFReader::RequestData(vtkInformation *vtkNotUsed(request),
   vtkImageData *imageOutput = vtkImageData::SafeDownCast(output);
   vtkRectilinearGrid *rectOutput = vtkRectilinearGrid::SafeDownCast(output);
   vtkStructuredGrid *structOutput = vtkStructuredGrid::SafeDownCast(output);
-  vtkStreamingDemandDrivenPipeline::GetUpdateExtent(outInfo, this->UpdateExtent);
+  outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+    this->UpdateExtent);
   if (imageOutput)
     {
     imageOutput->SetExtent(this->UpdateExtent);

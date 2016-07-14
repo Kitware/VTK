@@ -101,8 +101,8 @@ private:
   // static-only class -- no need to construct/destroy.
   vtkOpenGLGL2PSHelper();
   ~vtkOpenGLGL2PSHelper();
-  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &); // Not implemented.
-  void operator=(const vtkOpenGLGL2PSHelper &);   // Not implemented.
+  vtkOpenGLGL2PSHelper(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGL2PSHelper &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkOpenGLGL2PSHelper_h

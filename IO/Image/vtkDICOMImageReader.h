@@ -37,11 +37,9 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
-//BTX
 class vtkDICOMImageReaderVector;
 class DICOMParser;
 class DICOMAppHelper;
-//ETX
 
 class VTKIOIMAGE_EXPORT vtkDICOMImageReader : public vtkImageReader2
 {
@@ -215,8 +213,8 @@ protected:
   int GetNumberOfDICOMFileNames();
   const char* GetDICOMFileName(int index);
 private:
-  vtkDICOMImageReader(const vtkDICOMImageReader&);  // Not implemented.
-  void operator=(const vtkDICOMImageReader&);  // Not implemented.
+  vtkDICOMImageReader(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDICOMImageReader&) VTK_DELETE_FUNCTION;
 
 };
 

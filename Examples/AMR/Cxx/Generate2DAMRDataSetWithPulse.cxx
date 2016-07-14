@@ -141,15 +141,13 @@ vtkOverlappingAMR* GetAMRDataSet()
 
   double h[3];
   int    ndim[3];
-  int    blockId = -1;
-  int    level   = -1;
 
   // Root Block -- Block 0,0
   ndim[0]   = 6; ndim[1]   = 5; ndim[2] = 1;
   h[0]      = h[1]      = h[2]      = 1.0;
 
-  blockId   = 0;
-  level     = 0;
+  int    blockId   = 0;
+  int    level     = 0;
   vtkUniformGrid *root = AMRCommon::GetGrid(origin, h, ndim);
   vtkAMRBox box(origin, ndim, h, data->GetOrigin(), data->GetGridDescription());
   AttachPulseToGrid( root );

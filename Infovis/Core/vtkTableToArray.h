@@ -64,7 +64,6 @@ public:
   // Add every input table column to the output matrix.
   void AddAllColumns();
 
-//BTX
 protected:
   vtkTableToArray();
   ~vtkTableToArray();
@@ -77,12 +76,12 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTableToArray(const vtkTableToArray&); // Not implemented
-  void operator=(const vtkTableToArray&);   // Not implemented
+  vtkTableToArray(const vtkTableToArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableToArray&) VTK_DELETE_FUNCTION;
 
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

@@ -45,7 +45,7 @@
 
 #include <map>
 
-#include <stdio.h>
+#include <cstdio>
 #include <cassert>
 
 #define R_NO_REMAP /* AVOID SOME SERIOUS STUPIDITY. DO NOT REMOVE. */
@@ -313,7 +313,7 @@ SEXP vtkRAdapter::VTKTableToR(vtkTable* table)
   for(j=0;j<nc;j++)
     {
     SET_STRING_ELT(names,j,mkChar(table->GetColumn(j)->GetName()));
-    if(vtkDataArray::SafeDownCast(table->GetColumn(j)))
+    if(vtkArrayDownCast<vtkDataArray>(table->GetColumn(j)))
       {
       PROTECT(b = allocVector(REALSXP,nr));
       SET_VECTOR_ELT(a,j,b);
@@ -560,7 +560,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
   tree->GetEdges(edgeIterator);
   vtkEdgeType vEdge;
   int i = 0;
-  vtkDoubleArray * weights = vtkDoubleArray::SafeDownCast((tree->GetEdgeData())->GetArray("weight"));
+  vtkDoubleArray * weights = vtkArrayDownCast<vtkDoubleArray>((tree->GetEdgeData())->GetArray("weight"));
   while(edgeIterator->HasNext())
     {
     vEdge = edgeIterator->Next();
@@ -574,7 +574,7 @@ SEXP vtkRAdapter::VTKTreeToR(vtkTree* tree)
 
   // fill in  Nnode , tip_label and  node_label
   // use GetAbstractArray() instead of GetArray()
-  vtkStringArray * labels = vtkStringArray::SafeDownCast((tree->GetVertexData())->GetAbstractArray("node name"));
+  vtkStringArray * labels = vtkArrayDownCast<vtkStringArray>((tree->GetVertexData())->GetAbstractArray("node name"));
   iter->Restart();
   while (iter->HasNext())
     {// find out all the leaf nodes, and number them sequentially

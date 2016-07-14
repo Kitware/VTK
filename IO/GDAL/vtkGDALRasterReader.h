@@ -67,26 +67,24 @@ public:
   // Get raster width and heigth
   vtkGetVector2Macro(RasterDimensions, int);
 
-  //BTX
   // Description:
   // Return metadata as reported by GDAL
   const std::vector<std::string>& GetMetaData();
-  //ETX
 
   // Description:
   // Return the invalid value for a pixel (for blanking purposes)
   double GetInvalidValue();
 
-  //BTX
   // Description:
   // Return domain metadata
   std::vector<std::string> GetDomainMetaData(const std::string& domain);
-  //ETX
 
   // Description:
   // Return driver name which was used to read the current data
   const std::string& GetDriverShortName();
   const std::string& GetDriverLongName();
+
+  vtkIdType GetNumberOfPoints();
 
 protected:
 
@@ -115,8 +113,8 @@ protected:
   vtkGDALRasterReaderInternal* Implementation;
 
 private:
-  vtkGDALRasterReader(const vtkGDALRasterReader&); // Not implemented.
-  void operator=(const vtkGDALRasterReader&); // Not implemented
+  vtkGDALRasterReader(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGDALRasterReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDALRasterReader_h

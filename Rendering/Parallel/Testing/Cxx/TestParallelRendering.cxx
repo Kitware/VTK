@@ -18,7 +18,7 @@
 #include "vtkMPICommunicator.h"
 #include "vtkMPIController.h"
 #include "vtkSynchronizedRenderWindows.h"
-#include "vtkSynchronizedRenderers.h"
+#include "vtkCompositedSynchronizedRenderers.h"
 #include "vtkTestUtilities.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderWindowInteractor.h"
@@ -109,7 +109,8 @@ void MyProcess::Execute()
   syncWindows->SetParallelController(this->Controller);
   syncWindows->SetIdentifier(1);
 
-  vtkSynchronizedRenderers* syncRenderers = vtkSynchronizedRenderers::New();
+  vtkCompositedSynchronizedRenderers* syncRenderers =
+    vtkCompositedSynchronizedRenderers::New();
   syncRenderers->SetRenderer(renderer);
   syncRenderers->SetParallelController(this->Controller);
   //syncRenderers->SetImageReductionFactor(3);
@@ -194,6 +195,5 @@ int TestParallelRendering(int argc, char *argv[])
   contr->Finalize();
   contr->Delete();
   vtkMultiProcessController::SetGlobalController(0);
-  //return !retVal;
-  return 0;
+  return !retVal;
 }

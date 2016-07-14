@@ -61,7 +61,6 @@ public:
   vtkGetMacro(PassPartialArrays, bool);
   vtkBooleanMacro(PassPartialArrays, bool);
 
-//BTX
 protected:
   vtkCompositeDataProbeFilter();
   ~vtkCompositeDataProbeFilter();
@@ -90,9 +89,9 @@ protected:
 
   bool PassPartialArrays;
 private:
-  vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&); // Not implemented.
-  void operator=(const vtkCompositeDataProbeFilter&); // Not implemented.
-//ETX
+  vtkCompositeDataProbeFilter(const vtkCompositeDataProbeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataProbeFilter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

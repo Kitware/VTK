@@ -46,7 +46,7 @@
 #include "vtkCommand.h"
 #include "vtkWindow.h"
 
-#include <float.h> //for FLT_EPSILON
+#include <cfloat> //for FLT_EPSILON
 
 vtkStandardNewMacro(vtkImplicitPlaneRepresentation);
 
@@ -83,6 +83,7 @@ vtkImplicitPlaneRepresentation::vtkImplicitPlaneRepresentation()
   this->OutlineTranslation = 1;
   this->ScaleEnabled = 1;
   this->OutsideBounds = 1;
+  this->ConstrainToWidgetBounds = 1;
 
   this->Cutter = vtkCutter::New();
   this->Cutter->SetInputData(this->Box);
@@ -667,11 +668,20 @@ void vtkImplicitPlaneRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Lock Normal To Camera: "
      << (this->LockNormalToCamera ? "On" : "Off") << "\n";
 
+  os << indent << "Widget Bounds: " << this->WidgetBounds[0] << ", "
+                                    << this->WidgetBounds[1] << ", "
+                                    << this->WidgetBounds[2] << ", "
+                                    << this->WidgetBounds[3] << ", "
+                                    << this->WidgetBounds[4] << ", "
+                                    << this->WidgetBounds[5] << "\n";
+
   os << indent << "Tubing: " << (this->Tubing ? "On" : "Off") << "\n";
   os << indent << "Outline Translation: "
      << (this->OutlineTranslation ? "On" : "Off") << "\n";
   os << indent << "Outside Bounds: "
      << (this->OutsideBounds ? "On" : "Off") << "\n";
+  os << indent << "Constrain to Widget Bounds: "
+     << (this->ConstrainToWidgetBounds ? "On" : "Off") << "\n";
   os << indent << "Scale Enabled: "
      << (this->ScaleEnabled ? "On" : "Off") << "\n";
   os << indent << "Draw Plane: " << (this->DrawPlane ? "On" : "Off") << "\n";
@@ -812,6 +822,7 @@ void vtkImplicitPlaneRepresentation::TranslateOutline(double *p1, double *p2)
   oNew[1] = origin[1] + v[1];
   oNew[2] = origin[2] + v[2];
   this->Box->SetOrigin(oNew);
+  this->Box->GetBounds(this->WidgetBounds);
 
   //Translate the plane
   origin = this->Plane->GetOrigin();
@@ -889,6 +900,7 @@ void vtkImplicitPlaneRepresentation::Scale(double *p1, double *p2,
   this->Box->SetSpacing( (pNew[0]-oNew[0]),
                          (pNew[1]-oNew[1]),
                          (pNew[2]-oNew[2]) );
+  this->Box->GetBounds(this->WidgetBounds);
 
   this->BuildRepresentation();
 }
@@ -1006,6 +1018,7 @@ void vtkImplicitPlaneRepresentation::PlaceWidget(double bds[6])
   for (i=0; i<6; i++)
     {
     this->InitialBounds[i] = bounds[i];
+    this->WidgetBounds[i] = bounds[i];
     }
 
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
@@ -1035,18 +1048,6 @@ void vtkImplicitPlaneRepresentation::SetOrigin(double x, double y, double z)
 // when the plane is parallel to one of the faces of the bounding box).
 void vtkImplicitPlaneRepresentation::SetOrigin(double x[3])
 {
-  double *bounds = this->Outline->GetOutput()->GetBounds();
-  for (int i=0; i<3; i++)
-    {
-    if ( x[i] <= bounds[2*i] )
-      {
-      x[i] = bounds[2*i] + FLT_EPSILON;
-      }
-    else if ( x[i] >= bounds[2*i+1] )
-      {
-      x[i] = bounds[2*i+1] - FLT_EPSILON;
-      }
-    }
   this->Plane->SetOrigin(x);
   this->BuildRepresentation();
 }
@@ -1250,22 +1251,77 @@ void vtkImplicitPlaneRepresentation::BuildRepresentation()
     double *origin = this->Plane->GetOrigin();
     double *normal = this->Plane->GetNormal();
 
+    double bounds[6];
+    std::copy(this->WidgetBounds, this->WidgetBounds + 6, bounds);
+
     double p2[3];
-    if( !this->OutsideBounds )
+    if ( !this->OutsideBounds )
       {
-      double *bounds = this->InitialBounds;
+      // restrict the origin inside InitialBounds
+      double *ibounds = this->InitialBounds;
       for (int i=0; i<3; i++)
         {
-        if ( origin[i] < bounds[2*i] )
+        if ( origin[i] < ibounds[2*i] )
           {
-          origin[i] = bounds[2*i];
+          origin[i] = ibounds[2*i];
           }
-        else if ( origin[i] > bounds[2*i+1] )
+        else if ( origin[i] > ibounds[2*i+1] )
           {
-          origin[i] = bounds[2*i+1];
+          origin[i] = ibounds[2*i+1];
           }
         }
       }
+
+    if ( this->ConstrainToWidgetBounds )
+      {
+      if ( !this->OutsideBounds )
+        {
+        // origin cannot move outside InitialBounds. Therefore, restrict
+        // movement of the Box.
+        double v[3] = { 0.0, 0.0, 0.0 };
+        for (int i = 0; i < 3; ++i)
+          {
+          if (origin[i] <= bounds[2*i])
+            {
+            v[i] = origin[i] - bounds[2*i] - FLT_EPSILON;
+            }
+          else if (origin[i] >= bounds[2*i + 1])
+            {
+            v[i] = origin[i] - bounds[2*i + 1] + FLT_EPSILON;
+            }
+          bounds[2*i] += v[i];
+          bounds[2*i + 1] += v[i];
+          }
+        }
+
+      // restrict origin inside bounds
+      for (int i = 0; i < 3; ++i)
+        {
+        if (origin[i] <= bounds[2*i])
+          {
+          origin[i] = bounds[2*i] + FLT_EPSILON;
+          }
+        if (origin[i] >= bounds[2*i + 1])
+          {
+          origin[i] = bounds[2*i + 1] - FLT_EPSILON;
+          }
+        }
+      }
+    else // plane can move freely, adjust the bounds to change with it
+      {
+      double offset = this->Box->GetLength() * 0.02;
+      for (int i = 0; i < 3; ++i)
+        {
+        bounds[2*i] = vtkMath::Min(origin[i] - offset, this->WidgetBounds[2*i]);
+        bounds[2*i + 1] = vtkMath::Max(origin[i] + offset, this->WidgetBounds[2*i + 1]);
+        }
+      }
+
+    this->Box->SetOrigin(bounds[0],bounds[2],bounds[4]);
+    this->Box->SetSpacing((bounds[1]-bounds[0]),(bounds[3]-bounds[2]),
+                          (bounds[5]-bounds[4]));
+    this->Outline->Update();
+
 
     // Setup the plane normal
     double d = this->Outline->GetOutput()->GetLength();

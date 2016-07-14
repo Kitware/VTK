@@ -57,17 +57,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Used internally for streaming and threads.
-  // Splits output update extent into num pieces.
-  // This method needs to be called num times.  Results must not overlap for
-  // consistent starting extent.  Subclass can override this method.
-  // This method returns the number of peices resulting from a
-  // successful split.  This can be from 1 to "total".
-  // If 1 is returned, the extent cannot be split.
-  int SplitExtent(int splitExt[6], int startExt[6],
-                  int num, int total);
-
-  // Description:
   // Used to set all non-zero voxels to MaximumDistance before starting
   // the distance transformation. Setting Initialize off keeps the current
   // value in the input image as starting point. This allows to superimpose
@@ -125,8 +114,8 @@ protected:
                                            vtkInformation* out);
 
 private:
-  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&);  // Not implemented.
-  void operator=(const vtkImageEuclideanDistance&);  // Not implemented.
+  vtkImageEuclideanDistance(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageEuclideanDistance&) VTK_DELETE_FUNCTION;
 };
 
 #endif

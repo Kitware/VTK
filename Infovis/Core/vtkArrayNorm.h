@@ -61,7 +61,6 @@ public:
   vtkSetMacro(Invert, int);
   vtkGetMacro(Invert, int);
 
-//BTX
   // Description:
   // Defines an optional "window" used to compute the norm on a subset of the elements
   // in a vector.
@@ -78,14 +77,14 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkArrayNorm(const vtkArrayNorm&); // Not implemented
-  void operator=(const vtkArrayNorm&);   // Not implemented
+  vtkArrayNorm(const vtkArrayNorm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayNorm&) VTK_DELETE_FUNCTION;
 
   int Dimension;
   int L;
   int Invert;
   vtkArrayRange Window;
-//ETX
+
 };
 
 #endif

@@ -94,9 +94,9 @@ int vtkMergeColumns::RequestData(
     {
     case VTK_STRING:
       {
-      vtkStringArray* col1Str = vtkStringArray::SafeDownCast(col1);
-      vtkStringArray* col2Str = vtkStringArray::SafeDownCast(col2);
-      vtkStringArray* mergedStr = vtkStringArray::SafeDownCast(merged);
+      vtkStringArray* col1Str = vtkArrayDownCast<vtkStringArray>(col1);
+      vtkStringArray* col2Str = vtkArrayDownCast<vtkStringArray>(col2);
+      vtkStringArray* mergedStr = vtkArrayDownCast<vtkStringArray>(merged);
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
         {
         vtkStdString combined = col1Str->GetValue(i);
@@ -112,9 +112,9 @@ int vtkMergeColumns::RequestData(
       }
     case VTK_UNICODE_STRING:
       {
-      vtkUnicodeStringArray* col1Str = vtkUnicodeStringArray::SafeDownCast(col1);
-      vtkUnicodeStringArray* col2Str = vtkUnicodeStringArray::SafeDownCast(col2);
-      vtkUnicodeStringArray* mergedStr = vtkUnicodeStringArray::SafeDownCast(merged);
+      vtkUnicodeStringArray* col1Str = vtkArrayDownCast<vtkUnicodeStringArray>(col1);
+      vtkUnicodeStringArray* col2Str = vtkArrayDownCast<vtkUnicodeStringArray>(col2);
+      vtkUnicodeStringArray* mergedStr = vtkArrayDownCast<vtkUnicodeStringArray>(merged);
       for (vtkIdType i = 0; i < merged->GetNumberOfTuples(); i++)
         {
         vtkUnicodeString combined = col1Str->GetValue(i);

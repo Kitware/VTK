@@ -96,9 +96,7 @@ int TestImageThresholdConnectivity(int argc, char *argv[])
 
     // test a previous bug where OutputExtent != InputExtent cause a crash.
     int extent[6] = { 0, 63, 0, 63, 3, 3 };
-    connectivity->UpdateInformation();
-    connectivity->SetUpdateExtent(extent);
-    connectivity->Update();
+    connectivity->UpdateExtent(extent);
 
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();

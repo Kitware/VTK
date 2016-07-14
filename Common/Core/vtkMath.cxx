@@ -27,6 +27,7 @@
 #include "vtkDataArray.h"
 #include <cassert>
 #include <cmath>
+#include <limits>
 #include <vector>
 
 #include "vtkBoxMuellerRandomSequence.h"
@@ -280,36 +281,36 @@ void vtkMath::FreeCombination( int* r )
 }
 
 //----------------------------------------------------------------------------
-// Given a unit vector 'x', find two other unit vectors 'y' and 'z' which
+// Given a unit vector v1, find two other unit vectors v2 and v3 which
 // which form an orthonormal set.
 template<class T1, class T2, class T3>
-inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
+inline void vtkMathPerpendiculars(const T1 v1[3], T2 v2[3], T3 v3[3],
                                   double theta)
 {
-  int dx,dy,dz;
+  int dv1,dv2,dv3;
 
-  double x2 = x[0]*x[0];
-  double y2 = x[1]*x[1];
-  double z2 = x[2]*x[2];
-  double r = sqrt(x2 + y2 + z2);
+  double v1sq = v1[0]*v1[0];
+  double v2sq = v1[1]*v1[1];
+  double v3sq = v1[2]*v1[2];
+  double r = sqrt(v1sq + v2sq + v3sq);
 
   // transpose the vector to avoid divide-by-zero error
-  if (x2 > y2 && x2 > z2)
+  if (v1sq > v2sq && v1sq > v3sq)
     {
-    dx = 0; dy = 1; dz = 2;
+    dv1 = 0; dv2 = 1; dv3 = 2;
     }
-  else if (y2 > z2)
+  else if (v2sq > v3sq)
     {
-    dx = 1; dy = 2; dz = 0;
+    dv1 = 1; dv2 = 2; dv3 = 0;
     }
   else
     {
-    dx = 2; dy = 0; dz = 1;
+    dv1 = 2; dv2 = 0; dv3 = 1;
     }
 
-  double a = x[dx]/r;
-  double b = x[dy]/r;
-  double c = x[dz]/r;
+  double a = v1[dv1]/r;
+  double b = v1[dv2]/r;
+  double c = v1[dv3]/r;
 
   double tmp = sqrt(a*a+c*c);
 
@@ -318,48 +319,48 @@ inline void vtkMathPerpendiculars(const T1 x[3], T2 y[3], T3 z[3],
     double sintheta = sin(theta);
     double costheta = cos(theta);
 
-    if (y)
+    if (v2)
       {
-      y[dx] = (c*costheta - a*b*sintheta)/tmp;
-      y[dy] = sintheta*tmp;
-      y[dz] = (-a*costheta - b*c*sintheta)/tmp;
+      v2[dv1] = (c*costheta - a*b*sintheta)/tmp;
+      v2[dv2] = sintheta*tmp;
+      v2[dv3] = (-a*costheta - b*c*sintheta)/tmp;
       }
 
-    if (z)
+    if (v3)
       {
-      z[dx] = (-c*sintheta - a*b*costheta)/tmp;
-      z[dy] = costheta*tmp;
-      z[dz] = (a*sintheta - b*c*costheta)/tmp;
+      v3[dv1] = (-c*sintheta - a*b*costheta)/tmp;
+      v3[dv2] = costheta*tmp;
+      v3[dv3] = (a*sintheta - b*c*costheta)/tmp;
       }
     }
   else
     {
-    if (y)
+    if (v2)
       {
-      y[dx] = c/tmp;
-      y[dy] = 0;
-      y[dz] = -a/tmp;
+      v2[dv1] = c/tmp;
+      v2[dv2] = 0;
+      v2[dv3] = -a/tmp;
       }
 
-    if (z)
+    if (v3)
       {
-      z[dx] = -a*b/tmp;
-      z[dy] = tmp;
-      z[dz] = -b*c/tmp;
+      v3[dv1] = -a*b/tmp;
+      v3[dv2] = tmp;
+      v3[dv3] = -b*c/tmp;
       }
     }
 }
 
-void vtkMath::Perpendiculars(const double x[3], double y[3], double z[3],
+void vtkMath::Perpendiculars(const double v1[3], double v2[3], double v3[3],
                              double theta)
 {
-  vtkMathPerpendiculars(x, y, z, theta);
+  vtkMathPerpendiculars(v1, v2, v3, theta);
 }
 
-void vtkMath::Perpendiculars(const float x[3], float y[3], float z[3],
+void vtkMath::Perpendiculars(const float v1[3], float v2[3], float v3[3],
                              double theta)
 {
-  vtkMathPerpendiculars(x, y, z, theta);
+  vtkMathPerpendiculars(v1, v2, v3, theta);
 }
 
 #define VTK_SMALL_NUMBER 1.0e-12
@@ -378,7 +379,9 @@ int vtkMath::SolveLinearSystem(double **A, double *x, int size)
 
     det = vtkMath::Determinant2x2(A[0][0], A[0][1], A[1][0], A[1][1]);
 
-    if (det == 0.0)
+    static const double eps = 256*std::numeric_limits<double>::epsilon();
+
+    if (std::fabs(det) < eps)
       {
       // Unable to solve linear system
       return 0;
@@ -1014,6 +1017,7 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
   double **hmt = NULL;
   int homogRC = 0;
   int *homogenFlags = new int[yOrder];
+  int successFlag;
 
   // Ok, first init some flags check and see if all the systems are homogeneous
   if (checkHomogeneous)
@@ -1138,22 +1142,20 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
       }
     }
 
-  // next get the inverse of XXt
-  if (!(vtkMath::InvertMatrix(XXt, XXtI, xOrder)))
-    {
-    delete [] homogenFlags;
-    return 0;
-    }
+  successFlag = vtkMath::InvertMatrix(XXt, XXtI, xOrder);
 
-  // next get m
-  for (i = 0; i < xOrder; i++)
+  // next get the inverse of XXt
+  if (successFlag)
     {
-    for (j = 0; j < yOrder; j++)
+    for (i = 0; i < xOrder; i++)
       {
-      mt[i][j] = 0.0;
-      for (k = 0; k < xOrder; k++)
+      for (j = 0; j < yOrder; j++)
         {
-        mt[i][j] += XXtI[i][k] * XYt[k][j];
+        mt[i][j] = 0.0;
+        for (k = 0; k < xOrder; k++)
+          {
+          mt[i][j] += XXtI[i][k] * XYt[k][j];
+          }
         }
       }
     }
@@ -1198,11 +1200,11 @@ int vtkMath::SolveLeastSquares(int numberOfSamples, double **xt, int xOrder,
 
   if (someHomogeneous)
     {
-    return homogRC;
+    return homogRC && successFlag;
     }
   else
     {
-    return 1;
+    return successFlag;
     }
 }
 
@@ -2851,26 +2853,13 @@ int vtkMath::GetScalarTypeFittingRange(
         static_cast<double>(VTK_LONG_MAX) },
       { VTK_UNSIGNED_LONG,
         static_cast<double>(VTK_UNSIGNED_LONG_MIN),
-        static_cast<double>(VTK_UNSIGNED_LONG_MAX) }
-#if defined(VTK_TYPE_USE_LONG_LONG)
-      ,
+        static_cast<double>(VTK_UNSIGNED_LONG_MAX) },
       { VTK_LONG_LONG,
         static_cast<double>(VTK_LONG_LONG_MIN),
         static_cast<double>(VTK_LONG_LONG_MAX) },
       { VTK_UNSIGNED_LONG_LONG,
         static_cast<double>(VTK_UNSIGNED_LONG_LONG_MIN),
         static_cast<double>(VTK_UNSIGNED_LONG_LONG_MAX) }
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-      ,
-      { VTK___INT64,
-        static_cast<double>(VTK___INT64_MIN),
-        static_cast<double>(VTK___INT64_MAX) }
-      ,
-      { VTK_UNSIGNED___INT64,
-        static_cast<double>(VTK_UNSIGNED___INT64_MIN),
-        static_cast<double>(VTK_UNSIGNED___INT64_MAX) }
-#endif
     };
 
   // If the range, scale or shift are decimal number, just browse
@@ -2949,7 +2938,7 @@ int vtkMath::GetAdjustedScalarRange(
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
+vtkTypeBool vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 {
   if (!extent1 || !extent2)
     {
@@ -2971,7 +2960,7 @@ int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 
 //----------------------------------------------------------------------------
 
-int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
+vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
 {
   if(!bounds1 || !bounds2)
     {
@@ -2988,7 +2977,7 @@ int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], dou
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
+vtkTypeBool vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
 {
   if(!point || !bounds || !delta)
     {
@@ -3126,7 +3115,7 @@ double vtkMath::Nan()
 
 //-----------------------------------------------------------------------------
 #ifndef VTK_MATH_ISINF_IS_INLINE
-int vtkMath::IsInf(double x)
+vtkTypeBool vtkMath::IsInf(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
   // If we cannot do comparisons to non-finite numbers without causing floating
@@ -3145,7 +3134,7 @@ int vtkMath::IsInf(double x)
 
 //-----------------------------------------------------------------------------
 #ifndef VTK_MATH_ISNAN_IS_INLINE
-int vtkMath::IsNan(double x)
+vtkTypeBool vtkMath::IsNan(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
   // If we cannot do comparisons to non-finite numbers without causing floating

@@ -142,7 +142,7 @@ int vtkPBGLMinimumSpanningTree::RequestData(
 
   bool edgeWeightArrayIsTemporary = false;
   vtkDoubleArray *edgeWeightArray
-    = vtkDoubleArray::SafeDownCast(abstractEdgeWeightArray);
+    = vtkArrayDownCast<vtkDoubleArray>(abstractEdgeWeightArray);
   if (edgeWeightArray == 0)
     {
     // Edge-weight array does not contain "double" values. We will

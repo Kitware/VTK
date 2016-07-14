@@ -1436,15 +1436,10 @@ int vtkCubeAxesActor::LabelExponent(double min, double max)
   double range = (fabs(min) > fabs(max) ? fabs(min) : fabs(max));
   double pow10 = log10(range);
 
-  //
-  // Cutoffs for using scientific notation.  The following 4 variables
-  // should all be static for maximum performance but were made non-static
-  // to get around a compiler bug with the MIPSpro 7.2.1.3 compiler.
-  //
-  double eformat_cut_min = -1.5;
-  double eformat_cut_max =  3.0;
-  double cut_min = pow(10., eformat_cut_min);
-  double cut_max = pow(10., eformat_cut_max);
+  const double eformat_cut_min = -1.5;
+  const double eformat_cut_max =  3.0;
+  const/*expr*/ double cut_min = pow(10., eformat_cut_min);
+  const/*expr*/ double cut_max = pow(10., eformat_cut_max);
   double ipow10;
   if (range < cut_min || range > cut_max)
     {
@@ -2039,13 +2034,13 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
   int axis = 0;
   switch(axes[0]->GetAxisType())
   {
-  case VTK_AXIS_TYPE_X:
+  case vtkAxisActor::VTK_AXIS_TYPE_X:
     axis = 0;
     break;
-  case VTK_AXIS_TYPE_Y:
+  case vtkAxisActor::VTK_AXIS_TYPE_Y:
     axis = 1;
     break;
-  case VTK_AXIS_TYPE_Z:
+  case vtkAxisActor::VTK_AXIS_TYPE_Z:
     axis = 2;
     break;
   }
@@ -2109,15 +2104,15 @@ void vtkCubeAxesActor::AdjustTicksComputeRange(vtkAxisActor *axes[NUMBER_OF_ALIG
   // Set major start and delta for the corresponding cube axis
   switch(axes[0]->GetAxisType())
     {
-    case VTK_AXIS_TYPE_X:
+    case vtkAxisActor::VTK_AXIS_TYPE_X:
       this->MajorStart[0] = majorStart;
       this->DeltaMajor[0] = major;
       break;
-    case VTK_AXIS_TYPE_Y:
+    case vtkAxisActor::VTK_AXIS_TYPE_Y:
       this->MajorStart[1] = majorStart;
       this->DeltaMajor[1] = major;
       break;
-    case VTK_AXIS_TYPE_Z:
+    case vtkAxisActor::VTK_AXIS_TYPE_Z:
       this->MajorStart[2] = majorStart;
       this->DeltaMajor[2] = major;
       break;
@@ -2215,19 +2210,19 @@ void vtkCubeAxesActor::BuildLabels(vtkAxisActor *axes[NUMBER_OF_ALIGNED_AXIS])
   const char *format = "%s";
   switch (axes[0]->GetAxisType())
     {
-    case VTK_AXIS_TYPE_X:
+    case vtkAxisActor::VTK_AXIS_TYPE_X:
       axisIndex = 0;
       format = this->XLabelFormat;
       mustAdjustValue = this->MustAdjustXValue;
       lastPow = this->LastXPow;
       break;
-    case VTK_AXIS_TYPE_Y:
+    case vtkAxisActor::VTK_AXIS_TYPE_Y:
       axisIndex = 1;
       format = this->YLabelFormat;
       mustAdjustValue = this->MustAdjustYValue;
       lastPow = this->LastYPow;
       break;
-    case VTK_AXIS_TYPE_Z:
+    case vtkAxisActor::VTK_AXIS_TYPE_Z:
       axisIndex = 2;
       format = this->ZLabelFormat;
       mustAdjustValue = this->MustAdjustZValue;

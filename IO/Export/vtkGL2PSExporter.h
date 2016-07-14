@@ -71,6 +71,7 @@
 // .SECTION Thanks
 // Thanks to Goodwin Lawlor and Prabhu Ramachandran for this class.
 
+class vtkPropCollection;
 
 #ifndef vtkGL2PSExporter_h
 #define vtkGL2PSExporter_h
@@ -80,32 +81,11 @@
 
 #include "vtkNew.h" // For vtkNew
 
-class vtkActor;
-class vtkActor2D;
-class vtkCollection;
-class vtkCoordinate;
-class vtkImageData;
-class vtkIntArray;
-class vtkLabeledDataMapper;
-class vtkLabeledContourMapper;
-class vtkMatrix4x4;
-class vtkPath;
-class vtkProp;
-class vtkPropCollection;
-class vtkProp3DCollection;
-class vtkRenderer;
-class vtkRendererCollection;
-class vtkScalarBarActor;
-class vtkTextActor;
-class vtkTextActor3D;
-class vtkTextMapper;
-class vtkTextProperty;
-
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {
 public:
   static vtkGL2PSExporter *New();
-  vtkTypeMacro(vtkGL2PSExporter,vtkExporter);
+  vtkTypeMacro(vtkGL2PSExporter, vtkExporter)
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -131,7 +111,6 @@ public:
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
 
-//BTX
   enum OutputFormat
   {
       PS_FILE,
@@ -140,7 +119,6 @@ public:
       TEX_FILE,
       SVG_FILE
   };
-//ETX
 
   // Description:
   // Configure the exporter to expect a painter-ordered 2D rendering, that is,
@@ -173,14 +151,12 @@ public:
     {this->SetFileFormat(SVG_FILE);};
   const char *GetFileFormatAsString();
 
-//BTX
   enum SortScheme
   {
       NO_SORT=0,
       SIMPLE_SORT=1,
       BSP_SORT=2
   };
-//ETX
 
   // Description:
   // Set the the type of sorting algorithm to order primitives from
@@ -206,6 +182,7 @@ public:
   // Description:
   // Turn on/off drawing the background frame.  If off the background
   // is treated as white.  By default the background is drawn.
+  // On the OpenGL2 backend, the background is always drawn.
   vtkSetMacro(DrawBackground, int);
   vtkGetMacro(DrawBackground, int);
   vtkBooleanMacro(DrawBackground, int);
@@ -272,6 +249,8 @@ public:
   // rendered using vector graphics primitives.  If you have hi-res
   // actors and are using transparency you probably need to turn this
   // on.  Defaults to Off.
+  // This option has no effect when the OpenGL2 backend is in use, as all
+  // 3D props (excluding vtkTextActor3D) are rasterized into the background.
   vtkSetMacro(Write3DPropsAsRasterImage, int);
   vtkGetMacro(Write3DPropsAsRasterImage, int);
   vtkBooleanMacro(Write3DPropsAsRasterImage, int);
@@ -308,49 +287,10 @@ protected:
   vtkGL2PSExporter();
   ~vtkGL2PSExporter();
 
-  void WriteData();
-
   int GetGL2PSOptions();
   int GetGL2PSSort();
   int GetGL2PSFormat();
   const char *GetFileExtension();
-
-  void SavePropVisibility(vtkRendererCollection *renCol,
-                          vtkIntArray *volVis, vtkIntArray *actVis,
-                          vtkIntArray *act2dVis);
-  void RestorePropVisibility(vtkRendererCollection *renCol,
-                             vtkIntArray *volVis, vtkIntArray *actVis,
-                             vtkIntArray *act2dVis);
-  void Turn3DPropsOff(vtkRendererCollection *renCol);
-  void Turn2DPropsOff(vtkRendererCollection *renCol);
-  void GetVisibleContextActors(vtkPropCollection *contextActors,
-                               vtkRendererCollection *renCol);
-  void SetPropVisibilities(vtkPropCollection *col, int vis);
-
-  void DrawSpecialProps(vtkCollection *propCol, vtkRendererCollection *renCol);
-  // Description:
-  // Reimplement this to handle your own special props. Must call this function
-  // at the end of the override for default handling.
-  virtual void HandleSpecialProp(vtkProp *prop, vtkRenderer *ren);
-  void DrawTextActor(vtkTextActor *textAct, vtkRenderer *ren);
-  void DrawTextActor3D(vtkTextActor3D *textAct, vtkRenderer *ren);
-  void DrawTextMapper(vtkTextMapper *textMap, vtkActor2D *textAct,
-                      vtkRenderer *ren);
-  void DrawLabeledDataMapper(vtkLabeledDataMapper *mapper, vtkRenderer *ren);
-  void DrawLabeledContourMapper(vtkActor *act, vtkLabeledContourMapper *mapper,
-                                vtkRenderer *ren);
-  void DrawScalarBarActor(vtkScalarBarActor *bar, vtkRenderer *ren);
-  void DrawViewportTextOverlay(const char *string, vtkTextProperty *tprop,
-                               vtkCoordinate *coord, vtkRenderer *ren);
-
-  // Description:
-  // Copy the region copyRect from the framebuffer into the gl2ps document.
-  // copyRect is in viewport coordinates [xmin, ymin, width, height].
-  void CopyPixels(int copyRect[4], vtkRenderer *ren);
-
-  void DrawContextActors(vtkPropCollection *contextActs,
-                         vtkRendererCollection *renCol);
-
 
   vtkPropCollection *RasterExclusions;
 
@@ -373,11 +313,9 @@ protected:
   float PointSizeFactor;
   float LineWidthFactor;
 
-  vtkNew<vtkImageData> PixelData;
-
 private:
-  vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
-  void operator=(const vtkGL2PSExporter&); // Not implemented
+  vtkGL2PSExporter(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkGL2PSExporter::GetSortAsString(void)

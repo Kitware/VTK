@@ -29,6 +29,7 @@
 #include "vtkCommand.h"
 #include "vtkImageData.h"
 
+#include <cassert>
 #include <map>
 
 vtkStandardNewMacro(vtkBalloonWidget);
@@ -73,7 +74,7 @@ struct vtkBalloon
         this->Image->UnRegister(NULL);
         }
     }
-  void operator=(const vtkBalloon &balloon)
+  vtkBalloon& operator=(const vtkBalloon &balloon)
     {
       this->Text = balloon.Text;
 
@@ -89,19 +90,21 @@ struct vtkBalloon
         {
         this->Image->Register(NULL);
         }
+
+      return *this;
     }
-  int operator==(const vtkBalloon &balloon) const
+  bool operator==(const vtkBalloon &balloon) const
     {
       if ( this->Image == balloon.Image )
         {
         if ( this->Text == balloon.Text )
           {
-          return 1;
+          return true;
           }
         }
-      return 0;
+      return false;
     }
-  int operator!=(const vtkBalloon &balloon) const
+  bool operator!=(const vtkBalloon &balloon) const
     {
       return !(*this == balloon);
     }
@@ -205,15 +208,13 @@ void vtkBalloonWidget::CreateDefaultRepresentation()
 void vtkBalloonWidget::AddBalloon(vtkProp *prop, vtkStdString *str,
                                   vtkImageData *img)
 {
+  assert(prop);
   vtkPropMapIterator iter = this->PropMap->find(prop);
   if ( iter == this->PropMap->end() || (*this->PropMap)[prop] != vtkBalloon(str,img) )
     {
     (*this->PropMap)[prop] = vtkBalloon(str,img);
-    if ( prop != NULL )
-      {
-      this->Picker->DeletePickList(prop); //ensure only entered once
-      this->Picker->AddPickList(prop);
-      }
+    this->Picker->DeletePickList(prop); //ensure only entered once
+    this->Picker->AddPickList(prop);
     this->Modified();
     }
 }

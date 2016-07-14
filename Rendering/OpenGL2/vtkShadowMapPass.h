@@ -50,10 +50,6 @@ class vtkLight;
 class vtkFrameBufferObject;
 class vtkShadowMapPassTextures; // internal
 class vtkShadowMapPassLightCameras; // internal
-class vtkImageExport;
-class vtkTextureObject;
-class vtkImplicitHalo;
-class vtkSampleFunction;
 class vtkShadowMapBakerPass;
 class vtkInformationObjectBaseKey;
 class vtkShaderProgram;
@@ -65,12 +61,10 @@ public:
   vtkTypeMacro(vtkShadowMapPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -133,10 +127,6 @@ public:
   virtual ~vtkShadowMapPass();
 
   // Description:
-  // Build the intensity map.
-  void BuildSpotLightIntensityMap();
-
-  // Description:
   // Check if shadow mapping is supported by the current OpenGL context.
   // \pre w_exists: w!=0
   void CheckSupport(vtkOpenGLRenderWindow *w);
@@ -153,12 +143,6 @@ public:
   vtkShadowMapPassTextures *ShadowMaps;
   vtkShadowMapPassLightCameras *LightCameras;
 
-  vtkTextureObject *IntensityMap;
-
-  vtkSampleFunction *IntensitySource;
-  vtkImageExport *IntensityExporter;
-  vtkImplicitHalo *Halo;
-
   vtkTimeStamp LastRenderTime;
 
   // to store the shader code and settings
@@ -170,8 +154,8 @@ public:
   std::vector<float> ShadowAttenuation;
 
 private:
-  vtkShadowMapPass(const vtkShadowMapPass&);  // Not implemented.
-  void operator=(const vtkShadowMapPass&);  // Not implemented.
+  vtkShadowMapPass(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -84,8 +84,8 @@ protected:
 
 
 private:
-  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
-  void operator=(const vtkOpenGLRayCastImageDisplayHelper&);  // Not implemented.
+  vtkOpenGLRayCastImageDisplayHelper(const vtkOpenGLRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRayCastImageDisplayHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

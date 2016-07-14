@@ -75,11 +75,10 @@ public:
   // The caller must ensure that id is less than the maximum number of values.
   void SetValue(vtkIdType id, int value);
 
-  //BTX
   // Description:
   // Data type of a value.
   typedef int ValueType;
-  //ETX
+
 protected:
   vtkBitArrayIterator();
   ~vtkBitArrayIterator();
@@ -89,8 +88,8 @@ protected:
   void SetArray(vtkBitArray* b);
   vtkBitArray* Array;
 private:
-  vtkBitArrayIterator(const vtkBitArrayIterator&); // Not implemented.
-  void operator=(const vtkBitArrayIterator&); // Not implemented.
+  vtkBitArrayIterator(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBitArrayIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

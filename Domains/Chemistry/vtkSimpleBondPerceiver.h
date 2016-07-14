@@ -64,8 +64,8 @@ protected:
   float Tolerance;
 
 private:
-  vtkSimpleBondPerceiver(const vtkSimpleBondPerceiver&);  // Not implemented.
-  void operator=(const vtkSimpleBondPerceiver&);  // Not implemented.
+  vtkSimpleBondPerceiver(const vtkSimpleBondPerceiver&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimpleBondPerceiver&) VTK_DELETE_FUNCTION;
 };
 
 #endif

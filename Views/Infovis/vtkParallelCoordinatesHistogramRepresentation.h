@@ -89,13 +89,11 @@ public:
   vtkSetVector2Macro(HistogramLookupTableRange,double);
   vtkGetVector2Macro(HistogramLookupTableRange,double);
 
-  //BTX
   // Description:
   // The number of histogram bins on either side of each pair of axes.
   void SetNumberOfHistogramBins(int,int);
   void SetNumberOfHistogramBins(int*);
   vtkGetVector2Macro(NumberOfHistogramBins,int);
-  //ETX
 
   // Description:
   // Target maximum number of outliers to be drawn, although not guaranteed.
@@ -137,10 +135,8 @@ protected:
   // How many bins are used during the 2D histogram computation
   int NumberOfHistogramBins[2];
 
-  //BTX
   vtkSmartPointer<vtkPairwiseExtractHistogram2D> HistogramFilter;
   vtkSmartPointer<vtkLookupTable> HistogramLookupTable;
-  //ETX
 
   // Description:
   // Whether or not to draw outlier lines
@@ -150,12 +146,10 @@ protected:
   // How many outlier lines to draw, approximately.
   int PreferredNumberOfOutliers;
 
-  //BTX
   vtkSmartPointer<vtkComputeHistogram2DOutliers> OutlierFilter;
   vtkSmartPointer<vtkPolyData> OutlierData;
   vtkSmartPointer<vtkPolyDataMapper2D> OutlierMapper;
   vtkSmartPointer<vtkActor2D> OutlierActor;
-  //ETX
 
   // Description:
   // Correctly forwards the superclass call to draw lines to the internal
@@ -195,8 +189,8 @@ protected:
   // get the table containing just the outlier rows from the input table.
   virtual vtkTable* GetOutlierData();
 private:
-  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&); // Not implemented
-  void operator=(const vtkParallelCoordinatesHistogramRepresentation&);   // Not implemented
+  vtkParallelCoordinatesHistogramRepresentation(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelCoordinatesHistogramRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -63,6 +63,7 @@ class vtkTextMapper;
 class vtkActor2D;
 class vtkTextProperty;
 class vtkLineSource;
+class vtkCursor3D;
 
 #define VTK_SPHERE_OFF 0
 #define VTK_SPHERE_WIREFRAME 1
@@ -172,6 +173,13 @@ public:
   vtkBooleanMacro(RadialLine,int);
 
   // Description:
+  // Enable/disable a center cursor
+  // Default is disabled
+  vtkSetMacro(CenterCursor, bool);
+  vtkGetMacro(CenterCursor, bool);
+  vtkBooleanMacro(CenterCursor, bool);
+
+  // Description:
   // Grab the polydata (including points) that defines the sphere.  The
   // polydata consists of n+1 points, where n is the resolution of the
   // sphere. These point values are guaranteed to be up-to-date when either the
@@ -269,6 +277,10 @@ protected:
   void PlaceHandle(double *center, double radius);
   virtual void SizeHandles();
 
+  // Method to adapt the center cursor bounds
+  // so it always have the same pixel size on screen
+  virtual void AdaptCenterCursorBounds();
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *SphereProperty;
@@ -299,9 +311,15 @@ protected:
   vtkPolyDataMapper *RadialLineMapper;
   vtkActor          *RadialLineActor;
 
+  // Managing the center cursor
+  vtkActor          *CenterActor;
+  vtkPolyDataMapper *CenterMapper;
+  vtkCursor3D       *CenterCursorSource;
+  bool CenterCursor;
+
 private:
-  vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
-  void operator=(const vtkSphereRepresentation&);  //Not implemented
+  vtkSphereRepresentation(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -49,7 +49,7 @@ public:
 
   // Description:
   // Specify the cursor shape. Keep in mind that the shape will be
-  // aligned with the  constraining plane by orienting it such that
+  // aligned with the constraining plane by orienting it such that
   // the x axis of the geometry lies along the normal of the plane.
   void SetCursorShape(vtkPolyData *cursorShape);
   vtkPolyData *GetCursorShape();
@@ -180,8 +180,8 @@ protected:
   virtual void BuildLines();
 
 private:
-  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
-  void operator=(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
+  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

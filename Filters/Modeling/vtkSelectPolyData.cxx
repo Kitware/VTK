@@ -476,8 +476,7 @@ int vtkSelectPolyData::RequestData(
       unPolys->Allocate(numCells/2, numCells/2);
       for (i=0; i< numCells; i++)
         {
-        if ( (cellMarks->GetValue(i) >= 0) ||
-        (cellMarks->GetValue(i) < 0 && this->InsideOut) )
+        if ( (cellMarks->GetValue(i) >= 0) || this->InsideOut )
           {
           this->Mesh->GetCellPoints(i, npts, pts);
           unPolys->InsertNextCell(npts,pts);

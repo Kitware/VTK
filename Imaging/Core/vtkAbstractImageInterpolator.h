@@ -213,7 +213,8 @@ public:
   // Description:
   // Get the whole extent of the data being interpolated, including
   // parts of the data that are not currently in memory.
-  vtkGetVector6Macro(WholeExtent, int);
+  VTK_LEGACY(int *GetWholeExtent());
+  VTK_LEGACY(void GetWholeExtent(int extent[6]));
 
 protected:
   vtkAbstractImageInterpolator();
@@ -248,7 +249,6 @@ protected:
   vtkDataArray *Scalars;
   double StructuredBoundsDouble[6];
   float StructuredBoundsFloat[6];
-  int WholeExtent[6];
   int Extent[6];
   double Spacing[3];
   double Origin[3];
@@ -275,8 +275,8 @@ protected:
 
 private:
 
-  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&);  // Not implemented.
-  void operator=(const vtkAbstractImageInterpolator&);  // Not implemented.
+  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkAbstractImageInterpolator::InterpolateIJK(

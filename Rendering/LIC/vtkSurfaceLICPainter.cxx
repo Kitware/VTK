@@ -120,14 +120,6 @@ extern const char* vtkSurfaceLICPainter_DCpy;
 namespace vtkSurfaceLICPainterUtil
 {
 
-inline
-double vtkClamp(double val, const double& min, const double& max)
-{
-  val = (val < min)? min : val;
-  val = (val > max)? max : val;
-  return val;
-}
-
 // Description
 // find min/max of unmasked fragments across all regions
 // download the entire screen then search each region
@@ -282,8 +274,8 @@ public:
   }
 
 private:
-  void operator=(const RandomNumberGeneratorInterface &); // not implemented
-  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &); // not implemented
+  void operator=(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;
@@ -787,10 +779,11 @@ vtkImageData *vtkGetNoiseResource()
   unsigned char* binaryInput
      = new unsigned char[file_noise200x200_vtk_decoded_length + 10];
 
-  unsigned long binarylength = vtkBase64Utilities::Decode(
+  unsigned long binarylength = vtkBase64Utilities::DecodeSafely(
         reinterpret_cast<const unsigned char*>(base64string.c_str()),
-        static_cast<unsigned long>(base64string.length()),
-        binaryInput);
+        base64string.length(),
+        binaryInput,
+        file_noise200x200_vtk_decoded_length + 10);
 
   assert("check valid_length"
     && (binarylength == file_noise200x200_vtk_decoded_length));
@@ -1359,8 +1352,8 @@ public:
         double sx = (ndcBBox[qq  ] + 1.0) * vx2;
         double sy = (ndcBBox[qq+1] + 1.0) * vy2;
         box.AddPoint(
-          vtkClamp(sx, 0.0, vx),
-          vtkClamp(sy, 0.0, vy),
+          vtkMath::ClampValue(sx, 0.0, vx),
+          vtkMath::ClampValue(sy, 0.0, vy),
           0.0);
         }
       // to screen extent
@@ -3303,7 +3296,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   if (this->Internals->FieldNameSet)
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldName.c_str(),
@@ -3313,7 +3306,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   else
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldAttributeType,

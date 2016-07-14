@@ -50,10 +50,8 @@ public:
   {
     POINT_DATA,
     CELL_DATA,
-    FIELD_DATA,
+    FIELD_DATA
   };
-
-
 
   static vtkDataReader *New();
   vtkTypeMacro(vtkDataReader,vtkAlgorithm);
@@ -300,7 +298,6 @@ public:
   vtkGetMacro(FileMajorVersion, int);
   vtkGetMacro(FileMinorVersion, int);
 
-//BTX
   // Description:
   // Internal function to read in a value.  Returns zero if there was an
   // error.
@@ -312,23 +309,15 @@ public:
   int Read(unsigned int *);
   int Read(long *);
   int Read(unsigned long *);
-#if defined(VTK_TYPE_USE___INT64)
-  int Read(__int64 *result);
-  int Read(unsigned __int64 *result);
-#endif
-#if defined(VTK_TYPE_USE_LONG_LONG)
   int Read(long long *result);
   int Read(unsigned long long *result);
-#endif
   int Read(float *);
   int Read(double *);
-//ETX
 
   // Description:
   // Close the vtk file.
   void CloseVTKFile();
 
-//BTX
   // Description:
   // Internal function to read in a line up to 256 characters.
   // Returns zero if there was an error.
@@ -346,7 +335,6 @@ public:
   // Description:
   // Return the istream being used to read in the data.
   istream *GetIStream() {return this->IS;};
-//ETX
 
   // Description:
   // Read the meta information from the file.  This needs to be public to it
@@ -450,8 +438,8 @@ protected:
     { return 1; }
 
 private:
-  vtkDataReader(const vtkDataReader&);  // Not implemented.
-  void operator=(const vtkDataReader&);  // Not implemented.
+  vtkDataReader(const vtkDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataReader&) VTK_DELETE_FUNCTION;
 
   void ConvertGhostLevelsToGhostType(
     FieldType fieldType, vtkAbstractArray *data) const;

@@ -28,10 +28,8 @@
 #include "vtkSmartPointer.h" // For protected ivars.
 #include "vtkStreamTracer.h"
 
-//BTX
 #include <vector> // STL Header
 #include <list>   // STL Header
-//ETX
 
 class vtkMultiProcessController;
 
@@ -49,7 +47,6 @@ class vtkIntArray;
 class vtkCharArray;
 class vtkAbstractParticleWriter;
 
-//BTX
 namespace vtkTemporalStreamTracerNamespace
 {
   typedef struct { double x[4]; } Position;
@@ -80,7 +77,6 @@ namespace vtkTemporalStreamTracerNamespace
   typedef std::list<ParticleInformation>    ParticleDataList;
   typedef ParticleDataList::iterator           ParticleListIterator;
 };
-//ETX
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalStreamTracer : public vtkStreamTracer
 {
@@ -127,13 +123,11 @@ public:
     vtkSetMacro(ForceReinjectionEveryNSteps,int);
     vtkGetMacro(ForceReinjectionEveryNSteps,int);
 
-//BTX
   enum Units
   {
     TERMINATION_TIME_UNIT,
     TERMINATION_STEP_UNIT
   };
-//ETX
 
     // Description:
     // Setting TerminationTime to a positive value will cause particles
@@ -254,7 +248,6 @@ public:
     int InitializeInterpolator();
     int SetTemporalInput(vtkDataObject *td, int index);
 
-//BTX
 //
 
     // Description : Test the list of particles to see if they are
@@ -329,7 +322,7 @@ public:
       vtkGenericCell *cell);
 
 //
-//ETX
+
 //
     //Track internally which round of RequestData it is--between 0 and 2
     int           RequestIndex;
@@ -348,10 +341,9 @@ public:
     unsigned int  ActualTimeStep;
     int           IgnorePipelineTime;
     unsigned int  NumberOfInputTimeSteps;
-//BTX
+
     std::vector<double>  InputTimeValues;
     std::vector<double>  OutputTimeValues;
-//ETX
 
     // more time management
     double        EarliestTime;
@@ -373,14 +365,11 @@ public:
     char                      *ParticleFileName;
     int                        EnableParticleWriting;
 
-//BTX
     // The main lists which are held during operation- between time step updates
     unsigned int                                        NumberOfParticles;
     vtkTemporalStreamTracerNamespace::ParticleDataList  ParticleHistories;
     vtkTemporalStreamTracerNamespace::ParticleVector    LocalSeeds;
-//ETX
 
-//BTX
     //
     // Scalar arrays that are generated as each particle is updated
     //
@@ -420,8 +409,6 @@ public:
     // utility function we use to test if a point is inside any of our local datasets
     bool InsideBounds(double point[]);
 
-//ETX
-
   // global Id counter used to give particles a stamp
   vtkIdType UniqueIdCounter;
   vtkIdType UniqueIdCounterMPI;
@@ -434,8 +421,8 @@ private:
   void SetInterpolatorPrototype(vtkAbstractInterpolatedVelocityField*) {}
 
 private:
-  vtkTemporalStreamTracer(const vtkTemporalStreamTracer&);  // Not implemented.
-  void operator=(const vtkTemporalStreamTracer&);  // Not implemented.
+  vtkTemporalStreamTracer(const vtkTemporalStreamTracer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

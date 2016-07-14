@@ -267,7 +267,10 @@ static int parse_check_options(int argc, char *argv[], int multi)
   options.InputFileName = NULL;
   options.OutputFileName = NULL;
   options.HierarchyFileName = 0;
-  options.HintFileName = 0;
+  options.NumberOfHierarchyFileNames = 0;
+  options.HierarchyFileNames = NULL;
+  options.NumberOfHintFileNames = 0;
+  options.HintFileNames = NULL;
 
   for (i = 1; i < argc; i++)
     {
@@ -336,7 +339,16 @@ static int parse_check_options(int argc, char *argv[], int multi)
         {
         return -1;
         }
-      options.HintFileName = argv[i];
+      if (options.NumberOfHintFileNames == 0)
+        {
+        options.HintFileNames = (char **)malloc(sizeof(char *));
+        }
+      else if ((options.NumberOfHintFileNames & (options.NumberOfHintFileNames - 1)) == 0)
+        {
+        options.HintFileNames = (char **)realloc(
+          options.HintFileNames, 2 * options.NumberOfHintFileNames*sizeof(char *));
+        }
+      options.HintFileNames[options.NumberOfHintFileNames++] = argv[i];
       }
     else if (!multi && strcmp(argv[i], "--types") == 0)
       {
@@ -345,7 +357,17 @@ static int parse_check_options(int argc, char *argv[], int multi)
         {
         return -1;
         }
-      options.HierarchyFileName = argv[i];
+      if (options.NumberOfHierarchyFileNames == 0)
+        {
+        options.HierarchyFileNames = (char **)malloc(sizeof(char *));
+        options.HierarchyFileName = argv[i]; // legacy
+        }
+      else if ((options.NumberOfHierarchyFileNames & (options.NumberOfHierarchyFileNames - 1)) == 0)
+        {
+        options.HierarchyFileNames = (char **)realloc(
+          options.HierarchyFileNames, 2*options.NumberOfHierarchyFileNames*sizeof(char *));
+        }
+      options.HierarchyFileNames[options.NumberOfHierarchyFileNames++] = argv[i];
       }
     else if (strcmp(argv[i], "--vtkobject") == 0 ||
              strcmp(argv[i], "--special") == 0 ||
@@ -373,6 +395,9 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   int expected_files;
   FILE *ifile;
   FILE *hfile = 0;
+  int nhfiles;
+  int ihfiles;
+  const char *hfilename;
   FileInfo *data;
   StringCache strings;
   int argn;
@@ -380,6 +405,9 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
+
+  /* pre-define the __VTK_WRAP__ macro */
+  vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);
@@ -423,34 +451,12 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   /* free the expanded args */
   free(args);
 
-  /* open the hint file, if given on the command line */
-  if (options.HintFileName && options.HintFileName[0] != '\0')
-    {
-    if (!(hfile = fopen(options.HintFileName, "r")))
-      {
-      fprintf(stderr, "Error opening hint file %s\n", options.HintFileName);
-      fclose(ifile);
-      exit(1);
-      }
-    }
-
   /* make sure than an output file was given on the command line */
   if (options.OutputFileName == NULL)
     {
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
-    if (hfile)
-      {
-      fclose(hfile);
-      }
     exit(1);
-    }
-
-  /* if a hierarchy is was given, then BTX/ETX can be ignored */
-  vtkParse_SetIgnoreBTX(0);
-  if (options.HierarchyFileName)
-    {
-    vtkParse_SetIgnoreBTX(1);
     }
 
   /* parse the input file */
@@ -461,10 +467,24 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     exit(1);
     }
 
-  /* fill in some blanks by using the hints file */
-  if (hfile)
+  /* open and parse each hint file, if given on the command line */
+  nhfiles = options.NumberOfHintFileNames;
+  for (ihfiles = 0; ihfiles < nhfiles; ihfiles++)
     {
-    vtkParse_ReadHints(data, hfile, stderr);
+    hfilename = options.HintFileNames[ihfiles];
+    if (hfilename && hfilename[0] != '\0')
+      {
+      if (!(hfile = fopen(hfilename, "r")))
+        {
+        fprintf(stderr, "Error opening hint file %s\n", hfilename);
+        fclose(ifile);
+        vtkParse_FreeFile(data);
+        exit(1);
+        }
+
+      /* fill in some blanks by using the hints file */
+      vtkParse_ReadHints(data, hfile, stderr);
+      }
     }
 
   if (data->MainClass)
@@ -498,6 +518,9 @@ void vtkParse_MainMulti(int argc, char *argv[])
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
+
+  /* pre-define the __VTK_WRAP__ macro */
+  vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);

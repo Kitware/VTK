@@ -22,7 +22,7 @@
 #include "vtkShaderProgram.h"
 #include "vtkOpenGLHelper.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 
@@ -58,9 +58,24 @@ public:
     md5Hash[32] = '\0';
 
     vtksysMD5_Initialize(this->md5);
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content), (int)strlen(content));
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content2), (int)strlen(content2));
-    vtksysMD5_Append(this->md5, reinterpret_cast<const unsigned char *>(content3), (int)strlen(content3));
+    if (content)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content),
+        (int)strlen(content));
+      }
+    if (content2)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content2),
+        (int)strlen(content2));
+      }
+    if (content3)
+      {
+      vtksysMD5_Append(this->md5,
+        reinterpret_cast<const unsigned char *>(content3),
+        (int)strlen(content3));
+      }
     vtksysMD5_Finalize(this->md5, digest);
     vtksysMD5_DigestToHex(digest, md5Hash);
 
@@ -108,34 +123,119 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
     vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
     }
 
+  std::string version = "#version 120\n";
+  bool needFragDecls = false;
 #if GL_ES_VERSION_2_0 != 1
-  unsigned int count = 0;
-  if (vtkOpenGLRenderWindow::GetContextSupportsOpenGL32())
+  int glMajorVersion = 2;
+  int glMinorVersion = 0;
+  glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
+  glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
+  if (glMajorVersion >= 3)
     {
-    vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
-      "#version 150\n"
-      "#define attribute in\n"
-      "#define varying out\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp");
-    vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
-      "#version 150\n"
-      "#define varying in\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp\n"
-      "#define texelFetchBuffer texelFetch\n"
-      "#define texture1D texture\n"
-      "#define texture2D texture\n"
-      "#define texture3D texture\n"
-      );
-    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
-      "#version 150\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp"
-      );
+    version = "#version 150\n";
+    if (glMajorVersion == 3 && glMinorVersion == 1)
+      {
+      version = "#version 140\n";
+      }
+    else
+      {
+      needFragDecls = true;
+      }
+    }
+#else
+#if GL_ES_VERSION_3_0 == 1
+  version = "#version 300 es\n";
+  needFragDecls = true;
+#else
+  version = "#version 100\n";
+#endif
+#endif
+
+  vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
+    version +
+    "#ifdef GL_ES\n"
+    "#if __VERSION__ == 300\n"
+    "#define attribute in\n"
+    "#define varying out\n"\
+    "#endif // 300\n"
+    "#else // GL_ES\n"
+    "#define highp\n"
+    "#define mediump\n"
+    "#define lowp\n"
+    "#if __VERSION__ == 150\n"
+    "#define attribute in\n"
+    "#define varying out\n"
+    "#endif\n"
+    "#endif // GL_ES\n"
+    );
+
+  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
+    version +
+    "#ifdef GL_ES\n"
+    "#if __VERSION__ == 300\n"
+    "#define varying in\n"
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+    "precision highp float;\n"
+    "precision highp sampler2D;\n"
+    "precision highp sampler3D;\n"
+    "#else\n"
+    "precision mediump float;\n"
+    "precision mediump sampler2D;\n"
+    "precision mediump sampler3D;\n"
+    "#endif\n"
+    "#define texelFetchBuffer texelFetch\n"
+    "#define texture1D texture\n"
+    "#define texture2D texture\n"
+    "#define texture3D texture\n"
+    "#endif // 300\n"
+    "#if __VERSION__ == 100\n"
+    "#extension GL_OES_standard_derivatives : enable\n"
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+    "precision highp float;\n"
+    "#else\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "#endif // 100\n"
+    "#else // GL_ES\n"
+    "#define highp\n"
+    "#define mediump\n"
+    "#define lowp\n"
+    "#if __VERSION__ == 150\n"
+    "#define varying in\n"
+    "#define texelFetchBuffer texelFetch\n"
+    "#define texture1D texture\n"
+    "#define texture2D texture\n"
+    "#define texture3D texture\n"
+    "#endif\n"
+    "#if __VERSION__ == 120\n"
+    "#extension GL_EXT_gpu_shader4 : require\n"
+    "#endif\n"
+    "#endif // GL_ES\n"
+    );
+
+  vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
+    version +
+    "#ifdef GL_ES\n"
+    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
+    "precision highp float;\n"
+    "#else\n"
+    "precision mediump float;\n"
+    "#endif\n"
+    "#else // GL_ES\n"
+    "#define highp\n"
+    "#define mediump\n"
+    "#define lowp\n"
+    "#if __VERSION__ == 150\n"
+    "#define attribute in\n"
+    "#define varying out\n"
+    "#endif\n"
+    "#endif // GL_ES\n"
+    );
+
+
+  if (needFragDecls)
+    {
+    unsigned int count = 0;
     std::string fragDecls;
     bool done = false;
     while (!done)
@@ -154,99 +254,15 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
         }
       }
     vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
+    return count;
     }
-  else
-    {
-    vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
-      "#version 120\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp");
-    vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
-      "#version 120\n"
-      "#extension GL_EXT_gpu_shader4 : require\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp");
-    vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
-      "#version 120\n"
-      "#define highp\n"
-      "#define mediump\n"
-      "#define lowp");
-    }
-  return count;
-#else
-#if GL_ES_VERSION_3_0 == 1
-  unsigned int count = 0;
-  vtkShaderProgram::Substitute(VSSource,"//VTK::System::Dec",
-    "#version 300 es\n"
-    "#define attribute in\n"
-    "#define varying out\n"
-    );
-  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
-    "#version 300 es\n"
-    "#define varying in\n"
-    "#ifdef GL_ES\n"
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "precision highp float;\n"
-    "precision highp sampler2D;\n"
-    "precision highp sampler3D;\n"
-    "#else\n"
-    "precision mediump float;\n"
-    "precision mediump sampler2D;\n"
-    "precision mediump sampler3D;\n"
-    "#endif\n"
-    "#endif\n"
-    "#define texelFetchBuffer texelFetch\n"
-    "#define texture1D texture\n"
-    "#define texture2D texture\n"
-    "#define texture3D texture\n"
-    );
-  vtkShaderProgram::Substitute(GSSource,"//VTK::System::Dec",
-    "#version 300 es\n"
-    "#ifdef GL_ES\n"
-    "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-    "precision highp float;\n"
-    "#else\n"
-    "precision mediump float;\n"
-    "#endif\n"
-    "#endif\n"
-    );
-  std::string fragDecls;
-  bool done = false;
-  while (!done)
-    {
-    std::ostringstream src;
-    std::ostringstream dst;
-    src << "gl_FragData[" << count << "]";
-    // this naming has to match the bindings
-    // in vtkOpenGLShaderProgram.cxx
-    dst << "fragOutput" << count;
-    done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
-    if (!done)
-      {
-      fragDecls += "out vec4 " + dst.str() + ";\n";
-      count++;
-      }
-    }
-  vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
-#else
-  vtkShaderProgram::Substitute(FSSource,"//VTK::System::Dec",
-     "#ifdef GL_ES\n"
-     "#extension GL_OES_standard_derivatives : enable\n"
-     "#ifdef GL_FRAGMENT_PRECISION_HIGH\n"
-     "precision highp float;\n"
-     "#else\n"
-     "precision mediump float;\n"
-     "#endif\n"
-     "#endif\n");
-#endif
+
   return 0;
-#endif
 }
 
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-  std::map<vtkShader::Type,vtkShader *> shaders)
+    std::map<vtkShader::Type,vtkShader *> shaders,
+    vtkTransformFeedback *cap)
 {
   std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
   std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
@@ -261,14 +277,13 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
   vtkShaderProgram *shader = this->GetShaderProgram(shaders);
   shader->SetNumberOfOutputs(count);
 
-  return this->ReadyShaderProgram(shader);
+  return this->ReadyShaderProgram(shader, cap);
 }
 
 // return NULL if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-  const char *vertexCode,
-  const char *fragmentCode,
-  const char *geometryCode)
+  const char *vertexCode, const char *fragmentCode, const char *geometryCode,
+  vtkTransformFeedback *cap)
 {
   // perform system wide shader replacements
   // desktops to not use percision statements
@@ -283,16 +298,23 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
       VSSource.c_str(), FSSource.c_str(), GSSource.c_str());
   shader->SetNumberOfOutputs(count);
 
-  return this->ReadyShaderProgram(shader);
+  return this->ReadyShaderProgram(shader, cap);
 }
 
 // return NULL if there is an issue
 vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
-    vtkShaderProgram *shader)
+    vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {
   if (!shader)
     {
     return NULL;
+    }
+
+  if (shader->GetTransformFeedback() != cap)
+    {
+    this->ReleaseCurrentShader();
+    shader->ReleaseGraphicsResources(NULL);
+    shader->SetTransformFeedback(cap);
     }
 
   // compile if needed

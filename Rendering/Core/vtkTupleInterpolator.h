@@ -100,13 +100,11 @@ public:
   // of tuple[] is interpolated independently.
   void InterpolateTuple(double t, double tuple[]);
 
-//BTX
   // Description:
   // Enums to control the type of interpolation to use.
   enum {INTERPOLATION_TYPE_LINEAR=0,
         INTERPOLATION_TYPE_SPLINE
   };
-//ETX
 
   // Description:
   // Specify which type of function to use for interpolation. By default
@@ -154,8 +152,8 @@ protected:
 
 
 private:
-  vtkTupleInterpolator(const vtkTupleInterpolator&);  // Not implemented.
-  void operator=(const vtkTupleInterpolator&);  // Not implemented.
+  vtkTupleInterpolator(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTupleInterpolator&) VTK_DELETE_FUNCTION;
 
 };
 

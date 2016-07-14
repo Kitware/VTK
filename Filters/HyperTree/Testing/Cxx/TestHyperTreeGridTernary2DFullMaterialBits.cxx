@@ -112,8 +112,6 @@ void GenerateDescriptorAndMaterial(int depth, int sx, int sy, int sz, int branch
 
 int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 {
-  std::stringstream descriptor;
-  std::stringstream materialMask;
   int sx = 10;
   int sy = 10;
   int sz = 1;
@@ -183,7 +181,6 @@ int TestHyperTreeGridTernary2DFullMaterialBits( int argc, char* argv[] )
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );

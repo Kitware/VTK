@@ -251,8 +251,8 @@ protected:
 
   int     ResultArrayType;
 private:
-  vtkArrayCalculator(const vtkArrayCalculator&);  // Not implemented.
-  void operator=(const vtkArrayCalculator&);  // Not implemented.
+  vtkArrayCalculator(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayCalculator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

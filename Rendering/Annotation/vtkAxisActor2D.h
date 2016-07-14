@@ -62,8 +62,6 @@ class vtkPolyData;
 class vtkTextMapper;
 class vtkTextProperty;
 
-#define VTK_MAX_LABELS 25
-
 class VTKRENDERINGANNOTATION_EXPORT vtkAxisActor2D : public vtkActor2D
 {
 public:
@@ -113,6 +111,11 @@ public:
   // This ivar only has effect when the RulerMode is on.
   vtkSetClampMacro(RulerDistance,double,0,VTK_FLOAT_MAX);
   vtkGetMacro(RulerDistance,double);
+
+  enum LabelMax
+  {
+    VTK_MAX_LABELS = 25
+  };
 
   // Description:
   // Set/Get the number of annotation labels to show. This also controls the
@@ -288,7 +291,7 @@ public:
 
   // Description:
   // Specify whether to size the fonts relative to the viewport or relative to
-  // length of the axis. By default, fonts are resized relative to the axis.
+  // length of the axis. By default, fonts are resized relative to the viewport.
   vtkSetMacro(SizeFontRelativeToAxis,int);
   vtkGetMacro(SizeFontRelativeToAxis,int);
   vtkBooleanMacro(SizeFontRelativeToAxis,int);
@@ -357,8 +360,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkAxisActor2D(const vtkAxisActor2D&);  // Not implemented.
-  void operator=(const vtkAxisActor2D&);  // Not implemented.
+  vtkAxisActor2D(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

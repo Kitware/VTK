@@ -63,7 +63,7 @@ int TestMapVectorsToColors(int argc, char *argv[])
           cval[3] = (j & 3)*f;
           for (int kk = 0; kk < 5; kk++)
             {
-            arr->SetTupleValue(i++, cval);
+            arr->SetTypedTuple(i++, cval);
             }
           }
         }

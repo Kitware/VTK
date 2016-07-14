@@ -38,7 +38,6 @@ public:
   vtkTypeMacro(vtkBoostRandomSparseArraySource, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Sets the extents (dimensionality and size) of the output array
   void SetExtents(const vtkArrayExtents&);
@@ -46,7 +45,6 @@ public:
   // Description:
   // Returns the extents (dimensionality and size) of the output array
   vtkArrayExtents GetExtents();
-//ETX
 
   // Description:
   // Stores a random-number-seed for determining which elements within
@@ -75,7 +73,6 @@ public:
   vtkGetMacro(MaxValue, double);
   vtkSetMacro(MaxValue, double);
 
-//BTX
 protected:
   vtkBoostRandomSparseArraySource();
   ~vtkBoostRandomSparseArraySource();
@@ -86,8 +83,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&); // Not implemented
-  void operator=(const vtkBoostRandomSparseArraySource&);   // Not implemented
+  vtkBoostRandomSparseArraySource(const vtkBoostRandomSparseArraySource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostRandomSparseArraySource&) VTK_DELETE_FUNCTION;
 
   vtkArrayExtents Extents;
 
@@ -97,7 +94,7 @@ private:
   vtkTypeUInt32 ElementValueSeed;
   double MinValue;
   double MaxValue;
-//ETX
+
 };
 
 #endif

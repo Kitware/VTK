@@ -24,6 +24,7 @@
 #include "vtkShader.h" // for vtkShader::Type
 #include <map> // for methods
 
+class vtkTransformFeedback;
 class vtkShaderProgram;
 class vtkWindow;
 
@@ -38,16 +39,19 @@ public:
   virtual vtkShaderProgram *ReadyShaderProgram(
     const char *vertexCode,
     const char *fragmentCode,
-    const char *geometryCode);
+    const char *geometryCode,
+    vtkTransformFeedback *cap = NULL);
 
   // make sure the specified shaders are compiled, linked, and bound
   // will increment the reference count on the shaders if it
   // needs to keep them around
   virtual vtkShaderProgram *ReadyShaderProgram(
-    std::map<vtkShader::Type,vtkShader *> shaders);
+    std::map<vtkShader::Type,vtkShader *> shaders,
+      vtkTransformFeedback *cap = NULL);
 
   // make sure the specified shaders are compiled, linked, and bound
-  virtual vtkShaderProgram *ReadyShaderProgram(vtkShaderProgram *shader);
+  virtual vtkShaderProgram *ReadyShaderProgram(
+      vtkShaderProgram *shader, vtkTransformFeedback *cap = NULL);
 
   // Description:
   // Release the current shader.  Basically go back to
@@ -88,8 +92,8 @@ protected:
   vtkShaderProgram *LastShaderBound;
 
 private:
-  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&);  // Not implemented.
-  void operator=(const vtkOpenGLShaderCache&);  // Not implemented.
+  vtkOpenGLShaderCache(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLShaderCache&) VTK_DELETE_FUNCTION;
 
 };
 

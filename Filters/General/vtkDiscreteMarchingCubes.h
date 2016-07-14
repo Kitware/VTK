@@ -85,8 +85,8 @@ protected:
   int ComputeNeighbours;
 
 private:
-  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&);  // Not implemented.
-  void operator=(const vtkDiscreteMarchingCubes&);  // Not implemented.
+  vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;
 
 };
 

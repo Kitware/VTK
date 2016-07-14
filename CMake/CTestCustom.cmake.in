@@ -41,6 +41,32 @@ SET(CTEST_CUSTOM_MEMCHECK_IGNORE
   Sockets-image
   )
 
+
+#####################################################
+# Be aware CMake currently warns on all the following
+#
+# "([^ :]+):([0-9]+): warning:",
+#  "([^ :]+):([0-9]+): note:",
+#  "^cc[^C]*CC: WARNING File = ([^,]+), Line = ([0-9]+)",
+#  "^ld([^:])*:([ \\t])*WARNING([^:])*:",
+#  "([^:]+): warning ([0-9]+):",
+#  "^\"[^\"]+\", line [0-9]+: [Ww](arning|arnung)",
+#  "([^:]+): warning[ \\t]*[0-9]+[ \\t]*:",
+#  "^(Warning|Warnung) ([0-9]+):",
+#  "^(Warning|Warnung)[ :]",
+#  "WARNING: ",
+#  "([^ :]+) : warning",
+#  "([^:]+): warning",
+#  "\", line [0-9]+\\.[0-9]+: [0-9]+-[0-9]+ \\([WI]\\)",
+#  "^cxx: Warning:",
+#  ".*file: .* has no symbols",
+#  "([^ :]+):([0-9]+): (Warning|Warnung)",
+#  "\\([0-9]*\\): remark #[0-9]*",
+#  "\".*\", line [0-9]+: remark\\([0-9]*\\):",
+#  "cc-[0-9]* CC: REMARK File = .*, Line = [0-9]*",
+#  "^CMake Warning.*:",
+#  "^\\[WARNING\\]",
+
 SET(CTEST_CUSTOM_WARNING_MATCH
   ${CTEST_CUSTOM_WARNING_MATCH}
   "{standard input}:[0-9][0-9]*: Warning: "
@@ -65,7 +91,10 @@ ENDIF()
 
 SET(CTEST_CUSTOM_WARNING_EXCEPTION
   ${CTEST_CUSTOM_WARNING_EXCEPTION}
+  "vcruntime_exception.h\\(43\\): note: see declaration"
   "Utilities/vtktiff/"
+  "json/json"
+  "shadows a member of 'OGRRawPoint'"
   "list.[0-9]+. : warning C4702: unreachable code"
   "xtree.[0-9]+. : warning C4702: unreachable code"
   "vector.[0-9]+. : warning C4702: unreachable code"
@@ -284,6 +313,22 @@ SET(CTEST_CUSTOM_WARNING_EXCEPTION
 
   #ignore clangs documentation warnings from libxml, which uses gtk-doc natively, not doxygen
   "vtklibxml2.*warning: unknown command tag name"
+
+  # Ignore warnings about inheriting std::exception when the dll-interface
+  # doesn't match. There's no other way to really do exceptions properly.
+  "warning C4275: non dll-interface class 'std::exception' used as base"
+
+  # This warning occurs when building Java with -source x.y with compiler a.b's
+  # runtime library (rt.jar). It also emits a line with "1 warning"
+  # which matches ctests regex as well
+  "bootstrap class path not set in conjunction with -source"
+  "1 warning"
+
+
+  #supress diy2 warnings
+  "include.*diy"
+  "diy::"
+  "expanded from macro 'diy'"
   )
 
 IF(APPLE)

@@ -44,14 +44,6 @@ vtkChooserPainter::vtkChooserPainter()
   this->PolyPainter = NULL;
   this->StripPainter = NULL;
   this->LastRenderer = NULL;
-  this->UseLinesPainterForWireframes = 0;
-#if defined(__APPLE__) && defined(VTK_USE_COCOA)
-  /*
-   * On some Macs, glPolygonMode(*,GL_LINE) does not render anything
-   * for polys. To fix this, we use the GL_LINE_LOOP to render the polygons.
-   */
-//  this->UseLinesPainterForWireframes = 1;
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -333,23 +325,9 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     {
     //cout << this << "Polys" << endl;
     this->ProgressScaleFactor = static_cast<double>(numPolys)/total_cells;
-    if (   this->UseLinesPainterForWireframes
-        && (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-        && !actor->GetProperty()->GetBackfaceCulling()
-        && !actor->GetProperty()->GetFrontfaceCulling()
-        && !this->GetInputAsPolyData()->GetPointData()->GetAttribute(
-                                               vtkDataSetAttributes::EDGEFLAG) )
-      {
-      this->LinePainter->Render(renderer, actor, vtkPainter::POLYS,
-        forceCompileOnly);
-      this->TimeToDraw += this->LinePainter->GetTimeToDraw();
-      }
-    else
-      {
-      this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
-        forceCompileOnly);
-      this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
-      }
+    this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
+      forceCompileOnly);
+    this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
     }
 
@@ -373,6 +351,4 @@ void vtkChooserPainter::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "LinePainter: " << this->LinePainter << endl;
   os << indent << "PolyPainter: " << this->PolyPainter << endl;
   os << indent << "StripPainter: " << this->StripPainter << endl;
-  os << indent << "UseLinesPainterForWireframes: "
-    << this->UseLinesPainterForWireframes << endl;
 }

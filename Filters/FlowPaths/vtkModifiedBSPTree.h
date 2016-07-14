@@ -144,13 +144,11 @@
 #include "vtkAbstractCellLocator.h"
 #include "vtkSmartPointer.h"     // required because it is nice
 
-//BTX
 class Sorted_cell_extents_Lists;
 class BSPNode;
 class vtkGenericCell;
 class vtkIdList;
 class vtkIdListCollection;
-//ETX
 
 class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLocator {
   public:
@@ -175,7 +173,6 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   // Build Tree
   void BuildLocator();
 
-//BTX
   // Description:
   // Generate BBox representation of Nth level
   virtual void GenerateRepresentation(int level, vtkPolyData *pd);
@@ -223,7 +220,6 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   // which holds a cell Id list for each leaf node.
   vtkIdListCollection *GetLeafNodeCellInformation();
 
-//ETX
   protected:
    vtkModifiedBSPTree();
   ~vtkModifiedBSPTree();
@@ -232,7 +228,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   int       npn;
   int       nln;
   int       tot_depth;
-//BTX
+
   //
   // The main subdivision routine
   void Subdivide(BSPNode *node, Sorted_cell_extents_Lists *lists, vtkDataSet *dataSet,
@@ -245,16 +241,13 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkModifiedBSPTree : public vtkAbstractCellLoca
   virtual int IntersectCellInternal(vtkIdType cell_ID, const double p1[3], const double p2[3],
     const double tol, double &t, double ipt[3], double pcoords[3], int &subId);
 
-//ETX
   void BuildLocatorIfNeeded();
   void ForceBuildLocator();
   void BuildLocatorInternal();
 private:
-  vtkModifiedBSPTree(const vtkModifiedBSPTree&);  // Not implemented.
-  void operator=(const vtkModifiedBSPTree&);      // Not implemented.
+  vtkModifiedBSPTree(const vtkModifiedBSPTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkModifiedBSPTree&) VTK_DELETE_FUNCTION;
 };
-
-//BTX
 
 ///////////////////////////////////////////////////////////////////////////////
 // BSP Node
@@ -314,7 +307,5 @@ class BSPNode {
 };
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */
-
-//ETX
 
 #endif

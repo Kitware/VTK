@@ -13,6 +13,11 @@
 
 =========================================================================*/
 
+#include "vtkUnicodeString.h"
+
+#include "vtkArrayIteratorTemplate.txx"
+VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkUnicodeString);
+
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnicodeStringArray.h"
@@ -80,7 +85,7 @@ void vtkUnicodeStringArray::SetNumberOfTuples(vtkIdType number)
 
 void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
-  vtkUnicodeStringArray* const array = vtkUnicodeStringArray::SafeDownCast(source);
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
     {
     vtkWarningMacro("Input and output array data types do not match.");
@@ -93,7 +98,7 @@ void vtkUnicodeStringArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray*
 
 void vtkUnicodeStringArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source)
 {
-  vtkUnicodeStringArray* const array = vtkUnicodeStringArray::SafeDownCast(source);
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
     {
     vtkWarningMacro("Input and output array data types do not match.");
@@ -111,7 +116,7 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
                                          vtkAbstractArray *source)
 {
   vtkUnicodeStringArray* const array =
-      vtkUnicodeStringArray::SafeDownCast(source);
+      vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
     {
     vtkWarningMacro("Input and output array data types do not match.");
@@ -152,7 +157,7 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
                                          vtkIdType srcStart,
                                          vtkAbstractArray *source)
 {
-  vtkUnicodeStringArray* sa = vtkUnicodeStringArray::SafeDownCast(source);
+  vtkUnicodeStringArray* sa = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if (!sa)
     {
     vtkWarningMacro("Input and outputs array data types do not match.");
@@ -190,7 +195,7 @@ void vtkUnicodeStringArray::InsertTuples(vtkIdType dstStart, vtkIdType n,
 
 vtkIdType vtkUnicodeStringArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source)
 {
-  vtkUnicodeStringArray* const array = vtkUnicodeStringArray::SafeDownCast(source);
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(source);
   if(!array)
     {
     vtkWarningMacro("Input and output array data types do not match.");
@@ -219,7 +224,7 @@ void vtkUnicodeStringArray::DeepCopy(vtkAbstractArray* da)
   if(this == da)
     return;
 
-  vtkUnicodeStringArray* const array = vtkUnicodeStringArray::SafeDownCast(da);
+  vtkUnicodeStringArray* const array = vtkArrayDownCast<vtkUnicodeStringArray>(da);
   if(!array)
     {
     vtkWarningMacro("Input and output array data types do not match.");
@@ -300,6 +305,11 @@ int vtkUnicodeStringArray::Resize(vtkIdType numTuples)
 }
 
 void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int)
+{
+  vtkErrorMacro("Not implemented.");
+}
+
+void vtkUnicodeStringArray::SetVoidArray(void*, vtkIdType, int, int)
 {
   vtkErrorMacro("Not implemented.");
 }
@@ -416,4 +426,3 @@ const char* vtkUnicodeStringArray::GetUTF8Value(vtkIdType i)
 {
   return this->Internal->Storage[i].utf8_str();
 }
-

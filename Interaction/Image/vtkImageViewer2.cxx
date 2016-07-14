@@ -482,12 +482,7 @@ public:
 
       if (event == vtkCommand::ResetWindowLevelEvent)
         {
-        this->IV->GetInputAlgorithm()->UpdateInformation();
-        vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-          this->IV->GetInputInformation(),
-          vtkStreamingDemandDrivenPipeline::GetWholeExtent(
-            this->IV->GetInputInformation()));
-        this->IV->GetInputAlgorithm()->Update();
+        this->IV->GetInputAlgorithm()->UpdateWholeExtent();
         double *range = this->IV->GetInput()->GetScalarRange();
         this->IV->SetColorWindow(range[1] - range[0]);
         this->IV->SetColorLevel(0.5 * (range[1] + range[0]));

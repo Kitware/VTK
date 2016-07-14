@@ -24,7 +24,8 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkVolume.h"
 #include "vtkVolumeProperty.h"
-
+#include "vtkInformation.h"
+#include "vtkInformationVector.h"
 
 vtkVolumeTextureMapper::vtkVolumeTextureMapper()
 {
@@ -82,23 +83,19 @@ void vtkVolumeTextureMapper::SetGradientEstimator(
   this->Modified();
 }
 
-void vtkVolumeTextureMapper::Update(int port)
+int vtkVolumeTextureMapper::ProcessRequest(vtkInformation* request,
+                                           vtkInformationVector** inputVector,
+                                           vtkInformationVector*)
 {
-  if ( this->GetInput() )
+  if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
     {
-    int inputAlgPort;
-    vtkAlgorithm* inputAlg = this->GetInputAlgorithm(0, 0, inputAlgPort);
-    inputAlg->UpdateInformation();
-    inputAlg->SetUpdateExtentToWholeExtent(inputAlgPort);
-    inputAlg->Update(port);
+    vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
+    int* wholeExt = inInfo->Get(
+      vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
+    inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), wholeExt, 6);
     }
+  return 1;
 }
-
-void vtkVolumeTextureMapper::Update()
-{
-  this->Superclass::Update();
-}
-
 
 void vtkVolumeTextureMapper::InitializeRender( vtkRenderer *ren,
                                                vtkVolume *vol )

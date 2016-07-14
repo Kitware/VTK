@@ -67,7 +67,7 @@ int TestGlobeSource(int argc, char* argv[])
   VTK_CREATE(vtkDoubleArray, textureCoords);
   textureCoords->SetNumberOfComponents(2);
 
-  vtkDoubleArray* array = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray* array = vtkArrayDownCast<vtkDoubleArray>(
       globeSource->GetOutput(0)->GetPointData()->GetAbstractArray("LatLong"));
 
   double range[] = { (latRange[0]  - latRange[1]),
@@ -82,7 +82,7 @@ int TestGlobeSource(int argc, char* argv[])
   for(int i=0; i < array->GetNumberOfTuples(); ++i)
     {
 
-     array->GetTupleValue(i, val);
+     array->GetTypedTuple(i, val);
 
      // Get the texture coordinates in [0,1] range.
      newVal[1] = (latRange[0]  - val[0])  / range[0];

@@ -87,7 +87,7 @@ protected:
   vtkImplicitDataSet();
   ~vtkImplicitDataSet();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkDataSet *DataSet;
   double OutValue;
@@ -97,8 +97,8 @@ protected:
   int Size; //keeps track of length of weights array
 
 private:
-  vtkImplicitDataSet(const vtkImplicitDataSet&);  // Not implemented.
-  void operator=(const vtkImplicitDataSet&);  // Not implemented.
+  vtkImplicitDataSet(const vtkImplicitDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

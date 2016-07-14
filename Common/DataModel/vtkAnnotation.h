@@ -108,7 +108,6 @@ public:
   // Get the modified time of this object.
   virtual unsigned long GetMTime();
 
-//BTX
 protected:
   vtkAnnotation();
   ~vtkAnnotation();
@@ -116,9 +115,9 @@ protected:
   vtkSelection* Selection;
 
 private:
-  vtkAnnotation(const vtkAnnotation&);  // Not implemented.
-  void operator=(const vtkAnnotation&);  // Not implemented.
-//ETX
+  vtkAnnotation(const vtkAnnotation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotation&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

@@ -57,12 +57,10 @@ public:
   vtkTypeMacro(vtkShadowMapBakerPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -111,7 +109,6 @@ public:
   // \pre l_exists: l!=0
   bool LightCreatesShadow(vtkLight *l);
 
-//BTX
   // Description:
   // INTERNAL USE ONLY
   // Internally used by vtkShadowMapBakerPass and vtkShadowMapPass.
@@ -125,7 +122,6 @@ public:
   //
   // Give access the cameras builds from the ligths.
   std::vector<vtkSmartPointer<vtkCamera> > *GetLightCameras();
-//ETX
 
   // Description:
   // INTERNAL USE ONLY.
@@ -176,7 +172,6 @@ public:
                   double &mNear,
                   double &mFar);
 
-  //BTX
   // Description:
   // Build a camera from spot light parameters.
   // \pre light_exists: light!=0
@@ -184,7 +179,6 @@ public:
   void BuildCameraLight(vtkLight *light,
                         double *boundingBox,
                         vtkCamera *lcamera);
-  //ETX
 
   // Description:
   // Check if shadow mapping is supported by the current OpenGL context.
@@ -211,8 +205,8 @@ public:
   bool NeedUpdate;
 
 private:
-  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&);  // Not implemented.
-  void operator=(const vtkShadowMapBakerPass&);  // Not implemented.
+  vtkShadowMapBakerPass(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShadowMapBakerPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

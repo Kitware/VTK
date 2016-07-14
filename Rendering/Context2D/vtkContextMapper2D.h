@@ -57,7 +57,6 @@ public:
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
     }
 
-//BTX
 protected:
   vtkContextMapper2D();
   ~vtkContextMapper2D();
@@ -67,9 +66,9 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkContextMapper2D(const vtkContextMapper2D &); // Not implemented.
-  void operator=(const vtkContextMapper2D &); // Not implemented.
-//ETX
+  vtkContextMapper2D(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextMapper2D &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkContextMapper2D_h

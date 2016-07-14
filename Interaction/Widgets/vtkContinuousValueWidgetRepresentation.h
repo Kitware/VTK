@@ -51,7 +51,6 @@ public:
   virtual void WidgetInteraction(double eventPos[2]) = 0;
 //  virtual void Highlight(int);
 
-//BTX
   // Enums are used to describe what is selected
   enum _InteractionState
   {
@@ -59,7 +58,6 @@ public:
     Inside,
     Adjusting
   };
-//ETX
 
   // Set/Get the value
   virtual void SetValue(double value);
@@ -73,8 +71,8 @@ protected:
 
 private:
   vtkContinuousValueWidgetRepresentation
-  (const vtkContinuousValueWidgetRepresentation&);  //Not implemented
-  void operator=(const vtkContinuousValueWidgetRepresentation&); // Not implemented
+  (const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContinuousValueWidgetRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -38,11 +38,9 @@ public:
   vtkTypeMacro(vtkXMLPImageDataWriter,vtkXMLPStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkImageData* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -60,8 +58,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPImageDataWriter&);  // Not implemented.
+  vtkXMLPImageDataWriter(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPImageDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

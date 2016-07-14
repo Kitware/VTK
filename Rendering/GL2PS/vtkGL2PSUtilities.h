@@ -101,7 +101,7 @@ public:
     { return vtkGL2PSUtilities::LineWidthFactor; }
 
 protected:
-  friend class vtkGL2PSExporter;
+  friend class vtkOpenGLGL2PSExporter;
 
   static void StartExport();
   static void FinishExport();
@@ -139,8 +139,8 @@ protected:
   ~vtkGL2PSUtilities() {}
 
 private:
-  vtkGL2PSUtilities(const vtkGL2PSUtilities &); // Not implemented
-  void operator=(const vtkGL2PSUtilities&); // Not implemented
+  vtkGL2PSUtilities(const vtkGL2PSUtilities &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGL2PSUtilities&) VTK_DELETE_FUNCTION;
 
   static vtkRenderWindow *RenderWindow;
   static bool TextAsPath;

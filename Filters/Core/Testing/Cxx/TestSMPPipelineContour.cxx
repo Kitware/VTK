@@ -58,9 +58,7 @@ public:
                                                 extent,
                                                 vtkExtentTranslator::BLOCK_MODE,
                                                 0);
-      source->UpdateInformation();
-      source->SetUpdateExtent(0, extent);
-      source->Update();
+      source->UpdateExtent(extent);
       vtkImageData* piece = vtkImageData::New();
       piece->ShallowCopy(source->GetOutput());
       Pieces[i] = piece;

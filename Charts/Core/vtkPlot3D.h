@@ -103,7 +103,6 @@ public:
   virtual void SetSelection(vtkIdTypeArray *id);
   virtual vtkIdTypeArray* GetSelection();
 
-//BTX
 protected:
   vtkPlot3D();
   ~vtkPlot3D();
@@ -162,10 +161,9 @@ protected:
   vtkSmartPointer<vtkIdTypeArray> Selection;
 
 private:
-  vtkPlot3D(const vtkPlot3D &); // Not implemented.
-  void operator=(const vtkPlot3D &); // Not implemented.
+  vtkPlot3D(const vtkPlot3D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlot3D &) VTK_DELETE_FUNCTION;
 
-//ETX
 };
 
 #endif //vtkPlot3D_h

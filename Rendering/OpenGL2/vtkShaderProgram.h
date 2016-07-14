@@ -25,6 +25,7 @@
 
 class vtkMatrix3x3;
 class vtkMatrix4x4;
+class vtkTransformFeedback;
 class vtkShader;
 class VertexArrayObject;
 class vtkWindow;
@@ -57,6 +58,11 @@ public:
   // Get the geometry shader for this program
   vtkGetObjectMacro(GeometryShader, vtkShader);
   void SetGeometryShader(vtkShader*);
+
+  // Description:
+  // Get/Set a TransformFeedbackCapture object on this shader program.
+  vtkGetObjectMacro(TransformFeedback, vtkTransformFeedback);
+  void SetTransformFeedback(vtkTransformFeedback *tfc);
 
   // Description:
   // Set/Get flag for if this program is compiled
@@ -180,7 +186,6 @@ public:
   // only valid for OpenGL 3.2 or later
   vtkSetMacro(NumberOfOutputs,unsigned int);
 
-//BTX
   // Description:
   // perform in place string substitutions, indicate if a substitution was done
   // this is useful for building up shader strings which typically involve
@@ -188,7 +193,7 @@ public:
   static bool Substitute(
     std::string &source,
     const std::string &search,
-    const std::string replace,
+    const std::string &replace,
     bool all = true);
 
   // Description:
@@ -196,6 +201,11 @@ public:
   // this shader.  This can save some compute time if the uniforms
   // or attributes are expensive to compute
   bool IsUniformUsed(const char *);
+
+  // Description:
+  // Return true if the compiled and linked shader has an attribute matching @a
+  // name.
+  bool IsAttributeUsed(const char *name);
 
 protected:
   vtkShaderProgram();
@@ -249,6 +259,7 @@ protected:
   vtkShader *VertexShader;
   vtkShader *FragmentShader;
   vtkShader *GeometryShader;
+  vtkTransformFeedback *TransformFeedback;
 
   // hash of the shader program
   std::string MD5Hash;
@@ -273,10 +284,10 @@ protected:
 
   std::string Error;
 
-  std::map<std::string, int> Attributes;
+  std::map<std::string, int> AttributeLocs;
 
 
-  std::map<std::string, bool> UniformsUsed;
+  std::map<std::string, int> UniformLocs;
 
   friend class VertexArrayObject;
 
@@ -284,9 +295,9 @@ private:
   int FindAttributeArray(const char *name);
   int FindUniform(const char *name);
 
-  vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
-  void operator=(const vtkShaderProgram&);  // Not implemented.
-//ETX
+  vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+
 };
 
 

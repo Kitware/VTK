@@ -153,7 +153,6 @@ public:
   void SetDirty(bool isDirty);
   bool GetDirty()const;
 
-//BTX
   // Description:
   // Release graphics resources hold by the scene.
   void ReleaseGraphicsResources();
@@ -292,15 +291,15 @@ protected:
   vtkTransform2D* Transform;
 
 private:
-  vtkContextScene(const vtkContextScene &); // Not implemented.
-  void operator=(const vtkContextScene &);   // Not implemented.
+  vtkContextScene(const vtkContextScene &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextScene &) VTK_DELETE_FUNCTION;
 
   typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
   bool ProcessItem(vtkAbstractContextItem* cur,
                    const vtkContextMouseEvent& event,
                    MouseEvents eventPtr);
   void EventCopy(const vtkContextMouseEvent &event);
-//ETX
+
 };
 
 #endif //vtkContextScene_h

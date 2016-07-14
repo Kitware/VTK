@@ -4,7 +4,6 @@ vtk_add_test_tcl(
 #  TestEmptyInput.tcl
 #  TestSetGet.tcl
   TestString.tcl
-  TestIgnoreBTX.tcl
   otherInterp.tcl
   otherPrint.tcl
   )

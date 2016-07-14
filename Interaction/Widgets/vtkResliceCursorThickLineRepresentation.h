@@ -61,8 +61,8 @@ protected:
   ~vtkResliceCursorThickLineRepresentation();
 
 private:
-  vtkResliceCursorThickLineRepresentation(const vtkResliceCursorThickLineRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorThickLineRepresentation&);  //Not implemented
+  vtkResliceCursorThickLineRepresentation(const vtkResliceCursorThickLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorThickLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

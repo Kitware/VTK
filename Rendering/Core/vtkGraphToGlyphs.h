@@ -48,7 +48,6 @@ public:
   vtkTypeMacro(vtkGraphToGlyphs, vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum
     {
     VERTEX = 1,
@@ -61,7 +60,6 @@ public:
     DIAMOND,
     SPHERE
     };
-  //ETX
 
   // Description:
   // The glyph type, specified as one of the enumerated values in this
@@ -111,7 +109,6 @@ protected:
   // Set the input type of the algorithm to vtkGraph.
   int FillInputPortInformation(int port, vtkInformation* info);
 
-  //BTX
   vtkSmartPointer<vtkGraphToPoints> GraphToPoints;
   vtkSmartPointer<vtkGlyphSource2D> GlyphSource;
   vtkSmartPointer<vtkSphereSource> Sphere;
@@ -120,11 +117,10 @@ protected:
   int GlyphType;
   bool Filled;
   double ScreenSize;
-  //ETX
 
 private:
-  vtkGraphToGlyphs(const vtkGraphToGlyphs&);  // Not implemented.
-  void operator=(const vtkGraphToGlyphs&);  // Not implemented.
+  vtkGraphToGlyphs(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphToGlyphs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

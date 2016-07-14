@@ -41,7 +41,7 @@
 // .SECTION See Also
 //  vtkCompositeInterpolatedVelocityField vtkInterpolatedVelocityField
 //  vtkGenericInterpolatedVelocityField vtkCachingInterpolatedVelocityField
-//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamer vtkStreamTracer
+//  vtkTemporalInterpolatedVelocityField vtkFunctionSet vtkStreamTracer
 
 #ifndef vtkCellLocatorInterpolatedVelocityField_h
 #define vtkCellLocatorInterpolatedVelocityField_h
@@ -127,8 +127,8 @@ private:
   vtkCellLocatorInterpolatedVelocityFieldCellLocatorsType * CellLocators;
 
   vtkCellLocatorInterpolatedVelocityField
-    ( const vtkCellLocatorInterpolatedVelocityField & );  // Not implemented.
-  void operator = ( const vtkCellLocatorInterpolatedVelocityField & );  // Not implemented.
+    ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkCellLocatorInterpolatedVelocityField & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

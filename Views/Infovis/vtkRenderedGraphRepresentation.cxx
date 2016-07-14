@@ -80,7 +80,7 @@
 #include "vtkVertexDegree.h"
 #include "vtkViewTheme.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <algorithm>
 
 
@@ -1344,7 +1344,7 @@ void vtkRenderedGraphRepresentation::ComputeSelectedGraphBounds(double bounds[6]
     if (list)
       {
       // Append the selection list to the selection
-      vtkIdTypeArray* curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+      vtkIdTypeArray* curList = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
       if (curList)
         {
         int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());

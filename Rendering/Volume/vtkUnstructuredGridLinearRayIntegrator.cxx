@@ -36,7 +36,7 @@
 #include <set>
 #include <algorithm>
 
-#include <math.h>
+#include <cmath>
 
 #ifndef M_SQRTPI
 #define M_SQRTPI        1.77245385090551602792981
@@ -78,8 +78,8 @@ public:
   acolor *Colors;
 
 private:
-  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&);  // Not implemented.
-  void operator=(const vtkLinearRayIntegratorTransferFunction &);  // Not implemented.
+  vtkLinearRayIntegratorTransferFunction(const vtkLinearRayIntegratorTransferFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLinearRayIntegratorTransferFunction &) VTK_DELETE_FUNCTION;
 };
 
 vtkLinearRayIntegratorTransferFunction::vtkLinearRayIntegratorTransferFunction()

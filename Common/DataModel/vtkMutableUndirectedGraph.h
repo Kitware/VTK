@@ -105,7 +105,6 @@ public:
   // the delays associated with returning the vertex index.
   vtkIdType AddVertex(const vtkVariant& pedigreeId);
 
-  //BTX
   // Description:
   // Adds an undirected edge from \p u to \p v,
   // where \p u and \p v are vertex indices,
@@ -171,8 +170,6 @@ public:
   vtkEdgeType AddEdge(const vtkVariant& u,
                       const vtkVariant& v,
                       vtkVariantArray *propertyArr = 0);
-
-  //ETX
 
   // Description:
   // Adds a vertex to the graph.
@@ -308,8 +305,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&);  // Not implemented.
-  void operator=(const vtkMutableUndirectedGraph&);  // Not implemented.
+  vtkMutableUndirectedGraph(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMutableUndirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

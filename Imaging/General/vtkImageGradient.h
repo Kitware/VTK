@@ -72,8 +72,8 @@ protected:
                            int outExt[6],
                            int threadId);
 private:
-  vtkImageGradient(const vtkImageGradient&);  // Not implemented.
-  void operator=(const vtkImageGradient&);  // Not implemented.
+  vtkImageGradient(const vtkImageGradient&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageGradient&) VTK_DELETE_FUNCTION;
 };
 
 #endif

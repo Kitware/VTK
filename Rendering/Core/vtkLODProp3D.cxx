@@ -26,13 +26,13 @@
 #include "vtkImageMapper3D.h"
 #include "vtkLinearTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkLODProp3D);
 
-#define VTK_INDEX_NOT_IN_USE    -1
+#define VTK_INDEX_NOT_IN_USE    (-1)
 
-#define VTK_INVALID_LOD_INDEX   -2
+#define VTK_INVALID_LOD_INDEX   (-2)
 
 #define VTK_LOD_ACTOR_TYPE       1
 #define VTK_LOD_VOLUME_TYPE      2

@@ -14,13 +14,13 @@
 =========================================================================*/
 #include "vtkPlotArea.h"
 
+#include "vtkArrayDispatch.h"
 #include "vtkAxis.h"
 #include "vtkBoundingBox.h"
 #include "vtkBrush.h"
 #include "vtkCharArray.h"
 #include "vtkContext2D.h"
 #include "vtkContextMapper2D.h"
-#include "vtkDataArrayIteratorMacro.h"
 #include "vtkFloatArray.h"
 #include "vtkMath.h"
 #include "vtkNew.h"
@@ -140,101 +140,173 @@ private:
   vtkRectd ShiftScale;
 
   vtkTuple<double, 2> GetDataRange(vtkDataArray* array)
-    {
+  {
     assert(array);
 
     if (this->ValidPointMask)
       {
       assert(array->GetNumberOfTuples() == this->ValidPointMask->GetNumberOfTuples());
-      switch (array->GetDataType())
+      assert(array->GetNumberOfComponents() == this->ValidPointMask->GetNumberOfComponents());
+
+      vtkArrayDispatch::Dispatch2ByArray<
+          vtkArrayDispatch::Arrays, // First array is input, can be anything.
+          vtkTypeList_Create_1(vtkCharArray) // Second is always vtkCharArray.
+          > dispatcher;
+      ComputeArrayRange worker;
+
+      if (!dispatcher.Execute(array, this->ValidPointMask, worker))
         {
-        vtkDataArrayIteratorMacro(array,
-          return this->ComputeArrayRange(vtkDABegin, vtkDAEnd, this->ValidPointMask));
+        vtkGenericWarningMacro(
+              <<"Error computing range. Unsupported array type: "
+              << array->GetClassName()
+              << " (" << array->GetDataTypeAsString() << ").");
+        }
+
+      return worker.Result;
+      }
+    else
+      {
+      vtkArrayDispatch::Dispatch dispatcher;
+      ComputeArrayRange worker;
+
+      if (!dispatcher.Execute(array, worker))
+        {
+        vtkGenericWarningMacro(
+              <<"Error computing range. Unsupported array type: "
+              << array->GetClassName()
+              << " (" << array->GetDataTypeAsString() << ").");
+        }
+
+      return worker.Result;
+      }
+
+  }
+
+  struct ComputeArrayRange
+  {
+    vtkTuple<double, 2> Result;
+
+    ComputeArrayRange()
+    {
+      Result[0] = VTK_DOUBLE_MAX;
+      Result[1] = VTK_DOUBLE_MIN;
+    }
+
+    // Use mask:
+    template <class ArrayT>
+    void operator()(ArrayT *array, vtkCharArray* mask)
+    {
+      vtkIdType numTuples = array->GetNumberOfTuples();
+      int numComps = array->GetNumberOfComponents();
+
+      for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
+        {
+        for (int compIdx = 0; compIdx < numComps; ++compIdx)
+          {
+          if (mask->GetTypedComponent(tupleIdx, compIdx) != 0)
+            {
+            typename ArrayT::ValueType val =
+                array->GetTypedComponent(tupleIdx, compIdx);
+            Result[0] = std::min(Result[0], static_cast<double>(val));
+            Result[1] = std::max(Result[1], static_cast<double>(val));
+            }
+          }
+        }
+    }
+
+    // No mask:
+    template <class ArrayT>
+    void operator()(ArrayT *array)
+    {
+      vtkIdType numTuples = array->GetNumberOfTuples();
+      int numComps = array->GetNumberOfComponents();
+
+      for (vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
+        {
+        for (int compIdx = 0; compIdx < numComps; ++compIdx)
+          {
+          typename ArrayT::ValueType val =
+              array->GetTypedComponent(tupleIdx, compIdx);
+          Result[0] = std::min(Result[0], static_cast<double>(val));
+          Result[1] = std::max(Result[1], static_cast<double>(val));
+          }
+        }
+    }
+
+  };
+
+  struct CopyToPoints
+  {
+    float *Data;
+    int DataIncrement;
+    vtkIdType NumValues;
+    vtkVector2d Transform;
+    bool UseLog;
+
+    CopyToPoints(float *data, int data_increment, vtkIdType numValues,
+                 const vtkVector2d &ss, bool useLog)
+      : Data(data),
+        DataIncrement(data_increment),
+        NumValues(numValues),
+        Transform(ss),
+        UseLog(useLog)
+    {}
+
+    CopyToPoints& operator=(const CopyToPoints &) VTK_DELETE_FUNCTION;
+
+    // Use input array:
+    template <class ArrayT>
+    void operator()(ArrayT *array)
+    {
+    if (this->UseLog)
+      {
+      float *data = this->Data;
+      for (vtkIdType valIdx = 0; valIdx < this->NumValues;
+           ++valIdx, data += this->DataIncrement)
+        {
+        *data = log10(static_cast<float>(
+                        (array->GetValue(valIdx) + this->Transform[0])
+                        * this->Transform[1]));
         }
       }
     else
       {
-      switch (array->GetDataType())
+      float *data = this->Data;
+      for (vtkIdType valIdx = 0; valIdx < this->NumValues;
+           ++valIdx, data += this->DataIncrement)
         {
-        vtkDataArrayIteratorMacro(array,
-          return this->ComputeArrayRange(vtkDABegin, vtkDAEnd));
+        *data = static_cast<float>(
+              (array->GetValue(valIdx) + this->Transform[0])
+              * this->Transform[1]);
         }
       }
-    vtkTuple<double, 2> range;
-    range[0] = VTK_DOUBLE_MAX;
-    range[1] = VTK_DOUBLE_MIN;
-    return range;
     }
 
-  template <class Iterator>
-  vtkTuple<double, 2> ComputeArrayRange(Iterator begin, Iterator end, vtkCharArray* mask)
+    // No array, just iterate to number of values
+    void operator()()
     {
-    vtkTuple<double, 2> range;
-    range[0] = VTK_DOUBLE_MAX;
-    range[1] = VTK_DOUBLE_MIN;
-    vtkIdType index=0;
-    for (Iterator iter=begin; iter != end; ++iter, ++index)
+    if (this->UseLog)
       {
-      if (mask->GetValue(index) != 0)
+      float *data = this->Data;
+      for (vtkIdType valIdx = 0; valIdx < this->NumValues;
+           ++valIdx, data += this->DataIncrement)
         {
-        range[0] = std::min(range[0], static_cast<double>(*iter));
-        range[1] = std::max(range[1], static_cast<double>(*iter));
-        }
-      }
-    return range;
-    }
-
-  template <class Iterator>
-  vtkTuple<double, 2> ComputeArrayRange(Iterator begin, Iterator end)
-    {
-    vtkTuple<double, 2> range;
-    range[0] = VTK_DOUBLE_MAX;
-    range[1] = VTK_DOUBLE_MIN;
-    vtkIdType index=0;
-    for (Iterator iter=begin; iter != end; ++iter, ++index)
-      {
-      range[0] = std::min(range[0], static_cast<double>(*iter));
-      range[1] = std::max(range[1], static_cast<double>(*iter));
-      }
-    return range;
-    }
-
-  template <class Iterator>
-  void CopyToPoints(
-    float* data, int data_increment, Iterator begin, Iterator end, const vtkVector2d& ss, bool useLog)
-    {
-    if (useLog)
-      {
-      for (Iterator iter = begin; iter != end; ++iter, data+= data_increment)
-        {
-        *data = log10(static_cast<float>((*iter + ss[0]) * ss[1]));
+        *data = log10(static_cast<float>((valIdx + this->Transform[0])
+                                         * this->Transform[1]));
         }
       }
     else
       {
-      for (Iterator iter = begin; iter != end; ++iter, data+= data_increment)
+      float *data = this->Data;
+      for (vtkIdType valIdx = 0; valIdx < this->NumValues;
+           ++valIdx, data += this->DataIncrement)
         {
-        *data = static_cast<float>((*iter + ss[0]) * ss[1]);
+        *data = static_cast<float>((valIdx + this->Transform[0])
+                                   * this->Transform[1]);
         }
       }
     }
-
-  template <class T>
-  class RangeIterator
-    {
-    T Value;
-  public:
-    RangeIterator(const T& val) : Value(val)
-      {}
-    T operator*() const
-      { return this->Value; }
-    bool operator==(const RangeIterator& other) const
-      { return this->Value == other.Value; }
-    bool operator!=(const RangeIterator& other) const
-      { return this->Value != other.Value; }
-    RangeIterator<T>& operator++()
-      { ++this->Value; return (*this); }
-    };
+  };
 
   VectorPIMPL SortedPoints;
 public:
@@ -343,37 +415,54 @@ public:
     float* data = reinterpret_cast<float*>(this->Points->GetVoidPointer(0));
     if (this->InputArrays[0])
       {
-      switch (this->InputArrays[0]->GetDataType())
+      vtkDataArray *array = this->InputArrays[0].GetPointer();
+      vtkIdType numValues = array->GetNumberOfTuples() *
+                            array->GetNumberOfComponents();
+
+      CopyToPoints worker1(data, 4, numValues, vtkVector2d(ss[0], ss[2]),
+                           useLog[0]);
+      CopyToPoints worker2(&data[2], 4, numValues, vtkVector2d(ss[0], ss[2]),
+                           useLog[0]);
+
+      vtkArrayDispatch::Dispatch dispatcher;
+
+      if (!dispatcher.Execute(array, worker1) ||
+          !dispatcher.Execute(array, worker2))
         {
-        vtkDataArrayIteratorMacro(this->InputArrays[0],
-          this->CopyToPoints(
-            data, 4, vtkDABegin, vtkDAEnd, vtkVector2d(ss[0], ss[2]), useLog[0]);
-          this->CopyToPoints(
-            &data[2], 4, vtkDABegin, vtkDAEnd, vtkVector2d(ss[0], ss[2]), useLog[0]);
-          );
+        vtkGenericWarningMacro("Error creating points, unsupported array type: "
+                               << array->GetClassName()
+                               << " (" << array->GetDataTypeAsString() << ").");
         }
       }
     else
       {
-      this->CopyToPoints(
-        data, 4, RangeIterator<vtkIdType>(0), RangeIterator<vtkIdType>(numTuples),
-        vtkVector2d(ss[0], ss[2]), useLog[0]);
-      this->CopyToPoints(
-        &data[2], 4, RangeIterator<vtkIdType>(0), RangeIterator<vtkIdType>(numTuples),
-        vtkVector2d(ss[0], ss[2]), useLog[0]);
+      CopyToPoints worker1(data, 4, numTuples, vtkVector2d(ss[0], ss[2]),
+                           useLog[0]);
+      CopyToPoints worker2(&data[2], 4, numTuples, vtkVector2d(ss[0], ss[2]),
+                           useLog[0]);
+      // No array, no need to dispatch:
+      worker1();
+      worker2();
       }
 
-    switch (this->InputArrays[1]->GetDataType())
+    vtkDataArray *array1 = this->InputArrays[1].GetPointer();
+    vtkDataArray *array2 = this->InputArrays[2].GetPointer();
+    vtkIdType numValues1 = array1->GetNumberOfTuples() *
+                           array1->GetNumberOfComponents();
+    vtkIdType numValues2 = array2->GetNumberOfTuples() *
+                           array2->GetNumberOfComponents();
+
+    CopyToPoints worker1(&data[1], 4, numValues1, vtkVector2d(ss[1], ss[3]),
+                         useLog[1]);
+    CopyToPoints worker2(&data[3], 4, numValues2, vtkVector2d(ss[1], ss[3]),
+                         useLog[1]);
+
+    vtkArrayDispatch::Dispatch dispatcher;
+
+    if (!dispatcher.Execute(array1, worker1) ||
+        !dispatcher.Execute(array2, worker2))
       {
-      vtkDataArrayIteratorMacro(this->InputArrays[1],
-        this->CopyToPoints(
-          &data[1], 4, vtkDABegin, vtkDAEnd, vtkVector2d(ss[1], ss[3]), useLog[1]));
-      }
-    switch (this->InputArrays[2]->GetDataType())
-      {
-      vtkDataArrayIteratorMacro(this->InputArrays[2],
-        this->CopyToPoints(
-          &data[3], 4, vtkDABegin, vtkDAEnd, vtkVector2d(ss[1], ss[3]), useLog[1]));
+      vtkGenericWarningMacro("Error creating points: Array dispatch failed.");
       }
 
     // Set the bad-points mask.
@@ -456,7 +545,7 @@ void vtkPlotArea::Update()
 
     cache.Reset();
     cache.ValidPointMask = (this->ValidPointMaskName.empty() == false)?
-      vtkCharArray::SafeDownCast(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
     cache.SetPoints(
       this->UseIndexForXSeries? NULL: this->Data->GetInputArrayToProcess(0, table),
       this->Data->GetInputArrayToProcess(1, table),

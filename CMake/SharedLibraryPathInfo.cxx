@@ -81,22 +81,6 @@
 # endif
 #endif
 
-/* SGI MIPS */
-#if defined(__sgi) && defined(_MIPS_SIM)
-# define CMAKE_SHARED_LDD "ldd"
-# define CMAKE_SHARED_LDD_FLAGS ""
-# if _MIPS_SIM == _ABIO32
-#  define CMAKE_SHARED_LDPATH "LD_LIBRARY_PATH"
-#  define RETURN_VALUE 0
-# elif _MIPS_SIM == _ABIN32
-#  define CMAKE_SHARED_LDPATH "LD_LIBRARYN32_PATH"
-#  define RETURN_VALUE 32
-# elif _MIPS_SIM == _ABI64
-#  define CMAKE_SHARED_LDPATH "LD_LIBRARY64_PATH"
-#  define RETURN_VALUE 64
-# endif
-#endif
-
 /* Windows */
 #if defined(_WIN32)
 # if defined(__CYGWIN__)

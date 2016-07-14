@@ -50,8 +50,8 @@ protected:
   virtual void ExecuteData(vtkDataObject *);
 
 private:
-  vtkImageCacheFilter(const vtkImageCacheFilter&);  // Not implemented.
-  void operator=(const vtkImageCacheFilter&);  // Not implemented.
+  vtkImageCacheFilter(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageCacheFilter&) VTK_DELETE_FUNCTION;
 };
 
 

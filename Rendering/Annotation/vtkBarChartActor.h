@@ -192,8 +192,8 @@ private:
   int BuildPlot(vtkViewport*);
 
 private:
-  vtkBarChartActor(const vtkBarChartActor&);  // Not implemented.
-  void operator=(const vtkBarChartActor&);  // Not implemented.
+  vtkBarChartActor(const vtkBarChartActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBarChartActor&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -143,10 +143,9 @@ protected:
   vtkDataArraySelection* PointDataArraySelection;
   vtkDataArraySelection* CellDataArraySelection;
 
-  int DecrementNodeIds;
   int ByteOrder;
   int GetLabel(char *string, int number, char *label);
-  //BTX
+
   enum
   {
     FILE_BIG_ENDIAN=0,
@@ -170,26 +169,32 @@ protected:
     float min[3]; // pre-calculated data minima (max size 3 for vectors)
     float max[3]; // pre-calculated data maxima (max size 3 for vectors)
   };
-  //ETX
 
   DataInfo *NodeDataInfo;
   DataInfo *CellDataInfo;
 
 private:
+  struct idMapping;
+
   void ReadFile(vtkUnstructuredGrid *output);
-  void ReadGeometry(vtkUnstructuredGrid *output);
-  void ReadNodeData(vtkUnstructuredGrid *output);
-  void ReadCellData(vtkUnstructuredGrid *output);
+  void ReadGeometry(vtkUnstructuredGrid *output,
+                    idMapping& nodeMap,
+                    idMapping& cellMap);
+  void ReadNodeData(vtkUnstructuredGrid *output, const idMapping& nodeMap);
+  void ReadCellData(vtkUnstructuredGrid *output, const idMapping& cellMap);
 
   int ReadFloatBlock(int n, float *block);
   int ReadIntBlock(int n, int *block);
-  void ReadXYZCoords(vtkFloatArray *coords);
+  void ReadXYZCoords(vtkFloatArray *coords, idMapping& nodeMap);
   void ReadBinaryCellTopology(vtkIntArray *material, int *types,
                               vtkIdTypeArray *listcells);
-  void ReadASCIICellTopology(vtkIntArray *material, vtkUnstructuredGrid *output);
+  void ReadASCIICellTopology(vtkIntArray *material,
+                             vtkUnstructuredGrid *output,
+                             const idMapping& nodeMap,
+                             idMapping& cellMap);
 
-  vtkAVSucdReader(const vtkAVSucdReader&);  // Not implemented.
-  void operator=(const vtkAVSucdReader&);  // Not implemented.
+  vtkAVSucdReader(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

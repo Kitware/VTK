@@ -34,14 +34,13 @@
 //----------------------------------------------------------------------------
 // class vtkVertexAdjacencyList
 //----------------------------------------------------------------------------
-//BTX
+
 class vtkVertexAdjacencyList
 {
 public:
   std::vector<vtkInEdgeType> InEdges;
   std::vector<vtkOutEdgeType> OutEdges;
 };
-//ETX
 
 //----------------------------------------------------------------------------
 // class vtkGraphInternals
@@ -50,10 +49,10 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGraphInternals : public vtkObject
 {
 public:
   static vtkGraphInternals *New();
-  //BTX
+
   vtkTypeMacro(vtkGraphInternals, vtkObject);
   std::vector<vtkVertexAdjacencyList> Adjacency;
-  //ETX
+
   vtkIdType NumberOfEdges;
 
   vtkIdType LastRemoteEdgeId;
@@ -67,7 +66,6 @@ public:
   // vtkMutableDirectedGraph.
   bool UsingPedigreeIds;
 
-  //BTX
   // Description:
   // Convenience method for removing an edge from an out edge list.
   void RemoveEdgeFromOutList(vtkIdType e, std::vector<vtkOutEdgeType>& outEdges);
@@ -83,15 +81,14 @@ public:
   // Description:
   // Convenience method for renaming an edge in an in edge list.
   void ReplaceEdgeFromInList(vtkIdType from, vtkIdType to, std::vector<vtkInEdgeType>& inEdges);
-  //ETX
 
 protected:
   vtkGraphInternals();
   ~vtkGraphInternals();
 
 private:
-  vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
-  void operator=(const vtkGraphInternals&);  // Not implemented.
+  vtkGraphInternals(const vtkGraphInternals&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGraphInternals_h

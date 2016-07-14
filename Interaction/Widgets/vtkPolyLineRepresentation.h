@@ -73,7 +73,6 @@ public:
   // Build the representation for the poly line.
   virtual void BuildRepresentation();
 
-//BTX
 protected:
   vtkPolyLineRepresentation();
   ~vtkPolyLineRepresentation();
@@ -85,9 +84,9 @@ protected:
   virtual void InsertHandleOnLine(double* pos);
 
 private:
-  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&); // Not implemented.
-  void operator=(const vtkPolyLineRepresentation&); // Not implemented.
-//ETX
+  vtkPolyLineRepresentation(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyLineRepresentation&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

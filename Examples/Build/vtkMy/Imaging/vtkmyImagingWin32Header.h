@@ -22,7 +22,7 @@
 
 #include <vtkmyConfigure.h>
 
-#if defined(WIN32) && !defined(VTKMY_STATIC)
+#if defined(_WIN32) && !defined(VTKMY_STATIC)
 #if defined(vtkmyImaging_EXPORTS)
 #define VTK_MY_IMAGING_EXPORT __declspec( dllexport )
 #else

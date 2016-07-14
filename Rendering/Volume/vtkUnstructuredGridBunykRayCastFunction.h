@@ -84,7 +84,6 @@ public:
   vtkTypeMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Called by the ray cast mapper at the start of rendering
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol );
@@ -93,6 +92,7 @@ public:
   // Called by the ray cast mapper at the end of rendering
   virtual void Finalize();
 
+  VTK_NEWINSTANCE
   virtual vtkUnstructuredGridVolumeRayCastIterator *NewIterator();
 
   // Used to store each triangle - made public because of the
@@ -148,8 +148,6 @@ public:
   // Access to an internal structure for the templated method.
   Intersection *GetIntersectionList( int x, int y ) { return this->Image[y*this->ImageSize[0] + x]; }
 
-//ETX
-
 protected:
   vtkUnstructuredGridBunykRayCastFunction();
   ~vtkUnstructuredGridBunykRayCastFunction();
@@ -196,7 +194,6 @@ protected:
   vtkUnstructuredGridBase   *SavedTriangleListInput;
   vtkTimeStamp               SavedTriangleListMTime;
 
-//BTX
   // This is a memory intensive algorithm! For each tetra in the
   // input data we create up to 4 triangles (we don't create duplicates)
   // This is the TriangleList. Then, for each tetra we keep track of
@@ -254,11 +251,9 @@ protected:
   // triangles.
   void          ComputePixelIntersections();
 
-//ETX
-
 private:
-  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridBunykRayCastFunction&);  // Not implemented.
+  vtkUnstructuredGridBunykRayCastFunction(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBunykRayCastFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

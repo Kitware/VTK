@@ -129,7 +129,7 @@ void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vt
     }
 
 
-  vtkDataArray* outArray = vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+  vtkDataArray* outArray = vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
   outArray->SetName("Gradients");
   outArray->SetNumberOfComponents(3);
   outArray->SetNumberOfTuples(outImage->GetNumberOfPoints());
@@ -173,7 +173,7 @@ void TestVectorFieldSource::ExecuteDataWithInformation(vtkDataObject *outData,vt
 
   // add a constant vector field in the z-direction
   vtkDataArray* velocityArray =
-    vtkDataArray::SafeDownCast(vtkAbstractArray::CreateArray(VTK_FLOAT));
+    vtkArrayDownCast<vtkDataArray>(vtkAbstractArray::CreateArray(VTK_FLOAT));
   velocityArray->SetName("Velocity");
   velocityArray->SetNumberOfComponents(3);
   velocityArray->SetNumberOfTuples(outImage->GetNumberOfPoints());

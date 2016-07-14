@@ -387,7 +387,7 @@ void vtkFieldData::SetArray(int i, vtkAbstractArray *data)
 // if range.
 vtkDataArray *vtkFieldData::GetArray(int i)
 {
-  return vtkDataArray::SafeDownCast(this->GetAbstractArray(i));
+  return vtkArrayDownCast<vtkDataArray>(this->GetAbstractArray(i));
 }
 
 //----------------------------------------------------------------------------
@@ -506,7 +506,7 @@ int vtkFieldData::GetArrayContainingComponent(int i, int& arrayComp)
 vtkDataArray *vtkFieldData::GetArray(const char *arrayName, int &index)
 {
   int i;
-  vtkDataArray* da = vtkDataArray::SafeDownCast(this->GetAbstractArray(
+  vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(this->GetAbstractArray(
       arrayName, i));
   index = (da)? i : -1;
   return da;
@@ -552,6 +552,14 @@ int vtkFieldData::AddArray(vtkAbstractArray *array)
     }
   this->SetArray(index, array);
   return index;
+}
+
+//--------------------------------------------------------------------------
+void vtkFieldData::RemoveArray(const char *name)
+{
+  int i;
+  this->GetAbstractArray(name, i);
+  this->RemoveArray(i);
 }
 
 //----------------------------------------------------------------------------

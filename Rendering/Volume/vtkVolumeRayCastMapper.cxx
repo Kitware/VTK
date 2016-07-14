@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeRayCastMapper.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCamera.h"
 #include "vtkDataArray.h"
 #include "vtkEncodedGradientEstimator.h"
@@ -36,7 +38,7 @@
 #include "vtkRayCastImageDisplayHelper.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkVolumeRayCastMapper);
 
@@ -112,6 +114,8 @@ vtkVolumeRayCastMapper::vtkVolumeRayCastMapper()
   this->ImageDisplayHelper     = vtkRayCastImageDisplayHelper::New();
 
   this->IntermixIntersectingGeometry = 1;
+
+  VTK_LEGACY_BODY(vtkVolumeRayCastMapper::vtkVolumeRayCastMapper,"VTK 7.0");
 }
 
 // Destruct a vtkVolumeRayCastMapper - clean up any memory used
@@ -310,10 +314,7 @@ void vtkVolumeRayCastMapper::Render( vtkRenderer *ren, vtkVolume *vol )
     }
   else
     {
-    this->GetInputAlgorithm()->UpdateInformation();
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtentToWholeExtent(
-      this->GetInputInformation());
-    this->GetInputAlgorithm()->Update();
+    this->GetInputAlgorithm()->UpdateWholeExtent();
     }
 
 
@@ -2021,3 +2022,5 @@ void vtkVolumeRayCastMapper::ReportReferences(vtkGarbageCollector* collector)
   vtkGarbageCollectorReport(collector, this->GradientEstimator,
                             "GradientEstimator");
 }
+
+#endif // VTK_LEGACY_REMOVE

@@ -56,6 +56,7 @@ public:
   // open the image file, it is the callers responsibility to call
   // Delete on the returned object.   If no reader is found, null
   // is returned.
+  VTK_NEWINSTANCE
   static vtkImageReader2* CreateImageReader2(const char* path);
 
   // Description: get a list of the currently registered readers.
@@ -71,11 +72,11 @@ protected:
 
 private:
   static vtkImageReader2Collection* AvailableReaders;
-  vtkImageReader2Factory(const vtkImageReader2Factory&);  // Not implemented.
-  void operator=(const vtkImageReader2Factory&);  // Not implemented.
-//BTX
+  vtkImageReader2Factory(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageReader2Factory&) VTK_DELETE_FUNCTION;
+
   friend class vtkImageReader2FactoryCleanup;
-//ETX
+
 };
 
 #endif

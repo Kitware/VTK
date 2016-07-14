@@ -103,14 +103,12 @@ protected:
   vtkLabelHierarchyCompositeIterator();
   virtual ~vtkLabelHierarchyCompositeIterator();
 
-  //BTX
   class Internal;
   Internal* Implementation;
-  //ETX
 
 private:
-  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchyCompositeIterator& ); // Not implemented.
+  vtkLabelHierarchyCompositeIterator( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLabelHierarchyCompositeIterator& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelHierarchyCompositeIterator_h

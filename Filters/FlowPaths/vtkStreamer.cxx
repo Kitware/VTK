@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkStreamer.h"
 
+#ifndef VTK_LEGACY_REMOVE
+
 #include "vtkCell.h"
 #include "vtkDataSet.h"
 #include "vtkDoubleArray.h"
@@ -106,6 +108,8 @@ vtkStreamer::vtkStreamer()
   this->SavePointInterval = 0.00001;
 
   this->SetNumberOfInputPorts(2);
+
+  VTK_LEGACY_BODY(vtkStreamer::vtkStreamer, "VTK 6.3");
 }
 
 vtkStreamer::~vtkStreamer()
@@ -765,3 +769,5 @@ void vtkStreamer::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number Of Threads: " << this->NumberOfThreads << "\n";
   os << indent << "Epsilon: " << this->Epsilon << "\n";
 }
+
+#endif // VTK_LEGACY_REMOVE

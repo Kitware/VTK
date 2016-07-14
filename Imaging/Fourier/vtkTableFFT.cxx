@@ -33,7 +33,7 @@
 #define VTK_CREATE(type, name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
-#include <string.h>
+#include <cstring>
 
 #include <vtksys/SystemTools.hxx>
 using namespace vtksys;
@@ -74,7 +74,7 @@ int vtkTableFFT::RequestData(vtkInformation *vtkNotUsed(request),
     {
     this->UpdateProgress((double)col/numColumns);
 
-    vtkDataArray *array = vtkDataArray::SafeDownCast(input->GetColumn(col));
+    vtkDataArray *array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
     if (!array) continue;
     if (array->GetNumberOfComponents() != 1) continue;
     if (array->GetName())

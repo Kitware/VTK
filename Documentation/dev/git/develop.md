@@ -43,7 +43,7 @@ Before you begin, perform initial setup:
     "Subscribe to this project" on the right of VTK.
 
 [GitLab Access]: https://gitlab.kitware.com/users/sign_in
-[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/fork/new
+[Fork VTK]: https://gitlab.kitware.com/vtk/vtk/forks/new
 [developer setup script]: /Utilities/SetupForDevelopment.sh
 
 Workflow
@@ -102,6 +102,20 @@ A reader should have a general idea of the feature or fix to be developed given 
 
         $ git checkout -b release-my-topic origin/release
 
+    If backporting a change, you may rebase the branch back onto
+    `origin/release`:
+
+        $ git checkout -b release-my-topic my-topic
+        $ git rebase --onto origin/release origin/master
+
+    Alternatively, for more targeted or aggregate backports, use the `-x` flag
+    when performing `git cherry-pick` so that a reference to the original
+    commit is added to the commit message:
+
+        $ git checkout -b release-my-topic origin/release
+        $ git cherry-pick -x $hash_a $hash_b $hash_c
+        $ git cherry-pick -x $hash_d $hash_e $hash_f
+
 3.  Edit files and create commits (repeat as needed):
 
         $ edit file1 file2 file3
@@ -110,13 +124,8 @@ A reader should have a general idea of the feature or fix to be developed given 
 
     Caveats:
     * To add data follow [these instructions](data.md).
-    * If your change modifies the `Utilities/KWSys/vtksys` directory please
-      contribute directly to [KWSys][] instead.
-    * If your change modifies the `Utilities/MetaIO/vtkmetaio` directory please
-      contribute directly to [MetaIO][] instead.
-
-[KWSys]: http://public.kitware.com/Wiki/KWSys/Git
-[MetaIO]: https://github.com/Kitware/MetaIO
+    * If your change modifies third party code, see [its
+      documentation](../../../ThirdParty/UPDATING.md).
 
 Share a Topic
 -------------
@@ -174,6 +183,10 @@ Follow these steps:
     If your change is a fix for the `release` branch, you should still
     select the `master` branch as the target because the change needs
     to end up there too.
+
+    For other `release` branches (e.g., `release-6.3`), merge requests should
+    go directly to the branch (they are not tied with `master` in our
+    workflow).
 
 3.  Use the "**Compare branches**" button to proceed to the next page
     and fill out the merge request creation form.
@@ -331,9 +344,9 @@ The `Do: test` command accepts the following arguments:
         build the superbuilds related to the project
   * `--clear`
         clear previous commands before adding this command
-  * `--regex-include <arg>`
+  * `--regex-include <arg>` or `-i <arg>`
         only build on builders matching `<arg>` (a Python regular expression)
-  * `--regex-exclude <arg>`
+  * `--regex-exclude <arg>` or `-e <arg>`
         excludes builds on builders matching `<arg>` (a Python regular
         expression)
 

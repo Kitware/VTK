@@ -63,8 +63,8 @@ public class vtkJavaMemoryManagerImpl implements vtkJavaMemoryManager {
         if (resultObject == null) {
           try {
             String className = vtkObjectBase.VTKGetClassNameFromReference(vtkId.longValue());
-            Class c = Class.forName("vtk." + className);
-            Constructor cons = c.getConstructor(new Class[] { long.class });
+            Class<?> c = Class.forName("vtk." + className);
+            Constructor<?> cons = c.getConstructor(new Class<?>[] { long.class });
             resultObject = (vtkObjectBase) cons.newInstance(new Object[] { vtkId });
           } catch (Exception e) {
             e.printStackTrace();

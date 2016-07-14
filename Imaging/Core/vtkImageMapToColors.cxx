@@ -315,7 +315,7 @@ void vtkImageMapToColors::ThreadedRequestData(
   int outExt[6], int id)
 {
   vtkDataArray* outArray = outData[0]->GetPointData()->GetScalars();
-  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(inData[0][0]->GetPointData()->GetArray("vtkValidPointMask"));
+  vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(inData[0][0]->GetPointData()->GetArray("vtkValidPointMask"));
   vtkDataArray* inArray = this->GetInputArrayToProcess(0, inputVector);
 
   // Working method

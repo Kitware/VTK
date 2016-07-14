@@ -275,7 +275,6 @@ public:
   void InsertPointWithoutChecking
     ( const double point[3], vtkIdType  & pntId, int insert );
 
-//BTX
 protected:
 
   vtkIncrementalOctreePointLocator();
@@ -432,8 +431,8 @@ private:
     ( vtkIncrementalOctreeNode * leafNode, const double point[3] );
 
   vtkIncrementalOctreePointLocator
-    ( const vtkIncrementalOctreePointLocator & ); // Not implemented
-  void operator = ( const vtkIncrementalOctreePointLocator & );// Not implemented
-//ETX
+    ( const vtkIncrementalOctreePointLocator & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkIncrementalOctreePointLocator & ) VTK_DELETE_FUNCTION;
+
 };
 #endif

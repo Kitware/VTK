@@ -28,7 +28,7 @@
 #include "vtkRenderer.h"
 #include "vtkRibbonFilter.h"
 #include "vtkRungeKutta4.h"
-#include "vtkStreamLine.h"
+#include "vtkStreamTracer.h"
 #include "vtkStructuredGrid.h"
 #include "vtkStructuredGridOutlineFilter.h"
 
@@ -272,21 +272,20 @@ int TestLineWidget( int argc, char *argv[] )
   vtkSmartPointer<vtkRungeKutta4> rk4 =
     vtkSmartPointer<vtkRungeKutta4>::New();
 
-  vtkSmartPointer<vtkStreamLine> streamer =
-    vtkSmartPointer<vtkStreamLine>::New();
+  vtkSmartPointer<vtkStreamTracer> streamer =
+    vtkSmartPointer<vtkStreamTracer>::New();
   streamer->SetInputData(pl3d_block0);
   streamer->SetSourceData(seeds);
-  streamer->SetMaximumPropagationTime(100);
-  streamer->SetIntegrationStepLength(.2);
-  streamer->SetStepLength(.001);
-  streamer->SetNumberOfThreads(1);
+  streamer->SetMaximumPropagation(100);
+  streamer->SetInitialIntegrationStep(.2);
   streamer->SetIntegrationDirectionToForward();
-  streamer->VorticityOn();
+  streamer->SetComputeVorticity(1);
   streamer->SetIntegrator(rk4);
 
   vtkSmartPointer<vtkRibbonFilter> rf =
     vtkSmartPointer<vtkRibbonFilter>::New();
   rf->SetInputConnection(streamer->GetOutputPort());
+  rf->SetInputArrayToProcess(1, 0, 0, vtkDataObject::FIELD_ASSOCIATION_POINTS, "Normals");
   rf->SetWidth(0.1);
   rf->SetWidthFactor(5);
 

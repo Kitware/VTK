@@ -221,7 +221,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  virtual vtkAbstractTransform *MakeTransform() = 0;
+  virtual VTK_NEWINSTANCE vtkAbstractTransform *MakeTransform() = 0;
 
   // Description:
   // Check for self-reference.  Will return true if concatenating
@@ -258,32 +258,29 @@ protected:
 
 private:
 
-//BTX
   // We need to record the time of the last update, and we also need
   // to do mutex locking so updates don't collide.  These are private
   // because Update() is not virtual.
   // If DependsOnInverse is set, then this transform object will
   // check its inverse on every update, and update itself accordingly
   // if necessary.
-//ETX
+
   vtkTimeStamp UpdateTime;
   vtkSimpleCriticalSection *UpdateMutex;
   vtkSimpleCriticalSection *InverseMutex;
   int DependsOnInverse;
 
-//BTX
   // MyInverse is a transform which is the inverse of this one.
-//ETX
+
   vtkAbstractTransform *MyInverse;
 
   int InUnRegister;
 
 private:
-  vtkAbstractTransform(const vtkAbstractTransform&);  // Not implemented.
-  void operator=(const vtkAbstractTransform&);  // Not implemented.
+  vtkAbstractTransform(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractTransform&) VTK_DELETE_FUNCTION;
 };
 
-//BTX
 //-------------------------------------------------------------------------
 // A simple data structure to hold both a transform and its inverse.
 // One of ForwardTransform or InverseTransform might be NULL,
@@ -426,7 +423,5 @@ protected:
   vtkTransformConcatenation **Stack;
   vtkTransformConcatenation **StackBottom;
 };
-
-//ETX
 
 #endif

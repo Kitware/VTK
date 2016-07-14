@@ -77,8 +77,8 @@ protected:
 #endif
 
 private:
-  vtkThreadMessager(const vtkThreadMessager&);  // Not implemented.
-  void operator=(const vtkThreadMessager&);  // Not implemented.
+  vtkThreadMessager(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreadMessager&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -80,10 +80,8 @@ protected:
   vtkQtLabelRenderStrategy();
   ~vtkQtLabelRenderStrategy();
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
 
   vtkQImageToImageSource* QImageToImage;
   vtkPlaneSource* PlaneSource;
@@ -94,8 +92,8 @@ protected:
   bool AntialiasText; // Should the text be antialiased, inherited from render window.
 
 private:
-  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&);  // Not implemented.
-  void operator=(const vtkQtLabelRenderStrategy&);  // Not implemented.
+  vtkQtLabelRenderStrategy(const vtkQtLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtLabelRenderStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

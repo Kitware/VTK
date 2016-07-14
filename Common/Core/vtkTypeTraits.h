@@ -120,36 +120,19 @@ VTK_TYPE_TRAITS(unsigned long, UNSIGNED_LONG, 0, UInt64, unsigned long, "%lu");
 #endif
 
 // Define traits for long long types if they are enabled.
-#if defined(VTK_TYPE_USE_LONG_LONG)
-# define VTK_TYPE_NAME_LONG_LONG long long
-# define VTK_TYPE_NAME_UNSIGNED_LONG_LONG unsigned long long
-# if VTK_SIZEOF_LONG_LONG == 8
-#  define VTK_TYPE_SIZED_LONG_LONG INT64
-#  define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
-#  define VTK_TYPE_LONG_LONG_FORMAT "%ll"
+#define VTK_TYPE_NAME_LONG_LONG long long
+#define VTK_TYPE_NAME_UNSIGNED_LONG_LONG unsigned long long
+#if VTK_SIZEOF_LONG_LONG == 8
+# define VTK_TYPE_SIZED_LONG_LONG INT64
+# define VTK_TYPE_SIZED_UNSIGNED_LONG_LONG UINT64
+# define VTK_TYPE_LONG_LONG_FORMAT "%ll"
 VTK_TYPE_TRAITS(long long, LONG_LONG, 1, Int64, long long,
                 VTK_TYPE_LONG_LONG_FORMAT "d");
 VTK_TYPE_TRAITS(unsigned long long, UNSIGNED_LONG_LONG, 0, UInt64,
                 unsigned long long, VTK_TYPE_LONG_LONG_FORMAT "u");
-#  undef VTK_TYPE_LONG_LONG_FORMAT
-# else
-#  error "Type long long is not 8 bytes in size."
-# endif
-#endif
-
-// Define traits for __int64 types if they are enabled.
-#if defined(VTK_TYPE_USE___INT64)
-# define VTK_TYPE_NAME___INT64 __int64
-# define VTK_TYPE_NAME_UNSIGNED___INT64 unsigned __int64
-# if VTK_SIZEOF___INT64 == 8
-#  define VTK_TYPE_SIZED___INT64 INT64
-#  define VTK_TYPE_SIZED_UNSIGNED___INT64 UINT64
-VTK_TYPE_TRAITS(__int64, __INT64, 1, Int64, __int64, "%I64d");
-VTK_TYPE_TRAITS(unsigned __int64, UNSIGNED___INT64, 0, UInt64,
-                unsigned __int64, "%I64u");
-# else
-#  error "Type __int64 is not 8 bytes in size."
-# endif
+# undef VTK_TYPE_LONG_LONG_FORMAT
+#else
+# error "Type long long is not 8 bytes in size."
 #endif
 
 // Define traits for vtkIdType.  The template specialization is

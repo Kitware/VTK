@@ -22,8 +22,6 @@
  * statement of authorship are reproduced on all copies.
  */
 
-#include "vtkSystemIncludes.h"
-
 #include "Tokenizer.h"
 
 Tokenizer::Tokenizer(const char *s, const char *delim)

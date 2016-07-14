@@ -13,6 +13,7 @@ foreach(p
     CMP0025 # CMake 3.0
     CMP0053 # CMake 3.1
     CMP0054 # CMake 3.1
+    CMP0063 # CMake 3.3
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -27,6 +28,18 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 project(VTK)
+
+if (NOT CMAKE_VERSION VERSION_LESS "3.1")
+  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
+         OFF)
+else()
+  set(VTK_USE_CXX11_FEATURES OFF)
+endif()
+if (VTK_USE_CXX11_FEATURES)
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED True)
+  set(CMAKE_CXX_EXTENSIONS False)
+endif()
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
@@ -103,6 +116,17 @@ set(VTK_VERSION
 # Do we want examples built?
 OPTION(BUILD_EXAMPLES "Build VTK examples." OFF)
 
+#-----------------------------------------------------------------------------
+if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
+  # This file is always present in version-controlled source trees
+  # so we must have been extracted from a source tarball with no
+  # data objects needed for testing.  Turn off tests by default
+  # since enabling them requires network access or manual data
+  # store configuration.
+  option(BUILD_TESTING "Build the testing tree." OFF)
+endif()
+include(CTest)
+
 option(VTK_IOS_BUILD "Build vtk.framework for iOS" OFF)
 if (VTK_IOS_BUILD)
   include(vtkiOS)
@@ -122,28 +146,10 @@ if (ANDROID OR APPLE_IOS)
        CACHE STRING "Result from TRY_RUN" FORCE)
   SET( CMAKE_REQUIRE_LARGE_FILE_SUPPORT__TRYRUN_OUTPUT ""
        CACHE STRING "Output from TRY_RUN" FORCE)
-  SET( VTK_TYPE_CHAR_IS_SIGNED 1
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( VTK_ANSI_STREAM_EOF_RESULT 0
-     CACHE STRING "Result from TRY_RUN" FORCE)
-  SET( KWSYS_CHAR_IS_SIGNED 1
-     CACHE STRING "Result from TRY_RUN" FORCE)
   SET( KWSYS_LFS_WORKS 2
      CACHE STRING "Result from TRY_RUN" FORCE)
   SET( KWSYS_LFS_WORKS__TRYRUN_OUTPUT ""
      CACHE STRING "Output from TRY_RUN" FORCE)
-
-  option(BUILD_SHARED_LIBS "should be off for embedded" OFF)
-  set(VTK_RENDERING_BACKEND OpenGL2)
-  set(Module_vtkRenderingCore ON)
-  option(VTK_Group_Rendering "off for embedded" OFF)
-  option(VTK_Group_StandAlone "off for embedded" OFF)
-  option(VTK_Group_Imaging "off for embedded" OFF)
-  option(VTK_Group_MPI "off for embedded" OFF)
-  option(VTK_Group_Views "off for embedded" OFF)
-  option(VTK_Group_Qt "off for embedded" OFF)
-  option(VTK_Group_Tk "off for embedded" OFF)
-  option(VTK_Group_Web "off for embedded" OFF)
 
   # need int version for CPP
   if (${OPENGL_ES_VERSION} MATCHES 2.0)
@@ -289,17 +295,6 @@ include(vtkCompilerExtras)
 include(vtkBuildPath)
 
 #-----------------------------------------------------------------------------
-if(NOT EXISTS "${VTK_SOURCE_DIR}/.ExternalData/README.rst")
-  # This file is always present in version-controlled source trees
-  # so we must have been extracted from a source tarball with no
-  # data objects needed for testing.  Turn off tests by default
-  # since enabling them requires network access or manual data
-  # store configuration.
-  option(BUILD_TESTING "Build the testing tree." OFF)
-endif()
-include(CTest)
-
-#-----------------------------------------------------------------------------
 if(APPLE)
   mark_as_advanced(
     CMAKE_OSX_ARCHITECTURES
@@ -321,17 +316,17 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: LLVM Clang >= 2.8
+# Minimum compiler version check: LLVM Clang >= 3.0
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.8)
-  message(FATAL_ERROR "LLVM Clang 2.8 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "LLVM Clang 3.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
-# Minimum compiler version check: Apple Clang >= 2.0 (Xcode 4.0.x)
+# Minimum compiler version check: Apple Clang >= 3.0 (Xcode 4.2)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang" AND
-    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 2.0)
-  message(FATAL_ERROR "Apple Clang 2.0 or later is required.")
+    CMAKE_CXX_COMPILER_VERSION VERSION_LESS 3.0)
+  message(FATAL_ERROR "Apple Clang 3.0 or later is required.")
 endif ()
 
 #-----------------------------------------------------------------------------
@@ -448,9 +443,6 @@ mark_as_advanced(VTK_MAX_THREADS)
 
 include(CheckTypeSize)
 
-# Tests for various integer, bool and float types
-include(vtkTestTypes)
-
 # Socket tests etc.
 #INCLUDE(Parallel/VTKParallelCMakeTests.cmake)
 
@@ -475,9 +467,6 @@ set(VTK_PYTHON_VERSION 2 CACHE STRING
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
-
-# FIXME: This variable should not be necessary once we are done
-set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
 
 # Force reset of hints file location in cache if it was moved
 if(VTK_WRAP_HINTS)

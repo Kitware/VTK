@@ -31,6 +31,26 @@ vtkTypedDataArray<Scalar>::~vtkTypedDataArray()
 }
 
 //------------------------------------------------------------------------------
+template <typename Scalar>
+bool vtkTypedDataArray<Scalar>::AllocateTuples(vtkIdType)
+{
+  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
+                "implementations. Either add an appropriate implementation, or "
+                "use Allocate instead.");
+  return false;
+}
+
+//------------------------------------------------------------------------------
+template <typename Scalar>
+bool vtkTypedDataArray<Scalar>::ReallocateTuples(vtkIdType)
+{
+  vtkErrorMacro(<<"This method is not preferred for vtkTypedDataArray "
+                "implementations. Either add an appropriate implementation, or "
+                "use Resize instead.");
+  return false;
+}
+
+//------------------------------------------------------------------------------
 template <typename Scalar> inline
 int vtkTypedDataArray<Scalar>::GetDataType()
 {
@@ -56,19 +76,38 @@ void vtkTypedDataArray<Scalar>::SetNumberOfValues(vtkIdType number)
 }
 
 //------------------------------------------------------------------------------
+template <typename Scalar> inline
+typename vtkTypedDataArray<Scalar>::ValueType
+vtkTypedDataArray<Scalar>::GetTypedComponent(vtkIdType tupleIdx, int comp) const
+{
+  return this->GetValue(tupleIdx * this->NumberOfComponents + comp);
+}
+
+//------------------------------------------------------------------------------
+template <typename Scalar> inline
+void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp,
+                                                  ValueType v)
+{
+  this->SetValue(tupleIdx * this->NumberOfComponents + comp, v);
+}
+
+//------------------------------------------------------------------------------
 template <typename Scalar> inline vtkTypedDataArray<Scalar> *
 vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
 {
-  switch (source->GetArrayType())
+  if (source)
     {
-    case vtkAbstractArray::DataArrayTemplate:
-    case vtkAbstractArray::TypedDataArray:
-    case vtkAbstractArray::MappedDataArray:
-      if (source->GetDataType() == vtkTypeTraits<Scalar>::VTK_TYPE_ID)
-        {
-        return static_cast<vtkTypedDataArray<Scalar>*>(source);
-        }
-      break;
+    switch (source->GetArrayType())
+      {
+      case vtkAbstractArray::TypedDataArray:
+      case vtkAbstractArray::MappedDataArray:
+        if (vtkDataTypesCompare(source->GetDataType(),
+                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+          {
+          return static_cast<vtkTypedDataArray<Scalar>*>(source);
+          }
+        break;
+      }
     }
   return NULL;
 }

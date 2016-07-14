@@ -46,7 +46,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkToolkits.h" // For VTK_USE_MPI
 #include <cassert>
 
-#ifdef WIN32
+#ifdef _WIN32
   #undef JB_H5PART_PARTICLE_OUTPUT
 #else
 //  #define JB_H5PART_PARTICLE_OUTPUT
@@ -66,7 +66,7 @@ using namespace vtkTemporalStreamTracerNamespace;
 //----------------------------------------------------------------------------
 //#define JB_DEBUG__
 #if defined JB_DEBUG__
-  #ifdef WIN32
+  #ifdef _WIN32
       #define OUTPUTTEXT(a) vtkOutputWindowDisplayText(a);
   #else
   #endif
@@ -132,7 +132,7 @@ vtkTemporalStreamTracer::vtkTemporalStreamTracer()
   this->SetNumberOfInputPorts(2);
 
 #ifdef JB_H5PART_PARTICLE_OUTPUT
-#ifdef WIN32
+#ifdef _WIN32
   vtkDebugMacro(<<"Setting vtkH5PartWriter");
   vtkH5PartWriter *writer = vtkH5PartWriter::New();
 #else

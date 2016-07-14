@@ -199,7 +199,7 @@ public:
   vtkFloodFillSeed(const vtkFloodFillSeed &seed) {
     store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2]; };
   const int &operator[](int i) const { return store[i]; };
-  const vtkFloodFillSeed &operator=(const vtkFloodFillSeed seed) {
+  vtkFloodFillSeed &operator=(const vtkFloodFillSeed &seed) {
     store[0]=seed.store[0]; store[1]=seed.store[1]; store[2]=seed.store[2];
     return *this; };
 

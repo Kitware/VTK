@@ -69,13 +69,8 @@ int vtkSimpleBondPerceiver::RequestData(
   output->ShallowCopyAttributes(input);
 
   // Get pointers to data
-  vtkSmartPointer<vtkUnsignedShortArray> numArr =
-      vtkSmartPointer<vtkUnsignedShortArray>::New();
-  vtkSmartPointer<vtkPoints> posArr =
-      vtkSmartPointer<vtkPoints>::New();
-
-  posArr = output->GetAtomicPositionArray();
-  numArr = output->GetAtomicNumberArray();
+  vtkSmartPointer<vtkPoints> posArr = output->GetAtomicPositionArray();
+  vtkSmartPointer<vtkUnsignedShortArray> numArr = output->GetAtomicNumberArray();
 
   // Cache atomic radii
   vtkNew<vtkPeriodicTable> pTab;

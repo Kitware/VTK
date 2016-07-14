@@ -161,16 +161,12 @@ class VTKFILTERSCORE_EXPORT vtkEdgeSubdivisionCriterion : public vtkObject
     bool FixedFieldErrorEval( const double* p0, double* p1, double* p1_actual, const double* p2, int field_start, int field_criteria, double* allowableFieldErr ) const;
 
   private:
-    vtkEdgeSubdivisionCriterion( const vtkEdgeSubdivisionCriterion& ); // Not implemented.
-    void operator = ( const vtkEdgeSubdivisionCriterion& ); // Not implemented.
+    vtkEdgeSubdivisionCriterion( const vtkEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
+    void operator = ( const vtkEdgeSubdivisionCriterion& ) VTK_DELETE_FUNCTION;
 };
-
-//BTX
 
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldIds() const { return this->FieldIds; }
 inline const int* vtkEdgeSubdivisionCriterion::GetFieldOffsets() const { return this->FieldOffsets; }
 inline int vtkEdgeSubdivisionCriterion::GetNumberOfFields() const { return this->NumberOfFields; }
-
-//ETX
 
 #endif // vtkEdgeSubdivisionCriterion_h

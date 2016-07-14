@@ -119,7 +119,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;
@@ -156,9 +156,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
 
   PointerType Array;
   dax::Id NumberOfValues;
@@ -223,7 +222,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;
@@ -260,9 +259,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
 
   PointerType Array;
   dax::Id NumberOfValues;
@@ -326,7 +324,7 @@ public:
         DAX_ASSERT_CONT(this->NumberOfValues == 0);
         }
       }
-    catch (std::bad_alloc err)
+    catch (const std::bad_alloc&)
       {
       // Make sureour state is OK.
       this->Array = NULL;
@@ -363,9 +361,8 @@ public:
   }
 
 private:
-  // Not implemented.
-  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
-  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src);
+  ArrayContainerControl(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
+  void operator=(const ArrayContainerControl<ValueType, vtkToDax::vtkPointsContainerTag> &src) VTK_DELETE_FUNCTION;
 
   PointerType Array;
   dax::Id NumberOfValues;

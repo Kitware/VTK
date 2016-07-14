@@ -76,8 +76,8 @@ protected:
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;
 private:
-  vtkTransformFilter(const vtkTransformFilter&);  // Not implemented.
-  void operator=(const vtkTransformFilter&);  // Not implemented.
+  vtkTransformFilter(const vtkTransformFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

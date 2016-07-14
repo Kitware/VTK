@@ -105,7 +105,7 @@ int TestImageToAMR(int, char *[])
         return VTK_FAILURE;
         }
 
-      vtkIdTypeArray* cd = vtkIdTypeArray::SafeDownCast(image->GetCellData()->GetArray("vtkIdFilter_Ids"));
+      vtkIdTypeArray* cd = vtkArrayDownCast<vtkIdTypeArray>(image->GetCellData()->GetArray("vtkIdFilter_Ids"));
       assert(cd);
       for(std::vector<vtkVector3d>::iterator itr=samples.begin(); itr!=samples.end();itr++)
         {
@@ -118,7 +118,7 @@ int TestImageToAMR(int, char *[])
         if(amr->FindGrid(x,level,id))
           {
           vtkUniformGrid* grid =amr->GetDataSet(level,id);
-          vtkIdTypeArray* cd1 = vtkIdTypeArray::SafeDownCast(grid->GetCellData()->GetArray("vtkIdFilter_Ids"));
+          vtkIdTypeArray* cd1 = vtkArrayDownCast<vtkIdTypeArray>(grid->GetCellData()->GetArray("vtkIdFilter_Ids"));
           vtkIdType cellId1 = FindCell(grid,x);
           vtkIdType value1 = cd1->GetValue(cellId1);
           if(value1!=value)

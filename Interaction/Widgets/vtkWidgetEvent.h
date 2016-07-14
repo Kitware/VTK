@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkWidgetEvent,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // All the widget events are defined here.
   enum WidgetEventIds {
@@ -64,7 +63,6 @@ public:
     Left,
     Right
   };
-//ETX
 
   // Description:
   // Convenience methods for translating between event names and event ids.
@@ -76,8 +74,8 @@ protected:
   virtual ~vtkWidgetEvent() {}
 
 private:
-  vtkWidgetEvent(const vtkWidgetEvent&);  //Not implemented
-  void operator=(const vtkWidgetEvent&);  //Not implemented
+  vtkWidgetEvent(const vtkWidgetEvent&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWidgetEvent&) VTK_DELETE_FUNCTION;
 
 };
 

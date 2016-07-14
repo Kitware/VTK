@@ -29,15 +29,13 @@ lineWidget GetPolyData seeds
 lineWidget ClampToBoundsOn
 
 vtkRungeKutta4 rk4
-vtkStreamLine streamer
+vtkStreamTracer streamer
     streamer SetInputData $pl3dOutput
     streamer SetSourceData seeds
-    streamer SetMaximumPropagationTime 100
-    streamer SetIntegrationStepLength .2
-    streamer SetStepLength .001
-    streamer SetNumberOfThreads 1
+    streamer SetMaximumPropagation 100
+    streamer SetInitialIntegrationStep .2
     streamer SetIntegrationDirectionToForward
-    streamer VorticityOn
+    streamer SetComputeVorticity 1
     streamer SetIntegrator rk4
 vtkRibbonFilter rf
     rf SetInputConnection [streamer GetOutputPort]
@@ -59,15 +57,13 @@ lineWidget2 PlaceWidget
 lineWidget2 GetPolyData seeds2
 lineWidget2 SetKeyPressActivationValue L
 
-vtkStreamLine streamer2
+vtkStreamTracer streamer2
     streamer2 SetInputData $pl3dOutput
     streamer2 SetSourceData seeds2
-    streamer2 SetMaximumPropagationTime 100
-    streamer2 SetIntegrationStepLength .2
-    streamer2 SetStepLength .001
-    streamer2 SetNumberOfThreads 1
+    streamer2 SetMaximumPropagation 100
+    streamer2 SetInitialIntegrationStep .2
     streamer2 SetIntegrationDirectionToForward
-    streamer2 VorticityOn
+    streamer2 SetComputeVorticity 1
     streamer2 SetIntegrator rk4
 vtkRibbonFilter rf2
     rf2 SetInputConnection [streamer2 GetOutputPort]

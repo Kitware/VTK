@@ -48,14 +48,13 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
   vtkNew<vtkPolyDataMapper> mapper2;
   mapper2->SetInputConnection( geometry->GetOutputPort() );
   mapper2->ScalarVisibilityOff();
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -91,7 +90,7 @@ int TestHyperTreeGridTernary3DGeometry( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 30 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

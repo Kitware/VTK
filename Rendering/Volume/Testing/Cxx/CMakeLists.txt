@@ -40,18 +40,28 @@ set (VolumeOpenGLCxxTests
   TestGPURayCastCompositeShadeMask.cxx # This test depends on vtkOpenGLExtensionManager
   TestHAVSVolumeMapper.cxx
   TestProjectedHexahedra.cxx
-  TestProp3DFollower.cxx
-  TestTM3DLightComponents.cxx
   ZsweepConcavities.cxx
-  volProt.cxx
   )
+
+if (NOT VTK_LEGACY_REMOVE)
+  list (APPEND VolumeOpenGLCxxTests
+    TestProp3DFollower.cxx
+    TestTM3DLightComponents.cxx
+    volProt.cxx)
+endif()
 
 # These tests are only built for the OpenGL2 backend
 set (VolumeOpenGL2CxxTests
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastCameraInsideTransformation.cxx
+  TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
+  TestGPURayCastClippingPolyData.cxx
+  TestGPURayCastClippingUserTransform.cxx
+  TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
+  TestGPURayCastGradientOpacityLight.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
@@ -59,11 +69,17 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastRenderToTexture.cxx
   TestGPURayCastThreeComponentsIndependent.cxx
   TestGPURayCastTwoComponentsDependent.cxx
+  TestGPURayCastTwoComponentsDependentGradient.cxx
+  TestGPURayCastTwoComponentsGradient.cxx
   TestGPURayCastTwoComponentsIndependent.cxx
+  TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumePicking.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestProjectedTetrahedraTransform.cxx
+  TestRemoveVolumeNonCurrentContext.cxx
   )
 
 # everyone gets these tests
@@ -82,9 +98,6 @@ if ("${VTK_RENDERING_BACKEND}" STREQUAL "OpenGL2")
   vtk_test_cxx_executable(${vtk-module}CxxTests tests
     RENDERING_FACTORY
     )
-  set_target_properties (${vtk-module}CxxTests
-    PROPERTIES COMPILE_FLAGS -DVTK_OPENGL2
-    )
   return()
 endif ()
 
@@ -96,15 +109,19 @@ vtk_test_cxx_executable(${vtk-module}CxxTests tests
   RENDERING_FACTORY
   ExerciseUnstructuredGridRayCastMapper.cxx)
 
-if(NOT VTK_TEST_TIMEOUT_TestProp3DFollower)
-  set(VTK_TEST_TIMEOUT_TestProp3DFollower 100)
+if (NOT VTK_LEGACY_REMOVE)
+  if(NOT VTK_TEST_TIMEOUT_TestProp3DFollower)
+    set(VTK_TEST_TIMEOUT_TestProp3DFollower 100)
+  endif()
+  set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestProp3DFollower})
 endif()
-set_tests_properties(${vtk-module}Cxx-TestProp3DFollower
-  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestProp3DFollower})
 
-# Allow local customization of timeout for this test.
-if(NOT VTK_TEST_TIMEOUT_TestTM3DLightComponents)
-  set(VTK_TEST_TIMEOUT_TestTM3DLightComponents 120)
+if (NOT VTK_LEGACY_REMOVE)
+  # Allow local customization of timeout for this test.
+  if(NOT VTK_TEST_TIMEOUT_TestTM3DLightComponents)
+    set(VTK_TEST_TIMEOUT_TestTM3DLightComponents 120)
+  endif()
+  set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
+    PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestTM3DLightComponents})
 endif()
-set_tests_properties(${vtk-module}Cxx-TestTM3DLightComponents
-  PROPERTIES TIMEOUT ${VTK_TEST_TIMEOUT_TestTM3DLightComponents})

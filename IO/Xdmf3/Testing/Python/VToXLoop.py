@@ -69,20 +69,20 @@ def DoFilesExist(xdmfFile, hdf5File, vtkFile, deleteIfSo):
   xlenOK = os.path.getsize(xdmfFile) > 0
   if hdf5File:
     hexists = os.path.exists(hdf5File)
-    hlenOK = os.path.getsize(hdf5File) > 0
+    hlenOK = True #os.path.getsize(hdf5File) > 0
   if vtkFile:
     vexists = os.path.exists(vtkFile)
     vlenOK = os.path.getsize(vtkFile) > 0
 
   theyDo = xexists and xlenOK
-  if hdf5File:
-    theyDo = theyDo and hexists and hlenOK
+  #if hdf5File:
+  #  theyDo = theyDo and hexists and hlenOK
   if vtkFile:
     theyDo = theyDo and vexists and vlenOK
 
   if theyDo and deleteIfSo and CleanUpGood:
     os.remove(xdmfFile)
-    if hdf5File:
+    if hexists:
       os.remove(hdf5File)
     if vtkFile:
       os.remove(vtkFile)
@@ -323,11 +323,9 @@ def RunTest():
   #exercise temporal processing and compare geometric bounds at each tstep
   indices = range(0,len(timerange)) + range(len(timerange)-2,-1,-1)
   for x in indices:
-      xReader.GetExecutive().SetUpdateTimeStep(0, timerange[x])
-      xReader.Update()
+      xReader.UpdateTimeStep(timerange[x])
       obds = xReader.GetOutputDataObject(0).GetBounds()
-      tsrc.GetExecutive().SetUpdateTimeStep(0, timerange[x]+0.0001) #workaround a precision bug in TSE
-      tsrc.Update()
+      tsrc.UpdateTimeStep(timerange[x]+0.0001) #workaround a precision bug in TSE
       ibds = tsrc.GetOutputDataObject(0).GetBounds()
       print timerange[x], obds
       for i in (0,1,2,3,4,5):

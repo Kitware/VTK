@@ -142,7 +142,7 @@ vtkUnstructuredGrid* GridFactory::Get()
   for ( int i = 0; i < num; ++i )
     {
     vtkIdType value = i+100;
-    pointDataArray->InsertNextTupleValue( &value );
+    pointDataArray->InsertNextTypedTuple( &value );
     }
   this->Grid->GetPointData()->AddArray( pointDataArray );
 
@@ -156,7 +156,7 @@ vtkUnstructuredGrid* GridFactory::Get()
   for ( int i = 0; i < num; ++i )
     {
     vtkIdType value = i+200;
-    cellDataArray->InsertNextTupleValue( &value );
+    cellDataArray->InsertNextTypedTuple( &value );
     }
   this->Grid->GetCellData()->AddArray( cellDataArray );
 

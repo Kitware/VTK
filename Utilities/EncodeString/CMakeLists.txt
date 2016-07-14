@@ -6,10 +6,11 @@
 #    the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 #    PURPOSE.  See the above copyright notice for more information.
 #
+
+set(VTK_BUILD_FORWARDING_EXECUTABLES FALSE)
 vtk_module_export_info()
 
 IF(NOT CMAKE_CROSSCOMPILING)
-  INCLUDE_DIRECTORIES(${VTK_SOURCE_DIR}/Common/Core ${VTK_BINARY_DIR}/Common/Core)
   VTK_ADD_EXECUTABLE(vtkEncodeString vtkEncodeString.cxx)
   vtk_compile_tools_target(vtkEncodeString)
 ENDIF()

@@ -171,11 +171,8 @@ class Cursor3DViewer(Testing.vtkTest):
 #                                  color_transfer_function[2])
         volume_property.SetScalarOpacity(opacity_transfer_function)
 
-        composite_function = vtk.vtkVolumeRayCastCompositeFunction()
-
-        volume_mapper = vtk.vtkVolumeRayCastMapper()
+        volume_mapper = vtk.vtkFixedPointVolumeRayCastMapper()
         volume_mapper.SetInputConnection(reader.GetOutputPort())
-        volume_mapper.SetVolumeRayCastFunction(composite_function)
 
         volume = vtk.vtkVolume()
         volume.SetMapper(volume_mapper)

@@ -38,10 +38,10 @@
 // Header for zlib
 #include "vtk_zlib.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <float.h>
-#include <math.h>
+#include <cstdio>
+#include <cstring>
+#include <cfloat>
+#include <cmath>
 
 vtkStandardNewMacro(vtkNIFTIImageWriter);
 vtkCxxSetObjectMacro(vtkNIFTIImageWriter,QFormMatrix,vtkMatrix4x4);
@@ -503,7 +503,8 @@ int vtkNIFTIImageWriter::GenerateHeader(vtkInformation *info, bool singleFile)
   // set the description
   if (this->Description)
     {
-    strncpy(hdr.descrip, this->Description, 80);
+    strncpy(hdr.descrip, this->Description, sizeof(hdr.descrip) - 1);
+    hdr.descrip[sizeof(hdr.descrip) - 1] = '\0';
     }
 
   // qfac dictates the slice ordering in the file

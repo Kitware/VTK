@@ -15,7 +15,9 @@
 #include "vtkOpenGLActor.h"
 
 #include "vtkDepthPeelingPass.h"
+#include "vtkDualDepthPeelingPass.h"
 #include "vtkInformation.h"
+#include "vtkInformationIntegerKey.h"
 #include "vtkMapper.h"
 #include "vtkMatrix3x3.h"
 #include "vtkMatrix4x4.h"
@@ -27,9 +29,11 @@
 #include "vtkRenderWindow.h"
 #include "vtkTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLActor);
+
+vtkInformationKeyMacro(vtkOpenGLActor, GLDepthMaskOverride, Integer)
 
 vtkOpenGLActor::vtkOpenGLActor()
 {
@@ -69,9 +73,21 @@ void vtkOpenGLActor::Render(vtkRenderer *ren, vtkMapper *mapper)
       {
       // check for deptgh peeling
       vtkInformation *info = this->GetPropertyKeys();
-      if (info && info->Has(vtkDepthPeelingPass::OpaqueZTextureUnit()))
+      if (info && info->Has(vtkOpenGLActor::GLDepthMaskOverride()))
         {
-        glDepthMask(GL_TRUE); // transparency with depth peeling
+        int override = info->Get(vtkOpenGLActor::GLDepthMaskOverride());
+        switch (override)
+          {
+          case 0:
+            glDepthMask(GL_FALSE);
+            break;
+          case 1:
+            glDepthMask(GL_TRUE);
+            break;
+          default:
+            // Do nothing.
+            break;
+          }
         }
       else
         {

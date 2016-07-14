@@ -183,14 +183,12 @@ public:
   virtual void FunctionSelect(int brushClass, int brushOperator, double *p1, double *p2, double *q1, double *q2);
   virtual void RangeSelect(int brushClass, int brushOperator, double *p1, double *p2);
 
-//BTX
   enum InputPorts
   {
     INPUT_DATA=0,
     INPUT_TITLES,
     NUM_INPUT_PORTS
   };
-//ETX
 
 protected:
   vtkParallelCoordinatesRepresentation();
@@ -283,8 +281,6 @@ protected:
   vtkPolyDataMapper2D* GetSelectionMapper(int idx);
   int GetNumberOfSelections();
 
-
-  //BTX
   vtkSmartPointer<vtkPolyData>         PlotData;
   vtkSmartPointer<vtkPolyDataMapper2D> PlotMapper;
   vtkSmartPointer<vtkActor2D>          PlotActor;
@@ -298,7 +294,6 @@ protected:
 
   class Internals;
   Internals* I;
-  //ETX
 
   int NumberOfAxes;
   int NumberOfAxisLabels;
@@ -319,11 +314,9 @@ protected:
   double* MinOffsets;
   double* MaxOffsets;
 
-  //BTX
   vtkSmartPointer<vtkAxisActor2D>* Axes;
   vtkSmartPointer<vtkTable> InputArrayTable;
   vtkSmartPointer<vtkStringArray> AxisTitles;
-  //ETX
 
   vtkTimeStamp BuildTime;
 
@@ -338,8 +331,8 @@ protected:
   char* InternalHoverText;
 
 private:
-  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&); // Not implemented
-  void operator=(const vtkParallelCoordinatesRepresentation&);   // Not implemented
+  vtkParallelCoordinatesRepresentation(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelCoordinatesRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

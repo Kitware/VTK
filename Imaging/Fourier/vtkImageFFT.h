@@ -37,18 +37,6 @@ public:
   static vtkImageFFT *New();
   vtkTypeMacro(vtkImageFFT,vtkImageFourierFilter);
 
-
-  // Description:
-  // Used internally for streaming and threads.
-  // Splits output update extent into num pieces.
-  // This method needs to be called num times.  Results must not overlap for
-  // consistent starting extent.  Subclass can override this method.
-  // This method returns the number of pieces resulting from a
-  // successful split.  This can be from 1 to "total".
-  // If 1 is returned, the extent cannot be split.
-  int SplitExtent(int splitExt[6], int startExt[6],
-                  int num, int total);
-
 protected:
   vtkImageFFT() {}
   ~vtkImageFFT() {}
@@ -67,8 +55,8 @@ protected:
     int outExt[6],
     int threadId);
 private:
-  vtkImageFFT(const vtkImageFFT&);  // Not implemented.
-  void operator=(const vtkImageFFT&);  // Not implemented.
+  vtkImageFFT(const vtkImageFFT&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFFT&) VTK_DELETE_FUNCTION;
 };
 
 #endif

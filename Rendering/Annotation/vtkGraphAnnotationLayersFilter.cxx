@@ -188,7 +188,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
         {
         continue;
         }
-      vtkIdTypeArray* vertexIds = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray* vertexIds = vtkArrayDownCast<vtkIdTypeArray>(
         selectionNode->GetSelectionList());
 
       // Get points from graph
@@ -226,7 +226,7 @@ int vtkGraphAnnotationLayersFilter::RequestData(vtkInformation *vtkNotUsed(reque
         static_cast<unsigned char>(opacity * 255) };
       for (vtkIdType i = 0; i < numberOfCells; ++i)
         {
-        outColors->InsertNextTupleValue(outColor);
+        outColors->InsertNextTypedTuple(outColor);
         }
       hullPolyData->GetCellData()->AddArray(outColors);
       outColors->Delete();

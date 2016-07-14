@@ -274,9 +274,29 @@ void vtkImageResliceMapper::Update(int port)
   this->UpdateTime.Modified();
 }
 
+//----------------------------------------------------------------------------
 void vtkImageResliceMapper::Update()
 {
   this->Superclass::Update();
+}
+
+//----------------------------------------------------------------------------
+int vtkImageResliceMapper::Update(
+  int port, vtkInformationVector*)
+{
+  // One can't really make requests of a mapper so default to regular
+  // update.
+  this->Update(port);
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkImageResliceMapper::Update(vtkInformation*)
+{
+  // One can't really make requests of a mapper so default to regular
+  // update.
+  this->Update();
+  return 1;
 }
 
 //----------------------------------------------------------------------------
@@ -1119,7 +1139,7 @@ void vtkImageResliceMapper::CheckerboardImage(
   input->GetOrigin(origin);
   checkOffset[0] = (checkOffset[0] - origin[0])/spacing[0];
   checkOffset[1] = (checkOffset[1] - origin[1])/spacing[1];
-  checkSpacing[0] /= spacing[0],
+  checkSpacing[0] /= spacing[0];
   checkSpacing[1] /= spacing[1];
 
   // Apply the checkerboard to the data

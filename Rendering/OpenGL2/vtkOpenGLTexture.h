@@ -55,10 +55,6 @@ public:
   // render windows is NOT currently supported.
   void ReleaseGraphicsResources(vtkWindow*);
 
-  // Description:
-  // Get the openGL texture name to which this texture is bound.
-  vtkGetMacro(Index, long);
-
   // Description
   // copy the renderers read buffer into this texture
   void CopyTexImage(int x, int y, int width, int height);
@@ -92,7 +88,6 @@ protected:
   ~vtkOpenGLTexture();
 
   vtkTimeStamp   LoadTime;
-  unsigned int Index; // actually GLuint
   vtkWeakPointer<vtkRenderWindow> RenderWindow;   // RenderWindow used for previous render
 
   bool ExternalTextureObject;
@@ -107,8 +102,8 @@ protected:
 
 
 private:
-  vtkOpenGLTexture(const vtkOpenGLTexture&);  // Not implemented.
-  void operator=(const vtkOpenGLTexture&);  // Not implemented.
+  vtkOpenGLTexture(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

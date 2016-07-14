@@ -118,8 +118,8 @@ protected:
   int MaxLevel;
 
 private:
-  vtkGeoTerrain(const vtkGeoTerrain&); // Not implemented
-  void operator=(const vtkGeoTerrain&); // Not implemented
+  vtkGeoTerrain(const vtkGeoTerrain&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTerrain&) VTK_DELETE_FUNCTION;
 };
 
 #endif

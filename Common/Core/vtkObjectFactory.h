@@ -52,7 +52,12 @@ public:
   // Each loaded vtkObjectFactory will be asked in the order
   // the factory was in the VTK_AUTOLOAD_PATH.  After the
   // first factory returns the object no other factories are asked.
-  static vtkObject* CreateInstance(const char* vtkclassname);
+  // If the requested class is abstract, set isAbstract to true. Otherwise
+  // it is assumed that an instance of 'vtkclassname' will be instantiated
+  // by the caller when no override is found.
+  VTK_NEWINSTANCE
+  static vtkObject* CreateInstance(const char* vtkclassname,
+                                   bool isAbstract = false);
 
   // Description:
   // Call vtkDebugLeaks::ConstructClass if necessary. Does not attempt
@@ -99,12 +104,12 @@ public:
   // Description:
   // Set the enable flag for a given named class for all registered
   // factories.
-  static void SetAllEnableFlags(int flag,
+  static void SetAllEnableFlags(vtkTypeBool flag,
                                 const char* className);
   // Description:
   // Set the enable flag for a given named class subclass pair
   // for all registered factories.
-  static void SetAllEnableFlags(int flag,
+  static void SetAllEnableFlags(vtkTypeBool flag,
                                 const char* className,
                                 const char* subclassName);
 
@@ -143,7 +148,7 @@ public:
 
   // Description:
   // Return the enable flag for the class at the given index.
-  virtual int GetEnableFlag(int index);
+  virtual vtkTypeBool GetEnableFlag(int index);
 
   // Description:
   // Return the description for a the class override at the given
@@ -153,11 +158,11 @@ public:
   // Description:
   // Set and Get the Enable flag for the specific override of className.
   // if subclassName is null, then it is ignored.
-  virtual void SetEnableFlag(int flag,
+  virtual void SetEnableFlag(vtkTypeBool flag,
                              const char* className,
                              const char* subclassName);
-  virtual int GetEnableFlag(const char* className,
-                            const char* subclassName);
+  virtual vtkTypeBool GetEnableFlag(const char* className,
+                                const char* subclassName);
 
   // Description:
   // Return 1 if this factory overrides the given class name, 0 otherwise.
@@ -176,11 +181,9 @@ public:
   // This returns the path to a dynamically loaded factory.
   vtkGetStringMacro(LibraryPath);
 
-  //BTX
   typedef vtkObject* (*CreateFunction)();
-  //ETX
+
 protected:
-  //BTX
 
   // Description:
   // Register object creation information with the factory.
@@ -190,9 +193,6 @@ protected:
                         int enableFlag,
                         CreateFunction createFunction);
 
-  //ETX
-
-
   // Description:
   // This method is provided by sub-classes of vtkObjectFactory.
   // It should create the named vtk object or return 0 if that object
@@ -201,15 +201,15 @@ protected:
 
   vtkObjectFactory();
   ~vtkObjectFactory();
-  //BTX
+
   struct OverrideInformation
   {
     char* Description;
     char* OverrideWithName;
-    int EnabledFlag;
+    vtkTypeBool EnabledFlag;
     CreateFunction CreateCallback;
   };
-  //ETX
+
   OverrideInformation* OverrideArray;
   char** OverrideClassNames;
   int SizeOverrideArray;
@@ -242,8 +242,8 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
-  void operator=(const vtkObjectFactory&);  // Not implemented.
+  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
 };
 
 // Macro to create an object creation function.
@@ -284,7 +284,7 @@ vtkObjectFactory* vtkLoad()                     \
 
 // Macro to implement the body of the object factory form of the New() method.
 #define VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, false); \
   if(ret) \
     { \
     return static_cast<thisClass*>(ret); \
@@ -295,7 +295,7 @@ vtkObjectFactory* vtkLoad()                     \
 // method, i.e. an abstract base class that can only be instantiated if the
 // object factory overrides it.
 #define VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
-  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass); \
+  vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, true); \
   if(ret) \
     { \
     return static_cast<thisClass*>(ret); \

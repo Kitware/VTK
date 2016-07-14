@@ -178,10 +178,19 @@ void RemoveDuplicatedPointsFromFaceArrayAndEdgeTable(vtkPoints * points,
                                                      vtkEdgeTable * & edgeTable,
                                                      double *bounds)
 {
-  const double eps = 0.000001;
+  double coordTolerance = 0.000001; // initial value
+  if (bounds)
+    {
+    // scale coordTolerance with length of the bounds diagonal if < 1.0
+    double bbDiag = sqrt((bounds[1] - bounds[0])*(bounds[1] - bounds[0]) +
+                         (bounds[3] - bounds[2])*(bounds[3] - bounds[2]) +
+                         (bounds[5] - bounds[4])*(bounds[5] - bounds[4]));
+    coordTolerance = std::min(coordTolerance, coordTolerance*bbDiag);
+    }
+
   vtkSmartPointer<vtkPoints> newPoints = vtkSmartPointer<vtkPoints>::New();
   vtkSmartPointer<vtkPointLocator> merge = vtkSmartPointer<vtkPointLocator>::New();
-  merge->SetTolerance(eps);
+  merge->SetTolerance(coordTolerance);
   merge->InitPointInsertion(newPoints, bounds);
   bool foundDupPoint = false;
   vtkIdType pid = -1;
@@ -750,8 +759,7 @@ static int CheckContourDimensions(vtkPoints* points, vtkIdType npts,
                                   const vtkIdType * ptIds,
                                   double * normal, double * center)
 {
-  static const double eigenvalueRatioThresh = 0.001;
-
+  static const double eigenvalueRatioThresh = 1e-12; // was 0.001, but 1e-12 seems better: http://www.paraview.org/Bug/view.php?id=13490
   if (npts < 3)
     {
     // Defensively return zeros here for normal and center.
@@ -945,7 +953,7 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
   std::vector<double> extremePointAngles; // record the angles of extreme point
   vtkIdVectorType edges;
   size_t edgesSize = 0;
-  const double eps = 0.0000001;
+  const double angleTolerance = 0.0000001;
   for (mapIt = cpMap.begin(); mapIt != cpMap.end(); ++mapIt)
     {
     edges = mapIt->second;
@@ -999,11 +1007,11 @@ static void OrderMultiConnectedContourPoints(vtkIdToIdVectorMapType & cpMap,
           vtkMath::Cross(n, e0, nn);
           angle = acos(vtkMath::Dot(nn, e1)) + vtkMath::Pi()/2.0;
           }
-        if (angle < -eps)
+        if (angle < -angleTolerance)
           {
           angle += 2.0*vtkMath::Pi();
           }
-        if (angle > 2.0*vtkMath::Pi()+eps)
+        if (angle > 2.0*vtkMath::Pi()+angleTolerance)
           {
           angle -= 2.0*vtkMath::Pi();
           }
@@ -1563,7 +1571,7 @@ vtkCell *vtkPolyhedron::GetEdge(int edgeId)
 
   // Return the requested edge
   vtkIdType edge[2];
-  this->Edges->GetTupleValue(edgeId,edge);
+  this->Edges->GetTypedTuple(edgeId,edge);
 
   // Recall that edge tuples are stored in canonical numbering
   for (int i=0; i<2; i++)
@@ -1607,7 +1615,7 @@ int vtkPolyhedron::GenerateEdges()
       if ( this->EdgeTable->IsEdge(edge[0],edge[1]) == (-1) )
         {
         this->EdgeTable->InsertEdge(edge[0],edge[1]);
-        this->Edges->InsertNextTupleValue(edge);
+        this->Edges->InsertNextTypedTuple(edge);
         }
       }
     face += face[0] + 1;
@@ -1998,7 +2006,9 @@ int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
     {
     if (faceIter.CurrentPolygonSize < 3)
       {
-      continue;
+      vtkErrorMacro("Find a face with " << faceIter.CurrentPolygonSize <<
+        " vertices. Cannot return CellBoundary due to this degenerate case.");
+      break;
       }
 
     vtkPolygon::ComputeNormal(this->Points, faceIter.CurrentPolygonSize,
@@ -2256,17 +2266,29 @@ int vtkPolyhedron::IntersectWithContour(double value,
                                         int insideOut,
                                         vtkDataArray *inScalars)
 {
-  const double eps = 0.000001;
   bool allPositive = true;
   bool allNegative = true;
-  for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); pid++)
+
+  // make the valueTolerance dependent on the range of
+  // values that is being contoured
+  double vMin(DBL_MAX), vMax(-DBL_MAX);
+  for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); ++pid)
     {
     double v = inScalars->GetComponent(pid,0);
-    if (v < value + eps)
+    vMin = std::min(vMin, v);
+    vMax = std::max(vMax, v);
+    }
+
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
+
+  for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); ++pid)
+    {
+    double v = inScalars->GetComponent(pid,0);
+    if (v < value + valueTolerance)
       {
       allPositive = false;
       }
-    else if (v > value - eps)
+    else if (v > value - valueTolerance)
       {
       allNegative = false;
       }
@@ -2300,7 +2322,18 @@ int vtkPolyhedron::InternalContour(double value,
                                    vtkIdToIdVectorMapType & pointToFacesMap,
                                    vtkIdToIdMapType & pointIdMap)
 {
-  const double eps = 0.000001;
+  // make the valueTolerance dependent on the range of
+  // values that is being contoured
+  double vMin(DBL_MAX), vMax(-DBL_MAX);
+  for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); ++pid)
+    {
+    double v = inScalars->GetComponent(pid,0);
+    vMin = std::min(vMin, v);
+    vMax = std::max(vMax, v);
+    }
+
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
+
   double x0[3], x1[3], x[3];
   double v0, v1, v, t;
 
@@ -2315,9 +2348,9 @@ int vtkPolyhedron::InternalContour(double value,
   for (pid = 0; pid < this->Points->GetNumberOfPoints(); pid++)
     {
     v = inScalars->GetComponent(pid,0);
-    if (v < value + eps)
+    if (v < value + valueTolerance)
       {
-      if (v > value - eps)
+      if (v > value - valueTolerance)
         {
         pointLabelVector.push_back(0);
         }
@@ -2326,9 +2359,9 @@ int vtkPolyhedron::InternalContour(double value,
         pointLabelVector.push_back(-1);
         }
       }
-    else if (v > value - eps)
+    else if (v > value - valueTolerance)
       {
-      if (v < value + eps)
+      if (v < value + valueTolerance)
         {
         pointLabelVector.push_back(0);
         }
@@ -2846,7 +2879,6 @@ void vtkPolyhedron::Contour(double value,
   this->ConstructPolyData();
   this->ComputeBounds();
 
-  vtkIdVectorType pointLabelVector;
   if (this->IntersectWithContour(value, 0, pointScalars))
     {
     return;
@@ -2912,9 +2944,6 @@ void vtkPolyhedron::Clip(double value,
 
   // vector to store cell connectivity
   vtkIdVectorType cellVector;
-
-  // vector to store which side of the clip function the polyhedron vertices are
-  vtkIdVectorType pointLabelVector;
 
   // check if polyhedron is all in
   if (this->IntersectWithContour(value, insideOut, pointScalars) == 1)
@@ -3063,7 +3092,17 @@ void vtkPolyhedron::Clip(double value,
     visited[i] = false;
     }
 
-  const double eps = 0.000001;
+  // make the valueTolerance dependent on the range of
+  // values that is being contoured
+  double vMin(DBL_MAX), vMax(-DBL_MAX);
+  for (vtkIdType pid = 0; pid < this->Points->GetNumberOfPoints(); ++pid)
+    {
+    double v = contourScalars->GetComponent(pid,0);
+    vMin = std::min(vMin, v);
+    vMax = std::max(vMax, v);
+    }
+
+  double valueTolerance = std::min(1e-6, 1e-6*(vMax - vMin));
 
   // Main algorithm: go through all positive points (points on the right side
   // of the contour).  These do not include contour points.
@@ -3079,7 +3118,7 @@ void vtkPolyhedron::Clip(double value,
     {
     // find if a point is a positive point
     double v = contourScalars->GetComponent(pid,0);
-    if ( (insideOut && (v > value-eps)) || ((!insideOut) && (v < value+eps)) )
+    if ( (insideOut && (v > value-valueTolerance)) || ((!insideOut) && (v < value+valueTolerance)) )
       {
       continue;
       }
@@ -3157,10 +3196,10 @@ void vtkPolyhedron::Clip(double value,
 
           newpids.insert(newpids.begin(), pids[startPt]);
           v = contourScalars->GetComponent(pids[startPt],0);
-          if ((insideOut && (v > value-eps)) || ((!insideOut) && (v < value+eps)))
+          if ((insideOut && (v > value-valueTolerance)) || ((!insideOut) && (v < value+valueTolerance)))
             {
             startFound = true;
-            if ((insideOut && (v > value+eps)) || ((!insideOut) && (v < value-eps)))
+            if ((insideOut && (v > value+valueTolerance)) || ((!insideOut) && (v < value-valueTolerance)))
               {
               vtkWarningMacro("A positive point is directly connected to a "
                 "negative point with no contour point in between. We should "
@@ -3191,10 +3230,10 @@ void vtkPolyhedron::Clip(double value,
 
           newpids.push_back(pids[endPt]);
           v = contourScalars->GetComponent(pids[endPt],0);
-          if ((insideOut && (v > value-eps)) || ((!insideOut) && (v < value+eps)))
+          if ((insideOut && (v > value-valueTolerance)) || ((!insideOut) && (v < value+valueTolerance)))
             {
             endFound = true;
-            if ((insideOut && (v > value+eps)) || ((!insideOut) && (v < value-eps)))
+            if ((insideOut && (v > value+valueTolerance)) || ((!insideOut) && (v < value-valueTolerance)))
               {
               vtkWarningMacro("A positive point is directly connected to a "
                 "negative point with no contour point in between. We should "

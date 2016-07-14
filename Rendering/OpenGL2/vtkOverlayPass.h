@@ -38,12 +38,10 @@ public:
   vtkTypeMacro(vtkOverlayPass,vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
  protected:
   // Description:
@@ -55,8 +53,8 @@ public:
   virtual ~vtkOverlayPass();
 
  private:
-  vtkOverlayPass(const vtkOverlayPass&);  // Not implemented.
-  void operator=(const vtkOverlayPass&);  // Not implemented.
+  vtkOverlayPass(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverlayPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

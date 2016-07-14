@@ -59,7 +59,7 @@ vtkDoubleArray* vtkCorrelativeStatisticsGnuR::CalculatePValues(vtkDoubleArray* s
   ri->EvalRscript( "p=1-pchisq(jbs,3)" );
 
   // Retrieve the p-values
-  vtkDoubleArray* testCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
+  vtkDoubleArray* testCol = vtkArrayDownCast<vtkDoubleArray>( ri->AssignRVariableToVTKDataArray( "p" ) );
   if ( ! testCol || testCol->GetNumberOfTuples() != statCol->GetNumberOfTuples() )
     {
     vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );

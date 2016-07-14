@@ -346,7 +346,7 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     vtkErrorMacro(<< "Input Tree does not have box information.");
     return;
     }
-  vtkFloatArray *boxInfo = vtkFloatArray::SafeDownCast(tempData);
+  vtkFloatArray *boxInfo = vtkArrayDownCast<vtkFloatArray>(tempData);
 
   // Check to see whether we have to rebuild everything
   if ( this->UpdateWindowInfo(viewport) ||
@@ -417,8 +417,8 @@ void vtkLabeledTreeMapDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                     this->FieldDataArray : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
         }
-      numericData = vtkDataArray::SafeDownCast(abstractData);
-      stringData = vtkStringArray::SafeDownCast(abstractData);
+      numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
+      stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
       }; break;
       }
 
@@ -515,7 +515,7 @@ void vtkLabeledTreeMapDataMapper::LabelTree(vtkTree *tree,
 
     if (level >= this->StartLevel && (this->EndLevel == -1 || level <= this->EndLevel))
       {
-      boxInfo->GetTupleValue(vertex, blimits); // Get the extents of the vertex
+      boxInfo->GetTypedTuple(vertex, blimits); // Get the extents of the vertex
       if (this->ConvertToDC(blimits, blimitsDC))
         {
         continue;

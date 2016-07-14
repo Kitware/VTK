@@ -21,33 +21,28 @@
 #ifndef vtkIdTypeArray_h
 #define vtkIdTypeArray_h
 
-// Tell the template header how to give our superclass a DLL interface.
-#if !(defined(vtkIdTypeArray_cxx) && defined(VTK_USE_64BIT_IDS)) && (defined(VTK_USE_64BIT_IDS) || !defined(vtkIntArray_h))
-# define VTK_DATA_ARRAY_TEMPLATE_TYPE vtkIdType
-#endif
-
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkDataArray.h"
-#include "vtkDataArrayTemplate.h" // Real Superclass
+#include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
-#define vtkDataArray vtkDataArrayTemplate<vtkIdType>
+#ifndef __VTK_WRAP__
+#define vtkDataArray vtkAOSDataArrayTemplate<vtkIdType>
 #endif
 class VTKCOMMONCORE_EXPORT vtkIdTypeArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkIdTypeArray, vtkDataArray)
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkIdTypeArray* New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // This macro expands to the set of method declarations that
-  // make up the interface of vtkDataArrayTemplate, which is ignored
+  // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(vtkIdType);
 #else
 
@@ -59,10 +54,17 @@ public:
       // the templated superclass is not able to differentiate
       // vtkIdType from a long long or an int since vtkIdType
       // is simply a typedef. This means that
-      // vtkDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
+      // vtkAOSDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
       return VTK_ID_TYPE;
     }
 #endif
+
+  // Description:
+  // A faster alternative to SafeDownCast for downcasting vtkAbstractArrays.
+  static vtkIdTypeArray* FastDownCast(vtkAbstractArray *source)
+  {
+    return static_cast<vtkIdTypeArray*>(Superclass::FastDownCast(source));
+  }
 
   // Description:
   // Get the minimum data value in its native type.
@@ -77,11 +79,14 @@ protected:
   ~vtkIdTypeArray();
 
 private:
-  //BTX
-  typedef vtkDataArrayTemplate<vtkIdType> RealSuperclass;
-  //ETX
-  vtkIdTypeArray(const vtkIdTypeArray&);  // Not implemented.
-  void operator=(const vtkIdTypeArray&);  // Not implemented.
+
+  typedef vtkAOSDataArrayTemplate<vtkIdType> RealSuperclass;
+
+  vtkIdTypeArray(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkIdTypeArray&) VTK_DELETE_FUNCTION;
 };
+
+// Define vtkArrayDownCast implementation:
+vtkArrayDownCast_FastCastMacro(vtkIdTypeArray)
 
 #endif

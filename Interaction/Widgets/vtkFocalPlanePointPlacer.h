@@ -96,8 +96,8 @@ protected:
   double Offset;
 
 private:
-  vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&);  //Not implemented
-  void operator=(const vtkFocalPlanePointPlacer&);  //Not implemented
+  vtkFocalPlanePointPlacer(const vtkFocalPlanePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFocalPlanePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

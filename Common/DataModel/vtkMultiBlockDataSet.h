@@ -87,12 +87,10 @@ public:
   vtkInformation* GetMetaData(unsigned int blockno)
     { return this->Superclass::GetChildMetaData(blockno); }
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkMultiBlockDataSet* GetData(vtkInformation* info);
   static vtkMultiBlockDataSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Unhiding superclass method.
@@ -104,15 +102,14 @@ public:
   virtual int HasMetaData(vtkCompositeDataIterator* iter)
     { return this->Superclass::HasMetaData(iter); }
 
-//BTX
 protected:
   vtkMultiBlockDataSet();
   ~vtkMultiBlockDataSet();
 
 private:
-  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&); // Not implemented.
-  void operator=(const vtkMultiBlockDataSet&); // Not implemented.
-//ETX
+  vtkMultiBlockDataSet(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiBlockDataSet&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

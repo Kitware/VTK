@@ -149,8 +149,8 @@ protected:
 
   vtkFieldList* FieldList;
 private:
-  vtkMergeFilter(const vtkMergeFilter&);  // Not implemented.
-  void operator=(const vtkMergeFilter&);  // Not implemented.
+  vtkMergeFilter(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
   };
 
 #endif

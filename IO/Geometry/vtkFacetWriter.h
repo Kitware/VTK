@@ -57,9 +57,7 @@ public:
   // Write data
   void Write();
 
-  // BTX
   void WriteToStream(ostream* ost);
-  // ETX
 
 protected:
   vtkFacetWriter();
@@ -73,16 +71,14 @@ protected:
 
   virtual int FillInputPortInformation(int, vtkInformation *);
 
-  // BTX
   int WriteDataToStream(ostream* ost, vtkPolyData* data);
-  // ETX
 
   char *FileName;
   ostream *OutputStream;
 
 private:
-  vtkFacetWriter(const vtkFacetWriter&);  // Not implemented.
-  void operator=(const vtkFacetWriter&);  // Not implemented.
+  vtkFacetWriter(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

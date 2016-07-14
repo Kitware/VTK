@@ -80,7 +80,7 @@ namespace
 void convertGhostLevelsToBitFields(vtkDataSetAttributes* dsa, unsigned int bit)
 {
   vtkDataArray *da = dsa->GetArray(vtkDataSetAttributes::GhostArrayName());
-  vtkUnsignedCharArray *uca = vtkUnsignedCharArray::SafeDownCast(da);
+  vtkUnsignedCharArray *uca = vtkArrayDownCast<vtkUnsignedCharArray>(da);
   unsigned char *ghosts = uca->GetPointer(0);
   for (vtkIdType i=0; i < da->GetNumberOfTuples(); ++i)
     {
@@ -200,7 +200,7 @@ void vtkDistributedDataFilter::SetUserRegionAssignments(
 vtkIdTypeArray *vtkDistributedDataFilter::GetGlobalElementIdArray(vtkDataSet *set)
 {
   vtkDataArray *da = set->GetCellData()->GetGlobalIds();
-  return vtkIdTypeArray::SafeDownCast(da);
+  return vtkArrayDownCast<vtkIdTypeArray>(da);
 }
 
 //----------------------------------------------------------------------------
@@ -219,7 +219,7 @@ vtkIdType *vtkDistributedDataFilter::GetGlobalElementIds(vtkDataSet *set)
 vtkIdTypeArray *vtkDistributedDataFilter::GetGlobalNodeIdArray(vtkDataSet *set)
 {
   vtkDataArray *da = set->GetPointData()->GetGlobalIds();
-  return vtkIdTypeArray::SafeDownCast(da);
+  return vtkArrayDownCast<vtkIdTypeArray>(da);
 }
 
 //----------------------------------------------------------------------------
@@ -713,6 +713,7 @@ int vtkDistributedDataFilter::RequestDataInternal(vtkDataSet* input,
     }
 
   output->ShallowCopy(expandedGrid);
+  output->GetFieldData()->ShallowCopy(input->GetFieldData());
 
   expandedGrid->Delete();
 
@@ -2773,7 +2774,7 @@ static int insideBoxFunction(vtkIdType cellId, vtkUnstructuredGrid *grid, void *
   char *arrayName = (char *)data;
 
   vtkDataArray *da= grid->GetCellData()->GetArray(arrayName);
-  vtkUnsignedCharArray *inside = vtkUnsignedCharArray::SafeDownCast(da);
+  vtkUnsignedCharArray *inside = vtkArrayDownCast<vtkUnsignedCharArray>(da);
 
   unsigned char where = inside->GetValue(cellId);
 

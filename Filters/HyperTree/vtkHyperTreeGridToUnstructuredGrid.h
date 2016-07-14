@@ -72,8 +72,8 @@ protected:
   vtkCellArray* Cells;
 
 private:
-  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkHyperTreeGridToUnstructuredGrid&);  // Not implemented.
+  vtkHyperTreeGridToUnstructuredGrid(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperTreeGridToUnstructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

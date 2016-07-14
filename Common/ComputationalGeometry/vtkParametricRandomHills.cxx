@@ -257,14 +257,6 @@ void vtkParametricRandomHills::CopyParameters()
   this->previousAllowRandomGeneration = this->AllowRandomGeneration;
 }
 
-#ifndef VTK_LEGACY_REMOVE
-//----------------------------------------------------------------------------
-void vtkParametricRandomHills::GenerateTheHills()
-{
-  VTK_LEGACY_BODY(vtkParametricRandomHills::GenerateTheHills, "VTK 6.2");
-}
-#endif
-
 //----------------------------------------------------------------------------
 void vtkParametricRandomHills::PrintSelf(ostream& os, vtkIndent indent)
 {

@@ -24,6 +24,11 @@
 
 vtkStandardNewMacro(vtkPlatonicSolidSource);
 
+// Wrapping this in namespaces because the short names (a, b, c, etc) are
+// throwing warnings on MSVC when inlined methods in vtkGenericDataArray are
+// being used ('warning C4459: declaration of 'c' hides global declaration')
+namespace {
+namespace vtkPlatonicSolidSourceDetail {
 // The geometry and topology of each solid. Solids are centered at
 // the origin with radius 1.0.
 // The golden ration phi = (1+sqrt(5))/2=1.61803398875 enters into many
@@ -77,6 +82,8 @@ static vtkIdType IcosaVerts[] = {
   4,10,9, 5,11,8, 6,8,11, 1,9,3, 1,5,8, 0,3,10, 0,11,5, 7,10,4, 7,6,11,
   2,4,9, 2,8,6
 };
+} // end namespace detail
+} // end anon namespace
 
 vtkPlatonicSolidSource::vtkPlatonicSolidSource()
 {
@@ -111,8 +118,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 4;
       cellSize = 3;
       numCells = 4;
-      solidPoints = TetraPoints;
-      solidVerts = TetraVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::TetraPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::TetraVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
 
@@ -120,8 +127,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 8;
       cellSize = 4;
       numCells = 6;
-      solidPoints = CubePoints;
-      solidVerts = CubeVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::CubePoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::CubeVerts;
       solidScale = 1.0/sqrt(3.0);
       break;
 
@@ -129,8 +136,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 6;
       cellSize = 3;
       numCells = 8;
-      solidPoints = OctPoints;
-      solidVerts = OctVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::OctPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::OctVerts;
       solidScale = 1.0/sqrt(2.0);
       break;
 
@@ -138,8 +145,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 12;
       cellSize = 3;
       numCells = 20;
-      solidPoints = IcosaPoints;
-      solidVerts = IcosaVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::IcosaPoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::IcosaVerts;
       solidScale = 1.0/0.58778524999243;
       break;
 
@@ -147,8 +154,8 @@ int vtkPlatonicSolidSource::RequestData(
       numPts = 20;
       cellSize = 5;
       numCells = 12;
-      solidPoints = DodePoints;
-      solidVerts = DodeVerts;
+      solidPoints = vtkPlatonicSolidSourceDetail::DodePoints;
+      solidVerts = vtkPlatonicSolidSourceDetail::DodeVerts;
       solidScale = 1.0/1.070466269319;
       break;
     }

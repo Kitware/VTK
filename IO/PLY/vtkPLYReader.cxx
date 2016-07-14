@@ -25,7 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkSmartPointer.h"
 
-#include <ctype.h>
+#include <cctype>
 #include <cstddef>
 
 vtkStandardNewMacro(vtkPLYReader);

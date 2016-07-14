@@ -186,7 +186,6 @@ public:
   // are added to vtkIdList by vtkIdList::SetId().
   void ExportAllPointIdsByDirectSet( vtkIdType * pntIdx, vtkIdList * idList );
 
-//BTX
 protected:
 
   vtkIncrementalOctreeNode();
@@ -328,9 +327,9 @@ private:
   double GetDistance2ToBoundary( const double point[3], double closest[3],
     int innerOnly, vtkIncrementalOctreeNode* rootNode, int checkData = 0 );
 
-  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & );// Not implemented
-  void operator = ( const vtkIncrementalOctreeNode & );        // Not implemented
-//ETX
+  vtkIncrementalOctreeNode( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkIncrementalOctreeNode & ) VTK_DELETE_FUNCTION;
+
 };
 
 // In-lined for performance

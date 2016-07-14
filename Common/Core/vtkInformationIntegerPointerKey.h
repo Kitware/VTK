@@ -64,8 +64,8 @@ protected:
   int* GetWatchAddress(vtkInformation* info);
 
 private:
-  vtkInformationIntegerPointerKey(const vtkInformationIntegerPointerKey&);  // Not implemented.
-  void operator=(const vtkInformationIntegerPointerKey&);  // Not implemented.
+  vtkInformationIntegerPointerKey(const vtkInformationIntegerPointerKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationIntegerPointerKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

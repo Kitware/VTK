@@ -93,7 +93,7 @@ int TestPolyDataRemoveCell(int , char *[])
       {
       data[j+1] = pts[j];
       }
-    cellPoints->SetTupleValue(i, data);
+    cellPoints->SetTypedTuple(i, data);
     }
   poly->GetCellData()->AddArray(cellPoints);
   cellPoints->Delete();
@@ -114,8 +114,8 @@ int TestPolyDataRemoveCell(int , char *[])
     }
 
   // the arrays should have been changed so get them again...
-  cellTypes = vtkIntArray::SafeDownCast(poly->GetCellData()->GetArray(ctName));
-  cellPoints = vtkIdTypeArray::SafeDownCast(poly->GetCellData()->GetArray(cpName));
+  cellTypes = vtkArrayDownCast<vtkIntArray>(poly->GetCellData()->GetArray(ctName));
+  cellPoints = vtkArrayDownCast<vtkIdTypeArray>(poly->GetCellData()->GetArray(cpName));
 
   // check the cell types and arrays
   for(i=0;i<poly->GetNumberOfCells();i++)
@@ -133,7 +133,7 @@ int TestPolyDataRemoveCell(int , char *[])
     vtkIdType npts, *pts;
     poly->GetCellPoints(i, npts, pts);
     vtkIdType data[4];
-    cellPoints->GetTupleValue(i, data);
+    cellPoints->GetTypedTuple(i, data);
     if(data[0] != npts)
       {
       cout << "Problem with the number of points for cell " << i << endl;

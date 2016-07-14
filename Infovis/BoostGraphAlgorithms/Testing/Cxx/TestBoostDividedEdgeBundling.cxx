@@ -83,13 +83,13 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
   reader->ReadCharDataOn();
   reader->Update();
   vtkTree *tree = reader->GetOutput();
-  vtkStringArray *keyArr = vtkStringArray::SafeDownCast(
+  vtkStringArray *keyArr = vtkArrayDownCast<vtkStringArray>(
     tree->GetVertexData()->GetAbstractArray("key"));
-  vtkStringArray *sourceArr = vtkStringArray::SafeDownCast(
+  vtkStringArray *sourceArr = vtkArrayDownCast<vtkStringArray>(
     tree->GetVertexData()->GetAbstractArray("source"));
-  vtkStringArray *targetArr = vtkStringArray::SafeDownCast(
+  vtkStringArray *targetArr = vtkArrayDownCast<vtkStringArray>(
     tree->GetVertexData()->GetAbstractArray("target"));
-  vtkStringArray *contentArr = vtkStringArray::SafeDownCast(
+  vtkStringArray *contentArr = vtkArrayDownCast<vtkStringArray>(
     tree->GetVertexData()->GetAbstractArray(".chardata"));
   double x = 0.0;
   double y = 0.0;

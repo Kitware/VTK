@@ -123,8 +123,8 @@ protected:
   bool UseFragmentProgram;
 
 private:
-  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLImageSliceMapper&);  // Not implemented.
+  vtkOpenGLImageSliceMapper(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLImageSliceMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

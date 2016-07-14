@@ -172,12 +172,13 @@ bool MET_StringToWordArray(const char *s, int *n, char ***val);
 
 template <class T>
 void MET_StringToVector( const METAIO_STL::string & s,
-                         METAIO_STL::vector< T > & vec )
+                         METAIO_STL::vector< T > & vec,
+                         const char separator=',' )
 {
   vec.clear();
 
   METAIO_STL::string::size_type prevPos = 0;
-  METAIO_STL::string::size_type pos = s.find(",", prevPos);
+  METAIO_STL::string::size_type pos = s.find( separator, prevPos );
   T tVal;
   while( pos != METAIO_STL::string::npos )
     {
@@ -188,10 +189,10 @@ void MET_StringToVector( const METAIO_STL::string & s,
     vec.push_back( tVal );
 
     prevPos = pos+1;
-    pos = s.find(",", prevPos);
+    pos = s.find( separator, prevPos );
     }
   METAIO_STL::stringstream ss;
-  METAIO_STL::string tmpString = s.substr( prevPos, (s.size()-prevPos) );
+  METAIO_STL::string tmpString = s.substr( prevPos, ( s.size() - prevPos ) );
   ss << tmpString;
   ss >> tVal;
   vec.push_back( tVal );

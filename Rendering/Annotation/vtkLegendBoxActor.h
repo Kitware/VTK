@@ -165,7 +165,6 @@ public:
   // vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -185,7 +184,6 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-//ETX
 
 protected:
   vtkLegendBoxActor();
@@ -246,8 +244,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLegendBoxActor(const vtkLegendBoxActor&);  // Not implemented.
-  void operator=(const vtkLegendBoxActor&);  // Not implemented.
+  vtkLegendBoxActor(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
 };
 
 

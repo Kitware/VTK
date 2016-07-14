@@ -221,25 +221,27 @@ template<typename T> const T& vtkQuaternion<T>::GetZ() const
 template<typename T>
 T vtkQuaternion<T>::GetRotationAngleAndAxis(T axis[3]) const
 {
-  vtkQuaternion<T> normedQuat(*this);
-  normedQuat.Normalize();
-
-  T angle = acos(normedQuat.GetW()) * 2.0;
-  T f = sin( angle * 0.5 );
+  T w = this->GetW();
+  T x = this->GetX();
+  T y = this->GetY();
+  T z = this->GetZ();
+  T f = sqrt(x*x + y*y + z*z);
   if (f != 0.0)
     {
-    axis[0] = normedQuat.GetX() / f;
-    axis[1] = normedQuat.GetY() / f;
-    axis[2] = normedQuat.GetZ() / f;
+    axis[0] = x / f;
+    axis[1] = y / f;
+    axis[2] = z / f;
     }
   else
     {
+    w = 1.0;
     axis[0] = 0.0;
     axis[1] = 0.0;
     axis[2] = 0.0;
     }
 
-  return angle;
+  // atan2() provides a more accurate angle result than acos()
+  return 2.0*atan2(f, w);
 }
 
 //----------------------------------------------------------------------------
@@ -259,17 +261,16 @@ vtkQuaternion<T>::SetRotationAngleAndAxis (const T& angle,
   T axisNorm = x*x + y*y + z*z;
   if (axisNorm != 0.0)
     {
-    T w = cos(angle / 2.0);
-    this->SetW(w);
-
-    T f = sin( angle / 2.0);
+    T f = sin(0.5*angle);
+    this->SetW(cos(0.5*angle));
     this->SetX((x / axisNorm) * f);
     this->SetY((y / axisNorm) * f);
     this->SetZ((z / axisNorm) * f);
     }
   else
     {
-    this->Set(0.0, 0.0, 0.0, 0.0);
+    // set the quaternion for "no rotation"
+    this->Set(1.0, 0.0, 0.0, 0.0);
     }
 }
 
@@ -473,25 +474,24 @@ template<typename T> void vtkQuaternion<T>::FromMatrix3x3(const T A[3][3])
 template<typename T> vtkQuaternion<T> vtkQuaternion<T>
 ::Slerp(T t, const vtkQuaternion<T>& q1) const
 {
-  T axis0[3], axis1[3];
+  T axis0[3], axis1[3], cross[3];
   this->GetRotationAngleAndAxis(axis0);
   q1.GetRotationAngleAndAxis(axis1);
   const T dot = vtkMath::Dot(axis0, axis1);
-  double t1, t2;
+  vtkMath::Cross(axis0, axis1, cross);
+  const T f = vtkMath::Norm(cross);
 
   // To avoid division by zero, perform a linear interpolation (LERP), if our
   // quarternions are nearly in the same direction, otherwise resort
   // to spherical linear interpolation. In the limiting case (for small
   // angles), SLERP is equivalent to LERP.
 
-  if ((1.0 - fabs(dot)) < 1e-6)
+  T t1 = 1.0-t;
+  T t2 = t;
+
+  if (f > 1e-6)
     {
-    t1 = 1.0-t;
-    t2 = t;
-    }
-  else
-    {
-    const T theta = acos( dot );
+    const T theta = atan2(f, dot);
     t1 = sin((1.0-t)*theta)/sin(theta);
     t2 = sin(t*theta)/sin(theta);
     }
@@ -522,10 +522,9 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>
 template<typename T> void vtkQuaternion<T>::ToUnitLog()
 {
   T axis[3];
-  T angle = this->GetRotationAngleAndAxis(axis);
-  T sinAngle = sin(angle);
+  T angle = 0.5*this->GetRotationAngleAndAxis(axis);
 
-  this->Set(0.0, sinAngle*axis[0], sinAngle*axis[1], sinAngle*axis[2]);
+  this->Set(0.0, angle*axis[0], angle*axis[1], angle*axis[2]);
 }
 
 //----------------------------------------------------------------------------
@@ -539,11 +538,20 @@ template<typename T> vtkQuaternion<T> vtkQuaternion<T>::UnitLog() const
 //----------------------------------------------------------------------------
 template<typename T> void vtkQuaternion<T>::ToUnitExp()
 {
-  T axis[3];
-  T angle = this->GetRotationAngleAndAxis(axis);
+  T x = this->GetX();
+  T y = this->GetY();
+  T z = this->GetZ();
+  T angle = sqrt(x*x + y*y + z*z);
   T sinAngle = sin(angle);
+  T cosAngle = cos(angle);
+  if (angle != 0.0)
+    {
+    x /= angle;
+    y /= angle;
+    z /= angle;
+    }
 
-  this->Set(cos(angle), sinAngle*axis[0], sinAngle*axis[1], sinAngle*axis[2]);
+  this->Set(cosAngle, sinAngle*x, sinAngle*y, sinAngle*z);
 }
 
 //----------------------------------------------------------------------------

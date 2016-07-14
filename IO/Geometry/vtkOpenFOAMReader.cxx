@@ -98,9 +98,9 @@
 #include <unistd.h>
 #endif
 // for fabs()
-#include <math.h>
+#include <cmath>
 // for isalnum() / isspace() / isdigit()
-#include <ctype.h>
+#include <cctype>
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
 uLong ZEXPORT crc32(uLong, const Bytef *, uInt)
@@ -245,9 +245,8 @@ private:
   vtkOpenFOAMReaderPrivate();
   ~vtkOpenFOAMReaderPrivate();
 
-  // not implemented.
-  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &);
-  void operator=(const vtkOpenFOAMReaderPrivate &);
+  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
 
   // clear mesh construction
   void ClearInternalMeshes();
@@ -612,11 +611,12 @@ public:
     this->Type = STRING;
     this->String = new vtkStdString(value);
   }
-  void operator=(const vtkFoamToken& value)
+  vtkFoamToken& operator=(const vtkFoamToken& value)
   {
     this->Clear();
     this->Type = value.Type;
     this->AssignData(value);
+    return *this;
   }
   bool operator==(const char value) const
   {
@@ -3359,6 +3359,15 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
         {
         this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
         }
+      else if (currToken == '(')
+        {
+        vtkGenericWarningMacro("Found a list containing scalar data followed "
+                               "by a nested list, but this reader only "
+                               "supports nested lists that precede all "
+                               "scalars. Discarding nested list data.");
+        vtkFoamEntryValue tmp(this->UpperEntryPtr);
+        tmp.ReadList(io);
+        }
       else
         {
         throw vtkFoamError() << "Expected a number, found " << currToken;
@@ -4257,7 +4266,6 @@ bool vtkOpenFOAMReaderPrivate::ListTimeDirectoriesByControlDict(
   const int tempNumTimeSteps = static_cast<int>(tempResult + 0.5) + 1;
 
   // make sure time step dir exists
-  std::vector<double> tempSteps;
   vtkDirectory *test = vtkDirectory::New();
   this->TimeValues->Initialize();
   this->TimeNames->Initialize();
@@ -5604,7 +5612,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
             else
               {
               nAdditionalCells++;
-              additionalCells->InsertNextTupleValue(cellPoints->GetPointer(0));
+              additionalCells->InsertNextTypedTuple(cellPoints->GetPointer(0));
               }
             }
 
@@ -5634,7 +5642,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
               // set the 5th vertex number to -1 to distinguish a tetra cell
               cellPoints->SetId(4, -1);
               nAdditionalCells++;
-              additionalCells->InsertNextTupleValue(cellPoints->GetPointer(0));
+              additionalCells->InsertNextTypedTuple(cellPoints->GetPointer(0));
               }
             }
           }
@@ -6879,7 +6887,6 @@ void vtkOpenFOAMReaderPrivate::GetVolFieldAtTimeStep(
     return;
     }
 
-  std::vector<vtkFloatArray *> vDataVector;
   for (int boundaryI = 0, activeBoundaryI = 0; boundaryI
     < static_cast<int>(this->BoundaryDict.size()); boundaryI++)
     {

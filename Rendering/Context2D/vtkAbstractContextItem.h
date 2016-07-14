@@ -123,7 +123,6 @@ public:
   virtual unsigned int StackUnder(unsigned int child,
                                   unsigned int above);
 
-//BTX
   // Description:
   // Return true if the supplied x, y coordinate is inside the item.
   virtual bool Hit(const vtkContextMouseEvent &mouse);
@@ -182,7 +181,6 @@ public:
   // Description:
   // Key release event.
   virtual bool KeyReleaseEvent(const vtkContextKeyEvent &key);
-//ETX
 
   // Description:
   // Set the vtkContextScene for the item, always set for an item in a scene.
@@ -241,7 +239,6 @@ public:
   // Set if the item is interactive (should respond to mouse events).
   vtkSetMacro(Interactive, bool);
 
-//BTX
 protected:
   vtkAbstractContextItem();
   ~vtkAbstractContextItem();
@@ -269,9 +266,9 @@ protected:
   bool Interactive;
 
 private:
-  vtkAbstractContextItem(const vtkAbstractContextItem &); // Not implemented.
-  void operator=(const vtkAbstractContextItem &);   // Not implemented.
-//ETX
+  vtkAbstractContextItem(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractContextItem &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkContextItem_h

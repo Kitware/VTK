@@ -40,7 +40,7 @@
 #include "vtkImageBSplineInternals.h"
 #include "vtkAbstractImageInterpolator.h"
 #include <cstddef>
-#include <math.h>
+#include <cmath>
 
 /*--------------------------------------------------------------------------*/
 void vtkImageBSplineInternals::

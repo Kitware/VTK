@@ -144,7 +144,6 @@ public:
   virtual void SetFileId( int f );
   int GetFileId();
 
-//BTX
   // Description:
   // Extra cell data array that can be generated.  By default, this array
   // is off.  The value of the array is the integer global id of the cell.
@@ -212,7 +211,7 @@ public:
     EDGE_ID = 106,             //!< edge id map (old-style edge_num_map or first new-style edge map) array
     ENTITY_COUNTS = 109        //!< polyhedra per-entity count ex_get_block returns the sum for polyhedra
   };
-//ETX
+
   static const char* GetGlobalElementIdArrayName() { return "GlobalElementId"; }
   static const char* GetPedigreeElementIdArrayName() { return "PedigreeElementId"; }
   static int GetGlobalElementID( vtkDataSet *data, int localID );
@@ -747,8 +746,8 @@ protected:
 
   friend class vtkPExodusIIReader;
 private:
-  vtkExodusIIReader(const vtkExodusIIReader&); // Not implemented
-  void operator=(const vtkExodusIIReader&); // Not implemented
+  vtkExodusIIReader(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExodusIIReader&) VTK_DELETE_FUNCTION;
 
   void AddDisplacements(vtkUnstructuredGrid* output);
   int ModeShapesRange[2];

@@ -70,13 +70,11 @@ class VTKRENDERINGCORE_EXPORT vtkActor2DCollection : public vtkPropCollection
   // Sort and then render the collection of 2D actors.
   void RenderOverlay(vtkViewport* viewport);
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkActor2D *GetNextActor2D(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkActor2D *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkActor2DCollection() {}
@@ -91,8 +89,8 @@ private:
   int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
 
 private:
-  vtkActor2DCollection(const vtkActor2DCollection&);  // Not implemented.
-  void operator=(const vtkActor2DCollection&);  // Not implemented.
+  vtkActor2DCollection(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)

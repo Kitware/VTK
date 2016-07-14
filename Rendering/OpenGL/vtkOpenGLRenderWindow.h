@@ -44,6 +44,10 @@ public:
   static int  GetGlobalMaximumNumberOfMultiSamples();
 
   // Description:
+  // What rendering backend has the user requested
+  virtual const char *GetRenderingBackend();
+
+  // Description:
   // Update system if needed due to stereo rendering.
   virtual void StereoUpdate();
 
@@ -100,6 +104,11 @@ public:
   // Get the size of the color buffer.
   // Returns 0 if not able to determine otherwise sets R G B and A into buffer.
   int GetColorBufferSizes(int *rgba);
+
+  // Description:
+  // Set the size of the window in screen coordinates in pixels.
+  virtual void SetSize(int a[2]);
+  virtual void SetSize(int,int);
 
   // Description:
   // Initialize OpenGL for this window.
@@ -173,17 +182,25 @@ public:
   // hasn't already been set up.
   vtkOpenGLHardwareSupport* GetHardwareSupport();
 
-  //BTX
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
   vtkTextureUnitManager *GetTextureUnitManager();
-  //ETX
 
   // Description:
   // Block the thread until the actual rendering is finished().
   // Useful for measurement only.
   virtual void WaitForCompletion();
+
+  // Description:
+  // Create and bind offscreen rendering buffers without destroying the current
+  // OpenGL context. This allows to temporary switch to offscreen rendering
+  // (ie. to make a screenshot even if the window is hidden).
+  // Return if the creation was successful (1) or not (0).
+  // Note: This function requires that the device supports OpenGL framebuffer extension.
+  // The function has no effect if OffScreenRendering is ON.
+  virtual int SetUseOffScreenBuffers(bool offScreen);
+  virtual bool GetUseOffScreenBuffers();
 
 protected:
   vtkOpenGLRenderWindow();
@@ -207,11 +224,17 @@ protected:
   //                     && (result implies OffScreenUseFrameBuffer)
   int CreateHardwareOffScreenWindow(int width, int height);
 
+  int CreateHardwareOffScreenBuffers(int width, int height, bool bind = false);
+  void BindHardwareOffScreenBuffers();
+
   // Description:
   // Destroy an offscreen window based on OpenGL framebuffer extension.
   // \pre initialized: OffScreenUseFrameBuffer
   // \post destroyed: !OffScreenUseFrameBuffer
   void DestroyHardwareOffScreenWindow();
+
+  void UnbindHardwareOffScreenBuffers();
+  void DestroyHardwareOffScreenBuffers();
 
   // Description:
   // Flag telling if a framebuffer-based offscreen is currently in use.
@@ -223,6 +246,8 @@ protected:
   unsigned int TextureObjects[4]; // really GLuint
   unsigned int FrameBufferObject; // really GLuint
   unsigned int DepthRenderBufferObject; // really GLuint
+  int HardwareBufferSize[2];
+  bool HardwareOffScreenBuffersBind;
 
   // Description:
   // Create a not-off-screen window.
@@ -252,8 +277,8 @@ protected:
   vtkTextureUnitManager *TextureUnitManager;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);
   void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);

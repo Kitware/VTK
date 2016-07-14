@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeTextureMapper3D.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
@@ -676,6 +678,8 @@ vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D()
 
   this->UseCompressedTexture          = false;
   this->SupportsNonPowerOfTwoTextures = false;
+
+  VTK_LEGACY_BODY(vtkVolumeTextureMapper3D::vtkVolumeTextureMapper3D,"VTK 7.0");
 }
 
 //-----------------------------------------------------------------------------
@@ -1533,4 +1537,5 @@ int vtkVolumeTextureMapper3D::GetNumberOfScalarComponents(vtkImageData *input)
 }
 //-----------------------------------------------------------------------------
 
+#endif // VTK_LEGACY_REMOVE
 

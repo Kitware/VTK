@@ -43,14 +43,13 @@
 class VTKCOMMONCORE_EXPORT vtkPriorityQueue : public vtkObject
 {
 public:
-  //BTX
+
   class Item
   {
   public:
     double priority;
     vtkIdType id;
   };
-  //ETX
 
   // Description:
   // Instantiate priority queue with default size and extension size of 1000.
@@ -68,26 +67,22 @@ public:
   // index like a point id or cell id.
   void Insert(double priority, vtkIdType id);
 
-//BTX
   // Description:
   // Removes item at specified location from tree; then reorders and
   // balances tree. The location == 0 is the root of the tree. If queue
   // is exhausted, then a value < 0 is returned. (Note: the location
   // is not the same as deleting an id; id is mapped to location.)
   vtkIdType Pop(vtkIdType location, double &priority);
-//ETX
 
   // Description:
   // Same as above but simplified for easier wrapping into interpreted
   // languages.
   vtkIdType Pop(vtkIdType location=0);
 
-//BTX
   // Description:
   // Peek into the queue without actually removing anything. Returns the
   // id and the priority.
   vtkIdType Peek(vtkIdType location, double &priority);
-//ETX
 
   // Description:
   // Peek into the queue without actually removing anything. Returns the
@@ -125,8 +120,8 @@ protected:
   vtkIdType MaxId;
   vtkIdType Extend;
 private:
-  vtkPriorityQueue(const vtkPriorityQueue&);  // Not implemented.
-  void operator=(const vtkPriorityQueue&);  // Not implemented.
+  vtkPriorityQueue(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
 };
 
 inline double vtkPriorityQueue::DeleteId(vtkIdType id)

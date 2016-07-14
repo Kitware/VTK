@@ -24,6 +24,7 @@
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkRenderWindow.h"
+#include <string> // for ivar
 #include <map> // for ivar
 #include "vtkType.h" // for ivar
 
@@ -47,6 +48,10 @@ public:
   // Overridden to release resources that would interfere with an external
   // application's rendering.
   void Render();
+
+  // Description:
+  // What rendering backend has the user requested
+  virtual const char *GetRenderingBackend();
 
   // Description:
   // Set/Get the maximum number of multisamples
@@ -121,6 +126,11 @@ public:
   int GetColorBufferSizes(int *rgba);
 
   // Description:
+  // Set the size of the window in screen coordinates in pixels.
+  virtual void SetSize(int a[2]);
+  virtual void SetSize(int,int);
+
+  // Description:
   // Initialize OpenGL for this window.
   virtual void OpenGLInit();
 
@@ -130,10 +140,16 @@ public:
   // Initialize VTK for rendering in a new OpenGL context
   virtual void OpenGLInitContext();
 
-  // Description::
+  // Description:
   // Get if the context includes opengl core profile 3.2 support
   static bool GetContextSupportsOpenGL32();
   void SetContextSupportsOpenGL32(bool val);
+
+  // Description:
+  // Get the major and minor version numbers of the OpenGL context we are using
+  // ala 3.2, 3.3, 4.0, etc... returns 0,0 if opengl has not been initialized
+  // yet
+  void GetOpenGLVersion(int &major, int &minor);
 
   // Description:
   // Return the OpenGL name of the back left buffer.
@@ -243,16 +259,49 @@ public:
     int vtktype, int numComponents,
     bool needInteger, bool needFloat);
 
+  // Description:
+  // Return a message profiding additional details about the
+  // results of calling SupportsOpenGL()  This can be used
+  // to retrieve more specifics about what failed
+  std::string GetOpenGLSupportMessage()
+  {
+    return this->OpenGLSupportMessage;
+  }
+
+  // Create and bind offscreen rendering buffers without destroying the current
+  // OpenGL context. This allows to temporary switch to offscreen rendering
+  // (ie. to make a screenshot even if the window is hidden).
+  // Return if the creation was successful (1) or not (0).
+  // Note: This function requires that the device supports OpenGL framebuffer extension.
+  // The function has no effect if OffScreenRendering is ON.
+  virtual int SetUseOffScreenBuffers(bool offScreen);
+  virtual bool GetUseOffScreenBuffers();
+
+  // Description:
+  // Does this render window support OpenGL? 0-false, 1-true
+  virtual int SupportsOpenGL();
+
+  // Description:
+  // Initialize the rendering window.  This will setup all system-specific
+  // resources.  This method and Finalize() must be symmetric and it
+  // should be possible to call them multiple times, even changing WindowId
+  // in-between.  This is what WindowRemap does.
+  virtual void Initialize(void) {};
+
 protected:
   vtkOpenGLRenderWindow();
   ~vtkOpenGLRenderWindow();
 
   vtkOpenGLShaderCache *ShaderCache;
 
+  // used in testing for opengl support
+  // in the SupportsOpenGL() method
+  bool OpenGLSupportTested;
+  int OpenGLSupportResult;
+  std::string OpenGLSupportMessage;
+
   int TextureInternalFormats[VTK_UNICODE_STRING][3][5];
   void InitializeTextureInternalFormats();
-
-  long OldMonitorSetting;
 
   std::map<const vtkTextureObject *, int> TextureResourceIds;
 
@@ -271,11 +320,17 @@ protected:
   //                     && (result implies OffScreenUseFrameBuffer)
   int CreateHardwareOffScreenWindow(int width, int height);
 
+  int CreateHardwareOffScreenBuffers(int width, int height, bool bind = false);
+  void BindHardwareOffScreenBuffers();
+
   // Description:
   // Destroy an offscreen window based on OpenGL framebuffer extension.
   // \pre initialized: OffScreenUseFrameBuffer
   // \post destroyed: !OffScreenUseFrameBuffer
   void DestroyHardwareOffScreenWindow();
+
+  void UnbindHardwareOffScreenBuffers();
+  void DestroyHardwareOffScreenBuffers();
 
   // Description:
   // Flag telling if a framebuffer-based offscreen is currently in use.
@@ -287,6 +342,8 @@ protected:
   unsigned int TextureObjects[4]; // really GLuint
   unsigned int FrameBufferObject; // really GLuint
   unsigned int DepthRenderBufferObject; // really GLuint
+  int HardwareBufferSize[2];
+  bool HardwareOffScreenBuffersBind;
 
   // Description:
   // Create a not-off-screen window.
@@ -298,7 +355,8 @@ protected:
 
   // Description:
   // Free up any graphics resources associated with this window
-  virtual void ReleaseGraphicsResources();
+  // a value of NULL means the context may already be destroyed
+  virtual void ReleaseGraphicsResources(vtkRenderWindow *);
 
   // Description:
   // Set the texture unit manager.
@@ -344,8 +402,8 @@ protected:
   float MaximumHardwareLineWidth;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

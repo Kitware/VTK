@@ -56,18 +56,12 @@ public:
                          vtkMultiBlockDataSet*) { return; }
 
   // Description:
-  // H is a positive matrix that defines the smooth direction.
-  // In a classical HDR, we don't set a specific smooth direction for the
-  // H matrix parameter (SmoothHC1, SmoothHC2). That mean H will be in a
-  // diagonal form and equal to sigma * Id.
+  // Set the width of the gaussian kernel.
   void SetSigma(double sigma);
 
   // Description:
-  // Get Smooth H matrix parameter of the HDR.
-  vtkGetVectorMacro(SmoothHC1, double, 2);
-  vtkSetVectorMacro(SmoothHC1, double, 2);
-  vtkGetVectorMacro(SmoothHC2, double, 2);
-  vtkSetVectorMacro(SmoothHC2, double, 2);
+  // Set the gaussian kernel matrix.
+  void SetSigmaMatrix(double s11, double s12, double s21, double s22);
 
   // Description:
   // Fill outDensity with density vector that is computed from
@@ -85,6 +79,7 @@ public:
   // Look ComputeSmoothGaussianKernel for KH kernel definition.
   double ComputeHDR(vtkDataArray *inObs, vtkDataArray* inPOI,
                     vtkDataArray *outDensity);
+
 protected:
   vtkHighestDensityRegionsStatistics();
   ~vtkHighestDensityRegionsStatistics();
@@ -111,20 +106,21 @@ protected:
                     vtkMultiBlockDataSet*,
                     vtkTable*) { return; }
 
-//BTX
   // Description: (Not implemented)
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor(vtkTable*,
                                    vtkDataObject*,
                                    vtkStringArray*,
                                    AssessFunctor*&) { return; }
-//ETX
 
   // Description:
   // Store the smooth matrix parameter H. Specify a smooth direction
   // for the Gaussian kernel.
   double SmoothHC1[2];
   double SmoothHC2[2];
+  double InvSigmaC1[2];
+  double InvSigmaC2[2];
+  double Determinant;
 
   // Description:
   // Store the number of requested columns pair computed by learn method.
@@ -138,15 +134,9 @@ private :
   // Look ComputeStandardGaussianKernel for the K kernel definition.
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
-  // Description:
-  // Helper that returns a standard gaussian kernel of a vector of dimension two,
-  // using its coordinates. For X = [kx, ky],
-  // K(X) = ( 1 / 2 * PI) * exp(-sqrt<X,X>).
-  double ComputeStandardGaussianKernel(int dimension, double kx, double ky);
-
 private:
-  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&); // Not implemented
-  void operator = (const vtkHighestDensityRegionsStatistics&);  // Not implemented
+  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
+  void operator = (const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

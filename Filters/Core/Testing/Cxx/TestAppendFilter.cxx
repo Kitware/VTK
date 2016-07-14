@@ -131,7 +131,7 @@ int strcmp_null(const char* s1, const char* s2)
 //////////////////////////////////////////////////////////////////////////////
 // Prints and checks point/cell data
 //////////////////////////////////////////////////////////////////////////////
-int PrintAndCheck(const std::vector<vtkPolyData*> inputs, vtkDataSet* output,
+int PrintAndCheck(const std::vector<vtkPolyData*>& inputs, vtkDataSet* output,
                   vtkDataSetAttributes*(*selector)(vtkDataSet*))
 {
   vtkDataSetAttributes* dataArrays = selector(output);
@@ -139,7 +139,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*> inputs, vtkDataSet* output,
 
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
     {
-    vtkIntArray* outputArray = vtkIntArray::SafeDownCast(dataArrays->GetArray(arrayIndex));
+    vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* outputArrayName = outputArray->GetName();
     std::cout << "Array " << arrayIndex << " - ";
     std::cout << (outputArrayName ? outputArrayName : "(null)")  << ": [ ";
@@ -162,7 +162,7 @@ int PrintAndCheck(const std::vector<vtkPolyData*> inputs, vtkDataSet* output,
   // Test the output
   for (int arrayIndex = 0; arrayIndex < dataArrays->GetNumberOfArrays(); ++arrayIndex)
     {
-    vtkIntArray* outputArray = vtkIntArray::SafeDownCast(dataArrays->GetArray(arrayIndex));
+    vtkIntArray* outputArray = vtkArrayDownCast<vtkIntArray>(dataArrays->GetArray(arrayIndex));
     const char* arrayName = outputArray->GetName();
     if (arrayName == NULL)
       {
@@ -356,7 +356,7 @@ vtkDataSetAttributes* CellDataSelector(vtkDataSet* ds)
 //////////////////////////////////////////////////////////////////////////////
 // Returns 1 on success, 0 otherwise
 //////////////////////////////////////////////////////////////////////////////
-int AppendDatasetsAndPrint(const std::vector<vtkPolyData*> inputs)
+int AppendDatasetsAndPrint(const std::vector<vtkPolyData*>& inputs)
 {
   vtkNew<vtkAppendFilter> append;
   for (size_t inputIndex = 0; inputIndex < inputs.size(); ++inputIndex)

@@ -12,20 +12,26 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArcSource - create an arc between two end points
+// .NAME vtkArcSource - create a circular arc
+
 // .SECTION Description
 // vtkArcSource is a source object that creates an arc defined by two
 // endpoints and a center. The number of segments composing the polyline
 // is controlled by setting the object resolution.
 // Alternatively, one can use a better API (that does not allow for
-// inconsistent nor ambiguous inputs), using a starting point, a normal,
-// and an angle. The default API being the original one, in order to use
+// inconsistent nor ambiguous inputs), using a starting point (polar vector,
+// measured from the arc's center), a normal to the plane of the arc,
+// and an angle defining the arc length.
+// Since the default API remains the original one, in order to use
 // the improved API, one must switch the UseNormalAndAngle flag to TRUE.
 
 // The development of an improved, consistent API (based on point, normal,
 // and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique,
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
 // by Philippe Pebay, Kitware SAS 2012.
+
+// .SECTION See Also
+// vtkEllipseArcSource
 
 #ifndef vtkArcSource_h
 #define vtkArcSource_h
@@ -41,60 +47,66 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Set position of first end point.
+  // Set position of the first end point.
   vtkSetVector3Macro(Point1,double);
   vtkGetVectorMacro(Point1,double,3);
 
   // Description:
-  // Set position of other end point.
+  // Set position of the other end point.
   vtkSetVector3Macro(Point2,double);
   vtkGetVectorMacro(Point2,double,3);
 
   // Description:
-  // Set position of the center of the circle that define the arc.
+  // Set position of the center of the circle that defines the arc.
   // Note: you can use the function vtkMath::Solve3PointCircle to
   // find the center from 3 points located on a circle.
   vtkSetVector3Macro(Center,double);
   vtkGetVectorMacro(Center,double,3);
 
   // Description:
-  // Set normal vector.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Set the normal vector to the plane of the arc.
+  // By default it points in the positive Z direction.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(Normal,double);
   vtkGetVectorMacro(Normal,double,3);
 
   // Description:
-  // Set polar vector.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Set polar vector (starting point of the arc).
+  // By default it is the unit vector in the positive X direction.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetVector3Macro(PolarVector,double);
   vtkGetVectorMacro(PolarVector,double,3);
 
   // Description:
-  // Angular sector occupied by the arc, beginning at Point1.
-  // Note: This is only used when UseNormalAndRadius is ON.
+  // Arc length (in degrees), beginning at the polar vector.
+  // The direction is counterclockwise by default;
+  // a negative value draws the arc in the clockwise direction.
+  // Note: This is only used when UseNormalAndAngle is ON.
   vtkSetClampMacro(Angle,double,-360.0,360.0);
   vtkGetMacro(Angle,double);
 
   // Description:
-  // Divide line into resolution number of pieces.
-  // Note: if Resolution is set to 1 (default), the arc is a
-  // straight line.
+  // Define the number of segments of the polyline that draws the arc.
+  // Note: if the resolution is set to 1 (the default value),
+  // the arc is drawn as a straight line.
   vtkSetClampMacro(Resolution,int,1,VTK_INT_MAX);
   vtkGetMacro(Resolution,int);
 
   // Description:
-  // Use the angle that is a negative coterminal of the vectors angle:
-  // the longest angle.
-  // Note: false by default.
+  // By default the arc spans the shortest angular sector point1 and point2.
+  // By setting this to true, the longest angular sector is used instead
+  // (i.e. the negative coterminal angle to the shortest one).
+  // Note: This is only used when UseNormalAndAngle is OFF. False by default.
   vtkSetMacro(Negative, bool);
   vtkGetMacro(Negative, bool);
   vtkBooleanMacro(Negative, bool);
 
   // Description:
-  // Activate the API based on normal and radius.
-  // The previous API (which remains the default) allows for inconsistent
-  // (when Point1 and Point2 are not equidistant from Center) or
-  // ambiguous (when Point1, Point2, and Center are aligned).
+  // Activate the API based on a normal vector, a starting point
+  // (polar vector) and an angle defining the arc length.
+  // The previous API (which remains the default) allows for inputs that are
+  // inconsistent (when Point1 and Point2 are not equidistant from Center)
+  // or ambiguous (when Point1, Point2, and Center are aligned).
   // Note: false by default.
   vtkSetMacro(UseNormalAndAngle, bool);
   vtkGetMacro(UseNormalAndAngle, bool);
@@ -125,9 +137,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkArcSource(const vtkArcSource&);  // Not implemented.
-  void operator=(const vtkArcSource&);  // Not implemented.
+  vtkArcSource(const vtkArcSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArcSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif
-

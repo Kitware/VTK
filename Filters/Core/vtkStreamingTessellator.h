@@ -86,7 +86,6 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     static vtkStreamingTessellator* New();
     virtual void PrintSelf( ostream& os, vtkIndent indent );
 
-    //BTX
     typedef void (*VertexProcessorFunction)( const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*EdgeProcessorFunction)( const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
     typedef void (*TriangleProcessorFunction)( const double*, const double*, const double*, vtkEdgeSubdivisionCriterion*, void*, const void* );
@@ -113,7 +112,6 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     // Get/Set the function called for each output line segment (1-facet).
     virtual void SetVertexCallback( VertexProcessorFunction );
     virtual VertexProcessorFunction GetVertexCallback() const;
-    //ETX
 
     // Description:
     // Get/Set a void pointer passed to the triangle and edge output functions.
@@ -121,12 +119,11 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     virtual void* GetPrivateData() const;
 
     // can't wrap const private data because python wrapper will try to cast it to void*, not const void*
-    //BTX
+
     // Description:
     // Get/Set a constant void pointer passed to the simplex output functions.
     virtual void SetConstPrivateData( const void* ConstPrivate );
     virtual const void* GetConstPrivateData() const;
-    //ETX
 
     // Description:
     // Get/Set the algorithm used to determine whether an edge should be
@@ -136,9 +133,8 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     // each call to AdaptivelySample2Facet (also recursive).
     virtual void SetSubdivisionAlgorithm( vtkEdgeSubdivisionCriterion* );
     virtual vtkEdgeSubdivisionCriterion* GetSubdivisionAlgorithm() ;
-    //BTX
+
     virtual const vtkEdgeSubdivisionCriterion* GetSubdivisionAlgorithm() const;
-    //ETX
 
     // Description:
     // Get/Set the number of parameter-space coordinates associated with each input and output point.
@@ -256,16 +252,15 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
       }
 
   protected:
-    //BTX
+
     static int EdgeCodesToCaseCodesPlusPermutation[64][2];
     static vtkIdType PermutationsFromIndex[24][14];
     static vtkIdType TetrahedralDecompositions[];
-    //ETX
 
     void* PrivateData;
     const void* ConstPrivateData;
     vtkEdgeSubdivisionCriterion* Algorithm;
-    //BTX
+
     VertexProcessorFunction Callback0;
     EdgeProcessorFunction Callback1;
     TriangleProcessorFunction Callback2;
@@ -274,7 +269,6 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     mutable vtkIdType CaseCounts[11];
     mutable vtkIdType SubcaseCounts[11][51];
 #endif // PARAVIEW_DEBUG_TESSELLATOR
-    //ETX
 
     // Description:
     // PointDimension is the length of each \p double* array associated with
@@ -305,11 +299,9 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     int BestTets( int*, double**, int, int ) const;
 
   private:
-    vtkStreamingTessellator( const vtkStreamingTessellator& ); // Not implemented.
-    void operator = ( const vtkStreamingTessellator& ); // Not implemented.
+    vtkStreamingTessellator( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
+    void operator = ( const vtkStreamingTessellator& ) VTK_DELETE_FUNCTION;
 };
-
-//BTX
 
 inline void vtkStreamingTessellator::AdaptivelySample3Facet( double* v1, double* v2, double* v3, double* v4 ) const
 { this->AdaptivelySample3Facet( v1, v2, v3, v4, this->MaximumNumberOfSubdivisions ); }
@@ -325,7 +317,5 @@ inline int vtkStreamingTessellator::GetFieldSize( int k ) const
 { if ( k <= 0 || k >= 4 ) return -1; return this->PointDimension[k] - this->EmbeddingDimension[k] - 3; }
 
 inline int vtkStreamingTessellator::GetMaximumNumberOfSubdivisions() {return this->MaximumNumberOfSubdivisions;}
-
-//ETX
 
 #endif // vtkStreamingTessellator_h

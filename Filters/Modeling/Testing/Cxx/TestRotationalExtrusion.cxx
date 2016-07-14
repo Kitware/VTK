@@ -60,13 +60,11 @@ int TestRotationalExtrusion( int argc, char * argv [] )
   // Create mapper for surface representation
   vtkNew<vtkPolyDataMapper> cylMapper;
   cylMapper->SetInputConnection( normals->GetOutputPort() );
-  cylMapper->SetResolveCoincidentTopologyPolygonOffsetParameters( 0, 1 );
   cylMapper->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create mapper for wireframe representation
   vtkNew<vtkPolyDataMapper> cylMapperW;
   cylMapperW->SetInputConnection( lineSweeper->GetOutputPort() );
-  cylMapperW->SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   cylMapperW->SetResolveCoincidentTopologyToPolygonOffset();
 
   // Create actor for surface representation

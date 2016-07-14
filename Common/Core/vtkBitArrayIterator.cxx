@@ -37,7 +37,7 @@ vtkBitArrayIterator::~vtkBitArrayIterator()
 //-----------------------------------------------------------------------------
 void vtkBitArrayIterator::Initialize(vtkAbstractArray* a)
 {
-  vtkBitArray* b = vtkBitArray::SafeDownCast(a);
+  vtkBitArray* b = vtkArrayDownCast<vtkBitArray>(a);
   if (!b && a)
     {
     vtkErrorMacro("vtkBitArrayIterator can iterate only over vtkBitArray.");

@@ -104,6 +104,10 @@ public:
   virtual void ForceBuild();
 
   // Description:
+  // Copies the "special" colors into the given table.
+  void BuildSpecialColors();
+
+  // Description:
   // Set the shape of the table ramp to either linear or S-curve.
   // The default is S-curve, which tails off gradually at either end.
   // The equation used for the S-curve is y = (sin((x - 1/2)*pi) + 1)/2,
@@ -264,6 +268,11 @@ public:
   // Get pointer to data. Useful for direct writes into object. MaxId is bumped
   // by number (and memory allocated if necessary). Id is the location you
   // wish to write into; number is the number of rgba values to write.
+  //
+  // \warning If you modify the table data via the pointer returned by this
+  // member function, you must call vtkLookupTable::BuildSpecialColors()
+  // afterwards to ensure that the special colors (below/above range and NaN
+  // value) are up-to-date.
   unsigned char *WritePointer(const vtkIdType id, const int number);
 
   // Description:
@@ -273,7 +282,6 @@ public:
   void SetRange(double min, double max) { this->SetTableRange(min, max); };
   void SetRange(double rng[2]) { this->SetRange(rng[0], rng[1]); };
 
-  //BTX
   // Description:
   // Returns the log of \c range in \c log_range.
   // There is a little more to this than simply taking the log10 of the
@@ -285,7 +293,6 @@ public:
   // Apply log to value, with appropriate constraints.
   static double ApplyLogScale(double v, const double range[2],
     const double log_range[2]);
-  //ETX
 
   // Description:
   // Set the number of colors in the lookup table.  Use
@@ -304,6 +311,8 @@ public:
 
   // Description:
   // map a set of scalars through the lookup table
+  //
+  // This member function is thread safe.
   void MapScalarsThroughTable2(void *input, unsigned char *output,
                                int inputDataType, int numberOfValues,
                                int inputIncrement, int outputIncrement);
@@ -364,8 +373,8 @@ protected:
   void ResizeTableForSpecialColors();
 
 private:
-  vtkLookupTable(const vtkLookupTable&);  // Not implemented.
-  void operator=(const vtkLookupTable&);  // Not implemented.
+  vtkLookupTable(const vtkLookupTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

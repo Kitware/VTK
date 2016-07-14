@@ -34,18 +34,12 @@ template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<signed ch
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<char>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<int>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<long>;
+template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<long long>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<short>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<float>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<double>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned long>;
+template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned long long>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned short>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned char>;
 template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned int>;
-#if defined(VTK_TYPE_USE_LONG_LONG)
-template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<long long>;
-template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned long long>;
-#endif
-#if defined(VTK_TYPE_USE___INT64)
-template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<__int64>;
-template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator<unsigned __int64>;
-#endif

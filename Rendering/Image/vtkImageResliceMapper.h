@@ -202,12 +202,14 @@ protected:
 
   // Description:
   // Override Update to handle some tricky details.
-  void Update();
-  void Update(int port);
+  virtual void Update(int port);
+  virtual void Update();
+  virtual int Update(int port, vtkInformationVector* requests);
+  virtual int Update(vtkInformation* requests);
 
   // Description:
   // Garbage collection for reference loops.
-  void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkImageSliceMapper *SliceMapper; // Does the OpenGL rendering
 
@@ -228,8 +230,8 @@ protected:
   vtkTimeStamp UpdateTime;
 
 private:
-  vtkImageResliceMapper(const vtkImageResliceMapper&);  // Not implemented.
-  void operator=(const vtkImageResliceMapper&);  // Not implemented.
+  vtkImageResliceMapper(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageResliceMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

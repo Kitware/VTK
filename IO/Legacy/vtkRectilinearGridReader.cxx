@@ -151,7 +151,6 @@ int vtkRectilinearGridReader::RequestData(
   int numPts=0, npts, ncoords, numCells=0, ncells;
   char line[256];
   int dimsRead=0;
-  int done=0;
   vtkRectilinearGrid *output = vtkRectilinearGrid::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -199,7 +198,7 @@ int vtkRectilinearGridReader::RequestData(
 
     // Read keyword and number of points
     //
-    while (!done)
+    while (true)
       {
       if (!this->ReadString(line))
         {

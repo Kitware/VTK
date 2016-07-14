@@ -141,26 +141,7 @@ int ScaledBoxWidget2( int , char *[] )
   scaleTransform->SetInput(dataTransform);
 
   vtkCamera *camera = renderer->GetActiveCamera();
-
-  int cameraScale = 1;
-  if ( cameraScale == 0 )
-    {
-    maceActor->SetUserTransform(scaleTransform);
-    boxRep->SetTransform(scaleTransform);
-    }
-  else if ( cameraScale == 1)
-    {
-    camera->SetModelTransformMatrix(scaleTransform->GetMatrix());
-    }
-  else if ( cameraScale == 2)
-    {
-    camera->SetUserTransform(scaleTransform);
-    }
-  else if ( cameraScale == 3 )
-    {
-    camera->SetUserViewTransform(scaleTransform);
-    }
-
+  camera->SetModelTransformMatrix(scaleTransform->GetMatrix());
 
   // record events
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =

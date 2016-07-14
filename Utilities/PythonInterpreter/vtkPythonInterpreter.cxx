@@ -69,6 +69,7 @@ namespace
 
   inline void vtkPrependPythonPath(const char* pathtoadd)
     {
+    vtkPythonScopeGilEnsurer gilEnsurer;
     PyObject* path = PySys_GetObject(const_cast<char*>("path"));
 #if PY_VERSION_HEX >= 0x03000000
     PyObject* newpath = PyUnicode_FromString(pathtoadd);
@@ -85,7 +86,6 @@ bool vtkPythonInterpreter::CaptureStdin = false;
 bool vtkPythonInterpreter::ConsoleBuffering = false;
 std::string vtkPythonInterpreter::StdErrBuffer;
 std::string vtkPythonInterpreter::StdOutBuffer;
-
 
 vtkStandardNewMacro(vtkPythonInterpreter);
 //----------------------------------------------------------------------------
@@ -124,7 +124,6 @@ void vtkPythonInterpreter::PrintSelf(ostream& os, vtkIndent indent)
 //----------------------------------------------------------------------------
 bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
 {
-  vtkPythonInterpreter::InitializedOnce = true;
   if (Py_IsInitialized() == 0)
     {
 #if (VTK_PYTHON_MAJOR_VERSION > 2) ||\
@@ -139,6 +138,21 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     // Put default SIGINT handler back after Py_Initialize/Py_InitializeEx.
     signal(SIGINT, SIG_DFL);
 #endif
+    }
+
+  if (!vtkPythonInterpreter::InitializedOnce)
+    {
+    vtkPythonInterpreter::InitializedOnce = true;
+
+#ifdef VTK_PYTHON_FULL_THREADSAFE
+    int threadInit = PyEval_ThreadsInitialized();
+    PyEval_InitThreads(); // safe to call this multiple time
+    if(!threadInit)
+      {
+      PyEval_SaveThread(); // release GIL
+      }
+#endif
+
     // HACK: Calling PyRun_SimpleString for the first time for some reason results in
     // a "\n" message being generated which is causing the error dialog to
     // popup. So we flush that message out of the system before setting up the
@@ -151,7 +165,9 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
     vtkPythonStdStreamCaptureHelper* wrapperErr =
       NewPythonStdStreamCaptureHelper(true);
 
-    // Redirect Python's stdout and stderr and stdin
+    // Redirect Python's stdout and stderr and stdin - GIL protected operation
+    {
+    vtkPythonScopeGilEnsurer gilEnsurer;
     PySys_SetObject(const_cast<char*>("stdout"),
       reinterpret_cast<PyObject*>(wrapperOut));
     PySys_SetObject(const_cast<char*>("stderr"),
@@ -160,6 +176,7 @@ bool vtkPythonInterpreter::Initialize(int initsigs /*=0*/)
       reinterpret_cast<PyObject*>(wrapperOut));
     Py_DECREF(wrapperOut);
     Py_DECREF(wrapperErr);
+    }
 
     for (size_t cc=0; cc < PythonPaths.size(); cc++)
       {
@@ -179,6 +196,8 @@ void vtkPythonInterpreter::Finalize()
   if (Py_IsInitialized() != 0)
     {
     NotifyInterpreters(vtkCommand::ExitEvent);
+    vtkPythonScopeGilEnsurer gilEnsurer(false, true); 
+    // Py_Finalize will take care of relasing gil
     Py_Finalize();
     }
 }
@@ -301,6 +320,7 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
       return 1;
       }
     }
+  vtkPythonScopeGilEnsurer gilEnsurer;
   int res = Py_Main(argc, argvWide);
   PyMem_Free(argv0);
   for (int i = 0; i < argc; i++)
@@ -311,6 +331,8 @@ int vtkPythonInterpreter::PyMain(int argc, char** argv)
   delete [] argvWide2;
   return res;
 #else
+
+  vtkPythonScopeGilEnsurer gilEnsurer(false, true);
   return Py_Main(argc, argv);
 #endif
 }
@@ -327,7 +349,12 @@ int vtkPythonInterpreter::RunSimpleString(const char* script)
   buffer.erase(std::remove(buffer.begin(), buffer.end(), '\r'), buffer.end());
 
   // The cast is necessary because PyRun_SimpleString() hasn't always been const-correct
-  int pyReturn = PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
+  int pyReturn;
+    {
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    pyReturn = PyRun_SimpleString(const_cast<char*>(buffer.c_str()));
+    }
+
   vtkPythonInterpreter::ConsoleBuffering = false;
   if (! vtkPythonInterpreter::StdErrBuffer.empty())
     {

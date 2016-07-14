@@ -217,8 +217,6 @@ public:
   // Shallow copy of this vtkLODProp3D.
   void ShallowCopy(vtkProp *prop);
 
-//BTX
-
   // Description:
   // Support the standard render methods.
   int RenderOpaqueGeometry(vtkViewport *viewport);
@@ -253,8 +251,6 @@ public:
   // selected LOD as well.
   virtual void AddEstimatedRenderTime( double t, vtkViewport *vp );
 
-//ETX
-
 protected:
   vtkLODProp3D();
   ~vtkLODProp3D();
@@ -277,8 +273,8 @@ protected:
   vtkLODProp3DCallback *PickCallback;
 
 private:
-  vtkLODProp3D(const vtkLODProp3D&);  // Not implemented.
-  void operator=(const vtkLODProp3D&);  // Not implemented.
+  vtkLODProp3D(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLODProp3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

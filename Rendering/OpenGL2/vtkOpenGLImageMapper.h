@@ -68,8 +68,8 @@ protected:
   vtkTexturedActor2D *Actor;
 
 private:
-  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLImageMapper&);  // Not implemented.
+  vtkOpenGLImageMapper(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLImageMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

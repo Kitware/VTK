@@ -62,8 +62,8 @@ protected:
     vtkInformationVector **inputVector, vtkInformationVector *outputVector);
 
 private:
-  vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&); // Not implemented.
-  void operator=(const vtkReebGraphSimplificationFilter&); // Not implemented.
+  vtkReebGraphSimplificationFilter(const vtkReebGraphSimplificationFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkReebGraphSimplificationFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

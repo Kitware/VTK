@@ -76,7 +76,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   // we create vertexVC below, so turn off the default
   // implementation
   vtkShaderProgram::Substitute(FSSource,
-    "//VTK::PositionVC::Impl","");
+    "//VTK::PositionVC::Impl",
+    "  vec4 vertexVC = vertexVCVSOutput;\n");
 
   // for lights kit and positional the VCDC matrix is already defined
   // so don't redefine it
@@ -93,7 +94,6 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   // see https://www.cl.cam.ac.uk/teaching/1999/AGraphHCI/SMAG/node2.html
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
     // compute the eye position and unit direction
-    "  vec4 vertexVC = vertexVCVSOutput;\n"
     "  vec3 EyePos;\n"
     "  vec3 EyeDir;\n"
     "  if (cameraParallel != 0) {\n"
@@ -168,8 +168,8 @@ void vtkOpenGLStickMapper::ReplaceShaderValues(
   bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
   if (picking)
     {
-    if (!selector || (selector &&
-        this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
+    if (!selector ||
+        (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24))
       {
       vtkShaderProgram::Substitute(VSSource,
         "//VTK::Picking::Dec",
@@ -237,25 +237,44 @@ void vtkOpenGLStickMapper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
   vtkMatrix3x3 *norms;
   vtkMatrix4x4 *vcdc;
   cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
-  program->SetUniformMatrix("VCDCMatrix", vcdc);
+
+  if (program->IsUniformUsed("VCDCMatrix"))
+    {
+    program->SetUniformMatrix("VCDCMatrix", vcdc);
+    }
 
   if (!actor->GetIsIdentity())
     {
     vtkMatrix4x4 *mcwc;
     vtkMatrix3x3 *anorms;
     ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
-    vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
-    program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
-    vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
-    program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+    if (program->IsUniformUsed("MCVCMatrix"))
+      {
+      vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
+      program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
+      }
+    if (program->IsUniformUsed("normalMatrix"))
+      {
+      vtkMatrix3x3::Multiply3x3(anorms, norms, this->TempMatrix3);
+      program->SetUniformMatrix("normalMatrix", this->TempMatrix3);
+      }
     }
   else
     {
-    program->SetUniformMatrix("MCVCMatrix", wcvc);
-    program->SetUniformMatrix("normalMatrix", norms);
+    if (program->IsUniformUsed("MCVCMatrix"))
+      {
+      program->SetUniformMatrix("MCVCMatrix", wcvc);
+      }
+    if (program->IsUniformUsed("normalMatrix"))
+      {
+      program->SetUniformMatrix("normalMatrix", norms);
+      }
     }
 
-  cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+  if (program->IsUniformUsed("cameraParallel"))
+    {
+    cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -271,31 +290,49 @@ void vtkOpenGLStickMapper::SetMapperShaderParameters(
     bool picking = (ren->GetRenderWindow()->GetIsPicking() || selector != NULL);
 
     cellBO.VAO->Bind();
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "orientMC", this->VBO->ColorOffset+sizeof(float),
-                                    this->VBO->Stride, VTK_FLOAT, 3, false))
-      {
-      vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
-      }
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "offsetMC", this->VBO->ColorOffset+4*sizeof(float),
-                                    this->VBO->Stride, VTK_UNSIGNED_CHAR, 3, false))
-      {
-      vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
-      }
-    if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                    "radiusMC", this->VBO->ColorOffset+5*sizeof(float),
-                                    this->VBO->Stride, VTK_FLOAT, 1, false))
-      {
-      vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
-      }
-    if (picking &&
-        (!selector || (selector &&
-         this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)))
+    if (cellBO.Program->IsAttributeUsed("orientMC"))
       {
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
-                                      "selectionId", this->VBO->ColorOffset+6*sizeof(float),
-                                      this->VBO->Stride, VTK_UNSIGNED_CHAR, 4, true))
+                                         "orientMC",
+                                         this->VBO->ColorOffset + sizeof(float),
+                                         this->VBO->Stride, VTK_FLOAT, 3,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'orientMC' in shader VAO.");
+        }
+      }
+    if (cellBO.Program->IsAttributeUsed("offsetMC"))
+      {
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "offsetMC",
+                                         this->VBO->ColorOffset+4*sizeof(float),
+                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
+                                         3, false))
+        {
+        vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
+        }
+      }
+    if (cellBO.Program->IsAttributeUsed("radiusMC"))
+      {
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "radiusMC",
+                                         this->VBO->ColorOffset+5*sizeof(float),
+                                         this->VBO->Stride, VTK_FLOAT, 1,
+                                         false))
+        {
+        vtkErrorMacro(<< "Error setting 'radiusMC' in shader VAO.");
+        }
+      }
+    if (picking &&
+        (!selector ||
+         (this->LastSelectionState >= vtkHardwareSelector::ID_LOW24)) &&
+        cellBO.Program->IsAttributeUsed("selectionId"))
+      {
+      if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
+                                         "selectionId",
+                                         this->VBO->ColorOffset+6*sizeof(float),
+                                         this->VBO->Stride, VTK_UNSIGNED_CHAR,
+                                         4, true))
         {
         vtkErrorMacro(<< "Error setting 'selectionId' in shader VAO.");
         }
@@ -569,6 +606,7 @@ void vtkOpenGLStickMapper::BuildBufferObjects(vtkRenderer *ren,
   this->Tris.IBO->IndexCount =
     vtkOpenGLStickMapperCreateTriangleIndexBuffer(this->Tris.IBO,
       poly->GetPoints()->GetNumberOfPoints());
+  this->VBOBuildTime.Modified();
 }
 
 //-----------------------------------------------------------------------------

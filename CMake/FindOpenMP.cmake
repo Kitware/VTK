@@ -73,7 +73,7 @@ function(_OPENMP_FLAG_CANDIDATES LANG)
     "+Oopenmp"
     #IBM XL C/c++
     "-qsmp"
-    #Portland Group, MIPSpro
+    #Portland Group
     "-mp"
   )
 
@@ -87,7 +87,6 @@ function(_OPENMP_FLAG_CANDIDATES LANG)
   else()
     set(OMP_FLAG_Intel "-qopenmp")
   endif()
-  set(OMP_FLAG_MIPSpro "-mp")
   set(OMP_FLAG_MSVC "/openmp")
   set(OMP_FLAG_PathScale "-openmp")
   set(OMP_FLAG_PGI "-mp")

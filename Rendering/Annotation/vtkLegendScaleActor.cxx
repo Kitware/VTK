@@ -399,6 +399,7 @@ void vtkLegendScaleActor::BuildRepresentation(vtkViewport *viewport)
       this->LegendPoints->SetPoint(7, x1+2*delX,20,0);
       this->LegendPoints->SetPoint(8, x1+3*delX,20,0);
       this->LegendPoints->SetPoint(9, x1+4*delX,20,0);
+      this->LegendPoints->Modified();
 
       // Specify the position of the legend title
       this->LabelActors[5]->SetPosition(0.5*size[0],22);

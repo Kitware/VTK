@@ -172,9 +172,7 @@ int vtkPDataSetWriter::Write()
     {
     sprintf(fileName, this->FilePattern, fileRoot, i);
     writer->SetFileName(fileName);
-    inputAlg->SetUpdateExtent(inputAlgPort,
-                              i, this->NumberOfPieces, this->GhostLevel);
-    inputAlg->Update();
+    inputAlg->UpdatePiece(i, this->NumberOfPieces, this->GhostLevel);
 
     // Store the extent of this piece in Extents. This is later used
     // to write the extents in the pvtk file.

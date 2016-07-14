@@ -94,7 +94,7 @@ public:
 
   // Description:
   // Test for equivalence.
-  int operator==(const vtkPixelExtent &other) const;
+  bool operator==(const vtkPixelExtent &other) const;
 
   // Description:
   // Return non-zero if this extent conatins the other.
@@ -417,7 +417,7 @@ int vtkPixelExtent::Empty() const
 
 //-----------------------------------------------------------------------------
 inline
-int vtkPixelExtent::operator==(const vtkPixelExtent &other) const
+bool vtkPixelExtent::operator==(const vtkPixelExtent &other) const
 {
   if ( (this->Data[0] == other.Data[0])
     && (this->Data[1] == other.Data[1])

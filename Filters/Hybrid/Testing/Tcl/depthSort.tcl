@@ -56,6 +56,12 @@ vtkDepthSortPolyData depthSort
 vtkPolyDataMapper mapper
     mapper SetInputConnection [depthSort GetOutputPort]
     mapper SetScalarRange 0 [[depthSort GetOutput] GetNumberOfCells]
+    mapper SetScalarModeToUseCellData
+    mapper SetScalarVisibility 1
+    mapper SelectColorArray "sortedCellIds"
+    mapper SetUseLookupTableScalarRange 0
+    mapper SetScalarModeToUseCellFieldData
+
 vtkActor actor
     actor SetMapper mapper
     [actor GetProperty] SetOpacity 0.5

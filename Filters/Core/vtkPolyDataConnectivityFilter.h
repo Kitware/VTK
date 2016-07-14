@@ -216,8 +216,8 @@ protected:
   vtkIdType NumCellsInRegion;
   vtkDataArray *InScalars;
   vtkPolyData *Mesh;
-  vtkIdList *Wave;
-  vtkIdList *Wave2;
+  std::vector<vtkIdType> Wave;
+  std::vector<vtkIdType> Wave2;
   vtkIdList *PointIds;
   vtkIdList *CellIds;
   vtkIdList *VisitedPointIds;
@@ -226,8 +226,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&);  // Not implemented.
-  void operator=(const vtkPolyDataConnectivityFilter&);  // Not implemented.
+  vtkPolyDataConnectivityFilter(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyDataConnectivityFilter&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

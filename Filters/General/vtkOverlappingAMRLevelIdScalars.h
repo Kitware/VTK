@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkOverlappingAMRLevelIdScalars,vtkOverlappingAMRAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkOverlappingAMRLevelIdScalars();
   ~vtkOverlappingAMRLevelIdScalars();
@@ -48,9 +47,9 @@ protected:
   vtkUniformGrid* ColorLevel(vtkUniformGrid* input, int group);
 
 private:
-  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
-  void operator=(const vtkOverlappingAMRLevelIdScalars&); // Not implemented.
-//ETX
+  vtkOverlappingAMRLevelIdScalars(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverlappingAMRLevelIdScalars&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

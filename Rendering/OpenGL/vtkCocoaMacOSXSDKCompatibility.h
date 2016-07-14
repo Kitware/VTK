@@ -25,13 +25,31 @@ PURPOSE.  See the above copyright notice for more information.
   #error VTK requires the Mac OS X 10.6 SDK or later
 #endif
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED < 1060
-  #error VTK requires a deployment target of Mac OS X 10.6 or later
+#if MAC_OS_X_VERSION_MIN_REQUIRED < 1068
+  #error VTK requires a deployment target of Mac OS X 10.6.8 or later
 #endif
 
 // __has_feature is new in the 10.7 SDK, define it here if it's not yet defined.
 #ifndef __has_feature
   #define __has_feature(x) 0
+#endif
+
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 101200) && !defined(VTK_DONT_MAP_10_12_ENUMS)
+  // The 10.12 SDK made a bunch of enum names more logical, map old names to new names to continue supporting old SDKs.
+  #define NSWindowStyleMaskBorderless NSBorderlessWindowMask
+  #define NSWindowStyleMaskTitled NSTitledWindowMask
+  #define NSWindowStyleMaskClosable NSClosableWindowMask
+  #define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+  #define NSWindowStyleMaskResizable NSResizableWindowMask
+
+  #define NSEventModifierFlagShift NSShiftKeyMask
+  #define NSEventModifierFlagControl NSControlKeyMask
+  #define NSEventModifierFlagOption NSAlternateKeyMask
+  #define NSEventModifierFlagCommand NSCommandKeyMask
+
+  #define NSEventTypeKeyDown NSKeyDown
+  #define NSEventTypeKeyUp NSKeyUp
+  #define NSEventTypeApplicationDefined NSApplicationDefined
 #endif
 
 // Create handy #defines that indicate the Objective-C memory management model.

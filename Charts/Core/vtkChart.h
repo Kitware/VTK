@@ -44,7 +44,6 @@ public:
   vtkTypeMacro(vtkChart, vtkContextItem);
   virtual void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   // Description:
   // Enum of the available chart types
   enum {
@@ -81,7 +80,6 @@ public:
   enum EventIds {
     UpdateRange = 1002
   };
-//ETX
 
   // Description:
   // Paint event for the chart, called whenever the chart needs to be drawn
@@ -391,8 +389,8 @@ protected:
   MouseClickActions ActionsClick;
 
 private:
-  vtkChart(const vtkChart &); // Not implemented.
-  void operator=(const vtkChart &);   // Not implemented.
+  vtkChart(const vtkChart &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkChart &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkChart_h

@@ -81,15 +81,13 @@ public:
   // IsDoneWithTraversal() returns 0.
   virtual int IsDoneWithTraversal();
 
-
-//BTX
 protected:
   vtkUniformGridAMRDataIterator();
   ~vtkUniformGridAMRDataIterator();
   vtkSmartPointer<AMRIndexIterator> Iter;
 private:
-  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&); // Not implemented.
-  void operator=(const vtkUniformGridAMRDataIterator&); // Not implemented.
+  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkInformation> Information;
   vtkSmartPointer<vtkUniformGridAMR> AMR;
@@ -97,7 +95,7 @@ private:
   vtkAMRDataInternals* AMRData;
 
   void GetCurrentIndexPair(unsigned int& level, unsigned int& id);
-//ETX
+
 };
 
 #endif

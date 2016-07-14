@@ -207,7 +207,7 @@ public:
   virtual void SetCurrentCursor(int);
 
   // Description:
-  // Check to see if a mouse button has been pressed.
+  // Check to see if a mouse button has been pressed or mouse wheel activated.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
@@ -273,8 +273,8 @@ protected:
 
 
 private:
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 

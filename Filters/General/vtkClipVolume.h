@@ -167,7 +167,7 @@ protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);
   ~vtkClipVolume();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int port, vtkInformation *info);
@@ -207,8 +207,8 @@ private:
   vtkIdTypeArray        *ClippedLocations;
 
 private:
-  vtkClipVolume(const vtkClipVolume&);  // Not implemented.
-  void operator=(const vtkClipVolume&);  // Not implemented.
+  vtkClipVolume(const vtkClipVolume&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClipVolume&) VTK_DELETE_FUNCTION;
 };
 
 #endif

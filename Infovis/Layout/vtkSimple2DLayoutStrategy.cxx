@@ -39,10 +39,6 @@
 
 vtkStandardNewMacro(vtkSimple2DLayoutStrategy);
 
-#ifndef MIN
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#endif
-
 // Cool-down function.
 static inline float CoolDown(float t, float r)
 {
@@ -103,7 +99,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
     }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
@@ -156,7 +152,7 @@ void vtkSimple2DLayoutStrategy::Initialize()
   double weight, maxWeight = 1;
   if (this->WeightEdges && this->EdgeWeightField != NULL)
     {
-    weightArray = vtkDataArray::SafeDownCast(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
+    weightArray = vtkArrayDownCast<vtkDataArray>(this->Graph->GetEdgeData()->GetAbstractArray(this->EdgeWeightField));
     if (weightArray != NULL)
       {
       for (vtkIdType w = 0; w < weightArray->GetNumberOfTuples(); w++)
@@ -216,7 +212,7 @@ void vtkSimple2DLayoutStrategy::Layout()
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
@@ -308,7 +304,7 @@ void vtkSimple2DLayoutStrategy::Layout()
 
       // Avoid divide by zero
       float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
-      float pNormalize = MIN(1, 1.0/forceDiv);
+      float pNormalize = vtkMath::Min(1.0f, 1.0f/forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;

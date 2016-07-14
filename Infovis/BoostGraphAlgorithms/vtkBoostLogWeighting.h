@@ -41,13 +41,11 @@ public:
   vtkTypeMacro(vtkBoostLogWeighting, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum
   {
     BASE_E = 0,
     BASE_2 = 1
   };
-//ETX
 
   // Description:
   // Specify the logarithm base to apply
@@ -60,7 +58,6 @@ public:
   vtkGetMacro(EmitProgress, bool);
   vtkBooleanMacro(EmitProgress, bool);
 
-//BTX
 protected:
   vtkBoostLogWeighting();
   ~vtkBoostLogWeighting();
@@ -71,12 +68,12 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkBoostLogWeighting(const vtkBoostLogWeighting&); // Not implemented
-  void operator=(const vtkBoostLogWeighting&);   // Not implemented
+  vtkBoostLogWeighting(const vtkBoostLogWeighting&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostLogWeighting&) VTK_DELETE_FUNCTION;
 
   int Base;
   bool EmitProgress;
-//ETX
+
 };
 
 #endif

@@ -554,7 +554,7 @@ InitializeEssential(int _nDims,
     {
     m_AutoFreeElementData = true;
     MET_SizeOfType(m_ElementType, &i);
-    m_ElementData = new char[m_Quantity*m_ElementNumberOfChannels*i];
+    m_ElementData = new char[static_cast<size_t>(m_Quantity*m_ElementNumberOfChannels*i)];
     if(m_ElementData == NULL)
       {
       METAIO_STREAM::cerr << "MetaImage:: M_Allocate:: Insufficient memory"
@@ -986,7 +986,7 @@ ConvertElementDataTo(MET_ValueEnumType _elementType,
   {
   int eSize;
   MET_SizeOfType(_elementType, &eSize);
-  void * newElementData = new char[m_Quantity*m_ElementNumberOfChannels*eSize];
+  void * newElementData = new char[static_cast<size_t>(m_Quantity*m_ElementNumberOfChannels*eSize)];
 
   ElementByteOrderFix();
   if(!ElementMinMaxValid())
@@ -1205,7 +1205,7 @@ CanRead(const char *_headerName) const
 
   char* buf = new char[8001];
   inputStream.read(buf,8000);
-  unsigned long fileSize = inputStream.gcount();
+  unsigned long fileSize = static_cast<unsigned long>(inputStream.gcount());
   buf[fileSize] = 0;
   METAIO_STL::string header(buf);
   header.resize(fileSize);
@@ -2525,7 +2525,7 @@ M_ReadElements(METAIO_STREAM::ifstream * _fstream, void * _data,
       _fstream->seekg(0, METAIO_STREAM::ios::beg);
       }
 
-    unsigned char* compr = new unsigned char[m_CompressedDataSize];
+    unsigned char* compr = new unsigned char[static_cast<size_t>(m_CompressedDataSize)];
 
     M_ReadElementData( _fstream, compr, m_CompressedDataSize );
 
@@ -3203,7 +3203,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
 
         if(subSamplingFactor > 1)
           {
-          unsigned char* subdata = new unsigned char[bytesToRead];
+          unsigned char* subdata = new unsigned char[static_cast<size_t>(bytesToRead)];
           METAIO_STL::streamoff rOff =
             MET_UncompressStream(_fstream, seekoff, subdata,
                                  bytesToRead, m_CompressedDataSize,
@@ -3350,7 +3350,7 @@ M_ReadElementsROI(METAIO_STREAM::ifstream * _fstream, void * _data,
           }
         else // Binary data
           {
-          char* subdata = new char[elementsToRead*elementNumberOfBytes];
+          char* subdata = new char[static_cast<size_t>(elementsToRead*elementNumberOfBytes)];
 
           _fstream->read(subdata, size_t(elementsToRead*elementNumberOfBytes));
 

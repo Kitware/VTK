@@ -50,7 +50,6 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
     }
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
@@ -58,7 +57,6 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
     {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));
     }
-  //ETX
 
 protected:
   vtkRenderWindowCollection() {}
@@ -72,7 +70,7 @@ private:
     }
 
 private:
-  vtkRenderWindowCollection(const vtkRenderWindowCollection&);  // Not implemented.
-  void operator=(const vtkRenderWindowCollection&);  // Not implemented.
+  vtkRenderWindowCollection(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;
 };
 #endif

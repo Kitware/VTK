@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeRayCastIsosurfaceFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkMath.h"
@@ -1039,6 +1041,7 @@ void vtkCastRay_Trilin ( vtkVolumeRayCastIsosurfaceFunction *cast_function,
 vtkVolumeRayCastIsosurfaceFunction::vtkVolumeRayCastIsosurfaceFunction()
 {
   this->IsoValue                = 0;
+  VTK_LEGACY_BODY(vtkVolumeRayCastIsosurfaceFunction::vtkVolumeRayCastIsosurfaceFunction,"VTK 7.0");
 }
 
 // Destruct the vtkVolumeRayCastIsosurfaceFunction
@@ -1138,4 +1141,5 @@ void vtkVolumeRayCastIsosurfaceFunction::PrintSelf(ostream& os, vtkIndent indent
   os << indent << "Isosurface Value: " << this->IsoValue << "\n";
 }
 
+#endif // VTK_LEGACY_REMOVE
 

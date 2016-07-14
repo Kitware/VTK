@@ -184,7 +184,7 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
 {
   if (source->IsA("vtkVariantArray"))
     {
-    vtkVariantArray* a = vtkVariantArray::SafeDownCast(source);
+    vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -194,7 +194,7 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
     }
   else if (source->IsA("vtkDataArray"))
     {
-    vtkDataArray* a = vtkDataArray::SafeDownCast(source);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -209,7 +209,7 @@ void vtkVariantArray::SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* sourc
     }
   else if (source->IsA("vtkStringArray"))
     {
-    vtkStringArray* a = vtkStringArray::SafeDownCast(source);
+    vtkStringArray* a = vtkArrayDownCast<vtkStringArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -229,7 +229,7 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
 {
   if (source->IsA("vtkVariantArray"))
     {
-    vtkVariantArray* a = vtkVariantArray::SafeDownCast(source);
+    vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -239,7 +239,7 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
     }
   else if (source->IsA("vtkDataArray"))
     {
-    vtkDataArray* a = vtkDataArray::SafeDownCast(source);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -251,7 +251,7 @@ void vtkVariantArray::InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* so
     }
   else if (source->IsA("vtkStringArray"))
     {
-    vtkStringArray* a = vtkStringArray::SafeDownCast(source);
+    vtkStringArray* a = vtkArrayDownCast<vtkStringArray>(source);
     vtkIdType loci = i * this->NumberOfComponents;
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
@@ -284,7 +284,7 @@ void vtkVariantArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
     return;
     }
 
-  if (vtkVariantArray* va = vtkVariantArray::SafeDownCast(source))
+  if (vtkVariantArray* va = vtkArrayDownCast<vtkVariantArray>(source))
     {
     for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
       {
@@ -310,7 +310,7 @@ void vtkVariantArray::InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
         }
       }
     }
-  else if (vtkStringArray* sa = vtkStringArray::SafeDownCast(source))
+  else if (vtkStringArray* sa = vtkArrayDownCast<vtkStringArray>(source))
     {
     for (vtkIdType idIndex = 0; idIndex < numIds; ++idIndex)
       {
@@ -368,7 +368,7 @@ vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source
 {
   if (source->IsA("vtkVariantArray"))
     {
-    vtkVariantArray* a = vtkVariantArray::SafeDownCast(source);
+    vtkVariantArray* a = vtkArrayDownCast<vtkVariantArray>(source);
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
@@ -377,7 +377,7 @@ vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source
     }
   else if (source->IsA("vtkDataArray"))
     {
-    vtkDataArray* a = vtkDataArray::SafeDownCast(source);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(source);
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
@@ -388,7 +388,7 @@ vtkIdType vtkVariantArray::InsertNextTuple(vtkIdType j, vtkAbstractArray* source
     }
   else if (source->IsA("vtkStringArray"))
     {
-    vtkStringArray* a = vtkStringArray::SafeDownCast(source);
+    vtkStringArray* a = vtkArrayDownCast<vtkStringArray>(source);
     vtkIdType locj = j * a->GetNumberOfComponents();
     for (vtkIdType cur = 0; cur < this->NumberOfComponents; cur++)
       {
@@ -435,7 +435,7 @@ void vtkVariantArray::DeepCopy(vtkAbstractArray *aa)
     return;
     }
 
-  vtkVariantArray *va = vtkVariantArray::SafeDownCast( aa );
+  vtkVariantArray *va = vtkArrayDownCast<vtkVariantArray>( aa );
   if ( va == NULL )
     {
     vtkErrorMacro(<< "Shouldn't Happen: Couldn't downcast array into a vtkVariantArray." );
@@ -582,6 +582,14 @@ int vtkVariantArray::Resize(vtkIdType sz)
 
 //----------------------------------------------------------------------------
 void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save)
+{
+  this->SetArray(static_cast<vtkVariant*>(arr), size, save);
+  this->DataChanged();
+}
+
+//----------------------------------------------------------------------------
+void vtkVariantArray::SetVoidArray(void *arr, vtkIdType size, int save,
+                                   int vtkNotUsed(deleteM))
 {
   this->SetArray(static_cast<vtkVariant*>(arr), size, save);
   this->DataChanged();

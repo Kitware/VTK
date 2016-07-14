@@ -116,11 +116,7 @@ size_t vtkWrapPython_PyTemplateName(const char *name, char *pname)
 
   /* look for VTK types that become common python types */
   if ((n == 12 && strncmp(name, "vtkStdString", n) == 0) ||
-      (n == 11 && strncmp(name, "std::string", n) == 0)
-#ifndef VTK_LEGACY_REMOVE
-      || (n == 14 && strncmp(name, "vtkstd::string", n) == 0)
-#endif
-      )
+      (n == 11 && strncmp(name, "std::string", n) == 0))
     {
     strcpy(pname, "str");
     return n;
@@ -264,7 +260,8 @@ int vtkWrapPython_WrapTemplatedClass(
       types = NULL;
 
       /* only do these classes directly */
-      if (strcmp(entry->Name, "vtkDenseArray") == 0 ||
+      if (strcmp(entry->Name, "vtkArrayIteratorTemplate") == 0 ||
+          strcmp(entry->Name, "vtkDenseArray") == 0 ||
           strcmp(entry->Name, "vtkSparseArray") == 0)
         {
         types = vtkParse_GetArrayTypes();
@@ -390,10 +387,10 @@ int vtkWrapPython_WrapTemplatedClass(
             "{\n"
             "  PyObject *o;\n"
             "\n"
-            "  PyObject *temp = PyVTKTemplate_New(\"%s\", \"%s\",\n"
+            "  PyObject *temp = PyVTKTemplate_New(\"%sPython.%s\",\n"
             "                                     Py%s_Doc);\n"
             "\n",
-            data->Name, data->Name, modulename, data->Name);
+            data->Name, modulename, data->Name, data->Name);
 
     for (k = 0; k < ninstantiations; k++)
       {

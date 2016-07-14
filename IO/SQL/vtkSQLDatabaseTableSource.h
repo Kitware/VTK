@@ -71,8 +71,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&); // Not implemented
-  void operator=(const vtkSQLDatabaseTableSource&);   // Not implemented
+  vtkSQLDatabaseTableSource(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLDatabaseTableSource&) VTK_DELETE_FUNCTION;
 
   char* PedigreeIdArrayName;
   bool GeneratePedigreeIds;
@@ -82,10 +82,9 @@ private:
   // and re-emits them as if they came from this class.
   vtkEventForwarderCommand *EventForwarder;
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

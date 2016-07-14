@@ -170,7 +170,6 @@ protected:
   unsigned int NumberOfGrids;
   unsigned int NumberOfGhostLayers;
 
-  // BTX
   // Arrays registered by the user for each grid
   std::vector< vtkUnsignedCharArray* > GridPointGhostArrays;
   std::vector< vtkUnsignedCharArray* > GridCellGhostArrays;
@@ -185,11 +184,10 @@ protected:
   std::vector< vtkUnsignedCharArray* > GhostedPointGhostArray;
   std::vector< vtkUnsignedCharArray* > GhostedCellGhostArray;
   std::vector< vtkPoints* > GhostedGridPoints;
-  // ETX
 
 private:
-  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&);// Not implemented
-  void operator=(const vtkAbstractGridConnectivity&); // Not implemented
+  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

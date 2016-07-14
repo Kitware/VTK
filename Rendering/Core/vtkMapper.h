@@ -205,7 +205,6 @@ public:
     { vtkMapper::SetGlobalImmediateModeRendering(0); }
   static int  GetGlobalImmediateModeRendering();
 
-  //BTX
   // Description:
   // Force compile only mode in case display lists are used
   // (ImmediateModeRendering is false). If ImmediateModeRendering is true,
@@ -216,7 +215,6 @@ public:
   // There is no good reason to expose it to wrappers.
   vtkGetMacro(ForceCompileOnly, int);
   void SetForceCompileOnly(int value);
-  //ETX
 
   // Description:
   // Control how the filter works with scalar point data and cell attribute
@@ -324,6 +322,55 @@ public:
     double& factor, double& units);
 
   // Description:
+  // Used to set the polygon offset values relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyPolygonOffsetParameters(
+    double factor, double units);
+  void GetRelativeCoincidentTopologyPolygonOffsetParameters(
+    double& factor, double& units);
+
+  // Description:
+  // Used to set the line offset scale factor and units.
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  // These are global variables.
+  static void SetResolveCoincidentTopologyLineOffsetParameters(
+    double factor, double units);
+  static void GetResolveCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+
+  // Description:
+  // Used to set the line offset values relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyLineOffsetParameters(
+    double factor, double units);
+  void GetRelativeCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+
+  // Description:
+  // Used to set the point offset value
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  // These are global variables.
+  static void SetResolveCoincidentTopologyPointOffsetParameter(
+    double units);
+  static void GetResolveCoincidentTopologyPointOffsetParameter(
+    double& units);
+
+  // Description:
+  // Used to set the point offset value relative to the global
+  // Used when ResolveCoincidentTopology is set to PolygonOffset.
+  void SetRelativeCoincidentTopologyPointOffsetParameter(double units);
+  void GetRelativeCoincidentTopologyPointOffsetParameter(double& units);
+
+  // Description:
+  // Get the net paramters for handlig coincident topology
+  // obtained by summing the global values with the relative values.
+  void GetCoincidentTopologyPolygonOffsetParameters(
+    double& factor, double& units);
+  void GetCoincidentTopologyLineOffsetParameters(
+    double& factor, double& units);
+  void GetCoincidentTopologyPointOffsetParameter(double& units);
+
+  // Description:
   // Used when ResolveCoincidentTopology is set to PolygonOffset. The polygon
   // offset can be applied either to the solid polygonal faces or the
   // lines/vertices. When set (default), the offset is applied to the faces
@@ -352,12 +399,10 @@ public:
   void SetRenderTime(double time) {this->RenderTime = time;}
   vtkGetMacro(RenderTime, double);
 
-  //BTX
   // Description:
   // Get the input as a vtkDataSet.  This method is overridden in
   // the specialized mapper classes to return more specific data types.
   vtkDataSet *GetInput();
-  //ETX
 
   // Description:
   // Get the input to this mapper as a vtkDataSet, instead of as a
@@ -374,8 +419,13 @@ public:
   // allows the blending of the scalars with an additional alpha (typically
   // which comes from a vtkActor, etc.)
   virtual vtkUnsignedCharArray *MapScalars(double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(double alpha,
+                                           int &cellFlag);
   virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
                                            double alpha);
+  virtual vtkUnsignedCharArray *MapScalars(vtkDataSet *input,
+                                           double alpha,
+                                           int &cellFlag);
 
   // Description:
   // Set/Get the light-model color mode.
@@ -443,10 +493,28 @@ public:
   static void ColorToValue(unsigned char *color, double min, double scale,
     double &value);
 
+  // Description:
+  // Call to force a rebuild of color result arrays on next MapScalars.
+  // Necessary when using arrays in the case of multiblock data.
+  void ClearColorArrays();
+
+  // Description:
+  // Provide read access to the color array
+  vtkUnsignedCharArray *GetColorMapColors();
+
+  // Description:
+  // Provide read access to the color texture coordinate array
+  vtkFloatArray *GetColorCoordinates();
+
+  // Description:
+  // Provide read access to the color texture array
+  vtkImageData* GetColorTextureMap();
+
 protected:
   vtkMapper();
   ~vtkMapper();
 
+  // color mapped colors
   vtkUnsignedCharArray *Colors;
 
   // Use texture coordinates for coloring.
@@ -490,9 +558,15 @@ protected:
 
   vtkAbstractArray *InvertibleScalars;
 
+  double CoincidentPolygonFactor;
+  double CoincidentPolygonOffset;
+  double CoincidentLineFactor;
+  double CoincidentLineOffset;
+  double CoincidentPointOffset;
+
 private:
-  vtkMapper(const vtkMapper&);  // Not implemented.
-  void operator=(const vtkMapper&);  // Not implemented.
+  vtkMapper(const vtkMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

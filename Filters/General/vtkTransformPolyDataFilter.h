@@ -71,8 +71,8 @@ protected:
   vtkAbstractTransform *Transform;
   int OutputPointsPrecision;
 private:
-  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkTransformPolyDataFilter&);  // Not implemented.
+  vtkTransformPolyDataFilter(const vtkTransformPolyDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -81,18 +81,17 @@ public:
   // Take an image data and synchronously convert it to a base-64 encoded jpg.
   const char* EncodeAsBase64Jpg(vtkImageData* img, int quality=50);
 
-//BTX
 protected:
   vtkDataEncoder();
   ~vtkDataEncoder();
 
 private:
-  vtkDataEncoder(const vtkDataEncoder&); // Not implemented
-  void operator=(const vtkDataEncoder&); // Not implemented
+  vtkDataEncoder(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataEncoder&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

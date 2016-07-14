@@ -89,7 +89,6 @@ public:
   vtkSetMacro(RootProcessId, int);
   vtkGetMacro(RootProcessId, int);
 
-//BTX
   enum
     {
     SYNC_RENDER_TAG = 15001,
@@ -130,13 +129,13 @@ protected:
   vtkMultiProcessController* ParallelController;
 
 private:
-  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&); // Not implemented.
-  void operator=(const vtkSynchronizedRenderWindows&); // Not implemented.
+  vtkSynchronizedRenderWindows(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSynchronizedRenderWindows&) VTK_DELETE_FUNCTION;
 
   class vtkObserver;
   vtkObserver* Observer;
   friend class vtkObserver;
-//ETX
+
 };
 
 #endif

@@ -153,9 +153,8 @@ protected:
   int NumberOfTimesLevelDown;
   int NumberOfFailedPoints;
   double AverageLevel;
-// BTX
+
   std::vector< int > BlocksToLoad; // Holds the ids of the blocks to load.
-// ETX
 
   // Description:
   // Checks if this filter instance is running on more than one processes
@@ -344,8 +343,8 @@ protected:
 
 
 private:
-  vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
-  void operator=(const vtkAMRResampleFilter&); // Not implemented
+  vtkAMRResampleFilter(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
 
 };
 

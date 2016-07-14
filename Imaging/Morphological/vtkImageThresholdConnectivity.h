@@ -170,8 +170,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&);  // Not implemented.
-  void operator=(const vtkImageThresholdConnectivity&);  // Not implemented.
+  vtkImageThresholdConnectivity(const vtkImageThresholdConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageThresholdConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -93,12 +93,12 @@ protected:
   char* FieldDelimiter;
   char* StringDelimiter;
   bool UseStringDelimiter;
-//BTX
+
   ostream* Stream;
-//ETX
+
 private:
-  vtkDelimitedTextWriter(const vtkDelimitedTextWriter&); // Not implemented.
-  void operator=(const vtkDelimitedTextWriter&); // Not implemented.
+  vtkDelimitedTextWriter(const vtkDelimitedTextWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDelimitedTextWriter&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -59,8 +59,8 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&);  // Not implemented.
-  void operator=(const vtkImageContinuousErode3D&);  // Not implemented.
+  vtkImageContinuousErode3D(const vtkImageContinuousErode3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageContinuousErode3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

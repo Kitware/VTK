@@ -36,9 +36,9 @@ class vtkMultiProcessController;
 class VTKIOPARALLEL_EXPORT vtkPOpenFOAMReader : public vtkOpenFOAMReader
 {
 public:
-  //BTX
+
   enum caseType { DECOMPOSED_CASE = 0, RECONSTRUCTED_CASE = 1 };
-  //ETX
+
   static vtkPOpenFOAMReader *New();
   vtkTypeMacro(vtkPOpenFOAMReader, vtkOpenFOAMReader);
 
@@ -69,8 +69,8 @@ private:
   int NumProcesses;
   int ProcessId;
 
-  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &); // Not implemented.
-  void operator=(const vtkPOpenFOAMReader &); // Not implemented.
+  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
 
   void GatherMetaData();
   void BroadcastStatus(int &);

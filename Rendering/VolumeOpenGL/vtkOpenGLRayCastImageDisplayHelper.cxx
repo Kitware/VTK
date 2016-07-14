@@ -25,7 +25,7 @@
 #include "vtkOpenGL.h"
 #include "vtkOpenGLError.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkOpenGLRayCastImageDisplayHelper);
 
@@ -101,7 +101,9 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   int i;
   float offsetX, offsetY;
+#ifdef GL_VERSION_1_1
   float xMinOffset, xMaxOffset, yMinOffset, yMaxOffset;
+#endif
   float tcoords[8];
 
   float depth;
@@ -239,9 +241,10 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   // Specify the texture
   glColor3f(1.0,1.0,1.0);
-  int newTextureSize[2];
 
 #ifdef GL_VERSION_1_1
+  int newTextureSize[2];
+
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
     {
     // Test the texture to see if it fits in memory

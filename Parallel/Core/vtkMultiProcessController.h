@@ -61,7 +61,6 @@ class vtkOutputWindow;
 class vtkProcessGroup;
 class vtkProcess;
 
-//BTX
 // The type of function that gets called when new processes are initiated.
 typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
                                        void *userData);
@@ -70,8 +69,6 @@ typedef void (*vtkProcessFunctionType)(vtkMultiProcessController *controller,
 typedef void (*vtkRMIFunctionType)(void *localArg,
                                    void *remoteArg, int remoteArgLength,
                                    int remoteProcessId);
-//ETX
-
 
 class VTKPARALLELCORE_EXPORT vtkMultiProcessController : public vtkObject
 {
@@ -111,7 +108,6 @@ public:
   void SetNumberOfProcesses(int num);
   int GetNumberOfProcesses();
 
-  //BTX
   // Description:
   // Set the SingleMethod to f() and the UserData of the
   // for the method to be executed by all of the processes
@@ -124,7 +120,6 @@ public:
   // some function pointer and user data, a vtkProcess object is passed
   // where the method to execute is Execute() and the data the object itself.
   void SetSingleProcessObject(vtkProcess *p);
-  //ETX
 
   // Description:
   // Execute the SingleMethod (as define by SetSingleMethod) using
@@ -132,14 +127,12 @@ public:
   // all the processes finish executing their methods.
   virtual void SingleMethodExecute() = 0;
 
-  //BTX
   // Description:
   // Set the MultipleMethod to f() and the UserData of the
   // for the method to be executed by the process index
   // when MultipleMethodExecute is called.  This is for having each
   // process start with a different function and data argument.
   void SetMultipleMethod(int index, vtkProcessFunctionType, void *data);
-  //ETX
 
   // Description:
   // Execute the MultipleMethods (as define by calling SetMultipleMethod
@@ -190,7 +183,7 @@ public:
                                                          int localKey);
 
   //------------------ RMIs --------------------
-  //BTX
+
   // Description:
   // Register remote method invocation in the receiving process
   // which makes the call.  It must have a unique tag as an RMI id.
@@ -233,8 +226,6 @@ public:
   // Description:
   // Remove a callback. Returns true is the remove was successful.
   virtual bool RemoveRMICallback(unsigned long id);
-
-  //ETX
 
   // Description:
   // A method to trigger a method invocation in another process.
@@ -315,8 +306,6 @@ public:
   static int GetRMITag() { return RMI_TAG; }
   static int GetRMIArgTag() { return RMI_ARG_TAG; }
 
-//BTX
-
   enum Errors
   {
     RMI_NO_ERROR,
@@ -337,8 +326,6 @@ public:
     BREAK_RMI_TAG  = 3,
     XML_WRITER_DATA_INFO = 4
   };
-
-//ETX
 
   // Description:
   // This method can be used to synchronize processes.
@@ -369,16 +356,13 @@ public:
   int Send(const double* data, vtkIdType length, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
   int Send(const vtkIdType* data, vtkIdType length, int remoteProcessId, int tag);
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Send(const long long* data, vtkIdType length, int remoteProcessId, int tag);
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Send(const unsigned long long* data, vtkIdType length, int remoteProcessId, int tag);
-#endif
   int Send(vtkDataObject *data, int remoteId, int tag);
   int Send(vtkDataArray *data, int remoteId, int tag);
 
-//BTX
   // Description:
   // Send a stream to another process. vtkMultiProcessStream makes it possible
   // to send data with arbitrary length and different base types to the other
@@ -386,7 +370,6 @@ public:
   // arguments, it's generally more efficient to push the arguments into the
   // stream and the send the stream over.
   int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
 
   // Description:
   // This method receives data from a corresponding send. It blocks
@@ -410,19 +393,17 @@ public:
   int Receive(double* data, vtkIdType maxlength, int remoteProcessId, int tag);
 #ifdef VTK_USE_64BIT_IDS
   int Receive(vtkIdType* data, vtkIdType maxlength, int remoteProcessId, int tag);
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Receive(long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Receive(unsigned long long* data, vtkIdType maxLength, int remoteProcessId, int tag);
-#endif
   int Receive(vtkDataObject* data, int remoteId, int tag);
   int Receive(vtkDataArray* data, int remoteId, int tag);
-//BTX
+
   // Description:
   // Receive a stream from the other processes.
   int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
+
   vtkDataObject *ReceiveDataObject(int remoteId, int tag);
 
   // Description:
@@ -478,27 +459,24 @@ public:
   int Broadcast(vtkIdType *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Broadcast(long long *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Broadcast(unsigned long long *data, vtkIdType length, int srcProcessId) {
     return this->Communicator->Broadcast(data, length, srcProcessId);
   }
-#endif
   int Broadcast(vtkDataObject *data, int srcProcessId) {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
   int Broadcast(vtkDataArray *data, int srcProcessId) {
     return this->Communicator->Broadcast(data, srcProcessId);
   }
-//BTX
+
   int Broadcast(vtkMultiProcessStream& stream, int srcProcessId) {
     return this->Communicator->Broadcast(stream, srcProcessId);
   }
-//ETX
 
   // Description:
   // Gather collects arrays in the process with id \c destProcessId.  Each
@@ -569,20 +547,18 @@ public:
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Gather(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Gather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, length,
                                       destProcessId);
   }
-#endif
   int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int destProcessId) {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
@@ -683,7 +659,7 @@ public:
                                        sendLength, recvLengths,
                                        offsets, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int GatherV(const long long* sendBuffer, long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -692,7 +668,6 @@ public:
                                        offsets, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int GatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -701,7 +676,6 @@ public:
                                        offsets, destProcessId);
   }
 
-#endif
   int GatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
               vtkIdType *recvLengths, vtkIdType *offsets, int destProcessId) {
     return this->Communicator->GatherV(sendBuffer, recvBuffer,
@@ -800,20 +774,18 @@ public:
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Scatter(const long long *sendBuffer, long long *recvBuffer,
               vtkIdType length, int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Scatter(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
               vtkIdType length, int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, length,
                                        srcProcessId);
   }
-#endif
   int Scatter(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
               int srcProcessId) {
     return this->Communicator->Scatter(sendBuffer, recvBuffer, srcProcessId);
@@ -910,7 +882,7 @@ public:
                                         sendLengths, offsets, recvLength,
                                         srcProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int ScatterV(const long long *sendBuffer, long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -919,7 +891,6 @@ public:
                                         srcProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int ScatterV(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -927,7 +898,6 @@ public:
                                         sendLengths, offsets, recvLength,
                                         srcProcessId);
   }
-#endif
 
   // Description:
   // Same as gather except that the result ends up on all processes.
@@ -972,16 +942,14 @@ public:
                 vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllGather(const long long *sendBuffer, long long *recvBuffer, vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllGather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer, vtkIdType length) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer, length);
   }
-#endif
   int AllGather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer) {
     return this->Communicator->AllGather(sendBuffer, recvBuffer);
   }
@@ -1073,7 +1041,7 @@ public:
                                           sendLength, recvLengths,
                                           offsets);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllGatherV(const long long* sendBuffer, long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -1082,7 +1050,6 @@ public:
                                           offsets);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllGatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -1090,7 +1057,6 @@ public:
                                           sendLength, recvLengths,
                                           offsets);
   }
-#endif
   int AllGatherV(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                  vtkIdType *recvLengths, vtkIdType *offsets) {
     return this->Communicator->AllGatherV(sendBuffer, recvBuffer,
@@ -1171,27 +1137,24 @@ public:
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#endif
   int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer,
                                       operation, destProcessId);
   }
 
-//BTX
   // Description:
   // Reduce an array to the given destination process.  This version of Reduce
   // takes a custom operation as a subclass of vtkCommunicator::Operation.
@@ -1268,7 +1231,7 @@ public:
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, vtkCommunicator::Operation *operation,
              int destProcessId) {
@@ -1276,20 +1239,17 @@ public:
                                       operation, destProcessId);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, vtkCommunicator::Operation *operation,
              int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer, length,
                                       operation, destProcessId);
   }
-#endif
   int Reduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              vtkCommunicator::Operation *operation, int destProcessId) {
     return this->Communicator->Reduce(sendBuffer, recvBuffer,
                                       operation, destProcessId);
   }
-//ETX
 
   // Description:
   // Same as Reduce except that the result is placed in all of the processes.
@@ -1354,25 +1314,23 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#endif
   int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                 int operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-//BTX
+
   int AllReduce(const int *sendBuffer, int *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
@@ -1434,25 +1392,22 @@ public:
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, length,
                                          operation);
   }
-#endif
   int AllReduce(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
                 vtkCommunicator::Operation *operation) {
     return this->Communicator->AllReduce(sendBuffer, recvBuffer, operation);
   }
-//ETX
 
 // Internally implemented RMI to break the process loop.
 
@@ -1508,15 +1463,14 @@ protected:
   vtkCommunicator* RMICommunicator;
 
 private:
-  vtkMultiProcessController(const vtkMultiProcessController&);  // Not implemented.
-  void operator=(const vtkMultiProcessController&);  // Not implemented.
+  vtkMultiProcessController(const vtkMultiProcessController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiProcessController&) VTK_DELETE_FUNCTION;
 
   unsigned long RMICount;
 
-//BTX
   class vtkInternal;
   vtkInternal *Internal;
-//ETX
+
 };
 
 
@@ -1708,7 +1662,7 @@ inline int vtkMultiProcessController::Send(const vtkIdType* data,
     return 0;
     }
 }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
 inline int vtkMultiProcessController::Send(const long long* data,
                                            vtkIdType length,
                                            int remoteProcessId, int tag)
@@ -1723,7 +1677,6 @@ inline int vtkMultiProcessController::Send(const long long* data,
     }
 }
 #endif
-#ifdef VTK_TYPE_USE_LONG_LONG
 
 inline int vtkMultiProcessController::Send(const unsigned long long* data,
                                            vtkIdType length,
@@ -1738,8 +1691,6 @@ inline int vtkMultiProcessController::Send(const unsigned long long* data,
     return 0;
     }
 }
-
-#endif
 
 inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
   int remoteId, int tag)
@@ -1952,7 +1903,7 @@ inline int vtkMultiProcessController::Receive(vtkIdType* data,
     return 0;
     }
 }
-#elif defined(VTK_TYPE_USE_LONG_LONG)
+#else
 inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
@@ -1967,7 +1918,6 @@ inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
 }
 #endif
 
-#ifdef VTK_TYPE_USE_LONG_LONG
 inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
@@ -1980,8 +1930,6 @@ inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdTyp
     return 0;
     }
 }
-#endif
-
 
 inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream,
   int remoteId, int tag)

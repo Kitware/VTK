@@ -100,8 +100,8 @@ protected:
   bool AutoOrient;
 
 private:
-  vtkScalarBarRepresentation(const vtkScalarBarRepresentation &); // Not implemented
-  void operator=(const vtkScalarBarRepresentation &);   // Not implemented
+  vtkScalarBarRepresentation(const vtkScalarBarRepresentation &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScalarBarRepresentation &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkScalarBarRepresentation_h

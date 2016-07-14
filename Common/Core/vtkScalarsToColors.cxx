@@ -24,7 +24,7 @@
 
 #include <map>
 
-#include <math.h>
+#include <cmath>
 
 // A helper map for quick lookups of annotated values.
 class vtkScalarsToColors::vtkInternalAnnotatedValueMap :
@@ -234,11 +234,11 @@ vtkUnsignedCharArray *vtkScalarsToColors::MapScalars(vtkAbstractArray *scalars,
   int numberOfComponents = scalars->GetNumberOfComponents();
   vtkUnsignedCharArray *newColors;
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
 
   // map scalars through lookup table only if needed
   if ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-       vtkUnsignedCharArray::SafeDownCast(dataArray) != NULL) ||
+       vtkArrayDownCast<vtkUnsignedCharArray>(dataArray) != NULL) ||
       (colorMode == VTK_COLOR_MODE_DIRECT_SCALARS && dataArray))
     {
     newColors = this->
@@ -1542,16 +1542,16 @@ void vtkScalarsToColors::MapScalarsThroughTable2(
 vtkUnsignedCharArray *vtkScalarsToColors::ConvertToRGBA(
   vtkDataArray *colors, int numComp, int numTuples)
 {
-  if (vtkCharArray::SafeDownCast(colors) != NULL)
+  if (vtkArrayDownCast<vtkCharArray>(colors) != NULL)
     {
     vtkErrorMacro(<<"char type does not have enough values to hold a color");
     return NULL;
     }
 
   if (numComp == 4 && this->Alpha >= 1.0 &&
-      vtkUnsignedCharArray::SafeDownCast(colors) != NULL)
+      vtkArrayDownCast<vtkUnsignedCharArray>(colors) != NULL)
     {
-    vtkUnsignedCharArray* c = vtkUnsignedCharArray::SafeDownCast(colors);
+    vtkUnsignedCharArray* c = vtkArrayDownCast<vtkUnsignedCharArray>(colors);
     c->Register(this);
     return c;
     }

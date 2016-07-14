@@ -33,7 +33,7 @@
 
 #include "vtkOpenGL.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <string>
 #include <map>
@@ -89,8 +89,9 @@
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLError.h"
 
-// Uncomment the following line to debug Snow Leopard
-//#define APPLE_SNOW_LEOPARD_BUG
+#if defined(__APPLE__)
+#include <CoreServices/CoreServices.h>
+#endif
 
 //-----------------------------------------------------------------------------
 //
@@ -1506,11 +1507,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::CheckFrameBufferStatus()
     default:
       cout << "Unknown framebuffer status=0x" << hex<< status << dec << endl;
     }
-  // DO NOT REMOVE THE FOLLOWING COMMENTED LINE. FOR DEBUGGING PURPOSE.
-#ifdef APPLE_SNOW_LEOPARD_BUG
-  this->DisplayFrameBufferAttachments();
-  this->DisplayReadAndDrawBuffers();
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -2139,19 +2135,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->UnsupportedRequiredExtensions =
     new vtkUnsupportedRequiredExtensionsStringStream;
 
-  // It does not work on Apple OS X Snow Leopard with nVidia.
-  // There is a bug in the OpenGL driver with an error in the
-  // Cg compiler about an infinite loop.
-#if defined(__APPLE__) && !defined(APPLE_SNOW_LEOPARD_BUG)
-
-  (void)window;
-  this->UnsupportedRequiredExtensions->Stream<<
-    " Disabled on Apple OS X Snow Leopard with nVidia.";
-  this->LoadExtensionsSucceeded=0;
-  return;
-
-#else
-
   // Assume success
   this->LoadExtensionsSucceeded=1;
 
@@ -2165,6 +2148,27 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     return;
     }
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
+
+  // It does not work on Mac OS X 10.6 (Snow Leopard) with nVidia.
+  // There is a bug in that OpenGL driver with an error in the
+  // Cg compiler about an infinite loop.
+  // However it works with Mac OS X 10.7 (Lion) with nVidia.
+#if defined(__APPLE__) && (MAC_OS_X_VERSION_MIN_REQUIRED < 1070)
+  // Gestalt() is deprecated, but all this code will go away when 10.7 is VTK's minimum.
+  #pragma clang diagnostic push
+  #pragma clang diagnostic ignored "-Wdeprecated-declarations"
+  SInt32 major, minor;
+  Gestalt (gestaltSystemVersionMajor, &major);
+  Gestalt (gestaltSystemVersionMinor, &minor);
+  #pragma clang diagnostic pop
+  if (extensions->DriverIsNvidia() && (major == 10) && (minor == 6))
+    {
+    this->UnsupportedRequiredExtensions->Stream <<
+      " Disabled on unsupported Apple OS X driver.";
+    this->LoadExtensionsSucceeded=0;
+    return;
+    }
+#endif
 
   // mesa notes:
   // 8.0.0 -- missing some required extensions
@@ -2431,8 +2435,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->LastComponent=
     vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized;
   this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
-
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -4257,10 +4259,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
                      parallelProjection,rayCastMethod,shadeMethod,
                      componentMethod);
 
-#ifdef APPLE_SNOW_LEOPARD_BUG
-  this->Program->Build();
-#endif
-
   vtkUniformVariables *v=this->Program->GetUniformVariables();
 
   // for active texture 0, dataset
@@ -4330,18 +4328,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
   this->CheckFrameBufferStatus();
 
-#ifdef APPLE_SNOW_LEOPARD_BUG
-  this->Program->SendUniforms();
-  cout << "BEFORE isValid0"  << endl;
-  if(!this->Program->IsValid())
-    {
-    cout <<this->Program->GetLastValidateLog() << endl;
-    this->Program->PrintActiveUniformVariablesOnCout();
-    v->Print(cout);
-    }
-  cout << "AFTER isValid0"  << endl;
-#endif
-
   if(this->NumberOfCroppingRegions>1)
     {
     // framebuffer texture
@@ -4357,18 +4343,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       }
     this->CheckFrameBufferStatus();
 
-#ifdef APPLE_SNOW_LEOPARD_BUG
-    this->Program->SendUniforms();
-    cout << "BEFORE isValid1"  << endl;
-    if(!this->Program->IsValid())
-      {
-      cout <<this->Program->GetLastValidateLog() << endl;
-      this->Program->PrintActiveUniformVariablesOnCout();
-      v->Print(cout);
-      }
-    cout << "AFTER isValid1"  << endl;
-#endif
-
     // max scalar value framebuffer texture
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
@@ -4383,19 +4357,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     }
 
   this->CheckFrameBufferStatus();
-
-#ifdef APPLE_SNOW_LEOPARD_BUG
-  this->Program->SendUniforms();
-  cout << "BEFORE isValid2"  << endl;
-  if(!this->Program->IsValid())
-    {
-    cout <<this->Program->GetLastValidateLog() << endl;
-    this->Program->PrintActiveUniformVariablesOnCout();
-    v->Print(cout);
-    }
-  cout << "AFTER isValid2"  << endl;
-#endif
-
 
   fvalue[0]=static_cast<float>(lowerLeft[0]);
   fvalue[1]=static_cast<float>(lowerLeft[1]);
@@ -5932,14 +5893,6 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   this->LoadProjectionParameters(ren,volume);
   this->ClipBoundingBox(ren,bounds,volume);
   this->Program->SendUniforms();
-#ifdef APPLE_SNOW_LEOPARD_BUG
-  if(!this->Program->IsValid())
-    {
-    cout << "line " << __LINE__ << " " <<
-      this->Program->GetLastValidateLog() << endl;
-    }
-  this->Program->PrintActiveUniformVariablesOnCout();
-#endif
   int abort=this->RenderClippedBoundingBox(1,0,1,ren->GetRenderWindow());
   if (!abort)
     {

@@ -301,7 +301,7 @@ void vtkQtTableModelAdapter::updateModelColumnHashTables()
       }
 
     // If number of components is greater than 1, create a new column for Magnitude
-    vtkDataArray* dataArray = vtkDataArray::SafeDownCast(this->Table->GetColumn(tableColumn));
+    vtkDataArray* dataArray = vtkArrayDownCast<vtkDataArray>(this->Table->GetColumn(tableColumn));
     if (nComponents > 1 && dataArray)
       {
       vtkSmartPointer<vtkDoubleArray> magArray = vtkSmartPointer<vtkDoubleArray>::New();
@@ -415,7 +415,7 @@ QItemSelection vtkQtTableModelAdapter::VTKIndexSelectionToQItemSelection(
   vtkSelectionNode* node = vtksel->GetNode(0);
   if (node)
     {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkIdTypeArray* arr = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
     if (arr)
       {
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
@@ -806,7 +806,7 @@ QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
     {
     column = this->ModelColumnToFieldDataColumn(this->ColorColumn);
     }
-  vtkUnsignedCharArray* colors = vtkUnsignedCharArray::SafeDownCast(this->Table->GetColumn(column));
+  vtkUnsignedCharArray* colors = vtkArrayDownCast<vtkUnsignedCharArray>(this->Table->GetColumn(column));
   if (!colors)
     {
     return QVariant();
@@ -816,7 +816,7 @@ QVariant vtkQtTableModelAdapter::getColorIcon(int row) const
   if(nComponents >= 3)
     {
     unsigned char rgba[4];
-    colors->GetTupleValue(row, rgba);
+    colors->GetTypedTuple(row, rgba);
     int rgb[3];
     rgb[0] = static_cast<int>(0x0ff & rgba[0]);
     rgb[1] = static_cast<int>(0x0ff & rgba[1]);
@@ -846,7 +846,7 @@ QVariant vtkQtTableModelAdapter::getIcon(int row) const
     {
     column = this->ModelColumnToFieldDataColumn(this->IconIndexColumn);
     }
-  vtkIntArray* icon_indices = vtkIntArray::SafeDownCast(this->Table->GetColumn(column));
+  vtkIntArray* icon_indices = vtkArrayDownCast<vtkIntArray>(this->Table->GetColumn(column));
   if (!icon_indices)
     {
     return QVariant();

@@ -79,7 +79,6 @@ public:
   // Get the output as a table of row ids.
   vtkIdTypeArray* GetSelectedRowIds(int selection=0);
 
-  //BTX
   enum OutputPorts
   {
     OUTPUT_ROW_IDS=0,
@@ -92,7 +91,6 @@ public:
     BLT_NEAR,
     BLT_BETWEEN
   };
-  //ETX
 
   // Description:
   // Reset the columns to threshold, column ranges, etc.
@@ -167,11 +165,9 @@ protected:
   int NumberOfLineEquations;
   int UseNormalizedDistance;
 
-  //BTX
   vtkSmartPointer<vtkDoubleArray> LineEquations;
   class Internals;
   Internals* Implementation;
-  //ETX
 
   virtual int RequestData(
     vtkInformation*,
@@ -201,8 +197,8 @@ protected:
   // Determine if x,y is between ANY TWO of the specified lines.
   int ThresholdBetween(double x, double y);
 private:
-  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&); // Not implemented
-  void operator=(const vtkBivariateLinearTableThreshold&); // Not implemented
+  vtkBivariateLinearTableThreshold(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBivariateLinearTableThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

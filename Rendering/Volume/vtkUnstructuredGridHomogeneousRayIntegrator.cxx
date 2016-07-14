@@ -33,7 +33,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkPiecewiseFunction.h"
 
-#include <math.h>
+#include <cmath>
 
 //-----------------------------------------------------------------------------
 

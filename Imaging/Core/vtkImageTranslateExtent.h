@@ -47,8 +47,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkImageTranslateExtent(const vtkImageTranslateExtent&);  // Not implemented.
-  void operator=(const vtkImageTranslateExtent&);  // Not implemented.
+  vtkImageTranslateExtent(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageTranslateExtent&) VTK_DELETE_FUNCTION;
 };
 
 #endif

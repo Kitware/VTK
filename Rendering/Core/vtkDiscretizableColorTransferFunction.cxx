@@ -272,6 +272,8 @@ void vtkDiscretizableColorTransferFunction::Build()
     delete [] table;
     }
 
+  this->LookupTable->BuildSpecialColors();
+
   this->BuildTime.Modified();
 }
 
@@ -345,7 +347,7 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
   // color and we won't use it for opacity either.
   bool direct_scalar_mapping =
     ((colorMode == VTK_COLOR_MODE_DEFAULT &&
-      vtkUnsignedCharArray::SafeDownCast(scalars) != NULL) ||
+      vtkArrayDownCast<vtkUnsignedCharArray>(scalars) != NULL) ||
      colorMode == VTK_COLOR_MODE_DIRECT_SCALARS);
 
   vtkUnsignedCharArray *colors = (this->Discretize || this->IndexedLookup) ?
@@ -360,7 +362,7 @@ vtkUnsignedCharArray* vtkDiscretizableColorTransferFunction::MapScalars(
      (this->EnableOpacityMapping == true) &&
      (this->ScalarOpacityFunction.GetPointer() != NULL))
     {
-    vtkDataArray* da = vtkDataArray::SafeDownCast(scalars);
+    vtkDataArray* da = vtkArrayDownCast<vtkDataArray>(scalars);
     this->MapDataArrayToOpacity(da, component, colors);
     }
   return colors;

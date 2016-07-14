@@ -89,16 +89,12 @@ protected:
 
   virtual int MeshUpToDate();
 
-//BTX
   // Description:
   // Reads point data arrays.  Called by ReadCoordinates and ReadFieldData.
   virtual vtkSmartPointer<vtkDataArray> ReadPointDataArray(int ncFD, int varId);
-//ETX
 
-//BTX
   class vtkInternal;
   vtkInternal *Internal;
-//ETX
 
   // Description:
   // The number of pieces and the requested piece to load.  Synonymous with
@@ -131,8 +127,8 @@ protected:
   int RequestedPieceCache;
 
 private:
-  vtkPSLACReader(const vtkPSLACReader &);       // Not implemented
-  void operator=(const vtkPSLACReader &);       // Not implemented
+  vtkPSLACReader(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSLACReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPSLACReader_h

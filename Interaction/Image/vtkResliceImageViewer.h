@@ -69,13 +69,12 @@ public:
 
   // Description:
   // Set/get the slice orientation
-  //BTX
+
   enum
   {
     RESLICE_AXIS_ALIGNED = 0,
     RESLICE_OBLIQUE = 1
   };
-  //ETX
 
   vtkGetMacro(ResliceMode, int);
   virtual void SetResliceMode(int resliceMode);
@@ -155,8 +154,8 @@ protected:
   vtkResliceImageViewerScrollCallback * ScrollCallback;
 
 private:
-  vtkResliceImageViewer(const vtkResliceImageViewer&);  // Not implemented.
-  void operator=(const vtkResliceImageViewer&);  // Not implemented.
+  vtkResliceImageViewer(const vtkResliceImageViewer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceImageViewer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

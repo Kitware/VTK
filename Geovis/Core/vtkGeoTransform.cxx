@@ -64,8 +64,8 @@ void vtkGeoTransform::TransformPoints( vtkPoints* srcPts, vtkPoints* dstPts )
     return;
     }
 
-  vtkDoubleArray* srcCoords = vtkDoubleArray::SafeDownCast( srcPts->GetData() );
-  vtkDoubleArray* dstCoords = vtkDoubleArray::SafeDownCast( dstPts->GetData() );
+  vtkDoubleArray* srcCoords = vtkArrayDownCast<vtkDoubleArray>( srcPts->GetData() );
+  vtkDoubleArray* dstCoords = vtkArrayDownCast<vtkDoubleArray>( dstPts->GetData() );
   if ( ! srcCoords || ! dstCoords )
     { // data not in a form we can use directly anyway...
     this->Superclass::TransformPoints( srcPts, dstPts );
@@ -73,8 +73,8 @@ void vtkGeoTransform::TransformPoints( vtkPoints* srcPts, vtkPoints* dstPts )
     }
   dstCoords->DeepCopy( srcCoords );
 
-  PROJ* src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  PROJ* dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
   if ( ! src && ! dst )
     {
     // we've already copied srcCoords to dstCoords and src=dst=0 implies no transform...
@@ -156,20 +156,21 @@ vtkAbstractTransform* vtkGeoTransform::MakeTransform()
 
 void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int stride )
 {
-  PROJ* src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
-  PROJ* dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
+  projPJ src = this->SourceProjection ? this->SourceProjection->GetProjection() : 0;
+  projPJ dst = this->DestinationProjection ? this->DestinationProjection->GetProjection() : 0;
   int delta = stride - 2;
-  PROJ_LP lp;
-  PROJ_XY xy;
+  projLP lp;
+  projXY xy;
   if ( src )
     {
     // Convert from src system to lat/long using inverse of src transform
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
       {
-      xy.x = coord[0]; xy.y = coord[1];
-      lp = proj_inv( xy, src );
-      coord[0] = lp.lam; coord[1] = lp.phi;
+      xy.u = coord[0]; xy.v = coord[1];
+      lp = pj_inv( xy, src );
+      coord[0] = lp.u; coord[1] = lp.v;
+      coord += stride;
       }
     }
   else // ! src
@@ -190,9 +191,10 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
     double* coord = x;
     for ( vtkIdType i = 0; i < numPts; ++ i )
       {
-      lp.lam = coord[0]; lp.phi = coord[1];
-      xy = proj_fwd( lp, dst );
-      coord[0] = xy.x; coord[1] = xy.y;
+      lp.u = coord[0]; lp.v = coord[1];
+      xy = pj_fwd( lp, dst );
+      coord[0] = xy.u; coord[1] = xy.v;
+      coord += stride;
       }
     }
   else // ! dst
@@ -209,4 +211,3 @@ void vtkGeoTransform::InternalTransformPoints( double* x, vtkIdType numPts, int 
       }
     }
 }
-

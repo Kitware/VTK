@@ -71,9 +71,7 @@ protected:
 
   int SocketDescriptor;
 
-  //BTX
   friend class vtkSocketCollection;
-  //ETX
 
   // Description:
   // Creates an endpoint for communication and returns the descriptor.
@@ -114,8 +112,8 @@ protected:
   int GetPort(int socketdescriptor);
 
 private:
-  vtkSocket(const vtkSocket&); // Not implemented.
-  void operator=(const vtkSocket&); // Not implemented.
+  vtkSocket(const vtkSocket&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSocket&) VTK_DELETE_FUNCTION;
 };
 
 

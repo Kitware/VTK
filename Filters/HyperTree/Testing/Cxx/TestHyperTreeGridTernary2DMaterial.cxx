@@ -65,7 +65,6 @@ int TestHyperTreeGridTernary2DMaterial( int argc, char* argv[] )
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
@@ -124,7 +123,7 @@ int TestHyperTreeGridTernary2DMaterial( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImageThreshold( renWin.GetPointer(), 70 );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

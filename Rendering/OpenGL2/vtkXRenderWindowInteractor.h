@@ -169,7 +169,6 @@ protected:
   int OwnApp;
   int PositionBeforeStereo[2];
   Widget TopLevelShell;
-  int TimerId;
   vtkXRenderWindowInteractorInternals* Internal;
 
   // Description:
@@ -192,8 +191,8 @@ protected:
   virtual void StartEventLoop();
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

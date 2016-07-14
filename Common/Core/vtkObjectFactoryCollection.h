@@ -47,14 +47,12 @@ public:
   vtkObjectFactory *GetNextItem()
     { return static_cast<vtkObjectFactory *>(this->GetNextItemAsObject());}
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkObjectFactory *GetNextObjectFactory(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkObjectFactory *>(
       this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkObjectFactoryCollection() {}
@@ -66,8 +64,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&);  // Not implemented.
-  void operator=(const vtkObjectFactoryCollection&);  // Not implemented.
+  vtkObjectFactoryCollection(const vtkObjectFactoryCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObjectFactoryCollection&) VTK_DELETE_FUNCTION;
 };
 
 

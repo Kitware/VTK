@@ -93,7 +93,6 @@ public:
   // Returns if the iteration is in reverse order.
   vtkGetMacro(Reverse, int);
 
-//BTX
 protected:
   vtkCompositeDataIterator();
   virtual ~vtkCompositeDataIterator();
@@ -102,9 +101,9 @@ protected:
   vtkCompositeDataSet* DataSet;
 
 private:
-  vtkCompositeDataIterator(const vtkCompositeDataIterator&); // Not implemented.
-  void operator=(const vtkCompositeDataIterator&); // Not implemented.
-//ETX
+  vtkCompositeDataIterator(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

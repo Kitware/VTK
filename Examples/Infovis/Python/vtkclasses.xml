@@ -1370,14 +1370,6 @@
                <class id="vtkTemporalStreamTracer" library="Parallel">
                </class>
             </class>
-            <class id="vtkStreamer" library="Graphics">
-               <class id="vtkStreamLine" library="Graphics">
-                  <class id="vtkDashedStreamLine" library="Graphics">
-                  </class>
-               </class>
-               <class id="vtkStreamPoints" library="Graphics">
-               </class>
-            </class>
             <class id="vtkStripper" library="Graphics">
             </class>
             <class id="vtkStructuredGridGeometryFilter" library="Graphics">

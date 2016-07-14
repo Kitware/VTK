@@ -302,6 +302,7 @@ void vtkBYUReader::ReadDisplacementFile(int numPts, vtkInformation *outInfo)
       vtkErrorMacro(
         <<"Error reading displacement file: " << this->DisplacementFileName
         << "Expected 3 floats, but got " << cnt);
+      fclose(dispFp);
       return;
       }
     newVectors->SetTuple(i,v);
@@ -349,6 +350,7 @@ void vtkBYUReader::ReadScalarFile(int numPts, vtkInformation *outInfo)
       vtkErrorMacro(
         <<"Error reading scalar file: " << this->ScalarFileName
         << "Expected 1 float, but got " << cnt);
+      fclose(scalarFp);
       return;
       }
 
@@ -398,6 +400,7 @@ void vtkBYUReader::ReadTextureFile(int numPts, vtkInformation *outInfo)
       vtkErrorMacro(
         <<"Error reading texture file: " << this->TextureFileName
         << "Expected 2 texture coordibates, but got " << cnt);
+      fclose(textureFp);
       return;
       }
     newTCoords->SetTuple(i,t);

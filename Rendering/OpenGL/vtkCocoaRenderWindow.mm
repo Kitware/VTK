@@ -519,9 +519,7 @@ void vtkCocoaRenderWindow::SetSize(int x, int y)
 
   if ((this->Size[0] != x) || (this->Size[1] != y) || (this->GetParentId()))
     {
-    this->Modified();
-    this->Size[0] = x;
-    this->Size[1] = y;
+    this->Superclass::SetSize(x, y);
     if (this->GetParentId() && this->GetWindowId() && this->Mapped)
       {
       // Set the NSView size, not the window size.
@@ -721,11 +719,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
   //
   // So here we call +sharedApplication which will create the NSApplication
   // if it does not exist.  If it does exist, this does nothing.
-  // We are not actually interested in the return value.
   // This call is intentionally delayed until this CreateAWindow call
   // to prevent Cocoa-window related stuff from happening in scenarios
   // where vtkRenderWindows are created but never shown.
-  (void)[NSApplication sharedApplication];
+  NSApplication* app = [NSApplication sharedApplication];
 
   // create an NSWindow only if neither an NSView nor an NSWindow have
   // been specified already.  This is the case for a 'pure vtk application'.
@@ -733,9 +730,13 @@ void vtkCocoaRenderWindow::CreateAWindow()
   // SetRootWindow() and SetWindowId() so that a window is not created here.
   if (!this->GetRootWindow() && !this->GetWindowId() && !this->GetParentId())
     {
+    // Ordinarily, only .app bundles get proper mouse and keyboard interaction,
+    // but here we change the 'activation policy' to behave as if we were a
+    // .app bundle (which we may or may not be).
+    (void)[app setActivationPolicy:NSApplicationActivationPolicyRegular];
+
     NSWindow* theWindow = nil;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     NSScreen *screen = [NSScreen mainScreen];
     if (this->FullScreen && screen)
       {
@@ -745,7 +746,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[vtkCocoaFullScreenWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSBorderlessWindowMask
+                             styleMask:NSWindowStyleMaskBorderless
                                backing:NSBackingStoreBuffered
                                  defer:NO];
 
@@ -755,7 +756,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
       //[theWindow setLevel:NSFloatingWindowLevel];
       }
     else
-#endif
       {
       if ((this->Size[0]+this->Size[1]) == 0)
         {
@@ -775,10 +775,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[NSWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSTitledWindowMask |
-                                       NSClosableWindowMask |
-                                       NSMiniaturizableWindowMask |
-                                       NSResizableWindowMask
+                             styleMask:NSWindowStyleMaskTitled |
+                                       NSWindowStyleMaskClosable |
+                                       NSWindowStyleMaskMiniaturizable |
+                                       NSWindowStyleMaskResizable
                                backing:NSBackingStoreBuffered
                                  defer:NO];
       }

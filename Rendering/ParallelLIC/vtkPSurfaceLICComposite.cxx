@@ -19,6 +19,7 @@
 #include "vtkPPixelTransfer.h"
 #include "vtkPainterCommunicator.h"
 #include "vtkPPainterCommunicator.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #ifdef VTK_OPENGL2
 # include "vtkOpenGLRenderUtilities.h"
@@ -1612,23 +1613,32 @@ int vtkPSurfaceLICComposite::ExecuteShader(
   float fext[4];
   next.GetData(fext);
 
+#ifdef VTK_OPENGL2
+  float tcoords[8] =
+    {0.0f, 0.0f,
+     1.0f, 0.0f,
+     1.0f, 1.0f,
+     0.0f, 1.0f};
+
+  tex->Activate();
+  this->CompositeShader->Program->SetUniformi("texData",
+    tex->GetTextureUnit());
+
+  unsigned int winExtSize[2];
+  this->WindowExt.Size(winExtSize);
+
+  float verts[] = {
+    2.0f*fext[0]/winExtSize[0]-1.0f, 2.0f*fext[2]/winExtSize[1]-1.0f, 0.0f,
+    2.0f*(fext[1]+1.0f)/winExtSize[0]-1.0f, 2.0f*fext[2]/winExtSize[1]-1.0f, 0.0f,
+    2.0f*(fext[1]+1.0f)/winExtSize[0]-1.0f, 2.0f*(fext[3]+1.0f)/winExtSize[1]-1.0f, 0.0f,
+    2.0f*fext[0]/winExtSize[0]-1.0f, 2.0f*(fext[3]+1.0f)/winExtSize[1]-1.0f, 0.0f};
+
+  vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
+    this->CompositeShader->Program, this->CompositeShader->VAO);
+  tex->Deactivate();
+#else
   float tcoords[4] = {0.0f,1.0f, 0.0f,1.0f};
 
-#ifdef VTK_OPENGL2
-    tex->Activate();
-    this->CompositeShader->Program->SetUniformi("texData",
-      tex->GetTextureUnit());
-    // may beed to divide by winExtSize here
-    float verts[] = {
-      fext[0]*2.0f-1.0f, fext[2]*2.0f-1.0f, 0.0f,
-      fext[1]*2.0f-1.0f, fext[2]*2.0f-1.0f, 0.0f,
-      fext[1]*2.0f-1.0f, fext[3]*2.0f-1.0f, 0.0f,
-      fext[0]*2.0f-1.0f, fext[3]*2.0f-1.0f, 0.0f};
-
-    vtkOpenGLRenderUtilities::RenderQuad(verts, tcoords,
-      this->CompositeShader->Program, this->CompositeShader->VAO);
-    tex->Deactivate();
-#else
   tex->Activate(GL_TEXTURE0);
 
   int ids[8] = {0,2, 1,2, 1,3, 0,3};

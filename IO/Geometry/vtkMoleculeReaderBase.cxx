@@ -30,7 +30,7 @@
 #include "vtkNew.h"
 
 #include <algorithm>
-#include <ctype.h>
+#include <cctype>
 
 
 static double vtkMoleculeReaderBaseCovRadius[103] = {

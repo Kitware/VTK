@@ -31,14 +31,6 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkPolyDataAlgorithm.h"
 
-#define VTK_DIRECTION_BACK_TO_FRONT 0
-#define VTK_DIRECTION_FRONT_TO_BACK 1
-#define VTK_DIRECTION_SPECIFIED_VECTOR 2
-
-#define VTK_SORT_FIRST_POINT 0
-#define VTK_SORT_BOUNDS_CENTER 1
-#define VTK_SORT_PARAMETRIC_CENTER 2
-
 class vtkCamera;
 class vtkProp3D;
 class vtkTransform;
@@ -53,6 +45,13 @@ public:
   vtkTypeMacro(vtkDepthSortPolyData,vtkPolyDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  enum Directions
+  {
+    VTK_DIRECTION_BACK_TO_FRONT = 0,
+    VTK_DIRECTION_FRONT_TO_BACK = 1,
+    VTK_DIRECTION_SPECIFIED_VECTOR = 2
+  };
+
   // Description:
   // Specify the sort method for the polygonal primitives. By default, the
   // poly data is sorted from back to front.
@@ -64,6 +63,13 @@ public:
     {this->SetDirection(VTK_DIRECTION_BACK_TO_FRONT);}
   void SetDirectionToSpecifiedVector()
     {this->SetDirection(VTK_DIRECTION_SPECIFIED_VECTOR);}
+
+  enum SortMode
+  {
+    VTK_SORT_FIRST_POINT = 0,
+    VTK_SORT_BOUNDS_CENTER = 1,
+    VTK_SORT_PARAMETRIC_CENTER = 2
+  };
 
   // Description:
   // Specify the point to use when sorting. The fastest is to just
@@ -92,7 +98,8 @@ public:
   // has effect if the direction is set to front-to-back or back-to-front,
   // and a camera is specified. Specifying the vtkProp3D is optional.
   void SetProp3D(vtkProp3D *);
-  vtkProp3D *GetProp3D();
+  vtkProp3D *GetProp3D()
+  { return this->Prop3D; }
 
   // Description:
   // Set/Get the sort direction. This ivar only has effect if the sort
@@ -140,8 +147,8 @@ protected:
   int SortScalars;
 
 private:
-  vtkDepthSortPolyData(const vtkDepthSortPolyData&);  // Not implemented.
-  void operator=(const vtkDepthSortPolyData&);  // Not implemented.
+  vtkDepthSortPolyData(const vtkDepthSortPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthSortPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

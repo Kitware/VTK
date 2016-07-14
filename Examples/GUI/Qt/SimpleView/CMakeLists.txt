@@ -64,7 +64,6 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
     ${UI_Srcs}
     ${MOC_Srcs}
     ${QRC_Srcs}
-    ${QRC_Srcs}
   )
 
   add_executable(SimpleView MACOSX_BUNDLE

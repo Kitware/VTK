@@ -428,7 +428,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
   double targetPoint[3];
   int numberOfCollapsedSubTrees = 0;
 
-  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkArrayDownCast<vtkUnsignedIntArray>(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
 
   int orientation = this->GetOrientation();
@@ -689,7 +689,7 @@ void vtkDendrogramItem::PaintBuffers(vtkContext2D *painter)
     }
 
   // get array of node names from the tree
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->LayoutTree->GetVertexData()->GetAbstractArray(
     this->VertexNameArrayName));
 
@@ -873,9 +873,9 @@ vtkIdType vtkDendrogramItem::GetClickedCollapsedSubTree(double x, double y)
 {
   // iterate over all the collapsed subtrees to see if this click refers
   // to one of them.
-  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkArrayDownCast<vtkUnsignedIntArray>(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
-  vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray *originalIdArray = vtkArrayDownCast<vtkIdTypeArray>(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   int orientation = this->GetOrientation();
 
@@ -1008,7 +1008,7 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
     }
 
   // look up the original ID of the vertex that's being collapsed.
-  vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray *originalIdArray = vtkArrayDownCast<vtkIdTypeArray>(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   vtkIdType originalId = originalIdArray->GetValue(vertex);
 
@@ -1031,7 +1031,7 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
     return;
     }
 
-  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkArrayDownCast<vtkUnsignedIntArray>(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
   vertexIsPruned->SetValue(originalId, numLeavesCollapsed);
 
@@ -1048,7 +1048,7 @@ void vtkDendrogramItem::CollapseSubTree(vtkIdType vertex)
 void vtkDendrogramItem::ExpandSubTree(vtkIdType vertex)
 {
   // mark this vertex as "not pruned"
-  vtkUnsignedIntArray *vertexIsPruned = vtkUnsignedIntArray::SafeDownCast(
+  vtkUnsignedIntArray *vertexIsPruned = vtkArrayDownCast<vtkUnsignedIntArray>(
     this->Tree->GetVertexData()->GetArray("VertexIsPruned"));
   vtkIdType vertexOriginalId = this->GetOriginalId(vertex);
   vertexIsPruned->SetValue(vertexOriginalId, 0);
@@ -1065,7 +1065,7 @@ void vtkDendrogramItem::ExpandSubTree(vtkIdType vertex)
       {
       // Find PrunedTree's vertex that corresponds to this originalId.
       // Use this to re-collapse the subtrees that were not just expanded.
-      vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+      vtkIdTypeArray *originalIdArray = vtkArrayDownCast<vtkIdTypeArray>(
         this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
       for (vtkIdType prunedId = 0;
            prunedId < originalIdArray->GetNumberOfTuples(); ++prunedId)
@@ -1083,7 +1083,7 @@ void vtkDendrogramItem::ExpandSubTree(vtkIdType vertex)
 //-----------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetOriginalId(vtkIdType vertex)
 {
-  vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray *originalIdArray = vtkArrayDownCast<vtkIdTypeArray>(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   return originalIdArray->GetValue(vertex);
 }
@@ -1091,7 +1091,7 @@ vtkIdType vtkDendrogramItem::GetOriginalId(vtkIdType vertex)
 //-----------------------------------------------------------------------------
 vtkIdType vtkDendrogramItem::GetPrunedIdForOriginalId(vtkIdType originalId)
 {
-  vtkIdTypeArray *originalIdArray = vtkIdTypeArray::SafeDownCast(
+  vtkIdTypeArray *originalIdArray = vtkArrayDownCast<vtkIdTypeArray>(
     this->PrunedTree->GetVertexData()->GetArray("OriginalId"));
   for (vtkIdType i = 0; i < originalIdArray->GetNumberOfTuples(); ++i)
     {
@@ -1124,7 +1124,7 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
                       std::vector<vtkDendrogramItem::WeightedVertex>,
                       vtkDendrogramItem::CompareWeightedVertices> queue;
   std::vector<vtkIdType> verticesToCollapse;
-  vtkDoubleArray *nodeWeights = vtkDoubleArray::SafeDownCast(
+  vtkDoubleArray *nodeWeights = vtkArrayDownCast<vtkDoubleArray>(
     this->Tree->GetVertexData()->GetAbstractArray(this->DistanceArrayName));
 
   // initially, the priority queue contains the children of the root node.
@@ -1209,7 +1209,7 @@ void vtkDendrogramItem::CollapseToNumberOfLeafNodes(unsigned int n)
 //-----------------------------------------------------------------------------
 void vtkDendrogramItem::SetColorArray(const char *arrayName)
 {
-  this->ColorArray = vtkDoubleArray::SafeDownCast(
+  this->ColorArray = vtkArrayDownCast<vtkDoubleArray>(
     this->Tree->GetVertexData()->GetArray(arrayName));
   if (!this->ColorArray)
     {
@@ -1336,7 +1336,7 @@ void vtkDendrogramItem::SetOrientation(int orientation)
 //-----------------------------------------------------------------------------
 void vtkDendrogramItem::SetOrientation(vtkTree *tree, int orientation)
 {
-  vtkIntArray *existingArray = vtkIntArray::SafeDownCast(
+  vtkIntArray *existingArray = vtkArrayDownCast<vtkIntArray>(
     tree->GetFieldData()->GetArray("orientation"));
   if (existingArray)
     {
@@ -1362,7 +1362,7 @@ void vtkDendrogramItem::SetOrientation(vtkTree *tree, int orientation)
 //-----------------------------------------------------------------------------
 int vtkDendrogramItem::GetOrientation()
 {
-  vtkIntArray *orientationArray = vtkIntArray::SafeDownCast(
+  vtkIntArray *orientationArray = vtkArrayDownCast<vtkIntArray>(
     this->Tree->GetFieldData()->GetArray("orientation"));
   if (orientationArray)
     {
@@ -1473,7 +1473,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
   painter->GetTextProp()->SetOrientation(0.0);
 
   // get array of node names from the tree
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->LayoutTree->GetVertexData()->GetAbstractArray(
     this->VertexNameArrayName));
 
@@ -1495,7 +1495,7 @@ void vtkDendrogramItem::ComputeLabelWidth(vtkContext2D *painter)
 bool vtkDendrogramItem::GetPositionOfVertex(std::string vertexName,
                                             double position[2])
 {
-  vtkStringArray *vertexNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *vertexNames = vtkArrayDownCast<vtkStringArray>(
     this->LayoutTree->GetVertexData()->GetAbstractArray(
     this->VertexNameArrayName));
 

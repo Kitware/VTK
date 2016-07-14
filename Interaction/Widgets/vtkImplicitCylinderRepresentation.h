@@ -109,7 +109,7 @@ public:
   // Force the cylinder widget to be aligned with one of the x-y-z axes.
   // If one axis is set on, the other two will be set off.
   // Remember that when the state changes, a ModifiedEvent is invoked.
-  // This can be used to snap the plane to the axes if it is originally
+  // This can be used to snap the cylinder to the axes if it is originally
   // not aligned.
   void SetAlongXAxis(int);
   vtkGetMacro(AlongXAxis,int);
@@ -126,7 +126,7 @@ public:
   // interferes with the object that it is operating on (e.g., the
   // cylinder interferes with the cut surface it produces resulting in
   // z-buffer artifacts.) By default it is off.
-  void SetDrawCylinder(int plane);
+  void SetDrawCylinder(int drawCyl);
   vtkGetMacro(DrawCylinder,int);
   vtkBooleanMacro(DrawCylinder,int);
 
@@ -155,10 +155,29 @@ public:
 
   // Description:
   // Turn on/off the ability to move the widget outside of the bounds
-  // specified in the initial PlaceWidget() invocation.
+  // specified in the PlaceWidget() invocation.
   vtkSetMacro(OutsideBounds,int);
   vtkGetMacro(OutsideBounds,int);
   vtkBooleanMacro(OutsideBounds,int);
+
+  // Description:
+  // Set/Get the bounds of the widget representation. PlaceWidget can also be
+  // used to set the bounds of the widget but it may also have other effects
+  // on the internal state of the represenation. Use this function when only
+  // the widget bounds are needs to be modified.
+  vtkSetVector6Macro(WidgetBounds, double);
+  vtkGetVector6Macro(WidgetBounds, double);
+
+  // Description:
+  // Turn on/off whether the cylinder should be constrained to the widget bounds.
+  // If on, the center will not be allowed to move outside the set widget bounds
+  // and the radius will be limited by MinRadius and MaxRadius. This is the
+  // default behaviour.
+  // If off, the center can be freely moved and the radius can be set to
+  // arbitrary values. The widget outline will change accordingly.
+  vtkSetMacro(ConstrainToWidgetBounds, int);
+  vtkGetMacro(ConstrainToWidgetBounds, int);
+  vtkBooleanMacro(ConstrainToWidgetBounds, int);
 
   // Description:
   // Turn on/off the ability to scale the widget with the mouse.
@@ -258,7 +277,8 @@ public:
     MovingCenter,
     RotatingAxis,
     AdjustingRadius,
-    Scaling
+    Scaling,
+    TranslatingCenter
   };
 
   // Description:
@@ -269,7 +289,7 @@ public:
   // ComputeInteractionState() is invoked that returns a state based on
   // geometric considerations (i.e., cursor near a widget feature), then
   // based on events, the widget may modify this further.
-  vtkSetClampMacro(InteractionState,int,Outside,Scaling);
+  vtkSetClampMacro(InteractionState,int,Outside,TranslatingCenter);
 
   // Description:
   // Sets the visual appearance of the representation based on the
@@ -298,7 +318,7 @@ protected:
   int AlongYAxis;
   int AlongZAxis;
 
-  // The actual plane which is being manipulated
+  // The actual cylinder which is being manipulated
   vtkCylinder *Cylinder;
 
   // The facet resolution for rendering purposes.
@@ -313,8 +333,10 @@ protected:
   int  OutlineTranslation; //whether the outline can be moved
   int  ScaleEnabled; //whether the widget can be scaled
   int  OutsideBounds; //whether the widget can be moved outside input's bounds
+  double WidgetBounds[6];
+  int ConstrainToWidgetBounds;
 
-  // The cut plane is produced with a vtkCutter
+  // The cut cylinder is produced with a vtkCutter
   vtkPolyData       *Cyl;
   vtkPolyDataMapper *CylMapper;
   vtkActor          *CylActor;
@@ -349,7 +371,7 @@ protected:
   vtkPolyDataMapper *LineMapper2;
   vtkActor          *LineActor2;
 
-  // The origin positioning handle
+  // The center positioning handle
   vtkSphereSource   *Sphere;
   vtkPolyDataMapper *SphereMapper;
   vtkActor          *SphereActor;
@@ -364,12 +386,12 @@ protected:
   // Transform the normal (used for rotation)
   vtkTransform *Transform;
 
-  // Methods to manipulate the plane
-  void ConstrainCenter(double x[3]);
+  // Methods to manipulate the cylinder
   void Rotate(double X, double Y, double *p1, double *p2, double *vpn);
   void TranslateCylinder(double *p1, double *p2);
   void TranslateOutline(double *p1, double *p2);
   void TranslateCenter(double *p1, double *p2);
+  void TranslateCenterOnAxis(double *p1, double *p2);
   void ScaleRadius(double *p1, double *p2);
   void AdjustRadius(double X, double Y, double *p1, double *p2);
   void Scale(double *p1, double *p2, double X, double Y);
@@ -393,8 +415,8 @@ protected:
   vtkBox *BoundingBox;
 
 private:
-  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&);  //Not implemented
-  void operator=(const vtkImplicitCylinderRepresentation&);  //Not implemented
+  vtkImplicitCylinderRepresentation(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitCylinderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

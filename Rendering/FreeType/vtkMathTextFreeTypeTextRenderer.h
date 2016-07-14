@@ -84,8 +84,8 @@ protected:
   void SetScaleToPowerOfTwoInternal(bool scale);
 
 private:
-  vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &); // Not implemented.
-  void operator=(const vtkMathTextFreeTypeTextRenderer &); // Not implemented.
+  vtkMathTextFreeTypeTextRenderer(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMathTextFreeTypeTextRenderer &) VTK_DELETE_FUNCTION;
 
   vtkFreeTypeTools *FreeTypeTools;
   vtkMathTextUtilities *MathTextUtilities;

@@ -47,8 +47,8 @@ protected:
   virtual ~vtkXGPUInfoList();
 
 private:
-  vtkXGPUInfoList(const vtkXGPUInfoList&); // Not implemented.
-  void operator=(const vtkXGPUInfoList&); // Not implemented.
+  vtkXGPUInfoList(const vtkXGPUInfoList&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXGPUInfoList&) VTK_DELETE_FUNCTION;
 };
 
 #endif

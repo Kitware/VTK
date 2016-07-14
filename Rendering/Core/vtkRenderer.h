@@ -41,11 +41,13 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkInformation;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
+class vtkRenderPass;
 class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
@@ -246,6 +248,11 @@ public:
   virtual void DeviceRenderTranslucentPolygonalGeometry();
 
   // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
+  virtual void ClearLights(void) {};
+
+  // Description:
   // Clear the image to the background color.
   virtual void Clear() {}
 
@@ -289,11 +296,18 @@ public:
   vtkGetMacro(NearClippingPlaneTolerance,double);
 
   // Description:
+  // Specify enlargement of bounds when resetting the
+  // camera clipping range.  By default the range is not expanded by
+  // any percent of the (far - near) on the near and far sides
+  vtkSetClampMacro(ClippingRangeExpansion,double,0,0.99);
+  vtkGetMacro(ClippingRangeExpansion,double);
+
+  // Description:
   // Automatically set up the camera based on the visible actors.
   // The camera will reposition itself to view the center point of the actors,
   // and move along its initial view plane normal (i.e., vector defined from
   // camera position to focal point) so that all of the actors can be seen.
-  void ResetCamera();
+  virtual void ResetCamera();
 
   // Description:
   // Automatically set up the camera based on a specified bounding box
@@ -303,11 +317,11 @@ public:
   // (i.e., vector defined from camera position to focal point). Note: is
   // the view plane is parallel to the view up axis, the view up axis will
   // be reset to one of the three coordinate axes.
-  void ResetCamera(double bounds[6]);
+  virtual void ResetCamera(double bounds[6]);
 
   // Description:
   // Alternative version of ResetCamera(bounds[6]);
-  void ResetCamera(double xmin, double xmax, double ymin, double ymax,
+  virtual void ResetCamera(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax);
 
   // Description:
@@ -505,7 +519,7 @@ public:
   vtkBooleanMacro(TexturedBackground,bool);
 
   // method to release graphics resources in any derived renderers.
-  virtual void ReleaseGraphicsResources(vtkWindow *) { }
+  virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
   // Turn on/off rendering of shadows if supported
@@ -514,7 +528,16 @@ public:
   vtkGetMacro(UseShadows,int);
   vtkBooleanMacro(UseShadows,int);
 
-//BTX
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass, vtkRenderPass);
+
+  // Description:
+  // Set/Get the information object associated with this algorithm.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -591,6 +614,11 @@ protected:
   double              NearClippingPlaneTolerance;
 
   // Description:
+  // Specify enlargement of bounds when resetting the
+  // camera clipping range.
+  double ClippingRangeExpansion;
+
+  // Description:
   // When this flag is off, the renderer will not erase the background
   // or the Zbuffer.  It is used to have overlapping renderers.
   // Both the RenderWindow Erase and Render Erase must be on
@@ -606,9 +634,6 @@ protected:
   // Description:
   // Temporary collection used by vtkRenderWindow::CaptureGL2PSSpecialProps.
   vtkPropCollection *GL2PSSpecialPropCollection;
-
-  // Friend class to allow render passes to access functions.
-  friend class vtkRenderPass;
 
   // Description:
   // Ask all props to update and draw any opaque and translucent
@@ -698,10 +723,16 @@ protected:
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
 
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
+
+  // Arbitrary extra information associated with this renderer
+  vtkInformation* Information;
+
 private:
-  vtkRenderer(const vtkRenderer&);  // Not implemented.
-  void operator=(const vtkRenderer&);  // Not implemented.
-//ETX
+  vtkRenderer(const vtkRenderer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderer&) VTK_DELETE_FUNCTION;
+
 };
 
 inline vtkLightCollection *vtkRenderer::GetLights() {

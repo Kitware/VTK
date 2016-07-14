@@ -53,7 +53,17 @@ int main (int argc, char *argv[])
 
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
+  if (startLabel > VTK_SHORT_MAX)
+    {
+    std::cout << "ERROR: startLabel is larger than " << VTK_SHORT_MAX << std::endl;
+    return EXIT_FAILURE;
+    }
   unsigned int endLabel = atoi(argv[3]);
+  if (endLabel > VTK_SHORT_MAX)
+    {
+    std::cout << "ERROR: endLabel is larger than " << VTK_SHORT_MAX << std::endl;
+    return EXIT_FAILURE;
+    }
   std::string filePrefix = "Label";
   unsigned int smoothingIterations = 15;
   double passBand = 0.001;

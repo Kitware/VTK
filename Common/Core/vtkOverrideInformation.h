@@ -82,17 +82,16 @@ private:
   ~vtkOverrideInformation();
   // allow the object factory to set the values in this
   // class, but only the object factory
-//BTX
+
   friend class vtkObjectFactory;
-//ETX
 
   char* ClassOverrideName;
   char* ClassOverrideWithName;
   char* Description;
   vtkObjectFactory* ObjectFactory;
 private:
-  vtkOverrideInformation(const vtkOverrideInformation&);  // Not implemented.
-  void operator=(const vtkOverrideInformation&);  // Not implemented.
+  vtkOverrideInformation(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverrideInformation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

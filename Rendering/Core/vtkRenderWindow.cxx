@@ -261,14 +261,10 @@ void vtkRenderWindow::SetStereoRender(int stereo)
     }
 
   if (this->StereoCapableWindow ||
-      (!this->StereoCapableWindow
-       && this->StereoType != VTK_STEREO_CRYSTAL_EYES))
+      (this->StereoType != VTK_STEREO_CRYSTAL_EYES))
     {
-    if (stereo != this->StereoRender)
-      {
-      this->StereoRender = stereo;
-      this->Modified();
-      }
+    this->StereoRender = stereo;
+    this->Modified();
     }
   else
     {
@@ -360,7 +356,7 @@ void vtkRenderWindow::Render()
       {
       p1 = this->AccumulationBuffer;
       unsigned char *p2;
-      unsigned char *p3;
+      unsigned char *p3 = NULL;
       if (this->ResultFrame)
         {
         p2 = this->ResultFrame;
@@ -368,8 +364,8 @@ void vtkRenderWindow::Render()
       else
         {
         p2 = this->GetPixelData(0,0,size[0]-1,size[1]-1,!this->DoubleBuffer);
+        p3 = p2;
         }
-      p3 = p2;
       for (y = 0; y < size[1]; y++)
         {
         for (x = 0; x < size[0]; x++)
@@ -379,7 +375,10 @@ void vtkRenderWindow::Render()
           *p1 += *p2; p1++; p2++;
           }
         }
-      delete [] p3;
+      if (p3)
+        {
+        delete [] p3;
+        }
       }
 
     // if this is the last sub frame then convert back into unsigned char
@@ -829,6 +828,7 @@ void vtkRenderWindow::RemoveRenderer(vtkRenderer *ren)
   // we are its parent
   if (ren->GetRenderWindow() == this)
     {
+    ren->ReleaseGraphicsResources(this);
     ren->SetRenderWindow(NULL);
     }
   this->Renderers->RemoveItem(ren);
@@ -1424,6 +1424,12 @@ void vtkRenderWindow::UnRegister(vtkObjectBase *o)
 const char *vtkRenderWindow::GetRenderLibrary()
 {
   return vtkGraphicsFactory::GetRenderLibrary();
+}
+
+//----------------------------------------------------------------------------
+const char *vtkRenderWindow::GetRenderingBackend()
+{
+  return "Unknown";
 }
 
 //----------------------------------------------------------------------------

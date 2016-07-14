@@ -244,7 +244,8 @@ protected:
     Pushing,
     Rotating,
     Spinning,
-    Outside
+    Outside,
+    Pinching
   };
 
   //handles the events
@@ -261,6 +262,9 @@ protected:
   void OnRightButtonDown();
   void OnRightButtonUp();
   void OnMouseMove();
+  void OnStartPinch();
+  void OnPinch();
+  void OnEndPinch();
 
   // controlling ivars
   int NormalToXAxis;
@@ -346,8 +350,8 @@ protected:
   double HandleSizeFactor;
 
 private:
-  vtkPlaneWidget(const vtkPlaneWidget&);  //Not implemented
-  void operator=(const vtkPlaneWidget&);  //Not implemented
+  vtkPlaneWidget(const vtkPlaneWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlaneWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -47,6 +47,9 @@ vtkStandardNewMacro(vtkCompositePolyDataMapper2);
 vtkCompositePolyDataMapper2::vtkCompositePolyDataMapper2()
 {
   this->UseGeneric = true;
+  this->MaximumFlatIndex = 0;
+  this->CanUseTextureMapForColoringSet = false;
+  this->CanUseTextureMapForColoringValue = false;
 }
 
 //----------------------------------------------------------------------------
@@ -469,31 +472,6 @@ void vtkCompositePolyDataMapper2::RenderPieceDraw(
     double dIntensity = this->DrawingEdges ? 0.0 : ppty->GetDiffuse();
     vtkShaderProgram *prog = this->Tris.Program;
 
-    vtkProperty *prop = actor->GetProperty();
-    bool surface_offset =
-      (this->GetResolveCoincidentTopology() || prop->GetEdgeVisibility())
-      && representation == VTK_SURFACE;
-
-    if (surface_offset)
-      {
-      glEnable(GL_POLYGON_OFFSET_FILL);
-      if ( this->GetResolveCoincidentTopology() == VTK_RESOLVE_SHIFT_ZBUFFER )
-        {
-        // do something rough is better than nothing
-        double zRes = this->GetResolveCoincidentTopologyZShift(); // 0 is no shift 1 is big shift
-        double f = zRes*4.0;
-        glPolygonOffset(f + (prop->GetEdgeVisibility() ? 1.0 : 0.0),
-          prop->GetEdgeVisibility() ? 1.0 : 0.0);  // supported on ES2/3/etc
-        }
-      else
-        {
-        double f, u;
-        this->GetResolveCoincidentTopologyPolygonOffsetParameters(f,u);
-        glPolygonOffset(f + (prop->GetEdgeVisibility() ? 1.0 : 0.0),
-          u + (prop->GetEdgeVisibility() ? 1.0 : 0.0));  // supported on ES2/3/etc
-        }
-      }
-
     std::vector<
       vtkCompositePolyDataMapper2::RenderValue>::iterator it;
     // reset the offset so each composite starts at 0
@@ -647,7 +625,7 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
         this->CanUseTextureMapForColoringValue = 0;
         }
       if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-           vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+           vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
           this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
         {
         // Don't use texture is direct coloring using RGB unsigned chars is
@@ -680,6 +658,18 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
 
   this->CanUseTextureMapForColoringSet = true;
   return this->CanUseTextureMapForColoringValue;
+}
+
+//-------------------------------------------------------------------------
+bool vtkCompositePolyDataMapper2::GetNeedToRebuildBufferObjects(
+  vtkRenderer *ren, vtkActor *act)
+{
+  if (vtkCompositePolyDataMapper2::Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
+      (this->GetInput() && this->VBOBuildTime < this->GetInput()->GetMTime()))
+    {
+    return true;
+    }
+  return false;
 }
 
 //-------------------------------------------------------------------------
@@ -775,6 +765,7 @@ void vtkCompositePolyDataMapper2::BuildBufferObjects(
       4, VTK_FLOAT,
       this->CellNormalBuffer);
     }
+  this->VBOBuildTime.Modified();
 }
 
 //-------------------------------------------------------------------------

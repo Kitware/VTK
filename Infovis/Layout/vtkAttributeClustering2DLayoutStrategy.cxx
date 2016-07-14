@@ -64,11 +64,6 @@ public:
 
 vtkStandardNewMacro(vtkAttributeClustering2DLayoutStrategy);
 
-#ifndef MIN
-#define MIN(x, y)       ((x) < (y) ? (x) : (y))
-#endif
-
-
 // Cool-down function.
 static inline float CoolDown(float t, float r)
 {
@@ -229,7 +224,7 @@ void vtkAttributeClustering2DLayoutStrategy::Initialize()
     }
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Avoid divide by zero
@@ -338,7 +333,7 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
   vtkIdType numVertices = this->Graph->GetNumberOfVertices();
 
   // Get a quick pointer to the point data
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // This is the mega, uber, triple inner loop
@@ -496,7 +491,7 @@ void vtkAttributeClustering2DLayoutStrategy::Layout()
 
       // Avoid divide by zero
       float forceDiv = fabs(forceX) + fabs(forceY) + epsilon;
-      float pNormalize = MIN(1, 1.0/forceDiv);
+      float pNormalize = vtkMath::Min(1.0f, 1.0f/forceDiv);
       pNormalize *= this->Temp;
       forceX *= pNormalize;
       forceY *= pNormalize;
@@ -556,7 +551,7 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
 
   // Get a quick pointer to the point data
   vtkPoints* pts = this->Graph->GetPoints();
-  vtkFloatArray *array = vtkFloatArray::SafeDownCast(pts->GetData());
+  vtkFloatArray *array = vtkArrayDownCast<vtkFloatArray>(pts->GetData());
   float *rawPointData = array->GetPointer(0);
 
   // Place the vertices into a giant grid (100xNumVertices)
@@ -607,7 +602,8 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
       // by randomly jumping to a place that doesn't
       // have another vertex
       bool collision = true;
-      float jumpDistance = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
+      float jumpDistanceX = 5.0*(paddedBounds[1]-paddedBounds[0])/xDim; // 2.5 grid spaces max
+      float jumpDistanceY = 5.0*(paddedBounds[3]-paddedBounds[2])/yDim; // 2.5 grid spaces max
       int collisionOps = 0;
 
       // You get 10 trys and then we have to punt
@@ -616,8 +612,8 @@ void vtkAttributeClustering2DLayoutStrategy::ResolveCoincidentVertices()
         collisionOps++;
 
         // Move
-        rawPointData[rawIndex] += jumpDistance*(vtkMath::Random() - .5);
-        rawPointData[rawIndex+1] += jumpDistance*(vtkMath::Random() - .5);
+        rawPointData[rawIndex] += jumpDistanceX*(vtkMath::Random() - .5);
+        rawPointData[rawIndex+1] += jumpDistanceY*(vtkMath::Random() - .5);
 
         // Test
         indexX = static_cast<int>(

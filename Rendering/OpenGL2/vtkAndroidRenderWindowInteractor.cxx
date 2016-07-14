@@ -12,11 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <assert.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
+#include <cassert>
 
 #include "vtkAndroidRenderWindowInteractor.h"
 #include "vtkEGLRenderWindow.h"
@@ -442,7 +442,7 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
       if (index > -1)
         {
         this->SetPointerIndex(index);
-        this->InvokeEvent(vtkCommand::LeftButtonPressEvent,NULL);
+        this->LeftButtonPressEvent();
         }
       }
       return;
@@ -455,7 +455,7 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
         if (this->IsPointerIndexSet(i))
           {
           this->SetPointerIndex(i);
-          this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+          this->LeftButtonReleaseEvent();
           this->ClearPointerIndex(i);
           }
         }
@@ -468,13 +468,13 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
       if (i > -1)
         {
         this->SetPointerIndex(i);
-        this->InvokeEvent(vtkCommand::LeftButtonReleaseEvent,NULL);
+        this->LeftButtonReleaseEvent();
         this->ClearContact(actionId);
         }
       }
       return;
     case AMOTION_EVENT_ACTION_MOVE:
-      this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
+      this->MouseMoveEvent();
       return;
     } // end switch action
 }

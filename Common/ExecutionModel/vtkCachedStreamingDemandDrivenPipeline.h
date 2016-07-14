@@ -36,11 +36,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
-  // Bring the algorithm's outputs up-to-date.
-  virtual int Update();
-  virtual int Update(int port);
-
-  // Description:
   // This is the maximum number of images that can be retained in memory.
   // it defaults to 10.
   void SetCacheSize(int size);
@@ -65,8 +60,8 @@ protected:
 private:
   vtkCachedStreamingDemandDrivenPipelineInternals* CachedStreamingDemandDrivenInternal;
 private:
-  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&);  // Not implemented.
-  void operator=(const vtkCachedStreamingDemandDrivenPipeline&);  // Not implemented.
+  vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

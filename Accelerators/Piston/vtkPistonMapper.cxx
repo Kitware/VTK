@@ -241,15 +241,15 @@ void vtkPistonMapper::RenderOnCPU()
 
   int vertsPer = vtkpiston::QueryVertsPer(id);
 
-  vtkFloatArray *normals = vtkFloatArray::SafeDownCast(
+  vtkFloatArray *normals = vtkArrayDownCast<vtkFloatArray>(
       od->GetPointData()->GetNormals());
   if (!normals)
     {
-     normals = vtkFloatArray::SafeDownCast(
+     normals = vtkArrayDownCast<vtkFloatArray>(
        od->GetPointData()->GetArray("Normals"));
     }
 
-  vtkFloatArray *scalars = vtkFloatArray::SafeDownCast(
+  vtkFloatArray *scalars = vtkArrayDownCast<vtkFloatArray>(
       od->GetPointData()->GetScalars());
   if (scalars)
     {
@@ -588,18 +588,18 @@ void vtkPistonMapper::Update()
 {
   this->UpdateInformation();
 
-  vtkInformation* inInfo = this->GetInputInformation();
+  // vtkInformation* inInfo = this->GetInputInformation();
 
   // If the estimated pipeline memory usage is larger than
   // the memory limit, break the current piece into sub-pieces.
-  if (inInfo)
-    {
-    vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
-      inInfo,
-      this->Piece,
-      this->NumberOfPieces,
-      this->GhostLevel);
-    }
+  // if (inInfo)
+  //   {
+  //   vtkStreamingDemandDrivenPipeline::SetUpdateExtent(
+  //     inInfo,
+  //     this->Piece,
+  //     this->NumberOfPieces,
+  //     this->GhostLevel);
+  //   }
 
   this->vtkMapper::Update();
 }

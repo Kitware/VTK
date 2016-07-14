@@ -73,8 +73,8 @@ protected:
   unsigned char *Decode8BitData( unsigned char *in_ptr, int size );
   int Error;
 private:
-  vtkSLCReader(const vtkSLCReader&);  // Not implemented.
-  void operator=(const vtkSLCReader&);  // Not implemented.
+  vtkSLCReader(const vtkSLCReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSLCReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -40,8 +40,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridOutlineFilter&);  // Not implemented.
+  vtkRectilinearGridOutlineFilter(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

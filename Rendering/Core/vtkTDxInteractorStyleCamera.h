@@ -37,12 +37,10 @@ public:
   vtkTypeMacro(vtkTDxInteractorStyleCamera,vtkTDxInteractorStyle);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Action on motion event.
   // \pre: motionInfo_exist: motionInfo!=0
   virtual void OnMotionEvent(vtkTDxMotionEventInfo *motionInfo);
-  //ETX
 
 protected:
   vtkTDxInteractorStyleCamera();
@@ -51,7 +49,7 @@ protected:
   vtkTransform *Transform; // Used for internal intermediate calculation.
 
 private:
-  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&);  // Not implemented.
-  void operator=(const vtkTDxInteractorStyleCamera&);  // Not implemented.
+  vtkTDxInteractorStyleCamera(const vtkTDxInteractorStyleCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxInteractorStyleCamera&) VTK_DELETE_FUNCTION;
 };
 #endif

@@ -54,20 +54,22 @@ protected:
   virtual int ReadIntScalar(
     void* vfp,
     int extent[6], int wextent[6],
-    vtkDataArray* scalar, vtkTypeUInt64 offset);
+    vtkDataArray* scalar, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   virtual int ReadScalar(
     void* vfp,
     int extent[6], int wextent[6],
-    vtkDataArray* scalar, vtkTypeUInt64 offset);
+    vtkDataArray* scalar, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   virtual int ReadVector(
     void* vfp,
     int extent[6], int wextent[6],
-    int numDims, vtkDataArray* vector, vtkTypeUInt64 offset);
-
+    int numDims, vtkDataArray* vector, vtkTypeUInt64 offset,
+    const vtkMultiBlockPLOT3DReaderRecord& currentRecord);
   bool UseMPIIO;
 private:
-  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&); // Not implemented.
-  void operator=(const vtkMPIMultiBlockPLOT3DReader&); // Not implemented.
+  vtkMPIMultiBlockPLOT3DReader(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

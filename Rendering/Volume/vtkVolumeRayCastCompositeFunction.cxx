@@ -14,6 +14,8 @@
 =========================================================================*/
 #include "vtkVolumeRayCastCompositeFunction.h"
 
+#if !defined(VTK_LEGACY_REMOVE)
+
 #include "vtkObjectFactory.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkVolume.h"
@@ -2345,6 +2347,7 @@ void vtkCastRay_TrilinVertices_Shaded( T *data_ptr, vtkVolumeRayCastDynamicInfo 
 vtkVolumeRayCastCompositeFunction::vtkVolumeRayCastCompositeFunction()
 {
   this->CompositeMethod = VTK_COMPOSITE_INTERPOLATE_FIRST;
+  VTK_LEGACY_BODY(vtkVolumeRayCastCompositeFunction::vtkVolumeRayCastCompositeFunction,"VTK 7.0");
 }
 
 // Destruct the vtkVolumeRayCastCompositeFunction
@@ -2528,6 +2531,7 @@ void vtkVolumeRayCastCompositeFunction::PrintSelf(ostream& os, vtkIndent indent)
 
 }
 
+#endif // VTK_LEGACY_REMOVE
 
 
 

@@ -31,7 +31,6 @@ public:
   vtkTypeMacro(vtkClientServerSynchronizedRenderers, vtkSynchronizedRenderers);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkClientServerSynchronizedRenderers();
   ~vtkClientServerSynchronizedRenderers();
@@ -40,9 +39,9 @@ protected:
   virtual void SlaveEndRender();
 
 private:
-  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-  void operator=(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-//ETX
+  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

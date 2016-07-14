@@ -43,6 +43,9 @@
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkTuple.h" // needed for vtkTuple
+#include <vector> // needed for vector
+#include <string> // needed for string.
 
 #define VTK_PARSER_IMMEDIATE 1
 #define VTK_PARSER_UNARY_MINUS 2
@@ -200,19 +203,35 @@ public:
 
   // Description:
   // Get the number of scalar variables.
-  vtkGetMacro(NumberOfScalarVariables,int);
+  int GetNumberOfScalarVariables()
+    { return static_cast<int>(this->ScalarVariableNames.size()); }
 
   // Description:
   // Get the number of vector variables.
-  vtkGetMacro(NumberOfVectorVariables,int);
+  int GetNumberOfVectorVariables()
+    { return static_cast<int>(this->VectorVariableNames.size()); }
 
   // Description:
   // Get the ith scalar variable name.
-  char* GetScalarVariableName(int i);
+  const char* GetScalarVariableName(int i);
 
   // Description:
   // Get the ith vector variable name.
-  char* GetVectorVariableName(int i);
+  const char* GetVectorVariableName(int i);
+
+  // Description:
+  // Returns whether a scalar variable is needed for the function evaluation.
+  // This is only valid after a successful Parse(). Thus, call GetScalarResult()
+  // or IsScalarResult() or similar method before calling this.
+  bool GetScalarVariableNeeded(int i);
+  bool GetScalarVariableNeeded(const char* variableName);
+
+  // Description:
+  // Returns whether a vector variable is needed for the function evaluation.
+  // This is only valid after a successful Parse(). Thus, call GetVectorResult()
+  // or IsVectorResult() or similar method before calling this.
+  bool GetVectorVariableNeeded(int i);
+  bool GetVectorVariableNeeded(const char* variableName);
 
   // Description:
   // Remove all the current variables.
@@ -285,6 +304,11 @@ protected:
 
   int DisambiguateOperators();
 
+  // Description:
+  // Collects meta-data about which variables are needed by the current
+  // function. This is called only after a successful call to this->Parse().
+  void UpdateNeededVariables();
+
   vtkSetStringMacro(ParseError);
 
   int FindPositionInOriginalFunction(const int& pos);
@@ -293,12 +317,13 @@ protected:
   char* FunctionWithSpaces;
 
   int FunctionLength;
-  int NumberOfScalarVariables;
-  int NumberOfVectorVariables;
-  char** ScalarVariableNames;
-  char** VectorVariableNames;
-  double* ScalarVariableValues;
-  double** VectorVariableValues;
+  std::vector<std::string> ScalarVariableNames;
+  std::vector<std::string> VectorVariableNames;
+  std::vector<double> ScalarVariableValues;
+  std::vector<vtkTuple<double, 3> >  VectorVariableValues;
+  std::vector<bool> ScalarVariableNeeded;
+  std::vector<bool> VectorVariableNeeded;
+
   unsigned char *ByteCode;
   int ByteCodeSize;
   double *Immediates;
@@ -320,8 +345,8 @@ protected:
   char* ParseError;
 
 private:
-  vtkFunctionParser(const vtkFunctionParser&);  // Not implemented.
-  void operator=(const vtkFunctionParser&);  // Not implemented.
+  vtkFunctionParser(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFunctionParser&) VTK_DELETE_FUNCTION;
 };
 
 #endif

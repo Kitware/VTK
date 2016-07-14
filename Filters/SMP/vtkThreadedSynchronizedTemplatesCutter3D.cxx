@@ -40,7 +40,7 @@
 #include "vtkIdListCollection.h"
 #include "vtkSmartPointer.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkSMPTools.h"
 #include "vtkSMPThreadLocalObject.h"
@@ -179,30 +179,31 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
                   bool outputTriangles)
 {
   int *inExt = data->GetExtent();
-  int xdim = exExt[1] - exExt[0] + 1;
-  int ydim = exExt[3] - exExt[2] + 1;
+  vtkIdType xdim = exExt[1] - exExt[0] + 1;
+  vtkIdType ydim = exExt[3] - exExt[2] + 1;
   double *values = self->GetValues();
   int numContours = self->GetNumberOfContours();
   T *inPtrX, *inPtrY, *inPtrZ;
   T *s0, *s1, *s2, *s3;
   int xMin, xMax, yMin, yMax, zMin, zMax;
-  int xInc, yInc, zInc;
+  vtkIdType xInc, yInc, zInc;
   int xIncFunc, yIncFunc, zIncFunc, scalarZIncFunc;
   double *origin = data->GetOrigin();
   double *spacing = data->GetSpacing();
-  int *isect1Ptr, *isect2Ptr;
+  vtkIdType *isect1Ptr, *isect2Ptr;
   double y, z, t;
   int i, j, k;
-  int zstep, yisectstep;
-  int offsets[12];
+  vtkIdType zstep, yisectstep;
+  vtkIdType offsets[12];
   int *tablePtr;
-  int idx, vidx;
+  vtkIdType idx;
+  int vidx;
   double x[3], xz[3];
-  int v0, v1, v2, v3;
+  vtkIdType v0, v1, v2, v3;
   vtkIdType ptIds[3];
   double value;
   // We need to know the edgePointId's for interpolating attributes.
-  int edgePtId, inCellId, outCellId;
+  vtkIdType edgePtId, inCellId, outCellId;
   vtkPointData *inPD = data->GetPointData();
   vtkCellData *inCD = data->GetCellData();
   vtkPointData *outPD = output->GetPointData();
@@ -270,7 +271,7 @@ void ContourImage(vtkThreadedSynchronizedTemplatesCutter3D *self, int *exExt,
   PointIndexToPosition(data, exExt[1], exExt[3], exExt[5], bboxCorners[7]);
 
   // allocate storage array
-  int *isect1 = new int [xdim*ydim*3*2];
+  vtkIdType *isect1 = new vtkIdType [xdim*ydim*3*2];
   // set impossible edges to -1
   for (i = 0; i < ydim; i++)
     {

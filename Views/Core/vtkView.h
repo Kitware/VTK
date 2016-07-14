@@ -129,7 +129,6 @@ public:
   // Apply a theme to the view.
   virtual void ApplyViewTheme(vtkViewTheme* vtkNotUsed(theme)) { }
 
-  //BTX
   // Description:
   // Returns the observer that the subclasses can use to listen to additional
   // events. Additionally these subclasses should override
@@ -165,7 +164,6 @@ public:
     double GetProgress() const
       { return this->Progress; }
     };
-  //ETX
 
   // Description:
   // Meant for use by subclasses and vtkRepresentation subclasses.
@@ -181,7 +179,6 @@ public:
   // Unregister objects previously registered with RegisterProgress.
   void UnRegisterProgress(vtkObject* algorithm);
 
-//BTX
 protected:
   vtkView();
   ~vtkView();
@@ -215,8 +212,8 @@ protected:
   bool ReuseSingleRepresentation;
 
 private:
-  vtkView(const vtkView&);  // Not implemented.
-  void operator=(const vtkView&);  // Not implemented.
+  vtkView(const vtkView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkView&) VTK_DELETE_FUNCTION;
 
   class vtkImplementation;
   vtkImplementation* Implementation;
@@ -227,7 +224,7 @@ private:
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

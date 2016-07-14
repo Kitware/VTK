@@ -45,7 +45,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 
 //
 // Windows specific stuff------------------------------------------
-#if defined(_WIN32) || defined(WIN32)
+#if defined(_WIN32)
 
 // define strict header for windows
 #ifndef STRICT
@@ -83,7 +83,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # endif
   // Enable workaround for windows header name mangling.
   // See VTK/Utilities/Upgrading/README.WindowsMangling.txt for details.
-#if !defined(__WRAP__)
+#if !defined(__VTK_WRAP__)
 # define VTK_WORKAROUND_WINDOWS_MANGLE
 #endif
 

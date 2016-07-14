@@ -50,7 +50,7 @@
 using namespace vtkX3D;
 
 // forward declarations
-static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor);
+static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* anActor);
 static bool vtkX3DExporterWriterRenderFaceSet(
   int cellType,
   int representation,
@@ -397,10 +397,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
   vtkUnsignedCharArray *colors;
   vtkSmartPointer<vtkTransform> trans;
 
-  // to be deleted
-  std::ostringstream appearance_stream;
-  std::ostringstream ostr;
-
   // see if the actor has a mapper. it could be an assembly
   if (anActor->GetMapper() == NULL)
     {
@@ -488,8 +484,10 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
 
   colors  = mapper->MapScalars(255.0);
 
-  // Are we using cell colors.
-  bool cell_colors = vtkX3DExporterWriterUsingCellColors(anActor);
+  // Are we using cell colors? Pass the temporary mapper we created here since
+  // we're assured that that mapper only has vtkPolyData as input and hence
+  // don't run into issue when dealing with composite datasets.
+  bool cell_colors = vtkX3DExporterWriterUsingCellColors(mapper);
 
   normals = pntData->GetNormals();
 
@@ -532,8 +530,6 @@ void vtkX3DExporter::WriteAnActor(vtkActor *anActor,
     vtkCellArray* lines = pd->GetLines();
     vtkCellArray* polys = pd->GetPolys();
     vtkCellArray* tstrips = pd->GetStrips();
-
-    std::ostringstream geometry_stream;
 
     vtkIdType numVerts = verts->GetNumberOfCells();
     vtkIdType numLines = lines->GetNumberOfCells();
@@ -643,7 +639,6 @@ void vtkX3DExporter::WriteATextActor2D(vtkActor2D *anTextActor2D,
 
   ta = static_cast<vtkTextActor*>(anTextActor2D);
   tp = ta->GetTextProperty();
-  ds = NULL;
   ds = ta->GetInput();
 
   if (ds==NULL)
@@ -887,10 +882,11 @@ int vtkX3DExporter::HasHeadLight(vtkRenderer* ren)
   return 0;
 }
 
-static bool vtkX3DExporterWriterUsingCellColors(vtkActor* anActor)
+// Determine if we're using cell data for scalar coloring. Returns true if
+// that's the case.
+static bool vtkX3DExporterWriterUsingCellColors(vtkMapper* mapper)
 {
   int cellFlag = 0;
-  vtkMapper* mapper = anActor->GetMapper();
   vtkAbstractMapper::GetScalars(
     mapper->GetInput(),
     mapper->GetScalarMode(),
@@ -1065,7 +1061,7 @@ static void vtkX3DExporterWriteData(vtkPoints *points,
     unsigned char c[4];
     for (int i = 0; i < colors->GetNumberOfTuples(); i++)
       {
-      colors->GetTupleValue(i,c);
+      colors->GetTypedTuple(i,c);
       colorVec.push_back(c[0]/255.0);
       colorVec.push_back(c[1]/255.0);
       colorVec.push_back(c[2]/255.0);
@@ -1131,11 +1127,11 @@ static bool vtkX3DExporterWriterRenderVerts(
         unsigned char color[4];
         if (cell_colors)
           {
-          colors->GetTupleValue(cellId, color);
+          colors->GetTypedTuple(cellId, color);
           }
         else
           {
-          colors->GetTupleValue(indx[cc], color);
+          colors->GetTypedTuple(indx[cc], color);
           }
 
         colorVector.push_back(color[0]/255.0);
@@ -1192,7 +1188,7 @@ static bool vtkX3DExporterWriterRenderPoints(
 
       // Get the color for this cell.
       unsigned char color[4];
-      colors->GetTupleValue(cid, color);
+      colors->GetTypedTuple(cid, color);
       double dcolor[3];
       dcolor[0] = color[0]/255.0;
       dcolor[1] = color[1]/255.0;
@@ -1227,7 +1223,7 @@ static bool vtkX3DExporterWriterRenderPoints(
       if (colors)
         {
         unsigned char color[4];
-        colors->GetTupleValue(pid, color);
+        colors->GetTypedTuple(pid, color);
         colorVec.push_back(color[0]/255.0);
         colorVec.push_back(color[1]/255.0);
         colorVec.push_back(color[2]/255.0);

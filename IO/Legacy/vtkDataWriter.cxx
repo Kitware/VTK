@@ -1122,30 +1122,6 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       }
     break;
 
-#if defined(VTK_TYPE_USE___INT64)
-    case VTK___INT64:
-      {
-      sprintf (str, format, "vtktypeint64"); *fp << str;
-      __int64 *s= static_cast<__int64*>(data->GetVoidPointer(0));
-      strcpy(outputFormat, vtkTypeTraits<__int64>::ParseFormat());
-      strcat(outputFormat, " ");
-      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
-      }
-    break;
-
-    case VTK_UNSIGNED___INT64:
-      {
-      sprintf (str, format, "vtktypeuint64"); *fp << str;
-      unsigned __int64 *s=
-        static_cast<unsigned __int64*>(data->GetVoidPointer(0));
-      strcpy(outputFormat, vtkTypeTraits<unsigned __int64>::ParseFormat());
-      strcat(outputFormat, " ");
-      vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
-      }
-    break;
-#endif
-
-#if defined(VTK_TYPE_USE_LONG_LONG)
     case VTK_LONG_LONG:
       {
       sprintf (str, format, "vtktypeint64"); *fp << str;
@@ -1166,7 +1142,6 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
       vtkWriteDataArray(fp, s, this->FileType, outputFormat, num, numComp);
       }
     break;
-#endif
 
     case VTK_FLOAT:
       {

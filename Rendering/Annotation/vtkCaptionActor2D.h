@@ -162,7 +162,6 @@ public:
   vtkGetMacro(AttachEdgeOnly,int);
   vtkBooleanMacro(AttachEdgeOnly,int);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS.
@@ -182,7 +181,6 @@ public:
   // Description:
   // Does this prop have some translucent polygonal geometry?
   virtual int HasTranslucentPolygonalGeometry();
-//ETX
 
 protected:
   vtkCaptionActor2D();
@@ -225,8 +223,8 @@ private:
   vtkCaptionActor2DConnection* LeaderGlyphConnectionHolder;
 
 private:
-  vtkCaptionActor2D(const vtkCaptionActor2D&);  // Not implemented.
-  void operator=(const vtkCaptionActor2D&);  // Not implemented.
+  vtkCaptionActor2D(const vtkCaptionActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCaptionActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

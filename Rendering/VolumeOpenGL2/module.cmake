@@ -1,14 +1,15 @@
 vtk_module(vtkRenderingVolumeOpenGL2
   TCL_NAME
-  vtkRenderingVolumeOpenGLII
+    vtkRenderingVolumeOpenGLII
+  DEPENDS
+    vtkglew
+    vtkRenderingOpenGL2
+    vtkIOImage
   IMPLEMENTS
     vtkRenderingVolume
   BACKEND
     OpenGL2
-  DEPENDS
-    vtkglew
-    vtkRenderingOpenGL2
-    vtkRenderingVolume
+  IMPLEMENTATION_REQUIRED_BY_BACKEND
   PRIVATE_DEPENDS
     vtksys
     vtkFiltersGeneral

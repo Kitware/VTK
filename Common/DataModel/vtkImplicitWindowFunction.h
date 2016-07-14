@@ -77,22 +77,22 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
 protected:
   vtkImplicitWindowFunction();
   ~vtkImplicitWindowFunction();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   vtkImplicitFunction *ImplicitFunction;
   double WindowRange[2];
   double WindowValues[2];
 
 private:
-  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&);  // Not implemented.
-  void operator=(const vtkImplicitWindowFunction&);  // Not implemented.
+  vtkImplicitWindowFunction(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitWindowFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

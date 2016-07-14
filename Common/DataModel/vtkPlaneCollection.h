@@ -46,12 +46,10 @@ public:
   vtkPlane *GetItem(int i) {
     return static_cast<vtkPlane *>(this->GetItemAsObject(i));};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkPlane *GetNextPlane(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkPlaneCollection() {}
@@ -63,8 +61,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkPlaneCollection(const vtkPlaneCollection&);  // Not implemented.
-  void operator=(const vtkPlaneCollection&);  // Not implemented.
+  vtkPlaneCollection(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlaneCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPlaneCollection::AddItem(vtkPlane *f)

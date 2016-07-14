@@ -39,7 +39,7 @@
 #include "vtkPolygon.h"
 #include "vtkOrderedTriangulator.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
-#include <math.h>
+#include <cmath>
 #include <cassert>
 #include <set>
 #include "vtkBitArray.h"
@@ -150,8 +150,8 @@ protected:
   vtkIdType LastPtId;
   vtkHyperOctreeIdSet *IdSet;
 private:
-  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&);  // Not implemented.
-  void operator=(const vtkHyperOctreeContourPointsGrabber&);    // Not implemented.
+  vtkHyperOctreeContourPointsGrabber(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeContourPointsGrabber&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkHyperOctreeContourFilter);
@@ -339,7 +339,7 @@ int vtkHyperOctreeContourFilter::RequestData(
   this->OutCD->CopyAllocate(this->InCD,estimatedSize,estimatedSize/2);
 
   this->OutPD=this->Output->GetPointData();
-  this->OutPD->CopyAllocate(this->Input->GetPointData(),estimatedSize,estimatedSize/2);
+  this->OutPD->CopyAllocate(this->InPD,estimatedSize,estimatedSize/2);
   this->OutPD->CopyScalarsOn();
 
   static double bounds[6]={0,1,0,1,0,1};

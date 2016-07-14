@@ -253,7 +253,7 @@ void vtkIncrementalForceLayout::UpdatePositions()
 
   vtkIdType numVerts = this->Graph->GetNumberOfVertices();
   vtkIdType numEdges = this->Graph->GetNumberOfEdges();
-  this->Impl->Position = vtkFloatArray::SafeDownCast(this->Graph->GetPoints()->GetData())->GetPointer(0);
+  this->Impl->Position = vtkArrayDownCast<vtkFloatArray>(this->Graph->GetPoints()->GetData())->GetPointer(0);
   while (numVerts >= static_cast<vtkIdType>(this->Impl->LastPosition.size()))
     {
     this->Impl->LastPosition.push_back(vtkVector2f(0.0f, 0.0f));

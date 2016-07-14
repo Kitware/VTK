@@ -69,7 +69,6 @@ int TestHyperTreeGridTernarySphereMaterial( int argc, char* argv[] )
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( geometry->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );

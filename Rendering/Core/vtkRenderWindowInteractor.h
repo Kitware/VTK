@@ -44,6 +44,7 @@
 
 #include "vtkRenderingCoreModule.h" // For export macro
 #include "vtkObject.h"
+#include "vtkCommand.h" // for method sig
 
 class vtkTimerIdMap;
 
@@ -67,9 +68,9 @@ class vtkPickingManager;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
-//BTX
+
   friend class vtkInteractorEventRecorder;
-//ETX
+
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
@@ -175,11 +176,9 @@ public:
   // Get the VTK timer ID that corresponds to the supplied platform ID.
   virtual int GetVTKTimerId(int platformTimerId);
 
-  //BTX
   // Moved into the public section of the class so that classless timer procs
   // can access these enum members without being "friends"...
   enum {OneShotTimer=1,RepeatingTimer};
-  //ETX
 
   // Description:
   // Specify the default timer interval (in milliseconds). (This is used in
@@ -448,6 +447,24 @@ public:
   vtkGetMacro(PointerIndex, int);
 
   // Description:
+  // Set/get the rotation for the gesture in degrees, update LastRotation
+  void SetRotation(double val);
+  vtkGetMacro(Rotation, double);
+  vtkGetMacro(LastRotation, double);
+
+  // Description:
+  // Set/get the scale for the gesture, updates LastScale
+  void SetScale(double val);
+  vtkGetMacro(Scale, double);
+  vtkGetMacro(LastScale, double);
+
+  // Description:
+  // Set/get the tranlation for pan/swipe gestures, update LastTranslation
+  void SetTranslation(double val[2]);
+  vtkGetVector2Macro(Translation, double);
+  vtkGetVector2Macro(LastTranslation, double);
+
+  // Description:
   // Set all the event information in one call.
   void SetEventInformation(int x,
                            int y,
@@ -588,6 +605,36 @@ public:
   virtual void ExitEvent();
 
   // Description:
+  // Fire various gesture based events.  These methods will Invoke the
+  // corresponding vtk event.
+  virtual void StartPinchEvent();
+  virtual void PinchEvent();
+  virtual void EndPinchEvent();
+  virtual void StartRotateEvent();
+  virtual void RotateEvent();
+  virtual void EndRotateEvent();
+  virtual void StartPanEvent();
+  virtual void PanEvent();
+  virtual void EndPanEvent();
+  virtual void TapEvent();
+  virtual void LongTapEvent();
+  virtual void SwipeEvent();
+
+  // Description:
+  // Convert multitouch events into gestures. When this is on
+  // (its default) multitouch events received by this interactor
+  // will be converted into gestures by VTK. If turned off the
+  // raw multitouch events will be passed down.
+  vtkSetMacro(RecognizeGestures,bool);
+  vtkGetMacro(RecognizeGestures,bool);
+
+  // Description:
+  // When handling gestures you can query this value to
+  // determine how many pointers are down for the gesture
+  // this is useful for pan gestures for example
+  vtkGetMacro(PointersDownCount,int);
+
+  // Description:
   // Most multitouch systems use persistent contact/pointer ids to
   // track events/motion during multitouch events. We keep an array
   // that maps these system dependent contact ids to our pointer index
@@ -629,6 +676,12 @@ protected:
   int   ControlKey;
   int   ShiftKey;
   char  KeyCode;
+  double Rotation;
+  double LastRotation;
+  double Scale;
+  double LastScale;
+  double Translation[2];
+  double LastTranslation[2];
   int   RepeatCount;
   char* KeySym;
   int   EventPosition[2];
@@ -650,7 +703,6 @@ protected:
   int NumberOfFlyFrames;
   double Dolly;
 
-//BTX
   // Description:
   // These methods allow the interactor to control which events are
   // processed.  When the GrabFocus() method is called, then only events that
@@ -663,13 +715,11 @@ protected:
     {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
   void ReleaseFocus()
     {this->Superclass::InternalReleaseFocus();}
-//ETX
 
   // Description:
   // Widget mediators are used to resolve contention for cursors and other resources.
   vtkObserverMediator *ObserverMediator;
 
-//BTX
   // Timer related members
   friend struct vtkTimerStruct;
   vtkTimerIdMap *TimerMap; // An internal, PIMPLd map of timers and associated attributes
@@ -682,7 +732,6 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
   int GetCurrentTimerId();
-//ETX
 
   // Force the interactor to handle the Start() event loop, ignoring any
   // overrides. (Overrides are registered by observing StartEvent on the
@@ -695,9 +744,18 @@ protected:
 
   bool UseTDx; // 3DConnexion device.
 
+  // when recognizing gestures VTK will take multitouch events
+  // if it receives them and convert them to gestures
+  bool RecognizeGestures;
+  int PointersDownCount;
+  int PointersDown[VTKI_MAX_POINTERS];
+  virtual void RecognizeGesture(vtkCommand::EventIds);
+  int StartingEventPositions[VTKI_MAX_POINTERS][2];
+  vtkCommand::EventIds CurrentGesture;
+
 private:
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkRenderWindowInteractor&);  // Not implemented.
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

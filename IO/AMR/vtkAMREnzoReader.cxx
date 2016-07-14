@@ -113,7 +113,7 @@ int vtkAMREnzoReader::GetIndexFromArrayName( std::string arrayName )
 }
 
 //-----------------------------------------------------------------------------
-double vtkAMREnzoReader::GetConversionFactor( const std::string name )
+double vtkAMREnzoReader::GetConversionFactor( const std::string &name )
 {
   if( this->label2idx.find( name ) != this->label2idx.end() )
     {
@@ -132,7 +132,7 @@ double vtkAMREnzoReader::GetConversionFactor( const std::string name )
 
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::ParseLabel(
-    const std::string labelString, int &idx, std::string &label)
+    const std::string &labelString, int &idx, std::string &label)
 {
 
   std::vector< std::string > strings;
@@ -153,7 +153,7 @@ void vtkAMREnzoReader::ParseLabel(
 
 //-----------------------------------------------------------------------------
 void vtkAMREnzoReader::ParseCFactor(
-    const std::string labelString, int &idx, double &factor )
+    const std::string &labelString, int &idx, double &factor )
 {
   std::vector< std::string > strings;
 

@@ -16,6 +16,7 @@
 #define vtkPython_h
 
 #include "vtkPythonConfigure.h"
+#include "vtkConfigure.h"
 #include "vtkABI.h"
 
 /*
@@ -87,8 +88,74 @@ they are system headers.  Do NOT add any #undef lines here.  */
 #endif
 
 #ifdef VTK_PYTHON_UNDEF_DEBUG
-# define _DEBUG
+# define _DEBUG 1
 # undef VTK_PYTHON_UNDEF_DEBUG
 #endif
+
+/* undo some macro defs in pyport.h */
+#if defined(_PY_PORT_CTYPE_UTF8_ISSUE) && defined(__cplusplus)
+#undef isalnum
+#undef isalpha
+#undef islower
+#undef isspace
+#undef isupper
+#undef tolower
+#undef toupper
+#endif
+
+/* This logic is borrowed from mpi4py/vtkmpi4py/src/atimport.h */
+#ifdef VTK_NO_PYTHON_THREADS
+#undef  PyGILState_Ensure
+#define PyGILState_Ensure() ((PyGILState_STATE)0)
+#undef  PyGILState_Release
+#define PyGILState_Release(state) (state)=((PyGILState_STATE)0)
+#endif
+
+// Description:
+// RAII class to manage Python threading using GIL (Global Interpreter Lock).
+// GIL is locked at object creation and unlocked at destruction.
+// Note: behaviour of this class depends on VTK_PYTHON_FULL_THREADSAFE.
+class vtkPythonScopeGilEnsurer 
+{
+public:
+  // Description:
+  // If force is TRUE, lock/unlock even if VTK_PYTHON_FULL_THREADSAFE is not defined.
+  // If force is FALSE, lock/unlock is only performed if VTK_PYTHON_FULL_THREADSAFE is
+  // defined.
+  // If noRelease is TRUE, unlock will not be called at object destruction. This is used
+  // for specific python function calls like PyFinalize which already take 
+  // care of releasing the GIL.
+  vtkPythonScopeGilEnsurer(bool force = false, bool noRelease = false)
+    : State(PyGILState_UNLOCKED)
+  {
+#ifdef VTK_PYTHON_FULL_THREADSAFE
+    // Force is always true with VTK_PYTHON_FULL_THREADSAFE
+    force = true;
+#endif
+    this->Force = force;
+    this->NoRelease = noRelease;
+    if (this->Force)
+      {
+      this->State = PyGILState_Ensure();
+      }
+  }
+ 
+  ~vtkPythonScopeGilEnsurer()
+  {
+    if (this->Force && !this->NoRelease)
+      {
+      PyGILState_Release(this->State);
+      }
+  }
+
+private:
+  PyGILState_STATE State;
+  bool Force;
+  bool NoRelease;
+
+  vtkPythonScopeGilEnsurer(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPythonScopeGilEnsurer&) VTK_DELETE_FUNCTION;
+};
+
 
 #endif

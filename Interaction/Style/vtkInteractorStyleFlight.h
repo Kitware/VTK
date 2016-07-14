@@ -37,9 +37,8 @@
 #include "vtkInteractorStyle.h"
 class vtkCamera;
 class vtkPerspectiveTransform;
-//BTX
+
 class CPIDControl;
-//ETX
 
 class VTKINTERACTIONSTYLE_EXPORT vtkInteractorStyleFlight : public vtkInteractorStyle
 {
@@ -151,13 +150,13 @@ protected:
   double        lYaw;
   double        DeltaPitch;
   double        lPitch;
-//BTX
+
   CPIDControl  *PID_Yaw;
   CPIDControl  *PID_Pitch;
-//ETX
+
 private:
-  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&);  // Not implemented.
-  void operator=(const vtkInteractorStyleFlight&);  // Not implemented.
+  vtkInteractorStyleFlight(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleFlight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

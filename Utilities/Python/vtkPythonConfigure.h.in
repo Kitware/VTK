@@ -19,6 +19,7 @@
 
 /* E.g. on BlueGene and Cray there is no multithreading */
 #cmakedefine VTK_NO_PYTHON_THREADS
+#cmakedefine VTK_PYTHON_FULL_THREADSAFE
 
 /* Whether the real python debug library has been provided.  */
 #cmakedefine VTK_WINDOWS_PYTHON_DEBUGGABLE

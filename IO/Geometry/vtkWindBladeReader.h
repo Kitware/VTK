@@ -78,7 +78,7 @@ public:
   void EnableAllPointArrays();
 
 protected:
-//BTX
+
    static float DRY_AIR_CONSTANT;
    static int   NUM_PART_SIDES;  // Blade parts rhombus
    const static int   NUM_BASE_SIDES;  // Base pyramid
@@ -89,7 +89,6 @@ protected:
    static int   VECTOR;
    static int   FLOAT;
    static int   INTEGER;
-//ETX
 
   vtkWindBladeReader();
   ~vtkWindBladeReader();
@@ -139,8 +138,8 @@ protected:
   int* VariableBasicType;  // FLOAT or INTEGER
   int* VariableByteCount;  // Number of bytes in basic type
   long int* VariableOffset;  // Offset into data file
-  unsigned int BlockSize;   // Size of every data block
-  int GBlockSize;  // Size of every data block
+  size_t BlockSize;   // Size of every data block
+  size_t GBlockSize;  // Size of every data block
 
   vtkFloatArray** Data;   // Actual data arrays
   vtkStdString RootDirectory; // Directory where the .wind file is.
@@ -259,7 +258,7 @@ protected:
 private:
   WindBladeReaderInternal * Internal;
 
-  vtkWindBladeReader(const vtkWindBladeReader&);  // Not implemented.
-  void operator=(const vtkWindBladeReader&);  // Not implemented.
+  vtkWindBladeReader(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindBladeReader&) VTK_DELETE_FUNCTION;
 };
 #endif

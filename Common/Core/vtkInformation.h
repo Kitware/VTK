@@ -55,6 +55,7 @@ class vtkInformationKey;
 class vtkInformationKeyToInformationFriendship;
 class vtkInformationKeyVectorKey;
 class vtkInformationObjectBaseKey;
+class vtkInformationObjectBaseVectorKey;
 class vtkInformationRequestKey;
 class vtkInformationStringKey;
 class vtkInformationStringVectorKey;
@@ -108,6 +109,13 @@ public:
   VTKCOMMONCORE_EXPORT void Copy(vtkInformation* from, int deep=0);
 
   // Description:
+  // Append all information entries from the given vtkInformation
+  // instance. If deep==1, a deep copy of the information structure is performed
+  // (new instances of any contained vtkInformation and vtkInformationVector
+  // objects are created).
+  VTKCOMMONCORE_EXPORT void Append(vtkInformation* from, int deep=0);
+
+  // Description:
   // Copy the key/value pair associated with the given key in the
   // given information object.  If deep=1, a deep copy of the information
   // structure is performed (new instances of any contained vtkInformation and
@@ -121,6 +129,7 @@ public:
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationInformationVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationIntegerVectorKey* key, int deep=0);
+  VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationObjectBaseVectorKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationRequestKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringKey* key, int deep=0);
   VTKCOMMONCORE_EXPORT void CopyEntry(vtkInformation* from, vtkInformationStringVectorKey* key, int deep=0);
@@ -178,7 +187,7 @@ public:
   // Description:
   // Get/Set an integer-vector-valued entry.
   VTKCOMMONCORE_EXPORT void Append(vtkInformationIntegerVectorKey* key, int value);
-  VTKCOMMONCORE_EXPORT void Set(vtkInformationIntegerVectorKey* key, int* value, int length);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationIntegerVectorKey* key, const int* value, int length);
   VTKCOMMONCORE_EXPORT void Set(vtkInformationIntegerVectorKey* key, int value1,
            int value2, int value3);
   VTKCOMMONCORE_EXPORT void Set(vtkInformationIntegerVectorKey* key,
@@ -219,7 +228,7 @@ public:
   // Description:
   // Get/Set an double-vector-valued entry.
   VTKCOMMONCORE_EXPORT void Append(vtkInformationDoubleVectorKey* key, double value);
-  VTKCOMMONCORE_EXPORT void Set(vtkInformationDoubleVectorKey* key, double* value, int length);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationDoubleVectorKey* key, const double* value, int length);
   VTKCOMMONCORE_EXPORT void Set(vtkInformationDoubleVectorKey* key, double value1,
            double value2, double value3);
   VTKCOMMONCORE_EXPORT void Set(vtkInformationDoubleVectorKey* key,
@@ -252,7 +261,7 @@ public:
   // Get/Set an InformationKey-vector-valued entry.
   VTKCOMMONCORE_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   VTKCOMMONCORE_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
-  VTKCOMMONCORE_EXPORT void Set(vtkInformationKeyVectorKey* key, vtkInformationKey** value, int length);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationKeyVectorKey* key, vtkInformationKey*const * value, int length);
   VTKCOMMONCORE_EXPORT void Remove(vtkInformationKeyVectorKey* key, vtkInformationKey* value);
   VTKCOMMONCORE_EXPORT vtkInformationKey** Get(vtkInformationKeyVectorKey* key);
   VTKCOMMONCORE_EXPORT vtkInformationKey*  Get(vtkInformationKeyVectorKey* key, int idx);
@@ -265,7 +274,7 @@ public:
   // code to include the headers for these key types.  Avoid wrapping
   // them because the original method can be called from the wrappers
   // anyway and this causes a python help string to be too long.
-  //BTX
+
   VTKCOMMONCORE_EXPORT void Append(vtkInformationKeyVectorKey* key,
               vtkInformationDataObjectKey* value);
   VTKCOMMONCORE_EXPORT void Append(vtkInformationKeyVectorKey* key, vtkInformationDoubleKey* value);
@@ -309,7 +318,6 @@ public:
                     vtkInformationObjectBaseKey* value);
   VTKCOMMONCORE_EXPORT void AppendUnique(vtkInformationKeyVectorKey* key,
                     vtkInformationUnsignedLongKey* value);
-  //ETX
 
   // Description:
   // Get/Set a string-valued entry.
@@ -340,6 +348,22 @@ public:
   VTKCOMMONCORE_EXPORT int Has(vtkInformationObjectBaseKey* key);
 
   // Description:
+  // Manipulate a ObjectBaseVector entry.
+  VTKCOMMONCORE_EXPORT void Append(vtkInformationObjectBaseVectorKey* key,
+                                   vtkObjectBase *data);
+  VTKCOMMONCORE_EXPORT void Set(vtkInformationObjectBaseVectorKey *key,
+                                vtkObjectBase* value, int idx = 0);
+  VTKCOMMONCORE_EXPORT vtkObjectBase* Get(vtkInformationObjectBaseVectorKey *key,
+                                          int idx = 0);
+  VTKCOMMONCORE_EXPORT int Length(vtkInformationObjectBaseVectorKey *key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key,
+                                   vtkObjectBase *objectToRemove);
+  VTKCOMMONCORE_EXPORT void Remove(vtkInformationObjectBaseVectorKey *key,
+                                   int indexToRemove);
+  VTKCOMMONCORE_EXPORT int Has(vtkInformationObjectBaseVectorKey *key);
+
+  // Description:
   // Get/Set an entry storing a vtkDataObject instance.
   VTKCOMMONCORE_EXPORT void Set(vtkInformationDataObjectKey* key,
     vtkDataObject VTK_WRAP_EXTERN *);
@@ -366,8 +390,8 @@ public:
 
   // Description:
   // Initiate garbage collection when a reference is removed.
-  VTKCOMMONCORE_EXPORT virtual void Register(vtkObjectBase* o);
-  VTKCOMMONCORE_EXPORT virtual void UnRegister(vtkObjectBase* o);
+  VTKCOMMONCORE_EXPORT void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  VTKCOMMONCORE_EXPORT void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Get/Set the Request ivar
@@ -390,20 +414,20 @@ protected:
   vtkInformationInternals* Internal;
 
   // Garbage collection support.
-  VTKCOMMONCORE_EXPORT virtual void ReportReferences(vtkGarbageCollector*);
+  VTKCOMMONCORE_EXPORT void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // Report the object associated with the given key to the collector.
   VTKCOMMONCORE_EXPORT void ReportAsObjectBase(vtkInformationKey* key,
                           vtkGarbageCollector* collector);
 
 private:
-  //BTX
+
   friend class vtkInformationKeyToInformationFriendship;
   friend class vtkInformationIterator;
-  //ETX
+
 private:
-  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&);  // Not implemented.
-  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&);  // Not implemented.
+  VTKCOMMONCORE_EXPORT vtkInformation(const vtkInformation&) VTK_DELETE_FUNCTION;
+  VTKCOMMONCORE_EXPORT void operator=(const vtkInformation&) VTK_DELETE_FUNCTION;
   vtkInformationRequestKey *Request;
 };
 

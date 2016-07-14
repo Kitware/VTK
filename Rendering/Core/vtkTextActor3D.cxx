@@ -28,7 +28,7 @@
 #include "vtkMatrix4x4.h"
 #include "vtkMath.h"
 
-vtkStandardNewMacro(vtkTextActor3D);
+vtkObjectFactoryNewMacro(vtkTextActor3D)
 
 vtkCxxSetObjectMacro(vtkTextActor3D, TextProperty, vtkTextProperty);
 

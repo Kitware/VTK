@@ -42,8 +42,8 @@
 namespace
 {
 //----------------------------------------------------------------------------
-inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
-  const std::pair<int, double> v1)
+inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> &v0,
+  const std::pair<int, double> &v1)
 {
   return ((v0.second < v1.second)
     || ((v0.second == v1.second)&&(v0.first < v1.first)));
@@ -62,7 +62,7 @@ inline static bool vtkReebGraphVertexSoS(const std::pair<int, double> v0,
 #define vtkReebGraphInitialStreamSize 1000
 
 #define vtkReebGraphIsSmaller(myReebGraph, nodeId0, nodeId1, node0, node1) \
-((node0->Value < node1->Value) || (node0->Value == node1->Value && nodeId0 < nodeId1))
+((node0->Value < node1->Value) || (node0->Value == node1->Value && (nodeId0) < (nodeId1)))
 
 #define vtkReebGraphGetArcPersistence(rg,a)  \
 ((this->GetNode(a->NodeId1)->Value - this->GetNode(a->NodeId0)->Value) \
@@ -1232,11 +1232,11 @@ double vtkReebGraph::Implementation::ComputeCustomMetric(
 {
   int edgeId = -1, start = -1, end = -1;
 
-  vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(
+  vtkDataArray *vertexInfo = vtkArrayDownCast<vtkDataArray>(
     this->Parent->GetVertexData()->GetAbstractArray("Vertex Ids"));
   if(!vertexInfo) return vtkReebGraphGetArcPersistence(this, a);
 
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     this->Parent->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   if(!edgeInfo) return vtkReebGraphGetArcPersistence(this, a);
 
@@ -1565,7 +1565,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
 
   vtkEdgeListIterator *eIt = vtkEdgeListIterator::New();
   this->Parent->GetEdges(eIt);
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     this->Parent->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   vtkDataArray    *vertexInfo =
       this->Parent->GetVertexData()->GetArray("Vertex Ids");
@@ -1625,7 +1625,7 @@ int vtkReebGraph::Implementation::CommitSimplification()
     }
 
   std::pair<int, int> destinationArc;
-  std::map<int, bool> processedInputArcs, processedOutputArcs;
+  std::map<int, bool> processedOutputArcs;
 
   // now map the unsimplified arcs onto the simplified ones
   for(unsigned int i = 0; i < before.size(); i++)

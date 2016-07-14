@@ -73,11 +73,9 @@ public:
   double *GetDataOrigin();
   void GetDataOrigin(double *ptr);
 
-//BTX
   // Description:
   // Get the input object from the image pipeline.
   vtkImageData *GetInput();
-//ETX
 
   // Description:
   // Set/Get whether the data goes to the exported memory starting
@@ -116,7 +114,6 @@ public:
   // Get the user data that should be passed to the callback functions.
   void* GetCallbackUserData();
 
-  //BTX
   // Description:
   // These are function pointer types for the pipeline connection
   // callbacks.  See furhter documentation in vtkImageImport.h.
@@ -145,7 +142,6 @@ public:
   UpdateDataCallbackType            GetUpdateDataCallback() const;
   DataExtentCallbackType            GetDataExtentCallback() const;
   BufferPointerCallbackType         GetBufferPointerCallback() const;
-  //ETX
 
 protected:
   vtkImageExport();
@@ -175,8 +171,8 @@ protected:
   unsigned long LastPipelineMTime;
 
 private:
-  vtkImageExport(const vtkImageExport&);  // Not implemented.
-  void operator=(const vtkImageExport&);  // Not implemented.
+  vtkImageExport(const vtkImageExport&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageExport&) VTK_DELETE_FUNCTION;
 
   static void UpdateInformationCallbackFunction(void*);
   static int PipelineModifiedCallbackFunction(void*);

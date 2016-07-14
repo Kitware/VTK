@@ -163,6 +163,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleIndexBuffer(
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   std::vector<unsigned int> indexArray;
@@ -206,6 +207,7 @@ size_t vtkOpenGLIndexBufferObject::CreatePointIndexBuffer(vtkCellArray *cells)
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   std::vector<unsigned int> indexArray;
@@ -259,6 +261,7 @@ size_t vtkOpenGLIndexBufferObject::CreateTriangleLineIndexBuffer(
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   std::vector<unsigned int> indexArray;
@@ -312,6 +315,7 @@ size_t vtkOpenGLIndexBufferObject::CreateLineIndexBuffer(vtkCellArray *cells)
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   std::vector<unsigned int> indexArray;
@@ -328,6 +332,7 @@ size_t vtkOpenGLIndexBufferObject::CreateStripIndexBuffer(
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   vtkIdType      *pts = 0;
@@ -493,13 +498,14 @@ size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
 {
   if (!cells->GetNumberOfCells())
     {
+    this->IndexCount = 0;
     return 0;
     }
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
   std::vector<unsigned int> indexArray;
   unsigned char *ucef = NULL;
-  ucef = vtkUnsignedCharArray::SafeDownCast(ef)->GetPointer(0);
+  ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
   indexArray.reserve(cells->GetData()->GetSize()*2);
   for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
     {

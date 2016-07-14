@@ -63,7 +63,6 @@ int TestHyperTreeGridTernary3DContour( int argc, char* argv[] )
 
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkPolyDataMapper> mapper1;
   mapper1->SetInputConnection( contour->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetPointData()->GetScalars()->GetRange() );

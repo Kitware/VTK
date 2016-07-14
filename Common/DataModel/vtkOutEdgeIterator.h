@@ -55,7 +55,6 @@ public:
   vtkGetObjectMacro(Graph, vtkGraph);
   vtkGetMacro(Vertex, vtkIdType);
 
-  //BTX
   // Description:
   // Returns the next edge in the graph.
   inline vtkOutEdgeType Next()
@@ -64,7 +63,6 @@ public:
     ++this->Current;
     return e;
   }
-  //ETX
 
   // Description:
   // Just like Next(), but
@@ -97,8 +95,8 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkOutEdgeIterator(const vtkOutEdgeIterator&);  // Not implemented.
-  void operator=(const vtkOutEdgeIterator&);  // Not implemented.
+  vtkOutEdgeIterator(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutEdgeIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

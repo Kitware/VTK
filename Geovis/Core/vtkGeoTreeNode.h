@@ -133,7 +133,6 @@ public:
   vtkGeoTreeNode* GetParentTreeNode()
     { return this->Parent; }
 
-//BTX
   enum NodeStatus
     {
     NONE,
@@ -142,7 +141,6 @@ public:
 
   NodeStatus GetStatus();
   void SetStatus(NodeStatus status);
-//ETX
 
   // Description:
   // Shallow and Deep copy. Deep copy performs a shallow copy
@@ -160,17 +158,15 @@ protected:
   double LongitudeRange[2];
   double LatitudeRange[2];
 
-  //BTX
   vtkSmartPointer<vtkGeoTreeNode> Children[4];
   vtkGeoTreeNode * Parent;
   NodeStatus Status;
   vtkGeoTreeNode* Older;
   vtkGeoTreeNode* Newer;
-  //ETX
 
 private:
-  vtkGeoTreeNode(const vtkGeoTreeNode&);  // Not implemented.
-  void operator=(const vtkGeoTreeNode&);  // Not implemented.
+  vtkGeoTreeNode(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

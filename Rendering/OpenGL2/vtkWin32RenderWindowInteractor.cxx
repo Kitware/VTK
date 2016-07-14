@@ -12,10 +12,10 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cmath>
 
 
 #ifndef _WIN32_WINNT

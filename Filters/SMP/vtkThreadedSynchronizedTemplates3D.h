@@ -159,17 +159,14 @@ protected:
   int GenerateTriangles;
 
 private:
-  vtkThreadedSynchronizedTemplates3D(const vtkThreadedSynchronizedTemplates3D&);  // Not implemented.
-  void operator=(const vtkThreadedSynchronizedTemplates3D&);  // Not implemented.
+  vtkThreadedSynchronizedTemplates3D(const vtkThreadedSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreadedSynchronizedTemplates3D&) VTK_DELETE_FUNCTION;
 };
 
 
 // template table.
-//BTX
 
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_1[];
 extern int VTKFILTERSSMP_EXPORT VTK_TSYNCHRONIZED_TEMPLATES_3D_TABLE_2[];
-
-//ETX
 
 #endif

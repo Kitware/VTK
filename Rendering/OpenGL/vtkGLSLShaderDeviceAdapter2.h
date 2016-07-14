@@ -59,7 +59,6 @@ public:
                              const void *attribute,
                              unsigned long offset=0);
 
-//BTX
 protected:
   vtkGLSLShaderDeviceAdapter2();
   ~vtkGLSLShaderDeviceAdapter2();
@@ -68,13 +67,12 @@ protected:
   int GetAttributeLocation(const char* attrName);
 
 private:
-  vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&);
-  // Not implemented
-  void operator=(const vtkGLSLShaderDeviceAdapter2&); // Not implemented
+  vtkGLSLShaderDeviceAdapter2(const vtkGLSLShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGLSLShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

@@ -55,7 +55,7 @@
 #include <vtksys/hash_map.hxx>
 #include <vtksys/RegularExpression.hxx>
 
-#include <math.h>
+#include <cmath>
 
 //=============================================================================
 #define CALL_NETCDF(call)                       \
@@ -246,12 +246,13 @@ public:
     (*this->ReferenceCount)++;
   }
 
-  void operator=(const vtkSLACReaderAutoCloseNetCDF &src)
+  vtkSLACReaderAutoCloseNetCDF& operator=(const vtkSLACReaderAutoCloseNetCDF &src)
   {
     this->UnReference();
     this->FileDescriptor = src.FileDescriptor;
     this->ReferenceCount = src.ReferenceCount;
     (*this->ReferenceCount)++;
+    return *this;
   }
 
   operator int() const { return this->FileDescriptor; }
@@ -1280,7 +1281,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
       // winding, but it should be consistent through the mesh.  The invertTets
       // flag set earlier indicates whether we need to invert the tetrahedra.
       vtkIdType tetInfo[NumPerTetInt];
-      connectivity->GetTupleValue(i, tetInfo);
+      connectivity->GetTypedTuple(i, tetInfo);
       if (invertTets) std::swap(tetInfo[1], tetInfo[2]);
       vtkUnstructuredGrid *ugrid = AllocateGetBlock(volumeOutput, tetInfo[0],
                                                     IS_INTERNAL_VOLUME());
@@ -1300,7 +1301,7 @@ int vtkSLACReader::ReadConnectivity(int meshFD,
     // when the face is internal.  Other flags separate faces in a multiblock
     // data set.
     vtkIdType tetInfo[NumPerTetExt];
-    connectivity->GetTupleValue(i, tetInfo);
+    connectivity->GetTypedTuple(i, tetInfo);
     if (invertTets)
       {
       std::swap(tetInfo[1], tetInfo[2]); // Invert point indices

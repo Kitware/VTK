@@ -69,6 +69,7 @@
 //
 // .SECTION see also
 // vtkVolumeMapper
+// @deprecated
 
 #ifndef vtkVolumeTextureMapper3D_h
 #define vtkVolumeTextureMapper3D_h
@@ -80,7 +81,7 @@ class vtkImageData;
 class vtkColorTransferFunction;
 class vtkPiecewiseFunction;
 class vtkVolumeProperty;
-
+#if !defined(VTK_LEGACY_REMOVE)
 class VTKRENDERINGVOLUME_EXPORT vtkVolumeTextureMapper3D : public vtkVolumeMapper
 {
 public:
@@ -124,8 +125,6 @@ public:
   // the image.
   vtkGetMacro( ActualSampleDistance, float );
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -145,7 +144,6 @@ public:
   // Description:
   // Returns the number of components of the point scalar field
   int GetNumberOfScalarComponents(vtkImageData *input);
-//ETX
 
   // Description:
   // Set the preferred render method. If it is supported, this
@@ -234,20 +232,19 @@ protected:
 
   // Description:
   // Impemented in subclass - check is texture size is OK.
-  //BTX
+
   virtual int IsTextureSizeSupported(int vtkNotUsed(size)[3],
                                      int vtkNotUsed(components))
     {
       return 0;
     }
-  //ETX
 
 private:
-  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&);  // Not implemented.
-  void operator=(const vtkVolumeTextureMapper3D&);  // Not implemented.
+  vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
 };
 
-
+#endif // VTK_LEGACY_REMOVE
 #endif
 
 

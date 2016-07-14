@@ -48,14 +48,6 @@
 
 vtkStandardNewMacro(vtkOpenGLGlyph3DMapper);
 
-template <class T>
-static T vtkClamp(T val, T min, T max)
-{
-  val = val < min? min : val;
-  val = val > max? max : val;
-  return val;
-}
-
 class vtkOpenGLGlyph3DMapperArray
 {
 public:
@@ -330,7 +322,31 @@ void vtkOpenGLGlyph3DMapper::Render(vtkRenderer *ren, vtkActor *actor)
     {
     this->TimeToDraw = 0.0;
     this->Timer->StartTimer();
+
+    int numClipPlanes = this->GetNumberOfClippingPlanes();
+    if (numClipPlanes > 6)
+      {
+      vtkErrorMacro(<< "OpenGL has a limit of 6 clipping planes");
+      numClipPlanes = 6;
+      }
+
+    for (int i = 0; i < numClipPlanes; i++)
+      {
+      double planeEquation[4];
+      this->GetClippingPlaneInDataCoords(actor->GetMatrix(), i, planeEquation);
+      GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + i);
+      glEnable(clipPlaneId);
+      glClipPlane(clipPlaneId, planeEquation);
+      }
+
     glCallList(this->DisplayListId);
+
+    for (int c = 0; c < numClipPlanes; c++)
+      {
+      GLenum clipPlaneId = static_cast<GLenum>(GL_CLIP_PLANE0 + c);
+      glDisable(clipPlaneId);
+      }
+
     this->Timer->StopTimer();
     this->TimeToDraw += this->Timer->GetElapsedTime();
     }
@@ -383,7 +399,7 @@ void vtkOpenGLGlyph3DMapper::Render(
 
   if (this->Masking)
     {
-    maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
+    maskArray = vtkArrayDownCast<vtkBitArray>(this->GetMaskArray(dataset));
     if (maskArray == 0)
       {
       vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");
@@ -498,7 +514,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       double value = vtkMath::Norm(indexArray->GetTuple(inPtId),
         indexArray->GetNumberOfComponents());
       index = static_cast<int>((value-this->Range[0])*numberOfSources/den);
-      index = ::vtkClamp(index, 0, numberOfSources-1);
+      index = vtkMath::ClampValue(index, 0, numberOfSources-1);
       }
 
     // source can be null.
@@ -572,7 +588,7 @@ void vtkOpenGLGlyph3DMapper::Render(
       else if (colors)
         {
         unsigned char rgba[4];
-        colors->GetTupleValue(inPtId, rgba);
+        colors->GetTypedTuple(inPtId, rgba);
         glColor4ub(rgba[0], rgba[1], rgba[2], rgba[3]);
         }
       //glFinish(); // for debug

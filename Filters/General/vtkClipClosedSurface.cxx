@@ -586,7 +586,7 @@ int vtkClipClosedSurface::RequestData(
 
       // Add scalars for the newly-created contour lines
       vtkUnsignedCharArray *scalars =
-        vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
+        vtkArrayDownCast<vtkUnsignedCharArray>(outLineData->GetScalars());
 
       if (scalars)
         {
@@ -598,13 +598,13 @@ int vtkClipClosedSurface::RequestData(
         for (vtkIdType lineId = numClipLines; lineId < numLines; lineId++)
           {
           unsigned char oldColor[3];
-          scalars->GetTupleValue(lineId, oldColor);
+          scalars->GetTypedTuple(lineId, oldColor);
           if (numberOfScalarComponents != 3 ||
               oldColor[0] != activeColor[0] ||
               oldColor[1] != activeColor[1] ||
               oldColor[2] != activeColor[2])
             {
-            scalars->SetTupleValue(lineId, color);
+            scalars->SetTypedTuple(lineId, color);
             }
           }
         }
@@ -623,7 +623,7 @@ int vtkClipClosedSurface::RequestData(
                                   newPolys, pc);
 
       // Add scalars for the newly-created polys
-      scalars = vtkUnsignedCharArray::SafeDownCast(outPolyData->GetScalars());
+      scalars = vtkArrayDownCast<vtkUnsignedCharArray>(outPolyData->GetScalars());
 
       if (scalars)
         {
@@ -633,17 +633,17 @@ int vtkClipClosedSurface::RequestData(
         if (numCells > cellId)
           {
           // The insert allocates space up to numCells-1
-          scalars->InsertTupleValue(numCells-1, color);
+          scalars->InsertTypedTuple(numCells-1, color);
           for (;cellId < numCells; cellId++)
             {
-            scalars->SetTupleValue(cellId, color);
+            scalars->SetTypedTuple(cellId, color);
             }
           }
         }
 
       // Add scalars to any diagnostic lines that added by
       // TriangulateContours().  In usual operation, no lines are added.
-      scalars = vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
+      scalars = vtkArrayDownCast<vtkUnsignedCharArray>(outLineData->GetScalars());
 
       if (scalars)
         {
@@ -653,11 +653,11 @@ int vtkClipClosedSurface::RequestData(
         if (numCells > numClipAndContourLines)
           {
           // The insert allocates space up to numCells-1
-          scalars->InsertTupleValue(numCells-1, color);
+          scalars->InsertTypedTuple(numCells-1, color);
           for (vtkIdType lineCellId = numClipAndContourLines;
                lineCellId < numCells; lineCellId++)
             {
-            scalars->SetTupleValue(lineCellId, color);
+            scalars->SetTypedTuple(lineCellId, color);
             }
           }
         }
@@ -699,7 +699,7 @@ int vtkClipClosedSurface::RequestData(
 
   // Get the line scalars
   vtkUnsignedCharArray *scalars =
-    vtkUnsignedCharArray::SafeDownCast(inLineData->GetScalars());
+    vtkArrayDownCast<vtkUnsignedCharArray>(inLineData->GetScalars());
 
   if (this->GenerateOutline)
     {
@@ -718,7 +718,7 @@ int vtkClipClosedSurface::RequestData(
     if (polys && scalars)
       {
       vtkUnsignedCharArray *pScalars =
-        vtkUnsignedCharArray::SafeDownCast(inPolyData->GetScalars());
+        vtkArrayDownCast<vtkUnsignedCharArray>(inPolyData->GetScalars());
 
       vtkIdType m = scalars->GetNumberOfTuples();
       vtkIdType n = pScalars->GetNumberOfTuples();
@@ -729,13 +729,13 @@ int vtkClipClosedSurface::RequestData(
         color[0] = color[1] = color[2] = 0;
 
         // This is just to expand the array
-        scalars->InsertTupleValue(n+m-1, color);
+        scalars->InsertTypedTuple(n+m-1, color);
 
         // Fill in the poly scalars
         for (vtkIdType i = 0; i < n; i++)
           {
-          pScalars->GetTupleValue(i, color);
-          scalars->SetTupleValue(i+m, color);
+          pScalars->GetTypedTuple(i, color);
+          scalars->SetTypedTuple(i+m, color);
           }
         }
       }
@@ -755,7 +755,7 @@ int vtkClipClosedSurface::RequestData(
     }
   else if (this->ScalarMode == VTK_CCS_SCALAR_MODE_LABELS)
     {
-    // Don't use UNSIGNED_CHAR or they will look like color scalars
+    // Don't use VTK_UNSIGNED_CHAR or they will look like color scalars
     vtkSignedCharArray *categories = vtkSignedCharArray::New();
     categories->DeepCopy(scalars);
     categories->SetName("Labels");
@@ -1188,7 +1188,7 @@ void vtkClipClosedSurface::BreakPolylines(
     {
     if (inputScalars)
       {
-      inputScalars->GetTupleValue(firstLineScalar + cellId++, cellColor);
+      inputScalars->GetTypedTuple(firstLineScalar + cellId++, cellColor);
       }
 
     for (vtkIdType i = 1; i < npts; i++)
@@ -1199,7 +1199,7 @@ void vtkClipClosedSurface::BreakPolylines(
 
       if (scalars)
         {
-        scalars->InsertNextTupleValue(cellColor);
+        scalars->InsertNextTypedTuple(cellColor);
         }
       }
     }
@@ -1232,15 +1232,15 @@ void vtkClipClosedSurface::CopyPolygons(
       {
       for (vtkIdType i = 0; i < n; i++)
         {
-        inputScalars->GetTupleValue(i + firstPolyScalar, scalarValue);
-        polyScalars->SetTupleValue(i, scalarValue);
+        inputScalars->GetTypedTuple(i + firstPolyScalar, scalarValue);
+        polyScalars->SetTypedTuple(i, scalarValue);
         }
       }
     else
       {
       for (vtkIdType i = 0; i < n; i++)
         {
-        polyScalars->SetTupleValue(i, scalarValue);
+        polyScalars->SetTypedTuple(i, scalarValue);
         }
       }
     }
@@ -1278,7 +1278,7 @@ void vtkClipClosedSurface::BreakTriangleStrips(
       if (inputScalars)
         {
         // If there are input scalars, use them instead of "color"
-        inputScalars->GetTupleValue(cellId, scalarValue);
+        inputScalars->GetTypedTuple(cellId, scalarValue);
         }
 
       vtkIdType n = npts - 3;
@@ -1286,11 +1286,11 @@ void vtkClipClosedSurface::BreakTriangleStrips(
       if (n >= 0)
         {
         // First insert is just to allocate space
-        polyScalars->InsertTupleValue(m+n, scalarValue);
+        polyScalars->InsertTypedTuple(m+n, scalarValue);
 
         for (vtkIdType i = 0; i < n; i++)
           {
-          polyScalars->SetTupleValue(m+i, scalarValue);
+          polyScalars->SetTypedTuple(m+i, scalarValue);
           }
         }
       }

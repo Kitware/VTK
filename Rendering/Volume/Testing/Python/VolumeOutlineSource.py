@@ -47,7 +47,7 @@ while i < 2:
     while j < 4:
         idx = str(i) + "_" + str(j)
 
-        exec("volumeMapper_" + idx + " = vtk.vtkVolumeTextureMapper2D()")
+        exec("volumeMapper_" + idx + " = vtk.vtkFixedPointVolumeRayCastMapper()")
         eval("volumeMapper_" + idx).SetInputConnection(reader.GetOutputPort())
         eval("volumeMapper_" + idx).CroppingOn()
         eval("volumeMapper_" + idx).SetCroppingRegionPlanes(

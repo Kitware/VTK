@@ -2454,4 +2454,3 @@ bool MetaCommand::SetOptionValue(const char* optionName,
 #if (METAIO_USE_NAMESPACE)
 };
 #endif
-

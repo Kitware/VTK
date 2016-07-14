@@ -42,6 +42,7 @@ struct vtkOpenGLBufferObject::Private
   Private()
     {
     this->Handle = 0;
+    this->Type = GL_ARRAY_BUFFER;
     }
   GLenum Type;
   GLuint Handle;

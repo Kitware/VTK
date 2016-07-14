@@ -47,7 +47,7 @@
 #include "vtkActor.h"
 #include "vtkProperty.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "vtkOpenGLError.h"
 
@@ -316,7 +316,8 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
     id->SetExtent(0,xsize-1,0,ysize-1,0,0);
     vtkUnsignedCharArray *uca = vtkUnsignedCharArray::New();
     uca->SetNumberOfComponents(bytesPerPixel);
-    uca->SetArray(data,xsize*ysize*bytesPerPixel,reuseData);
+    uca->SetArray(data,xsize*ysize*bytesPerPixel,reuseData,
+                  vtkAbstractArray::VTK_DATA_ARRAY_DELETE);
     id->GetPointData()->SetScalars(uca);
     uca->Delete();
 
@@ -398,6 +399,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     tris->InsertCellPoint(0);
     tris->InsertCellPoint(2);
     tris->InsertCellPoint(3);
+    tris->Modified();
 
     polyPoints->SetNumberOfPoints(4);
     if (textured)
@@ -452,12 +454,14 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
         tris->InsertCellPoint((i % 2 == 0) ? ncoords - 1 - i/2 : i/2);
         }
       }
+    tris->Modified();
     }
 
   if (textured)
     {
     actor->GetTexture()->Render(ren);
     }
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
   if (textured)
     {
@@ -584,6 +588,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       }
     }
 
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
 
   vtkOpenGLCheckErrorMacro("failed after RenderBackground");
@@ -694,10 +699,10 @@ void vtkOpenGLImageSliceMapper::Render(vtkRenderer *ren, vtkImageSlice *prop)
   //  glDisable(GL_COLOR_MATERIAL);
 
   // do an offset to avoid depth buffer issues
-  this->PolyDataActor->GetMapper()->
-    SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
-  this->PolyDataActor->GetMapper()->
-    SetResolveCoincidentTopologyPolygonOffsetParameters(1.0,100);
+  // this->PolyDataActor->GetMapper()->
+  //   SetResolveCoincidentTopology(VTK_RESOLVE_POLYGON_OFFSET);
+  // this->PolyDataActor->GetMapper()->
+  //   SetRelativeCoincidentTopologyPolygonOffsetParameters(1.0,100);
 
   // Add all the clipping planes  TODO: really in the mapper
   //int numClipPlanes = this->GetNumberOfClippingPlanes();

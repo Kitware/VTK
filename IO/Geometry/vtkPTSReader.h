@@ -69,6 +69,22 @@ public:
   vtkSetClampMacro(MaxNumberOfPoints,vtkIdType,1,VTK_INT_MAX);
   vtkGetMacro(MaxNumberOfPoints,vtkIdType);
 
+  // Description:
+  // Boolean value indicates whether or not to create cells
+  // for this dataset. Otherwise only points and scalars
+  // are created. Defaults to true.
+  vtkBooleanMacro(CreateCells, bool);
+  vtkSetMacro(CreateCells, bool);
+  vtkGetMacro(CreateCells, bool);
+
+  // Description:
+  // Boolean value indicates when color values are present
+  // if luminance should be read in as well
+  //  Defaults to true.
+  vtkBooleanMacro(IncludeColorAndLuminance, bool);
+  vtkSetMacro(IncludeColorAndLuminance, bool);
+  vtkGetMacro(IncludeColorAndLuminance, bool);
+
 protected:
   vtkPTSReader();
   ~vtkPTSReader();
@@ -84,10 +100,12 @@ protected:
   vtkBoundingBox ReadBBox;
   bool LimitToMaxNumberOfPoints;
   vtkIdType MaxNumberOfPoints;
+  bool CreateCells;
+  bool IncludeColorAndLuminance;
 
 private:
-  vtkPTSReader(const vtkPTSReader&);  // Not implemented.
-  void operator=(const vtkPTSReader&);  // Not implemented.
+  vtkPTSReader(const vtkPTSReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPTSReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

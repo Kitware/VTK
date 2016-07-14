@@ -227,9 +227,7 @@ public:
   vtkDoubleArray *GetTimeValues();
   int MakeMetaDataAtTimeStep(const bool);
 
-  //BTX
   friend class vtkOpenFOAMReaderPrivate;
-  //ETX
 
 protected:
   // refresh flag
@@ -305,8 +303,8 @@ protected:
 private:
   vtkOpenFOAMReader *Parent;
 
-  vtkOpenFOAMReader(const vtkOpenFOAMReader&);  // Not implemented.
-  void operator=(const vtkOpenFOAMReader&);  // Not implemented.
+  vtkOpenFOAMReader(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenFOAMReader&) VTK_DELETE_FUNCTION;
 
   int GetNumberOfSelectionArrays(vtkDataArraySelection *);
   int GetSelectionArrayStatus(vtkDataArraySelection *, const char *);

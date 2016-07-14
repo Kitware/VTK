@@ -84,7 +84,7 @@ namespace
         {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
         }
-      array->SetTupleValue(i, &tupleValues[0]);
+      array->SetTypedTuple(i, &tupleValues[0]);
       }
     array->SetName(arrayName);
     grid->GetCellData()->AddArray(array);
@@ -107,7 +107,7 @@ namespace
         {// +offset makes the curl/vorticity nonzero
         tupleValues[j] = point[(j+offset)%3];
         }
-      array->SetTupleValue(i, &tupleValues[0]);
+      array->SetTypedTuple(i, &tupleValues[0]);
       }
     array->SetName(arrayName);
     grid->GetPointData()->AddArray(array);
@@ -185,7 +185,7 @@ namespace
 
 //-----------------------------------------------------------------------------
 // we assume that the gradients are correct and so we can compute the "real"
-// vorticity from it
+// Q criterion from it
   int IsQCriterionCorrect(vtkDoubleArray* gradients, vtkDoubleArray* qCriterion)
   {
     if(gradients->GetNumberOfComponents() != 9 ||
@@ -221,6 +221,34 @@ namespace
   }
 
 //-----------------------------------------------------------------------------
+// we assume that the gradients are correct and so we can compute the "real"
+// divergence from it
+  int IsDivergenceCorrect(vtkDoubleArray* gradients, vtkDoubleArray* divergence)
+  {
+    if(gradients->GetNumberOfComponents() != 9 ||
+       divergence->GetNumberOfComponents() != 1)
+      {
+      vtkGenericWarningMacro("Bad number of components.");
+      return 0;
+      }
+    for(vtkIdType i=0;i<gradients->GetNumberOfTuples();i++)
+      {
+      double* g = gradients->GetTuple(i);
+      double div = divergence->GetValue(i);
+      double gValue = g[0]+g[4]+g[8];
+
+      if(!ArePointsWithinTolerance(div, gValue))
+        {
+        vtkGenericWarningMacro("Bad divergence value " << div << " " <<
+                               gValue << " difference is " << (div-gValue));
+        return 0;
+        }
+      }
+
+    return 1;
+  }
+
+//-----------------------------------------------------------------------------
   int PerformTest(vtkDataSet* grid)
   {
     // Cleaning out the existing field data so that I can replace it with
@@ -229,7 +257,7 @@ namespace
     grid->GetCellData()->Initialize();
     const char fieldName[] = "LinearField";
     int offset = 1;
-    int numberOfComponents = 3;
+    const int numberOfComponents = 3;
     CreateCellData(grid, numberOfComponents, offset, fieldName);
     CreatePointData(grid, numberOfComponents, offset, fieldName);
 
@@ -249,7 +277,7 @@ namespace
     cellGradients->Update();
     pointGradients->Update();
 
-    vtkDoubleArray* gradCellArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradCellArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         cellGradients->GetOutput())->GetCellData()->GetArray(resultName));
 
@@ -263,7 +291,7 @@ namespace
         }
       }
 
-    vtkDoubleArray* gradPointArray = vtkDoubleArray::SafeDownCast(
+    vtkDoubleArray* gradPointArray = vtkArrayDownCast<vtkDoubleArray>(
       vtkDataSet::SafeDownCast(
         pointGradients->GetOutput())->GetPointData()->GetArray(resultName));
 
@@ -272,52 +300,58 @@ namespace
       return EXIT_FAILURE;
       }
 
-    if(numberOfComponents == 3)
+    // now check on the vorticity calculations
+    VTK_CREATE(vtkGradientFilter, cellVorticity);
+    cellVorticity->SetInputData(grid);
+    cellVorticity->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
+    cellVorticity->SetResultArrayName(resultName);
+    cellVorticity->SetComputeVorticity(1);
+    cellVorticity->Update();
+
+    VTK_CREATE(vtkGradientFilter, pointVorticity);
+    pointVorticity->SetInputData(grid);
+    pointVorticity->SetInputScalars(
+      vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
+    pointVorticity->SetResultArrayName(resultName);
+    pointVorticity->SetComputeVorticity(1);
+    pointVorticity->SetComputeQCriterion(1);
+    pointVorticity->SetComputeDivergence(1);
+    pointVorticity->Update();
+
+    // cell stuff
+    vtkDoubleArray* vorticityCellArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
+
+    if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
       {
-      // now check on the vorticity calculations
-      VTK_CREATE(vtkGradientFilter, cellVorticity);
-      cellVorticity->SetInputData(grid);
-      cellVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_CELLS, fieldName);
-      cellVorticity->SetResultArrayName(resultName);
-      cellVorticity->SetComputeVorticity(1);
-      cellVorticity->Update();
+      return EXIT_FAILURE;
+      }
 
-      VTK_CREATE(vtkGradientFilter, pointVorticity);
-      pointVorticity->SetInputData(grid);
-      pointVorticity->SetInputScalars(
-        vtkDataObject::FIELD_ASSOCIATION_POINTS, fieldName);
-      pointVorticity->SetResultArrayName(resultName);
-      pointVorticity->SetComputeVorticity(1);
-      pointVorticity->SetComputeQCriterion(1);
-      pointVorticity->Update();
+    // point stuff
+    vtkDoubleArray* vorticityPointArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
 
-      // cell stuff
-      vtkDoubleArray* vorticityCellArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          cellVorticity->GetOutput())->GetCellData()->GetArray("Vorticity"));
+    if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
+      {
+      return EXIT_FAILURE;
+      }
+    vtkDoubleArray* divergencePointArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        pointVorticity->GetOutput())->GetPointData()->GetArray("Divergence"));
 
-      if(!IsVorticityCorrect(gradCellArray, vorticityCellArray))
-        {
-        return EXIT_FAILURE;
-        }
-
-      // point stuff
-      vtkDoubleArray* vorticityPointArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray("Vorticity"));
-
-      if(!IsVorticityCorrect(gradPointArray, vorticityPointArray))
-        {
-        return EXIT_FAILURE;
-        }
-      vtkDoubleArray* qCriterionPointArray = vtkDoubleArray::SafeDownCast(
-        vtkDataSet::SafeDownCast(
-          pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
-      if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
-        {
-        return EXIT_FAILURE;
-        }
+    if(!IsDivergenceCorrect(gradPointArray, divergencePointArray))
+      {
+      return EXIT_FAILURE;
+      }
+    vtkDoubleArray* qCriterionPointArray = vtkArrayDownCast<vtkDoubleArray>(
+      vtkDataSet::SafeDownCast(
+        pointVorticity->GetOutput())->GetPointData()->GetArray("Q-criterion"));
+    if(!IsQCriterionCorrect(gradPointArray, qCriterionPointArray))
+      {
+      return EXIT_FAILURE;
       }
 
     return EXIT_SUCCESS;

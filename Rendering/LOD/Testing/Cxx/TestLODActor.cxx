@@ -394,7 +394,7 @@ int TestLODActor( int argc, char* argv[])
   cam1->Azimuth(-90);
   ren1->ResetCameraClippingRange();
   iren->Initialize();
-  iren->SetDesiredUpdateRate(5000);
+  iren->SetDesiredUpdateRate(500);
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

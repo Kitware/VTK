@@ -59,11 +59,9 @@ public:
   vtkSetMacro(FileDimensionality, int);
   vtkGetMacro(FileDimensionality, int);
 
-//BTX
   // Description:
   // Set/Get the input object from the image pipeline.
   vtkImageData *GetInput();
-//ETX
 
   // Description:
   // The main interface which triggers the writer to start.
@@ -108,8 +106,8 @@ protected:
   int FilesDeleted;
 
 private:
-  vtkImageWriter(const vtkImageWriter&);  // Not implemented.
-  void operator=(const vtkImageWriter&);  // Not implemented.
+  vtkImageWriter(const vtkImageWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

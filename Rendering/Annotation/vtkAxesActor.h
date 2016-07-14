@@ -226,7 +226,6 @@ public:
   vtkGetMacro(AxisLabels, int);
   vtkBooleanMacro(AxisLabels, int);
 
-//BTX
   enum
   {
     CYLINDER_SHAFT,
@@ -240,7 +239,6 @@ public:
     SPHERE_TIP,
     USER_DEFINED_TIP
   };
-//ETX
 
 protected:
   vtkAxesActor();
@@ -292,8 +290,8 @@ protected:
   double             CylinderRadius;
 
 private:
-  vtkAxesActor(const vtkAxesActor&);  // Not implemented.
-  void operator=(const vtkAxesActor&);  // Not implemented.
+  vtkAxesActor(const vtkAxesActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAxesActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

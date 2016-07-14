@@ -4322,11 +4322,11 @@ double AreaSimplificationMetric::ComputeMetric(vtkDataSet *mesh,
 
 int DisplayReebGraph(vtkReebGraph *g)
 {
-  vtkDataArray *vertexInfo = vtkDataArray::SafeDownCast(
+  vtkDataArray *vertexInfo = vtkArrayDownCast<vtkDataArray>(
     g->GetVertexData()->GetAbstractArray("Vertex Ids"));
   if(!vertexInfo) return 1;
 
-  vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+  vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
     g->GetEdgeData()->GetAbstractArray("Vertex Ids"));
   if(!edgeInfo) return 2;
 
@@ -4399,17 +4399,17 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
     {
-    vtkDoubleArray *arc = vtkDoubleArray::SafeDownCast(skeleton->GetColumn(i));
+    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
-    arc->GetTupleValue(0, point);
+    arc->GetTypedTuple(0, point);
     nodeActors[2*i] = vtkActor::New();
     nodeActors[2*i]->SetMapper(sphereMapper);
     nodeActors[2*i]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2*i]->SetPosition(point);
     renderer->AddActor(nodeActors[2*i]);
 
-    arc->GetTupleValue(arc->GetNumberOfTuples() - 1, point);
+    arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
     nodeActors[2*i + 1] = vtkActor::New();
     nodeActors[2*i + 1]->SetMapper(sphereMapper);
     nodeActors[2*i + 1]->GetProperty()->SetColor(0, 0, 1);
@@ -4420,7 +4420,7 @@ int DisplaySurfaceSkeleton(vtkPolyData *surfaceMesh, vtkTable *skeleton)
     int initialSampleId = sampleId;
     for(int j = 0; j < arc->GetNumberOfTuples(); j++)
       {
-      arc->GetTupleValue(j, point);
+      arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
       }
@@ -4522,17 +4522,17 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
 
   for(int i = 0; i < skeleton->GetNumberOfColumns(); i++)
     {
-    vtkDoubleArray *arc = vtkDoubleArray::SafeDownCast(skeleton->GetColumn(i));
+    vtkDoubleArray *arc = vtkArrayDownCast<vtkDoubleArray>(skeleton->GetColumn(i));
 
     // critical point at the origin of the arc
-    arc->GetTupleValue(0, point);
+    arc->GetTypedTuple(0, point);
     nodeActors[2*i] = vtkActor::New();
     nodeActors[2*i]->SetMapper(sphereMapper);
     nodeActors[2*i]->GetProperty()->SetColor(0, 0, 1);
     nodeActors[2*i]->SetPosition(point);
     renderer->AddActor(nodeActors[2*i]);
 
-    arc->GetTupleValue(arc->GetNumberOfTuples() - 1, point);
+    arc->GetTypedTuple(arc->GetNumberOfTuples() - 1, point);
     nodeActors[2*i + 1] = vtkActor::New();
     nodeActors[2*i + 1]->SetMapper(sphereMapper);
     nodeActors[2*i + 1]->GetProperty()->SetColor(0, 0, 1);
@@ -4543,7 +4543,7 @@ int DisplayVolumeSkeleton(vtkUnstructuredGrid* vtkNotUsed(volumeMesh), vtkTable 
     int initialSampleId = sampleId;
     for(int j = 0; j < arc->GetNumberOfTuples(); j++)
       {
-      arc->GetTupleValue(j, point);
+      arc->GetTypedTuple(j, point);
       skeletonSamples->SetPoint(sampleId, point);
       sampleId++;
       }

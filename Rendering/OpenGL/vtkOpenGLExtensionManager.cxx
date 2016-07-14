@@ -27,7 +27,7 @@
 #include "vtkRenderWindow.h"
 #include "vtkObjectFactory.h"
 
-#include <string.h>
+#include <cstring>
 #include <string>
 #include <cassert>
 #include <sstream>
@@ -870,7 +870,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     extensions_string += glu_extensions;
     }
 
-#if defined(WIN32)
+#if defined(_WIN32)
   // Don't use this->LoadExtension or we will go into an infinite loop.
   vtkgl::LoadExtension("WGL_ARB_extensions_string", this);
   if (vtkwgl::GetExtensionsStringARB)

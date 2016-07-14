@@ -28,13 +28,16 @@
 #ifndef vtkTypeTemplate_h
 #define vtkTypeTemplate_h
 
-#include "vtkObjectBase.h"
+#include "vtkObject.h"
 #include <string>
 #include <typeinfo>
 
+// This class is legacy. See vtkTemplateTypeMacro in vtkSetGet.h for the
+// replacement.
+#ifndef VTK_LEGACY_REMOVE
+
 template<class ThisT, class BaseT>
-class vtkTypeTemplate :
-  public BaseT
+class vtkTypeTemplate : public BaseT
 {
 public:
   typedef BaseT Superclass;
@@ -64,7 +67,7 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  static int IsTypeOf(const char* type)
+  static vtkTypeBool IsTypeOf(const char* type)
   {
     if (strcmp(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName(),
                type) == 0)
@@ -77,17 +80,20 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  virtual int IsA(const char *type)
+  virtual vtkTypeBool IsA(const char *type)
   {
     return this->IsTypeOf(type);
   }
 
-  vtkTypeTemplate() {}
+  vtkTypeTemplate()
+  {
+    VTK_LEGACY_REPLACED_BODY(vtkTypeTemplate, "VTK 7.1",
+                             vtkTemplateTypeMacro (vtkSetGet.h));
+  }
 
 private:
-  // not implemented:
-  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&);
-  void operator=(const vtkTypeTemplate<ThisT, BaseT>&);
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
 
   static const char* GetClassNameInternalCachedName()
   {
@@ -101,6 +107,7 @@ private:
   }
 };
 
-#endif
+#endif // VTK_LEGACY_REMOVE
+#endif // header guard
 
 // VTK-HeaderTest-Exclude: vtkTypeTemplate.h

@@ -89,7 +89,6 @@ protected:
                        vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 2 ); }
 
-//BTX
   // Description:
   // Calculate p-value. This will be overridden using the object factory with an
   // R implementation if R is present.
@@ -101,11 +100,10 @@ protected:
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-//ETX
 
 private:
-  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&); // Not implemented
-  void operator=(const vtkCorrelativeStatistics&);   // Not implemented
+  vtkCorrelativeStatistics(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCorrelativeStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

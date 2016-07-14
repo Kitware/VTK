@@ -93,20 +93,18 @@ public:
   // Traverse cells and determine if cells are all of the same type.
   virtual int IsHomogeneous() = 0;
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkUnstructuredGridBase* GetData(vtkInformation* info);
   static vtkUnstructuredGridBase* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkUnstructuredGridBase();
   ~vtkUnstructuredGridBase();
 
 private:
-  vtkUnstructuredGridBase(const vtkUnstructuredGridBase&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridBase&);  // Not implemented.
+  vtkUnstructuredGridBase(const vtkUnstructuredGridBase&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBase&) VTK_DELETE_FUNCTION;
 };
 
 #endif

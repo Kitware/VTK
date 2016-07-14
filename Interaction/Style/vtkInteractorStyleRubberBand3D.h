@@ -22,9 +22,9 @@
 // .SECTION Description
 // vtkInteractorStyleRubberBand3D manages interaction in a 3D view.
 // The style also allows draws a rubber band using the left button.
-// All camera changes invoke InteractionBeginEvent when the button
+// All camera changes invoke StartInteractionEvent when the button
 // is pressed, InteractionEvent when the mouse (or wheel) is moved,
-// and InteractionEndEvent when the button is released.  The bindings
+// and EndInteractionEvent when the button is released.  The bindings
 // are as follows:
 // Left mouse - Select (invokes a SelectionChangedEvent).
 // Right mouse - Rotate.
@@ -63,7 +63,6 @@ public:
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
 
-  //BTX
   // Description:
   // Selection types
   enum
@@ -71,13 +70,11 @@ public:
     SELECT_NORMAL = 0,
     SELECT_UNION = 1
     };
-  //ETX
 
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
 
-  //BTX
   enum
     {
     NONE,
@@ -86,7 +83,6 @@ public:
     ROTATING,
     SELECTING
     };
-  //ETX
 
   // Description:
   // Access to the start and end positions (display coordinates) of the rubber
@@ -118,8 +114,8 @@ protected:
   bool RenderOnMouseMove;
 
 private:
-  vtkInteractorStyleRubberBand3D(const vtkInteractorStyleRubberBand3D&); //Not implemented
-  void operator=(const vtkInteractorStyleRubberBand3D&); // Not implemented
+  vtkInteractorStyleRubberBand3D(const vtkInteractorStyleRubberBand3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleRubberBand3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

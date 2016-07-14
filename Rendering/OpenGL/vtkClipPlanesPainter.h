@@ -47,8 +47,8 @@ protected:
   void SetClippingPlanes(vtkPlaneCollection*);
   vtkPlaneCollection* ClippingPlanes;
 private:
-  vtkClipPlanesPainter(const vtkClipPlanesPainter&); // Not implemented.
-  void operator=(const vtkClipPlanesPainter&); // Not implemented.
+  vtkClipPlanesPainter(const vtkClipPlanesPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClipPlanesPainter&) VTK_DELETE_FUNCTION;
 
 };
 

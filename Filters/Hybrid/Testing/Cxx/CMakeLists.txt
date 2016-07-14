@@ -1,6 +1,8 @@
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TemporalStatistics.cxx
   TestBSplineTransform.cxx
+  TestDepthSortPolyData.cxx
+  TestForceTime.cxx
   TestPolyDataSilhouette.cxx
   TestProcrustesAlignmentFilter.cxx,NO_VALID
   TestTemporalCacheSimple.cxx,NO_VALID

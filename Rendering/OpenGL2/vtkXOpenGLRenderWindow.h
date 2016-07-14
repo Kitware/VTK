@@ -112,10 +112,6 @@ public:
   const char *ReportCapabilities();
 
   // Description:
-  // Does this render window support OpenGL? 0-false, 1-true
-  int SupportsOpenGL();
-
-  // Description:
   // Is this render window using hardware acceleration? 0-false, 1-true
   int IsDirect();
 
@@ -207,7 +203,7 @@ public:
   virtual void SetCurrentCursor(int);
 
   // Description:
-  // Check to see if a mouse button has been pressed.
+  // Check to see if a mouse button has been pressed or mouse wheel activated.
   // All other events are ignored by this method.
   // This is a useful check to abort a long render.
   virtual  int GetEventPending();
@@ -270,11 +266,12 @@ protected:
   void CreateOffScreenWindow(int width, int height);
   void DestroyOffScreenWindow();
   void ResizeOffScreenWindow(int width, int height);
+  void CloseDisplay();
 
 
 private:
-  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkXOpenGLRenderWindow&);  // Not implemented.
+  vtkXOpenGLRenderWindow(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 

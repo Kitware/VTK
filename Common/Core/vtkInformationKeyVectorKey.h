@@ -48,7 +48,7 @@ public:
   // information object.
   void Append(vtkInformation* info, vtkInformationKey* value);
   void AppendUnique(vtkInformation* info, vtkInformationKey* value);
-  void Set(vtkInformation* info, vtkInformationKey** value, int length);
+  void Set(vtkInformation* info, vtkInformationKey*const * value, int length);
   void RemoveItem(vtkInformation* info, vtkInformationKey* value);
   vtkInformationKey** Get(vtkInformation* info);
   vtkInformationKey*  Get(vtkInformation* info, int idx);
@@ -66,8 +66,8 @@ public:
   virtual void Print(ostream& os, vtkInformation* info);
 
 private:
-  vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationKeyVectorKey&);  // Not implemented.
+  vtkInformationKeyVectorKey(const vtkInformationKeyVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationKeyVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

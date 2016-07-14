@@ -129,8 +129,8 @@ protected:
   int ActiveHandle;
 
 private:
-  vtkSeedRepresentation(const vtkSeedRepresentation&);  //Not implemented
-  void operator=(const vtkSeedRepresentation&);  //Not implemented
+  vtkSeedRepresentation(const vtkSeedRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSeedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

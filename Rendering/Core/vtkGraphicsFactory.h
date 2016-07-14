@@ -32,6 +32,7 @@ public:
   // Create and return an instance of the named vtk object.
   // This method first checks the vtkObjectFactory to support
   // dynamic loading.
+  VTK_NEWINSTANCE
   static vtkObject* CreateInstance(const char* vtkclassname);
 
   // Description:
@@ -57,8 +58,8 @@ protected:
   static int OffScreenOnlyMode;
 
 private:
-  vtkGraphicsFactory(const vtkGraphicsFactory&);  // Not implemented.
-  void operator=(const vtkGraphicsFactory&);  // Not implemented.
+  vtkGraphicsFactory(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphicsFactory&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -34,7 +34,7 @@
 //
 // .SECTION See Also
 //  vtkLocator, vtkIncrementalOctreePointLocator, vtkPointLocator,
-//  vtkMergePoints
+//  vtkMergePoints vtkStaticPointLocator
 
 #ifndef vtkIncrementalPointLocator_h
 #define vtkIncrementalPointLocator_h
@@ -126,8 +126,8 @@ protected:
   virtual ~vtkIncrementalPointLocator();
 
 private:
-  vtkIncrementalPointLocator( const vtkIncrementalPointLocator & );  // Not implemented.
-  void operator = ( const vtkIncrementalPointLocator & );            // Not implemented.
+  vtkIncrementalPointLocator( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -11,6 +11,7 @@ def load_geojson(input_string, feature_properties={}):
   to attach as cell data in the returned vtkPolyData.
   '''
   reader = vtk.vtkGeoJSONReader()
+  #reader.DebugOn()
   reader.StringInputModeOn()
   reader.SetStringInput(input_string)
   for name,default_value in feature_properties.items():
@@ -70,7 +71,7 @@ if __name__ == '__main__'  :
 
   # Check cell counts
   expected_verts = 1
-  expected_lines = 3
+  expected_lines = 1
   expected_polys = 1
 
   num_verts = polydata.GetNumberOfVerts()
@@ -84,12 +85,28 @@ if __name__ == '__main__'  :
     print('Wrong number of lines: returned %s, should be %s' % \
       (num_lines, expected_lines))
     num_errors += 1
+  else:
+    # Check number of points in the (first) polyline
+    id_list = vtk.vtkIdList()
+    polydata.GetLines().GetCell(0, id_list)
+    if id_list.GetNumberOfIds() != 4:
+      print('Wrong number of points in line 0: returned %s, should be %s' % \
+            (id_list.GetNumberOfIds(), 4))
+      num_errors += 1
 
   num_polys = polydata.GetNumberOfPolys()
   if num_polys != expected_polys:
     print('Wrong number of polys: returned %s, should be %s' % \
       (num_polys, expected_polys))
     num_errors += 1
+  else:
+    # Check number of points in the (first) polygon
+    id_list = vtk.vtkIdList()
+    polydata.GetPolys().GetCell(0, id_list)
+    if id_list.GetNumberOfIds() != 4:
+      print('Wrong number of points in poly 0: returned %s, should be %s' % \
+            (id_list.GetNumberOfIds(), 4))
+      num_errors += 1
 
   # Check cell data
   cell_data = polydata.GetCellData()

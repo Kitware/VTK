@@ -23,8 +23,7 @@ See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 #include <vtkRenderWindowInteractor.h>
 #include <vtkVolume16Reader.h>
 #include <vtkVolume.h>
-#include <vtkVolumeRayCastMapper.h>
-#include <vtkVolumeRayCastCompositeFunction.h>
+#include <vtkFixedPointVolumeRayCastMapper.h>
 #include <vtkVolumeProperty.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkPiecewiseFunction.h>
@@ -65,15 +64,10 @@ int main (int argc, char *argv[])
   v16->SetDataSpacing(3.2, 3.2, 1.5);
 
   // The volume will be displayed by ray-cast alpha compositing.
-  // A ray-cast mapper is needed to do the ray-casting, and a
-  // compositing function is needed to do the compositing along the ray.
-  vtkSmartPointer<vtkVolumeRayCastCompositeFunction> rayCastFunction =
-    vtkSmartPointer<vtkVolumeRayCastCompositeFunction>::New();
-
-  vtkSmartPointer<vtkVolumeRayCastMapper> volumeMapper =
-    vtkSmartPointer<vtkVolumeRayCastMapper>::New();
+  // A ray-cast mapper is needed to do the ray-casting.
+  vtkSmartPointer<vtkFixedPointVolumeRayCastMapper> volumeMapper =
+    vtkSmartPointer<vtkFixedPointVolumeRayCastMapper>::New();
   volumeMapper->SetInputConnection(v16->GetOutputPort());
-  volumeMapper->SetVolumeRayCastFunction(rayCastFunction);
 
   // The color transfer function maps voxel intensities to colors.
   // It is modality-specific, and often anatomy-specific as well.

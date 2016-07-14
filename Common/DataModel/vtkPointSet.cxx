@@ -266,7 +266,7 @@ vtkIdType vtkPointSet::FindCell(double x[3], vtkCell *cell,
     this->Locator->BuildLocator();
     }
 
-  if ( this->Points->GetMTime() > this->Locator->GetMTime() )
+  if ( this->Points->GetMTime() > this->Locator->GetBuildTime() )
     {
     this->Locator->SetDataSet(this);
     this->Locator->BuildLocator();

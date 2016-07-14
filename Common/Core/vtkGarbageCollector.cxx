@@ -166,7 +166,7 @@ public:
   int TakeReference(vtkObjectBase* obj);
 
   // Called by GiveReference to decide whether to accept a reference.
-  int CheckAccept();
+  vtkTypeBool CheckAccept();
 
   // Push/Pop deferred collection.
   void DeferredCollectionPush();
@@ -386,8 +386,8 @@ public:
   void FlushEntryReferences(Entry* e);
 
 private:
-  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&);  // Not implemented.
-  void operator=(const vtkGarbageCollectorImpl&);  // Not implemented.
+  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
 }
 
 //----------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::CheckAccept()
+vtkTypeBool vtkGarbageCollectorSingleton::CheckAccept()
 {
   // Accept the reference only if deferred collection is enabled.  It
   // is tempting to put a check against TotalNumberOfReferences here

@@ -32,9 +32,8 @@
 class vtkCompositeDataSet;
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
-//BTX
+
 struct vtkXMLCompositeDataReaderInternals;
-//ETX
 
 class VTKIOXML_EXPORT vtkXMLCompositeDataReader : public vtkXMLReader
 {
@@ -99,8 +98,8 @@ protected:
   int ShouldReadDataSet(unsigned int datasetIndex);
 
 private:
-  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataReader&);  // Not implemented.
+  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };

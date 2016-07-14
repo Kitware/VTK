@@ -80,7 +80,7 @@ clippingPlanes.AddItem(plane5)
 clippingPlanes.AddItem(plane6)
 
 # Cropping planes are in data coords
-volumeMapper1 = vtk.vtkVolumeTextureMapper2D()
+volumeMapper1 = vtk.vtkFixedPointVolumeRayCastMapper()
 volumeMapper1.SetInputConnection(reader.GetOutputPort())
 volumeMapper1.CroppingOn()
 volumeMapper1.SetCroppingRegionPlanes(16, 33, 16, 33, 16, 33)

@@ -144,18 +144,15 @@ protected:
   int PixelDims[2];
   bool LockHeading;
 
-//BTX
   vtkSmartPointer<vtkGeoCamera> GeoCamera;
 
   // widget handling members
   vtkSmartPointer<vtkCompassWidget> CompassWidget;
   vtkSmartPointer<vtkCommand> EventCommand;
 
-//ETX
-
 private:
-  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
-  void operator=(const vtkGeoInteractorStyle&);  // Not implemented.
+  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -34,11 +34,6 @@ public:
   vtkTypeMacro(vtkXMLPStructuredDataWriter,vtkXMLPDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  // See the vtkAlgorithm for a description of what these do
-  virtual int ProcessRequest(vtkInformation* request,
-                             vtkInformationVector** inputVector,
-                             vtkInformationVector* outputVector);
-
 protected:
   vtkXMLPStructuredDataWriter();
   ~vtkXMLPStructuredDataWriter();
@@ -48,18 +43,14 @@ protected:
   void WritePPieceAttributes(int index);
   vtkXMLWriter* CreatePieceWriter(int index);
 
-  virtual int RequestUpdateExtent(vtkInformation* request,
-                                  vtkInformationVector** inputVector,
-                                  vtkInformationVector* outputVector);
-
   virtual int WriteInternal();
 
-  virtual int WritePieces();
+  virtual void PrepareSummaryFile();
   virtual int WritePiece(int index);
 
 private:
-  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLPStructuredDataWriter&);  // Not implemented.
+  vtkXMLPStructuredDataWriter(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPStructuredDataWriter&) VTK_DELETE_FUNCTION;
 
   typedef std::map<int, std::vector<int> > ExtentsType;
   ExtentsType Extents;

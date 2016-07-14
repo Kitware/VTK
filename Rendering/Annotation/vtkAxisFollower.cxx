@@ -28,7 +28,7 @@
 #include "vtkTexture.h"
 #include "vtkTransform.h"
 
-#include <math.h>
+#include <cmath>
 
 vtkStandardNewMacro(vtkAxisFollower);
 
@@ -73,7 +73,8 @@ vtkAxisFollower::vtkAxisFollower() : vtkFollower()
   this->EnableViewAngleLOD        = 1;
   this->ViewAngleLODThreshold     = 0.34;
 
-  this->ScreenOffset              = 10.0;
+  this->ScreenOffsetVector[0]     = 0.0;
+  this->ScreenOffsetVector[1]     = 10.0;
 
   this->Axis                      = NULL;
 
@@ -326,8 +327,10 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
                                                    double rX[3], double rY[3], double rZ[3],
                                                    vtkAxisActor *axis)
 {
-  double autoScaleFactor =
-    this->AutoScale(ren, this->Camera, this->ScreenOffset, this->Position);
+  double autoScaleHoriz =
+    this->AutoScale(ren, this->Camera, this->ScreenOffsetVector[0], this->Position);
+  double autoScaleVert =
+    this->AutoScale(ren, this->Camera, this->ScreenOffsetVector[1], this->Position);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
@@ -337,11 +340,8 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
 
   double dotVal = vtkMath::Dot(rZ, dop);
 
-  double origRy[3] = {0.0, 0.0, 0.0};
-
-  origRy[0] = rY[0];
-  origRy[1] = rY[1];
-  origRy[2] = rY[2];
+  double origRx[3] = {rX[0], rX[1], rX[2]};
+  double origRy[3] = {rY[0], rY[1], rY[2]};
 
   // NOTE: Basically the idea here is that dotVal will be positive
   // only when we have projection direction aligned with our z directon
@@ -363,26 +363,23 @@ void vtkAxisFollower::ComputeRotationAndTranlation(vtkRenderer *ren, double tran
   // we compare our vertical vector with these vectors and if it aligns then we
   // translate in opposite direction.
   int axisPosition = this->Axis->GetAxisPosition();
+  int vertSign;
+  double vertDotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
+  double vertDotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
 
-  double dotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
-  double dotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
-
-  if(fabs(dotVal1) > fabs(dotVal2))
+  if(fabs(vertDotVal1) > fabs(vertDotVal2))
     {
-    int sign = (dotVal1 > 0 ? -1 : 1);
-
-    translation[0] =  origRy[0] * autoScaleFactor * sign;
-    translation[1] =  origRy[1] * autoScaleFactor * sign;
-    translation[2] =  origRy[2] * autoScaleFactor * sign;
+    vertSign = (vertDotVal1 > 0 ? -1 : 1);
     }
   else
     {
-    int sign = (dotVal2 > 0 ? -1 : 1);
-
-    translation[0] =  origRy[0] * autoScaleFactor * sign;
-    translation[1] =  origRy[1] * autoScaleFactor * sign;
-    translation[2] =  origRy[2] * autoScaleFactor * sign;
+    vertSign = (vertDotVal2 > 0 ? -1 : 1);
     }
+
+  int horizSign = this->TextUpsideDown ? -1 : 1;
+  translation[0] =  origRy[0] * autoScaleVert * vertSign + origRx[0] * autoScaleHoriz * horizSign;
+  translation[1] =  origRy[1] * autoScaleVert * vertSign + origRx[1] * autoScaleHoriz * horizSign;
+  translation[2] =  origRy[2] * autoScaleVert * vertSign + origRx[2] * autoScaleHoriz * horizSign;
 }
 
 //----------------------------------------------------------------------
@@ -405,15 +402,15 @@ void vtkAxisFollower::ComputerAutoCenterTranslation(
     halfWidth  = -halfWidth;
     }
 
-  if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_X)
+  if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_X)
     {
     translation[0] = translation[0] - halfWidth;
     }
-  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Y)
+  else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Y)
     {
     translation[1] = translation[1] - halfWidth;
     }
-  else if(this->Axis->GetAxisType() == VTK_AXIS_TYPE_Z)
+  else if(this->Axis->GetAxisType() == vtkAxisActor::VTK_AXIS_TYPE_Z)
     {
     translation[2] = translation[2] - halfWidth;
     }
@@ -497,7 +494,7 @@ void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
   os << indent << "EnableViewAngleLOD: ("   << this->EnableViewAngleLOD    << ")\n";
   os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
-  os << indent << "ScreenOffset: ("<< this->ScreenOffset << ")\n";
+  os << indent << "ScreenOffsetVector: ("<< this->ScreenOffsetVector[0] << " "<< this->ScreenOffsetVector[1] << ")\n";
 
   if ( this->Axis )
     {
@@ -507,6 +504,18 @@ void vtkAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Axis: (none)\n";
     }
+}
+
+//----------------------------------------------------------------------
+void vtkAxisFollower::SetScreenOffset(double offset)
+{
+  this->SetScreenOffsetVector(1, offset);
+}
+
+//----------------------------------------------------------------------
+double vtkAxisFollower::GetScreenOffset()
+{
+  return this->GetScreenOffsetVector()[1];
 }
 
 //----------------------------------------------------------------------
@@ -602,7 +611,7 @@ void vtkAxisFollower::ShallowCopy(vtkProp *prop)
     this->SetDistanceLODThreshold(f->GetDistanceLODThreshold());
     this->SetEnableViewAngleLOD(f->GetEnableViewAngleLOD());
     this->SetViewAngleLODThreshold(f->GetViewAngleLODThreshold());
-    this->SetScreenOffset(f->GetScreenOffset());
+    this->SetScreenOffsetVector(f->GetScreenOffsetVector());
     this->SetAxis(f->GetAxis());
     }
 

@@ -83,18 +83,17 @@ public:
   // Get the component no. at the given index.
   int GetTextureUnit(unsigned int index);
 
-//BTX
 protected:
   vtkGenericVertexAttributeMapping();
   ~vtkGenericVertexAttributeMapping();
 
 private:
-  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&); // Not implemented.
-  void operator=(const vtkGenericVertexAttributeMapping&); // Not implemented.
+  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif

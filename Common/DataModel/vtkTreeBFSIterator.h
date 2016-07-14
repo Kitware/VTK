@@ -51,18 +51,16 @@ protected:
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;
 
-  //BTX
   enum ColorType
     {
     WHITE,
     GRAY,
     BLACK
     };
-  //ETX
 
 private:
-  vtkTreeBFSIterator(const vtkTreeBFSIterator &);  // Not implemented.
-  void operator=(const vtkTreeBFSIterator &);        // Not implemented.
+  vtkTreeBFSIterator(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif

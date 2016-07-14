@@ -505,6 +505,8 @@ void kwsysProcess_SetTimeout(kwsysProcess* cp, double timeout)
     {
     cp->Timeout = 0;
     }
+  // Force recomputation of TimeoutTime.
+  cp->TimeoutTime.tv_sec = -1;
 }
 
 /*--------------------------------------------------------------------------*/
@@ -1595,12 +1597,12 @@ static void kwsysProcessVolatileFree(volatile void* p)
 {
   /* clang has made it impossible to free memory that points to volatile
      without first using special pragmas to disable a warning...  */
-#if defined(__clang__)
+#if defined(__clang__) && !defined(__INTEL_COMPILER)
 # pragma clang diagnostic push
 # pragma clang diagnostic ignored "-Wcast-qual"
 #endif
   free((void*)p); /* The cast will silence most compilers, but not clang.  */
-#if defined(__clang__)
+#if defined(__clang__) && !defined(__INTEL_COMPILER)
 # pragma clang diagnostic pop
 #endif
 }
@@ -2241,7 +2243,7 @@ static kwsysProcessTime kwsysProcessTimeAdd(kwsysProcessTime in1, kwsysProcessTi
   kwsysProcessTime out;
   out.tv_sec = in1.tv_sec + in2.tv_sec;
   out.tv_usec = in1.tv_usec + in2.tv_usec;
-  if(out.tv_usec > 1000000)
+  if(out.tv_usec >= 1000000)
     {
     out.tv_usec -= 1000000;
     out.tv_sec += 1;
@@ -3055,4 +3057,15 @@ static void kwsysProcessesSignalHandler(int signum
 #endif
 
   errno = old_errno;
+}
+
+/*--------------------------------------------------------------------------*/
+void kwsysProcess_ResetStartTime(kwsysProcess* cp)
+{
+  if(!cp)
+    {
+    return;
+    }
+  /* Reset start time. */
+  cp->StartTime = kwsysProcessTimeGetCurrent();
 }

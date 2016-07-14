@@ -20,19 +20,16 @@
 #include "vtkAbstractArray.h"
 #include "vtkObjectFactory.h"
 
+//-----------------------------------------------------------------------------
 template <class T>
 vtkArrayIteratorTemplate<T>* vtkArrayIteratorTemplate<T>::New()
 {
-  vtkObject* ret = vtkObjectFactory::CreateInstance("vtkArrayIteratorTemplate");
-  if (ret)
-    {
-    return static_cast<vtkArrayIteratorTemplate<T>*> (ret);
-    }
-  return new vtkArrayIteratorTemplate<T>;
+  VTK_STANDARD_NEW_BODY(vtkArrayIteratorTemplate<T>);
 }
 
 template <class T>
 vtkCxxSetObjectMacro(vtkArrayIteratorTemplate<T>, Array, vtkAbstractArray);
+
 //-----------------------------------------------------------------------------
 template <class T>
 vtkArrayIteratorTemplate<T>::vtkArrayIteratorTemplate()

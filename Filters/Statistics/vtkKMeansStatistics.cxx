@@ -94,7 +94,7 @@ int vtkKMeansStatistics::InitializeDataAndClusterCenters(vtkTable* inParameters,
   if ( inParameters && inParameters->GetNumberOfRows() > 0 &&
        inParameters->GetNumberOfColumns() > 1 )
     {
-    vtkIdTypeArray* counts = vtkIdTypeArray::SafeDownCast( inParameters->GetColumn( 0 ) );
+    vtkIdTypeArray* counts = vtkArrayDownCast<vtkIdTypeArray>( inParameters->GetColumn( 0 ) );
     if( !counts )
       {
       vtkWarningMacro( "The first column of the input parameter table should be of vtkIdType." << endl <<
@@ -533,10 +533,10 @@ void vtkKMeansStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   if (
     ! outMeta ||
     ! ( outTable = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
-    ! ( clusterRunIDs = vtkIdTypeArray::SafeDownCast( outTable->GetColumn( 0 ) ) ) ||
-    ! ( numberOfClusters = vtkIdTypeArray::SafeDownCast( outTable->GetColumn( 1 ) ) ) ||
-    ! ( numIterations = vtkIdTypeArray::SafeDownCast( outTable->GetColumn( 2 ) ) ) ||
-    ! ( error = vtkDoubleArray::SafeDownCast( outTable->GetColumn( 3 ) ) )
+    ! ( clusterRunIDs = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 0 ) ) ) ||
+    ! ( numberOfClusters = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 1 ) ) ) ||
+    ! ( numIterations = vtkArrayDownCast<vtkIdTypeArray>( outTable->GetColumn( 2 ) ) ) ||
+    ! ( error = vtkArrayDownCast<vtkDoubleArray>( outTable->GetColumn( 3 ) ) )
     )
     {
     return;
@@ -693,7 +693,7 @@ void vtkKMeansStatistics::Assess( vtkTable* inData,
     }
 
   // Assess each entry of the column
-  vtkVariantArray* assessResult = vtkVariantArray::New();
+  vtkDoubleArray* assessResult = vtkDoubleArray::New();
   for ( vtkIdType r = 0; r < nRow; ++ r )
     {
     (*dfunc)( assessResult, r );
@@ -826,7 +826,7 @@ bool vtkKMeansAssessFunctor::Initialize( vtkTable* inData,
 }
 
 // ----------------------------------------------------------------------
-void vtkKMeansAssessFunctor::operator () ( vtkVariantArray* result, vtkIdType row )
+void vtkKMeansAssessFunctor::operator () ( vtkDoubleArray* result, vtkIdType row )
 {
 
   result->SetNumberOfValues( 2 * this->NumRuns );

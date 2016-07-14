@@ -91,12 +91,10 @@ public:
   vtkSetClampMacro(LabelFactor, double, 0.1, 2.0);
   vtkGetMacro(LabelFactor, double);
 
-//BTX
   // Enums defined to support methods for control of arrow placement and
   // and appearance of arrow heads.
   enum {VTK_ARROW_NONE=0,VTK_ARROW_POINT1,VTK_ARROW_POINT2,VTK_ARROW_BOTH};
   enum {VTK_ARROW_FILLED=0,VTK_ARROW_OPEN,VTK_ARROW_HOLLOW};
-//ETX
 
   // Description:
   // Control whether arrow heads are drawn on the leader. Arrows may be
@@ -218,8 +216,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLeaderActor2D(const vtkLeaderActor2D&);  // Not implemented.
-  void operator=(const vtkLeaderActor2D&);  // Not implemented.
+  vtkLeaderActor2D(const vtkLeaderActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLeaderActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

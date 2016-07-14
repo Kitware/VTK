@@ -70,10 +70,9 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   vtkNew<vtkShrinkFilter> shrink2;
   shrink2->SetInputConnection( axisCut2->GetOutputPort() );
   shrink2->SetShrinkFactor( .8 );
- 
+
   // Mappers
   vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
-  vtkMapper::SetResolveCoincidentTopologyPolygonOffsetParameters( 1, 1 );
   vtkNew<vtkDataSetMapper> mapper1;
   mapper1->SetInputConnection( shrink1->GetOutputPort() );
   mapper1->SetScalarRange( pd->GetCellData()->GetScalars()->GetRange() );
@@ -89,7 +88,7 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
   vtkNew<vtkPolyDataMapper> mapper5;
   mapper5->SetInputConnection( axisCut2->GetOutputPort() );
   mapper5->ScalarVisibilityOff();
- 
+
   // Actors
   vtkNew<vtkActor> actor1;
   actor1->SetMapper( mapper1.GetPointer() );
@@ -139,7 +138,7 @@ int TestHyperTreeGridTernary3DAxisCutMaterial( int argc, char* argv[] )
 
   // Render and test
   renWin->Render();
-  
+
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
     {

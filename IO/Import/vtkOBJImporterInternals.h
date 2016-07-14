@@ -81,9 +81,10 @@ public:
     TexturePath = std::string(arg);
     if(TexturePath.empty())
       return;
-    char sep    = '/';
 #if defined(_WIN32)
-    sep = '\\';
+    const char sep = '\\';
+#else
+    const char sep = '/';
 #endif
     if(TexturePath.at(TexturePath.size()-1) != sep )
       TexturePath += sep;
@@ -145,8 +146,8 @@ protected:
   int         SuccessParsingFiles;
 
 private:
-  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&);  // Not implemented.
-  void operator=(const vtkOBJPolyDataProcessor&);  // Not implemented.
+  vtkOBJPolyDataProcessor(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBJPolyDataProcessor&) VTK_DELETE_FUNCTION;
 };
 
 class vtkRenderWindow;

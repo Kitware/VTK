@@ -55,8 +55,8 @@ protected:
   int InName;
 
 private:
-  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ); // Not implemented.
-  void operator = ( const vtkLSDynaSummaryParser& ); // Not implemented.
+  vtkLSDynaSummaryParser( const vtkLSDynaSummaryParser& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLSDynaSummaryParser& ) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkLSDynaReader_h

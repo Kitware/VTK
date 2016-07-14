@@ -75,13 +75,30 @@ public:
 
 
   // Description:
-  // Performs intersection of two finite 3D lines. An intersection is found if
-  // the projection of the two lines onto the plane perpendicular to the cross
-  // product of the two lines intersect. The parameters (u,v) are the
-  // parametric coordinates of the lines at the position of closest approach.
+  // Performs intersection of the projection of two finite 3D lines onto a 2D
+  // plane. An intersection is found if the projection of the two lines onto
+  // the plane perpendicular to the cross product of the two lines intersect.
+  // The parameters (u,v) are the parametric coordinates of the lines at the
+  // position of closest approach.
   static int Intersection(double p1[3], double p2[3],
                           double x1[3], double x2[3],
                           double& u, double& v);
+
+
+  // Description:
+  // Performs intersection of two finite 3D lines. An intersection is found if
+  // the projection of the two lines onto the plane perpendicular to the cross
+  // product of the two lines intersect, and if the distance between the
+  // closest points of approach are within a relative tolerance. The parameters
+  // (u,v) are the parametric coordinates of the lines at the position of
+  // closest approach.
+  //
+  // NOTE: "Unlike Intersection(), which determines whether the projections of
+  // two lines onto a plane intersect, Intersection3D() determines whether the
+  // lines themselves in 3D space intersect, within a tolerance.
+  static int Intersection3D(double p1[3], double p2[3],
+                            double x1[3], double x2[3],
+                            double& u, double& v);
 
 
   // Description:
@@ -150,8 +167,8 @@ protected:
   ~vtkLine() {}
 
 private:
-  vtkLine(const vtkLine&);  // Not implemented.
-  void operator=(const vtkLine&);  // Not implemented.
+  vtkLine(const vtkLine&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLine&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -163,5 +180,3 @@ inline int vtkLine::GetParametricCenter(double pcoords[3])
 }
 
 #endif
-
-

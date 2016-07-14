@@ -60,6 +60,12 @@ inline char vtkVariantCast<char>(const vtkVariant& value, bool* valid)
 }
 
 template<>
+inline signed char vtkVariantCast<signed char>(const vtkVariant& value, bool* valid)
+{
+  return value.ToSignedChar(valid);
+}
+
+template<>
 inline unsigned char vtkVariantCast<unsigned char>(const vtkVariant& value, bool* valid)
 {
   return value.ToUnsignedChar(valid);
@@ -101,25 +107,6 @@ inline unsigned long vtkVariantCast<unsigned long>(const vtkVariant& value, bool
   return value.ToUnsignedLong(valid);
 }
 
-#ifdef VTK_TYPE_USE___INT64
-
-template<>
-inline __int64 vtkVariantCast<__int64>(const vtkVariant& value, bool* valid)
-{
-  return value.To__Int64(valid);
-}
-
-template<>
-inline unsigned __int64 vtkVariantCast<unsigned __int64>(const vtkVariant& value, bool* valid)
-{
-  return value.ToUnsigned__Int64(valid);
-}
-
-#endif
-
-
-#ifdef VTK_TYPE_USE_LONG_LONG
-
 template<>
 inline long long vtkVariantCast<long long>(const vtkVariant& value, bool* valid)
 {
@@ -131,8 +118,6 @@ inline unsigned long long vtkVariantCast<unsigned long long>(const vtkVariant& v
 {
   return value.ToUnsignedLongLong(valid);
 }
-
-#endif
 
 template<>
 inline float vtkVariantCast<float>(const vtkVariant& value, bool* valid)
