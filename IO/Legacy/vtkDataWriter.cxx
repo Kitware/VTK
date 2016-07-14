@@ -104,6 +104,7 @@ vtkDataWriter::vtkDataWriter()
   this->WriteToOutputString = 0;
   this->OutputString = NULL;
   this->OutputStringLength = 0;
+  this->WriteArrayMetaData = true;
 }
 
 vtkDataWriter::~vtkDataWriter()
@@ -1337,7 +1338,7 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
   bool hasComponentNames = data->HasAComponentName();
   bool hasInformation = info && info->GetNumberOfKeys() > 0;
   bool hasMetaData = hasComponentNames || hasInformation;
-  if (hasMetaData)
+  if (this->WriteArrayMetaData && hasMetaData)
     {
     *fp << "METADATA" << endl;
 

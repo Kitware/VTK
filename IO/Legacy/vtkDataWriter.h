@@ -89,6 +89,13 @@ public:
   vtkGetStringMacro(Header);
 
   // Description:
+  // If true, vtkInformation objects attached to arrays and array component
+  // nameswill be written to the output. Default is true.
+  vtkSetMacro(WriteArrayMetaData, bool)
+  vtkGetMacro(WriteArrayMetaData, bool)
+  vtkBooleanMacro(WriteArrayMetaData, bool)
+
+  // Description:
   // Specify file type (ASCII or BINARY) for vtk data file.
   vtkSetClampMacro(FileType,int,VTK_ASCII,VTK_BINARY);
   vtkGetMacro(FileType,int);
@@ -227,6 +234,8 @@ protected:
   char *FileName;
   char *Header;
   int FileType;
+
+  bool WriteArrayMetaData;
 
   char *ScalarsName;
   char *VectorsName;
