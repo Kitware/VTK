@@ -24,6 +24,7 @@
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkTransform.h"
 #include "vtkPointData.h"
+#include "vtkImagePointDataIterator.h"
 #include "vtkImageInterpolator.h"
 #include "vtkGarbageCollector.h"
 
@@ -1884,50 +1885,6 @@ void vtkImageResliceRescaleScalars(F *floatData, int components, int n,
 }
 
 //----------------------------------------------------------------------------
-// helper function for clipping of the output with a stencil
-int vtkResliceGetNextExtent(vtkImageStencilData *stencil,
-                            int &r1, int &r2, int rmin, int rmax,
-                            int yIdx, int zIdx,
-                            void *&outPtr, void *background,
-                            int numscalars,
-                            void (*setpixels)(void *&out,
-                                              const void *in,
-                                              int numscalars,
-                                              int n),
-                            int &iter)
-{
-  // trivial case if stencil is not set
-  if (!stencil)
-    {
-    if (iter++ == 0)
-      {
-      r1 = rmin;
-      r2 = rmax;
-      return 1;
-      }
-    return 0;
-    }
-
-  // for clearing, start at last r2 plus 1
-  int clear1 = r2 + 1;
-  if (iter == 0)
-    { // if no 'last time', start at rmin
-    clear1 = rmin;
-    }
-
-  int rval = stencil->GetNextExtent(r1, r2, rmin, rmax, yIdx, zIdx, iter);
-  int clear2 = r1 - 1;
-  if (rval == 0)
-    {
-    clear2 = rmax;
-    }
-
-  setpixels(outPtr, background, numscalars, clear2 - clear1 + 1);
-
-  return rval;
-}
-
-//----------------------------------------------------------------------------
 // This function simply clears the entire output to the background color,
 // for cases where the transformation places the output extent completely
 // outside of the input extent.
@@ -1936,12 +1893,6 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
                                  int outExt[6], int threadId)
 {
   void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
-
-  // for the progress meter
-  unsigned long count = 0;
-  unsigned long target = static_cast<unsigned long>
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
 
   // Get Increments to march through data
   vtkIdType outIncX, outIncY, outIncZ;
@@ -1958,26 +1909,12 @@ void vtkImageResliceClearExecute(vtkImageReslice *self,
   vtkGetSetPixelsFunc(&setpixels,
     scalarType, scalarSize, numscalars, outPtr);
 
-  // Loop through output voxels
-  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  vtkImagePointDataIterator iter(outData, outExt, NULL, self, threadId);
+  for (; !iter.IsAtEnd(); iter.NextSpan())
     {
-    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
-      {
-      if (threadId == 0)
-        { // update the progress if this is the main thread
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      // clear the pixels to background color and go to next row
-      setpixels(outPtr, background, numscalars, outExt[1]-outExt[0]+1);
-      outPtr = static_cast<void *>(
-        static_cast<char *>(outPtr) + outIncY*scalarSize);
-      }
-    outPtr = static_cast<void *>(
-      static_cast<char *>(outPtr) + outIncZ*scalarSize);
+    // clear the pixels to background color and go to next row
+    outPtr = iter.GetVoidPointer(outData, iter.GetId());
+    setpixels(outPtr, background, numscalars, outExt[1]-outExt[0]+1);
     }
 
   vtkFreeBackgroundPixel(&background);
@@ -2015,12 +1952,6 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   void (*convertpixels)(void *&out, const F *in, int numscalars, int n) = 0;
   void (*setpixels)(void *&out, const void *in, int numscalars, int n) = 0;
   void (*composite)(F *in, int numscalars, int n) = 0;
-
-  // for the progress meter
-  unsigned long count = 0;
-  unsigned long target = static_cast<unsigned long>
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
 
   // get the input stencil
   vtkImageStencilData *stencil = self->GetStencil();
@@ -2088,9 +2019,7 @@ void vtkImageResliceExecute(vtkImageReslice *self,
     optimizeNearest = 1;
     }
 
-  // get Increments to march through data
-  vtkIdType outIncX, outIncY, outIncZ;
-  outData->GetContinuousIncrements(outExt, outIncX, outIncY, outIncZ);
+  // get pixel information
   int scalarType = outData->GetScalarType();
   int scalarSize = outData->GetScalarSize();
   int outComponents = outData->GetNumberOfScalarComponents();
@@ -2142,210 +2071,220 @@ void vtkImageResliceExecute(vtkImageReslice *self,
   vtkGetCompositeFunc(&composite,
     self->GetSlabMode(), self->GetSlabTrapezoidIntegration());
 
-  // Loop through output pixels
-  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  // create some variables for when we march through the data
+  int idY = outExt[2] - 1;
+  int idZ = outExt[4] - 1;
+  F inPoint0[4] = { 0.0, 0.0, 0.0, 0.0 };
+  F inPoint1[4] = { 0.0, 0.0, 0.0, 0.0 };
+
+  // create an iterator to march through the data
+  vtkImagePointDataIterator iter(outData, outExt, stencil, self, threadId);
+  char *outPtr0 = static_cast<char *>(iter.GetVoidPointer(outData));
+  for (; !iter.IsAtEnd(); iter.NextSpan())
     {
-    F inPoint0[4];
-    inPoint0[0] = origin[0] + idZ*zAxis[0]; // incremental transform
-    inPoint0[1] = origin[1] + idZ*zAxis[1];
-    inPoint0[2] = origin[2] + idZ*zAxis[2];
-    inPoint0[3] = origin[3] + idZ*zAxis[3];
+    int span = static_cast<int>(iter.SpanEndId() - iter.GetId());
+    outPtr = outPtr0 + iter.GetId()*scalarSize*outComponents;
 
-    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
+    if (!iter.IsInStencil())
       {
-      F inPoint1[4];
-      inPoint1[0] = inPoint0[0] + idY*yAxis[0]; // incremental transform
-      inPoint1[1] = inPoint0[1] + idY*yAxis[1];
-      inPoint1[2] = inPoint0[2] + idY*yAxis[2];
-      inPoint1[3] = inPoint0[3] + idY*yAxis[3];
+      // clear any regions that are outside the stencil
+      setpixels(outPtr, background, outComponents, span);
+      }
+    else
+      {
+      // get output index, and compute position in input image
+      int outIndex[3];
+      iter.GetIndex(outIndex);
 
-      if (!threadId)
+      // if Z index increased, then advance position along Z axis
+      if (outIndex[2] > idZ)
         {
-        if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
+        idZ = outIndex[2];
+        inPoint0[0] = origin[0] + idZ*zAxis[0];
+        inPoint0[1] = origin[1] + idZ*zAxis[1];
+        inPoint0[2] = origin[2] + idZ*zAxis[2];
+        inPoint0[3] = origin[3] + idZ*zAxis[3];
+        idY = outExt[2] - 1;
         }
 
-      int iter = 0;
-      int idXmin, idXmax;
-      while (vtkResliceGetNextExtent(stencil, idXmin, idXmax,
-                                     outExt[0], outExt[1], idY, idZ,
-                                     outPtr, background, outComponents,
-                                     setpixels, iter))
+      // if Y index increased, then advance position along Z axis
+      if (outIndex[1] > idY)
         {
-        if (!optimizeNearest)
+        idY = outIndex[1];
+        inPoint1[0] = inPoint0[0] + idY*yAxis[0];
+        inPoint1[1] = inPoint0[1] + idY*yAxis[1];
+        inPoint1[2] = inPoint0[2] + idY*yAxis[2];
+        inPoint1[3] = inPoint0[3] + idY*yAxis[3];
+        }
+
+      // march through one row of the output image
+      int idXmin = outIndex[0];
+      int idXmax = idXmin + span - 1;
+
+      if (!optimizeNearest)
+        {
+        bool wasInBounds = 1;
+        bool isInBounds = 1;
+        int startIdX = idXmin;
+        int idX = idXmin;
+        F *tmpPtr = floatPtr;
+
+        while (startIdX <= idXmax)
           {
-          bool wasInBounds = 1;
-          bool isInBounds = 1;
-          int startIdX = idXmin;
-          int idX = idXmin;
-          F *tmpPtr = floatPtr;
-
-          while (startIdX <= idXmax)
+          for (; idX <= idXmax && isInBounds == wasInBounds; idX++)
             {
-            for (; idX <= idXmax && isInBounds == wasInBounds; idX++)
+            F inPoint2[4];
+            inPoint2[0] = inPoint1[0] + idX*xAxis[0];
+            inPoint2[1] = inPoint1[1] + idX*xAxis[1];
+            inPoint2[2] = inPoint1[2] + idX*xAxis[2];
+            inPoint2[3] = inPoint1[3] + idX*xAxis[3];
+
+            F inPoint3[4];
+            F *inPoint = inPoint2;
+            isInBounds = 0;
+
+            int sampleCount = 0;
+            for (int sample = 0; sample < nsamples; sample++)
               {
-              F inPoint2[4];
-              inPoint2[0] = inPoint1[0] + idX*xAxis[0];
-              inPoint2[1] = inPoint1[1] + idX*xAxis[1];
-              inPoint2[2] = inPoint1[2] + idX*xAxis[2];
-              inPoint2[3] = inPoint1[3] + idX*xAxis[3];
-
-              F inPoint3[4];
-              F *inPoint = inPoint2;
-              isInBounds = 0;
-
-              int sampleCount = 0;
-              for (int sample = 0; sample < nsamples; sample++)
+              if (nsamples > 1)
                 {
-                if (nsamples > 1)
-                  {
-                  double s = sample - 0.5*(nsamples - 1);
-                  s *= slabSampleSpacing;
-                  inPoint3[0] = inPoint2[0] + s*zAxis[0];
-                  inPoint3[1] = inPoint2[1] + s*zAxis[1];
-                  inPoint3[2] = inPoint2[2] + s*zAxis[2];
-                  inPoint3[3] = inPoint2[3] + s*zAxis[3];
-                  inPoint = inPoint3;
-                  }
-
-                if (perspective)
-                  { // only do perspective if necessary
-                  F f = 1/inPoint[3];
-                  inPoint[0] *= f;
-                  inPoint[1] *= f;
-                  inPoint[2] *= f;
-                  }
-
-                if (newtrans)
-                  { // apply the AbstractTransform if there is one
-                  vtkResliceApplyTransform(newtrans, inPoint, inOrigin,
-                                           inInvSpacing);
-                  }
-
-                if (interpolator->CheckBoundsIJK(inPoint))
-                  {
-                  // do the interpolation
-                  sampleCount++;
-                  isInBounds = 1;
-                  interpolator->InterpolateIJK(inPoint, tmpPtr);
-                  tmpPtr += inComponents;
-                  }
+                double s = sample - 0.5*(nsamples - 1);
+                s *= slabSampleSpacing;
+                inPoint3[0] = inPoint2[0] + s*zAxis[0];
+                inPoint3[1] = inPoint2[1] + s*zAxis[1];
+                inPoint3[2] = inPoint2[2] + s*zAxis[2];
+                inPoint3[3] = inPoint2[3] + s*zAxis[3];
+                inPoint = inPoint3;
                 }
 
-              tmpPtr -= sampleCount*inComponents;
-              if (sampleCount > 1)
-                {
-                composite(tmpPtr, inComponents, sampleCount);
+              if (perspective)
+                { // only do perspective if necessary
+                F f = 1/inPoint[3];
+                inPoint[0] *= f;
+                inPoint[1] *= f;
+                inPoint[2] *= f;
                 }
-              tmpPtr += inComponents;
 
-              // set "was in" to "is in" if first pixel
-              wasInBounds = ((idX > idXmin) ? wasInBounds : isInBounds);
+              if (newtrans)
+                { // apply the AbstractTransform if there is one
+                vtkResliceApplyTransform(newtrans, inPoint, inOrigin,
+                                         inInvSpacing);
+                }
+
+              if (interpolator->CheckBoundsIJK(inPoint))
+                {
+                // do the interpolation
+                sampleCount++;
+                isInBounds = 1;
+                interpolator->InterpolateIJK(inPoint, tmpPtr);
+                tmpPtr += inComponents;
+                }
               }
 
-            // write a segment to the output
-            int endIdX = idX - 1 - (isInBounds != wasInBounds);
-            int numpixels = endIdX - startIdX + 1;
-
-            if (wasInBounds)
+            tmpPtr -= sampleCount*inComponents;
+            if (sampleCount > 1)
               {
-              if (outputStencil)
-                {
-                outputStencil->InsertNextExtent(startIdX, endIdX, idY, idZ);
-                }
+              composite(tmpPtr, inComponents, sampleCount);
+              }
+            tmpPtr += inComponents;
 
-              if (rescaleScalars)
-                {
-                vtkImageResliceRescaleScalars(floatPtr, inComponents,
-                                              idXmax - idXmin + 1,
-                                              scalarShift, scalarScale);
-                }
+            // set "was in" to "is in" if first pixel
+            wasInBounds = ((idX > idXmin) ? wasInBounds : isInBounds);
+            }
 
-              if (convertScalars)
-                {
-                (self->*convertScalars)(tmpPtr - inComponents*(idX-startIdX),
-                                        outPtr,
-                                        vtkTypeTraits<F>::VTKTypeID(),
-                                        inComponents, numpixels,
-                                        startIdX, idY, idZ, threadId);
+          // write a segment to the output
+          int endIdX = idX - 1 - (isInBounds != wasInBounds);
+          int numpixels = endIdX - startIdX + 1;
 
-                outPtr = static_cast<void *>(static_cast<char *>(outPtr)
-                           + numpixels*outComponents*scalarSize);
-                }
-              else
-                {
-                convertpixels(outPtr, tmpPtr - inComponents*(idX - startIdX),
-                              outComponents, numpixels);
-                }
+          if (wasInBounds)
+            {
+            if (outputStencil)
+              {
+              outputStencil->InsertNextExtent(startIdX, endIdX, idY, idZ);
+              }
+
+            if (rescaleScalars)
+              {
+              vtkImageResliceRescaleScalars(floatPtr, inComponents,
+                                            idXmax - idXmin + 1,
+                                            scalarShift, scalarScale);
+              }
+
+            if (convertScalars)
+              {
+              (self->*convertScalars)(tmpPtr - inComponents*(idX-startIdX),
+                                      outPtr,
+                                      vtkTypeTraits<F>::VTKTypeID(),
+                                      inComponents, numpixels,
+                                      startIdX, idY, idZ, threadId);
+
+              outPtr = static_cast<char *>(outPtr) +
+                         numpixels*outComponents*scalarSize;
               }
             else
               {
-              setpixels(outPtr, background, outComponents, numpixels);
+              convertpixels(outPtr, tmpPtr - inComponents*(idX - startIdX),
+                            outComponents, numpixels);
               }
-
-            startIdX += numpixels;
-            wasInBounds = isInBounds;
             }
-          }
-        else // optimize for nearest-neighbor interpolation
-          {
-          char *outPtrTmp = static_cast<char *>(outPtr);
-
-          int inExtX = inExt[1] - inExt[0] + 1;
-          int inExtY = inExt[3] - inExt[2] + 1;
-          int inExtZ = inExt[5] - inExt[4] + 1;
-
-          int startIdX = idXmin;
-          int endIdX = idXmin-1;
-          bool isInBounds = false;
-
-          for (int iidX = idXmin; iidX <= idXmax; iidX++)
+          else
             {
-            char *inPtrTmp = static_cast<char *>(background);
-            int bytesPerPixel = inputScalarSize*inComponents;
-
-            F inPoint[3];
-            inPoint[0] = inPoint1[0] + iidX*xAxis[0];
-            inPoint[1] = inPoint1[1] + iidX*xAxis[1];
-            inPoint[2] = inPoint1[2] + iidX*xAxis[2];
-
-            int inIdX = vtkInterpolationMath::Round(inPoint[0]) - inExt[0];
-            int inIdY = vtkInterpolationMath::Round(inPoint[1]) - inExt[2];
-            int inIdZ = vtkInterpolationMath::Round(inPoint[2]) - inExt[4];
-
-            if ((inIdX >= 0) & (inIdX < inExtX) &
-                (inIdY >= 0) & (inIdY < inExtY) &
-                (inIdZ >= 0) & (inIdZ < inExtZ))
-              {
-              inPtrTmp = static_cast<char *>(inPtr) +
-                (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
-                  inputScalarSize;
-
-              startIdX = (isInBounds ? startIdX : iidX);
-              endIdX = iidX;
-              isInBounds = true;
-              }
-
-            int oc = bytesPerPixel;
-            do { *outPtrTmp++ = *inPtrTmp++; } while (--oc);
+            setpixels(outPtr, background, outComponents, numpixels);
             }
 
-          outPtr = outPtrTmp;
-
-          if (outputStencil && endIdX >= startIdX)
-            {
-            outputStencil->InsertNextExtent(startIdX, endIdX, idY, idZ);
-            }
+          startIdX += numpixels;
+          wasInBounds = isInBounds;
           }
         }
-      outPtr = static_cast<void *>(
-        static_cast<char *>(outPtr) + outIncY*scalarSize);
+      else // optimize for nearest-neighbor interpolation
+        {
+        char *outPtrTmp = static_cast<char *>(outPtr);
+
+        int inExtX = inExt[1] - inExt[0] + 1;
+        int inExtY = inExt[3] - inExt[2] + 1;
+        int inExtZ = inExt[5] - inExt[4] + 1;
+
+        int startIdX = idXmin;
+        int endIdX = idXmin-1;
+        bool isInBounds = false;
+
+        for (int iidX = idXmin; iidX <= idXmax; iidX++)
+          {
+          char *inPtrTmp = static_cast<char *>(background);
+          int bytesPerPixel = inputScalarSize*inComponents;
+
+          F inPoint[3];
+          inPoint[0] = inPoint1[0] + iidX*xAxis[0];
+          inPoint[1] = inPoint1[1] + iidX*xAxis[1];
+          inPoint[2] = inPoint1[2] + iidX*xAxis[2];
+
+          int inIdX = vtkInterpolationMath::Round(inPoint[0]) - inExt[0];
+          int inIdY = vtkInterpolationMath::Round(inPoint[1]) - inExt[2];
+          int inIdZ = vtkInterpolationMath::Round(inPoint[2]) - inExt[4];
+
+          if ((inIdX >= 0) & (inIdX < inExtX) &
+              (inIdY >= 0) & (inIdY < inExtY) &
+              (inIdZ >= 0) & (inIdZ < inExtZ))
+            {
+            inPtrTmp = static_cast<char *>(inPtr) +
+              (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
+                inputScalarSize;
+
+            startIdX = (isInBounds ? startIdX : iidX);
+            endIdX = iidX;
+            isInBounds = true;
+            }
+
+          int oc = bytesPerPixel;
+          do { *outPtrTmp++ = *inPtrTmp++; } while (--oc);
+          }
+
+        if (outputStencil && endIdX >= startIdX)
+          {
+          outputStencil->InsertNextExtent(startIdX, endIdX, idY, idZ);
+          }
+        }
       }
-    outPtr = static_cast<void *>(
-      static_cast<char *>(outPtr) + outIncZ*scalarSize);
     }
 
   vtkFreeBackgroundPixel(&background);
@@ -2888,115 +2827,180 @@ void vtkReslicePermuteExecute(vtkImageReslice *self,
   vtkAllocBackgroundPixel(&background,
      self->GetBackgroundColor(), scalarType, scalarSize, outComponents);
 
-  // for tracking progress
-  unsigned long count = 0;
-  unsigned long target = static_cast<unsigned long>
-    ((outExt[5]-outExt[4]+1)*(outExt[3]-outExt[2]+1)/50.0);
-  target++;
-
-  // Loop through output pixels
-  for (int idZ = outExt[4]; idZ <= outExt[5]; idZ++)
+  // generate the extent we will iterate over while painting output
+  // voxels with input data (anything outside will be background color)
+  int iterExt[6];
+  bool empty = false;
+  for (int jj = 0; jj < 6; jj += 2)
     {
+    iterExt[jj] = clipExt[jj];
+    iterExt[jj+1] = clipExt[jj+1];
+    empty |= (iterExt[jj] > iterExt[jj+1]);
+    }
+  if (empty)
+    {
+    for (int jj = 0; jj < 6; jj += 2)
+      {
+      iterExt[jj] = outExt[jj];
+      iterExt[jj+1] = outExt[jj]-1;
+      }
+    }
+  else if (nsamples > 1)
+    {
+    // adjust extent for multiple samples if slab mode
+    int adjust = nsamples - 1;
+    int maxAdjustDown = iterExt[4] - outExt[4];
+    iterExt[4] -= (adjust <= maxAdjustDown ? adjust : maxAdjustDown);
+    int maxAdjustUp = outExt[5] - iterExt[5];
+    iterExt[5] += (adjust <= maxAdjustUp ? adjust : maxAdjustUp);
+    }
+
+  // clear any leading slices
+  for (int idZ = outExt[4]; idZ < iterExt[4]; idZ++)
+    {
+    int fullspan = outExt[1] - outExt[0] + 1;
     for (int idY = outExt[2]; idY <= outExt[3]; idY++)
       {
-      if (threadId == 0)
-        { // track progress if we are main thread
-        if (!(count%target))
+      setpixels(outPtr, background, outComponents, fullspan);
+      outPtr = static_cast<char *>(outPtr) + outIncY*scalarSize;
+      }
+    outPtr = static_cast<char *>(outPtr) + outIncZ*scalarSize;
+    }
+
+  if (!empty)
+    {
+    vtkImagePointDataIterator iter(outData, iterExt, stencil, self, threadId);
+    for (; !iter.IsAtEnd(); iter.NextSpan())
+      {
+      // get output index
+      int outIndex[3];
+      iter.GetIndex(outIndex);
+      int span = static_cast<int>(iter.SpanEndId() - iter.GetId());
+      int idXmin = outIndex[0];
+      int idXmax = idXmin + span - 1;
+      int idY = outIndex[1];
+      int idZ = outIndex[2];
+
+      if (idXmin == iterExt[0])
+        {
+        // clear rows that were outside of iterExt
+        if (idY == iterExt[2])
           {
-          self->UpdateProgress(count/(50.0*target));
+          int fullspan = outExt[1] - outExt[0] + 1;
+          for (idY = outExt[2]; idY < iterExt[2]; idY++)
+            {
+            setpixels(outPtr, background, outComponents, fullspan);
+            outPtr = static_cast<char *>(outPtr) + outIncY*scalarSize;
+            }
           }
-        count++;
+        // clear leading pixels
+        if (iterExt[0] > outExt[0])
+          {
+          setpixels(outPtr, background, outComponents, iterExt[0] - outExt[0]);
+          }
         }
 
-      // do extent check
-      if (idZ < clipExt[4]-(nsamples-1) || idZ > clipExt[5]+(nsamples-1) ||
-          idY < clipExt[2] || idY > clipExt[3])
-        { // just clear, we're completely outside
-        setpixels(outPtr, background, outComponents, outExt[1]-outExt[0]+1);
+      if (!iter.IsInStencil())
+        {
+        // clear any regions that are outside the stencil
+        setpixels(outPtr, background, outComponents, span);
         }
       else
         {
-        // clear pixels to left of input extent
-        setpixels(outPtr, background, outComponents, clipExt[0]-outExt[0]);
+        int idX = idXmin;
 
-        int iter = 0;
-        int idXmin, idXmax;
-        while (vtkResliceGetNextExtent(stencil, idXmin, idXmax,
-                                       clipExt[0], clipExt[1], idY, idZ,
-                                       outPtr, background, outComponents,
-                                       setpixels, iter))
+        if (doConversion)
           {
-          int idX = idXmin;
+          // these six lines are for handling incomplete slabs
+          int lowerSkip = clipExt[4] - idZ;
+          lowerSkip = (lowerSkip >= 0 ? lowerSkip : 0);
+          int upperSkip = idZ + (nsamples-1) - clipExt[5];
+          upperSkip = (upperSkip >= 0 ? upperSkip : 0);
+          int idZ1 = idZ + lowerSkip;
+          int nsamples1 = nsamples - lowerSkip - upperSkip;
 
-          if (doConversion)
+          for (int isample = 0; isample < nsamples1; isample++)
             {
-            // these six lines are for handling incomplete slabs
-            int lowerSkip = clipExt[4] - idZ;
-            lowerSkip = (lowerSkip >= 0 ? lowerSkip : 0);
-            int upperSkip = idZ + (nsamples-1) - clipExt[5];
-            upperSkip = (upperSkip >= 0 ? upperSkip : 0);
-            int idZ1 = idZ + lowerSkip;
-            int nsamples1 = nsamples - lowerSkip - upperSkip;
+            F *tmpPtr = ((nsamples1 > 1) ? floatSumPtr : floatPtr);
+            interpolator->InterpolateRow(
+              weights, idX, idY, idZ1, tmpPtr, span);
 
-            for (int isample = 0; isample < nsamples1; isample++)
+            if (composite && (nsamples1 > 1))
               {
-              F *tmpPtr = ((nsamples1 > 1) ? floatSumPtr : floatPtr);
-              interpolator->InterpolateRow(
-                weights, idX, idY, idZ1, tmpPtr, idXmax - idXmin + 1);
-
-              if (composite && (nsamples1 > 1))
-                {
-                composite(floatPtr, floatSumPtr, inComponents,
-                          idXmax - idXmin + 1, isample, nsamples1);
-                }
-
-              idZ1++;
+              composite(floatPtr, floatSumPtr, inComponents, span,
+                        isample, nsamples1);
               }
 
-            if (rescaleScalars)
-              {
-              vtkImageResliceRescaleScalars(floatPtr, inComponents,
-                                            idXmax - idXmin + 1,
-                                            scalarShift, scalarScale);
-              }
+            idZ1++;
+            }
 
-            if (convertScalars)
-              {
-              (self->*convertScalars)(floatPtr, outPtr,
-                                      vtkTypeTraits<F>::VTKTypeID(),
-                                      inComponents, idXmax - idXmin + 1,
-                                      idXmin, idY, idZ, threadId);
+          if (rescaleScalars)
+            {
+            vtkImageResliceRescaleScalars(floatPtr, inComponents, span,
+                                          scalarShift, scalarScale);
+            }
 
-              outPtr = static_cast<void *>(static_cast<char *>(outPtr)
-                + (idXmax-idXmin+1)*outComponents*scalarSize);
-              }
-            else
-              {
-              conversion(outPtr, floatPtr, inComponents, idXmax - idXmin + 1);
-              }
+          if (convertScalars)
+            {
+            (self->*convertScalars)(floatPtr, outPtr,
+                                    vtkTypeTraits<F>::VTKTypeID(),
+                                    inComponents, span,
+                                    idXmin, idY, idZ, threadId);
+
+            outPtr = (static_cast<char *>(outPtr) +
+                       static_cast<size_t>(span)*outComponents*scalarSize);
             }
           else
             {
-            // fast path for when no conversion is necessary
-            summation(outPtr, idX, idY, idZ, inComponents,
-                      idXmax - idXmin + 1, weights);
-            }
-
-          if (outputStencil)
-            {
-            outputStencil->InsertNextExtent(idXmin, idXmax, idY, idZ);
+            conversion(outPtr, floatPtr, inComponents, span);
             }
           }
+        else
+          {
+          // fast path for when no conversion is necessary
+          summation(outPtr, idX, idY, idZ, inComponents, span, weights);
+          }
 
-        // clear pixels to right of input extent
-        setpixels(outPtr, background, outComponents, outExt[1] - clipExt[1]);
+        if (outputStencil)
+          {
+          outputStencil->InsertNextExtent(idXmin, idXmax, idY, idZ);
+          }
         }
 
-      outPtr = static_cast<void *>(
-        static_cast<char *>(outPtr) + outIncY*scalarSize);
+      if (idXmax == iterExt[1])
+        {
+        // clear trailing pixels
+        if (iterExt[1] < outExt[1])
+          {
+          setpixels(outPtr, background, outComponents, outExt[1] - iterExt[1]);
+          }
+        outPtr = static_cast<char *>(outPtr) + outIncY*scalarSize;
+
+        // clear trailing rows
+        if (idY == iterExt[3])
+          {
+          int fullspan = outExt[1] - outExt[0] + 1;
+          for (idY = iterExt[3]+1; idY <= outExt[3]; idY++)
+            {
+            setpixels(outPtr, background, outComponents, fullspan);
+            outPtr = static_cast<char *>(outPtr) + outIncY*scalarSize;
+            }
+          outPtr = static_cast<char *>(outPtr) + outIncZ*scalarSize;
+          }
+        }
       }
-    outPtr = static_cast<void *>(
-      static_cast<char *>(outPtr) + outIncZ*scalarSize);
+    }
+
+  // clear any trailing slices
+  for (int idZ = iterExt[5]+1; idZ <= outExt[5]; idZ++)
+    {
+    int fullspan = outExt[1] - outExt[0] + 1;
+    for (int idY = outExt[2]; idY <= outExt[3]; idY++)
+      {
+      setpixels(outPtr, background, outComponents, fullspan);
+      outPtr = static_cast<char *>(outPtr) + outIncY*scalarSize;
+      }
+    outPtr = static_cast<char *>(outPtr) + outIncZ*scalarSize;
     }
 
   vtkFreeBackgroundPixel(&background);
