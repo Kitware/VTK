@@ -78,8 +78,17 @@ discrete.SetInputData(blobImage)
 discrete.GenerateValues(n, 1, n)
 discrete.ComputeAdjacentScalarsOn() # creates PointScalars
 
+thr = vtk.vtkThreshold()
+thr.SetInputConnection(discrete.GetOutputPort())
+thr.SetInputArrayToProcess(0, 0, 0, vtk.vtkDataObject.FIELD_ASSOCIATION_POINTS, vtk.vtkDataSetAttributes.SCALARS) # act on PointScalars created by ComputeAdjacentScalarsOn
+thr.AllScalarsOn() # default, changes better visible
+thr.ThresholdBetween(0, 0) # remove cells between labels, i.e. keep cells neighbouring background (label 0)
+
+vtu2vtp = vtk.vtkGeometryFilter()
+vtu2vtp.SetInputConnection(thr.GetOutputPort())
+
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInputConnection(discrete.GetOutputPort())
+mapper.SetInputConnection(vtu2vtp.GetOutputPort())
 mapper.SetLookupTable(lut)
 mapper.SetScalarModeToUseCellData() # default is to use PointScalars, which get created with ComputeAdjacentScalarsOn
 mapper.SetScalarRange(0, lut.GetNumberOfColors())
