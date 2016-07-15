@@ -260,9 +260,7 @@ protected:
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
   vtkIdList *Faces;  //used in InsertPoint
-  vtkIdList *BoundaryPts; //used by InsertPoint
   vtkIdList *CheckedTetras; //used by InsertPoint
-  vtkIdList *NeiTetras; //used by InsertPoint
 
 private:
   vtkDelaunay3D(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;

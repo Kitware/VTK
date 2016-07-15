@@ -311,7 +311,6 @@ private:
   int        PreSorted;
   int        UseTwoSortIds;
   vtkHeap   *Heap;
-  double     Quanta;
 
   int             UseTemplates;
   int             CellType;
