@@ -814,7 +814,7 @@ protected:
   vtkBSPCuts *Cuts;
   double Progress;
 
-  vtkKdTree(const vtkKdTree&); // Not implemented
-  void operator=(const vtkKdTree&); // Not implemented
+  vtkKdTree(const vtkKdTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkKdTree&) VTK_DELETE_FUNCTION;
 };
 #endif

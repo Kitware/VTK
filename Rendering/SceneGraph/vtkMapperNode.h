@@ -40,8 +40,8 @@ protected:
   ~vtkMapperNode();
 
  private:
-  vtkMapperNode(const vtkMapperNode&); // Not implemented.
-  void operator=(const vtkMapperNode&); // Not implemented.
+  vtkMapperNode(const vtkMapperNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapperNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

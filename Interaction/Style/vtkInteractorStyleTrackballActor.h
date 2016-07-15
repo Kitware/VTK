@@ -85,8 +85,8 @@ protected:
   vtkCellPicker *InteractionPicker;
 
 private:
-  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&);  // Not implemented.
-  void operator=(const vtkInteractorStyleTrackballActor&);  // Not implemented.
+  vtkInteractorStyleTrackballActor(const vtkInteractorStyleTrackballActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleTrackballActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

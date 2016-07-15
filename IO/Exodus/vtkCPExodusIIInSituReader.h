@@ -78,8 +78,8 @@ protected:
                          vtkInformationVector *);
 
 private:
-  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &); // Not implemented.
-  void operator=(const vtkCPExodusIIInSituReader &);   // Not implemented.
+  vtkCPExodusIIInSituReader(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCPExodusIIInSituReader &) VTK_DELETE_FUNCTION;
 
   bool ExOpen();
   char *FileName;

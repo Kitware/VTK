@@ -80,8 +80,8 @@ protected:
 
 
 private:
-  vtkPKMeansStatistics(const vtkPKMeansStatistics&); // Not implemented.
-  void operator=(const vtkPKMeansStatistics&); // Not implemented.
+  vtkPKMeansStatistics(const vtkPKMeansStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPKMeansStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -183,8 +183,8 @@ protected:
   int EvaluateCell( vtkDataArray *scalars, vtkIdList* cellPts, int numCellPts );
   int EvaluateCell( vtkDataArray *scalars, int c, vtkIdList* cellPts, int numCellPts );
 private:
-  vtkThreshold(const vtkThreshold&);  // Not implemented.
-  void operator=(const vtkThreshold&);  // Not implemented.
+  vtkThreshold(const vtkThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -53,8 +53,8 @@ public:
   virtual ~vtkVolumetricPass();
 
  private:
-  vtkVolumetricPass(const vtkVolumetricPass&);  // Not implemented.
-  void operator=(const vtkVolumetricPass&);  // Not implemented.
+  vtkVolumetricPass(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumetricPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

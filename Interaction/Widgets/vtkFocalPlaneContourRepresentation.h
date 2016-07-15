@@ -88,8 +88,8 @@ protected:
   ~vtkFocalPlaneContourRepresentation();
 
 private:
-  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&);  //Not implemented
-  void operator=(const vtkFocalPlaneContourRepresentation&);  //Not implemented
+  vtkFocalPlaneContourRepresentation(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFocalPlaneContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

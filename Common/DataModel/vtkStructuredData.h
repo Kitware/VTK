@@ -238,8 +238,8 @@ protected:
   }
 
 private:
-  vtkStructuredData(const vtkStructuredData&);  // Not implemented.
-  void operator=(const vtkStructuredData&);  // Not implemented.
+  vtkStructuredData(const vtkStructuredData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredData&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

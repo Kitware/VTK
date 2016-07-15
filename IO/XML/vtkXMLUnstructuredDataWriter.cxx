@@ -595,7 +595,10 @@ void vtkXMLUnstructuredDataWriter::WriteCellsInline(const char* name,
                         vtkIdTypeArray* faces, vtkIdTypeArray* faceOffsets,
                         vtkIndent indent)
 {
-  this->ConvertCells(cells);
+  if(cells)
+    {
+    this->ConvertCells(cells);
+    }
   this->ConvertFaces(faces, faceOffsets);
 
   this->WriteCellsInlineWorker(name, types, indent);

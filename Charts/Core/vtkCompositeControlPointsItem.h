@@ -128,8 +128,8 @@ protected:
   bool UseOpacityPointHandles;
 
 private:
-  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &); // Not implemented.
-  void operator=(const vtkCompositeControlPointsItem &);   // Not implemented.
+  vtkCompositeControlPointsItem(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

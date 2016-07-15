@@ -85,8 +85,8 @@ private:
   int ParsingComplete() { return this->Done; }
   int Valid;
   int Done;
-  vtkXdmfReaderTester(const vtkXdmfReaderTester&); // Not implemented
-  void operator=(const vtkXdmfReaderTester&); // Not implemented
+  vtkXdmfReaderTester(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXdmfReaderTester&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(vtkXdmfReaderTester);
 

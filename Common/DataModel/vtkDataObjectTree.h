@@ -56,7 +56,7 @@ public:
   // Use NewTreeIterator when you have a pointer to a vtkDataObjectTree
   // and NewIterator when you have a pointer to a vtkCompositeDataSet;
   // NewIterator is inherited and calls NewTreeIterator internally.
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   // Description:
   // Copies the tree structure from the input. All pointers to non-composite
@@ -169,8 +169,8 @@ protected:
   friend class vtkDataObjectTreeIterator;
 
 private:
-  vtkDataObjectTree(const vtkDataObjectTree&); // Not implemented.
-  void operator=(const vtkDataObjectTree&); // Not implemented.
+  vtkDataObjectTree(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
 
 };
 

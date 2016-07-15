@@ -182,8 +182,8 @@ protected:
   vtkHashTableOfSurfels *HashTable;
 
 private:
-  vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridGeometryFilter&);  // Not implemented.
+  vtkUnstructuredGridGeometryFilter(const vtkUnstructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

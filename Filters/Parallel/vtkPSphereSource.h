@@ -41,8 +41,8 @@ protected:
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkPSphereSource(const vtkPSphereSource&);  // Not implemented.
-  void operator=(const vtkPSphereSource&);  // Not implemented.
+  vtkPSphereSource(const vtkPSphereSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSphereSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

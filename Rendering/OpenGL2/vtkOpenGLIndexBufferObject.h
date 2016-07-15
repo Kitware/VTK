@@ -110,8 +110,8 @@ protected:
   ~vtkOpenGLIndexBufferObject();
 
 private:
-  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&); // Not implemented
-  void operator=(const vtkOpenGLIndexBufferObject&); // Not implemented
+  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

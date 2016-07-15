@@ -340,8 +340,8 @@ protected:
   int  ProcessEvents;
 
 private:
-  vtkSplineWidget(const vtkSplineWidget&);  //Not implemented
-  void operator=(const vtkSplineWidget&);  //Not implemented
+  vtkSplineWidget(const vtkSplineWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

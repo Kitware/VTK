@@ -213,8 +213,8 @@ protected:
   ~vtkArray();
 
 private:
-  vtkArray(const vtkArray&); // Not implemented
-  void operator=(const vtkArray&); // Not implemented
+  vtkArray(const vtkArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArray&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Stores the array name.

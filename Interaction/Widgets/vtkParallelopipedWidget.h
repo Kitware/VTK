@@ -136,8 +136,8 @@ protected:
   vtkWidgetSet* WidgetSet;
 
 private:
-  vtkParallelopipedWidget(const vtkParallelopipedWidget&);  //Not implemented
-  void operator=(const vtkParallelopipedWidget&);  //Not implemented
+  vtkParallelopipedWidget(const vtkParallelopipedWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelopipedWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

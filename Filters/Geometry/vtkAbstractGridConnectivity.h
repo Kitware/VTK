@@ -186,8 +186,8 @@ protected:
   std::vector< vtkPoints* > GhostedGridPoints;
 
 private:
-  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&);// Not implemented
-  void operator=(const vtkAbstractGridConnectivity&); // Not implemented
+  vtkAbstractGridConnectivity(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractGridConnectivity&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

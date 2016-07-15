@@ -122,8 +122,8 @@ protected:
   bool CopyArrays;
 
 private:
-  vtkProgrammableFilter(const vtkProgrammableFilter&);  // Not implemented.
-  void operator=(const vtkProgrammableFilter&);  // Not implemented.
+  vtkProgrammableFilter(const vtkProgrammableFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProgrammableFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

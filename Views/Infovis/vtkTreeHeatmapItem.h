@@ -189,8 +189,8 @@ protected:
   int Orientation;
 
 private:
-  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&); // Not implemented
-  void operator=(const vtkTreeHeatmapItem&); // Not implemented
+  vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
 
   unsigned long TreeHeatmapBuildTime;
 };

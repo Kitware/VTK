@@ -136,8 +136,8 @@ private:
   void SetQuadratureWeights(const double *W);
 
   //
-  vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &); // Not implemented.
-  void operator=(const vtkQuadratureSchemeDefinition &); // Not implemented.
+  vtkQuadratureSchemeDefinition(const vtkQuadratureSchemeDefinition &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadratureSchemeDefinition &) VTK_DELETE_FUNCTION;
   friend ostream &operator<<(ostream &s, const vtkQuadratureSchemeDefinition &d);
   friend istream &operator>>(istream &s, vtkQuadratureSchemeDefinition &d);
   //

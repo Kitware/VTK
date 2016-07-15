@@ -168,8 +168,8 @@ protected:
   void CloseFile(ostream *fp);
 
 private:
-  vtkMNITagPointWriter(const vtkMNITagPointWriter&); // Not implemented
-  void operator=(const vtkMNITagPointWriter&);  // Not implemented
+  vtkMNITagPointWriter(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMNITagPointWriter&) VTK_DELETE_FUNCTION;
 
 };
 

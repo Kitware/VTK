@@ -101,8 +101,8 @@ protected:
   vtkCell *InternalCell;
 
 private:
-  vtkBridgeCellIteratorOne(const vtkBridgeCellIteratorOne&); // Not implemented
-  void operator=(const vtkBridgeCellIteratorOne&); // Not implemented
+  vtkBridgeCellIteratorOne(const vtkBridgeCellIteratorOne&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgeCellIteratorOne&) VTK_DELETE_FUNCTION;
 };
 
 #endif

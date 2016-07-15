@@ -70,8 +70,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkDataSetMapper(const vtkDataSetMapper&);  // Not implemented.
-  void operator=(const vtkDataSetMapper&);  // Not implemented.
+  vtkDataSetMapper(const vtkDataSetMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

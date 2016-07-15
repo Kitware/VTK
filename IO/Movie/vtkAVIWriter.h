@@ -95,8 +95,8 @@ protected:
   char *CompressorFourCC;
 
 private:
-  vtkAVIWriter(const vtkAVIWriter&); // Not implemented
-  void operator=(const vtkAVIWriter&); // Not implemented
+  vtkAVIWriter(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAVIWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

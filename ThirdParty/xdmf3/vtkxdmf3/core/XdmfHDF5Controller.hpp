@@ -24,9 +24,21 @@
 #ifndef XDMFHDF5CONTROLLER_HPP_
 #define XDMFHDF5CONTROLLER_HPP_
 
-// Includes
+// C Compatible Includes
 #include "XdmfCore.hpp"
 #include "XdmfHeavyDataController.hpp"
+
+// So that hdf5 does not need to be included in the header files
+// It would add a dependancy to programs that use Xdmf
+#ifndef _H5Ipublic_H
+  #ifndef XDMF_HID_T
+  #define XDMF_HID_T
+    typedef int hid_t;
+  #endif
+#endif
+
+#ifdef __cplusplus
+
 #include <map>
 
 /**
@@ -41,6 +53,8 @@
 class XDMFCORE_EXPORT XdmfHDF5Controller : public XdmfHeavyDataController {
 
 public:
+
+  friend class XdmfHDF5Writer;
 
   virtual ~XdmfHDF5Controller();
 
@@ -131,58 +145,6 @@ public:
    */
   std::string getDataSetPath() const;
 
-  /**
-   * Get the dimensions of the dataspace owned by this
-   * controller. This is the dimension of the entire heavy dataset,
-   * which may be larger than the dimensions of the array (if reading
-   * a piece of a larger dataset).
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHDF5Controller.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getDataspaceDimensions
-   * @until //#getDataspaceDimensions
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHDF5Controller.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getDataspaceDimensions
-   * @until #//getDataspaceDimensions
-   *
-   * @return    A vector containing the size in each dimension of the dataspace
-   *            owned by this controller.
-   */
-  std::vector<unsigned int> getDataspaceDimensions() const;
-
-  /**
-   * Gets the controller in string form. For writing to file.
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHeavyDataController.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getDescriptor
-   * @until //#getDescriptor
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHeavyDataController.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getDescriptor
-   * @until #//getDescriptor
-   *
-   * @return    A string that contains relevant information for the controller
-   */
   virtual std::string getDescriptor() const;
 
   virtual std::string getName() const;
@@ -211,54 +173,6 @@ public:
   virtual void 
   getProperties(std::map<std::string, std::string> & collectedProperties) const;
 
-  /**
-   * Get the start index of the heavy data set owned by this controller.
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHDF5Controller.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getStart
-   * @until //#getStart
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHDF5Controller.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getStart
-   * @until #//getStart
-   *
-   * @return    A vector containing the start index in each dimension of
-   *            the heavy data set owned by this controller.
-   */
-  std::vector<unsigned int> getStart() const;
-
-  /**
-   * Get the stride of the heavy data set owned by this controller.
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfHDF5Controller.cpp
-   * @skipline //#initialization
-   * @until //#initialization
-   * @skipline //#getStride
-   * @until //#getStride
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleHDF5Controller.py
-   * @skipline #//initialization
-   * @until #//initialization
-   * @skipline #//getStride
-   * @until #//getStride
-   *
-   * @return    A vector containing the stride in each dimension of the
-   *            heavy data set owned by this controller.
-   */
-  std::vector<unsigned int> getStride() const;
-
   virtual void read(XdmfArray * const array);
 
   /**
@@ -282,6 +196,8 @@ public:
    */
   static void setMaxOpenedFiles(unsigned int newMax);
 
+  XdmfHDF5Controller(const XdmfHDF5Controller &);
+
 protected:
 
   XdmfHDF5Controller(const std::string & hdf5FilePath,
@@ -292,21 +208,63 @@ protected:
                      const std::vector<unsigned int> & dimensions,
                      const std::vector<unsigned int> & dataspaceDimensions);
 
+  const std::string getDataSetPrefix() const;
+  int getDataSetId() const;
+
   void read(XdmfArray * const array, const int fapl);
 
 private:
 
-  XdmfHDF5Controller(const XdmfHDF5Controller &);  // Not implemented.
   void operator=(const XdmfHDF5Controller &);  // Not implemented.
+
+  const std::string mDataSetPath;
+
+  std::string mDataSetPrefix;
+  int mDataSetId;
 
   static std::map<std::string, unsigned int> mOpenFileUsage;
   // When set to 0 there will be no files that stay open after a read
   static unsigned int mMaxOpenedFiles;
-
-  const std::string mDataSetPath;
-  const std::vector<unsigned int> mDataspaceDimensions;
-  const std::vector<unsigned int> mStart;
-  const std::vector<unsigned int> mStride;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+struct XDMFHDF5CONTROLLER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFHDF5CONTROLLER XDMFHDF5CONTROLLER;
+
+XDMFCORE_EXPORT XDMFHDF5CONTROLLER * XdmfHDF5ControllerNew(char * hdf5FilePath,
+                                                           char * dataSetPath,
+                                                           int type,
+                                                           unsigned int * start,
+                                                           unsigned int * stride,
+                                                           unsigned int * dimensions,
+                                                           unsigned int * dataspaceDimensions,
+                                                           unsigned int numDims,
+                                                           int * status);
+
+// C Wrappers for parent classes are generated by macros
+
+XDMFCORE_EXPORT char * XdmfHDF5ControllerGetDataSetPath(XDMFHDF5CONTROLLER * controller);
+
+XDMF_HEAVYCONTROLLER_C_CHILD_DECLARE(XdmfHDF5Controller, XDMFHDF5CONTROLLER, XDMFCORE)
+
+#define XDMF_HDF5CONTROLLER_C_CHILD_DECLARE(ClassName, CClassName, Level)              \
+                                                                                       \
+Level##_EXPORT char * ClassName##GetDataSetPath( CClassName * controller);
+
+#define XDMF_HDF5CONTROLLER_C_CHILD_WRAPPER(ClassName, CClassName)                     \
+                                                                                       \
+char * ClassName##GetDataSetPath( CClassName * controller)                             \
+{                                                                                      \
+  return XdmfHDF5ControllerGetDataSetPath((XDMFHDF5CONTROLLER *)((void *)controller)); \
+} 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFHDF5CONTROLLER_HPP_ */

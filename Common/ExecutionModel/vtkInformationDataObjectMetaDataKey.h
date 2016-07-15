@@ -52,8 +52,8 @@ public:
                                       vtkInformation* toInfo);
 
 private:
-  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&);  // Not implemented.
-  void operator=(const vtkInformationDataObjectMetaDataKey&);  // Not implemented.
+  vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

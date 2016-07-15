@@ -452,8 +452,8 @@ private:
   friend class vtkImageAlgorithmToDataSetFriendship;
 
 private:
-  vtkDataSet(const vtkDataSet&);  // Not implemented.
-  void operator=(const vtkDataSet&);    // Not implemented.
+  vtkDataSet(const vtkDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSet&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkDataSet::GetPoint(vtkIdType id, double x[3])

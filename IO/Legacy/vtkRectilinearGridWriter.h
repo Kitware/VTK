@@ -49,8 +49,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&);  // Not implemented.
-  void operator=(const vtkRectilinearGridWriter&);  // Not implemented.
+  vtkRectilinearGridWriter(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

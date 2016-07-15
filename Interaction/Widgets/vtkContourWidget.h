@@ -239,8 +239,8 @@ protected:
   void AddNode();
 
 private:
-  vtkContourWidget(const vtkContourWidget&);  //Not implemented
-  void operator=(const vtkContourWidget&);  //Not implemented
+  vtkContourWidget(const vtkContourWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContourWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

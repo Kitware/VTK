@@ -165,8 +165,8 @@ protected:
   vtkGeoTreeNode* Newer;
 
 private:
-  vtkGeoTreeNode(const vtkGeoTreeNode&);  // Not implemented.
-  void operator=(const vtkGeoTreeNode&);  // Not implemented.
+  vtkGeoTreeNode(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTreeNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

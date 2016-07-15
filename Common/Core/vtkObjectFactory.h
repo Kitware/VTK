@@ -104,12 +104,12 @@ public:
   // Description:
   // Set the enable flag for a given named class for all registered
   // factories.
-  static void SetAllEnableFlags(int flag,
+  static void SetAllEnableFlags(vtkTypeBool flag,
                                 const char* className);
   // Description:
   // Set the enable flag for a given named class subclass pair
   // for all registered factories.
-  static void SetAllEnableFlags(int flag,
+  static void SetAllEnableFlags(vtkTypeBool flag,
                                 const char* className,
                                 const char* subclassName);
 
@@ -148,7 +148,7 @@ public:
 
   // Description:
   // Return the enable flag for the class at the given index.
-  virtual int GetEnableFlag(int index);
+  virtual vtkTypeBool GetEnableFlag(int index);
 
   // Description:
   // Return the description for a the class override at the given
@@ -158,11 +158,11 @@ public:
   // Description:
   // Set and Get the Enable flag for the specific override of className.
   // if subclassName is null, then it is ignored.
-  virtual void SetEnableFlag(int flag,
+  virtual void SetEnableFlag(vtkTypeBool flag,
                              const char* className,
                              const char* subclassName);
-  virtual int GetEnableFlag(const char* className,
-                            const char* subclassName);
+  virtual vtkTypeBool GetEnableFlag(const char* className,
+                                const char* subclassName);
 
   // Description:
   // Return 1 if this factory overrides the given class name, 0 otherwise.
@@ -206,7 +206,7 @@ protected:
   {
     char* Description;
     char* OverrideWithName;
-    int EnabledFlag;
+    vtkTypeBool EnabledFlag;
     CreateFunction CreateCallback;
   };
 
@@ -242,8 +242,8 @@ private:
   char* LibraryCompilerUsed;
   char* LibraryPath;
 private:
-  vtkObjectFactory(const vtkObjectFactory&);  // Not implemented.
-  void operator=(const vtkObjectFactory&);  // Not implemented.
+  vtkObjectFactory(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObjectFactory&) VTK_DELETE_FUNCTION;
 };
 
 // Macro to create an object creation function.

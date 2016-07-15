@@ -61,8 +61,8 @@ protected:
   double Threshold;
 
 private:
-  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
-  void operator=(const vtkImplicitFunctionToImageStencil&);  // Not implemented.
+  vtkImplicitFunctionToImageStencil(const vtkImplicitFunctionToImageStencil&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitFunctionToImageStencil&) VTK_DELETE_FUNCTION;
 };
 
 #endif

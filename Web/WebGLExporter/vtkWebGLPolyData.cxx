@@ -708,7 +708,7 @@ void vtkWebGLPolyData::GetColorsFromPointData(unsigned char* color, vtkPointData
         array)
       {
       vtkScalarsToColors* table = actor->GetMapper()->GetLookupTable();
-      vtkUnsignedCharArray* cor = table->MapScalars(array, table->GetVectorMode(), table->GetVectorComponent());
+      vtkUnsignedCharArray* cor = table->MapScalars(array, actor->GetMapper()->GetColorMode(), table->GetVectorComponent());
       memcpy(color, cor->GetPointer(0), polydata->GetNumberOfPoints()*4);
       cor->Delete();
       }

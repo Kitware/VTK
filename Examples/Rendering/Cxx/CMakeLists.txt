@@ -11,8 +11,8 @@ PROJECT (Rendering)
 if(NOT VTK_SOURCE_DIR)
   message(ERROR " Cannot build Rendering examples without VTK_SOURCE_DIR")
 endif()
-
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
   vtkCommonCore
   vtkFiltersSources
   vtkInteractionStyle

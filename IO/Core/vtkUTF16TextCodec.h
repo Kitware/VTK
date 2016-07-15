@@ -81,8 +81,8 @@ protected:
   bool _bigEndian ;
 
 private:
-  vtkUTF16TextCodec(const vtkUTF16TextCodec &) ; // Not implemented.
-  void operator=(const vtkUTF16TextCodec &) ; // Not implemented.
+  vtkUTF16TextCodec(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
 
 };
 

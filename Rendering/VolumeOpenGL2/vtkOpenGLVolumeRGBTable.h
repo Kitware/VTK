@@ -206,14 +206,11 @@ private:
   unsigned int NumberOfTables;
   vtkOpenGLVolumeRGBTable* Tables;
 
-  // vtkOpenGLVolumeRGBTables (Not implemented)
-  vtkOpenGLVolumeRGBTables();
+  vtkOpenGLVolumeRGBTables() VTK_DELETE_FUNCTION;
 
-  // vtkOpenGLVolumeRGBTables (Not implemented)
-  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other);
+  vtkOpenGLVolumeRGBTables(const vtkOpenGLVolumeRGBTables &other) VTK_DELETE_FUNCTION;
 
-  // operator = (Not implemented)
-  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other);
+  vtkOpenGLVolumeRGBTables &operator=(const vtkOpenGLVolumeRGBTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeRGBTable_h

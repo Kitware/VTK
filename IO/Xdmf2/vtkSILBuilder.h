@@ -68,8 +68,8 @@ protected:
   vtkIdType RootVertex;
 
 private:
-  vtkSILBuilder(const vtkSILBuilder&); // Not implemented.
-  void operator=(const vtkSILBuilder&); // Not implemented.
+  vtkSILBuilder(const vtkSILBuilder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSILBuilder&) VTK_DELETE_FUNCTION;
 
 };
 

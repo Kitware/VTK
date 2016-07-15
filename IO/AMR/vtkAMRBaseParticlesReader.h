@@ -191,8 +191,8 @@ protected:
   char *FileName;
 
 private:
-  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ); // Not implemented
-  void operator=(const vtkAMRBaseParticlesReader& ); // Not implemented
+  vtkAMRBaseParticlesReader( const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRBaseParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRBaseParticlesReader_h */

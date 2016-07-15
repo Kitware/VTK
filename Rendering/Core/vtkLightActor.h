@@ -106,8 +106,8 @@ protected:
   vtkBoundingBox *BoundingBox;
 
 private:
-  vtkLightActor(const vtkLightActor&);  // Not implemented.
-  void operator=(const vtkLightActor&);  // Not implemented.
+  vtkLightActor(const vtkLightActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

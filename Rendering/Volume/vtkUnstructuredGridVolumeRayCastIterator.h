@@ -86,8 +86,8 @@ protected:
   vtkIdType MaxNumberOfIntersections;
 
 private:
-  vtkUnstructuredGridVolumeRayCastIterator(const vtkUnstructuredGridVolumeRayCastIterator&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeRayCastIterator&);  // Not implemented.
+  vtkUnstructuredGridVolumeRayCastIterator(const vtkUnstructuredGridVolumeRayCastIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridVolumeRayCastIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkUnstructuredGridRayCastIterator_h

@@ -205,8 +205,8 @@ protected:
   vtkAssembly        *Assembly;
 
 private:
-  vtkAnnotatedCubeActor(const vtkAnnotatedCubeActor&);  // Not implemented.
-  void operator=(const vtkAnnotatedCubeActor&);  // Not implemented.
+  vtkAnnotatedCubeActor(const vtkAnnotatedCubeActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotatedCubeActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

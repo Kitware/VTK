@@ -30,26 +30,6 @@
 
 vtkStandardNewMacro(vtkImplicitCylinderWidget);
 
-// The implicit cylinder widget observes its representation. The representation
-// may invoke an InteractionEvent when the camera moves when LockedNormalToCamera
-// is enabled.
-class vtkInteractionCallback : public vtkCommand
-{
-public:
-  static vtkInteractionCallback *New()
-    { return new vtkInteractionCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
-    {
-      switch (eventId)
-        {
-        case vtkCommand::ModifiedEvent:
-          this->CylinderWidget->InvokeInteractionCallback();
-          break;
-        }
-    }
-  vtkImplicitCylinderWidget *CylinderWidget;
-};
-
 //----------------------------------------------------------------------------
 vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
 {
@@ -93,15 +73,11 @@ vtkImplicitCylinderWidget::vtkImplicitCylinderWidget()
                                           vtkEvent::AnyModifier, 29, 1, "Left",
                                           vtkWidgetEvent::Down,
                                           this, vtkImplicitCylinderWidget::MoveCylinderAction);
-
-  this->InteractionCallback = vtkInteractionCallback::New();
-  this->InteractionCallback->CylinderWidget = this;
 }
 
 //----------------------------------------------------------------------------
 vtkImplicitCylinderWidget::~vtkImplicitCylinderWidget()
 {
-  this->InteractionCallback->Delete();
 }
 
 //----------------------------------------------------------------------
@@ -336,11 +312,6 @@ void vtkImplicitCylinderWidget::SetEnabled(int enabling)
     return;
     }
 
-  if(this->GetCurrentRenderer() && !enabling)
-    {
-    this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(this->InteractionCallback);
-    }
-
   Superclass::SetEnabled(enabling);
 }
 
@@ -383,21 +354,6 @@ int vtkImplicitCylinderWidget::UpdateCursorShape( int state )
     }
 
   return 0;
-}
-
-//----------------------------------------------------------------------------
-void vtkImplicitCylinderWidget::InvokeInteractionCallback()
-{
-  unsigned long previousMtime;
-  vtkImplicitCylinderRepresentation* widgetRep =
-      reinterpret_cast<vtkImplicitCylinderRepresentation*>(this->WidgetRep);
-
-  previousMtime = widgetRep->GetMTime();
-
-  if(widgetRep->GetMTime() > previousMtime)
-    {
-    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-    }
 }
 
 //----------------------------------------------------------------------------

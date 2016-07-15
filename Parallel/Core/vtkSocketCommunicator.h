@@ -246,8 +246,8 @@ protected:
   int CheckForErrorInternal(int id);
   bool BufferMessage;
 private:
-  vtkSocketCommunicator(const vtkSocketCommunicator&);  // Not implemented.
-  void operator=(const vtkSocketCommunicator&);  // Not implemented.
+  vtkSocketCommunicator(const vtkSocketCommunicator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSocketCommunicator&) VTK_DELETE_FUNCTION;
 
   int SelectSocket(int socket, unsigned long msec);
 

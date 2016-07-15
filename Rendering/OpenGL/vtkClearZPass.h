@@ -56,8 +56,8 @@ public:
   double Depth;
 
  private:
-  vtkClearZPass(const vtkClearZPass&);  // Not implemented.
-  void operator=(const vtkClearZPass&);  // Not implemented.
+  vtkClearZPass(const vtkClearZPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClearZPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -29,6 +29,7 @@
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkPiecewiseFunctionItem.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -152,7 +153,14 @@ int TestMultipleScalarsToColors(int , char * [])
   // OpenGL 1.2, but further granularity must be added to the device to detect
   // down to there. For now disable is < OpenGL 2, should fix Mesa segfaults.
   renwin->Render();
-  if (actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+
+#if defined(VTK_OPENGL2)
+  bool openGL2Backend = true;
+#else
+  bool openGL2Backend = false;
+#endif
+
+  if (openGL2Backend || actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
     {
     iren->Initialize();
     iren->Start();

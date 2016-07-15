@@ -85,8 +85,8 @@ protected:
   int Dimension;
 
 private:
-  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&);  // Not implemented.
-  void operator=(const vtkHyperOctreePointsGrabber&);    // Not implemented.
+  vtkHyperOctreePointsGrabber(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreePointsGrabber&) VTK_DELETE_FUNCTION;
 };
 
 #endif

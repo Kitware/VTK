@@ -83,8 +83,8 @@ protected:
 
   vtkPStructuredGridConnectivity *GridConnectivity;
 private:
-  vtkPStructuredGridGhostDataGenerator(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
-  void operator=(const vtkPStructuredGridGhostDataGenerator&); // Not implemented
+  vtkPStructuredGridGhostDataGenerator(const vtkPStructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPStructuredGridGhostDataGenerator&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkPStructuredGridGhostDataGenerator_h */

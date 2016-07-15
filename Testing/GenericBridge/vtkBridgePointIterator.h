@@ -103,8 +103,8 @@ protected:
   vtkBridgePointIteratorOnCell *IteratorOnCell;
 
 private:
-  vtkBridgePointIterator(const vtkBridgePointIterator&); // Not implemented
-  void operator=(const vtkBridgePointIterator&); // Not implemented
+  vtkBridgePointIterator(const vtkBridgePointIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgePointIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

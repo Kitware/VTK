@@ -88,8 +88,8 @@ protected:
 
   vtkExtractStructuredGridHelper* Internal;
 private:
-  vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&);  // Not implemented.
-  void operator=(const vtkExtractRectilinearGrid&);  // Not implemented.
+  vtkExtractRectilinearGrid(const vtkExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractRectilinearGrid&) VTK_DELETE_FUNCTION;
 };
 
 #endif

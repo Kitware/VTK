@@ -102,8 +102,8 @@ protected:
   bool DrawSmallMoleculesAsSpheres;
 
 private:
-  vtkProteinRibbonFilter(const vtkProteinRibbonFilter&);  // Not implemented.
-  void operator=(const vtkProteinRibbonFilter&);  // Not implemented.
+  vtkProteinRibbonFilter(const vtkProteinRibbonFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProteinRibbonFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkProteinRibbonFilter_h

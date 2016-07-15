@@ -208,8 +208,8 @@ protected:
   int                        ZeroPad;
 
 private:
-  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&);  // Not implemented.
-  void operator=(const vtkEncodedGradientEstimator&);  // Not implemented.
+  vtkEncodedGradientEstimator(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEncodedGradientEstimator&) VTK_DELETE_FUNCTION;
 };
 
 

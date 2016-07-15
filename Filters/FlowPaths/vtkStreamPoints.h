@@ -56,8 +56,8 @@ protected:
   double TimeIncrement;
 
 private:
-  vtkStreamPoints(const vtkStreamPoints&);  // Not implemented.
-  void operator=(const vtkStreamPoints&);  // Not implemented.
+  vtkStreamPoints(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

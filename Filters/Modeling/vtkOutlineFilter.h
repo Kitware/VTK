@@ -49,8 +49,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkOutlineFilter(const vtkOutlineFilter&);  // Not implemented.
-  void operator=(const vtkOutlineFilter&);  // Not implemented.
+  vtkOutlineFilter(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutlineFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -263,7 +263,7 @@ public:
   virtual void LookupTypedValue(ValueType value, vtkIdList* valueIds);
   virtual void ClearLookup();
   virtual void DataChanged();
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
 protected:
   vtkGenericDataArray();
@@ -293,8 +293,8 @@ protected:
 
   vtkGenericDataArrayLookupHelper<SelfType> Lookup;
 private:
-  vtkGenericDataArray(const vtkGenericDataArray&); // Not implemented.
-  void operator=(const vtkGenericDataArray&); // Not implemented.
+  vtkGenericDataArray(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataArray&) VTK_DELETE_FUNCTION;
 
   std::vector<double> LegacyTuple;
   std::vector<ValueType> LegacyValueRange;

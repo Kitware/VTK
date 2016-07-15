@@ -151,8 +151,8 @@ protected:
   vtkSmartPointer<vtkCommand> EventCommand;
 
 private:
-  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&);  // Not implemented.
-  void operator=(const vtkGeoInteractorStyle&);  // Not implemented.
+  vtkGeoInteractorStyle(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

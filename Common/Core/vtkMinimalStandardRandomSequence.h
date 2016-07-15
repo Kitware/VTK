@@ -104,8 +104,8 @@ protected:
   virtual ~vtkMinimalStandardRandomSequence();
   int Seed;
 private:
-  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&);  // Not implemented.
-  void operator=(const vtkMinimalStandardRandomSequence&);  // Not implemented.
+  vtkMinimalStandardRandomSequence(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMinimalStandardRandomSequence&) VTK_DELETE_FUNCTION;
 };
 
 #endif // #ifndef vtkMinimalStandardRandomSequence_h

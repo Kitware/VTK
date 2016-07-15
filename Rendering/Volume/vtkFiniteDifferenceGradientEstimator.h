@@ -68,8 +68,8 @@ protected:
   // Recompute the encoded normals and gradient magnitudes.
   void UpdateNormals( void );
 private:
-  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
-  void operator=(const vtkFiniteDifferenceGradientEstimator&);  // Not implemented.
+  vtkFiniteDifferenceGradientEstimator(const vtkFiniteDifferenceGradientEstimator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFiniteDifferenceGradientEstimator&) VTK_DELETE_FUNCTION;
 };
 
 

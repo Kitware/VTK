@@ -140,8 +140,8 @@ protected:
   vtkSmartPointer<vtkStringArray> Blacklist;
 
 private:
-  vtkPhyloXMLTreeWriter(const vtkPhyloXMLTreeWriter&);  // Not implemented.
-  void operator=(const vtkPhyloXMLTreeWriter&);  // Not implemented.
+  vtkPhyloXMLTreeWriter(const vtkPhyloXMLTreeWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPhyloXMLTreeWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

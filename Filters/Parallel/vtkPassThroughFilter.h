@@ -45,8 +45,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkPassThroughFilter(const vtkPassThroughFilter&);  // Not implemented.
-  void operator=(const vtkPassThroughFilter&);  // Not implemented.
+  vtkPassThroughFilter(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPassThroughFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

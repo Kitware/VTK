@@ -167,8 +167,8 @@ protected:
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&);  // Not implemented.
-  void operator=(const vtkWeightedTransformFilter&);  // Not implemented.
+  vtkWeightedTransformFilter(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWeightedTransformFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

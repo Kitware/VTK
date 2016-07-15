@@ -7,8 +7,8 @@ if(POLICY CMP0053)
 endif()
 
 PROJECT (Modelling)
-
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
   vtkCommonCore
   vtkCommonDataModel
   vtkFiltersGeneral

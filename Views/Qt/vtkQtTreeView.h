@@ -191,8 +191,8 @@ private:
 
   vtkSmartPointer<vtkApplyColors> ApplyColors;
 
-  vtkQtTreeView(const vtkQtTreeView&);  // Not implemented.
-  void operator=(const vtkQtTreeView&);  // Not implemented.
+  vtkQtTreeView(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTreeView&) VTK_DELETE_FUNCTION;
 
 };
 

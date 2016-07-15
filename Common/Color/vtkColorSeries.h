@@ -308,8 +308,8 @@ protected:
   vtkStdString ColorSchemeName;
 
 private:
-  vtkColorSeries(const vtkColorSeries &); // Not implemented.
-  void operator=(const vtkColorSeries &);   // Not implemented.
+  vtkColorSeries(const vtkColorSeries &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkColorSeries &) VTK_DELETE_FUNCTION;
 
 };
 

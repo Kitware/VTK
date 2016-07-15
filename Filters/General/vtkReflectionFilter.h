@@ -106,8 +106,8 @@ protected:
   void FlipVector(double tuple[3], int mirrorDir[3]);
 
 private:
-  vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented
-  void operator=(const vtkReflectionFilter&);  // Not implemented
+  vtkReflectionFilter(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

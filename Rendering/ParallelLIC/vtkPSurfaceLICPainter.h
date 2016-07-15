@@ -78,8 +78,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPSurfaceLICPainter(const vtkPSurfaceLICPainter&); // Not implemented.
-  void operator=(const vtkPSurfaceLICPainter&); // Not implemented.
+  vtkPSurfaceLICPainter(const vtkPSurfaceLICPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPSurfaceLICPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

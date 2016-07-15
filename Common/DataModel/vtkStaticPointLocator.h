@@ -160,8 +160,8 @@ protected:
   bool LargeIds; //indicate whether integer ids are small or large
 
 private:
-  vtkStaticPointLocator(const vtkStaticPointLocator&);  // Not implemented.
-  void operator=(const vtkStaticPointLocator&);  // Not implemented.
+  vtkStaticPointLocator(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
 
 };
 

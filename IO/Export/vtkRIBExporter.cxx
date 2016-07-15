@@ -42,10 +42,6 @@
 
 #include <sstream>
 
-#if _MSC_VER && !defined(snprintf)
-#define snprintf _snprintf
-#endif
-
 vtkStandardNewMacro(vtkRIBExporter);
 
 typedef double RtColor[3];

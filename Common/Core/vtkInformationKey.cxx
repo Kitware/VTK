@@ -13,6 +13,7 @@
 
 =========================================================================*/
 #include "vtkInformationKey.h"
+#include "vtkInformationKeyLookup.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkInformation.h"
@@ -52,6 +53,8 @@ vtkInformationKey::vtkInformationKey(const char* name, const char* location)
 
   this->Location = 0;
   this->SetLocation(location);
+
+  vtkInformationKeyLookup::RegisterKey(this, name, location);
 }
 
 //----------------------------------------------------------------------------

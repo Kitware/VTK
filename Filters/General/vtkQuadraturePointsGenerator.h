@@ -63,8 +63,8 @@ protected:
   vtkQuadraturePointsGenerator();
   virtual ~vtkQuadraturePointsGenerator();
 private:
-  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &); // Not implemented
-  void operator=(const vtkQuadraturePointsGenerator &); // Not implemented
+  vtkQuadraturePointsGenerator(const vtkQuadraturePointsGenerator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraturePointsGenerator &) VTK_DELETE_FUNCTION;
 };
 
 #endif

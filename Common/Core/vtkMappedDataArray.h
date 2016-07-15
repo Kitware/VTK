@@ -118,8 +118,8 @@ protected:
   }
 
 private:
-  vtkMappedDataArray(const vtkMappedDataArray &); // Not implemented.
-  void operator=(const vtkMappedDataArray &);   // Not implemented.
+  vtkMappedDataArray(const vtkMappedDataArray &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMappedDataArray &) VTK_DELETE_FUNCTION;
 
   // Description: Temporary internal array used as fall back storage for
   // GetVoidPointer.

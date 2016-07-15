@@ -39,8 +39,8 @@ protected:
   ~vtkPointData() {}
 
 private:
-  vtkPointData(const vtkPointData&);  // Not implemented.
-  void operator=(const vtkPointData&);  // Not implemented.
+  vtkPointData(const vtkPointData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

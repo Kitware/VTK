@@ -8,6 +8,7 @@ vtk_add_test_python(
   # TestPolygonWriters.py # needs vtkCGMWriter (not built)
   TestXYZMol.py
   caffeine.py
+  caffeine_notrailingwhitespaces.py
   motor.py
   testHexaPenta.py
   TestChacoReader.py

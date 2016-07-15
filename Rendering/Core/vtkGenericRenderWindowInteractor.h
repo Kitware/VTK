@@ -69,8 +69,8 @@ protected:
   int TimerEventResetsTimer;
 
 private:
-  vtkGenericRenderWindowInteractor(const vtkGenericRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkGenericRenderWindowInteractor&);  // Not implemented.
+  vtkGenericRenderWindowInteractor(const vtkGenericRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -303,8 +303,8 @@ protected:
   vtkCellPicker     *LinePicker;
 
 private:
-  vtkLineRepresentation(const vtkLineRepresentation&);  //Not implemented
-  void operator=(const vtkLineRepresentation&);  //Not implemented
+  vtkLineRepresentation(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

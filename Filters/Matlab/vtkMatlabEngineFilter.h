@@ -139,8 +139,8 @@ protected:
 
 private:
 
-  vtkMatlabEngineFilter(const vtkMatlabEngineFilter&);  // Not implemented.
-  void operator=(const vtkMatlabEngineFilter&);  // Not implemented.
+  vtkMatlabEngineFilter(const vtkMatlabEngineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatlabEngineFilter&) VTK_DELETE_FUNCTION;
 
   // Implementation details
   vtkMatlabEngineFilterInternals* mefi;

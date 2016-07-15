@@ -54,8 +54,8 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkStreaklineFilter: public vtkParticleTracerBa
  protected:
   vtkStreaklineFilter();
   ~vtkStreaklineFilter(){}
-  vtkStreaklineFilter(const vtkStreaklineFilter&);  // Not implemented.
-  void operator=(const vtkStreaklineFilter&);  // Not implemented.
+  vtkStreaklineFilter(const vtkStreaklineFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreaklineFilter&) VTK_DELETE_FUNCTION;
   virtual int OutputParticles(vtkPolyData* poly);
   virtual void Finalize();
 

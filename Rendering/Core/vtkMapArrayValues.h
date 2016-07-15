@@ -136,8 +136,8 @@ protected:
   vtkMapType *Map;
 
 private:
-  vtkMapArrayValues(const vtkMapArrayValues&);  // Not implemented.
-  void operator=(const vtkMapArrayValues&);  // Not implemented.
+  vtkMapArrayValues(const vtkMapArrayValues&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapArrayValues&) VTK_DELETE_FUNCTION;
 };
 
 #endif

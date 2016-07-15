@@ -103,8 +103,8 @@ protected:
   vtkXMLReader *Reader; // actual reader
 
 private:
-  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&);  // Not implemented.
-  void operator=(const vtkXMLGenericDataObjectReader&);  // Not implemented.
+  vtkXMLGenericDataObjectReader(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLGenericDataObjectReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

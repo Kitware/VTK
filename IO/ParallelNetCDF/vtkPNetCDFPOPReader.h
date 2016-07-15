@@ -109,8 +109,8 @@ protected:
   vtkMPIController *Controller;
 
 private:
-  vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&);  // Not implemented.
-  void operator=(const vtkPNetCDFPOPReader&);  // Not implemented.
+  vtkPNetCDFPOPReader(const vtkPNetCDFPOPReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPNetCDFPOPReader&) VTK_DELETE_FUNCTION;
 
   vtkPNetCDFPOPReaderInternal* Internals;
 };

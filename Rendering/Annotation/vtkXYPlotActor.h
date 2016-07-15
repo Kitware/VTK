@@ -791,8 +791,8 @@ protected:
   int PlotColorIndex;
 
 private:
-  vtkXYPlotActor(const vtkXYPlotActor&);  // Not implemented.
-  void operator=(const vtkXYPlotActor&);  // Not implemented.
+  vtkXYPlotActor(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXYPlotActor&) VTK_DELETE_FUNCTION;
 
   bool DoesConnectionMatch(int i, vtkAlgorithmOutput* in);
 

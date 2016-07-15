@@ -66,8 +66,8 @@ protected:
   ~vtkParametricBour();
 
 private:
-  vtkParametricBour(const vtkParametricBour&);  // Not implemented.
-  void operator=(const vtkParametricBour&);  // Not implemented.
+  vtkParametricBour(const vtkParametricBour&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricBour&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -291,8 +291,8 @@ protected:
   vtkTransform2D* Transform;
 
 private:
-  vtkContextScene(const vtkContextScene &); // Not implemented.
-  void operator=(const vtkContextScene &);   // Not implemented.
+  vtkContextScene(const vtkContextScene &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextScene &) VTK_DELETE_FUNCTION;
 
   typedef bool (vtkAbstractContextItem::* MouseEvents)(const vtkContextMouseEvent&);
   bool ProcessItem(vtkAbstractContextItem* cur,

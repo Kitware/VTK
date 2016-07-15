@@ -56,8 +56,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPProbeFilter(const vtkPProbeFilter&);  // Not implemented.
-  void operator=(const vtkPProbeFilter&);  // Not implemented.
+  vtkPProbeFilter(const vtkPProbeFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPProbeFilter&) VTK_DELETE_FUNCTION;
 
 };
 

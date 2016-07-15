@@ -504,23 +504,27 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin && this->Handle)
+  if (rwin)
     {
+    // Ensure that the context is current before releasing any graphics
+    // resources tied to it.
     rwin->MakeCurrent();
-
-    rwin->ActivateTexture(this);
-    this->UnBind();
-    rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
-    this->Handle = 0;
-    this->NumberOfDimensions = 0;
-    this->Target =0;
-    this->InternalFormat = 0;
-    this->Format = 0;
-    this->Type = 0;
-    this->Components = 0;
-    this->Width = this->Height = this->Depth = 0;
+    if (this->Handle)
+      {
+      rwin->ActivateTexture(this);
+      this->UnBind();
+      rwin->DeactivateTexture(this);
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->Handle = 0;
+      this->NumberOfDimensions = 0;
+      this->Target =0;
+      this->InternalFormat = 0;
+      this->Format = 0;
+      this->Type = 0;
+      this->Components = 0;
+      this->Width = this->Height = this->Depth = 0;
+      }
     }
   if (this->ShaderProgram)
     {
@@ -580,6 +584,11 @@ bool vtkTextureObject::IsBound()
 #if defined(GL_TEXTURE_BUFFER) && defined(GL_TEXTURE_BINDING_BUFFER)
       case GL_TEXTURE_BUFFER:
         target=GL_TEXTURE_BINDING_BUFFER;
+        break;
+#endif
+#if defined(GL_TEXTURE_CUBE_MAP) && defined(GL_TEXTURE_BINDING_CUBE_MAP)
+      case GL_TEXTURE_CUBE_MAP:
+        target=GL_TEXTURE_BINDING_CUBE_MAP;
         break;
 #endif
       default:
@@ -745,6 +754,88 @@ void vtkTextureObject::SetInternalFormat(unsigned int glInternalFormat)
 }
 
 //----------------------------------------------------------------------------
+static int vtkGetVTKType(GLenum gltype)
+{
+   // DON'T DEAL with VTK_CHAR as this is platform dependent.
+  switch (gltype)
+    {
+  case GL_BYTE:
+    return VTK_SIGNED_CHAR;
+
+  case GL_UNSIGNED_BYTE:
+    return VTK_UNSIGNED_CHAR;
+
+  case GL_SHORT:
+    return VTK_SHORT;
+
+  case GL_UNSIGNED_SHORT:
+    return VTK_UNSIGNED_SHORT;
+
+  case GL_INT:
+    return VTK_INT;
+
+  case GL_UNSIGNED_INT:
+    return VTK_UNSIGNED_INT;
+
+  case GL_FLOAT:
+    return VTK_FLOAT;
+    }
+
+  return 0;
+}
+
+void vtkTextureObject::GetShiftAndScale(float &shift, float &scale)
+{
+  shift = 1.0;
+  scale = 1.0;
+
+  // check to see if this is an int format
+  GLenum iresult = this->Context->GetDefaultTextureInternalFormat(
+    vtkGetVTKType(this->Type), this->Components, true, false);
+
+  // using an int texture format, no shift scale
+  if (iresult == this->InternalFormat)
+    {
+    return;
+    }
+
+  // for all float type internal formats
+  switch (this->Type)
+    {
+    case GL_BYTE:
+      scale = (VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN)/2.0;
+      shift = scale + VTK_SIGNED_CHAR_MIN;
+      break;
+    case GL_UNSIGNED_BYTE:
+      scale = VTK_UNSIGNED_CHAR_MAX;
+      shift = 0.0;
+      break;
+    case GL_SHORT:
+      // this may be off a tad
+      scale = (VTK_SHORT_MAX - VTK_SHORT_MIN)/2.0;
+      shift = scale + VTK_SHORT_MIN;
+      break;
+    case GL_UNSIGNED_SHORT:
+      scale = VTK_UNSIGNED_SHORT_MAX;
+      shift = 0.0;
+      break;
+    case GL_INT:
+      // this may be off a tad
+      scale = (1.0*VTK_INT_MAX - VTK_INT_MIN)/2.0;
+      shift = scale + VTK_INT_MIN;
+      break;
+    case GL_UNSIGNED_INT:
+      scale = VTK_UNSIGNED_INT_MAX;
+      shift = 0.0;
+      break;
+    case GL_FLOAT:
+    default:
+      break;
+    }
+}
+
+
+//----------------------------------------------------------------------------
 unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
                                          bool shaderSupportsTextureInt)
 {
@@ -846,59 +937,28 @@ int vtkTextureObject::GetDefaultDataType(int vtk_scalar_type)
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
   switch (vtk_scalar_type)
     {
-  case VTK_SIGNED_CHAR:
-    return GL_BYTE;
+    case VTK_SIGNED_CHAR:
+      return GL_BYTE;
 
-  case VTK_UNSIGNED_CHAR:
-    return GL_UNSIGNED_BYTE;
+    case VTK_UNSIGNED_CHAR:
+      return GL_UNSIGNED_BYTE;
 
-  case VTK_SHORT:
-    return GL_SHORT;
+    case VTK_SHORT:
+      return GL_SHORT;
 
-  case VTK_UNSIGNED_SHORT:
-    return GL_UNSIGNED_SHORT;
+    case VTK_UNSIGNED_SHORT:
+      return GL_UNSIGNED_SHORT;
 
-  case VTK_INT:
-    return GL_INT;
+    case VTK_INT:
+      return GL_INT;
 
-  case VTK_UNSIGNED_INT:
-    return GL_UNSIGNED_INT;
+    case VTK_UNSIGNED_INT:
+      return GL_UNSIGNED_INT;
 
-  case VTK_FLOAT:
-  case VTK_VOID: // used for depth component textures.
-    return GL_FLOAT;
+    case VTK_FLOAT:
+    case VTK_VOID: // used for depth component textures.
+      return GL_FLOAT;
     }
-  return 0;
-}
-
-//----------------------------------------------------------------------------
-static int vtkGetVTKType(GLenum gltype)
-{
-   // DON'T DEAL with VTK_CHAR as this is platform dependent.
-  switch (gltype)
-    {
-  case GL_BYTE:
-    return VTK_SIGNED_CHAR;
-
-  case GL_UNSIGNED_BYTE:
-    return VTK_UNSIGNED_CHAR;
-
-  case GL_SHORT:
-    return VTK_SHORT;
-
-  case GL_UNSIGNED_SHORT:
-    return VTK_UNSIGNED_SHORT;
-
-  case GL_INT:
-    return VTK_INT;
-
-  case GL_UNSIGNED_INT:
-    return VTK_UNSIGNED_INT;
-
-  case GL_FLOAT:
-    return VTK_FLOAT;
-    }
-
   return 0;
 }
 
@@ -1544,6 +1604,60 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
         static_cast<const GLvoid *>(data));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->Deactivate();
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::CreateCubeFromRaw(unsigned int width, unsigned int height,
+                                         int numComps, int dataType, void *data[6])
+{
+  assert(this->Context);
+
+  // Now determine the texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
+    {
+    vtkErrorMacro("Failed to determine texture parameters. IF="
+      << this->InternalFormat << " F=" << this->Format << " T=" << this->Type);
+    return false;
+    }
+
+  GLenum target = GL_TEXTURE_CUBE_MAP;
+  this->Target = target;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth = 1;
+  this->NumberOfDimensions = 2;
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+
+  // Source texture data from the PBO.
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  for (int i = 0; i < 6; i++)
+    {
+    if (data[i])
+      {
+      glTexImage2D(
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        0,
+        this->InternalFormat,
+        static_cast<GLsizei>(this->Width),
+        static_cast<GLsizei>(this->Height),
+        0,
+        this->Format,
+        this->Type,
+        static_cast<const GLvoid *>(data[i]));
+      vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+      }
+    }
 
   this->Deactivate();
   return true;

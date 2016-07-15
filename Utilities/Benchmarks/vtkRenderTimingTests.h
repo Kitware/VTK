@@ -101,7 +101,7 @@ class surfaceTest : public vtkRTTest
     ren1->AddActor(actor.Get());
 
     // set the size/color of our window
-    renWindow->SetSize(500, 500);
+    renWindow->SetSize(this->GetRenderWidth(), this->GetRenderHeight());
     ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene
@@ -204,7 +204,7 @@ class glyphTest : public vtkRTTest
     ren1->AddActor(actor.Get());
 
     // set the size/color of our window
-    renWindow->SetSize(600, 600);
+    renWindow->SetSize(this->GetRenderWidth(), this->GetRenderHeight());
     ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene
@@ -342,7 +342,7 @@ class moleculeTest : public vtkRTTest
     ren1->AddActor(actor.GetPointer());
 
     // set the size/color of our window
-    renWindow->SetSize(600,600);
+    renWindow->SetSize(this->GetRenderWidth(), this->GetRenderHeight());
     ren1->SetBackground(0.2,0.3,0.5);
 
     // draw the resulting scene
@@ -473,7 +473,7 @@ class volumeTest : public vtkRTTest
     ren1->AddActor(volume.GetPointer());
 
     // set the size/color of our window
-    renWindow->SetSize(600, 600);
+    renWindow->SetSize(this->GetRenderWidth(), this->GetRenderHeight());
     ren1->SetBackground(0.2, 0.3, 0.4);
 
     // draw the resulting scene
@@ -601,7 +601,7 @@ class depthPeelingTest : public vtkRTTest
       }
 
     // set the size/color of our window
-    renWindow->SetSize(500, 500);
+    renWindow->SetSize(this->GetRenderWidth(), this->GetRenderHeight());
     ren1->SetBackground(0.2, 0.3, 0.5);
 
     // draw the resulting scene

@@ -127,8 +127,8 @@ protected:
   std::map<int, std::string> LayersProjection;
 
 private:
-  vtkGDALVectorReader(const vtkGDALVectorReader&);  // Not implemented.
-  void operator=(const vtkGDALVectorReader&);       // Not implemented.
+  vtkGDALVectorReader(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDALVectorReader_h

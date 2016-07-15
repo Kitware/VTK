@@ -248,8 +248,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkGraphMapper(const vtkGraphMapper&);  // Not implemented.
-  void operator=(const vtkGraphMapper&);  // Not implemented.
+  vtkGraphMapper(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphMapper&) VTK_DELETE_FUNCTION;
 
   // Helper function
   vtkPolyData* CreateCircle(bool filled);

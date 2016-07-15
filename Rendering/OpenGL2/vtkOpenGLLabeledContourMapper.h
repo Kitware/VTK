@@ -57,8 +57,8 @@ protected:
 
 
 private:
-  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLLabeledContourMapper&);  // Not implemented.
+  vtkOpenGLLabeledContourMapper(const vtkOpenGLLabeledContourMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLLabeledContourMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

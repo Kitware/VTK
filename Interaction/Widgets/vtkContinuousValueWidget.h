@@ -112,8 +112,8 @@ protected:
   double Value;
 
 private:
-  vtkContinuousValueWidget(const vtkContinuousValueWidget&);  //Not implemented
-  void operator=(const vtkContinuousValueWidget&);  //Not implemented
+  vtkContinuousValueWidget(const vtkContinuousValueWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContinuousValueWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

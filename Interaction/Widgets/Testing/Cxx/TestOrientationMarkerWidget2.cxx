@@ -108,7 +108,7 @@ int TestOrientationMarkerWidget2(int argc, char *argv[])
   vtkNew<vtkOrientationMarkerWidget> orientationWidget;
   orientationWidget->SetInteractor(iren.GetPointer());
   orientationWidget->SetDefaultRenderer(smallViewRenderer.GetPointer());
-  orientationWidget->SetViewport(smallViewRenderer->GetViewport());
+  orientationWidget->SetViewport(0, 0, 1, 1);
   orientationWidget->SetOrientationMarker(textActor.GetPointer());
   orientationWidget->On();
 

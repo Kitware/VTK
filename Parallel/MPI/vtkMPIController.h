@@ -319,8 +319,8 @@ protected:
   // When set, TriggerRMI uses Ssend instead of Send.
   static int UseSsendForRMI;
 private:
-  vtkMPIController(const vtkMPIController&);  // Not implemented.
-  void operator=(const vtkMPIController&);  // Not implemented.
+  vtkMPIController(const vtkMPIController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
 
 };
 

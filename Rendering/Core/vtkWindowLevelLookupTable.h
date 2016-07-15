@@ -98,8 +98,8 @@ protected:
   double MaximumTableValue[4];
   double MinimumTableValue[4];
 private:
-  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&);  // Not implemented.
-  void operator=(const vtkWindowLevelLookupTable&);  // Not implemented.
+  vtkWindowLevelLookupTable(const vtkWindowLevelLookupTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindowLevelLookupTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

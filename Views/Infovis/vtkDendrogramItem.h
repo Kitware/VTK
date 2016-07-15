@@ -322,8 +322,8 @@ protected:
   vtkSmartPointer<vtkTree> LayoutTree;
 
 private:
-  vtkDendrogramItem(const vtkDendrogramItem&); // Not implemented
-  void operator=(const vtkDendrogramItem&); // Not implemented
+  vtkDendrogramItem(const vtkDendrogramItem&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDendrogramItem&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkTree> PrunedTree;
   unsigned long DendrogramBuildTime;

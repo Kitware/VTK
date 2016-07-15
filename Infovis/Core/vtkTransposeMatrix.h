@@ -47,8 +47,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkTransposeMatrix(const vtkTransposeMatrix&); // Not implemented
-  void operator=(const vtkTransposeMatrix&);   // Not implemented
+  vtkTransposeMatrix(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransposeMatrix&) VTK_DELETE_FUNCTION;
 };
 
 #endif

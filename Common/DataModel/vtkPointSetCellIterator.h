@@ -53,8 +53,8 @@ protected:
   vtkIdType CellId;
 
 private:
-  vtkPointSetCellIterator(const vtkPointSetCellIterator &); // Not implemented.
-  void operator=(const vtkPointSetCellIterator &);   // Not implemented.
+  vtkPointSetCellIterator(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSetCellIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPointSetCellIterator_h

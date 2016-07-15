@@ -1249,8 +1249,13 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
       }
 
     // No data compression.  The header is just the length of the data.
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+    std::unique_ptr<vtkXMLDataHeader>
+      uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+#else
     std::auto_ptr<vtkXMLDataHeader>
       uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+#endif
     if (!uh->Set(0, data_size*outWordSize))
       {
       vtkErrorMacro("Array \"" << a->GetName() <<

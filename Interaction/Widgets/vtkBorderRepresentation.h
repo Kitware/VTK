@@ -165,6 +165,11 @@ public:
   };
 
   // Description:
+  // Return the MTime of this object. It takes into account MTimes
+  // of position coordinates and border's property.
+  virtual unsigned long GetMTime();
+
+  // Description:
   // Subclasses should implement these methods. See the superclasses'
   // documentation for more information.
   virtual void BuildRepresentation();
@@ -228,8 +233,8 @@ protected:
   int MaximumSize[2];
 
 private:
-  vtkBorderRepresentation(const vtkBorderRepresentation&);  //Not implemented
-  void operator=(const vtkBorderRepresentation&);  //Not implemented
+  vtkBorderRepresentation(const vtkBorderRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBorderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

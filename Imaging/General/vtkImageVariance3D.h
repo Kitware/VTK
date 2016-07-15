@@ -63,8 +63,8 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageVariance3D(const vtkImageVariance3D&);  // Not implemented.
-  void operator=(const vtkImageVariance3D&);  // Not implemented.
+  vtkImageVariance3D(const vtkImageVariance3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageVariance3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

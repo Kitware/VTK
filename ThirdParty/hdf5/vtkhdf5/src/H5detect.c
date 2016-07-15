@@ -1679,9 +1679,9 @@ detect_alignments(void) HDF_NO_UBSAN
  */
 static int verify_signal_handlers(int signum, void (*handler)(int))
 {
-    /* Under Address Sanitizer, don't raise any signals. */
+    /* Under Address Sanitizer and Thread Sanitizer, don't raise any signals. */
 #if defined(__has_feature)
-#if __has_feature(address_sanitizer)
+#if __has_feature(address_sanitizer) || __has_feature(thread_sanitizer)
     return 0;
 #endif
 #endif

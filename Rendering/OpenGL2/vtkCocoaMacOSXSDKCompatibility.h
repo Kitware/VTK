@@ -34,6 +34,24 @@ PURPOSE.  See the above copyright notice for more information.
   #define __has_feature(x) 0
 #endif
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < 101200) && !defined(VTK_DONT_MAP_10_12_ENUMS)
+  // The 10.12 SDK made a bunch of enum names more logical, map old names to new names to continue supporting old SDKs.
+  #define NSWindowStyleMaskBorderless NSBorderlessWindowMask
+  #define NSWindowStyleMaskTitled NSTitledWindowMask
+  #define NSWindowStyleMaskClosable NSClosableWindowMask
+  #define NSWindowStyleMaskMiniaturizable NSMiniaturizableWindowMask
+  #define NSWindowStyleMaskResizable NSResizableWindowMask
+
+  #define NSEventModifierFlagShift NSShiftKeyMask
+  #define NSEventModifierFlagControl NSControlKeyMask
+  #define NSEventModifierFlagOption NSAlternateKeyMask
+  #define NSEventModifierFlagCommand NSCommandKeyMask
+
+  #define NSEventTypeKeyDown NSKeyDown
+  #define NSEventTypeKeyUp NSKeyUp
+  #define NSEventTypeApplicationDefined NSApplicationDefined
+#endif
+
 // Create handy #defines that indicate the Objective-C memory management model.
 // Manual Retain Release, Automatic Reference Counting, or Garbage Collection.
 #if defined(__OBJC_GC__)

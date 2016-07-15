@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
@@ -54,8 +54,8 @@ protected:
   virtual ~vtkHierarchicalBoxDataSet();
 
 private:
-  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&); // Not implemented
-  void operator=(const vtkHierarchicalBoxDataSet&); // Not implemented
+  vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

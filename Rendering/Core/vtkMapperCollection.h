@@ -67,8 +67,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkMapperCollection(const vtkMapperCollection&);  // Not implemented.
-  void operator=(const vtkMapperCollection&);  // Not implemented.
+  vtkMapperCollection(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMapperCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

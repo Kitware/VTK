@@ -162,8 +162,8 @@ protected:
   virtual void RegisterPickers();
 
 private:
-  vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&);  //Not implemented
-  void operator=(const vtkTexturedButtonRepresentation&);  //Not implemented
+  vtkTexturedButtonRepresentation(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTexturedButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

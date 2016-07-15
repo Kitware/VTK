@@ -61,8 +61,8 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridReader&);  // Not implemented.
+  vtkUnstructuredGridReader(const vtkUnstructuredGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

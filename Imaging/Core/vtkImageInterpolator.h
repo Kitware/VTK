@@ -114,8 +114,8 @@ protected:
   int InterpolationMode;
 
 private:
-  vtkImageInterpolator(const vtkImageInterpolator&);  // Not implemented.
-  void operator=(const vtkImageInterpolator&);  // Not implemented.
+  vtkImageInterpolator(const vtkImageInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -24,14 +24,20 @@
 #ifndef XDMFCOREREADER_HPP_
 #define XDMFCOREREADER_HPP_
 
+// C Compatible Includes
+#include "XdmfCore.hpp"
+#include "XdmfHeavyDataController.hpp"
+#include "XdmfHeavyDataWriter.hpp"
+#include "XdmfItem.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfCoreItemFactory;
-class XdmfItem;
 
 // Includes
 #include <string>
 #include <vector>
-#include "XdmfCore.hpp"
 #include "XdmfSharedPtr.hpp"
 
 /**
@@ -49,6 +55,24 @@ class XDMFCORE_EXPORT XdmfCoreReader {
 public:
 
   virtual ~XdmfCoreReader() = 0;
+
+  /**
+   * Uses the internal item factory to create a copy of the internal pointer
+   * of the provided shared pointer. Primarily used for C wrapping.
+   *
+   * @param     original        The source shared pointer that the pointer will be pulled from.
+   * @return                    A duplicate of the object contained in the pointer.
+   */
+  virtual XdmfItem * DuplicatePointer(shared_ptr<XdmfItem> original) const;
+
+  virtual std::vector<shared_ptr<XdmfHeavyDataController> >
+  generateHeavyDataControllers(std::map<std::string, std::string> controllerProperties,
+                               const std::vector<unsigned int> & passedDimensions = std::vector<unsigned int>(),
+                               shared_ptr<const XdmfArrayType> passedArrayType = shared_ptr<const XdmfArrayType>(),
+                               const std::string & passedFormat = std::string()) const;
+
+  virtual shared_ptr<XdmfHeavyDataWriter>
+  generateHeavyDataWriter(std::string typeName, std::string path) const;
 
   /**
    * Parse a string containing light data into an Xdmf structure in
@@ -220,6 +244,34 @@ std::allocator<shared_ptr<XdmfItem> >;
 XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
 std::vector<shared_ptr<XdmfItem>,
             std::allocator<shared_ptr<XdmfItem> > >;
+#endif
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFCOREREADER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFCOREREADER XDMFCOREREADER;
+
+XDMFCORE_EXPORT XDMFITEM * XdmfCoreReaderRead(XDMFCOREREADER * reader, char * filePath, int * status);
+
+#define XDMF_CORE_READER_C_CHILD_DECLARE(ClassName, CClassName, Level)                      \
+                                                                                            \
+Level##_EXPORT XDMFITEM * ClassName##Read( CClassName * reader, char * filePath, int * status);
+
+#define XDMF_CORE_READER_C_CHILD_WRAPPER(ClassName, CClassName)                             \
+                                                                                            \
+XDMFITEM * ClassName##Read( CClassName * reader, char * filePath, int * status)                 \
+{                                                                                           \
+  return XdmfCoreReaderRead((XDMFCOREREADER *)((void *)reader), filePath, status);          \
+}
+
+#ifdef __cplusplus
+}
 #endif
 
 #endif /* XDMFCOREREADER_HPP_ */

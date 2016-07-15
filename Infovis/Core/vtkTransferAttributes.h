@@ -110,8 +110,8 @@ protected:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkTransferAttributes(const vtkTransferAttributes&);  // Not implemented.
-  void operator=(const vtkTransferAttributes&);  // Not implemented.
+  vtkTransferAttributes(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransferAttributes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

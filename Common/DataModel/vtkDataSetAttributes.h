@@ -255,7 +255,7 @@ public:
 
   // Description:
   // Remove an array (with the given name) from the list of arrays.
-  virtual void RemoveArray(const char *name);
+  using vtkFieldData::RemoveArray;
   virtual void RemoveArray(int index);
 
 
@@ -650,8 +650,8 @@ private:
   vtkFieldData::BasicIterator  ComputeRequiredArrays(vtkDataSetAttributes* pd, int ctype);
 
 private:
-  vtkDataSetAttributes(const vtkDataSetAttributes&);  // Not implemented.
-  void operator=(const vtkDataSetAttributes&);  // Not implemented.
+  vtkDataSetAttributes(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetAttributes&) VTK_DELETE_FUNCTION;
 
 public:
   // This public class is used to perform set operations, other misc.
@@ -689,12 +689,12 @@ public:
     friend class vtkDataSetAttributes;
 
   protected:
-    FieldList(const FieldList&) {} //prevent these methods from being used
-    void operator=(const FieldList&) {}
-
     void SetFieldIndex(int i, int index)
       { this->FieldIndices[i] = index; }
   private:
+    FieldList(const FieldList&) VTK_DELETE_FUNCTION;
+    void operator=(const FieldList&) VTK_DELETE_FUNCTION;
+
     void SetField(int index, vtkAbstractArray *da);
     void RemoveField(const char *name);
     void ClearFields();

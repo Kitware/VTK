@@ -182,8 +182,8 @@ protected:
                         vtkPlot *plot, vtkIdType &segmentIndex);
 
 private:
-  vtkChartBox(const vtkChartBox &); // Not implemented.
-  void operator=(const vtkChartBox &);   // Not implemented.
+  vtkChartBox(const vtkChartBox &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkChartBox &) VTK_DELETE_FUNCTION;
 
 };
 

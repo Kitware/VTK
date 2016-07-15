@@ -131,8 +131,8 @@ protected:
   double RotationScale;
 
 private:
-  vtkTDxUnixDevice(const vtkTDxUnixDevice&);  // Not implemented.
-  void operator=(const vtkTDxUnixDevice&);  // Not implemented.
+  vtkTDxUnixDevice(const vtkTDxUnixDevice&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTDxUnixDevice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

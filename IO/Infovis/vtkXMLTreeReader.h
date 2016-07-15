@@ -173,8 +173,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkXMLTreeReader(const vtkXMLTreeReader&); // Not implemented
-  void operator=(const vtkXMLTreeReader&);   // Not implemented
+  vtkXMLTreeReader(const vtkXMLTreeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLTreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

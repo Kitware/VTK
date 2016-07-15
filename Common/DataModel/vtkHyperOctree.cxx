@@ -96,8 +96,8 @@ protected:
     }
 
 private:
-  vtkHyperOctreeInternal(const vtkHyperOctreeInternal &);  // Not implemented.
-  void operator=(const vtkHyperOctreeInternal &);    // Not implemented.
+  vtkHyperOctreeInternal(const vtkHyperOctreeInternal &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeInternal &) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------
@@ -516,8 +516,8 @@ protected:
   int Index[D]; // index in each dimension of the current node, as if the
   // tree at the current level was a uniform grid.
 private:
-  vtkCompactHyperOctreeCursor(const vtkCompactHyperOctreeCursor<D> &);  // Not implemented.
-  void operator=(const vtkCompactHyperOctreeCursor<D> &);    // Not implemented.
+  vtkCompactHyperOctreeCursor(const vtkCompactHyperOctreeCursor<D> &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompactHyperOctreeCursor<D> &) VTK_DELETE_FUNCTION;
 };
 
 // D is the dimension of the space
@@ -961,8 +961,8 @@ protected:
   std::vector<int> LeafParent; // record the parent of each leaf
   vtkDataSetAttributes *Attributes; // cell data or point data.
 private:
-  vtkCompactHyperOctree(const vtkCompactHyperOctree<D> &);  // Not implemented.
-  void operator=(const vtkCompactHyperOctree<D> &);    // Not implemented.
+  vtkCompactHyperOctree(const vtkCompactHyperOctree<D> &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompactHyperOctree<D> &) VTK_DELETE_FUNCTION;
 };
 
 // octree: vtkHyperOctreeInternal<3>

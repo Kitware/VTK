@@ -128,8 +128,8 @@ protected:
   int TimerDuration;
 
 private:
-  vtkHoverWidget(const vtkHoverWidget&);  //Not implemented
-  void operator=(const vtkHoverWidget&);  //Not implemented
+  vtkHoverWidget(const vtkHoverWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHoverWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

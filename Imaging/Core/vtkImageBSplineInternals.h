@@ -82,8 +82,8 @@ protected:
     double data[], long size, long border, double pole, double tol);
 
 private:
-  vtkImageBSplineInternals(const vtkImageBSplineInternals&);  // Not implemented.
-  void operator=(const vtkImageBSplineInternals&);  // Not implemented.
+  vtkImageBSplineInternals(const vtkImageBSplineInternals&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageBSplineInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif

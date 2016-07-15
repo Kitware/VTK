@@ -130,8 +130,8 @@ private:
   vtkInformationQuadratureSchemeDefinitionVectorValue *GetQuadratureSchemeDefinitionVector(vtkInformation *info);
 
   //
-  vtkInformationQuadratureSchemeDefinitionVectorKey(const vtkInformationQuadratureSchemeDefinitionVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&);  // Not implemented.
+  vtkInformationQuadratureSchemeDefinitionVectorKey(const vtkInformationQuadratureSchemeDefinitionVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationQuadratureSchemeDefinitionVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

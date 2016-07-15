@@ -87,10 +87,6 @@ POSSIBILITY OF SUCH DAMAGES.
 #include <vector>
 #include <map>
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-
 #define VTK_MINC_MAX_DIMS 8
 
 //--------------------------------------------------------------------------

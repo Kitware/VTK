@@ -128,8 +128,8 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticQuad(const vtkQuadraticQuad&);  // Not implemented.
-  void operator=(const vtkQuadraticQuad&);  // Not implemented.
+  vtkQuadraticQuad(const vtkQuadraticQuad&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraticQuad&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticQuad::GetParametricCenter(double pcoords[3])

@@ -115,8 +115,8 @@ protected:
   vtkSelection* Selection;
 
 private:
-  vtkAnnotation(const vtkAnnotation&);  // Not implemented.
-  void operator=(const vtkAnnotation&);  // Not implemented.
+  vtkAnnotation(const vtkAnnotation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotation&) VTK_DELETE_FUNCTION;
 
 };
 

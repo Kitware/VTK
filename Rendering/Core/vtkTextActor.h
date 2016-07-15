@@ -305,8 +305,8 @@ protected:
   virtual int UpdateRectangle(vtkViewport* viewport);
 
 private:
-  vtkTextActor(const vtkTextActor&);  // Not implemented.
-  void operator=(const vtkTextActor&);  // Not implemented.
+  vtkTextActor(const vtkTextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextActor&) VTK_DELETE_FUNCTION;
 };
 
 

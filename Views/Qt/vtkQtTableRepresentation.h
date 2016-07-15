@@ -122,8 +122,8 @@ public:
   virtual void SetModelType() { };
 
 private:
-  vtkQtTableRepresentation(const vtkQtTableRepresentation &); // Not implemented
-  void operator=(const vtkQtTableRepresentation &); // Not implemented
+  vtkQtTableRepresentation(const vtkQtTableRepresentation &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTableRepresentation &) VTK_DELETE_FUNCTION;
 
 };
 

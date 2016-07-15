@@ -753,7 +753,7 @@ private:
   int AllVariablesDefinedInAllBlocks;
 
 private:
-  vtkModelMetadata(const vtkModelMetadata&); // Not implemented
-  void operator=(const vtkModelMetadata&); // Not implemented
+  vtkModelMetadata(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
 };
 #endif

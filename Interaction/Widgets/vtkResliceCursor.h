@@ -157,8 +157,8 @@ protected:
   vtkTimeStamp  PolyDataBuildTime;
 
 private:
-  vtkResliceCursor(const vtkResliceCursor&);  // Not implemented.
-  void operator=(const vtkResliceCursor&);  // Not implemented.
+  vtkResliceCursor(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

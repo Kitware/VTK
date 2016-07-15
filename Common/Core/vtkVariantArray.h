@@ -186,7 +186,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right
   // kind of templated vtkArrayIteratorTemplate.
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
 
   //
   // Additional functions
@@ -283,8 +283,8 @@ protected:
   int SaveUserArray;
 
 private:
-  vtkVariantArray(const vtkVariantArray&);  // Not implemented.
-  void operator=(const vtkVariantArray&);  // Not implemented.
+  vtkVariantArray(const vtkVariantArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVariantArray&) VTK_DELETE_FUNCTION;
 
   vtkVariantArrayLookup* Lookup;
   void UpdateLookup();

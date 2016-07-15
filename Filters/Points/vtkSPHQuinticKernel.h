@@ -25,7 +25,7 @@
 
 // .SECTION Acknowledgments
 // The following work has been generously supported by Altair Engineering
-// and FluiDyna GmbH, Please contact Steve Cosgrove or Milos Stanic for
+// and FluiDyna GmbH. Please contact Steve Cosgrove or Milos Stanic for
 // more information.
 
 // .SECTION See Also
@@ -51,6 +51,12 @@ public:
   static vtkSPHQuinticKernel *New();
   vtkTypeMacro(vtkSPHQuinticKernel,vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
+
+  // Description:
+  // Produce the computational parameters for the kernel. Invoke this method
+  // after setting initial values like SpatialStep.
+  virtual void Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds,
+                          vtkPointData *pd);
 
   // Description:
   // Compute weighting factor given a normalized distance from a sample point.
@@ -80,8 +86,8 @@ protected:
   ~vtkSPHQuinticKernel();
 
 private:
-  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&);  // Not implemented.
-  void operator=(const vtkSPHQuinticKernel&);  // Not implemented.
+  vtkSPHQuinticKernel(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHQuinticKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

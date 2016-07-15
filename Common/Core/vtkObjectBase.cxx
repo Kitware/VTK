@@ -112,7 +112,7 @@ const char* vtkObjectBase::GetClassName() const
   return this->GetClassNameInternal();
 }
 
-int vtkObjectBase::IsTypeOf(const char *name)
+vtkTypeBool vtkObjectBase::IsTypeOf(const char *name)
 {
   if ( !strcmp("vtkObjectBase",name) )
     {
@@ -121,7 +121,7 @@ int vtkObjectBase::IsTypeOf(const char *name)
   return 0;
 }
 
-int vtkObjectBase::IsA(const char *type)
+vtkTypeBool vtkObjectBase::IsA(const char *type)
 {
   return this->vtkObjectBase::IsTypeOf(type);
 }
@@ -190,7 +190,7 @@ void vtkObjectBase::UnRegister(vtkObjectBase* o)
 }
 
 //----------------------------------------------------------------------------
-void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
+void vtkObjectBase::RegisterInternal(vtkObjectBase*, vtkTypeBool check)
 {
   // If a reference is available from the garbage collector, use it.
   // Otherwise create a new reference by incrementing the reference
@@ -203,7 +203,7 @@ void vtkObjectBase::RegisterInternal(vtkObjectBase*, int check)
 }
 
 //----------------------------------------------------------------------------
-void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, int check)
+void vtkObjectBase::UnRegisterInternal(vtkObjectBase*, vtkTypeBool check)
 {
   // If the garbage collector accepts a reference, do not decrement
   // the count.

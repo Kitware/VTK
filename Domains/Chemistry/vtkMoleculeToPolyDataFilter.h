@@ -42,8 +42,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
-  void operator=(const vtkMoleculeToPolyDataFilter&);  // Not implemented.
+  vtkMoleculeToPolyDataFilter(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMoleculeToPolyDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

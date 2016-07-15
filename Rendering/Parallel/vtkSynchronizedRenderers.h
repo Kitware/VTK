@@ -238,8 +238,8 @@ protected:
   bool AutomaticEventHandling;
 
 private:
-  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&); // Not implemented
-  void operator=(const vtkSynchronizedRenderers&); // Not implemented
+  vtkSynchronizedRenderers(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSynchronizedRenderers&) VTK_DELETE_FUNCTION;
 
   class vtkObserver;
   vtkObserver* Observer;

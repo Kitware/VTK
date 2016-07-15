@@ -80,12 +80,7 @@ struct TemplateCastRayWorker
       NumIntersections(0)
   {}
 
-  // Silence warning C4512 on MSVC2015: "assignment operator could not be
-  // generated.". This class is never copied, so no need for assignment.
-  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &)
-  {
-    return *this;
-  }
+  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) VTK_DELETE_FUNCTION;
 
   // Execute the algorithm with all arrays set to NULL.
   void operator()()
@@ -375,8 +370,8 @@ protected:
   vtkIdType                                              CurrentTetra;
 
 private:
-  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
-  void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);

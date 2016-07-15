@@ -75,8 +75,8 @@ protected:
   vtkIdType NextId;
 
 private:
-  vtkTreeIterator(const vtkTreeIterator &);  // Not implemented.
-  void operator=(const vtkTreeIterator &);        // Not implemented.
+  vtkTreeIterator(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeIterator &) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -139,8 +139,8 @@ protected:
   int InverseIterations;
   double InverseTolerance;
 private:
-  vtkWarpTransform(const vtkWarpTransform&);  // Not implemented.
-  void operator=(const vtkWarpTransform&);  // Not implemented.
+  vtkWarpTransform(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

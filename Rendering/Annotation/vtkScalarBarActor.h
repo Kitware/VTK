@@ -633,8 +633,8 @@ protected:
   //@}
 
 private:
-  vtkScalarBarActor(const vtkScalarBarActor&);  // Not implemented.
-  void operator=(const vtkScalarBarActor&);  // Not implemented.
+  vtkScalarBarActor(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScalarBarActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

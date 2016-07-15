@@ -195,8 +195,8 @@ private:
   int BuildPlot(vtkViewport*);
 
 private:
-  vtkPieChartActor(const vtkPieChartActor&);  // Not implemented.
-  void operator=(const vtkPieChartActor&);  // Not implemented.
+  vtkPieChartActor(const vtkPieChartActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPieChartActor&) VTK_DELETE_FUNCTION;
 };
 
 

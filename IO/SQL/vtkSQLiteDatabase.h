@@ -157,8 +157,8 @@ private:
 
   vtkStdString TempURL;
 
-  vtkSQLiteDatabase(const vtkSQLiteDatabase &); // Not implemented.
-  void operator=(const vtkSQLiteDatabase &); // Not implemented.
+  vtkSQLiteDatabase(const vtkSQLiteDatabase &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSQLiteDatabase &) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkSQLiteDatabase_h

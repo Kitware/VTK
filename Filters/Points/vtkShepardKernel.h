@@ -82,8 +82,8 @@ protected:
   double PowerParameter;
 
 private:
-  vtkShepardKernel(const vtkShepardKernel&);  // Not implemented.
-  void operator=(const vtkShepardKernel&);  // Not implemented.
+  vtkShepardKernel(const vtkShepardKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShepardKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -110,8 +110,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,8 +134,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
 };
 
 
@@ -150,7 +148,11 @@ public:
   typedef FunctorImpl<R, Parm1> Impl;
   typedef R ResultType;
 
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  Functor() : spImpl_()
+#else
   Functor() : spImpl_(0)
+#endif
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -164,10 +166,14 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+      spImpl_.swap(copy.spImpl_);
+#else
       // swap auto_ptrs by hand
       Impl* p = spImpl_.release();
       spImpl_.reset(copy.spImpl_.release());
       copy.spImpl_.reset(p);
+#endif
       return *this;
   }
 
@@ -175,7 +181,12 @@ public:
   ResultType operator()(Parm1& p1)
     { return  (*spImpl_)(p1); }
 private:
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  std::unique_ptr<Impl> spImpl_;
+#else
   std::auto_ptr<Impl> spImpl_;
+#endif
+
 };
 
 }
@@ -254,8 +265,7 @@ class FunctorImpl{
     FunctorImpl() {}
     FunctorImpl(const FunctorImpl&) {}
   private:
-    // not implemented
-    FunctorImpl& operator =(const FunctorImpl&);
+    FunctorImpl& operator =(const FunctorImpl&) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -281,8 +291,7 @@ public:
 private:
   Fun f_;
   FunctorHandler(const FunctorHandler &b) : ParentFunctor::Impl(b), f_(b.f_) {}
-  // not implemented
-  FunctorHandler& operator =(const FunctorHandler& b);
+  FunctorHandler& operator =(const FunctorHandler& b) VTK_DELETE_FUNCTION;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +304,11 @@ public:
   typedef FunctorImpl<R, Parm1,Parm2> Impl;
   typedef R ResultType;
 
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  Functor() : spImpl_()
+#else
   Functor() : spImpl_(0)
+#endif
     {}
 
   Functor(const Functor& rhs) : spImpl_(Impl::Clone(rhs.spImpl_.get()))
@@ -309,17 +322,24 @@ public:
   Functor& operator=(const Functor& rhs)
   {
       Functor copy(rhs);
-      // swap auto_ptrs by hand
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+      spImpl_.swap(copy.spImpl_);
+#else      // swap auto_ptrs by hand
       Impl* p = spImpl_.release();
       spImpl_.reset(copy.spImpl_.release());
       copy.spImpl_.reset(p);
+#endif
       return *this;
   }
 
   ResultType operator()(Parm1& p1,Parm2& p2)
     { return  (*spImpl_)(p1,p2); }
 private:
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+  std::unique_ptr<Impl> spImpl_;
+#else
   std::auto_ptr<Impl> spImpl_;
+#endif
 };
 }
 

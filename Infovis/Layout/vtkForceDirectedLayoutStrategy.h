@@ -163,8 +163,8 @@ private:
   vtkLayoutVertex *v;
   vtkLayoutEdge *e;
 
-  vtkForceDirectedLayoutStrategy(const vtkForceDirectedLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkForceDirectedLayoutStrategy&);  // Not implemented.
+  vtkForceDirectedLayoutStrategy(const vtkForceDirectedLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkForceDirectedLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

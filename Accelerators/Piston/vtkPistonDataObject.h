@@ -120,8 +120,8 @@ protected:
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
 
 private:
-  vtkPistonDataObject(const vtkPistonDataObject&); // Not implemented
-  void operator=(const vtkPistonDataObject&); // Not implemented
+  vtkPistonDataObject(const vtkPistonDataObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonDataObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

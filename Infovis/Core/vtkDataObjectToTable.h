@@ -65,8 +65,8 @@ protected:
   int FieldType;
 
 private:
-  vtkDataObjectToTable(const vtkDataObjectToTable&); // Not implemented
-  void operator=(const vtkDataObjectToTable&);   // Not implemented
+  vtkDataObjectToTable(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

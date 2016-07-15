@@ -48,8 +48,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkStructuredPointsWriter(const vtkStructuredPointsWriter&);  // Not implemented.
-  void operator=(const vtkStructuredPointsWriter&);  // Not implemented.
+  vtkStructuredPointsWriter(const vtkStructuredPointsWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredPointsWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

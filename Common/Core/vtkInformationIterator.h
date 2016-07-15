@@ -82,8 +82,8 @@ protected:
   bool ReferenceIsWeak;
 
 private:
-  vtkInformationIterator(const vtkInformationIterator&);  // Not implemented.
-  void operator=(const vtkInformationIterator&);  // Not implemented.
+  vtkInformationIterator(const vtkInformationIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -111,8 +111,8 @@ protected:
   vtkIdType SliceCardinality;
 
 private:
-  vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ); // Not implemented
-  void operator = ( const vtkAutoCorrelativeStatistics& );   // Not implemented
+  vtkAutoCorrelativeStatistics( const vtkAutoCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkAutoCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

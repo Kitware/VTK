@@ -85,8 +85,8 @@ protected:
   vtkCellPicker *InteractionPicker;
 
 private:
-  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&);  // Not implemented.
-  void operator=(const vtkInteractorStyleJoystickActor&);  // Not implemented.
+  vtkInteractorStyleJoystickActor(const vtkInteractorStyleJoystickActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleJoystickActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -281,8 +281,8 @@ private:
   double NullValue;
 
 private:
-  vtkGaussianSplatter(const vtkGaussianSplatter&);  // Not implemented.
-  void operator=(const vtkGaussianSplatter&);  // Not implemented.
+  vtkGaussianSplatter(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGaussianSplatter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -72,8 +72,8 @@ private:
     }
 
 private:
-  vtkProp3DCollection(const vtkProp3DCollection&);  // Not implemented.
-  void operator=(const vtkProp3DCollection&);  // Not implemented.
+  vtkProp3DCollection(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkProp3DCollection::AddItem(vtkProp3D *a)

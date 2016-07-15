@@ -57,8 +57,8 @@ private:
   void AddFirstGhostLevel(vtkUnstructuredGrid *input, vtkIntArray *cellTags,
                          int piece, int numPieces);
 
-  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
-  void operator=(const vtkExtractUnstructuredGridPiece&);  // Not implemented.
+  vtkExtractUnstructuredGridPiece(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractUnstructuredGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -48,8 +48,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkPBGLCollapseGraph(const vtkPBGLCollapseGraph&); // Not implemented
-  void operator=(const vtkPBGLCollapseGraph&);   // Not implemented
+  vtkPBGLCollapseGraph(const vtkPBGLCollapseGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLCollapseGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE
