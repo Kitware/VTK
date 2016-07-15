@@ -312,6 +312,10 @@ void vtkPOVExporter::WriteActor(vtkActor *actor)
     {
     return;
     }
+  if (actor->GetVisibility() == 0)
+    {
+    return;
+    }
 
   // write geometry, first ask the pipeline to update data
   vtkDataSet *dataset = NULL;
