@@ -24,7 +24,6 @@
 
 class vtkInformationIntegerKey;
 class vtkInformationIntegerVectorKey;
-class vtkCachedStreamingDemandDrivenPipelineInternals;
 
 class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCachedStreamingDemandDrivenPipeline :
   public vtkStreamingDemandDrivenPipeline
@@ -57,8 +56,6 @@ protected:
   vtkDataObject **Data;
   unsigned long *Times;
 
-private:
-  vtkCachedStreamingDemandDrivenPipelineInternals* CachedStreamingDemandDrivenInternal;
 private:
   vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;
