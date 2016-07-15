@@ -728,6 +728,8 @@ void vtkDataSetAttributes::InternalCopyAllocate(vtkDataSetAttributes* pd,
       if ( ((attributeType = pd->IsArrayAnAttribute(i)) != -1 ) &&
            this->CopyAttributeFlags[ctype][attributeType] )
         {
+        this->CopyAttributeFlags[ctype][attributeType] =
+          pd->CopyAttributeFlags[ctype][attributeType];
         this->SetActiveAttribute(this->TargetIndices[i], attributeType);
         }
       if (!shallowCopyArrays)
@@ -836,12 +838,35 @@ void vtkDataSetAttributes::InterpolatePoint(vtkDataSetAttributes *fromPd,
                                             vtkIdType toId, vtkIdList *ptIds,
                                             double *weights)
 {
-  int i;
-  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
-      i=this->RequiredArrays.NextIndex())
+  for (int i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
+       i=this->RequiredArrays.NextIndex())
     {
-    vtkAbstractArray* fromArray = this->Data[this->TargetIndices[i]];
-    fromArray->InterpolateTuple(toId, ptIds, fromPd->Data[i], weights);
+    vtkAbstractArray* fromArray = fromPd->Data[i];
+    vtkAbstractArray* toArray = this->Data[this->TargetIndices[i]];
+
+    //check if the destination array needs nearest neighbor interpolation
+    int attributeIndex = this->IsArrayAnAttribute(this->TargetIndices[i]);
+    if (attributeIndex != -1
+        &&
+        this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
+      {
+      vtkIdType numIds = ptIds->GetNumberOfIds();
+      vtkIdType maxId = ptIds->GetId(0);
+      vtkIdType maxWeight = 0.;
+      for (int j=0;j<numIds;j++)
+        {
+        if (weights[j] > maxWeight)
+          {
+          maxWeight = weights[j];
+          maxId = ptIds->GetId(j);
+          }
+        }
+        toArray->InsertTuple(toId, maxId, fromArray);
+      }
+    else
+      {
+      toArray->InterpolateTuple(toId, ptIds, fromArray, weights);
+      }
     }
 }
 
@@ -854,8 +879,7 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd,
                                            vtkIdType toId, vtkIdType p1,
                                            vtkIdType p2, double t)
 {
-  int i;
-  for(i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
+  for (int i=this->RequiredArrays.BeginIndex(); !this->RequiredArrays.End();
       i=this->RequiredArrays.NextIndex())
     {
     vtkAbstractArray* fromArray = fromPd->Data[i];
@@ -867,8 +891,14 @@ void vtkDataSetAttributes::InterpolateEdge(vtkDataSetAttributes *fromPd,
         &&
         this->CopyAttributeFlags[INTERPOLATE][attributeIndex]==2)
       {
-      double bt = (t < 0.5) ? 0.0 : 1.0;
-      toArray->InterpolateTuple(toId, p1, fromArray, p2, fromArray, bt);
+      if (t < .5)
+        {
+        toArray->InsertTuple(toId, p1, fromArray);
+        }
+      else
+        {
+        toArray->InsertTuple(toId, p2, fromArray);
+        }
       }
     else
       {
@@ -886,8 +916,7 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
                                            vtkDataSetAttributes *from2,
                                            vtkIdType id, double t)
 {
-  int attributeType;
-  for(attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
+  for (int attributeType=0; attributeType<NUM_ATTRIBUTES; attributeType++)
     {
     // If this attribute is to be copied
     if (this->CopyAttributeFlags[INTERPOLATE][attributeType])
@@ -899,9 +928,14 @@ void vtkDataSetAttributes::InterpolateTime(vtkDataSetAttributes *from1,
         //check if the destination array needs nearest neighbor interpolation
         if (this->CopyAttributeFlags[INTERPOLATE][attributeType]==2)
           {
-          double bt = (t < 0.5) ? 0.0 : 1.0;
-          toArray->InterpolateTuple(id, id, from1->GetAttribute(attributeType),
-                                    id, from2->GetAttribute(attributeType), bt);
+          if (t < .5)
+            {
+            toArray->InsertTuple(id, id, from1->GetAttribute(attributeType));
+            }
+          else
+            {
+            toArray->InsertTuple(id, id, from2->GetAttribute(attributeType));
+            }
           }
         else
           {
