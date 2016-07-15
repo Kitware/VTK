@@ -1401,7 +1401,9 @@ void vtkDataSetAttributes::SetCopyAttribute (int index, int value, int ctype)
   if (index < 0 || ctype < 0 || index >= vtkDataSetAttributes::NUM_ATTRIBUTES ||
       ctype > vtkDataSetAttributes::ALLCOPY)
     {
-    vtkGenericWarningMacro("Bad attribute type.");
+    vtkErrorMacro("Cannot set copy attribute for attribute type "
+                  << index << " and copy operation " << ctype
+                  << ". These values are out of range.");
     return;
     }
 
@@ -1433,7 +1435,9 @@ int vtkDataSetAttributes::GetCopyAttribute (int index, int ctype)
   if (index < 0 || ctype < 0 || index >= vtkDataSetAttributes::NUM_ATTRIBUTES ||
       ctype > vtkDataSetAttributes::ALLCOPY)
     {
-    vtkGenericWarningMacro("Bad attribute type.");
+    vtkWarningMacro("Cannot get copy attribute for attribute type "
+                    << index << " and copy operation " << ctype
+                    << ". These values are out of range.");
     return -1;
     }
   else if (ctype == vtkDataSetAttributes::ALLCOPY)
@@ -1681,7 +1685,7 @@ const char* vtkDataSetAttributes::GetAttributeTypeAsString(int attributeType)
 {
   if (attributeType < 0 || attributeType >= NUM_ATTRIBUTES)
     {
-    vtkGenericWarningMacro("Bad attribute type.");
+    vtkGenericWarningMacro("Bad attribute type: " << attributeType << ".");
     return NULL;
     }
   return vtkDataSetAttributes::AttributeNames[attributeType];
@@ -1692,7 +1696,7 @@ const char* vtkDataSetAttributes::GetLongAttributeTypeAsString(int attributeType
 {
   if (attributeType < 0 || attributeType >= NUM_ATTRIBUTES)
     {
-    vtkGenericWarningMacro("Bad attribute type.");
+    vtkGenericWarningMacro("Bad attribute type: " << attributeType << ".");
     return NULL;
     }
   return vtkDataSetAttributes::LongAttributeNames[attributeType];
