@@ -270,10 +270,13 @@ vtkDualDepthPeelingPass::vtkDualDepthPeelingPass()
   : RenderState(NULL),
     CopyDepthProgram(NULL),
     CopyDepthVAO(NULL),
+    CopyDepthVBO(NULL),
     BackBlendProgram(NULL),
     BackBlendVAO(NULL),
+    BackBlendVBO(NULL),
     BlendProgram(NULL),
     BlendVAO(NULL),
+    BlendVBO(NULL),
     Framebuffer(NULL),
     FrontSource(FrontA),
     FrontDestination(FrontB),
@@ -335,8 +338,11 @@ void vtkDualDepthPeelingPass::FreeGLObjects()
     }
 
   DeleteHelper(this->CopyDepthVAO);
+  DeleteHelper(this->CopyDepthVBO);
   DeleteHelper(this->BackBlendVAO);
+  DeleteHelper(this->BackBlendVBO);
   DeleteHelper(this->BlendVAO);
+  DeleteHelper(this->BlendVBO);
 
   // don't delete the shader programs -- let the cache clean them up.
 }
@@ -588,8 +594,10 @@ void vtkDualDepthPeelingPass::CopyOpaqueDepthBuffer()
 
   if (!this->CopyDepthVAO)
     {
+    this->CopyDepthVBO = vtkOpenGLBufferObject::New();
     this->CopyDepthVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->CopyDepthVAO, this->CopyDepthProgram);
+    GLUtil::PrepFullScreenVAO(this->CopyDepthVBO, this->CopyDepthVAO,
+                              this->CopyDepthProgram);
     }
 
   // Get the clear value. We don't set this, so it should still be what the
@@ -766,8 +774,10 @@ void vtkDualDepthPeelingPass::BlendBackBuffer()
 
   if (!this->BackBlendVAO)
     {
+    this->BackBlendVBO = vtkOpenGLBufferObject::New();
     this->BackBlendVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->BackBlendVAO, this->BackBlendProgram);
+    GLUtil::PrepFullScreenVAO(this->BackBlendVBO, this->BackBlendVAO,
+                              this->BackBlendProgram);
     }
 
   this->BackBlendProgram->SetUniformi(
@@ -967,8 +977,10 @@ void vtkDualDepthPeelingPass::BlendFinalImage()
 
   if (!this->BlendVAO)
     {
+    this->BlendVBO = vtkOpenGLBufferObject::New();
     this->BlendVAO = vtkOpenGLVertexArrayObject::New();
-    GLUtil::PrepFullScreenVAO(this->BlendVAO, this->BlendProgram);
+    GLUtil::PrepFullScreenVAO(this->BlendVBO, this->BlendVAO,
+                              this->BlendProgram);
     }
 
   this->BlendProgram->SetUniformi(

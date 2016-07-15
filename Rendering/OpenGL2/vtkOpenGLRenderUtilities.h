@@ -78,9 +78,10 @@ public:
   //     fragShader.c_str(),
   //     GLUtil::GetFullScreenQuadGeometryShader().c_str());
   //
-  // // Initialize new VAO:
+  // // Initialize new VAO/vertex buffer. This is only done once:
+  // vtkNew<vtkOpenGLBufferObject> verts;
   // vtkNew<vtkOpenGLVertexArrayObject> vao;
-  // GLUtil::PrepFullScreenVAO(vao.Get(), prog);
+  // GLUtil::PrepFullScreenVAO(verts.Get(), vao.Get(), prog);
   //
   // // Setup shader program to sample vtkTextureObject aTexture:
   // aTexture->Activate();
@@ -95,19 +96,14 @@ public:
   static std::string GetFullScreenQuadVertexShader();
   static std::string GetFullScreenQuadFragmentShaderTemplate();
   static std::string GetFullScreenQuadGeometryShader();
-  static bool PrepFullScreenVAO(vtkOpenGLVertexArrayObject *vao,
+  static bool PrepFullScreenVAO(vtkOpenGLBufferObject *verts,
+                                vtkOpenGLVertexArrayObject *vao,
                                 vtkShaderProgram *prog);
   static void DrawFullScreenQuad();
-
-  // Description:
-  // Implementation detail -- do not use.
-  struct FSQVertsCleanUp;
 
 protected:
   vtkOpenGLRenderUtilities();
   ~vtkOpenGLRenderUtilities();
-
-  static vtkOpenGLBufferObject *FullScreenQuadVerts;
 
 private:
   vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;

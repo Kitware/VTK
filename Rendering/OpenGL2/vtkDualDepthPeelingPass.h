@@ -163,12 +163,15 @@ protected:
 
   vtkShaderProgram *CopyDepthProgram;
   vtkOpenGLVertexArrayObject *CopyDepthVAO;
+  vtkOpenGLBufferObject *CopyDepthVBO;
 
   vtkShaderProgram *BackBlendProgram;
   vtkOpenGLVertexArrayObject *BackBlendVAO;
+  vtkOpenGLBufferObject *BackBlendVBO;
 
   vtkShaderProgram *BlendProgram;
   vtkOpenGLVertexArrayObject *BlendVAO;
+  vtkOpenGLBufferObject *BlendVBO;
 
   vtkFrameBufferObject2 *Framebuffer;
   vtkTextureObject *Textures[NumberOfTextures];
