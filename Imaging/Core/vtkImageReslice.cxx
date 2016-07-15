@@ -2238,7 +2238,12 @@ void vtkImageResliceExecute(vtkImageReslice *self,
         }
       else // optimize for nearest-neighbor interpolation
         {
+        const char *inPtrTmp0 = static_cast<const char *>(inPtr);
         char *outPtrTmp = static_cast<char *>(outPtr);
+
+        vtkIdType inIncX = inInc[0]*inputScalarSize;
+        vtkIdType inIncY = inInc[1]*inputScalarSize;
+        vtkIdType inIncZ = inInc[2]*inputScalarSize;
 
         int inExtX = inExt[1] - inExt[0] + 1;
         int inExtY = inExt[3] - inExt[2] + 1;
@@ -2247,12 +2252,10 @@ void vtkImageResliceExecute(vtkImageReslice *self,
         int startIdX = idXmin;
         int endIdX = idXmin-1;
         bool isInBounds = false;
+        int bytesPerPixel = inputScalarSize*inComponents;
 
         for (int iidX = idXmin; iidX <= idXmax; iidX++)
           {
-          char *inPtrTmp = static_cast<char *>(background);
-          int bytesPerPixel = inputScalarSize*inComponents;
-
           F inPoint[3];
           inPoint[0] = inPoint1[0] + iidX*xAxis[0];
           inPoint[1] = inPoint1[1] + iidX*xAxis[1];
@@ -2266,18 +2269,74 @@ void vtkImageResliceExecute(vtkImageReslice *self,
               inIdY >= 0 && inIdY < inExtY &&
               inIdZ >= 0 && inIdZ < inExtZ)
             {
-            inPtrTmp = static_cast<char *>(inPtr) +
-              (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
-                inputScalarSize;
-
-            startIdX = (isInBounds ? startIdX : iidX);
+            if (!isInBounds)
+              {
+              // clear leading out-of-bounds pixels
+              startIdX = iidX;
+              isInBounds = true;
+              setpixels(outPtr, background, outComponents, startIdX-idXmin);
+              outPtrTmp = static_cast<char *>(outPtr);
+              }
+            // set the final index that was within input bounds
             endIdX = iidX;
-            isInBounds = true;
-            }
 
-          int oc = bytesPerPixel;
-          do { *outPtrTmp++ = *inPtrTmp++; } while (--oc);
+            // perform nearest-neighbor interpolation via pixel copy
+            const char *inPtrTmp = inPtrTmp0 +
+              inIdX*inIncX + inIdY*inIncY + inIdZ*inIncZ;
+
+            // manual loop unrolling significantly boosts performance,
+            // and is much less bloat than templating over the type
+            switch (bytesPerPixel)
+              {
+              case 1:
+                outPtrTmp[0] = inPtrTmp[0];
+                break;
+              case 2:
+                outPtrTmp[0] = inPtrTmp[0];
+                outPtrTmp[1] = inPtrTmp[1];
+                break;
+              case 3:
+                outPtrTmp[0] = inPtrTmp[0];
+                outPtrTmp[1] = inPtrTmp[1];
+                outPtrTmp[2] = inPtrTmp[2];
+                break;
+              case 4:
+                outPtrTmp[0] = inPtrTmp[0];
+                outPtrTmp[1] = inPtrTmp[1];
+                outPtrTmp[2] = inPtrTmp[2];
+                outPtrTmp[3] = inPtrTmp[3];
+                break;
+              case 8:
+                outPtrTmp[0] = inPtrTmp[0];
+                outPtrTmp[1] = inPtrTmp[1];
+                outPtrTmp[2] = inPtrTmp[2];
+                outPtrTmp[3] = inPtrTmp[3];
+                outPtrTmp[4] = inPtrTmp[4];
+                outPtrTmp[5] = inPtrTmp[5];
+                outPtrTmp[6] = inPtrTmp[6];
+                outPtrTmp[7] = inPtrTmp[7];
+                break;
+              default:
+                int oc = 0;
+                do
+                  {
+                  outPtrTmp[oc] = inPtrTmp[oc];
+                  }
+                while (++oc != bytesPerPixel);
+                break;
+              }
+            outPtrTmp += bytesPerPixel;
+            }
+          else if (isInBounds)
+            {
+            // leaving input bounds
+            break;
+            }
           }
+
+        // clear trailing out-of-bounds pixels
+        outPtr = outPtrTmp;
+        setpixels(outPtr, background, outComponents, idXmax-endIdX);
 
         if (outputStencil && endIdX >= startIdX)
           {
