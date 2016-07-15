@@ -2262,9 +2262,9 @@ void vtkImageResliceExecute(vtkImageReslice *self,
           int inIdY = vtkInterpolationMath::Round(inPoint[1]) - inExt[2];
           int inIdZ = vtkInterpolationMath::Round(inPoint[2]) - inExt[4];
 
-          if ((inIdX >= 0) & (inIdX < inExtX) &
-              (inIdY >= 0) & (inIdY < inExtY) &
-              (inIdZ >= 0) & (inIdZ < inExtZ))
+          if (inIdX >= 0 && inIdX < inExtX &&
+              inIdY >= 0 && inIdY < inExtY &&
+              inIdZ >= 0 && inIdZ < inExtZ)
             {
             inPtrTmp = static_cast<char *>(inPtr) +
               (inIdX*inInc[0] + inIdY*inInc[1] + inIdZ*inInc[2])*
