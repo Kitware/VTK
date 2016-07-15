@@ -276,15 +276,7 @@ public:
   };
 
   // Description:
-  // Specify whether to copy the data attribute referred to by index.
-  // ctype selects from the AttributeCopyOperations.
-  // If ctype is set to ALLCOPY, then COPYTUPLE, INTERPOLATE, and
-  // PASSDATA are set to value. If value is 0, copying is disallowed.
-  // otherwise it is allowed.
-  void SetCopyAttribute (int index, int value, int ctype=ALLCOPY);
-
-  // Description:
-  // Turn on/off the copying of scalar data.
+  // Turn on/off the copying of attribute data.
   // ctype is one of the AttributeCopyOperations, and controls copy,
   // interpolate and passdata behavior.
   // For set, ctype=ALLCOPY means set all three flags to the same value.
@@ -292,162 +284,63 @@ public:
   //
   // During copying, interpolation and passdata, the following rules are
   // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
+  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off),
+  //    it is applied. This overrides rules 2 and 3.
   // 2. If the copy flag for an array is set (on or off), it is applied
   //    This overrides rule 3.
   // 3. If CopyAllOn is set, copy the array.
   //    If CopyAllOff is set, do not copy the array
+  //
+  // For interpolation, the flag values can be as follows:
+  // 0: Do not interpolate.
+  // 1: Weighted interpolation.
+  // 2. Nearest neighbor interpolation.
+  void SetCopyAttribute (int index, int value, int ctype=ALLCOPY);
+
+  // Description:
+  // Get the attribute copy flag for copy operation <ctype> of attribute
+  // <index>.
+  int GetCopyAttribute (int index, int ctype);
+
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyScalars(int i, int ctype=ALLCOPY);
   int GetCopyScalars(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyScalars, int);
 
-  // Description:
-  // Turn on/off the copying of vector data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyVectors(int i, int ctype=ALLCOPY);
   int GetCopyVectors(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyVectors, int);
 
-  // Description:
-  // Turn on/off the copying of normals data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyNormals(int i, int ctype=ALLCOPY);
   int GetCopyNormals(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyNormals, int);
 
-  // Description:
-  // Turn on/off the copying of texture coordinates data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyTCoords(int i, int ctype=ALLCOPY);
   int GetCopyTCoords(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyTCoords, int);
 
-  // Description:
-  // Turn on/off the copying of tensor data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyTensors(int i, int ctype=ALLCOPY);
   int GetCopyTensors(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyTensors, int);
 
-  // Description:
-  // Turn on/off the copying of global id data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyGlobalIds(int i, int ctype=ALLCOPY);
   int GetCopyGlobalIds(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyGlobalIds, int);
 
-  // Description:
-  // Turn on/off the copying of pedigree id data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   void SetCopyPedigreeIds(int i, int ctype=ALLCOPY);
   int GetCopyPedigreeIds(int ctype=ALLCOPY);
   vtkBooleanMacro(CopyPedigreeIds, int);
 
-  // Description:
-  // Turn on copying of all data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   virtual void CopyAllOn(int ctype=ALLCOPY);
 
-  // Description:
-  // Turn off copying of all data.
-  // ctype is one of the AttributeCopyOperations, and controls copy,
-  // interpolate and passdata behavior.
-  // For set, ctype=ALLCOPY means set all three flags to the same value.
-  // For get, ctype=ALLCOPY returns true only if all three flags are true.
-  //
-  // During copying, interpolation and passdata, the following rules are
-  // followed for each array:
-  // 1. If the copy/interpolate/pass flag for an attribute is set (on or off), it is applied.
-  //    This overrides rules 2 and 3.
-  // 2. If the copy flag for an array is set (on or off), it is applied
-  //    This overrides rule 3.
-  // 3. If CopyAllOn is set, copy the array.
-  //    If CopyAllOff is set, do not copy the array
+  /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
   virtual void CopyAllOff(int ctype=ALLCOPY);
 
   // -- passthrough operations ----------------------------------------------

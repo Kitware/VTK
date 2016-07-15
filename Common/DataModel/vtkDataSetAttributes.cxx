@@ -972,7 +972,7 @@ vtkDataArray* vtkDataSetAttributes::GetScalars()
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::SetVectors(vtkDataArray* da)
 {
-return this->SetAttribute(da, VECTORS);
+  return this->SetAttribute(da, VECTORS);
 }
 
 //--------------------------------------------------------------------------
@@ -1398,6 +1398,13 @@ int vtkDataSetAttributes::IsArrayAnAttribute(int idx)
 //--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyAttribute (int index, int value, int ctype)
 {
+  if (index < 0 || ctype < 0 || index >= vtkDataSetAttributes::NUM_ATTRIBUTES ||
+      ctype > vtkDataSetAttributes::ALLCOPY)
+    {
+    vtkGenericWarningMacro("Bad attribute type.");
+    return;
+    }
+
   if (ctype == vtkDataSetAttributes::ALLCOPY)
     {
     int t;
@@ -1421,24 +1428,36 @@ void vtkDataSetAttributes::SetCopyAttribute (int index, int value, int ctype)
 }
 
 //--------------------------------------------------------------------------
+int vtkDataSetAttributes::GetCopyAttribute (int index, int ctype)
+{
+  if (index < 0 || ctype < 0 || index >= vtkDataSetAttributes::NUM_ATTRIBUTES ||
+      ctype > vtkDataSetAttributes::ALLCOPY)
+    {
+    vtkGenericWarningMacro("Bad attribute type.");
+    return -1;
+    }
+  else if (ctype == vtkDataSetAttributes::ALLCOPY)
+    {
+    return (this->CopyAttributeFlags[COPYTUPLE][index] &&
+            this->CopyAttributeFlags[INTERPOLATE][index] &&
+            this->CopyAttributeFlags[PASSDATA][index]);
+    }
+  else
+    {
+    return this->CopyAttributeFlags[ctype][index];
+    }
+}
+
+//--------------------------------------------------------------------------
 void vtkDataSetAttributes::SetCopyScalars(int i, int ctype)
 {
   this->SetCopyAttribute(SCALARS, i, ctype);
 }
+
 //--------------------------------------------------------------------------
-int vtkDataSetAttributes::GetCopyScalars(int ctype) {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][SCALARS] &&
-      this->CopyAttributeFlags[INTERPOLATE][SCALARS] &&
-      this->CopyAttributeFlags[PASSDATA][SCALARS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][SCALARS];
-    }
+int vtkDataSetAttributes::GetCopyScalars(int ctype)
+{
+  return this->GetCopyAttribute(SCALARS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1446,21 +1465,11 @@ void vtkDataSetAttributes::SetCopyVectors(int i, int ctype)
 {
   this->SetCopyAttribute(VECTORS, i, ctype);
 }
+
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyVectors(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][VECTORS] &&
-      this->CopyAttributeFlags[INTERPOLATE][VECTORS] &&
-      this->CopyAttributeFlags[PASSDATA][VECTORS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][VECTORS];
-    }
+  return this->GetCopyAttribute(VECTORS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1471,18 +1480,7 @@ void vtkDataSetAttributes::SetCopyNormals(int i, int ctype)
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyNormals(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][NORMALS] &&
-      this->CopyAttributeFlags[INTERPOLATE][NORMALS] &&
-      this->CopyAttributeFlags[PASSDATA][NORMALS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][NORMALS];
-    }
+  return this->GetCopyAttribute(NORMALS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1490,21 +1488,11 @@ void vtkDataSetAttributes::SetCopyTCoords(int i, int ctype)
 {
   this->SetCopyAttribute(TCOORDS, i, ctype);
 }
+
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyTCoords(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][TCOORDS] &&
-      this->CopyAttributeFlags[INTERPOLATE][TCOORDS] &&
-      this->CopyAttributeFlags[PASSDATA][TCOORDS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][TCOORDS];
-    }
+  return this->GetCopyAttribute(TCOORDS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1515,18 +1503,7 @@ void vtkDataSetAttributes::SetCopyTensors(int i, int ctype)
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyTensors(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][TENSORS] &&
-      this->CopyAttributeFlags[INTERPOLATE][TENSORS] &&
-      this->CopyAttributeFlags[PASSDATA][TENSORS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][TENSORS];
-    }
+  return this->GetCopyAttribute(TENSORS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1534,21 +1511,11 @@ void vtkDataSetAttributes::SetCopyGlobalIds(int i, int ctype)
 {
   this->SetCopyAttribute(GLOBALIDS, i, ctype);
 }
+
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyGlobalIds(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][GLOBALIDS] &&
-      this->CopyAttributeFlags[INTERPOLATE][GLOBALIDS] &&
-      this->CopyAttributeFlags[PASSDATA][GLOBALIDS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][GLOBALIDS];
-    }
+  return this->GetCopyAttribute(GLOBALIDS, ctype);
 }
 
 //--------------------------------------------------------------------------
@@ -1560,18 +1527,7 @@ void vtkDataSetAttributes::SetCopyPedigreeIds(int i, int ctype)
 //--------------------------------------------------------------------------
 int vtkDataSetAttributes::GetCopyPedigreeIds(int ctype)
 {
-  if (ctype == vtkDataSetAttributes::ALLCOPY)
-    {
-    return
-      this->CopyAttributeFlags[COPYTUPLE][PEDIGREEIDS] &&
-      this->CopyAttributeFlags[INTERPOLATE][PEDIGREEIDS] &&
-      this->CopyAttributeFlags[PASSDATA][PEDIGREEIDS];
-    }
-  else
-    {
-    return
-      this->CopyAttributeFlags[ctype][PEDIGREEIDS];
-    }
+  return this->GetCopyAttribute(PEDIGREEIDS, ctype);
 }
 
 //--------------------------------------------------------------------------
