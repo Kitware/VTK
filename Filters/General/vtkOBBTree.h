@@ -72,8 +72,8 @@ public:
                        int *maxCells );
 
 private:
-  vtkOBBNode(const vtkOBBNode& other); // no copy constructor
-  vtkOBBNode& operator=(const vtkOBBNode& rhs); // no copy assignment
+  vtkOBBNode(const vtkOBBNode& other) VTK_DELETE_FUNCTION;
+  vtkOBBNode& operator=(const vtkOBBNode& rhs) VTK_DELETE_FUNCTION;
 };
 
 //

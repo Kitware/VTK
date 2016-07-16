@@ -62,8 +62,8 @@ public:
   ~vtkTextRendererCleanup();
 
 private:
-  vtkTextRendererCleanup(const vtkTextRendererCleanup& other); // no copy constructor
-  vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs); // no copy assignment
+  vtkTextRendererCleanup(const vtkTextRendererCleanup& other) VTK_DELETE_FUNCTION;
+  vtkTextRendererCleanup& operator=(const vtkTextRendererCleanup& rhs) VTK_DELETE_FUNCTION;
 };
 
 class VTKRENDERINGCORE_EXPORT vtkTextRenderer: public vtkObject

@@ -41,8 +41,8 @@ public:
   ~vtkMathTextUtilitiesCleanup();
 
 private:
-  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other); // no copy constructor
-  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs); // no copy assignment
+  vtkMathTextUtilitiesCleanup(const vtkMathTextUtilitiesCleanup& other) VTK_DELETE_FUNCTION;
+  vtkMathTextUtilitiesCleanup& operator=(const vtkMathTextUtilitiesCleanup& rhs) VTK_DELETE_FUNCTION;
 };
 
 class VTKRENDERINGFREETYPE_EXPORT vtkMathTextUtilities : public vtkObject

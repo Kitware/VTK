@@ -32,8 +32,8 @@ public:
   ~vtkOutputWindowCleanup();
 
 private:
-  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other); // no copy constructor
-  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs); // no copy assignment
+  vtkOutputWindowCleanup(const vtkOutputWindowCleanup& other) VTK_DELETE_FUNCTION;
+  vtkOutputWindowCleanup& operator=(const vtkOutputWindowCleanup& rhs) VTK_DELETE_FUNCTION;
 };
 
 class VTKCOMMONCORE_EXPORT vtkOutputWindow : public vtkObject
