@@ -109,6 +109,10 @@ int TestMathTextActor(int, char *[])
                                                    1. - col * .26,
                                                    1. - row * .26);
       actor->GetTextProperty()->SetBackgroundOpacity(0.25);
+      actor->GetTextProperty()->SetFrame((row + col) % 9 == 0);
+      actor->GetTextProperty()->SetFrameColor(
+        col > 0 ? 1. : 0., col == 1 ? 1. : 0., col < 2 ? 1. : 0.);
+      actor->GetTextProperty()->SetFrameWidth(1);
       actor->SetPosition(x[col], y[row]);
       setupTextActor(actor.GetPointer(), anchors.GetPointer());
       ren->AddActor(actor.GetPointer());
