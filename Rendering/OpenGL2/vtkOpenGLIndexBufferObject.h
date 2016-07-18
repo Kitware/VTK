@@ -103,7 +103,8 @@ public:
   static void CreateCellSupportArrays(
     vtkCellArray *[4],
     std::vector<unsigned int> &cellCellMap,
-    int representation);
+    int representation,
+    vtkPoints *points);
 
 protected:
   vtkOpenGLIndexBufferObject();

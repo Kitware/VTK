@@ -60,12 +60,6 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
       }
     }
 
-  // the folowing are only used if we have to triangulate a polygon
-  // otherwise they just sit at NULL
-  vtkPolygon *polygon = NULL;
-  vtkIdList *tris = NULL;
-  vtkPoints *triPoints = NULL;
-
   for (cells->InitTraversal(); cells->GetNextCell(npts, indices); )
     {
     // ignore degenerate triangles
@@ -74,85 +68,23 @@ void vtkOpenGLIndexBufferObject::AppendTriangleIndexBuffer(
       continue;
       }
 
-    // triangulate needed
-    if (npts > 3)
+    for (int i = 2; i < npts; i++)
       {
-      // special case for quads, penta, hex which are common
-      if (npts == 4)
+      double p1[3];
+      points->GetPoint(indices[0], p1);
+      double p2[3];
+      points->GetPoint(indices[i - 1], p2);
+      double p3[3];
+      points->GetPoint(indices[i], p3);
+      if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
+        (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
+        (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
         {
         indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[1]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        }
-      else if (npts == 5)
-        {
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[1]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[4]+vOffset));
-        }
-      else if (npts == 6)
-        {
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[1]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[2]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[0]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[5]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[3]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[4]+vOffset));
-        indexArray.push_back(static_cast<unsigned int>(indices[5]+vOffset));
-        }
-      else // 7 sided polygon or higher, do a full smart triangulation
-        {
-        if (!polygon)
-          {
-          polygon = vtkPolygon::New();
-          tris = vtkIdList::New();
-          triPoints = vtkPoints::New();
-          }
-
-        vtkIdType *triIndices = new vtkIdType[npts];
-        triPoints->SetNumberOfPoints(npts);
-        for (int i = 0; i < npts; ++i)
-          {
-          int idx = indices[i];
-          triPoints->SetPoint(i,points->GetPoint(idx));
-          triIndices[i] = i;
-          }
-        polygon->Initialize(npts, triIndices, triPoints);
-        polygon->Triangulate(tris);
-        for (int j = 0; j < tris->GetNumberOfIds(); ++j)
-          {
-          indexArray.push_back(static_cast<unsigned int>(
-            indices[tris->GetId(j)]+vOffset));
-          }
-        delete [] triIndices;
+        indexArray.push_back(static_cast<unsigned int>(indices[i-1]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(indices[i]+vOffset));
         }
       }
-    else
-      {
-      indexArray.push_back(static_cast<unsigned int>(*(indices++)+vOffset));
-      indexArray.push_back(static_cast<unsigned int>(*(indices++)+vOffset));
-      indexArray.push_back(static_cast<unsigned int>(*(indices++)+vOffset));
-      }
-    }
-  if (polygon)
-    {
-    polygon->Delete();
-    tris->Delete();
-    triPoints->Delete();
     }
 }
 
@@ -388,7 +320,8 @@ size_t vtkOpenGLIndexBufferObject::CreateStripIndexBuffer(
 void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
   vtkCellArray *prims[4],
   std::vector<unsigned int> &cellCellMap,
-  int representation)
+  int representation,
+  vtkPoints *points)
 {
   // need an array to track what points to orig points
   size_t minSize = prims[0]->GetNumberOfCells() +
@@ -469,9 +402,20 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
         {
         if (npts > 2)
           {
-          for (int i = 2; i < npts; ++i)
+          for (int i = 2; i < npts; i++)
             {
-            cellCellMap.push_back(vtkCellCount);
+            double p1[3];
+            points->GetPoint(indices[0],p1);
+            double p2[3];
+            points->GetPoint(indices[i-1],p2);
+            double p3[3];
+            points->GetPoint(indices[i],p3);
+            if ((p1[0] != p2[0] || p1[1] != p2[1] || p1[2] != p2[2]) &&
+                (p3[0] != p2[0] || p3[1] != p2[1] || p3[2] != p2[2]) &&
+                (p3[0] != p1[0] || p3[1] != p1[1] || p3[2] != p1[2]))
+              {
+              cellCellMap.push_back(vtkCellCount);
+              }
             }
           }
         vtkCellCount++;
