@@ -265,6 +265,10 @@ public:
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
 
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
+
+
 protected:
   vtkSmartVolumeMapper();
   ~vtkSmartVolumeMapper();
@@ -348,6 +352,8 @@ protected:
   // along with InteractiveUpdateRate is useful to adjust volume mapper sample
   // distance based on whether the render is interactive or still.
   int InteractiveAdjustSampleDistances;
+
+  virtual void ReportReferences(vtkGarbageCollector* collector);
 
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;

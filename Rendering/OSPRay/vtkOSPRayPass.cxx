@@ -269,6 +269,9 @@ void vtkOSPRayPass::SetMaxDepthTexture(void *dt)
 {
   //TODO: streamline this handoff
   OSPTexture2D DT = static_cast<OSPTexture2D>(dt);
-  delete this->Internal->MaxDepth;
+  if (this->Internal->MaxDepth)
+    {
+    //delete this->Internal->MaxDepth; //?does ospray delete it?
+    }
   this->Internal->MaxDepth = DT;
 }

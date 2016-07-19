@@ -17,6 +17,7 @@
 #include "vtkCamera.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayPass.h"
+#include "vtkOSPRayRendererNode.h"
 #include "vtkSmartPointer.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -115,7 +116,9 @@ namespace ospray {
     const double z_n = 2.0 * glDepthBuffer[i] - 1.0;
     ospDepth[i] = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
     if (isnan(ospDepth[i]))
+      {
       ospDepth[i] = FLT_MAX;
+      }
     }
 
     // transform from orthogonal Z depth to ray distance t
@@ -153,11 +156,25 @@ vtkStandardNewMacro(vtkOSPRayVolumeMapper)
 // ----------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 {
+  cerr << "CONSTRUCT" << endl;
+  this->InternalRenderer = NULL;
+  this->OSPRayPass = NULL;
 }
 
 // ----------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
+  cerr << "DESTRUCT" << endl;
+  if (this->InternalRenderer)
+    {
+    this->InternalRenderer->SetPass(NULL);
+    this->InternalRenderer->Delete();
+    }
+  if (this->OSPRayPass)
+    {
+    this->OSPRayPass->Delete();
+    }
+  this->ZBuffer.clear();
 }
 
 // ----------------------------------------------------------------------------
@@ -172,24 +189,25 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
 {
   //TODO: all of this should be created the first, time then cached until
   //changed or deleted
-
-  //establish ospray
-  vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
+  if (!this->OSPRayPass)
+    {
+    this->OSPRayPass = vtkOSPRayPass::New();
+    }
 
   //get the Z buffer from VTK's already rendered surfaces
-  static OSPTexture2D glDepthTex=NULL;
   vtkRenderWindow *rwin =
     vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
   int viewportX, viewportY;
   int viewportWidth, viewportHeight;
   ren->GetTiledSizeAndOrigin(&viewportWidth,&viewportHeight,
                              &viewportX,&viewportY);
+  this->ZBuffer.resize(viewportWidth*viewportHeight);
   float *ZBuffer = new float[viewportWidth*viewportHeight];
   rwin->GetZbufferData(
                        viewportX,  viewportY,
                        viewportX+viewportWidth-1,
                        viewportY+viewportHeight-1,
-                       ZBuffer);
+                       &this->ZBuffer[0]);
   //convert it to agree with OSPRay's ray depth formulation
   vtkCamera*cam = ren->GetActiveCamera();
   double zNear, zFar;
@@ -209,31 +227,88 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
   cameraDir.y -= cameraPos[1];
   cameraDir.z -= cameraPos[2];
   cameraDir = ospray::normalize(cameraDir);
-  glDepthTex
-    = ospray::getOSPDepthTextureFromOpenGLPerspective
+  OSPTexture2D glDepthTex =
+    ospray::getOSPDepthTextureFromOpenGLPerspective
     (fovy, aspect, zNear, zFar,
      (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
-     ZBuffer, viewportWidth, viewportHeight);
+     &this->ZBuffer[0], viewportWidth, viewportHeight);
 
   //use an ospray render pass in the background to
   //hand over the camera, lights and JUST this one volume
-  vtkRenderPass* oldPass = ren->GetPass();
-  vtkSmartPointer<vtkRenderer> tmpRen = vtkSmartPointer<vtkRenderer>::New();
-  tmpRen->SetLayer(1); //TODO: hacked in for now
-  tmpRen->SetRenderWindow(ren->GetRenderWindow());
-  tmpRen->SetActiveCamera(ren->GetActiveCamera());
-  tmpRen->SetBackground(ren->GetBackground());
-  tmpRen->AddVolume(vol);
-  tmpRen->SetPass(ospray);
+  if (!this->InternalRenderer)
+    {
+    this->InternalRenderer = vtkRenderer::New();
+    this->InternalRenderer->SetLayer(1); //TODO: hacked in for now
+    this->InternalRenderer->SetRenderWindow(ren->GetRenderWindow());
+    this->InternalRenderer->SetActiveCamera(ren->GetActiveCamera());
+    this->InternalRenderer->SetBackground(ren->GetBackground());
+    }
+  this->InternalRenderer->SetPass(this->OSPRayPass);
+  //TODO: unlikely to change, except at startup, so do this check then
+  //instead of frame
+  if (!this->InternalRenderer->HasViewProp(vol))
+    {
+    this->InternalRenderer->RemoveAllViewProps();
+    this->InternalRenderer->AddVolume(vol);
+    }
 
-  //hand over the depth image to ospray so it can terminate volume
-  //rays
+  //TODO: only do this once
+  //prerender to make sure we have a rennode
+  this->InternalRenderer->SetErase(0);
+  this->InternalRenderer->Render();
+
+  //hand over the depth image to ospray so it can terminate rays
   //TODO: streamline this handoff
-  ospray->SetMaxDepthTexture(glDepthTex);
+  vtkOSPRayRendererNode *rennode = vtkOSPRayRendererNode::SafeDownCast
+    (this->OSPRayPass->GetSceneGraph()->GetViewNodeFor(this->InternalRenderer));
+  if (!rennode)
+    {
+    cerr << "NOT YET" << endl;
+    //this->OSPRayPass->SetMaxDepthTexture(glDepthTex);
+    }
+  else
+    {
+    rennode->SetMaxDepthTexture(glDepthTex);
+    }
+
 
   //ask the pass to render, it will blend onto the color buffer
-  tmpRen->Render();
-  tmpRen->SetErase(0);
+  this->InternalRenderer->SetErase(0);
+  this->InternalRenderer->Render();
+  this->InternalRenderer->SetPass(NULL);
 
-  delete[] ZBuffer;
+  cerr << "IR" << this->InternalRenderer->GetReferenceCount() << endl;
+  cerr << "OP" << this->OSPRayPass->GetReferenceCount() << endl;
+
+#if 0
+  //avoids the garbage collection memory leak cycle, but since
+  //we no longer maintain the internal renderer, we have to create it every
+  //render, which is very slow
+  this->InternalRenderer->Delete();
+  this->InternalRenderer = NULL;
+  this->OSPRayPass->Delete();
+  this->OSPRayPass = NULL;
+#endif
+}
+
+// ----------------------------------------------------------------------------
+void vtkOSPRayVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
+{
+  cerr << "OVM REPORT REFS" << endl;
+  // Report references held by this object that may be in a loop.
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->InternalRenderer, "InternalRenderer");
+  vtkGarbageCollectorReport(collector, this->OSPRayPass, "OSP ");
+}
+// ----------------------------------------------------------------------------
+void vtkOSPRayVolumeMapper::Register(vtkObjectBase* o)
+{
+  cerr << "OVM REGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
+  this->RegisterInternal(o, 1);
+}
+// ----------------------------------------------------------------------------
+void vtkOSPRayVolumeMapper::UnRegister(vtkObjectBase* o)
+{
+  cerr << "OVM UNREGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
+  this->UnRegisterInternal(o, 1);
 }

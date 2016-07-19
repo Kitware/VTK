@@ -21,8 +21,17 @@
 #ifndef vtkOSPRayVolumeMapper_h
 #define vtkOSPRayVolumeMapper_h
 
+
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkOSPRayVolumeInterface.h"
+#include "vtkNew.h" //to ease garbage collection
+#include "vtkGarbageCollector.h" //ditto
+
+#include <vector>
+
+class vtkGarbageCollector;
+class vtkOSPRayPass;
+class vtkRenderer;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapper
   : public vtkOSPRayVolumeInterface
@@ -37,10 +46,19 @@ public:
   //Overridden to use OSPRay to do the work.
   virtual void Render(vtkRenderer *, vtkVolume *);
 
-protected:
+  virtual void Register(vtkObjectBase* o);
+  virtual void UnRegister(vtkObjectBase* o);
+
+ protected:
   vtkOSPRayVolumeMapper();
   ~vtkOSPRayVolumeMapper();
 
+  vtkOSPRayPass *OSPRayPass;
+  vtkRenderer *InternalRenderer;
+
+  virtual void ReportReferences(vtkGarbageCollector* collector);
+
+  std::vector<float> ZBuffer;
 private:
   vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&);  // Not implemented.
   void operator=(const vtkOSPRayVolumeMapper&);  // Not implemented.

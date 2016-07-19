@@ -169,6 +169,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     OSPTexture2D glDepthTex = static_cast<OSPTexture2D>(this->MaxDepth);
     ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
     //ospSet1i(oRenderer, "backgroundEnabled",ren->GetErase());
+    ospCommit(oRenderer);
     }
 
   //camera

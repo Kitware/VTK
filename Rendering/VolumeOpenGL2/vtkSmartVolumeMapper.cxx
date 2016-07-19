@@ -19,6 +19,7 @@
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkFixedPointVolumeRayCastMapper.h"
+#include "vtkGarbageCollector.h"
 #include "vtkEventForwarderCommand.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
@@ -133,6 +134,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 // ----------------------------------------------------------------------------
 vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
 {
+  cerr << "DELETE ME" << endl;
   if (this->RayCastMapper)
     {
     this->RayCastMapper->Delete();
@@ -155,6 +157,7 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     }
   if (this->OSPRayHelper)
     {
+    cerr << "DELETE IT" << endl;
     this->OSPRayHelper->Delete();
     this->OSPRayHelper = 0;
     }
@@ -217,9 +220,14 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       {
       if (!this->OSPRayHelper)
         {
+        cerr << "MAKING ONE" << endl;
         this->OSPRayHelper = vtkOSPRayVolumeInterface::New();
+        this->OSPRayHelper->Register(this);
+        this->OSPRayHelper->Delete();
         }
       this->OSPRayHelper->Render(ren, vol);
+      //this->OSPRayHelper->Delete();
+      //this->OSPRayHelper =NULL;
       }
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
@@ -697,4 +705,26 @@ void vtkSmartVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
   os << "AutoAdjustSampleDistances: "
      << this->AutoAdjustSampleDistances << endl;
   os << indent << "SampleDistance: " << this->SampleDistance << endl;
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::Register(vtkObjectBase* o)
+{
+  cerr << "SVM REGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
+  this->RegisterInternal(o, 1);
+}
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::UnRegister(vtkObjectBase* o)
+{
+  cerr << "SVM UNREGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
+  this->UnRegisterInternal(o, 1);
+}
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
+{
+  cerr << "SVM REPORT REFS" << endl;
+  // Report references held by this object that may be in a loop.
+  this->Superclass::ReportReferences(collector);
+  vtkGarbageCollectorReport(collector, this->OSPRayHelper, "OSPRayHELPER");
 }
