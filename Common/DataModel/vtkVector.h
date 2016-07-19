@@ -168,6 +168,13 @@ public:
   // Description:
   // Get the y component of the vector, i.e. element 1.
   const T& GetY() const { return this->Data[1]; }
+
+  // Description:
+  // Lexicographical comparison of two vector.
+  bool operator<(const vtkVector2<T> &v) const
+    {
+    return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
+    }
 };
 
 // .NAME vtkVector3 - templated base type for storage of 3D vectors.
@@ -238,6 +245,14 @@ public:
     res[2] = this->Data[0] * other.Data[1] - this->Data[1] * other.Data[0];
     return res;
   }
+
+  // Description:
+  // Lexicographical comparison of two vector.
+  bool operator<(const vtkVector3<T> &v) const
+    {
+    return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
+      (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
+    }
 };
 
 // Description:

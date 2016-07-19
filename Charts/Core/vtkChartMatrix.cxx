@@ -100,15 +100,21 @@ bool vtkChartMatrix::Paint(vtkContext2D *painter)
             {
             y = this->Borders[vtkAxis::BOTTOM];
             }
+          vtkVector2f resize(0., 0.);
+          vtkVector2i key(i, j);
+          if (this->SpecificResize.find(key) != this->SpecificResize.end())
+            {
+            resize = this->SpecificResize[key];
+            }
           size_t index = j * this->Size.GetX() + i;
           if (this->Private->Charts[index])
             {
             vtkChart *chart = this->Private->Charts[index];
             vtkVector2i &span = this->Private->Spans[index];
-            chart->SetSize(vtkRectf(x, y,
-                                    increments.GetX() * span.GetX() +
+            chart->SetSize(vtkRectf(x + resize.GetX(), y + resize.GetY(),
+                                    increments.GetX() * span.GetX() - resize.GetX() +
                                     (span.GetX() - 1) * this->Gutter.GetX(),
-                                    increments.GetY() * span.GetY() +
+                                    increments.GetY() * span.GetY() - resize.GetY() +
                                     (span.GetY() - 1) * this->Gutter.GetY()));
             }
           }
@@ -187,6 +193,18 @@ void vtkChartMatrix::SetGutterX(float value)
 void vtkChartMatrix::SetGutterY(float value)
 {
   this->Gutter.SetY (value);
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::SetSpecificResize(const vtkVector2i& index, const vtkVector2f& resize)
+{
+  this->SpecificResize[index] = resize;
+  this->LayoutIsDirty = true;
+}
+
+void vtkChartMatrix::ClearSpecificResizes()
+{
+  this->SpecificResize.clear();
   this->LayoutIsDirty = true;
 }
 
@@ -297,16 +315,24 @@ vtkVector2i vtkChartMatrix::GetChartIndex(const vtkVector2f &position)
           {
           y = this->Borders[vtkAxis::BOTTOM];
           }
+        vtkVector2f resize(0., 0.);
+        vtkVector2i key(i, j);
+        if (this->SpecificResize.find(key) != this->SpecificResize.end())
+          {
+          resize = this->SpecificResize[key];
+          }
         size_t index = j * this->Size.GetX() + i;
         if (this->Private->Charts[index])
           {
           vtkVector2i &span = this->Private->Spans[index];
           // Check if the supplied location is within this charts area.
-          if (position.GetX() > x &&
-              position.GetX() < (x + increments.GetX() * span.GetX()
+          float x2 = x + resize.GetX();
+          float y2 = y + resize.GetY();
+          if (position.GetX() > x2 &&
+              position.GetX() < (x2 + increments.GetX() * span.GetX() - resize.GetY()
                               + (span.GetX() - 1) * this->Gutter.GetX()) &&
-              position.GetY() > y &&
-              position.GetY() < (y + increments.GetY() * span.GetY()
+              position.GetY() > y2 &&
+              position.GetY() < (y2 + increments.GetY() * span.GetY() - resize.GetY()
                               + (span.GetY() - 1) * this->Gutter.GetY()))
             return vtkVector2i(i, j);
           }

@@ -29,6 +29,7 @@
 #include "vtkNew.h"          // For ivars
 #include "vtkColor.h"        // For member function return
 #include "vtkStdString.h"    // For ivars
+#include "vtkWeakPointer.h"  // For currentPainter
 
 class vtkStringArray;
 class vtkTable;
@@ -376,6 +377,9 @@ private:
   class PIMPL;
   PIMPL *Private;
   friend class PIMPL;
+
+  vtkWeakPointer<vtkContext2D> CurrentPainter;
+  unsigned long LayoutUpdatedTime;
 
   // Go through the process of calculating axis ranges, etc...
   void UpdateAxes();
