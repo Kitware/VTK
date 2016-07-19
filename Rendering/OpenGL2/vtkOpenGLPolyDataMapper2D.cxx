@@ -630,7 +630,7 @@ void vtkOpenGLPolyDataMapper2D::UpdateVBO(vtkActor2D *act, vtkViewport *viewport
     else
       {
       vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, VTK_SURFACE);
+        prims, cellCellMap, VTK_SURFACE, poly->GetPoints());
       }
 
     if (!this->CellScalarTexture)

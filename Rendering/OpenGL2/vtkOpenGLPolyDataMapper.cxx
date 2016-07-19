@@ -2563,6 +2563,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   vtkIdTypeArray* mapArrayId = NULL;
   vtkPointData *pd = poly->GetPointData();
   vtkCellData *cd = poly->GetCellData();
+  vtkPoints *points = poly->GetPoints();
   if (selector)
     {
     switch (selector->GetCurrentPass())
@@ -2681,7 +2682,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     else
       {
       vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation);
+        prims, cellCellMap, representation, points);
       }
 
     for (unsigned int i = 0; i < cellCellMap.size(); i++)
@@ -2710,7 +2711,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     else
       {
       vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation);
+        prims, cellCellMap, representation, points);
       }
 
     if (this->HaveCellScalars || this->HavePickScalars)
