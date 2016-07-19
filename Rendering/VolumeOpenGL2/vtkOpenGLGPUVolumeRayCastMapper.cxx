@@ -405,7 +405,6 @@ public:
   vtkNew<vtkMatrix4x4> TextureToEyeTransposeInverse;
 
   vtkNew<vtkMatrix4x4> TempMatrix1;
-  vtkNew<vtkMatrix4x4> TempMatrix2;
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
@@ -1551,7 +1550,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
 {
   this->TempMatrix1->DeepCopy(vol->GetMatrix());
   this->TempMatrix1->Invert();
-  this->TempMatrix2->DeepCopy(this->TempMatrix1.GetPointer());
 
   vtkCamera* cam = ren->GetActiveCamera();
   double camWorldRange[2];
@@ -1564,12 +1562,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   cam->GetPosition(camWorldPos);
   camWorldPos[3] = 1.0;
   this->TempMatrix1->MultiplyPoint( camWorldPos, camPos );
-  if ( camPos[3] )
-    {
-    camPos[0] /= camPos[3];
-    camPos[1] /= camPos[3];
-    camPos[2] /= camPos[3];
-    }
 
   cam->GetFocalPoint(camFocalWorldPoint);
   camFocalWorldPoint[3]=1.0;
@@ -1582,7 +1574,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camWorldDirection[3] = 0.0;
 
   // Compute the normalized near plane normal
-  this->TempMatrix2->MultiplyPoint( camWorldDirection, camPlaneNormal );
+  this->TempMatrix1->MultiplyPoint(camWorldDirection, camPlaneNormal);
 
   vtkMath::Normalize(camWorldDirection);
   vtkMath::Normalize(camPlaneNormal);
@@ -1597,12 +1589,6 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::IsCameraInside(
   camNearWorldPoint[3] = 1.;
 
   this->TempMatrix1->MultiplyPoint( camNearWorldPoint, camNearPoint );
-  if (camNearPoint[3]!=0.0)
-    {
-    camNearPoint[0] /= camNearPoint[3];
-    camNearPoint[1] /= camNearPoint[3];
-    camNearPoint[2] /= camNearPoint[3];
-    }
 
   double tolerance[3] = { 1e-12, 1e-12, 1e-12 };
   if (vtkMath::PointIsWithinBounds(camNearPoint, this->LoadedBounds, tolerance))
@@ -1637,7 +1623,6 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
       // InverseVolumeMat
       this->TempMatrix1->DeepCopy(vol->GetMatrix());
       this->TempMatrix1->Invert();
-      this->TempMatrix2->DeepCopy(this->TempMatrix1.GetPointer());
 
       vtkCamera* cam = ren->GetActiveCamera();
       double camWorldRange[2];
@@ -1649,13 +1634,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
 
       cam->GetPosition(camWorldPos);
       camWorldPos[3] = 1.0;
-      this->TempMatrix1->MultiplyPoint( camWorldPos, camPos );
-      if ( camPos[3] )
-        {
-        camPos[0] /= camPos[3];
-        camPos[1] /= camPos[3];
-        camPos[2] /= camPos[3];
-        }
+      this->TempMatrix1->MultiplyPoint(camWorldPos, camPos);
 
       cam->GetFocalPoint(camFocalWorldPoint);
       camFocalWorldPoint[3]=1.0;
@@ -1668,7 +1647,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
       camWorldDirection[3] = 0.0;
 
       // Compute the normalized near plane normal
-      this->TempMatrix2->MultiplyPoint( camWorldDirection, camPlaneNormal );
+      this->TempMatrix1->MultiplyPoint(camWorldDirection, camPlaneNormal);
 
       vtkMath::Normalize(camWorldDirection);
       vtkMath::Normalize(camPlaneNormal);
@@ -1689,21 +1668,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
       camFarWorldPoint[2] = camWorldPos[2] + camWorldRange[1]*camWorldDirection[2];
       camFarWorldPoint[3] = 1.;
 
-      this->TempMatrix1->MultiplyPoint( camNearWorldPoint, camNearPoint );
-      if (camNearPoint[3]!=0.0)
-        {
-        camNearPoint[0] /= camNearPoint[3];
-        camNearPoint[1] /= camNearPoint[3];
-        camNearPoint[2] /= camNearPoint[3];
-        }
-
-      this->TempMatrix1->MultiplyPoint( camFarWorldPoint, camFarPoint );
-      if (camFarPoint[3]!=0.0)
-        {
-        camFarPoint[0] /= camFarPoint[3];
-        camFarPoint[1] /= camFarPoint[3];
-        camFarPoint[2] /= camFarPoint[3];
-        }
+      this->TempMatrix1->MultiplyPoint(camNearWorldPoint, camNearPoint);
+      this->TempMatrix1->MultiplyPoint(camFarWorldPoint, camFarPoint);
 
       vtkNew<vtkPlane> nearPlane;
 
