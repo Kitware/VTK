@@ -103,7 +103,7 @@ class PickingManagerClient : public vtkObject
 
   protected:
     PickingManagerClient();
-    ~PickingManagerClient();
+    ~PickingManagerClient() VTK_OVERRIDE;
 
   private:
     vtkPickingManager *PickingManager;

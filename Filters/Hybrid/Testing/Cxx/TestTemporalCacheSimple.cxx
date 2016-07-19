@@ -65,15 +65,15 @@ public:
  protected:
    vtkTemporalSphereSource();
 
-  virtual int RequestInformation(
+  int RequestInformation(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
-  virtual int RequestData(
+  int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 public:
   int TimeStepRange[2];
@@ -172,7 +172,7 @@ public:
   static vtkTestTemporalCacheSimpleExecuteCallback *New()
   { return new vtkTestTemporalCacheSimpleExecuteCallback; }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     // count the number of timesteps requested
     vtkTemporalSphereSource *sph = vtkTemporalSphereSource::SafeDownCast(caller);

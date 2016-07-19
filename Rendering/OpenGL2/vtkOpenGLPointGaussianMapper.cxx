@@ -60,40 +60,40 @@ public:
 
 protected:
   vtkOpenGLPointGaussianMapperHelper();
-  ~vtkOpenGLPointGaussianMapperHelper();
+  ~vtkOpenGLPointGaussianMapperHelper() VTK_OVERRIDE;
 
   // Description:
   // Create the basic shaders before replacement
-  virtual void GetShaderTemplate(
+  void GetShaderTemplate(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *, vtkActor *);
+    vtkRenderer *, vtkActor *) VTK_OVERRIDE;
 
   // Description:
   // Perform string replacments on the shader templates
-  virtual void ReplaceShaderColor(
+  void ReplaceShaderColor(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *, vtkActor *);
-  virtual void ReplaceShaderPositionVC(
+    vtkRenderer *, vtkActor *) VTK_OVERRIDE;
+  void ReplaceShaderPositionVC(
     std::map<vtkShader::Type, vtkShader *> shaders,
-    vtkRenderer *, vtkActor *);
+    vtkRenderer *, vtkActor *) VTK_OVERRIDE;
 
   // Description:
   // Set the shader parameters related to the Camera
-  virtual void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetCameraShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Set the shader parameters related to the actor/mapper
-  virtual void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act);
+  void SetMapperShaderParameters(vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Does the VBO/IBO need to be rebuilt
-  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
   // Update the VBO to contain point based values
-  virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+  void BuildBufferObjects(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
-  virtual void RenderPieceDraw(vtkRenderer *ren, vtkActor *act);
+  void RenderPieceDraw(vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // create the table for opacity values
   void BuildOpacityTable();
@@ -103,8 +103,8 @@ protected:
 
   // Description:
   // Does the shader source need to be recomputed
-  virtual bool GetNeedToRebuildShaders(vtkOpenGLHelper &cellBO,
-    vtkRenderer *ren, vtkActor *act);
+  bool GetNeedToRebuildShaders(vtkOpenGLHelper &cellBO,
+    vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
 private:
   vtkOpenGLPointGaussianMapperHelper(const vtkOpenGLPointGaussianMapperHelper&) VTK_DELETE_FUNCTION;

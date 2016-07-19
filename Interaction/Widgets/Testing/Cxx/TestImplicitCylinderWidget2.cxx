@@ -284,7 +284,7 @@ public:
     return new vtkTICWCallback;
   }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitCylinderWidget *cylWidget =
       reinterpret_cast<vtkImplicitCylinderWidget*>(caller);

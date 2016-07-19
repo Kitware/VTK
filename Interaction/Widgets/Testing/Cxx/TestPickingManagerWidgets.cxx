@@ -76,7 +76,7 @@ class vtkBalloonPickCallback : public vtkCommand
 {
 public:
   static vtkBalloonPickCallback* New() { return new vtkBalloonPickCallback; }
-  virtual void Execute(vtkObject* caller, unsigned long, void*)
+  void Execute(vtkObject* caller, unsigned long, void*) VTK_OVERRIDE
     {
     vtkPropPicker* picker = reinterpret_cast<vtkPropPicker*>(caller);
     vtkProp* prop = picker->GetViewProp();
@@ -98,7 +98,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -124,7 +124,7 @@ public:
   static vtkEnableManagerCallback *New()
     {return new vtkEnableManagerCallback;}
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
     vtkRenderWindowInteractor *iren =
       static_cast<vtkRenderWindowInteractor*>(caller);

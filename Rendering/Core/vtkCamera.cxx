@@ -38,7 +38,7 @@ public:
   static vtkCameraCallbackCommand *New()
     { return new vtkCameraCallbackCommand; }
   vtkCamera *Self;
-  void Execute(vtkObject *, unsigned long, void *)
+  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
     {
       if (this->Self)
         {
@@ -50,7 +50,7 @@ public:
     }
 protected:
   vtkCameraCallbackCommand() { this->Self = NULL; }
-  ~vtkCameraCallbackCommand() {}
+  ~vtkCameraCallbackCommand() VTK_OVERRIDE {}
 };
 
 //----------------------------------------------------------------------------

@@ -27,8 +27,8 @@ public:
   static vtkTestReferenceLoop* New() { return new vtkTestReferenceLoop; }
   vtkTypeMacro(vtkTestReferenceLoop, vtkObject);
 
-  void Register(vtkObjectBase* o) { this->RegisterInternal(o, 1); }
-  void UnRegister(vtkObjectBase* o) { this->UnRegisterInternal(o, 1); }
+  void Register(vtkObjectBase* o) VTK_OVERRIDE { this->RegisterInternal(o, 1); }
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE { this->UnRegisterInternal(o, 1); }
 
 protected:
   vtkTestReferenceLoop()
@@ -46,7 +46,7 @@ protected:
     vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
 #endif
     }
-  ~vtkTestReferenceLoop()
+  ~vtkTestReferenceLoop() VTK_OVERRIDE
     {
     if(this->Other)
       {
@@ -55,7 +55,7 @@ protected:
       }
     }
 
-  void ReportReferences(vtkGarbageCollector* collector)
+  void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE
     {
     vtkGarbageCollectorReport(collector, this->Other, "Other");
     }

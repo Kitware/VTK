@@ -243,7 +243,7 @@ private:
 
   // constructor and destructor are kept private
   vtkOpenFOAMReaderPrivate();
-  ~vtkOpenFOAMReaderPrivate();
+  ~vtkOpenFOAMReaderPrivate() VTK_OVERRIDE;
 
   vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
   void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;

@@ -622,9 +622,9 @@ public:
     this->Data = vals;
     this->Nominal = nominal;
   }
-  virtual ~ZedDeviationDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~ZedDeviationDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) == this->Nominal ) ? 0. : 1. );
@@ -642,9 +642,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  virtual ~SignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~SignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
@@ -662,9 +662,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  virtual ~UnsignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~UnsignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, fabs ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );

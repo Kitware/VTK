@@ -395,7 +395,7 @@ class vtkTPWCallback : public vtkCommand
 public:
   static vtkTPWCallback *New()
   { return new vtkTPWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkPlaneWidget *planeWidget = reinterpret_cast<vtkPlaneWidget*>(caller);
     planeWidget->GetPolyData(this->PolyData);

@@ -38,8 +38,8 @@ public:
     { return new vtkImageOpenClose3DProgress; }
 
   // the execute
-  virtual void Execute(vtkObject *caller,
-                       unsigned long event, void* vtkNotUsed(v))
+  void Execute(vtkObject *caller,
+                       unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
     {
       vtkAlgorithm *alg = vtkAlgorithm::SafeDownCast(caller);
       if (event == vtkCommand::ProgressEvent && alg)

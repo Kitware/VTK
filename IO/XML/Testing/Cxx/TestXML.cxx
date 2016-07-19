@@ -29,8 +29,8 @@ public:
 
 protected:
   vtkMyXML() {}
-  void StartElement(const char*, const char**) {}
-  void EndElement(const char*) {}
+  void StartElement(const char*, const char**) VTK_OVERRIDE {}
+  void EndElement(const char*) VTK_OVERRIDE {}
 
 private:
   vtkMyXML(const vtkMyXML&) VTK_DELETE_FUNCTION;

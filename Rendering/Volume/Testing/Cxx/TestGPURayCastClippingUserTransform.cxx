@@ -132,7 +132,7 @@ public:
     return new vtkInteractorStyleCallback;
     }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
     vtkInteractorStyle* style = reinterpret_cast<vtkInteractorStyle*>(caller);
 
