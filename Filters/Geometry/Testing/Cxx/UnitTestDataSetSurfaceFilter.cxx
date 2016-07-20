@@ -108,11 +108,6 @@ class CellDescription
     this->Type = cellType;
     this->Cells = numCells;
     }
-  CellDescription(const CellDescription &cell)
-    {
-    this->Type = cell.Type;
-    this->Cells = cell.Cells;
-    }
   CellDescription() : Type(0), Cells(0)
     {}
   int Type;
