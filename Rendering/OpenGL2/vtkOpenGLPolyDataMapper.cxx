@@ -51,7 +51,7 @@
 #include "vtkTransform.h"
 #include "vtkUnsignedIntArray.h"
 #include "vtkValuePass.h"
-
+#include "vtkValuePassHelper.h"
 #include "vtkShadowMapPass.h"
 
 // Bring in our fragment lit shader symbols.
@@ -115,6 +115,7 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->TimerQuery = 0;
   this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
     &vtkOpenGLPolyDataMapper::ReleaseGraphicsResources);
+  this->ValuePassHelper = vtkSmartPointer<vtkValuePassHelper>::New();
 }
 
 //-----------------------------------------------------------------------------
@@ -579,9 +580,15 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderColor(
   // the following are always defined variables.  We start
   // by assiging a default value from the uniform
   std::string colorImpl =
-    "vec3 ambientColor;\n"
+    "  vec3 ambientColor;\n"
     "  vec3 diffuseColor;\n"
     "  float opacity;\n";
+
+  if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
+    {
+    this->ValuePassHelper->UpdateShaders(VSSource, FSSource, colorImpl);
+    }
+
   if (this->LastLightComplexity[this->LastBoundBO])
     {
     colorImpl +=
@@ -793,6 +800,8 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderLight(
   int lastLightComplexity = this->LastLightComplexity[this->LastBoundBO];
   if (info && info->Has(vtkValuePass::RENDER_VALUES()))
     {
+    // Although vtkValuePass::FLOATING_POINT does not require this, it is for
+    // simplicity left unchanged (only required when using INVERTIBLE_LUT mode).
     lastLightComplexity = 0;
     }
 
@@ -1478,6 +1487,16 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   //cout << "VS: " << shaders[vtkShader::Vertex]->GetSource() << endl;
   //cout << "GS: " << shaders[vtkShader::Geometry]->GetSource() << endl;
   //cout << "FS: " << shaders[vtkShader::Fragment]->GetSource() << endl;
+
+//  std::string vertexShader = shaders[vtkShader::Vertex]->GetSource();
+//  std::string fragmentShader = shaders[vtkShader::Fragment]->GetSource();
+//  std::ofstream file("/home/alvaro/testShaders/PolyData_valuePass.frag");
+//  file << fragmentShader;
+//  file.close();
+//
+//  file.open("/home/alvaro/testShaders/PolyData_valuePass.vert");
+//  file << vertexShader;
+//  file.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -1597,6 +1616,32 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
 
     this->BuildShaders(shaders, ren, actor);
 
+
+//  vtkInformation *info = actor->GetPropertyKeys();
+//    if (info && info->Has(vtkValuePass::RENDER_VALUES()))
+//    {
+//  // Load shaders
+//  //---------------
+//  std::string path = "/home/alvaro/testShaders/";
+//  std::string filename = "pv_values";
+//
+//  std::string vfilepath = path + filename + ".vert";
+//  std::ifstream file(vfilepath.c_str());
+//  std::string vert = std::string(std::istreambuf_iterator<char>(file),
+//    std::istreambuf_iterator<char>());
+//  file.close();
+//
+//  std::string ffilepath = path + filename + ".frag";
+//  file.open(ffilepath.c_str());
+//  std::string frag = std::string(std::istreambuf_iterator<char>(file),
+//    std::istreambuf_iterator<char>());
+//  file.close();
+//
+//    shaders[vtkShader::Vertex]->SetSource(vert);
+//    shaders[vtkShader::Fragment]->SetSource(frag);
+//    }
+
+
     // compile and bind the program if needed
     vtkShaderProgram *newShader =
       renWin->GetShaderCache()->ReadyShaderProgram(shaders);
@@ -1694,6 +1739,12 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
         vtkErrorMacro(<< "Error setting 'appleBugPrimID' in shader VAO.");
         }
       }
+
+    if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
+      {
+      this->ValuePassHelper->BindValueBuffer(cellBO);
+      }
+
     cellBO.AttributeUpdateTime.Modified();
     }
 
@@ -2291,6 +2342,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     this->CellNormalTexture->Activate();
     }
 
+  if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
+    {
+    this->ValuePassHelper->UploadValueData(actor, this->CurrentInput);
+    }
+
   // If we are coloring by texture, then load the texture map.
   // Use Map as indicator, because texture hangs around.
   if (this->ColorTextureMap)
@@ -2640,22 +2696,10 @@ void vtkOpenGLPolyDataMapper::ComputeBounds()
 //-------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *act)
 {
-  // First check if the color mapping needs to be changed
-  vtkInformation *info = act->GetPropertyKeys();
-  if (info && info->Has(vtkValuePass::RENDER_VALUES()))
-    {
-    this->UseInvertibleColorFor(this->CurrentInput,
-                                info->Get(vtkValuePass::SCALAR_MODE()),
-                                info->Get(vtkValuePass::ARRAY_MODE()),
-                                info->Get(vtkValuePass::ARRAY_ID()),
-                                info->Get(vtkValuePass::ARRAY_NAME()),
-                                info->Get(vtkValuePass::ARRAY_COMPONENT()),
-                                info->Get(vtkValuePass::SCALAR_RANGE()));
-    }
-  else
-    {
-    this->ClearInvertibleColor();
-    }
+  // Checks for the pass's rendering mode and updates its configuration.
+  // Depending on the case, updates the mapper's color mapping or allocates
+  // a buffer.
+  this->ValuePassHelper->UpdateConfiguration(ren, act, this);
 
   // Rebuild buffers if needed
   if (this->GetNeedToRebuildBufferObjects(ren,act))

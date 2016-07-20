@@ -37,6 +37,7 @@ class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
 class vtkTransform;
 class vtkGenericOpenGLResourceFreeCallback;
+class vtkValuePassHelper;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -182,6 +183,7 @@ public:
     *   the VBO's shift+scale transform.
     */
   void SetVBOShiftScaleMethod(int m);
+
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
@@ -436,6 +438,7 @@ protected:
   char *FragmentShaderCode;
   char *GeometryShaderCode;
   unsigned int TimerQuery;
+  vtkSmartPointer<vtkValuePassHelper> ValuePassHelper;
 
 private:
   vtkOpenGLPolyDataMapper(const vtkOpenGLPolyDataMapper&) VTK_DELETE_FUNCTION;

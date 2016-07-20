@@ -77,6 +77,7 @@ set(Module_SRCS
   vtkTransformFeedback.cxx
   vtkTranslucentPass.cxx
   vtkValuePass.cxx
+  vtkValuePassHelper.cxx
   vtkVolumetricPass.cxx
   )
 
@@ -123,6 +124,7 @@ set_source_files_properties(
   vtkTextureObject
   vtkTextureUnitManager
   vtkTransformFeedback
+  vtkValuePassHelper
   WRAP_EXCLUDE)
 
 set_source_files_properties(

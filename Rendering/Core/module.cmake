@@ -6,6 +6,7 @@ vtk_module(vtkRenderingCore
     vtkIOLegacy
     vtkIOParallel
     vtkIOXML
+    vtkIOPLY
     vtkTestingCore
     vtkTestingRendering
     vtkRendering${VTK_RENDERING_BACKEND}

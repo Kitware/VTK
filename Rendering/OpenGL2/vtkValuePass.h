@@ -22,22 +22,36 @@
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
 
+#include <vector>
+
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"
 
 class vtkInformationDoubleVectorKey;
 class vtkInformationIntegerKey;
 class vtkInformationStringKey;
+class vtkRenderer;
+class vtkRenderWindow;
+class vtkFrameBufferObject2;
+class vtkRenderbuffer;
+class vtkFloatArray;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkValuePass : public vtkDefaultPass
 {
 public:
+
+  enum Mode {
+    INVERTIBLE_LUT = 1,
+    FLOATING_POINT = 2 };
+
   static vtkValuePass *New();
   vtkTypeMacro(vtkValuePass, vtkDefaultPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   static vtkInformationIntegerKey *RENDER_VALUES();
 
+  vtkSetMacro(RenderingMode, int);
+  vtkGetMacro(RenderingMode, int);
   void SetInputArrayToProcess(int fieldAssociation, const char *name);
   void SetInputArrayToProcess(int fieldAssociation, int fieldAttributeType);
   void SetInputComponentToProcess(int component);
@@ -57,6 +71,10 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
 
+  /// \brief Interface to get the result of a render pass in FLOATING_POINT mode.
+  vtkFloatArray* GetFloatImageData(vtkRenderer* ren);
+  std::vector<int> GetFloatImageExtents(vtkRenderer* ren);
+
  protected:
   // Description:
   // Default constructor.
@@ -71,12 +89,38 @@ public:
   // \pre s_exists: s!=0
   virtual void RenderOpaqueGeometry(const vtkRenderState *s);
 
+  // Description:
+  // Manages graphics resources depending on the rendering mode.  Binds internal
+  // FBO when FLOATING_POINT mode is enabled.
+  void BeginPass(vtkRenderer* ren);
+
+  // Description:
+  // Unbinds internal FBO when FLOATING_POINT mode is enabled.
+  void EndPass();
+
+  /// \brief Member methods managing graphics resources required during FLOATING_POINT
+  /// mode.
+  bool IsFloatFBOSupported(vtkRenderWindow* renWin);
+  void InitializeFloatingPointMode(vtkRenderer* ren);
+  void ReleaseFloatingPointMode(vtkRenderer* ren);
+
+///////////////////////////////////////////////////////////////////////////////
+
   class vtkInternals;
   vtkInternals *Internals;
+  int RenderingMode;
+
+  /// \brief FLOATING_POINT mode resources. FBO, attachments and other
+  /// control variables.
+  vtkFrameBufferObject2* ValueFrameBO;
+  vtkRenderbuffer* ValueRenderBO;
+  int Size[2];
+  bool ValuePassResourcesAllocated;
 
  private:
   vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
   void operator=(const vtkValuePass&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

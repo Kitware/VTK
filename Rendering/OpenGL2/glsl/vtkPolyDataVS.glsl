@@ -41,6 +41,9 @@ attribute vec4 vertexMC;
 // Apple Bug
 //VTK::PrimID::Dec
 
+// Value raster
+//VTK::ValuePass::Dec
+
 void main()
 {
   //VTK::Color::Impl
@@ -54,6 +57,8 @@ void main()
   //VTK::PrimID::Impl
 
   //VTK::PositionVC::Impl
+
+  //VTK::ValuePass::Impl
 
   //VTK::Light::Impl
 }
