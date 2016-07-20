@@ -1096,7 +1096,7 @@ private:
 
   // declare and define as private
   vtkFoamFile();
-  bool InflateNext(unsigned char *buf, int requestSize);
+  bool InflateNext(unsigned char *buf, int requestSize, int *readSize = NULL);
   int NextTokenHead();
   // hacks to keep exception throwing / recursive codes out-of-line to make
   // putBack(), getc() and readExpecting() inline expandable
@@ -1780,7 +1780,7 @@ public:
     if (len > buflen)
       {
       memcpy(buf, this->Superclass::BufPtr, buflen);
-      readlen = this->InflateNext(buf + buflen, len - buflen);
+      this->InflateNext(buf + buflen, len - buflen, &readlen);
       if (readlen >= 0)
         {
         readlen += buflen;
@@ -2089,8 +2089,13 @@ void vtkFoamFile::ThrowDuplicatedPutBackException()
 }
 
 bool vtkFoamFile::InflateNext(unsigned char *buf,
-    int requestSize)
+                              int requestSize,
+                              int *readSize)
 {
+  if (readSize)
+    {
+    *readSize = -1; // Set to an error state for early returns
+    }
   size_t size;
   if (this->Superclass::IsCompressed)
     {
@@ -2149,6 +2154,10 @@ bool vtkFoamFile::InflateNext(unsigned char *buf,
   // reserve the first byte for getback char
   this->Superclass::BufPtr = this->Superclass::Outbuf + 1;
   this->Superclass::BufEndPtr = this->Superclass::BufPtr + size;
+  if (readSize)
+    { // Cast size_t to int -- since requestSize is int, this should be ok.
+    *readSize = static_cast<int>(size);
+    }
   return true;
 }
 
