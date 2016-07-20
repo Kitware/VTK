@@ -731,6 +731,7 @@ int vtkSQLDatabaseSchema::AddTableMultipleArguments( const char* tblName, ... )
         }
       }
     }
+  va_end( args );
   return tblHandle;
 }
 
