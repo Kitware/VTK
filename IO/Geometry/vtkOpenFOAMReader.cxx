@@ -2910,19 +2910,25 @@ public:
   }
 };
 
+// I'm removing this method because it looks like a hack and is preventing
+// well-formed datasets from loading. This method overrides ReadBinaryList
+// for float data by assuming that the data is really stored as doubles, and
+// converting each value to float as it's read. Leaving this here in case
+// someone knows why it exists...
+//
 // specialization for reading double precision binary into vtkFloatArray.
 // Must precede ReadNonuniformList() below (HP-UXia64-aCC).
-template<>
-void vtkFoamEntryValue::listTraits<vtkFloatArray, float>::ReadBinaryList(
-    vtkFoamIOobject& io, const int size)
-{
-  for (int i = 0; i < size; i++)
-    {
-    double buffer;
-    io.Read(reinterpret_cast<unsigned char *>(&buffer), sizeof(double));
-    this->Ptr->SetValue(i, static_cast<float>(buffer));
-    }
-}
+//template<>
+//void vtkFoamEntryValue::listTraits<vtkFloatArray, float>::ReadBinaryList(
+//    vtkFoamIOobject& io, const int size)
+//{
+//  for (int i = 0; i < size; i++)
+//    {
+//    double buffer;
+//    io.Read(reinterpret_cast<unsigned char *>(&buffer), sizeof(double));
+//    this->Ptr->SetValue(i, static_cast<float>(buffer));
+//    }
+//}
 
 // generic reader for nonuniform lists. requires size prefix of the
 // list to be present in the stream if the format is binary.
