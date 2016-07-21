@@ -18,7 +18,7 @@
 #define vtkXMLReaderVersion_h
 
 const int vtkXMLReaderMajorVersion = 2;
-const int vtkXMLReaderMinorVersion = 0;
+const int vtkXMLReaderMinorVersion = 1;
 
 #endif // vtkXMLReaderVersion_h
 // VTK-HeaderTest-Exclude: vtkXMLReaderVersion.h

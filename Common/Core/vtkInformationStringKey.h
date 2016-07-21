@@ -25,6 +25,8 @@
 
 #include "vtkCommonInformationKeyManager.h" // Manage instances of this type.
 
+#include <string> // for std::string compat
+
 class VTKCOMMONCORE_EXPORT vtkInformationStringKey : public vtkInformationKey
 {
 public:
@@ -47,6 +49,7 @@ public:
   // Get/Set the value associated with this key in the given
   // information object.
   void Set(vtkInformation* info, const char*);
+  void Set(vtkInformation* info, const std::string &str);
   const char* Get(vtkInformation* info);
 
   // Description:

@@ -104,6 +104,20 @@ void vtkInformationStringVectorKey::Set(vtkInformation* info, const char* value,
 }
 
 //----------------------------------------------------------------------------
+void vtkInformationStringVectorKey::Append(vtkInformation *info,
+                                           const std::string &value)
+{
+  this->Append(info, value.c_str());
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationStringVectorKey::Set(vtkInformation *info,
+                                        const std::string &value, int idx)
+{
+  this->Set(info, value.c_str(), idx);
+}
+
+//----------------------------------------------------------------------------
 const char* vtkInformationStringVectorKey::Get(vtkInformation* info, int idx)
 {
   if (idx < 0 || idx >= this->Length(info))
