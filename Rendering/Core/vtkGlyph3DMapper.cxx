@@ -442,7 +442,12 @@ bool vtkGlyph3DMapper::GetBoundsInternal(vtkDataSet* ds, double ds_bounds[6])
     }
 
   ds->GetBounds(ds_bounds);
-
+  // if there is nothing inside the scene, just return uninitializedBounds
+  if ((ds_bounds[0] > ds_bounds[1]) && (ds_bounds[2] > ds_bounds[3]) && \
+      (ds_bounds[4] > ds_bounds[5]))
+    {
+     return false;
+    }
   // if the input is not conform to what the mapper expects (use vector
   // but no vector data), nothing will be mapped.
   // It make sense to return uninitialized bounds.
