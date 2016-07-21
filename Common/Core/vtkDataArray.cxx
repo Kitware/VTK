@@ -26,6 +26,7 @@
 #include "vtkInformation.h"
 #include "vtkInformationDoubleVectorKey.h"
 #include "vtkInformationInformationVectorKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkInformationVector.h"
 #include "vtkIdTypeArray.h"
 #include "vtkIntArray.h"
@@ -371,6 +372,7 @@ bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
 
 vtkInformationKeyRestrictedMacro(vtkDataArray, COMPONENT_RANGE, DoubleVector, 2);
 vtkInformationKeyRestrictedMacro(vtkDataArray, L2_NORM_RANGE, DoubleVector, 2);
+vtkInformationKeyMacro(vtkDataArray, UNITS_LABEL, String);
 
 //----------------------------------------------------------------------------
 // Construct object with default tuple dimension (number of components) of 1.

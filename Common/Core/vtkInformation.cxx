@@ -536,6 +536,23 @@ VTK_INFORMATION_DEFINE_SCALAR_PROPERTY(Variant, const vtkVariant&);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Integer, int);
 VTK_INFORMATION_DEFINE_VECTOR_PROPERTY(Double, double);
 
+// String keys can accept std::string.
+void vtkInformation::Append(vtkInformationStringVectorKey *key,
+                            const std::string &value)
+{
+  this->Append(key, value.c_str());
+}
+void vtkInformation::Set(vtkInformationStringVectorKey* key,
+                         const std::string &value, int idx)
+{
+  this->Set(key, value.c_str(), idx);
+}
+void vtkInformation::Set(vtkInformationStringKey* key,
+                         const std::string &value)
+{
+  this->Set(key, value.c_str());
+}
+
 // Variant vector key is slightly different to accommodate efficient
 // pass-by-reference instead of pass-by-value calls.
 void vtkInformation::Append(vtkInformationVariantVectorKey* key,

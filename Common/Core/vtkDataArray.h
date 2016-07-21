@@ -37,6 +37,7 @@
 
 class vtkDoubleArray;
 class vtkIdList;
+class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkLookupTable;
 class vtkPoints;
@@ -360,6 +361,10 @@ public:
   // When GetRange() is called when no tuples are present in the array
   // this value is set to { VTK_DOUBLE_MAX, VTK_DOUBLE_MIN }.
   static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
+
+  // Description:
+  // A human-readable string indicating the units for the array data.
+  static vtkInformationStringKey *UNITS_LABEL();
 
   // Description:
   // Copy information instance. Arrays use information objects
