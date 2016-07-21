@@ -169,8 +169,8 @@ protected:
   friend class vtkDataObjectTreeIterator;
 
 private:
-  vtkDataObjectTree(const vtkDataObjectTree&); // Not implemented.
-  void operator=(const vtkDataObjectTree&); // Not implemented.
+  vtkDataObjectTree(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectTree&) VTK_DELETE_FUNCTION;
 
 };
 

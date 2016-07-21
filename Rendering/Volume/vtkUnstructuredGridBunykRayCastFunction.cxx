@@ -80,12 +80,7 @@ struct TemplateCastRayWorker
       NumIntersections(0)
   {}
 
-  // Silence warning C4512 on MSVC2015: "assignment operator could not be
-  // generated.". This class is never copied, so no need for assignment.
-  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &)
-  {
-    return *this;
-  }
+  TemplateCastRayWorker& operator=(const TemplateCastRayWorker &) VTK_DELETE_FUNCTION;
 
   // Execute the algorithm with all arrays set to NULL.
   void operator()()
@@ -351,20 +346,20 @@ public:
                        vtkUnstructuredGridVolumeRayCastIterator);
   static vtkUnstructuredGridBunykRayCastIterator *New();
 
-  void Initialize(int x, int y);
+  void Initialize(int x, int y) VTK_OVERRIDE;
 
   vtkIdType GetNextIntersections(vtkIdList *intersectedCells,
                                  vtkDoubleArray *intersectionLengths,
                                  vtkDataArray *scalars,
                                  vtkDataArray *nearIntersections,
-                                 vtkDataArray *farIntersections);
+                                 vtkDataArray *farIntersections) VTK_OVERRIDE;
 
   vtkSetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
   vtkGetObjectMacro(RayCastFunction, vtkUnstructuredGridBunykRayCastFunction);
 
 protected:
   vtkUnstructuredGridBunykRayCastIterator();
-  ~vtkUnstructuredGridBunykRayCastIterator();
+  ~vtkUnstructuredGridBunykRayCastIterator() VTK_OVERRIDE;
 
   int RayPosition[2];
 
@@ -375,8 +370,8 @@ protected:
   vtkIdType                                              CurrentTetra;
 
 private:
-  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
-  void operator=(const vtkUnstructuredGridBunykRayCastIterator&);  // Not implemented
+  vtkUnstructuredGridBunykRayCastIterator(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridBunykRayCastIterator&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkUnstructuredGridBunykRayCastIterator);

@@ -85,8 +85,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkPointSource(const vtkPointSource&);  // Not implemented.
-  void operator=(const vtkPointSource&);  // Not implemented.
+  vtkPointSource(const vtkPointSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

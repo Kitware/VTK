@@ -120,8 +120,8 @@ protected:
   int JoinContiguousSegments;
 
 private:
-  vtkStripper(const vtkStripper&);  // Not implemented.
-  void operator=(const vtkStripper&);  // Not implemented.
+  vtkStripper(const vtkStripper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStripper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -244,8 +244,8 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   int indexBits;
 
  private:
-  vtkDistributedGraphHelper(const vtkDistributedGraphHelper&); // Not implemented
-  void operator=(const vtkDistributedGraphHelper&); // Not implemented
+  vtkDistributedGraphHelper(const vtkDistributedGraphHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDistributedGraphHelper&) VTK_DELETE_FUNCTION;
 
   friend class vtkGraph;
 

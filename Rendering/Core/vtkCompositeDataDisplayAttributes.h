@@ -117,8 +117,8 @@ protected:
   ~vtkCompositeDataDisplayAttributes();
 
 private:
-  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&); // Not implemented.
-  void operator=(const vtkCompositeDataDisplayAttributes&); // Not implemented.
+  vtkCompositeDataDisplayAttributes(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataDisplayAttributes&) VTK_DELETE_FUNCTION;
 
   // Description:
   // If the input data \a dobj is a vtkCompositeDataSet, we will

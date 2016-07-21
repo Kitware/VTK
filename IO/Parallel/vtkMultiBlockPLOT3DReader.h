@@ -366,8 +366,8 @@ protected:
   vtkMultiProcessController *Controller;
 
 private:
-  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&);  // Not implemented.
-  void operator=(const vtkMultiBlockPLOT3DReader&);  // Not implemented.
+  vtkMultiBlockPLOT3DReader(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiBlockPLOT3DReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

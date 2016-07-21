@@ -188,8 +188,8 @@ protected:
   vtkSmartPointer<ImplementationType> Impl;
 
 private:
-  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &); // Not implemented.
-  void operator=(const vtkMappedUnstructuredGrid &);   // Not implemented.
+  vtkMappedUnstructuredGrid(const vtkMappedUnstructuredGrid &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMappedUnstructuredGrid &) VTK_DELETE_FUNCTION;
 
   vtkNew<vtkGenericCell> TempCell;
 };

@@ -202,8 +202,8 @@ protected:
   vtkTimeStamp         BuildTime;
 
 private:
-  vtkLegendScaleActor(const vtkLegendScaleActor&);  //Not implemented
-  void operator=(const vtkLegendScaleActor&);  //Not implemented
+  vtkLegendScaleActor(const vtkLegendScaleActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLegendScaleActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

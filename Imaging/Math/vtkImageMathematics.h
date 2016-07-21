@@ -204,8 +204,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkImageMathematics(const vtkImageMathematics&);  // Not implemented.
-  void operator=(const vtkImageMathematics&);  // Not implemented.
+  vtkImageMathematics(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMathematics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

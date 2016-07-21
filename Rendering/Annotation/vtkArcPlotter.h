@@ -162,8 +162,8 @@ private:
   int       EndComp;
 
 private:
-  vtkArcPlotter(const vtkArcPlotter&);  // Not implemented.
-  void operator=(const vtkArcPlotter&);  // Not implemented.
+  vtkArcPlotter(const vtkArcPlotter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArcPlotter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

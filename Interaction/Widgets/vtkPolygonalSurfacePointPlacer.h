@@ -157,8 +157,8 @@ protected:
   int                                      SnapToClosestPoint;
 
 private:
-  vtkPolygonalSurfacePointPlacer(const vtkPolygonalSurfacePointPlacer&);  //Not implemented
-  void operator=(const vtkPolygonalSurfacePointPlacer&);  //Not implemented
+  vtkPolygonalSurfacePointPlacer(const vtkPolygonalSurfacePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolygonalSurfacePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

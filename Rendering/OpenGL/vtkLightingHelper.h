@@ -64,8 +64,8 @@ protected:
   vtkShaderProgram2 *Shader;
 
 private:
-  vtkLightingHelper(const vtkLightingHelper&); // Not implemented.
-  void operator=(const vtkLightingHelper&); // Not implemented.
+  vtkLightingHelper(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
 
 };
 

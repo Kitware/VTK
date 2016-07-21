@@ -33,10 +33,13 @@
 // API. With vtkDataArrayAccessor, a single templated worker function can be
 // used to generate both.
 //
-// Note that while this interface provides both component-wise and tuple access,
-// the tuple methods are discouraged as they are significantly slower due to
-// copying, and prevent many advanced compiler optimizations that are possible
-// when using the component accessors.
+// Note that while this interface provides both component-wise and
+// tuple access, the tuple methods are discouraged as they are
+// significantly slower as they copy data into a temporary array, and
+// prevent many advanced compiler optimizations that are possible when
+// using the component accessors. In other words, prefer the methods
+// that operate on a single component instead of an entire tuple when
+// performance matters.
 //
 // A standard usage pattern of this class would be:
 //

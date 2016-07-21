@@ -242,8 +242,8 @@ protected:
   vtkKMeansDistanceFunctor* DistanceFunctor;
 
 private:
-  vtkKMeansStatistics( const vtkKMeansStatistics& ); // Not implemented
-  void operator=( const vtkKMeansStatistics& );  // Not implemented
+  vtkKMeansStatistics( const vtkKMeansStatistics& ) VTK_DELETE_FUNCTION;
+  void operator=( const vtkKMeansStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

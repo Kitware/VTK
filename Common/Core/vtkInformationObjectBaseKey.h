@@ -71,8 +71,8 @@ protected:
   vtkInformationKeySetStringMacro(RequiredClass);
 
 private:
-  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&);  // Not implemented.
-  void operator=(const vtkInformationObjectBaseKey&);  // Not implemented.
+  vtkInformationObjectBaseKey(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationObjectBaseKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

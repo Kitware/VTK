@@ -65,8 +65,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation* outInfo);
 
 private:
-  vtkGESignaReader(const vtkGESignaReader&);  // Not implemented.
-  void operator=(const vtkGESignaReader&);  // Not implemented.
+  vtkGESignaReader(const vtkGESignaReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGESignaReader&) VTK_DELETE_FUNCTION;
 };
 #endif
 

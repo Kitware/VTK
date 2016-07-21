@@ -82,8 +82,8 @@ protected:
   int                    CurrentCursorShape;
 
 private:
-  vtkObserverMediator(const vtkObserverMediator&);  //Not implemented
-  void operator=(const vtkObserverMediator&);  //Not implemented
+  vtkObserverMediator(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObserverMediator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

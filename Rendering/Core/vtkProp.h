@@ -391,8 +391,8 @@ protected:
   vtkInformation *PropertyKeys;
 
 private:
-  vtkProp(const vtkProp&);  // Not implemented.
-  void operator=(const vtkProp&);  // Not implemented.
+  vtkProp(const vtkProp&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp&) VTK_DELETE_FUNCTION;
 };
 
 #endif

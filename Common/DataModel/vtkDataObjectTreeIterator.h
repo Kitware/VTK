@@ -117,8 +117,8 @@ protected:
   unsigned int CurrentFlatIndex;
 
 private:
-  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&); // Not implemented.
-  void operator=(const vtkDataObjectTreeIterator&); // Not implemented.
+  vtkDataObjectTreeIterator(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectTreeIterator&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

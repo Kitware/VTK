@@ -31,11 +31,11 @@
 //  public:
 //   virtual void Register(vtkObjectBase* o)
 //     {
-//     this->RegisterInternal(o, 1);
+//     this->RegisterInternal(o, true);
 //     }
 //   virtual void UnRegister(vtkObjectBase* o)
 //     {
-//     this->UnRegisterInternal(o, 1);
+//     this->UnRegisterInternal(o, true);
 //     }
 //
 //  protected:
@@ -177,8 +177,8 @@ private:
                                     const char*);
 
 private:
-  vtkGarbageCollector(const vtkGarbageCollector&);  // Not implemented.
-  void operator=(const vtkGarbageCollector&);  // Not implemented.
+  vtkGarbageCollector(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGarbageCollector&) VTK_DELETE_FUNCTION;
 };
 
 class vtkSmartPointerBase;

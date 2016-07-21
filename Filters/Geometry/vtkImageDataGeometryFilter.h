@@ -90,8 +90,8 @@ protected:
   int    OutputTriangles;
 
 private:
-  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&);  // Not implemented.
-  void operator=(const vtkImageDataGeometryFilter&);  // Not implemented.
+  vtkImageDataGeometryFilter(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageDataGeometryFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

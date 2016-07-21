@@ -64,8 +64,8 @@ protected:
   int NumIndepVars;
 
 private:
-  vtkFunctionSet(const vtkFunctionSet&);  // Not implemented.
-  void operator=(const vtkFunctionSet&);  // Not implemented.
+  vtkFunctionSet(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFunctionSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

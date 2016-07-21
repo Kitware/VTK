@@ -38,8 +38,8 @@ protected:
     vtkRenderWindow* window, vtkProperty* property, RenderBlockState& state);
 
 private:
-  vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&); // Not implemented.
-  void operator=(const vtkOpenGLCompositePainter&); // Not implemented.
+  vtkOpenGLCompositePainter(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLCompositePainter&) VTK_DELETE_FUNCTION;
 
   bool PushedOpenGLAttribs;
 };

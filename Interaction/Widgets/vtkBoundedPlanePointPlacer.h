@@ -192,8 +192,8 @@ protected:
                                        double               closestPt[3]);
 
 private:
-  vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&);  //Not implemented
-  void operator=(const vtkBoundedPlanePointPlacer&);  //Not implemented
+  vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoundedPlanePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

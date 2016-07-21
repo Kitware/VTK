@@ -54,8 +54,8 @@ protected:
                                  vtkPointData *outputPD);
 
 private:
-  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&);  // Not implemented.
-  void operator=(const vtkLinearSubdivisionFilter&);  // Not implemented.
+  vtkLinearSubdivisionFilter(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLinearSubdivisionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

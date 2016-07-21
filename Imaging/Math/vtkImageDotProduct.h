@@ -52,8 +52,8 @@ protected:
                                    int extent[6], int threadId);
 
 private:
-  vtkImageDotProduct(const vtkImageDotProduct&);  // Not implemented.
-  void operator=(const vtkImageDotProduct&);  // Not implemented.
+  vtkImageDotProduct(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageDotProduct&) VTK_DELETE_FUNCTION;
 };
 
 #endif

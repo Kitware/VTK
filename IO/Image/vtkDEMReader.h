@@ -162,8 +162,8 @@ protected:
                             vtkInformationVector* outputVector);
 
 private:
-  vtkDEMReader(const vtkDEMReader&);  // Not implemented.
-  void operator=(const vtkDEMReader&);  // Not implemented.
+  vtkDEMReader(const vtkDEMReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDEMReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

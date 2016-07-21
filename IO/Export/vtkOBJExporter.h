@@ -52,8 +52,8 @@ protected:
   void WriteAnActor(vtkActor *anActor, FILE *fpObj, FILE *fpMat, int &id);
   char *FilePrefix;
 private:
-  vtkOBJExporter(const vtkOBJExporter&);  // Not implemented.
-  void operator=(const vtkOBJExporter&);  // Not implemented.
+  vtkOBJExporter(const vtkOBJExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBJExporter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

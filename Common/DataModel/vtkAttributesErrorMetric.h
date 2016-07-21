@@ -139,8 +139,8 @@ protected:
   vtkGenericAttributeCollection *AttributeCollection;
 
 private:
-  vtkAttributesErrorMetric(const vtkAttributesErrorMetric&);  // Not implemented.
-  void operator=(const vtkAttributesErrorMetric&);  // Not implemented.
+  vtkAttributesErrorMetric(const vtkAttributesErrorMetric&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAttributesErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

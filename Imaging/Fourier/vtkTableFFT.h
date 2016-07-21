@@ -60,8 +60,8 @@ protected:
   virtual vtkSmartPointer<vtkDataArray> DoFFT(vtkDataArray *input);
 
 private:
-  vtkTableFFT(const vtkTableFFT &);     // Not implemented
-  void operator=(const vtkTableFFT &);  // Not implemented
+  vtkTableFFT(const vtkTableFFT &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableFFT &) VTK_DELETE_FUNCTION;
 };
 
 

@@ -846,11 +846,11 @@ public:
     this->Data      = vtkArrayDownCast<vtkDataArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkDataArray>( quantiles );
   }
-  virtual ~DataArrayQuantizer()
+  ~DataArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 
@@ -887,11 +887,11 @@ public:
     this->Data      = vtkArrayDownCast<vtkStringArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkStringArray>( quantiles );
   }
-  virtual ~StringArrayQuantizer()
+  ~StringArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 
@@ -928,11 +928,11 @@ public:
     this->Data      = vtkArrayDownCast<vtkVariantArray>( vals );
     this->Quantiles = vtkArrayDownCast<vtkVariantArray>( quantiles );
   }
-  virtual ~VariantArrayQuantizer()
+  ~VariantArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 

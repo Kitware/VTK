@@ -61,8 +61,8 @@ public:
   static void BlankCells(vtkOverlappingAMR* amr,  vtkMultiProcessController *myController);
 
 private:
-  vtkParallelAMRUtilities(const vtkParallelAMRUtilities&); // Not implemented
-  void operator=(const vtkParallelAMRUtilities&); // Not implemented
+  vtkParallelAMRUtilities(const vtkParallelAMRUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelAMRUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkParallelAMRUtilities_h */

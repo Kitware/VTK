@@ -78,8 +78,8 @@ protected:
 
   int TexturePattern;
 private:
-  vtkTriangularTexture(const vtkTriangularTexture&);  // Not implemented.
-  void operator=(const vtkTriangularTexture&);  // Not implemented.
+  vtkTriangularTexture(const vtkTriangularTexture&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTriangularTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

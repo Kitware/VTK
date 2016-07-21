@@ -46,8 +46,8 @@ protected:
   ~vtkQtInitialization();
 
 private:
-  vtkQtInitialization(const vtkQtInitialization &); // Not implemented.
-  void operator=(const vtkQtInitialization &); // Not implemented.
+  vtkQtInitialization(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
 
   QApplication *Application;
 

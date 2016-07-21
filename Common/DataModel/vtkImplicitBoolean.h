@@ -104,8 +104,8 @@ protected:
   int OperationType;
 
 private:
-  vtkImplicitBoolean(const vtkImplicitBoolean&);  // Not implemented.
-  void operator=(const vtkImplicitBoolean&);  // Not implemented.
+  vtkImplicitBoolean(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitBoolean&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

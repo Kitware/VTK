@@ -328,8 +328,8 @@ protected:
   vtkTransformConcatenationStack *Stack;
 
 private:
-  vtkPerspectiveTransform(const vtkPerspectiveTransform&);  // Not implemented
-  void operator=(const vtkPerspectiveTransform&);  // Not implemented
+  vtkPerspectiveTransform(const vtkPerspectiveTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPerspectiveTransform&) VTK_DELETE_FUNCTION;
 };
 
 

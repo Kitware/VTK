@@ -260,8 +260,8 @@ protected:
   static const char* NormalizationSchemeEnumNames[NUM_NORMALIZATION_SCHEMES + 1];
 
 private:
-  vtkPCAStatistics( const vtkPCAStatistics& ); // Not implemented
-  void operator = ( const vtkPCAStatistics& );  // Not implemented
+  vtkPCAStatistics( const vtkPCAStatistics& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkPCAStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPCAStatistics_h

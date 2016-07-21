@@ -46,17 +46,17 @@ namespace
   class testIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual testIterator& operator++(int) {return *this;}
-    virtual testIterator& operator*() {return *this;}
-    virtual testIterator& operator=(const vtkUnicodeString::value_type)
+    testIterator& operator++(int) VTK_OVERRIDE {return *this;}
+    testIterator& operator*() VTK_OVERRIDE {return *this;}
+    testIterator& operator=(const vtkUnicodeString::value_type) VTK_OVERRIDE
       {return *this;}
 
     testIterator() {}
-    virtual ~testIterator() {}
+    ~testIterator() VTK_OVERRIDE {}
 
   private:
-    testIterator(const testIterator&); // Not implemented
-    const testIterator& operator=(const testIterator&); // Not Implemented
+    testIterator(const testIterator&) VTK_DELETE_FUNCTION;
+    const testIterator& operator=(const testIterator&) VTK_DELETE_FUNCTION;
   };
 
 

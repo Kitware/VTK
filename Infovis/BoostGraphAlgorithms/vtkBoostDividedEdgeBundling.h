@@ -57,8 +57,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&);  // Not implemented.
-  void operator=(const vtkBoostDividedEdgeBundling&);  // Not implemented.
+  vtkBoostDividedEdgeBundling(const vtkBoostDividedEdgeBundling&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoostDividedEdgeBundling&) VTK_DELETE_FUNCTION;
 };
 
 #endif

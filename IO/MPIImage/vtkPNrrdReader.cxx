@@ -314,8 +314,8 @@ void vtkPNrrdReader::ReadSlice(int slice, const int extent[6], void *buffer)
     {
     MPI_Status stat;
     // we know this will fit in an int because it can't exceed VTK_INT_MAX.
-    const int remaining = std::min(static_cast<size_t>(length - pos),
-                                   static_cast<size_t>(VTK_INT_MAX));
+    const int remaining = static_cast<int>(std::min(length - pos,
+       static_cast<vtkIdType>(VTK_INT_MAX)));
     MPICall(MPI_File_read(file.Handle, (static_cast<char*>(buffer)) + pos, remaining,
                           MPI_BYTE, &stat));
     int rd = 0;

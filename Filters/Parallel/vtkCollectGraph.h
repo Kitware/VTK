@@ -89,8 +89,8 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectGraph(const vtkCollectGraph&); // Not implemented
-  void operator=(const vtkCollectGraph&); // Not implemented
+  vtkCollectGraph(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

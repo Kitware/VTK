@@ -65,8 +65,8 @@ protected:
   virtual void SelectRegion(double eventPos[2]);
 
 private:
-  vtkPlaybackWidget(const vtkPlaybackWidget&);  //Not implemented
-  void operator=(const vtkPlaybackWidget&);  //Not implemented
+  vtkPlaybackWidget(const vtkPlaybackWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlaybackWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

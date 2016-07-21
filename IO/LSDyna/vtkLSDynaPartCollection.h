@@ -165,8 +165,8 @@ protected:
                          vtkLSDynaPart** parts, const vtkIdType numParts);
 
 private:
-  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ); // Not implemented.
-  void operator = ( const vtkLSDynaPartCollection& ); // Not implemented.
+  vtkLSDynaPartCollection( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLSDynaPartCollection& ) VTK_DELETE_FUNCTION;
 
   LSDynaMetaData *MetaData;
 

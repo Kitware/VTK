@@ -101,8 +101,8 @@ protected:
   vtkCompositeDataSet* DataSet;
 
 private:
-  vtkCompositeDataIterator(const vtkCompositeDataIterator&); // Not implemented.
-  void operator=(const vtkCompositeDataIterator&); // Not implemented.
+  vtkCompositeDataIterator(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataIterator&) VTK_DELETE_FUNCTION;
 
 };
 

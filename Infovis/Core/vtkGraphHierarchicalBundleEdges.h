@@ -95,8 +95,8 @@ protected:
   // Convert the vtkGraph into vtkPolyData.
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&);  // Not implemented.
-  void operator=(const vtkGraphHierarchicalBundleEdges&);  // Not implemented.
+  vtkGraphHierarchicalBundleEdges(const vtkGraphHierarchicalBundleEdges&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphHierarchicalBundleEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

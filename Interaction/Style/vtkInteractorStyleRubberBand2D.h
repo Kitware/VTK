@@ -115,8 +115,8 @@ protected:
   bool RenderOnMouseMove;
 
 private:
-  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&); // Not implemented
-  void operator=(const vtkInteractorStyleRubberBand2D&); // Not implemented
+  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

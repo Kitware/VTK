@@ -117,8 +117,8 @@ public:
   virtual ~vtkCompositeDataSet();
  private:
 
-  vtkCompositeDataSet(const vtkCompositeDataSet&); // Not implemented.
-  void operator=(const vtkCompositeDataSet&); // Not implemented.
+  vtkCompositeDataSet(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataSet&) VTK_DELETE_FUNCTION;
 
 };
 

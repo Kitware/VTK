@@ -113,8 +113,8 @@ protected:
   vtkTextProperty* DefaultTextProperty;
 
 private:
-  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&);  // Not implemented.
-  void operator=(const vtkLabelRenderStrategy&);  // Not implemented.
+  vtkLabelRenderStrategy(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLabelRenderStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

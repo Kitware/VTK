@@ -103,14 +103,14 @@ class PickingManagerClient : public vtkObject
 
   protected:
     PickingManagerClient();
-    ~PickingManagerClient();
+    ~PickingManagerClient() VTK_OVERRIDE;
 
   private:
     vtkPickingManager *PickingManager;
     vtkPicker *Picker;
 
-    PickingManagerClient(const PickingManagerClient&);  //Not implemented
-    void operator=(const PickingManagerClient&);  //Not implemented
+    PickingManagerClient(const PickingManagerClient&) VTK_DELETE_FUNCTION;
+    void operator=(const PickingManagerClient&) VTK_DELETE_FUNCTION;
   };
 
 vtkStandardNewMacro(PickingManagerClient);

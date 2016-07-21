@@ -504,23 +504,27 @@ void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin && this->Handle)
+  if (rwin)
     {
+    // Ensure that the context is current before releasing any graphics
+    // resources tied to it.
     rwin->MakeCurrent();
-
-    rwin->ActivateTexture(this);
-    this->UnBind();
-    rwin->DeactivateTexture(this);
-    GLuint tex = this->Handle;
-    glDeleteTextures(1, &tex);
-    this->Handle = 0;
-    this->NumberOfDimensions = 0;
-    this->Target =0;
-    this->InternalFormat = 0;
-    this->Format = 0;
-    this->Type = 0;
-    this->Components = 0;
-    this->Width = this->Height = this->Depth = 0;
+    if (this->Handle)
+      {
+      rwin->ActivateTexture(this);
+      this->UnBind();
+      rwin->DeactivateTexture(this);
+      GLuint tex = this->Handle;
+      glDeleteTextures(1, &tex);
+      this->Handle = 0;
+      this->NumberOfDimensions = 0;
+      this->Target =0;
+      this->InternalFormat = 0;
+      this->Format = 0;
+      this->Type = 0;
+      this->Components = 0;
+      this->Width = this->Height = this->Depth = 0;
+      }
     }
   if (this->ShaderProgram)
     {
@@ -580,6 +584,11 @@ bool vtkTextureObject::IsBound()
 #if defined(GL_TEXTURE_BUFFER) && defined(GL_TEXTURE_BINDING_BUFFER)
       case GL_TEXTURE_BUFFER:
         target=GL_TEXTURE_BINDING_BUFFER;
+        break;
+#endif
+#if defined(GL_TEXTURE_CUBE_MAP) && defined(GL_TEXTURE_BINDING_CUBE_MAP)
+      case GL_TEXTURE_CUBE_MAP:
+        target=GL_TEXTURE_BINDING_CUBE_MAP;
         break;
 #endif
       default:
@@ -1595,6 +1604,60 @@ bool vtkTextureObject::Create2DFromRaw(unsigned int width, unsigned int height,
         static_cast<const GLvoid *>(data));
 
   vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+
+  this->Deactivate();
+  return true;
+}
+
+//----------------------------------------------------------------------------
+bool vtkTextureObject::CreateCubeFromRaw(unsigned int width, unsigned int height,
+                                         int numComps, int dataType, void *data[6])
+{
+  assert(this->Context);
+
+  // Now determine the texture parameters using the arguments.
+  this->GetDataType(dataType);
+  this->GetInternalFormat(dataType, numComps, false);
+  this->GetFormat(dataType, numComps, false);
+
+  if (!this->InternalFormat || !this->Format || !this->Type)
+    {
+    vtkErrorMacro("Failed to determine texture parameters. IF="
+      << this->InternalFormat << " F=" << this->Format << " T=" << this->Type);
+    return false;
+    }
+
+  GLenum target = GL_TEXTURE_CUBE_MAP;
+  this->Target = target;
+  this->Components = numComps;
+  this->Width = width;
+  this->Height = height;
+  this->Depth = 1;
+  this->NumberOfDimensions = 2;
+  this->Context->ActivateTexture(this);
+  this->CreateTexture();
+  this->Bind();
+
+  // Source texture data from the PBO.
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+  for (int i = 0; i < 6; i++)
+    {
+    if (data[i])
+      {
+      glTexImage2D(
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        0,
+        this->InternalFormat,
+        static_cast<GLsizei>(this->Width),
+        static_cast<GLsizei>(this->Height),
+        0,
+        this->Format,
+        this->Type,
+        static_cast<const GLvoid *>(data[i]));
+      vtkOpenGLCheckErrorMacro("failed at glTexImage2D");
+      }
+    }
 
   this->Deactivate();
   return true;

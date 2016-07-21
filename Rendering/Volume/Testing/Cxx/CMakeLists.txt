@@ -54,10 +54,11 @@ endif()
 set (VolumeOpenGL2CxxTests
   TestGPURayCastCameraInside.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
+  TestGPURayCastCameraInsideTransformation.cxx
   TestGPURayCastCellData.cxx
   TestGPURayCastClipping.cxx
-  TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastClippingPolyData.cxx
+  TestGPURayCastClippingUserTransform.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
@@ -73,11 +74,13 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastTwoComponentsIndependent.cxx
   TestGPURayCastVolumeDepthPass.cxx
   TestGPURayCastVolumeLightKit.cxx
+  TestGPURayCastVolumePicking.cxx
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
   TestProjectedTetrahedraTransform.cxx
-  TestGPURayCastVolumePicking.cxx
+  TestProjectedTetrahedraOffscreen.cxx
+  TestRemoveVolumeNonCurrentContext.cxx
   )
 
 # everyone gets these tests

@@ -102,8 +102,8 @@ protected:
   double (*scalarFunction)(double, double);
 
 private:
-  vtkBlockItem(const vtkBlockItem &); // Not implemented.
-  void operator=(const vtkBlockItem &);   // Not implemented.
+  vtkBlockItem(const vtkBlockItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBlockItem &) VTK_DELETE_FUNCTION;
 
 };
 

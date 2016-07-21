@@ -62,8 +62,8 @@ public:
   virtual void DeepCopy(vtkInformation* from, vtkInformation* to);
 
 private:
-  vtkInformationInformationKey(const vtkInformationInformationKey&);  // Not implemented.
-  void operator=(const vtkInformationInformationKey&);  // Not implemented.
+  vtkInformationInformationKey(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationInformationKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

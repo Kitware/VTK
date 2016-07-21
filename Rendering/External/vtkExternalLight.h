@@ -198,8 +198,8 @@ protected:
   bool PositionalSet;
 
 private:
-  vtkExternalLight(const vtkExternalLight&); // Not implemented
-  void operator=(const vtkExternalLight&); // Not implemented
+  vtkExternalLight(const vtkExternalLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExternalLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkExternalLight_h

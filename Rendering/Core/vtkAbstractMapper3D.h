@@ -95,8 +95,8 @@ protected:
   double Center[3];
 
 private:
-  vtkAbstractMapper3D(const vtkAbstractMapper3D&);  // Not implemented.
-  void operator=(const vtkAbstractMapper3D&);  // Not implemented.
+  vtkAbstractMapper3D(const vtkAbstractMapper3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractMapper3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

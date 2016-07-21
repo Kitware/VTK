@@ -148,8 +148,8 @@ protected:
   vtkSetStringMacro(LastErrorText);
 
 private:
-  vtkMySQLQuery(const vtkMySQLQuery &); // Not implemented.
-  void operator=(const vtkMySQLQuery &); // Not implemented.
+  vtkMySQLQuery(const vtkMySQLQuery &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMySQLQuery &) VTK_DELETE_FUNCTION;
 
   vtkMySQLQueryInternals *Internals;
   bool InitialFetch;

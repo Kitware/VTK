@@ -89,8 +89,8 @@ private:
   int IsItemPresent(vtkObject *o) { return this->vtkCollection::IsItemPresent(o); };
 
 private:
-  vtkActor2DCollection(const vtkActor2DCollection&);  // Not implemented.
-  void operator=(const vtkActor2DCollection&);  // Not implemented.
+  vtkActor2DCollection(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkActor2DCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline int vtkActor2DCollection::IsItemPresent(vtkActor2D *a)

@@ -90,8 +90,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&);  // Not implemented.
-  void operator=(const vtkAnnotationLayersAlgorithm&);  // Not implemented.
+  vtkAnnotationLayersAlgorithm(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotationLayersAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

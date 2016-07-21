@@ -48,8 +48,8 @@ protected:
   vtkLight *Light;
   int Shadows;
 private:
-  vtkRIBLight(const vtkRIBLight&);  // Not implemented.
-  void operator=(const vtkRIBLight&);  // Not implemented.
+  vtkRIBLight(const vtkRIBLight&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRIBLight&) VTK_DELETE_FUNCTION;
 };
 
 #endif

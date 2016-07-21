@@ -129,7 +129,6 @@ private:
   // Internal variables supporting span space traversal
   vtkIdType RMin[2]; //span space lower left corner
   vtkIdType RMax[2]; //span space upper right corner
-  vtkIdType NumBuckets; //number of span space bins
 
   // This supports serial traversal via GetNextCell()
   vtkIdType CurrentRow; //the span space row currently being processed
@@ -138,8 +137,8 @@ private:
   vtkIdType CurrentNumCells; //number of cells on the current span row
 
 private:
-  vtkSpanSpace(const vtkSpanSpace&);  // Not implemented.
-  void operator=(const vtkSpanSpace&);  // Not implemented.
+  vtkSpanSpace(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSpanSpace&) VTK_DELETE_FUNCTION;
 };
 
 #endif

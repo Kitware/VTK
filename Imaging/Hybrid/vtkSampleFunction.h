@@ -157,8 +157,8 @@ protected:
   char *NormalArrayName;
 
 private:
-  vtkSampleFunction(const vtkSampleFunction&);  // Not implemented.
-  void operator=(const vtkSampleFunction&);  // Not implemented.
+  vtkSampleFunction(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSampleFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

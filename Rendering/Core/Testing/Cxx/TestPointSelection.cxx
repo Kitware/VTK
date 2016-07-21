@@ -49,7 +49,7 @@ public:
   {
   }
 
-  virtual ~PointPickCommand()
+  ~PointPickCommand() VTK_OVERRIDE
   {
   }
 
@@ -102,7 +102,7 @@ public:
     this->Picker = p;
   }
 
-  virtual void Execute(vtkObject *, unsigned long, void *)
+  void Execute(vtkObject *, unsigned long, void *) VTK_OVERRIDE
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)

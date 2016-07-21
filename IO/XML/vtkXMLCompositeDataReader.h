@@ -98,8 +98,8 @@ protected:
   int ShouldReadDataSet(unsigned int datasetIndex);
 
 private:
-  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataReader&);  // Not implemented.
+  vtkXMLCompositeDataReader(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLCompositeDataReader&) VTK_DELETE_FUNCTION;
 
   vtkXMLCompositeDataReaderInternals* Internal;
 };

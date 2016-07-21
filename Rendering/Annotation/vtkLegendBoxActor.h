@@ -244,8 +244,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkLegendBoxActor(const vtkLegendBoxActor&);  // Not implemented.
-  void operator=(const vtkLegendBoxActor&);  // Not implemented.
+  vtkLegendBoxActor(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLegendBoxActor&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -137,8 +137,8 @@ protected:
   vtkIdType GridIncrements[3];
 
 private:
-  vtkGridTransform(const vtkGridTransform&);  // Not implemented.
-  void operator=(const vtkGridTransform&);  // Not implemented.
+  vtkGridTransform(const vtkGridTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGridTransform&) VTK_DELETE_FUNCTION;
 
   vtkGridTransformConnectionHolder* ConnectionHolder;
 };

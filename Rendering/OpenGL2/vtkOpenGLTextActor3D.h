@@ -39,8 +39,8 @@ protected:
   int RenderGL2PS(vtkViewport *vp, vtkOpenGLGL2PSHelper *gl2ps);
 
 private:
-  vtkOpenGLTextActor3D(const vtkOpenGLTextActor3D&); // Not implemented
-  void operator=(const vtkOpenGLTextActor3D&); // Not implemented
+  vtkOpenGLTextActor3D(const vtkOpenGLTextActor3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLTextActor3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLTextActor3D_h

@@ -90,8 +90,8 @@ protected:
   char* CompositeIdArrayName;
 
 private:
-  vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
-  void operator=(const vtkHardwareSelectionPolyDataPainter&); // Not implemented.
+  vtkHardwareSelectionPolyDataPainter(const vtkHardwareSelectionPolyDataPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHardwareSelectionPolyDataPainter&) VTK_DELETE_FUNCTION;
 
 };
 

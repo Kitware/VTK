@@ -280,8 +280,8 @@ protected:
   void CleanUpRenderers();
 
 private:
-  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkWin32OpenGLRenderWindow&);  // Not implemented.
+  vtkWin32OpenGLRenderWindow(const vtkWin32OpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWin32OpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

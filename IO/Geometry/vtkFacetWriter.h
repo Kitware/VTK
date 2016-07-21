@@ -77,8 +77,8 @@ protected:
   ostream *OutputStream;
 
 private:
-  vtkFacetWriter(const vtkFacetWriter&);  // Not implemented.
-  void operator=(const vtkFacetWriter&);  // Not implemented.
+  vtkFacetWriter(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFacetWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

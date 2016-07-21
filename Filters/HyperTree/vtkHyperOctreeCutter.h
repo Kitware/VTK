@@ -247,8 +247,8 @@ protected:
   vtkHyperOctreeClipCutPointsGrabber *Grabber;
 
 private:
-  vtkHyperOctreeCutter(const vtkHyperOctreeCutter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeCutter&);  // Not implemented.
+  vtkHyperOctreeCutter(const vtkHyperOctreeCutter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

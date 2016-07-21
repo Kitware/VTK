@@ -125,8 +125,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkRectangularButtonSource(const vtkRectangularButtonSource&);  // Not implemented.
-  void operator=(const vtkRectangularButtonSource&);  // Not implemented.
+  vtkRectangularButtonSource(const vtkRectangularButtonSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectangularButtonSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

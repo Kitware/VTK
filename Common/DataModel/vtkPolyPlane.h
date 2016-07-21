@@ -75,8 +75,8 @@ protected:
   vtkIdType        ClosestPlaneIdx;
 
 private:
-  vtkPolyPlane(const vtkPolyPlane&);  // Not implemented.
-  void operator=(const vtkPolyPlane&);  // Not implemented.
+  vtkPolyPlane(const vtkPolyPlane&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyPlane&) VTK_DELETE_FUNCTION;
 };
 
 #endif

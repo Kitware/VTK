@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X with cppcheck 1.72.
+// at least on Mac OS X with cppcheck 1.74.
 
 // To run:
 // cd /path/to/VTK/
@@ -63,12 +63,17 @@ useInitializationList
 assertWithSideEffect
 argumentSize
 
+// A regression between 1.73 and 1.74 results in lots of false positives for this warning
+// <https://sourceforge.net/p/cppcheck/discussion/general/thread/21296d8f/?limit=25#6cab>
+clarifyCondition
+
 // False positives.
 argumentSize:Common/DataModel/vtkAMRBox.cxx
 argumentSize:Common/DataModel/vtkStructuredGrid.h
 arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
 assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
+CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 clarifyCondition:Rendering/Core/Testing/Cxx/TestInteractorStyleImageProperty.cxx
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
@@ -115,15 +120,15 @@ unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
+unusedStructMember:Common/Core/vtkTypeList.txx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Image/vtkMRCReader.cxx
+unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
-unusedStructMember:Common/Core/vtkTypeList.txx
-CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 
 // Not worth fixing, but not actually false positives.
 passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx

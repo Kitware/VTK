@@ -91,8 +91,8 @@ public:
   size_t RawRGBABufferSize;
 
  private:
-  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&);  // Not implemented.
-  void operator=(const vtkCompositeRGBAPass&);  // Not implemented.
+  vtkCompositeRGBAPass(const vtkCompositeRGBAPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeRGBAPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

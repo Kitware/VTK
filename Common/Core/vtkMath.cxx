@@ -2938,7 +2938,7 @@ int vtkMath::GetAdjustedScalarRange(
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
+vtkTypeBool vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 {
   if (!extent1 || !extent2)
     {
@@ -2960,7 +2960,7 @@ int vtkMath::ExtentIsWithinOtherExtent(int extent1[6], int extent2[6])
 
 //----------------------------------------------------------------------------
 
-int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
+vtkTypeBool vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], double delta[3])
 {
   if(!bounds1 || !bounds2)
     {
@@ -2977,7 +2977,7 @@ int vtkMath::BoundsIsWithinOtherBounds(double bounds1[6], double bounds2[6], dou
 }
 
 //----------------------------------------------------------------------------
-int vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
+vtkTypeBool vtkMath::PointIsWithinBounds(double point[3], double bounds[6], double delta[3])
 {
   if(!point || !bounds || !delta)
     {
@@ -3115,7 +3115,7 @@ double vtkMath::Nan()
 
 //-----------------------------------------------------------------------------
 #ifndef VTK_MATH_ISINF_IS_INLINE
-int vtkMath::IsInf(double x)
+vtkTypeBool vtkMath::IsInf(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
   // If we cannot do comparisons to non-finite numbers without causing floating
@@ -3134,7 +3134,7 @@ int vtkMath::IsInf(double x)
 
 //-----------------------------------------------------------------------------
 #ifndef VTK_MATH_ISNAN_IS_INLINE
-int vtkMath::IsNan(double x)
+vtkTypeBool vtkMath::IsNan(double x)
 {
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
   // If we cannot do comparisons to non-finite numbers without causing floating

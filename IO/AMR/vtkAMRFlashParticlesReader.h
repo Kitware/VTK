@@ -64,8 +64,8 @@ protected:
   vtkFlashReaderInternal *Internal;
 
 private:
-  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ); // Not implemented
-  void operator=(const vtkAMRFlashParticlesReader& ); // Not implemented
+  vtkAMRFlashParticlesReader( const vtkAMRFlashParticlesReader& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRFlashParticlesReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRFlashParticlesReader_h */

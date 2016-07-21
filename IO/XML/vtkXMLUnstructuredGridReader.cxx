@@ -355,11 +355,21 @@ int vtkXMLUnstructuredGridReader::ReadPieceData()
   this->SetProgressRange(progressRange, 3, fractions);
 
   //
-  // Read face array. Used for polyhedron mesh support.
-  // First need to check if faces and faceoffsets arrays are available.
+  // Read face array. Used for polyhedron mesh support. First need to
+  // check if faces and faceoffsets arrays are available in this piece.
   if (!this->FindDataArrayWithName(eCells, "faces") ||
       !this->FindDataArrayWithName(eCells, "faceoffsets"))
     {
+    if (output->GetFaces())
+      {
+      // This piece doesn't have any polyhedron but other pieces that
+      // we've already processed do so we need to add in face information
+      // for cells that don't have that by marking -1.
+      for(vtkIdType c=0;c<numberOfCells;c++)
+        {
+        output->GetFaceLocations()->InsertNextValue(-1);
+        }
+      }
     return 1;
     }
 

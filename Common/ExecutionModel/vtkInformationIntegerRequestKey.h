@@ -78,8 +78,8 @@ protected:
   vtkInformationIntegerKey* DataKey;
 
 private:
-  vtkInformationIntegerRequestKey(const vtkInformationIntegerRequestKey&);  // Not implemented.
-  void operator=(const vtkInformationIntegerRequestKey&);  // Not implemented.
+  vtkInformationIntegerRequestKey(const vtkInformationIntegerRequestKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationIntegerRequestKey&) VTK_DELETE_FUNCTION;
 
 };
 

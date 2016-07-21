@@ -93,8 +93,8 @@ protected:
 
 private:
 
-  vtkTreeMapLayout(const vtkTreeMapLayout&);  // Not implemented.
-  void operator=(const vtkTreeMapLayout&);  // Not implemented.
+  vtkTreeMapLayout(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeMapLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

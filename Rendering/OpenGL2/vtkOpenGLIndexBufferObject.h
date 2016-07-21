@@ -103,15 +103,16 @@ public:
   static void CreateCellSupportArrays(
     vtkCellArray *[4],
     std::vector<unsigned int> &cellCellMap,
-    int representation);
+    int representation,
+    vtkPoints *points);
 
 protected:
   vtkOpenGLIndexBufferObject();
   ~vtkOpenGLIndexBufferObject();
 
 private:
-  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&); // Not implemented
-  void operator=(const vtkOpenGLIndexBufferObject&); // Not implemented
+  vtkOpenGLIndexBufferObject(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLIndexBufferObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

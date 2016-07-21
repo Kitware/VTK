@@ -63,8 +63,8 @@ protected:
   double Position[3];
   int   Absolute;
 private:
-  vtkWarpTo(const vtkWarpTo&);  // Not implemented.
-  void operator=(const vtkWarpTo&);  // Not implemented.
+  vtkWarpTo(const vtkWarpTo&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpTo&) VTK_DELETE_FUNCTION;
 };
 
 #endif

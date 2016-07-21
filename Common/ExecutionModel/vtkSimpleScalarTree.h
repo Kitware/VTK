@@ -146,8 +146,8 @@ private:
   vtkIdType  NumCandidates;
 
 private:
-  vtkSimpleScalarTree(const vtkSimpleScalarTree&);  // Not implemented.
-  void operator=(const vtkSimpleScalarTree&);  // Not implemented.
+  vtkSimpleScalarTree(const vtkSimpleScalarTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimpleScalarTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

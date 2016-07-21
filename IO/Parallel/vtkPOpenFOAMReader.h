@@ -69,8 +69,8 @@ private:
   int NumProcesses;
   int ProcessId;
 
-  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &); // Not implemented.
-  void operator=(const vtkPOpenFOAMReader &); // Not implemented.
+  vtkPOpenFOAMReader(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPOpenFOAMReader &) VTK_DELETE_FUNCTION;
 
   void GatherMetaData();
   void BroadcastStatus(int &);

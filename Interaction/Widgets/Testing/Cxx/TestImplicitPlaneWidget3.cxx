@@ -152,7 +152,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);

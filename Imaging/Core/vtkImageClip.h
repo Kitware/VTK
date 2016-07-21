@@ -77,8 +77,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkImageClip(const vtkImageClip&);  // Not implemented.
-  void operator=(const vtkImageClip&);  // Not implemented.
+  vtkImageClip(const vtkImageClip&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageClip&) VTK_DELETE_FUNCTION;
 };
 
 

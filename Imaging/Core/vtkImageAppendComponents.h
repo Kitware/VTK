@@ -78,8 +78,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkImageAppendComponents(const vtkImageAppendComponents&);  // Not implemented.
-  void operator=(const vtkImageAppendComponents&);  // Not implemented.
+  vtkImageAppendComponents(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageAppendComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif

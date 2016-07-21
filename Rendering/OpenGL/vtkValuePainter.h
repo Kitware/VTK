@@ -97,8 +97,8 @@ protected:
     vtkIdType startCellId, vtkRenderer *renderer);
 
 private:
-  vtkValuePainter(const vtkValuePainter&); // Not implemented.
-  void operator=(const vtkValuePainter&); // Not implemented.
+  vtkValuePainter(const vtkValuePainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkValuePainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals *Internals;

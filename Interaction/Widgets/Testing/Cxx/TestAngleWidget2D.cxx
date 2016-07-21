@@ -366,7 +366,7 @@ class vtkAngleCallback : public vtkCommand
 public:
   static vtkAngleCallback *New()
   { return new vtkAngleCallback; }
-  virtual void Execute(vtkObject*, unsigned long eid, void*)
+  void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
   {
     if ( eid == vtkCommand::PlacePointEvent )
       {

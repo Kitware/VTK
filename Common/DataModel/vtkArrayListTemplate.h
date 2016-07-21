@@ -208,7 +208,7 @@ struct ArrayList;
 
 template <typename T>
 void CreateArrayPair(ArrayList *list, T *inData, T *outData,
-                     vtkIdType numPts, int numComp, T nullValue);
+                     vtkIdType numTuples, int numComp, T nullValue);
 
 
 // A list of the arrays to interpolate, and a method to invoke interpolation on the list
@@ -226,7 +226,7 @@ struct ArrayList
   // Add a pair of arrays (manual insertion). Returns the output array created,
   // if any. No array may be created if \c inArray was previously marked as
   // excluded using ExcludeArray().
-  vtkDataArray* AddArrayPair(vtkIdType numPts, vtkDataArray *inArray,
+  vtkDataArray* AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
                              vtkStdString &outArrayName, double nullValue, bool promote);
 
   // Any array excluded here is not added by AddArrays() or AddArrayPair, hence not

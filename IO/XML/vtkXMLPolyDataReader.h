@@ -106,8 +106,8 @@ protected:
   unsigned long PolysOffset;
 
 private:
-  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPolyDataReader&);  // Not implemented.
+  vtkXMLPolyDataReader(const vtkXMLPolyDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPolyDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

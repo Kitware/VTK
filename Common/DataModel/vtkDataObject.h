@@ -376,8 +376,8 @@ private:
   void InternalDataObjectCopy(vtkDataObject *src);
 
 private:
-  vtkDataObject(const vtkDataObject&);  // Not implemented.
-  void operator=(const vtkDataObject&);  // Not implemented.
+  vtkDataObject(const vtkDataObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -151,8 +151,8 @@ protected:
   int ActiveLayer;
 
 private:
-  vtkImageStack(const vtkImageStack&);  // Not implemented.
-  void operator=(const vtkImageStack&);  // Not implemented.
+  vtkImageStack(const vtkImageStack&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStack&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -4,11 +4,9 @@ if (VTK_WRAP_PYTHON)
       StandAlone
     DEPENDS
       vtkCommonExecutionModel
+      vtkPython
     PRIVATE_DEPENDS
       vtkWrappingPythonCore
-    COMPILE_DEPENDS
-      vtkPython
-    OPTIONAL_PYTHON_LINK
     EXCLUDE_FROM_TCL_WRAPPING
     EXCLUDE_FROM_JAVA_WRAPPING
     TEST_DEPENDS

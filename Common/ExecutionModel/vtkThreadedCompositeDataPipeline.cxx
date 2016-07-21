@@ -100,7 +100,7 @@ public:
     this->Out->Copy(outInfoVec,1);
   }
 
-  ~ProcessBlockData()
+  ~ProcessBlockData() VTK_OVERRIDE
   {
     DeleteAll(this->In, this->InSize);
     this->Out->Delete();

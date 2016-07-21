@@ -64,8 +64,8 @@ protected:
   bool WriteBlock(ostream* fp, vtkDataObject* block);
 
 private:
-  vtkCompositeDataWriter(const vtkCompositeDataWriter&); // Not implemented
-  void operator=(const vtkCompositeDataWriter&); // Not implemented
+  vtkCompositeDataWriter(const vtkCompositeDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataWriter&) VTK_DELETE_FUNCTION;
 
 };
 

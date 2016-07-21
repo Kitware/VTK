@@ -284,8 +284,8 @@ protected:
   bool Normalize; // If transformed vector must be normalized
 
 private:
-  vtkPeriodicDataArray(const vtkPeriodicDataArray &); // Not implemented.
-  void operator=(const vtkPeriodicDataArray &); // Not implemented.
+  vtkPeriodicDataArray(const vtkPeriodicDataArray &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPeriodicDataArray &) VTK_DELETE_FUNCTION;
 
   friend class vtkGenericDataArray<vtkPeriodicDataArray<Scalar>, Scalar>;
 

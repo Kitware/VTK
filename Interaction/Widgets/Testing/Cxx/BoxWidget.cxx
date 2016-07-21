@@ -34,7 +34,7 @@ class vtkBWCallback : public vtkCommand
 public:
   static vtkBWCallback *New()
   { return new vtkBWCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkBoxWidget *boxWidget = reinterpret_cast<vtkBoxWidget*>(caller);
     boxWidget->GetTransform(this->Transform);

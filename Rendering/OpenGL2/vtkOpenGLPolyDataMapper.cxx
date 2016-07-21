@@ -167,6 +167,15 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
+  vtkOpenGLRenderWindow *rwin =
+   vtkOpenGLRenderWindow::SafeDownCast(win);
+  if (rwin)
+    {
+    // Ensure that the context is current before releasing any
+    // graphics resources tied to it.
+    rwin->MakeCurrent();
+    }
+
   this->VBO->ReleaseGraphicsResources();
   this->Points.ReleaseGraphicsResources(win);
   this->Lines.ReleaseGraphicsResources(win);
@@ -2554,6 +2563,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
   vtkIdTypeArray* mapArrayId = NULL;
   vtkPointData *pd = poly->GetPointData();
   vtkCellData *cd = poly->GetCellData();
+  vtkPoints *points = poly->GetPoints();
   if (selector)
     {
     switch (selector->GetCurrentPass())
@@ -2672,7 +2682,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     else
       {
       vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation);
+        prims, cellCellMap, representation, points);
       }
 
     for (unsigned int i = 0; i < cellCellMap.size(); i++)
@@ -2701,7 +2711,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     else
       {
       vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
-        prims, cellCellMap, representation);
+        prims, cellCellMap, representation, points);
       }
 
     if (this->HaveCellScalars || this->HavePickScalars)

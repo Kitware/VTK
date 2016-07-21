@@ -61,8 +61,8 @@ public:
   }
 
 private:
-  void operator=(const vtkLICRandomNumberGeneratorInterface &); // not implemented
-  vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface &); // not implemented
+  void operator=(const vtkLICRandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  vtkLICRandomNumberGeneratorInterface(const vtkLICRandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;

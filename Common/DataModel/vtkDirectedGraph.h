@@ -65,8 +65,8 @@ protected:
   ~vtkDirectedGraph();
 
 private:
-  vtkDirectedGraph(const vtkDirectedGraph&);  // Not implemented.
-  void operator=(const vtkDirectedGraph&);  // Not implemented.
+  vtkDirectedGraph(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

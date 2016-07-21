@@ -167,8 +167,8 @@ protected:
   ~vtkLine() {}
 
 private:
-  vtkLine(const vtkLine&);  // Not implemented.
-  void operator=(const vtkLine&);  // Not implemented.
+  vtkLine(const vtkLine&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLine&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

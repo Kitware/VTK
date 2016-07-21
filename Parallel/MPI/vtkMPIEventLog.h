@@ -79,8 +79,8 @@ protected:
   int BeginId;
   int EndId;
 private:
-  vtkMPIEventLog(const vtkMPIEventLog&);  // Not implemented.
-  void operator=(const vtkMPIEventLog&);  // Not implemented.
+  vtkMPIEventLog(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIEventLog&) VTK_DELETE_FUNCTION;
 };
 
 #endif

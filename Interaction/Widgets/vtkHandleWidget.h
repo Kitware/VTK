@@ -138,8 +138,8 @@ protected:
   int AllowHandleResize;
 
 private:
-  vtkHandleWidget(const vtkHandleWidget&);  //Not implemented
-  void operator=(const vtkHandleWidget&);  //Not implemented
+  vtkHandleWidget(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHandleWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -48,8 +48,8 @@ protected:
   vtkPiecewiseFunction* PiecewiseFunction;
 
 private:
-  vtkPiecewiseFunctionItem(const vtkPiecewiseFunctionItem &); // Not implemented.
-  void operator=(const vtkPiecewiseFunctionItem &); // Not implemented.
+  vtkPiecewiseFunctionItem(const vtkPiecewiseFunctionItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewiseFunctionItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

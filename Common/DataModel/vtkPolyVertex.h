@@ -75,8 +75,8 @@ protected:
   vtkVertex *Vertex;
 
 private:
-  vtkPolyVertex(const vtkPolyVertex&);  // Not implemented.
-  void operator=(const vtkPolyVertex&);  // Not implemented.
+  vtkPolyVertex(const vtkPolyVertex&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyVertex&) VTK_DELETE_FUNCTION;
 };
 
 #endif

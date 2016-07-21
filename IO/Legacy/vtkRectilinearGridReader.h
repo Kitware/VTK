@@ -62,8 +62,8 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkRectilinearGridReader(const vtkRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkRectilinearGridReader&);  // Not implemented.
+  vtkRectilinearGridReader(const vtkRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

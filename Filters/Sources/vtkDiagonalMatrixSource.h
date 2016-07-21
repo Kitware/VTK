@@ -90,8 +90,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&); // Not implemented
-  void operator=(const vtkDiagonalMatrixSource&);   // Not implemented
+  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
 
   vtkArray* GenerateDenseArray();
   vtkArray* GenerateSparseArray();

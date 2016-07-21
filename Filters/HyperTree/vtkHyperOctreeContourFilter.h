@@ -228,7 +228,7 @@ protected:
   friend class vtkHyperOctreeContourPointsGrabber;
 
 private:
-  vtkHyperOctreeContourFilter(const vtkHyperOctreeContourFilter&);  // Not implemented.
-  void operator=(const vtkHyperOctreeContourFilter&);  // Not implemented.
+  vtkHyperOctreeContourFilter(const vtkHyperOctreeContourFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

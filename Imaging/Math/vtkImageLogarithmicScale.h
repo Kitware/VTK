@@ -48,8 +48,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int outExt[6], int id);
 private:
-  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&);  // Not implemented.
-  void operator=(const vtkImageLogarithmicScale&);  // Not implemented.
+  vtkImageLogarithmicScale(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageLogarithmicScale&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -67,8 +67,8 @@ protected:
   vtkUnsignedCharArray *PixelArray;
 
 private:
-  vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&);  // Not implemented
-  void operator=(const vtkInteractorStyleDrawPolygon&);  // Not implemented
+  vtkInteractorStyleDrawPolygon(const vtkInteractorStyleDrawPolygon&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleDrawPolygon&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

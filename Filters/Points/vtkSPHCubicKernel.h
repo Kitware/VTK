@@ -82,8 +82,8 @@ protected:
   ~vtkSPHCubicKernel();
 
 private:
-  vtkSPHCubicKernel(const vtkSPHCubicKernel&);  // Not implemented.
-  void operator=(const vtkSPHCubicKernel&);  // Not implemented.
+  vtkSPHCubicKernel(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSPHCubicKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -63,8 +63,8 @@ protected:
   double Angle;
 
 private:
-  vtkCone(const vtkCone&);  // Not implemented.
-  void operator=(const vtkCone&);  // Not implemented.
+  vtkCone(const vtkCone&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCone&) VTK_DELETE_FUNCTION;
 };
 
 #endif

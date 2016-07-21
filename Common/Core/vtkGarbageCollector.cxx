@@ -166,7 +166,7 @@ public:
   int TakeReference(vtkObjectBase* obj);
 
   // Called by GiveReference to decide whether to accept a reference.
-  int CheckAccept();
+  vtkTypeBool CheckAccept();
 
   // Push/Pop deferred collection.
   void DeferredCollectionPush();
@@ -197,15 +197,15 @@ public:
   vtkTypeMacro(vtkGarbageCollectorImpl, vtkGarbageCollector);
 
   vtkGarbageCollectorImpl();
-  ~vtkGarbageCollectorImpl();
+  ~vtkGarbageCollectorImpl() VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
+  void Register(vtkObjectBase*) VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void UnRegister(vtkObjectBase*);
+  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
 
   // Perform a collection check.
   void CollectInternal(vtkObjectBase* root);
@@ -359,7 +359,7 @@ public:
 
   // Callback from objects to report references.
   void Report(vtkObjectBase* obj, void* ptr);
-  virtual void Report(vtkObjectBase* obj, void* ptr, const char* desc);
+  void Report(vtkObjectBase* obj, void* ptr, const char* desc) VTK_OVERRIDE;
 
   // Collect the objects of the given leaked component.
   void CollectComponent(ComponentType* c);
@@ -386,8 +386,8 @@ public:
   void FlushEntryReferences(Entry* e);
 
 private:
-  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&);  // Not implemented.
-  void operator=(const vtkGarbageCollectorImpl&);  // Not implemented.
+  vtkGarbageCollectorImpl(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGarbageCollectorImpl&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------
@@ -1028,7 +1028,7 @@ int vtkGarbageCollectorSingleton::TakeReference(vtkObjectBase* obj)
 }
 
 //----------------------------------------------------------------------------
-int vtkGarbageCollectorSingleton::CheckAccept()
+vtkTypeBool vtkGarbageCollectorSingleton::CheckAccept()
 {
   // Accept the reference only if deferred collection is enabled.  It
   // is tempting to put a check against TotalNumberOfReferences here

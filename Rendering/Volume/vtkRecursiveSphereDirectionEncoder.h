@@ -106,8 +106,8 @@ protected:
   int                   InnerSize;
   int                   GridSize;
 private:
-  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkRecursiveSphereDirectionEncoder&);  // Not implemented.
+  vtkRecursiveSphereDirectionEncoder(const vtkRecursiveSphereDirectionEncoder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRecursiveSphereDirectionEncoder&) VTK_DELETE_FUNCTION;
 };
 
 

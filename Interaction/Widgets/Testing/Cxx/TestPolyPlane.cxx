@@ -61,7 +61,7 @@ public:
     return new vtkTestPolyPlaneCallback;
     }
 
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
     vtkContourWidget *widget = reinterpret_cast<vtkContourWidget*>(caller);
     vtkContourRepresentation *rep = vtkContourRepresentation::

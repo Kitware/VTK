@@ -263,8 +263,8 @@ protected:
 
 private:
 
-  vtkTecplotReader( const vtkTecplotReader & );  // Not implemented.
-  void operator = ( const vtkTecplotReader & );  // Not implemented.
+  vtkTecplotReader( const vtkTecplotReader & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkTecplotReader & ) VTK_DELETE_FUNCTION;
 };
 
 #endif

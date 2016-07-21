@@ -124,8 +124,8 @@ protected:
   vtkCoordinate *Coordinate;
 
 private:
-  vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&);  // Not implemented.
-  void operator=(const vtkViewDependentErrorMetric&);  // Not implemented.
+  vtkViewDependentErrorMetric(const vtkViewDependentErrorMetric&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewDependentErrorMetric&) VTK_DELETE_FUNCTION;
 };
 
 #endif

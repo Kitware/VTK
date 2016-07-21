@@ -69,8 +69,8 @@ protected:
                                   double derivative[3][3]);
 
 private:
-  vtkCylindricalTransform(const vtkCylindricalTransform&); // Not implemented.
-  void operator=(const vtkCylindricalTransform&); // Not implemented.
+  vtkCylindricalTransform(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
 };
 
 #endif

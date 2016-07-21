@@ -99,8 +99,8 @@ protected:
   ~vtkMultiPieceDataSet();
 
 private:
-  vtkMultiPieceDataSet(const vtkMultiPieceDataSet&); // Not implemented.
-  void operator=(const vtkMultiPieceDataSet&); // Not implemented.
+  vtkMultiPieceDataSet(const vtkMultiPieceDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiPieceDataSet&) VTK_DELETE_FUNCTION;
 
 };
 

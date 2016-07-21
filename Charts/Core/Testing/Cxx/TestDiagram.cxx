@@ -37,7 +37,7 @@ public:
   static APIDiagram *New();
   vtkTypeMacro(APIDiagram, vtkContextItem);
   // Paint event for the chart, called whenever the chart needs to be drawn
-  virtual bool Paint(vtkContext2D *painter);
+  bool Paint(vtkContext2D *painter) VTK_OVERRIDE;
 };
 
 //----------------------------------------------------------------------------

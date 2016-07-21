@@ -291,8 +291,8 @@ protected:
   vtkTransform* SourceTransform;
 
 private:
-  vtkGlyph3D(const vtkGlyph3D&);  // Not implemented.
-  void operator=(const vtkGlyph3D&);  // Not implemented.
+  vtkGlyph3D(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGlyph3D&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

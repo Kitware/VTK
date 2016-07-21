@@ -338,7 +338,7 @@ public:
   { return new vtkWidgetWindowLevelCallback; }
 
   void Execute( vtkObject *caller, unsigned long vtkNotUsed( event ),
-                void *callData )
+                void *callData ) VTK_OVERRIDE
   {
     vtkImagePlaneWidget* self =
       reinterpret_cast< vtkImagePlaneWidget* >( caller );

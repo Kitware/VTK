@@ -610,8 +610,8 @@ protected:
   double             MarginSizeY;
 
 private:
-  vtkImagePlaneWidget(const vtkImagePlaneWidget&);  //Not implemented
-  void operator=(const vtkImagePlaneWidget&);  //Not implemented
+  vtkImagePlaneWidget(const vtkImagePlaneWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImagePlaneWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -142,8 +142,8 @@ protected:
   int UpdateCursorShape( int interactionState );
 
 private:
-  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&);  //Not implemented
-  void operator=(const vtkImplicitCylinderWidget&);  //Not implemented
+  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

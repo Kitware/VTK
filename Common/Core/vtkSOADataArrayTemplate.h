@@ -193,8 +193,8 @@ protected:
   double NumberOfComponentsReciprocal;
 
 private:
-  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&); // Not implemented.
-  void operator=(const vtkSOADataArrayTemplate&); // Not implemented.
+  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const

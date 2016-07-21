@@ -53,8 +53,8 @@ namespace
   {
   public:
     vtkEventCommand(vtkGeoInteractorStyle* selfptr) {this->Self = selfptr;}
-    virtual void Execute(vtkObject *caller, unsigned long eventId,
-                         void * /*callData*/)
+    void Execute(vtkObject *caller, unsigned long eventId,
+                         void * /*callData*/) VTK_OVERRIDE
     {
       if (eventId == vtkCommand::InteractionEvent)
         {

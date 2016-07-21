@@ -71,8 +71,8 @@ private:
 
   typedef vtkAOSDataArrayTemplate<float> RealSuperclass;
 
-  vtkFloatArray(const vtkFloatArray&);  // Not implemented.
-  void operator=(const vtkFloatArray&);  // Not implemented.
+  vtkFloatArray(const vtkFloatArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFloatArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

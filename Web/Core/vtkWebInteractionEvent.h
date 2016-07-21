@@ -85,8 +85,8 @@ protected:
   int RepeatCount;
 
 private:
-  vtkWebInteractionEvent(const vtkWebInteractionEvent&); // Not implemented
-  void operator=(const vtkWebInteractionEvent&); // Not implemented
+  vtkWebInteractionEvent(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebInteractionEvent&) VTK_DELETE_FUNCTION;
 
 };
 

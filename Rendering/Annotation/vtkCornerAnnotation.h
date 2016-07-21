@@ -193,8 +193,8 @@ protected:
   virtual void SetTextActorsJustification();
 
 private:
-  vtkCornerAnnotation(const vtkCornerAnnotation&);  // Not implemented.
-  void operator=(const vtkCornerAnnotation&);  // Not implemented.
+  vtkCornerAnnotation(const vtkCornerAnnotation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCornerAnnotation&) VTK_DELETE_FUNCTION;
 };
 
 

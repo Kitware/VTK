@@ -108,8 +108,8 @@ protected:
   double N2;
 
 private:
-  vtkParametricEllipsoid(const vtkParametricEllipsoid&);  // Not implemented.
-  void operator=(const vtkParametricEllipsoid&);  // Not implemented.
+  vtkParametricEllipsoid(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricEllipsoid&) VTK_DELETE_FUNCTION;
 
 };
 

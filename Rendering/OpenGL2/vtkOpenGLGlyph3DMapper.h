@@ -84,8 +84,8 @@ protected:
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
 
 private:
-  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&); // Not implemented.
-  void operator=(const vtkOpenGLGlyph3DMapper&); // Not implemented.
+  vtkOpenGLGlyph3DMapper(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGlyph3DMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

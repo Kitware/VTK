@@ -58,8 +58,8 @@ protected:
   char* GroupDomain;
 
 private:
-  vtkGroupLeafVertices(const vtkGroupLeafVertices&); // Not implemented
-  void operator=(const vtkGroupLeafVertices&);   // Not implemented
+  vtkGroupLeafVertices(const vtkGroupLeafVertices&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGroupLeafVertices&) VTK_DELETE_FUNCTION;
 };
 
 #endif

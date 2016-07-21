@@ -530,7 +530,7 @@ const char* vtkObjectFactory::GetClassOverrideWithName(int index)
   return this->OverrideArray[index].OverrideWithName;
 }
 
-int vtkObjectFactory::GetEnableFlag(int index)
+vtkTypeBool vtkObjectFactory::GetEnableFlag(int index)
 {
   return this->OverrideArray[index].EnabledFlag;
 }
@@ -541,7 +541,7 @@ const char* vtkObjectFactory::GetOverrideDescription(int index)
 }
 
 // Set the enable flag for a class / subclassName pair
-void vtkObjectFactory::SetEnableFlag(int flag,
+void vtkObjectFactory::SetEnableFlag(vtkTypeBool flag,
                                      const char* className,
                                      const char* subclassName)
 {
@@ -566,8 +566,8 @@ void vtkObjectFactory::SetEnableFlag(int flag,
 }
 
 // Get the enable flag for a className/subclassName pair
-int vtkObjectFactory::GetEnableFlag(const char* className,
-                                    const char* subclassName)
+vtkTypeBool vtkObjectFactory::GetEnableFlag(const char* className,
+                                        const char* subclassName)
 {
   for(int i =0; i < this->OverrideArrayLength; i++)
   {
@@ -690,7 +690,7 @@ void vtkObjectFactory::GetOverrideInformation(const char* name,
 }
 
 // set enable flag for all registered factories for the given className
-void vtkObjectFactory::SetAllEnableFlags(int flag,
+void vtkObjectFactory::SetAllEnableFlags(vtkTypeBool flag,
                                          const char* className)
 {
   vtkObjectFactory* factory;
@@ -706,7 +706,7 @@ void vtkObjectFactory::SetAllEnableFlags(int flag,
 
 // set enable flag for the first factory that that
 // has an override for className/subclassName pair
-void vtkObjectFactory::SetAllEnableFlags(int flag,
+void vtkObjectFactory::SetAllEnableFlags(vtkTypeBool flag,
                                          const char* className,
                                          const char* subclassName)
 {

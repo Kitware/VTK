@@ -45,7 +45,7 @@ public:
   }
 
   void Execute( vtkObject *caller, unsigned long event,
-                void *vtkNotUsed(callData) )
+                void *vtkNotUsed(callData) ) VTK_OVERRIDE
   {
   vtkColorTransferFunction* self =
     reinterpret_cast< vtkColorTransferFunction* >( caller );

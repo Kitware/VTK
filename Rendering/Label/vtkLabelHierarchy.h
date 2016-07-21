@@ -225,8 +225,8 @@ protected:
   friend class implementation;
 
 private:
-  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
+  vtkLabelHierarchy( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelHierarchy_h

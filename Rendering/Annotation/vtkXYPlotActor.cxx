@@ -40,10 +40,6 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkTrivialProducer.h"
 #include "vtkViewport.h"
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#define snprintf _snprintf
-#endif
-
 struct  _xmlNode;
 #define VTK_MAX_PLOTS 50
 

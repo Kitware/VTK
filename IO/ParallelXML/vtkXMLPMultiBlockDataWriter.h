@@ -124,8 +124,8 @@ protected:
   int NumberOfPieces;
 
 private:
-  vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&); // Not implemented.
-  void operator=(const vtkXMLPMultiBlockDataWriter&); // Not implemented.
+  vtkXMLPMultiBlockDataWriter(const vtkXMLPMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPMultiBlockDataWriter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

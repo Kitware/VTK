@@ -91,8 +91,8 @@ public:
   vtkRenderPass *DelegatePass;
 
  private:
-  vtkSSAAPass(const vtkSSAAPass&);  // Not implemented.
-  void operator=(const vtkSSAAPass&);  // Not implemented.
+  vtkSSAAPass(const vtkSSAAPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSSAAPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

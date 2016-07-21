@@ -93,8 +93,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *out, vtkInformation *outInfo);
 
 private:
-  vtkTIFFReader(const vtkTIFFReader&);  // Not implemented.
-  void operator=(const vtkTIFFReader&);  // Not implemented.
+  vtkTIFFReader(const vtkTIFFReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTIFFReader&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Evaluates the image at a single pixel location.

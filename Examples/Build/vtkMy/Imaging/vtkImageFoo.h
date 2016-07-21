@@ -80,8 +80,8 @@ protected:
                            vtkImageData*** inData, vtkImageData** outData,
                            int outExt[6], int id);
 private:
-  vtkImageFoo(const vtkImageFoo&);  // Not implemented.
-  void operator=(const vtkImageFoo&);  // Not implemented.
+  vtkImageFoo(const vtkImageFoo&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFoo&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -113,9 +113,9 @@ protected:
 
 private:
   vtkCPExodusIINodalCoordinatesTemplate(
-      const vtkCPExodusIINodalCoordinatesTemplate &); // Not implemented.
+      const vtkCPExodusIINodalCoordinatesTemplate &) VTK_DELETE_FUNCTION;
   void operator=(
-      const vtkCPExodusIINodalCoordinatesTemplate &); // Not implemented.
+      const vtkCPExodusIINodalCoordinatesTemplate &) VTK_DELETE_FUNCTION;
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;

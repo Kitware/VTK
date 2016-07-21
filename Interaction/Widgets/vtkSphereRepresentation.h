@@ -318,8 +318,8 @@ protected:
   bool CenterCursor;
 
 private:
-  vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
-  void operator=(const vtkSphereRepresentation&);  //Not implemented
+  vtkSphereRepresentation(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

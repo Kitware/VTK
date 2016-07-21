@@ -490,8 +490,8 @@ protected:
   int WeightsCapacity;
 
 private:
-  vtkBridgeCell(const vtkBridgeCell&);  // Not implemented.
-  void operator=(const vtkBridgeCell&);  // Not implemented.
+  vtkBridgeCell(const vtkBridgeCell&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgeCell&) VTK_DELETE_FUNCTION;
 };
 
 #endif

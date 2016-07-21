@@ -165,8 +165,8 @@ private:
 
   double T[3][3];
 
-  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&);  // Not implemented.
-  void operator=(const vtkSimple3DCirclesStrategy&);  // Not implemented.
+  vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
   };
 
 #endif

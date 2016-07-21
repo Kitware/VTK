@@ -81,8 +81,8 @@ protected:
   vtkClipConvexPolyDataInternals *Internal;
 
 private:
-  vtkClipConvexPolyData(const vtkClipConvexPolyData&);  // Not implemented.
-  void operator=(const vtkClipConvexPolyData&);  // Not implemented.
+  vtkClipConvexPolyData(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClipConvexPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

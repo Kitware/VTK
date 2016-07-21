@@ -64,8 +64,8 @@ protected:
   int OnRatio;
   int Outline;
 private:
-  vtkEarthSource(const vtkEarthSource&);  // Not implemented.
-  void operator=(const vtkEarthSource&);  // Not implemented.
+  vtkEarthSource(const vtkEarthSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEarthSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

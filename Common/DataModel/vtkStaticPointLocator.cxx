@@ -447,7 +447,7 @@ public:
     }
 
   // Release allocated memory
-  virtual ~BucketList()
+  ~BucketList() VTK_OVERRIDE
     {
       delete [] this->Map;
       delete [] this->Offsets;
@@ -616,7 +616,7 @@ public:
   };
 
   // Build the map and other structures to support locator operations
-  virtual void BuildLocator()
+  void BuildLocator() VTK_OVERRIDE
     {
       // Place each point in a bucket
       //
