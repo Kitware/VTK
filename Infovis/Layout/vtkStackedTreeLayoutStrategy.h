@@ -135,8 +135,8 @@ protected:
       float parentStartAng, float parentEndAng);
 
 private:
-  vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkStackedTreeLayoutStrategy&);  // Not implemented.
+  vtkStackedTreeLayoutStrategy(const vtkStackedTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStackedTreeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

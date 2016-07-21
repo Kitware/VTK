@@ -124,7 +124,7 @@ int vtkExtractSelectedBlock::RequestData(
     node->GetProperties()->Get(vtkSelectionNode::INVERSE()) == 1);
 
   output->CopyStructure(cd);
-  vtkDataArray* selectionList = vtkDataArray::SafeDownCast(
+  vtkDataArray* selectionList = vtkArrayDownCast<vtkDataArray>(
     node->GetSelectionList());
   std::set<unsigned int> blocks;
   if (selectionList)

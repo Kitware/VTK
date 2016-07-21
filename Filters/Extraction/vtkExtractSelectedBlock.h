@@ -28,7 +28,6 @@ public:
   vtkTypeMacro(vtkExtractSelectedBlock, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkExtractSelectedBlock();
   ~vtkExtractSelectedBlock();
@@ -45,9 +44,9 @@ protected:
 
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 private:
-  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&); // Not implemented.
-  void operator=(const vtkExtractSelectedBlock&); // Not implemented.
-//ETX
+  vtkExtractSelectedBlock(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedBlock&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

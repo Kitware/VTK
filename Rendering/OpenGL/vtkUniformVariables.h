@@ -45,7 +45,6 @@ public:
                    int numberOfComponents,
                    int *value);
 
-  //BTX
   template<typename T>
   void SetUniformit(const char *name,
                    int numberOfComponents,
@@ -54,7 +53,6 @@ public:
   template<typename T>
   void SetUniformit(const char *name, T value)
   { this->SetUniformit(name, 1, &value); }
-  //ETX
 
   // Description:
   // Set an float uniform variable.
@@ -65,7 +63,6 @@ public:
                    int numberOfComponents,
                    float *value);
 
-  //BTX
   template<typename T>
   void SetUniformft(const char *name,
                    int numberOfComponents,
@@ -74,7 +71,6 @@ public:
   template<typename T>
   void SetUniformft(const char *name, T value)
   { this->SetUniformft(name, 1, &value); }
-  //ETX
 
   // Description:
   // Set an array of integer uniform variables.
@@ -166,13 +162,12 @@ protected:
   virtual ~vtkUniformVariables();
 
 private:
-  vtkUniformVariables(const vtkUniformVariables&);  // Not implemented.
-  void operator=(const vtkUniformVariables&);  // Not implemented.
+  vtkUniformVariables(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformVariables&) VTK_DELETE_FUNCTION;
 
   vtkUniformVariablesMap *Map;
 };
 
-//BTX
 // ----------------------------------------------------------------------------
 template<typename T>
 void vtkUniformVariables::SetUniformit(const char *name,
@@ -200,6 +195,5 @@ void vtkUniformVariables::SetUniformft(const char *name,
     }
   this->SetUniformf(name, numberOfComponents, fvalues);
 }
-//ETX
 
 #endif

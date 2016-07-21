@@ -49,13 +49,11 @@ public:
   vtkTypeMacro(vtkTreeDFSIterator, vtkTreeIterator);
   virtual void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum ModeType
     {
     DISCOVER,
     FINISH
     };
-  //ETX
 
   // Description:
   // Set the visit mode of the iterator.  Mode can be
@@ -79,18 +77,16 @@ protected:
   vtkTreeDFSIteratorInternals* Internals;
   vtkIntArray* Color;
 
-  //BTX
   enum ColorType
     {
     WHITE,
     GRAY,
     BLACK
     };
-  //ETX
 
 private:
-  vtkTreeDFSIterator(const vtkTreeDFSIterator &);  // Not implemented.
-  void operator=(const vtkTreeDFSIterator &);        // Not implemented.
+  vtkTreeDFSIterator(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;
 };
 
 

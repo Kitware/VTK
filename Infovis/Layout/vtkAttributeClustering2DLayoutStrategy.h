@@ -132,14 +132,12 @@ protected:
 
 private:
 
-  //BTX
   // This class 'has a' vtkFastSplatter for the density grid
   vtkSmartPointer<vtkFastSplatter>        DensityGrid;
   vtkSmartPointer<vtkImageData>           SplatImage;
   vtkSmartPointer<vtkFloatArray>          RepulsionArray;
   vtkSmartPointer<vtkFloatArray>          AttractionArray;
   vtkSmartPointer<vtkIntArray>            EdgeCountArray;
-  //ETX
 
   int RandomSeed;
   int IterationsPerLayout;
@@ -155,13 +153,11 @@ private:
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
   void ResolveCoincidentVertices();
 
-//BTX
   class Internals;
   Internals* Implementation;
-//ETX
 
-  vtkAttributeClustering2DLayoutStrategy(const vtkAttributeClustering2DLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkAttributeClustering2DLayoutStrategy&);  // Not implemented.
+  vtkAttributeClustering2DLayoutStrategy(const vtkAttributeClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAttributeClustering2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

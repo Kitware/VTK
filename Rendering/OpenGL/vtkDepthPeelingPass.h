@@ -51,12 +51,10 @@ public:
   vtkTypeMacro(vtkDepthPeelingPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -185,8 +183,8 @@ public:
   int OpaqueShadowTexUnit; // texture unit allocated for the opaque shadow tex.
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
-  void operator=(const vtkDepthPeelingPass&);  // Not implemented.
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

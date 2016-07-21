@@ -130,7 +130,6 @@ public:
   vtkGetMacro( IntermixIntersectingGeometry, int );
   vtkBooleanMacro( IntermixIntersectingGeometry, int );
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -158,8 +157,6 @@ public:
   virtual float GetGradientMagnitudeBias(int)
     {return this->GetGradientMagnitudeBias();};
 
-//ETX
-
 protected:
   vtkVolumeRayCastMapper();
   ~vtkVolumeRayCastMapper();
@@ -169,7 +166,7 @@ protected:
   vtkEncodedGradientShader     *GradientShader;
   vtkRayCastImageDisplayHelper *ImageDisplayHelper;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // The distance between sample points along the ray
   double                       SampleDistance;
@@ -262,8 +259,8 @@ protected:
   double         GetZBufferValue( int x, int y );
 
 private:
-  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastMapper&);  // Not implemented.
+  vtkVolumeRayCastMapper(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

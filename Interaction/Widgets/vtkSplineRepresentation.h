@@ -99,7 +99,6 @@ public:
   // are specified.
   virtual void BuildRepresentation();
 
-//BTX
 protected:
   vtkSplineRepresentation();
   ~vtkSplineRepresentation();
@@ -115,9 +114,9 @@ protected:
   virtual void InsertHandleOnLine(double* pos);
 
 private:
-  vtkSplineRepresentation(const vtkSplineRepresentation&); // Not implemented.
-  void operator=(const vtkSplineRepresentation&); // Not implemented.
-//ETX
+  vtkSplineRepresentation(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplineRepresentation&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

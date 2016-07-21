@@ -46,10 +46,6 @@
 #include "vtkRenderingAnnotationModule.h" // For export macro
 #include "vtkActor2D.h"
 
-#define VTK_FLY_OUTER_EDGES 0
-#define VTK_FLY_CLOSEST_TRIAD 1
-#define VTK_FLY_NONE 2
-
 class vtkAlgorithmOutput;
 class vtkAxisActor2D;
 class vtkCamera;
@@ -136,6 +132,13 @@ public:
   // vtkCubeAxesActor2D.
   virtual void SetCamera(vtkCamera*);
   vtkGetObjectMacro(Camera,vtkCamera);
+
+  enum FlyMode
+  {
+    VTK_FLY_OUTER_EDGES = 0,
+    VTK_FLY_CLOSEST_TRIAD = 1,
+    VTK_FLY_NONE = 2
+  };
 
   // Description:
   // Specify a mode to control how the axes are drawn: either outer edges
@@ -322,8 +325,8 @@ private:
   // hide the superclass' ShallowCopy() from the user and the compiler.
   void ShallowCopy(vtkProp *prop) { this->vtkProp::ShallowCopy( prop ); };
 private:
-  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&);  // Not implemented.
-  void operator=(const vtkCubeAxesActor2D&);  // Not implemented.
+  vtkCubeAxesActor2D(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCubeAxesActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

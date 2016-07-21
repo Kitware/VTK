@@ -461,6 +461,7 @@ void vtkOpenGLImageSliceMapper::RenderPolygon(
     {
     actor->GetTexture()->Render(ren);
     }
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
   if (textured)
     {
@@ -587,6 +588,7 @@ void vtkOpenGLImageSliceMapper::RenderBackground(
       }
     }
 
+  actor->GetMapper()->SetClippingPlanes(this->GetClippingPlanes());
   actor->GetMapper()->Render(ren, actor);
 
   vtkOpenGLCheckErrorMacro("failed after RenderBackground");

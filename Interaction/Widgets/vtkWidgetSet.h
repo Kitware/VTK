@@ -96,7 +96,6 @@
 
 class vtkAbstractWidget;
 
-//BTX
 // Pointer to a member function that takes a vtkAbstractWidget (the active
 // child) and another vtkAbstractWidget (the widget to dispatch an action)
 // to. All "Action" functions in a widget must conform to this signature.
@@ -104,7 +103,6 @@ template< class TWidget > struct ActionFunction
 {
   typedef void (TWidget::*TActionFunctionPointer)(TWidget *dispatcher);
 };
-//ETX
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkWidgetSet : public vtkObject
 {
@@ -139,7 +137,6 @@ public:
   // Get the Nth widget in the set.
   vtkAbstractWidget *GetNthWidget( unsigned int );
 
-  //BTX
   // TODO: Move this to the protected section. The class vtkAbstractWidget
   //       should be a friend of this class.
   typedef std::vector< vtkAbstractWidget * >   WidgetContainerType;
@@ -174,15 +171,14 @@ public:
       if (caller != w) ((*w).*(action))(caller);
       }
     }
-  //ETX
 
 protected:
   vtkWidgetSet();
   ~vtkWidgetSet();
 
 private:
-  vtkWidgetSet(const vtkWidgetSet&);  //Not implemented
-  void operator=(const vtkWidgetSet&);  //Not implemented
+  vtkWidgetSet(const vtkWidgetSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWidgetSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

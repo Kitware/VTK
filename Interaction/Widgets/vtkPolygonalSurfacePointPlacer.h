@@ -39,7 +39,6 @@ class  vtkCellPicker;
 class  vtkPolygonalSurfacePointPlacerInternals;
 class  vtkPolyData;
 
-//BTX
 // The Node stores information about the point. This information is used by
 // the interpolator. Reusing this information avoids the need for a second
 // pick operation to regenerate it. (Cellpickers are slow).
@@ -52,7 +51,6 @@ struct vtkPolygonalSurfacePointPlacerNode
   double       ParametricCoords[3]; // parametric coords within cell
   vtkPolyData  *PolyData;
 };
-//ETX
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkPolygonalSurfacePointPlacer
                                   : public vtkPolyDataPointPlacer
@@ -141,12 +139,10 @@ public:
   vtkGetMacro( SnapToClosestPoint, int );
   vtkBooleanMacro( SnapToClosestPoint, int );
 
-//BTX
   // Description:
   // Internally used by the interpolator.
   typedef vtkPolygonalSurfacePointPlacerNode Node;
   Node *GetNodeAtWorldPosition( double worldPos[3] );
-//ETX
 
 protected:
   vtkPolygonalSurfacePointPlacer();
@@ -161,8 +157,8 @@ protected:
   int                                      SnapToClosestPoint;
 
 private:
-  vtkPolygonalSurfacePointPlacer(const vtkPolygonalSurfacePointPlacer&);  //Not implemented
-  void operator=(const vtkPolygonalSurfacePointPlacer&);  //Not implemented
+  vtkPolygonalSurfacePointPlacer(const vtkPolygonalSurfacePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolygonalSurfacePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -40,11 +40,9 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkXMLUnstructuredGridWriter* New();
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkUnstructuredGridBase* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -77,8 +75,8 @@ protected:
   OffsetsManagerArray *CellsOM; //one per piece
 
 private:
-  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLUnstructuredGridWriter&);  // Not implemented.
+  vtkXMLUnstructuredGridWriter(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

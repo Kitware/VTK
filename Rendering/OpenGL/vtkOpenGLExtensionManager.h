@@ -128,7 +128,6 @@
 
 class vtkRenderWindow;
 
-//BTX
 extern "C" {
 #ifdef _WIN32
 #include "vtkOpenGL.h"  // Needed for WINAPI
@@ -137,7 +136,6 @@ extern "C" {
   typedef void (*vtkOpenGLExtensionManagerFunctionPointer)(void);
 #endif
 }
-//ETX
 
 class VTKRENDERINGOPENGL_EXPORT vtkOpenGLExtensionManager : public vtkObject
 {
@@ -165,13 +163,11 @@ public:
   // Returns true if the extension is supported, false otherwise.
   virtual int ExtensionSupported(const char *name);
 
-//BTX
   // Description:
   // Returns a function pointer to the OpenGL extension function with the
   // given name.  Returns NULL if the function could not be retrieved.
   virtual vtkOpenGLExtensionManagerFunctionPointer GetProcAddress(
     const char *fname);
-//ETX
 
   // Description:
   // Loads all the functions associated with the given extension into the
@@ -342,7 +338,6 @@ public:
   vtkSetMacro(IgnoreDriverBugs, bool);
   vtkBooleanMacro(IgnoreDriverBugs, bool);
 
-//BTX
 protected:
   vtkOpenGLExtensionManager();
   virtual ~vtkOpenGLExtensionManager();
@@ -386,11 +381,11 @@ protected:
   virtual int SafeLoadExtension(const char *name);
 
 private:
-  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&); // Not implemented
-  void operator=(const vtkOpenGLExtensionManager&); // Not implemented
+  vtkOpenGLExtensionManager(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLExtensionManager&) VTK_DELETE_FUNCTION;
 
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
-//ETX
+
 };
 
 #endif // vtkOpenGLExtensionManager_h

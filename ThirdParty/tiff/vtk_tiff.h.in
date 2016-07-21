@@ -20,7 +20,7 @@
 #ifdef VTK_USE_SYSTEM_TIFF
 # include <tiffio.h>
 #else
-# include <vtktiff/tiffio.h>
+# include <vtktiff/libtiff/tiffio.h>
 #endif
 
 #endif

@@ -100,8 +100,8 @@ protected:
   double EdgeWindow;
 
 private:
-  vtkMergeGraphs(const vtkMergeGraphs&); // Not implemented
-  void operator=(const vtkMergeGraphs&);   // Not implemented
+  vtkMergeGraphs(const vtkMergeGraphs&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMergeGraphs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -61,12 +61,10 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkMatricizeArray(const vtkMatricizeArray&); // Not implemented
-  void operator=(const vtkMatricizeArray&);   // Not implemented
+  vtkMatricizeArray(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatricizeArray&) VTK_DELETE_FUNCTION;
 
-//BTX
   class Generator;
-//ETX
 
   vtkIdType SliceDimension;
 };

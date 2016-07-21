@@ -67,16 +67,14 @@ public:
   // advancing the stream through however many places needed to assemble that code point
   virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) ;
 
-//BTX
 protected:
   vtkASCIITextCodec() ;
   ~vtkASCIITextCodec() ;
 
 private:
-  vtkASCIITextCodec(const vtkASCIITextCodec &) ; // Not implemented.
-  void operator=(const vtkASCIITextCodec &) ; // Not implemented.
+  vtkASCIITextCodec(const vtkASCIITextCodec &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkASCIITextCodec &) VTK_DELETE_FUNCTION;
 
-//ETX
 };
 
 

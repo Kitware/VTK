@@ -97,7 +97,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   // Builds a distributed ID consisting of the given owner and the local ID.
   vtkIdType MakeDistributedId(int owner, vtkIdType local);
 
-  //BTX
   // Description:
   // Set the pedigreeId -> processor distribution function that determines
   // how vertices are distributed when they are associated with
@@ -106,7 +105,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   // hashed distribution will be used.
   void SetVertexPedigreeIdDistribution(vtkVertexPedigreeIdDistribution Func,
                                        void *userData);
-  //ETX
 
   // Description:
   // Determine which processor owns the vertex with the given pedigree ID.
@@ -221,7 +219,6 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   // The graph to which this distributed graph helper is already attached.
   vtkGraph *Graph;
 
-  //BTX
   // Description:
   // The distribution function used to map a pedigree ID to a processor.
   vtkVertexPedigreeIdDistribution VertexDistribution;
@@ -245,15 +242,13 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
   // Description:
   // Number of bits required to represent {vertex,edge} index
   int indexBits;
-  //ETX
 
  private:
-  vtkDistributedGraphHelper(const vtkDistributedGraphHelper&); // Not implemented
-  void operator=(const vtkDistributedGraphHelper&); // Not implemented
+  vtkDistributedGraphHelper(const vtkDistributedGraphHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDistributedGraphHelper&) VTK_DELETE_FUNCTION;
 
-  //BTX
   friend class vtkGraph;
-  //ETX
+
 };
 
 #endif // vtkDistributedGraphHelper_h

@@ -141,8 +141,8 @@ protected:
                           vtkInformationVector* outInfo);
 
 private:
-  vtkMNIObjectReader(const vtkMNIObjectReader&); // Not implemented
-  void operator=(const vtkMNIObjectReader&);  // Not implemented
+  vtkMNIObjectReader(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMNIObjectReader&) VTK_DELETE_FUNCTION;
 
 };
 

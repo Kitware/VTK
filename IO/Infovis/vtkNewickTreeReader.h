@@ -68,8 +68,8 @@ protected:
   vtkIdType BuildTree(char *buffer, vtkMutableDirectedGraph *g,
     vtkDoubleArray *weights, vtkStringArray *names, vtkIdType parent);
 private:
-  vtkNewickTreeReader(const vtkNewickTreeReader&);  // Not implemented.
-  void operator=(const vtkNewickTreeReader&);  // Not implemented.
+  vtkNewickTreeReader(const vtkNewickTreeReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNewickTreeReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

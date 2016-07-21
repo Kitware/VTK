@@ -132,17 +132,21 @@ void vtkMappedDataArray<Scalar>::DataChanged()
 template<class Scalar> inline vtkMappedDataArray<Scalar>*
 vtkMappedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
 {
-  switch (source->GetArrayType())
+  if (source)
     {
-    case vtkAbstractArray::MappedDataArray:
-      if (vtkDataTypesCompare(source->GetDataType(),
-                              vtkTypeTraits<Scalar>::VTK_TYPE_ID))
-        {
-        return static_cast<vtkMappedDataArray<Scalar>*>(source);
-        }
-    default:
-      return NULL;
+    switch (source->GetArrayType())
+      {
+      case vtkAbstractArray::MappedDataArray:
+        if (vtkDataTypesCompare(source->GetDataType(),
+                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+          {
+          return static_cast<vtkMappedDataArray<Scalar>*>(source);
+          }
+      default:
+        break;
+      }
     }
+  return NULL;
 }
 
 //------------------------------------------------------------------------------

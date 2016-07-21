@@ -36,7 +36,6 @@ public:
   vtkTypeMacro(vtkDataObjectToTable,vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum
     {
     FIELD_DATA = 0,
@@ -45,7 +44,6 @@ public:
     VERTEX_DATA = 3,
     EDGE_DATA = 4
     };
-  //ETX
 
   // Description:
   // The field type to copy into the output table.
@@ -67,8 +65,8 @@ protected:
   int FieldType;
 
 private:
-  vtkDataObjectToTable(const vtkDataObjectToTable&); // Not implemented
-  void operator=(const vtkDataObjectToTable&);   // Not implemented
+  vtkDataObjectToTable(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataObjectToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

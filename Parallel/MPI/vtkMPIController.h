@@ -123,8 +123,6 @@ public:
 
   virtual vtkMPIController *PartitionController(int localColor, int localKey);
 
-//BTX
-
   // Description:
   // This method sends data to another process (non-blocking).
   // Tag eliminates ambiguity when multiple sends or receives
@@ -276,7 +274,7 @@ public:
   // are given in the completed user-supplied vtkIntArray.
   bool TestSome(const int count,vtkMPICommunicator::Request requests[],
                 vtkIntArray *completed );
-//ETX
+
   static const char* GetProcessorName();
 
   // Description:
@@ -285,7 +283,7 @@ public:
   static void SetUseSsendForRMI(int use_send)
     { vtkMPIController::UseSsendForRMI = (use_send != 0)? 1: 0; }
   static int GetUseSsendForRMI() { return vtkMPIController::UseSsendForRMI; }
-//BTX
+
 protected:
   vtkMPIController();
   ~vtkMPIController();
@@ -321,9 +319,9 @@ protected:
   // When set, TriggerRMI uses Ssend instead of Send.
   static int UseSsendForRMI;
 private:
-  vtkMPIController(const vtkMPIController&);  // Not implemented.
-  void operator=(const vtkMPIController&);  // Not implemented.
-//ETX
+  vtkMPIController(const vtkMPIController&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIController&) VTK_DELETE_FUNCTION;
+
 };
 
 

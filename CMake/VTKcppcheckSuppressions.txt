@@ -13,7 +13,7 @@
 //=========================================================================
 
 // This file contains enough suppressions to result in no cppcheck warnings,
-// at least on Mac OS X with cppcheck 1.72.
+// at least on Mac OS X with cppcheck 1.74.
 
 // To run:
 // cd /path/to/VTK/
@@ -25,30 +25,47 @@
 // Similarly, these aren't really part of VTK proper.
 *:Utilities/KWSys/*
 *:Utilities/MetaIO/*
+*:Utilities/DICOMParser/*
 
 // Can't fix in portable way for all VTK-supported platforms.
 duplicateExpression:IO/PostgreSQL/vtkPostgreSQLQuery.cxx
 unpreciseMathCall
 
+// Using reallocf() would be a good solution, but it's not available on all platforms.
+memleakOnRealloc
+
 // VTK assumes IEEE 754 floats, so this warning isn't useful.
 memsetClassFloat
 
 // There are just too many of these to manage, so suppress them all.  Can look again one day.
-cstyleCast
-invalidscanf
-noCopyConstructor
-noExplicitConstructor
-operatorEqVarError
-passedByValue
-redundantAssignment
-uninitMemberVar
-unreadVariable
-useInitializationList
+// 2364 warnings
 variableScope
+// 1109 warnings
+uninitMemberVar
+// 231 warnings
+cstyleCast
+// 182 warnings
+noExplicitConstructor
+// 169 warnings
+invalidscanf
+// 137 warnings
+unreadVariable
+// 60 warnings
+redundantAssignment
+// 46 warnings
+operatorEqVarError
+// 34 warnings
+noCopyConstructor
+// 20 warnings
+useInitializationList
 
 // Gives too many false positives.
 assertWithSideEffect
 argumentSize
+
+// A regression between 1.73 and 1.74 results in lots of false positives for this warning
+// <https://sourceforge.net/p/cppcheck/discussion/general/thread/21296d8f/?limit=25#6cab>
+clarifyCondition
 
 // False positives.
 argumentSize:Common/DataModel/vtkAMRBox.cxx
@@ -56,6 +73,7 @@ argumentSize:Common/DataModel/vtkStructuredGrid.h
 arrayIndexOutOfBounds:Common/DataModel/vtkCell.h
 assignBoolToPointer:Common/Math/vtkMatrix4x4.h
 AssignmentAddressToInteger:Common/Math/vtkPolynomialSolversUnivariate.cxx
+CastIntegerToAddressAtReturn:Geovis/Core/vtkGeoTreeNode.h
 clarifyCondition:Rendering/Core/Testing/Cxx/TestInteractorStyleImageProperty.cxx
 comparisonOfBoolWithInvalidComparator:Rendering/Label/vtkLabeledTreeMapDataMapper.cxx
 copyCtorPointerCopying:IO/NetCDF/vtkSLACReader.cxx
@@ -102,22 +120,34 @@ unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
+unusedStructMember:Common/Core/vtkTypeList.txx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Image/vtkMRCReader.cxx
+unusedStructMember:IO/Infovis/vtkTulipReader.cxx
 uselessAssignmentArg:Common/DataModel/vtkReebGraph.cxx
 uselessAssignmentPtrArg:Filters/General/vtkYoungsMaterialInterface.cxx
 uselessAssignmentPtrArg:IO/Parallel/vtkPImageWriter.cxx
 uselessAssignmentPtrArg:Wrapping/Tools/vtkParse.tab.c
 zerodiv:Filters/ParallelFlowPaths/Testing/Cxx/TestPStreamGeometry.cxx
 
+// Not worth fixing, but not actually false positives.
+passedByValue:Filters/General/vtkYoungsMaterialInterface.cxx
+knownConditionTrueFalse:Rendering/OpenGL/vtkXGPUInfoList.cxx
+knownConditionTrueFalse:GUISupport/Qt/QVTKWidget.cxx
+
 // There are a fair number of these, but they are probably worth working through.
-duplInheritedMember
-invalidPointerCast
-memleakOnRealloc
-noConstructor
-operatorEq
+// 217 warnings
 postfixOperator
+// 30 warnings
+duplInheritedMember
+// 12 warnings
+invalidPointerCast
+// 6 warnings
+noConstructor
 
 // To investigate further...
 memleak:Wrapping/Tools/vtkParsePreprocess.c
 nullPointerRedundantCheck:IO/Exodus/vtkExodusIIReaderParser.cxx
+redundantAssignment:Rendering/Volume/vtkGPUVolumeRayCastMapper.cxx:
+redundantAssignment:Rendering/Volume/vtkFixedPointVolumeRayCastMapper.cxx
+redundantAssignment:Filters/General/vtkBoxClipDataSet.cxx

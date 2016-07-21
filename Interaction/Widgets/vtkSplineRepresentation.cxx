@@ -129,7 +129,7 @@ void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
 //----------------------------------------------------------------------------
 vtkDoubleArray* vtkSplineRepresentation::GetHandlePositions()
 {
-  return vtkDoubleArray::SafeDownCast(
+  return vtkArrayDownCast<vtkDoubleArray>(
     this->ParametricSpline->GetPoints()->GetData());
 }
 

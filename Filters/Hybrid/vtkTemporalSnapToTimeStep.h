@@ -32,9 +32,7 @@
 #include "vtkFiltersHybridModule.h" // For export macro
 #include "vtkAlgorithm.h"
 
-//BTX
 #include <vector> // used because I am a bad boy. So there.
-//ETX
 
 class VTKFILTERSHYBRID_EXPORT vtkTemporalSnapToTimeStep : public vtkAlgorithm
 {
@@ -43,13 +41,12 @@ public:
   vtkTypeMacro(vtkTemporalSnapToTimeStep, vtkAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum {
     VTK_SNAP_NEAREST=0,
     VTK_SNAP_NEXTBELOW_OR_EQUAL,
     VTK_SNAP_NEXTABOVE_OR_EQUAL
   };
-//ETX
+
   vtkSetMacro(SnapMode,int);
   vtkGetMacro(SnapMode,int);
   void SetSnapModeToNearest()          { this->SetSnapMode(VTK_SNAP_NEAREST); }
@@ -80,15 +77,13 @@ protected:
                           vtkInformationVector **,
                           vtkInformationVector *);
 
-//BTX
     std::vector<double>  InputTimeValues;
     int HasDiscrete;
     int SnapMode;
-//ETX
 
 private:
-  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&);  // Not implemented.
-  void operator=(const vtkTemporalSnapToTimeStep&);  // Not implemented.
+  vtkTemporalSnapToTimeStep(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalSnapToTimeStep&) VTK_DELETE_FUNCTION;
 };
 
 

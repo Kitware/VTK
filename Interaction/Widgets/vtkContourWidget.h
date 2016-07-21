@@ -209,9 +209,8 @@ public:
     {this->Initialize(NULL);}
 
   // The state of the widget
-  //BTX
+
   enum {Start,Define,Manipulate};
-  //ETX
 
 protected:
   vtkContourWidget();
@@ -240,8 +239,8 @@ protected:
   void AddNode();
 
 private:
-  vtkContourWidget(const vtkContourWidget&);  //Not implemented
-  void operator=(const vtkContourWidget&);  //Not implemented
+  vtkContourWidget(const vtkContourWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContourWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

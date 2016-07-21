@@ -71,7 +71,6 @@ public:
   vtkTypeMacro(vtkStatisticsAlgorithm, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // enumeration values to specify input port types
   enum InputPorts
@@ -89,7 +88,6 @@ public:
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
     OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
     };
-//ETX
 
   // Description:
   // A convenience method for setting learn input parameters (if one is expected or allowed).
@@ -145,7 +143,6 @@ public:
   virtual void SetAssessNames( vtkStringArray* );
   vtkGetObjectMacro(AssessNames,vtkStringArray);
 
-//BTX
   // Description:
   // A base class for a functor that assesses data.
   class AssessFunctor {
@@ -154,7 +151,6 @@ public:
                               vtkIdType ) = 0;
     virtual ~AssessFunctor() { }
   };
-//ETX
 
   // Description:
   // Add or remove a column from the current analysis request.
@@ -208,9 +204,8 @@ public:
   // the routine returns NULL. Otherwise it returns the column name.
   // This version is not thread-safe.
   virtual const char* GetColumnForRequest( vtkIdType r, vtkIdType c );
-  //BTX
+
   virtual int GetColumnForRequest( vtkIdType r, vtkIdType c, vtkStdString& columnName );
-  //ETX
 
   // Description:
   // Convenience method to create a request with a single column name \p namCol in a single
@@ -287,14 +282,12 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) = 0;
 
-  //BTX
   // Description:
   // A pure virtual method to select the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc ) = 0;
-  //ETX
 
   vtkIdType NumberOfPrimaryTables;
   bool LearnOption;
@@ -305,8 +298,8 @@ protected:
   vtkStatisticsAlgorithmPrivate* Internals;
 
 private:
-  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented
-  void operator=(const vtkStatisticsAlgorithm&);   // Not implemented
+  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

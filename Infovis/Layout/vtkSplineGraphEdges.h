@@ -45,13 +45,11 @@ public:
   virtual void SetSpline(vtkSpline* s);
   vtkGetObjectMacro(Spline, vtkSpline);
 
-  //BTX
   enum
     {
     BSPLINE = 0,
     CUSTOM
     };
-  //ETX
 
   // Description:
   // Spline type used by the filter.
@@ -83,17 +81,15 @@ protected:
 
   int SplineType;
 
-  //BTX
   vtkSmartPointer<vtkSpline> XSpline;
   vtkSmartPointer<vtkSpline> YSpline;
   vtkSmartPointer<vtkSpline> ZSpline;
-  //ETX
 
   vtkIdType NumberOfSubdivisions;
 
 private:
-  vtkSplineGraphEdges(const vtkSplineGraphEdges&);  // Not implemented.
-  void operator=(const vtkSplineGraphEdges&);  // Not implemented.
+  vtkSplineGraphEdges(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplineGraphEdges&) VTK_DELETE_FUNCTION;
 };
 
 #endif

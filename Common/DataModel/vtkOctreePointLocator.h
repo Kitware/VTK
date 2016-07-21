@@ -173,7 +173,6 @@ protected:
 
   static void DeleteAllDescendants(vtkOctreePointLocatorNode* octant);
 
-//BTX
   // Description:
   // Recursive helper for public FindPointsWithinRadius.  radiusSquared
   // is the square of the radius and is used in order to avoid the
@@ -193,8 +192,6 @@ protected:
   void DivideRegion(vtkOctreePointLocatorNode *node, int* ordering, int level);
 
   int DivideTest(int size, int level);
-
-//ETX
 
   void AddPolys(vtkOctreePointLocatorNode *node, vtkPoints *pts, vtkCellArray *polys);
 
@@ -233,7 +230,7 @@ protected:
   // default is to have this set on.
   int CreateCubicOctants;
 
-  vtkOctreePointLocator(const vtkOctreePointLocator&); // Not implemented
-  void operator=(const vtkOctreePointLocator&); // Not implemented
+  vtkOctreePointLocator(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOctreePointLocator&) VTK_DELETE_FUNCTION;
 };
 #endif

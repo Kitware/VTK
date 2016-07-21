@@ -352,13 +352,12 @@ public:
   // not found.
   int GetSliceIDFromInstanceUID(int &volumeidx, const char *uid);
 
-  //BTX
   typedef enum {
     AXIAL = 0,
     CORONAL,
     SAGITTAL
   } OrientationType;
-  //ETX
+
   int GetOrientationType(int volumeidx);
   void SetOrientationType(int volumeidx, int orientation);
   static const char *GetStringFromOrientationType(unsigned int type);
@@ -404,15 +403,13 @@ protected:
   char *XRayTubeCurrent;
   double DirectionCosine[6];
 
-  //BTX
   // Description:
   // PIMPL Encapsulation for STL containers
   vtkMedicalImagePropertiesInternals *Internals;
-  //ETX
 
 private:
-  vtkMedicalImageProperties(const vtkMedicalImageProperties&); // Not implemented.
-  void operator=(const vtkMedicalImageProperties&); // Not implemented.
+  vtkMedicalImageProperties(const vtkMedicalImageProperties&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMedicalImageProperties&) VTK_DELETE_FUNCTION;
 };
 
 #endif

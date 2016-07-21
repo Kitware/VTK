@@ -38,8 +38,8 @@ public:
     return cb;
     }
 
-  virtual void Execute(vtkObject *caller, unsigned long eventId,
-    void *callData)
+  void Execute(vtkObject *caller, unsigned long eventId,
+    void *callData) VTK_OVERRIDE
     {
     if (vtkCommand::TimerEvent == eventId)
       {

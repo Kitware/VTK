@@ -167,7 +167,7 @@ int vtkVolume16Reader::RequestData(
   vtkImageData *output = this->AllocateOutputData(output_do,
                                                   outInfo);
   vtkUnsignedShortArray *newScalars =
-    vtkUnsignedShortArray::SafeDownCast(output->GetPointData()->GetScalars());
+    vtkArrayDownCast<vtkUnsignedShortArray>(output->GetPointData()->GetScalars());
 
   // Validate instance variables
   if (this->FilePrefix == NULL)

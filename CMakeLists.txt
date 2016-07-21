@@ -13,6 +13,7 @@ foreach(p
     CMP0025 # CMake 3.0
     CMP0053 # CMake 3.1
     CMP0054 # CMake 3.1
+    CMP0063 # CMake 3.3
     )
   if(POLICY ${p})
     cmake_policy(SET ${p} NEW)
@@ -27,6 +28,18 @@ if(NOT DEFINED CMAKE_MACOSX_RPATH)
 endif()
 
 project(VTK)
+
+if (NOT CMAKE_VERSION VERSION_LESS "3.1")
+  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
+         OFF)
+else()
+  set(VTK_USE_CXX11_FEATURES OFF)
+endif()
+if (VTK_USE_CXX11_FEATURES)
+  set(CMAKE_CXX_STANDARD 11)
+  set(CMAKE_CXX_STANDARD_REQUIRED True)
+  set(CMAKE_CXX_EXTENSIONS False)
+endif()
 
 # Objective-C++ compile flags.
 # CMake has no equivalent of CMAKE_CXX_FLAGS for Objective-C++ (bug #4756)
@@ -454,9 +467,6 @@ set(VTK_PYTHON_VERSION 2 CACHE STRING
 
 # Add the option for build the Python wrapping to VTK.
 option(VTK_WRAP_JAVA "Should VTK Java wrapping be built?" OFF)
-
-# FIXME: This variable should not be necessary once we are done
-set(VTK_IGNORE_BTX ON CACHE INTERNAL "VTK modular always ignores BTX")
 
 # Force reset of hints file location in cache if it was moved
 if(VTK_WRAP_HINTS)

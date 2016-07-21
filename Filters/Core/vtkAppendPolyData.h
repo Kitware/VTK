@@ -63,12 +63,10 @@ public:
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
   void RemoveInputData(vtkPolyData *);
 
-//BTX
   // Description:
   // Get any input of this filter.
   vtkPolyData *GetInput(int idx);
   vtkPolyData *GetInput() { return this->GetInput( 0 ); };
-//ETX
 
   // Description:
   // Directly set(allocate) number of inputs, should only be used
@@ -99,10 +97,9 @@ public:
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
 
-//BTX
   int ExecuteAppend(vtkPolyData* output,
     vtkPolyData* inputs[], int numInputs);
-//ETX
+
 protected:
   vtkAppendPolyData();
   ~vtkAppendPolyData();
@@ -134,8 +131,8 @@ protected:
   int UserManagedInputs;
 
 private:
-  vtkAppendPolyData(const vtkAppendPolyData&);  // Not implemented.
-  void operator=(const vtkAppendPolyData&);  // Not implemented.
+  vtkAppendPolyData(const vtkAppendPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAppendPolyData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -34,12 +34,10 @@ public:
   static vtkOutputStream *New();
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the real output stream.
   vtkSetMacro(Stream, ostream*);
   vtkGetMacro(Stream, ostream*);
-  //ETX
 
   // Description:
   // Called after the stream position has been set by the caller, but
@@ -67,8 +65,8 @@ protected:
   int WriteStream(const char* data, size_t length);
 
 private:
-  vtkOutputStream(const vtkOutputStream&);  // Not implemented.
-  void operator=(const vtkOutputStream&);  // Not implemented.
+  vtkOutputStream(const vtkOutputStream&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutputStream&) VTK_DELETE_FUNCTION;
 };
 
 #endif

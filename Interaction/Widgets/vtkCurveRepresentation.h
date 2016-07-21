@@ -48,7 +48,7 @@ class VTKINTERACTIONWIDGETS_EXPORT vtkCurveRepresentation : public vtkWidgetRepr
 public:
   vtkTypeMacro(vtkCurveRepresentation, vtkWidgetRepresentation);
   void PrintSelf(ostream& os, vtkIndent indent);
-//BTX
+
   // Used to manage the InteractionState of the widget
   enum _InteractionState {
     Outside=0,
@@ -60,7 +60,6 @@ public:
     Inserting,
     Erasing
   };
-//ETX
 
   // Description:
   // Set the interaction state
@@ -188,7 +187,6 @@ public:
   // Ideally one should use GetLineProperty()->SetColor().
   void SetLineColor(double r, double g, double b);
 
-//BTX
 protected:
   vtkCurveRepresentation();
   ~vtkCurveRepresentation();
@@ -255,9 +253,9 @@ protected:
   void CalculateCentroid();
 
 private:
-  vtkCurveRepresentation(const vtkCurveRepresentation&); // Not implemented.
-  void operator=(const vtkCurveRepresentation&); // Not implemented.
-//ETX
+  vtkCurveRepresentation(const vtkCurveRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCurveRepresentation&) VTK_DELETE_FUNCTION;
+
 };
 
 

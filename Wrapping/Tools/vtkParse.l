@@ -99,14 +99,6 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 "/*" { skip_comment(); }
 
-^[\t ]*"//BTX".* {
-      if (!IgnoreBTX) {
-        skip_ahead_until("//ETX");
-      }
-    }
-
-^[\t ]*"//ETX".*  /* eat mismatched ETX */
-
 ^[\t ]*("@interface"|"@implementation") {
       skip_ahead_until("@end");
     }
@@ -342,17 +334,17 @@ ID [a-zA-Z_\x80-\xff][0-9a-zA-Z_\x80-\xff]*
 
 ("APIENTRY"|"CALLBACK"|"WINAPI") /* misc unused win32 macros */
 
-("vtkstd::"|"std::")?"ostream"/[^a-zA-Z_] {
+("std::")?"ostream"/[^a-zA-Z_] {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(OSTREAM);
     }
 
-("vtkstd::"|"std::")?"istream"/[^a-zA-Z_] {
+("std::")?"istream"/[^a-zA-Z_] {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(ISTREAM);
     }
 
-("vtkstd::"|"std::")?"string"/[^a-zA-Z_] {
+("std::")?"string"/[^a-zA-Z_] {
       yylval.str = vtkstrndup(yytext, yyleng);
       return(StdString);
     }

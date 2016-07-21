@@ -157,13 +157,12 @@ protected:
 
   int ForwardUpstream;
   int EnablePrefetching;
-  // BTX
+
   std::vector< int > BlocksToLoad;
-  // ETX
 
 private:
-  vtkAMRSliceFilter( const vtkAMRSliceFilter& ); // Not implemented
-  void operator=( const vtkAMRSliceFilter& ); // Not implemented
+  vtkAMRSliceFilter( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
+  void operator=( const vtkAMRSliceFilter& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRSliceFilter_h */

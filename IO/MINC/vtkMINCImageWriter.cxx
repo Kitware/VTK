@@ -437,7 +437,7 @@ std::string vtkMINCImageWriterCreateIdentString()
 #else
   int processId = getpid();
 #endif
-  sprintf(buf, "%i%s%i", processId, itemsep, identx++);
+  snprintf(buf, 1024, "%i%s%i", processId, itemsep, identx++);
   ident.append(buf);
 
   return ident;
@@ -494,11 +494,15 @@ nc_type vtkMINCImageWriterConvertVTKTypeToMINCType(
 }
 
 //-------------------------------------------------------------------------
-// These macro is only for use in WriteMINCFileAttributes
+// These macros are only for use in WriteMINCFileAttributes.
+
+// Note: Until VTK 7.0, this macro added a terminating null byte to all
+// text attributes.  As of VTK 7.1, it does not.  The attribute length
+// should be the string length, not the string length "plus one".
 #define vtkMINCImageWriterPutAttributeTextMacro(name, text) \
   if (status == NC_NOERR) \
     { \
-    status = nc_put_att_text(ncid, varid, name, strlen(text)+1, text); \
+    status = nc_put_att_text(ncid, varid, name, strlen(text), text); \
     }
 
 #define vtkMINCImageWriterPutAttributeDoubleMacro(name, count, ptr) \
@@ -967,7 +971,7 @@ int vtkMINCImageWriter::CreateMINCVariables(
             // Don't set valid_range if the default is suitable
             if (this->ComputeValidRangeFromScalarRange ||
                 (this->ImageAttributes &&
-                 vtkDoubleArray::SafeDownCast(
+                 vtkArrayDownCast<vtkDoubleArray>(
                    this->ImageAttributes->GetAttributeValueAsArray(
                      MIimage, MIvalid_range))))
               {
@@ -1231,7 +1235,7 @@ void vtkMINCImageWriter::FindMINCValidRange(double range[2])
   vtkDoubleArray *rangearray = 0;
   if (this->ImageAttributes)
     {
-    rangearray = vtkDoubleArray::SafeDownCast(
+    rangearray = vtkArrayDownCast<vtkDoubleArray>(
       this->ImageAttributes->GetAttributeValueAsArray(
         MIimage, MIvalid_range));
     }

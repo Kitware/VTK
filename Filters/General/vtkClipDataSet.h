@@ -192,8 +192,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkClipDataSet(const vtkClipDataSet&);  // Not implemented.
-  void operator=(const vtkClipDataSet&);  // Not implemented.
+  vtkClipDataSet(const vtkClipDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClipDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

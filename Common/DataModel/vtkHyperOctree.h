@@ -478,12 +478,10 @@ public:
   // IS THREAD SAFE.
   unsigned long GetActualMemorySize();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkHyperOctree* GetData(vtkInformation* info);
   static vtkHyperOctree* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
@@ -501,9 +499,7 @@ protected:
 
   vtkHyperOctreeCursor *TmpChild; // to avoid allocation in the loop
 
-  //BTX
   friend class vtkHyperOctreeLightWeightCursor;
-  //ETX
 
   // Initialize the arrays if necessary, then return it.
   void UpdateDualArrays();
@@ -556,12 +552,9 @@ protected:
   int DualGridFlag;
 
 private:
-  vtkHyperOctree(const vtkHyperOctree&);  // Not implemented.
-  void operator=(const vtkHyperOctree&);    // Not implemented.
+  vtkHyperOctree(const vtkHyperOctree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctree&) VTK_DELETE_FUNCTION;
 };
-
-
-//BTX
 
 class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeLightWeightCursor
 {
@@ -580,7 +573,5 @@ private:
   unsigned short IsLeaf;
   unsigned short Level;
 };
-
-//ETX
 
 #endif

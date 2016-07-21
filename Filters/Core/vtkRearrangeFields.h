@@ -72,7 +72,6 @@ public:
   // Create a new vtkRearrangeFields with an empty operation list.
   static vtkRearrangeFields *New();
 
-//BTX
   enum OperationType
   {
     COPY=0,
@@ -84,7 +83,6 @@ public:
     POINT_DATA=1,
     CELL_DATA=2
   };
-//ETX
 
   // Description:
   // Add an operation which copies an attribute's field (data array) from
@@ -133,7 +131,6 @@ public:
     this->DeleteAllOperations();
     }
 
-//BTX
   enum FieldType
   {
     NAME,
@@ -153,7 +150,6 @@ public:
     Operation() { FieldName = 0; }
     ~Operation() { delete[] FieldName; }
   };
-//ETX
 
 protected:
 
@@ -204,8 +200,8 @@ protected:
   void PrintAllOperations(ostream& os, vtkIndent indent);
   void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
 private:
-  vtkRearrangeFields(const vtkRearrangeFields&);  // Not implemented.
-  void operator=(const vtkRearrangeFields&);  // Not implemented.
+  vtkRearrangeFields(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
 };
 
 #endif

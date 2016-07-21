@@ -245,8 +245,8 @@ protected:
   double PlanePoint[6][3]; //point on the plane
 
 private:
-  vtkBoxClipDataSet(const vtkBoxClipDataSet&);  // Not implemented.
-  void operator=(const vtkBoxClipDataSet&);  // Not implemented.
+  vtkBoxClipDataSet(const vtkBoxClipDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoxClipDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -56,8 +56,8 @@ protected:
                               bool forceCompileOnly);
 
 private:
-  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&); // Not implemented.
-  void operator=(const vtkOpenGLLightingPainter&); // Not implemented.
+  vtkOpenGLLightingPainter(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLLightingPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

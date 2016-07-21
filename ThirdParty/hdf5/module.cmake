@@ -1,5 +1,13 @@
+if(BUILD_SHARED_LIBS)
+  set(HDF5_USE_STATIC_LIBS FALSE)
+else()
+  set(HDF5_USE_STATIC_LIBS ON)
+endif()
 vtk_module(vtkhdf5
   DEPENDS
     vtkzlib
   EXCLUDE_FROM_WRAPPING
   )
+if(VTK_USE_SYSTEM_HDF5)
+  set(vtkhdf5_LIBRARIES ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES})
+endif()

@@ -154,8 +154,8 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericCutter(const vtkGenericCutter&);  // Not implemented.
-  void operator=(const vtkGenericCutter&);  // Not implemented.
+  vtkGenericCutter(const vtkGenericCutter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericCutter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

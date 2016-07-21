@@ -79,8 +79,8 @@ protected:
   virtual void PrepareForRendering();
 
 private:
-  vtkGeoView2D(const vtkGeoView2D&); // Not implemented
-  void operator=(const vtkGeoView2D&); // Not implemented
+  vtkGeoView2D(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoView2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -68,9 +68,9 @@ class vtkPickingManager;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderWindowInteractor : public vtkObject
 {
-//BTX
+
   friend class vtkInteractorEventRecorder;
-//ETX
+
 public:
   static vtkRenderWindowInteractor *New();
   vtkTypeMacro(vtkRenderWindowInteractor,vtkObject);
@@ -176,11 +176,9 @@ public:
   // Get the VTK timer ID that corresponds to the supplied platform ID.
   virtual int GetVTKTimerId(int platformTimerId);
 
-  //BTX
   // Moved into the public section of the class so that classless timer procs
   // can access these enum members without being "friends"...
   enum {OneShotTimer=1,RepeatingTimer};
-  //ETX
 
   // Description:
   // Specify the default timer interval (in milliseconds). (This is used in
@@ -705,7 +703,6 @@ protected:
   int NumberOfFlyFrames;
   double Dolly;
 
-//BTX
   // Description:
   // These methods allow the interactor to control which events are
   // processed.  When the GrabFocus() method is called, then only events that
@@ -718,13 +715,11 @@ protected:
     {this->Superclass::InternalGrabFocus(mouseEvents,keypressEvents);}
   void ReleaseFocus()
     {this->Superclass::InternalReleaseFocus();}
-//ETX
 
   // Description:
   // Widget mediators are used to resolve contention for cursors and other resources.
   vtkObserverMediator *ObserverMediator;
 
-//BTX
   // Timer related members
   friend struct vtkTimerStruct;
   vtkTimerIdMap *TimerMap; // An internal, PIMPLd map of timers and associated attributes
@@ -737,7 +732,6 @@ protected:
   virtual int InternalCreateTimer(int timerId, int timerType, unsigned long duration);
   virtual int InternalDestroyTimer(int platformTimerId);
   int GetCurrentTimerId();
-//ETX
 
   // Force the interactor to handle the Start() event loop, ignoring any
   // overrides. (Overrides are registered by observing StartEvent on the
@@ -760,8 +754,8 @@ protected:
   vtkCommand::EventIds CurrentGesture;
 
 private:
-  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkRenderWindowInteractor&);  // Not implemented.
+  vtkRenderWindowInteractor(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

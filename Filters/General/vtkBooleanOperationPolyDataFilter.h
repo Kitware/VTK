@@ -95,8 +95,8 @@ protected:
   int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&); // Not implemented
-  void operator=(const vtkBooleanOperationPolyDataFilter&); // Not implemented
+  vtkBooleanOperationPolyDataFilter(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBooleanOperationPolyDataFilter&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Copies cells with indices given by  from one vtkPolyData to

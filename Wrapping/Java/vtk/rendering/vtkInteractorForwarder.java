@@ -1,5 +1,7 @@
 package vtk.rendering;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -8,6 +10,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.lang.reflect.Field;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +39,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
   private int shiftPressed;
   private vtkComponent<?> component;
   private double updateRate, updateRateRelease;
+  private double scaleFactor = 1;
   private ScheduledExecutorService scheduler;
   private Runnable eventTick;
   private vtkEventInterceptor eventInterceptor;
@@ -45,6 +49,7 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     this.lastX = this.lastY = this.ctrlPressed = 0;
     this.updateRate = 5.0;
     this.updateRateRelease = 0.01;
+    this.scaleFactor = vtkInteractorForwarder.getDisplayScale();
 
     this.eventTick = new Runnable() {
 
@@ -124,11 +129,14 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
       return;
     }
 
+    // Update scale factor if needed
+    this.scaleFactor = vtkInteractorForwarder.getGraphicDeviceScale(e.getComponent().getGraphicsConfiguration().getDevice());
+
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRate);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
@@ -164,8 +172,8 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
@@ -201,8 +209,8 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
@@ -236,8 +244,8 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
@@ -262,8 +270,8 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       component.getRenderWindowInteractor().SetEventInformationFlipY(lastX, lastY, ctrlPressed, shiftPressed, '0', 0, "0");
@@ -295,8 +303,8 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     try {
       component.getVTKLock().lockInterruptibly();
       component.getRenderWindow().SetDesiredUpdateRate(this.updateRateRelease);
-      lastX = e.getX();
-      lastY = e.getY();
+      lastX = (int)(e.getX() * scaleFactor);
+      lastY = (int)(e.getY() * scaleFactor);
       ctrlPressed = (e.getModifiers() & InputEvent.CTRL_MASK) == InputEvent.CTRL_MASK ? 1 : 0;
       shiftPressed = (e.getModifiers() & InputEvent.SHIFT_MASK) == InputEvent.SHIFT_MASK ? 1 : 0;
       if (e.getWheelRotation() > 0) {
@@ -352,5 +360,27 @@ public class vtkInteractorForwarder implements MouseListener, MouseMotionListene
     if (this.eventInterceptor != null && this.eventInterceptor.keyTyped(e)) {
       return;
     }
+  }
+
+  public static int getDisplayScale() {
+    GraphicsDevice graphicsDevice = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+    return getGraphicDeviceScale(graphicsDevice);
+  }
+
+  public static int getGraphicDeviceScale(GraphicsDevice device) {
+    try {
+      Field field = device.getClass().getDeclaredField("scale");
+      if (field != null) {
+          field.setAccessible(true);
+          Object scale = field.get(device);
+          if (scale instanceof Integer) {
+            return ((Integer) scale).intValue();
+          }
+          System.out.println("Invalid scale type: " + scale);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return 1;
   }
 }

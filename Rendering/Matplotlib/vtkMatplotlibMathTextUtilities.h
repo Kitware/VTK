@@ -124,8 +124,8 @@ protected:
   bool PrepareImageData(vtkImageData *data, int bbox[4]);
 
 private:
-  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&); // Not implemented.
-  void operator=(const vtkMatplotlibMathTextUtilities&); // Not implemented.
+  vtkMatplotlibMathTextUtilities(const vtkMatplotlibMathTextUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatplotlibMathTextUtilities&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Used for runtime checking of matplotlib's mathtext availability.

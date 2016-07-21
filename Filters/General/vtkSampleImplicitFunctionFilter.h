@@ -83,7 +83,7 @@ protected:
   char *ScalarArrayName;
   char *GradientArrayName;
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -91,8 +91,8 @@ protected:
 
 
 private:
-  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
-  void operator=(const vtkSampleImplicitFunctionFilter&);  // Not implemented.
+  vtkSampleImplicitFunctionFilter(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSampleImplicitFunctionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

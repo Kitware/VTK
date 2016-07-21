@@ -148,7 +148,6 @@ protected:
   ~vtkOpenGLHAVSVolumeMapper();
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
-//BTX
   virtual void Initialize(vtkRenderer *ren, vtkVolume *vol);
   virtual void InitializeLookupTables(vtkVolume *vol);
   void InitializeGPUDataStructures();
@@ -185,11 +184,10 @@ protected:
   unsigned int TransferFunctionTexture;
 
   vtkWeakPointer<vtkRenderWindow> RenderWindow;
-//ETX
 
 private:
-  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&);  // Not implemented.
-  void operator=(const vtkOpenGLHAVSVolumeMapper&);  // Not implemented.
+  vtkOpenGLHAVSVolumeMapper(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

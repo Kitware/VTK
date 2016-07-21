@@ -37,6 +37,19 @@
 
 vtkStandardNewMacro(vtkTessellatorFilter);
 
+namespace
+{
+  void vtkCopyTuples(
+    vtkDataSetAttributes* inDSA, vtkIdType inId,
+    vtkDataSetAttributes* outDSA, vtkIdType beginId, vtkIdType endId)
+    {
+    for (vtkIdType cc=beginId; cc < endId; ++cc)
+      {
+      outDSA->CopyData(inDSA, inId, cc);
+      }
+    }
+}
+
 // ========================================
 // vtkCommand subclass for reporting progress of merge filter
 class vtkProgressCommand : public vtkCommand
@@ -46,10 +59,10 @@ public:
     {
     this->Tessellator = tf;
     }
-  virtual ~vtkProgressCommand()
+  ~vtkProgressCommand() VTK_OVERRIDE
     {
     }
-  virtual void Execute( vtkObject*, unsigned long, void* callData )
+  void Execute( vtkObject*, unsigned long, void* callData ) VTK_OVERRIDE
     {
     double subprogress = *( static_cast<double*>( callData ) );
     cout << "  ++ <" << ( (subprogress / 2. + 0.5) * 100. ) << ">\n";
@@ -403,6 +416,8 @@ void vtkTessellatorFilter::SetupOutput(
     this->Subdivider->PassField( a, array->GetNumberOfComponents(), this->Tessellator );
     ++attrib;
     }
+
+  output->GetCellData()->CopyAllocate(input->GetCellData(), input->GetNumberOfCells());
 }
 
 void vtkTessellatorFilter::MergeOutputPoints( vtkUnstructuredGrid* input, vtkUnstructuredGrid* output )
@@ -478,7 +493,6 @@ void vtkTessellatorFilter::MergeOutputPoints( vtkUnstructuredGrid* input, vtkUns
 
   delete [] ptMap;
   cellPoints->Delete();
-  output->Squeeze();
 }
 
 void vtkTessellatorFilter::Teardown()
@@ -1093,10 +1107,10 @@ int vtkTessellatorFilter::RequestData(
   vtkDataSet* mesh = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  vtkUnstructuredGrid* tmpOut;
+  vtkSmartPointer<vtkUnstructuredGrid> tmpOut;
   if ( this->MergePoints )
     {
-    tmpOut = vtkUnstructuredGrid::New();
+    tmpOut = vtkSmartPointer<vtkUnstructuredGrid>::New();
     }
   else
     {
@@ -1129,7 +1143,10 @@ int vtkTessellatorFilter::RequestData(
     progCells += deltaProg;
     for ( ; (cell < progCells) && (cell < numCells); ++cell )
       {
+      const vtkIdType nextOutCellId = this->OutputMesh->GetNumberOfCells();
+
       this->Subdivider->SetCellId( cell );
+
       vtkCell* cp = this->Subdivider->GetCell(); // We set the cell ID, get the vtkCell pointer
       int np = cp->GetCellType();
       double* pcoord = cp->GetParametricCoords();
@@ -1466,6 +1483,11 @@ int vtkTessellatorFilter::RequestData(
         // do nothing
         break;
         }
+
+      // Copy cell data.
+      vtkCopyTuples(mesh->GetCellData(), cell,
+        this->OutputMesh->GetCellData(),
+        nextOutCellId, this->OutputMesh->GetNumberOfCells());
       }
     this->UpdateProgress( (double)( progress / 100. ) );
     }
@@ -1473,13 +1495,13 @@ int vtkTessellatorFilter::RequestData(
   if ( this->MergePoints )
     {
     this->MergeOutputPoints( tmpOut, output );
-    tmpOut->Delete();
     }
-
+  output->Squeeze();
   this->Teardown();
 
   return 1;
 }
+
 
 //----------------------------------------------------------------------------
 int vtkTessellatorFilter::FillInputPortInformation(

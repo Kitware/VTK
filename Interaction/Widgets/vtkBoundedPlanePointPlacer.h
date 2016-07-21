@@ -90,7 +90,6 @@ public:
   vtkGetObjectMacro(BoundingPlanes,vtkPlaneCollection);
   void SetBoundingPlanes(vtkPlanes *planes);
 
-//BTX
   enum
   {
     XAxis=0,
@@ -98,7 +97,6 @@ public:
     ZAxis,
     Oblique
   };
-//ETX
 
   // Description:
   // Given a renderer and a display position, compute the
@@ -194,8 +192,8 @@ protected:
                                        double               closestPt[3]);
 
 private:
-  vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&);  //Not implemented
-  void operator=(const vtkBoundedPlanePointPlacer&);  //Not implemented
+  vtkBoundedPlanePointPlacer(const vtkBoundedPlanePointPlacer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBoundedPlanePointPlacer&) VTK_DELETE_FUNCTION;
 };
 
 #endif

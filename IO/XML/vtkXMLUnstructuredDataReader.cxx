@@ -108,7 +108,7 @@ vtkIdTypeArray*
 vtkXMLUnstructuredDataReader::ConvertToIdTypeArray(vtkDataArray* a)
 {
   // If it is already a vtkIdTypeArray, just return it.
-  vtkIdTypeArray* ida = vtkIdTypeArray::SafeDownCast(a);
+  vtkIdTypeArray* ida = vtkArrayDownCast<vtkIdTypeArray>(a);
   if(ida)
     {
     return ida;
@@ -141,7 +141,7 @@ vtkUnsignedCharArray*
 vtkXMLUnstructuredDataReader::ConvertToUnsignedCharArray(vtkDataArray* a)
 {
   // If it is already a vtkUnsignedCharArray, just return it.
-  vtkUnsignedCharArray* uca = vtkUnsignedCharArray::SafeDownCast(a);
+  vtkUnsignedCharArray* uca = vtkArrayDownCast<vtkUnsignedCharArray>(a);
   if(uca)
     {
     return uca;
@@ -386,7 +386,7 @@ void vtkXMLUnstructuredDataReader::SetupOutputData()
     {
     // Non-zero volume.
     vtkAbstractArray* aa = this->CreateArray(ePoints->GetNestedElement(0));
-    vtkDataArray* a = vtkDataArray::SafeDownCast(aa);
+    vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if (a)
       {
       // Allocate the points array.
@@ -569,7 +569,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
     }
   vtkAbstractArray* ac1 = this->CreateArray(eOffsets);
-  vtkDataArray* c1 = vtkDataArray::SafeDownCast(ac1);
+  vtkDataArray* c1 = vtkArrayDownCast<vtkDataArray>(ac1);
   if(!c1 || (c1->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read cell offsets from " << eCells->GetName()
@@ -635,7 +635,7 @@ int vtkXMLUnstructuredDataReader::ReadCellArray(vtkIdType numberOfCells,
     return 0;
     }
   vtkAbstractArray* ac0 = this->CreateArray(eConn);
-  vtkDataArray* c0 = vtkDataArray::SafeDownCast(ac0);
+  vtkDataArray* c0 = vtkArrayDownCast<vtkDataArray>(ac0);
   if(!c0 || (c0->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read cell connectivity from " << eCells->GetName()
@@ -748,7 +748,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
     return 0;
     }
   vtkAbstractArray* ac1 = this->CreateArray(efaceOffsets);
-  vtkDataArray* c1 = vtkDataArray::SafeDownCast(ac1);
+  vtkDataArray* c1 = vtkArrayDownCast<vtkDataArray>(ac1);
   if(!c1 || (c1->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read face offsets from " << eCells->GetName()
@@ -820,7 +820,7 @@ int vtkXMLUnstructuredDataReader::ReadFaceArray(vtkIdType numberOfCells,
     return 0;
     }
   vtkAbstractArray* ac0 = this->CreateArray(efaces);
-  vtkDataArray* c0 = vtkDataArray::SafeDownCast(ac0);
+  vtkDataArray* c0 = vtkArrayDownCast<vtkDataArray>(ac0);
   if(!c0 || (c0->GetNumberOfComponents() != 1))
     {
     vtkErrorMacro("Cannot read faces from " << eCells->GetName()

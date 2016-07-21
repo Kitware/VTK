@@ -87,16 +87,16 @@ macro(findpkg_finish PREFIX)
                     ${PREFIX}_LIBRARY_DEBUG
                     ${PREFIX}_LIBRARY_RELEASE)
   endif ()
-endmacro(findpkg_finish)
+endmacro()
 
 #===============================================
-# Generate debug names from given RELEASEease names
+# Generate debug names from given release names
 #===============================================
 macro(get_debug_names PREFIX)
   foreach(i ${${PREFIX}})
     set(${PREFIX}_DEBUG ${${PREFIX}_DEBUG} ${i}d ${i}D ${i}_d ${i}_D ${i}_debug ${i})
-  endforeach(i)
-endmacro(get_debug_names)
+  endforeach()
+endmacro()
 
 #===============================================
 # See if we have env vars to help us find tbb
@@ -107,10 +107,10 @@ macro(getenv_path VAR)
    if (ENV_${VAR})
      string( REGEX REPLACE "\\\\" "/" ENV_${VAR} ${ENV_${VAR}} )
    endif ()
-endmacro(getenv_path)
+endmacro()
 
 #===============================================
-# Couple a set of RELEASEease AND debug libraries
+# Couple a set of release AND debug libraries
 #===============================================
 macro(make_library_set PREFIX)
   if (${PREFIX}_RELEASE AND ${PREFIX}_DEBUG)
@@ -120,7 +120,7 @@ macro(make_library_set PREFIX)
   elseif (${PREFIX}_DEBUG)
     set(${PREFIX} ${${PREFIX}_DEBUG})
   endif ()
-endmacro(make_library_set)
+endmacro()
 
 
 #=============================================================================
@@ -178,7 +178,7 @@ if (WIN32 AND MSVC)
   endif ()
 
   # for each prefix path, add ia32/64\${COMPILER_PREFIX}\lib to the lib search path
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     if (CMAKE_CL_64)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/ia64/${COMPILER_PREFIX}/lib)
       list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/ia64/${COMPILER_PREFIX})
@@ -191,25 +191,25 @@ if (WIN32 AND MSVC)
   endforeach ()
 endif ()
 
-# For OS X binary distribution, choose libc++ based libraries for Maverics and
-# above and AppleClang
-if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin" AND
-    NOT ${CMAKE_SYSTEM_VERSION} LESS 13.0)
+# For OS X binary distribution, choose libc++ based libraries for Mavericks (10.9)
+# and above and AppleClang
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND
+    NOT CMAKE_SYSTEM_VERSION VERSION_LESS 13.0)
   set (USE_LIBCXX OFF)
   cmake_policy(GET CMP0025 POLICY_VAR)
 
-  if ("${POLICY_VAR}" STREQUAL "NEW")
-    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+  if (POLICY_VAR STREQUAL "NEW")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
       set (USE_LIBCXX ON)
     endif ()
   else ()
-    if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
       set (USE_LIBCXX ON)
     endif ()
   endif ()
 
-  if (${USE_LIBCXX})
-    foreach (dir ${TBB_PREFIX_PATH})
+  if (USE_LIBCXX)
+    foreach (dir IN LISTS TBB_PREFIX_PATH)
       list (APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/libc++ ${dir}/libc++/lib)
     endforeach ()
   endif ()
@@ -226,13 +226,13 @@ endif ()
 # if platform architecture is explicitly specified
 set(TBB_ARCH_PLATFORM $ENV{TBB_ARCH_PLATFORM})
 if (TBB_ARCH_PLATFORM)
-  foreach (dir ${TBB_PREFIX_PATH})
+  foreach (dir IN LISTS TBB_PREFIX_PATH)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/${TBB_ARCH_PLATFORM}/lib)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/${TBB_ARCH_PLATFORM})
   endforeach ()
 endif ()
 
-foreach (dir ${TBB_PREFIX_PATH})
+foreach (dir IN LISTS TBB_PREFIX_PATH)
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64)
     list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib/intel64/${COMPILER_PREFIX})
@@ -247,7 +247,7 @@ foreach (dir ${TBB_PREFIX_PATH})
 endforeach ()
 
 # add general search paths
-foreach (dir ${TBB_PREFIX_PATH})
+foreach (dir IN LISTS TBB_PREFIX_PATH)
   list(APPEND TBB_LIB_SEARCH_PATH ${dir}/lib ${dir}/Lib ${dir}/lib/tbb
     ${dir}/Libs)
   list(APPEND TBB_INC_SEARCH_PATH ${dir}/include ${dir}/Include

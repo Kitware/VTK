@@ -85,14 +85,13 @@ protected:
   int Size;
   int CacheMinimumLimit;
   int CacheMaximumLimit;
-  //BTX
+
   vtkSmartPointer<vtkGeoTreeNode> Newest;
   vtkSmartPointer<vtkGeoTreeNode> Oldest;
-  //ETX
 
 private:
-  vtkGeoTreeNodeCache(const vtkGeoTreeNodeCache&); // Not implemented
-  void operator=(const vtkGeoTreeNodeCache&); // Not implemented
+  vtkGeoTreeNodeCache(const vtkGeoTreeNodeCache&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoTreeNodeCache&) VTK_DELETE_FUNCTION;
 };
 
 #endif

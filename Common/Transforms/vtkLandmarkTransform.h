@@ -100,11 +100,10 @@ protected:
 
   int Mode;
 private:
-  vtkLandmarkTransform(const vtkLandmarkTransform&);  // Not implemented.
-  void operator=(const vtkLandmarkTransform&);  // Not implemented.
+  vtkLandmarkTransform(const vtkLandmarkTransform&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLandmarkTransform&) VTK_DELETE_FUNCTION;
 };
 
-//BTX
 inline const char *vtkLandmarkTransform::GetModeAsString()
 {
   switch (this->Mode)
@@ -119,5 +118,5 @@ inline const char *vtkLandmarkTransform::GetModeAsString()
       return "Unrecognized";
     }
 }
-//ETX
+
 #endif

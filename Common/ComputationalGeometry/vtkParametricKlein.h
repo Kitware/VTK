@@ -88,8 +88,8 @@ protected:
   ~vtkParametricKlein();
 
 private:
-  vtkParametricKlein(const vtkParametricKlein&);  // Not implemented.
-  void operator=(const vtkParametricKlein&);  // Not implemented.
+  vtkParametricKlein(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricKlein&) VTK_DELETE_FUNCTION;
 };
 
 #endif

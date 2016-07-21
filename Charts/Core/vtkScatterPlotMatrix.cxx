@@ -219,7 +219,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
     double minmax[2] = { 0.0, 0.0 };
     vtkStdString name(s->GetValue(i));
     vtkDataArray *in =
-        vtkDataArray::SafeDownCast(input->GetColumnByName(name.c_str()));
+        vtkArrayDownCast<vtkDataArray>(input->GetColumnByName(name.c_str()));
     if (in)
       {
       // The bin values are the centers, extending +/- half an inc either side
@@ -231,7 +231,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
       double inc = (minmax[1] - minmax[0]) / (NumberOfBins) * 1.001;
       double halfInc = inc / 2.0;
       vtkSmartPointer<vtkFloatArray> extents =
-          vtkFloatArray::SafeDownCast(
+          vtkArrayDownCast<vtkFloatArray>(
             output->GetColumnByName(vtkStdString(name + "_extents").c_str()));
       if (!extents)
         {
@@ -246,7 +246,7 @@ bool PopulateHistograms(vtkTable *input, vtkTable *output, vtkStringArray *s,
         extents->SetValue(j, min + j * inc);
         }
       vtkSmartPointer<vtkIntArray> populations =
-          vtkIntArray::SafeDownCast(
+          vtkArrayDownCast<vtkIntArray>(
             output->GetColumnByName(vtkStdString(name + "_pops").c_str()));
       if (!populations)
         {
@@ -829,7 +829,7 @@ void vtkScatterPlotMatrix::SetColumnVisibility(const vtkStdString &name,
       }
     // Add the column to the end of the list if it is a numeric column
     if (this->Input && this->Input->GetColumnByName(name.c_str()) &&
-        vtkDataArray::SafeDownCast(this->Input->GetColumnByName(name.c_str())))
+        vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str())))
       {
       this->VisibleColumns->InsertNextValue(name);
       this->Private->VisibleColumnsModified = true;
@@ -1300,7 +1300,7 @@ void vtkScatterPlotMatrix::UpdateAxes()
     double range[2] = { 0, 0 };
     std::string name(this->VisibleColumns->GetValue(i));
     vtkDataArray *arr =
-        vtkDataArray::SafeDownCast(this->Input->GetColumnByName(name.c_str()));
+        vtkArrayDownCast<vtkDataArray>(this->Input->GetColumnByName(name.c_str()));
     if (arr)
       {
       PIMPL::ColumnSetting settings;

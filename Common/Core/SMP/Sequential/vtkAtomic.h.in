@@ -78,7 +78,7 @@
 class vtkSimpleCriticalSection;
 
 
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 namespace detail
 {
 
@@ -350,7 +350,7 @@ public:
 
 #endif
 }
-#endif // __WRAP__
+#endif // __VTK_WRAP__
 
 template <typename T> class vtkAtomic : private vtk::atomic::detail::IntegralType<T>
 {

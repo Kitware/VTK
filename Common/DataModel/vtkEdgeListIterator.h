@@ -40,10 +40,10 @@
 
 class vtkGraph;
 class vtkGraphEdge;
-//BTX
+
 struct vtkEdgeType;
 struct vtkOutEdgeType;
-//ETX
+
 class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 {
 public:
@@ -54,11 +54,9 @@ public:
   vtkGetObjectMacro(Graph, vtkGraph);
   virtual void SetGraph(vtkGraph *graph);
 
-  //BTX
   // Description:
   // Returns the next edge in the graph.
   vtkEdgeType Next();
-  //ETX
 
   // Description:
   // Just like Next(), but
@@ -86,8 +84,8 @@ protected:
   vtkGraphEdge        *GraphEdge;
 
 private:
-  vtkEdgeListIterator(const vtkEdgeListIterator&);  // Not implemented.
-  void operator=(const vtkEdgeListIterator&);  // Not implemented.
+  vtkEdgeListIterator(const vtkEdgeListIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEdgeListIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

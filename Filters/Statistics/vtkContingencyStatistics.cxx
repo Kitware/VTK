@@ -70,12 +70,12 @@ public:
       PdfXcY (pdfXcY),
       PmiX_Y (pmiX_Y)
   {
-    this->DataX = vtkDataArray::SafeDownCast (valsX);
-    this->DataY = vtkDataArray::SafeDownCast (valsY);
+    this->DataX = vtkArrayDownCast<vtkDataArray>(valsX);
+    this->DataY = vtkArrayDownCast<vtkDataArray>(valsY);
   }
-  virtual ~BivariateContingenciesAndInformationFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     Tuple x (this->DataX->GetNumberOfComponents ());
     Tuple y (this->DataX->GetNumberOfComponents ());
@@ -125,9 +125,9 @@ public:
     this->DataX = valsX;
     this->DataY = valsY;
   }
-  virtual ~BivariateContingenciesAndInformationFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~BivariateContingenciesAndInformationFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     TypeSpec x = this->DataX->GetVariantValue( id ).ToString ();
     TypeSpec y = this->DataY->GetVariantValue( id ).ToString ();
@@ -145,8 +145,8 @@ template<typename TypeSpec>
 void Count (std::map<std::vector<TypeSpec>, std::map<std::vector<TypeSpec>,vtkIdType> >& table,
                    vtkAbstractArray* valsX, vtkAbstractArray* valsY)
 {
-  vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
-  vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+  vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(valsX);
+  vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(valsY);
   if (dataX == 0 || dataY == 0)
     return;
   vtkIdType nRow = dataX->GetNumberOfTuples ();
@@ -206,8 +206,8 @@ public:
     Table table;
     Count<TypeSpec> (table, valsX, valsY);
 
-    vtkDataArray *dataX = vtkDataArray::SafeDownCast (contingencyTab->GetColumn (1));
-    vtkDataArray *dataY = vtkDataArray::SafeDownCast (contingencyTab->GetColumn (2));
+    vtkDataArray *dataX = vtkArrayDownCast<vtkDataArray>(contingencyTab->GetColumn (1));
+    vtkDataArray *dataY = vtkArrayDownCast<vtkDataArray>(contingencyTab->GetColumn (2));
 
     // Store contingency table
     int row = contingencyTab->GetNumberOfRows ();
@@ -502,14 +502,14 @@ public:
                                     vtkStatisticsAlgorithm::AssessFunctor*& dfunc )
   {
     // Downcast columns to appropriate arrays for efficient data access
-    vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+    vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Key" ) );
     vtkType* dataX = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
     vtkType* dataY = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
 
-    vtkDoubleArray* pX_Y = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "P" ) );
-    vtkDoubleArray* pYcX = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Py|x" ) );
-    vtkDoubleArray* pXcY = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Px|y" ) );
-    vtkDoubleArray* pmis = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "PMI" ) );
+    vtkDoubleArray* pX_Y = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "P" ) );
+    vtkDoubleArray* pYcX = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "Py|x" ) );
+    vtkDoubleArray* pXcY = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "Px|y" ) );
+    vtkDoubleArray* pmis = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "PMI" ) );
 
     // Verify that assess parameters have been properly obtained
     if ( ! pX_Y || ! pYcX || ! pXcY || ! pmis )
@@ -870,14 +870,14 @@ public:
                                     vtkStatisticsAlgorithm::AssessFunctor*& dfunc )
   {
     // Downcast columns to appropriate arrays for efficient data access
-    vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
+    vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Key" ) );
     vtkType* dataX = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
     vtkType* dataY = vtkType::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
 
-    vtkDoubleArray* pX_Y = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "P" ) );
-    vtkDoubleArray* pYcX = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Py|x" ) );
-    vtkDoubleArray* pXcY = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "Px|y" ) );
-    vtkDoubleArray* pmis = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "PMI" ) );
+    vtkDoubleArray* pX_Y = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "P" ) );
+    vtkDoubleArray* pYcX = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "Py|x" ) );
+    vtkDoubleArray* pXcY = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "Px|y" ) );
+    vtkDoubleArray* pmis = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "PMI" ) );
 
     // Verify that assess parameters have been properly obtained
     if ( ! pX_Y || ! pYcX || ! pXcY || ! pmis )
@@ -1019,8 +1019,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       continue;
       }
 
-    vtkDataArray* dataX = vtkDataArray::SafeDownCast (inData->GetColumnByName( colX ));
-    vtkDataArray* dataY = vtkDataArray::SafeDownCast (inData->GetColumnByName( colY ));
+    vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName( colX ));
+    vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(inData->GetColumnByName( colY ));
 
     if (dataX == 0 || dataY == 0)
       {
@@ -1028,8 +1028,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
       break;
       }
 
-    if (vtkDoubleArray::SafeDownCast (dataX) || vtkFloatArray::SafeDownCast (dataX) ||
-        vtkDoubleArray::SafeDownCast (dataY) || vtkFloatArray::SafeDownCast (dataY))
+    if (vtkArrayDownCast<vtkDoubleArray>(dataX) || vtkArrayDownCast<vtkFloatArray>(dataX) ||
+        vtkArrayDownCast<vtkDoubleArray>(dataY) || vtkArrayDownCast<vtkFloatArray>(dataY))
       {
       specialization = Double;
       }
@@ -1150,8 +1150,8 @@ void vtkContingencyStatistics::Learn( vtkTable* inData,
     vtkAbstractArray* valsX = inData->GetColumnByName( colX );
     vtkAbstractArray* valsY = inData->GetColumnByName( colY );
 
-    vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
-    vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+    vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(valsX);
+    vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(valsY);
     switch (specialization)
       {
       case None:
@@ -1243,17 +1243,17 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     }
 
   // Downcast columns to typed arrays for efficient data access
-  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
+  vtkStringArray* varX = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable Y" ) );
 
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+  vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Key" ) );
+  vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Cardinality" ) );
 
   vtkAbstractArray* valsX = contingencyTab->GetColumnByName( "x" );
   vtkAbstractArray* valsY = contingencyTab->GetColumnByName( "y" );
 
-  vtkDataArray* dataX = vtkDataArray::SafeDownCast (valsX);
-  vtkDataArray* dataY = vtkDataArray::SafeDownCast (valsY);
+  vtkDataArray* dataX = vtkArrayDownCast<vtkDataArray>(valsX);
+  vtkDataArray* dataY = vtkArrayDownCast<vtkDataArray>(valsY);
 
   // Fill cardinality row (0) with invalid values for derived statistics
   for ( int i = 0; i < nDerivedVals; ++ i )
@@ -1265,7 +1265,7 @@ void vtkContingencyStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
   for ( int j = 0; j < nDerivedVals; ++ j )
     {
-    derivedCols[j] = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( derivedNames[j] ) );
+    derivedCols[j] = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( derivedNames[j] ) );
 
     if ( ! derivedCols[j] )
       {
@@ -1335,8 +1335,8 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
     }
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
+  vtkStringArray* varX = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable Y" ) );
 
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
@@ -1457,7 +1457,7 @@ void vtkContingencyStatistics::Assess( vtkTable* inData,
 // ----------------------------------------------------------------------
 void vtkContingencyStatistics::CalculatePValues( vtkTable* testTab )
 {
-  vtkIdTypeArray* dimCol = vtkIdTypeArray::SafeDownCast(testTab->GetColumn(0));
+  vtkIdTypeArray* dimCol = vtkArrayDownCast<vtkIdTypeArray>(testTab->GetColumn(0));
 
   // Test columns must be created first
   vtkDoubleArray* testChi2Col = vtkDoubleArray::New(); // Chi square p-value
@@ -1538,12 +1538,12 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
   chi2yCol->SetName( "Chi2 Yates" );
 
   // Downcast columns to typed arrays for efficient data access
-  vtkStringArray* varX = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varY = vtkStringArray::SafeDownCast( summaryTab->GetColumnByName( "Variable Y" ) );
-  vtkIdTypeArray* keys = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Key" ) );
-  vtkStringArray* valx = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkStringArray* valy = vtkStringArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
-  vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( contingencyTab->GetColumnByName( "Cardinality" ) );
+  vtkStringArray* varX = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkArrayDownCast<vtkStringArray>( summaryTab->GetColumnByName( "Variable Y" ) );
+  vtkIdTypeArray* keys = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Key" ) );
+  vtkStringArray* valx = vtkArrayDownCast<vtkStringArray>( contingencyTab->GetColumnByName( "x" ) );
+  vtkStringArray* valy = vtkArrayDownCast<vtkStringArray>( contingencyTab->GetColumnByName( "y" ) );
+  vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( contingencyTab->GetColumnByName( "Cardinality" ) );
 
   // Loop over requests
   vtkIdType nRowSumm = summaryTab->GetNumberOfRows();
@@ -1662,8 +1662,8 @@ void vtkContingencyStatistics::Test( vtkTable* inData,
         vtkTable* marginalTab = vtkTable::SafeDownCast( inMeta->GetBlock( b ) );
 
         // Downcast columns to appropriate arrays for efficient data access
-        vtkStringArray* vals = vtkStringArray::SafeDownCast( marginalTab->GetColumnByName( name ) );
-        vtkIdTypeArray* marg = vtkIdTypeArray::SafeDownCast( marginalTab->GetColumnByName( "Cardinality" ) );
+        vtkStringArray* vals = vtkArrayDownCast<vtkStringArray>( marginalTab->GetColumnByName( name ) );
+        vtkIdTypeArray* marg = vtkArrayDownCast<vtkIdTypeArray>( marginalTab->GetColumnByName( "Cardinality" ) );
 
         // Now iterate over all entries and fill count map
         vtkIdType nRow = marginalTab->GetNumberOfRows();
@@ -1782,10 +1782,10 @@ void vtkContingencyStatistics::SelectAssessFunctor( vtkTable* outData,
     return;
     }
 
-  vtkDoubleArray* dubx = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkDoubleArray* duby = vtkDoubleArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
-  vtkLongArray* intx = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "x" ) );
-  vtkLongArray* inty = vtkLongArray::SafeDownCast( contingencyTab->GetColumnByName( "y" ) );
+  vtkDoubleArray* dubx = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "x" ) );
+  vtkDoubleArray* duby = vtkArrayDownCast<vtkDoubleArray>( contingencyTab->GetColumnByName( "y" ) );
+  vtkLongArray* intx = vtkArrayDownCast<vtkLongArray>( contingencyTab->GetColumnByName( "x" ) );
+  vtkLongArray* inty = vtkArrayDownCast<vtkLongArray>( contingencyTab->GetColumnByName( "y" ) );
   double cdf;
   if (dubx && duby)
     {

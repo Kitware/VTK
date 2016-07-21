@@ -235,12 +235,10 @@ public:
   // Estimated size needed after tessellation (or special operation)
   virtual vtkIdType GetEstimatedSize() = 0;
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkGenericDataSet* GetData(vtkInformation* info);
   static vtkGenericDataSet* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   // Description:
@@ -260,8 +258,8 @@ protected:
   vtkTimeStamp ComputeTime; // Time at which bounds, center, etc. computed
 
 private:
-  vtkGenericDataSet(const vtkGenericDataSet&);  // Not implemented.
-  void operator=(const vtkGenericDataSet&);    // Not implemented.
+  vtkGenericDataSet(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

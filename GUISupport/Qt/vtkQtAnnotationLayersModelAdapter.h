@@ -29,6 +29,7 @@
 #ifndef vtkQtAnnotationLayersModelAdapter_h
 #define vtkQtAnnotationLayersModelAdapter_h
 
+#include "vtkConfigure.h"
 #include "vtkGUISupportQtModule.h" // For export macro
 #include "vtkQtAbstractModelAdapter.h"
 
@@ -92,8 +93,8 @@ private:
 
   vtkAnnotationLayers*   Annotations;
 
-  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &);  // Not implemented
-  void operator=(const vtkQtAnnotationLayersModelAdapter&);  // Not implemented.
+  vtkQtAnnotationLayersModelAdapter(const vtkQtAnnotationLayersModelAdapter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtAnnotationLayersModelAdapter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

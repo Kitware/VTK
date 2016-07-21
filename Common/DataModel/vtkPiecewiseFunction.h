@@ -153,12 +153,10 @@ public:
   // in turn simply calls RemoveAllPoints()
   void Initialize();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkPiecewiseFunction* GetData(vtkInformation* info);
   static vtkPiecewiseFunction* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Toggle whether to allow duplicate scalar values in the piecewise
@@ -196,8 +194,8 @@ protected:
   int AllowDuplicateScalars;
 
 private:
-  vtkPiecewiseFunction(const vtkPiecewiseFunction&);  // Not implemented.
-  void operator=(const vtkPiecewiseFunction&);  // Not implemented.
+  vtkPiecewiseFunction(const vtkPiecewiseFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewiseFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

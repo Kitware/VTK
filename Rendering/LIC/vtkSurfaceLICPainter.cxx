@@ -274,8 +274,8 @@ public:
   }
 
 private:
-  void operator=(const RandomNumberGeneratorInterface &); // not implemented
-  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &); // not implemented
+  void operator=(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
+  RandomNumberGeneratorInterface(const RandomNumberGeneratorInterface &) VTK_DELETE_FUNCTION;
 
 private:
   vtkMinimalStandardRandomSequence *RNG;
@@ -3296,7 +3296,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   if (this->Internals->FieldNameSet)
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldName.c_str(),
@@ -3306,7 +3306,7 @@ bool vtkSurfaceLICPainter::VectorsToTCoords(vtkDataSet *data)
   else
     {
     vectors
-       = vtkDataArray::SafeDownCast(
+       = vtkArrayDownCast<vtkDataArray>(
             this->GetInputArrayToProcess(
             this->Internals->FieldAssociation,
             this->Internals->FieldAttributeType,

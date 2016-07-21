@@ -275,8 +275,8 @@ protected:
 
 private:
 
-  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&);  // Not implemented.
-  void operator=(const vtkAbstractImageInterpolator&);  // Not implemented.
+  vtkAbstractImageInterpolator(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractImageInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkAbstractImageInterpolator::InterpolateIJK(

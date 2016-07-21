@@ -1,13 +1,15 @@
-Header
+$Header$
 
 
 TIFF Software Distribution
 --------------------------
 This file is just a placeholder; all the documentation is now in
 HTML in the html directory.  To view the documentation point your
-favorite WWW viewer at html/index.html; e.g.
+favorite WWW viewer at html/index.html; 
 
-    netscape html/index.html
+e.g.
+
+    firefox html/index.html
 
 If you don't have an HTML viewer then you can read the HTML source
 or fetch a PostScript version of this documentation from the directory
@@ -23,7 +25,7 @@ want to do is:
     # make install
 
 More information, email contacts, and mailing list information can be 
-found online at http://www.libtiff.org/.
+found online at http://www.remotesensing.org/libtiff/.
 
 
 Use and Copyright

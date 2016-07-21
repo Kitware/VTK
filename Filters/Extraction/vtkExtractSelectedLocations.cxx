@@ -206,7 +206,7 @@ int vtkExtractSelectedLocations::ExtractCells(
 {
   //get a hold of input data structures and allocate output data structures
   vtkDoubleArray *locArray =
-    vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+    vtkArrayDownCast<vtkDoubleArray>(sel->GetSelectionList());
 
   if (!locArray)
     {
@@ -358,7 +358,7 @@ int vtkExtractSelectedLocations::ExtractPoints(
 {
   //get a hold of input data structures and allocate output data structures
   vtkDoubleArray *locArray =
-    vtkDoubleArray::SafeDownCast(sel->GetSelectionList());
+    vtkArrayDownCast<vtkDoubleArray>(sel->GetSelectionList());
   if (!locArray)
     {
     return 1;

@@ -191,7 +191,7 @@ void vtkCompositeRGBAPass::Render(const vtkRenderState *s)
   int w=0;
   int h=0;
 
-  vtkFrameBufferObject *fbo=s->GetFrameBuffer();
+  vtkFrameBufferObject *fbo=(vtkFrameBufferObject*)s->GetFrameBuffer();
   if(fbo==0)
     {
     r->GetTiledSize(&w,&h);

@@ -117,8 +117,8 @@ protected:
   vtkMatrix4x4           * MatrixReslicedView;
 
 private:
-  vtkResliceCursorLineRepresentation(const vtkResliceCursorLineRepresentation&);  //Not implemented
-  void operator=(const vtkResliceCursorLineRepresentation&);  //Not implemented
+  vtkResliceCursorLineRepresentation(const vtkResliceCursorLineRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorLineRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

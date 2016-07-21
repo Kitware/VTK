@@ -567,13 +567,11 @@ protected:
 
   int DivideTest(int numberOfPoints, int level);
 
-//BTX
   enum {
     XDIM = 0,  // don't change these values
     YDIM = 1,
     ZDIM = 2
   };
-//ETX
 
   int ValidDirections;
 
@@ -664,7 +662,6 @@ protected:
   static void SetDataBoundsToSpatialBounds(vtkKdNode *kd);
   static void ZeroNumberOfPoints(vtkKdNode *kd);
 
-//BTX
   // Recursive helper for public FindPointsWithinRadius
   void FindPointsWithinRadius(vtkKdNode* node, double R2,
                               const double x[3], vtkIdList* ids);
@@ -692,7 +689,6 @@ protected:
     vtkIdList **boundaryCells;
     vtkIdList *emptyList;
   };
-//ETX
 
   void InitializeCellLists();
   vtkIdList *GetList(int regionId, vtkIdList **which);
@@ -750,9 +746,7 @@ protected:
        int dims[3], double origin[3], double spacing[3]);
   void ClearLastBuildCache();
 
-//BTX
   static void __printTree(vtkKdNode *kd, int depth, int verbose);
-//ETX
 
   static int MidValue(int dim, float *c1, int nvals, double &coord);
 
@@ -760,12 +754,10 @@ protected:
   static float FindMaxLeftHalf(int dim, float *c1, int K);
   static void _Select(int dim, float *X, int *ids, int L, int R, int K);
 
-//BTX
   static int ComputeLevel(vtkKdNode *kd);
   static int SelfOrder(int id, vtkKdNode *kd);
   static int findRegion(vtkKdNode *node, float x, float y, float z);
   static int findRegion(vtkKdNode *node, double x, double y, double z);
-//ETX
 
   static vtkKdNode **_GetRegionsAtLevel(int level, vtkKdNode **nodes,
                                         vtkKdNode *kd);
@@ -783,9 +775,7 @@ protected:
 
   int GenerateRepresentationUsingDataBounds;
 
-//BTX
   struct _cellList CellList;
-//ETX
 
   // Region Ids, by data set by cell id - this list is large (one
   // int per cell) but accelerates creation of cell lists
@@ -824,7 +814,7 @@ protected:
   vtkBSPCuts *Cuts;
   double Progress;
 
-  vtkKdTree(const vtkKdTree&); // Not implemented
-  void operator=(const vtkKdTree&); // Not implemented
+  vtkKdTree(const vtkKdTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkKdTree&) VTK_DELETE_FUNCTION;
 };
 #endif

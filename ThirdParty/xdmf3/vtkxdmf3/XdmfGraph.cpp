@@ -40,6 +40,13 @@ XdmfGraph::XdmfGraph(const unsigned int numberNodes) :
 {
 }
 
+XdmfGraph::XdmfGraph(XdmfGraph & refGraph) :
+  XdmfSparseMatrix(refGraph),
+  mAttributes(refGraph.mAttributes),
+  mTime(refGraph.mTime)
+{
+}
+
 XdmfGraph::~XdmfGraph()
 {
 }
@@ -95,16 +102,74 @@ void
 XdmfGraph::setTime(const shared_ptr<XdmfTime> time)
 {
   mTime = time;
+  this->setIsChanged(true);
 }
 
 void
 XdmfGraph::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 {
   XdmfSparseMatrix::traverse(visitor);
-  for(std::vector<shared_ptr<XdmfAttribute> >::const_iterator iter =
-        mAttributes.begin();
-      iter != mAttributes.end();
-      ++iter) {
-    (*iter)->accept(visitor);
+  for (unsigned int i = 0; i < mAttributes.size(); ++i)
+  {
+    mAttributes[i]->accept(visitor);
   }
 }
+
+// C Wrappers
+
+XDMFGRAPH * XdmfGraphNew(unsigned int numberNodes)
+{
+  try
+  {
+    shared_ptr<XdmfGraph> generatedGraph = XdmfGraph::New(numberNodes);
+    return (XDMFGRAPH *)((void *)(new XdmfGraph(*generatedGraph.get())));
+  }
+  catch (...)
+  {
+    shared_ptr<XdmfGraph> generatedGraph = XdmfGraph::New(numberNodes);
+    return (XDMFGRAPH *)((void *)(new XdmfGraph(*generatedGraph.get())));
+  }
+}
+
+XDMFATTRIBUTE * XdmfGraphGetAttribute(XDMFGRAPH * graph, unsigned int index)
+{
+  return (XDMFATTRIBUTE *)((void *)(((XdmfGraph *)(graph))->getAttribute(index).get()));
+}
+
+XDMFATTRIBUTE * XdmfGraphGetAttributeByName(XDMFGRAPH * graph, char * Name)
+{
+  return (XDMFATTRIBUTE *)((void *)(((XdmfGraph *)(graph))->getAttribute(std::string(Name)).get()));
+}
+
+unsigned int XdmfGraphGetNumberAttributes(XDMFGRAPH * graph)
+{
+  return ((XdmfGraph *)graph)->getNumberAttributes();
+}
+
+void XdmfGraphInsertAttribute(XDMFGRAPH * graph, XDMFATTRIBUTE * Attribute, int passControl)
+{
+  if (passControl) {
+    ((XdmfGraph *)(graph))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute));
+  }
+  else {
+    ((XdmfGraph *)(graph))->insert(shared_ptr<XdmfAttribute>((XdmfAttribute *)Attribute, XdmfNullDeleter()));
+  }
+}
+
+void XdmfGraphRemoveAttribute(XDMFGRAPH * graph, unsigned int index)
+{
+  ((XdmfGraph *)graph)->removeAttribute(index);
+}
+
+void XdmfGraphRemoveAttributeByName(XDMFGRAPH * graph, char * Name)
+{
+  ((XdmfGraph *)graph)->removeAttribute(std::string(Name));
+}
+
+unsigned int XdmfGraphGetNumberNodes(XDMFGRAPH * graph)
+{
+  return ((XdmfGraph *)graph)->getNumberNodes();
+}
+
+XDMF_ITEM_C_CHILD_WRAPPER(XdmfGraph, XDMFGRAPH)
+XDMF_SPARSEMATRIX_C_CHILD_WRAPPER(XdmfGraph, XDMFGRAPH)

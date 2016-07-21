@@ -53,13 +53,21 @@
 #ifndef XDMFDSMBUFFER_HPP_
 #define XDMFDSMBUFFER_HPP_
 
-// Forward Declarations
-
-// Includes
+// C Compatible Includes
 #include <XdmfDSM.hpp>
-#include <XdmfDSMCommMPI.hpp>
 #include <mpi.h>
+#include <XdmfDSMCommMPI.hpp>
 
+#ifndef _H5public_H
+  #ifndef XDMF_HADDR_T
+  #define XDMF_HADDR_T
+    typedef unsigned long haddr_t;
+  #endif
+#endif
+
+// Definitions
+
+/*
 #define XDMF_DSM_DEFAULT_TAG    0x80
 #define XDMF_DSM_COMMAND_TAG    0x81
 #define XDMF_DSM_SERVER_ACK_TAG 0x82
@@ -70,6 +78,7 @@
 
 #define XDMF_DSM_ANY_TAG        -1
 #define XDMF_DSM_ANY_SOURCE     -2
+*/
 
 #define XDMF_DSM_TYPE_UNIFORM       0
 #define XDMF_DSM_TYPE_UNIFORM_RANGE 1
@@ -87,14 +96,34 @@
 #define XDMF_DSM_LOCK_ACQUIRE        0x03
 #define XDMF_DSM_LOCK_RELEASE        0x05
 
+#define XDMF_DSM_SET_NOTIFY          0x06
+#define XDMF_DSM_CLEAR_NOTIFY        0x07
+
 #define XDMF_DSM_ACCEPT              0x10
 #define XDMF_DSM_DISCONNECT          0x11
+
+#define XDMF_DSM_REGISTER_FILE       0x12
+#define XDMF_DSM_REQUEST_PAGES       0x13
+#define XDMF_DSM_REQUEST_FILE        0x14
+
+#define XDMF_DSM_OPCODE_RESIZE       0x15
+
+#define XDMF_DSM_REQUEST_ACCESS      0x16
+#define XDMF_DSM_UNLOCK_FILE         0x17
 
 #define XDMF_DSM_OPCODE_DONE         0xFF
 
 #define XDMF_DSM_SUCCESS  1
 #define XDMF_DSM_FAIL    -1
 
+#ifdef __cplusplus
+
+// Forward Declarations
+class XdmfHDF5WriterDSM;
+
+// Includes
+#include <map>
+#include <queue>
 
 /**
  * @brief Controls the data buffer for DSM.
@@ -107,68 +136,10 @@ class XDMFDSM_EXPORT XdmfDSMBuffer {
 
 public:
 
+  friend class XdmfHDF5WriterDSM;
+
   XdmfDSMBuffer();
   ~XdmfDSMBuffer();
-
-  /**
-   * Find the Id of the core that the provided address resides on.
-   *
-   * Example of use:
-   *
-   * C++
-   *
-   * @dontinclude ExampleXdmfDSMNoThread.cpp
-   * @skipline //#initMPI
-   * @until //#initMPI
-   * @skipline //#initwritevector
-   * @until //#initwritevector
-   * @skipline //#initwritergenerate
-   * @until //#initwritergenerate
-   * @skipline //#startworksection
-   * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
-   * @skipline //#declarebuffer
-   * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
-   * @skipline //#AddressToId
-   * @until //#AddressToId
-   * @skipline //#endworksection
-   * @until //#endworksection
-   * @skipline //#stopDSMwriter
-   * @until //#stopDSMwriter
-   * @skipline //#finalizeMPI
-   * @until //#finalizeMPI
-   *
-   * Python
-   *
-   * @dontinclude XdmfExampleDSMNoThread.py
-   * @skipline #//initMPI
-   * @until #//initMPI
-   * @skipline #//initwritevector
-   * @until #//initwritevector
-   * @skipline #//initwritergenerate
-   * @until #//initwritergenerate
-   * @skipline #//startworksection
-   * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
-   * @skipline #//AddressToId
-   * @until #//AddressToId
-   * @skipline #//stopDSMwriter
-   * @until #//stopDSMwriter
-   * @skipline #//finalizeMPI
-   * @until #//finalizeMPI
-   *
-   * @param     Address         The address to be found
-   * @return                    The id of the core that the address resides on
-   */
-  int AddressToId(int Address);
 
   /**
    * Broadcasts the provided comm from the specified core to all other cores. 
@@ -186,14 +157,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#BroadcastComm
    * @until //#BroadcastComm
    * @skipline //#endworksection
@@ -231,14 +198,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#BufferService
    * @until //#BufferService
    * @skipline //#endworksection
@@ -259,10 +222,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//BufferService
    * @until #//BufferService
    * @skipline #//stopDSMwriter
@@ -294,14 +255,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#BufferServiceLoop
    * @until //#BufferServiceLoop
    * @skipline //#endworksection
@@ -322,10 +279,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//BufferServiceLoop
    * @until #//BufferServiceLoop
    * @skipline #//stopDSMwriter
@@ -337,6 +292,61 @@ public:
    *                            end of the loop
    */
   void BufferServiceLoop(int *returnOpcode = 0);
+
+  /**
+   * Creates an internal buffer based on the information provided.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#Create
+   * @until //#Create
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//Create
+   * @until #//Create
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @param     newComm         The communicator that will be used.
+   * @param     startId         The index of the first server node
+   * @param     endId           The index of the last server node
+   */
+  void Create(MPI_Comm newComm, int startId = -1, int endId = -1);
 
   /**
    * Configures the Buffer to match the configuration details provided.
@@ -354,14 +364,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferrwriter
+   * @until //#getServerBufferwriter
    * @skipline //#ConfigureUniform
    * @until //#ConfigureUniform
    * @skipline //#endworksection
@@ -382,10 +388,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//ConfigureUniform
    * @until #//ConfigureUniform
    * @skipline #//stopDSMwriter
@@ -411,6 +415,73 @@ public:
                         long aBlockLength = 0, bool random = false);
 
   /**
+   * Attempts to connect the buffer to the port that is currently set.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfConnectTest.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#ReadDsmPortName
+   * @until //#ReadDsmPortName
+   * @skipline //#Connect
+   * @until //#Connect
+   * @skipline //#Disconnectmanager
+   * @until //#Disconnectmanager
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleConnectTest.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//ReadDsmPortName
+   * @until #//ReadDsmPortName
+   * @skipline #//Connect
+   * @until #//Connect
+   * @skipline #//Disconnectmanager
+   * 
+   * @param     persist         Whether to try to connect repeatedly
+   */
+  void Connect(bool persist = false);
+
+  /**
+   * Disconnects the buffer from the port it was connected to.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfConnectTest.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#ReadDsmPortName
+   * @until //#ReadDsmPortName
+   * @skipline //#Connect
+   * @until //#Connect
+   * @skipline //#Disconnectmanager
+   * @until //#Disconnectmanager
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleConnectTest.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//ReadDsmPortName
+   * @until #//ReadDsmPortName
+   * @skipline #//Connect
+   * @until #//Connect
+   * @skipline #//Disconnectmanager
+   * @until #//Disconnectmanager
+   */
+  void Disconnect();
+
+  /**
    * Gets data from the server cores.
    * It is not advised to use this function manually.
    *
@@ -427,14 +498,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#PutGet
    * @until //#PutGet
    * @skipline //#endworksection
@@ -458,6 +525,51 @@ public:
    *                            after retieval
    */
   void Get(long Address, long aLength, void *Data);
+
+  /**
+   * Gets data from the server cores. This version is for paged allocation.
+   * It is not advised to use this function manually.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#PutGetPaged
+   * @until //#PutGetPaged
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   *
+   * Python:
+   * Unusable in python unless an object of a cpointer type is passed via
+   *  wrapped code
+   * Use the XdmfHDF5WriterDSM for this functionality
+   *
+   * @param     pages           A pointer to the list of pages to be written to
+   * @param     numPages        The number of pages in the provided pointer
+   * @param     Address         The starting address of the data retrieved
+   * @param     aLength         The length of the data to be retrieved
+   * @param     Data            A pointer in which the data is to be stored
+   *                            after retieval
+   */
+  void Get(unsigned int * pages, unsigned int numPages, long Address, long aLength, void *Data);
 
   /**
    * Gets the starting address and ending address for the core of the provided Id.
@@ -521,14 +633,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetBlockLengthbuffer
    * @until //#GetBlockLengthbuffer
    * @skipline //#endworksection
@@ -549,10 +657,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetBlockLength
    * @until #//GetBlockLength
    * @skipline #//stopDSMwriter
@@ -580,14 +686,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetComm
    * @until //#GetComm
    * @skipline //#endworksection
@@ -608,10 +710,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetComm
    * @until #//GetComm
    * @skipline #//stopDSMwriter
@@ -640,14 +740,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetDataPointer
    * @until //#GetDataPointer
    * @skipline //#endworksection
@@ -668,10 +764,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetDataPointer
    * @until #//GetDataPointer
    * @skipline #//stopDSMwriter
@@ -699,14 +793,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
-   * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @until //#declarebufferr
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetDsmTypebuffer
    * @until //#GetDsmTypebuffer
    * @skipline //#endworksection
@@ -727,10 +817,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetDsmTypebuffer
    * @until #//GetDsmTypebuffer
    * @skipline #//stopDSMwriter
@@ -758,14 +846,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetEndAddress
    * @until //#GetEndAddress
    * @skipline //#endworksection
@@ -786,10 +870,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetEndAddress
    * @until #//GetEndAddress
    * @skipline #//stopDSMwriter
@@ -817,14 +899,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetEndServerId
    * @until //#GetEndServerId
    * @skipline //#endworksection
@@ -845,10 +923,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetEndServerId
    * @until #//GetEndServerId
    * @skipline #//stopDSMwriter
@@ -859,6 +935,59 @@ public:
    * @return    The id of the last core that serves as a DSM server
    */
   int GetEndServerId();
+
+  /**
+   * Gets the type of intercomm that the manager is currently using.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#GetInterCommType
+   * @until //#GetInterCommType
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//GetInterCommType
+   * @until #//GetInterCommType
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @return    They type of intercomm currently being used
+   */
+  int GetInterCommType();
 
   /**
    * Gets if the Buffer is connected to an intercomm
@@ -876,14 +1005,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetIsConnectedbuffer
    * @until //#GetIsConnectedbuffer
    * @skipline //#endworksection
@@ -904,10 +1029,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetIsConnectedbuffer
    * @until #//GetIsConnectedbuffer
    * @skipline #//stopDSMwriter
@@ -935,14 +1058,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetIsServerbuffer
    * @until //#GetIsServerbuffer
    * @skipline //#endworksection
@@ -963,10 +1082,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetIsServerbuffer
    * @until #//GetIsServerbuffer
    * @skipline #//stopDSMwriter
@@ -994,14 +1111,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetLength
    * @until //#GetLength
    * @skipline //#endworksection
@@ -1022,10 +1135,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetLength
    * @until #//GetLength
    * @skipline #//stopDSMwriter
@@ -1036,6 +1147,100 @@ public:
    * @return    The length of the data buffer per core
    */
   long GetLength();
+
+  /**
+   * Gets the maximum size of the local buffer on server cores.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#GetLocalBufferSizeMBytes
+   * @until //#GetLocalBufferSizeMBytes
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//GetLocalBufferSizeMBytes
+   * @until #//GetLocalBufferSizeMBytes
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @return    the maximum size of the data buffer on server cores
+   */
+  unsigned int GetLocalBufferSizeMBytes();
+
+  /**
+   * Gets the factor by which the size is multiplied when resizing the local buffer.
+   * A factor of 1 doubles the size of the local buffer when resizing.
+   * A factor of 0.5 adds half the original size of the buffer.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfAcceptTest.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#OpenPort
+   * @until //#OpenPort
+   * @skipline //#SendAccept
+   * @until //#SendAccept
+   * @skipline //#finishwork
+   * @until //#finishwork
+   * @skipline //#ClosePort
+   * @until //#ClosePort
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleAcceptTest.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//OpenPort
+   * @until #//OpenPort
+   * @skipline #//SendAccept
+   * @until #//SendAccept
+   * @skipline #//finishwork
+   * @until #//finishwork
+   * @skipline #//ClosePort
+   * @until #//ClosePort
+   *
+   * @return    The factor by which the buffer is resized.
+   */
+  double GetResizeFactor();
 
   /**
    * Gets the address at the beginning of the DSM buffer for this buffer.
@@ -1053,14 +1258,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetStartAddress
    * @until //#GetStartAddress
    * @skipline //#endworksection
@@ -1081,10 +1282,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetStartAddress
    * @until #//GetStartAddress
    * @skipline #//stopDSMwriter
@@ -1112,14 +1311,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetStartServerId
    * @until //#GetStartServerId
    * @skipline //#endworksection
@@ -1140,10 +1335,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetStartServerId
    * @until #//GetStartServerId
    * @skipline #//stopDSMwriter
@@ -1171,14 +1364,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetTotalLength
    * @until //#GetTotalLength
    * @skipline //#endworksection
@@ -1199,10 +1388,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetTotalLength
    * @until #//GetTotalLength
    * @skipline #//stopDSMwriter
@@ -1231,14 +1418,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#CommandHeader
    * @until //#CommandHeader
    * @skipline //#endworksection
@@ -1275,14 +1458,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#PutGet
    * @until //#PutGet
    * @skipline //#endworksection
@@ -1307,6 +1486,50 @@ public:
   void Put(long Address, long aLength, const void *Data);
 
   /**
+   * Puts data to the server cores.
+   * It is not advised to use this function manually.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#PutGetPaged
+   * @until //#PutGetPaged
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python:
+   * Unusable in python unless an object of a cpointer type is passed
+   * via wrapped code
+   * Use the XdmfHDF5WriterDSM for this functionality
+   *
+   * @param     pages           A pointer to the list of pages to be read from
+   * @param     numPages        The number of pages in the provided pointer
+   * @param     Address         The starting address that the data will
+   *                            be placed at
+   * @param     aLength         The length of the data to be sent
+   * @param     Data            A pointer to the data to be sent
+   */
+  void Put(unsigned int * pages, unsigned int numPages, haddr_t Address, haddr_t aLength, const void *Data);
+
+  /**
    * Recieves an integer as an acknowledgement from the specified core.
    * It is not advised to use this function manually.
    *
@@ -1323,14 +1546,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#SendRecvAcknowledgement
    * @until //#SendRecvAcknowledgement
    * @skipline //#endworksection
@@ -1350,10 +1569,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//SendAcknowledgment
    * @until #//SendAcknowledgment
    * @skipline #//ReceiveAcknowledgment
@@ -1388,14 +1605,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#CommandHeader
    * @until //#CommandHeader
    * @skipline //#endworksection
@@ -1441,14 +1654,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#SendRecvData
    * @until //#SendRecvData
    * @skipline //#endworksection
@@ -1520,6 +1729,148 @@ public:
   void ReceiveInfo();
 
   /**
+   * Registers a file with the provided information. Overwrites previously registered files.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#PageInfo
+   * @until //#PageInfo
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python:
+   * Unusable in python unless an object of a cpointer type is passed
+   * via wrapped code
+   * Use the XdmfHDF5WriterDSM for this functionality
+   *
+   * @param     name            The name of the file to be registered
+   * @param     pages           The pages associated with the file to be registered
+   * @param     numPages        The number of pages associated with the file to be registered
+   * @param     start           The starting address for the file to be registered
+   * @param     end             The ending address for the file to be registered
+   */
+  int RegisterFile(char * name,
+                   unsigned int * pages,
+                   unsigned int numPages,
+                   haddr_t start,
+                   haddr_t end);
+
+  /**
+   * Requests a file's information from the DSM.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#PageInfo
+   * @until //#PageInfo
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python:
+   * Unusable in python unless an object of a cpointer type is passed
+   * via wrapped code
+   * Use the XdmfHDF5WriterDSM for this functionality
+   *
+   * @param     name            The name of the file
+   * @param     pages           The pages associated with the file (output)
+   * @param     numPages        The number of pages associated with the file (output)
+   * @param     start           The starting address for the file (output)
+   * @param     end             The ending address for the file (output)
+   * @return                    XDMF_DSM_FAIL if the file does not exist in DSM,
+   *                            otherwise XDMF_DSM_SUCCESS
+   */
+  int RequestFileDescription(char * name,
+                             std::vector<unsigned int> & pages,
+                             unsigned int & numPages,
+                             haddr_t & start,
+                             haddr_t & end);
+
+  /**
+   * Requests additional pages to cover needed data.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#PutGetPaged
+   * @until //#PutGetPaged
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python:
+   * Unusable in python unless an object of a cpointer type is passed
+   * via wrapped code
+   * Use the XdmfHDF5WriterDSM for this functionality
+   *
+   * @param     name            The name of the file
+   * @param     spaceRequired   The space needed in bytes to fit the data needed
+   * @param     pages           The pages associated with the file (output)
+   * @param     numPages        The number of pages associated with the file (output)
+   * @param     start           The starting address for the file (output)
+   * @param     end             The ending address for the file (output)
+   */
+  void RequestPages(char * name,
+                    haddr_t spaceRequired,
+                    std::vector<unsigned int> & pages,
+                    unsigned int & numPages,
+                    haddr_t & start,
+                    haddr_t & end);
+
+  /**
    * Tells the server cores to prepare to accept a new connection.
    * Then readies to accept a new connection.
    *
@@ -1576,14 +1927,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#SendRecvAcknowledgement
    * @until //#SendRecvAcknowledgement
    * @skipline //#endworksection
@@ -1604,10 +1951,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//SendAcknowledgment
    * @until #//SendAcknowledgment
    * @skipline #//ReceiveAcknowledgment
@@ -1641,14 +1986,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#CommandHeader
    * @until //#CommandHeader
    * @skipline //#endworksection
@@ -1669,10 +2010,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//SendCommandHeader
    * @until #//SendCommandHeader
    * @skipline #//stopDSMwriter
@@ -1705,14 +2044,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#SendRecvData
    * @until //#SendRecvData
    * @skipline //#endworksection
@@ -1733,10 +2068,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//SendData
    * @until #//SendData
    * @skipline #//stopDSMwriter
@@ -1848,14 +2181,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetBlockLengthbuffer
    * @until //#GetBlockLengthbuffer
    * @skipline //#SetBlockLengthbuffer
@@ -1878,10 +2207,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetBlockLength
    * @until #//GetBlockLength
    * @skipline #//SetBlockLength
@@ -1911,14 +2238,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetComm
    * @until //#GetComm
    * @skipline //#SetComm
@@ -1941,10 +2264,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetComm
    * @until #//GetComm
    * @skipline #//SetComm
@@ -1974,14 +2295,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#SetDsmTypebuffer
    * @until //#SetDsmTypebuffer
    * @skipline //#endworksection
@@ -2002,10 +2319,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//SetDsmTypebuffer
    * @until #//SetDsmTypebuffer
    * @skipline #//stopDSMwriter
@@ -2016,6 +2331,59 @@ public:
    * @param     newDsmType      The Dsm type that the buffer will be changed to
    */
   void SetDsmType(int newDsmType);
+
+  /**
+   * Sets the type of intercomm that the DSM will use.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#SetInterCommType
+   * @until //#SetInterCommType
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//SetInterCommType
+   * @until #//SetInterCommType
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @param     newType         The type of intercomm to be generated for now on
+   */
+  void SetInterCommType(int newType);
 
   /**
    * Sets the Buffer's connection status. Used if the XdmfDSMCommMPI is
@@ -2034,14 +2402,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetIsConnectedbuffer
    * @until //#GetIsConnectedbuffer
    * @skipline //#SetIsConnectedbuffer
@@ -2064,10 +2428,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetIsConnectedbuffer
    * @until #//GetIsConnectedbuffer
    * @skipline #//SetIsConnectedbuffer
@@ -2080,6 +2442,65 @@ public:
    * @param     newStatus       The new connection status
    */
   void SetIsConnected(bool newStatus);
+
+  /**
+   * Sets the maximum size of the local buffer when generating data buffers for server cores.
+   * When using blocked mode it generates a buffer that is a multiple of the block size
+   * that is less than or equal to this number.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#GetLocalBufferSizeMBytes
+   * @until //#GetLocalBufferSizeMBytes
+   * @skipline //#SetLocalBufferSizeMBytes
+   * @until //#SetLocalBufferSizeMBytes
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//GetLocalBufferSizeMBytes
+   * @until #//GetLocalBufferSizeMBytes
+   * @skipline #//SetLocalBufferSizeMBytes
+   * @until #//SetLocalBufferSizeMBytes
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @param     newSize         The new maximum size of the data buffer on the server cores
+   */
+  void SetLocalBufferSizeMBytes(unsigned int newSize);
 
   /**
    * Sets whether the buffer is a DSM server.
@@ -2097,14 +2518,10 @@ public:
    * @until //#initwritergenerate
    * @skipline //#startworksection
    * @until //#startworksection
-   * @skipline //#declaremanager
-   * @until //#declaremanager
-   * @skipline //#getServerManagerwriter
-   * @until //#getServerManagerwriter
    * @skipline //#declarebuffer
    * @until //#declarebuffer
-   * @skipline //#GetDsmBuffer
-   * @until //#GetDsmBuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
    * @skipline //#GetIsServerbuffer
    * @until //#GetIsServerbuffer
    * @skipline //#endworksection
@@ -2125,10 +2542,8 @@ public:
    * @until #//initwritergenerate
    * @skipline #//startworksection
    * @until #//startworksection
-   * @skipline #//getServerManagerwriter
-   * @until #//getServerManagerwriter
-   * @skipline #//GetDsmBuffer
-   * @until #//GetDsmBuffer
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
    * @skipline #//GetIsServerbuffer
    * @until #//GetIsServerbuffer
    * @skipline #//SetIsServerbuffer
@@ -2142,8 +2557,192 @@ public:
    */
   void SetIsServer(bool newIsServer);
 
+  /**
+   * Gets the factor by which the size is multiplied when resizing the local buffer.
+   * A factor of 1 doubles the size of the local buffer when resizing.
+   * A factor of 0.5 adds half the original size of the buffer.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfAcceptTest.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#OpenPort
+   * @until //#OpenPort
+   * @skipline //#SendAccept
+   * @until //#SendAccept
+   * @skipline //#finishwork
+   * @until //#finishwork
+   * @skipline //#ClosePort
+   * @until //#ClosePort
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleAcceptTest.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//OpenPort
+   * @until #//OpenPort
+   * @skipline #//SendAccept
+   * @until #//SendAccept
+   * @skipline #//finishwork
+   * @until #//finishwork
+   * @skipline #//ClosePort
+   * @until #//ClosePort
+   *
+   * @param     newFactor       The factor by which the buffer is resized.
+   */
+  void SetResizeFactor(double newFactor);
+
+  /**
+   * Manually update the length of an individual core's buffer.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude ExampleXdmfDSMNoThread.cpp
+   * @skipline //#initMPI
+   * @until //#initMPI
+   * @skipline //#initwritevector
+   * @until //#initwritevector
+   * @skipline //#initwritergenerate
+   * @until //#initwritergenerate
+   * @skipline //#startworksection
+   * @until //#startworksection
+   * @skipline //#declarebuffer
+   * @until //#declarebuffer
+   * @skipline //#getServerBufferwriter
+   * @until //#getServerBufferwriter
+   * @skipline //#GetLength
+   * @until //#GetLength
+   * @skipline //#UpdateLength
+   * @until //#UpdateLength
+   * @skipline //#endworksection
+   * @until //#endworksection
+   * @skipline //#stopDSMwriter
+   * @until //#stopDSMwriter
+   * @skipline //#finalizeMPI
+   * @until //#finalizeMPI
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleDSMNoThread.py
+   * @skipline #//initMPI
+   * @until #//initMPI
+   * @skipline #//initwritevector
+   * @until #//initwritevector
+   * @skipline #//initwritergenerate
+   * @until #//initwritergenerate
+   * @skipline #//startworksection
+   * @until #//startworksection
+   * @skipline #//getServerBufferwriter
+   * @until #//getServerBufferwriter
+   * @skipline #//GetLength
+   * @until #//GetLength
+   * @skipline #//UpdateLength
+   * @until #//UpdateLength
+   * @skipline #//stopDSMwriter
+   * @until #//stopDSMwriter
+   * @skipline #//finalizeMPI
+   * @until #//finalizeMPI
+   *
+   * @param     newLength       The new buffer length, in bytes.
+   */
+  void UpdateLength(unsigned int newLength);
+
+  /**
+   * Releases all processes waiting on a specified dataset. Sends those processes a specified code.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfConnectTest2.cpp
+   * @skipline //#initDSMWriterConnectRequired
+   * @until //#initDSMWriterConnectRequired
+   * @skipline //#buffernotify
+   * @until //#buffernotify
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleConnectTest2.py
+   * @skipline #//initDSMWriterConnectRequired
+   * @until #//initDSMWriterConnectRequired
+   * @skipline #//buffernotify
+   * @until #//buffernotify
+   *
+   * @param     filename        The filename of the dataset to wait on.
+   * @param     datasetname     The dataset name of the dataset to wait on.
+   * @param     code            The code to be transmitted to waiting processes.
+   */
+  void WaitRelease(std::string filename, std::string datasetname, int code);
+
+  /**
+   * Blocks until released by the a waitRelease on the corresponding dataset.
+   *
+   * Example of use:
+   *
+   * C++
+   *
+   * @dontinclude XdmfConnectTest2.cpp
+   * @skipline //#initDSMWriterConnectRequired
+   * @until //#initDSMWriterConnectRequired
+   * @skipline //#buffernotify
+   * @until //#buffernotify
+   *
+   * Python
+   *
+   * @dontinclude XdmfExampleConnectTest2.py
+   * @skipline #//initDSMWriterConnectRequired
+   * @until #//initDSMWriterConnectRequired
+   * @skipline #//buffernotify
+   * @until #//buffernotify
+   *
+   * @param     filename        The filename of the dataset to wait on.
+   * @param     datasetname     The dataset name of the dataset to wait on.
+   * @return                    The code send from the release.
+   */
+  int WaitOn(std::string filename, std::string datasetname);
+
 protected:
 
+class XDMF_file_desc
+{
+  public:
+    XDMF_file_desc()
+    {
+      name = NULL;
+      start = 0;
+      end = 0;
+      numPages = 0;
+      pages = NULL;
+    }
+
+    ~XDMF_file_desc()
+    {
+    }
+
+    char * name;           /* filename                                */
+    haddr_t start;   /* current DSM start address               */
+    haddr_t end;     /* current DSM end address                 */
+    unsigned int numPages; /* number of pages assigned to the file    */
+    unsigned int * pages;  /* list of pages assigned to the file      */
+};
+
+  int AddressToId(int Address);
+
+  void Lock(char * filename);
+
+  int PageToId(int pageId);
+
+  int PageToAddress(int pageId);
+
+  void Unlock(char * filename);
 
 private:
 
@@ -2160,19 +2759,191 @@ private:
   int                   StartServerId;
   int                   EndServerId;
 
+  unsigned int          LocalBufferSizeMBytes;
   unsigned int          Length;
   unsigned int          TotalLength;
   unsigned int          BlockLength;
 
-  XdmfDSMCommMPI        *Comm;
+  XdmfDSMCommMPI *      Comm;
 
-  char                  *DataPointer;
+  char *                DataPointer;
+  unsigned int          NumPages;
+  unsigned int          PagesAssigned;
 
   int                   DsmType;
 
+  int                   InterCommType;
+
   int                   CommChannel;
   bool                  IsConnected;
+
+  double                ResizeFactor;
+
+  std::map<std::string, std::vector<unsigned int> > WaitingMap;
+
+  std::map<std::string, std::queue<unsigned int> > LockedMap;
+  std::map<std::string, int> FileOwners;
+
+  std::map<std::string, XdmfDSMBuffer::XDMF_file_desc *> FileDefinitions;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFDSMBUFFER; // Simply as a typedef to ensure correct typing
+typedef struct XDMFDSMBUFFER XDMFDSMBUFFER;
+
+XDMFDSM_EXPORT XDMFDSMBUFFER * XdmfDSMBufferNew();
+
+XDMFDSM_EXPORT void XdmfDSMBufferFree(XDMFDSMBUFFER * item);
+
+XDMFDSM_EXPORT int XdmfDSMBufferAddressToId(XDMFDSMBUFFER * buffer, int Address, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferBroadcastComm(XDMFDSMBUFFER * buffer, int *comm, int root, int * status);
+
+XDMFDSM_EXPORT int XdmfDSMBufferBufferService(XDMFDSMBUFFER * buffer, int *returnOpcode, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferBufferServiceLoop(XDMFDSMBUFFER * buffer, int *returnOpcode, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferConfigureUniform(XDMFDSMBUFFER * buffer,
+                                                  XDMFDSMCOMMMPI * Comm,
+                                                  long Length,
+                                                  int StartId,
+                                                  int EndId,
+                                                  long aBlockLength,
+                                                  int random,
+                                                  int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferConnect(XDMFDSMBUFFER * buffer, int persist, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferCreate(XDMFDSMBUFFER * buffer, MPI_Comm comm, int startId, int endId, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferDisconnect(XDMFDSMBUFFER * buffer, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferGet(XDMFDSMBUFFER * buffer, long Address, long aLength, void * Data, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferGetAddressRangeForId(XDMFDSMBUFFER * buffer, int Id, int * Start, int * End, int * status);
+
+XDMFDSM_EXPORT long XdmfDSMBufferGetBlockLength(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT XDMFDSMCOMMMPI * XdmfDSMBufferGetComm(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT char * XdmfDSMBufferGetDataPointer(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetDsmType(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetEndAddress(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetEndServerId(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetInterCommType(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetIsConnected(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetIsServer(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT long XdmfDSMBufferGetLength(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT unsigned int XdmfDSMBufferGetLocalBufferSizeMBytes(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT double XdmfDSMBufferGetResizeFactor(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetStartAddress(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT int XdmfDSMBufferGetStartServerId(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT long XdmfDSMBufferGetTotalLength(XDMFDSMBUFFER * buffer);
+
+XDMFDSM_EXPORT void XdmfDSMBufferProbeCommandHeader(XDMFDSMBUFFER * buffer, int * comm, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferPut(XDMFDSMBUFFER * buffer, long Address, long aLength, void * Data, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferReceiveAcknowledgment(XDMFDSMBUFFER * buffer,
+                                                       int source,
+                                                       int * data,
+                                                       int tag,
+                                                       int comm,
+                                                       int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferReceiveCommandHeader(XDMFDSMBUFFER * buffer,
+                                                      int * opcode,
+                                                      int * source,
+                                                      int * address,
+                                                      int * aLength,
+                                                      int comm,
+                                                      int remoteSource,
+                                                      int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferReceiveData(XDMFDSMBUFFER * buffer,
+                                             int source,
+                                             char * data,
+                                             int aLength,
+                                             int tag,
+                                             int aAddress,
+                                             int comm,
+                                             int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferReceiveInfo(XDMFDSMBUFFER * buffer,
+                                             int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendAccept(XDMFDSMBUFFER * buffer, unsigned int numConnects);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendAcknowledgment(XDMFDSMBUFFER * buffer,
+                                                    int dest,
+                                                    int data,
+                                                    int tag,
+                                                    int comm,
+                                                    int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendCommandHeader(XDMFDSMBUFFER * buffer,
+                                                   int opcode,
+                                                   int dest,
+                                                   int address,
+                                                   int aLength,
+                                                   int comm,
+                                                   int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendData(XDMFDSMBUFFER * buffer,
+                                          int dest,
+                                          char * data,
+                                          int aLength,
+                                          int tag,
+                                          int aAddress,
+                                          int comm,
+                                          int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendDone(XDMFDSMBUFFER * buffer, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSendInfo(XDMFDSMBUFFER * buffer, int * status);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetBlockLength(XDMFDSMBUFFER * buffer, long newBlock);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetComm(XDMFDSMBUFFER * buffer, XDMFDSMCOMMMPI * newComm);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetDsmType(XDMFDSMBUFFER * buffer, int newDsmType);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetInterCommType(XDMFDSMBUFFER * buffer, int newType);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetIsConnected(XDMFDSMBUFFER * buffer, int newStatus);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetIsServer(XDMFDSMBUFFER * buffer, int newIsServer);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetLocalBufferSizeMBytes(XDMFDSMBUFFER * buffer, unsigned int newSize);
+
+XDMFDSM_EXPORT void XdmfDSMBufferSetResizeFactor(XDMFDSMBUFFER * buffer, double newFactor);
+
+XDMFDSM_EXPORT void XdmfDSMBufferWaitRelease(XDMFDSMBUFFER * buffer, char * filename, char * datasetname, int code);
+
+XDMFDSM_EXPORT int XdmfDSMBufferWaitOn(XDMFDSMBUFFER * buffer, char * filename, char * datasetname);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFDSMBUFFER_HPP_ */
 

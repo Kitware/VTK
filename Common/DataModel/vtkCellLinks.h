@@ -42,13 +42,11 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellLinks : public vtkAbstractCellLinks
 {
 public:
 
-  //BTX
   class Link {
   public:
     unsigned short ncells;
     vtkIdType *cells;
   };
-  //ETX
 
   // Description:
   // Standard methods to instantiate, print, and obtain type information.
@@ -162,8 +160,8 @@ protected:
   Link *Resize(vtkIdType sz);  // function to resize data
 
 private:
-  vtkCellLinks(const vtkCellLinks&);  // Not implemented.
-  void operator=(const vtkCellLinks&);  // Not implemented.
+  vtkCellLinks(const vtkCellLinks&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCellLinks&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

@@ -102,8 +102,8 @@ protected:
   vtkIdType NumberOfBuckets; // total size of locator
 
 private:
-  vtkAbstractPointLocator(const vtkAbstractPointLocator&);  // Not implemented.
-  void operator=(const vtkAbstractPointLocator&);  // Not implemented.
+  vtkAbstractPointLocator(const vtkAbstractPointLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractPointLocator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

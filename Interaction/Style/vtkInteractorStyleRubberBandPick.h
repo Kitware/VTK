@@ -67,8 +67,8 @@ protected:
   int CurrentMode;
 
 private:
-  vtkInteractorStyleRubberBandPick(const vtkInteractorStyleRubberBandPick&);  // Not implemented
-  void operator=(const vtkInteractorStyleRubberBandPick&);  // Not implemented
+  vtkInteractorStyleRubberBandPick(const vtkInteractorStyleRubberBandPick&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleRubberBandPick&) VTK_DELETE_FUNCTION;
 };
 
 #endif

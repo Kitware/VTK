@@ -79,7 +79,7 @@ int vtkQImageToImageSource::RequestData( vtkInformation *vtkNotUsed(request),
   output->SetExtent(this->DataExtent);
   output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
-  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast( output->GetPointData()->GetScalars() );
+  vtkUnsignedCharArray* array = vtkArrayDownCast<vtkUnsignedCharArray>( output->GetPointData()->GetScalars() );
 
   int i, j;
   unsigned char temp[4];

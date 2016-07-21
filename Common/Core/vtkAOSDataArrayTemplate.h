@@ -160,21 +160,24 @@ public:
   static vtkAOSDataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
-    switch (source->GetArrayType())
+    if (source)
       {
-      case vtkAbstractArray::AoSDataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-          return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
-          }
-        break;
+      switch (source->GetArrayType())
+        {
+        case vtkAbstractArray::AoSDataArrayTemplate:
+          if (vtkDataTypesCompare(source->GetDataType(),
+                                  vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+            {
+            return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
+            }
+          break;
+        }
       }
     return NULL;
   }
 
   virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
-  virtual vtkArrayIterator *NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   virtual bool HasStandardMemoryLayout() { return true; }
   virtual void ShallowCopy(vtkDataArray *other);
 
@@ -186,7 +189,15 @@ public:
   VTK_LEGACY(void InsertTupleValue(vtkIdType tupleIdx, const ValueType *tuple));
   VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
 
-  //BTX
+  // Reimplemented for efficiency:
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+//  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source)
+  { this->Superclass::InsertTuples(dstIds, srcIds, source); }
+
 protected:
   vtkAOSDataArrayTemplate();
   ~vtkAOSDataArrayTemplate();
@@ -204,12 +215,12 @@ protected:
   vtkBuffer<ValueType> *Buffer;
 
 private:
-  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&); // Not implemented.
-  void operator=(const vtkAOSDataArrayTemplate&); // Not implemented.
+  vtkAOSDataArrayTemplate(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAOSDataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   friend class vtkGenericDataArray<vtkAOSDataArrayTemplate<ValueTypeT>,
                                    ValueTypeT>;
-  //ETX
+
 };
 
 // Declare vtkArrayDownCast implementations for AoS containers:

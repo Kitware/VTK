@@ -123,8 +123,8 @@ protected:
   double             TextPosition[3];
 
 private:
-  vtkAngleRepresentation3D(const vtkAngleRepresentation3D&);  //Not implemented
-  void operator=(const vtkAngleRepresentation3D&);  //Not implemented
+  vtkAngleRepresentation3D(const vtkAngleRepresentation3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAngleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

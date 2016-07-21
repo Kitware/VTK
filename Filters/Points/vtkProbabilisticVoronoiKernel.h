@@ -74,8 +74,8 @@ protected:
   ~vtkProbabilisticVoronoiKernel();
 
 private:
-  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
-  void operator=(const vtkProbabilisticVoronoiKernel&);  // Not implemented.
+  vtkProbabilisticVoronoiKernel(const vtkProbabilisticVoronoiKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProbabilisticVoronoiKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

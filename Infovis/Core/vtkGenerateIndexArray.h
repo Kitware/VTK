@@ -75,7 +75,6 @@ public:
   vtkSetMacro(PedigreeID, int);
   vtkGetMacro(PedigreeID, int);
 
-//BTX
   enum
   {
     ROW_DATA = 0,
@@ -84,7 +83,6 @@ public:
     VERTEX_DATA = 3,
     EDGE_DATA = 4
   };
-//ETX
 
 protected:
   vtkGenerateIndexArray();
@@ -111,8 +109,8 @@ protected:
   int PedigreeID;
 
 private:
-  vtkGenerateIndexArray(const vtkGenerateIndexArray&);  // Not implemented.
-  void operator=(const vtkGenerateIndexArray&);  // Not implemented.
+  vtkGenerateIndexArray(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenerateIndexArray&) VTK_DELETE_FUNCTION;
 };
 
 #endif

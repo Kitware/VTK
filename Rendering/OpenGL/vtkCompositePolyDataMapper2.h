@@ -77,7 +77,6 @@ public:
   void RemoveBlockOpacity(unsigned int index);
   void RemoveBlockOpacities();
 
-//BTX
 protected:
   vtkCompositePolyDataMapper2();
   ~vtkCompositePolyDataMapper2();
@@ -116,9 +115,9 @@ private:
   bool LastOpaqueCheckValue;
 
 private:
-  vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&); // Not implemented.
-  void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
-//ETX
+  vtkCompositePolyDataMapper2(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

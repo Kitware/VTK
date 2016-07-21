@@ -118,8 +118,8 @@ protected:
   int ModifierActive;
 
 private:
-  vtkAffineWidget(const vtkAffineWidget&);  //Not implemented
-  void operator=(const vtkAffineWidget&);  //Not implemented
+  vtkAffineWidget(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAffineWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

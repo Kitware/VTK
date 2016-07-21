@@ -58,12 +58,10 @@ public:
   // used when UserManagedInputs is true, use SetInputByNumber (NULL) instead.
   void RemoveInputData(vtkSelection *);
 
-//BTX
   // Description:
   // Get any input of this filter.
   vtkSelection *GetInput(int idx);
   vtkSelection *GetInput() { return this->GetInput( 0 ); };
-//ETX
 
   // Description:
   // Directly set(allocate) number of inputs, should only be used
@@ -101,8 +99,8 @@ protected:
   int UserManagedInputs;
   int AppendByUnion;
 private:
-  vtkAppendSelection(const vtkAppendSelection&);  // Not implemented.
-  void operator=(const vtkAppendSelection&);  // Not implemented.
+  vtkAppendSelection(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAppendSelection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

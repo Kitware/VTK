@@ -46,9 +46,7 @@ public:
   void GenerateBinaryData();
   bool HasChanged();
 
-  //BTX
   std::string GetMD5();
-  //ETX
 
 protected:
   vtkWebGLDataSet();
@@ -72,8 +70,8 @@ protected:
   std::string MD5;
 
 private:
-  vtkWebGLDataSet(const vtkWebGLDataSet&); // Not implemented
-  void operator=(const vtkWebGLDataSet&);   // Not implemented
+  vtkWebGLDataSet(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLDataSet&) VTK_DELETE_FUNCTION;
 };
 
 #endif

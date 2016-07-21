@@ -38,14 +38,12 @@ public:
   vtkTypeMacro(vtkThresholdTable, vtkTableAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum {
     ACCEPT_LESS_THAN = 0,
     ACCEPT_GREATER_THAN = 1,
     ACCEPT_BETWEEN = 2,
     ACCEPT_OUTSIDE = 3
     };
-  //ETX
 
   // Description:
   // The mode of the threshold filter.  Options are:
@@ -123,8 +121,8 @@ protected:
   int Mode;
 
 private:
-  vtkThresholdTable(const vtkThresholdTable&); // Not implemented
-  void operator=(const vtkThresholdTable&);   // Not implemented
+  vtkThresholdTable(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThresholdTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkProbeSelectedLocations, vtkExtractSelectionBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
 protected:
   vtkProbeSelectedLocations();
   ~vtkProbeSelectedLocations();
@@ -50,9 +49,9 @@ protected:
     vtkInformationVector *);
 
 private:
-  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&); // Not implemented.
-  void operator=(const vtkProbeSelectedLocations&); // Not implemented.
-//ETX
+  vtkProbeSelectedLocations(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProbeSelectedLocations&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

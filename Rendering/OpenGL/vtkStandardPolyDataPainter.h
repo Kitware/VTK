@@ -55,7 +55,7 @@ public:
   static vtkStandardPolyDataPainter *New();
 
   void AddMultiTextureCoordsArray(vtkDataArray * array);
-//BTX
+
 protected:
   vtkStandardPolyDataPainter();
   ~vtkStandardPolyDataPainter();
@@ -81,12 +81,12 @@ protected:
 
   vtkIdType TotalCells;
 private:
-  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&); // Not implemented.
-  void operator=(const vtkStandardPolyDataPainter&); // Not implemented.
+  vtkStandardPolyDataPainter(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStandardPolyDataPainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;
-//ETX
+
 };
 
 #endif //vtkStandardPolyDataPainter_h

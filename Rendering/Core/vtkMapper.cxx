@@ -410,7 +410,16 @@ void vtkMapper::ShallowCopy(vtkAbstractMapper *mapper)
 vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha)
 {
   vtkDataSet *input = this->GetInput();
-  return this->MapScalars(input,alpha);
+  int cellFlag; //not used
+  return this->MapScalars(input,alpha,cellFlag);
+}
+
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(double alpha, int &cellFlag)
+{
+  vtkDataSet *input = this->GetInput();
+  return this->MapScalars(input,alpha,cellFlag);
 }
 
 //-----------------------------------------------------------------------------
@@ -454,7 +463,7 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
       }
 
     if ((this->ColorMode == VTK_COLOR_MODE_DEFAULT &&
-         vtkUnsignedCharArray::SafeDownCast(scalars)) ||
+         vtkArrayDownCast<vtkUnsignedCharArray>(scalars)) ||
         this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS)
       {
       // Don't use texture is direct coloring using RGB unsigned chars is
@@ -466,13 +475,19 @@ int vtkMapper::CanUseTextureMapForColoring(vtkDataObject* input)
   return 1;
 }
 
-// a side effect of this is that this->Colors is also set
-// to the return value
 vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
                                             double alpha)
 {
   int cellFlag = 0;
+  return this->MapScalars(input, alpha, cellFlag);
+}
 
+// a side effect of this is that this->Colors is also set
+// to the return value
+vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
+                                            double alpha,
+                                            int &cellFlag)
+{
   vtkAbstractArray *scalars = NULL;
   if (!this->UseInvertibleColors)
     {
@@ -509,7 +524,7 @@ vtkUnsignedCharArray *vtkMapper::MapScalars(vtkDataSet *input,
       }
 
     // Get the lookup table.
-    vtkDataArray *dataArray = vtkDataArray::SafeDownCast(scalars);
+    vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(scalars);
     if (dataArray && dataArray->GetLookupTable())
       {
       this->SetLookupTable(dataArray->GetLookupTable());
@@ -679,7 +694,7 @@ void vtkMapper::CreateDefaultLookupTable()
     GetAbstractScalars(this->GetInput(), this->ScalarMode, this->ArrayAccessMode,
                        this->ArrayId, this->ArrayName, cellFlag);
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
   if (abstractArray && !dataArray)
     {
     // Use indexed lookup for non-numeric arrays
@@ -819,6 +834,13 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
 
   this->Modified();
 
+  // Ensure the scalar range is initialized
+  vtkDataArray *dataArray = vtkArrayDownCast<vtkDataArray>(abstractArray);
+  if (dataArray && scalarRange[0] > scalarRange[1])
+    {
+    scalarRange = dataArray->GetRange();
+    }
+
   this->ScalarMode = scalarMode;
   this->ArrayComponent = arrayComponent;
   this->SetScalarRange(scalarRange);
@@ -848,7 +870,6 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = NULL;
     }
 
-  vtkDataArray *dataArray = vtkDataArray::SafeDownCast(abstractArray);
   if (!dataArray)
     {
     vtkLookupTable* table = vtkLookupTable::New();
@@ -864,6 +885,9 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
     this->LookupTable = vtkMapper::InvertibleLookupTable;
     this->LookupTable->Register(this);
     }
+
+    // Update the component in either case.
+    this->LookupTable->SetVectorComponent(arrayComponent);
 }
 
 //-------------------------------------------------------------------
@@ -882,6 +906,7 @@ void vtkMapper::ClearInvertibleColor()
     }
 }
 
+//-------------------------------------------------------------------
 // Return the method of coloring scalar data.
 const char *vtkMapper::GetColorModeAsString(void)
 {
@@ -1271,4 +1296,42 @@ void vtkMapper::PrintSelf(ostream& os, vtkIndent indent)
      << this->CoincidentLineFactor << "\n";
   os << indent << "CoincidentPolygonFactor: "
      << this->CoincidentPolygonFactor << "\n";
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::ClearColorArrays()
+{
+  if (this->Colors)
+    {
+    this->Colors->Delete();
+    this->Colors = NULL;
+    }
+  if (this->ColorCoordinates)
+    {
+    this->ColorCoordinates->Delete();
+    this->ColorCoordinates = NULL;
+    }
+  if (this->ColorTextureMap)
+    {
+    this->ColorTextureMap->Delete();
+    this->ColorTextureMap = NULL;
+    }
+}
+
+//-------------------------------------------------------------------
+vtkUnsignedCharArray *vtkMapper::GetColorMapColors()
+{
+  return this->Colors;
+}
+
+//-------------------------------------------------------------------
+vtkFloatArray *vtkMapper::GetColorCoordinates()
+{
+  return this->ColorCoordinates;
+}
+
+//-------------------------------------------------------------------
+vtkImageData* vtkMapper::GetColorTextureMap()
+{
+  return this->ColorTextureMap;
 }

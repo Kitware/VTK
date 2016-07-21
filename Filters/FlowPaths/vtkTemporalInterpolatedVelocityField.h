@@ -46,9 +46,8 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // because it is good
-//BTX
+
 #include <vector> // Because they are good
-//ETX
 
 #define ID_INSIDE_ALL  00
 #define ID_OUTSIDE_ALL 01
@@ -152,19 +151,19 @@ protected:
   double OneMinusWeight;
   // A scaling factor used when calculating the CurrentWeight { 1.0/(T2-T1) }
   double ScaleCoeff;
-//BTX
+
   vtkSmartPointer<vtkCachingInterpolatedVelocityField> IVF[2];
   // we want to keep track of static datasets so we can optimize caching
   std::vector<bool> StaticDataSets;
-//ETX
+
 private:
   // Hide this since we need multiple time steps and are using a different
   // function prototype
   virtual void AddDataSet(vtkDataSet*) {}
 
 private:
-  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&);  // Not implemented.
-  void operator=(const vtkTemporalInterpolatedVelocityField&);  // Not implemented.
+  vtkTemporalInterpolatedVelocityField(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

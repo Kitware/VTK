@@ -67,7 +67,7 @@ public:
   virtual void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod);
   virtual unsigned long GetActualMemorySize(); // in bytes
   virtual int IsNumeric();
-  virtual vtkArrayIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
   virtual vtkVariant GetVariantValue(vtkIdType idx);
   virtual vtkIdType LookupValue(vtkVariant value);
   virtual void LookupValue(vtkVariant value, vtkIdList* ids);
@@ -91,13 +91,12 @@ protected:
   ~vtkUnicodeStringArray();
 
 private:
-  vtkUnicodeStringArray(const vtkUnicodeStringArray&);  // Not implemented.
-  void operator=(const vtkUnicodeStringArray&);  // Not implemented.
+  vtkUnicodeStringArray(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;
 
-//BTX
   class Implementation;
   Implementation* Internal;
-//ETX
+
 };
 
 #endif

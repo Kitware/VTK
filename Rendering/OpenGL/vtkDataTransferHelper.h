@@ -187,7 +187,7 @@ public:
   // Description:
   // Returns if the context supports the required extensions.
   static bool IsSupported(vtkRenderWindow* renWin);
-//BTX
+
 protected:
   vtkDataTransferHelper();
   ~vtkDataTransferHelper();
@@ -213,9 +213,9 @@ protected:
   // We try to reuse the PBO if possible.
   vtkSmartPointer<vtkPixelBufferObject> PBO;
 private:
-  vtkDataTransferHelper(const vtkDataTransferHelper&); // Not implemented.
-  void operator=(const vtkDataTransferHelper&); // Not implemented.
-//ETX
+  vtkDataTransferHelper(const vtkDataTransferHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataTransferHelper&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

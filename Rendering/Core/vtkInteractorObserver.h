@@ -155,7 +155,6 @@ public:
   static void ComputeWorldToDisplay(vtkRenderer *ren, double x, double y,
                                     double z, double displayPt[3]);
 
-  //BTX
   // Description:
   // These methods enable an interactor observer to exclusively grab all
   // events invoked by its associated vtkRenderWindowInteractor. (This method
@@ -167,7 +166,6 @@ public:
   // mouse events.)
   void GrabFocus(vtkCommand *mouseEvents, vtkCommand *keypressEvents=NULL);
   void ReleaseFocus();
-  //ETX
 
 protected:
   vtkInteractorObserver();
@@ -253,8 +251,8 @@ protected:
   int RequestCursorShape(int requestedShape);
 
 private:
-  vtkInteractorObserver(const vtkInteractorObserver&);  // Not implemented.
-  void operator=(const vtkInteractorObserver&);  // Not implemented.
+  vtkInteractorObserver(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorObserver&) VTK_DELETE_FUNCTION;
 
 };
 

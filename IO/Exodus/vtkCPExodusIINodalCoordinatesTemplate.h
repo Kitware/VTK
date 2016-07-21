@@ -53,7 +53,7 @@ public:
   void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output);
   void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
   void Squeeze();
-  vtkArrayIterator *NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   vtkIdType LookupValue(vtkVariant value);
   void LookupValue(vtkVariant value, vtkIdList *ids);
   vtkVariant GetVariantValue(vtkIdType idx);
@@ -113,9 +113,9 @@ protected:
 
 private:
   vtkCPExodusIINodalCoordinatesTemplate(
-      const vtkCPExodusIINodalCoordinatesTemplate &); // Not implemented.
+      const vtkCPExodusIINodalCoordinatesTemplate &) VTK_DELETE_FUNCTION;
   void operator=(
-      const vtkCPExodusIINodalCoordinatesTemplate &); // Not implemented.
+      const vtkCPExodusIINodalCoordinatesTemplate &) VTK_DELETE_FUNCTION;
 
   vtkIdType Lookup(const Scalar &val, vtkIdType startIndex);
   double *TempDoubleArray;

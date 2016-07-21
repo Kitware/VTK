@@ -31,7 +31,7 @@
 
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 namespace vtk
 {
 namespace detail
@@ -129,7 +129,7 @@ public:
 } // namespace smp
 } // namespace detail
 } // namespace vtk
-#endif // __WRAP__
+#endif // __VTK_WRAP__
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 class VTKCOMMONCORE_EXPORT vtkSMPTools

@@ -125,12 +125,10 @@ public:
   // Get a pointer to the idx'th histogram filter.
   vtkExtractHistogram2D* GetHistogramFilter(int idx);
 
-//BTX
   enum OutputIndices
   {
     HISTOGRAM_IMAGE=3
   };
-//ETX
 
   // Description:
   // Given a collection of models, calculate aggregate model.  Not used
@@ -144,12 +142,10 @@ protected:
   int ScalarType;
   int CustomColumnRangeIndex;
 
-  //BTX
   vtkSmartPointer<vtkIdTypeArray> OutputOutlierIds;
   vtkSmartPointer<vtkCollection> HistogramFilters;
   class Internals;
   Internals* Implementation;
-  //ETX
 
   // Description:
   // Execute the calculations required by the Learn option.
@@ -189,8 +185,8 @@ protected:
 
   vtkTimeStamp BuildTime;
 private:
-  vtkPairwiseExtractHistogram2D(const vtkPairwiseExtractHistogram2D&); // Not implemented
-  void operator=(const vtkPairwiseExtractHistogram2D&);   // Not implemented
+  vtkPairwiseExtractHistogram2D(const vtkPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPairwiseExtractHistogram2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

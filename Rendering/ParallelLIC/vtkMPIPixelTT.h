@@ -23,7 +23,6 @@
 // to the appropriate C or MPI datatype.
 template<typename T> class vtkMPIPixelTT;
 
-//BTX
 #define vtkMPIPixelTTMacro1(_ctype) \
 template<> \
 class vtkMPIPixelTT<_ctype> \
@@ -48,6 +47,6 @@ vtkMPIPixelTTMacro1(double)
 //vtkMPIPixelTTMacro1(vtkIdType)
 vtkMPIPixelTTMacro1(long long)
 vtkMPIPixelTTMacro1(unsigned long long)
-//ETX
+
 #endif
 // VTK-HeaderTest-Exclude: vtkMPIPixelTT.h

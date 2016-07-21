@@ -94,8 +94,8 @@ protected:
   long *ObserverTags;
 
 private:
-  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&);  // Not implemented.
-  void operator=(const vtkImageOrthoPlanes&);  // Not implemented.
+  vtkImageOrthoPlanes(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageOrthoPlanes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

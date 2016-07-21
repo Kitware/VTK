@@ -15,6 +15,7 @@
 #include "vtkInformationObjectBaseVectorKey.h"
 #include "vtkInformation.h" // For vtkErrorWithObjectMacro
 #include "vtkSmartPointer.h"
+#include <algorithm>
 #include <vector>
 
 
@@ -22,6 +23,8 @@
 class vtkInformationObjectBaseVectorValue: public vtkObjectBase
 {
 public:
+  typedef std::vector<vtkSmartPointer<vtkObjectBase> > VectorType;
+
   vtkTypeMacro(vtkInformationObjectBaseVectorValue, vtkObjectBase);
   std::vector<vtkSmartPointer<vtkObjectBase> > &GetVector()
   {
@@ -142,6 +145,49 @@ void vtkInformationObjectBaseVectorKey::Set(
     }
   // Set.
   base->GetVector()[i]=aValue;
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationObjectBaseVectorKey::Remove(vtkInformation *info,
+                                               vtkObjectBase *val)
+{
+  if (!this->ValidateDerivedType(info, val))
+    {
+    return;
+    }
+  vtkInformationObjectBaseVectorValue *base = this->GetObjectBaseVector(info);
+
+  typedef vtkInformationObjectBaseVectorValue::VectorType Vector;
+  Vector &vector = base->GetVector();
+  Vector::iterator end = std::remove(vector.begin(), vector.end(), val);
+  if (end != vector.end())
+    {
+    vector.resize(std::distance(vector.begin(), end));
+    if (val)
+      {
+      val->UnRegister(base);
+      }
+    }
+}
+
+//----------------------------------------------------------------------------
+void vtkInformationObjectBaseVectorKey::Remove(vtkInformation *info, int idx)
+{
+  typedef vtkInformationObjectBaseVectorValue::VectorType Vector;
+  vtkInformationObjectBaseVectorValue *base = this->GetObjectBaseVector(info);
+  Vector &vector = base->GetVector();
+  if (idx >= static_cast<int>(vector.size()))
+    {
+    return;
+    }
+
+  vtkObjectBase *val = vector[idx];
+  if (val)
+    {
+    val->UnRegister(base);
+    }
+
+  vector.erase(vector.begin() + idx);
 }
 
 //----------------------------------------------------------------------------

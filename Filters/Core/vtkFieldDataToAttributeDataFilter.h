@@ -212,12 +212,10 @@ public:
   // Specify an array name for one of the components.
   static void SetArrayName(vtkObject *self, char* &name, const char *newName);
 
-//BTX
   // Description:
   // Update the maximum and minimum component range values. Returns a flag
   // indicating whether the range was updated.
   static int UpdateComponentRange(vtkDataArray *da, vtkIdType compRange[2]);
-//ETX
 
   // Description:
   // If output does not need exact extent, the I do not either.
@@ -288,8 +286,8 @@ protected:
   void ConstructFieldData(int num, vtkDataSetAttributes *attr);
 
 private:
-  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&);  // Not implemented.
-  void operator=(const vtkFieldDataToAttributeDataFilter&);  // Not implemented.
+  vtkFieldDataToAttributeDataFilter(const vtkFieldDataToAttributeDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFieldDataToAttributeDataFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

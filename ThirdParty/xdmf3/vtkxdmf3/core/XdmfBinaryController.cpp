@@ -2,7 +2,7 @@
 /*                                    Xdmf                                   */
 /*                       eXtensible Data Model and Format                    */
 /*                                                                           */
-/*  Id : XdmfBinaryController.cpp                                              */
+/*  Id : XdmfBinaryController.cpp                                            */
 /*                                                                           */
 /*  Author:                                                                  */
 /*     Kenneth Leiter                                                        */
@@ -82,7 +82,31 @@ XdmfBinaryController::New(const std::string & filePath,
                                                               type,
                                                               endian,
                                                               seek,
+                                                              std::vector<unsigned int>(dimensions.size(), 0),
+                                                              std::vector<unsigned int>(dimensions.size(), 1),
+                                                              dimensions,
                                                               dimensions));
+  return p;
+}
+
+shared_ptr<XdmfBinaryController>
+XdmfBinaryController::New(const std::string & filePath,
+                          const shared_ptr<const XdmfArrayType> & type,
+                          const Endian & endian,
+                          const unsigned int seek,
+                          const std::vector<unsigned int> & starts,
+                          const std::vector<unsigned int> & strides,
+                          const std::vector<unsigned int> & dimensions,
+                          const std::vector<unsigned int> & dataspaces)
+{
+  shared_ptr<XdmfBinaryController> p(new XdmfBinaryController(filePath,
+                                                              type,
+                                                              endian,
+                                                              seek,
+                                                              starts,
+                                                              strides,
+                                                              dimensions,
+                                                              dataspaces));
   return p;
 }
 
@@ -90,12 +114,25 @@ XdmfBinaryController::XdmfBinaryController(const std::string & filePath,
                                            const shared_ptr<const XdmfArrayType> & type,
                                            const Endian & endian,
                                            const unsigned int seek,
-                                           const std::vector<unsigned int> & dimensions) :
+                                           const std::vector<unsigned int> & starts,
+                                           const std::vector<unsigned int> & strides,
+                                           const std::vector<unsigned int> & dimensions,
+                                           const std::vector<unsigned int> & dataspaces) :
   XdmfHeavyDataController(filePath,
                           type,
-                          dimensions),
+                          starts,
+                          strides,
+                          dimensions,
+                          dataspaces),
   mEndian(endian),
   mSeek(seek)
+{
+}
+
+XdmfBinaryController::XdmfBinaryController(const XdmfBinaryController & refController):
+  XdmfHeavyDataController(refController),
+  mEndian(refController.mEndian),
+  mSeek(refController.mSeek)
 {
 }
 
@@ -104,9 +141,11 @@ XdmfBinaryController::~XdmfBinaryController()
 }
 
 std::string
-XdmfBinaryController::getDescriptor() const
+XdmfBinaryController::getDataspaceDescription() const
 {
-  return "";
+  std::stringstream descstream;
+  descstream << mSeek << ":" << XdmfHeavyDataController::getDataspaceDescription();
+  return descstream.str();
 }
 
 XdmfBinaryController::Endian
@@ -125,9 +164,7 @@ void
 XdmfBinaryController::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties["Format"] = this->getName();
-  std::stringstream seekStream;
-  seekStream << mSeek;
-  collectedProperties["Seek"] = seekStream.str();
+
   if(mEndian == BIG) {
     collectedProperties["Endian"] = "Big";
   }
@@ -147,6 +184,10 @@ XdmfBinaryController::read(XdmfArray * const array)
 {
   array->initialize(mType, mDimensions);
 
+  shared_ptr<XdmfArray> dataspaceArray = XdmfArray::New();
+
+  dataspaceArray->initialize(mType, mDataspaceDimensions);
+
   std::ifstream fileStream(mFilePath.c_str(),
                            std::ifstream::binary);
 
@@ -164,8 +205,8 @@ XdmfBinaryController::read(XdmfArray * const array)
                        " in XdmfBinaryController::read");
   }
   
-  fileStream.read(static_cast<char *>(array->getValuesInternal()),
-                  array->getSize() * mType->getElementSize());
+  fileStream.read(static_cast<char *>(dataspaceArray->getValuesInternal()),
+                  dataspaceArray->getSize() * mType->getElementSize());
   
 #if defined(XDMF_BIG_ENDIAN)
   const bool needByteSwap = mEndian == LITTLE;
@@ -178,16 +219,16 @@ XdmfBinaryController::read(XdmfArray * const array)
     case 1:
       break;
     case 2:
-      ByteSwaper<2>::swap(array->getValuesInternal(),
-                          array->getSize());
+      ByteSwaper<2>::swap(dataspaceArray->getValuesInternal(),
+                          dataspaceArray->getSize());
         break;
     case 4:
-      ByteSwaper<4>::swap(array->getValuesInternal(),
-                          array->getSize());
+      ByteSwaper<4>::swap(dataspaceArray->getValuesInternal(),
+                          dataspaceArray->getSize());
       break;
     case 8:
-      ByteSwaper<8>::swap(array->getValuesInternal(),
-                          array->getSize());
+      ByteSwaper<8>::swap(dataspaceArray->getValuesInternal(),
+                          dataspaceArray->getSize());
       break;
     default:
       XdmfError::message(XdmfError::FATAL,
@@ -195,5 +236,169 @@ XdmfBinaryController::read(XdmfArray * const array)
       break;
     }
   }
-
+  array->insert(std::vector<unsigned int>(mDimensions.size(), 0),
+                dataspaceArray,
+                mStart,
+                mDataspaceDimensions,
+                mDimensions,
+                std::vector<unsigned int>(mDimensions.size(), 1),
+                mStride);
 }
+
+// C Wrappers
+
+XDMFBINARYCONTROLLER *
+XdmfBinaryControllerNew(char * filePath,
+                        int type,
+                        int endian,
+                        unsigned int seek,
+                        unsigned int * dimensions,
+                        unsigned int numDims,
+                        int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+  shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+  switch (type) {
+    case XDMF_ARRAY_TYPE_UINT8:
+      buildType = XdmfArrayType::UInt8();
+      break;
+    case XDMF_ARRAY_TYPE_UINT16:
+      buildType = XdmfArrayType::UInt16();
+      break;
+    case XDMF_ARRAY_TYPE_UINT32:
+      buildType = XdmfArrayType::UInt32();
+      break;
+    case XDMF_ARRAY_TYPE_INT8:
+      buildType = XdmfArrayType::Int8();
+      break;
+    case XDMF_ARRAY_TYPE_INT16:
+      buildType = XdmfArrayType::Int16();
+      break;
+    case XDMF_ARRAY_TYPE_INT32:
+      buildType = XdmfArrayType::Int32();
+      break;
+    case XDMF_ARRAY_TYPE_INT64:
+      buildType = XdmfArrayType::Int64();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT32:
+      buildType = XdmfArrayType::Float32();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT64:
+      buildType = XdmfArrayType::Float64();
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid ArrayType.");
+      break;
+  }
+  XdmfBinaryController::Endian buildEndian = XdmfBinaryController::NATIVE;
+  printf("switch endian = %u\n", endian);
+  switch (endian) {
+    case XDMF_BINARY_CONTROLLER_ENDIAN_BIG:
+      buildEndian = XdmfBinaryController::BIG;
+      break;
+    case XDMF_BINARY_CONTROLLER_ENDIAN_LITTLE:
+      buildEndian = XdmfBinaryController::LITTLE;
+      break;
+    case XDMF_BINARY_CONTROLLER_ENDIAN_NATIVE:
+      buildEndian = XdmfBinaryController::NATIVE;
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid Endian.");
+      break;
+  }
+  shared_ptr<XdmfBinaryController> generatedController = XdmfBinaryController::New(std::string(filePath), buildType, buildEndian, seek, dimVector);
+  return (XDMFBINARYCONTROLLER *)((void *)(new XdmfBinaryController(*generatedController.get())));
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+XDMFBINARYCONTROLLER *
+XdmfBinaryControllerNewHyperslab(char * filePath,
+                                 int type,
+                                 int endian,
+                                 unsigned int seek,
+                                 unsigned int * start,
+                                 unsigned int * stride,
+                                 unsigned int * dimensions,
+                                 unsigned int * dataspaceDimensions,
+                                 unsigned int numDims,
+                                 int * status)
+{
+  XDMF_ERROR_WRAP_START(status)
+  std::vector<unsigned int> startVector(start, start + numDims);
+  std::vector<unsigned int> strideVector(stride, stride + numDims);
+  std::vector<unsigned int> dimVector(dimensions, dimensions + numDims);
+  std::vector<unsigned int> dataspaceVector(dataspaceDimensions, dataspaceDimensions + numDims);
+  shared_ptr<const XdmfArrayType> buildType = shared_ptr<XdmfArrayType>();
+  switch (type) {
+    case XDMF_ARRAY_TYPE_UINT8:
+      buildType = XdmfArrayType::UInt8();
+      break;
+    case XDMF_ARRAY_TYPE_UINT16:
+      buildType = XdmfArrayType::UInt16();
+      break;
+    case XDMF_ARRAY_TYPE_UINT32:
+      buildType = XdmfArrayType::UInt32();
+      break;
+    case XDMF_ARRAY_TYPE_INT8:
+      buildType = XdmfArrayType::Int8();
+      break;
+    case XDMF_ARRAY_TYPE_INT16:
+      buildType = XdmfArrayType::Int16();
+      break;
+    case XDMF_ARRAY_TYPE_INT32:
+      buildType = XdmfArrayType::Int32();
+      break;
+    case XDMF_ARRAY_TYPE_INT64:
+      buildType = XdmfArrayType::Int64();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT32:
+      buildType = XdmfArrayType::Float32();
+      break;
+    case XDMF_ARRAY_TYPE_FLOAT64:
+      buildType = XdmfArrayType::Float64();
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid ArrayType.");
+      break;
+  }
+  XdmfBinaryController::Endian buildEndian = XdmfBinaryController::NATIVE;
+  switch (endian) {
+    case XDMF_BINARY_CONTROLLER_ENDIAN_BIG:
+      buildEndian = XdmfBinaryController::BIG;
+      break;
+    case XDMF_BINARY_CONTROLLER_ENDIAN_LITTLE:
+      buildEndian = XdmfBinaryController::LITTLE;
+      break;
+    case XDMF_BINARY_CONTROLLER_ENDIAN_NATIVE:
+      buildEndian = XdmfBinaryController::NATIVE;
+      break;
+    default:
+      XdmfError::message(XdmfError::FATAL,
+                         "Error: Invalid Endian.");
+      break;
+  }
+  shared_ptr<XdmfBinaryController> generatedController = XdmfBinaryController::New(std::string(filePath), buildType, buildEndian, seek, startVector, strideVector, dimVector, dataspaceVector);
+  return (XDMFBINARYCONTROLLER *)((void *)(new XdmfBinaryController(*generatedController.get())));
+  XDMF_ERROR_WRAP_END(status)
+  return NULL;
+}
+
+int
+XdmfBinaryControllerGetEndian(XDMFBINARYCONTROLLER * controller)
+{
+  return ((XdmfBinaryController *)(controller))->getEndian();
+}
+
+unsigned int
+XdmfBinaryControllerGetSeek(XDMFBINARYCONTROLLER * controller)
+{
+  return ((XdmfBinaryController *)(controller))->getSeek();
+}
+
+// C Wrappers for parent classes are generated by macros
+XDMF_HEAVYCONTROLLER_C_CHILD_WRAPPER(XdmfBinaryController, XDMFBINARYCONTROLLER)

@@ -53,7 +53,7 @@ public:
   virtual unsigned int GetFlatIndex() { return this->Index;}
 protected:
   AMRIndexIterator(): Level(0), Index(0) {}
-  ~AMRIndexIterator(){};
+  ~AMRIndexIterator() VTK_OVERRIDE{};
   unsigned int Level;
   int Index;
   unsigned int NumLevels;
@@ -90,17 +90,17 @@ public:
     this->Next();
   }
 protected:
-  virtual void AdvanceIndex()
+  void AdvanceIndex() VTK_OVERRIDE
   {
     this->InternalIdx++;
     Superclass::Index = static_cast<size_t>(this->InternalIdx) < this->DataBlocks->size()? (*this->DataBlocks)[this->InternalIdx].Index : 0;
   }
-  virtual bool IsDone() { return static_cast<size_t>(this->InternalIdx) >=  this->DataBlocks->size();}
+  bool IsDone() VTK_OVERRIDE { return static_cast<size_t>(this->InternalIdx) >=  this->DataBlocks->size();}
   const vtkAMRDataInternals::BlockList* DataBlocks;
   int InternalIdx;
 private:
-  AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&);  //Not implemented
-  void operator=(const AMRLoadedDataIndexIterator&);  //Not implemented
+  AMRLoadedDataIndexIterator(const AMRLoadedDataIndexIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const AMRLoadedDataIndexIterator&) VTK_DELETE_FUNCTION;
 };
 vtkStandardNewMacro(AMRLoadedDataIndexIterator);
 

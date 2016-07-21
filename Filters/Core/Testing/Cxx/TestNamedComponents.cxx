@@ -141,8 +141,8 @@ int TestNamedComponents(int , char *[])
     }
 
   // the arrays should have been changed so get them again...
-  cellIndex = vtkIntArray::SafeDownCast(out->GetCellData()->GetArray(ctName));
-  cellPoints = vtkIdTypeArray::SafeDownCast(out->GetCellData()->GetArray(cpName));
+  cellIndex = vtkArrayDownCast<vtkIntArray>(out->GetCellData()->GetArray(ctName));
+  cellPoints = vtkArrayDownCast<vtkIdTypeArray>(out->GetCellData()->GetArray(cpName));
 
   //confirm component names are intact
   if (strcmp(cellIndex->GetComponentName(0),"index") != 0)

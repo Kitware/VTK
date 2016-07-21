@@ -60,13 +60,11 @@ public:
   // Apply properties to all actors in this collection.
   void ApplyProperties(vtkProperty *p);
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkActor *GetNextActor(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkActor *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkActorCollection() {}
@@ -79,8 +77,8 @@ private:
   void AddItem(vtkProp *o) { this->vtkPropCollection::AddItem(o); };
 
 private:
-  vtkActorCollection(const vtkActorCollection&);  // Not implemented.
-  void operator=(const vtkActorCollection&);  // Not implemented.
+  vtkActorCollection(const vtkActorCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkActorCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkActorCollection::AddItem(vtkActor *a)

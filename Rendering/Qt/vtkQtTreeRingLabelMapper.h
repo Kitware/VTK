@@ -44,9 +44,7 @@
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkLabeledDataMapper.h"
 
-//BTX
 class QImage;
-//ETX
 
 class vtkQImageToImageSource;
 class vtkCoordinate;
@@ -141,8 +139,8 @@ protected:
   int WindowSize[2];
 
 private:
-  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&);  // Not implemented.
-  void operator=(const vtkQtTreeRingLabelMapper&);  // Not implemented.
+  vtkQtTreeRingLabelMapper(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtTreeRingLabelMapper&) VTK_DELETE_FUNCTION;
 };
 
 

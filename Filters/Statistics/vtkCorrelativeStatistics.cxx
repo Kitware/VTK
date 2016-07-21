@@ -550,8 +550,8 @@ void vtkCorrelativeStatistics::Test( vtkTable* inData,
   statCol->SetName( "Jarque-Bera-Srivastava" );
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* varsX = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varsY = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable Y" ) );
+  vtkStringArray* varsX = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varsY = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable Y" ) );
 
   // Loop over requests
   vtkIdType nRowData = inData->GetNumberOfRows();
@@ -819,9 +819,9 @@ public:
     this->InterYX = interYX;
     this->InterXY = interXY;
   }
-  virtual ~BivariateRegressionDeviationsFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~BivariateRegressionDeviationsFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     // First retrieve 2-d observation
     double x = this->DataX->GetTuple1( id );
@@ -884,8 +884,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varNameY = rowNames->GetValue( 1 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* varX = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable X" ) );
-  vtkStringArray* varY = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable Y" ) );
+  vtkStringArray* varX = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable X" ) );
+  vtkStringArray* varY = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable Y" ) );
   if ( ! varX || ! varY )
     {
     return;
@@ -907,8 +907,8 @@ void vtkCorrelativeStatistics::SelectAssessFunctor( vtkTable* outData,
         }
 
       // For descriptive statistics, types must be convertible to DataArrays (e.g., StringArrays do not fit here).
-      vtkDataArray* valsX = vtkDataArray::SafeDownCast( arrX );
-      vtkDataArray* valsY = vtkDataArray::SafeDownCast( arrY );
+      vtkDataArray* valsX = vtkArrayDownCast<vtkDataArray>( arrX );
+      vtkDataArray* valsY = vtkArrayDownCast<vtkDataArray>( arrY );
       if ( ! valsX || ! valsY )
         {
         return;

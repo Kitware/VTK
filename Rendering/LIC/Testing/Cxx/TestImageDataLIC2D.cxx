@@ -159,7 +159,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     noise = pngReader->GetOutput();
 
     vtkUnsignedCharArray *cVals
-      = vtkUnsignedCharArray::SafeDownCast(noise->GetPointData()->GetScalars());
+      = vtkArrayDownCast<vtkUnsignedCharArray>(noise->GetPointData()->GetScalars());
     if (!cVals)
       {
       cerr << "Error: expected unsigned chars, test fails" << endl;

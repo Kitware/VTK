@@ -40,8 +40,8 @@ public:
 protected:
    vtkScaledTextActor();
 private:
-  vtkScaledTextActor(const vtkScaledTextActor&);  // Not implemented.
-  void operator=(const vtkScaledTextActor&);  // Not implemented.
+  vtkScaledTextActor(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScaledTextActor&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -99,7 +99,7 @@ struct SampleSort<Block,T,Cmp>::Sampler
         if (k_in == 0)
         {
             // draw random samples
-            for (int i = 0; i < num_samples; ++i)
+            for (size_t i = 0; i < num_samples; ++i)
                 samples.push_back((b->*values)[std::rand() % (b->*values).size()]);
         } else
             dequeue_values(samples, srp, false);
@@ -110,7 +110,7 @@ struct SampleSort<Block,T,Cmp>::Sampler
             std::sort(samples.begin(), samples.end(), cmp);
             std::vector<T>  subsamples(srp.nblocks() - 1);
             int step = samples.size() / srp.nblocks();       // NB: subsamples.size() + 1
-            for (int i = 0; i < subsamples.size(); ++i)
+            for (size_t i = 0; i < subsamples.size(); ++i)
                 subsamples[i] = samples[(i+1)*step];
             (b->*dividers).swap(subsamples);
         }

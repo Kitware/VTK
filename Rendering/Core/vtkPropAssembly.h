@@ -112,13 +112,11 @@ public:
   vtkAssemblyPath *GetNextPath();
   int GetNumberOfPaths();
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Overload the superclass' vtkProp BuildPaths() method.
   void BuildPaths(vtkAssemblyPaths *paths, vtkAssemblyPath *path);
-//ETX
 
 protected:
   vtkPropAssembly();
@@ -131,8 +129,8 @@ protected:
   vtkTimeStamp PathTime;
   void UpdatePaths(); //apply transformations and properties recursively
 private:
-  vtkPropAssembly(const vtkPropAssembly&);  // Not implemented.
-  void operator=(const vtkPropAssembly&);  // Not implemented.
+  vtkPropAssembly(const vtkPropAssembly&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPropAssembly&) VTK_DELETE_FUNCTION;
 };
 
 #endif

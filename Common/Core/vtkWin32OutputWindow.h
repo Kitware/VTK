@@ -62,8 +62,8 @@ protected:
 private:
   bool SendToStdErr;
 
-  vtkWin32OutputWindow(const vtkWin32OutputWindow&);  // Not implemented.
-  void operator=(const vtkWin32OutputWindow&);  // Not implemented.
+  vtkWin32OutputWindow(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWin32OutputWindow&) VTK_DELETE_FUNCTION;
 };
 
 

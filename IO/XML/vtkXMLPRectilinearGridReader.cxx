@@ -147,9 +147,9 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
   vtkAbstractArray* ay = this->CreateArray(yc);
   vtkAbstractArray* az = this->CreateArray(zc);
 
-  vtkDataArray* x = vtkDataArray::SafeDownCast(ax);
-  vtkDataArray* y = vtkDataArray::SafeDownCast(ay);
-  vtkDataArray* z = vtkDataArray::SafeDownCast(az);
+  vtkDataArray* x = vtkArrayDownCast<vtkDataArray>(ax);
+  vtkDataArray* y = vtkArrayDownCast<vtkDataArray>(ay);
+  vtkDataArray* z = vtkArrayDownCast<vtkDataArray>(az);
   if(x && y && z)
     {
     x->SetNumberOfTuples(this->PointDimensions[0]);

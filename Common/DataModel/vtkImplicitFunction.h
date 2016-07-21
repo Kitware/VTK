@@ -110,8 +110,8 @@ protected:
   vtkAbstractTransform *Transform;
   double ReturnValue[3];
 private:
-  vtkImplicitFunction(const vtkImplicitFunction&);  // Not implemented.
-  void operator=(const vtkImplicitFunction&);  // Not implemented.
+  vtkImplicitFunction(const vtkImplicitFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitFunction&) VTK_DELETE_FUNCTION;
 };
 
 #endif

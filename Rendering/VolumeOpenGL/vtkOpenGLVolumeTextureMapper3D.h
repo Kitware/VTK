@@ -49,15 +49,11 @@ public:
   int IsRenderSupported(vtkVolumeProperty *,
                         vtkRenderer *ren);
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
   // Render the volume
   virtual void Render(vtkRenderer *ren, vtkVolume *vol);
-
-//ETX
 
   // Desciption:
   // Initialize when we go to render, or go to answer the
@@ -75,8 +71,6 @@ protected:
   vtkOpenGLVolumeTextureMapper3D();
   ~vtkOpenGLVolumeTextureMapper3D();
 
-//BTX
-
   void GetLightInformation(vtkRenderer *ren,
                            vtkVolume *vol,
                            GLfloat lightDirection[2][4],
@@ -84,7 +78,6 @@ protected:
                            GLfloat lightSpecularColor[2][4],
                            GLfloat halfwayVector[2][4],
                            GLfloat *ambient );
-//ETX
 
   int              Initialized;
   GLuint           Volume1Index;
@@ -155,8 +148,8 @@ protected:
   void Setup3DTextureParameters( vtkVolumeProperty *property );
 
 private:
-  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
-  void operator=(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
+  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

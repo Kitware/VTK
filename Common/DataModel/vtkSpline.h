@@ -16,7 +16,7 @@
 // .SECTION Description
 // vtkSpline interpolates a set of data points (i.e., interpolation means
 // that the spline passes through the points).  vtkSpline is an abstract
-// class: its subclasses vtkCardinalSpline and vtkKochenekSpline do the
+// class: its subclasses vtkCardinalSpline and vtkKochanekSpline do the
 // interpolation. Note that this spline maps the 1D parametric coordinate
 // t into a single value x. Thus if you want to use the spline to
 // interpolate points (i.e. x[3]), you have to create three splines for
@@ -45,7 +45,7 @@
 // values outside this range are clamped within this range.
 
 // .SECTION See Also
-// vtkCardinalSpline vtkKochenekSpline vtkParametricSpline
+// vtkCardinalSpline vtkKochanekSpline vtkParametricSpline
 // vtkParametricFunctionSource
 
 
@@ -172,8 +172,8 @@ protected:
   int FindIndex(int size, double t);
 
 private:
-  vtkSpline(const vtkSpline&);  // Not implemented.
-  void operator=(const vtkSpline&);  // Not implemented.
+  vtkSpline(const vtkSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

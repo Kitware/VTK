@@ -60,8 +60,8 @@ protected:
   int PassVerts;
   int PassLines;
 private:
-  vtkTriangleFilter(const vtkTriangleFilter&);  // Not implemented.
-  void operator=(const vtkTriangleFilter&);  // Not implemented.
+  vtkTriangleFilter(const vtkTriangleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTriangleFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

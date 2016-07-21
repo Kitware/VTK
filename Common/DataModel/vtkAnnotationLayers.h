@@ -93,7 +93,6 @@ public:
   // The modified time for this object.
   virtual unsigned long GetMTime();
 
-//BTX
 protected:
   vtkAnnotationLayers();
   ~vtkAnnotationLayers();
@@ -103,9 +102,9 @@ protected:
   vtkAnnotation* CurrentAnnotation;
 
 private:
-  vtkAnnotationLayers(const vtkAnnotationLayers&);  // Not implemented.
-  void operator=(const vtkAnnotationLayers&);  // Not implemented.
-//ETX
+  vtkAnnotationLayers(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotationLayers&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

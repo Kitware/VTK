@@ -36,7 +36,7 @@ class vtkOpenGLGlyph3DMappervtkColorMapper : public vtkMapper
 public:
   vtkTypeMacro(vtkOpenGLGlyph3DMappervtkColorMapper, vtkMapper);
   static vtkOpenGLGlyph3DMappervtkColorMapper* New();
-  void Render(vtkRenderer *, vtkActor *) {}
+  void Render(vtkRenderer *, vtkActor *) VTK_OVERRIDE {}
   vtkUnsignedCharArray* GetColors() { return this->Colors; }
 };
 
@@ -323,7 +323,7 @@ void vtkOpenGLGlyph3DMapper::Render(
   vtkBitArray *maskArray = 0;
   if (this->Masking)
     {
-    maskArray = vtkBitArray::SafeDownCast(this->GetMaskArray(dataset));
+    maskArray = vtkArrayDownCast<vtkBitArray>(this->GetMaskArray(dataset));
     if (maskArray == 0)
       {
       vtkDebugMacro(<<"masking is enabled but there is no mask array. Ignore masking.");

@@ -16,6 +16,7 @@
 #include "vtkObjectFactory.h"
 
 #include <cctype>
+#include <algorithm>
 
 vtkStandardNewMacro(vtkFunctionParser);
 
@@ -25,12 +26,6 @@ static double vtkParserVectorErrorResult[3] = { VTK_PARSER_ERROR_RESULT,
 //-----------------------------------------------------------------------------
 vtkFunctionParser::vtkFunctionParser()
 {
-  this->NumberOfScalarVariables = 0;
-  this->NumberOfVectorVariables = 0;
-  this->ScalarVariableNames = NULL;
-  this->VectorVariableNames = NULL;
-  this->ScalarVariableValues = NULL;
-  this->VectorVariableValues = NULL;
   this->Function = NULL;
   this->FunctionWithSpaces = NULL;
   this->ByteCode = NULL;
@@ -57,44 +52,6 @@ vtkFunctionParser::vtkFunctionParser()
 //-----------------------------------------------------------------------------
 vtkFunctionParser::~vtkFunctionParser()
 {
-  int i;
-
-  if (this->ScalarVariableNames)
-    {
-    for (i = 0; i < this->NumberOfScalarVariables; i++)
-      {
-      delete [] this->ScalarVariableNames[i];
-      this->ScalarVariableNames[i] = NULL;
-      }
-    delete [] this->ScalarVariableNames;
-    this->ScalarVariableNames = NULL;
-    }
-
-  if (this->VectorVariableNames)
-    {
-    for (i = 0; i < this->NumberOfVectorVariables; i++)
-      {
-      delete [] this->VectorVariableNames[i];
-      this->VectorVariableNames[i] = NULL;
-      }
-    delete [] this->VectorVariableNames;
-    this->VectorVariableNames = NULL;
-    }
-
-  delete [] this->ScalarVariableValues;
-  this->ScalarVariableValues = NULL;
-
-  if (this->VectorVariableValues)
-    {
-    for (i = 0; i < this->NumberOfVectorVariables; i++)
-      {
-      delete [] this->VectorVariableValues[i];
-      this->VectorVariableValues[i] = NULL;
-      }
-    delete [] this->VectorVariableValues;
-    this->VectorVariableValues = NULL;
-    }
-
   delete [] this->Function;
   this->Function = NULL;
 
@@ -145,6 +102,8 @@ void vtkFunctionParser::SetFunction(const char *function)
     }
 
   this->FunctionMTime.Modified();
+  this->ScalarVariableNeeded.clear();
+  this->VectorVariableNeeded.clear();
   this->Modified();
 }
 
@@ -185,7 +144,7 @@ int vtkFunctionParser::Parse()
   for (i = 0; i < this->ByteCodeSize; i++)
     {
     if ((this->ByteCode[i] >= VTK_PARSER_BEGIN_VARIABLES +
-         this->NumberOfScalarVariables) ||
+         this->GetNumberOfScalarVariables()) ||
         (this->ByteCode[i] == VTK_PARSER_IHAT) ||
         (this->ByteCode[i] == VTK_PARSER_JHAT) ||
         (this->ByteCode[i] == VTK_PARSER_KHAT))
@@ -204,6 +163,9 @@ int vtkFunctionParser::Parse()
       }
     }
 
+  // Collect meta-data about variables that are needed for evaluation of the
+  // function.
+  this->UpdateNeededVariables();
   this->ParseMTime.Modified();
   return 1;
 }
@@ -439,8 +401,7 @@ int vtkFunctionParser::DisambiguateOperators()
         tempStackPtr--;
         break;
       default:
-        if ((this->ByteCode[i] - VTK_PARSER_BEGIN_VARIABLES) <
-            this->NumberOfScalarVariables)
+        if ((this->ByteCode[i] - VTK_PARSER_BEGIN_VARIABLES) < this->GetNumberOfScalarVariables())
           {
           tempStackPtr++;
           tempStack[tempStackPtr] = 0;
@@ -876,7 +837,7 @@ bool vtkFunctionParser::Evaluate()
         }
       default:
         if ((this->ByteCode[numBytesProcessed] -
-             VTK_PARSER_BEGIN_VARIABLES) < this->NumberOfScalarVariables)
+             VTK_PARSER_BEGIN_VARIABLES) < this->GetNumberOfScalarVariables())
           {
           this->Stack[++stackPosition] =
             this->ScalarVariableValues[this->ByteCode[numBytesProcessed] -
@@ -885,7 +846,7 @@ bool vtkFunctionParser::Evaluate()
         else
           {
           int vectorNum = this->ByteCode[numBytesProcessed] -
-            VTK_PARSER_BEGIN_VARIABLES - this->NumberOfScalarVariables;
+            VTK_PARSER_BEGIN_VARIABLES - this->GetNumberOfScalarVariables();
           this->Stack[++stackPosition] =
             this->VectorVariableValues[vectorNum][0];
           this->Stack[++stackPosition] =
@@ -948,21 +909,21 @@ double *vtkFunctionParser::GetVectorResult()
 }
 
 //-----------------------------------------------------------------------------
-char* vtkFunctionParser::GetScalarVariableName(int i)
+const char* vtkFunctionParser::GetScalarVariableName(int i)
 {
-  if (i >= 0 && i < this->NumberOfScalarVariables)
+  if (i >= 0 && i < this->GetNumberOfScalarVariables())
     {
-    return this->ScalarVariableNames[i];
+    return this->ScalarVariableNames[i].c_str();
     }
   return NULL;
 }
 
 //-----------------------------------------------------------------------------
-char* vtkFunctionParser::GetVectorVariableName(int i)
+const char* vtkFunctionParser::GetVectorVariableName(int i)
 {
-  if (i >= 0 && i < this->NumberOfVectorVariables)
+  if (i >= 0 && i < this->GetNumberOfVectorVariables())
     {
-    return this->VectorVariableNames[i];
+    return this->VectorVariableNames[i].c_str();
     }
   return NULL;
 }
@@ -970,20 +931,18 @@ char* vtkFunctionParser::GetVectorVariableName(int i)
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::IsVariableName(int currentIndex)
 {
-  int i;
-
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
     {
-    if (strncmp(this->ScalarVariableNames[i], &this->Function[currentIndex],
-                strlen(this->ScalarVariableNames[i])) == 0)
+    if (strncmp(this->ScalarVariableNames[i].c_str(), &this->Function[currentIndex],
+                this->ScalarVariableNames[i].size()) == 0)
       {
       return 1;
       }
     }
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
+  for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
     {
-    if (strncmp(this->VectorVariableNames[i], &this->Function[currentIndex],
-                strlen(this->VectorVariableNames[i])) == 0)
+    if (strncmp(this->VectorVariableNames[i].c_str(), &this->Function[currentIndex],
+                this->VectorVariableNames[i].size()) == 0)
       {
       return 1;
       }
@@ -1002,14 +961,10 @@ int vtkFunctionParser::IsElementaryOperator(int op)
 void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
                                                double value)
 {
-  int i;
-  double *tempValues;
-  char** tempNames;
   char* variableName = this->RemoveSpacesFrom(inVariableName);
-
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
     {
-    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
+    if (strcmp(variableName, this->ScalarVariableNames[i].c_str()) == 0)
       {
       if (this->ScalarVariableValues[i] != value)
         {
@@ -1021,42 +976,8 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
       return;
       }
     }
-
-  tempValues = new double [this->NumberOfScalarVariables];
-  tempNames = new char *[this->NumberOfScalarVariables];
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
-    {
-    tempValues[i] = this->ScalarVariableValues[i];
-    tempNames[i] = new char [strlen(this->ScalarVariableNames[i]) + 1];
-    strcpy(tempNames[i], this->ScalarVariableNames[i]);
-    delete [] this->ScalarVariableNames[i];
-    this->ScalarVariableNames[i] = NULL;
-    }
-
-  delete [] this->ScalarVariableValues;
-  this->ScalarVariableValues = NULL;
-
-  delete [] this->ScalarVariableNames;
-  this->ScalarVariableNames = NULL;
-
-  this->ScalarVariableValues = new double [this->NumberOfScalarVariables + 1];
-  this->ScalarVariableNames = new char *[this->NumberOfScalarVariables + 1];
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
-    {
-    this->ScalarVariableValues[i] = tempValues[i];
-    this->ScalarVariableNames[i] = new char [strlen(tempNames[i]) + 1];
-    strcpy(this->ScalarVariableNames[i], tempNames[i]);
-    delete [] tempNames[i];
-    tempNames[i] = NULL;
-    }
-  delete [] tempValues;
-  delete [] tempNames;
-
-  this->ScalarVariableValues[i] = value;
-  this->ScalarVariableNames[i] = new char [strlen(variableName) + 1];
-  strcpy(this->ScalarVariableNames[i], variableName);
-  this->NumberOfScalarVariables++;
-
+  this->ScalarVariableValues.push_back(value);
+  this->ScalarVariableNames.push_back(variableName);
   this->VariableMTime.Modified();
   this->Modified();
   delete [] variableName;
@@ -1065,7 +986,7 @@ void vtkFunctionParser::SetScalarVariableValue(const char* inVariableName,
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::SetScalarVariableValue(int i, double value)
 {
-  if (i < 0 || i >= this->NumberOfScalarVariables)
+  if (i < 0 || i >= this->GetNumberOfScalarVariables())
     {
     return;
     }
@@ -1081,12 +1002,10 @@ void vtkFunctionParser::SetScalarVariableValue(int i, double value)
 //-----------------------------------------------------------------------------
 double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
 {
-  int i;
   char* variableName = this->RemoveSpacesFrom(inVariableName);
-
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
     {
-    if (strcmp(variableName, this->ScalarVariableNames[i]) == 0)
+    if (strcmp(variableName, this->ScalarVariableNames[i].c_str()) == 0)
       {
       delete [] variableName;
       return this->ScalarVariableValues[i];
@@ -1101,7 +1020,7 @@ double vtkFunctionParser::GetScalarVariableValue(const char* inVariableName)
 //-----------------------------------------------------------------------------
 double vtkFunctionParser::GetScalarVariableValue(int i)
 {
-  if (i < 0 || i >= this->NumberOfScalarVariables)
+  if (i < 0 || i >= this->GetNumberOfScalarVariables())
     {
     vtkErrorMacro("GetScalarVariableValue: scalar variable number " << i
                   << " does not exist");
@@ -1116,14 +1035,10 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
                                                double xValue, double yValue,
                                                double zValue)
 {
-  int i;
-  double **tempValues;
-  char** tempNames;
   char* variableName = this->RemoveSpacesFrom(inVariableName);
-
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
+  for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
     {
-    if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
+    if (strcmp(variableName, this->VectorVariableNames[i].c_str()) == 0)
       {
       if (this->VectorVariableValues[i][0] != xValue ||
           this->VectorVariableValues[i][1] != yValue ||
@@ -1140,53 +1055,12 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
       }
     }
 
-  tempValues = new double *[this->NumberOfVectorVariables];
-  tempNames = new char *[this->NumberOfVectorVariables];
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
-    {
-    tempValues[i] = new double[3];
-    tempValues[i][0] = this->VectorVariableValues[i][0];
-    tempValues[i][1] = this->VectorVariableValues[i][1];
-    tempValues[i][2] = this->VectorVariableValues[i][2];
-    tempNames[i] = new char [strlen(this->VectorVariableNames[i]) + 1];
-    strcpy(tempNames[i], this->VectorVariableNames[i]);
-    delete [] this->VectorVariableNames[i];
-    this->VectorVariableNames[i] = NULL;
-    delete [] this->VectorVariableValues[i];
-    this->VectorVariableValues[i] = NULL;
-    }
-
-  delete [] this->VectorVariableValues;
-  this->VectorVariableValues = NULL;
-
-  delete [] this->VectorVariableNames;
-  this->VectorVariableNames = NULL;
-
-  this->VectorVariableValues = new double *[this->NumberOfVectorVariables + 1];
-  this->VectorVariableNames = new char *[this->NumberOfVectorVariables + 1];
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
-    {
-    this->VectorVariableValues[i] = new double[3];
-    this->VectorVariableValues[i][0] = tempValues[i][0];
-    this->VectorVariableValues[i][1] = tempValues[i][1];
-    this->VectorVariableValues[i][2] = tempValues[i][2];
-    this->VectorVariableNames[i] = new char [strlen(tempNames[i]) + 1];
-    strcpy(this->VectorVariableNames[i], tempNames[i]);
-    delete [] tempNames[i];
-    tempNames[i] = NULL;
-    delete [] tempValues[i];
-    tempValues[i] = NULL;
-    }
-  delete [] tempValues;
-  delete [] tempNames;
-
-  this->VectorVariableValues[i] = new double[3];
-  this->VectorVariableValues[i][0] = xValue;
-  this->VectorVariableValues[i][1] = yValue;
-  this->VectorVariableValues[i][2] = zValue;
-  this->VectorVariableNames[i] = new char [strlen(variableName) + 1];
-  strcpy(this->VectorVariableNames[i], variableName);
-  this->NumberOfVectorVariables++;
+  this->VectorVariableNames.push_back(variableName);
+  vtkTuple<double, 3> val;
+  val[0] = xValue;
+  val[1] = yValue;
+  val[2] = zValue;
+  this->VectorVariableValues.push_back(val);
 
   this->VariableMTime.Modified();
   this->Modified();
@@ -1197,7 +1071,7 @@ void vtkFunctionParser::SetVectorVariableValue(const char* inVariableName,
 void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
                                                double yValue, double zValue)
 {
-  if (i < 0 || i >= this->NumberOfVectorVariables)
+  if (i < 0 || i >= this->GetNumberOfVectorVariables())
     {
     return;
     }
@@ -1216,15 +1090,14 @@ void vtkFunctionParser::SetVectorVariableValue(int i, double xValue,
 //-----------------------------------------------------------------------------
 double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
 {
-  int i;
   char* variableName = this->RemoveSpacesFrom(inVariableName);
 
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
+  for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
     {
-    if (strcmp(variableName, this->VectorVariableNames[i]) == 0)
+    if (strcmp(variableName, this->VectorVariableNames[i].c_str()) == 0)
       {
       delete [] variableName;
-      return this->VectorVariableValues[i];
+      return this->VectorVariableValues[i].GetData();
       }
     }
   vtkErrorMacro("GetVectorVariableValue: vector variable name " << variableName
@@ -1236,13 +1109,13 @@ double* vtkFunctionParser::GetVectorVariableValue(const char* inVariableName)
 //-----------------------------------------------------------------------------
 double* vtkFunctionParser::GetVectorVariableValue(int i)
 {
-  if (i < 0 || i >= this->NumberOfVectorVariables)
+  if (i < 0 || i >= this->GetNumberOfVectorVariables())
     {
     vtkErrorMacro("GetVectorVariableValue: vector variable number " << i
                   << " does not exist");
     return vtkParserVectorErrorResult;
     }
-  return this->VectorVariableValues[i];
+  return this->VectorVariableValues[i].GetData();
 }
 
 //-----------------------------------------------------------------------------
@@ -1295,20 +1168,20 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
 {
   char *tmpString = NULL;
 
-  for ( int i = 0;  i < this->NumberOfScalarVariables;  i ++ )
+  for ( int i = 0, max = this->GetNumberOfScalarVariables();  i < max;  i ++ )
     {
     int end = 0;
 
-    if (  strchr( this->ScalarVariableNames[i], this->Function[idx] ) != 0  )
+    if (  strchr( this->ScalarVariableNames[i].c_str(), this->Function[idx] ) != 0  )
       {
-      if (    (  tmpString = strstr( this->Function, this->ScalarVariableNames[i] )  )    )
+      if (    (  tmpString = strstr( this->Function, this->ScalarVariableNames[i].c_str() )  )    )
         {
         do
           {
           if (tmpString)
             {
             int start = static_cast<int>(tmpString - this->Function);
-            end   = start + static_cast<int>( strlen(this->ScalarVariableNames[i]) );
+            end   = start + static_cast<int>( this->ScalarVariableNames[i].size() );
 
             // the variable being investigated does contain an operator (at idx)
             if ( start <= idx && idx <= end )  return  1;
@@ -1317,7 +1190,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
             // variable name (being investigated) preceding "idx" in this->Function[]
             // As suggested by 7islands, a greedy search is used here
             if ( end <= idx )  // to save strstr()  whenever possible
-            tmpString = strstr( this->Function + end, this->ScalarVariableNames[i] );
+            tmpString = strstr( this->Function + end, this->ScalarVariableNames[i].c_str() );
             }
           else  break;
           } while ( end <= idx );
@@ -1325,20 +1198,20 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
       }
     }
 
-  for ( int i = 0;  i < this->NumberOfVectorVariables;  i ++ )
+  for ( int i = 0, max = this->GetNumberOfVectorVariables();  i < max;  i ++ )
     {
     int end = 0;
 
-    if (  strchr( this->VectorVariableNames[i], this->Function[idx] ) != 0  )
+    if (  strchr( this->VectorVariableNames[i].c_str(), this->Function[idx] ) != 0  )
       {
-      if (    (  tmpString = strstr( this->Function, this->VectorVariableNames[i] )  )    )
+      if (    (  tmpString = strstr( this->Function, this->VectorVariableNames[i].c_str() )  )    )
         {
         do
           {
           if (tmpString)
             {
             int start = static_cast<int>(tmpString - this->Function);
-            end   = start + static_cast<int>( strlen(this->VectorVariableNames[i]) );
+            end   = start + static_cast<int>( this->VectorVariableNames[i].size() );
 
             // the variable being investigated does contain an operator (at idx)
             if ( start <= idx && idx <= end )  return  1;
@@ -1347,7 +1220,7 @@ int vtkFunctionParser::OperatorWithinVariable(int idx)
             // variable name (being investigated) preceding "idx" in this->Function[]
             // As suggested by 7islands, a greedy search is used here
             if ( end <= idx )  // to save strstr()  whenever possible
-            tmpString = strstr( this->Function + end, this->VectorVariableNames[i] );
+            tmpString = strstr( this->Function + end, this->VectorVariableNames[i].c_str() );
             }
           else  break;
           } while ( end <= idx );
@@ -1925,15 +1798,15 @@ int vtkFunctionParser::GetMathConstantStringLength(int mathConstantNumber)
 //-----------------------------------------------------------------------------
 int vtkFunctionParser::GetVariableNameLength(int variableNumber)
 {
-  if (variableNumber < this->NumberOfScalarVariables)
+  if (variableNumber < this->GetNumberOfScalarVariables())
     {
-    return static_cast<int>(strlen(this->ScalarVariableNames[variableNumber]));
+    return static_cast<int>(this->ScalarVariableNames[variableNumber].size());
     }
   else
     {
-    return static_cast<int>(strlen(
+    return static_cast<int>(
       this->VectorVariableNames[variableNumber -
-                               this->NumberOfScalarVariables]));
+                               this->GetNumberOfScalarVariables()].size());
     }
 }
 
@@ -2010,13 +1883,13 @@ unsigned char vtkFunctionParser::GetElementaryOperatorNumber(char op)
 //-----------------------------------------------------------------------------
 unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
 {
-  int i, variableIndex = -1;
+  int variableIndex = -1;
 
   if (isdigit(this->Function[currentIndex]) ||
      this->Function[currentIndex] == '.') // Number
     {
     double *tempImmediates = new double[this->ImmediatesSize];
-    for (i = 0; i < this->ImmediatesSize; i++)
+    for (int i = 0; i < this->ImmediatesSize; i++)
       { // Copy current immediates to a temporary array
       tempImmediates[i] = this->Immediates[i];
       }
@@ -2026,7 +1899,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
     this->Immediates = new double[this->ImmediatesSize + 1];
 
     // Copy contents of temporary array back to Immediates.
-    for (i = 0; i < this->ImmediatesSize; i++)
+    for (int i = 0; i < this->ImmediatesSize; i++)
       {
       this->Immediates[i] = tempImmediates[i];
       }
@@ -2057,15 +1930,15 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
   //Bug 7396. If a scalar variable name is a subset of a vector var name it will
   //casue the scripting to crash. So instead of ending once we find a var name that matches in scalars
   //we will also check vectors
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
     { // Variable
-    if (strncmp(&this->Function[currentIndex], this->ScalarVariableNames[i],
-                strlen(this->ScalarVariableNames[i])) == 0)
+    if (strncmp(&this->Function[currentIndex], this->ScalarVariableNames[i].c_str(),
+                this->ScalarVariableNames[i].size()) == 0)
       {
       if (variableIndex == -1 ||
-          strlen(this->ScalarVariableNames[i]) > currentLen )
+          this->ScalarVariableNames[i].size() > currentLen )
         {
-        currentLen = strlen(this->ScalarVariableNames[i]);
+        currentLen = this->ScalarVariableNames[i].size();
         variableIndex = i;
         }
       }
@@ -2075,16 +1948,16 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
     scalarVar = true;
     }
 
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
+  for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
     { // Variable
-    if (strncmp(&this->Function[currentIndex], this->VectorVariableNames[i],
-                strlen(this->VectorVariableNames[i])) == 0)
+    if (strncmp(&this->Function[currentIndex], this->VectorVariableNames[i].c_str(),
+                this->VectorVariableNames[i].size()) == 0)
       {
       if (variableIndex == -1
-        || strlen(this->VectorVariableNames[i]) > currentLen )
+        || this->VectorVariableNames[i].size() > currentLen )
         {
         scalarVar = false;
-        currentLen = strlen(this->VectorVariableNames[i]);
+        currentLen = this->VectorVariableNames[i].size();
         variableIndex = i;
         }
       }
@@ -2092,8 +1965,7 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
   if (variableIndex >= 0)
     {
     //add the offset if vector
-    variableIndex = (scalarVar)?
-      variableIndex:this->NumberOfScalarVariables + variableIndex;
+    variableIndex = scalarVar? variableIndex : (this->GetNumberOfScalarVariables() + variableIndex);
     return static_cast<unsigned char>(
       VTK_PARSER_BEGIN_VARIABLES + variableIndex);
     }
@@ -2104,43 +1976,15 @@ unsigned char vtkFunctionParser::GetOperandNumber(int currentIndex)
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveScalarVariables()
 {
-  int i;
-
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
-    {
-    delete [] this->ScalarVariableNames[i];
-    this->ScalarVariableNames[i] = NULL;
-    }
-  if (this->NumberOfScalarVariables > 0)
-    {
-    delete [] this->ScalarVariableNames;
-    this->ScalarVariableNames = NULL;
-    delete [] this->ScalarVariableValues;
-    this->ScalarVariableValues = NULL;
-    }
-  this->NumberOfScalarVariables = 0;
+  this->ScalarVariableNames.clear();
+  this->ScalarVariableValues.clear();
 }
 
 //-----------------------------------------------------------------------------
 void vtkFunctionParser::RemoveVectorVariables()
 {
-  int i;
-
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
-    {
-    delete [] this->VectorVariableNames[i];
-    this->VectorVariableNames[i] = NULL;
-    delete [] this->VectorVariableValues[i];
-    this->VectorVariableValues[i] = NULL;
-    }
-  if (this->NumberOfVectorVariables > 0)
-    {
-    delete [] this->VectorVariableNames;
-    this->VectorVariableNames = NULL;
-    delete [] this->VectorVariableValues;
-    this->VectorVariableValues = NULL;
-    }
-  this->NumberOfVectorVariables = 0;
+  this->VectorVariableNames.clear();
+  this->VectorVariableValues.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -2482,7 +2326,6 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  int i;
 
   os << indent << "Function: "
      << (this->GetFunction() ? this->GetFunction() : "(none)") << endl;
@@ -2490,19 +2333,13 @@ void vtkFunctionParser::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FunctionWithSpaces: "
      << (this->FunctionWithSpaces ? this->FunctionWithSpaces : "(none)") << endl;
 
-  os << indent << "NumberOfScalarVariables: "
-     << this->GetNumberOfScalarVariables() << endl;
-
-  for (i = 0; i < this->NumberOfScalarVariables; i++)
+  for (int i = 0, max = this->GetNumberOfScalarVariables(); i < max; i++)
     {
     os << indent << "  " << this->GetScalarVariableName(i) << ": "
        << this->GetScalarVariableValue(i) << endl;
     }
 
-  os << indent << "NumberOfVectorVariables: "
-     << this->GetNumberOfVectorVariables() << endl;
-
-  for (i = 0; i < this->NumberOfVectorVariables; i++)
+  for (int i = 0, max = this->GetNumberOfVectorVariables(); i < max; i++)
     {
     os << indent << "  " << this->GetVectorVariableName(i) << ": ("
        << this->GetVectorVariableValue(i)[0] << ", "
@@ -2580,4 +2417,96 @@ int vtkFunctionParser::FindPositionInOriginalFunction(const int &pos)
     }
 
   return origPos;
+}
+
+//-----------------------------------------------------------------------------
+void vtkFunctionParser::UpdateNeededVariables()
+{
+  this->ScalarVariableNeeded.clear();
+  this->ScalarVariableNeeded.resize(this->ScalarVariableNames.size(), false);
+
+  this->VectorVariableNeeded.clear();
+  this->VectorVariableNeeded.resize(this->VectorVariableNames.size(), false);
+
+  unsigned char numscalars = static_cast<unsigned char>(this->GetNumberOfScalarVariables());
+
+  for (int cc=0; cc < this->ByteCodeSize; ++cc)
+    {
+    unsigned char code = this->ByteCode[cc];
+    if (code < VTK_PARSER_BEGIN_VARIABLES)
+      {
+      continue;
+      }
+    code -= VTK_PARSER_BEGIN_VARIABLES;
+    if (code >= numscalars)
+      {
+      this->VectorVariableNeeded[code - numscalars] = true;
+      }
+    else
+      {
+      this->ScalarVariableNeeded[code] = true;
+      }
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetScalarVariableNeeded(int i)
+{
+  if (i < 0 || i >= static_cast<int>(this->ScalarVariableNeeded.size()))
+    {
+    return false;
+    }
+  return this->ScalarVariableNeeded[i];
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetScalarVariableNeeded(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  std::vector<std::string>::const_iterator iter = std::find(
+    this->ScalarVariableNames.begin(), this->ScalarVariableNames.end(),
+    std::string(variableName));
+  delete [] variableName;
+  if (iter != this->ScalarVariableNames.end())
+    {
+    return this->GetScalarVariableNeeded(
+      static_cast<int>(iter - this->ScalarVariableNames.begin()));
+    }
+  else
+    {
+    vtkErrorMacro("GetScalarVariableNeeded: scalar variable name " << variableName
+                   << " does not exist");
+    return false;
+    }
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetVectorVariableNeeded(int i)
+{
+  if (i < 0 || i >= static_cast<int>(this->VectorVariableNeeded.size()))
+    {
+    return false;
+    }
+  return this->VectorVariableNeeded[i];
+}
+
+//-----------------------------------------------------------------------------
+bool vtkFunctionParser::GetVectorVariableNeeded(const char* inVariableName)
+{
+  char* variableName = this->RemoveSpacesFrom(inVariableName);
+  std::vector<std::string>::const_iterator iter = std::find(
+    this->VectorVariableNames.begin(), this->VectorVariableNames.end(),
+    std::string(variableName));
+  delete [] variableName;
+  if (iter != this->VectorVariableNames.end())
+    {
+    return this->GetVectorVariableNeeded(
+      static_cast<int>(iter - this->VectorVariableNames.begin()));
+    }
+  else
+    {
+    vtkErrorMacro("GetVectorVariableNeeded: scalar variable name " << variableName
+                   << " does not exist");
+    return false;
+    }
 }

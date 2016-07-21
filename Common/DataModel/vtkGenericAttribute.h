@@ -196,8 +196,8 @@ protected:
   ~vtkGenericAttribute();
 
 private:
-  vtkGenericAttribute(const vtkGenericAttribute&);  // Not implemented.
-  void operator=(const vtkGenericAttribute&);  // Not implemented.
+  vtkGenericAttribute(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;
 };
 
 #endif

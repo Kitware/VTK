@@ -22,9 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkImageAlgorithm.h"
 
-//BTX
 class QImage;
-//ETX
 
 class VTKRENDERINGQT_EXPORT vtkQImageToImageSource : public vtkImageAlgorithm
 {
@@ -51,8 +49,8 @@ protected:
                            vtkInformationVector ** vtkNotUsed( inputVector ),
                            vtkInformationVector *outputVector);
 private:
-  vtkQImageToImageSource(const vtkQImageToImageSource&);  // Not implemented.
-  void operator=(const vtkQImageToImageSource&);  // Not implemented.
+  vtkQImageToImageSource(const vtkQImageToImageSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQImageToImageSource&) VTK_DELETE_FUNCTION;
 };
 
 

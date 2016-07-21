@@ -258,7 +258,7 @@ public:
     {
     }
 
-  bool isUsed(const vtkIdType &index) const {return UsedPoints[index];}
+  bool isUsed(const vtkIdType &index) const VTK_OVERRIDE {return UsedPoints[index];}
 
 protected:
   BitVector UsedPoints;
@@ -284,7 +284,7 @@ public:
         }
       }
     }
-  bool isUsed(const vtkIdType &index) const
+  bool isUsed(const vtkIdType &index) const VTK_OVERRIDE
     {
     return this->UsedPoints.find(index) != this->UsedPoints.end();
     }

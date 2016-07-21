@@ -68,7 +68,6 @@ public:
   typedef vtkArrayExtents::DimensionT DimensionT;
   typedef vtkArrayExtents::SizeT SizeT;
 
-//BTX
   enum
   {
     /// Used with CreateArray() to create dense arrays
@@ -76,7 +75,6 @@ public:
     /// Used with CreateArray() to create sparse arrays
     SPARSE = 1
   };
-//ETX
 
   // Description:
   // Creates a new array where StorageType is one of vtkArray::DENSE
@@ -85,6 +83,7 @@ public:
   // VTK_UNSIGNED_INT, VTK_LONG, VTK_UNSIGNED_LONG, VTK_DOUBLE,
   // VTK_ID_TYPE, or VTK_STRING.  The caller is responsible for the
   // lifetime of the returned object.
+  VTK_NEWINSTANCE
   static vtkArray* CreateArray(int StorageType, int ValueType);
 
   // Description:
@@ -214,8 +213,8 @@ protected:
   ~vtkArray();
 
 private:
-  vtkArray(const vtkArray&); // Not implemented
-  void operator=(const vtkArray&); // Not implemented
+  vtkArray(const vtkArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArray&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Stores the array name.

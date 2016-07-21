@@ -106,14 +106,12 @@ protected:
                     vtkMultiBlockDataSet*,
                     vtkTable*) { return; }
 
-//BTX
   // Description: (Not implemented)
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor(vtkTable*,
                                    vtkDataObject*,
                                    vtkStringArray*,
                                    AssessFunctor*&) { return; }
-//ETX
 
   // Description:
   // Store the smooth matrix parameter H. Specify a smooth direction
@@ -137,8 +135,8 @@ private :
   double ComputeSmoothGaussianKernel(int dimension, double khx, double khy);
 
 private:
-  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&); // Not implemented
-  void operator = (const vtkHighestDensityRegionsStatistics&);  // Not implemented
+  vtkHighestDensityRegionsStatistics(const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
+  void operator = (const vtkHighestDensityRegionsStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -30,14 +30,14 @@
 #include "vtkAOSDataArrayTemplate.h" // Real Superclass
 
 // Fake the superclass for the wrappers.
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #define vtkDataArray vtkAOSDataArrayTemplate<unsigned long long>
 #endif
 class VTKCOMMONCORE_EXPORT vtkUnsignedLongLongArray : public vtkDataArray
 {
 public:
   vtkTypeMacro(vtkUnsignedLongLongArray, vtkDataArray)
-#ifndef __WRAP__
+#ifndef __VTK_WRAP__
 #undef vtkDataArray
 #endif
   static vtkUnsignedLongLongArray* New();
@@ -46,7 +46,7 @@ public:
   // This macro expands to the set of method declarations that
   // make up the interface of vtkAOSDataArrayTemplate, which is ignored
   // by the wrappers.
-#if defined(__WRAP__) || defined (__WRAP_GCCXML__)
+#if defined(__VTK_WRAP__) || defined (__WRAP_GCCXML__)
   vtkCreateWrappedArrayInterface(unsigned long long);
 #endif
 
@@ -71,11 +71,11 @@ protected:
   ~vtkUnsignedLongLongArray();
 
 private:
-  //BTX
+
   typedef vtkAOSDataArrayTemplate<unsigned long long> RealSuperclass;
-  //ETX
-  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&);  // Not implemented.
-  void operator=(const vtkUnsignedLongLongArray&);  // Not implemented.
+
+  vtkUnsignedLongLongArray(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnsignedLongLongArray&) VTK_DELETE_FUNCTION;
 };
 
 // Define vtkArrayDownCast implementation:

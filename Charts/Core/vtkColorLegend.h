@@ -150,8 +150,8 @@ protected:
   int                                 Orientation;
 
 private:
-  vtkColorLegend(const vtkColorLegend &); // Not implemented.
-  void operator=(const vtkColorLegend &);   // Not implemented.
+  vtkColorLegend(const vtkColorLegend &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkColorLegend &) VTK_DELETE_FUNCTION;
 };
 
 #endif

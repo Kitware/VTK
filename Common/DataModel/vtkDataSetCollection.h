@@ -52,13 +52,11 @@ public:
   vtkDataSet *GetDataSet(int i) {
     return static_cast<vtkDataSet *>(this->GetItemAsObject(i));};
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkDataSet *GetNextDataSet(vtkCollectionSimpleIterator &cookie) {
     return static_cast<vtkDataSet *>(this->GetNextItemAsObject(cookie));};
-  //ETX
 
 protected:
   vtkDataSetCollection() {}
@@ -69,8 +67,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkDataSetCollection(const vtkDataSetCollection&);  // Not implemented.
-  void operator=(const vtkDataSetCollection&);  // Not implemented.
+  vtkDataSetCollection(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetCollection&) VTK_DELETE_FUNCTION;
 };
 
 

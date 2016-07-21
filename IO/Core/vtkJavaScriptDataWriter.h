@@ -88,9 +88,9 @@ protected:
   bool IncludeFieldNames;
   ostream* OutputStream;
 private:
-  vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&); // Not implemented.
-  void operator=(const vtkJavaScriptDataWriter&); // Not implemented.
-//ETX
+  vtkJavaScriptDataWriter(const vtkJavaScriptDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkJavaScriptDataWriter&) VTK_DELETE_FUNCTION;
+
 };
 
 

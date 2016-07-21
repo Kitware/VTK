@@ -65,7 +65,6 @@ public:
   vtkGetMacro(RenderOnMouseMove, bool);
   vtkBooleanMacro(RenderOnMouseMove, bool);
 
-  //BTX
   // Description:
   // Selection types
   enum
@@ -73,13 +72,11 @@ public:
     SELECT_NORMAL = 0,
     SELECT_UNION = 1
     };
-  //ETX
 
   // Description:
   // Current interaction state
   vtkGetMacro(Interaction, int);
 
-  //BTX
   enum
     {
     NONE,
@@ -87,7 +84,6 @@ public:
     ZOOMING,
     SELECTING
     };
-  //ETX
 
   // Description:
   // Access to the start and end positions (display coordinates) of the rubber
@@ -119,8 +115,8 @@ protected:
   bool RenderOnMouseMove;
 
 private:
-  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&); // Not implemented
-  void operator=(const vtkInteractorStyleRubberBand2D&); // Not implemented
+  vtkInteractorStyleRubberBand2D(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleRubberBand2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

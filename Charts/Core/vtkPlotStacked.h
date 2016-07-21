@@ -95,7 +95,6 @@ public:
   // Get the plot labels.
   virtual vtkStringArray *GetLabels();
 
-//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
@@ -108,7 +107,6 @@ public:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
 
-//BTX
 protected:
   vtkPlotStacked();
   ~vtkPlotStacked();
@@ -148,12 +146,11 @@ protected:
   vtkSmartPointer<vtkColorSeries> ColorSeries;
 
 private:
-  vtkPlotStacked(const vtkPlotStacked &); // Not implemented.
-  void operator=(const vtkPlotStacked &); // Not implemented.
+  vtkPlotStacked(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotStacked &) VTK_DELETE_FUNCTION;
 
   vtkPlotStackedPrivate *Private;
 
-//ETX
 };
 
 #endif //vtkPlotStacked_h

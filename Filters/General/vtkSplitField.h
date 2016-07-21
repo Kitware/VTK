@@ -87,16 +87,13 @@ public:
   // Create a new array with the given component.
   void Split(int component, const char* arrayName);
 
-//BTX
   enum FieldLocations
   {
     DATA_OBJECT=0,
     POINT_DATA=1,
     CELL_DATA=2
   };
-//ETX
 
-//BTX
   struct Component
   {
     int Index;
@@ -116,17 +113,14 @@ public:
     Component() { FieldName = 0; }
     ~Component() { delete[] FieldName; }
   };
-//ETX
 
 protected:
 
-//BTX
   enum FieldTypes
   {
     NAME,
     ATTRIBUTE
   };
-//ETX
 
   vtkSplitField();
   virtual ~vtkSplitField();
@@ -160,8 +154,8 @@ protected:
   void PrintComponent(Component* op, ostream& os, vtkIndent indent);
   void PrintAllComponents(ostream& os, vtkIndent indent);
 private:
-  vtkSplitField(const vtkSplitField&);  // Not implemented.
-  void operator=(const vtkSplitField&);  // Not implemented.
+  vtkSplitField(const vtkSplitField&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplitField&) VTK_DELETE_FUNCTION;
 };
 
 #endif

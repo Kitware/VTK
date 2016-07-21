@@ -47,7 +47,7 @@ if(VTK_JAVA_SWT_COMPONENT)
 endif()
 
 # Add the option for build the JOGL component to VTK.
-set(JOGL_VERSION "2.0.2")
+set(JOGL_VERSION "2.3.2")
 option(VTK_JAVA_JOGL_COMPONENT "Need JOGL jar files" OFF)
 
 if(VTK_JAVA_JOGL_COMPONENT)

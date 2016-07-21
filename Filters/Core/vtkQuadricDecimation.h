@@ -210,12 +210,10 @@ protected:
   int               NumberOfComponents;
   vtkPolyData      *Mesh;
 
-  //BTX
   struct ErrorQuadric
   {
     double *Quadric;
   };
-  //ETX
 
   ErrorQuadric *ErrorQuadrics;
   int           AttributeComponents[6];
@@ -230,8 +228,8 @@ protected:
   double *TempData;
 
 private:
-  vtkQuadricDecimation(const vtkQuadricDecimation&);  // Not implemented.
-  void operator=(const vtkQuadricDecimation&);  // Not implemented.
+  vtkQuadricDecimation(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadricDecimation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

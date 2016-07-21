@@ -94,8 +94,8 @@ protected:
   vtkActor *FrustumActor;
 
 private:
-  vtkCameraActor(const vtkCameraActor&);  // Not implemented.
-  void operator=(const vtkCameraActor&);  // Not implemented.
+  vtkCameraActor(const vtkCameraActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCameraActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

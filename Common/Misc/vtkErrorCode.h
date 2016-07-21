@@ -29,7 +29,7 @@ public:
   static const char *GetStringFromErrorCode(unsigned long event);
   static unsigned long GetErrorCodeFromString(const char *event);
   static unsigned long GetLastSystemError();
-//BTX
+
   // all the currently defined error codes
   // developers can use -- vtkErrorCode::UserError + int to
   // specify their own errors.
@@ -48,7 +48,7 @@ public:
     UnknownError,
     UserError = 40000
   };
-//ETX
+
 };
 
 #endif /* vtkErrorCode_h */

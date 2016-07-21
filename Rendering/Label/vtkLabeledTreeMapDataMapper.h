@@ -132,9 +132,9 @@ protected:
   int MaxTreeLevels;
   double BoxTrans[2][2];
   double WindowLimits[2][2];
-  //BTX
+
   float (*LabelMasks)[4];
-  //ETX
+
   vtkIdList *VertexList;
   vtkPoints *TextPoints;
   vtkCoordinate *VCoord;
@@ -147,8 +147,8 @@ protected:
   vtkTextProperty **HLabelProperties;
 
 private:
-  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
-  void operator=(const vtkLabeledTreeMapDataMapper&);  // Not implemented.
+  vtkLabeledTreeMapDataMapper(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLabeledTreeMapDataMapper&) VTK_DELETE_FUNCTION;
 };
 
 

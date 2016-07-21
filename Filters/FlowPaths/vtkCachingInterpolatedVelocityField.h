@@ -44,22 +44,21 @@
 #include "vtkFiltersFlowPathsModule.h" // For export macro
 #include "vtkFunctionSet.h"
 #include "vtkSmartPointer.h" // this is allowed
-//BTX
+
 #include <vector> // we need them
-//ETX
 
 class vtkDataSet;
 class vtkDataArray;
 class vtkPointData;
 class vtkGenericCell;
 class vtkAbstractCellLocator;
-//BTX
+
 //---------------------------------------------------------------------------
 class IVFDataSetInfo;
 //---------------------------------------------------------------------------
 class IVFCacheList : public std::vector< IVFDataSetInfo > {};
 //---------------------------------------------------------------------------
-//ETX
+
 class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vtkFunctionSet
 {
 public:
@@ -126,9 +125,8 @@ protected:
   IVFDataSetInfo          *Cache;
   IVFCacheList          CacheList;
   char                    *VectorsSelection;
-//BTX
+
   std::vector<double>   Weights;
-//ETX
 
   vtkSetStringMacro(VectorsSelection);
 
@@ -137,7 +135,6 @@ protected:
   int FunctionValues(IVFDataSetInfo *cache, double *x, double *f);
   int InsideTest(IVFDataSetInfo *cache, double* x);
 
-//BTX
   friend class vtkTemporalInterpolatedVelocityField;
   // Description:
   // If all weights have been computed (parametric coords etc all valid)
@@ -150,11 +147,10 @@ protected:
   bool InterpolatePoint(vtkCachingInterpolatedVelocityField *inCIVF,
                         vtkPointData *outPD, vtkIdType outIndex);
   vtkGenericCell *GetLastCell();
-//ETX
 
 private:
-  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&);  // Not implemented.
-  void operator=(const vtkCachingInterpolatedVelocityField&);  // Not implemented.
+  vtkCachingInterpolatedVelocityField(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCachingInterpolatedVelocityField&) VTK_DELETE_FUNCTION;
 };
 
 //---------------------------------------------------------------------------
@@ -164,7 +160,7 @@ private:
 ///////////////////////////////////////////////////////////////////////////////
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
 //
-//BTX
+
 //
 class IVFDataSetInfo
 {
@@ -186,7 +182,7 @@ public:
 };
 
 //
-//ETX
+
 //
 
 #endif /* DOXYGEN_SHOULD_SKIP_THIS */

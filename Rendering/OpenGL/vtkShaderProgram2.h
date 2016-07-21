@@ -410,12 +410,12 @@ protected:
   int GeometryVerticesOut;
 
 private:
-  vtkShaderProgram2(const vtkShaderProgram2&); // Not implemented.
-  void operator=(const vtkShaderProgram2&); // Not implemented.
+  vtkShaderProgram2(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderProgram2&) VTK_DELETE_FUNCTION;
 };
 
 // ----------------------------------------------------------------------------
-//BTX
+
 #define vtkShaderProgram2SetUniformCopyCastMacro(toLetter, toType, num) \
 template<typename fromType> \
 void vtkShaderProgram2::SetUniform##num##toLetter##t(const char *name, fromType *fvalues) \
@@ -446,7 +446,5 @@ vtkShaderProgram2SetUniformCopyCastMacro(i, int, 1)
 vtkShaderProgram2SetUniformCopyCastMacro(i, int, 2)
 vtkShaderProgram2SetUniformCopyCastMacro(i, int, 3)
 vtkShaderProgram2SetUniformCopyCastMacro(i, int, 4)
-//ETX
-
 
 #endif

@@ -62,9 +62,7 @@
 #include "vtkIOImageModule.h" // For export macro
 #include "vtkImageReader2.h"
 
-//BTX
 namespace vtkmetaio { class MetaImage; } // forward declaration
-//ETX
 
 class VTKIOIMAGE_EXPORT vtkMetaImageReader : public vtkImageReader2
 {
@@ -179,12 +177,10 @@ protected:
                          vtkInformationVector * outputVector);
 
 private:
-  vtkMetaImageReader(const vtkMetaImageReader&);  // Not implemented.
-  void operator=(const vtkMetaImageReader&);  // Not implemented.
+  vtkMetaImageReader(const vtkMetaImageReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMetaImageReader&) VTK_DELETE_FUNCTION;
 
-//BTX
   vtkmetaio::MetaImage *MetaImagePtr;
-//ETX
 
   double GantryAngle;
   char PatientName[255];

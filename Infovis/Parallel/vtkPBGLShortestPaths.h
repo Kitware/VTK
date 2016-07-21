@@ -190,8 +190,8 @@ private:
   vtkIdType GetVertexIndex(
     vtkAbstractArray *abstract,vtkVariant value);
 
-  vtkPBGLShortestPaths(const vtkPBGLShortestPaths&);  // Not implemented.
-  void operator=(const vtkPBGLShortestPaths&);  // Not implemented.
+  vtkPBGLShortestPaths(const vtkPBGLShortestPaths&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLShortestPaths&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

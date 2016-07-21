@@ -46,7 +46,6 @@ class vtkMPICommunicatorReceiveDataInfo;
 class VTKPARALLELMPI_EXPORT vtkMPICommunicator : public vtkCommunicator
 {
 public:
-//BTX
 
   class VTKPARALLELMPI_EXPORT Request
   {
@@ -60,8 +59,6 @@ public:
     void Wait();
     vtkMPICommunicatorOpaqueRequest* Req;
   };
-
-//ETX
 
   vtkTypeMacro( vtkMPICommunicator,vtkCommunicator);
   void PrintSelf(ostream& os, vtkIndent indent);
@@ -235,7 +232,6 @@ public:
   // given the by the pre-allocated completed array.
   int TestSome(const int count,Request requests[],
                int& NCompleted,int *completed);
-//BTX
 
   friend class vtkMPIController;
 
@@ -245,8 +241,6 @@ public:
     }
 
   int InitializeExternal(vtkMPICommunicatorOpaqueComm *comm);
-
-//ETX
 
   static char* Allocate(size_t size);
   static void Free(char* ptr);
@@ -319,8 +313,8 @@ protected:
   static int CheckForMPIError(int err);
 
 private:
-  vtkMPICommunicator(const vtkMPICommunicator&);  // Not implemented.
-  void operator=(const vtkMPICommunicator&);  // Not implemented.
+  vtkMPICommunicator(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPICommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

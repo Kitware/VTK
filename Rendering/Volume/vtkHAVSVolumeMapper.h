@@ -176,7 +176,6 @@ protected:
   vtkHAVSVolumeMapper();
   ~vtkHAVSVolumeMapper();
 
-//BTX
   virtual void Initialize(vtkRenderer *ren, vtkVolume *vol) = 0;
   void InitializePrimitives(vtkVolume *vol);
   void InitializeScalars();
@@ -249,10 +248,9 @@ protected:
   vtkTimeStamp UnstructuredGridMTime;
   vtkTimeStamp ScalarsMTime;
   vtkVolume *LastVolume;
-//ETX
 
 private:
-  vtkHAVSVolumeMapper(const vtkHAVSVolumeMapper&);  // Not implemented.
-  void operator=(const vtkHAVSVolumeMapper&);  // Not implemented.
+  vtkHAVSVolumeMapper(const vtkHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHAVSVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 #endif

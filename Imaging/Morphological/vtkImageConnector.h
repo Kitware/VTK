@@ -35,8 +35,6 @@ class vtkImageData;
 //
 // Special classes for manipulating data
 //
-//BTX - begin tcl exclude
-//
 // For the breadth first search
 class vtkImageConnectorSeed { //;prevent man page generation
 public:
@@ -45,8 +43,6 @@ public:
   int  Index[3];
   vtkImageConnectorSeed *Next;
 };
-//ETX - end tcl exclude
-//
 
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageConnector : public vtkObject
@@ -57,11 +53,10 @@ public:
   vtkTypeMacro(vtkImageConnector,vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   vtkImageConnectorSeed *NewSeed(int index[3], void *ptr);
   void AddSeed(vtkImageConnectorSeed *seed);
   void AddSeedToEnd(vtkImageConnectorSeed *seed);
-  //ETX
+
   void RemoveAllSeeds();
 
   // Description:
@@ -91,8 +86,8 @@ protected:
   vtkImageConnectorSeed *Seeds;
   vtkImageConnectorSeed *LastSeed;
 private:
-  vtkImageConnector(const vtkImageConnector&);  // Not implemented.
-  void operator=(const vtkImageConnector&);  // Not implemented.
+  vtkImageConnector(const vtkImageConnector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageConnector&) VTK_DELETE_FUNCTION;
 };
 
 

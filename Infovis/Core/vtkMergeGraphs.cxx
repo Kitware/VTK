@@ -231,7 +231,7 @@ int vtkMergeGraphs::ExtendGraph(vtkMutableGraphHelper* builder, vtkGraph* graph2
       vtkErrorMacro("EdgeWindowArrayName must not be null if using edge window.");
       return 0;
       }
-    vtkDataArray* windowArr = vtkDataArray::SafeDownCast(
+    vtkDataArray* windowArr = vtkArrayDownCast<vtkDataArray>(
       builder->GetGraph()->GetEdgeData()->GetAbstractArray(this->EdgeWindowArrayName));
     if (!windowArr)
       {

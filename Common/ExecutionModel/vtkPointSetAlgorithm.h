@@ -130,8 +130,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&);  // Not implemented.
-  void operator=(const vtkPointSetAlgorithm&);  // Not implemented.
+  vtkPointSetAlgorithm(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointSetAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

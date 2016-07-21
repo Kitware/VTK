@@ -15,6 +15,11 @@
 // .NAME vtkDepthPeelingPass - Implement an Order Independent Transparency
 // render pass.
 // .SECTION Description
+//
+// Note that this implementation is only used as a fallback for drivers that
+// don't support floating point textures. Most renderings will use the subclass
+// vtkDualDepthPeelingPass instead.
+//
 // Render the translucent polygonal geometry of a scene without sorting
 // polygons in the view direction.
 //
@@ -37,28 +42,25 @@
 #define vtkDepthPeelingPass_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
-#include "vtkRenderPass.h"
+#include "vtkOpenGLRenderPass.h"
 #include <vector>  // STL Header
 
 class vtkTextureObject;
 class vtkOpenGLRenderWindow;
-class vtkInformationIntegerKey;
-class vtkInformationIntegerVectorKey;
 class vtkOpenGLHelper;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass : public vtkRenderPass
+class VTKRENDERINGOPENGL2_EXPORT vtkDepthPeelingPass
+    : public vtkOpenGLRenderPass
 {
 public:
   static vtkDepthPeelingPass *New();
-  vtkTypeMacro(vtkDepthPeelingPass,vtkRenderPass);
+  vtkTypeMacro(vtkDepthPeelingPass,vtkOpenGLRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -99,17 +101,14 @@ public:
   // (Used by vtkOpenGLProperty or vtkOpenGLTexture)
 //  int GetDepthPeelingHigherLayer();
 
-  // Description:
-  // Required Key Indicating the texture unit for the opaque z texture unit
-  static vtkInformationIntegerKey *OpaqueZTextureUnit();
-
-  // Description:
-  // Required Key Indicating the texture unit for the translucent z texture unit
-  static vtkInformationIntegerKey *TranslucentZTextureUnit();
-
-  // Description:
-  // Required Key Indicating the size of the destination
-  static vtkInformationIntegerVectorKey *DestinationSize();
+  // vtkOpenGLRenderPass virtuals:
+  virtual bool ReplaceShaderValues(std::string &vertexShader,
+                                   std::string &geometryShader,
+                                   std::string &fragmentShader,
+                                   vtkAbstractMapper *mapper,
+                                   vtkProp *prop);
+  virtual bool SetShaderParameters(vtkShaderProgram *program,
+                                   vtkAbstractMapper *mapper, vtkProp *prop);
 
  protected:
   // Description:
@@ -167,8 +166,8 @@ public:
   void BlendFinalPeel(vtkOpenGLRenderWindow *renWin);
 
  private:
-  vtkDepthPeelingPass(const vtkDepthPeelingPass&);  // Not implemented.
-  void operator=(const vtkDepthPeelingPass&);  // Not implemented.
+  vtkDepthPeelingPass(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

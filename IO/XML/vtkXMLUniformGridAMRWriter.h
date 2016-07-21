@@ -36,7 +36,6 @@ public:
   virtual const char* GetDefaultFileExtension()
     { return "vth"; }
 
-//BTX
 protected:
   vtkXMLUniformGridAMRWriter();
   ~vtkXMLUniformGridAMRWriter();
@@ -56,9 +55,9 @@ protected:
     vtkXMLDataElement* parent, int &writerIdx);
 
 private:
-  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&); // Not implemented.
-  void operator=(const vtkXMLUniformGridAMRWriter&); // Not implemented.
-//ETX
+  vtkXMLUniformGridAMRWriter(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLUniformGridAMRWriter&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

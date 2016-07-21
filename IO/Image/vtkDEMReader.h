@@ -40,9 +40,7 @@ public:
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
 
-//BTX
   enum {REFERENCE_SEA_LEVEL=0,REFERENCE_ELEVATION_BOUNDS};
-//ETX
 
   // Description:
   // Specify the elevation origin to use. By default, the elevation origin
@@ -164,8 +162,8 @@ protected:
                             vtkInformationVector* outputVector);
 
 private:
-  vtkDEMReader(const vtkDEMReader&);  // Not implemented.
-  void operator=(const vtkDEMReader&);  // Not implemented.
+  vtkDEMReader(const vtkDEMReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDEMReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

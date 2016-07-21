@@ -65,7 +65,7 @@ int vtkLinkEdgels::RequestData(
 
   pd = input->GetPointData();
   dimensions = input->GetDimensions();
-  inScalars = vtkDoubleArray::SafeDownCast(pd->GetScalars());
+  inScalars = vtkArrayDownCast<vtkDoubleArray>(pd->GetScalars());
   inVectors = pd->GetVectors();
   if ((input->GetNumberOfPoints()) < 2 || inScalars == NULL)
     {

@@ -30,10 +30,25 @@ typedef ptrdiff_t GLintptr;
 typedef ptrdiff_t GLsizeiptr;
 #include "GL/glx.h"
 
+
+#ifndef GLAPI
+#define GLAPI extern
+#endif
+
+#ifndef GLAPIENTRY
+#define GLAPIENTRY
+#endif
+
+#ifndef APIENTRY
+#define APIENTRY GLAPIENTRY
+#endif
+
 #include "vtkToolkits.h"
 
 #ifdef VTK_USE_OSMESA
 #include <GL/osmesa.h>
+
+typedef OSMesaContext GLAPIENTRY (*OSMesaCreateContextAttribs_func)( const int *attribList, OSMesaContext sharelist );
 #endif
 
 #include "vtkCommand.h"
@@ -769,6 +784,28 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
       this->Size[1] = height;
       this->OwnWindow = 1;
       }
+
+#if (OSMESA_MAJOR_VERSION * 100 + OSMESA_MINOR_VERSION >= 1102) && defined(OSMESA_CONTEXT_MAJOR_VERSION)
+    static const int attribs[] = {
+       OSMESA_FORMAT, OSMESA_RGBA,
+       OSMESA_DEPTH_BITS, 32,
+       OSMESA_STENCIL_BITS, 0,
+       OSMESA_ACCUM_BITS, 0,
+       OSMESA_PROFILE, OSMESA_CORE_PROFILE,
+       OSMESA_CONTEXT_MAJOR_VERSION, 3,
+       OSMESA_CONTEXT_MINOR_VERSION, 2,
+       0 };
+
+    OSMesaCreateContextAttribs_func OSMesaCreateContextAttribs =
+       (OSMesaCreateContextAttribs_func)
+       OSMesaGetProcAddress("OSMesaCreateContextAttribs");
+
+    if (OSMesaCreateContextAttribs != NULL)
+      {
+      this->Internal->OffScreenContextId = OSMesaCreateContextAttribs(attribs, NULL);
+      }
+#endif
+    // if we still have no context fall back to the generic signature
     if (!this->Internal->OffScreenContextId)
       {
       this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
@@ -1150,7 +1187,25 @@ void vtkXOpenGLRenderWindow::SetSize(int width,int height)
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
-      XSync(this->DisplayId,False);
+      // this is an async call so we wait until we
+      // know it has been resized. To avoid infinite
+      // loops we put in a count limit just to be safe
+      XWindowAttributes attribs;
+      int count = 20000;
+      do
+        {
+        XSync(this->DisplayId,False);
+
+        //  Find the current window size
+        XGetWindowAttributes(this->DisplayId,
+                             this->WindowId, &attribs);
+        count--;
+        }
+      while (count && (attribs.width != width || attribs.height != height));
+      if (!count)
+        {
+        vtkWarningMacro("warning window did not resize in the allotted time");
+        }
       }
 
     this->Modified();

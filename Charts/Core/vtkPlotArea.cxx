@@ -252,9 +252,7 @@ private:
         UseLog(useLog)
     {}
 
-    // Silence warning C4512 on MSVC2015: "assignment operator could not be
-    // generated.". This class is never copied, so no need for assignment.
-    CopyToPoints& operator=(const CopyToPoints &) { return *this; }
+    CopyToPoints& operator=(const CopyToPoints &) VTK_DELETE_FUNCTION;
 
     // Use input array:
     template <class ArrayT>
@@ -547,7 +545,7 @@ void vtkPlotArea::Update()
 
     cache.Reset();
     cache.ValidPointMask = (this->ValidPointMaskName.empty() == false)?
-      vtkCharArray::SafeDownCast(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
+      vtkArrayDownCast<vtkCharArray>(table->GetColumnByName(this->ValidPointMaskName)) : NULL;
     cache.SetPoints(
       this->UseIndexForXSeries? NULL: this->Data->GetInputArrayToProcess(0, table),
       this->Data->GetInputArrayToProcess(1, table),

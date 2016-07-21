@@ -38,10 +38,8 @@ public:
   vtkTypeMacro(vtkColorMaterialHelper, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   void Initialize(vtkShaderProgram2*);
   vtkGetObjectMacro(Shader, vtkShaderProgram2);
-  //ETX
 
   // Description:
   // Capture current OpenGL state and initialize uniform variables
@@ -60,7 +58,6 @@ public:
   // DEPRECATED: Use SetUnformVariables instead.
   void Render();
 
-//BTX
 protected:
   vtkColorMaterialHelper();
   ~vtkColorMaterialHelper();
@@ -80,9 +77,9 @@ protected:
   eMaterialParamater Mode;
 
 private:
-  vtkColorMaterialHelper(const vtkColorMaterialHelper&); // Not implemented.
-  void operator=(const vtkColorMaterialHelper&); // Not implemented.
-//ETX
+  vtkColorMaterialHelper(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkColorMaterialHelper&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

@@ -48,12 +48,6 @@
 
 #include <cstdio> // for snprintf
 
-#if defined(_MSC_VER) && (_MSC_VER < 1900)
-#  define SNPRINTF _snprintf
-#else
-#  define SNPRINTF snprintf
-#endif
-
 #undef VTK_DBG_LAYOUT
 
 vtkStandardNewMacro(vtkScalarBarActor);
@@ -387,6 +381,11 @@ vtkScalarBarActor::~vtkScalarBarActor()
 //----------------------------------------------------------------------------
 int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
 {
+  if (!this->RebuildLayoutIfNeeded(viewport))
+    {
+    return 0;
+    }
+
   int renderedSomething = 0;
 
   // Is the viewport's RenderWindow capturing GL2PS-special props? We'll need
@@ -486,11 +485,8 @@ int vtkScalarBarActor::RenderOverlay(vtkViewport* viewport)
   return renderedSomething;
 }
 
-//----------------------------------------------------------------------------
-int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
+int vtkScalarBarActor::RebuildLayoutIfNeeded(vtkViewport* viewport)
 {
-  int renderedSomething = 0;
-
   if (!this->LookupTable)
     {
     vtkWarningMacro(<< "Need a mapper to render a scalar bar");
@@ -561,6 +557,18 @@ int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
     {
     this->RebuildLayout(viewport);
     }
+  return 1;
+}
+
+//----------------------------------------------------------------------------
+int vtkScalarBarActor::RenderOpaqueGeometry(vtkViewport* viewport)
+{
+  if (!this->RebuildLayoutIfNeeded(viewport))
+    {
+    return 0;
+    }
+
+  int renderedSomething = 0;
 
   // Everything is built, just have to render
   if (this->Title != NULL)
@@ -1315,7 +1323,7 @@ void vtkScalarBarActor::LayoutTicks()
         }
       }
 
-    SNPRINTF(string, 511, this->LabelFormat, val);
+    snprintf(string, 511, this->LabelFormat, val);
     this->P->TextActors[i]->SetInput(string);
 
     // Shallow copy here so that the size of the label prop is not affected

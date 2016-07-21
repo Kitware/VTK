@@ -24,8 +24,12 @@
 #ifndef XDMFGRIDCOLLECTIONTYPE_HPP_
 #define XDMFGRIDCOLLECTIONTYPE_HPP_
 
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
+
+#ifdef __cplusplus
+
+// Includes
 #include "XdmfItemProperty.hpp"
 
 /**
@@ -67,6 +71,7 @@ public:
   virtual ~XdmfGridCollectionType();
 
   friend class XdmfGridCollection;
+  friend class XdmfGridTemplate;
 
   // Supported XdmfGridCollectionTypes
   static shared_ptr<const XdmfGridCollectionType> NoCollectionType();
@@ -89,6 +94,10 @@ protected:
    */
   XdmfGridCollectionType(const std::string & name);
 
+  static std::map<std::string, shared_ptr<const XdmfGridCollectionType>(*)()> mGridCollectionDefinitions;
+
+  static void InitTypes();
+
 private:
 
   XdmfGridCollectionType(const XdmfGridCollectionType &); // Not implemented.
@@ -99,5 +108,26 @@ private:
 
   std::string mName;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+#define XDMF_GRID_COLLECTION_TYPE_SPATIAL            400
+#define XDMF_GRID_COLLECTION_TYPE_TEMPORAL           401
+#define XDMF_GRID_COLLECTION_TYPE_NO_COLLECTION_TYPE 402
+
+XDMF_EXPORT int XdmfGridCollectionTypeNoCollectionType();
+XDMF_EXPORT int XdmfGridCollectionTypeSpatial();
+XDMF_EXPORT int XdmfGridCollectionTypeTemporal();
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif /* XDMFGRIDCOLLECTIONTYPE_HPP_ */

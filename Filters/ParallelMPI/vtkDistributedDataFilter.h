@@ -169,13 +169,11 @@ public:
   vtkGetMacro(ClipCells, int);
   vtkSetMacro(ClipCells, int);
 
-//BTX
   enum BoundaryModes {
     ASSIGN_TO_ONE_REGION=0,
     ASSIGN_TO_ALL_INTERSECTING_REGIONS=1,
     SPLIT_BOUNDARY_CELLS=2
   };
-//ETX
 
   // Description:
   // Handling of ClipCells and IncludeAllIntersectingCells.
@@ -299,7 +297,7 @@ protected:
   // Description:
   // Implementation for request data.
   int RequestDataInternal(vtkDataSet* input, vtkUnstructuredGrid* output);
-//BTX
+
 private:
 
   enum{
@@ -552,11 +550,11 @@ private:
 
   vtkBSPCuts* UserCuts;
 
-  vtkDistributedDataFilter(const vtkDistributedDataFilter&); // Not implemented
-  void operator=(const vtkDistributedDataFilter&); // Not implemented
+  vtkDistributedDataFilter(const vtkDistributedDataFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDistributedDataFilter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 #endif

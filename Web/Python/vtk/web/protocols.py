@@ -6,7 +6,10 @@ very specific web application.
 from time import time
 import os, sys, logging, types, inspect, traceback, logging, re
 
-from vtkWebCorePython import vtkWebApplication, vtkWebInteractionEvent
+try:
+    from vtk.vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
+except ImportError:
+    from vtkWebCore import vtkWebApplication, vtkWebInteractionEvent
 from autobahn.wamp import register as exportRpc
 
 # =============================================================================

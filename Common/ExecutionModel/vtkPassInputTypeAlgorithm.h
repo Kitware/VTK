@@ -181,8 +181,8 @@ protected:
   vtkDataObject *GetInput(int port);
 
 private:
-  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&);  // Not implemented.
-  void operator=(const vtkPassInputTypeAlgorithm&);  // Not implemented.
+  vtkPassInputTypeAlgorithm(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPassInputTypeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

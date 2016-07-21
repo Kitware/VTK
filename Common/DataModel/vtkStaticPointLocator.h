@@ -142,6 +142,12 @@ public:
   // provide an instance of vtkIdList to contain the result.
   void GetBucketIds(vtkIdType bNum, vtkIdList *bList);
 
+  // Description:
+  // Inform the user as to whether large ids are being used. This flag only
+  // has meaning after the locator has been built. Large ids are used when the
+  // number of binned points, or the number of bins, is >= the signed integer
+  // max value.
+  bool GetLargeIds() {return this->LargeIds;}
 
 protected:
   vtkStaticPointLocator();
@@ -151,11 +157,11 @@ protected:
   int Divisions[3]; // Number of sub-divisions in x-y-z directions
   double H[3]; // Width of each bucket in x-y-z directions
   vtkBucketList *Buckets; // Lists of point ids in each bucket
-  int LargeIds; //indicate whether integer ids are small or large
+  bool LargeIds; //indicate whether integer ids are small or large
 
 private:
-  vtkStaticPointLocator(const vtkStaticPointLocator&);  // Not implemented.
-  void operator=(const vtkStaticPointLocator&);  // Not implemented.
+  vtkStaticPointLocator(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStaticPointLocator&) VTK_DELETE_FUNCTION;
 
 };
 

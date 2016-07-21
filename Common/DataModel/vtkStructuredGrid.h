@@ -178,12 +178,10 @@ public:
   // and the source generated more than the update extent.
   virtual void Crop(const int* updateExtent);
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkStructuredGrid* GetData(vtkInformation* info);
   static vtkStructuredGrid* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Get a point in the grid. If adjustForExtent is true, (i,j,k) is
@@ -228,8 +226,8 @@ private:
   static unsigned char MASKED_CELL_VALUE;
 
 private:
-  vtkStructuredGrid(const vtkStructuredGrid&);  // Not implemented.
-  void operator=(const vtkStructuredGrid&);  // Not implemented.
+  vtkStructuredGrid(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGrid&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -273,8 +273,8 @@ protected:
   vtkProperty *SelectedNormalProperty;
 
 private:
-  vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&);  //Not implemented
-  void operator=(const vtkFinitePlaneRepresentation&);  //Not implemented
+  vtkFinitePlaneRepresentation(const vtkFinitePlaneRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFinitePlaneRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

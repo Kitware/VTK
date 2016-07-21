@@ -61,12 +61,10 @@ public:
   vtkTypeMacro(vtkShadowMapPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -156,8 +154,8 @@ public:
   std::vector<float> ShadowAttenuation;
 
 private:
-  vtkShadowMapPass(const vtkShadowMapPass&);  // Not implemented.
-  void operator=(const vtkShadowMapPass&);  // Not implemented.
+  vtkShadowMapPass(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShadowMapPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

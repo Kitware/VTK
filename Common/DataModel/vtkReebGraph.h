@@ -358,8 +358,8 @@ protected:
   Implementation* Storage;
 
 private:
-  vtkReebGraph(const vtkReebGraph&); // Not implemented.
-  void operator=(const vtkReebGraph&); // Not implemented.
+  vtkReebGraph(const vtkReebGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkReebGraph&) VTK_DELETE_FUNCTION;
 
 };
 

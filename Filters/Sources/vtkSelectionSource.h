@@ -23,9 +23,7 @@
 #include "vtkFiltersSourcesModule.h" // For export macro
 #include "vtkSelectionAlgorithm.h"
 
-//BTX
 class vtkSelectionSourceInternals;
-//ETX
 
 class VTKFILTERSSOURCES_EXPORT vtkSelectionSource : public vtkSelectionAlgorithm
 {
@@ -155,8 +153,8 @@ protected:
   char *QueryString;
 
 private:
-  vtkSelectionSource(const vtkSelectionSource&);  // Not implemented.
-  void operator=(const vtkSelectionSource&);  // Not implemented.
+  vtkSelectionSource(const vtkSelectionSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSelectionSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

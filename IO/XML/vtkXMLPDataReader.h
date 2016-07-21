@@ -108,8 +108,8 @@ protected:
   vtkCallbackCommand* PieceProgressObserver;
 
 private:
-  vtkXMLPDataReader(const vtkXMLPDataReader&);  // Not implemented.
-  void operator=(const vtkXMLPDataReader&);  // Not implemented.
+  vtkXMLPDataReader(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPDataReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

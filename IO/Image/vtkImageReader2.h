@@ -191,10 +191,8 @@ public:
   virtual int GetSwapBytes() {return this->SwapBytes;}
   vtkBooleanMacro(SwapBytes,int);
 
-//BTX
   ifstream *GetFile() {return this->File;}
   vtkGetVectorMacro(DataIncrements,unsigned long,4);
-//ETX
 
   virtual int OpenFile();
   virtual void SeekFile(int i, int j, int k);
@@ -278,8 +276,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation *outInfo);
   virtual void ComputeDataIncrements();
 private:
-  vtkImageReader2(const vtkImageReader2&);  // Not implemented.
-  void operator=(const vtkImageReader2&);  // Not implemented.
+  vtkImageReader2(const vtkImageReader2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageReader2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

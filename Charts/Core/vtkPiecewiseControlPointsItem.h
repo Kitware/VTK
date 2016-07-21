@@ -81,8 +81,8 @@ protected:
   vtkPiecewiseFunction* PiecewiseFunction;
 
 private:
-  vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &); // Not implemented.
-  void operator=(const vtkPiecewiseControlPointsItem &);   // Not implemented.
+  vtkPiecewiseControlPointsItem(const vtkPiecewiseControlPointsItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPiecewiseControlPointsItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif

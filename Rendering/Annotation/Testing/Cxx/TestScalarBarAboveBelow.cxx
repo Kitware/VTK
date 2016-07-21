@@ -90,5 +90,6 @@ int TestScalarBarAboveBelow(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   renderWindow->SetMultiSamples(0);
   renderWindow->Render();
   renderWindowInteractor->Start();
+
   return EXIT_SUCCESS;
 }

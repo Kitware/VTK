@@ -130,11 +130,11 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   virtual int FillInputPortInformation(int, vtkInformation *);
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 private:
-  vtkSelectEnclosedPoints(const vtkSelectEnclosedPoints&);  // Not implemented.
-  void operator=(const vtkSelectEnclosedPoints&);  // Not implemented.
+  vtkSelectEnclosedPoints(const vtkSelectEnclosedPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSelectEnclosedPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

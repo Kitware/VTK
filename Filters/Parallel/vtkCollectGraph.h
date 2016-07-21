@@ -57,13 +57,11 @@ public:
   vtkGetMacro(PassThrough, int);
   vtkBooleanMacro(PassThrough, int);
 
-  //BTX
   enum {
     DIRECTED_OUTPUT,
     UNDIRECTED_OUTPUT,
     USE_INPUT_TYPE
   };
-  //ETX
 
   // Description:
   // Directedness flag, used to signal whether the output graph is directed or undirected.
@@ -91,8 +89,8 @@ protected:
   vtkSocketController *SocketController;
 
 private:
-  vtkCollectGraph(const vtkCollectGraph&); // Not implemented
-  void operator=(const vtkCollectGraph&); // Not implemented
+  vtkCollectGraph(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCollectGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -223,7 +223,6 @@ class vtkVertexListIterator;
 class vtkVariant;
 class vtkVariantArray;
 
-//BTX
 // Forward declare some boost stuff even if boost wrappers
 // are turned off.
 namespace boost
@@ -270,7 +269,6 @@ struct vtkEdgeType : vtkEdgeBase
   vtkIdType Source;
   vtkIdType Target;
 };
-//ETX
 
 class VTKCOMMONDATAMODEL_EXPORT vtkGraph : public vtkDataObject
 {
@@ -344,11 +342,9 @@ public:
   // distributed graph, the vertex v must be local to this processor.
   virtual vtkIdType GetOutDegree(vtkIdType v);
 
-  //BTX
   // Description:
   // Random-access method for retrieving outgoing edges from vertex v.
   virtual vtkOutEdgeType GetOutEdge(vtkIdType v, vtkIdType index);
-  //ETX
 
   // Description:
   // Random-access method for retrieving outgoing edges from vertex v.
@@ -370,11 +366,9 @@ public:
   // distributed graph, the vertex v must be local to this processor.
   virtual vtkIdType GetInDegree(vtkIdType v);
 
-  //BTX
   // Description:
   // Random-access method for retrieving incoming edges to vertex v.
   virtual vtkInEdgeType GetInEdge(vtkIdType v, vtkIdType index);
-  //ETX
 
   // Description:
   // Random-access method for retrieving incoming edges to vertex v.
@@ -413,7 +407,6 @@ public:
   // returns the number of local vertices in the graph.
   virtual vtkIdType GetNumberOfVertices();
 
-  // BTX
   // Description:
   // Sets the distributed graph helper of this graph, turning it into a
   // distributed graph. This operation can only be executed on an empty
@@ -423,7 +416,6 @@ public:
   // Description:
   // Retrieves the distributed graph helper for this graph
   vtkDistributedGraphHelper *GetDistributedGraphHelper();
-  //ETX
 
   // Description:
   // Retrieve the vertex with the given pedigree ID. If successful,
@@ -465,12 +457,10 @@ public:
   // Reclaim unused memory.
   virtual void Squeeze();
 
-  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkGraph *GetData(vtkInformation *info);
   static vtkGraph *GetData(vtkInformationVector *v, int i=0);
-  //ETX
 
   // Description:
   // Reorder the outgoing vertices of a vertex.
@@ -496,14 +486,12 @@ public:
   vtkIdType GetSourceVertex(vtkIdType e);
   vtkIdType GetTargetVertex(vtkIdType e);
 
-  //BTX
   // Description:
   // Get/Set the internal edge control points associated with each edge.
   // The size of the pts array is 3*npts, and holds the x,y,z
   // location of each edge control point.
   void SetEdgePoints(vtkIdType e, vtkIdType npts, double* pts);
   void GetEdgePoints(vtkIdType e, vtkIdType& npts, double*& pts);
-  //ETX
 
   // Description:
   // Get the number of edge points associated with an edge.
@@ -581,7 +569,7 @@ public:
   bool ToUndirectedGraph(vtkUndirectedGraph* g);
 
 protected:
-  //BTX
+
   vtkGraph();
   ~vtkGraph();
 
@@ -633,7 +621,6 @@ protected:
   // Description:
   // Removes a collection of edges from the graph.
   void RemoveEdgesInternal(vtkIdTypeArray* arr, bool directed);
-  //ETX
 
   // Description:
   // Subclasses override this method to accept the structure
@@ -678,7 +665,6 @@ protected:
   // Builds a mapping from edge id to source/target vertex id.
   void BuildEdgeList();
 
-  //BTX
   // Description:
   // Friend iterator classes.
   friend class vtkAdjacentVertexIterator;
@@ -688,7 +674,6 @@ protected:
   friend class boost::vtk_edge_iterator;
   friend class boost::vtk_in_edge_pointer_iterator;
   friend class boost::vtk_out_edge_pointer_iterator;
-  //ETX
 
   // Description:
   // The vertex and edge data.
@@ -713,16 +698,14 @@ protected:
   vtkGetObjectMacro(EdgeList, vtkIdTypeArray);
   virtual void SetEdgeList(vtkIdTypeArray* list);
   vtkIdTypeArray *EdgeList;
-  //ETX
+
 private:
-  vtkGraph(const vtkGraph&);  // Not implemented.
-  void operator=(const vtkGraph&);  // Not implemented.
+  vtkGraph(const vtkGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraph&) VTK_DELETE_FUNCTION;
 };
 
-//BTX
 bool VTKCOMMONDATAMODEL_EXPORT operator==(vtkEdgeBase e1, vtkEdgeBase e2);
 bool VTKCOMMONDATAMODEL_EXPORT operator!=(vtkEdgeBase e1, vtkEdgeBase e2);
 VTKCOMMONDATAMODEL_EXPORT ostream& operator<<(ostream& out, vtkEdgeBase e);
-//ETX
 
 #endif

@@ -43,7 +43,7 @@ class vtkStringArray;
 class vtkSimpleMutexLock;
 class vtkUnsignedShortArray;
 
-// Hidden STL reference: vtkstd::vector<vtkAbstractArray*>
+// Hidden STL reference: std::vector<vtkAbstractArray*>
 class MyStdVectorOfVtkAbstractArrays;
 
 class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
@@ -155,8 +155,8 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   void PrintSelfIfExists(const char *, vtkObject *, ostream&, vtkIndent);
 
  private:
-  vtkBlueObeliskData(const vtkBlueObeliskData&); // Not implemented.
-  void operator=(const vtkBlueObeliskData&); // Not implemented.
+  vtkBlueObeliskData(const vtkBlueObeliskData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBlueObeliskData&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -238,13 +238,11 @@ protected:
   // If a VALUES selection, the array names used in the selection.
   vtkStringArray* SelectionArrayNames;
 
-  //BTX
   friend class vtkView;
   friend class vtkRenderView;
   class Command;
   friend class Command;
   Command* Observer;
-  //ETX
 
   // ------------------------------------------------------------------------
   // Methods to override in subclasses
@@ -272,13 +270,12 @@ protected:
   void SetInternalInput(int port, int conn, vtkTrivialProducer* producer);
 
 private:
-  vtkDataRepresentation(const vtkDataRepresentation&);  // Not implemented.
-  void operator=(const vtkDataRepresentation&);  // Not implemented.
+  vtkDataRepresentation(const vtkDataRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataRepresentation&) VTK_DELETE_FUNCTION;
 
-  //BTX
   class Internals;
   Internals* Implementation;
-  //ETX
+
 };
 
 #endif

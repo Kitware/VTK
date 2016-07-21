@@ -46,8 +46,8 @@ public:
     { return new vtkLODProp3DCallback; }
 
   // the execute
-  virtual void Execute(vtkObject *caller,
-                       unsigned long event, void* vtkNotUsed(v))
+  void Execute(vtkObject *caller,
+                       unsigned long event, void* vtkNotUsed(v)) VTK_OVERRIDE
     {
       vtkProp *po = vtkProp::SafeDownCast(caller);
       if (event == vtkCommand::PickEvent && po)

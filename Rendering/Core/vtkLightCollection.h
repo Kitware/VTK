@@ -45,12 +45,10 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
   // exhausted.
   vtkLight *GetNextItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkLight *GetNextLight(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkLightCollection() {}
@@ -62,8 +60,8 @@ private:
     { this->vtkCollection::AddItem(o); }
 
 private:
-  vtkLightCollection(const vtkLightCollection&);  // Not implemented.
-  void operator=(const vtkLightCollection&);  // Not implemented.
+  vtkLightCollection(const vtkLightCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightCollection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -51,12 +51,10 @@ public:
   // this is done automatically in SateChanged.
   void Update();
 
-  //BTX
   // Description:
   // Set the matrix data.
   void SetProjection(float *val);
   void SetModelView(float *val);
-  //ETX
 
 protected:
   vtkOpenGLModelViewProjectionMonitor() : UpTime(0)
@@ -72,8 +70,8 @@ private:
   long long UpTime;
 
 private:
-  vtkOpenGLModelViewProjectionMonitor(const vtkOpenGLModelViewProjectionMonitor&); // Not implemented
-  void operator=(const vtkOpenGLModelViewProjectionMonitor &); // Not implemented
+  vtkOpenGLModelViewProjectionMonitor(const vtkOpenGLModelViewProjectionMonitor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLModelViewProjectionMonitor &) VTK_DELETE_FUNCTION;
 };
 
 #endif

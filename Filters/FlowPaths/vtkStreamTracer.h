@@ -125,7 +125,6 @@ public:
   // New style.
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
-//BTX
   // The previously-supported TIME_UNIT is excluded in this current
   // enumeration definition because the underlying step size is ALWAYS in
   // arc length unit (LENGTH_UNIT) while the 'real' time interval (virtual
@@ -159,7 +158,6 @@ public:
     OUT_OF_STEPS = 5,
     STAGNATION = 6
   };
-//ETX
 
   // Description:
   // Set/get the integrator type to be used for streamline generation.
@@ -250,7 +248,6 @@ public:
   vtkSetMacro(SurfaceStreamlines, bool);
   vtkBooleanMacro(SurfaceStreamlines, bool);
 
-//BTX
   enum
   {
     FORWARD,
@@ -263,7 +260,6 @@ public:
     INTERPOLATOR_WITH_DATASET_POINT_LOCATOR,
     INTERPOLATOR_WITH_CELL_LOCATOR
   };
-//ETX
 
   // Description:
   // Specify whether the streamline is integrated in the upstream or
@@ -353,7 +349,6 @@ protected:
 
   double LastUsedStepSize;
 
-//BTX
   struct IntervalInformation
   {
     double Interval;
@@ -369,8 +364,6 @@ protected:
                         int direction, double cellLength );
   static double ConvertToLength( double interval, int unit, double cellLength );
   static double ConvertToLength( IntervalInformation& interval, double cellLength );
-
-//ETX
 
   int SetupOutput(vtkInformation* inInfo,
                   vtkInformation* outInfo);
@@ -402,8 +395,8 @@ protected:
   friend class PStreamTracerUtils;
 
 private:
-  vtkStreamTracer(const vtkStreamTracer&);  // Not implemented.
-  void operator=(const vtkStreamTracer&);  // Not implemented.
+  vtkStreamTracer(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamTracer&) VTK_DELETE_FUNCTION;
 };
 
 

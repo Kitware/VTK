@@ -24,14 +24,17 @@
 #ifndef XDMFSET_HPP_
 #define XDMFSET_HPP_
 
+// C Compatible Includes
+#include "Xdmf.hpp"
+#include "XdmfArray.hpp"
+#include "XdmfAttribute.hpp"
+#include "XdmfSetType.hpp"
+
+#ifdef __cplusplus
+
 // Forward Declarations
 class XdmfAttribute;
 class XdmfHDF5Controller;
-class XdmfSetType;
-
-// Includes
-#include "Xdmf.hpp"
-#include "XdmfArray.hpp"
 
 /**
  * @brief Holds a collection of individual nodes, cells, faces, or
@@ -195,6 +198,8 @@ public:
 
   void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
+  XdmfSet(XdmfSet &);
+
 protected:
 
   XdmfSet();
@@ -206,11 +211,47 @@ protected:
 
 private:
 
-  XdmfSet(const XdmfSet &);  // Not implemented.
+  XdmfSet(const XdmfSet &);
   void operator=(const XdmfSet &);  // Not implemented.
 
   std::string mName;
   shared_ptr<const XdmfSetType> mType;
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFSET; // Simply as a typedef to ensure correct typing
+typedef struct XDMFSET XDMFSET;
+
+XDMF_EXPORT XDMFSET * XdmfSetNew();
+
+XDMF_EXPORT XDMFATTRIBUTE * XdmfSetGetAttribute(XDMFSET * set, unsigned int index);
+
+XDMF_EXPORT XDMFATTRIBUTE * XdmfSetGetAttributeByName(XDMFSET * set, char * Name);
+
+XDMF_EXPORT unsigned int XdmfSetGetNumberAttributes(XDMFSET * set);
+
+XDMF_EXPORT int XdmfSetGetType(XDMFSET * set);
+
+XDMF_EXPORT void XdmfSetInsertAttribute(XDMFSET * set, XDMFATTRIBUTE * Attribute, int passControl);
+
+XDMF_EXPORT void XdmfSetRemoveAttribute(XDMFSET * set, unsigned int index);
+
+XDMF_EXPORT void XdmfSetRemoveAttributeByName(XDMFSET * set, char * Name);
+
+XDMF_EXPORT void XdmfSetSetType(XDMFSET * set, int type, int * status);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfSet, XDMFSET, XDMF)
+XDMF_ARRAY_C_CHILD_DECLARE(XdmfSet, XDMFSET, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFSET_HPP_ */

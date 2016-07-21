@@ -98,7 +98,6 @@ public:
   vtkSetMacro(MaximumDepth,int);
   vtkGetMacro(MaximumDepth,int);
 
-  //BTX
   // Description:
   // Enumeration of iterator types.
   enum IteratorType {
@@ -107,7 +106,6 @@ public:
     DEPTH_FIRST,
     FRUSTUM
   };
-  //ETX
 
   // Description:
   // The default text property assigned to labels in this hierarchy.
@@ -144,7 +142,6 @@ public:
   virtual void SetBoundedSizes(vtkDataArray* arr);
   vtkGetObjectMacro(BoundedSizes,vtkDataArray);
 
-  //BTX
   // Description:
   // Returns an iterator for this data object.
   // positionsAsNormals should only be true when labels are on a sphere centered at the origin
@@ -155,9 +152,8 @@ public:
   // @param frustumPlanes - should be the output of the camera's frustum planes.
   // @param positionsAsNormals - throws out octree nodes on the opposite side of the origin.
   // @param bucketSize - an array of 2 integers describing the width and height of label placer buckets.
-  vtkLabelHierarchyIterator* NewIterator(
+  VTK_NEWINSTANCE vtkLabelHierarchyIterator* NewIterator(
     int type, vtkRenderer* ren, vtkCamera* cam, double frustumPlanes[24], bool positionsAsNormals, float bucketSize[2] );
-  //ETX
 
   // Description:
   // Given a depth in the hierarchy (\a level) and a point \a pt in world space, compute \a ijk.
@@ -193,10 +189,8 @@ public:
   virtual vtkIdType FindCell(double*, vtkCell*, vtkGenericCell*, vtkIdType, double, int&, double*, double*);
   virtual int GetMaxCellSize();
 
-  //BTX
   class Implementation;
   Implementation* GetImplementation() { return this->Impl; }
-  //ETX
 
   // Description:
   // Provide access to original coordinates of sets of coincident points
@@ -224,17 +218,15 @@ protected:
   vtkPoints* CenterPts;
   vtkTextProperty* TextProperty;
 
-  //BTX
   Implementation* Impl;
 
   friend class vtkLabelHierarchyFrustumIterator;
   friend class vtkLabelHierarchyFullSortIterator;
   friend class implementation;
-  //ETX
 
 private:
-  vtkLabelHierarchy( const vtkLabelHierarchy& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchy& ); // Not implemented.
+  vtkLabelHierarchy( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLabelHierarchy& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelHierarchy_h

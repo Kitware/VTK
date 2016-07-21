@@ -81,7 +81,7 @@ public:
   // See vtkAlgorithm for information.
   virtual int ProcessRequest(vtkInformation *, vtkInformationVector **,
                              vtkInformationVector *);
-//BTX
+
 protected:
   vtkGenericDataObjectReader();
   ~vtkGenericDataObjectReader();
@@ -95,14 +95,14 @@ protected:
                                  vtkInformationVector *);
 
 private:
-  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&);  // Not implemented.
-  void operator=(const vtkGenericDataObjectReader&);  // Not implemented.
+  vtkGenericDataObjectReader(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataObjectReader&) VTK_DELETE_FUNCTION;
 
   template<typename ReaderT, typename DataT>
     void ReadData(const char* dataClass, vtkDataObject* output);
 
   vtkSetStringMacro(Header);
-//ETX
+
 };
 
 #endif

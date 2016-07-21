@@ -38,11 +38,9 @@ public:
   vtkTypeMacro(vtkXMLStructuredGridWriter,vtkXMLStructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkStructuredGrid* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -70,8 +68,8 @@ protected:
   virtual void DeletePositionArrays();
 
 private:
-  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLStructuredGridWriter&);  // Not implemented.
+  vtkXMLStructuredGridWriter(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLStructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -114,7 +114,6 @@ public:
   // Get the final color level.
   vtkGetMacro( FinalColorLevel,  float );
 
-//BTX
 // The possible values for the default and current render mode ivars
   enum
   {
@@ -130,7 +129,6 @@ public:
     UndefinedRenderMode=5,
     InvalidRenderMode=6
   };
-//ETX
 
   // Description:
   // Set the requested render mode. The default is
@@ -248,8 +246,6 @@ public:
   vtkSetMacro( SampleDistance, float );
   vtkGetMacro( SampleDistance, float );
 
-
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -261,7 +257,6 @@ public:
   // The parameter window could be used to determine which graphic
   // resources to release.
   void ReleaseGraphicsResources(vtkWindow *);
-//ETX
 
 protected:
   vtkSmartVolumeMapper();
@@ -348,8 +343,8 @@ protected:
   int InteractiveAdjustSampleDistances;
 
 private:
-  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&);  // Not implemented.
-  void operator=(const vtkSmartVolumeMapper&);  // Not implemented.
+  vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

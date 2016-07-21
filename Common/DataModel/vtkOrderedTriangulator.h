@@ -311,7 +311,6 @@ private:
   int        PreSorted;
   int        UseTwoSortIds;
   vtkHeap   *Heap;
-  double     Quanta;
 
   int             UseTemplates;
   int             CellType;
@@ -324,8 +323,8 @@ private:
   TemplateIDType  ComputeTemplateIndex();
 
 private:
-  vtkOrderedTriangulator(const vtkOrderedTriangulator&);  // Not implemented.
-  void operator=(const vtkOrderedTriangulator&);  // Not implemented.
+  vtkOrderedTriangulator(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOrderedTriangulator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

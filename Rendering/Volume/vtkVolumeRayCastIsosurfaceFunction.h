@@ -63,24 +63,21 @@ public:
   // These variables are filled in by SpecificFunctionInitialize
   float       Color[3];
 
-//BTX
   void CastRay( vtkVolumeRayCastDynamicInfo *dynamicInfo,
                 vtkVolumeRayCastStaticInfo *staticInfo);
-//ETX
 
 protected:
   vtkVolumeRayCastIsosurfaceFunction();
   ~vtkVolumeRayCastIsosurfaceFunction();
 
-//BTX
   void SpecificFunctionInitialize( vtkRenderer *ren,
                                    vtkVolume   *vol,
                                    vtkVolumeRayCastStaticInfo *staticInfo,
                                    vtkVolumeRayCastMapper *mapper );
-//ETX
+
 private:
-  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastIsosurfaceFunction&);  // Not implemented.
+  vtkVolumeRayCastIsosurfaceFunction(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastIsosurfaceFunction&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

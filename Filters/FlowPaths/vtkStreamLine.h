@@ -77,8 +77,8 @@ protected:
   double StepLength;
 
 private:
-  vtkStreamLine(const vtkStreamLine&);  // Not implemented.
-  void operator=(const vtkStreamLine&);  // Not implemented.
+  vtkStreamLine(const vtkStreamLine&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStreamLine&) VTK_DELETE_FUNCTION;
 };
 
 #endif // VTK_LEGACY_REMOVE

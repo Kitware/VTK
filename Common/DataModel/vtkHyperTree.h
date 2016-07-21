@@ -160,6 +160,7 @@ public:
   // Return an instance of a templated hypertree for given branch
   // factor and dimension
   // This is done to hide templates.
+  VTK_NEWINSTANCE
   static vtkHyperTree* CreateInstance( unsigned int branchFactor,
                                        unsigned int dimension );
 
@@ -188,8 +189,8 @@ protected:
   }
 
 private:
-  vtkHyperTree(const vtkHyperTree&);  // Not implemented.
-  void operator=(const vtkHyperTree&);    // Not implemented.
+  vtkHyperTree(const vtkHyperTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperTree&) VTK_DELETE_FUNCTION;
 };
 
 

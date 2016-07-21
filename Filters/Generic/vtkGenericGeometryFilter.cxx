@@ -33,6 +33,7 @@
 #include "vtkWedge.h"
 #include "vtkDoubleArray.h"
 #include "vtkGenericCellIterator.h"
+#include "vtkGenericPointIterator.h"
 #include "vtkGenericAdaptorCell.h"
 #include "vtkGenericDataSet.h"
 #include "vtkGenericAttributeCollection.h"
@@ -140,26 +141,21 @@ int vtkGenericGeometryFilter::RequestData(
 
   vtkIdType cellId;
   int i, j;
-//  vtkGenericDataSet *input= this->GetInput();
   vtkIdType numPts = input->GetNumberOfPoints();
   vtkIdType numCells = input->GetNumberOfCells();
   char *cellVis;
   vtkGenericAdaptorCell *cell;
   double x[3]={0,0,0};
-  //vtkIdList *ptIds;
   vtkIdType ptIds[4];
 
   vtkIdType ptId;
-  //int npts;
-  //vtkIdType pt=0;
   int allVisible;
-//  vtkPolyData *output = this->GetOutput();
   vtkPointData *outputPD = output->GetPointData();
   vtkCellData *outputCD = output->GetCellData();
 
   if (numCells == 0)
     {
-    vtkErrorMacro(<<"No data to clip");
+    vtkErrorMacro(<<"Number of cells is zero, no data to process.");
     return 1;
     }
 
@@ -193,19 +189,25 @@ int vtkGenericGeometryFilter::RequestData(
         }
       else
         {
-        //ptIds = cell->GetPointIds();
+        vtkGenericPointIterator *pointIt = input->NewPointIterator();
+        cell->GetPointIterator(pointIt);
+        pointIt->Begin();
+
         cell->GetPointIds( ptIds );
         for (i=0; i < cell->GetNumberOfPoints(); i++)
           {
           ptId = ptIds[i];
-          //input->GetPoint(ptId, x);
+
+          // Get point coordinate
+          pointIt->GetPosition(x);
+          pointIt->Next();
 
           if ( (this->PointClipping && (ptId < this->PointMinimum ||
                ptId > this->PointMaximum) ) ||
                (this->ExtentClipping &&
               (x[0] < this->Extent[0] || x[0] > this->Extent[1] ||
-              x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
-              x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
+               x[1] < this->Extent[2] || x[1] > this->Extent[3] ||
+               x[2] < this->Extent[4] || x[2] > this->Extent[5] )) )
             {
             cellVis[cellId] = 0;
             break;
@@ -215,6 +217,7 @@ int vtkGenericGeometryFilter::RequestData(
           {
           cellVis[cellId] = 1;
           }
+        pointIt->Delete();
         }
       }
     }
@@ -230,11 +233,9 @@ int vtkGenericGeometryFilter::RequestData(
   output->Allocate(numCells);
 
   vtkPoints *newPts = vtkPoints::New();
-//FB  vtkDoubleArray *newScalars = vtkDoubleArray::New();
   vtkCellArray *cellArray = vtkCellArray::New();
 
   newPts->Allocate(estimatedSize,numPts);
-//FB  newScalars->Allocate(estimatedSize, 5*numPts);
   cellArray->Allocate(numCells);
 
 
@@ -337,7 +338,7 @@ int vtkGenericGeometryFilter::RequestData(
         {
         // create new points and then cell
         case 0: case 1:
-            vtkErrorMacro( "Cell not handled yet" );
+          vtkErrorMacro( "Cell of dimension " << cell->GetDimension() << " not handled yet." );
             break;
         case 2:
             if ( cell->IsOnBoundary() )
@@ -392,12 +393,9 @@ int vtkGenericGeometryFilter::RequestData(
   //
   output->SetPoints(newPts);
   output->SetPolys(cellArray);
-//FB  newScalars->SetNumberOfTuples( newPts->GetNumberOfPoints() );
-//FB  outputPD->SetScalars(newScalars);
 
   cellArray->Delete();
   newPts->Delete();
-//FB  newScalars->Delete();
   faceList->Delete();
 
   //free storage
@@ -440,32 +438,32 @@ void vtkGenericGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Point Minimum : " << this->PointMinimum << "\n";
-  os << indent << "Point Maximum : " << this->PointMaximum << "\n";
+  os << indent << "Point Minimum : " << this->GetPointMinimum() << "\n";
+  os << indent << "Point Maximum : " << this->GetPointMaximum() << "\n";
 
-  os << indent << "Cell Minimum : " << this->CellMinimum << "\n";
-  os << indent << "Cell Maximum : " << this->CellMaximum << "\n";
+  os << indent << "Cell Minimum : " << this->GetCellMinimum() << "\n";
+  os << indent << "Cell Maximum : " << this->GetCellMaximum() << "\n";
 
   os << indent << "Extent: \n";
   os << indent << "  Xmin,Xmax: (" << this->Extent[0] << ", " << this->Extent[1] << ")\n";
   os << indent << "  Ymin,Ymax: (" << this->Extent[2] << ", " << this->Extent[3] << ")\n";
   os << indent << "  Zmin,Zmax: (" << this->Extent[4] << ", " << this->Extent[5] << ")\n";
 
-  os << indent << "PointClipping: " << (this->PointClipping ? "On\n" : "Off\n");
-  os << indent << "CellClipping: " << (this->CellClipping ? "On\n" : "Off\n");
-  os << indent << "ExtentClipping: " << (this->ExtentClipping ? "On\n" : "Off\n");
+  os << indent << "PointClipping: " << (this->GetPointClipping() ? "On\n" : "Off\n");
+  os << indent << "CellClipping: " << (this->GetCellClipping() ? "On\n" : "Off\n");
+  os << indent << "ExtentClipping: " << (this->GetExtentClipping() ? "On\n" : "Off\n");
 
-  os << indent << "Merging: " << (this->Merging ? "On\n" : "Off\n");
-  if ( this->Locator )
+  os << indent << "Merging: " << (this->GetMerging() ? "On\n" : "Off\n");
+  if ( this->GetLocator() )
     {
-    os << indent << "Locator: " << this->Locator << "\n";
+      os << indent << "Locator: " << this->GetLocator() << "\n";
     }
   else
     {
     os << indent << "Locator: (none)\n";
     }
 
-  os << indent << "PassThroughCellIds: " << (this->PassThroughCellIds ? "On\n" : "Off\n");
+  os << indent << "PassThroughCellIds: " << (this->GetPassThroughCellIds() ? "On\n" : "Off\n");
 
 }
 
@@ -514,23 +512,5 @@ int vtkGenericGeometryFilter::RequestUpdateExtent(
               ghostLevels);
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
 
-  return 1;
-}
-
-//----------------------------------------------------------------------------
-int vtkGenericGeometryFilter::RequestInformation(
-  vtkInformation *vtkNotUsed(request),
-  vtkInformationVector **vtkNotUsed(inputVector),
-  vtkInformationVector *vtkNotUsed(outputVector))
-{
-  // get the info objects
-//  vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
-//  vtkInformation *outInfo = outputVector->GetInformationObject(0);
-
-  if (this->GetInput() == NULL)
-    {
-    vtkErrorMacro("No Input");
-    return 1;
-    }
   return 1;
 }

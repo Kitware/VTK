@@ -44,6 +44,7 @@ vtkInteractorStyleImage::vtkInteractorStyleImage()
   this->WindowLevelInitial[1] = 0.5; // Level
 
   this->CurrentImageProperty = 0;
+  this->CurrentImageNumber = -1;
 
   this->InteractionMode = VTKIS_IMAGE2D;
 
@@ -91,7 +92,7 @@ void vtkInteractorStyleImage::StartWindowLevel()
   this->StartState(VTKIS_WINDOW_LEVEL);
 
   // Get the last (the topmost) image
-  this->SetCurrentImageToNthImage(-1);
+  this->SetCurrentImageNumber(this->CurrentImageNumber);
 
   if (this->HandleObservers &&
       this->HasObserver(vtkCommand::StartWindowLevelEvent))
@@ -626,8 +627,10 @@ void vtkInteractorStyleImage::SetImageOrientation(
 // interactor ivars from the Nth image that it finds.  You can
 // also use negative numbers, i.e. -1 will return the last image,
 // -2 will return the second-to-last image, etc.
-void vtkInteractorStyleImage::SetCurrentImageToNthImage(int i)
+void vtkInteractorStyleImage::SetCurrentImageNumber(int i)
 {
+  this->CurrentImageNumber = i;
+
   if (!this->CurrentRenderer)
     {
     return;
@@ -648,9 +651,10 @@ void vtkInteractorStyleImage::SetCurrentImageToNthImage(int i)
       for (prop->InitPathTraversal(); (path = prop->GetNextPath()); )
         {
         vtkProp *tryProp = path->GetLastNode()->GetViewProp();
-        if ( (imageProp = vtkImageSlice::SafeDownCast(tryProp)) != 0 )
+        imageProp = vtkImageSlice::SafeDownCast(tryProp);
+        if (imageProp)
           {
-          if (j == i)
+          if (j == i && imageProp->GetPickable())
             {
             foundImageProp = true;
             break;

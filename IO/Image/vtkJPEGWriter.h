@@ -78,8 +78,8 @@ private:
   FILE *TempFP;
 
 private:
-  vtkJPEGWriter(const vtkJPEGWriter&);  // Not implemented.
-  void operator=(const vtkJPEGWriter&);  // Not implemented.
+  vtkJPEGWriter(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkJPEGWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

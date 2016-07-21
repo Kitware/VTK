@@ -112,8 +112,8 @@ protected:
   bool ReversePriority;
 
 private:
-  vtkDynamic2DLabelMapper(const vtkDynamic2DLabelMapper&);  // Not implemented.
-  void operator=(const vtkDynamic2DLabelMapper&);  // Not implemented.
+  vtkDynamic2DLabelMapper(const vtkDynamic2DLabelMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDynamic2DLabelMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

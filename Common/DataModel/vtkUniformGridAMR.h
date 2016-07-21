@@ -38,7 +38,7 @@ public:
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual vtkCompositeDataIterator* NewIterator();
+  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
@@ -118,7 +118,6 @@ public:
   // Retrieve an instance of this class from an information object.
   static vtkUniformGridAMR* GetData(vtkInformation* info);
   static vtkUniformGridAMR* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkUniformGridAMR();
@@ -139,8 +138,8 @@ protected:
 
 
 private:
-  vtkUniformGridAMR(const vtkUniformGridAMR&);  // Not implemented.
-  void operator=(const vtkUniformGridAMR&);  // Not implemented.
+  vtkUniformGridAMR(const vtkUniformGridAMR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGridAMR&) VTK_DELETE_FUNCTION;
 
   friend class vtkUniformGridAMRDataIterator;
 };

@@ -151,7 +151,6 @@ protected:
   // Update of the progress.
   void DoProgressUpdate( size_t & bytesRead, size_t & fileLength );
 
-  //BTX
   // Description:
   // Enumerate the supported file types.
   // <pre>
@@ -161,7 +160,6 @@ protected:
   // </pre>
   enum FILE_TYPE { FILE_TYPE_IS_UNKNOWN = 0,
     FILE_TYPE_IS_TEXT, FILE_TYPE_IS_BINARY };
-  //ETX
 
   int HasScalar;
   // Description:
@@ -182,8 +180,8 @@ protected:
   size_t NumberOfPoints;
 
 private:
-  vtkParticleReader(const vtkParticleReader&);  // Not implemented.
-  void operator=(const vtkParticleReader&);  // Not implemented.
+  vtkParticleReader(const vtkParticleReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParticleReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

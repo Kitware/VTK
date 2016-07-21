@@ -39,11 +39,9 @@ public:
   // max of forty.
   vtkIndent GetNextIndent();
 
-  //BTX
   // Description:
   // Print out the indentation. Basically output a bunch of spaces.
   friend VTKCOMMONCORE_EXPORT ostream& operator<<(ostream& os, const vtkIndent& o);
-  //ETX
 
 protected:
   int Indent;

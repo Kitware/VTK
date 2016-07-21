@@ -49,7 +49,6 @@ class vtkDoubleArray;
 class vtkUnstructuredGridVolumeRayIntegrator;
 class vtkRenderWindow;
 
-//BTX
 // Internal classes
 namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
 {
@@ -63,7 +62,6 @@ namespace vtkUnstructuredGridVolumeZSweepMapperNamespace
   class vtkVertexEntry;
   class vtkPixelListEntryMemory;
 };
-//ETX
 
 class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeZSweepMapper : public vtkUnstructuredGridVolumeMapper
 {
@@ -129,7 +127,6 @@ public:
   virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -140,7 +137,6 @@ public:
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
   vtkGetVectorMacro( ImageOrigin, int, 2 );
   vtkGetVectorMacro( ImageViewportSize, int , 2 );
-//ETX
 
 protected:
   vtkUnstructuredGridVolumeZSweepMapper();
@@ -185,7 +181,6 @@ protected:
   // Perform scan conversion of a triangle face.
   void RasterizeFace(vtkIdType faceIds[3], int externalSide);
 
-//BTX
   // Description:
   // Perform scan conversion of a triangle defined by its vertices.
   // \pre ve0_exists: ve0!=0
@@ -216,7 +211,6 @@ protected:
              vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v0,
              vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkVertexEntry *v1,
              bool exitFace);
-//ETX
 
   void StoreRenderTime(vtkRenderer *ren,
                        vtkVolume *vol,
@@ -302,7 +296,6 @@ protected:
   double FaceScalars[2];
   int FaceSide;
 
-//BTX
   vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkSpan *Span;
   vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListFrame *PixelListFrame;
 
@@ -340,10 +333,10 @@ protected:
 
 
   vtkUnstructuredGridVolumeZSweepMapperNamespace::vtkPixelListEntryMemory *MemoryManager;
-//ETX
+
 private:
-  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeZSweepMapper(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridVolumeZSweepMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

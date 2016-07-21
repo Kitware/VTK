@@ -323,8 +323,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkCell(const vtkCell&);  // Not implemented.
-  void operator=(const vtkCell&);  // Not implemented.
+  vtkCell(const vtkCell&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCell&) VTK_DELETE_FUNCTION;
 };
 
 #endif

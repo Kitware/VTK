@@ -57,14 +57,14 @@ public:
     this->DataSet=0;
     }
 
-  virtual ~MyEndPickCommand()
+  ~MyEndPickCommand() VTK_OVERRIDE
     {
     // empty
     }
 
-  virtual void Execute(vtkObject *vtkNotUsed(caller),
+  void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
-    void *vtkNotUsed(callData))
+    void *vtkNotUsed(callData)) VTK_OVERRIDE
     {
     assert("pre: renderer_exists" && this->Renderer!=0);
 
@@ -104,7 +104,7 @@ public:
         {
         cout<<"abs is null"<<endl;
         }
-      vtkIdTypeArray *ids=vtkIdTypeArray::SafeDownCast(abs);
+      vtkIdTypeArray *ids=vtkArrayDownCast<vtkIdTypeArray>(abs);
       if(ids==0)
         {
         cout<<"ids is null"<<endl;

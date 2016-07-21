@@ -53,8 +53,8 @@ protected:
   double ScaleFactor;
 
 private:
-  vtkWarpVector(const vtkWarpVector&);  // Not implemented.
-  void operator=(const vtkWarpVector&);  // Not implemented.
+  vtkWarpVector(const vtkWarpVector&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWarpVector&) VTK_DELETE_FUNCTION;
 };
 
 #endif

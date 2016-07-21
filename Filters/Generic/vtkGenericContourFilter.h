@@ -61,9 +61,7 @@ public:
   // of 0.0.
   static vtkGenericContourFilter *New();
 
-  //BTX
   typedef double PointType[3];  // Arbitrary definition of a point
-  //ETX
 
   // Description:
   // Methods to set / get contour values.
@@ -147,7 +145,7 @@ protected:
   vtkCellData  *SecondaryCD;
 
 private:
-  vtkGenericContourFilter(const vtkGenericContourFilter&);  // Not implemented.
-  void operator=(const vtkGenericContourFilter&);  // Not implemented.
+  vtkGenericContourFilter(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericContourFilter&) VTK_DELETE_FUNCTION;
 };
 #endif

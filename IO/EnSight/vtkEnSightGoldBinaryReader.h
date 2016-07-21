@@ -207,15 +207,13 @@ protected:
   // The size of the file could be used to choose byte order.
   vtkIdType FileSize;
 
-  //BTX
   class FileOffsetMapInternal;
   FileOffsetMapInternal *FileOffsets;
-  //ETX
 
 private:
   int SizeOfInt;
-  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&);  // Not implemented.
-  void operator=(const vtkEnSightGoldBinaryReader&);  // Not implemented.
+  vtkEnSightGoldBinaryReader(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEnSightGoldBinaryReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

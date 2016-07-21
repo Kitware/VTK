@@ -64,8 +64,8 @@ protected:
   vtkDirectionEncoder() {}
   ~vtkDirectionEncoder() {}
 private:
-  vtkDirectionEncoder(const vtkDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkDirectionEncoder&);  // Not implemented.
+  vtkDirectionEncoder(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectionEncoder&) VTK_DELETE_FUNCTION;
 };
 
 

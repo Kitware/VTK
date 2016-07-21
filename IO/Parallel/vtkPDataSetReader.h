@@ -88,9 +88,8 @@ protected:
   vtkDataSet *CheckOutput();
   void SetNumberOfPieces(int num);
 
-//BTX
   ifstream *OpenFile(const char *);
-//ETX
+
   int ReadXML(ifstream *file, char **block, char **param, char **value);
   void SkipFieldData(ifstream *file);
 
@@ -103,8 +102,8 @@ protected:
   int **PieceExtents;
 
 private:
-  vtkPDataSetReader(const vtkPDataSetReader&); // Not implemented
-  void operator=(const vtkPDataSetReader&); // Not implemented
+  vtkPDataSetReader(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPDataSetReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

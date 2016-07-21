@@ -85,8 +85,8 @@ protected:
   double BackgroundColor[4];
   int OutputPointsPrecision;
 private:
-  vtkTextSource(const vtkTextSource&);  // Not implemented.
-  void operator=(const vtkTextSource&);  // Not implemented.
+  vtkTextSource(const vtkTextSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

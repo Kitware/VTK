@@ -14,7 +14,7 @@
 =========================================================================*/
 // .NAME vtkKochanekSpline - computes an interpolating spline using a Kochanek basis.
 // .SECTION Description
-// Implements the Kochenek interpolating spline described in: Kochanek, D.,
+// Implements the Kochanek interpolating spline described in: Kochanek, D.,
 // Bartels, R., "Interpolating Splines with Local Tension, Continuity, and
 // Bias Control," Computer Graphics, vol. 18, no. 3, pp. 33-41, July 1984.
 // These splines give the user more control over the shape of the curve than
@@ -97,8 +97,8 @@ protected:
   double DefaultContinuity;
 
 private:
-  vtkKochanekSpline(const vtkKochanekSpline&);  // Not implemented.
-  void operator=(const vtkKochanekSpline&);  // Not implemented.
+  vtkKochanekSpline(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkKochanekSpline&) VTK_DELETE_FUNCTION;
 };
 
 #endif

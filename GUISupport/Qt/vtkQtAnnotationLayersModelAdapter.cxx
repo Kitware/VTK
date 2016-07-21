@@ -182,7 +182,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKAnnotationLayersToQItemSele
   vtkSelectionNode* node = vtksel->GetNode(0);
   if (node)
     {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkIdTypeArray* arr = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
     if (arr)
       {
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
@@ -237,7 +237,7 @@ QItemSelection vtkQtAnnotationLayersModelAdapter::VTKIndexSelectionToQItemSelect
   vtkSelectionNode* node = vtksel->GetNode(0);
   if (node)
     {
-    vtkIdTypeArray* arr = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkIdTypeArray* arr = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
     if (arr)
       {
       for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)

@@ -16,7 +16,7 @@
 #include <vtkSmartPointer.h>
 #include "vtkTestErrorObserver.h"
 
-#ifndef WIN32
+#ifndef _WIN32
 #include <fcntl.h>
 #endif
 
@@ -28,7 +28,7 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
-#ifndef WIN32
+#ifndef _WIN32
   // See how many file descriptors are in use
   int fdUsedBefore = 1;
   for (int i = 0; i < 1024; ++i)
@@ -62,7 +62,7 @@ int TestTIFFReaderMultiple(int argc, char *argv[])
     errorObserver->Clear();
     }
 
-#ifndef WIN32
+#ifndef _WIN32
   // See how many file descriptors are in use
   int fdUsedAfter = 1;
   for (int i = 0; i < 1024; ++i)

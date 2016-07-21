@@ -41,12 +41,10 @@ public:
   vtkTypeMacro(vtkLassoStencilSource, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum {
     POLYGON = 0,
     SPLINE = 1
   };
-//ETX
 
   // Description:
   // The shape to use, default is "Polygon".  The spline is a
@@ -100,8 +98,8 @@ protected:
   vtkLSSPointMap *PointMap;
 
 private:
-  vtkLassoStencilSource(const vtkLassoStencilSource&);  // Not implemented.
-  void operator=(const vtkLassoStencilSource&);  // Not implemented.
+  vtkLassoStencilSource(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

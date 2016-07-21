@@ -120,8 +120,8 @@ class vtkCellPointTraversal
     unsigned int    m_stack[CELLTREE_MAX_DEPTH];
     unsigned int*   m_sp; // stack pointer
     const float*    m_pos; //3-D coordinates of the points
-    vtkCellPointTraversal(const vtkCellPointTraversal&); // Not implemented
-    void operator=(vtkCellPointTraversal&); // Not implemented
+    vtkCellPointTraversal(const vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
+    void operator=(vtkCellPointTraversal&) VTK_DELETE_FUNCTION;
 
   protected:
     friend class vtkCellTreeLocator::vtkCellTree;
@@ -1265,7 +1265,7 @@ static void AddBox(vtkPolyData *pd, double *bounds, int level)
 {
   vtkPoints      *pts = pd->GetPoints();
   vtkCellArray *lines = pd->GetLines();
-  vtkIntArray *levels = vtkIntArray::SafeDownCast(pd->GetPointData()->GetArray(0));
+  vtkIntArray *levels = vtkArrayDownCast<vtkIntArray>(pd->GetPointData()->GetArray(0));
   double x[3];
   vtkIdType cells[8], ids[2];
   //

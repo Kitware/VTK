@@ -402,7 +402,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray *array,
   if (this->ComputeAverage || this->ComputeStandardDeviation)
     {
     vtkSmartPointer<vtkDataArray> newArray;
-    newArray.TakeReference(vtkDataArray::SafeDownCast(
+    newArray.TakeReference(vtkArrayDownCast<vtkDataArray>(
                           vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
     newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(),
@@ -419,7 +419,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray *array,
   if (this->ComputeMinimum)
     {
     vtkSmartPointer<vtkDataArray> newArray;
-    newArray.TakeReference(vtkDataArray::SafeDownCast(
+    newArray.TakeReference(vtkArrayDownCast<vtkDataArray>(
                           vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
     newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(),
@@ -430,7 +430,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray *array,
   if (this->ComputeMaximum)
     {
     vtkSmartPointer<vtkDataArray> newArray;
-    newArray.TakeReference(vtkDataArray::SafeDownCast(
+    newArray.TakeReference(vtkArrayDownCast<vtkDataArray>(
                           vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->DeepCopy(array);
     newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(),
@@ -441,7 +441,7 @@ void vtkTemporalStatistics::InitializeArray(vtkDataArray *array,
   if (this->ComputeStandardDeviation)
     {
     vtkSmartPointer<vtkDataArray> newArray;
-    newArray.TakeReference(vtkDataArray::SafeDownCast(
+    newArray.TakeReference(vtkArrayDownCast<vtkDataArray>(
                           vtkAbstractArray::CreateArray(array->GetDataType())));
     newArray->SetName(vtkTemporalStatisticsMangleName(array->GetName(),
                                                     STANDARD_DEVIATION_SUFFIX));

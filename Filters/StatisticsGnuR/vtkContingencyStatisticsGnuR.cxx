@@ -61,9 +61,9 @@ void vtkContingencyStatisticsGnuR::PrintSelf( ostream &os, vtkIndent indent )
 // ----------------------------------------------------------------------
 void vtkContingencyStatisticsGnuR::CalculatePValues( vtkTable* outTab)
 {
-  vtkIdTypeArray* dimCol = vtkIdTypeArray::SafeDownCast( outTab->GetColumn(0) );
-  vtkDoubleArray* chi2Col = vtkDoubleArray::SafeDownCast( outTab->GetColumn(1));
-  vtkDoubleArray* chi2yCol = vtkDoubleArray::SafeDownCast( outTab->GetColumn(2));
+  vtkIdTypeArray* dimCol = vtkArrayDownCast<vtkIdTypeArray>( outTab->GetColumn(0) );
+  vtkDoubleArray* chi2Col = vtkArrayDownCast<vtkDoubleArray>( outTab->GetColumn(1));
+  vtkDoubleArray* chi2yCol = vtkArrayDownCast<vtkDoubleArray>( outTab->GetColumn(2));
 
   // Prepare VTK - R interface
   vtkRInterface* ri = vtkRInterface::New();
@@ -86,8 +86,8 @@ void vtkContingencyStatisticsGnuR::CalculatePValues( vtkTable* outTab)
   ri->EvalRscript( rs.str().c_str() );
 
   // Retrieve the p-values
-  vtkDoubleArray* testChi2Col = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "p" ) );
-  vtkDoubleArray* testChi2yCol = vtkDoubleArray::SafeDownCast( ri->AssignRVariableToVTKDataArray( "py" ) );
+  vtkDoubleArray* testChi2Col = vtkArrayDownCast<vtkDoubleArray>( ri->AssignRVariableToVTKDataArray( "p" ) );
+  vtkDoubleArray* testChi2yCol = vtkArrayDownCast<vtkDoubleArray>( ri->AssignRVariableToVTKDataArray( "py" ) );
   if ( ! testChi2Col || ! testChi2yCol
        || testChi2Col->GetNumberOfTuples() != dimCol->GetNumberOfTuples()
        || testChi2yCol->GetNumberOfTuples() != dimCol->GetNumberOfTuples() )

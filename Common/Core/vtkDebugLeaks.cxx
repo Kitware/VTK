@@ -28,7 +28,7 @@ static const char *vtkDebugLeaksIgnoreClasses[] = {
 // return 1 if the class should be ignored
 static int vtkDebugLeaksIgnoreClassesCheck(const char* s)
 {
-  int i =0;
+  int i = 0;
   while(vtkDebugLeaksIgnoreClasses[i])
     {
     if(strcmp(s, vtkDebugLeaksIgnoreClasses[i]) == 0)
@@ -51,7 +51,7 @@ static inline size_t vtkHashString(const char* s)
     {
     h = 5*h + *s;
     }
-  return size_t(h);
+  return static_cast<size_t>(h);
 }
 
 //----------------------------------------------------------------------------
@@ -60,17 +60,17 @@ class vtkDebugLeaksHashNode
 public:
   vtkDebugLeaksHashNode()
     {
-      this->Count =1; // if it goes in, then there is one of them
+      this->Count = 1; // if it goes in, then there is one of them
       this->Key = 0;
-      this->Next =0;
+      this->Next = 0;
     }
   void Print(std::string& os)
     {
       if(this->Count)
         {
         char tmp[256];
-        sprintf(tmp,"\" has %i %s still around.\n",this->Count,
-                (this->Count == 1) ? "instance" : "instances");
+        snprintf(tmp, 256, "\" has %i %s still around.\n",this->Count,
+                 (this->Count == 1) ? "instance" : "instances");
         os += "Class \"";
         os += this->Key;
         os += tmp;
@@ -114,8 +114,7 @@ private:
 //----------------------------------------------------------------------------
 vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
 {
-  int i;
-  for (i = 0; i < 64; i++)
+  for (int i = 0; i < 64; i++)
     {
     this->Nodes[i] = NULL;
     }
@@ -124,21 +123,17 @@ vtkDebugLeaksHashTable::vtkDebugLeaksHashTable()
 //----------------------------------------------------------------------------
 void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 {
-  vtkDebugLeaksHashNode *pos;
-  vtkDebugLeaksHashNode *newpos;
-  int loc;
-
-  pos = this->GetNode(name);
+  vtkDebugLeaksHashNode *pos = this->GetNode(name);
   if(pos)
     {
     pos->Count++;
     return;
     }
 
-  newpos = new vtkDebugLeaksHashNode;
+  vtkDebugLeaksHashNode *newpos = new vtkDebugLeaksHashNode;
   newpos->Key = strcpy(new char[strlen(name)+1], name);
 
-  loc = (static_cast<unsigned long>(vtkHashString(name)) & 0x03f0) / 16;
+  unsigned long loc = (static_cast<unsigned long>(vtkHashString(name)) & 0x03f0) / 16;
 
   pos = this->Nodes[loc];
   if (!pos)
@@ -156,10 +151,9 @@ void vtkDebugLeaksHashTable::IncrementCount(const char * name)
 //----------------------------------------------------------------------------
 vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 {
-  vtkDebugLeaksHashNode *pos;
-  int loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
+  unsigned long loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
 
-  pos = this->Nodes[loc];
+  vtkDebugLeaksHashNode *pos = this->Nodes[loc];
 
   if (!pos)
     {
@@ -175,10 +169,9 @@ vtkDebugLeaksHashNode* vtkDebugLeaksHashTable::GetNode(const char* key)
 //----------------------------------------------------------------------------
 unsigned int vtkDebugLeaksHashTable::GetCount(const char* key)
 {
-  vtkDebugLeaksHashNode *pos;
-  int loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
+  unsigned long loc = (static_cast<unsigned long>(vtkHashString(key)) & 0x03f0) / 16;
 
-  pos = this->Nodes[loc];
+  vtkDebugLeaksHashNode *pos = this->Nodes[loc];
 
   if (!pos)
     {
@@ -224,7 +217,6 @@ int vtkDebugLeaksHashTable::IsEmpty()
 //----------------------------------------------------------------------------
 int vtkDebugLeaksHashTable::DecrementCount(const char *key)
 {
-
   vtkDebugLeaksHashNode *pos = this->GetNode(key);
   if(pos)
     {
@@ -335,6 +327,8 @@ int vtkDebugLeaks::PrintCurrentLeaks()
 #ifdef VTK_DEBUG_LEAKS
   if(vtkDebugLeaks::MemoryTable->IsEmpty())
     {
+    // Log something anyway, so users know vtkDebugLeaks is active/working.
+    cout << "vtkDebugLeaks has found no leaks.\n";
     return 0;
     }
 

@@ -123,7 +123,7 @@ double vtkImplicitSelectionLoop::EvaluateFunction(double x[3])
        xProj[2] >= this->Bounds[4] && xProj[2] <= this->Bounds[5] &&
        this->Polygon->
        PointInPolygon(xProj , numPts,
-                      vtkDoubleArray::SafeDownCast(this->Polygon->Points->GetData())->GetPointer(0),
+                      vtkArrayDownCast<vtkDoubleArray>(this->Polygon->Points->GetData())->GetPointer(0),
                       this->Bounds,this->Normal) == 1 )
     {
     inside = 1;

@@ -95,16 +95,19 @@ void vtkTypedDataArray<Scalar>::SetTypedComponent(vtkIdType tupleIdx, int comp,
 template <typename Scalar> inline vtkTypedDataArray<Scalar> *
 vtkTypedDataArray<Scalar>::FastDownCast(vtkAbstractArray *source)
 {
-  switch (source->GetArrayType())
+  if (source)
     {
-    case vtkAbstractArray::TypedDataArray:
-    case vtkAbstractArray::MappedDataArray:
-      if (vtkDataTypesCompare(source->GetDataType(),
-                              vtkTypeTraits<Scalar>::VTK_TYPE_ID))
-        {
-        return static_cast<vtkTypedDataArray<Scalar>*>(source);
-        }
-      break;
+    switch (source->GetArrayType())
+      {
+      case vtkAbstractArray::TypedDataArray:
+      case vtkAbstractArray::MappedDataArray:
+        if (vtkDataTypesCompare(source->GetDataType(),
+                                vtkTypeTraits<Scalar>::VTK_TYPE_ID))
+          {
+          return static_cast<vtkTypedDataArray<Scalar>*>(source);
+          }
+        break;
+      }
     }
   return NULL;
 }

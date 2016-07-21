@@ -30,8 +30,10 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestImageActorContourWidget.cxx
   TestImageTracerWidget.cxx
   TestImplicitCylinderWidget.cxx
+  TestImplicitCylinderWidget2.cxx
   TestImplicitPlaneWidget2b.cxx
   TestImplicitPlaneWidget2.cxx
+  TestImplicitPlaneWidget3.cxx
   TestImplicitPlaneWidget2LockNormalToCamera.cxx
   TestImplicitPlaneWidget.cxx
   TestLogoWidgetAlphaBlending.cxx
@@ -46,6 +48,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestPlaybackWidget.cxx
   TestPointHandleRepresentation3D.cxx
   TestProgrammaticPlacement.cxx
+  TestProgressBarWidget.cxx
   TestProp3DButtonRepresentation.cxx,NO_VALID
   TestRectilinearWipeWidget.cxx
   TestResliceCursorWidget2.cxx
@@ -58,6 +61,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestSliderWidget.cxx
   TestSplineWidget.cxx
   TestSphereWidgetZoomInOut.cxx
+  TestSphereWidget2CenterCursor.cxx
   TestTextWidget.cxx
   )
 vtk_add_test_cxx(${vtk-module}CxxTests no_valid_tests

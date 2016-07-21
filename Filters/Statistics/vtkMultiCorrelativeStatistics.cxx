@@ -314,7 +314,7 @@ void vtkMultiCorrelativeStatistics::Learn( vtkTable* inData,
     for ( colIt = reqIt->begin(); colIt != reqIt->end(); ++ colIt )
       {
       // Ignore invalid column names
-      vtkDataArray* arr = vtkDataArray::SafeDownCast( inData->GetColumnByName( colIt->c_str() ) );
+      vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>( inData->GetColumnByName( colIt->c_str() ) );
       if ( arr )
         {
         allColumns.insert( std::pair<vtkStdString,vtkDataArray*>( *colIt, arr ) );
@@ -530,9 +530,9 @@ void vtkMultiCorrelativeStatistics::Derive( vtkMultiBlockDataSet* outMeta )
   if (
     ! outMeta ||
     ! ( sparseCov = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) ) ) ||
-    ! ( col1 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
-    ! ( col2 = vtkStringArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
-    ! ( col3 = vtkDoubleArray::SafeDownCast( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_ENTRIESCOL ) ) )
+    ! ( col1 = vtkArrayDownCast<vtkStringArray>( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN1 ) ) ) ||
+    ! ( col2 = vtkArrayDownCast<vtkStringArray>( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_KEYCOLUMN2 ) ) ) ||
+    ! ( col3 = vtkArrayDownCast<vtkDoubleArray>( sparseCov->GetColumnByName( VTK_MULTICORRELATIVE_ENTRIESCOL ) ) )
     )
     {
     return;
@@ -795,13 +795,13 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
                                                    vtkTable* reqModel,
                                                    bool cholesky )
 {
-  vtkDoubleArray* avgs = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
+  vtkDoubleArray* avgs = vtkArrayDownCast<vtkDoubleArray>( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
   if ( ! avgs )
     {
     vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column" );
     return false;
     }
-  vtkStringArray* name = vtkStringArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_COLUMNAMES ) );
+  vtkStringArray* name = vtkArrayDownCast<vtkStringArray>( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_COLUMNAMES ) );
   if ( ! name )
     {
     vtkGenericWarningMacro( "Multicorrelative request without a \"" VTK_MULTICORRELATIVE_COLUMNAMES "\" column" );
@@ -819,14 +819,14 @@ bool vtkMultiCorrelativeAssessFunctor::Initialize( vtkTable* inData,
   for ( i = 0; i < m ; ++ i )
     {
     vtkStdString colname( name->GetValue( i ) );
-    vtkDataArray* arr = vtkDataArray::SafeDownCast( inData->GetColumnByName( colname.c_str() ) );
+    vtkDataArray* arr = vtkArrayDownCast<vtkDataArray>( inData->GetColumnByName( colname.c_str() ) );
     if ( ! arr )
       {
       vtkGenericWarningMacro( "Multicorrelative input data needs a \"" << colname.c_str() << "\" column" );
       return false;
       }
     cols.push_back( arr );
-    vtkDoubleArray* dar = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( colname.c_str() ) );
+    vtkDoubleArray* dar = vtkArrayDownCast<vtkDoubleArray>( reqModel->GetColumnByName( colname.c_str() ) );
     if ( ! dar )
       {
       vtkGenericWarningMacro( "Multicorrelative request needs a \"" << colname.c_str() << "\" column" );

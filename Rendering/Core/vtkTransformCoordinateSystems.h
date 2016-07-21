@@ -94,8 +94,8 @@ protected:
   vtkCoordinate* TransformCoordinate;
 
 private:
-  vtkTransformCoordinateSystems(const vtkTransformCoordinateSystems&);  // Not implemented.
-  void operator=(const vtkTransformCoordinateSystems&);  // Not implemented.
+  vtkTransformCoordinateSystems(const vtkTransformCoordinateSystems&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransformCoordinateSystems&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -82,8 +82,8 @@ protected:
   ~vtkParametricEnneper();
 
 private:
-  vtkParametricEnneper(const vtkParametricEnneper&);  // Not implemented.
-  void operator=(const vtkParametricEnneper&);  // Not implemented.
+  vtkParametricEnneper(const vtkParametricEnneper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricEnneper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

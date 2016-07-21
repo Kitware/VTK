@@ -100,13 +100,11 @@ protected:
   void CheckerboardInteraction(int sliderNum);
   void EndCheckerboardInteraction();
 
-//BTX
   friend class vtkCWCallback;
-//ETX
 
 private:
-  vtkCheckerboardWidget(const vtkCheckerboardWidget&);  //Not implemented
-  void operator=(const vtkCheckerboardWidget&);  //Not implemented
+  vtkCheckerboardWidget(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCheckerboardWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

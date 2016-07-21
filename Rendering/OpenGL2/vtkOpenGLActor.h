@@ -23,6 +23,7 @@
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkActor.h"
 
+class vtkInformationIntegerKey;
 class vtkOpenGLRenderer;
 class vtkMatrix4x4;
 class vtkMatrix3x3;
@@ -40,6 +41,21 @@ public:
 
   void GetKeyMatrices(vtkMatrix4x4 *&WCVCMatrix, vtkMatrix3x3 *&normalMatrix);
 
+  // Description:
+  // If this key is set in GetPropertyKeys(), the glDepthMask will be adjusted
+  // prior to rendering translucent objects. This is useful for e.g. depth
+  // peeling.
+  //
+  // If GetIsOpaque() == true, the depth mask is always enabled, regardless of
+  // this key. Otherwise, the depth mask is disabled for default alpha blending
+  // unless this key is set.
+  //
+  // If this key is set, the integer value has the following meanings:
+  // 0: glDepthMask(GL_FALSE)
+  // 1: glDepthMask(GL_TRUE)
+  // Anything else: No change to depth mask.
+  static vtkInformationIntegerKey* GLDepthMaskOverride();
+
 protected:
   vtkOpenGLActor();
   ~vtkOpenGLActor();
@@ -50,8 +66,8 @@ protected:
   vtkTimeStamp KeyMatrixTime;
 
 private:
-  vtkOpenGLActor(const vtkOpenGLActor&);  // Not implemented.
-  void operator=(const vtkOpenGLActor&);  // Not implemented.
+  vtkOpenGLActor(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLActor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

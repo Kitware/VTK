@@ -44,8 +44,10 @@
 #include "qsignalmapper.h"
 #include "qtimer.h"
 #include "vtkRenderingOpenGLConfigure.h"
-#if defined(Q_WS_X11)
-#include "qx11info_x11.h"
+#if defined(Q_WS_X11) // aka Qt4
+# include "qx11info_x11.h"
+#elif defined(Q_OS_LINUX) // aka Qt5
+# include <QX11Info>
 #endif
 
 #if defined(Q_OS_WIN)
@@ -66,7 +68,7 @@
 #include "vtkRenderer.h"
 #include "vtkRendererCollection.h"
 
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
 # include "vtkTDxUnixDevice.h"
 #endif
 
@@ -75,6 +77,7 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
   : QWidget(p, f | Qt::MSWindowsOwnDC), mRenWin(NULL),
     cachedImageCleanFlag(false),
     automaticImageCache(false), maxImageCacheRenderRate(1.0),
+    mDeferRenderInPaintEvent(false),
     renderEventCallbackObserverId(0)
 {
   this->UseTDx=false;
@@ -103,6 +106,9 @@ QVTKWidget::QVTKWidget(QWidget* p, Qt::WindowFlags f)
 
   mIrenAdapter = new QVTKInteractorAdapter(this);
 
+  this->mDeferedRenderTimer.setSingleShot(true);
+  this->mDeferedRenderTimer.setInterval(0);
+  this->connect(&this->mDeferedRenderTimer, SIGNAL(timeout()), SLOT(doDeferredRender()));
 }
 
 /*! destructor */
@@ -126,7 +132,7 @@ void QVTKWidget::SetUseTDx(bool useTDx)
 
     if(this->UseTDx)
       {
-#if defined(VTK_USE_TDX) && defined(Q_WS_X11)
+#if defined(VTK_USE_TDX) && (defined(Q_WS_X11) || defined(Q_OS_LINUX))
        QByteArray theSignal=
          QMetaObject::normalizedSignature("CreateDevice(vtkTDxDevice *)");
       if(QApplication::instance()->metaObject()->indexOfSignal(theSignal)!=-1)
@@ -191,7 +197,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       {
       this->mRenWin->Finalize();
       }
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
     this->mRenWin->SetDisplayId(NULL);
 #endif
     this->mRenWin->SetWindowId(NULL);
@@ -212,7 +218,7 @@ void QVTKWidget::SetRenderWindow(vtkRenderWindow* w)
       this->mRenWin->Finalize();
       }
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
     // give the qt display id to the vtk window
     this->mRenWin->SetDisplayId(QX11Info::display());
 #endif
@@ -292,7 +298,7 @@ void QVTKWidget::saveImageToCache()
   int h = this->height();
   this->mCachedImage->SetExtent(0, w-1, 0, h-1, 0, 0);
   this->mCachedImage->AllocateScalars(VTK_UNSIGNED_CHAR, 3);
-  vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray* array = vtkArrayDownCast<vtkUnsignedCharArray>(
     this->mCachedImage->GetPointData()->GetScalars());
   // We use back-buffer if
   this->mRenWin->GetPixelData(0, 0, this->width()-1, this->height()-1,
@@ -324,6 +330,16 @@ void QVTKWidget::setMaxRenderRateForImageCache(double rate)
 double QVTKWidget::maxRenderRateForImageCache() const
 {
   return this->maxImageCacheRenderRate;
+}
+
+void QVTKWidget::setDeferRenderInPaintEvent(bool val)
+{
+  this->mDeferRenderInPaintEvent = val;
+}
+
+bool QVTKWidget::deferRenderInPaintEvent() const
+{
+  return this->mDeferRenderInPaintEvent;
 }
 
 vtkImageData* QVTKWidget::cachedImage()
@@ -442,30 +458,39 @@ void QVTKWidget::moveEvent(QMoveEvent* e)
  */
 void QVTKWidget::paintEvent(QPaintEvent* )
 {
-  vtkRenderWindowInteractor* iren = NULL;
-  if(this->mRenWin)
-    {
-    iren = this->mRenWin->GetInteractor();
-    }
-
-  if(!iren || !iren->GetEnabled())
+  vtkRenderWindowInteractor* iren = this->mRenWin ? this->mRenWin->GetInteractor() : NULL;
+  if (!iren || !iren->GetEnabled())
     {
     return;
     }
-
-  // if we have a saved image, use it
-  if (this->paintCachedImage())
-    {
-    return;
-    }
-
-  iren->Render();
 
   // In Qt 4.1+ let's support redirected painting
   // if redirected, let's grab the image from VTK, and paint it to the device
   QPaintDevice* device = QPainter::redirected(this);
-  if(device != NULL && device != this)
+  bool usingRedirectedDevice = (device != NULL && device != this);
+
+  // if we have a saved image, use it
+  if (this->paintCachedImage() == false)
     {
+    // we don't defer render in redirected painting is active since the target
+    // being painted to may not be around when the deferred render call happens.
+    if (!usingRedirectedDevice && this->mDeferRenderInPaintEvent)
+      {
+      this->deferRender();
+      }
+    else
+      {
+      iren->Render();
+      }
+    }
+
+  // Irrespective of whether cache was used on or, if using redirected painting
+  // is being employed, we need to "paint" the image from the render window to
+  // the redirected target.
+  if (usingRedirectedDevice)
+    {
+    Q_ASSERT(device);
+
     int w = this->width();
     int h = this->height();
     QImage img(w, h, QImage::Format_RGB32);
@@ -478,7 +503,6 @@ void QVTKWidget::paintEvent(QPaintEvent* )
 
     QPainter painter(this);
     painter.drawImage(QPointF(0.0,0.0), img);
-    return;
     }
 }
 
@@ -653,7 +677,7 @@ QPaintEngine* QVTKWidget::paintEngine() const
 // X11 stuff near the bottom of the file
 // to prevent namespace collisions with Qt headers
 
-#if defined Q_WS_X11
+#if defined(Q_WS_X11) || defined (Q_OS_LINUX)
 #if defined(VTK_USE_OPENGL_LIBRARY)
 #include "vtkXOpenGLRenderWindow.h"
 #endif
@@ -664,7 +688,7 @@ QPaintEngine* QVTKWidget::paintEngine() const
 // Receive notification of the creation of the TDxDevice
 void QVTKWidget::setDevice(vtkTDxDevice *device)
 {
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_OS_LINUX)
   if(this->GetInteractor()->GetDevice()!=device)
     {
     this->GetInteractor()->SetDevice(device);
@@ -677,7 +701,10 @@ void QVTKWidget::setDevice(vtkTDxDevice *device)
 
 void QVTKWidget::x11_setup_window()
 {
-#if defined Q_WS_X11
+#if defined(Q_WS_X11)
+  // NOTE: deliberately not executing this code for Qt5. It caused issues with
+  // glewInit() when I did that. Just letting the Qt create the visual/colormap
+  // seems to work better.
 
   // this whole function is to allow this window to have a
   // different colormap and visual than the rest of the Qt application
@@ -827,7 +854,7 @@ bool QVTKWidget::paintCachedImage()
   // if we have a saved image, use it
   if (this->cachedImageCleanFlag)
     {
-    vtkUnsignedCharArray* array = vtkUnsignedCharArray::SafeDownCast(
+    vtkUnsignedCharArray* array = vtkArrayDownCast<vtkUnsignedCharArray>(
       this->mCachedImage->GetPointData()->GetScalars());
     // put cached image into back buffer if we can
     this->mRenWin->SetPixelData(0, 0, this->width()-1, this->height()-1,
@@ -862,11 +889,31 @@ void QVTKWidget::renderEventCallback()
         }
       }
 
+    // Render happened. If we have requested a render to happen, it has happened,
+    // so no need to request another render. Stop the timer.
+    this->mDeferedRenderTimer.stop();
+
     this->markCachedImageAsDirty();
     if (this->isAutomaticImageCacheEnabled() &&
       (this->mRenWin->GetDesiredUpdateRate() < this->maxRenderRateForImageCache()))
       {
       this->saveImageToCache();
       }
+    }
+}
+
+//-----------------------------------------------------------------------------
+void QVTKWidget::deferRender()
+{
+  this->mDeferedRenderTimer.start();
+}
+
+//-----------------------------------------------------------------------------
+void QVTKWidget::doDeferredRender()
+{
+  vtkRenderWindowInteractor* iren = this->mRenWin ? this->mRenWin->GetInteractor() : NULL;
+  if (iren && iren->GetEnabled())
+    {
+    iren->Render();
     }
 }

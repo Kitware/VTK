@@ -280,7 +280,6 @@ public:
   double GetSpecularPower()
     { return this->GetSpecularPower(0); }
 
-  //BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // UpdateMTimes performs a Modified() on all TimeStamps.
@@ -316,7 +315,6 @@ public:
   vtkTimeStamp GetGrayTransferFunctionMTime(int index);
   vtkTimeStamp GetGrayTransferFunctionMTime()
     { return this->GetGrayTransferFunctionMTime(0); }
-  //ETX
 
 protected:
   vtkVolumeProperty();
@@ -353,8 +351,8 @@ protected:
   virtual void CreateDefaultGradientOpacity(int index);
 
 private:
-  vtkVolumeProperty(const vtkVolumeProperty&);  // Not implemented.
-  void operator=(const vtkVolumeProperty&);  // Not implemented.
+  vtkVolumeProperty(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeProperty&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

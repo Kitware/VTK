@@ -83,11 +83,9 @@ public:
   // Get the parent of a vertex.
   vtkIdType GetParent(vtkIdType v);
 
-//BTX
   // Description:
   // Get the edge connecting the vertex to its parent.
   vtkEdgeType GetParentEdge(vtkIdType v);
-//ETX
 
   // Description:
   // Get the level of the vertex in the tree.  The root vertex has level 0.
@@ -99,12 +97,10 @@ public:
   // Return whether the vertex is a leaf (i.e. it has no children).
   bool IsLeaf(vtkIdType vertex);
 
-  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkTree *GetData(vtkInformation *info);
   static vtkTree *GetData(vtkInformationVector *v, int i=0);
-  //ETX
 
   // Description:
   // Reorder the children of a parent vertex.
@@ -127,8 +123,8 @@ protected:
   vtkIdType Root;
 
 private:
-  vtkTree(const vtkTree&);  // Not implemented.
-  void operator=(const vtkTree&);  // Not implemented.
+  vtkTree(const vtkTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

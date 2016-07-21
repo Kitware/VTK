@@ -141,8 +141,6 @@ protected:
 
 private:
 
-  //BTX
-
   // An edge consists of two vertices joined together.
   // This struct acts as a "pointer" to those two vertices.
   typedef struct
@@ -157,7 +155,6 @@ private:
   vtkSmartPointer<vtkImageData>           SplatImage;
   vtkSmartPointer<vtkFloatArray>          RepulsionArray;
   vtkSmartPointer<vtkFloatArray>          AttractionArray;
-  //ETX
 
   vtkLayoutEdge *EdgeArray;
 
@@ -178,8 +175,8 @@ private:
   void GenerateGaussianSplat(vtkImageData *splat, int x, int y);
   void ResolveCoincidentVertices();
 
-  vtkCommunity2DLayoutStrategy(const vtkCommunity2DLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkCommunity2DLayoutStrategy&);  // Not implemented.
+  vtkCommunity2DLayoutStrategy(const vtkCommunity2DLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCommunity2DLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

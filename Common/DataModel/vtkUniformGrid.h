@@ -74,7 +74,6 @@ public:
   // Returns the data description of this uniform grid instance.
   int GetGridDescription();
 
-  //  BTX
   // Description:
   // Initialize with no ghost cell arrays, from the definition in
   // the given box. The box is expetced to be 3D, if you have 2D
@@ -104,7 +103,6 @@ public:
   // (X,X,0)(X,X,0)
   // Returns 0 if the initialization failed.
   int Initialize(const vtkAMRBox *def, double* origin, double* spacing, int nGhostsI,int nGhostsJ,int nGhostsK);
-  //ETX
 
   // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
@@ -149,12 +147,10 @@ public:
 
   virtual vtkImageData* NewImageDataCopy();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkUniformGrid* GetData(vtkInformation* info);
   static vtkUniformGrid* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
 protected:
   vtkUniformGrid();
@@ -171,8 +167,8 @@ protected:
   vtkEmptyCell* GetEmptyCell();
 
 private:
-  vtkUniformGrid(const vtkUniformGrid&);  // Not implemented.
-  void operator=(const vtkUniformGrid&);  // Not implemented.
+  vtkUniformGrid(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
 
   vtkEmptyCell *EmptyCell;
 

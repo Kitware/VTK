@@ -62,8 +62,6 @@ public:
   // Tells you which process [0, NumProcess) you are in.
   vtkGetMacro(LocalProcessId, int);
 
-//BTX
-
   enum Tags
   {
     BROADCAST_TAG       = 10,
@@ -114,8 +112,6 @@ public:
 
     virtual ~Operation() {}
   };
-
-//ETX
 
   // Description:
   // This method sends a data object to a destination.
@@ -187,10 +183,8 @@ public:
   int Send(const unsigned long long* data, vtkIdType length, int remoteHandle, int tag) {
     return this->SendVoidArray(data, length, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
-//BTX
-  int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
 
+  int Send(const vtkMultiProcessStream& stream, int remoteId, int tag);
 
   // Description:
   // This method receives a data object from a corresponding send. It blocks
@@ -268,9 +262,8 @@ public:
   int Receive(unsigned long long* data, vtkIdType maxlength, int remoteHandle, int tag) {
     return this->ReceiveVoidArray(data, maxlength, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
-//BTX
+
   int Receive(vtkMultiProcessStream& stream, int remoteId, int tag);
-//ETX
 
   // Description:
   // Returns the number of words received by the most recent Receive().
@@ -339,9 +332,8 @@ public:
   }
   int Broadcast(vtkDataObject *data, int srcProcessId);
   int Broadcast(vtkDataArray *data, int srcProcessId);
-//BTX
+
   int Broadcast(vtkMultiProcessStream& stream, int srcProcessId);
-//ETX
 
   // Description:
   // Gather collects arrays in the process with id \c destProcessId.  Each
@@ -1277,7 +1269,6 @@ public:
 
   static void SetUseCopy(int useCopy);
 
-//BTX
   // Description:
   // Determine the global bounds for a set of processes.  BBox is
   // initially set (outside of the call to the local bounds of the process
@@ -1295,7 +1286,6 @@ public:
                                   int hasBoundsTag = 288402,
                                   int localBoundsTag = 288403,
                                   int globalBoundsTag = 288404);
-//ETX
 
   // Description:
   // Some helper functions when dealing with heap tree - based
@@ -1351,8 +1341,8 @@ protected:
   vtkIdType Count;
 
 private:
-  vtkCommunicator(const vtkCommunicator&);  // Not implemented.
-  void operator=(const vtkCommunicator&);  // Not implemented.
+  vtkCommunicator(const vtkCommunicator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCommunicator&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkCommunicator_h

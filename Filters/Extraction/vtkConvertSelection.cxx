@@ -191,12 +191,12 @@ int vtkConvertSelection::ConvertToIndexSelection(
   vtkSignedCharArray* insidedness = 0;
   if (type == vtkSelectionNode::CELL)
     {
-    insidedness = vtkSignedCharArray::SafeDownCast(
+    insidedness = vtkArrayDownCast<vtkSignedCharArray>(
       extracted->GetCellData()->GetAbstractArray("vtkInsidedness"));
     }
   else if (type == vtkSelectionNode::POINT)
     {
-    insidedness = vtkSignedCharArray::SafeDownCast(
+    insidedness = vtkArrayDownCast<vtkSignedCharArray>(
       extracted->GetPointData()->GetAbstractArray("vtkInsidedness"));
     }
   else
@@ -571,7 +571,7 @@ int vtkConvertSelection::Convert(
       }
     else if (inputNode->GetContentType() == vtkSelectionNode::THRESHOLDS)
       {
-      vtkDoubleArray *lims = vtkDoubleArray::SafeDownCast(inputNode->GetSelectionList());
+      vtkDoubleArray *lims = vtkArrayDownCast<vtkDoubleArray>(inputNode->GetSelectionList());
       if (!lims)
         {
         vtkErrorMacro("Thresholds selection requires vtkDoubleArray selection list.");
@@ -580,11 +580,11 @@ int vtkConvertSelection::Convert(
       vtkDataArray *dataArr = 0;
       if (dsa)
         {
-        dataArr = vtkDataArray::SafeDownCast(dsa->GetAbstractArray(lims->GetName()));
+        dataArr = vtkArrayDownCast<vtkDataArray>(dsa->GetAbstractArray(lims->GetName()));
         }
       else if (fd)
         {
-        dataArr = vtkDataArray::SafeDownCast(fd->GetAbstractArray(lims->GetName()));
+        dataArr = vtkArrayDownCast<vtkDataArray>(fd->GetAbstractArray(lims->GetName()));
         }
       if (!dataArr)
         {
@@ -668,7 +668,7 @@ int vtkConvertSelection::Convert(
         }
 
       // Handle the special case where we have a domain array.
-      vtkStringArray* domainArr = dsa ? vtkStringArray::SafeDownCast(dsa->GetAbstractArray("domain")) : 0;
+      vtkStringArray* domainArr = dsa ? vtkArrayDownCast<vtkStringArray>(dsa->GetAbstractArray("domain")) : 0;
       if (inputNode->GetContentType() == vtkSelectionNode::PEDIGREEIDS &&
           domainArr && selArr->GetName())
         {
@@ -735,7 +735,7 @@ int vtkConvertSelection::Convert(
       }
 
     // Handle the special case where we have a pedigree id selection with a domain array.
-    vtkStringArray* outputDomainArr = dsa ? vtkStringArray::SafeDownCast(
+    vtkStringArray* outputDomainArr = dsa ? vtkArrayDownCast<vtkStringArray>(
         dsa->GetAbstractArray("domain")) : 0;
     if (this->OutputType == vtkSelectionNode::PEDIGREEIDS && outputDomainArr)
       {
@@ -950,7 +950,7 @@ void vtkConvertSelection::GetSelectedItems(
   for (unsigned int n = 0; n < indexSel->GetNumberOfNodes(); ++n)
     {
     vtkSelectionNode* node = indexSel->GetNode(n);
-    vtkIdTypeArray* list = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkIdTypeArray* list = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
     if (node->GetFieldType() == fieldType && node->GetContentType() == vtkSelectionNode::INDICES && list)
       {
       for (vtkIdType i = 0; i < list->GetNumberOfTuples(); ++i)

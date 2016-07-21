@@ -46,7 +46,6 @@ public:
 
   static vtkAnimationCue* New();
 
-  //BTX
   // Structure passed on every event invocation.
   // Depending upon the cue time mode, these times are either
   // normalized [0,1] or relative to the scene that contains the cue.
@@ -62,7 +61,6 @@ public:
     double DeltaTime;   // valid only in AnimationCueTickEvent handler
     double ClockTime;   // valid only in AnimationCueTickEvent handler
     };
-  //ETX
 
   // Description:
   // Get/Set the time mode. In Normalized mode, the start and end
@@ -149,23 +147,22 @@ public:
   // scene neither normalized nor offsetted to the start of the scene.
   vtkGetMacro(ClockTime, double);
 
-//BTX
   enum TimeCodes
   {
     TIMEMODE_NORMALIZED=0,
     TIMEMODE_RELATIVE=1
   };
-//ETX
+
 protected:
   vtkAnimationCue();
   ~vtkAnimationCue();
-//BTX
+
   enum {
     UNINITIALIZED=0,
     INACTIVE,
     ACTIVE
   };
-//ETX
+
   double StartTime;
   double EndTime;
   int TimeMode;
@@ -191,8 +188,8 @@ protected:
   virtual void EndCueInternal();
 
 private:
-  vtkAnimationCue(const vtkAnimationCue&);  // Not implemented.
-  void operator=(const vtkAnimationCue&);  // Not implemented.
+  vtkAnimationCue(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnimationCue&) VTK_DELETE_FUNCTION;
 };
 
 #endif

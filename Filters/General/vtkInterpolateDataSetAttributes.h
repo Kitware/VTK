@@ -55,7 +55,7 @@ protected:
   vtkInterpolateDataSetAttributes();
   ~vtkInterpolateDataSetAttributes();
 
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
   int FillInputPortInformation(int port, vtkInformation *info);
@@ -64,8 +64,8 @@ protected:
   double T; // interpolation parameter
 
 private:
-  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&);  // Not implemented.
-  void operator=(const vtkInterpolateDataSetAttributes&);  // Not implemented.
+  vtkInterpolateDataSetAttributes(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInterpolateDataSetAttributes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

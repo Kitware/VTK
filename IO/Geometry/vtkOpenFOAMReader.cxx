@@ -243,11 +243,10 @@ private:
 
   // constructor and destructor are kept private
   vtkOpenFOAMReaderPrivate();
-  ~vtkOpenFOAMReaderPrivate();
+  ~vtkOpenFOAMReaderPrivate() VTK_OVERRIDE;
 
-  // not implemented.
-  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &);
-  void operator=(const vtkOpenFOAMReaderPrivate &);
+  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
 
   // clear mesh construction
   void ClearInternalMeshes();
@@ -612,11 +611,12 @@ public:
     this->Type = STRING;
     this->String = new vtkStdString(value);
   }
-  void operator=(const vtkFoamToken& value)
+  vtkFoamToken& operator=(const vtkFoamToken& value)
   {
     this->Clear();
     this->Type = value.Type;
     this->AssignData(value);
+    return *this;
   }
   bool operator==(const char value) const
   {
@@ -3358,6 +3358,15 @@ void vtkFoamEntryValue::ReadList(vtkFoamIOobject& io)
       if (currToken.Is<float>())
         {
         this->Superclass::ScalarListPtr->InsertNextValue(currToken.To<float>());
+        }
+      else if (currToken == '(')
+        {
+        vtkGenericWarningMacro("Found a list containing scalar data followed "
+                               "by a nested list, but this reader only "
+                               "supports nested lists that precede all "
+                               "scalars. Discarding nested list data.");
+        vtkFoamEntryValue tmp(this->UpperEntryPtr);
+        tmp.ReadList(io);
         }
       else
         {

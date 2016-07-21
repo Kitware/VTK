@@ -73,7 +73,6 @@ public:
   // advancing begin through however many places needed to assemble that code point
   virtual vtkUnicodeString::value_type  NextUnicode(istream& inputStream) ;
 
-//BTX
 protected:
   vtkUTF16TextCodec() ;
   ~vtkUTF16TextCodec() ;
@@ -82,10 +81,9 @@ protected:
   bool _bigEndian ;
 
 private:
-  vtkUTF16TextCodec(const vtkUTF16TextCodec &) ; // Not implemented.
-  void operator=(const vtkUTF16TextCodec &) ; // Not implemented.
+  vtkUTF16TextCodec(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUTF16TextCodec &) VTK_DELETE_FUNCTION;
 
-//ETX
 };
 
 

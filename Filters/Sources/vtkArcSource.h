@@ -12,14 +12,16 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkArcSource - create a circular arc between two end points
+// .NAME vtkArcSource - create a circular arc
+
 // .SECTION Description
 // vtkArcSource is a source object that creates an arc defined by two
 // endpoints and a center. The number of segments composing the polyline
 // is controlled by setting the object resolution.
 // Alternatively, one can use a better API (that does not allow for
-// inconsistent nor ambiguous inputs), using a starting point (polar vector),
-// a normal to the plane of the arc, and an angle defining the arc length.
+// inconsistent nor ambiguous inputs), using a starting point (polar vector,
+// measured from the arc's center), a normal to the plane of the arc,
+// and an angle defining the arc length.
 // Since the default API remains the original one, in order to use
 // the improved API, one must switch the UseNormalAndAngle flag to TRUE.
 
@@ -27,6 +29,9 @@
 // and angle) was supported by CEA/DIF - Commissariat a l'Energie Atomique,
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France, and implemented
 // by Philippe Pebay, Kitware SAS 2012.
+
+// .SECTION See Also
+// vtkEllipseArcSource
 
 #ifndef vtkArcSource_h
 #define vtkArcSource_h
@@ -91,7 +96,7 @@ public:
   // By default the arc spans the shortest angular sector point1 and point2.
   // By setting this to true, the longest angular sector is used instead
   // (i.e. the negative coterminal angle to the shortest one).
-  // Note: false by default.
+  // Note: This is only used when UseNormalAndAngle is OFF. False by default.
   vtkSetMacro(Negative, bool);
   vtkGetMacro(Negative, bool);
   vtkBooleanMacro(Negative, bool);
@@ -132,8 +137,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkArcSource(const vtkArcSource&);  // Not implemented.
-  void operator=(const vtkArcSource&);  // Not implemented.
+  vtkArcSource(const vtkArcSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArcSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

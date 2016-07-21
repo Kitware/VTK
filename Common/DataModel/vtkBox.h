@@ -116,8 +116,8 @@ protected:
   double Bounds[6]; //supports the GetBounds() method
 
 private:
-  vtkBox(const vtkBox&);  // Not implemented.
-  void operator=(const vtkBox&);  // Not implemented.
+  vtkBox(const vtkBox&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBox&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -62,6 +62,10 @@ if(HDF5_ENABLE_Z_LIB_SUPPORT)
   set(H5_ZLIB_HEADER "vtk_zlib.h")
 endif()
 
+# Ensure that the proper headers are included. Without this, static MSVC builds
+# do not compile.
+set(H5_STDC_HEADERS "On")
+
 add_subdirectory(vtkhdf5)
 
 foreach(lib

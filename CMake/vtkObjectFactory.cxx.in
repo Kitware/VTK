@@ -46,6 +46,7 @@ static unsigned int @vtk-module@Count;
 {
   if(++@vtk-module@Count == 1)
     {
+    @vtk-object-factory-extra-init@
     @vtk-module@ObjectFactory* factory = @vtk-module@ObjectFactory::New();
     if (factory)
       {

@@ -133,8 +133,8 @@ protected:
   vtkImageProperty *Property;
 
 private:
-  vtkImageSlice(const vtkImageSlice&);  // Not implemented.
-  void operator=(const vtkImageSlice&);  // Not implemented.
+  vtkImageSlice(const vtkImageSlice&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageSlice&) VTK_DELETE_FUNCTION;
 };
 
 #endif

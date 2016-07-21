@@ -60,8 +60,8 @@ protected:
   virtual bool CheckRequirements(vtkGraph* const graph) const;
 
 private:
-  vtkGraphWeightFilter(const vtkGraphWeightFilter&);  // Not implemented.
-  void operator=(const vtkGraphWeightFilter&);  // Not implemented.
+  vtkGraphWeightFilter(const vtkGraphWeightFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphWeightFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

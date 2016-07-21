@@ -145,7 +145,7 @@ protected:
 
   int ByteOrder;
   int GetLabel(char *string, int number, char *label);
-  //BTX
+
   enum
   {
     FILE_BIG_ENDIAN=0,
@@ -169,7 +169,6 @@ protected:
     float min[3]; // pre-calculated data minima (max size 3 for vectors)
     float max[3]; // pre-calculated data maxima (max size 3 for vectors)
   };
-  //ETX
 
   DataInfo *NodeDataInfo;
   DataInfo *CellDataInfo;
@@ -194,8 +193,8 @@ private:
                              const idMapping& nodeMap,
                              idMapping& cellMap);
 
-  vtkAVSucdReader(const vtkAVSucdReader&);  // Not implemented.
-  void operator=(const vtkAVSucdReader&);  // Not implemented.
+  vtkAVSucdReader(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAVSucdReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -121,8 +121,8 @@ public:
   typedef unsigned char YY_CHAR;
   typedef int yy_state_type;
 private:
-  vtkVRMLYaccData(const vtkVRMLYaccData&); // Not implemented
-  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&); // Not implemented
+  vtkVRMLYaccData(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
+  vtkVRMLYaccData& operator=(const vtkVRMLYaccData&) VTK_DELETE_FUNCTION;
 public:
   // Parser variables and functions:
   // Currently-being-define proto.  Prototypes may be nested, so a stack
@@ -1702,7 +1702,7 @@ void vtkVRMLYaccData::expect(int type)
 
 #define FLEX_SCANNER
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <io.h>
 #else
 #include <unistd.h>

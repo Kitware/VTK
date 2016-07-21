@@ -27,9 +27,9 @@ from autobahn.twisted.websocket import WebSocketServerProtocol
 from vtk.web import protocols
 
 try:
+    from vtk.vtkWebCore import vtkWebApplication
+except ImportError:
     from vtkWebCore import vtkWebApplication
-except:
-    from vtkWebCorePython import vtkWebApplication
 
 # =============================================================================
 salt = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(32))
@@ -375,7 +375,7 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
         self.renderLoop = False
 
     def connectionLost(self, reason):
-        self.viewToCapture = []
+        self.viewToCapture = {}
         self.renderLoop = False
 
     def startRenderLoop(self):

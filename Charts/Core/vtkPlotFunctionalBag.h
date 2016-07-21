@@ -95,7 +95,6 @@ public:
   // is available with the scalar data.
   virtual void CreateDefaultLookupTable();
 
-//BTX
   // Description:
   // Function to query a plot for the nearest point to the specified coordinate.
   // Returns the index of the data series with which the point is associated or
@@ -103,7 +102,7 @@ public:
   virtual vtkIdType GetNearestPoint(const vtkVector2f& point,
                                     const vtkVector2f& tolerance,
                                     vtkVector2f* location);
-//ETX
+
   // Description:
   // Select all points in the specified rectangle.
   virtual bool SelectPoints(const vtkVector2f& min, const vtkVector2f& max);
@@ -142,8 +141,8 @@ protected:
   bool LogX, LogY;
 
 private:
-  vtkPlotFunctionalBag(const vtkPlotFunctionalBag &); // Not implemented.
-  void operator=(const vtkPlotFunctionalBag &); // Not implemented.
+  vtkPlotFunctionalBag(const vtkPlotFunctionalBag &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotFunctionalBag &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkPlotFunctionalBag_h

@@ -167,7 +167,6 @@ public:
   // down to a mapper.
   static vtkInformationDoubleVectorKey *GeneralTextureTransform();
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THESE METHODS OUTSIDE OF THE RENDERING PROCESS
@@ -367,8 +366,6 @@ public:
   vtkObject *GetConsumer(int i);
   int IsConsumer(vtkObject *c);
 
-//ETX
-
 protected:
   vtkProp();
   ~vtkProp();
@@ -394,8 +391,8 @@ protected:
   vtkInformation *PropertyKeys;
 
 private:
-  vtkProp(const vtkProp&);  // Not implemented.
-  void operator=(const vtkProp&);  // Not implemented.
+  vtkProp(const vtkProp&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp&) VTK_DELETE_FUNCTION;
 };
 
 #endif

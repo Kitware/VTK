@@ -53,6 +53,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
+  // Set/Get whether the rotated array values should be computed
+  // on-the-fly (default), which is compute-intensive, or the arrays should be
+  // explicitly generated and stored, at the cost of using more memory.
+  vtkSetMacro(ComputeRotationsOnTheFly, bool);
+  vtkGetMacro(ComputeRotationsOnTheFly, bool);
+  vtkBooleanMacro(ComputeRotationsOnTheFly, bool);
+
+  // Description:
   // Set/Get The rotation mode.
   // VTK_ROTATION_MODE_DIRECT_ANGLE to specifiy a angle value (default),
   // VTK_ROTATION_MODE_ARRAY_VALUE to use value from an array in the input dataset.
@@ -141,8 +149,10 @@ protected:
                                  vtkMultiPieceDataSet* output,
                                  vtkIdType outputId);
 private:
-  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&); // Not implemented.
-  void operator=(const vtkAngularPeriodicFilter&); // Not implemented.
+  vtkAngularPeriodicFilter(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAngularPeriodicFilter&) VTK_DELETE_FUNCTION;
+
+  bool ComputeRotationsOnTheFly;
 
   int RotationMode;
   char* RotationArrayName;  // user-provided array name to use as angle, for ROTATION_MODE_ARRAY_VALUE

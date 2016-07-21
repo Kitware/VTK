@@ -52,18 +52,17 @@ public:
   // Remove any internal reference count due to internal Id/Object mapping
   void FreeObject(vtkObject* obj);
 
-//BTX
 protected:
   vtkObjectIdMap();
   ~vtkObjectIdMap();
 
 private:
-  vtkObjectIdMap(const vtkObjectIdMap&); // Not implemented
-  void operator=(const vtkObjectIdMap&); // Not implemented
+  vtkObjectIdMap(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObjectIdMap&) VTK_DELETE_FUNCTION;
 
   struct vtkInternals;
   vtkInternals* Internals;
-//ETX
+
 };
 
 #endif

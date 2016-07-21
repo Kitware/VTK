@@ -77,8 +77,8 @@ protected:
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkVectorDot(const vtkVectorDot&);  // Not implemented.
-  void operator=(const vtkVectorDot&);  // Not implemented.
+  vtkVectorDot(const vtkVectorDot&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVectorDot&) VTK_DELETE_FUNCTION;
 };
 
 #endif

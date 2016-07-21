@@ -70,7 +70,8 @@ vtkProp3DAxisFollower::vtkProp3DAxisFollower()
   this->EnableViewAngleLOD        = 1;
   this->ViewAngleLODThreshold     = 0.34;
 
-  this->ScreenOffset              = 10.0;
+  this->ScreenOffsetVector[0]     = 0.0;
+  this->ScreenOffsetVector[1]     = 10.0;
 
   this->Axis                      = NULL;
   this->Viewport                  = NULL;
@@ -107,7 +108,6 @@ vtkAxisActor* vtkProp3DAxisFollower::GetAxis()
 {
   return this->Axis.GetPointer();
 }
-
 
 //----------------------------------------------------------------------
 void vtkProp3DAxisFollower::SetViewport(vtkViewport* vp)
@@ -362,22 +362,21 @@ void vtkProp3DAxisFollower
                                double rX[3], double rY[3], double rZ[3],
                                vtkAxisActor *axis)
 {
-  double autoScaleFactor =
-    this->AutoScale(viewport, this->Camera, this->ScreenOffset, this->Position);
+  double autoScaleHoriz =
+    this->AutoScale(viewport, this->Camera, this->ScreenOffsetVector[0], this->Position);
+  double autoScaleVert =
+    this->AutoScale(viewport, this->Camera, this->ScreenOffsetVector[1], this->Position);
 
   double dop[3];
   this->Camera->GetDirectionOfProjection(dop);
   vtkMath::Normalize(dop);
 
-  this->CalculateOrthogonalVectors(rX, rY, rZ, axis, dop, this->Viewport);
+  this->CalculateOrthogonalVectors(rX, rY, rZ, axis, dop, viewport);
 
   double dotVal = vtkMath::Dot(rZ, dop);
 
-  double origRy[3] = {0.0, 0.0, 0.0};
-
-  origRy[0] = rY[0];
-  origRy[1] = rY[1];
-  origRy[2] = rY[2];
+  double origRx[3] = {rX[0], rX[1], rX[2]};
+  double origRy[3] = {rY[0], rY[1], rY[2]};
 
   // NOTE: Basically the idea here is that dotVal will be positive
   // only when we have projection direction aligned with our z directon
@@ -399,26 +398,23 @@ void vtkProp3DAxisFollower
   // we compare our vertical vector with these vectors and if it aligns then we
   // translate in opposite direction.
   int axisPosition = this->Axis->GetAxisPosition();
+  int vertSign;
+  double vertDotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
+  double vertDotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
 
-  double dotVal1 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][0], origRy) ;
-  double dotVal2 = vtkMath::Dot(AxisAlignedY[this->Axis->GetAxisType()][axisPosition][1], origRy) ;
-
-  if(fabs(dotVal1) > fabs(dotVal2))
+  if(fabs(vertDotVal1) > fabs(vertDotVal2))
     {
-    int sign = (dotVal1 > 0 ? -1 : 1);
-
-    translation[0] =  origRy[0] * autoScaleFactor * sign;
-    translation[1] =  origRy[1] * autoScaleFactor * sign;
-    translation[2] =  origRy[2] * autoScaleFactor * sign;
+    vertSign = (vertDotVal1 > 0 ? -1 : 1);
     }
   else
     {
-    int sign = (dotVal2 > 0 ? -1 : 1);
-
-    translation[0] =  origRy[0] * autoScaleFactor * sign;
-    translation[1] =  origRy[1] * autoScaleFactor * sign;
-    translation[2] =  origRy[2] * autoScaleFactor * sign;
+    vertSign = (vertDotVal2 > 0 ? -1 : 1);
     }
+
+  int horizSign = this->TextUpsideDown ? -1 : 1;
+  translation[0] =  origRy[0] * autoScaleVert * vertSign + origRx[0] * autoScaleHoriz * horizSign;
+  translation[1] =  origRy[1] * autoScaleVert * vertSign + origRx[1] * autoScaleHoriz * horizSign;
+  translation[2] =  origRy[2] * autoScaleVert * vertSign + origRx[2] * autoScaleHoriz * horizSign;
 }
 
 //----------------------------------------------------------------------
@@ -533,7 +529,7 @@ void vtkProp3DAxisFollower::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "DistanceLODThreshold: ("   << this->DistanceLODThreshold    << ")\n";
   os << indent << "EnableViewAngleLOD: ("   << this->EnableViewAngleLOD    << ")\n";
   os << indent << "ViewAngleLODThreshold: ("   << this->ViewAngleLODThreshold    << ")\n";
-  os << indent << "ScreenOffset: ("<< this->ScreenOffset << ")\n";
+  os << indent << "ScreenOffsetVector: ("<< this->ScreenOffsetVector[0] << " " << this->ScreenOffsetVector[1] << ")\n";
 
   if ( this->Axis )
     {
@@ -556,7 +552,7 @@ void vtkProp3DAxisFollower::ShallowCopy(vtkProp *prop)
     this->SetDistanceLODThreshold(f->GetDistanceLODThreshold());
     this->SetEnableViewAngleLOD(f->GetEnableViewAngleLOD());
     this->SetViewAngleLODThreshold(f->GetViewAngleLODThreshold());
-    this->SetScreenOffset(f->GetScreenOffset());
+    this->SetScreenOffsetVector(f->GetScreenOffsetVector());
     this->SetAxis(f->GetAxis());
     }
 
@@ -569,6 +565,18 @@ bool vtkProp3DAxisFollower::IsTextUpsideDown( double* a, double* b )
 {
   double angle = vtkMath::RadiansFromDegrees(this->Orientation[2]);
   return (b[0] - a[0]) * cos(angle) - (b[1] - a[1]) * sin(angle) < 0;
+}
+
+//----------------------------------------------------------------------
+void vtkProp3DAxisFollower::SetScreenOffset(double offset)
+{
+  this->SetScreenOffsetVector(1, offset);
+}
+
+//----------------------------------------------------------------------
+double vtkProp3DAxisFollower::GetScreenOffset()
+{
+  return this->GetScreenOffsetVector()[1];
 }
 
 //----------------------------------------------------------------------

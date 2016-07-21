@@ -134,6 +134,13 @@ option(VTK_WARN_ON_DISPATCH_FAILURE
   OFF
 )
 
+mark_as_advanced(
+  VTK_DISPATCH_AOS_ARRAYS
+  VTK_DISPATCH_SOA_ARRAYS
+  VTK_DISPATCH_TYPED_ARRAYS
+  VTK_WARN_ON_DISPATCH_FAILURE
+)
+
 #-----------------------------------------------------------------------------
 
 include_directories(${VTK_SOURCE_DIR}/ThirdParty/utf8/source)
@@ -148,6 +155,7 @@ SET(Module_SRCS
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIterator.cxx
+  vtkArrayIteratorTemplate.txx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -195,6 +203,7 @@ SET(Module_SRCS
   vtkInformationIntegerVectorKey.cxx
   vtkInformationIterator.cxx
   vtkInformationKey.cxx
+  vtkInformationKeyLookup.cxx
   vtkInformationKeyVectorKey.cxx
   vtkInformationObjectBaseKey.cxx
   vtkInformationObjectBaseVectorKey.cxx
@@ -266,6 +275,7 @@ SET(Module_SRCS
   vtkTypeTemplate.h
   vtkType.h
   vtkSystemIncludes.h
+  vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   ${CMAKE_CURRENT_BINARY_DIR}/vtkConfigure.h
@@ -281,9 +291,7 @@ set(${vtk-module}_HDRS
   vtkArrayInterpolate.h
   vtkArrayInterpolate.txx
   vtkArrayIteratorIncludes.h
-  vtkArrayIteratorTemplate.h
   vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAssume.h
@@ -309,6 +317,7 @@ set(${vtk-module}_HDRS
   vtkSOADataArrayTemplate.h
   vtkSOADataArrayTemplate.txx
   vtkTemplateAliasMacro.h
+  vtkTestDataArray.h
   vtkTypeList.h
   vtkTypeList.txx
   vtkTypeTraits.h
@@ -375,17 +384,6 @@ include(CheckSymbolExists)
 if (WIN32)
   check_symbol_exists(InterlockedAdd "windows.h" VTK_HAS_INTERLOCKEDADD)
 endif()
-
-if (NOT CMAKE_VERSION VERSION_LESS "3.1")
-  option(VTK_USE_CXX11_FEATURES "Build VTK using C++11 features (if available)"
-         OFF)
-else()
-  set(VTK_USE_CXX11_FEATURES OFF)
-endif()
-if (VTK_USE_CXX11_FEATURES)
-  set(CMAKE_CXX_STANDARD_REQUIRED 11)
-endif()
-
 
 configure_file(vtkVersionMacros.h.in vtkVersionMacros.h @ONLY)
 configure_file(vtkConfigure.h.in vtkConfigure.h @ONLY)
@@ -541,7 +539,6 @@ set_source_files_properties(
   vtkAbstractArray
   vtkArray
   vtkArrayIterator
-  vtkArrayIteratorTemplate
   vtkCallbackCommand
   vtkCommand
   vtkCommonInformationKeyManager
@@ -658,6 +655,7 @@ set_source_files_properties(
   vtkMathConfigure.h
   vtkVersionMacros.h
   vtkTypeTemplate.h
+  vtkWrappingHints.h
   ${VTK_SMP_SOURCES}
   ${VTK_SMP_HEADERS}
   "${VTK_TYPELISTMACROS_HEADER}"
@@ -688,6 +686,7 @@ set_source_files_properties(
   vtkWeakPointer.h
   vtkWeakPointerBase.cxx
   vtkWin32Header.h
+  vtkWrappingHints.h
   PROPERTIES WRAP_EXCLUDE_PYTHON 1
 )
 

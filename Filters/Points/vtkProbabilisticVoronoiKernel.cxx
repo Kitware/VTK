@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 
 vtkStandardNewMacro(vtkProbabilisticVoronoiKernel);
 
@@ -41,7 +42,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
   double *p = (prob ? prob->GetPointer(0) : NULL);
-  double highestProbability=(-VTK_FLOAT_MIN);
+  double highestProbability=VTK_FLOAT_MIN;
   vtkIdType id, mostProbableId=0;
 
   if ( p ) // return the point in the neighborhood with the highest probability
@@ -64,7 +65,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
       id = pIds->GetId(i);
       this->DataSet->GetPoint(id,y);
       d = vtkMath::Distance2BetweenPoints(x,y);
-      if ( d == 0.0 ) //precise hit on existing point
+      if ( vtkMathUtilities::FuzzyCompare(d, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
         {
         mostProbableId = id;
         break;

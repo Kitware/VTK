@@ -40,9 +40,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkFiltersParallelStatisticsModule.h" // For export macro
 #include "vtkOrderStatistics.h"
 
-//BTX
 #include <map> // STL Header
-//ETX
 
 class vtkIdTypeArray;
 class vtkMultiBlockDataSet;
@@ -71,7 +69,6 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
   vtkPOrderStatistics();
   ~vtkPOrderStatistics();
 
-//BTX
   // Description:
   // Reduce the collection of local histograms to the global one for data inputs
   bool Reduce( vtkIdTypeArray*,
@@ -90,12 +87,11 @@ class VTKFILTERSPARALLELSTATISTICS_EXPORT vtkPOrderStatistics : public vtkOrderS
                   vtkIdTypeArray*,
                   vtkStringArray*,
                   vtkIdType );
-//ETX
 
   vtkMultiProcessController* Controller;
  private:
-  vtkPOrderStatistics(const vtkPOrderStatistics&); // Not implemented.
-  void operator=(const vtkPOrderStatistics&); // Not implemented.
+  vtkPOrderStatistics(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPOrderStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

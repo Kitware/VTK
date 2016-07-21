@@ -98,12 +98,10 @@ public:
   void PrintTree();
   void PrintArrays();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkBSPCuts* GetData(vtkInformation* info);
   static vtkBSPCuts* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Restore data object to initial state,
@@ -150,8 +148,8 @@ protected:
 
   double Bounds[6];
 
-  vtkBSPCuts(const vtkBSPCuts&); // Not implemented
-  void operator=(const vtkBSPCuts&); // Not implemented
+  vtkBSPCuts(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBSPCuts&) VTK_DELETE_FUNCTION;
 };
 
 #endif

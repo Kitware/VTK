@@ -23,7 +23,9 @@
 #include "vtkObject.h"
 
 #include "vtk_glew.h" // Needed for GLuint.
+#include <string> // for std::string
 
+class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
 
@@ -47,13 +49,65 @@ public:
     float *tcoords,
     vtkShaderProgram *program, vtkOpenGLVertexArrayObject *vao);
 
+  // Description:
+  // Draw a full-screen quad:
+  // * VertexShader and GeometryShader should be used as-is when building the
+  //   ShaderProgram.
+  // * FragmentShaderTemplate supports the replacements //VTK::FSQ::Decl and
+  //   //VTK::FSQ::Impl for declaring variables and the shader body,
+  //   respectively.
+  // * The varying texCoord is available to the fragment shader for texture
+  //   lookups into full-screen textures, ie. texture2D(textureName, texCoord).
+  // * PrepFullScreenVAO initializes a new VAO for drawing a quad.
+  // * DrawFullScreenQuad actually draws the quad.
+  //
+  // Example usage:
+  // @code
+  // typedef vtkOpenGLRenderUtilities GLUtil;
+  //
+  // // Prep fragment shader source:
+  // std::string fragShader = GLUtil::GetFullScreenQuadFragmentShaderTemplate();
+  // vtkShaderProgram::Substitute(fragShader, "//VTK::FSQ::Decl",
+  //                              "uniform sampler2D aTexture;");
+  // vtkShaderProgram::Substitute(fragShader, "//VTK::FSQ::Impl",
+  //                              "gl_FragData[0] = texture2D(aTexture, texCoord);");
+  //
+  // // Create shader program:
+  // vtkShaderProgram *prog = shaderCache->ReadyShaderProgram(
+  //     GLUtil::GetFullScreenQuadVertexShader().c_str(),
+  //     fragShader.c_str(),
+  //     GLUtil::GetFullScreenQuadGeometryShader().c_str());
+  //
+  // // Initialize new VAO/vertex buffer. This is only done once:
+  // vtkNew<vtkOpenGLBufferObject> verts;
+  // vtkNew<vtkOpenGLVertexArrayObject> vao;
+  // GLUtil::PrepFullScreenVAO(verts.Get(), vao.Get(), prog);
+  //
+  // // Setup shader program to sample vtkTextureObject aTexture:
+  // aTexture->Activate();
+  // prog->SetUniformi("aTexture", aTexture->GetTextureUnit());
+  //
+  // // Render the full-screen quad:
+  // vao->Bind();
+  // GLUtil::DrawFullScreenQuad();
+  // vao->Release();
+  // aTexture->Deactivate();
+  // @endcode
+  static std::string GetFullScreenQuadVertexShader();
+  static std::string GetFullScreenQuadFragmentShaderTemplate();
+  static std::string GetFullScreenQuadGeometryShader();
+  static bool PrepFullScreenVAO(vtkOpenGLBufferObject *verts,
+                                vtkOpenGLVertexArrayObject *vao,
+                                vtkShaderProgram *prog);
+  static void DrawFullScreenQuad();
+
 protected:
   vtkOpenGLRenderUtilities();
   ~vtkOpenGLRenderUtilities();
 
 private:
-  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderUtilities&);  // Not implemented.
+  vtkOpenGLRenderUtilities(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderUtilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -161,7 +161,7 @@ public:
   vtkGetMacro( WidgetState, int );
 
   // The state of the widget
-  //BTX
+
   enum
     {
     Start = 1,
@@ -169,7 +169,6 @@ public:
     PlacedSeeds = 4,
     MovingSeed = 8
     };
-  //ETX
 
 protected:
   vtkSeedWidget();
@@ -193,8 +192,8 @@ protected:
   int Defining;
 
 private:
-  vtkSeedWidget(const vtkSeedWidget&);  //Not implemented
-  void operator=(const vtkSeedWidget&);  //Not implemented
+  vtkSeedWidget(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

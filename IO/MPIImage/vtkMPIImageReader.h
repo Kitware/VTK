@@ -115,8 +115,8 @@ protected:
                                           vtkInformation *outInfo);
 
 private:
-  vtkMPIImageReader(const vtkMPIImageReader &); // Not implemented
-  void operator=(const vtkMPIImageReader &);    // Not implemented
+  vtkMPIImageReader(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMPIImageReader &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkMPIImageReader_h

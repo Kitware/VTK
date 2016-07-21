@@ -425,12 +425,9 @@ int vtkStreamTracer::SetupOutput(vtkInformation* inInfo,
     }
   else if (dsInput)
     {
-    vtkDataSet* copy = dsInput->NewInstance();
-    copy->ShallowCopy(dsInput);
     vtkMultiBlockDataSet* mb = vtkMultiBlockDataSet::New();
     mb->SetNumberOfBlocks(numPieces);
-    mb->SetBlock(piece, copy);
-    copy->Delete();
+    mb->SetBlock(piece, dsInput);
     this->InputData = mb;
     mb->Register(this);
     mb->Delete();

@@ -49,7 +49,7 @@ static const char* ascii_to_key_sym(int);
 static const char* qt_key_to_key_sym(Qt::Key, Qt::KeyboardModifiers modifiers);
 
 QVTKInteractorAdapter::QVTKInteractorAdapter(QObject* parentObject)
-  : QObject(parentObject)
+  : QObject(parentObject), AccumulatedDelta(0)
 {
 }
 
@@ -112,6 +112,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
                                 (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0,
                                 0,
                                 e2->type() == QEvent::MouseButtonDblClick ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     if(t == QEvent::MouseMove)
       {
@@ -237,6 +238,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
       (e2->modifiers() & Qt::ControlModifier),
       (e2->modifiers() & Qt::ShiftModifier),
       ascii_key, e2->count(), keysym);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     if(t == QEvent::KeyPress)
       {
@@ -263,16 +265,31 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     iren->SetEventInformationFlipY(e2->x(), e2->y(),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
-    // invoke vtk event
-    // if delta is positive, it is a forward wheel event
-    if(e2->delta() > 0)
+    this->AccumulatedDelta += e2->delta();
+    const int threshold = 120;
+
+    // invoke vtk event when accumulated delta passes the threshold
+    if(this->AccumulatedDelta >= threshold)
       {
       iren->InvokeEvent(vtkCommand::MouseWheelForwardEvent, e2);
+      this->AccumulatedDelta -= threshold;
+      // avoid accumulating too much delta per event
+      if (this->AccumulatedDelta > threshold/2)
+        {
+        this->AccumulatedDelta = threshold/2;
+        }
       }
-    else
+    else if(this->AccumulatedDelta <= -threshold)
       {
       iren->InvokeEvent(vtkCommand::MouseWheelBackwardEvent, e2);
+      this->AccumulatedDelta += threshold;
+      // avoid accumulating too much delta per event
+      if (this->AccumulatedDelta < -threshold/2)
+        {
+        this->AccumulatedDelta = -threshold/2;
+        }
       }
     return true;
     }
@@ -285,6 +302,7 @@ bool QVTKInteractorAdapter::ProcessEvent(QEvent* e, vtkRenderWindowInteractor* i
     iren->SetEventInformationFlipY(e2->x(), e2->y(),
                                (e2->modifiers() & Qt::ControlModifier) > 0 ? 1 : 0,
                                (e2->modifiers() & Qt::ShiftModifier ) > 0 ? 1 : 0);
+    iren->SetAltKey((e2->modifiers() & Qt::AltModifier) > 0 ? 1 : 0);
 
     // invoke event and pass qt event for additional data as well
     iren->InvokeEvent(QVTKInteractor::ContextMenuEvent, e2);

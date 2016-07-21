@@ -42,8 +42,8 @@ public:
   static vtkProgressObserver* New()
     { return new vtkProgressObserver(); }
 
-  virtual void Execute(vtkObject *, unsigned long eventId,
-    void *callData)
+  void Execute(vtkObject *, unsigned long eventId,
+    void *callData) VTK_OVERRIDE
     {
     if (eventId == vtkCommand::ProgressEvent)
       {

@@ -194,7 +194,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     if ( vals->IsA("vtkDataArray") )
       {
       // Downcast column to data array for efficient data access
-      vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
+      vtkDataArray* dvals = vtkArrayDownCast<vtkDataArray>( vals );
 
       // Calculate histogram
       std::map<double,vtkIdType> histogram;
@@ -248,7 +248,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     else if ( vals->IsA("vtkStringArray") )
       {
       // Downcast column to string array for efficient data access
-      vtkStringArray* svals = vtkStringArray::SafeDownCast( vals );
+      vtkStringArray* svals = vtkArrayDownCast<vtkStringArray>( vals );
 
       // Calculate histogram
       std::map<vtkStdString,vtkIdType> histogram;
@@ -269,7 +269,7 @@ void vtkOrderStatistics::Learn( vtkTable* inData,
     else if ( vals->IsA("vtkVariantArray") )
       {
       // Downcast column to variant array for efficient data access
-      vtkVariantArray* vvals = vtkVariantArray::SafeDownCast( vals );
+      vtkVariantArray* vvals = vtkArrayDownCast<vtkVariantArray>( vals );
 
       // Calculate histogram
       std::map<vtkVariant,vtkIdType> histogram;
@@ -393,7 +393,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
 
     // Downcast columns to typed arrays for efficient data access
     vtkAbstractArray* vals = histogramTab->GetColumnByName( "Value" );
-    vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histogramTab->GetColumnByName( "Cardinality" ) );
+    vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( histogramTab->GetColumnByName( "Cardinality" ) );
 
     // The CDF will be used for quantiles calculation (effectively as a reverse look-up table)
     vtkIdType nRowHist = histogramTab->GetNumberOfRows();
@@ -432,7 +432,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
       }
     else
       {
-      probaCol = vtkDoubleArray::SafeDownCast( abstrCol );
+      probaCol = vtkArrayDownCast<vtkDoubleArray>( abstrCol );
       }
 
     // Finally calculate and store probabilities
@@ -539,7 +539,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     if ( vals->IsA("vtkDataArray") )
       {
       // Downcast column to data array for efficient data access
-      vtkDataArray* dvals = vtkDataArray::SafeDownCast( vals );
+      vtkDataArray* dvals = vtkArrayDownCast<vtkDataArray>( vals );
 
       // Create column for quantiles of the same type as the values
       vtkDataArray* quantCol = vtkDataArray::CreateDataArray( dvals->GetDataType() );
@@ -582,7 +582,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     else if ( vals->IsA("vtkStringArray") )
       {
       // Downcast column to string array for efficient data access
-      vtkStringArray* svals = vtkStringArray::SafeDownCast( vals );
+      vtkStringArray* svals = vtkArrayDownCast<vtkStringArray>( vals );
 
       // Create column for quantiles of the same type as the values
       vtkStringArray* quantCol = vtkStringArray::New();
@@ -606,7 +606,7 @@ void vtkOrderStatistics::Derive( vtkMultiBlockDataSet* inMeta )
     else if ( vals->IsA("vtkVariantArray") )
       {
       // Downcast column to variant array for efficient data access
-      vtkVariantArray* vvals = vtkVariantArray::SafeDownCast( vals );
+      vtkVariantArray* vvals = vtkArrayDownCast<vtkVariantArray>( vals );
 
       // Create column for quantiles of the same type as the values
       vtkVariantArray* quantCol = vtkVariantArray::New();
@@ -843,14 +843,14 @@ public:
   DataArrayQuantizer( vtkAbstractArray* vals,
                       vtkAbstractArray* quantiles )
   {
-    this->Data      = vtkDataArray::SafeDownCast( vals );
-    this->Quantiles = vtkDataArray::SafeDownCast( quantiles );
+    this->Data      = vtkArrayDownCast<vtkDataArray>( vals );
+    this->Quantiles = vtkArrayDownCast<vtkDataArray>( quantiles );
   }
-  virtual ~DataArrayQuantizer()
+  ~DataArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 
@@ -884,14 +884,14 @@ public:
   StringArrayQuantizer( vtkAbstractArray* vals,
                        vtkAbstractArray* quantiles )
   {
-    this->Data      = vtkStringArray::SafeDownCast( vals );
-    this->Quantiles = vtkStringArray::SafeDownCast( quantiles );
+    this->Data      = vtkArrayDownCast<vtkStringArray>( vals );
+    this->Quantiles = vtkArrayDownCast<vtkStringArray>( quantiles );
   }
-  virtual ~StringArrayQuantizer()
+  ~StringArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 
@@ -925,14 +925,14 @@ public:
   VariantArrayQuantizer( vtkAbstractArray* vals,
                          vtkAbstractArray* quantiles )
   {
-    this->Data      = vtkVariantArray::SafeDownCast( vals );
-    this->Quantiles = vtkVariantArray::SafeDownCast( quantiles );
+    this->Data      = vtkArrayDownCast<vtkVariantArray>( vals );
+    this->Quantiles = vtkArrayDownCast<vtkVariantArray>( quantiles );
   }
-  virtual ~VariantArrayQuantizer()
+  ~VariantArrayQuantizer() VTK_OVERRIDE
   {
   }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
 

@@ -36,10 +36,10 @@ class vtkFloatArray;
 class vtkStdString;
 class vtkMultiProcessController;
 class vtkInformation;
-//BTX
+
 class VPICDataSet;
 class GridExchange;
-//ETX
+
 class VTKIOVPIC_EXPORT vtkVPICReader : public vtkImageAlgorithm
 {
 public:
@@ -159,8 +159,8 @@ protected:
 
 
 private:
-  vtkVPICReader(const vtkVPICReader&);  // Not implemented.
-  void operator=(const vtkVPICReader&); // Not implemented.
+  vtkVPICReader(const vtkVPICReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVPICReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

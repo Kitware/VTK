@@ -242,7 +242,7 @@ void vtkPointFillPass::Render(const vtkRenderState *s)
     }
 
   glDisable(GL_BLEND);
-  glDisable(GL_DEPTH_TEST);
+//  glDisable(GL_DEPTH_TEST);
 
   this->Pass1->Activate();
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

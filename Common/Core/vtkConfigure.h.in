@@ -73,7 +73,7 @@
 
 /* Atomic operations */
 #cmakedefine VTK_HAVE_SYNC_BUILTINS
-#if defined(WIN32)
+#if defined(_WIN32)
  #cmakedefine VTK_HAS_INTERLOCKEDADD
 #endif
 
@@ -129,11 +129,6 @@
 # define VTK_USE_ANSI_STDLIB
 #endif
 
-/* Setup vtkstd, a portable namespace for std.  */
-#ifndef VTK_LEGACY_REMOVE
-# define vtkstd std
-#endif
-
 /* Define a "vtkstd_bool" for backwards compatibility.  Only use bool
    if this file is included by a c++ file. */
 #ifndef VTK_LEGACY_REMOVE
@@ -159,9 +154,27 @@
 #ifdef VTK_USE_CXX11_FEATURES
 # define VTK_OVERRIDE override
 # define VTK_FINAL final
+# define VTK_DELETE_FUNCTION =delete
 #else
 # define VTK_OVERRIDE
 # define VTK_FINAL
+# define VTK_DELETE_FUNCTION
 #endif
 
+/** std::auto_ptr is deprecated in C++11 and will be removed in C++17
+ *  use std::unique_ptr in C++11 and later compilers.
+ */
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >=1700)\
+ || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
+# define VTK_HAS_STD_UNIQUE_PTR
 #endif
+
+/* MS Visual Studio 2015 finally supports C99/C++11's snprintf but
+ * for older versions, use _snprintf instead. Annoyingly, its semantics
+ * are slightly different, but still better than using sprintf.
+ */
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+# define snprintf _snprintf
+#endif
+
+#endif // vtkConfigure_h

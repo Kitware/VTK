@@ -611,7 +611,7 @@ virtual double *Get##name() \
   } \
   public: \
   typedef superclass Superclass; \
-  static int IsTypeOf(const char *type) \
+  static vtkTypeBool IsTypeOf(const char *type) \
   { \
     if ( !strcmp(thisClassName,type) ) \
       { \
@@ -619,7 +619,7 @@ virtual double *Get##name() \
       } \
     return superclass::IsTypeOf(type); \
   } \
-  virtual int IsA(const char *type) \
+  virtual vtkTypeBool IsA(const char *type) \
   { \
     return this->thisClass::IsTypeOf(type); \
   } \
@@ -631,7 +631,7 @@ virtual double *Get##name() \
       } \
     return NULL;\
   } \
-  instanceType *NewInstance() const \
+  VTK_NEWINSTANCE instanceType *NewInstance() const \
   { \
     return instanceType::SafeDownCast(this->NewInstanceInternal()); \
   }

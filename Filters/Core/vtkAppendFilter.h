@@ -41,13 +41,11 @@ public:
   vtkTypeMacro(vtkAppendFilter,vtkUnstructuredGridAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Description:
   // Get any input of this filter.
   vtkDataSet *GetInput(int idx);
   vtkDataSet *GetInput()
     {return this->GetInput( 0 );}
-//ETX
 
   // Description:
   // Get if the filter should merge coincidental points
@@ -100,8 +98,8 @@ protected:
   int OutputPointsPrecision;
 
 private:
-  vtkAppendFilter(const vtkAppendFilter&);  // Not implemented.
-  void operator=(const vtkAppendFilter&);  // Not implemented.
+  vtkAppendFilter(const vtkAppendFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAppendFilter&) VTK_DELETE_FUNCTION;
 
   // Get all input data sets that have points, cells, or both.
   // Caller must delete the returned vtkDataSetCollection.

@@ -38,14 +38,12 @@ public:
   vtkTypeMacro(vtkDiagonalMatrixSource, vtkArrayDataAlgorithm);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   // Determines whether the output matrix will be dense or sparse
   enum StorageType
   {
     DENSE,
     SPARSE
   };
-//ETX
 
   vtkGetMacro(ArrayType, int);
   vtkSetMacro(ArrayType, int);
@@ -92,8 +90,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&); // Not implemented
-  void operator=(const vtkDiagonalMatrixSource&);   // Not implemented
+  vtkDiagonalMatrixSource(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDiagonalMatrixSource&) VTK_DELETE_FUNCTION;
 
   vtkArray* GenerateDenseArray();
   vtkArray* GenerateSparseArray();

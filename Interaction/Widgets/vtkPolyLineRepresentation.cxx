@@ -78,7 +78,7 @@ vtkPolyLineRepresentation::~vtkPolyLineRepresentation()
 //----------------------------------------------------------------------------
 vtkDoubleArray* vtkPolyLineRepresentation::GetHandlePositions()
 {
-  return vtkDoubleArray::SafeDownCast(
+  return vtkArrayDownCast<vtkDoubleArray>(
     this->PolyLineSource->GetPoints()->GetData());
 }
 

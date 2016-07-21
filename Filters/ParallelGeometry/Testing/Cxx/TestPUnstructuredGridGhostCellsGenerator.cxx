@@ -81,8 +81,8 @@ protected:
   }
 
 private:
-  vtkRTAnalyticSource2(const vtkRTAnalyticSource2&);  // Not implemented.
-  void operator=(const vtkRTAnalyticSource2&);  // Not implemented.
+  vtkRTAnalyticSource2(const vtkRTAnalyticSource2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRTAnalyticSource2&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkRTAnalyticSource2);
@@ -189,7 +189,7 @@ int TestPUnstructuredGridGhostCellsGenerator(int argc, char* argv[])
 
     for (int step = 0; step < 2; ++step)
       {
-      vtkUnsignedCharArray* ghosts = vtkUnsignedCharArray::SafeDownCast(
+      vtkUnsignedCharArray* ghosts = vtkArrayDownCast<vtkUnsignedCharArray>(
         outGrids[step]->GetCellGhostArray());
       if (initialNbOfCells >= outGrids[step]->GetNumberOfCells())
         {

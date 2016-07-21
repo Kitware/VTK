@@ -586,7 +586,7 @@ int vtkClipClosedSurface::RequestData(
 
       // Add scalars for the newly-created contour lines
       vtkUnsignedCharArray *scalars =
-        vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
+        vtkArrayDownCast<vtkUnsignedCharArray>(outLineData->GetScalars());
 
       if (scalars)
         {
@@ -623,7 +623,7 @@ int vtkClipClosedSurface::RequestData(
                                   newPolys, pc);
 
       // Add scalars for the newly-created polys
-      scalars = vtkUnsignedCharArray::SafeDownCast(outPolyData->GetScalars());
+      scalars = vtkArrayDownCast<vtkUnsignedCharArray>(outPolyData->GetScalars());
 
       if (scalars)
         {
@@ -643,7 +643,7 @@ int vtkClipClosedSurface::RequestData(
 
       // Add scalars to any diagnostic lines that added by
       // TriangulateContours().  In usual operation, no lines are added.
-      scalars = vtkUnsignedCharArray::SafeDownCast(outLineData->GetScalars());
+      scalars = vtkArrayDownCast<vtkUnsignedCharArray>(outLineData->GetScalars());
 
       if (scalars)
         {
@@ -699,7 +699,7 @@ int vtkClipClosedSurface::RequestData(
 
   // Get the line scalars
   vtkUnsignedCharArray *scalars =
-    vtkUnsignedCharArray::SafeDownCast(inLineData->GetScalars());
+    vtkArrayDownCast<vtkUnsignedCharArray>(inLineData->GetScalars());
 
   if (this->GenerateOutline)
     {
@@ -718,7 +718,7 @@ int vtkClipClosedSurface::RequestData(
     if (polys && scalars)
       {
       vtkUnsignedCharArray *pScalars =
-        vtkUnsignedCharArray::SafeDownCast(inPolyData->GetScalars());
+        vtkArrayDownCast<vtkUnsignedCharArray>(inPolyData->GetScalars());
 
       vtkIdType m = scalars->GetNumberOfTuples();
       vtkIdType n = pScalars->GetNumberOfTuples();

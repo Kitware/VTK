@@ -139,7 +139,8 @@ void vtkChartParallelCoordinates::Update()
     {
     double range[2];
     vtkDataArray* array =
-        vtkDataArray::SafeDownCast(table->GetColumnByName(this->VisibleColumns->GetValue(i)));
+        vtkArrayDownCast<vtkDataArray>(table->GetColumnByName(
+                                         this->VisibleColumns->GetValue(i)));
     if (array)
       {
       array->GetRange(range);
@@ -181,7 +182,8 @@ bool vtkChartParallelCoordinates::Paint(vtkContext2D *painter)
       {
       vtkSelectionNode *node = selection->GetNumberOfNodes() > 0?
         selection->GetNode(0) : NULL;
-      idArray = node? vtkIdTypeArray::SafeDownCast(node->GetSelectionList()) : NULL;
+      idArray = node? vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList())
+                    : NULL;
       this->Storage->Plot->SetSelection(idArray);
       }
     }

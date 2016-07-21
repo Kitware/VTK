@@ -148,8 +148,8 @@ protected:
   int Normals;
 
 private:
-  vtkMCubesReader(const vtkMCubesReader&);  // Not implemented.
-  void operator=(const vtkMCubesReader&);  // Not implemented.
+  vtkMCubesReader(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMCubesReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

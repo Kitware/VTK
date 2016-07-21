@@ -92,14 +92,14 @@ public:
 
   // Description:
   // Set/get the slice orientation
-  //BTX
+
   enum
   {
     SLICE_ORIENTATION_YZ = 0,
     SLICE_ORIENTATION_XZ = 1,
     SLICE_ORIENTATION_XY = 2
   };
-  //ETX
+
   vtkGetMacro(SliceOrientation, int);
   virtual void SetSliceOrientation(int orientation);
   virtual void SetSliceOrientationToXY()
@@ -215,8 +215,8 @@ protected:
   friend class vtkImageViewer2Callback;
 
 private:
-  vtkImageViewer2(const vtkImageViewer2&);  // Not implemented.
-  void operator=(const vtkImageViewer2&);  // Not implemented.
+  vtkImageViewer2(const vtkImageViewer2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageViewer2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

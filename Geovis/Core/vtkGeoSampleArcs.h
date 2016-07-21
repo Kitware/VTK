@@ -52,13 +52,11 @@ public:
   vtkSetMacro(MaximumDistanceMeters, double);
   vtkGetMacro(MaximumDistanceMeters, double);
 
-  //BTX
   enum
     {
     RECTANGULAR,
     SPHERICAL
     };
-  //ETX
 
   // Description:
   // The input coordinate system.
@@ -96,8 +94,8 @@ protected:
   int OutputCoordinateSystem;
 
 private:
-  vtkGeoSampleArcs(const vtkGeoSampleArcs&);  // Not implemented.
-  void operator=(const vtkGeoSampleArcs&);  // Not implemented.
+  vtkGeoSampleArcs(const vtkGeoSampleArcs&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoSampleArcs&) VTK_DELETE_FUNCTION;
 };
 
 #endif

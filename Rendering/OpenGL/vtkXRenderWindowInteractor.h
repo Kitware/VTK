@@ -41,11 +41,9 @@
 class vtkCallbackCommand;
 class vtkXRenderWindowInteractorInternals;
 
-//BTX
 // Forward declare internal friend functions.
 void VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractorCallback(Widget,XtPointer, XEvent *,Boolean *);
 void VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractorTimer(XtPointer,XtIntervalId *);
-//ETX
 
 class VTKRENDERINGOPENGL_EXPORT vtkXRenderWindowInteractor : public vtkRenderWindowInteractor
 {
@@ -194,8 +192,8 @@ protected:
   static int BreakLoopFlag;
 
 private:
-  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkXRenderWindowInteractor&);  // Not implemented.
+  vtkXRenderWindowInteractor(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXRenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -77,17 +77,15 @@ protected:
   double UpperThreshold;
   int OutputPointsPrecision;
 
-  //BTX
   int (vtkThresholdPoints::*ThresholdFunction)(double s);
-  //ETX
 
   int Lower(double s) {return ( s <= this->LowerThreshold ? 1 : 0 );};
   int Upper(double s) {return ( s >= this->UpperThreshold ? 1 : 0 );};
   int Between(double s) {return ( s >= this->LowerThreshold ?
                                ( s <= this->UpperThreshold ? 1 : 0 ) : 0 );};
 private:
-  vtkThresholdPoints(const vtkThresholdPoints&);  // Not implemented.
-  void operator=(const vtkThresholdPoints&);  // Not implemented.
+  vtkThresholdPoints(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThresholdPoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

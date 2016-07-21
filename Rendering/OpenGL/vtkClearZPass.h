@@ -34,12 +34,10 @@ public:
   vtkTypeMacro(vtkClearZPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Set/Get the depth value. Initial value is 1.0 (farest).
@@ -58,8 +56,8 @@ public:
   double Depth;
 
  private:
-  vtkClearZPass(const vtkClearZPass&);  // Not implemented.
-  void operator=(const vtkClearZPass&);  // Not implemented.
+  vtkClearZPass(const vtkClearZPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClearZPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

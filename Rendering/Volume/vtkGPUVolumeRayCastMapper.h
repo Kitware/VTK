@@ -185,9 +185,7 @@ public:
   void SetMaskInput(vtkImageData *mask);
   vtkGetObjectMacro(MaskInput, vtkImageData);
 
-  //BTX
   enum { BinaryMaskType = 0, LabelMapMaskType };
-  //ETX
 
   // Description:
   // Set the mask type, if mask is to be used. See documentation for
@@ -212,26 +210,59 @@ public:
   // color and depth textures. By default this is set to 0 (off).
   // It should be noted that it is possible that underlying API specific
   // mapper may not supoport RenderToImage mode.
+  // \warning
+  // \li This method ignores any other volumes / props in the scene.
+  // \li This method does not respect the general attributes of the
+  // scene i.e. background color, etc. It always produces a color
+  // image that has a transparent white background outside the
+  // bounds of the volume.
+  //
+  // \sa GetDepthImage(), GetColorImage()
   vtkSetMacro(RenderToImage, int);
   vtkGetMacro(RenderToImage, int);
   vtkBooleanMacro(RenderToImage, int);
 
   // Description:
+  // Set/Get the scalar type of the depth texture in RenderToImage mode.
+  // By default, the type if VTK_FLOAT.
+  // \sa SetRenderToImage()
+  vtkSetMacro(DepthImageScalarType, int);
+  vtkGetMacro(DepthImageScalarType, int);
+  void SetDepthImageScalarTypeToUnsignedChar();
+  void SetDepthImageScalarTypeToUnsignedShort();
+  void SetDepthImageScalarTypeToFloat();
+
+  // Description:
+  // Enable or disable clamping the depth value of the fully
+  // transparent voxel to the depth of the back-face of the
+  // volume. This parameter is used when RenderToImage mode is
+  // enabled. When ClampDepthToBackFace is false, the fully transparent
+  // voxels will have a value of 1.0 in the depth image. When
+  // this is true, the fully transparent voxels will have the
+  // depth value of the face at which the ray exits the volume.
+  // By default, this is set to 0 (off).
+  // \sa SetRenderToImage(), GetDepthImage()
+  vtkSetMacro(ClampDepthToBackface, int);
+  vtkGetMacro(ClampDepthToBackface, int);
+  vtkBooleanMacro(ClampDepthToBackface, int);
+
+  // Description:
   // Low level API to export the depth texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
+  // \sa SetRenderToImage()
   virtual void GetDepthImage(vtkImageData*) {};
 
   // Description:
   // Low level API to export the color texture as vtkImageData in
   // RenderToImage mode.
   // Should be implemented by the graphics API specific mapper (GL or other).
+  // \sa SetRenderToImage()
   virtual void GetColorImage(vtkImageData*) {};
 
-//BTX
   // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
+  // \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void Render( vtkRenderer *, vtkVolume * );
 
   // Description:
@@ -240,10 +271,10 @@ public:
   virtual void GPURender( vtkRenderer *, vtkVolume *) {}
 
   // Description:
-  // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Release any graphics resources that are being consumed by this mapper.
   // The parameter window could be used to determine which graphic
   // resources to release.
+  // \warning INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   void ReleaseGraphicsResources(vtkWindow *) {}
 
   // Description:
@@ -258,8 +289,6 @@ public:
   // \post valid_j_ratio: ratio[1]>0 && ratio[1]<=1.0
   // \post valid_k_ratio: ratio[2]>0 && ratio[2]<=1.0
   virtual void GetReductionRatio(double ratio[3])=0;
-
-//ETX
 
 protected:
   vtkGPUVolumeRayCastMapper();
@@ -303,7 +332,14 @@ protected:
   // Render to texture mode flag
   int RenderToImage;
 
-  // Enable / disable stochasting jittering
+  // Depth image scalar type
+  int DepthImageScalarType;
+
+  // Clamp depth values to the depth of the face at which the ray
+  // exits the volume
+  int ClampDepthToBackface;
+
+  // Enable / disable stochastic jittering
   int UseJittering;
 
   // Enable / disable two pass rendering
@@ -371,8 +407,8 @@ protected:
   vtkImageData* LastInput;
 
 private:
-  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkGPUVolumeRayCastMapper&);  // Not implemented.
+  vtkGPUVolumeRayCastMapper(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGPUVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

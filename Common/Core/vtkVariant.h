@@ -40,7 +40,6 @@
 // The following should be eventually placed in vtkSetGet.h
 //
 
-//BTX
 // This is same as extended template macro with an additional case for VTK_VARIANT
 #define vtkExtraExtendedTemplateMacro(call)                                 \
   vtkExtendedTemplateMacro(call);                                            \
@@ -50,7 +49,6 @@
 #define vtkExtendedArrayIteratorTemplateMacro(call)                                      \
   vtkArrayIteratorTemplateMacro(call);                                                   \
   vtkArrayIteratorTemplateMacroCase(VTK_VARIANT, vtkVariant, call);
-//ETX
 
 class vtkStdString;
 class vtkUnicodeString;
@@ -64,9 +62,7 @@ class vtkVariant;
 #endif
 struct vtkVariantLessThan;
 
-//BTX
 VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-//ETX
 
 class VTKCOMMONCORE_EXPORT vtkVariant
 {
@@ -373,12 +369,10 @@ public:
   bool operator<=(const vtkVariant &other) const;
   bool operator>=(const vtkVariant &other) const;
 
-//BTX
   friend VTKCOMMONCORE_EXPORT ostream& operator << ( ostream& os, const vtkVariant& val );
-//ETX
 
 private:
-//BTX
+
   template <typename T>
   T ToNumeric(bool *valid, T* vtkNotUsed(ignored)) const;
 
@@ -409,10 +403,8 @@ private:
   friend struct vtkVariantEqual;
   friend struct vtkVariantStrictWeakOrder;
   friend struct vtkVariantStrictEquality;
-//ETX
-};
 
-//BTX
+};
 
 #include "vtkVariantInlineOperators.h" // needed for operator== and company
 
@@ -448,8 +440,6 @@ struct VTKCOMMONCORE_EXPORT vtkVariantStrictEquality
 public:
   bool operator()(const vtkVariant &s1, const vtkVariant &s2) const;
 };
-
-//ETX
 
 #endif
 // VTK-HeaderTest-Exclude: vtkVariant.h

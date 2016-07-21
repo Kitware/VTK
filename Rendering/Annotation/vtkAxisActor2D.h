@@ -291,7 +291,7 @@ public:
 
   // Description:
   // Specify whether to size the fonts relative to the viewport or relative to
-  // length of the axis. By default, fonts are resized relative to the axis.
+  // length of the axis. By default, fonts are resized relative to the viewport.
   vtkSetMacro(SizeFontRelativeToAxis,int);
   vtkGetMacro(SizeFontRelativeToAxis,int);
   vtkBooleanMacro(SizeFontRelativeToAxis,int);
@@ -360,8 +360,8 @@ protected:
   vtkTimeStamp  BuildTime;
 
 private:
-  vtkAxisActor2D(const vtkAxisActor2D&);  // Not implemented.
-  void operator=(const vtkAxisActor2D&);  // Not implemented.
+  vtkAxisActor2D(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAxisActor2D&) VTK_DELETE_FUNCTION;
 };
 
 

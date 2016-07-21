@@ -76,6 +76,7 @@ vtkMatplotlibMathTextUtilities::CheckMPLAvailability()
   vtkMplStartUpDebugMacro("Initializing Python, if not already.");
   vtkPythonInterpreter::Initialize();
   vtkMplStartUpDebugMacro("Attempting to import matplotlib.");
+  vtkPythonScopeGilEnsurer gilEnsurer;
   if (PyErr_Occurred() || !PyImport_ImportModule("matplotlib") || PyErr_Occurred())
     {
     // FIXME: Check if we need this. Wouldn't pipe-ing the stdout/stderr make
@@ -145,13 +146,17 @@ vtkMatplotlibMathTextUtilities::~vtkMatplotlibMathTextUtilities()
 //----------------------------------------------------------------------------
 void vtkMatplotlibMathTextUtilities::CleanupPythonObjects()
 {
-  Py_XDECREF(this->MaskParser);
-  Py_XDECREF(this->PathParser);
-  Py_XDECREF(this->FontPropertiesClass);
+  if (Py_IsInitialized())
+    {
+    vtkPythonScopeGilEnsurer gilEnsurer;
+    Py_XDECREF(this->MaskParser);
+    Py_XDECREF(this->PathParser);
+    Py_XDECREF(this->FontPropertiesClass);
 
-  this->MaskParser = NULL;
-  this->PathParser = NULL;
-  this->FontPropertiesClass = NULL;
+    this->MaskParser = NULL;
+    this->PathParser = NULL;
+    this->FontPropertiesClass = NULL;
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -159,7 +164,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeMaskParser()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplMathTextLib(PyImport_ImportModule("matplotlib.mathtext"));
   if (this->CheckForError(mplMathTextLib.GetPointer()))
     {
@@ -190,7 +195,7 @@ bool vtkMatplotlibMathTextUtilities::InitializePathParser()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplTextPathLib(PyImport_ImportModule("matplotlib.textpath"));
   if (this->CheckForError(mplTextPathLib.GetPointer()))
     {
@@ -219,7 +224,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 {
   // ensure that Python is initialized.
   vtkPythonInterpreter::Initialize();
-
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject mplFontManagerLib(
         PyImport_ImportModule("matplotlib.font_manager"));
   if (this->CheckForError(mplFontManagerLib.GetPointer()))
@@ -241,6 +246,7 @@ bool vtkMatplotlibMathTextUtilities::InitializeFontPropertiesClass()
 //----------------------------------------------------------------------------
 bool vtkMatplotlibMathTextUtilities::CheckForError()
 {
+  vtkPythonScopeGilEnsurer gilEnsurer;
   PyObject *exception = PyErr_Occurred();
   if (exception)
     {
@@ -351,6 +357,7 @@ vtkMatplotlibMathTextUtilities::GetFontProperties(vtkTextProperty *tprop)
 
   tpropFontSize = tprop->GetFontSize();
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   return PyObject_CallFunction(this->FontPropertiesClass,
                                const_cast<char*>("sssssi"), tpropFamily,
                                tpropStyle, tpropVariant, tpropStyle,
@@ -545,6 +552,7 @@ bool vtkMatplotlibMathTextUtilities::GetMetrics(
   long int rows = 0;
   long int cols = 0;
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
                                                    const_cast<char*>("to_mask"),
                                                    const_cast<char*>("sii"),
@@ -649,6 +657,15 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   double bgA = tprop->GetBackgroundOpacity();
   bool hasBackground = (static_cast<unsigned char>(bgA * 255) != 0);
 
+  double *frameColor = tprop->GetFrameColor();
+  unsigned char frR = static_cast<unsigned char>(frameColor[0] * 255);
+  unsigned char frG = static_cast<unsigned char>(frameColor[1] * 255);
+  unsigned char frB = static_cast<unsigned char>(frameColor[2] * 255);
+  bool hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
+  double frA = hasFrame ? 255 : 0;
+  int frW = tprop->GetFrameWidth();
+
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
                                                    const_cast<char*>("to_mask"),
                                                    const_cast<char*>("sii"),
@@ -731,7 +748,18 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
       unsigned char *ptr =
           static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
-      if (hasBackground)
+      if (hasFrame && (col < (bbox[0] + frW) || col > (bbox[1] - frW)
+        || row > (bbox[3] - frW) || row < (bbox[2] + frW)))
+        {
+        const float fg_blend = fgA * (val / 255.f);
+        const float fr_blend = 1.f - fg_blend;
+
+        ptr[0] = static_cast<unsigned char>(fr_blend * frR + fg_blend * fgR);
+        ptr[1] = static_cast<unsigned char>(fr_blend * frG + fg_blend * fgG);
+        ptr[2] = static_cast<unsigned char>(fr_blend * frB + fg_blend * fgB);
+        ptr[3] = 255;
+        }
+      else if (hasBackground)
         {
         const float fg_blend = fgA * (val / 255.f);
         const float bg_blend = 1.f - fg_blend;
@@ -875,6 +903,7 @@ bool vtkMatplotlibMathTextUtilities::StringToPath(const char *str,
     return false;
     }
 
+  vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject pyResultTuple(
         PyObject_CallMethod(this->PathParser,
                             const_cast<char*>("get_text_path"),

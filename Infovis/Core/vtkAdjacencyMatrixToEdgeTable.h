@@ -83,8 +83,8 @@ protected:
   double MinimumThreshold;
 
 private:
-  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&); // Not implemented
-  void operator=(const vtkAdjacencyMatrixToEdgeTable&);   // Not implemented
+  vtkAdjacencyMatrixToEdgeTable(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAdjacencyMatrixToEdgeTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -67,10 +67,10 @@ public:
   bool isWidget();
   bool HasTransparency();
   bool InteractAtServer();
-  //BTX
+
   std::string GetMD5();
   std::string GetId();
-  //ETX
+
   size_t GetRendererId();
   int GetLayer();
 
@@ -92,8 +92,8 @@ protected:
     bool interactAtServer;
 
 private:
-  vtkWebGLObject(const vtkWebGLObject&); // Not implemented
-  void operator=(const vtkWebGLObject&);   // Not implemented
+  vtkWebGLObject(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLObject&) VTK_DELETE_FUNCTION;
 };
 
 #endif

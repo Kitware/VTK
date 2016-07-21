@@ -102,3 +102,88 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
     tvbo->ReleaseGraphicsResources();
     }
 }
+
+//------------------------------------------------------------------------------
+std::string vtkOpenGLRenderUtilities::GetFullScreenQuadVertexShader()
+{
+  // Pass through:
+  return "//VTK::System::Dec\n"
+         "attribute vec4 ndCoordIn;\n"
+         "attribute vec2 texCoordIn;\n"
+         "varying vec2 texCoord;\n"
+         "void main()\n"
+         "{\n"
+         "  gl_Position = ndCoordIn;\n"
+         "  texCoord = texCoordIn;\n"
+         "}\n";
+}
+
+//------------------------------------------------------------------------------
+std::string vtkOpenGLRenderUtilities::GetFullScreenQuadFragmentShaderTemplate()
+{
+  return "//VTK::System::Dec\n"
+         "//VTK::Output::Dec\n"
+         "in vec2 texCoord;\n"
+         "//VTK::FSQ::Decl\n"
+         "void main()\n"
+         "{\n"
+         "//VTK::FSQ::Impl\n"
+         "}\n";
+}
+
+//------------------------------------------------------------------------------
+std::string vtkOpenGLRenderUtilities::GetFullScreenQuadGeometryShader()
+{
+  return "";
+}
+
+//------------------------------------------------------------------------------
+bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
+                                                 vtkOpenGLVertexArrayObject *vao,
+                                                 vtkShaderProgram *prog)
+{
+  bool res;
+
+  // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
+  float verts[16] = {  1.f, 1.f, 1.f, 1.f,
+                      -1.f, 1.f, 0.f, 1.f,
+                       1.f,-1.f, 1.f, 0.f,
+                      -1.f,-1.f, 0.f, 0.f };
+
+  vertBuf->SetType(vtkOpenGLBufferObject::ArrayBuffer);
+  res = vertBuf->Upload(verts, 16, vtkOpenGLBufferObject::ArrayBuffer);
+  if (!res)
+    {
+    vtkGenericWarningMacro("Error uploading fullscreen quad vertex data.");
+    return false;
+    }
+
+  vao->Bind();
+
+  res = vao->AddAttributeArray(prog, vertBuf, "ndCoordIn", 0, 4 * sizeof(float),
+                               VTK_FLOAT, 2, false);
+  if (!res)
+    {
+    vao->Release();
+    vtkGenericWarningMacro("Error binding ndCoords to VAO.");
+    return false;
+    }
+
+  res = vao->AddAttributeArray(prog, vertBuf, "texCoordIn", 2 * sizeof(float),
+                               4 * sizeof(float), VTK_FLOAT, 2, false);
+  if (!res)
+    {
+    vao->Release();
+    vtkGenericWarningMacro("Error binding texCoords to VAO.");
+    return false;
+    }
+
+  vao->Release();
+  return true;
+}
+
+//------------------------------------------------------------------------------
+void vtkOpenGLRenderUtilities::DrawFullScreenQuad()
+{
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}

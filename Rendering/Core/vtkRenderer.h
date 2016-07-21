@@ -41,11 +41,13 @@ class vtkCuller;
 class vtkActor;
 class vtkActor2D;
 class vtkCamera;
+class vtkInformation;
 class vtkLightCollection;
 class vtkCullerCollection;
 class vtkLight;
 class vtkHardwareSelector;
 class vtkRendererDelegate;
+class vtkRenderPass;
 class vtkTexture;
 
 class VTKRENDERINGCORE_EXPORT vtkRenderer : public vtkViewport
@@ -246,6 +248,11 @@ public:
   virtual void DeviceRenderTranslucentPolygonalGeometry();
 
   // Description:
+  // Internal method temporarily removes lights before reloading them
+  // into graphics pipeline.
+  virtual void ClearLights(void) {};
+
+  // Description:
   // Clear the image to the background color.
   virtual void Clear() {}
 
@@ -300,7 +307,7 @@ public:
   // The camera will reposition itself to view the center point of the actors,
   // and move along its initial view plane normal (i.e., vector defined from
   // camera position to focal point) so that all of the actors can be seen.
-  void ResetCamera();
+  virtual void ResetCamera();
 
   // Description:
   // Automatically set up the camera based on a specified bounding box
@@ -310,11 +317,11 @@ public:
   // (i.e., vector defined from camera position to focal point). Note: is
   // the view plane is parallel to the view up axis, the view up axis will
   // be reset to one of the three coordinate axes.
-  void ResetCamera(double bounds[6]);
+  virtual void ResetCamera(double bounds[6]);
 
   // Description:
   // Alternative version of ResetCamera(bounds[6]);
-  void ResetCamera(double xmin, double xmax, double ymin, double ymax,
+  virtual void ResetCamera(double xmin, double xmax, double ymin, double ymax,
                    double zmin, double zmax);
 
   // Description:
@@ -521,7 +528,16 @@ public:
   vtkGetMacro(UseShadows,int);
   vtkBooleanMacro(UseShadows,int);
 
-//BTX
+  // Set/Get a custom render pass.
+  // Initial value is NULL.
+  void SetPass(vtkRenderPass *p);
+  vtkGetObjectMacro(Pass, vtkRenderPass);
+
+  // Description:
+  // Set/Get the information object associated with this algorithm.
+  vtkGetObjectMacro(Information, vtkInformation);
+  virtual void SetInformation(vtkInformation*);
+
 protected:
   vtkRenderer();
   ~vtkRenderer();
@@ -619,9 +635,6 @@ protected:
   // Temporary collection used by vtkRenderWindow::CaptureGL2PSSpecialProps.
   vtkPropCollection *GL2PSSpecialPropCollection;
 
-  // Friend class to allow render passes to access functions.
-  friend class vtkRenderPass;
-
   // Description:
   // Ask all props to update and draw any opaque and translucent
   // geometry. This includes both vtkActors and vtkVolumes
@@ -710,10 +723,16 @@ protected:
   bool TexturedBackground;
   vtkTexture* BackgroundTexture;
 
+  friend class vtkRenderPass;
+  vtkRenderPass *Pass;
+
+  // Arbitrary extra information associated with this renderer
+  vtkInformation* Information;
+
 private:
-  vtkRenderer(const vtkRenderer&);  // Not implemented.
-  void operator=(const vtkRenderer&);  // Not implemented.
-//ETX
+  vtkRenderer(const vtkRenderer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderer&) VTK_DELETE_FUNCTION;
+
 };
 
 inline vtkLightCollection *vtkRenderer::GetLights() {

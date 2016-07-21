@@ -98,7 +98,7 @@ public:
   {
   }
 
-  ~DelimitedTextIterator()
+  ~DelimitedTextIterator() VTK_OVERRIDE
   {
     // Ensure that all table columns have the same length ...
     for(vtkIdType i = 0; i != this->OutputTable->GetNumberOfColumns(); ++i)
@@ -112,12 +112,12 @@ public:
       }
   }
 
-  DelimitedTextIterator& operator++(int)
+  DelimitedTextIterator& operator++(int) VTK_OVERRIDE
   {
     return *this;
   }
 
-  DelimitedTextIterator& operator*()
+  DelimitedTextIterator& operator*() VTK_OVERRIDE
   {
     return *this;
   }
@@ -137,7 +137,7 @@ public:
       }
   }
 
-  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value)
+  DelimitedTextIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE
   {
     // If we've already read our maximum number of records, we're done ...
     if(this->MaxRecords && this->CurrentRecordIndex == this->MaxRecordIndex)
@@ -292,13 +292,13 @@ private:
         if(this->UnicodeArrayOutput)
           {
           array->SetNumberOfTuples(this->CurrentRecordIndex + 1);
-          vtkUnicodeStringArray::SafeDownCast(array)->SetValue(this->CurrentRecordIndex, this->CurrentField);
+          vtkArrayDownCast<vtkUnicodeStringArray>(array)->SetValue(this->CurrentRecordIndex, this->CurrentField);
           }
         else
           {
           std::string s;
           this->CurrentField.utf8_str(s);
-          vtkStringArray::SafeDownCast(array)->InsertValue(this->CurrentRecordIndex, s);
+          vtkArrayDownCast<vtkStringArray>(array)->InsertValue(this->CurrentRecordIndex, s);
           }
         }
       this->OutputTable->AddColumn(array);
@@ -319,13 +319,13 @@ private:
 
       if(this->UnicodeArrayOutput)
         {
-        vtkUnicodeStringArray* uarray = vtkUnicodeStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        vtkUnicodeStringArray* uarray = vtkArrayDownCast<vtkUnicodeStringArray>(this->OutputTable->GetColumn(this->CurrentFieldIndex));
         uarray->SetNumberOfTuples(rec_index + 1);
         uarray->SetValue(rec_index, this->CurrentField);
         }
       else
         {
-        vtkStringArray* sarray = vtkStringArray::SafeDownCast(this->OutputTable->GetColumn(this->CurrentFieldIndex));
+        vtkStringArray* sarray = vtkArrayDownCast<vtkStringArray>(this->OutputTable->GetColumn(this->CurrentFieldIndex));
         std::string s;
         this->CurrentField.utf8_str(s);
         sarray->InsertValue(rec_index,s);

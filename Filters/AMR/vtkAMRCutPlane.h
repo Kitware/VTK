@@ -167,13 +167,11 @@ protected:
   bool UseNativeCutter;
   vtkMultiProcessController *Controller;
 
-// BTX
   std::vector<int> BlocksToLoad;
-// ETX
 
 private:
-  vtkAMRCutPlane(const vtkAMRCutPlane& ); // Not implemented
-  void operator=(const vtkAMRCutPlane& ); // Not implemented
+  vtkAMRCutPlane(const vtkAMRCutPlane& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRCutPlane& ) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkAMRCutPlane_h */

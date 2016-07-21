@@ -60,7 +60,6 @@ public:
   virtual float GetWidth() { return Dims[2]; }
   virtual float GetHeight() { return Dims[3]; }
 
-//BTX
 protected:
   vtkContextClip();
   ~vtkContextClip();
@@ -68,9 +67,9 @@ protected:
   float Dims[4];
 
 private:
-  vtkContextClip(const vtkContextClip &); // Not implemented.
-  void operator=(const vtkContextClip &);   // Not implemented.
-  //ETX
+  vtkContextClip(const vtkContextClip &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkContextClip &) VTK_DELETE_FUNCTION;
+
 };
 
 inline void vtkContextClip::GetRect(float rect[4])

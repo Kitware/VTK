@@ -67,10 +67,9 @@ public:
   // Set/get the input to this writer.
   void SetInputData(vtkDataObject *input);
   void SetInputData(int index, vtkDataObject *input);
-//BTX
+
   vtkDataObject *GetInput();
   vtkDataObject *GetInput(int port);
-//ETX
 
 protected:
   vtkWriter();
@@ -86,8 +85,8 @@ protected:
   virtual void WriteData() = 0; //internal method subclasses must respond to
   vtkTimeStamp WriteTime;
 private:
-  vtkWriter(const vtkWriter&);  // Not implemented.
-  void operator=(const vtkWriter&);  // Not implemented.
+  vtkWriter(const vtkWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

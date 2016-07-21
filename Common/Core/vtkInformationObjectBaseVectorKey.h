@@ -60,21 +60,33 @@ public:
   // Description:
   // Clear the vector.
   void Clear(vtkInformation* info);
+
   // Description:
   // Resize (extend) the vector to hold n objects. Any new elements
   // created will be null initialized.
   void Resize(vtkInformation* info, int n);
+
   // Description:
   // Get the vector's length.
   int Size(vtkInformation* info);
   int Length(vtkInformation* info){ return this->Size(info); }
+
   // Description:
   // Put the value on the back of the vector, with ref counting.
   void Append(vtkInformation* info, vtkObjectBase *value);
+
   // Description:
   // Set element i of the vector to value. Resizes the vector
   // if needed.
   void Set(vtkInformation* info, vtkObjectBase *value, int i);
+
+  // Description:
+  // Remove all instances of val from the list. If using the indexed overload,
+  // the object at the specified position is removed.
+  void Remove(vtkInformation *info, vtkObjectBase *val);
+  void Remove(vtkInformation *info, int idx);
+  using Superclass::Remove; // Don't hide base class methods
+
   // Description:
   // Copy n values from the range in source defined by [from  from+n-1]
   // into the range in this vector defined by [to to+n-1]. Resizes
@@ -135,8 +147,8 @@ private:
   vtkInformationObjectBaseVectorValue *GetObjectBaseVector(vtkInformation *info);
 
   //
-  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&);  // Not implemented.
-  void operator=(const vtkInformationObjectBaseVectorKey&);  // Not implemented.
+  vtkInformationObjectBaseVectorKey(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInformationObjectBaseVectorKey&) VTK_DELETE_FUNCTION;
 };
 
 #endif

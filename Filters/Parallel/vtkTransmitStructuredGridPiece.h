@@ -44,8 +44,8 @@ protected:
   ~vtkTransmitStructuredGridPiece();
 
 private:
-  vtkTransmitStructuredGridPiece(const vtkTransmitStructuredGridPiece&); // Not implemented
-  void operator=(const vtkTransmitStructuredGridPiece&); // Not implemented
+  vtkTransmitStructuredGridPiece(const vtkTransmitStructuredGridPiece&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTransmitStructuredGridPiece&) VTK_DELETE_FUNCTION;
 };
 
 #endif

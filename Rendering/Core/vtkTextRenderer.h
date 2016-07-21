@@ -314,8 +314,8 @@ protected:
   int DefaultBackend;
 
 private:
-  vtkTextRenderer(const vtkTextRenderer &); // Not implemented.
-  void operator=(const vtkTextRenderer &); // Not implemented.
+  vtkTextRenderer(const vtkTextRenderer &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextRenderer &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkTextRenderer_h

@@ -61,8 +61,8 @@ protected:
   bool RenderTextures(vtkActor* actor, vtkRenderer* renderer);
 
 private:
-  vtkOpenGLProperty(const vtkOpenGLProperty&);  // Not implemented.
-  void operator=(const vtkOpenGLProperty&);  // Not implemented.
+  vtkOpenGLProperty(const vtkOpenGLProperty&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLProperty&) VTK_DELETE_FUNCTION;
 };
 
 #endif

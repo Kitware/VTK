@@ -53,9 +53,7 @@ public:
   vtkSetMacro(ReslicePlaneNormal,int);
   vtkGetMacro(ReslicePlaneNormal,int);
 
-//BTX
   enum {XAxis=0,YAxis,ZAxis};
-//ETX
 
   // Description:
   // Set the planes that correspond to the reslice axes.
@@ -131,8 +129,8 @@ protected:
   vtkPolyData              *ThickAxes[2];
 
 private:
-  vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&);  // Not implemented.
-  void operator=(const vtkResliceCursorPolyDataAlgorithm&);  // Not implemented.
+  vtkResliceCursorPolyDataAlgorithm(const vtkResliceCursorPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkResliceCursorPolyDataAlgorithm&) VTK_DELETE_FUNCTION;
 
 };
 

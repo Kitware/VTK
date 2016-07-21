@@ -129,14 +129,12 @@ protected:
                      vtkMultiBlockDataSet*,
                      vtkTable* ) { return; }
 
-  //BTX
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* inData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-  //ETX
 
   // Description:
   // Computes the median of inData with vtkOrderStatistics.
@@ -150,8 +148,8 @@ protected:
   bool MedianAbsoluteDeviation;
 
 private:
-  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ); // Not implemented
-  void operator = ( const vtkMultiCorrelativeStatistics& );  // Not implemented
+  vtkMultiCorrelativeStatistics( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkMultiCorrelativeStatistics& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

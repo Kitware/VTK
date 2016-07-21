@@ -105,7 +105,6 @@ public:
   // the delays associated with returning the vertex index.
   vtkIdType AddVertex(const vtkVariant& pedigreeId);
 
-//BTX
   // Description:
   // Adds a directed edge from \p u to \p v,
   // where \p u and \p v are vertex indices,
@@ -114,9 +113,7 @@ public:
   // \p vtkEdgeType contains fields for \p Source vertex index,
   // \p Target vertex index, and edge index \p Id.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v);
-//ETX
 
-//BTX
   // Description:
   // Adds a directed edge from \p u to \p v,
   // where \p u and \p v are vertex indices,
@@ -130,9 +127,7 @@ public:
   // \p Target vertex index, and edge index \p Id.
   vtkEdgeType AddEdge(vtkIdType u, vtkIdType v,
                       vtkVariantArray *propertyArr);
-//ETX
 
-  //BTX
   // Description:
   // Adds a directed edge from \p u to \p v,
   // where \p u is a vertex pedigree ID and \p v is a vertex index,
@@ -175,7 +170,6 @@ public:
   vtkEdgeType AddEdge(const vtkVariant& u,
                       const vtkVariant& v,
                       vtkVariantArray *propertyArr = 0);
-  //ETX
 
   // Description:
   // Adds a vertex to the graph.
@@ -318,8 +312,8 @@ protected:
   vtkGraphEdge *GraphEdge;
 
 private:
-  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&);  // Not implemented.
-  void operator=(const vtkMutableDirectedGraph&);  // Not implemented.
+  vtkMutableDirectedGraph(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMutableDirectedGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

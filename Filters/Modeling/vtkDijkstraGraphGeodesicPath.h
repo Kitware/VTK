@@ -137,8 +137,8 @@ protected:
   vtkPoints* RepelVertices;
 
 private:
-  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&);  // Not implemented.
-  void operator=(const vtkDijkstraGraphGeodesicPath&);  // Not implemented.
+  vtkDijkstraGraphGeodesicPath(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDijkstraGraphGeodesicPath&) VTK_DELETE_FUNCTION;
 
 };
 

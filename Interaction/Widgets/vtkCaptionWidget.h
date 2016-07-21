@@ -96,13 +96,11 @@ protected:
   void AnchorInteraction();
   void EndAnchorInteraction();
 
-//BTX
   friend class vtkCaptionAnchorCallback;
-//ETX
 
 private:
-  vtkCaptionWidget(const vtkCaptionWidget&);  //Not implemented
-  void operator=(const vtkCaptionWidget&);  //Not implemented
+  vtkCaptionWidget(const vtkCaptionWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCaptionWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -76,7 +76,6 @@ public:
 
   static vtkRAdapter *New();
 
-//BTX
   // Description:
   // Create a vtkDataArray copy of GNU R input matrix vaiable (deep copy, allocates memory)
   // Input is a R matrix or vector of doubles or integers
@@ -111,7 +110,6 @@ public:
   // Description:
   // Create a vtkTree copy of the GNU R input phylo tree variable (deep copy, allocates memory)
   vtkTree* RToVTKTree(SEXP variable);
-//ETX
 
 protected:
   vtkRAdapter();
@@ -119,8 +117,8 @@ protected:
 
 private:
 
-  vtkRAdapter(const vtkRAdapter&); // Not implemented
-  void operator=(const vtkRAdapter&); // Not implemented
+  vtkRAdapter(const vtkRAdapter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRAdapter&) VTK_DELETE_FUNCTION;
 
   vtkDataArrayCollection* vdac;  // Collection of vtkDataArrays that have been converted from R.
   vtkArrayData* vad;  // Collection of vtkArrays that have been converted from R.

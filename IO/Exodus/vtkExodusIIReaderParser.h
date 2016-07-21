@@ -75,7 +75,7 @@ public:
       blockIdsSet.insert(iter->first);
       }
     }
-//BTX
+
 protected:
   vtkExodusIIReaderParser();
   ~vtkExodusIIReaderParser();
@@ -160,9 +160,9 @@ protected:
   bool InMaterialAssignments;
 
 private:
-  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&); // Not implemented
-  void operator=(const vtkExodusIIReaderParser&); // Not implemented
-//ETX
+  vtkExodusIIReaderParser(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExodusIIReaderParser&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

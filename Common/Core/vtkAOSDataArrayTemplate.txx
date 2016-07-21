@@ -114,6 +114,67 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
 
 //-----------------------------------------------------------------------------
 template <class ValueTypeT>
+void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
+    vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+    vtkAbstractArray *source)
+{
+  // First, check for the common case of typeid(source) == typeid(this). This
+  // way we don't waste time redoing the other checks in the superclass, and
+  // can avoid doing a dispatch for the most common usage of this method.
+  SelfType *other = vtkArrayDownCast<SelfType>(source);
+  if (!other)
+    {
+    // Let the superclass handle dispatch/fallback.
+    this->Superclass::InsertTuples(dstStart, n, srcStart, source);
+    return;
+    }
+
+  if (n == 0)
+    {
+    return;
+    }
+
+  int numComps = this->GetNumberOfComponents();
+  if (other->GetNumberOfComponents() != numComps)
+    {
+    vtkErrorMacro("Number of components do not match: Source: "
+                  << other->GetNumberOfComponents() << " Dest: "
+                  << this->GetNumberOfComponents());
+    return;
+    }
+
+  vtkIdType maxSrcTupleId = srcStart + n - 1;
+  vtkIdType maxDstTupleId = dstStart + n - 1;
+
+  if (maxSrcTupleId >= other->GetNumberOfTuples())
+    {
+    vtkErrorMacro("Source array too small, requested tuple at index "
+                  << maxSrcTupleId << ", but there are only "
+                  << other->GetNumberOfTuples() << " tuples in the array.");
+    return;
+    }
+
+  vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
+  if (this->Size < newSize)
+    {
+    if (!this->Resize(maxDstTupleId + 1))
+      {
+      vtkErrorMacro("Resize failed.");
+      return;
+      }
+    }
+
+  this->MaxId = std::max(this->MaxId, newSize - 1);
+
+  ValueType *srcBegin = other->GetPointer(srcStart * numComps);
+  ValueType *srcEnd = srcBegin + (n * numComps);
+  ValueType *dstBegin = this->GetPointer(dstStart * numComps);
+
+  std::copy(srcBegin, srcEnd, dstBegin);
+}
+
+//-----------------------------------------------------------------------------
+template <class ValueTypeT>
 typename vtkAOSDataArrayTemplate<ValueTypeT>::ValueType*
 vtkAOSDataArrayTemplate<ValueTypeT>
 ::WritePointer(vtkIdType valueIdx, vtkIdType numValues)

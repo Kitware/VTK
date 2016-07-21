@@ -78,11 +78,9 @@ public:
   vtkGetMacro(AppendFeatures, int);
   vtkBooleanMacro(AppendFeatures, int);
 
-  //BTX
   // Description:
   // Return projection string belong to each layer.
   std::map<int, std::string> GetLayersProjection();
-  //ETX
 
   // Description:
   // Return projection string belong to a layer.
@@ -117,7 +115,6 @@ protected:
   int AppendFeatures;
   int AddFeatureIds;
 
-  //BTX
   class Internal;
 
   /// Private per-file metadata
@@ -128,11 +125,10 @@ protected:
 
   /// Mapping of layer to projection.
   std::map<int, std::string> LayersProjection;
-  //ETX
 
 private:
-  vtkGDALVectorReader(const vtkGDALVectorReader&);  // Not implemented.
-  void operator=(const vtkGDALVectorReader&);       // Not implemented.
+  vtkGDALVectorReader(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGDALVectorReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGDALVectorReader_h

@@ -51,10 +51,10 @@ class vtkScenePickerSelectionRenderCommand;
 
 class VTKRENDERINGCORE_EXPORT vtkScenePicker : public vtkObject
 {
-  //BTX
+
   friend class vtkRenderer;
   friend class vtkScenePickerSelectionRenderCommand;
-  //ETX
+
 public:
   static vtkScenePicker* New();
   vtkTypeMacro(vtkScenePicker, vtkObject);
@@ -123,8 +123,8 @@ protected:
 
   vtkTimeStamp PickRenderTime;
 private:
-  vtkScenePicker(const vtkScenePicker&); // Not implemented.
-  void operator=(const vtkScenePicker&); // Not implemented.
+  vtkScenePicker(const vtkScenePicker&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkScenePicker&) VTK_DELETE_FUNCTION;
 };
 
 #endif

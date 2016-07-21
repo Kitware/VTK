@@ -86,7 +86,6 @@ public:
   vtkGetMacro(ReportStatisticsOnly,int);
   vtkBooleanMacro(ReportStatisticsOnly,int);
 
-//BTX
 protected:
   vtkExtractArraysOverTime();
   ~vtkExtractArraysOverTime();
@@ -141,13 +140,12 @@ protected:
   vtkExtractSelection* SelectionExtractor;
 
 private:
-  vtkExtractArraysOverTime(const vtkExtractArraysOverTime&);  // Not implemented.
-  void operator=(const vtkExtractArraysOverTime&);  // Not implemented.
+  vtkExtractArraysOverTime(const vtkExtractArraysOverTime&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractArraysOverTime&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal *Internal;
 
-//ETX
 };
 
 #endif

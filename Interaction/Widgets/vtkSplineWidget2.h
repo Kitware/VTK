@@ -49,7 +49,7 @@ public:
   // Create the default widget representation if one is not set. By default,
   // this is an instance of the vtkSplineRepresentation class.
   void CreateDefaultRepresentation();
-//BTX
+
 protected:
   vtkSplineWidget2();
   ~vtkSplineWidget2();
@@ -65,9 +65,9 @@ protected:
   static void MoveAction(vtkAbstractWidget*);
 
 private:
-  vtkSplineWidget2(const vtkSplineWidget2&); // Not implemented.
-  void operator=(const vtkSplineWidget2&); // Not implemented.
-//ETX
+  vtkSplineWidget2(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSplineWidget2&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

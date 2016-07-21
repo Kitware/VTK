@@ -111,7 +111,6 @@ public:
   vtkSetStringMacro(Title);
   vtkGetStringMacro(Title);
 
-//BTX
   enum OutputFormat
   {
       PS_FILE,
@@ -120,7 +119,6 @@ public:
       TEX_FILE,
       SVG_FILE
   };
-//ETX
 
   // Description:
   // Configure the exporter to expect a painter-ordered 2D rendering, that is,
@@ -153,14 +151,12 @@ public:
     {this->SetFileFormat(SVG_FILE);};
   const char *GetFileFormatAsString();
 
-//BTX
   enum SortScheme
   {
       NO_SORT=0,
       SIMPLE_SORT=1,
       BSP_SORT=2
   };
-//ETX
 
   // Description:
   // Set the the type of sorting algorithm to order primitives from
@@ -318,8 +314,8 @@ protected:
   float LineWidthFactor;
 
 private:
-  vtkGL2PSExporter(const vtkGL2PSExporter&); // Not implemented
-  void operator=(const vtkGL2PSExporter&); // Not implemented
+  vtkGL2PSExporter(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGL2PSExporter&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkGL2PSExporter::GetSortAsString(void)

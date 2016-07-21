@@ -41,14 +41,12 @@
 #include "vtkObject.h"
 #include "vtkRenderingParallelLICModule.h" // for export
 
-//BTX
 #include <vector> // for vector
 #include <string> // for string
 #include <sstream> // for sstream
 #if vtkParallelTimerDEBUG > 0
 #include <iostream> // for cerr
 #endif
-//ETX
 
 class vtkParallelTimerBuffer;
 
@@ -88,10 +86,9 @@ public:
   // ROOT_RANKS_PID.log
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
-  //BTX
+
   void SetFileName(const std::string &fileName)
     { this->SetFileName(fileName.c_str()); }
-  //ETX
 
   // Description:
   // The log works as an event stack. EventStart pushes the
@@ -107,7 +104,6 @@ public:
   void EndEventSynch(const char *event);
   void EndEventSynch(int rank, const char *event);
 
-  //BTX
   // Description:
   // Insert text into the log header on the writer rank.
   template<typename T>
@@ -122,7 +118,6 @@ public:
   // stream output to log body(all ranks).
   vtkParallelTimer::LogBodyType GetBody()
     { return vtkParallelTimer::LogBodyType(); }
-  //ETX
 
   // Description:
   // Clear the log.
@@ -170,10 +165,9 @@ protected:
   virtual ~vtkParallelTimer();
 
 private:
-  vtkParallelTimer(const vtkParallelTimer&); // Not implemented
-  void operator=(const vtkParallelTimer&); // Not implemented
+  vtkParallelTimer(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParallelTimer&) VTK_DELETE_FUNCTION;
 
-//BTX
   // Description:
   // A class responsible for delete'ing the global instance of the log.
   class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimerDestructor
@@ -187,7 +181,6 @@ private:
     private:
       vtkParallelTimer *Log;
     };
-//ETX
 
 private:
   int GlobalLevel;
@@ -212,7 +205,6 @@ private:
   friend class LogBodyType;
 };
 
-//BTX
 //-----------------------------------------------------------------------------
 template<typename T>
 vtkParallelTimer &vtkParallelTimer::operator<<(const T& s)
@@ -257,6 +249,5 @@ vtkParallelTimer::LogBodyType &vtkParallelTimer::LogBodyType::operator<<(const T
 
   return *this;
 }
-//ETX
 
 #endif

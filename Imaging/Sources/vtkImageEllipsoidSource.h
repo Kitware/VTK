@@ -105,8 +105,8 @@ protected:
                           vtkInformationVector **, vtkInformationVector *);
 
 private:
-  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&);  // Not implemented.
-  void operator=(const vtkImageEllipsoidSource&);  // Not implemented.
+  vtkImageEllipsoidSource(const vtkImageEllipsoidSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageEllipsoidSource&) VTK_DELETE_FUNCTION;
 };
 
 

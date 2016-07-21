@@ -60,13 +60,12 @@ public:
 protected:
   vtkPCAStatisticsGnuR();
   ~vtkPCAStatisticsGnuR();
-//BTX
+
   virtual vtkDoubleArray* CalculatePValues(vtkIdTypeArray*, vtkDoubleArray*);
-//ETX
 
 private:
-  vtkPCAStatisticsGnuR(const vtkPCAStatisticsGnuR&); // Not implemented
-  void operator=(const vtkPCAStatisticsGnuR&); // Not implemented
+  vtkPCAStatisticsGnuR(const vtkPCAStatisticsGnuR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPCAStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkPCAStatisticsGnuR_h

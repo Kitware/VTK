@@ -639,7 +639,13 @@ void vtkFreeTypeTools::MapTextPropertyToId(vtkTextProperty *tprop,
     tprop->GetBackgroundColor(), 3*sizeof(double), hash);
   dValue = tprop->GetBackgroundOpacity();
   hash = vtkFreeTypeTools::HashBuffer(&dValue, sizeof(double), hash);
-  int iValue = tprop->GetFontSize();
+  hash = vtkFreeTypeTools::HashBuffer(
+    tprop->GetFrameColor(), 3*sizeof(double), hash);
+  ucValue = tprop->GetFrame();
+  hash = vtkFreeTypeTools::HashBuffer(&ucValue, sizeof(unsigned char), hash);
+  int iValue = tprop->GetFrameWidth();
+  hash = vtkFreeTypeTools::HashBuffer(&iValue, sizeof(int), hash);
+  iValue = tprop->GetFontSize();
   hash = vtkFreeTypeTools::HashBuffer(&iValue, sizeof(int), hash);
   hash = vtkFreeTypeTools::HashBuffer(
     tprop->GetShadowOffset(), 2*sizeof(int), hash);
@@ -1239,6 +1245,17 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
+  if (str.empty())
+    {
+    data->Initialize();
+    if (textDims)
+      {
+      textDims[0] = 0;
+      textDims[1] = 0;
+      }
+    return true;
+    }
+
   ImageMetaData metaData;
 
   // Setup the metadata cache
@@ -1441,7 +1458,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // Will we be rendering a background?
   bool hasBackground = (static_cast<unsigned char>(
         metaData.textProperty->GetBackgroundOpacity() * 255) > 0);
-  int backgroundPad = hasBackground ? 2 : 0; // pixels on each side.
+  bool hasFrame = metaData.textProperty->GetFrame() && metaData.textProperty->GetFrameWidth() > 0;
+  int padWidth = hasFrame ? 1 + metaData.textProperty->GetFrameWidth() : 2;
+
+  int pad = (hasBackground || hasFrame) ? padWidth : 0; // pixels on each side.
 
   // sin, cos of orientation
   float angle = vtkMath::RadiansFromDegrees(
@@ -1449,21 +1469,21 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   float c = cos(angle);
   float s = sin(angle);
 
-  // The width and height of the text + background, as rotated vectors:
-  metaData.dx = vtkVector2i(metaData.maxLineWidth + 2 * backgroundPad, 0);
-  metaData.dy = vtkVector2i(0, fullHeight + 2 * backgroundPad);
+  // The width and height of the text + background/frame, as rotated vectors:
+  metaData.dx = vtkVector2i(metaData.maxLineWidth + 2 * pad, 0);
+  metaData.dy = vtkVector2i(0, fullHeight + 2 * pad);
   rotateVector2i(metaData.dx, s, c);
   rotateVector2i(metaData.dy, s, c);
 
   // The rotated padding on the text's vertical and horizontal axes:
-  vtkVector2i hBackgroundPad(backgroundPad, 0);
-  vtkVector2i vBackgroundPad(0, backgroundPad);
-  rotateVector2i(hBackgroundPad, s, c);
-  rotateVector2i(vBackgroundPad, s, c);
+  vtkVector2i hPad(pad, 0);
+  vtkVector2i vPad(0, pad);
+  rotateVector2i(hPad, s, c);
+  rotateVector2i(vPad, s, c);
 
   // Calculate the bottom left corner of the data rect. Start at anchor point
-  // (0, 0) and subtract out justification. Account for background padding to
-  // ensure that we're aligning to the text, not the background.
+  // (0, 0) and subtract out justification. Account for background/frame padding to
+  // ensure that we're aligning to the text, not the background/frame.
   metaData.BL = vtkVector2i(0, 0);
   switch (metaData.textProperty->GetJustification())
     {
@@ -1471,10 +1491,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - (metaData.dx * 0.5);
       break;
     case VTK_TEXT_RIGHT:
-      metaData.BL = metaData.BL - metaData.dx + hBackgroundPad;
+      metaData.BL = metaData.BL - metaData.dx + hPad;
       break;
     case VTK_TEXT_LEFT:
-      metaData.BL = metaData.BL - hBackgroundPad;
+      metaData.BL = metaData.BL - hPad;
       break;
     default:
       vtkErrorMacro(<< "Bad horizontal alignment flag: "
@@ -1487,10 +1507,10 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - (metaData.dy * 0.5);
       break;
     case VTK_TEXT_BOTTOM:
-      metaData.BL = metaData.BL - vBackgroundPad;
+      metaData.BL = metaData.BL - vPad;
       break;
     case VTK_TEXT_TOP:
-      metaData.BL = metaData.BL - metaData.dy + vBackgroundPad;
+      metaData.BL = metaData.BL - metaData.dy + vPad;
       break;
     default:
       vtkErrorMacro(<< "Bad vertical alignment flag: "
@@ -1504,7 +1524,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.BR = metaData.BL + metaData.dx;
 
   // First baseline offset from top-left corner.
-  vtkVector2i penOffset(backgroundPad, -backgroundPad);
+  vtkVector2i penOffset(pad, -pad);
   // Account for line spacing to center the text vertically in the bbox:
   penOffset[1] -= vtkMath::Ceil((lineSpacing - 1.) * metaData.height * 0.5);
   penOffset[1] -= metaData.ascent;
@@ -1579,7 +1599,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       }
     }
 
-  // Compute the background bounding box.
+  // Compute the background/frame bounding box.
   vtkTuple<int, 4> bgBbox;
   bgBbox[0] = std::min(std::min(metaData.TL[0], metaData.TR[0]),
                        std::min(metaData.BL[0], metaData.BR[0]));
@@ -1658,7 +1678,7 @@ void vtkFreeTypeTools::PrepareImageData(vtkImageData *data, int textBbox[4])
          (data->GetNumberOfPoints() * data->GetNumberOfScalarComponents()));
 }
 
-// Helper functions for rasterizing the background quad:
+// Helper functions for rasterizing the background/frame quad:
 namespace RasterScanQuad {
 
 // Return true and set t1 (if 0 <= t1 <= 1) for the intersection of lines:
@@ -1780,14 +1800,21 @@ void vtkFreeTypeTools::RenderBackground(vtkTextProperty *tprop,
                                         vtkImageData *image,
                                         ImageMetaData &metaData)
 {
-  unsigned char color[4] = {
+  unsigned char* color;
+  unsigned char backgroundColor[4] = {
     static_cast<unsigned char>(tprop->GetBackgroundColor()[0] * 255),
     static_cast<unsigned char>(tprop->GetBackgroundColor()[1] * 255),
     static_cast<unsigned char>(tprop->GetBackgroundColor()[2] * 255),
     static_cast<unsigned char>(tprop->GetBackgroundOpacity()  * 255)
   };
+  unsigned char frameColor[4] = {
+    static_cast<unsigned char>(tprop->GetFrameColor()[0] * 255),
+    static_cast<unsigned char>(tprop->GetFrameColor()[1] * 255),
+    static_cast<unsigned char>(tprop->GetFrameColor()[2] * 255),
+    static_cast<unsigned char>(tprop->GetFrame() ? 255 : 0)
+  };
 
-  if (color[3] == 0)
+  if (backgroundColor[3] == 0 && frameColor[3] == 0)
     {
     return;
     }
@@ -1812,6 +1839,7 @@ void vtkFreeTypeTools::RenderBackground(vtkTextProperty *tprop,
   // Scan from yMin to yMax, finding the x values on that horizontal line that
   // are contained by the data rectangle, then paint them with the background
   // color.
+  int frameWidth = tprop->GetFrameWidth();
   for (int y = yMin; y <= yMax; ++y)
     {
     int xMin, xMax;
@@ -1826,6 +1854,10 @@ void vtkFreeTypeTools::RenderBackground(vtkTextProperty *tprop,
             image->GetScalarPointer(xMin, y, 0));
       for (int x = xMin; x <= xMax; ++x)
         {
+        color =
+          (frameColor[3] != 0 && (y < (yMin + frameWidth) || y > (yMax - frameWidth)
+            || x < (xMin + frameWidth) || x > (xMax - frameWidth))) ?
+          frameColor : backgroundColor;
         *(dataPtr++) = color[0];
         *(dataPtr++) = color[1];
         *(dataPtr++) = color[2];

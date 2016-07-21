@@ -97,7 +97,6 @@ public:
   vtkGetMacro(PreserveCoordinateColumnsAsDataArrays, bool);
   vtkBooleanMacro(PreserveCoordinateColumnsAsDataArrays, bool);
 
-//BTX
 protected:
   vtkTableToPolyData();
   ~vtkTableToPolyData();
@@ -123,9 +122,9 @@ protected:
   bool Create2DPoints;
   bool PreserveCoordinateColumnsAsDataArrays;
 private:
-  vtkTableToPolyData(const vtkTableToPolyData&); // Not implemented.
-  void operator=(const vtkTableToPolyData&); // Not implemented.
-//ETX
+  vtkTableToPolyData(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableToPolyData&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

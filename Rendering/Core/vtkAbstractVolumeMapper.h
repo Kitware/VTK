@@ -91,7 +91,6 @@ public:
   // Return the method for obtaining scalar data.
   const char *GetScalarModeAsString();
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   virtual float GetGradientMagnitudeScale() {return 1.0f;};
@@ -113,8 +112,6 @@ public:
   // resources to release.
   virtual void ReleaseGraphicsResources(vtkWindow *) {}
 
-//ETX
-
 protected:
   vtkAbstractVolumeMapper();
   ~vtkAbstractVolumeMapper();
@@ -128,8 +125,8 @@ protected:
   int         ArrayAccessMode;
 
 private:
-  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&);  // Not implemented.
-  void operator=(const vtkAbstractVolumeMapper&);  // Not implemented.
+  vtkAbstractVolumeMapper(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

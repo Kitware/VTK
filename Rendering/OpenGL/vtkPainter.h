@@ -96,14 +96,12 @@ public:
   virtual void Register(vtkObjectBase *o);
   virtual void UnRegister(vtkObjectBase *o);
 
-  //BTX
   enum {
     VERTS = 0x1,
     LINES = 0x2,
     POLYS = 0x4,
     STRIPS = 0x8
   };
-  //ETX
 
   // Description:
   // Generates rendering primitives of appropriate type(s). Multiple types
@@ -150,7 +148,6 @@ public:
   virtual vtkDataObject* GetOutput()
     { return this->Input; }
 
-//BTX
 protected:
   vtkPainter();
   ~vtkPainter();
@@ -242,11 +239,11 @@ protected:
   vtkWeakPointer<vtkWindow> LastWindow; // Window used for previous render.
                          // This is not reference counted.
 private:
-  vtkPainter(const vtkPainter &); // Not implemented.
-  void operator=(const vtkPainter &);   // Not implemented.
+  vtkPainter(const vtkPainter &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPainter &) VTK_DELETE_FUNCTION;
 
   vtkDataObject* Input;
-//ETX
+
 };
 
 #endif //vtkPainter_h

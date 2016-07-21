@@ -132,7 +132,7 @@ void vtkContext2D::DrawLine(vtkPoints2D *points)
     vtkErrorMacro(<< "Attempted to paint a line with <2 points.");
     return;
     }
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->Device->DrawPoly(f, 2);
 }
 
@@ -160,7 +160,7 @@ void vtkContext2D::DrawPoly(vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawPoly(f, n);
 }
 
@@ -203,7 +203,7 @@ void vtkContext2D::DrawLines(vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawLines(f, n);
 }
 
@@ -250,7 +250,7 @@ void vtkContext2D::DrawPoints(vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawPoints(f, n);
 }
 
@@ -271,7 +271,7 @@ void vtkContext2D::DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawPointSprites(sprite, f, n);
 }
 
@@ -289,7 +289,7 @@ void vtkContext2D::DrawPointSprites(vtkImageData *sprite, vtkPoints2D *points,
     }
   int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   unsigned char *c = colors->GetPointer(0);
   this->DrawPointSprites(sprite, f, n, c, nc_comps);
 }
@@ -340,7 +340,7 @@ void vtkContext2D::DrawMarkers(int shape, bool highlight, vtkPoints2D *points)
 {
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawMarkers(shape, highlight, f, n);
 }
 
@@ -356,7 +356,7 @@ void vtkContext2D::DrawMarkers(int shape, bool highlight, vtkPoints2D *points, v
     return;
     }
   int nc_comps = static_cast<int>(colors->GetNumberOfComponents());
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   unsigned char *c = colors->GetPointer(0);
   this->DrawMarkers(shape, highlight, f, n, c, nc_comps);
 }
@@ -414,7 +414,7 @@ void vtkContext2D::DrawQuadStrip(vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawQuadStrip(f, n);
 }
 
@@ -449,7 +449,7 @@ void vtkContext2D::DrawPolygon(vtkPoints2D *points)
   // Construct an array with the correct coordinate packing for OpenGL.
   int n = static_cast<int>(points->GetNumberOfPoints());
   // If the points are of type float then call OpenGL directly
-  float *f = vtkFloatArray::SafeDownCast(points->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(points->GetData())->GetPointer(0);
   this->DrawPolygon(f, n);
 }
 
@@ -568,7 +568,7 @@ void vtkContext2D::DrawStringRect(vtkPoints2D *rect, const char* string)
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawString(vtkPoints2D *point, const vtkStdString &string)
 {
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
   this->DrawString(f[0], f[1], string);
 }
 
@@ -591,7 +591,7 @@ void vtkContext2D::DrawString(float x, float y, const vtkStdString &string)
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawString(vtkPoints2D *point, const vtkUnicodeString &string)
 {
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
   this->DrawString(f[0], f[1], string);
 }
 
@@ -614,7 +614,7 @@ void vtkContext2D::DrawString(float x, float y, const vtkUnicodeString &string)
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawString(vtkPoints2D *point, const char* string)
 {
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
   this->DrawString(f[0], f[1], vtkStdString(string));
 }
 
@@ -629,7 +629,7 @@ void vtkContext2D::ComputeStringBounds(const vtkStdString &string,
                                        vtkPoints2D *bounds)
 {
   bounds->SetNumberOfPoints(2);
-  float *f = vtkFloatArray::SafeDownCast(bounds->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(bounds->GetData())->GetPointer(0);
   this->ComputeStringBounds(string, f);
 }
 
@@ -650,7 +650,7 @@ void vtkContext2D::ComputeStringBounds(const vtkUnicodeString &string,
                                        vtkPoints2D *bounds)
 {
   bounds->SetNumberOfPoints(2);
-  float *f = vtkFloatArray::SafeDownCast(bounds->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(bounds->GetData())->GetPointer(0);
   this->ComputeStringBounds(string, f);
 }
 
@@ -754,7 +754,7 @@ int vtkContext2D::ComputeFontSizeForBoundedString(const vtkStdString &string,
 void vtkContext2D::DrawMathTextString(vtkPoints2D *point,
                                       const vtkStdString &string)
 {
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
   this->DrawMathTextString(f[0], f[1], string);
 }
 
@@ -778,7 +778,7 @@ void vtkContext2D::DrawMathTextString(float x, float y,
 //-----------------------------------------------------------------------------
 void vtkContext2D::DrawMathTextString(vtkPoints2D *point, const char* string)
 {
-  float *f = vtkFloatArray::SafeDownCast(point->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(point->GetData())->GetPointer(0);
   this->DrawMathTextString(f[0], f[1], vtkStdString(string));
 }
 
@@ -1001,7 +1001,7 @@ vtkVector2f vtkContext2D::CalculateTextPosition(vtkPoints2D* rect)
     return vtkVector2f();
     }
 
-  float *f = vtkFloatArray::SafeDownCast(rect->GetData())->GetPointer(0);
+  float *f = vtkArrayDownCast<vtkFloatArray>(rect->GetData())->GetPointer(0);
   return this->CalculateTextPosition(f);
 }
 

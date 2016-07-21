@@ -117,9 +117,8 @@ public:
   virtual void SetImageProperty(vtkProperty2D *p);
   vtkGetObjectMacro(ImageProperty,vtkProperty2D);
 
-//BTX
   enum {ImageLeft=0,ImageRight,ImageBottom,ImageTop};
-//ETX
+
   // Description:
   // Specify the layout of the image and text within the balloon. Note that
   // there are reduncies in these methods, for example
@@ -213,8 +212,8 @@ protected:
   void ScaleImage(double imageSize[2],double scale);
 
 private:
-  vtkBalloonRepresentation(const vtkBalloonRepresentation&);  //Not implemented
-  void operator=(const vtkBalloonRepresentation&);  //Not implemented
+  vtkBalloonRepresentation(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBalloonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

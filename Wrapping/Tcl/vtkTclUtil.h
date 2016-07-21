@@ -20,7 +20,7 @@
 #include "vtkCommand.h"
 #include "vtkTcl.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #define VTKTCL_EXPORT __declspec( dllexport )
 #else
 #define VTKTCL_EXPORT

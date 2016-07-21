@@ -359,8 +359,8 @@ protected:
   vtkTDxInteractorStyle *TDxStyle;
 
 private:
-  vtkInteractorStyle(const vtkInteractorStyle&);  // Not implemented.
-  void operator=(const vtkInteractorStyle&);  // Not implemented.
+  vtkInteractorStyle(const vtkInteractorStyle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyle&) VTK_DELETE_FUNCTION;
 };
 
 #endif

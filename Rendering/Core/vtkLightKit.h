@@ -103,7 +103,6 @@ public:
   vtkTypeMacro(vtkLightKit, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   enum LightKitType {
     TKeyLight,
     TFillLight,
@@ -120,8 +119,6 @@ public:
     KBRatio,
     KHRatio
   };
-
-  //ETX
 
   // Description:
   // Set/Get the intensity of the key light.  The key light is the
@@ -338,8 +335,8 @@ protected:
   vtkPiecewiseFunction *WarmthFunction[4]; // r, g, b, perceptual length
 
 private:
-  vtkLightKit(const vtkLightKit&);  // Not implemented.
-  void operator=(const vtkLightKit&);  // Not implemented.
+  vtkLightKit(const vtkLightKit&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightKit&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -165,6 +165,12 @@ static void vtkWrapPython_GenerateSpecialHeaders(
 
   types = (const char **)malloc(1000*sizeof(const char *));
 
+  /* always include vtkVariant, it is often used as a template arg
+     for templated array types, and the file_info doesn't tell us
+     what types each templated class is instantiated for (that info
+     might be in the .cxx files, which we cannot access here) */
+  types[numTypes++] = "vtkVariant";
+
   nn = file_info->Contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
     {
@@ -299,6 +305,9 @@ int main(int argc, char *argv[])
   size_t k, m;
   int is_vtkobject;
 
+  /* pre-define a macro to identify the language */
+  vtkParse_DefineMacro("__VTK_WRAP_PYTHON__", 0);
+
   /* get command-line args and parse the header file */
   file_info = vtkParse_Main(argc, argv);
 
@@ -376,6 +385,7 @@ int main(int argc, char *argv[])
           "#include \"vtkPythonArgs.h\"\n"
           "#include \"vtkPythonOverload.h\"\n"
           "#include \"vtkConfigure.h\"\n"
+          "#include <cstddef>\n"
           "#include <sstream>\n");
 
   /* vtkPythonCommand is needed to wrap vtkObject.h */

@@ -107,9 +107,9 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
 
   // Extract alpha-carbon backbone from input poly data
   vtkStringArray *atomTypes =
-    vtkStringArray::SafeDownCast(pointData->GetAbstractArray("atom_types"));
+    vtkArrayDownCast<vtkStringArray>(pointData->GetAbstractArray("atom_types"));
   vtkIdTypeArray *atomType =
-    vtkIdTypeArray::SafeDownCast(pointData->GetAbstractArray("atom_type"));
+    vtkArrayDownCast<vtkIdTypeArray>(pointData->GetAbstractArray("atom_type"));
 
   if (!atomTypes || !atomType)
     {
@@ -119,17 +119,17 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
 
   // Extract secondary structures information from input poly data
   vtkIdTypeArray *resi =
-    vtkIdTypeArray::SafeDownCast(pointData->GetAbstractArray("residue"));
+    vtkArrayDownCast<vtkIdTypeArray>(pointData->GetAbstractArray("residue"));
   vtkUnsignedCharArray *chain =
-    vtkUnsignedCharArray::SafeDownCast(pointData->GetAbstractArray("chain"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("chain"));
   vtkUnsignedCharArray *atom_ss =
-    vtkUnsignedCharArray::SafeDownCast(pointData->GetAbstractArray("secondary_structures"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("secondary_structures"));
   vtkUnsignedCharArray *atom_ssbegin =
-    vtkUnsignedCharArray::SafeDownCast(pointData->GetAbstractArray("secondary_structures_begin"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("secondary_structures_begin"));
   vtkUnsignedCharArray *atom_ssend =
-    vtkUnsignedCharArray::SafeDownCast(pointData->GetAbstractArray("secondary_structures_end"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("secondary_structures_end"));
   vtkUnsignedCharArray *ishetatm =
-    vtkUnsignedCharArray::SafeDownCast(pointData->GetAbstractArray("ishetatm"));
+    vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("ishetatm"));
 
   if (!resi || !chain || !atom_ss || !atom_ssbegin || !atom_ssend || !ishetatm)
     {

@@ -24,6 +24,8 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkCellArray.h>
 
+#include <cstdlib>
+
 #define PRINT(x) cout<<"("<<myRank<<")"<<x<<endl;
 
 namespace Vec3
@@ -143,13 +145,13 @@ int TestPStreamGeometry( int argc, char* argv[] )
   traceMapper->Update();
   out = tracer->GetOutput();
   vtkDoubleArray* integrationTime =
-    vtkDoubleArray::SafeDownCast(out->GetPointData()->GetArray("IntegrationTime"));
+    vtkArrayDownCast<vtkDoubleArray>(out->GetPointData()->GetArray("IntegrationTime"));
   for(vtkIdType i=0;i<out->GetNumberOfPoints();i++)
     {
     double coord[3];
     out->GetPoint(i, coord);
-    double diff = abs(coord[2] - integrationTime->GetValue(i));
-    if(diff != 0 && diff > abs(coord[2])*.0001)
+    double diff = std::abs(coord[2] - integrationTime->GetValue(i));
+    if(diff != 0 && diff > std::abs(coord[2])*.0001)
       {
       PRINT("Bad integration time at z-coord "<< coord[2] << " " << integrationTime->GetValue(i))
       res = false;

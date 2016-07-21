@@ -118,8 +118,8 @@ protected:
   virtual void RegisterPickers();
 
 private:
-  vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&);  //Not implemented
-  void operator=(const vtkProp3DButtonRepresentation&);  //Not implemented
+  vtkProp3DButtonRepresentation(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProp3DButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

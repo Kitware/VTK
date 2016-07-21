@@ -208,7 +208,7 @@ int TestOrderStatistics( int, char *[] )
       }
     else
       {
-      vtkDataArray* dataQuantArr = vtkDoubleArray::SafeDownCast( absQuantArr );
+      vtkDataArray* dataQuantArr = vtkArrayDownCast<vtkDoubleArray>( absQuantArr );
       if ( ! dataQuantArr )
         {
         vtkGenericWarningMacro("Quartile array for variable: "

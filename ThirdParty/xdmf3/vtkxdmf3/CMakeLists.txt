@@ -12,6 +12,8 @@ if(MSVC10)
 	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR})
 endif()
 
+set(XDMF_LIBNAME "Xdmf" CACHE STRING "Name for this xdmf library to avoid collision")
+option(BUILD_SHARED_LIBS "Build Shared Libraries" OFF)
 if(BUILD_SHARED_LIBS)
   set(LIBTYPE SHARED)
   set(BUILD_SHARED 1)
@@ -22,13 +24,31 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/XdmfConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.hpp)
 
 
+# Enable CMake testing
+option(XDMF_BUILD_TESTING "Build Tests" OFF)
+if(XDMF_BUILD_TESTING)
+  enable_testing()
+  include(CTest)
+endif()
+
+if (BUILD_SHARED_LIBS)
+  #STRING(REGEX MATCH "-fPIC" IS_FPIC "${CMAKE_CXX_FLAGS}")
+  #if ("${IS_FPIC}" STREQUAL "")
+  #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+  #endif ("${IS_FPIC}" STREQUAL "")
+  add_definitions(-DXDMFSTATIC)
+endif (BUILD_SHARED_LIBS)
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
 list(APPEND CMAKE_MODULE_PATH
   ${CMAKE_CURRENT_SOURCE_DIR}/CMake
-#  ${CMAKE_SOURCE_DIR}/CMake/TestingSuite
   ${CMAKE_CURRENT_SOURCE_DIR}/CMake/VersionSuite)
+if(XDMF_BUILD_TESTING)
+  list(APPEND CMAKE_MODULE_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/CMake/TestingSuite)
+endif()
 
 include(XdmfFunctions)
 
@@ -42,21 +62,27 @@ get_filename_component(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}" ABSOLUTE)
 #set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Should we build with documentation
-#option(XDMF_BUILD_DOCUMENTATION OFF)
-#if(XDMF_BUILD_DOCUMENTATION)
-#  add_subdirectory(doc)
-#endif()
-
-# Enable CMake testing
-#option(BUILD_TESTING "Build Tests" OFF)
-#if(BUILD_TESTING)
-#  enable_testing()
-#  include(CTest)
-#endif()
+option(XDMF_BUILD_DOCUMENTATION OFF)
+if(XDMF_BUILD_DOCUMENTATION)
+  add_subdirectory(doc)
+endif()
 
 # Wrapper Setup
 #option(XDMF_WRAP_PYTHON OFF)
 #option(XDMF_WRAP_JAVA OFF)
+
+#check for TIFF
+find_package(TIFF)
+if (TIFF_FOUND)
+  add_definitions(-DXDMF_BUILD_TIFF)
+  mark_as_advanced(FORCE TIFF_INCLUDE_DIR)
+  mark_as_advanced(FORCE TIFF_LIBRARIES)
+  mark_as_advanced(FORCE TIFF_LIBRARY)
+  include_directories(${TIFF_INCLUDE_DIR})
+  get_filename_component(TIFF_LIBRARY_DIR "${TIFF_LIBRARY}" PATH)
+  set(XDMF_LIBRARY_DIRS ${XDMF_LIBRARY_DIRS} ${TIFF_LIBRARY_DIR})
+  set(XDMF_LIBRARIES ${XDMF_LIBRARIES} ${TIFF_LIBRARIES})
+endif (TIFF_FOUND)
 
 # Test for DSM
 option(XDMF_BUILD_DSM OFF)
@@ -80,6 +106,7 @@ if(XDMF_BUILD_DSM)
     mark_as_advanced(FORCE PYTHON_INCLUDE_MPI4PY_DIR)
     set(PYTHON_INCLUDE_MPI4PY_DIR "" CACHE STRING "Directory containing mpi4py/mpi4py.i")
   endif ()
+  add_definitions(-DXDMF_BUILD_DSM)
 endif()
 
 # If we are wrapping either, we need swig
@@ -93,8 +120,8 @@ endif()
 
 # If we are wrapping python, let's include it in the top level
 if(XDMF_WRAP_PYTHON)
-  find_package(PythonInterp ${VTK_PYTHON_VERSION} REQUIRED)
-  find_package(PythonLibs ${VTK_PYTHON_VERSION} REQUIRED)
+  find_package(PythonInterp ${REQUESTED_PYTHON_VERSION} REQUIRED)
+  find_package(PythonLibs ${REQUESTED_PYTHON_VERSION} REQUIRED)
   if (XDMF_BUILD_DSM)
     find_package (MPI4PY REQUIRED)
     if (MPI4PY_FOUND)
@@ -116,7 +143,7 @@ if(XDMF_WRAP_PYTHON)
   # Output:
   #     Target Name = the output target name will have ${python_name} as its name
   macro(XDMF_SWIG_PYTHON python_name)
-    set(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR})
+    set(CMAKE_SWIG_OUTDIR ${CMAKE_BINARY_DIR})
     # optimize swig generation --- these are all flags corresponding to -O
     # except -fvirtual which breaks visitor operation
     set(CMAKE_SWIG_FLAGS ${XDMF_SWIG_FLAGS} -modern -fastdispatch -nosafecstrings -noproxydel -fastproxy -fastinit -fastunpack -fastquery -modernargs -nobuildnone)
@@ -141,7 +168,7 @@ if(XDMF_WRAP_PYTHON)
     endif()
 
     if(WIN32)
-	  if(NOT MSVC10)
+      if(NOT MSVC10)
         set_target_properties(${SWIG_MODULE_${python_name}Python_REAL_NAME}
           PROPERTIES
           PREFIX ../
@@ -149,13 +176,12 @@ if(XDMF_WRAP_PYTHON)
           RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
           ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-	  endif()
+      endif()
     endif()
 
     set_target_properties(${SWIG_MODULE_${python_name}Python_REAL_NAME}
       PROPERTIES
       OUTPUT_NAME "_${python_name}")
-
 
     string(TOUPPER ${python_name} python_name_upper)
     set(${python_name_upper}_PYTHON
@@ -166,7 +192,7 @@ if(XDMF_WRAP_PYTHON)
         PARENT_SCOPE)
     endif()
 
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${python_name}.py
+    install(FILES ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${python_name}.py
       DESTINATION lib/python)
     install(TARGETS ${SWIG_MODULE_${python_name}Python_REAL_NAME}
       DESTINATION lib/python)
@@ -191,9 +217,9 @@ if(XDMF_WRAP_JAVA)
   #     Target Name     = the output target name will have ${java_name}Java as its name
   #     Target Jar      = the output target jar will have ${java_name}Java.jar as its name
   macro(XDMF_SWIG_JAVA java_name)
-    set(${java_name}_JAVA_JAR ${CMAKE_CURRENT_BINARY_DIR}/${java_name}.jar)
+    set(${java_name}_JAVA_JAR ${CMAKE_BINARY_DIR}/${java_name}.jar)
     set(XDMF_JAVA_PACKAGE_DIR mil/army/arl/xdmf)
-    set(XDMF_JAVA_DIR ${CMAKE_CURRENT_BINARY_DIR}/${XDMF_JAVA_PACKAGE_DIR})
+    set(XDMF_JAVA_DIR ${CMAKE_BINARY_DIR}/${XDMF_JAVA_PACKAGE_DIR})
     set(CMAKE_SWIG_OUTDIR ${XDMF_JAVA_DIR})
     set(CMAKE_SWIG_FLAGS ${XDMF_SWIG_FLAGS} -v -make_default -package mil.army.arl.xdmf)
     set_source_files_properties(${java_name}.i PROPERTIES CPLUSPLUS ON)
@@ -268,6 +294,7 @@ option(XDMF_BUILD_CORE_ONLY OFF)
 mark_as_advanced(XDMF_BUILD_CORE_ONLY)
 if(NOT XDMF_BUILD_CORE_ONLY)
   set(XdmfSources
+    XdmfAggregate
     XdmfAttribute
     XdmfAttributeCenter
     XdmfAttributeType
@@ -279,6 +306,8 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     XdmfGrid
     XdmfGridCollection
     XdmfGridCollectionType
+    XdmfGridController
+    XdmfGridTemplate
     XdmfItemFactory
     XdmfMap
     XdmfReader
@@ -286,63 +315,103 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     XdmfRegularGrid
     XdmfSet
     XdmfSetType
+    XdmfTemplate
     XdmfTime
     XdmfTopology
     XdmfTopologyType
     XdmfUnstructuredGrid)
 
-  add_library(vtkxdmf3 ${LIBTYPE} ${XdmfSources})
+  add_library(XdmfObjects OBJECT ${XdmfSources})
+  set_target_properties(XdmfObjects PROPERTIES
+    POSITION_INDEPENDENT_CODE True)
+  add_library(${XDMF_LIBNAME} $<TARGET_OBJECTS:XdmfObjects>)
+  if (BUILD_SHARED_LIBS)
+    add_library(Xdmf_Static STATIC $<TARGET_OBJECTS:XdmfObjects>)
+    if (UNIX)
+      set_target_properties(Xdmf_Static PROPERTIES
+        OUTPUT_NAME "Xdmf")
+    endif (UNIX)
+  endif (BUILD_SHARED_LIBS)
   if(XDMF_BUILD_DSM)
-    target_link_libraries(vtkxdmf3 XdmfCore XdmfDSM)
-  else()
-    target_link_libraries(vtkxdmf3 XdmfCore)
+    target_link_libraries(${XDMF_LIBNAME} XdmfCore XdmfDSM)
+    if (BUILD_SHARED_LIBS)
+      target_link_libraries(Xdmf_Static XdmfCore_Static XdmfDSM_Static)
+    endif (BUILD_SHARED_LIBS)
+  else(XDMF_BUILD_DSM)
+    target_link_libraries(${XDMF_LIBNAME} XdmfCore)
+    if (BUILD_SHARED_LIBS)
+      target_link_libraries(Xdmf_Static XdmfCore_Static)
+    endif (BUILD_SHARED_LIBS)
+  endif(XDMF_BUILD_DSM)
+  if (COMMAND vtk_target_install)
+    vtk_target_install(${XDMF_LIBNAME})
   endif()
-  vtk_target_install(vtkxdmf3)
 
   if(WIN32)
     if (BUILD_SHARED_LIBS)
-      set_target_properties(vtkxdmf3 PROPERTIES
-          DEFINE_SYMBOL vtkxdmf3_EXPORTS)
-    endif()
-
+      set_target_properties(${XDMF_LIBNAME} PROPERTIES
+        DEFINE_SYMBOL Xdmf_EXPORTS)
+      set_target_properties(Xdmf_Static PROPERTIES
+        DEFINE_SYMBOL Xdmf_EXPORTS)
+    endif ()
     if(NOT MSVC10)
-        set_target_properties(vtkxdmf3 PROPERTIES
+      set_target_properties(${XDMF_LIBNAME} PROPERTIES
         PREFIX ../
         IMPORT_PREFIX ../
-        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-	endif()
-   endif()
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+        ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+      if (BUILD_SHARED_LIBS)
+        set_target_properties(Xdmf_Static PROPERTIES
+          PREFIX ../
+          IMPORT_PREFIX ../
+          RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+          LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+          ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+      endif ()
+    endif()
+  endif()
 
   if(XDMF_WRAP_JAVA)
-    XDMF_SWIG_JAVA(Xdmf Compiled_XdmfCore_Jar)
+    XDMF_SWIG_JAVA(${XDMF_LIBNAME} Compiled_XdmfCore_Jar)
   endif()
 
   if(XDMF_WRAP_PYTHON)
-    XDMF_SWIG_PYTHON(Xdmf XdmfCore XdmfDSM)
+    if (NOT BUILD_SHARED_LIBS)
+      message(FATAL_ERROR "Python Wrappers do not function"
+                          " properly without shared libraries")
+    endif (NOT BUILD_SHARED_LIBS)
+    if (XDMF_BUILD_DSM)
+      XDMF_SWIG_PYTHON(${XDMF_LIBNAME} XdmfCore XdmfDSM)
+    else()
+      XDMF_SWIG_PYTHON(${XDMF_LIBNAME} XdmfCore)
+    endif()
     set(XDMF_PYTHON_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/lib/python/)
   endif()
 
-#  if(BUILD_TESTING)
-#    add_subdirectory(tests)
-#  endif()
+  if(XDMF_BUILD_TESTING)
+    add_subdirectory(tests)
+  endif()
 
-  #option(XDMF_BUILD_UTILS OFF)
-  #if(XDMF_BUILD_UTILS)
-  #  add_subdirectory(utils)
-  #endif()
+  option(XDMF_BUILD_UTILS OFF)
+  if(XDMF_BUILD_UTILS)
+    add_subdirectory(utils)
+  endif()
 
   if(WIN32)
-    set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/vtkxdmf3.lib)
+    set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/${XDMF_LIBNAME}.lib)
   endif()
   
   if(UNIX)
-    set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libvtkxdmf3.so)
-  endif()
+    if (BUILD_SHARED_LIBS)
+      set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/lib${XDMF_LIBNAME}.so)
+    else (BUILD_SHARED_LIBS)
+      set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/lib${XDMF_LIBNAME}.a)
+    endif (BUILD_SHARED_LIBS)
+  endif(UNIX)
 
   if(APPLE)
-    set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/libvtkxdmf3.dylib)
+    set(XDMF_LIBRARY ${CMAKE_INSTALL_PREFIX}/lib/lib${XDMF_LIBNAME}.dylib)
   endif()
   
   file(GLOB XdmfHeaders 
@@ -353,10 +422,16 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     "${CMAKE_CURRENT_BINARY_DIR}/*.hpp"
   )
   install(FILES ${XdmfHeaders} DESTINATION include)
-  install(TARGETS vtkxdmf3
+  install(TARGETS ${XDMF_LIBNAME}
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
+  if (BUILD_SHARED_LIBS)
+    install(TARGETS Xdmf_Static
+      RUNTIME DESTINATION bin
+      LIBRARY DESTINATION lib
+      ARCHIVE DESTINATION lib)
+  endif (BUILD_SHARED_LIBS)
 endif()
 
 xdmf_create_config_file(${PROJECT_NAME})

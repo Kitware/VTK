@@ -71,8 +71,8 @@ protected:
 private:
   char* ComponentArrayName;
 
-  vtkPBGLConnectedComponents(const vtkPBGLConnectedComponents&);  // Not implemented.
-  void operator=(const vtkPBGLConnectedComponents&);  // Not implemented.
+  vtkPBGLConnectedComponents(const vtkPBGLConnectedComponents&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPBGLConnectedComponents&) VTK_DELETE_FUNCTION;
 };
 
 #endif //VTK_LEGACY_REMOVE

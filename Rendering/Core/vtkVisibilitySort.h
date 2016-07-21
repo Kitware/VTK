@@ -103,9 +103,7 @@ public:
   void SetDirectionToBackToFront() { this->SetDirection(BACK_TO_FRONT); }
   void SetDirectionToFrontToBack() { this->SetDirection(FRONT_TO_BACK); }
 
-//BTX
   enum { BACK_TO_FRONT, FRONT_TO_BACK };
-//ETX
 
   // Description:
   // Overwritten to enable garbage collection.
@@ -130,8 +128,8 @@ protected:
   virtual void ReportReferences(vtkGarbageCollector *collector);
 
 private:
-  vtkVisibilitySort(const vtkVisibilitySort &);  // Not implemented.
-  void operator=(const vtkVisibilitySort &);  // Not implemented.
+  vtkVisibilitySort(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkVisibilitySort_h

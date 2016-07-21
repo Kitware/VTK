@@ -52,10 +52,9 @@ public:
   virtual void PrintSelf(ostream &os, vtkIndent indent);
   static vtkSubGroup *New();
 
-//BTX
   // The wrapper gets confused here and falls down.
   enum {MINOP = 1, MAXOP = 2, SUMOP = 3};
-//ETX
+
   // Description:
   //    Initialize a communication subgroup for the processes
   //    with rank p0 through p1 of the given communicator.  (So
@@ -135,7 +134,7 @@ private:
 
   vtkCommunicator *comm;
 
-  vtkSubGroup(const vtkSubGroup&); // Not implemented
-  void operator=(const vtkSubGroup&); // Not implemented
+  vtkSubGroup(const vtkSubGroup&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSubGroup&) VTK_DELETE_FUNCTION;
 };
 #endif

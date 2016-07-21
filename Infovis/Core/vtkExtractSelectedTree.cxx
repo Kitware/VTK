@@ -156,7 +156,7 @@ int vtkExtractSelectedTree::RequestData(
     vtkSelectionNode * node = converted->GetNode(i);
 
     // Append the selectedVerticesList
-    vtkIdTypeArray * curList = vtkIdTypeArray::SafeDownCast(node->GetSelectionList());
+    vtkIdTypeArray * curList = vtkArrayDownCast<vtkIdTypeArray>(node->GetSelectionList());
     if (curList)
       {
       int inverse = node->GetProperties()->Get(vtkSelectionNode::INVERSE());

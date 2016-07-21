@@ -63,7 +63,6 @@ public:
   void SetMaxAllowedSize(int mesh, int lines);
   void SetMaxAllowedSize(int size);
 
-  //BTX
   static void ComputeMD5(const unsigned char* content, int size, std::string &hash);
 protected:
   vtkWebGLExporter();
@@ -91,12 +90,12 @@ protected:
   bool hasWidget;
 
 private:
-  vtkWebGLExporter(const vtkWebGLExporter&); // Not implemented
-  void operator=(const vtkWebGLExporter&);   // Not implemented
+  vtkWebGLExporter(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebGLExporter&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;
-  //ETX
+
 };
 
 #endif

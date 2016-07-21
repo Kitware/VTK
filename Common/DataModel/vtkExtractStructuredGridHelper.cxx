@@ -493,7 +493,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
   for( K(ijk)=KMIN(outCellExt); K(ijk) <= KMAX(outCellExt); ++K(ijk) )
     {
     K(src_ijk) = useMapping ? this->GetMappedExtentValue(2, K(ijk)) : K(ijk);
-    if (K(src_ijk) == KMAX(this->InputWholeExtent) && K(src_ijk) != 0)
+    if (K(src_ijk) == KMAX(this->InputWholeExtent) &&
+        KMIN(this->InputWholeExtent) != KMAX(this->InputWholeExtent))
       {
       --K(src_ijk);
       }
@@ -501,7 +502,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
     for( J(ijk)=JMIN(outCellExt); J(ijk) <= JMAX(outCellExt); ++J(ijk) )
       {
       J(src_ijk) = useMapping ? this->GetMappedExtentValue(1, J(ijk)) : J(ijk);
-      if (J(src_ijk) == JMAX(this->InputWholeExtent) && J(src_ijk) != 0)
+      if (J(src_ijk) == JMAX(this->InputWholeExtent) &&
+          JMIN(this->InputWholeExtent) != JMAX(this->InputWholeExtent))
         {
         --J(src_ijk);
         }
@@ -534,7 +536,8 @@ void vtkExtractStructuredGridHelper::CopyCellData(int inExt[6], int outExt[6],
           {
           I(src_ijk) = useMapping ? this->GetMappedExtentValue(0, I(ijk))
                                   : I(ijk);
-          if (I(src_ijk) == IMAX(this->InputWholeExtent) && I(src_ijk) != 0)
+          if (I(src_ijk) == IMAX(this->InputWholeExtent) &&
+              IMIN(this->InputWholeExtent) != IMAX(this->InputWholeExtent))
             {
             --I(src_ijk);
             }

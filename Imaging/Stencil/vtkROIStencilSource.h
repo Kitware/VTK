@@ -37,7 +37,6 @@ public:
   vtkTypeMacro(vtkROIStencilSource, vtkImageStencilSource);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-//BTX
   enum {
     BOX = 0,
     ELLIPSOID = 1,
@@ -45,7 +44,6 @@ public:
     CYLINDERY = 3,
     CYLINDERZ = 4
   };
-//ETX
 
   // Description:
   // The shape of the region of interest.  Cylinders can be oriented
@@ -76,8 +74,8 @@ protected:
   double Bounds[6];
 
 private:
-  vtkROIStencilSource(const vtkROIStencilSource&);  // Not implemented.
-  void operator=(const vtkROIStencilSource&);  // Not implemented.
+  vtkROIStencilSource(const vtkROIStencilSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkROIStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

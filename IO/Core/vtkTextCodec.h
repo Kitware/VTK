@@ -70,8 +70,8 @@ public:
     OutputIterator() {}    virtual ~OutputIterator() {}
 
   private:
-    OutputIterator(const OutputIterator&); // Not implemented
-    const OutputIterator& operator=(const OutputIterator&); // Not Implemented
+    OutputIterator(const OutputIterator&) VTK_DELETE_FUNCTION;
+    const OutputIterator& operator=(const OutputIterator&) VTK_DELETE_FUNCTION;
   };
 
   // Description:
@@ -92,16 +92,14 @@ public:
   // code point.
   virtual vtkUnicodeString::value_type NextUnicode(istream& inputStream) = 0;
 
-//BTX
 protected:
   vtkTextCodec();
   ~vtkTextCodec();
 
 private:
-  vtkTextCodec(const vtkTextCodec &); // Not implemented.
-  void operator=(const vtkTextCodec &); // Not implemented.
+  vtkTextCodec(const vtkTextCodec &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextCodec &) VTK_DELETE_FUNCTION;
 
-//ETX
 };
 
 #endif

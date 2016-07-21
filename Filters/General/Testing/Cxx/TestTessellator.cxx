@@ -6,49 +6,44 @@
  * or without modification, are permitted provided that this Notice and any
  * statement of authorship are reproduced on all copies.
  */
+#include "vtkActor2D.h"
+#include "vtkActor.h"
+#include "vtkCellData.h"
 #include "vtkCell.h"
+#include "vtkCellTypes.h"
 #include "vtkCommand.h"
+#include "vtkDataArray.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetMapper.h"
-#include "vtkActor.h"
+#include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkGlyph3D.h"
+#include "vtkIdList.h"
+#include "vtkIdTypeArray.h"
+#include "vtkLabeledDataMapper.h"
+#include "vtkObjectFactory.h"
+#include "vtkPNGWriter.h"
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyData.h"
+#include "vtkPolyDataMapper.h"
+#include "vtkProperty.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkShrinkFilter.h"
-#include "vtkCellTypes.h"
-#include "vtkLabeledDataMapper.h"
-#include "vtkIdTypeArray.h"
-#include "vtkPointData.h"
-#include "vtkPoints.h"
-#include "vtkPNGWriter.h"
-#include "vtkTextActor.h"
-#include "vtkGlyph3D.h"
 #include "vtkSphereSource.h"
-#include "vtkPolyData.h"
-#include "vtkPolyDataMapper.h"
-#include "vtkActor2D.h"
-#include "vtkProperty.h"
+#include "vtkStreamingTessellator.h"
 #include "vtkTessellatorFilter.h"
 #include "vtkTestUtilities.h"
+#include "vtkTextActor.h"
 #include "vtkTextProperty.h"
 #include "vtkToolkits.h"
 #include "vtkUnstructuredGrid.h"
-#include "vtkXMLUnstructuredGridReader.h"
 #include "vtkWindowToImageFilter.h"
-
-#include "vtkStreamingTessellator.h"
-#include "vtkEdgeSubdivisionCriterion.h"
+#include "vtkXMLUnstructuredGridReader.h"
 
 #include <algorithm>
-
-#include "vtkObjectFactory.h"
-#include "vtkIdList.h"
-#include "vtkDataArray.h"
-#include "vtkPointData.h"
-#include "vtkCellData.h"
-#include "vtkCell.h"
-#include "vtkDataSet.h"
-
 using std::copy;
 
 #undef ONLY_WIRE
@@ -2510,9 +2505,9 @@ class vtkTestTessellatorSubdivision
   public:
     vtkTypeMacro(vtkTestTessellatorSubdivision,vtkEdgeSubdivisionCriterion);
     static vtkTestTessellatorSubdivision* New();
-    virtual void PrintSelf( ostream& os, vtkIndent indent );
+    void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
-    virtual bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start );
+    bool EvaluateEdge( const double* p0, double* midpt, const double* p1, int field_start ) VTK_OVERRIDE;
 
     static double*  TestPoints;
     static double*  TestPointsCanAmbig;
@@ -2547,7 +2542,7 @@ class vtkTestTessellatorSubdivision
 
  protected:
     vtkTestTessellatorSubdivision();
-    virtual ~vtkTestTessellatorSubdivision();
+    ~vtkTestTessellatorSubdivision() VTK_OVERRIDE;
 
     int AmbiguousTests;
     int CurrentTest;
@@ -2557,8 +2552,8 @@ class vtkTestTessellatorSubdivision
     static int* TestListCanAmbig;
 
   private:
-    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ); // Not implemented.
-    void operator = ( const vtkTestTessellatorSubdivision& ); // Not implemented.
+    vtkTestTessellatorSubdivision( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
+    void operator = ( const vtkTestTessellatorSubdivision& ) VTK_DELETE_FUNCTION;
 
 };
 
@@ -3124,7 +3119,7 @@ public:
   vtkTessellatorScreenShot() { this->RenderWindow = 0; this->FileName = 0; }
   vtkRenderWindow* RenderWindow;
   char* FileName;
-  virtual void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) )
+  void Execute( vtkObject* vtkNotUsed(caller), unsigned long vtkNotUsed(event), void* vtkNotUsed(junk) ) VTK_OVERRIDE
   {
     if ( (! this->RenderWindow) || (! this->FileName) )
       return;
@@ -3638,7 +3633,6 @@ int TestTessellator( int argc, char* argv[] )
     }
 #endif // VTK_CHECK_RESULTS
 
-#ifdef VTK_DATA_ROOT
   // Test vtkTessellatorFilter and vtkDataSetEdgeSubdivisionCriterion if we have a dataset to use
   char* fname = vtkTestUtilities::ExpandDataFileName( argc, argv, "Data/quadraticTetra01.vtu" );
   if ( fname )
@@ -3646,10 +3640,15 @@ int TestTessellator( int argc, char* argv[] )
     vtkXMLUnstructuredGridReader* rdr = vtkXMLUnstructuredGridReader::New();
     rdr->SetFileName( fname );
     delete [] fname ;
-    rdr->Update();
+
+    // Add filter to generate some scalar data.
+    vtkRandomAttributeGenerator* rag = vtkRandomAttributeGenerator::New();
+    rag->SetInputConnection(rdr->GetOutputPort());
+    rag->SetGenerateCellScalars(1);
+    rag->SetGenerateCellVectors(1);
 
     vtkTessellatorFilter* tf = vtkTessellatorFilter::New();
-    tf->SetInputConnection( rdr->GetOutputPort() );
+    tf->SetInputConnection( rag->GetOutputPort() );
     tf->MergePointsOn();
     tf->Update();
 
@@ -3662,10 +3661,16 @@ int TestTessellator( int argc, char* argv[] )
     tf->MergePointsOff();
     tf->Update();
 
+    if (tf->GetOutput()->GetCellData()->GetNumberOfArrays() != 2)
+      {
+      std::cerr << "ERROR: Failed to pass through cell data!\n";
+      vtkTessellatorError = 1;
+      }
+
     rdr->Delete();
+    rag->Delete();
     tf->Delete();
     }
-#endif // VTK_DATA_ROOT
 
   return vtkTessellatorError;
 }

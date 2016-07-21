@@ -141,8 +141,8 @@ protected:
   double BackwardConvert(double T1);
 
 private:
-  vtkTemporalShiftScale(const vtkTemporalShiftScale&);  // Not implemented.
-  void operator=(const vtkTemporalShiftScale&);  // Not implemented.
+  vtkTemporalShiftScale(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalShiftScale&) VTK_DELETE_FUNCTION;
 };
 
 

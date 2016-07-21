@@ -58,13 +58,11 @@ protected:
   vtkCorrelativeStatisticsGnuR();
   ~vtkCorrelativeStatisticsGnuR();
 
-//BTX
   virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
-//ETX
 
 private:
-  vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&); // Not implemented
-  void operator=(const vtkCorrelativeStatisticsGnuR&); // Not implemented
+  vtkCorrelativeStatisticsGnuR(const vtkCorrelativeStatisticsGnuR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCorrelativeStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

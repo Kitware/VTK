@@ -264,7 +264,7 @@ int TestQuadraturePoints(int argc,char *argv[])
 int GenerateWarpVector(vtkUnstructuredGrid *usg)
 {
   vtkDoubleArray *pts
-    = vtkDoubleArray::SafeDownCast(usg->GetPoints()->GetData());
+    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
   vtkIdType nTups
     = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();
@@ -306,7 +306,7 @@ int GenerateWarpVector(vtkUnstructuredGrid *usg)
 int GenerateThresholdScalar(vtkUnstructuredGrid *usg)
 {
   vtkDoubleArray *pts
-    = vtkDoubleArray::SafeDownCast(usg->GetPoints()->GetData());
+    = vtkArrayDownCast<vtkDoubleArray>(usg->GetPoints()->GetData());
 
   vtkIdType nTups
     = usg->GetPointData()->GetArray(0)->GetNumberOfTuples();

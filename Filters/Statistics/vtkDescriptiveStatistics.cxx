@@ -536,7 +536,7 @@ void vtkDescriptiveStatistics::Test( vtkTable* inData,
   statCol->SetName( "Jarque-Bera" );
 
   // Downcast columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable" ) );
 
   // Loop over requests
   for ( std::set<std::set<vtkStdString> >::const_iterator rit = this->Internals->Requests.begin();
@@ -622,9 +622,9 @@ public:
     this->Data = vals;
     this->Nominal = nominal;
   }
-  virtual ~ZedDeviationDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~ZedDeviationDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) == this->Nominal ) ? 0. : 1. );
@@ -642,9 +642,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  virtual ~SignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~SignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
@@ -662,9 +662,9 @@ public:
     this->Nominal = nominal;
     this->Deviation = deviation;
   }
-  virtual ~UnsignedTableColumnDeviantFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~UnsignedTableColumnDeviantFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     result->SetNumberOfValues( 1 );
     result->SetValue( 0, fabs ( this->Data->GetTuple1( id ) - this->Nominal ) / this->Deviation );
@@ -705,7 +705,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
   vtkStdString varName = rowNames->GetValue( 0 );
 
   // Downcast meta columns to string arrays for efficient data access
-  vtkStringArray* vars = vtkStringArray::SafeDownCast( primaryTab->GetColumnByName( "Variable" ) );
+  vtkStringArray* vars = vtkArrayDownCast<vtkStringArray>( primaryTab->GetColumnByName( "Variable" ) );
   if ( ! vars )
     {
     return;
@@ -725,7 +725,7 @@ void vtkDescriptiveStatistics::SelectAssessFunctor( vtkTable* outData,
 
       // For descriptive statistics, type must be convertible to DataArray
       // E.g., StringArrays do not fit here
-      vtkDataArray* vals = vtkDataArray::SafeDownCast( arr );
+      vtkDataArray* vals = vtkArrayDownCast<vtkDataArray>( arr );
       if ( ! vals )
         {
         return;

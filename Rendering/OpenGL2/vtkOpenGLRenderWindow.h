@@ -208,6 +208,10 @@ public:
   vtkGetObjectMacro(ShaderCache,vtkOpenGLShaderCache);
 
   // Description:
+  // Returns the current default FBO (0 when OffScreenRendering is inactive).
+  vtkGetMacro(FrameBufferObject, unsigned int);
+
+  // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
   vtkTextureUnitManager *GetTextureUnitManager();
@@ -402,8 +406,8 @@ protected:
   float MaximumHardwareLineWidth;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 };
 
 #endif

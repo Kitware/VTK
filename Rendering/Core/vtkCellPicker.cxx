@@ -350,7 +350,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   minXYZ[0] = minXYZ[1] = minXYZ[2] = 0.0;
 
   // Polydata has no 3D cells
-  int isPolyData = data->IsA("vtkPolyData");
+  vtkTypeBool isPolyData = data->IsA("vtkPolyData");
 
   vtkCollectionSimpleIterator iter;
   vtkAbstractCellLocator *locator = 0;
@@ -800,6 +800,13 @@ double vtkCellPicker::IntersectVolumeWithLine(const double p1[3],
             t = ttry;
             }
           }
+        }
+
+      // Break if far clipping plane has been reached
+      if (t >= 1.0)
+        {
+        t = 1.0;
+        break;
         }
       } // End of "while (t <= t2)"
 

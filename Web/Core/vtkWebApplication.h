@@ -96,7 +96,6 @@ public:
 
   vtkObjectIdMap* GetObjectIdMap();
 
-//BTX
 protected:
   vtkWebApplication();
   ~vtkWebApplication();
@@ -106,13 +105,12 @@ protected:
   unsigned long LastStillRenderToStringMTime;
 
 private:
-  vtkWebApplication(const vtkWebApplication&); // Not implemented
-  void operator=(const vtkWebApplication&); // Not implemented
+  vtkWebApplication(const vtkWebApplication&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWebApplication&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;
 
-//ETX
 };
 
 #endif

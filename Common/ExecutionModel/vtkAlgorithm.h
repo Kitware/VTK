@@ -170,8 +170,8 @@ public:
 
   // Description:
   // Participate in garbage collection.
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
+  void Register(vtkObjectBase* o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase* o) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the AbortExecute flag for the process object. Process objects
@@ -782,7 +782,7 @@ protected:
   char  *ProgressText;
 
   // Garbage collection support.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
   // executive methods below
 
@@ -828,8 +828,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&);  // Not implemented.
-  void operator=(const vtkAlgorithm&);  // Not implemented.
+  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

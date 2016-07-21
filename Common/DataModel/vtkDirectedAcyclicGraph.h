@@ -59,12 +59,10 @@ public:
   // Return what type of dataset this is.
   virtual int GetDataObjectType() {return VTK_DIRECTED_ACYCLIC_GRAPH;}
 
-  //BTX
   // Description:
   // Retrieve a graph from an information vector.
   static vtkDirectedAcyclicGraph *GetData(vtkInformation *info);
   static vtkDirectedAcyclicGraph *GetData(vtkInformationVector *v, int i=0);
-  //ETX
 
 protected:
   vtkDirectedAcyclicGraph();
@@ -76,8 +74,8 @@ protected:
   virtual bool IsStructureValid(vtkGraph *g);
 
 private:
-  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&);  // Not implemented.
-  void operator=(const vtkDirectedAcyclicGraph&);  // Not implemented.
+  vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;
 };
 
 #endif

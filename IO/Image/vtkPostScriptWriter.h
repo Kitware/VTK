@@ -42,8 +42,8 @@ protected:
   virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
   virtual void WriteFileTrailer(ofstream *, vtkImageData *);
 private:
-  vtkPostScriptWriter(const vtkPostScriptWriter&);  // Not implemented.
-  void operator=(const vtkPostScriptWriter&);  // Not implemented.
+  vtkPostScriptWriter(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPostScriptWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

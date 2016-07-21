@@ -74,7 +74,7 @@ int TestBiQuadraticQuad(int, char*[])
   prober->Update();
 
   vtkDataArray* data = prober->GetOutput()->GetPointData()->GetScalars();
-  vtkDoubleArray* doubleData = vtkDoubleArray::SafeDownCast(data);
+  vtkDoubleArray* doubleData = vtkArrayDownCast<vtkDoubleArray>(data);
 
   double interpolated(0.0);
   if (doubleData)

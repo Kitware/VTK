@@ -69,7 +69,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->SetMode(vtkThresholdTable::ACCEPT_BETWEEN);
   threshold->Update();
   vtkTable* output = threshold->GetOutput();
-  vtkIntArray* intArrOut = vtkIntArray::SafeDownCast(output->GetColumnByName("intArr"));
+  vtkIntArray* intArrOut = vtkArrayDownCast<vtkIntArray>(output->GetColumnByName("intArr"));
 
   // Perform error checking
   if (!intArrOut)
@@ -101,7 +101,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->SetMode(vtkThresholdTable::ACCEPT_LESS_THAN);
   threshold->Update();
   output = threshold->GetOutput();
-  vtkDoubleArray* doubleArrOut = vtkDoubleArray::SafeDownCast(output->GetColumnByName("doubleArr"));
+  vtkDoubleArray* doubleArrOut = vtkArrayDownCast<vtkDoubleArray>(output->GetColumnByName("doubleArr"));
 
   // Perform error checking
   if (!doubleArrOut)
@@ -139,7 +139,7 @@ int TestThresholdTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   threshold->SetMode(vtkThresholdTable::ACCEPT_OUTSIDE);
   threshold->Update();
   output = threshold->GetOutput();
-  vtkStringArray* stringArrOut = vtkStringArray::SafeDownCast(output->GetColumnByName("stringArr"));
+  vtkStringArray* stringArrOut = vtkArrayDownCast<vtkStringArray>(output->GetColumnByName("stringArr"));
 
   // Perform error checking
   if (!stringArrOut)

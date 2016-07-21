@@ -54,8 +54,8 @@ protected:
                     vtkDataSet *output);
 
 private:
-  vtkExtractSelectedLocations(const vtkExtractSelectedLocations&);  // Not implemented.
-  void operator=(const vtkExtractSelectedLocations&);  // Not implemented.
+  vtkExtractSelectedLocations(const vtkExtractSelectedLocations&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedLocations&) VTK_DELETE_FUNCTION;
 };
 
 #endif

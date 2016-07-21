@@ -148,11 +148,10 @@ protected:
   int NumberOfFiles;
   char **FileNames;
   int NumberOfFileNames;
-//BTX
+
   std::vector<vtkExodusIIReader*> ReaderList;
   std::vector<int> NumberOfPointsPerFile;
   std::vector<int> NumberOfCellsPerFile;
-//ETX
 
   int LastCommonTimeStep;
 
@@ -163,8 +162,8 @@ protected:
   int RequestData( vtkInformation*, vtkInformationVector**, vtkInformationVector* );
 
 private:
-  vtkPExodusIIReader( const vtkPExodusIIReader& ); // Not implemented
-  void operator = ( const vtkPExodusIIReader& ); // Not implemented
+  vtkPExodusIIReader( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkPExodusIIReader& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

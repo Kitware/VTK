@@ -39,11 +39,9 @@ public:
   vtkTypeMacro(vtkXMLPUnstructuredGridWriter,vtkXMLPUnstructuredDataWriter);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Get/Set the writer's input.
   vtkUnstructuredGridBase* GetInput();
-  //ETX
 
   // Description:
   // Get the default file extension for files written by this writer.
@@ -60,8 +58,8 @@ protected:
   vtkXMLUnstructuredDataWriter* CreateUnstructuredPieceWriter();
 
 private:
-  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.
-  void operator=(const vtkXMLPUnstructuredGridWriter&);  // Not implemented.
+  vtkXMLPUnstructuredGridWriter(const vtkXMLPUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPUnstructuredGridWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

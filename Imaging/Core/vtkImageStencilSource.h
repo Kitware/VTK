@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Report object referenced by instances of this class.
-  virtual void ReportReferences(vtkGarbageCollector*);
+  void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 
 protected:
   vtkImageStencilSource();
@@ -93,8 +93,8 @@ protected:
   double OutputSpacing[3];
 
 private:
-  vtkImageStencilSource(const vtkImageStencilSource&);  // Not implemented.
-  void operator=(const vtkImageStencilSource&);  // Not implemented.
+  vtkImageStencilSource(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

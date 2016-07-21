@@ -71,13 +71,15 @@
 
 #include "vtkIOExodusModule.h" // For export macro
 #include "vtkObject.h"
-
+#include "vtkSmartPointer.h" // for vtkSmartPointer
+#include "vtkStringArray.h" // for vtkStringArray
 class vtkDataSet;
 class vtkCharArray;
 class vtkIdTypeArray;
 class vtkIntArray;
 class vtkFloatArray;
 class vtkIntArray;
+class vtkStringArray;
 class vtkModelMetadataSTLCloak;
 
 class VTKIOEXODUS_EXPORT vtkModelMetadata : public vtkObject
@@ -238,6 +240,10 @@ public:
   int GetNumberOfNodeSets() const {return this->NumberOfNodeSets;}
 
   // Description:
+  void SetNodeSetNames (vtkStringArray *names) { this->NodeSetNames = names; }
+  vtkStringArray* GetNodeSetNames() const { return this->NodeSetNames; }
+
+  // Description:
   //   Set or get the list the IDs for each node set.
   //   Length of list is the number of node sets.
   //   We use your pointer, and free the memory when the object is freed.
@@ -302,6 +308,10 @@ public:
   //   setting any of the other side set arrays.
   vtkSetMacro(NumberOfSideSets, int);
   int GetNumberOfSideSets() const {return this->NumberOfSideSets;}
+
+  // Description:
+  void SetSideSetNames (vtkStringArray *names) { this->SideSetNames = names; }
+  vtkStringArray* GetSideSetNames() const { return this->SideSetNames; }
 
   // Description:
   //   Set or get a pointer to a list giving the ID of each side set.
@@ -653,6 +663,8 @@ private:
 
   int NumberOfNodeSets; // (G)
 
+  vtkSmartPointer<vtkStringArray> NodeSetNames;
+
   int *NodeSetIds;             // NumberOfNodeSets (G)
   int *NodeSetSize;            // NumberOfNodeSets (L)
   int *NodeSetNumberOfDistributionFactors;  // NNS (L) (NSNDF[i] is 0 or NSS[i])
@@ -670,6 +682,8 @@ private:
   // Side Sets - input to class with Set*
 
   int NumberOfSideSets; // (G)
+
+  vtkSmartPointer<vtkStringArray> SideSetNames;
 
   int *SideSetIds;                          // NumberOfSideSets (G)
   int *SideSetSize;                         // NumberOfSideSets (L)
@@ -739,7 +753,7 @@ private:
   int AllVariablesDefinedInAllBlocks;
 
 private:
-  vtkModelMetadata(const vtkModelMetadata&); // Not implemented
-  void operator=(const vtkModelMetadata&); // Not implemented
+  vtkModelMetadata(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkModelMetadata&) VTK_DELETE_FUNCTION;
 };
 #endif

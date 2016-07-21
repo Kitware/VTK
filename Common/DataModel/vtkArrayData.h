@@ -85,13 +85,12 @@ protected:
   ~vtkArrayData();
 
 private:
-  vtkArrayData(const vtkArrayData&); // Not implemented
-  void operator=(const vtkArrayData&); // Not implemented
+  vtkArrayData(const vtkArrayData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkArrayData&) VTK_DELETE_FUNCTION;
 
-//BTX
   class implementation;
   implementation* const Implementation;
-//ETX
+
 };
 
 #endif

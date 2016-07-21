@@ -182,12 +182,10 @@ public:
   // hasn't already been set up.
   vtkOpenGLHardwareSupport* GetHardwareSupport();
 
-  //BTX
   // Description:
   // Returns its texture unit manager object. A new one will be created if one
   // hasn't already been set up.
   vtkTextureUnitManager *GetTextureUnitManager();
-  //ETX
 
   // Description:
   // Block the thread until the actual rendering is finished().
@@ -279,8 +277,8 @@ protected:
   vtkTextureUnitManager *TextureUnitManager;
 
 private:
-  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&);  // Not implemented.
-  void operator=(const vtkOpenGLRenderWindow&);  // Not implemented.
+  vtkOpenGLRenderWindow(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderWindow&) VTK_DELETE_FUNCTION;
 
   void SetExtensionManager(vtkOpenGLExtensionManager*);
   void SetHardwareSupport(vtkOpenGLHardwareSupport * renderWindow);

@@ -86,8 +86,8 @@ protected:
   double Corners[24];
 
 private:
-  vtkOutlineSource(const vtkOutlineSource&);  // Not implemented.
-  void operator=(const vtkOutlineSource&);  // Not implemented.
+  vtkOutlineSource(const vtkOutlineSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutlineSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -127,7 +127,7 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   colorArray->SetName("Colors");
   colorArray->SetNumberOfTuples(numRows);
 
-  priority = vtkIntArray::SafeDownCast(table->GetColumnByName("Priority"));
+  priority = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Priority"));
 
   for(i = 0; i < numRows; i++)
     {

@@ -44,14 +44,12 @@ public:
   vtkTypeMacro(vtkDefaultPass,vtkRenderPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // Call RenderOpaqueGeometry(), RenderTranslucentPolygonalGeometry(),
   // RenderVolumetricGeometry(), RenderOverlay()
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
  protected:
   // Description:
@@ -104,8 +102,8 @@ public:
   virtual void RenderFilteredOverlay(const vtkRenderState *s);
 
  private:
-  vtkDefaultPass(const vtkDefaultPass&);  // Not implemented.
-  void operator=(const vtkDefaultPass&);  // Not implemented.
+  vtkDefaultPass(const vtkDefaultPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDefaultPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

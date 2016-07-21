@@ -262,7 +262,6 @@ protected:
   vtkViewport();
   ~vtkViewport();
 
-  //BTX
   // Picking functions to be implemented by sub-classes
   // Perform the main picking loop
   virtual void DevicePickRender() = 0;
@@ -279,7 +278,6 @@ protected:
   // Put no more than atMost picked object ids into the callerBuffer and
   // return the number of picked objects returned.
   virtual int GetPickedIds(unsigned int atMost, unsigned int *callerBuffer) = 0;
-  //ETX
 
   // Ivars for picking
   // Store a picked Prop (contained in an assembly path)
@@ -314,8 +312,8 @@ protected:
 
 
 private:
-  vtkViewport(const vtkViewport&);  // Not implemented.
-  void operator=(const vtkViewport&);  // Not implemented.
+  vtkViewport(const vtkViewport&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewport&) VTK_DELETE_FUNCTION;
 };
 
 

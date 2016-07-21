@@ -32,9 +32,7 @@
 #include "vtkRenderingQtModule.h" // For export macro
 #include "vtkObject.h"
 
-//BTX
 class QApplication;
-//ETX
 
 class VTKRENDERINGQT_EXPORT vtkQtInitialization : public vtkObject
 {
@@ -48,11 +46,11 @@ protected:
   ~vtkQtInitialization();
 
 private:
-  vtkQtInitialization(const vtkQtInitialization &); // Not implemented.
-  void operator=(const vtkQtInitialization &); // Not implemented.
-  //BTX
+  vtkQtInitialization(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtInitialization &) VTK_DELETE_FUNCTION;
+
   QApplication *Application;
-  //ETX
+
 };
 
 #endif // vtkQtInitialization_h

@@ -73,12 +73,10 @@ public:
   vtkTypeMacro(vtkSobelGradientMagnitudePass,vtkImageProcessingPass);
   void PrintSelf(ostream& os, vtkIndent indent);
 
-  //BTX
   // Description:
   // Perform rendering according to a render state \p s.
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
-  //ETX
 
   // Description:
   // Release graphics resources and ask components to release their own
@@ -105,8 +103,8 @@ public:
   vtkShaderProgram2 *Program2; // shader to compute |G| from Gx1 and Gy1
 
  private:
-  vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&);  // Not implemented.
-  void operator=(const vtkSobelGradientMagnitudePass&);  // Not implemented.
+  vtkSobelGradientMagnitudePass(const vtkSobelGradientMagnitudePass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSobelGradientMagnitudePass&) VTK_DELETE_FUNCTION;
 };
 
 #endif

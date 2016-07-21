@@ -53,8 +53,8 @@ protected:
   void SetStorage(vtkCPExodusIIElementBlock *eb);
 
 private:
-  vtkCPExodusIIElementBlockCellIterator(const vtkCPExodusIIElementBlockCellIterator &); // Not implemented.
-  void operator=(const vtkCPExodusIIElementBlockCellIterator &);   // Not implemented.
+  vtkCPExodusIIElementBlockCellIterator(const vtkCPExodusIIElementBlockCellIterator &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCPExodusIIElementBlockCellIterator &) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<StorageType> Storage;
   vtkSmartPointer<vtkPoints> DataSetPoints;

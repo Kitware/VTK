@@ -64,7 +64,7 @@ public:
   vtkRenderWindowInteractor *GetInteractor() {
     return this->Interactor; };
 
-  virtual void Execute(vtkObject *, unsigned long event, void *)
+  void Execute(vtkObject *, unsigned long event, void *) VTK_OVERRIDE
     {
     vtkRenderWindowInteractor *interactor = this->GetInteractor();
 

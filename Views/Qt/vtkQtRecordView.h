@@ -96,8 +96,8 @@ protected:
 
 
 private:
-  vtkQtRecordView(const vtkQtRecordView&);  // Not implemented.
-  void operator=(const vtkQtRecordView&);  // Not implemented.
+  vtkQtRecordView(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
 
   unsigned long CurrentSelectionMTime;
   unsigned long LastInputMTime;

@@ -93,7 +93,6 @@ public:
   virtual void WidgetInteraction(double eventPos[2]);
   virtual int ComputeInteractionState(int X, int Y, int modify=0);
 
-//BTX
   // Enums define the state of the prop relative to the mouse pointer
   // position. Used by ComputeInteractionState() to communicate with the
   // widget.
@@ -104,7 +103,6 @@ public:
     MovingVPane,
     MovingCenter
   };
-//ETX
 
   // Description:
   // Methods to make this class behave as a vtkProp.
@@ -154,8 +152,8 @@ protected:
   int J;
 
 private:
-  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&);  //Not implemented
-  void operator=(const vtkRectilinearWipeRepresentation&);  //Not implemented
+  vtkRectilinearWipeRepresentation(const vtkRectilinearWipeRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRectilinearWipeRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

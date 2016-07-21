@@ -89,14 +89,12 @@ protected:
   double Overlap;
   bool PowerOfTwoSize;
 
-  //BTX
   class vtkProgressObserver;
   vtkProgressObserver* ProgressObserver;
-  //ETX
 
 private:
-  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&);  // Not implemented.
-  void operator=(const vtkGeoAlignedImageSource&);  // Not implemented.
+  vtkGeoAlignedImageSource(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeoAlignedImageSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

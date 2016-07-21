@@ -175,12 +175,12 @@ int TestExtractFunctionalBagPlot(int , char * [])
     if (vtksys::SystemTools::StringStartsWith(colName, "Q3Points"))
       {
       q3Points =
-        vtkDoubleArray::SafeDownCast(outBPTable->GetColumn(i));
+        vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumn(i));
       break;
       }
     }
   vtkDoubleArray* q2Points =
-    vtkDoubleArray::SafeDownCast(outBPTable->GetColumnByName("QMedPoints"));
+    vtkArrayDownCast<vtkDoubleArray>(outBPTable->GetColumnByName("QMedPoints"));
 
   if (!q3Points || !q2Points)
     {

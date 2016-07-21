@@ -50,7 +50,6 @@ public:
                              const void* attribute,
                              unsigned long offset = 0) = 0;
 
-//BTX
   // Description:
   // Set the shader program which is being updated by this device adapter.
   // The shader program is not reference counted to avoid reference loops.
@@ -71,9 +70,9 @@ protected:
   vtkShaderProgram2* ShaderProgram;
 
 private:
-  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&); // Not implemented
-  void operator=(const vtkShaderDeviceAdapter2&); // Not implemented
-//ETX
+  vtkShaderDeviceAdapter2(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderDeviceAdapter2&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

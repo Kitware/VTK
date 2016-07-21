@@ -53,15 +53,21 @@ uniform int PrimitiveIDOffset;
 
 void main()
 {
+  // VC position of this fragment. This should not branch/return/discard.
+  //VTK::PositionVC::Impl
+
+  // Place any calls that require uniform flow (e.g. dFdx) here.
+  //VTK::UniformFlow::Impl
+
+  // Early depth peeling abort:
+  //VTK::DepthPeeling::PreColor
+
   // Apple Bug
   //VTK::PrimID::Impl
 
   //VTK::Clip::Impl
 
   //VTK::Color::Impl
-
-  // VC position of this fragment
-  //VTK::PositionVC::Impl
 
   // Generate the normal if we are not passed in one
   //VTK::Normal::Impl

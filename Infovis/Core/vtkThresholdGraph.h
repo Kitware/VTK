@@ -45,7 +45,6 @@ public:
   vtkGetMacro(UpperThreshold, double);
   vtkSetMacro(UpperThreshold, double);
 
-//BTX
 protected:
 
   vtkThresholdGraph();
@@ -62,9 +61,9 @@ private:
   double UpperThreshold;
 
 
-  vtkThresholdGraph(const vtkThresholdGraph&);  // Not implemented.
-  void operator =(const vtkThresholdGraph&);    // Not implemented.
-//ETX
+  vtkThresholdGraph(const vtkThresholdGraph&) VTK_DELETE_FUNCTION;
+  void operator =(const vtkThresholdGraph&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif // vtkThresholdGraph_h

@@ -113,8 +113,8 @@ private:
   double Bounds[6];
 
 private:
-  vtkPlanes(const vtkPlanes&);  // Not implemented.
-  void operator=(const vtkPlanes&);  // Not implemented.
+  vtkPlanes(const vtkPlanes&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlanes&) VTK_DELETE_FUNCTION;
 };
 
 #endif

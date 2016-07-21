@@ -132,12 +132,10 @@ public:
   vtkSetMacro(MapColorScalarsThroughLookupTable, int);
   vtkBooleanMacro(MapColorScalarsThroughLookupTable, int);
 
-//BTX
   // Description:
   // Get the input as a vtkImageData object.  This method is for
   // backwards compatibility.
   vtkImageData* GetInput();
-//ETX
 
   // Description:
   // Specify the lookup table to convert scalars if necessary
@@ -158,7 +156,6 @@ public:
   void SetTransform(vtkTransform *transform);
   vtkGetObjectMacro(Transform, vtkTransform);
 
-//BTX
   // Description:
   // Used to specify how the texture will blend its RGB and Alpha values
   // with other textures and the fragment the texture is rendered upon.
@@ -172,7 +169,6 @@ public:
     VTK_TEXTURE_BLENDING_MODE_INTERPOLATE,
     VTK_TEXTURE_BLENDING_MODE_SUBTRACT
   };
-//ETX
 
   // Description:
   // Used to specify how the texture will blend its RGB and Alpha values
@@ -238,8 +234,8 @@ protected:
   int TranslucentCachedResult;
 
 private:
-  vtkTexture(const vtkTexture&);  // Not implemented.
-  void operator=(const vtkTexture&);  // Not implemented.
+  vtkTexture(const vtkTexture&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTexture&) VTK_DELETE_FUNCTION;
 };
 
 #endif

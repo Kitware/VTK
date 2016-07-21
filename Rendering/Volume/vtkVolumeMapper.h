@@ -113,8 +113,6 @@ public:
   void SetCroppingRegionFlagsToInvertedCross()
     {this->SetCroppingRegionFlags( VTK_CROP_INVERTED_CROSS );};
 
-//BTX
-
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // DO NOT USE THIS METHOD OUTSIDE OF THE RENDERING PROCESS
@@ -135,7 +133,6 @@ public:
     MINIMUM_INTENSITY_BLEND,
     ADDITIVE_BLEND
   };
-//ETX
 
 protected:
   vtkVolumeMapper();
@@ -154,8 +151,8 @@ protected:
   virtual int FillInputPortInformation(int, vtkInformation*);
 
 private:
-  vtkVolumeMapper(const vtkVolumeMapper&);  // Not implemented.
-  void operator=(const vtkVolumeMapper&);  // Not implemented.
+  vtkVolumeMapper(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -36,7 +36,7 @@ namespace
 // Usually stat uses 32 bit fields, and stat64 (with underscores in Windows) uses 64 bit fields.
 // But on OS X and FreeBSD, stat uses 64 bit fields these days.
 #if (VTK_SIZEOF_ID_TYPE == 8) && !defined(_DARWIN_FEATURE_64_BIT_INODE) && !defined(__FreeBSD__)
-  #ifndef WIN32
+  #ifndef _WIN32
     #define USE_STAT_64
   #else
     #define USE_WIN_STAT_64
@@ -64,7 +64,7 @@ namespace
 
 vtkLSDynaFile_t VTK_LSDYNA_OPENFILE(const char* fname)
 {
-#ifndef WIN32
+#ifndef _WIN32
   vtkLSDynaFile_t f = open(fname, O_RDONLY);
   return f;
 #else

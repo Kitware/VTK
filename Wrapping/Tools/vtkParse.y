@@ -180,6 +180,18 @@ static unsigned int vtkParseTypeMap[] =
 #define VTK_PARSE_FLOAT32 vtkParseTypeMap[VTK_TYPE_FLOAT32]
 #define VTK_PARSE_FLOAT64 vtkParseTypeMap[VTK_TYPE_FLOAT64]
 
+/* Define the kinds of [[attributes]] to collect */
+enum
+  {
+  VTK_PARSE_ATTRIB_NONE,
+  VTK_PARSE_ATTRIB_DECL,  /* modify a declaration */
+  VTK_PARSE_ATTRIB_ID,    /* modify an id */
+  VTK_PARSE_ATTRIB_REF,   /* modify *, &, or && */
+  VTK_PARSE_ATTRIB_FUNC,  /* modify a function or method */
+  VTK_PARSE_ATTRIB_ARRAY, /* modify an array size specifier */
+  VTK_PARSE_ATTRIB_CLASS  /* modify class, struct, union, or enum */
+  };
+
 #define vtkParseDebug(s1, s2) \
   if ( parseDebug ) { fprintf(stderr, "   %s %s\n", s1, s2); }
 
@@ -202,7 +214,6 @@ int            NumberOfDefinitions = 0;
 const char   **Definitions;
 
 /* options that can be set by the programs that use the parser */
-int            IgnoreBTX = 0;
 int            Recursive = 0;
 const char    *CommandName = NULL;
 
@@ -251,6 +262,7 @@ void handle_complex_type(ValueInfo *val, unsigned int datatype,
                          unsigned int extra, const char *funcSig);
 void handle_function_type(ValueInfo *param, const char *name,
                           const char *funcSig);
+void handle_attribute(const char *att, int pack);
 void add_legacy_parameter(FunctionInfo *func, ValueInfo *param);
 
 void outputSetVectorMacro(const char *var, unsigned int paramType,
@@ -1198,6 +1210,23 @@ const char *copySig()
   return vtkstrdup(cp);
 }
 
+/* cut the sig from the mark to the current location, and clear the mark */
+const char *cutSig()
+{
+  const char *cp = NULL;
+  if (sigMarkDepth > 0)
+    {
+    sigMarkDepth--;
+    }
+  if (signature)
+    {
+    sigLength = sigMark[sigMarkDepth];
+    cp = vtkstrdup(&signature[sigLength]);
+    signature[sigLength] = 0;
+    }
+  return cp;
+}
+
 /* swap the signature text using the mark as the radix */
 void swapSig()
 {
@@ -1601,6 +1630,30 @@ FunctionInfo *getFunction()
 }
 
 /*----------------------------------------------------------------
+ * Attributes
+ */
+
+int attributeRole = 0;
+
+/* Set kind of attributes to collect in attribute_specifier_seq */
+void setAttributeRole(int x)
+{
+  attributeRole = x;
+}
+
+/* Get the current kind of attribute */
+int getAttributeRole()
+{
+  return attributeRole;
+}
+
+/* Ignore attributes until further notice */
+void clearAttributeRole()
+{
+  attributeRole = 0;
+}
+
+/*----------------------------------------------------------------
  * Utility methods
  */
 
@@ -1927,7 +1980,7 @@ opt_declaration_seq:
       clearTemplate();
       closeComment();
     }
-    attribute_specifier_seq declaration
+    decl_attribute_specifier_seq declaration
 
 declaration:
     using_directive
@@ -1989,9 +2042,9 @@ forward_declaration:
   | template_head simple_forward_declaration
 
 simple_forward_declaration:
-    class_key attribute_specifier_seq class_head_name ';'
-  | class_key attribute_specifier_seq ';'
-  | decl_specifier_seq class_key attribute_specifier_seq class_head_name ';'
+    class_key class_attribute_specifier_seq class_head_name ';'
+  | class_key class_attribute_specifier_seq ';'
+  | decl_specifier_seq class_key class_attribute_specifier_seq class_head_name ';'
 
 class_definition:
     class_specifier opt_decl_specifier_seq opt_declarator_list ';'
@@ -2012,23 +2065,23 @@ class_specifier:
     }
 
 class_head:
-    class_key attribute_specifier_seq class_head_name opt_final ':'
+    class_key class_attribute_specifier_seq class_head_name opt_final ':'
     {
       start_class($<str>3, $<integer>1);
       currentClass->IsFinal = $<integer>4;
     }
     base_specifier_list
-  | class_key attribute_specifier_seq class_head_name opt_final
+  | class_key class_attribute_specifier_seq class_head_name opt_final
     {
       start_class($<str>3, $<integer>1);
       currentClass->IsFinal = $<integer>4;
     }
-  | class_key attribute_specifier_seq ':'
+  | class_key class_attribute_specifier_seq ':'
     {
       start_class(NULL, $<integer>1);
     }
     base_specifier_list
-  | class_key attribute_specifier_seq
+  | class_key class_attribute_specifier_seq
     {
       start_class(NULL, $<integer>1);
     }
@@ -2039,11 +2092,11 @@ class_key:
   | UNION { $<integer>$ = 2; }
 
 class_head_name:
-    nested_name_specifier class_name attribute_specifier_seq
+    nested_name_specifier class_name decl_attribute_specifier_seq
     { $<str>$ = vtkstrcat($<str>1, $<str>2); }
-  | scope_operator_sig nested_name_specifier class_name attribute_specifier_seq
+  | scope_operator_sig nested_name_specifier class_name decl_attribute_specifier_seq
     { $<str>$ = vtkstrcat3("::", $<str>2, $<str>3); }
-  | class_name attribute_specifier_seq
+  | class_name decl_attribute_specifier_seq
 
 class_name:
     simple_id
@@ -2062,7 +2115,7 @@ member_specification:
       clearTemplate();
       closeComment();
     }
-    attribute_specifier_seq member_declaration
+    decl_attribute_specifier_seq member_declaration
   | member_specification
     member_access_specifier ':'
 
@@ -2104,7 +2157,7 @@ friend_declaration:
 
 base_specifier_list:
     base_specifier
-  | base_specifier_list ',' attribute_specifier_seq base_specifier
+  | base_specifier_list ',' decl_attribute_specifier_seq base_specifier
 
 base_specifier:
     id_expression opt_ellipsis
@@ -2138,9 +2191,9 @@ access_specifier:
  */
 
 opaque_enum_declaration:
-    enum_key attribute_specifier_seq id_expression opt_enum_base ';'
-  | enum_key attribute_specifier_seq ';'
-  | decl_specifier_seq enum_key attribute_specifier_seq
+    enum_key class_attribute_specifier_seq id_expression opt_enum_base ';'
+  | enum_key class_attribute_specifier_seq ';'
+  | decl_specifier_seq enum_key class_attribute_specifier_seq
     id_expression opt_enum_base ';'
 
 enum_definition:
@@ -2162,13 +2215,13 @@ enum_specifier:
     }
 
 enum_head:
-    enum_key attribute_specifier_seq id_expression opt_enum_base
+    enum_key class_attribute_specifier_seq id_expression opt_enum_base
     {
       start_enum($<str>3, $<integer>1, $<integer>4, getTypeId());
       clearTypeId();
       $<str>$ = $<str>3;
     }
-  | enum_key attribute_specifier_seq opt_enum_base
+  | enum_key class_attribute_specifier_seq opt_enum_base
     {
       start_enum(NULL, $<integer>1, $<integer>3, getTypeId());
       clearTypeId();
@@ -2207,12 +2260,12 @@ ignored_initializer:
   | ignored_braces
 
 ignored_class:
-    class_key attribute_specifier_seq
+    class_key class_attribute_specifier_seq
     class_head_name opt_final ignored_class_body
-  | decl_specifier_seq class_key attribute_specifier_seq
+  | decl_specifier_seq class_key class_attribute_specifier_seq
     class_head_name opt_final ignored_class_body
-  | class_key attribute_specifier_seq ignored_class_body
-  | decl_specifier_seq class_key attribute_specifier_seq ignored_class_body
+  | class_key class_attribute_specifier_seq ignored_class_body
+  | decl_specifier_seq class_key class_attribute_specifier_seq ignored_class_body
 
 ignored_class_body:
     '{' ignored_items '}' ignored_expression ';'
@@ -2316,7 +2369,7 @@ using_directive:
     USING NAMESPACE id_expression ';' { add_using($<str>3, 1); }
 
 alias_declaration:
-    USING id_expression attribute_specifier_seq '=' { markSig(); }
+    USING id_expression id_attribute_specifier_seq '=' { markSig(); }
     store_type direct_abstract_declarator ';'
     {
       ValueInfo *item = (ValueInfo *)malloc(sizeof(ValueInfo));
@@ -2446,9 +2499,9 @@ nested_operator_declaration:
 
 method_definition:
     method_declaration function_body { output_function(); }
-  | nested_name_specifier operator_function_id attribute_specifier_seq ';'
+  | nested_name_specifier operator_function_id id_attribute_specifier_seq ';'
   | decl_specifier_seq nested_name_specifier operator_function_id
-    attribute_specifier_seq ';'
+    id_attribute_specifier_seq ';'
 
 method_declaration:
     store_type opt_ellipsis function_nr
@@ -2468,8 +2521,8 @@ conversion_function:
       currentFunction->IsExplicit = ((getType() & VTK_PARSE_EXPLICIT) != 0);
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' attribute_specifier_seq { postSig(")"); }
-    function_trailer_clause opt_trailing_return_type
+    parameter_declaration_clause ')' func_attribute_specifier_seq
+    { postSig(")"); } function_trailer_clause opt_trailing_return_type
     {
       postSig(";");
       closeSig();
@@ -2495,13 +2548,13 @@ operator_function_nr:
     }
 
 operator_function_sig:
-    operator_function_id attribute_specifier_seq '('
+    operator_function_id id_attribute_specifier_seq '('
     {
       postSig("(");
       currentFunction->IsOperator = 1;
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' attribute_specifier_seq
+    parameter_declaration_clause ')' func_attribute_specifier_seq
 
 operator_function_id:
     operator_sig operator_id
@@ -2571,12 +2624,13 @@ handler_seq:
   | handler_seq CATCH ignored_parentheses '{' ignored_items '}'
 
 function_sig:
-    unqualified_id attribute_specifier_seq '('
+    unqualified_id id_attribute_specifier_seq '('
     {
       postSig("(");
       set_return(currentFunction, getType(), getTypeId(), 0);
     }
-    parameter_declaration_clause ')' attribute_specifier_seq { postSig(")"); }
+    parameter_declaration_clause ')' func_attribute_specifier_seq
+    { postSig(")"); }
 
 
 /*
@@ -2605,7 +2659,7 @@ structor_declaration:
 
 structor_sig:
     unqualified_id '(' { pushType(); postSig("("); }
-    parameter_declaration_clause ')' attribute_specifier_seq
+    parameter_declaration_clause ')' func_attribute_specifier_seq
     { popType(); postSig(")"); }
 
 opt_ctor_initializer:
@@ -2635,13 +2689,13 @@ parameter_list:
     { currentFunction->IsVariadic = 1; postSig("..."); }
 
 parameter_declaration:
-    { markSig(); }
+    decl_attribute_specifier_seq { markSig(); }
     store_type direct_abstract_declarator
     {
       ValueInfo *param = (ValueInfo *)malloc(sizeof(ValueInfo));
       vtkParse_InitValue(param);
 
-      handle_complex_type(param, getType(), $<integer>3, copySig());
+      handle_complex_type(param, getType(), $<integer>4, copySig());
       add_legacy_parameter(currentFunction, param);
 
       if (getVarName())
@@ -2782,8 +2836,8 @@ direct_abstract_declarator:
         $<integer>$ = $<integer>1;
         }
     }
-  | lp_or_la attribute_specifier_seq abstract_declarator ')' { postSig(")"); }
-    opt_array_or_parameters
+  | lp_or_la ref_attribute_specifier_seq abstract_declarator ')'
+    { postSig(")"); } opt_array_or_parameters
     {
       const char *scope = getScope();
       unsigned int parens = add_indirection($<integer>1, $<integer>3);
@@ -2829,7 +2883,7 @@ lp_or_la:
 opt_array_or_parameters:
     { $<integer>$ = 0; }
   | '(' { pushFunction(); postSig("("); } parameter_declaration_clause ')'
-    attribute_specifier_seq { postSig(")"); } function_qualifiers
+    func_attribute_specifier_seq { postSig(")"); } function_qualifiers
     {
       $<integer>$ = VTK_PARSE_FUNCTION;
       popFunction();
@@ -2858,8 +2912,8 @@ opt_declarator_id:
   | declarator_id
 
 declarator_id:
-    unqualified_id attribute_specifier_seq { setVarName($<str>1); }
-  | unqualified_id attribute_specifier_seq ':' bitfield_size
+    unqualified_id id_attribute_specifier_seq { setVarName($<str>1); }
+  | unqualified_id id_attribute_specifier_seq ':' bitfield_size
     { setVarName($<str>1); }
 
 bitfield_size:
@@ -2880,8 +2934,8 @@ array_decorator_seq_impl:
   | array_decorator_seq_impl array_decorator
 
 array_decorator:
-    '[' { postSig("["); } array_size_specifier ']' attribute_specifier_seq
-    { postSig("]"); }
+    '[' { postSig("["); } array_size_specifier ']'
+    array_attribute_specifier_seq { postSig("]"); }
 
 array_size_specifier:
     { pushArraySize(""); }
@@ -2994,7 +3048,7 @@ identifier:
  */
 
 opt_decl_specifier_seq:
-  | opt_decl_specifier_seq decl_specifier2 attribute_specifier_seq
+  | opt_decl_specifier_seq decl_specifier2 decl_attribute_specifier_seq
 
 decl_specifier2:
     decl_specifier
@@ -3004,8 +3058,8 @@ decl_specifier2:
   | FRIEND { setTypeMod(VTK_PARSE_FRIEND); }
 
 decl_specifier_seq:
-    decl_specifier attribute_specifier_seq
-  | decl_specifier_seq decl_specifier attribute_specifier_seq
+    decl_specifier decl_attribute_specifier_seq
+  | decl_specifier_seq decl_specifier decl_attribute_specifier_seq
 
 decl_specifier:
     storage_class_specifier { setTypeMod($<integer>1); }
@@ -3050,20 +3104,21 @@ store_type_specifier:
 
 type_specifier:
     trailing_type_specifier
-  | class_key attribute_specifier_seq class_head_name
+  | class_key class_attribute_specifier_seq class_head_name
     { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
-  | enum_key attribute_specifier_seq id_expression attribute_specifier_seq
+  | enum_key class_attribute_specifier_seq id_expression decl_attribute_specifier_seq
     { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
 
 trailing_type_specifier:
     simple_type_specifier
   | decltype_specifier
     { postSig(" "); setTypeId($<str>1); $<integer>$ = 0; }
-  | TYPENAME { postSig("typename "); } id_expression attribute_specifier_seq
+  | TYPENAME { postSig("typename "); }
+    id_expression decl_attribute_specifier_seq
     { postSig(" "); setTypeId($<str>3); $<integer>$ = guess_id_type($<str>3); }
-  | template_id attribute_specifier_seq
+  | template_id decl_attribute_specifier_seq
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
-  | qualified_id attribute_specifier_seq
+  | qualified_id decl_attribute_specifier_seq
     { postSig(" "); setTypeId($<str>1); $<integer>$ = guess_id_type($<str>1); }
 
 trailing_type_specifier_seq:
@@ -3100,8 +3155,8 @@ tparam_type_specifier:
     { postSig(" "); setTypeId($<str>2); $<integer>$ = guess_id_type($<str>2); }
 
 simple_type_specifier:
-    primitive_type attribute_specifier_seq { setTypeId(""); }
-  | type_name attribute_specifier_seq
+    primitive_type decl_attribute_specifier_seq { setTypeId(""); }
+  | type_name decl_attribute_specifier_seq
 
 type_name:
     StdString { typeSig($<str>1); $<integer>$ = VTK_PARSE_STRING; }
@@ -3167,15 +3222,15 @@ ptr_operator_seq:
   | pointer_seq reference { $<integer>$ = ($<integer>1 | $<integer>2); }
 
 reference:
-    '&' attribute_specifier_seq
+    '&' ref_attribute_specifier_seq
     { postSig("&"); $<integer>$ = VTK_PARSE_REF; }
 
 rvalue_reference:
-    OP_LOGIC_AND attribute_specifier_seq
+    OP_LOGIC_AND ref_attribute_specifier_seq
     { postSig("&&"); $<integer>$ = (VTK_PARSE_RVALUE | VTK_PARSE_REF); }
 
 pointer:
-    '*' attribute_specifier_seq { postSig("*"); }
+    '*' ref_attribute_specifier_seq { postSig("*"); }
     ptr_cv_qualifier_seq { $<integer>$ = $<integer>4; }
 
 ptr_cv_qualifier_seq:
@@ -3210,13 +3265,67 @@ pointer_seq:
 
 /*
  * Attributes
+ *
+ * An attribute can play are role:
+ * 1) within a declaration specifier list
+ * 2) after an id expression
+ * 3) after *, &, or &&
+ * 4) after a function or template parameter list
+ * 5) after the closing bracket of an array size specifier
+ * 6) after a 'class', 'struct', 'union', or 'enum' key
  */
+
+decl_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_DECL); }
+  attribute_specifier_seq { clearAttributeRole(); }
+
+id_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_ID); }
+  attribute_specifier_seq { clearAttributeRole(); }
+
+ref_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_REF); }
+  attribute_specifier_seq { clearAttributeRole(); }
+
+func_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_FUNC); }
+  attribute_specifier_seq { clearAttributeRole(); }
+
+array_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_ARRAY); }
+  attribute_specifier_seq { clearAttributeRole(); }
+
+class_attribute_specifier_seq:
+  { setAttributeRole(VTK_PARSE_ATTRIB_CLASS); }
+  attribute_specifier_seq { clearAttributeRole(); }
 
 attribute_specifier_seq:
   | attribute_specifier_seq attribute_specifier
 
 attribute_specifier:
-    BEGIN_ATTRIB { closeSig(); } any_bracket_contents { openSig(); } ']' ']'
+    BEGIN_ATTRIB attribute_list ']' ']'
+
+attribute_list:
+  | attribute
+  | attribute_list ','
+  | attribute_list ',' attribute
+
+attribute:
+    { markSig(); } attribute_sig attribute_pack
+    { handle_attribute(cutSig(), $<integer>3); }
+
+attribute_pack:
+    { $<integer>$ = 0; }
+  | ELLIPSIS { $<integer>$ = VTK_PARSE_PACK; }
+
+attribute_sig:
+    attribute_token
+  | attribute_token parentheses_sig
+
+attribute_token:
+    identifier_sig
+  | identifier_sig scope_operator_sig identifier_sig
+
 
 /*
  * VTK Macros
@@ -3502,7 +3611,8 @@ declaration_macro:
    currentFunction->Name = "NewInstance";
    currentFunction->Signature = vtkstrcat($<str>3, " *NewInstance();");
    currentFunction->Comment = vtkstrdup(getComment());
-   set_return(currentFunction, VTK_PARSE_OBJECT_PTR, $<str>3, 0);
+   set_return(currentFunction, VTK_PARSE_NEWINSTANCE | VTK_PARSE_OBJECT_PTR,
+              $<str>3, 0);
    output_function();
 
    currentFunction->Macro = "vtkTypeMacro";
@@ -4641,6 +4751,60 @@ void handle_complex_type(
   val->Count = count_from_dimensions(val);
 }
 
+/* handle [[attributes]] */
+void handle_attribute(const char *att, int pack)
+{
+  /* the role means "this is what the attribute applies to" */
+  int role = getAttributeRole();
+
+  size_t l = 0;
+  const char *args = NULL;
+
+  if (!att)
+    {
+    return;
+    }
+
+  /* search for arguments */
+  l = vtkParse_SkipId(att);
+  while (att[l] == ':' && att[l+1] == ':')
+    {
+    l += 2;
+    l += vtkParse_SkipId(&att[l]);
+    }
+  if (att[l] == '(')
+    {
+    args = &att[l];
+    }
+
+  /* check for namespace */
+  if (strncmp(att, "vtk::", 5) == 0)
+    {
+    if (args)
+      {
+      /* no current vtk attributes use arguments */
+      print_parser_error("attribute takes no args", att, l);
+      exit(1);
+      }
+    else if (pack)
+      {
+      /* no current vtk attributes use '...' */
+      print_parser_error("attribute takes no ...", att, l);
+      exit(1);
+      }
+    else if (strcmp(att, "vtk::newinstance") == 0 &&
+             role == VTK_PARSE_ATTRIB_DECL)
+      {
+      setTypeMod(VTK_PARSE_NEWINSTANCE);
+      }
+    else
+      {
+      print_parser_error("attribute cannot be used here", att, l);
+      exit(1);
+      }
+    }
+}
+
 /* add a parameter to the legacy part of the FunctionInfo struct */
 void add_legacy_parameter(FunctionInfo *func, ValueInfo *param)
 {
@@ -4972,19 +5136,6 @@ void outputGetVectorMacro(const char *var, unsigned int paramType,
     vtkstrcat4(typeText, " *", currentFunction->Name, "();");
   set_return(currentFunction, (VTK_PARSE_POINTER | paramType), getTypeId(), n);
   output_function();
-}
-
-/* Set a flag to ignore BTX/ETX markers in the files */
-void vtkParse_SetIgnoreBTX(int option)
-{
-  if (option)
-    {
-    IgnoreBTX = 1;
-    }
-  else
-    {
-    IgnoreBTX = 0;
-    }
 }
 
 /* Set a flag to recurse into included files */

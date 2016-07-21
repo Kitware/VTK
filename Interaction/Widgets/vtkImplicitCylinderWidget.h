@@ -87,12 +87,9 @@
 #include "vtkAbstractWidget.h"
 
 class vtkImplicitCylinderRepresentation;
-class vtkInteractionCallback;
 
 class VTKINTERACTIONWIDGETS_EXPORT vtkImplicitCylinderWidget : public vtkAbstractWidget
 {
-  friend class vtkInteractionCallback;
-
 public:
   // Description:
   // Instantiate the object.
@@ -144,14 +141,9 @@ protected:
   // if the cursor shape requested is different from the existing one.
   int UpdateCursorShape( int interactionState );
 
-  // Description:
-  // Handle the interaction callback that may come from the representation
-  vtkInteractionCallback *InteractionCallback;
-  void InvokeInteractionCallback();
-
 private:
-  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&);  //Not implemented
-  void operator=(const vtkImplicitCylinderWidget&);  //Not implemented
+  vtkImplicitCylinderWidget(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImplicitCylinderWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

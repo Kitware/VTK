@@ -206,6 +206,8 @@ namespace diy
       int           threads() const                     { return threads_; }
       int           in_memory() const                   { return *blocks_.in_memory().const_access(); }
 
+      void          set_threads(int threads)            { threads_ = threads; }
+
       CreateBlock   creator() const                     { return blocks_.creator(); }
       DestroyBlock  destroyer() const                   { return blocks_.destroyer(); }
       LoadBlock     loader() const                      { return blocks_.loader(); }
@@ -256,6 +258,7 @@ namespace diy
       void              set_expected(int expected)      { expected_ = expected; }
       void              add_expected(int i)             { expected_ += i; }
       int               expected() const                { return expected_; }
+      void              replace_link(int i, Link* link) { expected_ -= links_[i]->size_unique(); delete links_[i]; links_[i] = link; expected_ += links_[i]->size_unique(); }
 
     public:
       // Communicator functionality

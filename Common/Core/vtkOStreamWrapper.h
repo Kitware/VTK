@@ -139,7 +139,7 @@ protected:
   // Reference to the real ostream.
   ostream& ostr;
 private:
-  vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r); // Not Implemented.
+  vtkOStreamWrapper& operator=(const vtkOStreamWrapper& r) VTK_DELETE_FUNCTION;
   vtkOStreamWrapper& operator << (std_string const&);
 };
 

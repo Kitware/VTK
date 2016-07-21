@@ -103,8 +103,8 @@ int TestPLYWriter(int argc, char *argv[])
     return EXIT_FAILURE;
     }
 
-  vtkFloatArray * inputArray = vtkFloatArray::SafeDownCast(data->GetPointData()->GetTCoords());
-  vtkFloatArray * outputArray = vtkFloatArray::SafeDownCast(tCoords);
+  vtkFloatArray * inputArray = vtkArrayDownCast<vtkFloatArray>(data->GetPointData()->GetTCoords());
+  vtkFloatArray * outputArray = vtkArrayDownCast<vtkFloatArray>(tCoords);
   if (!inputArray || !outputArray)
     {
     std::cout << "Texture coordinates are not of float type." << std::endl;

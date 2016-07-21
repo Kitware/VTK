@@ -79,8 +79,8 @@ class VTKFILTERSCORE_EXPORT vtkStructuredGridAppend : public vtkStructuredGridAl
   virtual int FillInputPortInformation(int, vtkInformation*);
 
  private:
-  vtkStructuredGridAppend(const vtkStructuredGridAppend&);  // Not implemented.
-  void operator=(const vtkStructuredGridAppend&);  // Not implemented.
+  vtkStructuredGridAppend(const vtkStructuredGridAppend&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGridAppend&) VTK_DELETE_FUNCTION;
 };
 
 #endif

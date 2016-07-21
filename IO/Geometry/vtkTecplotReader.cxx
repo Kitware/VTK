@@ -76,10 +76,10 @@ public:
 protected:
   bool Open;
   bool Eof;
-  static const unsigned int BUFF_SIZE = 2048;
+  static const int BUFF_SIZE = 2048;
   char buff[BUFF_SIZE];
-  unsigned int Pos;
-  unsigned int BuffEnd;
+  int Pos;
+  int BuffEnd;
   gzFile file;
   std::string FileName;
 
@@ -398,8 +398,8 @@ public:
 
 private:
 
-  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & );  // Not implemented.
-  void operator = ( const vtkTecplotReaderInternal & );          // Not implemented.
+  vtkTecplotReaderInternal( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkTecplotReaderInternal & ) VTK_DELETE_FUNCTION;
 };
 // ==========================================================================//
 
@@ -414,17 +414,17 @@ private:
 // ----------------------------------------------------------------------------
 static int GetCoord( const std::string & theToken )
 {
-  if ( theToken == "X" || theToken == "x" || theToken == "I" )
+  if ( theToken == "X" || theToken == "x" || theToken == "I" || theToken == "CoordinateX" )
     {
     return 0;
     }
 
-  if ( theToken == "Y" || theToken == "y" || theToken == "J" )
+  if ( theToken == "Y" || theToken == "y" || theToken == "J" || theToken == "CoordinateY" )
     {
     return 1;
     }
 
-  if ( theToken == "Z" || theToken == "z" || theToken == "K" )
+  if ( theToken == "Z" || theToken == "z" || theToken == "K" || theToken == "CoordinateZ" )
     {
     return 2;
     }

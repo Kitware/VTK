@@ -121,14 +121,13 @@ protected:
 
 
 private:
-  vtkAnnotationLink(const vtkAnnotationLink&);  // Not implemented.
-  void operator=(const vtkAnnotationLink&);  // Not implemented.
+  vtkAnnotationLink(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAnnotationLink&) VTK_DELETE_FUNCTION;
 
-  //BTX
   class Command;
   friend class Command;
   Command* Observer;
-  //ETX
+
 };
 
 #endif

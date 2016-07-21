@@ -1056,7 +1056,7 @@ bool vtkLineIntegralConvolution2D::IsSupported(vtkRenderWindow *renWin)
 #if defined(__APPLE__)
   if (manager->DriverIsNvidia() && manager->DriverVersionIs(1,6))
     {
-    // Mac OSX 10.6 GLSL doesn't support array initializer
+    // Mac OS X 10.6 GLSL doesn't support array initializer
     return false;
     }
 #endif

@@ -47,6 +47,8 @@ vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
   this->MinimumImageSampleDistance = 1.0;
   this->MaximumImageSampleDistance = 10.0;
   this->RenderToImage              = 0;
+  this->DepthImageScalarType       = VTK_FLOAT;
+  this->ClampDepthToBackface       = 0;
   this->UseJittering               = 1;
   this->UseDepthPass               = 0;
   this->DepthPassContourValues     = NULL;
@@ -382,8 +384,7 @@ int vtkGPUVolumeRayCastMapper::ValidateRender(vtkRenderer *ren,
       }
     }
 
-  int numberOfComponents = 0;
-  numberOfComponents = scalars->GetNumberOfComponents();
+  int numberOfComponents = goodSoFar ? scalars->GetNumberOfComponents() : 0;
 
 #ifdef VTK_OPENGL2
   // This mapper supports anywhere from 1-4 components. Number of components
@@ -702,4 +703,22 @@ vtkContourValues* vtkGPUVolumeRayCastMapper::GetDepthPassContourValues()
     }
 
   return this->DepthPassContourValues;
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedChar()
+{
+  this->SetDepthImageScalarType(VTK_UNSIGNED_CHAR);
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToUnsignedShort()
+{
+  this->SetDepthImageScalarType(VTK_UNSIGNED_SHORT);
+}
+
+//----------------------------------------------------------------------------
+void vtkGPUVolumeRayCastMapper::SetDepthImageScalarTypeToFloat()
+{
+  this->SetDepthImageScalarType(VTK_FLOAT);
 }

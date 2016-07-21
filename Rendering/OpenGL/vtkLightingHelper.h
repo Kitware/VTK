@@ -56,7 +56,6 @@ public:
   void EncodeLightState(){ this->PrepareForRendering(); }
   void PrepareForRendering();
 
-//BTX
 protected:
   vtkLightingHelper();
   ~vtkLightingHelper();
@@ -65,9 +64,9 @@ protected:
   vtkShaderProgram2 *Shader;
 
 private:
-  vtkLightingHelper(const vtkLightingHelper&); // Not implemented.
-  void operator=(const vtkLightingHelper&); // Not implemented.
-//ETX
+  vtkLightingHelper(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightingHelper&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

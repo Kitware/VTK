@@ -67,7 +67,7 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  static int IsTypeOf(const char* type)
+  static vtkTypeBool IsTypeOf(const char* type)
   {
     if (strcmp(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName(),
                type) == 0)
@@ -80,7 +80,7 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  virtual int IsA(const char *type)
+  virtual vtkTypeBool IsA(const char *type)
   {
     return this->IsTypeOf(type);
   }
@@ -92,9 +92,8 @@ protected:
   }
 
 private:
-  // not implemented:
-  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&);
-  void operator=(const vtkTypeTemplate<ThisT, BaseT>&);
+  vtkTypeTemplate(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTypeTemplate<ThisT, BaseT>&) VTK_DELETE_FUNCTION;
 
   static const char* GetClassNameInternalCachedName()
   {

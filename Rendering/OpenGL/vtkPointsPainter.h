@@ -43,8 +43,8 @@ protected:
   virtual int RenderPrimitive(unsigned long flags, vtkDataArray* n,
     vtkUnsignedCharArray* c, vtkDataArray* t, vtkRenderer* ren);
 private:
-  vtkPointsPainter(const vtkPointsPainter&); // Not implemented.
-  void operator=(const vtkPointsPainter&); // Not implemented.
+  vtkPointsPainter(const vtkPointsPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointsPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

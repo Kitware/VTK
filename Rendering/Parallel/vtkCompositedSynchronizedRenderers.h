@@ -38,7 +38,6 @@ public:
   void SetCompositer(vtkCompositer*);
   vtkGetObjectMacro(Compositer, vtkCompositer);
 
-//BTX
 protected:
   vtkCompositedSynchronizedRenderers();
   ~vtkCompositedSynchronizedRenderers();
@@ -49,9 +48,9 @@ protected:
 
   vtkCompositer* Compositer;
 private:
-  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&); // Not implemented
-  void operator=(const vtkCompositedSynchronizedRenderers&); // Not implemented
-//ETX
+  vtkCompositedSynchronizedRenderers(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositedSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+
 };
 
 #endif

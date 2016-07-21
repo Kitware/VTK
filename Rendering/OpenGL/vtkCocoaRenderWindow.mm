@@ -737,7 +737,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
     NSWindow* theWindow = nil;
 
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1060
     NSScreen *screen = [NSScreen mainScreen];
     if (this->FullScreen && screen)
       {
@@ -747,7 +746,7 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[vtkCocoaFullScreenWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSBorderlessWindowMask
+                             styleMask:NSWindowStyleMaskBorderless
                                backing:NSBackingStoreBuffered
                                  defer:NO];
 
@@ -757,7 +756,6 @@ void vtkCocoaRenderWindow::CreateAWindow()
       //[theWindow setLevel:NSFloatingWindowLevel];
       }
     else
-#endif
       {
       if ((this->Size[0]+this->Size[1]) == 0)
         {
@@ -777,10 +775,10 @@ void vtkCocoaRenderWindow::CreateAWindow()
 
       theWindow = [[NSWindow alloc]
                    initWithContentRect:ctRect
-                             styleMask:NSTitledWindowMask |
-                                       NSClosableWindowMask |
-                                       NSMiniaturizableWindowMask |
-                                       NSResizableWindowMask
+                             styleMask:NSWindowStyleMaskTitled |
+                                       NSWindowStyleMaskClosable |
+                                       NSWindowStyleMaskMiniaturizable |
+                                       NSWindowStyleMaskResizable
                                backing:NSBackingStoreBuffered
                                  defer:NO];
       }

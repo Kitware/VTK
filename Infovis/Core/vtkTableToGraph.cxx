@@ -76,7 +76,7 @@ int vtkTableToGraph::ValidateLinkGraph()
     {
     this->LinkGraph = vtkMutableDirectedGraph::New();
     }
-  if (!vtkStringArray::SafeDownCast(
+  if (!vtkArrayDownCast<vtkStringArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("column")))
     {
     if (this->LinkGraph->GetNumberOfVertices() == 0)
@@ -93,7 +93,7 @@ int vtkTableToGraph::ValidateLinkGraph()
       return 0;
       }
     }
-  if (!vtkStringArray::SafeDownCast(
+  if (!vtkArrayDownCast<vtkStringArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("domain")))
     {
     vtkStringArray* domain = vtkStringArray::New();
@@ -107,7 +107,7 @@ int vtkTableToGraph::ValidateLinkGraph()
     domain->Delete();
     this->Modified();
     }
-  if (!vtkBitArray::SafeDownCast(
+  if (!vtkArrayDownCast<vtkBitArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("hidden")))
     {
     vtkBitArray* hidden = vtkBitArray::New();
@@ -117,7 +117,7 @@ int vtkTableToGraph::ValidateLinkGraph()
     hidden->Delete();
     this->Modified();
     }
-  if (!vtkIntArray::SafeDownCast(
+  if (!vtkArrayDownCast<vtkIntArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("active")))
     {
     vtkIntArray* active = vtkIntArray::New();
@@ -154,13 +154,13 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
     return;
     }
 
-  vtkStringArray* columnArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* columnArr = vtkArrayDownCast<vtkStringArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
-  vtkStringArray* domainArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* domainArr = vtkArrayDownCast<vtkStringArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("domain"));
-  vtkBitArray* hiddenArr = vtkBitArray::SafeDownCast(
+  vtkBitArray* hiddenArr = vtkArrayDownCast<vtkBitArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
-  vtkIntArray* activeArr = vtkIntArray::SafeDownCast(
+  vtkIntArray* activeArr = vtkArrayDownCast<vtkIntArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("active"));
 
   vtkIdType index = -1;
@@ -193,7 +193,7 @@ void vtkTableToGraph::AddLinkVertex(const char* column, const char* domain, int 
 void vtkTableToGraph::ClearLinkVertices()
 {
   this->ValidateLinkGraph();
-  vtkIntArray* activeArr = vtkIntArray::SafeDownCast(
+  vtkIntArray* activeArr = vtkArrayDownCast<vtkIntArray>(
     this->LinkGraph->GetVertexData()->GetAbstractArray("active"));
   for (vtkIdType i = 0; i < this->LinkGraph->GetNumberOfVertices(); ++i)
     {
@@ -210,7 +210,7 @@ void vtkTableToGraph::AddLinkEdge(const char* column1, const char* column2)
     vtkErrorMacro("Column names may not be null.");
     }
   this->ValidateLinkGraph();
-  vtkStringArray* columnArr = vtkStringArray::SafeDownCast(
+  vtkStringArray* columnArr = vtkArrayDownCast<vtkStringArray>(
       this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
   vtkIdType source = -1;
   vtkIdType target = -1;
@@ -403,7 +403,7 @@ int vtkTableToGraph::RequestData(
       vertexTableInfo->Get(vtkDataObject::DATA_OBJECT()));
     }
 
-  if (vtkIntArray::SafeDownCast(
+  if (vtkArrayDownCast<vtkIntArray>(
     this->LinkGraph->GetVertexData()->GetAbstractArray("active")))
     {
     // Extract only the active link graph.
@@ -428,7 +428,7 @@ int vtkTableToGraph::RequestData(
     extract->Delete();
     }
 
-  vtkStringArray* linkColumn = vtkStringArray::SafeDownCast(
+  vtkStringArray* linkColumn = vtkArrayDownCast<vtkStringArray>(
     this->LinkGraph->GetVertexData()->GetAbstractArray("column"));
 
   if (!linkColumn)
@@ -437,9 +437,9 @@ int vtkTableToGraph::RequestData(
     return 0;
     }
 
-  vtkStringArray* linkDomain = vtkStringArray::SafeDownCast(
+  vtkStringArray* linkDomain = vtkArrayDownCast<vtkStringArray>(
     this->LinkGraph->GetVertexData()->GetAbstractArray("domain"));
-  vtkBitArray* linkHidden = vtkBitArray::SafeDownCast(
+  vtkBitArray* linkHidden = vtkArrayDownCast<vtkBitArray>(
     this->LinkGraph->GetVertexData()->GetAbstractArray("hidden"));
 
   // Find all the hidden types
@@ -534,7 +534,7 @@ int vtkTableToGraph::RequestData(
         domainValuesArr->Delete();
         for (vtkIdType r = 0; r < vertexTable->GetNumberOfRows(); ++r)
           {
-          if (vtkStringArray::SafeDownCast(domainValuesArr))
+          if (vtkArrayDownCast<vtkStringArray>(domainValuesArr))
             {
             vertexTable->SetValueByName(r, domain, "");
             }

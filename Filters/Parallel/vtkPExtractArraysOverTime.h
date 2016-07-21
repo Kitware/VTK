@@ -50,12 +50,10 @@ public:
   virtual void SetController(vtkMultiProcessController*);
   vtkGetObjectMacro(Controller, vtkMultiProcessController);
 
-//BTX
   enum Tags
   {
     EXCHANGE_DATA = 1972
   };
-//ETX
 
 protected:
   vtkPExtractArraysOverTime();
@@ -71,8 +69,8 @@ protected:
   vtkMultiProcessController* Controller;
 
 private:
-  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&);  // Not implemented.
-  void operator=(const vtkPExtractArraysOverTime&);  // Not implemented.
+  vtkPExtractArraysOverTime(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPExtractArraysOverTime&) VTK_DELETE_FUNCTION;
 };
 
 #endif

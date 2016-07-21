@@ -91,7 +91,7 @@ public:
     {
     }
   Output(const Output&);
-  void operator=(const Output&);
+  Output& operator=(const Output&);
   ~Output()
     {
     }

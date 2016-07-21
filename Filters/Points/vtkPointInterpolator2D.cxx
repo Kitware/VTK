@@ -17,6 +17,7 @@
 #include "vtkObjectFactory.h"
 #include "vtkVoronoiKernel.h"
 #include "vtkAbstractPointLocator.h"
+#include "vtkArrayListTemplate.h"
 #include "vtkStaticPointLocator.h"
 #include "vtkDataSet.h"
 #include "vtkDataArray.h"
@@ -24,6 +25,7 @@
 #include "vtkPolyData.h"
 #include "vtkPoints.h"
 #include "vtkCharArray.h"
+#include "vtkFloatArray.h"
 #include "vtkDoubleArray.h"
 #include "vtkCellData.h"
 #include "vtkPointData.h"
@@ -40,9 +42,6 @@ vtkStandardNewMacro(vtkPointInterpolator2D);
 //----------------------------------------------------------------------------
 // Helper classes to support efficient computing, and threaded execution.
 namespace {
-
-#include "vtkArrayListTemplate.h"
-
 // Project source points onto plane
 struct ProjectPoints
 {

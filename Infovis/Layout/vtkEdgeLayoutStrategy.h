@@ -65,8 +65,8 @@ protected:
 
 private:
 
-  vtkEdgeLayoutStrategy(const vtkEdgeLayoutStrategy&);  // Not implemented.
-  void operator=(const vtkEdgeLayoutStrategy&);  // Not implemented.
+  vtkEdgeLayoutStrategy(const vtkEdgeLayoutStrategy&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkEdgeLayoutStrategy&) VTK_DELETE_FUNCTION;
 };
 
 #endif

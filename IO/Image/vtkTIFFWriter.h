@@ -38,7 +38,6 @@ public:
   // The main interface which triggers the writer to start.
   virtual void Write();
 
-//BTX
   enum { // Compression types
     NoCompression,
     PackBits,
@@ -46,7 +45,6 @@ public:
     Deflate,
     LZW
   };
-//ETX
 
   // Description:
   // Set compression type. Sinze LZW compression is patented outside US, the
@@ -76,8 +74,8 @@ protected:
   double YResolution;
 
 private:
-  vtkTIFFWriter(const vtkTIFFWriter&);  // Not implemented.
-  void operator=(const vtkTIFFWriter&);  // Not implemented.
+  vtkTIFFWriter(const vtkTIFFWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTIFFWriter&) VTK_DELETE_FUNCTION;
 
   template<typename T> void WriteVolume(T *buffer);
 };

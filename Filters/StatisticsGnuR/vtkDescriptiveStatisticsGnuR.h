@@ -56,13 +56,11 @@ protected:
   vtkDescriptiveStatisticsGnuR();
   ~vtkDescriptiveStatisticsGnuR();
 
-//BTX
   virtual vtkDoubleArray* CalculatePValues(vtkDoubleArray*);
-//ETX
 
 private:
-  vtkDescriptiveStatisticsGnuR(const vtkDescriptiveStatisticsGnuR&); // Not implemented
-  void operator=(const vtkDescriptiveStatisticsGnuR&); // Not implemented
+  vtkDescriptiveStatisticsGnuR(const vtkDescriptiveStatisticsGnuR&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDescriptiveStatisticsGnuR&) VTK_DELETE_FUNCTION;
 };
 
 #endif

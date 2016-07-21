@@ -72,7 +72,6 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport*);
   virtual int HasTranslucentPolygonalGeometry();
 
-  //BTX
   enum
     {
     AnyLocation = 0,
@@ -83,7 +82,6 @@ public:
     UpperRightCorner,
     UpperCenter
     };
-  //ETX
 
   // Description:
   // Set the text position, by enumeration (
@@ -132,8 +130,8 @@ protected:
   vtkTextRepresentationObserver *Observer;
 
 private:
-  vtkTextRepresentation(const vtkTextRepresentation&);  //Not implemented
-  void operator=(const vtkTextRepresentation&);  //Not implemented
+  vtkTextRepresentation(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

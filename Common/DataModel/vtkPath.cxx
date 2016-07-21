@@ -99,7 +99,7 @@ void vtkPath::InsertNextPoint(float pts[], int code)
 {
   this->Points->InsertNextPoint(pts);
 
-  vtkIntArray *codes = vtkIntArray::SafeDownCast(
+  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
         this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
@@ -116,7 +116,7 @@ void vtkPath::InsertNextPoint(double x, double y, double z, int code)
 {
   this->Points->InsertNextPoint(x, y, z);
 
-  vtkIntArray *codes = vtkIntArray::SafeDownCast(
+  vtkIntArray *codes = vtkArrayDownCast<vtkIntArray>(
         this->PointData->GetScalars());
   assert("control point code array is int type" && codes);
   codes->InsertNextValue(code);
@@ -131,5 +131,5 @@ void vtkPath::SetCodes(vtkIntArray *codes)
 //----------------------------------------------------------------------------
 vtkIntArray *vtkPath::GetCodes()
 {
-  return vtkIntArray::SafeDownCast(this->PointData->GetScalars());
+  return vtkArrayDownCast<vtkIntArray>(this->PointData->GetScalars());
 }

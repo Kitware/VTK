@@ -19,7 +19,7 @@ namespace diy
 
     int                 gid() const                                     { return gid_; }
 
-    //! Enqueue data whose size can be determined automatically
+    //! Enqueue data whose size can be determined automatically, e.g., an STL vector.
     template<class T>
     void                enqueue(const BlockID&  to,                                     //!< target block (gid,proc)
                                 const T&        x,                                      //!< data (eg. STL vector)
@@ -27,7 +27,7 @@ namespace diy
                                ) const
     { OutgoingQueues& out = *outgoing_; save(out[to], x); }
 
-    //! Enqueue an array of data whose size is given explicitly
+    //! Enqueue data whose size is given explicitly by the user, e.g., an array.
     template<class T>
     void                enqueue(const BlockID&  to,                                     //!< target block (gid,proc)
                                 const T*        x,                                      //!< pointer to the data (eg. address of start of vector)
@@ -35,8 +35,9 @@ namespace diy
                                 void (*save)(BinaryBuffer&, const T&) = &::diy::save<T> //!< optional serialization function
                                ) const;
 
-    //! Dequeue data whose size can be determined automatically.
-    //! Diy will allocate the receive buffer.
+    //! Dequeue data whose size can be determined automatically (e.g., STL vector) and that was
+    //! previously enqueued so that diy knows its size when it is received.
+    //! In this case, diy will allocate the receive buffer; the user does not need to do so.
     template<class T>
     void                dequeue(int             from,                                   //!< target block gid
                                 T&              x,                                      //!< data (eg. STL vector)
@@ -44,8 +45,8 @@ namespace diy
                                ) const
     { IncomingQueues& in  = *incoming_; load(in[from], x); }
 
-    //! Dequeue an array of data whose size is given explicitly.
-    //! The user needs to allocate the receive buffer.
+    //! Dequeue an array of data whose size is given explicitly by the user.
+    //! In this case, the user needs to allocate the receive buffer prior to calling dequeue.
     template<class T>
     void                dequeue(int             from,                                   //!< target block gid
                                 T*              x,                                      //!< pointer to the data (eg. address of start of vector)
@@ -65,17 +66,37 @@ namespace diy
     OutgoingQueues*     outgoing() const                                { return outgoing_; }
     MemoryBuffer&       outgoing(const BlockID& to) const               { return (*outgoing_)[to]; }
 
-    //! Post an all-reduce collective
+/**
+ * \ingroup Communication
+ * \brief Post an all-reduce collective using an existing communication proxy.
+ * Available operators are:
+ * maximum<T>, minimum<T>, std::plus<T>, std::multiplies<T>, std::logical_and<T>, and
+ * std::logical_or<T>.
+ */
     template<class T, class Op>
-    inline void         all_reduce(const T& in, Op op) const;
+    inline void         all_reduce(const T& in,                  //!< local value being reduced
+                                   Op op                         //!< operator
+                                   ) const;
+/**
+ * \ingroup Communication
+ * \brief Return the result of a proxy collective without popping it off the collectives list (same result would be returned multiple times). The list can be cleared with collectives()->clear().
+ */
     template<class T>
     inline T            read() const;
+/**
+ * \ingroup Communication
+ * \brief Return the result of a proxy collective; result is popped off the collectives list.
+ */
     template<class T>
     inline T            get() const;
 
     template<class T>
     inline void         scratch(const T& in) const;
 
+/**
+ * \ingroup Communication
+ * \brief Return the list of proxy collectives (values and operations)
+ */
     CollectivesList*    collectives() const                             { return collectives_; }
 
     Master*             master() const                                  { return master_; }

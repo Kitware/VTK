@@ -23,7 +23,6 @@
 #ifndef vtkFixedPointVolumeRayCastHelper_h
 #define vtkFixedPointVolumeRayCastHelper_h
 
-//BTX
 #define VTKKWRCHelper_GetCellScalarValues( DATA, SCALE, SHIFT ) \
   A = static_cast<unsigned int >(SCALE*(*(DATA     ) + SHIFT)); \
   B = static_cast<unsigned int >(SCALE*(*(DATA+Binc) + SHIFT)); \
@@ -33,9 +32,7 @@
   F = static_cast<unsigned int >(SCALE*(*(DATA+Finc) + SHIFT)); \
   G = static_cast<unsigned int >(SCALE*(*(DATA+Ginc) + SHIFT)); \
   H = static_cast<unsigned int >(SCALE*(*(DATA+Hinc) + SHIFT))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellScalarValuesSimple( DATA )  \
   A = static_cast<unsigned int >(*(DATA     ));          \
   B = static_cast<unsigned int >(*(DATA+Binc));          \
@@ -45,9 +42,7 @@
   F = static_cast<unsigned int >(*(DATA+Finc));          \
   G = static_cast<unsigned int >(*(DATA+Ginc));          \
   H = static_cast<unsigned int >(*(DATA+Hinc))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellMagnitudeValues( ABCD, EFGH )       \
   mA = static_cast<unsigned int >(*(ABCD      ));                \
   mB = static_cast<unsigned int >(*(ABCD+mBFinc));               \
@@ -57,9 +52,7 @@
   mF = static_cast<unsigned int >(*(EFGH+mBFinc));               \
   mG = static_cast<unsigned int >(*(EFGH+mCGinc));               \
   mH = static_cast<unsigned int >(*(EFGH+mDHinc))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellDirectionValues( ABCD, EFGH )      \
   normalA   = static_cast<unsigned int >(*(ABCD       ));       \
   normalB   = static_cast<unsigned int >(*(ABCD+dBFinc));       \
@@ -69,9 +62,7 @@
   normalF   = static_cast<unsigned int >(*(EFGH+dBFinc));       \
   normalG   = static_cast<unsigned int >(*(EFGH+dCGinc));       \
   normalH   = static_cast<unsigned int >(*(EFGH+dDHinc));
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellComponentScalarValues( DATA, CIDX, SCALE, SHIFT )    \
   A[CIDX] = static_cast<unsigned int >(SCALE*(*(DATA     ) + SHIFT));             \
   B[CIDX] = static_cast<unsigned int >(SCALE*(*(DATA+Binc) + SHIFT));             \
@@ -81,9 +72,7 @@
   F[CIDX] = static_cast<unsigned int >(SCALE*(*(DATA+Finc) + SHIFT));             \
   G[CIDX] = static_cast<unsigned int >(SCALE*(*(DATA+Ginc) + SHIFT));             \
   H[CIDX] = static_cast<unsigned int >(SCALE*(*(DATA+Hinc) + SHIFT))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellComponentRawScalarValues( DATA, CIDX ) \
   A[CIDX] = static_cast<unsigned int >((*(DATA     )));             \
   B[CIDX] = static_cast<unsigned int >((*(DATA+Binc)));             \
@@ -93,9 +82,7 @@
   F[CIDX] = static_cast<unsigned int >((*(DATA+Finc)));             \
   G[CIDX] = static_cast<unsigned int >((*(DATA+Ginc)));             \
   H[CIDX] = static_cast<unsigned int >((*(DATA+Hinc)))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellComponentMagnitudeValues( ABCD, EFGH, CIDX )      \
   mA[CIDX] = static_cast<unsigned int >(*(ABCD       ));                       \
   mB[CIDX] = static_cast<unsigned int >(*(ABCD+mBFinc));                       \
@@ -105,9 +92,7 @@
   mF[CIDX] = static_cast<unsigned int >(*(EFGH+mBFinc));                       \
   mG[CIDX] = static_cast<unsigned int >(*(EFGH+mCGinc));                       \
   mH[CIDX] = static_cast<unsigned int >(*(EFGH+mDHinc))
-//ETX
 
-//BTX
 #define VTKKWRCHelper_GetCellComponentDirectionValues( ABCD, EFGH, CIDX )       \
   normalA[CIDX]   = static_cast<unsigned int >(*(ABCD       ));                 \
   normalB[CIDX]   = static_cast<unsigned int >(*(ABCD+dBFinc));                 \
@@ -117,10 +102,7 @@
   normalF[CIDX]   = static_cast<unsigned int >(*(EFGH+dBFinc));                 \
   normalG[CIDX]   = static_cast<unsigned int >(*(EFGH+dCGinc));                 \
   normalH[CIDX]   = static_cast<unsigned int >(*(EFGH+dDHinc));
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_ComputeWeights( POS )                                             \
   w2X = (POS[0]&VTKKW_FP_MASK);                                                         \
   w2Y = (POS[1]&VTKKW_FP_MASK);                                                         \
@@ -134,10 +116,7 @@
   w2Xw1Y = (0x4000+(w2X*w1Y))>>VTKKW_FP_SHIFT;                                          \
   w1Xw2Y = (0x4000+(w1X*w2Y))>>VTKKW_FP_SHIFT;                                          \
   w2Xw2Y = (0x4000+(w2X*w2Y))>>VTKKW_FP_SHIFT;                                          \
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_InterpolateScalar( VAL )                                  \
   VAL =                                                                         \
     (0x7fff + ((A*((0x4000 + w1Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                    \
@@ -148,9 +127,7 @@
                (F*((0x4000 + w2Xw1Y*w2Z)>>VTKKW_FP_SHIFT)) +                    \
                (G*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                    \
                (H*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InterpolateMagnitude( VAL )                                       \
   VAL =                                                                                 \
     (0x7fff + ((mA*((0x4000 + w1Xw1Y*w1Z)>>VTKKW_FP_SHIFT)) +                           \
@@ -161,9 +138,7 @@
                (mF*((0x4000 + w2Xw1Y*w2Z)>>VTKKW_FP_SHIFT)) +                           \
                (mG*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                           \
                (mH*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InterpolateScalarComponent( VAL, CIDX, COMPONENTS )               \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
     {                                                                                   \
@@ -177,9 +152,7 @@
                (G[CIDX]*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                      \
                (H[CIDX]*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;   \
     }                                                                                   \
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InterpolateMagnitudeComponent( VAL, CIDX, COMPONENTS )            \
   for ( CIDX = 0; CIDX < COMPONENTS; CIDX++ )                                           \
     {                                                                                   \
@@ -193,9 +166,7 @@
                (mG[CIDX]*((0x4000 + w1Xw2Y*w2Z)>>VTKKW_FP_SHIFT)) +                     \
                (mH[CIDX]*((0x4000 + w2Xw2Y*w2Z)>>VTKKW_FP_SHIFT)))) >> VTKKW_FP_SHIFT;  \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InterpolateShading( DTABLE, STABLE, COLOR )                                       \
   unsigned int _tmpDColor[3];                                                                           \
   unsigned int _tmpSColor[3];                                                                           \
@@ -267,10 +238,7 @@
   COLOR[0] += (_tmpSColor[0]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                                        \
   COLOR[1] += (_tmpSColor[1]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                                        \
   COLOR[2] += (_tmpSColor[2]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_InterpolateShadingComponent( DTABLE, STABLE, COLOR, CIDX )                                \
   unsigned int _tmpDColor[3];                                                                                   \
   unsigned int _tmpSColor[3];                                                                                   \
@@ -342,9 +310,7 @@
   COLOR[0] += (_tmpSColor[0]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                                                \
   COLOR[1] += (_tmpSColor[1]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                                                \
   COLOR[2] += (_tmpSColor[2]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupColorUS( COLORTABLE, SCALAROPACITYTABLE, IDX, COLOR )       \
   COLOR[3] = SCALAROPACITYTABLE[IDX];                                                   \
   if ( !COLOR[3] ) {continue;}                                                          \
@@ -354,9 +320,7 @@
     ((COLORTABLE[3*IDX+1]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                        \
   COLOR[2] = static_cast<unsigned short>                                                \
     ((COLORTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupColorMax( COLORTABLE, SCALAROPACITYTABLE, IDX, COLOR )    \
   COLOR[3] = SCALAROPACITYTABLE[IDX];                                                 \
   COLOR[0] = static_cast<unsigned short>                                              \
@@ -365,9 +329,7 @@
     ((COLORTABLE[3*IDX+1]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                      \
   COLOR[2] = static_cast<unsigned short>                                              \
     ((COLORTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupDependentColorUS( COLORTABLE, SCALAROPACITYTABLE, IDX, CMPS, COLOR )        \
   {                                                                                                     \
   unsigned short _alpha;                                                                                \
@@ -392,9 +354,7 @@
       break;                                                                                            \
     }                                                                                                   \
   }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupColorGOUS( CTABLE, SOTABLE, GOTABLE, IDX, IDX2, COLOR )     \
   COLOR[3] = (SOTABLE[IDX] * GOTABLE[IDX2] + 0x7fff)>>VTKKW_FP_SHIFT;                   \
   if ( !COLOR[3] ) {continue;}                                                          \
@@ -404,9 +364,7 @@
     ((CTABLE[3*IDX+1]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));                            \
   COLOR[2] = static_cast<unsigned short>                                                \
     ((CTABLE[3*IDX+2]*COLOR[3] + 0x7fff)>>(VTKKW_FP_SHIFT));
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupShading( DTABLE, STABLE, NORMAL, COLOR )                            \
   COLOR[0] = static_cast<unsigned short>((DTABLE[3*NORMAL  ]*COLOR[0]+0x7fff)>>VTKKW_FP_SHIFT); \
   COLOR[1] = static_cast<unsigned short>((DTABLE[3*NORMAL+1]*COLOR[1]+0x7fff)>>VTKKW_FP_SHIFT); \
@@ -414,10 +372,7 @@
   COLOR[0] += (STABLE[3*NORMAL  ]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                           \
   COLOR[1] += (STABLE[3*NORMAL+1]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;                           \
   COLOR[2] += (STABLE[3*NORMAL+2]*COLOR[3] + 0x7fff)>>VTKKW_FP_SHIFT;
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsUS( COLORTABLE, SOTABLE,                                                 \
                                                            SCALAR, WEIGHTS,                                                     \
                                                            COMPONENTS, COLOR )                                                  \
@@ -447,9 +402,7 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsMax( COLORTABLE, SCALAROPACITYTABLE,                             \
                                                             IDX, WEIGHTS, CMPS, COLOR )                                 \
   {                                                                                                                     \
@@ -467,9 +420,7 @@
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                         \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);                                                                         \
   }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsGOUS( COLORTABLE, SOTABLE,                                               \
                                                            GOTABLE,                                                             \
                                                            SCALAR, MAG, WEIGHTS,                                                \
@@ -504,9 +455,7 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsShadeUS( COLORTABLE, SOTABLE,                                            \
                                                                 DTABLE, STABLE,                                                 \
                                                                 SCALAR, NORMAL, WEIGHTS,                                        \
@@ -548,9 +497,7 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsInterpolateShadeUS( COLORTABLE, SOTABLE,                                 \
                                                                            DTABLE, STABLE,                                      \
                                                                            SCALAR, WEIGHTS,                                     \
@@ -587,9 +534,7 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_CompositeColorAndCheckEarlyTermination( COLOR, TMP, REMAININGOPACITY )    \
   COLOR[0] += (TMP[0]*REMAININGOPACITY+0x7fff)>>VTKKW_FP_SHIFT;                                 \
   COLOR[1] += (TMP[1]*REMAININGOPACITY+0x7fff)>>VTKKW_FP_SHIFT;                                 \
@@ -599,9 +544,7 @@
     {                                                                                           \
     break;                                                                                      \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsGOShadeUS( COLORTABLE, SOTABLE, GOTABLE,                                 \
                                                                 DTABLE, STABLE,                                                 \
                                                                 SCALAR, MAG, NORMAL, WEIGHTS,                                   \
@@ -647,9 +590,7 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_LookupAndCombineIndependentColorsGOInterpolateShadeUS( COLORTABLE, SOTABLE, GOTABLE,                      \
                                                                 DTABLE, STABLE,                                                 \
                                                                 SCALAR, MAG, WEIGHTS,                                           \
@@ -690,19 +631,14 @@
   COLOR[1] = (_tmp[1]>32767)?(32767):(_tmp[1]);                                                                                 \
   COLOR[2] = (_tmp[2]>32767)?(32767):(_tmp[2]);                                                                                 \
   COLOR[3] = (_tmp[3]>32767)?(32767):(_tmp[3]);
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_SetPixelColor( IMAGEPTR, COLOR, REMAININGOPACITY )        \
   IMAGEPTR[0] = (COLOR[0]>32767)?(32767):(COLOR[0]);                            \
   IMAGEPTR[1] = (COLOR[1]>32767)?(32767):(COLOR[1]);                            \
   IMAGEPTR[2] = (COLOR[2]>32767)?(32767):(COLOR[2]);                           \
   unsigned int tmpAlpha = (~REMAININGOPACITY)&VTKKW_FP_MASK;                    \
   IMAGEPTR[3] = (tmpAlpha>32767)?(32767):(tmpAlpha);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MoveToNextSampleNN()                                      \
   if ( k < numSteps-1 )                                                         \
     {                                                                           \
@@ -710,9 +646,7 @@
     mapper->ShiftVectorDown( pos, spos );                                       \
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];            \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MoveToNextSampleGONN()                            \
   if ( k < numSteps-1 )                                                 \
     {                                                                   \
@@ -721,9 +655,7 @@
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];    \
     magPtr = gradientMag[spos[2]] + spos[0]*mInc[0] + spos[1]*mInc[1];  \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MoveToNextSampleShadeNN()                         \
   if ( k < numSteps-1 )                                                 \
     {                                                                   \
@@ -732,9 +664,7 @@
     dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];    \
     dirPtr = gradientDir[spos[2]] + spos[0]*dInc[0] + spos[1]*dInc[1];  \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MoveToNextSampleGOShadeNN()                       \
   if ( k < numSteps-1 )                                                 \
     {                                                                   \
@@ -744,9 +674,7 @@
     magPtr = gradientMag[spos[2]] + spos[0]*mInc[0] + spos[1]*mInc[1];  \
     dirPtr = gradientDir[spos[2]] + spos[0]*dInc[0] + spos[1]*dInc[1];  \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeVariables()                                                     \
   int i, j;                                                                                     \
   unsigned short *imagePtr;                                                                     \
@@ -790,18 +718,14 @@
   inc[0] = components;                                                                          \
   inc[1] = inc[0]*dim[0];                                                                       \
   inc[2] = inc[1]*dim[1];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeWeights()                       \
   float weights[4] = {};                                        \
   weights[0] = vol->GetProperty()->GetComponentWeight(0);       \
   weights[1] = vol->GetProperty()->GetComponentWeight(1);       \
   weights[2] = vol->GetProperty()->GetComponentWeight(2);       \
   weights[3] = vol->GetProperty()->GetComponentWeight(3);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeVariablesGO()                           \
   unsigned short *gradientOpacityTable[4];                              \
   for ( c = 0; c < 4; c++ )                                             \
@@ -823,9 +747,7 @@
     mInc[1] = mInc[0]*dim[0];                                           \
     mInc[2] = mInc[1]*dim[1];                                           \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeVariablesShade()                        \
   unsigned short *diffuseShadingTable[4];                               \
   unsigned short *specularShadingTable[4];                              \
@@ -848,9 +770,7 @@
     dInc[1] = dInc[0]*dim[0];                                           \
     dInc[2] = dInc[1]*dim[1];                                           \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeTrilinVariables() \
   vtkIdType Binc = components;                    \
   vtkIdType Cinc = Binc*dim[0];                   \
@@ -859,9 +779,7 @@
   vtkIdType Finc = Einc + Binc;                   \
   vtkIdType Ginc = Einc + Cinc;                   \
   vtkIdType Hinc = Ginc + Binc;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeTrilinVariablesGO()             \
   vtkIdType magOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
@@ -876,9 +794,7 @@
   vtkIdType mBFinc =                    magOffset;              \
   vtkIdType mCGinc = dim[0]*magOffset;                          \
   vtkIdType mDHinc = dim[0]*magOffset + magOffset;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeTrilinVariablesShade()          \
   vtkIdType dirOffset;                                          \
   if (  vol->GetProperty()->GetIndependentComponents() )        \
@@ -893,9 +809,7 @@
   vtkIdType dBFinc =                    dirOffset;              \
   vtkIdType dCGinc = dim[0]*dirOffset;                          \
   vtkIdType dDHinc = dim[0]*dirOffset + dirOffset;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_OuterInitialization()                             \
     if ( j%threadCount != threadID )                                    \
       {                                                                 \
@@ -914,9 +828,6 @@
       }                                                                 \
     imagePtr = image + 4*(j*imageMemorySize[0] + rowBounds[j*2]);
 
-//ETX
-
-//BTX
 #define VTKKWRCHelper_InnerInitialization()             \
   unsigned int   numSteps;                              \
   unsigned int   pos[3];                                \
@@ -933,16 +844,12 @@
     }                                                   \
   unsigned int   spos[3];                               \
   unsigned int   k;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeMIPOneNN()                              \
   mapper->ShiftVectorDown( pos, spos );                                 \
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
   T maxValue = *(dptr);
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeMIPMultiNN()                            \
   mapper->ShiftVectorDown( pos, spos );                                 \
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
@@ -951,9 +858,7 @@
     {                                                                   \
     maxValue[c] = *(dptr+c);                                            \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeMIPOneTrilin()          \
   T *dptr;                                              \
   unsigned int oldSPos[3];                              \
@@ -969,9 +874,7 @@
   unsigned short  maxValue=0;                           \
   unsigned short  val;                                  \
   unsigned int A=0,B=0,C=0,D=0,E=0,F=0,G=0,H=0;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeMIPMultiTrilin()                \
   T *dptr;                                                      \
   unsigned int oldSPos[3];                                      \
@@ -988,28 +891,20 @@
   unsigned short  val[4] = {};                                  \
   unsigned int    A[4] = {}, B[4] = {}, C[4] = {}, D[4] = {},   \
                   E[4] = {}, F[4] = {}, G[4] = {}, H[4] = {};
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeGONN()                                      \
   unsigned char *magPtr = gradientMag[spos[2]] + spos[0]*mInc[0] + spos[1]*mInc[1];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeShadeNN()                                      \
   unsigned short *dirPtr = gradientDir[spos[2]] + spos[0]*dInc[0] + spos[1]*dInc[1];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeOneNN()                        \
   mapper->ShiftVectorDown( pos, spos );                                 \
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
   unsigned int color[3] = {0,0,0};                                      \
   unsigned short remainingOpacity = 0x7fff;                             \
   unsigned short tmp[4];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeMultiNN()                      \
   mapper->ShiftVectorDown( pos, spos );                                 \
   T *dptr = data +  spos[0]*inc[0] + spos[1]*inc[1] + spos[2]*inc[2];   \
@@ -1017,9 +912,7 @@
   unsigned int remainingOpacity = 0x7fff;                               \
   unsigned short tmp[4] = {};                                           \
   unsigned short val[4] = {};
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeOneTrilin()    \
   T *dptr;                                              \
   unsigned int oldSPos[3];                              \
@@ -1038,23 +931,17 @@
   unsigned int color[3] = {0,0,0};                      \
   unsigned short remainingOpacity = 0x7fff;             \
   unsigned short tmp[4];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeOneGOTrilin()          \
   unsigned char  *magPtrABCD = 0, *magPtrEFGH = 0;              \
   unsigned short  mag;                                          \
   unsigned int    mA=0,mB=0,mC=0,mD=0,mE=0,mF=0,mG=0,mH=0;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeOneShadeTrilin()       \
   unsigned short *dirPtrABCD = 0, *dirPtrEFGH = 0;              \
   unsigned int    normalA=0,normalB=0,normalC=0,normalD=0;      \
   unsigned int    normalE=0,normalF=0,normalG=0,normalH=0;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeMultiTrilin()          \
   T *dptr;                                                      \
   unsigned int oldSPos[3];                                      \
@@ -1080,25 +967,19 @@
   unsigned int color[3] = {0,0,0};                              \
   unsigned short remainingOpacity = 0x7fff;                     \
   unsigned short tmp[4];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeMultiGOTrilin()                \
   unsigned char  *magPtrABCD = 0, *magPtrEFGH = 0;                      \
   unsigned short  mag[4] = {};                                          \
   unsigned int    mA[4] = {}, mB[4] = {}, mC[4] = {},                   \
                   mD[4] = {}, mE[4] = {}, mF[4] = {},                   \
                   mG[4] = {}, mH[4] = {};
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializeCompositeMultiShadeTrilin()     \
   unsigned short *dirPtrABCD = 0, *dirPtrEFGH = 0;              \
   unsigned int    normalA[4],normalB[4],normalC[4],normalD[4];  \
   unsigned int    normalE[4],normalF[4],normalG[4],normalH[4];
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartNN()            \
   VTKKWRCHelper_InitializeVariables();                          \
   for ( j = 0; j < imageInUseSize[1]; j++ )                     \
@@ -1107,9 +988,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartGONN()          \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesGO();                        \
@@ -1119,9 +998,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartShadeNN()       \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesShade();                     \
@@ -1131,9 +1008,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartGOShadeNN()     \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesGO();                        \
@@ -1144,9 +1019,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartTrilin()        \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeTrilinVariables();                    \
@@ -1156,9 +1029,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartGOTrilin()      \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesGO();                        \
@@ -1170,9 +1041,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartShadeTrilin()   \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesShade();                     \
@@ -1184,9 +1053,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_InitializationAndLoopStartGOShadeTrilin() \
   VTKKWRCHelper_InitializeVariables();                          \
   VTKKWRCHelper_InitializeVariablesShade();                     \
@@ -1200,9 +1067,7 @@
     for ( i = rowBounds[j*2]; i <= rowBounds[j*2+1]; i++ )      \
       {                                                         \
       VTKKWRCHelper_InnerInitialization();
-//ETX
 
-//BTX
 #define VTKKWRCHelper_IncrementAndLoopEnd()                                             \
       imagePtr+=4;                                                                      \
       }                                                                                 \
@@ -1213,9 +1078,7 @@
       mapper->InvokeEvent( vtkCommand::VolumeMapperRenderProgressEvent, fargs );        \
       }                                                                                 \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_CroppingCheckTrilin( POS )        \
   if ( cropping )                                       \
     {                                                   \
@@ -1224,9 +1087,7 @@
       continue;                                         \
       }                                                 \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_CroppingCheckNN( POS )            \
   if ( cropping )                                       \
     {                                                   \
@@ -1235,28 +1096,21 @@
       continue;                                         \
       }                                                 \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_SpaceLeapSetup()          \
   unsigned int mmpos[3];                        \
   mmpos[0] = (pos[0] >> VTKKW_FPMM_SHIFT) + 1;  \
   mmpos[1] = 0;                                 \
   mmpos[2] = 0;                                 \
   int mmvalid = 0;
-//ETX
 
-//BTX
 #define VTKKWRCHelper_SpaceLeapSetupMulti()     \
   unsigned int mmpos[3];                        \
   mmpos[0] = (pos[0] >> VTKKW_FPMM_SHIFT) + 1;  \
   mmpos[1] = 0;                                 \
   mmpos[2] = 0;                                 \
   int mmvalid[4] = {0,0,0,0};
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_SpaceLeapCheck()                          \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                \
@@ -1272,9 +1126,7 @@
     {                                                           \
     continue;                                                   \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MIPSpaceLeapCheck( MAXIDX, MAXIDXDEF, FLIP )      \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                        \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                        \
@@ -1291,10 +1143,7 @@
     {                                                                   \
     continue;                                                           \
     }
-//ETX
 
-
-//BTX
 #define VTKKWRCHelper_MIPSpaceLeapPopulateMulti( MAXIDX, FLIP )                   \
   if ( pos[0] >> VTKKW_FPMM_SHIFT != mmpos[0] ||                                  \
        pos[1] >> VTKKW_FPMM_SHIFT != mmpos[1] ||                                  \
@@ -1308,11 +1157,8 @@
       mmvalid[c] = mapper->CheckMIPMinMaxVolumeFlag( mmpos, c, MAXIDX[c], FLIP ); \
       }                                                                           \
     }
-//ETX
 
-//BTX
 #define VTKKWRCHelper_MIPSpaceLeapCheckMulti( COMP, FLIP )  mmvalid[COMP]
-//ETX
 
 #include "vtkRenderingVolumeModule.h" // For export macro
 #include "vtkObject.h"
@@ -1338,8 +1184,8 @@ protected:
 
 
 private:
-  vtkFixedPointVolumeRayCastHelper(const vtkFixedPointVolumeRayCastHelper&);  // Not implemented.
-  void operator=(const vtkFixedPointVolumeRayCastHelper&);  // Not implemented.
+  vtkFixedPointVolumeRayCastHelper(const vtkFixedPointVolumeRayCastHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFixedPointVolumeRayCastHelper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

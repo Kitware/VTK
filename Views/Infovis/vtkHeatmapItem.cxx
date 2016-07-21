@@ -109,11 +109,11 @@ void vtkHeatmapItem::SetTable(vtkTable *table)
   this->Table = table;
 
   // get the row names for this table
-  vtkStringArray *rowNames = vtkStringArray::SafeDownCast(
+  vtkStringArray *rowNames = vtkArrayDownCast<vtkStringArray>(
     this->Table->GetColumnByName(this->NameColumn));
   if (rowNames == NULL)
     {
-    rowNames = vtkStringArray::SafeDownCast(
+    rowNames = vtkArrayDownCast<vtkStringArray>(
       this->Table->GetColumn(0));
     }
   if (rowNames == NULL)
@@ -182,9 +182,9 @@ void vtkHeatmapItem::RebuildBuffers()
 
   this->InitializeLookupTables();
 
-  this->CollapsedRowsArray = vtkBitArray::SafeDownCast(
+  this->CollapsedRowsArray = vtkArrayDownCast<vtkBitArray>(
     this->Table->GetFieldData()->GetArray("collapsed rows"));
-  this->CollapsedColumnsArray = vtkBitArray::SafeDownCast(
+  this->CollapsedColumnsArray = vtkArrayDownCast<vtkBitArray>(
     this->Table->GetFieldData()->GetArray("collapsed columns"));
 
   this->HeatmapBuildTime = this->Table->GetMTime();
@@ -267,7 +267,7 @@ void vtkHeatmapItem::GenerateContinuousDataLookupTable()
 //-----------------------------------------------------------------------------
 void vtkHeatmapItem::AccumulateProminentCategoricalDataValues(vtkIdType column)
 {
-  vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
+  vtkStringArray *stringColumn = vtkArrayDownCast<vtkStringArray>(
     this->Table->GetColumn(column));
 
   // search for values that occur more than once
@@ -895,7 +895,7 @@ std::string vtkHeatmapItem::GetTooltipText(float x, float y)
 //-----------------------------------------------------------------------------
 void vtkHeatmapItem::SetOrientation(int orientation)
 {
-  vtkIntArray *existingArray = vtkIntArray::SafeDownCast(
+  vtkIntArray *existingArray = vtkArrayDownCast<vtkIntArray>(
     this->Table->GetFieldData()->GetArray("orientation"));
   if (existingArray)
     {
@@ -918,7 +918,7 @@ void vtkHeatmapItem::SetOrientation(int orientation)
 //-----------------------------------------------------------------------------
 int vtkHeatmapItem::GetOrientation()
 {
-  vtkIntArray *orientationArray = vtkIntArray::SafeDownCast(
+  vtkIntArray *orientationArray = vtkArrayDownCast<vtkIntArray>(
     this->Table->GetFieldData()->GetArray("orientation"));
   if (orientationArray)
     {
@@ -1159,7 +1159,7 @@ bool vtkHeatmapItem::MouseDoubleClickEvent(const vtkContextMouseEvent &event)
       {
       // categorical data
       // generate an array of distinct values from this column
-      vtkStringArray *stringColumn = vtkStringArray::SafeDownCast(
+      vtkStringArray *stringColumn = vtkArrayDownCast<vtkStringArray>(
         this->Table->GetColumn(column));
       this->CategoryLegendValues->Reset();
       this->CategoryLegendValues->Squeeze();

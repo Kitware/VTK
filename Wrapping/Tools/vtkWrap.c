@@ -16,6 +16,7 @@
 #include "vtkWrap.h"
 #include "vtkParseData.h"
 #include "vtkParseExtras.h"
+#include "vtkParseMain.h"
 #include "vtkParseMerge.h"
 #include "vtkParseString.h"
 #include <stdlib.h>
@@ -657,7 +658,8 @@ void vtkWrap_FindCountHints(
     }
 
   /* add hints for array GetTuple methods */
-  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray") ||
+      vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayIterator"))
     {
     countMethod = "GetNumberOfComponents()";
 
@@ -771,6 +773,7 @@ void vtkWrap_FindNewInstanceMethods(
 {
   int i;
   FunctionInfo *theFunc;
+  OptionInfo *options;
 
   for (i = 0; i < data->NumberOfFunctions; i++)
     {
@@ -780,25 +783,17 @@ void vtkWrap_FindNewInstanceMethods(
         vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
       {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
-          strcmp(theFunc->Name, "CreateInstance") == 0 ||
-          (strcmp(theFunc->Name, "CreateLookupTable") == 0 &&
-           strcmp(data->Name, "vtkColorSeries") == 0) ||
-          (strcmp(theFunc->Name, "CreateImageReader2") == 0 &&
-           strcmp(data->Name, "vtkImageReader2Factory") == 0) ||
-          (strcmp(theFunc->Name, "CreateDataArray") == 0 &&
-           strcmp(data->Name, "vtkDataArray") == 0) ||
-          (strcmp(theFunc->Name, "CreateArray") == 0 &&
-           strcmp(data->Name, "vtkAbstractArray") == 0) ||
-          (strcmp(theFunc->Name, "CreateArray") == 0 &&
-           strcmp(data->Name, "vtkArray") == 0) ||
-          (strcmp(theFunc->Name, "GetQueryInstance") == 0 &&
-           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
-          (strcmp(theFunc->Name, "CreateFromURL") == 0 &&
-           strcmp(data->Name, "vtkSQLDatabase") == 0) ||
-          (strcmp(theFunc->Name, "MakeTransform") == 0 &&
-           vtkWrap_IsTypeOf(hinfo, data->Name, "vtkAbstractTransform")))
+          strcmp(theFunc->Name, "NewIterator") == 0 ||
+          strcmp(theFunc->Name, "CreateInstance") == 0)
         {
-        theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+        if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)
+          {
+          /* get the command-line options */
+          options = vtkParse_GetCommandLineOptions();
+          fprintf(stderr, "Warning: %s without VTK_NEWINSTANCE hint in %s\n",
+            theFunc->Name, options->InputFileName);
+          theFunc->ReturnValue->Type |= VTK_PARSE_NEWINSTANCE;
+          }
         }
       }
     }

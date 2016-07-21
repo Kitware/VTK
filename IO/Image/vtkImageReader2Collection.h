@@ -42,12 +42,10 @@ public:
   // Get the next image reader in the list.
   vtkImageReader2 *GetNextItem();
 
-  //BTX
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the
   // same cookie back and forth.
   vtkImageReader2 *GetNextImageReader2(vtkCollectionSimpleIterator &cookie);
-  //ETX
 
 protected:
   vtkImageReader2Collection() {}
@@ -59,8 +57,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkImageReader2Collection(const vtkImageReader2Collection&);  // Not implemented.
-  void operator=(const vtkImageReader2Collection&);  // Not implemented.
+  vtkImageReader2Collection(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageReader2Collection&) VTK_DELETE_FUNCTION;
 };
 
 #endif

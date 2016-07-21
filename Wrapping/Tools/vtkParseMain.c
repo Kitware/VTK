@@ -406,6 +406,9 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
 
+  /* pre-define the __VTK_WRAP__ macro */
+  vtkParse_DefineMacro("__VTK_WRAP__", 0);
+
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);
   parse_expand_args(&strings, argc, argv, &argn, &args);
@@ -454,13 +457,6 @@ FileInfo *vtkParse_Main(int argc, char *argv[])
     fprintf(stderr, "No output file was specified\n");
     fclose(ifile);
     exit(1);
-    }
-
-  /* if a hierarchy is was given, then BTX/ETX can be ignored */
-  vtkParse_SetIgnoreBTX(0);
-  if (options.HierarchyFileNames)
-    {
-    vtkParse_SetIgnoreBTX(1);
     }
 
   /* parse the input file */
@@ -522,6 +518,9 @@ void vtkParse_MainMulti(int argc, char *argv[])
 
   /* set the command name for diagnostics */
   vtkParse_SetCommandName(parse_exename(argv[0]));
+
+  /* pre-define the __VTK_WRAP__ macro */
+  vtkParse_DefineMacro("__VTK_WRAP__", 0);
 
   /* expand any "@file" args */
   vtkParse_InitStringCache(&strings);

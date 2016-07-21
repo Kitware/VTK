@@ -59,8 +59,8 @@ protected:
                           vtkInformationVector *outputVector);
 
 private:
-  vtkImageRange3D(const vtkImageRange3D&);  // Not implemented.
-  void operator=(const vtkImageRange3D&);  // Not implemented.
+  vtkImageRange3D(const vtkImageRange3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageRange3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

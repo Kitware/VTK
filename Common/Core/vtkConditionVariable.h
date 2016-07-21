@@ -32,7 +32,6 @@
 
 #include "vtkMutexLock.h" // Need for friend access to vtkSimpleMutexLock
 
-//BTX
 #if defined(VTK_USE_PTHREADS) || defined(VTK_HP_PTHREADS)
 #  include <pthread.h> // Need POSIX thread implementation of mutex (even win32 provides mutexes)
 typedef pthread_cond_t vtkConditionType;
@@ -140,8 +139,6 @@ private:
   vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs); // no copy assignment
 };
 
-//ETX
-
 class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
 {
 public:
@@ -170,16 +167,13 @@ public:
 protected:
   vtkConditionVariable() { }
 
-  //BTX
   vtkSimpleConditionVariable SimpleConditionVariable;
-  //ETX
 
 private:
-  vtkConditionVariable( const vtkConditionVariable& ); // Not implemented.
-  void operator = ( const vtkConditionVariable& ); // Not implemented.
+  vtkConditionVariable( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkConditionVariable& ) VTK_DELETE_FUNCTION;
 };
 
-//BTX
 inline void vtkConditionVariable::Signal()
 {
   this->SimpleConditionVariable.Signal();
@@ -194,6 +188,5 @@ inline int vtkConditionVariable::Wait( vtkMutexLock* lock )
 {
   return this->SimpleConditionVariable.Wait( lock->SimpleMutexLock );
 }
-//ETX
 
 #endif // vtkConditionVariable_h

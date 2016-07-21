@@ -48,8 +48,8 @@ public:
 
   // Description:
   // Equality Operator
-  int operator==(const vtkBoundingBox &bbox)const;
-  int operator!=(const vtkBoundingBox &bbox)const;
+  bool operator==(const vtkBoundingBox &bbox)const;
+  bool operator!=(const vtkBoundingBox &bbox)const;
 
   // Description:
   // Set the bounds explicitly of the box (vtk Style)
@@ -308,7 +308,7 @@ inline vtkBoundingBox &vtkBoundingBox::operator=(const vtkBoundingBox &bbox)
   return *this;
 }
 
-inline int vtkBoundingBox::operator==(const vtkBoundingBox &bbox)const
+inline bool vtkBoundingBox::operator==(const vtkBoundingBox &bbox)const
 {
   return ((this->MinPnt[0] == bbox.MinPnt[0]) &&
           (this->MinPnt[1] == bbox.MinPnt[1]) &&
@@ -318,7 +318,7 @@ inline int vtkBoundingBox::operator==(const vtkBoundingBox &bbox)const
           (this->MaxPnt[2] == bbox.MaxPnt[2]));
 }
 
-inline int vtkBoundingBox::operator!=(const vtkBoundingBox &bbox)const
+inline bool vtkBoundingBox::operator!=(const vtkBoundingBox &bbox)const
 {
   return !((*this) == bbox);
 }

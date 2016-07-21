@@ -143,23 +143,35 @@ public:
   static vtkSOADataArrayTemplate<ValueType>*
   FastDownCast(vtkAbstractArray *source)
   {
-    switch (source->GetArrayType())
+    if (source)
       {
-      case vtkAbstractArray::SoADataArrayTemplate:
-        if (vtkDataTypesCompare(source->GetDataType(),
-                                vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-          {
-          return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
-          }
-        break;
+      switch (source->GetArrayType())
+        {
+        case vtkAbstractArray::SoADataArrayTemplate:
+          if (vtkDataTypesCompare(source->GetDataType(),
+                                  vtkTypeTraits<ValueType>::VTK_TYPE_ID))
+            {
+            return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
+            }
+          break;
+        }
       }
     return NULL;
   }
 
   virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
-  virtual vtkArrayIterator *NewIterator();
+  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
   virtual void SetNumberOfComponents(int numComps);
   virtual void ShallowCopy(vtkDataArray *other);
+
+  // Reimplemented for efficiency:
+  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source);
+  // MSVC doesn't like 'using' here (error C2487). Just forward instead:
+  //  using Superclass::InsertTuples;
+  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source)
+  { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:
   vtkSOADataArrayTemplate();
@@ -181,8 +193,8 @@ protected:
   double NumberOfComponentsReciprocal;
 
 private:
-  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&); // Not implemented.
-  void operator=(const vtkSOADataArrayTemplate&); // Not implemented.
+  vtkSOADataArrayTemplate(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSOADataArrayTemplate&) VTK_DELETE_FUNCTION;
 
   inline void GetTupleIndexFromValueIndex(vtkIdType valueIdx,
                                           vtkIdType& tupleIdx, int& comp) const

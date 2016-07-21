@@ -35,7 +35,6 @@ public:
   vtkTypeMacro(vtkReflectionFilter, vtkDataObjectAlgorithm);
   void PrintSelf(ostream &os, vtkIndent indent);
 
-//BTX
   enum ReflectionPlane
   {
     USE_X_MIN = 0,
@@ -48,7 +47,6 @@ public:
     USE_Y = 7,
     USE_Z = 8
   };
-//ETX
 
   // Description:
   // Set the normal of the plane to use as mirror.
@@ -108,8 +106,8 @@ protected:
   void FlipVector(double tuple[3], int mirrorDir[3]);
 
 private:
-  vtkReflectionFilter(const vtkReflectionFilter&);  // Not implemented
-  void operator=(const vtkReflectionFilter&);  // Not implemented
+  vtkReflectionFilter(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkReflectionFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

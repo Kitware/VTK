@@ -67,14 +67,12 @@ public:
   vtkSetClampMacro(CornerOffset,double,0.0,0.4);
   vtkGetMacro(CornerOffset,double);
 
-//BTX
   enum {
     TopSlider=0,
     RightSlider,
     BottomSlider,
     LeftSlider
   };
-//ETX
 
   // Description:
   // This method is invoked by the vtkCheckerboardWidget() when a value of some
@@ -125,8 +123,8 @@ protected:
   int OrthoAxis;
 
 private:
-  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&);  //Not implemented
-  void operator=(const vtkCheckerboardRepresentation&);  //Not implemented
+  vtkCheckerboardRepresentation(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCheckerboardRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

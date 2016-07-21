@@ -246,7 +246,7 @@ void vtkImagePlaneWidget::SetTextureVisibility(int vis)
 
   if ( this->Enabled )
     {
-    if (this->TextureVisibility)
+    if (this->TextureVisibility && this->ImageData)
       {
       this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
       }
@@ -304,7 +304,7 @@ void vtkImagePlaneWidget::SetEnabled(int enabling)
     this->PlaneOutlineActor->SetProperty(this->PlaneProperty);
 
     //add the TexturePlaneActor
-    if (this->TextureVisibility)
+    if (this->TextureVisibility && this->ImageData)
       {
       this->CurrentRenderer->AddViewProp(this->TexturePlaneActor);
       }

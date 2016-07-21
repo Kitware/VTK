@@ -187,7 +187,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
 
     // Downcast columns to typed arrays for efficient data access
     vtkAbstractArray* vals =  histoTab->GetColumnByName( "Value" );
-    vtkIdTypeArray* card = vtkIdTypeArray::SafeDownCast( histoTab->GetColumnByName( "Cardinality" ) );
+    vtkIdTypeArray* card = vtkArrayDownCast<vtkIdTypeArray>( histoTab->GetColumnByName( "Cardinality" ) );
     if ( ! vals || ! card )
       {
       vtkErrorMacro("Column fetching error on process "
@@ -219,7 +219,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     if ( vals->IsA("vtkDataArray") )
       {
       // Downcast column to data array for subsequent typed message passing
-      vtkDataArray* dVals = vtkDataArray::SafeDownCast( vals );
+      vtkDataArray* dVals = vtkArrayDownCast<vtkDataArray>( vals );
 
       // Create column for global histogram values of the same type as the values
       vtkDataArray* dVals_g = vtkDataArray::CreateDataArray( dVals->GetDataType() );
@@ -274,7 +274,7 @@ void vtkPOrderStatistics::Learn( vtkTable* inData,
     else if ( vals->IsA("vtkStringArray") )
       {
       // Downcast column to string array for subsequent typed message passing
-      vtkStringArray* sVals = vtkStringArray::SafeDownCast( vals );
+      vtkStringArray* sVals = vtkArrayDownCast<vtkStringArray>( vals );
 
       // Packing step: concatenate all string values
       vtkStdString sPack_l;

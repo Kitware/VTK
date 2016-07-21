@@ -1,18 +1,25 @@
 set(Module_SRCS
   vtkImageDataLIC2D.cxx
+  vtkLICNoiseHelper.cxx
   vtkLineIntegralConvolution2D.cxx
   vtkStructuredGridLIC2D.cxx
   vtkSurfaceLICComposite.cxx
+  vtkSurfaceLICHelper.cxx
+  vtkSurfaceLICInterface.cxx
   vtkSurfaceLICMapper.cxx
   vtkCompositeSurfaceLICMapper.cxx
   vtkTextureIO.cxx
   )
 
 set_source_files_properties(
+  vtkLICNoiseHelper.cxx
+  vtkSurfaceLICHelper.cxx
   vtkLineIntegralConvolution2D.cxx
   vtkSurfaceLICComposite.cxx
   vtkTextureIO.cxx
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 if (VTK_RENDERINGPARALLELLIC_SURFACELICPAINTER_TIMER)
@@ -32,9 +39,9 @@ set(shader_files
   vtkLineIntegralConvolution2D_AAH.glsl
   vtkLineIntegralConvolution2D_AAV.glsl
   vtkStructuredGridLIC2D_fs.glsl
-  vtkSurfaceLICMapper_SC.glsl
-  vtkSurfaceLICMapper_CE.glsl
-  vtkSurfaceLICMapper_DCpy.glsl
+  vtkSurfaceLICInterface_SC.glsl
+  vtkSurfaceLICInterface_CE.glsl
+  vtkSurfaceLICInterface_DCpy.glsl
   )
 unset(shader_h_files)
 foreach(file ${shader_files})

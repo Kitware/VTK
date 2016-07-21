@@ -75,7 +75,6 @@ public:
 
   static vtkMatlabMexAdapter *New();
 
-//BTX
   // Description:
   // Create a mxArray copy of a vtkDataArray (Allocates memory by default)
   mxArray* vtkDataArrayToMxArray(vtkDataArray* aa, bool ShallowCopy = false);
@@ -112,8 +111,6 @@ public:
   // Match Matlab and VTK data types for conversion.
   static vtkDataArray* GetVTKDataType(mxClassID cid);
 
-//ETX
-
 protected:
 
   vtkMatlabMexAdapter();
@@ -121,8 +118,8 @@ protected:
 
 private:
 
-  vtkMatlabMexAdapter(const vtkMatlabMexAdapter&); // Not implemented
-  void operator=(const vtkMatlabMexAdapter&); // Not implemented
+  vtkMatlabMexAdapter(const vtkMatlabMexAdapter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMatlabMexAdapter&) VTK_DELETE_FUNCTION;
 
   template<typename T> vtkArray* CopymxArrayToVTKArray(mxArray* mxa, int ValueType);
 

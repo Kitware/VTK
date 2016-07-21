@@ -185,16 +185,14 @@ private:
   vtkMergeCellsSTLCloak *GlobalIdMap;
   vtkMergeCellsSTLCloak *GlobalCellIdMap;
 
-//BTX
   vtkDataSetAttributes::FieldList *ptList;
   vtkDataSetAttributes::FieldList *cellList;
-//ETX
 
   vtkUnstructuredGrid *UnstructuredGrid;
 
   int nextGrid;
 
-  vtkMergeCells(const vtkMergeCells&); // Not implemented
-  void operator=(const vtkMergeCells&); // Not implemented
+  vtkMergeCells(const vtkMergeCells&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMergeCells&) VTK_DELETE_FUNCTION;
 };
 #endif

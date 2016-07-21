@@ -47,9 +47,9 @@ endif()
 
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   list(APPEND Module_SRCS
-    vtkPSurfaceLICMapper.cxx
+    vtkPSurfaceLICInterface.cxx
     )
-  vtk_add_override(vtkSurfaceLICMapper vtkPSurfaceLICMapper)
+  vtk_add_override(vtkSurfaceLICInterface vtkPSurfaceLICInterface)
   set(shader_files
     vtkPSurfaceLICComposite_CompFS.glsl
     )

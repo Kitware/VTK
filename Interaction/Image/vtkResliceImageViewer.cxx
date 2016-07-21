@@ -52,7 +52,7 @@ public:
   static vtkResliceImageViewerScrollCallback *New()
     { return new vtkResliceImageViewerScrollCallback; }
 
-  virtual void Execute(vtkObject *, unsigned long ev, void*)
+  void Execute(vtkObject *, unsigned long ev, void*) VTK_OVERRIDE
     {
     if (!this->Viewer->GetSliceScrollOnMouseWheel())
       {

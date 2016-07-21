@@ -232,12 +232,10 @@ public:
   // (has the vtkDataSetAttributes::DUPLICATECELL bit set).
   void RemoveGhostCells();
 
-  //BTX
   // Description:
   // Retrieve an instance of this class from an information object.
   static vtkUnstructuredGrid* GetData(vtkInformation* info);
   static vtkUnstructuredGrid* GetData(vtkInformationVector* v, int i=0);
-  //ETX
 
   // Description:
   // Special support for polyhedron. Return NULL for all other cell types.
@@ -371,8 +369,8 @@ protected:
 
 private:
   // Hide these from the user and the compiler.
-  vtkUnstructuredGrid(const vtkUnstructuredGrid&);  // Not implemented.
-  void operator=(const vtkUnstructuredGrid&);  // Not implemented.
+  vtkUnstructuredGrid(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGrid&) VTK_DELETE_FUNCTION;
 
   void Cleanup();
 };

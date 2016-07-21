@@ -141,7 +141,6 @@ public:
   // Make a deep copy of the supplied brush.
   void DeepCopy(vtkBrush *brush);
 
-//BTX
 protected:
   vtkBrush();
   ~vtkBrush();
@@ -153,9 +152,9 @@ protected:
   int            TextureProperties;
 
 private:
-  vtkBrush(const vtkBrush &); // Not implemented.
-  void operator=(const vtkBrush &);   // Not implemented.
-//ETX
+  vtkBrush(const vtkBrush &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBrush &) VTK_DELETE_FUNCTION;
+
 };
 
 #endif //vtkBrush_h

@@ -43,7 +43,7 @@ public:
     this->OrientationMarkerWidget = 0;
     }
 
-  virtual void Execute(vtkObject* wdg, unsigned long event, void *calldata)
+  void Execute(vtkObject* wdg, unsigned long event, void *calldata) VTK_OVERRIDE
     {
       if (this->OrientationMarkerWidget)
         {
@@ -66,8 +66,12 @@ vtkOrientationMarkerWidget::vtkOrientationMarkerWidget()
   this->Tolerance = 7;
   this->Moving = 0;
 
+  this->Viewport[0] = 0.0;
+  this->Viewport[1] = 0.0;
+  this->Viewport[2] = 0.2;
+  this->Viewport[3] = 0.2;
+
   this->Renderer = vtkRenderer::New();
-  this->Renderer->SetViewport( 0.0, 0.0, 0.2, 0.2 );
   this->Renderer->SetLayer( 1 );
   this->Renderer->InteractiveOff();
 
@@ -149,6 +153,20 @@ void vtkOrientationMarkerWidget::SetEnabled(int enabling)
       }
 
     this->Enabled = 1;
+
+    // Compute the viewport for the widget w.r.t. to the current renderer
+    double currentViewport[4];
+    this->CurrentRenderer->GetViewport(currentViewport);
+    double vp[4], currentViewportRange[2];
+    for (int i = 0; i < 2; ++i)
+      {
+      currentViewportRange[i] = currentViewport[i+2] - currentViewport[i];
+      vp[i] = this->Viewport[i] * currentViewportRange[i] +
+              currentViewport[i];
+      vp[i+2] = this->Viewport[i+2] * currentViewportRange[i] +
+              currentViewport[i];
+      }
+    this->Renderer->SetViewport(vp);
 
     vtkRenderWindow* renwin = this->CurrentRenderer->GetRenderWindow();
     renwin->AddRenderer( this->Renderer );
@@ -477,6 +495,7 @@ void vtkOrientationMarkerWidget::SquareRenderer()
     this->Renderer->DisplayToNormalizedDisplay( vp[0], vp[1] );
     this->Renderer->DisplayToNormalizedDisplay( vp[2], vp[3] );
     this->Renderer->SetViewport( vp );
+    this->UpdateViewport();
     }
 }
 
@@ -644,6 +663,7 @@ void vtkOrientationMarkerWidget::MoveWidget(int X, int Y)
   this->Renderer->DisplayToNormalizedDisplay( newPos[2], newPos[3] );
 
   this->Renderer->SetViewport( newPos );
+  this->UpdateViewport();
 }
 
 //-------------------------------------------------------------------------
@@ -706,6 +726,7 @@ void vtkOrientationMarkerWidget::ResizeTopLeft(int X, int Y)
   this->Renderer->DisplayToNormalizedDisplay( newPos[2], newPos[3] );
 
   this->Renderer->SetViewport( newPos );
+  this->UpdateViewport();
 }
 
 //-------------------------------------------------------------------------
@@ -768,6 +789,7 @@ void vtkOrientationMarkerWidget::ResizeTopRight(int X, int Y)
   this->Renderer->DisplayToNormalizedDisplay( newPos[2], newPos[3] );
 
   this->Renderer->SetViewport( newPos );
+  this->UpdateViewport();
 }
 
 //-------------------------------------------------------------------------
@@ -830,6 +852,7 @@ void vtkOrientationMarkerWidget::ResizeBottomRight(int X, int Y)
   this->Renderer->DisplayToNormalizedDisplay( newPos[2], newPos[3] );
 
   this->Renderer->SetViewport( newPos );
+  this->UpdateViewport();
 }
 
 //-------------------------------------------------------------------------
@@ -892,6 +915,7 @@ void vtkOrientationMarkerWidget::ResizeBottomLeft(int X, int Y)
   this->Renderer->DisplayToNormalizedDisplay( newPos[2], newPos[3] );
 
   this->Renderer->SetViewport( newPos );
+  this->UpdateViewport();
 }
 
 //-------------------------------------------------------------------------
@@ -911,22 +935,25 @@ double* vtkOrientationMarkerWidget::GetOutlineColor()
 }
 
 //-------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::SetViewport(double minX, double minY,
-                                  double maxX, double maxY)
+void vtkOrientationMarkerWidget::UpdateViewport()
 {
-  this->Renderer->SetViewport( minX, minY, maxX, maxY );
-}
+  if (!this->CurrentRenderer)
+    {
+    return;
+    }
+  double currentViewport[4];
+  this->CurrentRenderer->GetViewport(currentViewport);
 
-//-------------------------------------------------------------------------
-void vtkOrientationMarkerWidget::SetViewport(double viewport[4])
-{
-  this->Renderer->SetViewport(viewport);
-}
+  double vp[4];
+  this->Renderer->GetViewport(vp);
 
-//-------------------------------------------------------------------------
-double* vtkOrientationMarkerWidget::GetViewport()
-{
-  return this->Renderer->GetViewport();
+  double cvpRange[2];
+  for (int i = 0; i < 2; ++i)
+    {
+    cvpRange[i] = currentViewport[i+2] - currentViewport[i];
+    this->Viewport[i] = (vp[i] - currentViewport[i]) / cvpRange[i];
+    this->Viewport[i+2] = (vp[i+2] - currentViewport[i]) / cvpRange[i];
+    }
 }
 
 //-------------------------------------------------------------------------
@@ -937,4 +964,7 @@ void vtkOrientationMarkerWidget::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OrientationMarker: " << this->OrientationMarker << endl;
   os << indent << "Interactive: " << this->Interactive << endl;
   os << indent << "Tolerance: " << this->Tolerance << endl;
+  os << indent << "Viewport: (" << this->Viewport[0] << ", "
+    << this->Viewport[1] << ", " << this->Viewport[2] << ", "
+      << this->Viewport[3] << ")\n";
 }

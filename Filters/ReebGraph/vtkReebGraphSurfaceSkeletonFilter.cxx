@@ -113,13 +113,13 @@ int vtkReebGraphSurfaceSkeletonFilter::RequestData(vtkInformation* vtkNotUsed(re
       {
 
       // Retrieve the information regarding the critical noes.
-      vtkDataArray  *vertexInfo = vtkDataArray::SafeDownCast(
+      vtkDataArray  *vertexInfo = vtkArrayDownCast<vtkDataArray>(
         inputGraph->GetVertexData()->GetAbstractArray("Vertex Ids"));
       if(!vertexInfo)
         // invalid Reeb graph (no information associated to the vertices)
         return 0;
 
-      vtkVariantArray *edgeInfo = vtkVariantArray::SafeDownCast(
+      vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
         inputGraph->GetEdgeData()->GetAbstractArray("Vertex Ids"));
       if(!edgeInfo)
         // invalid Reeb graph (no information associated to the edges)

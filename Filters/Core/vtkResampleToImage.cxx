@@ -15,14 +15,16 @@
 #include "vtkResampleToImage.h"
 
 #include "vtkCharArray.h"
+#include "vtkCompositeDataProbeFilter.h"
+#include "vtkCompositeDataIterator.h"
+#include "vtkCompositeDataSet.h"
 #include "vtkIdList.h"
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
-#include "vtkNew.h"
+#include "vtkMath.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
-#include "vtkProbeFilter.h"
 #include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkUnsignedCharArray.h"
 
@@ -47,6 +49,26 @@ vtkResampleToImage::vtkResampleToImage()
 //----------------------------------------------------------------------------
 vtkResampleToImage::~vtkResampleToImage()
 {
+}
+
+//----------------------------------------------------------------------------
+void vtkResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os, indent);
+  os << indent << "UseInputBounds " << this->UseInputBounds << endl;
+  os << indent << "SamplingBounds ["
+     << this->SamplingBounds[0] << ", "
+     << this->SamplingBounds[1] << ", "
+     << this->SamplingBounds[2] << ", "
+     << this->SamplingBounds[3] << ", "
+     << this->SamplingBounds[4] << ", "
+     << this->SamplingBounds[5] << "]"
+     << endl;
+  os << indent << "SamplingDimensions "
+     << this->SamplingDimensions[0] << " x "
+     << this->SamplingDimensions[1] << " x "
+     << this->SamplingDimensions[2] << endl;
+  this->Prober->PrintSelf(os, indent);
 }
 
 //----------------------------------------------------------------------------
@@ -120,6 +142,7 @@ int vtkResampleToImage::FillInputPortInformation(int vtkNotUsed(port),
                                                   vtkInformation *info)
 {
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
+  info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkCompositeDataSet");
   return 1;
 }
 
@@ -132,18 +155,112 @@ int vtkResampleToImage::FillOutputPortInformation(int vtkNotUsed(port),
 }
 
 //----------------------------------------------------------------------------
-void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data,
-                                                const char *maskArrayName)
+const char* vtkResampleToImage::GetMaskArrayName() const
 {
+  return this->Prober->GetValidPointMaskArrayName();
+}
+
+//----------------------------------------------------------------------------
+namespace
+{
+
+inline void ComputeBoundingExtent(const double origin[3], const double spacing[3],
+                                  const double bounds[6], int extent[6])
+{
+  for (int i = 0; i < 3; ++i)
+    {
+    if (spacing[i] != 0.0)
+      {
+      extent[2*i] =
+        static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
+      extent[2*i + 1] =
+        static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
+      }
+    else
+      {
+      extent[2*i] = extent[2*i + 1] = 0;
+      }
+    }
+}
+
+} // anonymous namespace
+
+void vtkResampleToImage::PerformResampling(vtkDataObject *input,
+                                           const double samplingBounds[6],
+                                           bool computeProbingExtent,
+                                           const double inputBounds[6],
+                                           vtkImageData *output)
+{
+  if (this->SamplingDimensions[0] <= 0 ||
+      this->SamplingDimensions[1] <= 0 ||
+      this->SamplingDimensions[2] <= 0)
+    {
+    return;
+    }
+
+  // compute bounds and extent where probing should be performed
+  double origin[3] = { samplingBounds[0], samplingBounds[2], samplingBounds[4] };
+  double spacing[3];
+  for (int i = 0; i < 3; ++i)
+    {
+    spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
+                 ((samplingBounds[i*2 + 1] - samplingBounds[i*2]) /
+                  static_cast<double>(this->SamplingDimensions[i] - 1));
+    }
+
+  int *updateExtent = this->GetUpdateExtent();
+  int probingExtent[6];
+  if (computeProbingExtent)
+    {
+    ComputeBoundingExtent(origin, spacing, inputBounds, probingExtent);
+    for (int i = 0; i < 3; ++i)
+      {
+      probingExtent[2*i] = vtkMath::Max(probingExtent[2*i], updateExtent[2*i]);
+      probingExtent[2*i + 1] = vtkMath::Min(probingExtent[2*i + 1], updateExtent[2*i + 1]);
+      if (probingExtent[2*i] > probingExtent[2*i + 1]) // no overlap
+        {
+        probingExtent[0] = probingExtent[2] = probingExtent[4] = 0;
+        probingExtent[1] = probingExtent[3] = probingExtent[5] = -1;
+        break;
+        }
+      }
+    }
+  else
+    {
+    std::copy(updateExtent, updateExtent + 6, probingExtent);
+    }
+
+  // perform probing
+  vtkNew<vtkImageData> structure;
+  structure->SetOrigin(origin);
+  structure->SetSpacing(spacing);
+  structure->SetExtent(probingExtent);
+
+  this->Prober->SetInputData(structure.GetPointer());
+  this->Prober->SetSourceData(input);
+  this->Prober->Update();
+
+  output->ShallowCopy(this->Prober->GetOutput());
+}
+
+//----------------------------------------------------------------------------
+void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data)
+{
+  if (data->GetNumberOfPoints() <= 0)
+    {
+    return;
+    }
+
+  vtkPointData *pd = data->GetPointData();
+  vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(
+    pd->GetArray(this->GetMaskArrayName()));
+  char *mask = maskArray->GetPointer(0);
+
   data->AllocatePointGhostArray();
   vtkUnsignedCharArray *pointGhostArray = data->GetPointGhostArray();
 
   data->AllocateCellGhostArray();
   vtkUnsignedCharArray *cellGhostArray = data->GetCellGhostArray();
-
-  vtkPointData *pd = data->GetPointData();
-  vtkCharArray *maskArray = vtkCharArray::SafeDownCast(pd->GetArray(maskArrayName));
-  char *mask = maskArray->GetPointer(0);
 
   vtkNew<vtkIdList> pointCells;
   pointCells->Allocate(8);
@@ -178,78 +295,57 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   // get the input and output
-  vtkDataSet *input = vtkDataSet::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+  vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkImageData *output = vtkImageData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (this->SamplingDimensions[0] <= 0 ||
-      this->SamplingDimensions[1] <= 0 ||
-      this->SamplingDimensions[2] <= 0)
+  double samplingBounds[6];
+  if (this->UseInputBounds)
     {
-    return 1;
-    }
-
-  double inputBounds[6];
-  input->GetBounds(inputBounds);
-
-  // compute bounds and extent where probing should be performed
-  double *wholeBounds = this->UseInputBounds ? inputBounds : this->SamplingBounds;
-  double origin[3] = { wholeBounds[0], wholeBounds[2], wholeBounds[4] };
-  double spacing[3];
-  for (int i = 0; i < 3; ++i)
-    {
-    spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
-                 ((wholeBounds[i*2 + 1] - wholeBounds[i*2]) /
-                  static_cast<double>(this->SamplingDimensions[i] - 1));
-    }
-
-  int extent[6];
-  if (outInfo->Has(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()))
-    {
-    int *updateExtent = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
-    std::copy(updateExtent, updateExtent + 6, extent);
+    ComputeDataBounds(input, samplingBounds);
     }
   else
     {
-    extent[0] = extent[2] = extent[4] = 0;
-    extent[1] = this->SamplingDimensions[0] - 1;
-    extent[3] = this->SamplingDimensions[1] - 1;
-    extent[5] = this->SamplingDimensions[2] - 1;
+    std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
     }
 
-  // perform probing
-  vtkNew<vtkImageData> structure;
-  structure->SetOrigin(origin);
-  structure->SetSpacing(spacing);
-  structure->SetExtent(extent);
+  this->PerformResampling(input, samplingBounds, false, NULL, output);
+  this->SetBlankPointsAndCells(output);
 
-  vtkNew<vtkProbeFilter> prober;
-  prober->SetInputData(structure.GetPointer());
-  prober->SetSourceData(input);
-  prober->Update();
-
-  const char *maskArrayName = prober->GetValidPointMaskArrayName();
-  output->ShallowCopy(prober->GetOutput());
-  vtkResampleToImage::SetBlankPointsAndCells(output, maskArrayName);
   return 1;
 }
 
+
 //----------------------------------------------------------------------------
-void vtkResampleToImage::PrintSelf(ostream& os, vtkIndent indent)
+void vtkResampleToImage::ComputeDataBounds(vtkDataObject* data, double bounds[6])
 {
-  this->Superclass::PrintSelf(os, indent);
-  os << indent << "UseInputBounds " << this->UseInputBounds << endl;
-  os << indent << "SamplingBounds ["
-     << this->SamplingBounds[0] << ", "
-     << this->SamplingBounds[1] << ", "
-     << this->SamplingBounds[2] << ", "
-     << this->SamplingBounds[3] << ", "
-     << this->SamplingBounds[4] << ", "
-     << this->SamplingBounds[5] << "]"
-     << endl;
-  os << indent << "SamplingDimensions "
-     << this->SamplingDimensions[0] << " x "
-     << this->SamplingDimensions[1] << " x "
-     << this->SamplingDimensions[2] << endl;
+  if (vtkDataSet::SafeDownCast(data))
+    {
+    vtkDataSet::SafeDownCast(data)->GetBounds(bounds);
+    }
+  else
+    {
+    vtkCompositeDataSet *cdata = vtkCompositeDataSet::SafeDownCast(data);
+    bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
+    bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
+
+    vtkCompositeDataIterator *iter = cdata->NewIterator();
+    for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
+      {
+      vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (!ds)
+        {
+        vtkGenericWarningMacro("vtkCompositeDataSet leaf not vtkDataSet. Skipping.");
+        continue;
+        }
+      double b[6];
+      ds->GetBounds(b);
+      for (int i = 0; i < 3; ++i)
+        {
+        bounds[2*i] = vtkMath::Min(bounds[2*i], b[2*i]);
+        bounds[2*i + 1] = vtkMath::Max(bounds[2*i + 1], b[2*i + 1]);
+        }
+      }
+    iter->Delete();
+    }
 }

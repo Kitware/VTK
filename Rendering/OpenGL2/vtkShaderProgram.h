@@ -186,7 +186,6 @@ public:
   // only valid for OpenGL 3.2 or later
   vtkSetMacro(NumberOfOutputs,unsigned int);
 
-//BTX
   // Description:
   // perform in place string substitutions, indicate if a substitution was done
   // this is useful for building up shader strings which typically involve
@@ -202,6 +201,11 @@ public:
   // this shader.  This can save some compute time if the uniforms
   // or attributes are expensive to compute
   bool IsUniformUsed(const char *);
+
+  // Description:
+  // Return true if the compiled and linked shader has an attribute matching @a
+  // name.
+  bool IsAttributeUsed(const char *name);
 
 protected:
   vtkShaderProgram();
@@ -280,10 +284,10 @@ protected:
 
   std::string Error;
 
-  std::map<std::string, int> Attributes;
+  std::map<std::string, int> AttributeLocs;
 
 
-  std::map<std::string, bool> UniformsUsed;
+  std::map<std::string, int> UniformLocs;
 
   friend class VertexArrayObject;
 
@@ -291,9 +295,9 @@ private:
   int FindAttributeArray(const char *name);
   int FindUniform(const char *name);
 
-  vtkShaderProgram(const vtkShaderProgram&);  // Not implemented.
-  void operator=(const vtkShaderProgram&);  // Not implemented.
-//ETX
+  vtkShaderProgram(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkShaderProgram&) VTK_DELETE_FUNCTION;
+
 };
 
 

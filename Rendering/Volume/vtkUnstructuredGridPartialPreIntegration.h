@@ -94,15 +94,14 @@ protected:
   vtkTimeStamp TransferFunctionsModified;
   int NumIndependentComponents;
 
-//BTX
   enum {PSI_TABLE_SIZE = 512};
-//ETX
+
   static float PsiTable[PSI_TABLE_SIZE*PSI_TABLE_SIZE];
   static int PsiTableBuilt;
 
 private:
-  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridPartialPreIntegration&);  // Not implemented.
+  vtkUnstructuredGridPartialPreIntegration(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridPartialPreIntegration&) VTK_DELETE_FUNCTION;
 };
 
 inline float vtkUnstructuredGridPartialPreIntegration::Psi(float taufD,

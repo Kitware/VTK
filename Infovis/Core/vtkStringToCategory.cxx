@@ -73,7 +73,7 @@ int vtkStringToCategory::RequestData(
   vtkTable* stringTable =
       vtkTable::SafeDownCast(outKeyInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkStringArray* strings =
-      vtkStringArray::SafeDownCast(stringTable->GetColumnByName("Strings"));
+      vtkArrayDownCast<vtkStringArray>(stringTable->GetColumnByName("Strings"));
   if (strings)
     {
     strings->SetNumberOfTuples(0);
@@ -87,7 +87,7 @@ int vtkStringToCategory::RequestData(
     }
 
   vtkAbstractArray* arr = this->GetInputAbstractArrayToProcess(0, 0, inputVector);
-  vtkStringArray* stringArr = vtkStringArray::SafeDownCast(arr);
+  vtkStringArray* stringArr = vtkArrayDownCast<vtkStringArray>(arr);
   if (!stringArr)
     {
     vtkErrorMacro("String array input could not be found");

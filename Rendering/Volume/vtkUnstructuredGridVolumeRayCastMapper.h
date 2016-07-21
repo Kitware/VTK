@@ -96,7 +96,6 @@ public:
   virtual void SetRayIntegrator(vtkUnstructuredGridVolumeRayIntegrator *ri);
   vtkGetObjectMacro(RayIntegrator, vtkUnstructuredGridVolumeRayIntegrator);
 
-//BTX
   // Description:
   // WARNING: INTERNAL METHOD - NOT INTENDED FOR GENERAL USE
   // Initialize rendering for this volume.
@@ -112,8 +111,6 @@ public:
   vtkGetVectorMacro( ImageInUseSize, int, 2 );
   vtkGetVectorMacro( ImageOrigin, int, 2 );
   vtkGetVectorMacro( ImageViewportSize, int , 2 );
-
-//ETX
 
   void CastRays( int threadID, int threadCount );
 
@@ -193,8 +190,8 @@ protected:
   int           CellScalars;
 
 private:
-  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
-  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&);  // Not implemented.
+  vtkUnstructuredGridVolumeRayCastMapper(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUnstructuredGridVolumeRayCastMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

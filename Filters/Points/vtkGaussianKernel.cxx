@@ -20,6 +20,7 @@
 #include "vtkDataSet.h"
 #include "vtkPointData.h"
 #include "vtkMath.h"
+#include "vtkMathUtilities.h"
 
 vtkStandardNewMacro(vtkGaussianKernel);
 
@@ -66,7 +67,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
     this->DataSet->GetPoint(id,y);
     d2 = vtkMath::Distance2BetweenPoints(x,y);
 
-    if ( d2 == 0.0 ) //precise hit on existing point
+    if ( vtkMathUtilities::FuzzyCompare(d2, 0.0, std::numeric_limits<double>::epsilon()*256.0 )) //precise hit on existing point
       {
       pIds->SetNumberOfIds(1);
       pIds->SetId(0,id);
@@ -82,7 +83,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *prob,
     }//over all points
 
   // Normalize
-  if ( sum != 0.0 )
+  if ( this->NormalizeWeights && sum != 0.0 )
     {
     for (i=0; i<numPts; ++i)
       {
@@ -98,5 +99,5 @@ void vtkGaussianKernel::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Sharpness: " << this->Sharpness << endl;
+  os << indent << "Sharpness: " << this->GetSharpness() << endl;
 }

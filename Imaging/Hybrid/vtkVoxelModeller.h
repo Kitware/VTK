@@ -128,8 +128,8 @@ protected:
   int ScalarType;
 
 private:
-  vtkVoxelModeller(const vtkVoxelModeller&);  // Not implemented.
-  void operator=(const vtkVoxelModeller&);  // Not implemented.
+  vtkVoxelModeller(const vtkVoxelModeller&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVoxelModeller&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -70,7 +70,6 @@ public:
     Outside=0,
     Inside
   };
-//ETX
 
   // Description:
   // These methods control the appearance of the button as it is being
@@ -97,8 +96,8 @@ protected:
   int HighlightState;
 
 private:
-  vtkButtonRepresentation(const vtkButtonRepresentation&);  //Not implemented
-  void operator=(const vtkButtonRepresentation&);  //Not implemented
+  vtkButtonRepresentation(const vtkButtonRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkButtonRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

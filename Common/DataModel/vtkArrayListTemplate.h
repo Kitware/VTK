@@ -39,6 +39,8 @@
 
 #include "vtkDataArray.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkSmartPointer.h"
+#include "vtkStdString.h"
 
 #include <vector>
 #include <algorithm>
@@ -49,7 +51,7 @@ struct BaseArrayPair
 {
   vtkIdType Num;
   int NumComp;
-  vtkDataArray *OutputArray;
+  vtkSmartPointer<vtkDataArray> OutputArray;
 
   BaseArrayPair(vtkIdType num, int numComp, vtkDataArray *outArray) :
     Num(num), NumComp(numComp), OutputArray(outArray)
@@ -134,12 +136,79 @@ struct ArrayPair : public BaseArrayPair
 
 };
 
+// Type specific interpolation on a pair of data arrays with different types, where the
+// output type is expected to be a real type (i.e., float or double).
+template <typename TInput, typename TOutput>
+struct RealArrayPair : public BaseArrayPair
+{
+  TInput *Input;
+  TOutput *Output;
+  TOutput  NullValue;
+
+  RealArrayPair(TInput *in, TOutput *out, vtkIdType num, int numComp, vtkDataArray *outArray, TOutput null) :
+    BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
+    {
+    }
+  virtual ~RealArrayPair()  //calm down some finicky compilers
+    {
+    }
+
+  virtual void Copy(vtkIdType inId, vtkIdType outId)
+    {
+    for (int j=0; j < this->NumComp; ++j)
+      {
+      this->Output[outId*this->NumComp+j] = static_cast<TOutput>(this->Input[inId*this->NumComp+j]);
+      }
+    }
+
+  virtual void Interpolate(int numWeights, const vtkIdType *ids,
+                           const double *weights, vtkIdType outId)
+    {
+    for (int j=0; j < this->NumComp; ++j)
+      {
+      double v = 0.0;
+      for (vtkIdType i=0; i < numWeights; ++i)
+        {
+        v += weights[i] * static_cast<double>(this->Input[ids[i]*this->NumComp+j]);
+        }
+      this->Output[outId*this->NumComp+j] = static_cast<TOutput>(v);
+      }
+    }
+
+  virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
+    {
+    double v;
+    vtkIdType numComp=this->NumComp;
+    for (int j=0; j < numComp; ++j)
+      {
+      v = this->Input[v0*numComp+j] +
+        t * (this->Input[v1*numComp+j] - this->Input[v0*numComp+j]);
+      this->Output[outId*numComp+j] = static_cast<TOutput>(v);
+      }
+    }
+
+  virtual void AssignNullValue(vtkIdType outId)
+    {
+    for (int j=0; j < this->NumComp; ++j)
+      {
+      this->Output[outId*this->NumComp+j] = this->NullValue;
+      }
+    }
+
+  virtual void Realloc(vtkIdType sze)
+    {
+      this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
+      this->Output = static_cast<TOutput*>(this->OutputArray->GetVoidPointer(0));
+    }
+
+};
+
 // Forward declarations. This makes working with vtkTemplateMacro easier.
 struct ArrayList;
 
 template <typename T>
 void CreateArrayPair(ArrayList *list, T *inData, T *outData,
-                     vtkIdType numPts, int numComp, T nullValue);
+                     vtkIdType numTuples, int numComp, T nullValue);
 
 
 // A list of the arrays to interpolate, and a method to invoke interpolation on the list
@@ -149,11 +218,18 @@ struct ArrayList
   std::vector<BaseArrayPair*> Arrays;
   std::vector<vtkDataArray*> ExcludedArrays;
 
-  // Add the arrays to interpolate here
+  // Add the arrays to interpolate here (from attribute data)
   void AddArrays(vtkIdType numOutPts, vtkDataSetAttributes *inPD,
-                 vtkDataSetAttributes *outPD, double nullValue=0.0);
+                 vtkDataSetAttributes *outPD, double nullValue=0.0,
+                 bool promote=true);
 
-  // Any array excluded here is not added by AddArrays(), hence not
+  // Add a pair of arrays (manual insertion). Returns the output array created,
+  // if any. No array may be created if \c inArray was previously marked as
+  // excluded using ExcludeArray().
+  vtkDataArray* AddArrayPair(vtkIdType numTuples, vtkDataArray *inArray,
+                             vtkStdString &outArrayName, double nullValue, bool promote);
+
+  // Any array excluded here is not added by AddArrays() or AddArrayPair, hence not
   // processed. Also check whether an array is excluded.
   void ExcludeArray(vtkDataArray *da);
   bool IsExcluded(vtkDataArray *da);

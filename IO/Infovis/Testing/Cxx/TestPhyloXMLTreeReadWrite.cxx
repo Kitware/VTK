@@ -88,7 +88,7 @@ bool VerifyArrayAttribute(vtkTree *tree, const char *arrayName,
 //----------------------------------------------------------------------------
 bool VerifyColor(vtkTree *tree, vtkIdType vertex, unsigned char r, unsigned char g, unsigned char b)
 {
-  vtkUnsignedCharArray *array = vtkUnsignedCharArray::SafeDownCast(
+  vtkUnsignedCharArray *array = vtkArrayDownCast<vtkUnsignedCharArray>(
     tree->GetVertexData()->GetAbstractArray("color"));
   if (!array)
     {

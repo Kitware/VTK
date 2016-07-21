@@ -89,13 +89,13 @@ int TestDataObjectToTable(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
 
     cerr << "Checking table ..." << endl;
     // Check the table
-    vtkIntArray* out1 = vtkIntArray::SafeDownCast(table->GetColumnByName("column1"));
+    vtkIntArray* out1 = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("column1"));
     if (!out1)
       {
       errors++;
       cerr << "ERROR: column1 not found when extracting field type " << type << endl;
       }
-    vtkIntArray* out2 = vtkIntArray::SafeDownCast(table->GetColumnByName("column2"));
+    vtkIntArray* out2 = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("column2"));
     if (!out2)
       {
       errors++;

@@ -218,7 +218,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     double v_weights[5] = {0.0,2.0,3.0,1.0,1.0};
     for (i = 0; i < outTree->GetNumberOfEdges(); i++)
       {
-      vtkDoubleArray * t_weights = vtkDoubleArray::SafeDownCast(outTree->GetEdgeData()->GetArray("weight"));
+      vtkDoubleArray * t_weights = vtkArrayDownCast<vtkDoubleArray>(outTree->GetEdgeData()->GetArray("weight"));
       test_expression(doubleEquals(t_weights->GetValue(i),double( v_weights[i]), 0.001));
       }
 
@@ -226,7 +226,7 @@ int TestRCalculatorFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     const char *  t_names[] ={"a","b","c","","",""};
     for (i = 0; i < outTree->GetNumberOfVertices(); i++)
       {
-      vtkStringArray * v_names = vtkStringArray::SafeDownCast(outTree->GetVertexData()->GetAbstractArray("node name"));
+      vtkStringArray * v_names = vtkArrayDownCast<vtkStringArray>(outTree->GetVertexData()->GetAbstractArray("node name"));
       test_expression(stringEquals(v_names->GetValue(i).c_str(), t_names[i] ));
       }
 

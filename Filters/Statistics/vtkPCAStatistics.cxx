@@ -64,8 +64,8 @@ void vtkPCAStatistics::GetEigenvalues(int request, vtkDoubleArray* eigenvalues)
     vtkErrorMacro(<<"NULL table pointer!");
     }
 
-  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
-  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+  vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkArrayDownCast<vtkStringArray>(outputMeta->GetColumnByName("Column"));
 
   eigenvalues->SetNumberOfComponents(1);
 
@@ -133,8 +133,8 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
     vtkErrorMacro(<<"NULL table pointer!");
     }
 
-  vtkDoubleArray* meanCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumnByName("Mean"));
-  vtkStringArray* rowNames = vtkStringArray::SafeDownCast(outputMeta->GetColumnByName("Column"));
+  vtkDoubleArray* meanCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumnByName("Mean"));
+  vtkStringArray* rowNames = vtkArrayDownCast<vtkStringArray>(outputMeta->GetColumnByName("Column"));
 
   eigenvectors->SetNumberOfComponents(numberOfEigenvalues);
 
@@ -152,7 +152,7 @@ void vtkPCAStatistics::GetEigenvectors(int request, vtkDoubleArray* eigenvectors
       for(int val = 0; val < numberOfEigenvalues; val++)
         {
         // The first two columns will always be "Column" and "Mean", so start with the next one
-        vtkDoubleArray* currentCol = vtkDoubleArray::SafeDownCast(outputMeta->GetColumn(val+2));
+        vtkDoubleArray* currentCol = vtkArrayDownCast<vtkDoubleArray>(outputMeta->GetColumn(val+2));
         eigenvector.push_back(currentCol->GetValue(i));
         }
 
@@ -199,12 +199,12 @@ public:
   static vtkPCAAssessFunctor* New();
 
   vtkPCAAssessFunctor() { }
-  virtual ~vtkPCAAssessFunctor() { }
+  ~vtkPCAAssessFunctor() VTK_OVERRIDE { }
   virtual bool InitializePCA(
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
+  void operator () ( vtkDoubleArray* result, vtkIdType row ) VTK_OVERRIDE;
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;
@@ -234,7 +234,7 @@ bool vtkPCAAssessFunctor::InitializePCA( vtkTable* inData,
 
   // Put the PCA basis into a matrix form we can use.
   vtkIdType m = reqModel->GetNumberOfColumns() - 2;
-  vtkDoubleArray* evalm = vtkDoubleArray::SafeDownCast( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
+  vtkDoubleArray* evalm = vtkArrayDownCast<vtkDoubleArray>( reqModel->GetColumnByName( VTK_MULTICORRELATIVE_AVERAGECOL ) );
   if ( ! evalm )
     {
     vtkGenericWarningMacro( "No \"" VTK_MULTICORRELATIVE_AVERAGECOL "\" column in request." );

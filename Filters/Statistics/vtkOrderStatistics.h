@@ -55,7 +55,6 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
   static vtkOrderStatistics* New();
 
-//BTX
   // Description:
   // The type of quantile definition.
   enum QuantileDefinitionType {
@@ -63,7 +62,6 @@ public:
     InverseCDFAveragedSteps = 1, // Identical to method 2 of R, ignored for non-numeric types
     NearestObservation      = 2  // Identical to method 3 of R
     };
-//ETX
 
   // Description:
   // Set/Get the number of quantiles (with uniform spacing).
@@ -131,14 +129,12 @@ protected:
                        vtkTable* outData )
   { this->Superclass::Assess( inData, inMeta, outData, 1 ); }
 
-//BTX
   // Description:
   // Provide the appropriate assessment functor.
   virtual void SelectAssessFunctor( vtkTable* outData,
                                     vtkDataObject* inMeta,
                                     vtkStringArray* rowNames,
                                     AssessFunctor*& dfunc );
-//ETX
 
   vtkIdType NumberOfIntervals;
   QuantileDefinitionType QuantileDefinition;
@@ -146,8 +142,8 @@ protected:
   vtkIdType MaximumHistogramSize;
 
 private:
-  vtkOrderStatistics(const vtkOrderStatistics&); // Not implemented
-  void operator=(const vtkOrderStatistics&);   // Not implemented
+  vtkOrderStatistics(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOrderStatistics&) VTK_DELETE_FUNCTION;
 };
 
 #endif

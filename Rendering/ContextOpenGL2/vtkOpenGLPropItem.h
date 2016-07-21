@@ -52,8 +52,8 @@ private:
   vtkNew<vtkCamera> CameraCache;
   vtkContext2D *Painter;
 
-  vtkOpenGLPropItem(const vtkOpenGLPropItem &); // Not implemented.
-  void operator=(const vtkOpenGLPropItem &); // Not implemented.
+  vtkOpenGLPropItem(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLPropItem &) VTK_DELETE_FUNCTION;
 };
 
 #endif //vtkOpenGLPropItem_h
