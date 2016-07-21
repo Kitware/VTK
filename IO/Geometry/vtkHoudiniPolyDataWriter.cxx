@@ -235,7 +235,6 @@ namespace
 
       Component(Attributes& atts, vtkIdType index) : Atts(atts),
                                                      Index(index) {}
-      void operator=(const Attributes::Component&) VTK_DELETE_FUNCTION;
 
       Attributes& Atts;
       vtkIdType Index;
