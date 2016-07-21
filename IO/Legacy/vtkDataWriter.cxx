@@ -26,10 +26,23 @@
 #include "vtkFieldData.h"
 #include "vtkFloatArray.h"
 #include "vtkGraph.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIdTypeKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationIterator.h"
+#include "vtkInformationKeyLookup.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkIntArray.h"
 #include "vtkLegacyReaderVersion.h"
 #include "vtkLongArray.h"
 #include "vtkLookupTable.h"
+#include "vtkMath.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -44,6 +57,8 @@
 #include "vtkUnsignedLongArray.h"
 #include "vtkUnsignedShortArray.h"
 #include "vtkVariantArray.h"
+
+#include <cstdio>
 #include <sstream>
 
 
@@ -54,6 +69,11 @@ vtkStandardNewMacro(vtkDataWriter);
 
 #ifdef write
 #undef write
+#endif
+
+// Standard trick to use snprintf on MSVC.
+#if defined(_MSC_VER) && (_MSC_VER < 1900)
+# define snprintf _snprintf
 #endif
 
 // Created object with default header, ASCII format, and default names for
@@ -84,6 +104,7 @@ vtkDataWriter::vtkDataWriter()
   this->WriteToOutputString = 0;
   this->OutputString = NULL;
   this->OutputStringLength = 0;
+  this->WriteArrayMetaData = true;
 }
 
 vtkDataWriter::~vtkDataWriter()
@@ -1312,6 +1333,34 @@ int vtkDataWriter::WriteArray(ostream *fp, int dataType, vtkAbstractArray *data,
     }
   delete[] outputFormat;
 
+  // Write out metadata if it exists:
+  vtkInformation *info = data->GetInformation();
+  bool hasComponentNames = data->HasAComponentName();
+  bool hasInformation = info && info->GetNumberOfKeys() > 0;
+  bool hasMetaData = hasComponentNames || hasInformation;
+  if (this->WriteArrayMetaData && hasMetaData)
+    {
+    *fp << "METADATA" << endl;
+
+    if (hasComponentNames)
+      {
+      *fp << "COMPONENT_NAMES" << endl;
+      for (i = 0; i < numComp; ++i)
+        {
+        const char *compName = data->GetComponentName(i);
+        this->EncodeWriteString(fp, compName, false);
+        *fp << endl;
+        }
+      }
+
+    if (hasInformation)
+      {
+      this->WriteInformation(fp, info);
+      }
+
+    *fp << endl;
+    }
+
   fp->flush();
   if (fp->fail())
     {
@@ -1736,6 +1785,191 @@ int vtkDataWriter::WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int 
   delete[] edgeFlagsName;
 
   return this->WriteArray(fp, edgeFlags->GetDataType(), edgeFlags, format, num, 1);
+}
+
+bool vtkDataWriter::CanWriteInformationKey(vtkInformation *info,
+                                           vtkInformationKey *key)
+{
+  vtkInformationDoubleKey *dKey = NULL;
+  vtkInformationDoubleVectorKey *dvKey = NULL;
+  if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
+    {
+    // Skip keys with NaNs/infs
+    double value = info->Get(dKey);
+    if (!vtkMath::IsFinite(value))
+      {
+      vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
+                      << key->GetName() << "': bad value: " << value);
+      return false;
+      }
+    return true;
+    }
+  else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+    {
+    // Skip keys with NaNs/infs
+    int length = dvKey->Length(info);
+    bool valid = true;
+    for (int i = 0; i < length; ++i)
+      {
+      double value = info->Get(dvKey, i);
+      if (!vtkMath::IsFinite(value))
+        {
+        vtkWarningMacro("Skipping key '" << key->GetLocation() << "::"
+                        << key->GetName() << "': bad value: " << value);
+        valid = false;
+        break;
+        }
+      }
+    return valid;
+    }
+  else if (vtkInformationIdTypeKey::SafeDownCast(key) ||
+           vtkInformationIntegerKey::SafeDownCast(key) ||
+           vtkInformationIntegerVectorKey::SafeDownCast(key) ||
+           vtkInformationStringKey::SafeDownCast(key) ||
+           vtkInformationStringVectorKey::SafeDownCast(key) ||
+           vtkInformationUnsignedLongKey::SafeDownCast(key))
+    {
+    return true;
+    }
+  vtkDebugMacro("Could not serialize information with key "
+                << key->GetLocation() << "::" << key->GetName() << ": "
+                "Unsupported data type '" << key->GetClassName() << "'.");
+  return false;
+}
+
+namespace {
+void writeInfoHeader(std::ostream *fp, vtkInformationKey *key)
+{
+  *fp << "NAME " << key->GetName() << " LOCATION " << key->GetLocation() << "\n"
+      << "DATA ";
+}
+} // end anon namespace
+
+int vtkDataWriter::WriteInformation(std::ostream *fp, vtkInformation *info)
+{
+  // This will contain the serializable keys:
+  vtkNew<vtkInformation> keys;
+  vtkInformationKey *key = NULL;
+  vtkNew<vtkInformationIterator> iter;
+  iter->SetInformationWeak(info);
+  for (iter->InitTraversal(); (key = iter->GetCurrentKey());
+       iter->GoToNextItem())
+    {
+    if (this->CanWriteInformationKey(info, key))
+      {
+      keys->CopyEntry(info, key);
+      }
+    }
+
+  *fp << "INFORMATION " << keys->GetNumberOfKeys() << "\n";
+
+  iter->SetInformationWeak(keys.Get());
+  char buffer[1024];
+  for (iter->InitTraversal(); (key = iter->GetCurrentKey());
+       iter->GoToNextItem())
+    {
+    vtkInformationDoubleKey *dKey = NULL;
+    vtkInformationDoubleVectorKey *dvKey = NULL;
+    vtkInformationIdTypeKey *idKey = NULL;
+    vtkInformationIntegerKey *iKey = NULL;
+    vtkInformationIntegerVectorKey *ivKey = NULL;
+    vtkInformationStringKey *sKey = NULL;
+    vtkInformationStringVectorKey *svKey = NULL;
+    vtkInformationUnsignedLongKey *ulKey = NULL;
+    if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+      // "%lg" is used to write double array data in ascii, using the same
+      // precision here.
+      snprintf(buffer, 1024, "%lg", dKey->Get(info));
+      *fp << buffer << "\n";
+      }
+    else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+
+      // Size first:
+      int length = dvKey->Length(info);
+      snprintf(buffer, 1024, "%d", length);
+      *fp << buffer << " ";
+
+      double *data = dvKey->Get(info);
+      for (int i = 0; i < length; ++i)
+        {
+        // "%lg" is used to write double array data in ascii, using the same
+        // precision here.
+        snprintf(buffer, 1024, "%lg", data[i]);
+        *fp << buffer << " ";
+        }
+      *fp << "\n";
+      }
+    else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+      snprintf(buffer, 1024, vtkTypeTraits<vtkIdType>::ParseFormat(),
+               idKey->Get(info));
+      *fp << buffer << "\n";
+      }
+    else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+      snprintf(buffer, 1024, vtkTypeTraits<int>::ParseFormat(),
+               iKey->Get(info));
+      *fp << buffer << "\n";
+      }
+    else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+
+      // Size first:
+      int length = ivKey->Length(info);
+      snprintf(buffer, 1024, "%d", length);
+      *fp << buffer << " ";
+
+      int *data = ivKey->Get(info);
+      for (int i = 0; i < length; ++i)
+        {
+        snprintf(buffer, 1024, vtkTypeTraits<int>::ParseFormat(), data[i]);
+        *fp << buffer << " ";
+        }
+      *fp << "\n";
+      }
+    else if ((sKey = vtkInformationStringKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+      this->EncodeWriteString(fp, sKey->Get(info), false);
+      *fp << "\n";
+      }
+    else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+
+      // Size first:
+      int length = svKey->Length(info);
+      snprintf(buffer, 1024, "%d", length);
+      *fp << buffer << "\n";
+
+      for (int i = 0; i < length; ++i)
+        {
+        this->EncodeWriteString(fp, svKey->Get(info, i), false);
+        *fp << "\n";
+        }
+      }
+    else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
+      {
+      writeInfoHeader(fp, key);
+      snprintf(buffer, 1024, vtkTypeTraits<unsigned long>::ParseFormat(),
+               ulKey->Get(info));
+      *fp << buffer << "\n";
+      }
+    else
+      {
+      vtkDebugMacro("Could not serialize information with key "
+                    << key->GetLocation() << "::" << key->GetName() << ": "
+                    "Unsupported data type '" << key->GetClassName() << "'.");
+      }
+    }
+  return 1;
 }
 
 static int vtkIsInTheList(int index, int* list, int numElem)

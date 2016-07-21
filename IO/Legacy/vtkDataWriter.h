@@ -34,6 +34,8 @@ class vtkDataArray;
 class vtkDataSet;
 class vtkFieldData;
 class vtkGraph;
+class vtkInformation;
+class vtkInformationKey;
 class vtkPoints;
 class vtkTable;
 
@@ -85,6 +87,13 @@ public:
   // Specify the header for the vtk data file.
   vtkSetStringMacro(Header);
   vtkGetStringMacro(Header);
+
+  // Description:
+  // If true, vtkInformation objects attached to arrays and array component
+  // nameswill be written to the output. Default is true.
+  vtkSetMacro(WriteArrayMetaData, bool)
+  vtkGetMacro(WriteArrayMetaData, bool)
+  vtkBooleanMacro(WriteArrayMetaData, bool)
 
   // Description:
   // Specify file type (ASCII or BINARY) for vtk data file.
@@ -226,6 +235,8 @@ protected:
   char *Header;
   int FileType;
 
+  bool WriteArrayMetaData;
+
   char *ScalarsName;
   char *VectorsName;
   char *TensorsName;
@@ -247,6 +258,12 @@ protected:
   int WriteGlobalIdData(ostream *fp, vtkDataArray *g, int num);
   int WritePedigreeIdData(ostream *fp, vtkAbstractArray *p, int num);
   int WriteEdgeFlagsData(ostream *fp, vtkDataArray *edgeFlags, int num);
+
+  bool CanWriteInformationKey(vtkInformation *info, vtkInformationKey *key);
+
+  // Description:
+  // Format is detailed \ref IOLegacyInformationFormat "here".
+  int WriteInformation(ostream *fp, vtkInformation *info);
 
 private:
   vtkDataWriter(const vtkDataWriter&) VTK_DELETE_FUNCTION;

@@ -174,6 +174,10 @@ protected:
   // Stores it in the instance of vtkInformationProvided. Does not allocate.
   int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
 
+  // Populates the info object with the InformationKey children in infoRoot.
+  // Returns false if errors occur.
+  bool ReadInformation(vtkXMLDataElement *infoRoot, vtkInformation *info);
+
   // Internal utility methods.
   virtual int OpenStream();
   virtual void CloseStream();

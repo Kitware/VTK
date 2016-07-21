@@ -81,6 +81,12 @@ void vtkInformationStringKey::Set(vtkInformation* info, const char* value)
 }
 
 //----------------------------------------------------------------------------
+void vtkInformationStringKey::Set(vtkInformation *info, const std::string &s)
+{
+  this->Set(info, s.c_str());
+}
+
+//----------------------------------------------------------------------------
 const char* vtkInformationStringKey::Get(vtkInformation* info)
 {
   vtkInformationStringValue* v =

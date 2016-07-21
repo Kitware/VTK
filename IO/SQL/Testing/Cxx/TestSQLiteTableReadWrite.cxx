@@ -171,7 +171,10 @@ bool CompareAsciiFiles(const char* file1, const char* file2)
       break;
       }
     lineNo++;
-    if (line1 != line2)
+
+    // The first line contains version information -- skip it so we don't
+    // have to update the input file for irrelevent version changes.
+    if (lineNo > 1 && line1 != line2)
       {
       std::cerr << "ERROR: line " << lineNo << " in file " << file1
                 << ":\n" << line1
