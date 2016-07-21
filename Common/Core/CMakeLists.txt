@@ -222,6 +222,7 @@ SET(Module_SRCS
   vtkLookupTable.cxx
   vtkMappedDataArray.txx
   vtkMath.cxx
+  vtkMersenneTwister.cxx
   vtkMinimalStandardRandomSequence.cxx
   vtkMultiThreader.cxx
   vtkMutexLock.cxx
@@ -310,6 +311,7 @@ set(${vtk-module}_HDRS
   vtkInformationInternals.h
   vtkMappedDataArray.h
   vtkMathUtilities.h
+  vtkMersenneTwister.h
   vtkNew.h
   vtkPeriodicDataArray.h
   vtkSetGet.h
@@ -596,6 +598,7 @@ set_source_files_properties(
   vtkGarbageCollectorManager.cxx
   vtkIndent.cxx
   vtkLargeInteger.cxx
+  vtkMersenneTwister_Private.cxx
   vtkOStrStreamWrapper.cxx
   vtkOStreamWrapper.cxx
   vtkOldStyleCallbackCommand.cxx
