@@ -30,6 +30,8 @@ if (XDMF_BUILT_INVTK)
   set(XDMF_HDF5_INCLUDE_DIRS ${vtkhdf5_INCLUDE_DIRS})
 else()
   find_package(HDF5 REQUIRED)
+
+
   set(XDMF_HDF5_LIBRARIES ${HDF5_LIBRARIES})
   set(XDMF_HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS})
 endif()
@@ -38,16 +40,29 @@ if(EXISTS "${HDF5_CONFIG}")
   add_definitions(${HDF5_EXTRA_FLAGS})
 endif()
 
+# Some HDF5 configurations don't properly detect parallel support so
+# we need to do it manually ourselves
+if(NOT HDF5_IS_PARALLEL)
+  include(CheckSymbolExists)
+  set(CMAKE_REQUIRED_INCLUDES ${HDF5_INCLUDE_DIRS})
+  check_symbol_exists(H5_HAVE_PARALLEL hdf5.h HDF5_IS_PARALLEL)
+  unset(CMAKE_REQUIRED_INCLUDES)
+endif()
+
 #optional dependencies
 #MPI
 option(XDMF_BUILD_MPI "XDMF should use MPI" OFF)
 mark_as_advanced(XDMF_BUILD_MPI)
+if(HDF5_IS_PARALLEL AND NOT XDMF_BUILD_MPI)
+  message(WARNING "Xdmf2: Enabling MPI since a parallel HDF5 is being used.")
+  set(XDMF_BUILD_MPI ON)
+endif()
 if (XDMF_BUILD_MPI)
   find_package(MPI REQUIRED)
   include_directories(${MPI_C_INCLUDE_PATH})
   set(XDMF_MPI_LIBRARIES ${MPI_C_LIBRARIES})
   if (MPI_CXX_LIBRARIES)
-    set (XDMF_MPI_LIBRARIES ${XDMF_MPI_LIBRARIES} ${MPI_CXX_LIBRARIES})
+    list(APPEND XDMF_MPI_LIBRARIES ${MPI_CXX_LIBRARIES})
   endif()
   add_definitions(-DMPICH_IGNORE_CXX_SEEK)
 else()
