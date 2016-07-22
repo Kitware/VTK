@@ -662,7 +662,6 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   unsigned char frG = static_cast<unsigned char>(frameColor[1] * 255);
   unsigned char frB = static_cast<unsigned char>(frameColor[2] * 255);
   bool hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
-  double frA = hasFrame ? 255 : 0;
   int frW = tprop->GetFrameWidth();
 
   vtkPythonScopeGilEnsurer gilEnsurer;
