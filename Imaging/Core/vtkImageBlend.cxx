@@ -267,9 +267,7 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
                           vtkImageData *outData, T *,
                           double opacity, int id)
 {
-  int inC, outC;
   double minA, maxA;
-  double r, f;
 
   if (inData->GetScalarType() == VTK_DOUBLE ||
       inData->GetScalarType() == VTK_FLOAT)
@@ -283,13 +281,13 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
     maxA = inData->GetScalarTypeMax();
     }
 
-  r = opacity;
-  f = 1.0 - r;
+  double r = opacity;
+  double f = 1.0 - r;
 
   opacity = opacity/(maxA-minA);
 
-  inC = inData->GetNumberOfScalarComponents();
-  outC = outData->GetNumberOfScalarComponents();
+  int inC = inData->GetNumberOfScalarComponents();
+  int outC = outData->GetNumberOfScalarComponents();
 
   vtkImageStencilData *stencil = self->GetStencil();
   vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
@@ -303,73 +301,97 @@ void vtkImageBlendExecute(vtkImageBlend *self, int extent[6],
     T* outSpanEndPtr = outIter.EndSpan();
     if (outIter.IsInStencil())
       {
-      if (outC >= 3 && inC >= 4)
-        { // RGB(A) blended with RGBA
-        while (outPtr != outSpanEndPtr)
+      if (outC == 4 && inC == 4)
+        { // RGBA blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 4)
           {
-          r = opacity*(inPtr[3]-minA);
-          f = 1.0-r;
-          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-          outPtr += outC;
-          inPtr += inC;
+          double rLocal = opacity*(inPtr[i+3]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + inPtr[i+0]*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + inPtr[i+1]*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + inPtr[i+2]*rLocal);
           }
+        inPtr += inC * (steps / 4);
+        }
+      else if (outC >= 3 && inC >= 4)
+        { // RGB(A) blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+          {
+          double rLocal = opacity*(inPtr[j+3]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + inPtr[j+0]*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + inPtr[j+1]*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + inPtr[j+2]*rLocal);
+          }
+        inPtr += inC * (steps / outC);
+        }
+      else if (outC == 3 && inC == 3)
+        { // RGB blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 3)
+          {
+          outPtr[i+0] = T(outPtr[i+0]*f + inPtr[i+0]*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + inPtr[i+1]*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + inPtr[i+2]*r);
+          }
+        inPtr += inC * (steps / 3);
         }
       else if (outC >= 3 && inC == 3)
         { // RGB(A) blended with RGB
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
-          outPtr[0] = T(outPtr[0]*f + inPtr[0]*r);
-          outPtr[1] = T(outPtr[1]*f + inPtr[1]*r);
-          outPtr[2] = T(outPtr[2]*f + inPtr[2]*r);
-          outPtr += outC;
-          inPtr += inC;
+          outPtr[i+0] = T(outPtr[i+0]*f + inPtr[j+0]*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + inPtr[j+1]*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + inPtr[j+2]*r);
           }
+        inPtr += inC * (steps / outC);
         }
       else if (outC >= 3 && inC == 2)
         { // RGB(A) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
-          r = opacity*(inPtr[1]-minA);
-          f = 1.0-r;
-          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr += 2;
+          double rLocal = opacity*(inPtr[j+1]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i+0] = T(outPtr[i+0]*fLocal + (inPtr[j])*rLocal);
+          outPtr[i+1] = T(outPtr[i+1]*fLocal + (inPtr[j])*rLocal);
+          outPtr[i+2] = T(outPtr[i+2]*fLocal + (inPtr[j])*rLocal);
           }
+        inPtr += inC * (steps / outC);
         }
       else if (outC >= 3 && inC == 1)
         { // RGB(A) blended with luminance
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
-          outPtr[0] = T(outPtr[0]*f + (*inPtr)*r);
-          outPtr[1] = T(outPtr[1]*f + (*inPtr)*r);
-          outPtr[2] = T(outPtr[2]*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr++;
+          outPtr[i+0] = T(outPtr[i+0]*f + (inPtr[j])*r);
+          outPtr[i+1] = T(outPtr[i+1]*f + (inPtr[j])*r);
+          outPtr[i+2] = T(outPtr[i+2]*f + (inPtr[j])*r);
           }
+        inPtr += inC * (steps / outC);
         }
       else if (inC == 2)
         { // luminance(+alpha) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
-          r = opacity*(inPtr[1]-minA);
-          f = 1.0-r;
-          *outPtr = T((*outPtr)*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr += 2;
+          double rLocal = opacity*(inPtr[j+1]-minA);
+          double fLocal = 1.0-rLocal;
+          outPtr[i] = T((outPtr[i])*fLocal + (inPtr[j])*rLocal);
           }
+        inPtr += inC * (steps / outC);
         }
       else
         { // luminance(+alpha) blended with luminance
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
-          *outPtr = T((*outPtr)*f + (*inPtr)*r);
-          outPtr += outC;
-          inPtr++;
+          outPtr[i] = T((outPtr[i])*f + (inPtr[j])*r);
           }
+        inPtr += inC * (steps / outC);
         }
       }
     // else !IsInStencil()
@@ -399,18 +421,14 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
                               vtkImageData *outData, T *,
                               double opacity, int id)
 {
-  int inC, outC;
-  unsigned short r, f, o;
-  int v0, v1, v2;
-
   // round opacity to a value in the range [0,256], because division
   // by 256 can be efficiently achieved by bit-shifting by 8 bits
-  o = static_cast<unsigned short>(256*opacity + 0.5);
-  r = o;
-  f = 256 - o;
+  unsigned short o = static_cast<unsigned short>(256*opacity + 0.5);
+  unsigned short r = o;
+  unsigned short f = 256 - o;
 
-  inC = inData->GetNumberOfScalarComponents();
-  outC = outData->GetNumberOfScalarComponents();
+  int inC = inData->GetNumberOfScalarComponents();
+  int outC = outData->GetNumberOfScalarComponents();
 
   vtkImageStencilData *stencil = self->GetStencil();
   vtkImageStencilIterator<T> outIter(outData, stencil, extent, self, id);
@@ -424,98 +442,131 @@ void vtkImageBlendExecuteChar(vtkImageBlend *self, int extent[6],
     T* outSpanEndPtr = outIter.EndSpan();
     if (outIter.IsInStencil())
       {
-      if (outC >= 3 && inC >= 4)
-        { // RGB(A) blended with RGBA
-        while (outPtr != outSpanEndPtr)
+      if (outC == 4 && inC == 4)
+        { // RGBA blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 4)
           {
           // multiply to get a number in the range [0,65280]
           // where 65280 = 255*256 = range of inPtr[3] * range of o
-          r = inPtr[3]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
-          v1 = outPtr[1]*f + inPtr[1]*r;
-          v2 = outPtr[2]*f + inPtr[2]*r;
+          unsigned short rLocal = inPtr[i+3]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[i+0]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[i+1]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[i+2]*rLocal;
           // do some math tricks to achieve division by 65280:
           // this is not an approximation, it gives exactly the
           // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-          inPtr += inC;
-          outPtr += outC;
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
           }
+        inPtr += inC * (steps / 4);
+        }
+      else if (outC >= 3 && inC >= 4)
+        { // RGB(A) blended with RGBA
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
+          {
+          // multiply to get a number in the range [0,65280]
+          // where 65280 = 255*256 = range of inPtr[3] * range of o
+          unsigned short rLocal = inPtr[j+3]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[j+0]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[j+1]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[j+2]*rLocal;
+          // do some math tricks to achieve division by 65280:
+          // this is not an approximation, it gives exactly the
+          // same result as an integer division by 65280
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
+          }
+        inPtr += inC * (steps / outC);
+        }
+      else if (outC == 3 && inC == 3)
+        { // RGB blended with RGB
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0; i < steps; i += 3)
+          {
+          // the bit-shift achieves a division by 256
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[i+0]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[i+1]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[i+2]*r) >> 8;
+          }
+        inPtr += inC * (steps / 3);
         }
       else if (outC >= 3 && inC == 3)
         { // RGB(A) blended with RGB
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
           // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          outPtr[1] = (outPtr[1]*f + inPtr[1]*r) >> 8;
-          outPtr[2] = (outPtr[2]*f + inPtr[2]*r) >> 8;
-          inPtr += 3;
-          outPtr += outC;
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[j+0]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[j+1]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[j+2]*r) >> 8;
           }
+        inPtr += inC * (steps / outC);
         }
       else if (outC >= 3 && inC == 2)
         { // RGB(A) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
           // multiply to get a number in the range [0,65280]
           // where 65280 = 255*256 = range of inPtr[1] * range of o
-          r = inPtr[1]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
-          v1 = outPtr[1]*f + inPtr[0]*r;
-          v2 = outPtr[2]*f + inPtr[0]*r;
+          unsigned short rLocal = inPtr[j+1]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i+0]*fLocal + inPtr[j]*rLocal;
+          int v1 = outPtr[i+1]*fLocal + inPtr[j]*rLocal;
+          int v2 = outPtr[i+2]*fLocal + inPtr[j]*rLocal;
           // do some math tricks to achieve division by 65280:
           // this is not an approximation, it gives exactly the
           // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          outPtr[1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
-          outPtr[2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
-          inPtr += 2;
-          outPtr += outC;
+          outPtr[i+0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
+          outPtr[i+1] = (v1 + (v1 >> 8) + (v1 >> 16) + 1) >> 16;
+          outPtr[i+2] = (v2 + (v2 >> 8) + (v2 >> 16) + 1) >> 16;
           }
+        inPtr += inC * (steps / outC);
         }
       else if (outC >= 3 && inC == 1)
         { // RGB(A) blended with luminance
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
           // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          outPtr[1] = (outPtr[1]*f + inPtr[0]*r) >> 8;
-          outPtr[2] = (outPtr[2]*f + inPtr[0]*r) >> 8;
-          inPtr++;
-          outPtr += outC;
+          outPtr[i+0] = (outPtr[i+0]*f + inPtr[j]*r) >> 8;
+          outPtr[i+1] = (outPtr[i+1]*f + inPtr[j]*r) >> 8;
+          outPtr[i+2] = (outPtr[i+2]*f + inPtr[j]*r) >> 8;
           }
+        inPtr += inC * (steps / outC);
         }
       else if (inC == 2)
         { // luminance(+alpha) blended with luminance+alpha
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
           // multiply to get a number in the range [0,65280]
           // where 65280 = 255*256 = range of inPtr[1] * range of o
-          r = inPtr[1]*o;
-          f = 65280 - r;
-          v0 = outPtr[0]*f + inPtr[0]*r;
+          unsigned short rLocal = inPtr[j+1]*o;
+          unsigned short fLocal = 65280 - rLocal;
+          int v0 = outPtr[i]*fLocal + inPtr[j]*rLocal;
           // do some math tricks to achieve division by 65280:
           // this is not an approximation, it gives exactly the
           // same result as an integer division by 65280
-          outPtr[0] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
-          inPtr += 2;
-          outPtr += outC;
+          outPtr[i] = (v0 + (v0 >> 8) + (v0 >> 16) + 1) >> 16;
           }
+        inPtr += inC * (steps / outC);
         }
       else
         { // luminance(+alpha) blended with luminance
-        while (outPtr != outSpanEndPtr)
+        intptr_t steps = outSpanEndPtr - outPtr;
+        for (intptr_t i = 0, j = 0; i < steps; i += outC, j += inC)
           {
           // the bit-shift achieves a division by 256
-          outPtr[0] = (outPtr[0]*f + inPtr[0]*r) >> 8;
-          inPtr++;
-          outPtr += outC;
+          outPtr[i] = (outPtr[i]*f + inPtr[j]*r) >> 8;
           }
+        inPtr += inC * (steps / outC);
         }
       }
     // else !IsInStencil()
