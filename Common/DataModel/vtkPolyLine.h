@@ -39,9 +39,10 @@ public:
 
   // Description:
   // Given points and lines, compute normals to lines. These are not true
-  // normals, they are "orientation" normals used by classes like vtkTubeFilte
+  // normals, they are "orientation" normals used by classes like vtkTubeFilter
   // that control the rotation around the line. The normals try to stay pointing
-  // in the same direction as much as possible (i.e., minimal rotation).
+  // in the same direction as much as possible (i.e., minimal rotation) w.r.t the
+  // firstNormal (computed if NULL). Allways returns 1 (success).
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *);
   static int GenerateSlidingNormals(vtkPoints *, vtkCellArray *, vtkDataArray *,
                                     double* firstNormal);
