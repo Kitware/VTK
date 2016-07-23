@@ -45,8 +45,9 @@
 // VTK 4.4+, machine-independent behavior is not automatically
 // assured because of these dependencies.
 
-// .SECTION see also
-// vtkWindow vtkRenderLargeImage
+// .SECTION See Also
+// vtkRendererSource vtkRendererPointCloudSource vtkWindow
+// vtkRenderLargeImage
 
 #ifndef vtkWindowToImageFilter_h
 #define vtkWindowToImageFilter_h
@@ -164,8 +165,8 @@ protected:
   vtkWTI2DHelperClass *StoredData;
 
 private:
-  vtkWindowToImageFilter(const vtkWindowToImageFilter&);  // Not implemented.
-  void operator=(const vtkWindowToImageFilter&);  // Not implemented.
+  vtkWindowToImageFilter(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWindowToImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

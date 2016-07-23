@@ -277,6 +277,10 @@ protected:
   void PlaceHandle(double *center, double radius);
   virtual void SizeHandles();
 
+  // Method to adapt the center cursor bounds
+  // so it always have the same pixel size on screen
+  virtual void AdaptCenterCursorBounds();
+
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
   vtkProperty *SphereProperty;
@@ -314,8 +318,8 @@ protected:
   bool CenterCursor;
 
 private:
-  vtkSphereRepresentation(const vtkSphereRepresentation&);  //Not implemented
-  void operator=(const vtkSphereRepresentation&);  //Not implemented
+  vtkSphereRepresentation(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphereRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

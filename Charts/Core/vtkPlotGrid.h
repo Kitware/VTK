@@ -65,8 +65,8 @@ protected:
   vtkAxis *YAxis;
 
 private:
-  vtkPlotGrid(const vtkPlotGrid &); // Not implemented.
-  void operator=(const vtkPlotGrid &);   // Not implemented.
+  vtkPlotGrid(const vtkPlotGrid &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotGrid &) VTK_DELETE_FUNCTION;
 
 };
 

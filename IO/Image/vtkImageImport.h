@@ -282,8 +282,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *d, vtkInformation* outInfo);
 
 private:
-  vtkImageImport(const vtkImageImport&);  // Not implemented.
-  void operator=(const vtkImageImport&);  // Not implemented.
+  vtkImageImport(const vtkImageImport&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageImport&) VTK_DELETE_FUNCTION;
 };
 
 #endif

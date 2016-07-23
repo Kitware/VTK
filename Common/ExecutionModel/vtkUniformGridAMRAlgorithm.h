@@ -97,8 +97,8 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUniformGridAMRAlgorithm : public vtkAlgo
     vtkDataObject *GetInput(int port);
 
   private:
-    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&); // Not implemented
-    void operator=(const vtkUniformGridAMRAlgorithm&); // Not implemented
+    vtkUniformGridAMRAlgorithm(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkUniformGridAMRAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* VTKUNIFORMGRIDAMRALGORITHM_H_ */

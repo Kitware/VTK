@@ -15,12 +15,9 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
 
 vtk_add_test_mpi(${vtk-module}CxxTests-MPI tests
-  RENDERING_DATA
-  TestSimplePCompositeZPass.cxx
+  TestSimplePCompositeZPass.cxx,TESTING_DATA
+  TestParallelRendering.cxx,TESTING_DATA
   ${extra_opengl_tests}
-  )
-vtk_add_test_mpi(${vtk-module}CxxTests-MPI no_data_tests
-  TestParallelRendering.cxx
   )
 
 set(all_tests

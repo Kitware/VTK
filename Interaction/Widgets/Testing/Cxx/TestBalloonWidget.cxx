@@ -39,7 +39,7 @@ class vtkBalloonCallback : public vtkCommand
 public:
   static vtkBalloonCallback *New()
     { return new vtkBalloonCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
       vtkBalloonWidget *balloonWidget = reinterpret_cast<vtkBalloonWidget*>(caller);
       if ( balloonWidget->GetCurrentProp() != NULL )
@@ -57,7 +57,7 @@ class vtkBalloonPickCallback : public vtkCommand
 public:
   static vtkBalloonPickCallback *New()
     { return new vtkBalloonPickCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
       vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkProp *prop = picker->GetViewProp();

@@ -55,7 +55,7 @@ class vtkTIPW3Callback : public vtkCommand
 public:
   static vtkTIPW3Callback *New()
     { return new vtkTIPW3Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
       vtkImplicitPlaneWidget2 *planeWidget =
         reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -66,7 +66,7 @@ public:
     }
 
   vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
-  ~vtkTIPW3Callback() { this->Plane->Delete(); }
+  ~vtkTIPW3Callback() VTK_OVERRIDE { this->Plane->Delete(); }
 
   vtkPlane *Plane;
   vtkActor *Actor;
@@ -624,12 +624,13 @@ int TestHandleWidget( int argc, char *argv[] )
     vtkSmartPointer<vtkActor>::New();
     outlineActor->SetMapper( outlineMapper);
 
+  double repBounds[6] = { -0.7, 0.7, -0.7, 0.7, -0.7, 0.7 };
   vtkSmartPointer<vtkImplicitPlaneRepresentation> rep =
     vtkSmartPointer<vtkImplicitPlaneRepresentation>::New();
-  rep->SetPlaceFactor(0.7);
+  rep->SetPlaceFactor(1.0);
   rep->GetPlaneProperty()->SetAmbientColor(0.0, 0.5, 0.5);
   rep->GetPlaneProperty()->SetOpacity(0.3);
-  rep->PlaceWidget(outline->GetOutput()->GetBounds());
+  rep->PlaceWidget(repBounds);
   vtkSmartPointer<vtkImplicitPlaneWidget2> planeWidget =
     vtkSmartPointer<vtkImplicitPlaneWidget2>::New();
   planeWidget->SetRepresentation(rep);

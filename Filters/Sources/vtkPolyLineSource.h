@@ -67,8 +67,8 @@ protected:
   int Closed;
 
 private:
-  vtkPolyLineSource(const vtkPolyLineSource&);  // Not implemented.
-  void operator=(const vtkPolyLineSource&);     // Not implemented.
+  vtkPolyLineSource(const vtkPolyLineSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyLineSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

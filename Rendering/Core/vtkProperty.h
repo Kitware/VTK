@@ -391,8 +391,8 @@ protected:
   int GetTextureUnit(const char* name);
 
 private:
-  vtkProperty(const vtkProperty&);  // Not implemented.
-  void operator=(const vtkProperty&);  // Not implemented.
+  vtkProperty(const vtkProperty&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProperty&) VTK_DELETE_FUNCTION;
 
   vtkPropertyInternals* Internals;
 };

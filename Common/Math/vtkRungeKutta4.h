@@ -92,8 +92,8 @@ protected:
 
   double* NextDerivs[3];
 private:
-  vtkRungeKutta4(const vtkRungeKutta4&);  // Not implemented.
-  void operator=(const vtkRungeKutta4&);  // Not implemented.
+  vtkRungeKutta4(const vtkRungeKutta4&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRungeKutta4&) VTK_DELETE_FUNCTION;
 };
 
 #endif

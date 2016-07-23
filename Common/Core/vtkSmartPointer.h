@@ -168,8 +168,8 @@ protected:
 private:
   // These are purposely not implemented to prevent callers from
   // trying to take references from other smart pointers.
-  void TakeReference(const vtkSmartPointerBase&);  // Not implemented.
-  static void Take(const vtkSmartPointerBase&);  // Not implemented.
+  void TakeReference(const vtkSmartPointerBase&) VTK_DELETE_FUNCTION;
+  static void Take(const vtkSmartPointerBase&) VTK_DELETE_FUNCTION;
 };
 
 #define VTK_SMART_POINTER_DEFINE_OPERATOR(op) \

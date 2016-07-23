@@ -7,9 +7,10 @@ if(POLICY CMP0053)
 endif()
 
 project (Step2)
-
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
   vtkCommonCore
+  vtkFiltersSources
   vtkFiltersSources
   vtkInteractionStyle
   vtkRendering${VTK_RENDERING_BACKEND}

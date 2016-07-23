@@ -126,8 +126,8 @@ protected:
   void AddFunctions(Json::Value* val);
 
 private:
-  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&); // Not implemented.
-  void operator=(const vtkPlot3DMetaReader&); // Not implemented.
+  vtkPlot3DMetaReader(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlot3DMetaReader&) VTK_DELETE_FUNCTION;
 
   vtkMultiBlockPLOT3DReader* Reader;
   vtkPlot3DMetaReaderInternals* Internal;

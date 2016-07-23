@@ -79,8 +79,8 @@ private:
   std::string LogFileName;
 
 private:
-  vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D &); // Not implemented.
-  void operator=(const vtkPLineIntegralConvolution2D &); // Not implemented.
+  vtkPLineIntegralConvolution2D(const vtkPLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPLineIntegralConvolution2D &) VTK_DELETE_FUNCTION;
 };
 
 #endif

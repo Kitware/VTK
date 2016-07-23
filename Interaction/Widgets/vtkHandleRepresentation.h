@@ -163,8 +163,8 @@ protected:
   vtkPointPlacer * PointPlacer;
 
 private:
-  vtkHandleRepresentation(const vtkHandleRepresentation&);  //Not implemented
-  void operator=(const vtkHandleRepresentation&);  //Not implemented
+  vtkHandleRepresentation(const vtkHandleRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHandleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

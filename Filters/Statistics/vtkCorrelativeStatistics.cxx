@@ -819,9 +819,9 @@ public:
     this->InterYX = interYX;
     this->InterXY = interXY;
   }
-  virtual ~BivariateRegressionDeviationsFunctor() { }
-  virtual void operator() ( vtkDoubleArray* result,
-                            vtkIdType id )
+  ~BivariateRegressionDeviationsFunctor() VTK_OVERRIDE { }
+  void operator() ( vtkDoubleArray* result,
+                            vtkIdType id ) VTK_OVERRIDE
   {
     // First retrieve 2-d observation
     double x = this->DataX->GetTuple1( id );

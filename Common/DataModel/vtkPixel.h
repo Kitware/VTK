@@ -96,8 +96,8 @@ protected:
   vtkLine *Line;
 
 private:
-  vtkPixel(const vtkPixel&);  // Not implemented.
-  void operator=(const vtkPixel&);  // Not implemented.
+  vtkPixel(const vtkPixel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPixel&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

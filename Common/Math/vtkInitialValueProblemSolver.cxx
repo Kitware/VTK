@@ -66,12 +66,14 @@ void vtkInitialValueProblemSolver::PrintSelf(ostream& os, vtkIndent indent)
 
 void vtkInitialValueProblemSolver::Initialize()
 {
-  if (!this->FunctionSet || this->Initialized)
+  if (!this->FunctionSet)
     {
     return;
     }
+  delete[] this->Vals;
   this->Vals =
     new double[this->FunctionSet->GetNumberOfIndependentVariables()];
+  delete[] this->Derivs;
   this->Derivs =
     new double[this->FunctionSet->GetNumberOfFunctions()];
   this->Initialized = 1;

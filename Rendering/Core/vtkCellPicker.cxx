@@ -350,7 +350,7 @@ double vtkCellPicker::IntersectActorWithLine(const double p1[3],
   minXYZ[0] = minXYZ[1] = minXYZ[2] = 0.0;
 
   // Polydata has no 3D cells
-  int isPolyData = data->IsA("vtkPolyData");
+  vtkTypeBool isPolyData = data->IsA("vtkPolyData");
 
   vtkCollectionSimpleIterator iter;
   vtkAbstractCellLocator *locator = 0;

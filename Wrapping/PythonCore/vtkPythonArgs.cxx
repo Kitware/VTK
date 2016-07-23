@@ -1345,3 +1345,48 @@ int vtkPythonArgs::GetArgSize(int i)
     }
   return size;
 }
+
+//--------------------------------------------------------------------
+// Check if 'm' equals 'n', and report an error for arg i if not.
+bool vtkPythonArgs::CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n)
+{
+  if (this->M + i < this->N)
+    {
+    if (m != n)
+      {
+      PyObject *o = PyTuple_GET_ITEM(this->Args, this->M + i);
+      return vtkPythonSequenceError(o, n, m);
+      }
+    }
+  return true;
+}
+
+//--------------------------------------------------------------------
+// Use stack space for small arrays, heap for large arrays.
+template<class T>
+vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
+{
+  if (n > basicsize)
+    {
+    this->Pointer = new T[n];
+    }
+  else if (n != 0)
+    {
+    this->Pointer = this->Storage;
+    }
+}
+
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<bool>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<float>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<double>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<signed char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned char>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<short>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned short>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<int>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned int>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long long>;
+template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long long>;

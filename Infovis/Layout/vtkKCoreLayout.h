@@ -149,8 +149,8 @@ protected:
   float UnitRadius;
 
 private:
-  vtkKCoreLayout(const vtkKCoreLayout&);   // Not implemented
-  void operator=(const vtkKCoreLayout&);   // Not implemented
+  vtkKCoreLayout(const vtkKCoreLayout&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkKCoreLayout&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -141,8 +141,8 @@ protected:
   virtual bool HaveWideLines(vtkViewport *, vtkActor2D *);
 
 private:
-  vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
-  void operator=(const vtkOpenGLPolyDataMapper2D&);  // Not implemented.
+  vtkOpenGLPolyDataMapper2D(const vtkOpenGLPolyDataMapper2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLPolyDataMapper2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

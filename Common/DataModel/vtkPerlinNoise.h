@@ -85,8 +85,8 @@ protected:
   double Amplitude;
 
 private:
-  vtkPerlinNoise(const vtkPerlinNoise&); // Not implemented
-  void operator=(const vtkPerlinNoise&); // Not implemented
+  vtkPerlinNoise(const vtkPerlinNoise&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPerlinNoise&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -87,8 +87,8 @@ protected:
   ~vtkGraphInternals();
 
 private:
-  vtkGraphInternals(const vtkGraphInternals&);  // Not implemented.
-  void operator=(const vtkGraphInternals&);  // Not implemented.
+  vtkGraphInternals(const vtkGraphInternals&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGraphInternals&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkGraphInternals_h

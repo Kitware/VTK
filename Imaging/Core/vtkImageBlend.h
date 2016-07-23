@@ -180,8 +180,8 @@ protected:
   int DataWasPassed;
 
 private:
-  vtkImageBlend(const vtkImageBlend&);  // Not implemented.
-  void operator=(const vtkImageBlend&);  // Not implemented.
+  vtkImageBlend(const vtkImageBlend&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageBlend&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

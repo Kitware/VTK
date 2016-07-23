@@ -69,8 +69,8 @@ protected:
   vtkDataArray *EnabledArray;
 
 private:
-  vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&);  // Not implemented.
-  void operator=(const vtkLookupTableWithEnabling&);  // Not implemented.
+  vtkLookupTableWithEnabling(const vtkLookupTableWithEnabling&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLookupTableWithEnabling&) VTK_DELETE_FUNCTION;
 };
 
 

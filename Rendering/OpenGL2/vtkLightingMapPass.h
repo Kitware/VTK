@@ -78,8 +78,8 @@ public:
   virtual void RenderOpaqueGeometry(const vtkRenderState *s);
 
  private:
-  vtkLightingMapPass(const vtkLightingMapPass&);  // Not implemented.
-  void operator=(const vtkLightingMapPass&);  // Not implemented.
+  vtkLightingMapPass(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLightingMapPass&) VTK_DELETE_FUNCTION;
 
   RenderMode RenderType;
 };

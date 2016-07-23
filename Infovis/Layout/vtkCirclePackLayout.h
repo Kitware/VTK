@@ -104,8 +104,8 @@ protected:
 
 private:
 
-    vtkCirclePackLayout(const vtkCirclePackLayout&);  // Not implemented.
-    void operator=(const vtkCirclePackLayout&);  // Not implemented.
+    vtkCirclePackLayout(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
+    void operator=(const vtkCirclePackLayout&) VTK_DELETE_FUNCTION;
     void prepareSizeArray(vtkDoubleArray* mySizeArray,
                           vtkTree* tree);
 };

@@ -38,7 +38,7 @@ class vtkHandle2Callback : public vtkCommand
 public:
   static vtkHandle2Callback *New()
   { return new vtkHandle2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkHandleWidget *handleWidget =
       reinterpret_cast<vtkHandleWidget*>(caller);

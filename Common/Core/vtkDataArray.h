@@ -37,6 +37,7 @@
 
 class vtkDoubleArray;
 class vtkIdList;
+class vtkInformationStringKey;
 class vtkInformationDoubleVectorKey;
 class vtkLookupTable;
 class vtkPoints;
@@ -362,6 +363,10 @@ public:
   static vtkInformationDoubleVectorKey* L2_NORM_RANGE();
 
   // Description:
+  // A human-readable string indicating the units for the array data.
+  static vtkInformationStringKey *UNITS_LABEL();
+
+  // Description:
   // Copy information instance. Arrays use information objects
   // in a variety of ways. It is important to have flexibility in
   // this regard because certain keys should not be coppied, while
@@ -407,8 +412,8 @@ private:
   double* GetTupleN(vtkIdType i, int n);
 
 private:
-  vtkDataArray(const vtkDataArray&);  // Not implemented.
-  void operator=(const vtkDataArray&);  // Not implemented.
+  vtkDataArray(const vtkDataArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataArray&) VTK_DELETE_FUNCTION;
 };
 
 //------------------------------------------------------------------------------

@@ -243,11 +243,10 @@ private:
 
   // constructor and destructor are kept private
   vtkOpenFOAMReaderPrivate();
-  ~vtkOpenFOAMReaderPrivate();
+  ~vtkOpenFOAMReaderPrivate() VTK_OVERRIDE;
 
-  // not implemented.
-  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &);
-  void operator=(const vtkOpenFOAMReaderPrivate &);
+  vtkOpenFOAMReaderPrivate(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenFOAMReaderPrivate &) VTK_DELETE_FUNCTION;
 
   // clear mesh construction
   void ClearInternalMeshes();

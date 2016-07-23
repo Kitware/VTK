@@ -173,8 +173,8 @@ private:
   double TubeSize;
 
   vtkCenteredSliderRepresentation
-    (const vtkCenteredSliderRepresentation&); // Not implemented
-  void operator=(const vtkCenteredSliderRepresentation&);  //Not implemented
+    (const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCenteredSliderRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

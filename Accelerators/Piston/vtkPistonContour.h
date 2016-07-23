@@ -45,8 +45,8 @@ protected:
   float IsoValue;
 
 private:
-  vtkPistonContour(const vtkPistonContour&);  // Not implemented.
-  void operator=(const vtkPistonContour&);  // Not implemented.
+  vtkPistonContour(const vtkPistonContour&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonContour&) VTK_DELETE_FUNCTION;
 
 };
 

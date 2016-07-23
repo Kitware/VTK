@@ -558,8 +558,8 @@ protected:
   std::map< std::pair< int,int >, int > NeighborPair2NeighborListIndex;
 
 private:
-  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ); // Not implemented
-  void operator=(const vtkStructuredGridConnectivity& ); // Not implemented
+  vtkStructuredGridConnectivity( const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGridConnectivity& ) VTK_DELETE_FUNCTION;
 };
 
 //=============================================================================

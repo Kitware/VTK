@@ -71,8 +71,8 @@ protected:
   double Level;
 
 private:
-  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&);  // Not implemented.
-  void operator=(const vtkImageMapToWindowLevelColors&);  // Not implemented.
+  vtkImageMapToWindowLevelColors(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMapToWindowLevelColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

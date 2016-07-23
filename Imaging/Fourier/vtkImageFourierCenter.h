@@ -49,8 +49,8 @@ protected:
     int outExt[6],
     int threadId);
 private:
-  vtkImageFourierCenter(const vtkImageFourierCenter&);  // Not implemented.
-  void operator=(const vtkImageFourierCenter&);  // Not implemented.
+  vtkImageFourierCenter(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageFourierCenter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

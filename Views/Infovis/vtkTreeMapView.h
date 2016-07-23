@@ -64,8 +64,8 @@ protected:
   vtkSmartPointer<vtkSquarifyLayoutStrategy> SquarifyLayout;
 
 private:
-  vtkTreeMapView(const vtkTreeMapView&);  // Not implemented.
-  void operator=(const vtkTreeMapView&);  // Not implemented.
+  vtkTreeMapView(const vtkTreeMapView&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTreeMapView&) VTK_DELETE_FUNCTION;
 };
 
 #endif

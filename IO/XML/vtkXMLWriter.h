@@ -344,6 +344,9 @@ protected:
   int WriteWordTypeAttribute(const char* name, int dataType);
   int WriteStringAttribute(const char* name, const char* value);
 
+  // Returns true if any keys were written.
+  bool WriteInformation(vtkInformation *info, vtkIndent indent);
+
   void WriteArrayHeader(vtkAbstractArray* a, vtkIndent indent,
     const char* alternateName, int writeNumTuples, int timestep);
   virtual void WriteArrayFooter(ostream &os, vtkIndent indent, vtkAbstractArray *a, int shortFormat);
@@ -450,8 +453,8 @@ protected:
   friend class vtkXMLWriterHelper;
 
 private:
-  vtkXMLWriter(const vtkXMLWriter&);  // Not implemented.
-  void operator=(const vtkXMLWriter&);  // Not implemented.
+  vtkXMLWriter(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

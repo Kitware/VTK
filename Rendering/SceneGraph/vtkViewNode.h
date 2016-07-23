@@ -135,8 +135,8 @@ protected:
   friend class vtkViewNodeFactory;
 
 private:
-  vtkViewNode(const vtkViewNode&); // Not implemented.
-  void operator=(const vtkViewNode&); // Not implemented.
+  vtkViewNode(const vtkViewNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkViewNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif

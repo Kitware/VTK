@@ -167,8 +167,8 @@ protected:
   friend class vtkDistanceWidgetCallback;
 
 private:
-  vtkDistanceWidget(const vtkDistanceWidget&);  //Not implemented
-  void operator=(const vtkDistanceWidget&);  //Not implemented
+  vtkDistanceWidget(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDistanceWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

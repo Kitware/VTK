@@ -39,8 +39,8 @@ protected:
   virtual void SlaveEndRender();
 
 private:
-  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&); // Not implemented.
-  void operator=(const vtkClientServerSynchronizedRenderers&); // Not implemented.
+  vtkClientServerSynchronizedRenderers(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkClientServerSynchronizedRenderers&) VTK_DELETE_FUNCTION;
 
 };
 

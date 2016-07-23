@@ -101,8 +101,8 @@ public:
     }
 
 private:
-  vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&); // Not implemented.
-  void operator=(const vtkGenericDataArrayLookupHelper&); // Not implemented.
+  vtkGenericDataArrayLookupHelper(const vtkGenericDataArrayLookupHelper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericDataArrayLookupHelper&) VTK_DELETE_FUNCTION;
 
   struct ValueWithIndex
     {

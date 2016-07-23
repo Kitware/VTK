@@ -24,10 +24,6 @@
 
 #include <vector>
 
-#if _MSC_VER
-#define snprintf _snprintf
-#endif
-
 class vtkPNGWriter::vtkInternals
 {
 public:

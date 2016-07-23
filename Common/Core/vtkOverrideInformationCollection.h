@@ -59,8 +59,8 @@ private:
   void AddItem(vtkObject *o) { this->vtkCollection::AddItem(o); };
 
 private:
-  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&);  // Not implemented.
-  void operator=(const vtkOverrideInformationCollection&);  // Not implemented.
+  vtkOverrideInformationCollection(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOverrideInformationCollection&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkOverrideInformationCollection::AddItem(vtkOverrideInformation *f)

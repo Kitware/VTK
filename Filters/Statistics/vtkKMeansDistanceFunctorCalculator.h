@@ -58,8 +58,8 @@ protected:
   vtkFunctionParser* FunctionParser;
 
 private:
-  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ); // Not implemented.
-  void operator = ( const vtkKMeansDistanceFunctorCalculator& ); // Not implemented.
+  vtkKMeansDistanceFunctorCalculator( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkKMeansDistanceFunctorCalculator& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkKMeansDistanceFunctorCalculator_h

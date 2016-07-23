@@ -128,8 +128,8 @@ protected:
   vtkDoubleArray   *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkBiQuadraticTriangle(const vtkBiQuadraticTriangle&);  // Not implemented.
-  void operator=(const vtkBiQuadraticTriangle&);  // Not implemented.
+  vtkBiQuadraticTriangle(const vtkBiQuadraticTriangle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBiQuadraticTriangle&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkBiQuadraticTriangle::GetParametricCenter(double pcoords[3])

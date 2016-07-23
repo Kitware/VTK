@@ -70,8 +70,8 @@ protected:
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
 private:
-  vtkImageMagnify(const vtkImageMagnify&);  // Not implemented.
-  void operator=(const vtkImageMagnify&);  // Not implemented.
+  vtkImageMagnify(const vtkImageMagnify&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageMagnify&) VTK_DELETE_FUNCTION;
 };
 
 #endif

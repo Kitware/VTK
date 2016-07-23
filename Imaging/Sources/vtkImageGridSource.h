@@ -104,8 +104,8 @@ protected:
   virtual void ExecuteDataWithInformation(vtkDataObject *data, vtkInformation* outInfo);
 
 private:
-  vtkImageGridSource(const vtkImageGridSource&);  // Not implemented.
-  void operator=(const vtkImageGridSource&);  // Not implemented.
+  vtkImageGridSource(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageGridSource&) VTK_DELETE_FUNCTION;
 };
 
 

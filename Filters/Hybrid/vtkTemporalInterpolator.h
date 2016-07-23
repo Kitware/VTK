@@ -154,8 +154,8 @@ protected:
   double Tfrac;
 
 private:
-  vtkTemporalInterpolator(const vtkTemporalInterpolator&);  // Not implemented.
-  void operator=(const vtkTemporalInterpolator&);  // Not implemented.
+  vtkTemporalInterpolator(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTemporalInterpolator&) VTK_DELETE_FUNCTION;
 };
 
 

@@ -117,8 +117,8 @@ protected:
   void DoVFWFormatCheck();
 
 private:
-  vtkWin32VideoSource(const vtkWin32VideoSource&);  // Not implemented.
-  void operator=(const vtkWin32VideoSource&);  // Not implemented.
+  vtkWin32VideoSource(const vtkWin32VideoSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWin32VideoSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

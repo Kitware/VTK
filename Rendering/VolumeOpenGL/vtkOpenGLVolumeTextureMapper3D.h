@@ -148,8 +148,8 @@ protected:
   void Setup3DTextureParameters( vtkVolumeProperty *property );
 
 private:
-  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
-  void operator=(const vtkOpenGLVolumeTextureMapper3D&);  // Not implemented.
+  vtkOpenGLVolumeTextureMapper3D(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;
 };
 #endif // VTK_LEGACY_REMOVE
 #endif

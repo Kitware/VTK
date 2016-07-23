@@ -78,8 +78,8 @@ protected:
   int DuplicateNodes;
 
 private:
-  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &); // Not implemented
-  void operator=(const vtkStructuredGridPartitioner &); // Not implemented
+  vtkStructuredGridPartitioner(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStructuredGridPartitioner &) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkStructuredGridPartitioner_h */

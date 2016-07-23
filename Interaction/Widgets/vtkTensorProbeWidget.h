@@ -81,8 +81,8 @@ protected:
 
 private:
   vtkTensorProbeWidget(
-      const vtkTensorProbeWidget&);  //Not implemented
-  void operator=(const vtkTensorProbeWidget&);  //Not implemented
+      const vtkTensorProbeWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTensorProbeWidget&) VTK_DELETE_FUNCTION;
 
 };
 

@@ -59,8 +59,8 @@ protected:
   ~vtkCriticalSection() {}
 
 private:
-  vtkCriticalSection(const vtkCriticalSection&);  // Not implemented.
-  void operator=(const vtkCriticalSection&);  // Not implemented.
+  vtkCriticalSection(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCriticalSection&) VTK_DELETE_FUNCTION;
 };
 
 

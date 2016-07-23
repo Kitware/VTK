@@ -44,8 +44,8 @@ protected:
 
 
 private:
-  vtkPistonSort(const vtkPistonSort&);  // Not implemented.
-  void operator=(const vtkPistonSort&);  // Not implemented.
+  vtkPistonSort(const vtkPistonSort&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPistonSort&) VTK_DELETE_FUNCTION;
 
 };
 

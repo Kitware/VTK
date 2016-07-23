@@ -123,8 +123,8 @@ protected:
 
   vtkRenderWindow *RenderWindow;
 private:
-  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&);  // Not implemented.
-  void operator=(const vtkVolumeTextureMapper&);  // Not implemented.
+  vtkVolumeTextureMapper(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeTextureMapper&) VTK_DELETE_FUNCTION;
 };
 
 

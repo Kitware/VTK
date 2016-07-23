@@ -77,8 +77,8 @@ protected:
   void PostRender(const vtkRenderState *s);
 
 private:
-  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&); // Not implemented
-  void operator=(const vtkOpenGLRenderPass&); // Not implemented
+  vtkOpenGLRenderPass(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLRenderPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLRenderPass_h

@@ -315,6 +315,12 @@ public:
   int Read(double *);
 
   // Description:
+  // Read @a n character from the stream into @a str, then reset the stream
+  // position. Returns the number of characters actually read.
+  size_t Peek(char *str, size_t n);
+
+
+  // Description:
   // Close the vtk file.
   void CloseVTKFile();
 
@@ -379,6 +385,10 @@ protected:
   int ReadPedigreeIds(vtkDataSetAttributes *a, int num);
   int ReadEdgeFlags(vtkDataSetAttributes *a, int num);
 
+  // Description:
+  // Format is detailed \ref IOLegacyInformationFormat "here".
+  int ReadInformation(vtkInformation *info, int numKeys);
+
   int ReadDataSetData(vtkDataSet *ds);
 
   // This supports getting additional information from vtk files
@@ -438,8 +448,8 @@ protected:
     { return 1; }
 
 private:
-  vtkDataReader(const vtkDataReader&);  // Not implemented.
-  void operator=(const vtkDataReader&);  // Not implemented.
+  vtkDataReader(const vtkDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataReader&) VTK_DELETE_FUNCTION;
 
   void ConvertGhostLevelsToGhostType(
     FieldType fieldType, vtkAbstractArray *data) const;

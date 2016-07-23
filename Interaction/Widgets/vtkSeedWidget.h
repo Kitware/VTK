@@ -192,8 +192,8 @@ protected:
   int Defining;
 
 private:
-  vtkSeedWidget(const vtkSeedWidget&);  //Not implemented
-  void operator=(const vtkSeedWidget&);  //Not implemented
+  vtkSeedWidget(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSeedWidget&) VTK_DELETE_FUNCTION;
 };
 
 #endif

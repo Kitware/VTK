@@ -295,7 +295,7 @@ void vtkLabeledContourMapper::Render(vtkRenderer *ren, vtkActor *act)
       }
 
     this->Internal->PrepareTime = vtkTimerLog::GetUniversalTime() - startPrep;
-    this->BuildTime.Modified();
+    this->LabelBuildTime.Modified();
     }
 
   double startRender = vtkTimerLog::GetUniversalTime();
@@ -431,7 +431,7 @@ void vtkLabeledContourMapper::PrintSelf(ostream& os, vtkIndent indent)
      << indent << "StencilQuadsSize: " << this->StencilQuadsSize << "\n"
      << indent << "StencilQuadIndicesSize: "
      << this->StencilQuadIndicesSize << "\n"
-     << indent << "BuildTime: " << this->BuildTime.GetMTime() << "\n"
+     << indent << "BuildTime: " << this->LabelBuildTime.GetMTime() << "\n"
      << indent << "PolyDataMapper:\n";
   this->PolyDataMapper->PrintSelf(os, indent.GetNextIndent());
   os << indent << "TextProperties:\n";
@@ -548,8 +548,8 @@ bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
     }
 
   // Are we out of date?
-  if (this->BuildTime.GetMTime() < this->GetInput()->GetMTime() ||
-      this->BuildTime.GetMTime() < tPropMTime)
+  if (this->LabelBuildTime.GetMTime() < this->GetInput()->GetMTime() ||
+      this->LabelBuildTime.GetMTime() < tPropMTime)
     {
     return true;
     }

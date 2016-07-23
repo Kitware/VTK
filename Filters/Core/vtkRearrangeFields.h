@@ -200,8 +200,8 @@ protected:
   void PrintAllOperations(ostream& os, vtkIndent indent);
   void PrintOperation(Operation* op, ostream& os, vtkIndent indent);
 private:
-  vtkRearrangeFields(const vtkRearrangeFields&);  // Not implemented.
-  void operator=(const vtkRearrangeFields&);  // Not implemented.
+  vtkRearrangeFields(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRearrangeFields&) VTK_DELETE_FUNCTION;
 };
 
 #endif

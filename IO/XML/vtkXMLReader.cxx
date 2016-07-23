@@ -19,24 +19,34 @@
 #include "vtkDataCompressor.h"
 #include "vtkDataSet.h"
 #include "vtkDataSetAttributes.h"
+#include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIdTypeKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationKeyLookup.h"
+#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
+#include "vtkInformationUnsignedLongKey.h"
+#include "vtkInformationVector.h"
 #include "vtkInstantiator.h"
 #include "vtkObjectFactory.h"
+#include "vtkQuadratureSchemeDefinition.h"
+#include "vtkStreamingDemandDrivenPipeline.h"
 #include "vtkXMLDataElement.h"
 #include "vtkXMLDataParser.h"
 #include "vtkXMLFileReadTester.h"
 #include "vtkXMLReaderVersion.h"
 #include "vtkZLibDataCompressor.h"
-#include "vtkInformation.h"
-#include "vtkInformationVector.h"
-#include "vtkStreamingDemandDrivenPipeline.h"
-#include "vtkInformationQuadratureSchemeDefinitionVectorKey.h"
-#include "vtkQuadratureSchemeDefinition.h"
-#include "vtkInformationStringKey.h"
 
+#include <algorithm>
+#include <cassert>
+#include <functional>
+#include <locale> // C++ locale
 #include <sstream>
 #include <sys/stat.h>
-#include <cassert>
-#include <locale> // C++ locale
 
 vtkCxxSetObjectMacro(vtkXMLReader,ReaderErrorObserver,vtkCommand);
 vtkCxxSetObjectMacro(vtkXMLReader,ParserErrorObserver,vtkCommand);
@@ -721,60 +731,317 @@ void vtkXMLReader::SetupOutputData()
 }
 
 //----------------------------------------------------------------------------
-int vtkXMLReader::CreateInformationKey(
-  vtkXMLDataElement *eInfoKey, vtkInformation *info)
+// Methods used for deserializing vtkInformation. ----------------------------
+namespace {
+
+void ltrim(std::string &s)
 {
-  // Quick sanity check that, this is an InformationKey
-  // and it is defined correctly.
-  const char *name=eInfoKey->GetAttribute("name");
-  const char *location=eInfoKey->GetAttribute("location");
-  if ((strcmp(eInfoKey->GetName(),"InformationKey") != 0)
-      || !location || !name)
+  s.erase(s.begin(),
+          std::find_if(s.begin(),
+                       s.end(),
+                       std::not1(std::ptr_fun<int, int>(isspace))));
+}
+
+void rtrim(std::string &s)
+{
+  s.erase(std::find_if(s.rbegin(),
+                       s.rend(),
+                       std::not1(std::ptr_fun<int, int>(isspace))).base(),
+          s.end());
+}
+
+void trim(std::string &s)
+{
+  ltrim(s);
+  rtrim(s);
+}
+
+// Handle type extraction where needed, but trim and pass-through strings.
+template <class ValueType>
+bool extractValue(const char *valueStr, ValueType &value)
+{
+  if (!valueStr)
     {
-    vtkWarningMacro("XML representation of Key: "
-                    "\"InformationKey\" is expected to "
-                    "have \"name\" and \"location\" "
+    return false;
+    }
+
+  std::istringstream str;
+  str.str(valueStr);
+  str >> value;
+  return !str.fail();
+}
+bool extractValue(const char *valueStr, std::string &value)
+{
+  value = std::string(valueStr ? valueStr : "");
+  trim(value); // vtkXMLDataElement adds newlines before/after character data.
+  return true;
+}
+
+template <class ValueType, class KeyType>
+bool readScalarInfo(KeyType *key, vtkInformation *info,
+                    vtkXMLDataElement *element)
+{
+  const char *valueStr = element->GetCharacterData();
+
+  // backwards-compat: Old versions of the writer used to store data in
+  // a 'value' attribute, but this causes problems with strings (e.g. the
+  // XML parser removes newlines from attribute values).
+  // Note that this is only for the non-vector information keys, as there were
+  // no serialized vector keys in the old writer.
+  // If there's no character data, check for a value attribute:
+  if ((!valueStr || strlen(valueStr) == 0))
+    {
+    valueStr = element->GetAttribute("value");
+    }
+
+  ValueType value;
+  if (!extractValue(valueStr, value))
+    {
+    return false;
+    }
+  info->Set(key, value);
+  return true;
+}
+
+// Generic vector key reader. Stores in a temporary vector and calls Set to
+// make sure that keys with RequiredLength work properly.
+template <class ValueType, class KeyType>
+bool readVectorInfo(KeyType *key, vtkInformation *info,
+                    vtkXMLDataElement *element)
+{
+  const char *lengthData = element->GetAttribute("length");
+  int length;
+  if (!extractValue(lengthData, length))
+    {
+    return false;
+    }
+
+  if (length == 0)
+    {
+    info->Set(key, NULL, 0);
+    }
+
+  std::vector<ValueType> values;
+  for (int i = 0; i < length; ++i)
+    {
+    std::ostringstream indexStr;
+    indexStr << i;
+    vtkXMLDataElement *valueElement =
+        element->FindNestedElementWithNameAndAttribute("Value", "index",
+                                                       indexStr.str().c_str());
+    if (!valueElement)
+      {
+      return false;
+      }
+
+    const char *valueData = valueElement->GetCharacterData();
+    ValueType value;
+    if (!extractValue(valueData, value))
+      {
+      return false;
+      }
+    values.push_back(value);
+    }
+  info->Set(key, &values[0], length);
+
+  return true;
+}
+
+// Overload for string vector keys. There is no API for 'set all at once',
+// so we'll need to use Append (which can't work with RequiredLength vector
+// keys, hence the need for a specialization).
+template <typename ValueType>
+bool readVectorInfo(vtkInformationStringVectorKey *key, vtkInformation *info,
+                    vtkXMLDataElement *element)
+{
+  const char *lengthData = element->GetAttribute("length");
+  int length;
+  if (!extractValue(lengthData, length))
+    {
+    return false;
+    }
+
+  for (int i = 0; i < length; ++i)
+    {
+    std::ostringstream indexStr;
+    indexStr << i;
+    vtkXMLDataElement *valueElement =
+        element->FindNestedElementWithNameAndAttribute("Value", "index",
+                                                       indexStr.str().c_str());
+    if (!valueElement)
+      {
+      return false;
+      }
+
+    const char *valueData = valueElement->GetCharacterData();
+    ValueType value;
+    if (!extractValue(valueData, value))
+      {
+      return false;
+      }
+    info->Append(key, value);
+    }
+
+  return true;
+}
+
+} // end anon namespace
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+int vtkXMLReader::CreateInformationKey(vtkXMLDataElement *element,
+                                       vtkInformation *info)
+{
+  const char *name = element->GetAttribute("name");
+  const char *location = element->GetAttribute("location");
+  if (!name || !location)
+    {
+    vtkWarningMacro("InformationKey element missing name and/or location "
                     "attributes.");
     return 0;
     }
 
-  // Check that it's a recognized type, and restore.
-  if ((strcmp(location, "vtkQuadratureSchemeDefinition") == 0)
-      && (strcmp(name, "DICTIONARY")== 0))
+  vtkInformationKey *key = vtkInformationKeyLookup::Find(name, location);
+  if (!key)
     {
-    vtkInformationQuadratureSchemeDefinitionVectorKey *key =
-      vtkQuadratureSchemeDefinition::DICTIONARY();
-    key->RestoreState(info, eInfoKey);
-    vtkIndent indent;
+    vtkWarningMacro("Could not locate key " << location << "::" << name
+                    << ". Is the module in which it is defined linked?");
+    return 0;
     }
 
-  if ((strcmp(location, "vtkQuadratureSchemeDefinition") == 0)
-      && (strcmp(name, "DICTIONARY") == 0))
+  vtkInformationDoubleKey *dKey = NULL;
+  vtkInformationDoubleVectorKey *dvKey = NULL;
+  vtkInformationIdTypeKey *idKey = NULL;
+  vtkInformationIntegerKey *iKey = NULL;
+  vtkInformationIntegerVectorKey *ivKey = NULL;
+  vtkInformationStringKey *sKey = NULL;
+  vtkInformationStringVectorKey *svKey = NULL;
+  vtkInformationUnsignedLongKey *ulKey = NULL;
+  typedef vtkInformationQuadratureSchemeDefinitionVectorKey QuadDictKey;
+  QuadDictKey *qdKey = NULL;
+  if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
     {
-    vtkInformationQuadratureSchemeDefinitionVectorKey *key =
-      vtkQuadratureSchemeDefinition::DICTIONARY();
-    key->RestoreState(info, eInfoKey);
-    vtkIndent indent;
-    }
-
-  if ((strcmp(location, "vtkQuadratureSchemeDefinition") == 0)
-      && (strcmp(name, "QUADRATURE_OFFSET_ARRAY_NAME") == 0))
-    {
-    const char *value=eInfoKey->GetAttribute("value");
-    if (value==NULL)
+    if (!readScalarInfo<double>(dKey, info, element))
       {
-      vtkWarningMacro("required attribute \"value\" for "
-                      "\"InformationKey\" with name "
-                      "\"QUADRATURE_OFFSET_ARRAY_NAME\" is missing.");
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                      << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
       return 0;
       }
-    vtkInformationStringKey *key =
-      vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME();
-    key->Set(info, value);
-    vtkIndent indent;
+    }
+  else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+    {
+    if (!readVectorInfo<double>(dvKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
+    {
+    if (!readScalarInfo<vtkIdType>(idKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
+    {
+    if (!readScalarInfo<int>(iKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
+    {
+    if (!readVectorInfo<int>(ivKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((sKey = vtkInformationStringKey::SafeDownCast(key)))
+    {
+    if (!readScalarInfo<std::string>(sKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
+    {
+    if (!readVectorInfo<std::string>(svKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
+    {
+    if (!readScalarInfo<unsigned long>(ulKey, info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else if ((qdKey = QuadDictKey::SafeDownCast(key)))
+    { // Special case:
+    if (!qdKey->RestoreState(info, element))
+      {
+      vtkErrorMacro("Error reading InformationKey element for " << location
+                    << "::" << name << " of type " << key->GetClassName());
+      info->Remove(key);
+      return 0;
+      }
+    }
+  else
+    {
+    vtkErrorMacro("Could not deserialize information with key "
+                  << key->GetLocation() << "::" << key->GetName() << ": "
+                  "key type '" << key->GetClassName()
+                  << "' is not serializable.");
+    return 0;
     }
 
   return 1;
+}
+
+//----------------------------------------------------------------------------
+bool vtkXMLReader::ReadInformation(vtkXMLDataElement *infoRoot,
+                                   vtkInformation *info)
+{
+  int numChildren = infoRoot->GetNumberOfNestedElements();
+  for (int child = 0; child < numChildren; ++child)
+    {
+    vtkXMLDataElement *element = infoRoot->GetNestedElement(child);
+    if (strncmp("InformationKey", element->GetName(), 14) != 0)
+      { // Not an element we care about.
+      continue;
+      }
+
+    if (!this->CreateInformationKey(element, info))
+      {
+      return false;
+      }
+    }
+
+  return true;
 }
 
 //----------------------------------------------------------------------------

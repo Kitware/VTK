@@ -131,8 +131,8 @@ protected:
   Internals* Implementation;
 
 private:
-  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&); // Not implemented
-  void operator=(const vtkRenderedHierarchyRepresentation&);   // Not implemented
+  vtkRenderedHierarchyRepresentation(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedHierarchyRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

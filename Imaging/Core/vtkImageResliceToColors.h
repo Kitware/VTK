@@ -95,8 +95,8 @@ protected:
                       int idX, int idY, int idZ, int threadId);
 
 private:
-  vtkImageResliceToColors(const vtkImageResliceToColors&);  // Not implemented.
-  void operator=(const vtkImageResliceToColors&);  // Not implemented.
+  vtkImageResliceToColors(const vtkImageResliceToColors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageResliceToColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -84,13 +84,13 @@ public:
   // Return 1 if this class type is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
   // combination with vtkTypeMacro found in vtkSetGet.h.
-  static int IsTypeOf(const char *name);
+  static vtkTypeBool IsTypeOf(const char *name);
 
   // Description:
   // Return 1 if this class is the same type of (or a subclass of)
   // the named class. Returns 0 otherwise. This method works in
   // combination with vtkTypeMacro found in vtkSetGet.h.
-  virtual int IsA(const char *name);
+  virtual vtkTypeBool IsA(const char *name);
 
   // Description:
   // Delete a VTK object.  This method should always be used to delete
@@ -169,8 +169,8 @@ protected:
   // Internal Register/UnRegister implementation that accounts for
   // possible garbage collection participation.  The second argument
   // indicates whether to participate in garbage collection.
-  virtual void RegisterInternal(vtkObjectBase*, int check);
-  virtual void UnRegisterInternal(vtkObjectBase*, int check);
+  virtual void RegisterInternal(vtkObjectBase*, vtkTypeBool check);
+  virtual void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check);
 
   // See vtkGarbageCollector.h:
   virtual void ReportReferences(vtkGarbageCollector*);

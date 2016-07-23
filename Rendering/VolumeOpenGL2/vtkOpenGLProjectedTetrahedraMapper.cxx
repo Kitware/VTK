@@ -335,7 +335,13 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
     }
 
   // make sure our shader program is loaded and ready to go
-  vtkOpenGLRenderWindow *renWin = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+  vtkOpenGLRenderWindow *renWin =
+    vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
+
+  if (renWin == NULL)
+    {
+    vtkErrorMacro("Invalid vtkOpenGLRenderWindow");
+    }
 
   vtkUnstructuredGridBase *input = this->GetInput();
   vtkVolumeProperty *property = volume->GetProperty();
@@ -467,7 +473,7 @@ void vtkOpenGLProjectedTetrahedraMapper::Render(vtkRenderer *renderer,
 
   this->Timer->StartTimer();
 
-  this->ProjectTetrahedra(renderer, volume);
+  this->ProjectTetrahedra(renderer, volume, renWin);
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();
@@ -528,9 +534,10 @@ inline float vtkOpenGLProjectedTetrahedraMapper::GetCorrectedDepth(
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer,
-                                                           vtkVolume *volume)
+  vtkVolume *volume, vtkOpenGLRenderWindow* renWin)
 {
   vtkOpenGLClearErrorMacro();
+  unsigned int const defaultFBO = renWin->GetFrameBufferObject();
 
   // after mucking about with FBO bindings be sure
   // we're saving the default fbo attributes/blend function
@@ -554,7 +561,8 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
       }
 
     // read from default
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, defaultFBO);
+
     // draw to fbo
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER,
                            this->Internals->FrameBufferObjectId);
@@ -1119,7 +1127,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     glBindFramebuffer(GL_READ_FRAMEBUFFER,
                       this->Internals->FrameBufferObjectId);
     // draw to default fbo
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFBO);
 
     glBlitFramebuffer(0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
                       0, 0, this->CurrentFBOWidth, this->CurrentFBOHeight,
@@ -1128,7 +1136,7 @@ void vtkOpenGLProjectedTetrahedraMapper::ProjectTetrahedra(vtkRenderer *renderer
     vtkOpenGLCheckErrorMacro("failed at glBlitFramebuffer");
 
     // restore default fbo for both read+draw
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, defaultFBO);
     }
 
   // Restore the blend function.

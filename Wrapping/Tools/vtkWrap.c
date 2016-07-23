@@ -658,7 +658,8 @@ void vtkWrap_FindCountHints(
     }
 
   /* add hints for array GetTuple methods */
-  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray"))
+  if (vtkWrap_IsTypeOf(hinfo, data->Name, "vtkDataArray") ||
+      vtkWrap_IsTypeOf(hinfo, data->Name, "vtkArrayIterator"))
     {
     countMethod = "GetNumberOfComponents()";
 
@@ -782,6 +783,7 @@ void vtkWrap_FindNewInstanceMethods(
         vtkWrap_IsVTKObjectBaseType(hinfo, theFunc->ReturnValue->Class))
       {
       if (strcmp(theFunc->Name, "NewInstance") == 0 ||
+          strcmp(theFunc->Name, "NewIterator") == 0 ||
           strcmp(theFunc->Name, "CreateInstance") == 0)
         {
         if ((theFunc->ReturnValue->Type & VTK_PARSE_NEWINSTANCE) == 0)

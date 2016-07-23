@@ -1155,21 +1155,6 @@ endElement(void *ctx, const xmlChar * name ATTRIBUTE_UNUSED)
 }
 
 /**
- * reference:
- * @ctx: the user data (XML parser context)
- * @name:  The entity name
- *
- * called when an entity reference is detected. 
- * DEPRECATED: use xmlSAX2Reference()
- */
-void
-reference(void *ctx, const xmlChar * name)
-{
-    DEPRECATED("reference")
-        xmlSAX2Reference(ctx, name);
-}
-
-/**
  * characters:
  * @ctx: the user data (XML parser context)
  * @ch:  a xmlChar string

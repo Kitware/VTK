@@ -74,8 +74,8 @@ protected:
   static int DecodedGradientTableInitialized;
 
 private:
-  vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&);  // Not implemented.
-  void operator=(const vtkSphericalDirectionEncoder&);  // Not implemented.
+  vtkSphericalDirectionEncoder(const vtkSphericalDirectionEncoder&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSphericalDirectionEncoder&) VTK_DELETE_FUNCTION;
 };
 
 

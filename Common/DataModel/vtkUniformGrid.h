@@ -167,8 +167,8 @@ protected:
   vtkEmptyCell* GetEmptyCell();
 
 private:
-  vtkUniformGrid(const vtkUniformGrid&);  // Not implemented.
-  void operator=(const vtkUniformGrid&);  // Not implemented.
+  vtkUniformGrid(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGrid&) VTK_DELETE_FUNCTION;
 
   vtkEmptyCell *EmptyCell;
 

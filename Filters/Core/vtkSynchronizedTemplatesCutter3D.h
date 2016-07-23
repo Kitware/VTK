@@ -66,8 +66,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&);  // Not implemented.
-  void operator=(const vtkSynchronizedTemplatesCutter3D&);  // Not implemented.
+  vtkSynchronizedTemplatesCutter3D(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSynchronizedTemplatesCutter3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

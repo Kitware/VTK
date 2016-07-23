@@ -41,8 +41,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 
 private:
-  vtkGeodesicPath(const vtkGeodesicPath&);  // Not implemented.
-  void operator=(const vtkGeodesicPath&);  // Not implemented.
+  vtkGeodesicPath(const vtkGeodesicPath&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGeodesicPath&) VTK_DELETE_FUNCTION;
 };
 
 #endif

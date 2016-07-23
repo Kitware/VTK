@@ -62,7 +62,7 @@ public:
 protected:
   TestTimeSource()
   {
-    NumRequestData=0;
+    this->NumRequestData=0;
     this->SetNumberOfInputPorts(0);
     this->SetNumberOfOutputPorts(1);
     for(int i=0; i<10 ;i++)
@@ -70,19 +70,19 @@ protected:
       this->TimeSteps.push_back(i);
       }
 
-    Extent[0] = 0;
-    Extent[1] = 1;
-    Extent[2] = 0;
-    Extent[3] = 1;
-    Extent[4] = 0;
-    Extent[5] = 1;
+    this->Extent[0] = 0;
+    this->Extent[1] = 1;
+    this->Extent[2] = 0;
+    this->Extent[3] = 1;
+    this->Extent[4] = 0;
+    this->Extent[5] = 1;
 
-    BoundingBox[0]=0;
-    BoundingBox[1]=1;
-    BoundingBox[2]=0;
-    BoundingBox[3]=1;
-    BoundingBox[4]=0;
-    BoundingBox[5]=1;
+    this->BoundingBox[0]=0;
+    this->BoundingBox[1]=1;
+    this->BoundingBox[2]=0;
+    this->BoundingBox[3]=1;
+    this->BoundingBox[4]=0;
+    this->BoundingBox[5]=1;
   }
   void GetSpacing(double dx[3])
   {
@@ -91,13 +91,13 @@ protected:
       dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
       }
   }
-  ~TestTimeSource()
+  ~TestTimeSource() VTK_OVERRIDE
   {
   }
 
   int ProcessRequest(vtkInformation* request,
                      vtkInformationVector** inputVector,
-                     vtkInformationVector* outputVector)
+                     vtkInformationVector* outputVector) VTK_OVERRIDE
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
@@ -113,7 +113,7 @@ protected:
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
-  int FillOutputPortInformation(int, vtkInformation *info)
+  int FillOutputPortInformation(int, vtkInformation *info) VTK_OVERRIDE
   {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkImageData");
     return 1;
@@ -227,8 +227,8 @@ protected:
 
 
 private:
-  TestTimeSource(const TestTimeSource&); // Not implemented.
-  void operator=(const TestTimeSource&);  // Not implemented.
+  TestTimeSource(const TestTimeSource&) VTK_DELETE_FUNCTION;
+  void operator=(const TestTimeSource&) VTK_DELETE_FUNCTION;
 
   vector<double> TimeSteps;
   int Extent[6];
@@ -332,6 +332,37 @@ int TestParticlePathFilter()
   return EXIT_SUCCESS;
 }
 
+int TestParticlePathFilterStartTime()
+{
+  vtkNew<TestTimeSource> imageSource;
+  imageSource->SetBoundingBox(-1,1,-1,1,-1,1);
+
+  vtkNew<vtkPoints> points;
+  points->InsertNextPoint(0.5,0,0);
+
+  vtkNew<vtkPolyData> ps;
+  ps->SetPoints(points.GetPointer());
+
+  vtkNew<vtkParticlePathFilter> filter;
+  filter->SetStartTime(2.0);
+  filter->SetInputConnection(0,imageSource->GetOutputPort());
+  filter->SetInputData(1,ps.GetPointer());
+
+  filter->SetTerminationTime(5.3);
+  filter->Update();
+
+  vtkPolyData* out = filter->GetOutput();
+  EXPECT(out->GetNumberOfCells() == 1, "Wrong number of particle paths for non-zero start time");
+
+  vtkCell* cell = out->GetCell(0);
+  EXPECT(cell->GetNumberOfPoints() == 6, "Wrong number of points for non-zero particle path start time");
+  double pt[3];
+  out->GetPoint(cell->GetPointId(5), pt);
+  EXPECT(fabs(pt[0]-0.179085) < 0.01 && fabs(pt[1]) < 0.01 && fabs(pt[2]-0.466826) < 0.01,
+         "Wrong end point for particle path with non-zero start time");
+
+  return EXIT_SUCCESS;
+}
 
 int TestStreaklineFilter()
 {
@@ -463,6 +494,7 @@ int TestParticleTracers(int, char*[])
 
 
   EXPECT(TestParticlePathFilter()==EXIT_SUCCESS,"");
+  EXPECT(TestParticlePathFilterStartTime()==EXIT_SUCCESS,"");
   EXPECT(TestStreaklineFilter()==EXIT_SUCCESS,"");
 
   return EXIT_SUCCESS;

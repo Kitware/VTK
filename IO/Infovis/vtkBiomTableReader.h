@@ -73,8 +73,8 @@ private:
   int NumberOfColumns;
   int DataType;
   bool Sparse;
-  vtkBiomTableReader(const vtkBiomTableReader&);  // Not implemented.
-  void operator=(const vtkBiomTableReader&);  // Not implemented.
+  vtkBiomTableReader(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBiomTableReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

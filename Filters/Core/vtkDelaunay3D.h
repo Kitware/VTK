@@ -260,13 +260,11 @@ protected:
 private: //members added for performance
   vtkIdList *Tetras; //used in InsertPoint
   vtkIdList *Faces;  //used in InsertPoint
-  vtkIdList *BoundaryPts; //used by InsertPoint
   vtkIdList *CheckedTetras; //used by InsertPoint
-  vtkIdList *NeiTetras; //used by InsertPoint
 
 private:
-  vtkDelaunay3D(const vtkDelaunay3D&);  // Not implemented.
-  void operator=(const vtkDelaunay3D&);  // Not implemented.
+  vtkDelaunay3D(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDelaunay3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

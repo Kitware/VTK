@@ -47,8 +47,8 @@ protected:
   ~vtkInteractorStyleMultiTouchCamera();
 
 private:
-  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
-  void operator=(const vtkInteractorStyleMultiTouchCamera&);  // Not implemented.
+  vtkInteractorStyleMultiTouchCamera(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkInteractorStyleMultiTouchCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

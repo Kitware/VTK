@@ -86,8 +86,8 @@ protected:
   ~vtkUniformGridAMRDataIterator();
   vtkSmartPointer<AMRIndexIterator> Iter;
 private:
-  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&); // Not implemented.
-  void operator=(const vtkUniformGridAMRDataIterator&); // Not implemented.
+  vtkUniformGridAMRDataIterator(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkUniformGridAMRDataIterator&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkInformation> Information;
   vtkSmartPointer<vtkUniformGridAMR> AMR;

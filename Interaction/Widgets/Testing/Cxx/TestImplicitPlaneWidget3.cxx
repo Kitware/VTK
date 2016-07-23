@@ -152,7 +152,7 @@ class vtkTIPW2Callback : public vtkCommand
 public:
   static vtkTIPW2Callback *New()
   { return new vtkTIPW2Callback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
   {
     vtkImplicitPlaneWidget2 *planeWidget =
       reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
@@ -265,7 +265,7 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->GetOrigin(origin);
 
   // #1: With ConstrainOrigin on, origin SHOULD NOT be settable outside widget bounds
-  rep->ConstrainOriginOn();
+  rep->ConstrainToWidgetBoundsOn();
   rep->GetWidgetBounds(wbounds);
   rep->SetOrigin(wbounds[1] + 1.0, wbounds[3] + 1.0, wbounds[5] + 1.0);
   rep->GetOrigin(origin1);
@@ -281,7 +281,7 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
 
   // #2: With ConstrainOrigin off, origin SHOULD be settable outside current widget bounds.
-  rep->ConstrainOriginOff();
+  rep->ConstrainToWidgetBoundsOff();
   origin1[0] = wbounds[1] + 1.0;
   origin1[1] = wbounds[3] + 1.0;
   origin1[2] = wbounds[5] + 1.0;
@@ -303,7 +303,7 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // #3: With ConstrainOrigin on and OutsideBounds off, the translation of the
   // widget should be limited
   rep->OutsideBoundsOff();
-  rep->ConstrainOriginOn();
+  rep->ConstrainToWidgetBoundsOn();
 
   vtkSmartPointer<vtkInteractorEventRecorder> recorder =
     vtkSmartPointer<vtkInteractorEventRecorder>::New();

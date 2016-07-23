@@ -8,8 +8,11 @@ endif()
 
 PROJECT (Step6)
 
-find_package(VTK COMPONENTS
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
+  vtkCommonCore
   vtkFiltersSources
+  vtkInteractionStyle
   vtkInteractionWidgets
   vtkRendering${VTK_RENDERING_BACKEND}
 )

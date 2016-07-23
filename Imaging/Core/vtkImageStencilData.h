@@ -191,8 +191,8 @@ protected:
   int **ExtentLists;
 
 private:
-  vtkImageStencilData(const vtkImageStencilData&);  // Not implemented.
-  void operator=(const vtkImageStencilData&);  // Not implemented.
+  vtkImageStencilData(const vtkImageStencilData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStencilData&) VTK_DELETE_FUNCTION;
 
   friend class vtkImageStencilIteratorFriendship;
 };
@@ -253,8 +253,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkImageStencilRaster(const vtkImageStencilRaster&);  // Not implemented.
-  void operator=(const vtkImageStencilRaster&);  // Not implemented.
+  vtkImageStencilRaster(const vtkImageStencilRaster&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageStencilRaster&) VTK_DELETE_FUNCTION;
 };
 
 #endif

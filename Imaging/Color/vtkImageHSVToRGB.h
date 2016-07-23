@@ -53,8 +53,8 @@ protected:
   void ThreadedExecute (vtkImageData *inData, vtkImageData *outData,
                        int ext[6], int id);
 private:
-  vtkImageHSVToRGB(const vtkImageHSVToRGB&);  // Not implemented.
-  void operator=(const vtkImageHSVToRGB&);  // Not implemented.
+  vtkImageHSVToRGB(const vtkImageHSVToRGB&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageHSVToRGB&) VTK_DELETE_FUNCTION;
 };
 
 #endif

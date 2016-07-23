@@ -68,8 +68,8 @@ protected:
     vtkInformationVector*);
 
 private:
-  vtkRowQueryToTable(const vtkRowQueryToTable&); // Not implemented
-  void operator=(const vtkRowQueryToTable&);   // Not implemented
+  vtkRowQueryToTable(const vtkRowQueryToTable&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRowQueryToTable&) VTK_DELETE_FUNCTION;
 };
 
 #endif

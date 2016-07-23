@@ -38,7 +38,7 @@ vtkGeneralizedKernel::~vtkGeneralizedKernel()
 
 //----------------------------------------------------------------------------
 vtkIdType vtkGeneralizedKernel::
-ComputeBasis(double x[3], vtkIdList *pIds)
+ComputeBasis(double x[3], vtkIdList *pIds, vtkIdType)
 {
   if ( this->KernelFootprint == vtkGeneralizedKernel::RADIUS )
     {

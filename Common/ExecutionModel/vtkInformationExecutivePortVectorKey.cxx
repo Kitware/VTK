@@ -53,7 +53,7 @@ public:
   std::vector<vtkExecutive*> Executives;
   std::vector<int> Ports;
 
-  virtual ~vtkInformationExecutivePortVectorValue();
+  ~vtkInformationExecutivePortVectorValue() VTK_OVERRIDE;
   void UnRegisterAllExecutives();
 };
 

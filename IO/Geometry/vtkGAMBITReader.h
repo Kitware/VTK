@@ -101,8 +101,8 @@ private:
   void ReadMaterialTypes(vtkUnstructuredGrid *output);
   void ReadBoundaryConditionSets(vtkUnstructuredGrid *output);
 
-  vtkGAMBITReader(const vtkGAMBITReader&);  // Not implemented.
-  void operator=(const vtkGAMBITReader&);  // Not implemented.
+  vtkGAMBITReader(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGAMBITReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

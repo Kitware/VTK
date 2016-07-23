@@ -25,6 +25,8 @@
 #include "XdmfSetType.hpp"
 #include "XdmfError.hpp"
 
+std::map<std::string, shared_ptr<const XdmfSetType>(*)()> XdmfSetType::mSetDefinitions;
+
 // Supported XdmfSetTypes
 shared_ptr<const XdmfSetType>
 XdmfSetType::NoSetType()
@@ -61,6 +63,16 @@ XdmfSetType::Edge()
   return p;
 }
 
+void
+XdmfSetType::InitTypes()
+{
+  mSetDefinitions["NONE"] = NoSetType;
+  mSetDefinitions["NODE"] = Node;
+  mSetDefinitions["CELL"] = Cell;
+  mSetDefinitions["FACE"] = Face;
+  mSetDefinitions["EDGE"] = Edge;
+}
+
 XdmfSetType::XdmfSetType(const std::string & name) :
   mName(name)
 {
@@ -73,6 +85,8 @@ XdmfSetType::~XdmfSetType()
 shared_ptr<const XdmfSetType>
 XdmfSetType::New(const std::map<std::string, std::string> & itemProperties)
 {
+  InitTypes();
+
   std::map<std::string, std::string>::const_iterator type =
     itemProperties.find("Type");
   if(type == itemProperties.end()) {
@@ -83,22 +97,18 @@ XdmfSetType::New(const std::map<std::string, std::string> & itemProperties)
                        "Neither 'Type' nor 'SetType' found in itemProperties "
                        "in XdmfSetType::New");
   }
-  const std::string & typeVal = type->second;
+  const std::string & typeVal = ConvertToUpper(type->second);
 
-  if(typeVal.compare("Node") == 0) {
-    return Node();
+  std::map<std::string, shared_ptr<const XdmfSetType>(*)()>::const_iterator returnType
+    = mSetDefinitions.find(typeVal);
+
+  if (returnType == mSetDefinitions.end()) {
+    XdmfError::message(XdmfError::FATAL,
+                       "Type not of 'None', 'Node', 'Cell', 'Face', or "
+                       "'Edge' in XdmfSetType::New");
   }
-  else if(typeVal.compare("Cell") == 0) {
-    return Cell();
-  }
-  else if(typeVal.compare("Face") == 0) {
-    return Face();
-  }
-  else if(typeVal.compare("Edge") == 0) {
-    return Edge();
-  }
-  else if(typeVal.compare("None") == 0) {
-    return NoSetType();
+  else {
+    return (*(returnType->second))();
   }
 
   XdmfError::message(XdmfError::FATAL, 
@@ -113,4 +123,31 @@ void
 XdmfSetType::getProperties(std::map<std::string, std::string> & collectedProperties) const
 {
   collectedProperties.insert(std::make_pair("Type", mName));
+}
+
+// C Wrappers
+
+int XdmfSetTypeNoSetType()
+{
+  return XDMF_SET_TYPE_NO_SET_TYPE;
+}
+
+int XdmfSetTypeNode()
+{
+  return XDMF_SET_TYPE_NODE;
+}
+
+int XdmfSetTypeCell()
+{
+  return XDMF_SET_TYPE_CELL;
+}
+
+int XdmfSetTypeFace()
+{
+  return XDMF_SET_TYPE_FACE;
+}
+
+int XdmfSetTypeEdge()
+{
+  return XDMF_SET_TYPE_EDGE;
 }

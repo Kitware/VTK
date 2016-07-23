@@ -298,8 +298,8 @@ protected:
   vtkStatisticsAlgorithmPrivate* Internals;
 
 private:
-  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&); // Not implemented
-  void operator=(const vtkStatisticsAlgorithm&);   // Not implemented
+  vtkStatisticsAlgorithm(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkStatisticsAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

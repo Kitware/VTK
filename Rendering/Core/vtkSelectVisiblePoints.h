@@ -131,8 +131,8 @@ protected:
   double Tolerance;
 
 private:
-  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&);  // Not implemented.
-  void operator=(const vtkSelectVisiblePoints&);  // Not implemented.
+  vtkSelectVisiblePoints(const vtkSelectVisiblePoints&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkSelectVisiblePoints&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -14,9 +14,9 @@
 =========================================================================*/
 // .NAME vtkXMLReader - Superclass for VTK's XML format readers.
 // .SECTION Description
-// vtkXMLReader uses vtkXMLDataParser to parse a VTK XML input file.
-// Concrete subclasses then traverse the parsed file structure and
-// extract data.
+// vtkXMLReader uses vtkXMLDataParser to parse a
+// <a href="http://www.vtk.org/Wiki/VTK_XML_Formats">VTK XML</a> input file.
+// Concrete subclasses then traverse the parsed file structure and extract data.
 
 #ifndef vtkXMLReader_h
 #define vtkXMLReader_h
@@ -174,6 +174,10 @@ protected:
   // Stores it in the instance of vtkInformationProvided. Does not allocate.
   int CreateInformationKey(vtkXMLDataElement *eInfoKey, vtkInformation *info);
 
+  // Populates the info object with the InformationKey children in infoRoot.
+  // Returns false if errors occur.
+  bool ReadInformation(vtkXMLDataElement *infoRoot, vtkInformation *info);
+
   // Internal utility methods.
   virtual int OpenStream();
   virtual void CloseStream();
@@ -328,8 +332,8 @@ private:
   vtkInformation* CurrentOutputInformation;
 
 private:
-  vtkXMLReader(const vtkXMLReader&);  // Not implemented.
-  void operator=(const vtkXMLReader&);  // Not implemented.
+  vtkXMLReader(const vtkXMLReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLReader&) VTK_DELETE_FUNCTION;
 
   vtkCommand *ReaderErrorObserver;
   vtkCommand *ParserErrorObserver;

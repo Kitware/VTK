@@ -40,25 +40,25 @@ public:
     this->NumberOfComponents = array->GetNumberOfComponents();
     this->MaxId = array->GetMaxId();
   }
-  ValueType& GetValueReference(vtkIdType idx)
+  ValueType& GetValueReference(vtkIdType idx) VTK_OVERRIDE
   {
     return *this->Data->GetPointer(idx);
   }
 
   // These pure virtuals are no-op -- all we care about is GetValueReference
   // to test the iterator.
-  void SetTypedTuple(vtkIdType, const ValueType *) {}
-  void InsertTypedTuple(vtkIdType, const ValueType *) {}
-  vtkIdType InsertNextTypedTuple(const ValueType *) { return 0; }
-  vtkIdType LookupTypedValue(ValueType) { return 0; }
-  void LookupTypedValue(ValueType, vtkIdList*) {}
-  ValueType GetValue(vtkIdType) const { return 0; }
-  void SetValue(vtkIdType, ValueType) {}
-  void GetTypedTuple(vtkIdType, ValueType*) const {}
-  vtkIdType InsertNextValue(ValueType) { return 0; }
-  void InsertValue(vtkIdType, ValueType) {}
-  int Allocate(vtkIdType, vtkIdType) { return 0; }
-  int Resize(vtkIdType) { return 0; }
+  void SetTypedTuple(vtkIdType, const ValueType *) VTK_OVERRIDE {}
+  void InsertTypedTuple(vtkIdType, const ValueType *) VTK_OVERRIDE {}
+  vtkIdType InsertNextTypedTuple(const ValueType *) VTK_OVERRIDE { return 0; }
+  vtkIdType LookupTypedValue(ValueType) VTK_OVERRIDE { return 0; }
+  void LookupTypedValue(ValueType, vtkIdList*) VTK_OVERRIDE {}
+  ValueType GetValue(vtkIdType) const VTK_OVERRIDE { return 0; }
+  void SetValue(vtkIdType, ValueType) VTK_OVERRIDE {}
+  void GetTypedTuple(vtkIdType, ValueType*) const VTK_OVERRIDE {}
+  vtkIdType InsertNextValue(ValueType) VTK_OVERRIDE { return 0; }
+  void InsertValue(vtkIdType, ValueType) VTK_OVERRIDE {}
+  int Allocate(vtkIdType, vtkIdType) VTK_OVERRIDE { return 0; }
+  int Resize(vtkIdType) VTK_OVERRIDE { return 0; }
 };
 }
 

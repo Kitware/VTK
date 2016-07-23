@@ -661,6 +661,18 @@ int vtkCompositePolyDataMapper2::CanUseTextureMapForColoring(vtkDataObject*)
 }
 
 //-------------------------------------------------------------------------
+bool vtkCompositePolyDataMapper2::GetNeedToRebuildBufferObjects(
+  vtkRenderer *ren, vtkActor *act)
+{
+  if (vtkCompositePolyDataMapper2::Superclass::GetNeedToRebuildBufferObjects(ren, act) ||
+      (this->GetInput() && this->VBOBuildTime < this->GetInput()->GetMTime()))
+    {
+    return true;
+    }
+  return false;
+}
+
+//-------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::BuildBufferObjects(
   vtkRenderer *ren,
   vtkActor *act)

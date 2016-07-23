@@ -27,10 +27,6 @@ extern "C" {
 #include <setjmp.h>
 }
 
-#if _MSC_VER
-#define snprintf _snprintf
-#endif
-
 vtkStandardNewMacro(vtkJPEGWriter);
 
 vtkCxxSetObjectMacro(vtkJPEGWriter,Result,vtkUnsignedCharArray);

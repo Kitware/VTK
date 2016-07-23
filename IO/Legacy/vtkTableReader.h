@@ -61,8 +61,8 @@ protected:
 
   virtual int FillOutputPortInformation(int, vtkInformation*);
 private:
-  vtkTableReader(const vtkTableReader&);  // Not implemented.
-  void operator=(const vtkTableReader&);  // Not implemented.
+  vtkTableReader(const vtkTableReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTableReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

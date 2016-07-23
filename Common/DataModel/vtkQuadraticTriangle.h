@@ -123,8 +123,8 @@ protected:
   vtkDoubleArray    *Scalars; //used to avoid New/Delete in contouring/clipping
 
 private:
-  vtkQuadraticTriangle(const vtkQuadraticTriangle&);  // Not implemented.
-  void operator=(const vtkQuadraticTriangle&);  // Not implemented.
+  vtkQuadraticTriangle(const vtkQuadraticTriangle&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraticTriangle&) VTK_DELETE_FUNCTION;
 };
 //----------------------------------------------------------------------------
 inline int vtkQuadraticTriangle::GetParametricCenter(double pcoords[3])

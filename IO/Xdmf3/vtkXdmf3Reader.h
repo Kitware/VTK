@@ -167,8 +167,8 @@ protected:
   vtkXdmf3ArraySelection* SetsCache;
 
 private:
-  vtkXdmf3Reader(const vtkXdmf3Reader&); // Not implemented
-  void operator=(const vtkXdmf3Reader&); // Not implemented
+  vtkXdmf3Reader(const vtkXdmf3Reader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXdmf3Reader&) VTK_DELETE_FUNCTION;
 
   bool FileSeriesAsTime;
 

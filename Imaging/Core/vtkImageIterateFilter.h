@@ -78,8 +78,8 @@ protected:
   vtkInformationVector* InputVector;
   vtkInformationVector* OutputVector;
 private:
-  vtkImageIterateFilter(const vtkImageIterateFilter&);  // Not implemented.
-  void operator=(const vtkImageIterateFilter&);  // Not implemented.
+  vtkImageIterateFilter(const vtkImageIterateFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageIterateFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

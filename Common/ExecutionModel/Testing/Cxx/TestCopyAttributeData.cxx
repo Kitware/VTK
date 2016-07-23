@@ -43,16 +43,16 @@ public:
 
 protected:
   vtkDummyImageFilter() {};
-  ~vtkDummyImageFilter() {};
+  ~vtkDummyImageFilter() VTK_OVERRIDE {};
 
   int RequestData(
     vtkInformation* request,
     vtkInformationVector** inputVector,
-    vtkInformationVector* outputVector);
+    vtkInformationVector* outputVector) VTK_OVERRIDE;
 
 private:
-  vtkDummyImageFilter(const vtkDummyImageFilter&);  // Not implemented.
-  void operator=(const vtkDummyImageFilter&);  // Not implemented.
+  vtkDummyImageFilter(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDummyImageFilter&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkDummyImageFilter);

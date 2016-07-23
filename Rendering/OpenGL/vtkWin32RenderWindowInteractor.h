@@ -147,8 +147,8 @@ protected:
 #endif
 
 private:
-  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&);  // Not implemented.
-  void operator=(const vtkWin32RenderWindowInteractor&);  // Not implemented.
+  vtkWin32RenderWindowInteractor(const vtkWin32RenderWindowInteractor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWin32RenderWindowInteractor&) VTK_DELETE_FUNCTION;
 };
 
 #endif

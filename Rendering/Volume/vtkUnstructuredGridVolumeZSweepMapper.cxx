@@ -745,16 +745,16 @@ public:
         return (this->X>=this->X2) && (this->X<=this->X0);
         }
     }
-  int GetX()
+  int GetX() VTK_OVERRIDE
     {
       // assert("pre: valid_range" && ValidXRange() );
       return this->X;
     }
-  double GetInvW() { return this->InvW; }
-  double *GetPValues() { return this->PValues; }
-  double GetZview() { return this->Zview; }
+  double GetInvW() VTK_OVERRIDE { return this->InvW; }
+  double *GetPValues() VTK_OVERRIDE { return this->PValues; }
+  double GetZview() VTK_OVERRIDE { return this->Zview; }
 
-  void NextLine(int y)
+  void NextLine(int y) VTK_OVERRIDE
     {
       int i;
       switch(this->Case)
@@ -1114,7 +1114,7 @@ public:
     }
 
   void SkipLines(int deltaY,
-                 int y)
+                 int y) VTK_OVERRIDE
     {
       if(deltaY==1)
         {
@@ -1517,23 +1517,23 @@ public:
         }
     }
 
-  int GetX() { return this->Current->GetX(); }
-  double GetInvW() { return this->Current->GetInvW(); }
-  double GetZview() { return this->Current->GetZview(); }
-  double *GetPValues() { return this->Current->GetPValues(); }
+  int GetX() VTK_OVERRIDE { return this->Current->GetX(); }
+  double GetInvW() VTK_OVERRIDE { return this->Current->GetInvW(); }
+  double GetZview() VTK_OVERRIDE { return this->Current->GetZview(); }
+  double *GetPValues() VTK_OVERRIDE { return this->Current->GetPValues(); }
 
-  void OnBottom(int skipped, int y)
+  void OnBottom(int skipped, int y) VTK_OVERRIDE
     {
       this->Current=&this->Bottom;
       this->Current->OnBottom(skipped,y);
     }
 
-  void NextLine(int y)
+  void NextLine(int y) VTK_OVERRIDE
     {
       this->Current->NextLine(y);
     }
   void SkipLines(int deltaY,
-                 int y)
+                 int y) VTK_OVERRIDE
     {
       this->Current->SkipLines(deltaY,y);
     }
@@ -2098,9 +2098,9 @@ protected:
   // 1: value for negative orientation.
 
 private:
-  vtkFace(); // not implemented
-  vtkFace(const vtkFace &other); // not implemented
-  vtkFace &operator=(const vtkFace &other); // not implemented
+  vtkFace() VTK_DELETE_FUNCTION;
+  vtkFace(const vtkFace &other) VTK_DELETE_FUNCTION;
+  vtkFace &operator=(const vtkFace &other) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

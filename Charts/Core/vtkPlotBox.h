@@ -137,8 +137,8 @@ protected:
   vtkTextProperty* TitleProperties;
 
 private:
-  vtkPlotBox(const vtkPlotBox &); // Not implemented.
-  void operator=(const vtkPlotBox &); // Not implemented.
+  vtkPlotBox(const vtkPlotBox &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotBox &) VTK_DELETE_FUNCTION;
 
 };
 

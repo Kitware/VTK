@@ -65,8 +65,8 @@ protected:
   vtkImageData *Image;
 
 private:
-  vtkImageItem(const vtkImageItem &); // Not implemented.
-  void operator=(const vtkImageItem &);   // Not implemented.
+  vtkImageItem(const vtkImageItem &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageItem &) VTK_DELETE_FUNCTION;
 
 };
 

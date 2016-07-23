@@ -87,8 +87,8 @@ protected:
   int LabelRenderMode;
 
 private:
-  vtkRenderedRepresentation(const vtkRenderedRepresentation&); // Not implemented
-  void operator=(const vtkRenderedRepresentation&);   // Not implemented
+  vtkRenderedRepresentation(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkRenderedRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -657,6 +657,14 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
   double bgA = tprop->GetBackgroundOpacity();
   bool hasBackground = (static_cast<unsigned char>(bgA * 255) != 0);
 
+  double *frameColor = tprop->GetFrameColor();
+  unsigned char frR = static_cast<unsigned char>(frameColor[0] * 255);
+  unsigned char frG = static_cast<unsigned char>(frameColor[1] * 255);
+  unsigned char frB = static_cast<unsigned char>(frameColor[2] * 255);
+  bool hasFrame = tprop->GetFrame() && tprop->GetFrameWidth() > 0;
+  double frA = hasFrame ? 255 : 0;
+  int frW = tprop->GetFrameWidth();
+
   vtkPythonScopeGilEnsurer gilEnsurer;
   vtkSmartPyObject resultTuple(PyObject_CallMethod(this->MaskParser,
                                                    const_cast<char*>("to_mask"),
@@ -740,7 +748,18 @@ bool vtkMatplotlibMathTextUtilities::RenderString(const char *str,
       unsigned char *ptr =
           static_cast<unsigned char*>(image->GetScalarPointer(col, row, 0));
 
-      if (hasBackground)
+      if (hasFrame && (col < (bbox[0] + frW) || col > (bbox[1] - frW)
+        || row > (bbox[3] - frW) || row < (bbox[2] + frW)))
+        {
+        const float fg_blend = fgA * (val / 255.f);
+        const float fr_blend = 1.f - fg_blend;
+
+        ptr[0] = static_cast<unsigned char>(fr_blend * frR + fg_blend * fgR);
+        ptr[1] = static_cast<unsigned char>(fr_blend * frG + fg_blend * fgG);
+        ptr[2] = static_cast<unsigned char>(fr_blend * frB + fg_blend * fgB);
+        ptr[3] = 255;
+        }
+      else if (hasBackground)
         {
         const float fg_blend = fgA * (val / 255.f);
         const float bg_blend = 1.f - fg_blend;

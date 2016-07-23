@@ -653,7 +653,6 @@ size_t vtkParse_BasicTypeFromString(
         m = 0;
         if (strncmp(cp, "::", 2) == 0) { m = 2; }
         else if (strncmp(cp, "std::", 5) == 0) { m = 5; }
-        else if (strncmp(cp, "vtkstd::", 8) == 0) { m = 8; }
 
         /* advance past the namespace */
         tmpcp = cp + m;

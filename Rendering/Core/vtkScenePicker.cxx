@@ -32,7 +32,7 @@ public:
     return new vtkScenePickerSelectionRenderCommand;
     }
 
-  virtual void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*)
+  void Execute(vtkObject *vtkNotUsed(o), unsigned long event, void*) VTK_OVERRIDE
     {
     if (event == vtkCommand::StartInteractionEvent)
       {
@@ -55,7 +55,7 @@ public:
 protected:
   vtkScenePickerSelectionRenderCommand()
                                       : InteractiveRender(false) {}
-  virtual ~vtkScenePickerSelectionRenderCommand() {}
+  ~vtkScenePickerSelectionRenderCommand() VTK_OVERRIDE {}
   bool InteractiveRender;
 };
 

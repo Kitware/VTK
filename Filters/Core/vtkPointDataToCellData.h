@@ -51,6 +51,14 @@ public:
   vtkGetMacro(PassPointData,int);
   vtkBooleanMacro(PassPointData,int);
 
+  // Description:
+  // Control whether the input point data is to be treated as categorical. If
+  // the data is categorical, then the resultant cell data will be determined by
+  // a "majority rules" vote, with ties going to the smaller value.
+  vtkSetMacro(CategoricalData,int);
+  vtkGetMacro(CategoricalData,int);
+  vtkBooleanMacro(CategoricalData,int);
+
 protected:
   vtkPointDataToCellData();
   ~vtkPointDataToCellData() {}
@@ -60,11 +68,10 @@ protected:
                           vtkInformationVector* outputVector);
 
   int PassPointData;
+  int CategoricalData;
 private:
-  vtkPointDataToCellData(const vtkPointDataToCellData&);  // Not implemented.
-  void operator=(const vtkPointDataToCellData&);  // Not implemented.
+  vtkPointDataToCellData(const vtkPointDataToCellData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointDataToCellData&) VTK_DELETE_FUNCTION;
 };
 
 #endif
-
-

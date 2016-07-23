@@ -24,12 +24,14 @@
 #ifndef XDMFREGULARGRID_HPP_
 #define XDMFREGULARGRID_HPP_
 
-// Forward Declarations
-class XdmfArray;
-
-// Includes
+// C Compatible Includes
 #include "Xdmf.hpp"
 #include "XdmfGrid.hpp"
+
+#ifdef __cplusplus
+
+// Forward Declarations
+class XdmfArray;
 
 /**
  * @brief A regular grid consists of congruent points arranged
@@ -314,6 +316,10 @@ public:
    */
   shared_ptr<const XdmfArray> getOrigin() const;
 
+  virtual void read();
+
+  virtual void release();
+
   /**
    * Set the size of the points composing the grid.
    *
@@ -394,11 +400,16 @@ public:
    */
   void setOrigin(const shared_ptr<XdmfArray> origin);
 
+  XdmfRegularGrid(XdmfRegularGrid &);
+
 protected:
 
   XdmfRegularGrid(const shared_ptr<XdmfArray> brickSize,
                   const shared_ptr<XdmfArray> numPoints,
                   const shared_ptr<XdmfArray> origin);
+
+  virtual void
+  copyGrid(shared_ptr<XdmfGrid> sourceGrid);
 
   void populateItem(const std::map<std::string, std::string> & itemProperties,
                     const std::vector<shared_ptr<XdmfItem> > & childItems,
@@ -414,8 +425,58 @@ private:
   XdmfRegularGrid(const XdmfRegularGrid &);  // Not implemented.
   void operator=(const XdmfRegularGrid &);  // Not implemented.
 
-  XdmfRegularGridImpl * mImpl;
-
 };
+
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// C wrappers go here
+
+struct XDMFREGULARGRID; // Simply as a typedef to ensure correct typing
+typedef struct XDMFREGULARGRID XDMFREGULARGRID;
+
+XDMF_EXPORT XDMFREGULARGRID * XdmfRegularGridNew2D(double xBrickSize,
+                                                   double yBrickSize,
+                                                   unsigned int xNumPoints,
+                                                   unsigned int yNumPoints,
+                                                   double xOrigin,
+                                                   double yOrigin);
+
+XDMF_EXPORT XDMFREGULARGRID * XdmfRegularGridNew3D(double xBrickSize,
+                                                   double yBrickSize,
+                                                   double zBrickSize,
+                                                   unsigned int xNumPoints,
+                                                   unsigned int yNumPoints,
+                                                   unsigned int zNumPoints,
+                                                   double xOrigin,
+                                                   double yOrigin,
+                                                   double zOrigin);
+
+XDMF_EXPORT XDMFREGULARGRID * XdmfRegularGridNew(XDMFARRAY * brickSize,
+                                                 XDMFARRAY * numPoints,
+                                                 XDMFARRAY * origin,
+                                                 int passControl);
+
+XDMF_EXPORT XDMFARRAY * XdmfRegularGridGetBrickSize(XDMFREGULARGRID * grid, int * status);
+
+XDMF_EXPORT XDMFARRAY * XdmfRegularGridGetDimensions(XDMFREGULARGRID * grid, int * status);
+
+XDMF_EXPORT XDMFARRAY * XdmfRegularGridGetOrigin(XDMFREGULARGRID * grid, int * status);
+
+XDMF_EXPORT void XdmfRegularGridSetBrickSize(XDMFREGULARGRID * grid, XDMFARRAY * brickSize, int passControl, int * status);
+
+XDMF_EXPORT void XdmfRegularGridSetDimensions(XDMFREGULARGRID * grid, XDMFARRAY * dimensions, int passControl, int * status);
+
+XDMF_EXPORT void XdmfRegularGridSetOrigin(XDMFREGULARGRID * grid, XDMFARRAY * origin, int passControl, int * status);
+
+XDMF_ITEM_C_CHILD_DECLARE(XdmfRegularGrid, XDMFREGULARGRID, XDMF)
+XDMF_GRID_C_CHILD_DECLARE(XdmfRegularGrid, XDMFREGULARGRID, XDMF)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* XDMFREGULARGRID_HPP_ */

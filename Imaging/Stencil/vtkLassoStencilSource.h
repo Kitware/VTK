@@ -98,8 +98,8 @@ protected:
   vtkLSSPointMap *PointMap;
 
 private:
-  vtkLassoStencilSource(const vtkLassoStencilSource&);  // Not implemented.
-  void operator=(const vtkLassoStencilSource&);  // Not implemented.
+  vtkLassoStencilSource(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkLassoStencilSource&) VTK_DELETE_FUNCTION;
 };
 
 #endif

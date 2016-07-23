@@ -37,8 +37,8 @@ protected:
                           vtkInformationVector *);
 
 private:
-  vtkDaxThreshold(const vtkDaxThreshold&); // Not implemented
-  void operator=(const vtkDaxThreshold&); // Not implemented
+  vtkDaxThreshold(const vtkDaxThreshold&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDaxThreshold&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkDaxThreshold_h

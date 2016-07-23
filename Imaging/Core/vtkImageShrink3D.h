@@ -90,8 +90,8 @@ protected:
   void InternalRequestUpdateExtent(int *inExt, int *outExt);
 
 private:
-  vtkImageShrink3D(const vtkImageShrink3D&);  // Not implemented.
-  void operator=(const vtkImageShrink3D&);  // Not implemented.
+  vtkImageShrink3D(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageShrink3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

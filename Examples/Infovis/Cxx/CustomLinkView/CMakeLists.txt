@@ -14,7 +14,19 @@ endif()
 
 project(CustomLinkView)
 
-find_package(VTK)
+find_package(VTK REQUIRED)
+vtk_module_config(VTK
+  vtkCommonCore
+  vtkCommonDataModel
+  vtkFiltersGeneral
+  vtkGUISupportQt
+  vtkIOInfovis
+  vtkInfovisCore
+  vtkRendering${VTK_RENDERING_BACKEND}
+  vtkViewsCore
+  vtkViewsInfovis
+  vtkViewsQt
+)
 include(${VTK_USE_FILE})
 
 if("${VTK_QT_VERSION}" STREQUAL "")

@@ -114,8 +114,8 @@ protected:
   virtual int FillInputPortInformation( int port, vtkInformation* info );
 
 private:
-  vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ); // Not implemented.
-  void operator = ( const vtkLabelHierarchyAlgorithm& );  // Not implemented.
+  vtkLabelHierarchyAlgorithm( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLabelHierarchyAlgorithm& ) VTK_DELETE_FUNCTION;
 };
 
 #endif

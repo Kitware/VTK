@@ -61,6 +61,23 @@ public:
   vtkGetMacro(BackgroundOpacity, double);
 
   // Description:
+  // The frame color.
+  vtkSetVector3Macro(FrameColor, double);
+  vtkGetVector3Macro(FrameColor, double);
+
+  // Description:
+  // Enable/disable text frame.
+  vtkSetMacro(Frame, int);
+  vtkGetMacro(Frame, int);
+  vtkBooleanMacro(Frame, int);
+
+  // Description:
+  // Set/Get the width of the frame. The width is expressed in pixels.
+  // The default is 1 pixel.
+  vtkSetClampMacro(FrameWidth, int, 0, VTK_INT_MAX);
+  vtkGetMacro(FrameWidth, int);
+
+  // Description:
   // Set/Get the font family. Supports legacy three font family system.
   // If the symbolic constant VTK_FONT_FILE is returned by GetFontFamily(), the
   // string returned by GetFontFile() must be an absolute filepath
@@ -170,6 +187,9 @@ protected:
   double Opacity;
   double BackgroundColor[3];
   double BackgroundOpacity;
+  int    Frame;
+  double FrameColor[3];
+  int    FrameWidth;
   char* FontFamilyAsString;
   char* FontFile;
   int   FontSize;
@@ -184,8 +204,8 @@ protected:
   double LineSpacing;
 
 private:
-  vtkTextProperty(const vtkTextProperty&);  // Not implemented.
-  void operator=(const vtkTextProperty&);  // Not implemented.
+  vtkTextProperty(const vtkTextProperty&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextProperty&) VTK_DELETE_FUNCTION;
 };
 
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )

@@ -143,7 +143,6 @@ bool vtkOpenGLRenderUtilities::PrepFullScreenVAO(vtkOpenGLBufferObject *vertBuf,
                                                  vtkShaderProgram *prog)
 {
   bool res;
-  typedef vtkOpenGLRenderUtilities GLUtil;
 
   // ndCoord_x, ndCoord_y, texCoord_x, texCoord_y
   float verts[16] = {  1.f, 1.f, 1.f, 1.f,

@@ -268,8 +268,8 @@ public:
   vtkAbstractElectronicData *ElectronicData;
 
 private:
-  vtkMolecule(const vtkMolecule&);    // Not implemented.
-  void operator=(const vtkMolecule&); // Not implemented.
+  vtkMolecule(const vtkMolecule&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMolecule&) VTK_DELETE_FUNCTION;
 };
 
 #endif

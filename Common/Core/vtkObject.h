@@ -216,8 +216,8 @@ protected:
   virtual ~vtkObject();
 
   // See vtkObjectBase.h.
-  void RegisterInternal(vtkObjectBase*, int check) VTK_OVERRIDE;
-  void UnRegisterInternal(vtkObjectBase*, int check) VTK_OVERRIDE;
+  void RegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
+  void UnRegisterInternal(vtkObjectBase*, vtkTypeBool check) VTK_OVERRIDE;
 
   bool     Debug;      // Enable debug messages
   vtkTimeStamp      MTime;      // Keep track of modification time
@@ -234,8 +234,8 @@ protected:
   void InternalReleaseFocus();
 
 private:
-  vtkObject(const vtkObject&);  // Not implemented.
-  void operator=(const vtkObject&);  // Not implemented.
+  vtkObject(const vtkObject&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkObject&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Following classes (vtkClassMemberCallbackBase,

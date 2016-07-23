@@ -8,6 +8,7 @@ SET(Module_SRCS
   vtkFLUENTReader.cxx
   vtkGAMBITReader.cxx
   vtkGaussianCubeReader.cxx
+  vtkHoudiniPolyDataWriter.cxx
   vtkIVWriter.cxx
   vtkMCubesReader.cxx
   vtkMCubesWriter.cxx

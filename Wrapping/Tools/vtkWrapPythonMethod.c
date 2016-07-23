@@ -28,10 +28,6 @@
 /* -------------------------------------------------------------------- */
 /* prototypes for the methods used by the python wrappers */
 
-/* get the tuple size for vtkDataArray and subclasses */
-static void vtkWrapPython_GetSizesForArrays(
-  FILE *fp, FunctionInfo *theFunc, int is_vtkobject);
-
 /* Write the code to convert the arguments with vtkPythonArgs */
 static void vtkWrapPython_GetAllParameters(
   FILE *fp, ClassInfo *data, FunctionInfo *currentFunction);
@@ -69,7 +65,6 @@ void vtkWrapPython_DeclareVariables(
 {
   ValueInfo *arg;
   int i, n;
-  int storageSize;
 
   n = vtkWrap_CountWrappedParameters(theFunc);
 
@@ -97,8 +92,85 @@ void vtkWrapPython_DeclareVariables(
       continue;
       }
 
-    /* make a "temp" variable for the argument */
-    vtkWrap_DeclareVariable(fp, data, arg, "temp", i, VTK_WRAP_ARG);
+    /* temps for arrays */
+    if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
+        vtkWrap_IsPODPointer(arg))
+      {
+      /* for non-const arrays, alloc twice as much space */
+      const char *mtwo = "";
+      if (!vtkWrap_IsConst(arg) && !vtkWrap_IsSetVectorMethod(theFunc))
+        {
+        mtwo = "2*";
+        }
+      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
+        {
+        /* prepare for "T *" arg, where T is a plain type */
+        fprintf(fp,
+              "  int size%d = ap.GetArgSize(%d);\n"
+              "  vtkPythonArgs::Array<%s> store%d(%ssize%d);\n"
+              "  %s *temp%d = store%d.Data();\n",
+              i, i,
+              vtkWrap_GetTypeName(arg), i, mtwo, i,
+              vtkWrap_GetTypeName(arg), i, i);
+        if (!vtkWrap_IsConst(arg))
+          {
+          fprintf(fp,
+              "  %s *save%d = (size%d == 0 ? NULL : temp%d + size%d);\n",
+              vtkWrap_GetTypeName(arg), i, i, i, i);
+          }
+        }
+      else if (vtkWrap_IsArray(arg) && arg->Value)
+        {
+        /* prepare for "T a[n] = NULL" arg (array whose default is NULL) */
+        fprintf(fp,
+              "  int size%d = 0;\n"
+              "  %s store%d[%s%d];\n"
+              "  %s *temp%d = NULL;\n",
+              i,
+              vtkWrap_GetTypeName(arg), i, mtwo, arg->Count,
+              vtkWrap_GetTypeName(arg), i);
+        if (!vtkWrap_IsConst(arg))
+          {
+          fprintf(fp,
+              "  %s *save%d = NULL;\n",
+              vtkWrap_GetTypeName(arg), i);
+          }
+        fprintf(fp,
+              "  if (ap.GetArgSize(%d) > 0)\n"
+              "    {\n"
+              "    size%d = %d;\n"
+              "    temp%d = store%d;\n",
+              i,
+              i, arg->Count,
+              i, i);
+        if (!vtkWrap_IsConst(arg))
+          {
+          fprintf(fp,
+              "    save%d = store%d + %d;\n",
+              i, i, arg->Count);
+          }
+        fprintf(fp,
+              "    }\n");
+        }
+      else
+        {
+        /* prepare for "T a[n]" or "T a[n][m]" array arg */
+        vtkWrap_DeclareVariableSize(fp, arg, "size", i);
+        vtkWrap_DeclareVariable(fp, data, arg, "temp", i, VTK_WRAP_ARG);
+
+        if (!vtkWrap_IsConst(arg) &&
+            !vtkWrap_IsSetVectorMethod(theFunc))
+          {
+          /* for saving a copy of the array */
+          vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
+          }
+        }
+      }
+    else
+      {
+      /* make a "temp" variable for any other kind of argument */
+      vtkWrap_DeclareVariable(fp, data, arg, "temp", i, VTK_WRAP_ARG);
+      }
 
     /* temps for buffer objects */
     if (vtkWrap_IsVoidPointer(arg))
@@ -116,29 +188,6 @@ void vtkWrapPython_DeclareVariables(
       fprintf(fp,
               "  PyObject *pobj%d = NULL;\n",
               i);
-      }
-
-    /* temps for arrays */
-    if (vtkWrap_IsArray(arg) || vtkWrap_IsNArray(arg) ||
-        vtkWrap_IsPODPointer(arg))
-      {
-      storageSize = (arg->Count ? arg->Count : 4);
-      if (!vtkWrap_IsConst(arg) &&
-          !vtkWrap_IsSetVectorMethod(theFunc))
-        {
-        /* for saving a copy of the array */
-        vtkWrap_DeclareVariable(fp, data, arg, "save", i, VTK_WRAP_ARG);
-        storageSize *= 2;
-        }
-      if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
-          (vtkWrap_IsArray(arg) && arg->Value))
-        {
-        fprintf(fp,
-                "  %s small%d[%d];\n",
-                vtkWrap_GetTypeName(arg), i, storageSize);
-        }
-      /* write an int array containing the dimensions */
-      vtkWrap_DeclareVariableSize(fp, arg, "size", i);
       }
     }
 
@@ -158,105 +207,6 @@ void vtkWrapPython_DeclareVariables(
   fprintf(fp,
           "  PyObject *result = NULL;\n"
           "\n");
-}
-
-/* -------------------------------------------------------------------- */
-/* Get the size for vtkDataArray Tuple arguments */
-static void vtkWrapPython_GetSizesForArrays(
-  FILE *fp, FunctionInfo *theFunc, int is_vtkobject)
-{
-  int i, j, n;
-  const char *indentation = "";
-  const char *mtwo;
-  ValueInfo *arg;
-
-  n = vtkWrap_CountWrappedParameters(theFunc);
-
-  j = ((is_vtkobject && !theFunc->IsStatic) ? 1 : 0);
-  for (i = 0; i < n; i++)
-    {
-    arg = theFunc->Parameters[i];
-
-    if (arg->CountHint || vtkWrap_IsPODPointer(arg) ||
-        (vtkWrap_IsArray(arg) && arg->Value))
-      {
-      if (j == 1)
-        {
-        fprintf(fp,
-                "  if (op)\n"
-                "    {\n");
-        indentation = "  ";
-        }
-      j += 2;
-      if (arg->CountHint)
-        {
-        fprintf(fp,
-              "%s  size%d = op->%s;\n",
-              indentation, i, arg->CountHint);
-        }
-      else
-        {
-        fprintf(fp,
-              "%s  size%d = ap.GetArgSize(%d);\n",
-              indentation, i, i);
-        }
-
-      /* for non-const arrays, alloc twice as much space */
-      mtwo = "";
-      if (!vtkWrap_IsConst(arg) && !vtkWrap_IsSetVectorMethod(theFunc))
-        {
-        mtwo = "2*";
-        }
-
-      fprintf(fp,
-              "%s  if (size%d > 0)\n"
-              "%s    {\n"
-              "%s    temp%d = small%d;\n",
-              indentation, i,
-              indentation,
-              indentation, i, i);
-
-      if (arg->CountHint || vtkWrap_IsPODPointer(arg))
-        {
-        fprintf(fp,
-              "%s    if (size%d > 4)\n"
-              "%s      {\n"
-              "%s      temp%d = new %s[%ssize%d];\n"
-              "%s      }\n",
-              indentation, i,
-              indentation,
-              indentation, i, vtkWrap_GetTypeName(arg), mtwo, i,
-              indentation);
-        }
-      else
-        {
-        fprintf(fp,
-              "%s    size%d = %d;\n",
-              indentation, i, arg->Count);
-        }
-
-      if (*mtwo)
-        {
-        fprintf(fp,
-              "%s    save%d = &temp%d[size%d];\n",
-              indentation, i, i, i);
-        }
-
-      fprintf(fp,
-              "%s    }\n",
-              indentation);
-      }
-    }
-  if (j > 1)
-    {
-    if ((j & 1) != 0)
-      {
-      fprintf(fp,
-                  "    }\n");
-      }
-    fprintf(fp,
-            "\n");
-    }
 }
 
 /* -------------------------------------------------------------------- */
@@ -426,6 +376,24 @@ static void vtkWrapPython_GetAllParameters(
     if (i >= requiredArgs)
       {
       fprintf(fp, ")");
+      }
+
+    if (vtkWrap_IsFunction(arg))
+      {
+      break;
+      }
+    }
+
+  /* loop again, check sizes against any size hints */
+  for (i = 0; i < totalArgs; i++)
+    {
+    arg = currentFunction->Parameters[i];
+
+    if (arg->CountHint)
+      {
+      fprintf(fp, " &&\n"
+              "      ap.CheckSizeHint(%d, size%d, op->%s)",
+              i, i, arg->CountHint);
       }
 
     if (vtkWrap_IsFunction(arg))
@@ -989,17 +957,6 @@ static void vtkWrapPython_FreeTemporaries(
               i);
       j = 1;
       }
-    else if (arg->CountHint || vtkWrap_IsPODPointer(arg))
-      {
-      /* free any temporary arrays */
-      fprintf(fp,
-              "  if (temp%d != small%d)\n"
-              "    {\n"
-              "    delete [] temp%d;\n"
-              "    }\n",
-              i, i, i);
-      j = 1;
-      }
     }
 
   if (j)
@@ -1098,9 +1055,6 @@ void vtkWrapPython_GenerateOneMethod(
 
       /* declare all argument variables */
       vtkWrapPython_DeclareVariables(fp, data, theOccurrence);
-
-      /* get size for variable-size arrays */
-      vtkWrapPython_GetSizesForArrays(fp, theOccurrence, is_vtkobject);
 
       /* open the "if" for getting all the args */
       fprintf(fp,

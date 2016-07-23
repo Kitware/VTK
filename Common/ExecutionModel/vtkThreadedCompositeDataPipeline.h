@@ -57,8 +57,8 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedCompositeDataPipeline : public v
                            vtkCompositeDataSet* compositeOutput);
 
  private:
-  vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&);  // Not implemented.
-  void operator=(const vtkThreadedCompositeDataPipeline&);  // Not implemented.
+  vtkThreadedCompositeDataPipeline(const vtkThreadedCompositeDataPipeline&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkThreadedCompositeDataPipeline&) VTK_DELETE_FUNCTION;
   friend class ProcessBlock;
 };
 

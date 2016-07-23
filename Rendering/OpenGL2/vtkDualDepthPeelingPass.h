@@ -192,8 +192,8 @@ protected:
   int RenderCount; // Debug info, counts number of geometry passes.
 
 private:
-  vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&); // Not implemented
-  void operator=(const vtkDualDepthPeelingPass&); // Not implemented
+  vtkDualDepthPeelingPass(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDualDepthPeelingPass&) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkDualDepthPeelingPass_h

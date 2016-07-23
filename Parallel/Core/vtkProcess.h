@@ -72,8 +72,8 @@ protected:
   int ReturnValue;
 
 private:
-  vtkProcess(const vtkProcess&);  // Not implemented.
-  void operator=(const vtkProcess&);  // Not implemented.
+  vtkProcess(const vtkProcess&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkProcess&) VTK_DELETE_FUNCTION;
 };
 
 #endif

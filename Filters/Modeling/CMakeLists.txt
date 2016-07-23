@@ -1,4 +1,5 @@
 set(Module_SRCS
+  vtkAdaptiveSubdivisionFilter.cxx
   vtkBandedPolyDataContourFilter.cxx
   vtkButterflySubdivisionFilter.cxx
   vtkDijkstraGraphGeodesicPath.cxx

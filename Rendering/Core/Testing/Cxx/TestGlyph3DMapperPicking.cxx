@@ -57,14 +57,14 @@ public:
     this->DataSet=0;
     }
 
-  virtual ~MyEndPickCommand()
+  ~MyEndPickCommand() VTK_OVERRIDE
     {
     // empty
     }
 
-  virtual void Execute(vtkObject *vtkNotUsed(caller),
+  void Execute(vtkObject *vtkNotUsed(caller),
     unsigned long vtkNotUsed(eventId),
-    void *vtkNotUsed(callData))
+    void *vtkNotUsed(callData)) VTK_OVERRIDE
     {
     assert("pre: renderer_exists" && this->Renderer!=0);
 

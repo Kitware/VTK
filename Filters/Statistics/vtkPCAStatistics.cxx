@@ -199,12 +199,12 @@ public:
   static vtkPCAAssessFunctor* New();
 
   vtkPCAAssessFunctor() { }
-  virtual ~vtkPCAAssessFunctor() { }
+  ~vtkPCAAssessFunctor() VTK_OVERRIDE { }
   virtual bool InitializePCA(
                              vtkTable* inData, vtkTable* reqModel,
                              int normScheme, int basisScheme, int basisSize, double basisEnergy );
 
-  virtual void operator () ( vtkDoubleArray* result, vtkIdType row );
+  void operator () ( vtkDoubleArray* result, vtkIdType row ) VTK_OVERRIDE;
 
   std::vector<double> EigenValues;
   std::vector<std::vector<double> > EigenVectors;

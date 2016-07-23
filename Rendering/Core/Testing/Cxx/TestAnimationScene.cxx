@@ -117,9 +117,9 @@ public:
       return new vtkAnimationCueObserver;
     }
 
-  virtual void Execute(vtkObject *vtkNotUsed(caller),
+  void Execute(vtkObject *vtkNotUsed(caller),
                        unsigned long event,
-                       void *calldata)
+                       void *calldata) VTK_OVERRIDE
     {
       if(this->Animator!=0 && this->Renderer!=0)
         {

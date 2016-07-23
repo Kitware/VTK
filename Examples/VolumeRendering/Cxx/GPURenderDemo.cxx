@@ -41,7 +41,7 @@ class vtkBoxWidgetCallback : public vtkCommand
 public:
   static vtkBoxWidgetCallback *New()
     { return new vtkBoxWidgetCallback; }
-  virtual void Execute(vtkObject *caller, unsigned long, void*)
+  void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
     {
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       if (this->Mapper)

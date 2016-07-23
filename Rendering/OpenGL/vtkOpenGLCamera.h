@@ -42,8 +42,8 @@ protected:
   vtkOpenGLCamera() {}
   ~vtkOpenGLCamera() {}
 private:
-  vtkOpenGLCamera(const vtkOpenGLCamera&);  // Not implemented.
-  void operator=(const vtkOpenGLCamera&);  // Not implemented.
+  vtkOpenGLCamera(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLCamera&) VTK_DELETE_FUNCTION;
 };
 
 #endif

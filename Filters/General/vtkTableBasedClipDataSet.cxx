@@ -182,8 +182,8 @@ protected:
 
   private:
   vtkTableBasedClipperEdgeHashTable
-                  ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
-  void operator = ( const vtkTableBasedClipperEdgeHashTable & ); // Not implemented.
+                  ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkTableBasedClipperEdgeHashTable & ) VTK_DELETE_FUNCTION;
 };
 // ---- vtkTableBasedClipperEdgeHashTable (end)
 
@@ -205,9 +205,9 @@ class  vtkTableBasedClipperDataSetFromVolume
 
   private:
   vtkTableBasedClipperDataSetFromVolume
-    ( const vtkTableBasedClipperDataSetFromVolume & ); // Not implemented.
+    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
   void operator =
-    ( const vtkTableBasedClipperDataSetFromVolume & ); // Not implemented.
+    ( const vtkTableBasedClipperDataSetFromVolume & ) VTK_DELETE_FUNCTION;
 };
 
 vtkTableBasedClipperPointList::vtkTableBasedClipperPointList()
@@ -481,8 +481,8 @@ class vtkTableBasedClipperHexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperHexList();
-    virtual       ~vtkTableBasedClipperHexList();
-    virtual int    GetVTKType() const { return VTK_HEXAHEDRON; }
+          ~vtkTableBasedClipperHexList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_HEXAHEDRON; }
     void           AddHex( int, int, int, int, int, int, int, int, int );
 };
 
@@ -491,8 +491,8 @@ class vtkTableBasedClipperWedgeList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperWedgeList();
-    virtual       ~vtkTableBasedClipperWedgeList();
-    virtual int    GetVTKType() const { return VTK_WEDGE; }
+          ~vtkTableBasedClipperWedgeList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_WEDGE; }
     void           AddWedge( int, int, int, int, int, int, int );
 };
 
@@ -501,8 +501,8 @@ class vtkTableBasedClipperPyramidList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperPyramidList();
-    virtual       ~vtkTableBasedClipperPyramidList();
-    virtual int    GetVTKType() const { return VTK_PYRAMID; }
+          ~vtkTableBasedClipperPyramidList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_PYRAMID; }
     void           AddPyramid( int, int, int, int, int, int );
 };
 
@@ -511,8 +511,8 @@ class vtkTableBasedClipperTetList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTetList();
-    virtual       ~vtkTableBasedClipperTetList();
-    virtual int    GetVTKType() const { return VTK_TETRA; }
+          ~vtkTableBasedClipperTetList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_TETRA; }
     void           AddTet( int, int, int, int, int );
 };
 
@@ -521,8 +521,8 @@ class vtkTableBasedClipperQuadList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperQuadList();
-    virtual       ~vtkTableBasedClipperQuadList();
-    virtual int    GetVTKType() const { return VTK_QUAD; }
+          ~vtkTableBasedClipperQuadList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_QUAD; }
     void           AddQuad( int, int, int, int, int );
 };
 
@@ -531,8 +531,8 @@ class vtkTableBasedClipperTriList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperTriList();
-    virtual       ~vtkTableBasedClipperTriList();
-    virtual int    GetVTKType() const { return VTK_TRIANGLE; }
+          ~vtkTableBasedClipperTriList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_TRIANGLE; }
     void           AddTri( int, int, int, int );
 };
 
@@ -541,8 +541,8 @@ class vtkTableBasedClipperLineList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperLineList();
-    virtual       ~vtkTableBasedClipperLineList();
-    virtual int    GetVTKType() const { return VTK_LINE; }
+          ~vtkTableBasedClipperLineList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_LINE; }
     void           AddLine( int, int, int );
 };
 
@@ -551,8 +551,8 @@ class vtkTableBasedClipperVertexList : public vtkTableBasedClipperShapeList
 {
   public:
                    vtkTableBasedClipperVertexList();
-    virtual       ~vtkTableBasedClipperVertexList();
-    virtual int    GetVTKType() const { return VTK_VERTEX; }
+          ~vtkTableBasedClipperVertexList() VTK_OVERRIDE;
+    int    GetVTKType() const VTK_OVERRIDE { return VTK_VERTEX; }
     void           AddVertex( int, int );
 };
 
@@ -603,7 +603,7 @@ class  vtkTableBasedClipperVolumeFromVolume :
   public:
               vtkTableBasedClipperVolumeFromVolume
               ( int precision, int nPts, int ptSizeGuess );
-    virtual  ~vtkTableBasedClipperVolumeFromVolume() { }
+     ~vtkTableBasedClipperVolumeFromVolume() VTK_OVERRIDE { }
 
     void      ConstructDataSet( vtkDataSet *,
                                 vtkUnstructuredGrid *, double * );

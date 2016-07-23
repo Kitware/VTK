@@ -124,8 +124,8 @@ protected:
   vtkTriangle      *Triangle;
 
 private:
-  vtkPentagonalPrism(const vtkPentagonalPrism&);  // Not implemented.
-  void operator=(const vtkPentagonalPrism&);  // Not implemented.
+  vtkPentagonalPrism(const vtkPentagonalPrism&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPentagonalPrism&) VTK_DELETE_FUNCTION;
 };
 
 //----------------------------------------------------------------------------

@@ -189,8 +189,8 @@ protected:
   int OutputCoordinateSystem;
 
 private:
-  vtkLabelPlacer( const vtkLabelPlacer& ); // Not implemented.
-  void operator = ( const vtkLabelPlacer& ); // Not implemented.
+  vtkLabelPlacer( const vtkLabelPlacer& ) VTK_DELETE_FUNCTION;
+  void operator = ( const vtkLabelPlacer& ) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkLabelPlacer_h

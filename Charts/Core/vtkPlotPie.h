@@ -103,8 +103,8 @@ protected:
   vtkTimeStamp BuildTime;
 
 private:
-  vtkPlotPie(const vtkPlotPie &);     // Not implemented.
-  void operator=(const vtkPlotPie &); // Not implemented.
+  vtkPlotPie(const vtkPlotPie &) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPlotPie &) VTK_DELETE_FUNCTION;
 
   vtkPlotPiePrivate *Private;
 

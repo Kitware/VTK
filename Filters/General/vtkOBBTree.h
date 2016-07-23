@@ -196,8 +196,8 @@ protected:
                         vtkPoints* pts, vtkCellArray *polys);
 
 private:
-  vtkOBBTree(const vtkOBBTree&);  // Not implemented.
-  void operator=(const vtkOBBTree&);  // Not implemented.
+  vtkOBBTree(const vtkOBBTree&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOBBTree&) VTK_DELETE_FUNCTION;
 };
 
 #endif

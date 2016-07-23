@@ -80,8 +80,8 @@ protected:
   vtkDataObject* ReadChild();
 
 private:
-  vtkCompositeDataReader(const vtkCompositeDataReader&); // Not implemented.
-  void operator=(const vtkCompositeDataReader&); // Not implemented.
+  vtkCompositeDataReader(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositeDataReader&) VTK_DELETE_FUNCTION;
 
 };
 

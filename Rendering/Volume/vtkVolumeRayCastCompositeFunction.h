@@ -68,8 +68,8 @@ protected:
 
   int           CompositeMethod;
 private:
-  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
-  void operator=(const vtkVolumeRayCastCompositeFunction&);  // Not implemented.
+  vtkVolumeRayCastCompositeFunction(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeRayCastCompositeFunction&) VTK_DELETE_FUNCTION;
 };
 
 

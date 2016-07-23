@@ -147,17 +147,6 @@ public:
   vtkGetObjectMacro(TextProperty,vtkTextProperty);
 
   // Description:
-  // Draw a frame around the text. Default is FALSE.
-  vtkSetMacro(DrawFrame, bool);
-  vtkGetMacro(DrawFrame, bool);
-  vtkBooleanMacro(DrawFrame, bool);
-
-  // Description:
-  // Set/Get the frame property
-  virtual void SetFrameProperty(vtkProperty2D* p);
-  vtkGetObjectMacro(FrameProperty, vtkProperty2D);
-
-  // Description:
   // Return the bounding box coordinates of the text in viewport coordinates.
   // The bbox array is populated with [ xmin, xmax, ymin, ymax ]
   // values in that order.
@@ -275,13 +264,6 @@ protected:
   double FormerOrientation;
   int RenderedDPI;
 
-  bool DrawFrame;
-
-  vtkProperty2D* FrameProperty;
-  vtkPolyDataMapper2D* FrameMapper;
-  vtkActor2D* FrameActor;
-  vtkPoints* FramePoints;
-
   vtkTextProperty *ScaledTextProperty;
 
   // Stuff needed to display the image text as a texture map.
@@ -305,8 +287,8 @@ protected:
   virtual int UpdateRectangle(vtkViewport* viewport);
 
 private:
-  vtkTextActor(const vtkTextActor&);  // Not implemented.
-  void operator=(const vtkTextActor&);  // Not implemented.
+  vtkTextActor(const vtkTextActor&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTextActor&) VTK_DELETE_FUNCTION;
 };
 
 

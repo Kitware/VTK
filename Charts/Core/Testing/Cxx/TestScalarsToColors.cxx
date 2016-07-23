@@ -24,6 +24,7 @@
 #include "vtkLookupTable.h"
 #include "vtkPiecewiseControlPointsItem.h"
 #include "vtkPiecewiseFunction.h"
+#include "vtkRenderingOpenGLConfigure.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkRenderer.h"
@@ -75,7 +76,14 @@ int TestScalarsToColors(int ,  char * [])
 
   // Finally render the scene and compare the image to a reference image
   view->GetRenderWindow()->SetMultiSamples(1);
-  if (view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
+
+#if defined(VTK_OPENGL2)
+  bool openGL2Backend = true;
+#else
+  bool openGL2Backend = false;
+#endif
+
+  if (openGL2Backend || view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
     {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();

@@ -88,8 +88,8 @@ protected:
   ~vtkGenericVertexAttributeMapping();
 
 private:
-  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&); // Not implemented.
-  void operator=(const vtkGenericVertexAttributeMapping&); // Not implemented.
+  vtkGenericVertexAttributeMapping(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkGenericVertexAttributeMapping&) VTK_DELETE_FUNCTION;
 
   class vtkInternal;
   vtkInternal* Internal;

@@ -110,6 +110,12 @@ public:
   int GetArgSize(int i);
 
   // Description:
+  // If arg i exists, and if m is not equal to the expected value n,
+  // then set an error for arg i and return false.  In all other
+  // cases, return true.
+  bool CheckSizeHint(int i, Py_ssize_t m, Py_ssize_t n);
+
+  // Description:
   // Get the next argument as a naked Python object.
   bool GetPythonObject(PyObject *&v) {
     bool b;
@@ -452,6 +458,23 @@ public:
   // Raise a type error just saying that the arg count is wrong.
   static bool ArgCountError(int n, const char *name);
 
+  // Description:
+  // A simple RAII array class that stores small arrays on the stack.
+  template<class T>
+  class Array
+  {
+  public:
+    Array(Py_ssize_t n);
+
+    ~Array() { if (Pointer != Storage) { delete [] Pointer; } }
+
+    T *Data() { return Pointer; }
+
+  private:
+    static const Py_ssize_t basicsize = 6;
+    T *Pointer;
+    T Storage[basicsize];
+  };
 
 protected:
 

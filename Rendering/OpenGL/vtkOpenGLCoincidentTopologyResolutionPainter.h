@@ -51,8 +51,8 @@ protected:
 
 private:
   vtkOpenGLCoincidentTopologyResolutionPainter(
-    const vtkOpenGLCoincidentTopologyResolutionPainter&); // Not implemented.
-  void operator=(const vtkOpenGLCoincidentTopologyResolutionPainter&); // Not implemented.
+    const vtkOpenGLCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLCoincidentTopologyResolutionPainter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

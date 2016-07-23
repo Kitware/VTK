@@ -38,7 +38,7 @@ class vtkInteractionCallback : public vtkCommand
 public:
   static vtkInteractionCallback *New()
     { return new vtkInteractionCallback; }
-  virtual void Execute(vtkObject*, unsigned long eventId, void*)
+  void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
     {
       switch (eventId)
         {

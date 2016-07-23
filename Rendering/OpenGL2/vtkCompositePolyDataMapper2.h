@@ -53,6 +53,10 @@ protected:
     vtkRenderer *ren, vtkActor *act);
 
   // Description:
+  // Determine if the buffer objects need to be rebuilt
+  virtual bool GetNeedToRebuildBufferObjects(vtkRenderer *ren, vtkActor *act);
+
+  // Description:
   // Build the VBO/IBO, called by UpdateBufferObjects
   virtual void BuildBufferObjects(vtkRenderer *ren, vtkActor *act);
   virtual void AppendOneBufferObject(vtkRenderer *ren,
@@ -114,8 +118,8 @@ protected:
 
 private:
   vtkCompositePolyDataMapper2(
-    const vtkCompositePolyDataMapper2&); // Not implemented.
-  void operator=(const vtkCompositePolyDataMapper2&); // Not implemented.
+    const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompositePolyDataMapper2&) VTK_DELETE_FUNCTION;
 };
 
 #endif

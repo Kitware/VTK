@@ -360,8 +360,8 @@ private:
   vtkNamedColorsDataStore *Colors;
   vtkColorStringParser* Parser;
 
-  vtkNamedColors(const vtkNamedColors&);  // Not implemented.
-  void operator=(const vtkNamedColors&);  // Not implemented.
+  vtkNamedColors(const vtkNamedColors&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkNamedColors&) VTK_DELETE_FUNCTION;
 };
 
 #endif /* vtkNamedColors_h */

@@ -153,8 +153,8 @@ protected:
   vtkBridgeCell *Cell; // cell at current position.
 
 private:
-  vtkBridgeCellIterator(const vtkBridgeCellIterator&); // Not implemented
-  void operator=(const vtkBridgeCellIterator&); // Not implemented
+  vtkBridgeCellIterator(const vtkBridgeCellIterator&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBridgeCellIterator&) VTK_DELETE_FUNCTION;
 };
 
 #endif

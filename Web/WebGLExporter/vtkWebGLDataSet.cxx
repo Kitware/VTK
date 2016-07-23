@@ -170,7 +170,11 @@ void vtkWebGLDataSet::GenerateBinaryData()
     memcpy(&this->binary[pos], &this->NumberOfIndexes, sizeof(this->NumberOfIndexes)); pos+=sizeof(this->NumberOfIndexes);    //IndCount
     memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes*sizeof(this->indexes[0])); pos+=this->NumberOfIndexes*sizeof(this->indexes[0]);
     memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0])*16); pos+=sizeof(this->Matrix[0])*16;                    //Matrix
-    if (this->tcoords) memcpy(&this->binary[pos], this->tcoords, size*2); pos+=size*2;                                        //TCoord
+    if (this->tcoords)                                                                                                        //TCoord
+      {
+      memcpy(&this->binary[pos], this->tcoords, size*2);
+      pos+=size*2;
+      }
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;

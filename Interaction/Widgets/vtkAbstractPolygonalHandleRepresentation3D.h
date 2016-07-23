@@ -211,8 +211,8 @@ protected:
   int                SmoothMotion;
 
 private:
-  vtkAbstractPolygonalHandleRepresentation3D(const vtkAbstractPolygonalHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkAbstractPolygonalHandleRepresentation3D&);  //Not implemented
+  vtkAbstractPolygonalHandleRepresentation3D(const vtkAbstractPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractPolygonalHandleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

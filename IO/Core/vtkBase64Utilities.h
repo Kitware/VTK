@@ -118,8 +118,8 @@ protected:
   ~vtkBase64Utilities() {}
 
 private:
-  vtkBase64Utilities(const vtkBase64Utilities&);  // Not implemented.
-  void operator=(const vtkBase64Utilities&);  // Not implemented.
+  vtkBase64Utilities(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBase64Utilities&) VTK_DELETE_FUNCTION;
 };
 
 #endif

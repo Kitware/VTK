@@ -73,8 +73,8 @@ protected:
   vtkTexture* Texture;
 
 private:
-  vtkTexturedActor2D(const vtkTexturedActor2D&); // Not implemented.
-  void operator=(const vtkTexturedActor2D&); // Not implemented.
+  vtkTexturedActor2D(const vtkTexturedActor2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTexturedActor2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

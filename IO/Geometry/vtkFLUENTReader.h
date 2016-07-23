@@ -227,7 +227,7 @@ protected:
   int NumberOfVectors;
 
 private:
-  vtkFLUENTReader(const vtkFLUENTReader&);  // Not implemented.
-  void operator=(const vtkFLUENTReader&);  // Not implemented.
+  vtkFLUENTReader(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFLUENTReader&) VTK_DELETE_FUNCTION;
 };
 #endif

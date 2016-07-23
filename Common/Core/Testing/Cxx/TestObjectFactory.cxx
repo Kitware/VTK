@@ -28,7 +28,7 @@ class vtkTestPoints : public vtkPoints
 {
 public:
   // Methods from vtkObject
-  ~vtkTestPoints()
+  ~vtkTestPoints() VTK_OVERRIDE
     {
     }
 
@@ -44,7 +44,7 @@ private:
 class vtkTestPoints2 : public vtkPoints
 {
 public:
-  ~vtkTestPoints2()
+  ~vtkTestPoints2() VTK_OVERRIDE
     {
     }
 
@@ -66,8 +66,8 @@ class VTK_EXPORT TestFactory : public vtkObjectFactory
 public:
   TestFactory();
   static TestFactory* New() { return new TestFactory;}
-  virtual const char* GetVTKSourceVersion() { return VTK_SOURCE_VERSION; }
-  const char* GetDescription() { return "A fine Test Factory"; }
+  const char* GetVTKSourceVersion() VTK_OVERRIDE { return VTK_SOURCE_VERSION; }
+  const char* GetDescription() VTK_OVERRIDE { return "A fine Test Factory"; }
 
 protected:
   TestFactory(const TestFactory&);

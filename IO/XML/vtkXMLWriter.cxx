@@ -25,7 +25,18 @@
 #include "vtkDataSet.h"
 #include "vtkErrorCode.h"
 #include "vtkInformation.h"
+#include "vtkInformationDoubleKey.h"
+#include "vtkInformationDoubleVectorKey.h"
+#include "vtkInformationIdTypeKey.h"
+#include "vtkInformationIntegerKey.h"
+#include "vtkInformationIntegerVectorKey.h"
+#include "vtkInformationIterator.h"
+#include "vtkInformationKeyLookup.h"
+#include "vtkInformationStringKey.h"
+#include "vtkInformationStringVectorKey.h"
+#include "vtkInformationUnsignedLongKey.h"
 #include "vtkInformationVector.h"
+#include "vtkNew.h"
 #include "vtkOutputStream.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -48,6 +59,7 @@
 #include <memory>
 
 #include <cassert>
+#include <sstream>
 #include <string>
 
 #if !defined(_WIN32) || defined(__CYGWIN__)
@@ -1249,8 +1261,13 @@ int vtkXMLWriter::WriteBinaryData(vtkAbstractArray* a)
       }
 
     // No data compression.  The header is just the length of the data.
+#if defined(VTK_HAS_STD_UNIQUE_PTR)
+    std::unique_ptr<vtkXMLDataHeader>
+      uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+#else
     std::auto_ptr<vtkXMLDataHeader>
       uh(vtkXMLDataHeader::New(this->HeaderType, 1));
+#endif
     if (!uh->Set(0, data_size*outWordSize))
       {
       vtkErrorMacro("Array \"" << a->GetName() <<
@@ -1888,6 +1905,152 @@ int vtkXMLWriter::WriteStringAttribute(const char* name, const char* value)
 }
 
 //----------------------------------------------------------------------------
+// Methods used for serializing vtkInformation. ------------------------------
+namespace {
+
+// Write generic key information to element.
+void prepElementForInfo(vtkInformationKey *key, vtkXMLDataElement *element)
+{
+  element->SetName("InformationKey");
+  element->SetAttribute("name", key->GetName());
+  element->SetAttribute("location", key->GetLocation());
+}
+
+template <class KeyType>
+void writeScalarInfo(KeyType *key, vtkInformation *info, std::ostream &os,
+                     vtkIndent indent)
+{
+  vtkNew<vtkXMLDataElement> element;
+  prepElementForInfo(key, element.Get());
+
+  std::ostringstream str;
+  str.precision(11); // Same used for ASCII array data.
+  str << key->Get(info);
+
+  str.str("");
+  str << key->Get(info);
+  element->SetCharacterData(str.str().c_str(),
+                            static_cast<int>(str.str().size()));
+
+  element->PrintXML(os, indent);
+}
+
+template <class KeyType>
+void writeVectorInfo(KeyType *key, vtkInformation *info, std::ostream &os,
+                     vtkIndent indent)
+{
+  vtkNew<vtkXMLDataElement> element;
+  prepElementForInfo(key, element.Get());
+
+  std::ostringstream str;
+  str.precision(11); // Same used for ASCII array data.
+  int length = key->Length(info);
+  str << length;
+  element->SetAttribute("length", str.str().c_str());
+
+  for (int i = 0; i < length; ++i)
+    {
+    vtkNew<vtkXMLDataElement> value;
+    value->SetName("Value");
+
+    str.str("");
+    str << i;
+    value->SetAttribute("index", str.str().c_str());
+
+    str.str("");
+    str << key->Get(info, i);
+    value->SetCharacterData(str.str().c_str(),
+                            static_cast<int>(str.str().size()));
+
+    element->AddNestedElement(value.Get());
+    }
+
+  element->PrintXML(os, indent);
+}
+
+} // end anon namespace
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------
+bool vtkXMLWriter::WriteInformation(vtkInformation *info, vtkIndent indent)
+{
+  bool result = false;
+  vtkNew<vtkInformationIterator> iter;
+  iter->SetInformationWeak(info);
+  vtkInformationKey *key = NULL;
+  vtkIndent nextIndent = indent.GetNextIndent();
+  for (iter->InitTraversal(); (key = iter->GetCurrentKey());
+       iter->GoToNextItem())
+    {
+    vtkInformationDoubleKey *dKey = NULL;
+    vtkInformationDoubleVectorKey *dvKey = NULL;
+    vtkInformationIdTypeKey *idKey = NULL;
+    vtkInformationIntegerKey *iKey = NULL;
+    vtkInformationIntegerVectorKey *ivKey = NULL;
+    vtkInformationStringKey *sKey = NULL;
+    vtkInformationStringVectorKey *svKey = NULL;
+    vtkInformationUnsignedLongKey *ulKey = NULL;
+    typedef vtkInformationQuadratureSchemeDefinitionVectorKey QuadDictKey;
+    QuadDictKey *qdKey = NULL;
+    if ((dKey = vtkInformationDoubleKey::SafeDownCast(key)))
+      {
+      writeScalarInfo(dKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((dvKey = vtkInformationDoubleVectorKey::SafeDownCast(key)))
+      {
+      writeVectorInfo(dvKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((idKey = vtkInformationIdTypeKey::SafeDownCast(key)))
+      {
+      writeScalarInfo(idKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((iKey = vtkInformationIntegerKey::SafeDownCast(key)))
+      {
+      writeScalarInfo(iKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((ivKey = vtkInformationIntegerVectorKey::SafeDownCast(key)))
+      {
+      writeVectorInfo(ivKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((sKey = vtkInformationStringKey::SafeDownCast(key)))
+      {
+      writeScalarInfo(sKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((svKey = vtkInformationStringVectorKey::SafeDownCast(key)))
+      {
+      writeVectorInfo(svKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((ulKey = vtkInformationUnsignedLongKey::SafeDownCast(key)))
+      {
+      writeScalarInfo(ulKey, info, *this->Stream, nextIndent);
+      result = true;
+      }
+    else if ((qdKey = QuadDictKey::SafeDownCast(key)))
+      { // Special case:
+      vtkNew<vtkXMLDataElement> element;
+      qdKey->SaveState(info, element.Get());
+      element->PrintXML(*this->Stream, nextIndent);
+      result = true;
+      }
+    else
+      {
+      vtkDebugMacro("Could not serialize information with key "
+                    << key->GetLocation() << "::" << key->GetName() << ": "
+                    "Unsupported key type '" << key->GetClassName() << "'.");
+      }
+    }
+  return result;
+}
+
+//----------------------------------------------------------------------------
 // This method is provided so that the specialization code for certain types
 // can be minimal.
 template <class T>
@@ -2028,39 +2191,15 @@ void vtkXMLWriter::WriteArrayAppended(
   offs.GetPosition(timestep) = this->ReserveAttributeSpace("offset");
 
   // Write information in the recognized keys associated with this array.
-  vtkInformation *info=a->GetInformation();
-
-  vtkInformationQuadratureSchemeDefinitionVectorKey *dictKey=vtkQuadratureSchemeDefinition::DICTIONARY();
-  int hasDictKey=info->Has(dictKey);
-
-  vtkInformationStringKey *offsNameKey=vtkQuadratureSchemeDefinition::QUADRATURE_OFFSET_ARRAY_NAME();
-  int hasOffsNameKey = info->Has(offsNameKey);
-
-  if (hasOffsNameKey || hasDictKey)
+  vtkInformation *info = a->GetInformation();
+  bool hasInfo = info && info->GetNumberOfKeys() > 0;
+  if (hasInfo)
     {
-    // close header
-    // with </DataArray> or </Array>
+    // close header with </DataArray> or </Array> before writing information:
     os << ">" << endl;
-    shortFormatTag=0;
-    }
+    shortFormatTag = 0; // Tells WriteArrayFooter that the header is closed.
 
-  if (hasDictKey)
-    {
-    vtkXMLDataElement *eKey = vtkXMLDataElement::New();
-    dictKey->SaveState(info,eKey);
-    eKey->PrintXML(os,indent.GetNextIndent());
-    eKey->Delete();
-    }
-
-  if (hasOffsNameKey)
-    {
-    vtkXMLDataElement *eKey = vtkXMLDataElement::New();
-    eKey->SetName("InformationKey");
-    eKey->SetAttribute("name", "QUADRATURE_OFFSET_ARRAY_NAME");
-    eKey->SetAttribute("location", "vtkQuadratureSchemeDefinition");
-    eKey->SetAttribute("value", offsNameKey->Get(info));
-    eKey->PrintXML(os,indent.GetNextIndent());
-    eKey->Delete();
+    this->WriteInformation(info, indent);
     }
 
   // Close tag.

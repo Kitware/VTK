@@ -193,8 +193,8 @@ protected:
   double Distance;
 
 private:
-  vtkCompassRepresentation(const vtkCompassRepresentation&); //Not implemented
-  void operator=(const vtkCompassRepresentation&); //Not implemented
+  vtkCompassRepresentation(const vtkCompassRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCompassRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

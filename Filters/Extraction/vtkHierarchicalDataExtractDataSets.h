@@ -40,8 +40,8 @@ protected:
   ~vtkHierarchicalDataExtractDataSets();
 
 private:
-  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
-  void operator=(const vtkHierarchicalDataExtractDataSets&);  // Not implemented.
+  vtkHierarchicalDataExtractDataSets(const vtkHierarchicalDataExtractDataSets&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHierarchicalDataExtractDataSets&) VTK_DELETE_FUNCTION;
 };
 
 #endif

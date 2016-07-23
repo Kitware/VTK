@@ -141,8 +141,8 @@ protected:
   static void ConvertFromPolygon(vtkIdList *ids);
 
 private:
-  vtkQuadraticPolygon(const vtkQuadraticPolygon&);  // Not implemented.
-  void operator=(const vtkQuadraticPolygon&);  // Not implemented.
+  vtkQuadraticPolygon(const vtkQuadraticPolygon&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraticPolygon&) VTK_DELETE_FUNCTION;
 };
 
 #endif

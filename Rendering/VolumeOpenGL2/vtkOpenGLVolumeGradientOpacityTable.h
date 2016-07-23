@@ -211,14 +211,11 @@ private:
   unsigned int NumberOfTables;
   vtkOpenGLVolumeGradientOpacityTable* Tables;
 
-  // vtkOpenGLVolumeGradientOpacityTables (Not implemented)
-  vtkOpenGLVolumeGradientOpacityTables();
+  vtkOpenGLVolumeGradientOpacityTables() VTK_DELETE_FUNCTION;
 
-  // vtkOpenGLVolumeGradientOpacityTables (Not implemented)
-  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other);
+  vtkOpenGLVolumeGradientOpacityTables(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
 
-  // operator = (Not implemented)
-  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other);
+  vtkOpenGLVolumeGradientOpacityTables &operator=(const vtkOpenGLVolumeGradientOpacityTables &other) VTK_DELETE_FUNCTION;
 };
 
 #endif // vtkOpenGLVolumeGradientOpacityTable_h

@@ -40,8 +40,8 @@ protected:
   virtual void WriteFile(ofstream *file, vtkImageData *data, int ext[6], int wExt[6]);
   virtual void WriteFileHeader(ofstream *, vtkImageData *, int wExt[6]);
 private:
-  vtkBMPWriter(const vtkBMPWriter&);  // Not implemented.
-  void operator=(const vtkBMPWriter&);  // Not implemented.
+  vtkBMPWriter(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkBMPWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

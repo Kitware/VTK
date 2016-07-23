@@ -56,8 +56,8 @@ protected:
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //insures compatibility; satisfies abstract api in vtkFilter
   virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
 private:
-  vtkCastToConcrete(const vtkCastToConcrete&);  // Not implemented.
-  void operator=(const vtkCastToConcrete&);  // Not implemented.
+  vtkCastToConcrete(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
 };
 
 #endif

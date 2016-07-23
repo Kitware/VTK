@@ -63,8 +63,8 @@ protected:
   ~vtkPNMReader() {}
   void ExecuteInformation();
 private:
-  vtkPNMReader(const vtkPNMReader&);  // Not implemented.
-  void operator=(const vtkPNMReader&);  // Not implemented.
+  vtkPNMReader(const vtkPNMReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPNMReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -101,8 +101,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkHyperOctreeAlgorithm(const vtkHyperOctreeAlgorithm&);  // Not implemented.
-  void operator=(const vtkHyperOctreeAlgorithm&);  // Not implemented.
+  vtkHyperOctreeAlgorithm(const vtkHyperOctreeAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkHyperOctreeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

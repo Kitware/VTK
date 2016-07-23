@@ -134,8 +134,8 @@ protected:
     vtkDataArray *cellScalars);
 
 private:
-  vtkQuadraticHexahedron(const vtkQuadraticHexahedron&);  // Not implemented.
-  void operator=(const vtkQuadraticHexahedron&);  // Not implemented.
+  vtkQuadraticHexahedron(const vtkQuadraticHexahedron&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkQuadraticHexahedron&) VTK_DELETE_FUNCTION;
 };
 
 #endif

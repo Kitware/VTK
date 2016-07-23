@@ -128,8 +128,8 @@ protected:
 
 
 private:
-  vtkImageAppend(const vtkImageAppend&);  // Not implemented.
-  void operator=(const vtkImageAppend&);  // Not implemented.
+  vtkImageAppend(const vtkImageAppend&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageAppend&) VTK_DELETE_FUNCTION;
 };
 
 #endif

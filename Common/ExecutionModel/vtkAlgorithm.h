@@ -828,8 +828,8 @@ private:
   static void ConnectionRemoveAllOutput(vtkAlgorithm* producer, int port);
 
 private:
-  vtkAlgorithm(const vtkAlgorithm&);  // Not implemented.
-  void operator=(const vtkAlgorithm&);  // Not implemented.
+  vtkAlgorithm(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -177,8 +177,8 @@ protected:
                           vtkInformationVector* outInfo);
 
 private:
-  vtkMNITagPointReader(const vtkMNITagPointReader&); // Not implemented
-  void operator=(const vtkMNITagPointReader&);  // Not implemented
+  vtkMNITagPointReader(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMNITagPointReader&) VTK_DELETE_FUNCTION;
 
 };
 

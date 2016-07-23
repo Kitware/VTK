@@ -487,8 +487,8 @@ private:
   void Cleanup();
 
 private:
-  vtkPolyData(const vtkPolyData&);  // Not implemented.
-  void operator=(const vtkPolyData&);  // Not implemented.
+  vtkPolyData(const vtkPolyData&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPolyData&) VTK_DELETE_FUNCTION;
 };
 
 inline void vtkPolyData::GetPointCells(vtkIdType ptId, unsigned short& ncells,

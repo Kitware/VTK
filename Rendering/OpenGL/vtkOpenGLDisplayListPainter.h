@@ -51,8 +51,8 @@ protected:
                               bool forceCompileOnly);
 
 private:
-  vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&); // Not implemented.
-  void operator=(const vtkOpenGLDisplayListPainter&); // Not implemented.
+  vtkOpenGLDisplayListPainter(const vtkOpenGLDisplayListPainter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLDisplayListPainter&) VTK_DELETE_FUNCTION;
 
   class vtkInternals;
   vtkInternals* Internals;

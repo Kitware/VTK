@@ -852,7 +852,7 @@ void vtkObject::Modified()
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::RegisterInternal(vtkObjectBase* o, int check)
+void vtkObject::RegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
   if(o)
@@ -871,7 +871,7 @@ void vtkObject::RegisterInternal(vtkObjectBase* o, int check)
 }
 
 //----------------------------------------------------------------------------
-void vtkObject::UnRegisterInternal(vtkObjectBase* o, int check)
+void vtkObject::UnRegisterInternal(vtkObjectBase* o, vtkTypeBool check)
 {
   // Print debugging messages.
   if(o)
@@ -911,8 +911,8 @@ public:
     { return new vtkObjectCommandInternal(); }
 
   vtkTypeMacro(vtkObjectCommandInternal, vtkCommand);
-  virtual void Execute(
-    vtkObject *caller, unsigned long eventId, void *callData)
+  void Execute(
+    vtkObject *caller, unsigned long eventId, void *callData) VTK_OVERRIDE
     {
     if (this->Callable)
       {
@@ -936,7 +936,7 @@ protected:
     {
     this->Callable = NULL;
     }
-  ~vtkObjectCommandInternal()
+  ~vtkObjectCommandInternal() VTK_OVERRIDE
     {
     delete this->Callable;
     }

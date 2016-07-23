@@ -111,6 +111,9 @@ void vtkRTTestSequence::Run()
 {
   this->SequenceCount = this->RenderTimings->GetSequenceStart();
   int sequenceEnd = this->RenderTimings->GetSequenceEnd();
+  this->Test->SetRenderSize(
+    this->RenderTimings->GetRenderWidth(),
+    this->RenderTimings->GetRenderHeight());
 
   vtkNew<vtkContextView> chartView;
   vtkNew<vtkChartXY> chart;
@@ -242,6 +245,8 @@ vtkRenderTimings::vtkRenderTimings()
   this->SequenceEnd = 0;
   this->SequenceStepTimeLimit = 15.0; // seconds
   this->DetailedResultsFileName = "results.csv";
+  this->RenderWidth = 600;
+  this->RenderHeight = 600;
 }
 
 int vtkRenderTimings::RunTests()
@@ -342,6 +347,10 @@ int vtkRenderTimings::ParseCommandLineArguments( int argc, char *argv[] )
     "Provide a listing of available tests.");
   this->Arguments.AddBooleanArgument("-nochart", &this->NoChartResults,
     "Suppress realtime charting of test performance.");
+  this->Arguments.AddArgument("-width", argT::SPACE_ARGUMENT, &this->RenderWidth,
+    "Width of benchmark rendering window.");
+  this->Arguments.AddArgument("-height", argT::SPACE_ARGUMENT, &this->RenderHeight,
+    "Height of benchmark rendering window.");
 
   if ( !this->Arguments.Parse() )
     {

@@ -65,8 +65,8 @@ protected:
   int WriteStream(const char* data, size_t length);
 
 private:
-  vtkOutputStream(const vtkOutputStream&);  // Not implemented.
-  void operator=(const vtkOutputStream&);  // Not implemented.
+  vtkOutputStream(const vtkOutputStream&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOutputStream&) VTK_DELETE_FUNCTION;
 };
 
 #endif

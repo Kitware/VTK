@@ -53,16 +53,16 @@ namespace
   class vtkUnicodeStringOutputIterator : public vtkTextCodec::OutputIterator
   {
   public:
-    virtual vtkUnicodeStringOutputIterator& operator++(int);
-    virtual vtkUnicodeStringOutputIterator& operator*();
-    virtual vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value);
+    vtkUnicodeStringOutputIterator& operator++(int) VTK_OVERRIDE;
+    vtkUnicodeStringOutputIterator& operator*() VTK_OVERRIDE;
+    vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeString::value_type value) VTK_OVERRIDE;
 
     vtkUnicodeStringOutputIterator(vtkUnicodeString& outputString);
-    ~vtkUnicodeStringOutputIterator();
+    ~vtkUnicodeStringOutputIterator() VTK_OVERRIDE;
 
   private:
-    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&); // Not implemented
-    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&); // Not Implemented
+    vtkUnicodeStringOutputIterator(const vtkUnicodeStringOutputIterator&) VTK_DELETE_FUNCTION;
+    const vtkUnicodeStringOutputIterator& operator=(const vtkUnicodeStringOutputIterator&) VTK_DELETE_FUNCTION;
 
     vtkUnicodeString& OutputString;
     unsigned int StringPosition;

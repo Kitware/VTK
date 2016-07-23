@@ -181,8 +181,8 @@ protected:
   virtual void RemoveWrittenFiles(const char* SubDirectory);
 
 private:
-  vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&);  // Not implemented.
-  void operator=(const vtkXMLCompositeDataWriter&);  // Not implemented.
+  vtkXMLCompositeDataWriter(const vtkXMLCompositeDataWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLCompositeDataWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

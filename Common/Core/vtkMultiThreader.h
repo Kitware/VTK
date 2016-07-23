@@ -215,8 +215,8 @@ protected:
   void                       *MultipleData[VTK_MAX_THREADS];
 
 private:
-  vtkMultiThreader(const vtkMultiThreader&);  // Not implemented.
-  void operator=(const vtkMultiThreader&);  // Not implemented.
+  vtkMultiThreader(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMultiThreader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

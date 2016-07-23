@@ -343,8 +343,8 @@ protected:
 
 
 private:
-  vtkAMRResampleFilter(const vtkAMRResampleFilter&); // Not implemented
-  void operator=(const vtkAMRResampleFilter&); // Not implemented
+  vtkAMRResampleFilter(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAMRResampleFilter&) VTK_DELETE_FUNCTION;
 
 };
 

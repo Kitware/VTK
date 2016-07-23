@@ -69,8 +69,8 @@ protected:
   int TetrahedraOnly;
 
 private:
-  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&);  // Not implemented.
-  void operator=(const vtkDataSetTriangleFilter&);  // Not implemented.
+  vtkDataSetTriangleFilter(const vtkDataSetTriangleFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetTriangleFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

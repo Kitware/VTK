@@ -70,8 +70,8 @@ protected:
 
   bool AddOriginalRowIdsArray;
 private:
-  vtkExtractSelectedRows(const vtkExtractSelectedRows&); // Not implemented
-  void operator=(const vtkExtractSelectedRows&);   // Not implemented
+  vtkExtractSelectedRows(const vtkExtractSelectedRows&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkExtractSelectedRows&) VTK_DELETE_FUNCTION;
 };
 
 #endif

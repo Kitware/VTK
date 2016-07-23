@@ -40,9 +40,9 @@ public:
 
 protected:
   vtkCMLParser();
-  ~vtkCMLParser();
-  void StartElement(const char *name, const char **attr);
-  void EndElement(const char *name);
+  ~vtkCMLParser() VTK_OVERRIDE;
+  void StartElement(const char *name, const char **attr) VTK_OVERRIDE;
+  void EndElement(const char *name) VTK_OVERRIDE;
 
   std::vector<std::string> AtomNames;
 
@@ -55,8 +55,8 @@ protected:
   vtkNew<vtkPeriodicTable> pTab;
 
 private:
-  vtkCMLParser(const vtkCMLParser&);   // Not implemented
-  void operator=(const vtkCMLParser&); // Not implemented
+  vtkCMLParser(const vtkCMLParser&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkCMLParser&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkCMLMoleculeReader);

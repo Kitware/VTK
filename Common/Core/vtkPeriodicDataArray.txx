@@ -105,21 +105,9 @@ ComputeScalarRange(double* range)
 template <class Scalar> bool vtkPeriodicDataArray<Scalar>::
 ComputeVectorRange(double range[2])
 {
-  if (this->NumberOfComponents == 3)
+  if (this->NumberOfComponents == 3 && this->Data)
     {
-    if (this->InvalidRange)
-      {
-      this->ComputePeriodicRange();
-      }
-
-    range[0] = vtkTypeTraits<Scalar>::Max();
-    range[1] = vtkTypeTraits<Scalar>::Min();
-
-    for (int i = 0; i < 3; i++)
-      {
-      range[0] = std::min(this->PeriodicRange[i * 2], range[0]);
-      range[1] = std::max(this->PeriodicRange[i * 2 + 1], range[1]);
-      }
+      this->Data->GetRange(range, -1);
     }
   else
     {

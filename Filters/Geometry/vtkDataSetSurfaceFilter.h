@@ -244,8 +244,8 @@ protected:
   int NonlinearSubdivisionLevel;
 
 private:
-  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&);  // Not implemented.
-  void operator=(const vtkDataSetSurfaceFilter&);  // Not implemented.
+  vtkDataSetSurfaceFilter(const vtkDataSetSurfaceFilter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkDataSetSurfaceFilter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

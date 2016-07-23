@@ -239,8 +239,8 @@ protected:
   double InteractionOffset[2];
 
 private:
-  vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&);  //Not implemented
-  void operator=(const vtkConstrainedPointHandleRepresentation&);  //Not implemented
+  vtkConstrainedPointHandleRepresentation(const vtkConstrainedPointHandleRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkConstrainedPointHandleRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

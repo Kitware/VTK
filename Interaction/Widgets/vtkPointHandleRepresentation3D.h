@@ -243,8 +243,8 @@ protected:
   int SmoothMotion;
 
 private:
-  vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&);  //Not implemented
-  void operator=(const vtkPointHandleRepresentation3D&);  //Not implemented
+  vtkPointHandleRepresentation3D(const vtkPointHandleRepresentation3D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPointHandleRepresentation3D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

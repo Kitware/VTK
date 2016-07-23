@@ -108,8 +108,8 @@ protected:
   virtual int FillInputPortInformation(int port, vtkInformation* info);
 
 private:
-  vtkMoleculeAlgorithm(const vtkMoleculeAlgorithm&);  // Not implemented.
-  void operator=(const vtkMoleculeAlgorithm&);  // Not implemented.
+  vtkMoleculeAlgorithm(const vtkMoleculeAlgorithm&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkMoleculeAlgorithm&) VTK_DELETE_FUNCTION;
 };
 
 #endif

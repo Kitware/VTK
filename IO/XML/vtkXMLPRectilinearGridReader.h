@@ -65,8 +65,8 @@ protected:
   vtkXMLDataElement* PCoordinatesElement;
 
 private:
-  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&);  // Not implemented.
-  void operator=(const vtkXMLPRectilinearGridReader&);  // Not implemented.
+  vtkXMLPRectilinearGridReader(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkXMLPRectilinearGridReader&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -28,7 +28,7 @@
 // states. Optionally, the HoveringProperty and SelectionProperty can be
 // adjusted to obtain the appropriate appearance.
 
-// ,SECTION Caveats
+// .SECTION Caveats
 // There are two variants of the PlaceWidget() method. The first PlaceWidget(bds[6])
 // allows the widget to be placed in the display coordinates fixed to the overlay
 // plane. The second PlaceWidget(anchor[3],size[2]) places the widget in world space;
@@ -148,8 +148,8 @@ protected:
   vtkCoordinate *Anchor;
 
 private:
-  vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&);  //Not implemented
-  void operator=(const vtkTexturedButtonRepresentation2D&);  //Not implemented
+  vtkTexturedButtonRepresentation2D(const vtkTexturedButtonRepresentation2D&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkTexturedButtonRepresentation2D&) VTK_DELETE_FUNCTION;
 };
 
 #endif

@@ -354,6 +354,7 @@ public:
   // Description:
   // Subclasses must override this method and provide the right kind
   // of templated vtkArrayIteratorTemplate.
+  VTK_NEWINSTANCE
   virtual vtkArrayIterator* NewIterator() = 0;
 
   // Description:
@@ -586,8 +587,8 @@ protected:
   vtkInternalComponentNames* ComponentNames; //names for each component
 
 private:
-  vtkAbstractArray(const vtkAbstractArray&);  // Not implemented.
-  void operator=(const vtkAbstractArray&);  // Not implemented.
+  vtkAbstractArray(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkAbstractArray&) VTK_DELETE_FUNCTION;
 };
 
 // Description:

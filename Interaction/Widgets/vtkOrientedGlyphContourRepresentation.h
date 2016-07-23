@@ -180,8 +180,8 @@ protected:
   virtual void BuildLines();
 
 private:
-  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
-  void operator=(const vtkOrientedGlyphContourRepresentation&);  //Not implemented
+  vtkOrientedGlyphContourRepresentation(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOrientedGlyphContourRepresentation&) VTK_DELETE_FUNCTION;
 };
 
 #endif

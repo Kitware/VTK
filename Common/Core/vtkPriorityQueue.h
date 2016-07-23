@@ -120,8 +120,8 @@ protected:
   vtkIdType MaxId;
   vtkIdType Extend;
 private:
-  vtkPriorityQueue(const vtkPriorityQueue&);  // Not implemented.
-  void operator=(const vtkPriorityQueue&);  // Not implemented.
+  vtkPriorityQueue(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkPriorityQueue&) VTK_DELETE_FUNCTION;
 };
 
 inline double vtkPriorityQueue::DeleteId(vtkIdType id)

@@ -193,8 +193,8 @@ private:
   template<typename T>
   bool DefineAndWrite(vtkDataObject *input);
 
-  vtkADIOSWriter(const vtkADIOSWriter&);  // Not implemented.
-  void operator=(const vtkADIOSWriter&);  // Not implemented.
+  vtkADIOSWriter(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkADIOSWriter&) VTK_DELETE_FUNCTION;
 };
 
 #endif

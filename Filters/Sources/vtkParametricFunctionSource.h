@@ -203,8 +203,8 @@ private:
   //
   void MakeTriangles ( vtkCellArray * strips, int PtsU, int PtsV );
 
-  vtkParametricFunctionSource(const vtkParametricFunctionSource&);  // Not implemented.
-  void operator=(const vtkParametricFunctionSource&);  // Not implemented.
+  vtkParametricFunctionSource(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;
 
 };
 

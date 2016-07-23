@@ -167,8 +167,8 @@ protected:
   vtkPoints *Points;
 
 private:
-  vtkImageSliceMapper(const vtkImageSliceMapper&);  // Not implemented.
-  void operator=(const vtkImageSliceMapper&);  // Not implemented.
+  vtkImageSliceMapper(const vtkImageSliceMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkImageSliceMapper&) VTK_DELETE_FUNCTION;
 
   friend class vtkImageResliceMapper;
 };
