@@ -205,11 +205,13 @@ int vtkPointDataToCellData::RequestData(
     if (!input->GetPointData()->GetScalars())
       {
       vtkDebugMacro(<<"No input scalars!");
+      delete [] weights;
       return 1;
       }
     if (input->GetPointData()->GetScalars()->GetNumberOfComponents() != 1)
       {
       vtkDebugMacro(<<"Input scalars have more than one component! Cannot categorize!");
+      delete [] weights;
       return 1;
       }
     }
