@@ -752,13 +752,12 @@ void vtkFrameBufferObject::DisplayFrameBufferAttachment(
 // Display the draw buffers.
 void vtkFrameBufferObject::DisplayDrawBuffers()
 {
-  GLint ivalue = 1;
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+  GLint ivalue = 1;
   glGetIntegerv(GL_MAX_DRAW_BUFFERS,&ivalue);
-#endif
 
   cout<<"there ";
-  if(ivalue<=1)
+  if(ivalue==1)
     {
     cout << "is ";
     }
@@ -767,12 +766,12 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
     cout << "are ";
     }
   cout << ivalue << " draw buffer";
-  if(ivalue>1)
+  if(ivalue!=1)
     {
     cout<<"s";
     }
   cout<<". "<<endl;
-#if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
+
   GLint i=0;
   int c=ivalue;
   while(i<c)
@@ -784,6 +783,8 @@ void vtkFrameBufferObject::DisplayDrawBuffers()
     cout << endl;
     ++i;
     }
+#else
+  cout << "there is 1 draw buffer." << endl;
 #endif
   }
 
