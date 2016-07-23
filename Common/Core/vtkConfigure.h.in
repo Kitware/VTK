@@ -37,12 +37,12 @@
 
 #elif defined(__clang__)
 /* Check for clang before GCC, as clang says it is GNUC since it has ABI
- * compliance. */
+ * compliance and supports many of the same extensions. */
 #define VTK_COMPILER_CLANG
 
 #elif defined(__GNUC__)
-/* Several compilers pretend to be GCC but have minor differences. Try to
- * compensate for that, by checking for those compilers first. */
+/* Several compilers pretend to be GCC but have minor differences. To
+ * compensate for that, we checked for those compilers first above. */
 #define VTK_COMPILER_GCC
 #define VTK_COMPILER_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + \
                                   __GNUC_PATCHLEVEL__)

@@ -33,7 +33,7 @@ class vtkFieldNode
 public:
   vtkFieldNode(const char* name, vtkDataSet* ptr=0)
     {
-      int length = static_cast<int>(strlen(name));
+      size_t length = strlen(name);
       if (length > 0)
         {
         this->Name = new char[length+1];
