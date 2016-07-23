@@ -126,6 +126,15 @@ public:
   vtkGetMacro(BuildIfRequired, bool);
   vtkBooleanMacro(BuildIfRequired, bool);
 
+  // Description:
+  // When BuildIfRequired is `false`, this can be used to set the minimum number
+  // of ghost levels to generate. Note, if the downstream pipeline requests more
+  // ghost levels than the number specified here, then the filter will generate
+  // those extra ghost levels as needed. Accepted values are in the interval
+  // [1, VTK_INT_MAX].
+  vtkSetClampMacro(MinimumNumberOfGhostLevels, int, 1, VTK_INT_MAX);
+  vtkGetMacro(MinimumNumberOfGhostLevels, int);
+
 protected:
   vtkPUnstructuredGridGhostCellsGenerator();
   ~vtkPUnstructuredGridGhostCellsGenerator();
@@ -162,6 +171,7 @@ protected:
   char *GlobalCellIdsArrayName;
   bool HasGlobalCellIds;
   bool BuildIfRequired;
+  int MinimumNumberOfGhostLevels;
 
 private:
   struct vtkInternals;

@@ -35,6 +35,7 @@
 #include "vtkUnstructuredGrid.h"
 #include "vtkCellData.h"
 
+#include <algorithm>
 #include <vector>
 #include <map>
 #include <set>
@@ -162,6 +163,7 @@ vtkPUnstructuredGridGhostCellsGenerator::vtkPUnstructuredGridGhostCellsGenerator
 
   this->Internals = NULL;
   this->BuildIfRequired = true;
+  this->MinimumNumberOfGhostLevels = 1;
 
   this->UseGlobalPointIds = true;
   this->GlobalPointIdsArrayName = NULL;
@@ -193,6 +195,7 @@ void vtkPUnstructuredGridGhostCellsGenerator::PrintSelf(ostream& os, vtkIndent i
   os << indent << "HasGlobalCellIds:" << HasGlobalCellIds << endl;
   os << indent << "GlobalCellIdsArrayName:" << GlobalCellIdsArrayName << endl;
   os << indent << "BuildIfRequired:" << BuildIfRequired << endl;
+  os << indent << "MinimumNumberOfGhostLevels: " << this->MinimumNumberOfGhostLevels << endl;
 }
 
 //-----------------------------------------------------------------------------
@@ -232,8 +235,9 @@ int vtkPUnstructuredGridGhostCellsGenerator::RequestData(
   this->NumRanks = this->Controller ? this->Controller->GetNumberOfProcesses() : 1;
   this->RankId = this->Controller ? this->Controller->GetLocalProcessId() : 0;
 
-  int maxGhostLevel = this->BuildIfRequired ? outInfo->Get(
-   vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS()) : 1;
+  int reqGhostLevel = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS());
+  int maxGhostLevel = this->BuildIfRequired ?
+    reqGhostLevel : std::max(reqGhostLevel, this->MinimumNumberOfGhostLevels);
 
   if (maxGhostLevel == 0 || !this->Controller || this->NumRanks == 1)
     {
