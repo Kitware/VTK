@@ -455,11 +455,11 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name,
          iter->GoToNextItem ())
       {
       name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
-      if (name != 0 && strstr (name, "Sets") != 0)
+      if (name != NULL && strstr (name, "Sets") != 0)
         {
         continue;
         }
-      if (name == 0)
+      if (name == NULL)
         {
         // avoid null references in StdString
         name = "";
