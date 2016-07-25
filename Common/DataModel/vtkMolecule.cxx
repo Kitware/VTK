@@ -333,7 +333,7 @@ void vtkMolecule::DeepCopy(vtkDataObject *obj)
   vtkMolecule *m = vtkMolecule::SafeDownCast(obj);
   if (!m)
     {
-    vtkErrorMacro("Can only deel copy from vtkMolecule or subclass.");
+    vtkErrorMacro("Can only deep copy from vtkMolecule or subclass.");
     return;
     }
   this->DeepCopyStructure(m);
