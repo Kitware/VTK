@@ -234,11 +234,7 @@ vtkBond vtkMolecule::GetBond(vtkIdType bondId)
 {
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
-  if (this->BondListIsDirty)
-    {
-      this->UpdateBondList();
-    }
-  vtkIdTypeArray *bonds = this->GetEdgeList();
+  vtkIdTypeArray *bonds = this->GetBondList();
   // An array with two components holding the bonded atom's ids
   vtkIdType *ids = bonds->GetPointer(2 * bondId);
   return vtkBond (this, bondId, ids[0], ids[1]);
@@ -277,7 +273,7 @@ double vtkMolecule::GetBondLength(vtkIdType bondId)
   assert(bondId >= 0 && bondId < this->GetNumberOfBonds());
 
   // Get list of bonds
-  vtkIdTypeArray *bonds = this->GetEdgeList();
+  vtkIdTypeArray *bonds = this->GetBondList();
   // An array of length two holding the bonded atom's ids
   vtkIdType *ids = bonds->GetPointer(bondId);
 
@@ -413,6 +409,20 @@ void vtkMolecule::UpdateBondList()
 {
   this->BuildEdgeList();
   this->BondListIsDirty = false;
+}
+
+//----------------------------------------------------------------------------
+vtkIdTypeArray *vtkMolecule::GetBondList()
+{
+  // Create the edge list if it doesn't exist, or is marked as dirty.
+  vtkIdTypeArray *edgeList = this->BondListIsDirty ? NULL : this->GetEdgeList();
+  if (!edgeList)
+    {
+    this->UpdateBondList();
+    edgeList = this->GetEdgeList();
+    }
+  assert(edgeList != NULL);
+  return edgeList;
 }
 
 //----------------------------------------------------------------------------

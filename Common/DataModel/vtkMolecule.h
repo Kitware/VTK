@@ -273,6 +273,7 @@ public:
   bool BondListIsDirty;
   void SetBondListDirty() {this->BondListIsDirty = true;}
   void UpdateBondList();
+  vtkIdTypeArray* GetBondList();
 
   friend class vtkAtom;
   friend class vtkBond;
