@@ -388,6 +388,7 @@ void vtkMolecule::CopyStructureInternal(vtkMolecule *m, bool deep)
     {
     this->Superclass::ShallowCopy(m);
     }
+  this->BondListIsDirty = true;
   }
 
 //----------------------------------------------------------------------------
