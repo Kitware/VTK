@@ -340,6 +340,21 @@ void vtkMolecule::DeepCopy(vtkDataObject *obj)
   this->DeepCopyAttributes(m);
 }
 
+//----------------------------------------------------------------------------
+bool vtkMolecule::CheckedShallowCopy(vtkGraph *g)
+{
+  bool result = this->Superclass::CheckedShallowCopy(g);
+  this->BondListIsDirty = true;
+  return result;
+}
+
+//----------------------------------------------------------------------------
+bool vtkMolecule::CheckedDeepCopy(vtkGraph *g)
+{
+  bool result = this->Superclass::CheckedDeepCopy(g);
+  this->BondListIsDirty = true;
+  return result;
+}
 
 //----------------------------------------------------------------------------
 void vtkMolecule::ShallowCopyStructure(vtkMolecule *m)

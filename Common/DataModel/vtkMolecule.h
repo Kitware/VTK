@@ -185,6 +185,18 @@ public:
   virtual void SetElectronicData(vtkAbstractElectronicData*);
 
   // Description:
+  // Performs the same operation as ShallowCopy(),
+  // but instead of reporting an error for an incompatible graph,
+  // returns false.
+  virtual bool CheckedShallowCopy(vtkGraph *g);
+
+  // Description:
+  // Performs the same operation as DeepCopy(),
+  // but instead of reporting an error for an incompatible graph,
+  // returns false.
+  virtual bool CheckedDeepCopy(vtkGraph *g);
+
+  // Description:
   // Shallow copies the data object into this molecule.
   virtual void ShallowCopy(vtkDataObject *obj);
 
