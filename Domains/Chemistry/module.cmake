@@ -12,6 +12,7 @@ vtk_module(vtkDomainsChemistry
     vtkIOXML
     vtkFiltersSources
   TEST_DEPENDS
+    vtkIOLegacy
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle

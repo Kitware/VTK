@@ -37,6 +37,7 @@
 
 class vtkDataObject;
 class vtkGraph;
+class vtkMolecule;
 class vtkPolyData;
 class vtkRectilinearGrid;
 class vtkStructuredGrid;
@@ -64,6 +65,7 @@ public:
   // returned.  (You must also set the filename of the object prior to
   // getting the output.)
   vtkGraph *GetGraphOutput();
+  vtkMolecule *GetMoleculeOutput();
   vtkPolyData *GetPolyDataOutput();
   vtkRectilinearGrid *GetRectilinearGridOutput();
   vtkStructuredGrid *GetStructuredGridOutput();
