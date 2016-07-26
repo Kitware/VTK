@@ -95,6 +95,11 @@ public:
   int GetCellType();
 
   // Description:
+  // Get the current cell dimension (0, 1, 2, or 3). This should only be called
+  // when IsDoneWithTraversal() returns false.
+  int GetCellDimension();
+
+  // Description:
   // Get the id of the current cell.
   virtual vtkIdType GetCellId() = 0;
 
