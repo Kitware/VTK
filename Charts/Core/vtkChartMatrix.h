@@ -27,6 +27,9 @@
 #include "vtkAbstractContextItem.h"
 #include "vtkVector.h" // For ivars
 
+#include <map> // For specific gutter
+#include <utility> // For specific gutter
+
 class vtkChart;
 
 class VTKCHARTSCORE_EXPORT vtkChartMatrix : public vtkAbstractContextItem
@@ -79,6 +82,11 @@ public:
   void SetGutterY(float value);
 
   // Description:
+  // Set a specific resize that will move the bottom left point of a chart.
+  virtual void SetSpecificResize(const vtkVector2i& index, const vtkVector2f& resize);
+  virtual void ClearSpecificResizes();
+
+  // Description:
   // Get the gutter that should be left between the charts in the matrix.
   virtual vtkVector2f GetGutter() const { return this->Gutter; }
 
@@ -127,6 +135,7 @@ protected:
 
   // The gutter between each chart.
   vtkVector2f Gutter;
+  std::map<vtkVector2i, vtkVector2f> SpecificResize;
   int Borders[4];
   bool LayoutIsDirty;
 
