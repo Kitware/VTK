@@ -233,7 +233,6 @@ private:
   vector<double> TimeSteps;
   int Extent[6];
   double BoundingBox[6];
-  int Spacing;
   int NumRequestData;
 };
 

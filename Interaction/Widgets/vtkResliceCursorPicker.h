@@ -33,7 +33,6 @@
 class vtkPolyData;
 class vtkGenericCell;
 class vtkResliceCursorPolyDataAlgorithm;
-class vtkIdList;
 class vtkMatrix4x4;
 class vtkPlane;
 
@@ -94,7 +93,6 @@ private:
   int PickedAxis1;
   int PickedAxis2;
   int PickedCenter;
-  vtkIdList *PointIds;
   vtkMatrix4x4 * TransformMatrix;
   vtkPlane     * Plane;
 

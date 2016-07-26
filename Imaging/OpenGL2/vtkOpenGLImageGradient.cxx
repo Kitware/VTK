@@ -84,6 +84,11 @@ public:
     vtkShaderProgram * /* program */, int /* zExtent */) {};
 
   double *Spacing;
+  vtkOpenGLGradientCB() {};
+  virtual ~vtkOpenGLGradientCB() {};
+private:
+  vtkOpenGLGradientCB(const vtkOpenGLGradientCB&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLGradientCB&) VTK_DELETE_FUNCTION;
 };
 
 //-----------------------------------------------------------------------------

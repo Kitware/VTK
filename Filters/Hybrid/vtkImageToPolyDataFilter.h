@@ -69,7 +69,6 @@
 #define VTK_COLOR_MODE_LUT 0
 #define VTK_COLOR_MODE_LINEAR_256 1
 
-class vtkAppendPolyData;
 class vtkDataArray;
 class vtkEdgeTable;
 class vtkIdTypeArray;
@@ -199,8 +198,6 @@ private:
   vtkEdgeTable         *EdgeUseTable; // keep track of polygons use of edges
   vtkIntArray          *EdgeUses; //the two polygons that use an edge
                                   //and point id associated with edge (if any)
-
-  vtkAppendPolyData    *Append;
 
   void BuildTable(unsigned char *inPixels);
   vtkUnsignedCharArray *QuantizeImage(vtkDataArray *inScalars, int numComp,
