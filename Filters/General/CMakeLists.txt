@@ -48,6 +48,7 @@ set(Module_SRCS
   vtkOBBDicer.cxx
   vtkOBBTree.cxx
   vtkPassThrough.cxx
+  vtkPointConnectivityFilter.cxx
   vtkPolyDataStreamer.cxx
   vtkPolyDataToReebGraphFilter.cxx
   vtkProbePolyhedron.cxx
