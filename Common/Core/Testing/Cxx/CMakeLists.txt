@@ -111,6 +111,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestLookupTable.cxx
   TestLookupTableThreaded.cxx
   TestMath.cxx
+  TestMersenneTwister.cxx
   TestMinimalStandardRandomSequence.cxx
   TestNew.cxx
   TestObjectFactory.cxx
