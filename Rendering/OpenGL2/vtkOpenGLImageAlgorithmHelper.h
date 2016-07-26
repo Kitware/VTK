@@ -37,6 +37,9 @@ public:
   virtual void UpdateShaderUniforms(
     vtkShaderProgram * /* program */, int /* zExtent */) {};
   virtual ~vtkOpenGLImageAlgorithmCallback() {};
+private:
+  vtkOpenGLImageAlgorithmCallback(const vtkOpenGLImageAlgorithmCallback&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOpenGLImageAlgorithmCallback&) VTK_DELETE_FUNCTION;
 };
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLImageAlgorithmHelper : public vtkObject

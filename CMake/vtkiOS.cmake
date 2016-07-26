@@ -14,6 +14,8 @@ set(IOS_SIMULATOR_ARCHITECTURES "i386;x86_64"
 set(IOS_DEVICE_ARCHITECTURES "arm64;armv7;armv7s"
     CACHE STRING "iOS Device Architectures")
 
+set(IOS_EMBED_BITCODE ON CACHE BOOL "Embed LLVM bitcode")
+
 set(CMAKE_FRAMEWORK_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/frameworks"
     CACHE PATH "Framework install path")
 

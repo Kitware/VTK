@@ -15,32 +15,32 @@
 
 #include "vtkScatterPlotMatrix.h"
 
-#include "vtkTable.h"
+#include "vtkAnnotationLink.h"
+#include "vtkAxis.h"
+#include "vtkBrush.h"
+#include "vtkCallbackCommand.h"
+#include "vtkChartXY.h"
+#include "vtkChartXYZ.h"
+#include "vtkCommand.h"
+#include "vtkContext2D.h"
+#include "vtkContextMouseEvent.h"
+#include "vtkContextScene.h"
 #include "vtkFloatArray.h"
 #include "vtkIntArray.h"
-#include "vtkChartXY.h"
-#include "vtkPlot.h"
-#include "vtkAxis.h"
-#include "vtkContextMouseEvent.h"
-#include "vtkStdString.h"
-#include "vtkStringArray.h"
-#include "vtkNew.h"
-#include "vtkPen.h"
 #include "vtkMathUtilities.h"
-#include "vtkAnnotationLink.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
-#include "vtkBrush.h"
+#include "vtkPen.h"
+#include "vtkPlot.h"
 #include "vtkPlotPoints.h"
 #include "vtkPlotPoints3D.h"
-#include "vtkCommand.h"
-#include "vtkTextProperty.h"
-#include "vtkContextScene.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkCallbackCommand.h"
-#include "vtkVectorOperators.h"
+#include "vtkStdString.h"
+#include "vtkStringArray.h"
+#include "vtkTable.h"
+#include "vtkTextProperty.h"
 #include "vtkTooltipItem.h"
-
-#include "vtkChartXYZ.h"
+#include "vtkVectorOperators.h"
 
 // STL includes
 #include <map>
@@ -353,7 +353,8 @@ bool MoveColumn(vtkStringArray* visCols, int fromCol, int toCol)
 vtkStandardNewMacro(vtkScatterPlotMatrix)
 
 vtkScatterPlotMatrix::vtkScatterPlotMatrix()
-  : NumberOfBins(10), NumberOfFrames(25)
+  : NumberOfBins(10), NumberOfFrames(25),
+  LayoutUpdatedTime(0)
 {
   this->Private = new PIMPL;
   this->TitleProperties = vtkSmartPointer<vtkTextProperty>::New();
@@ -379,10 +380,15 @@ void vtkScatterPlotMatrix::Update()
     this->UpdateLayout();
     this->Private->VisibleColumnsModified = false;
     }
+  else if (this->GetMTime() > this->LayoutUpdatedTime)
+    {
+    this->UpdateLayout();
+    }
 }
 
 bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
 {
+  this->CurrentPainter = painter;
   this->Update();
   return Superclass::Paint(painter);
 }
@@ -925,8 +931,7 @@ void vtkScatterPlotMatrix::InsertVisibleColumn(const vtkStdString &name,
     this->Private->VisibleColumnsModified =
       MoveColumn(this->VisibleColumns.GetPointer(), currIdx, toIdx);
     }
-
-  this->Update();
+  this->LayoutIsDirty = true;
 }
 
 bool vtkScatterPlotMatrix::GetColumnVisibility(const vtkStdString &name)
@@ -980,7 +985,7 @@ void vtkScatterPlotMatrix::SetVisibleColumns(vtkStringArray* visColumns)
     this->VisibleColumns->DeepCopy(visColumns);
     }
   this->Private->VisibleColumnsModified = true;
-  this->Update();
+  this->LayoutIsDirty = true;
 }
 
 void vtkScatterPlotMatrix::SetNumberOfBins(int numberOfBins)
@@ -1369,6 +1374,8 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // Where the indices are those of the columns. The indices of the charts
   // originate in the bottom-left. S = scatter plot, H = histogram and + is the
   // big chart.
+  this->LayoutUpdatedTime = this->GetMTime();
+  this->ClearSpecificResizes();
   int n = this->Size.GetX();
   this->UpdateAxes();
   this->Private->BigChart3D->SetAnnotationLink(this->Private->Link.GetPointer());
@@ -1456,6 +1463,29 @@ void vtkScatterPlotMatrix::UpdateLayout()
 
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         this->SetActivePlot(vtkVector2i(0, n - 2));
+
+        // The big chart need to be resized only when it is
+        // "between" the histograms, ie. when n is even.
+        if (n%2 == 0)
+          {
+          vtkVector2f resize(30, 30);
+          if (this->CurrentPainter)
+            {
+            // Try to use painter to resize the big plot
+            vtkVector2i posLeft(i - 1, j);
+            vtkVector2i posBottom(i, j - 1);
+            vtkAxis* axis1 = this->GetChart(posLeft)->GetAxis(vtkAxis::RIGHT);
+            vtkAxis* axis2 = this->GetChart(posBottom)->GetAxis(vtkAxis::TOP);
+            int resizeX = std::max(axis1->GetBoundingRect(this->CurrentPainter).GetWidth()
+              - this->Gutter.GetX(), this->Gutter.GetX());
+            int resizeY = std::max(axis2->GetBoundingRect(this->CurrentPainter).GetWidth()
+              - this->Gutter.GetY(), this->Gutter.GetY());
+            resize.Set(resizeX, resizeY);
+            }
+
+          // Move big plot bottom left point to avoid overlap
+          this->SetSpecificResize(pos, resize);
+          }
         }
       // Only show bottom axis label for bottom plots
       if (j > 0)
@@ -1748,7 +1778,7 @@ void vtkScatterPlotMatrix::UpdateChartSettings(int plotType)
                                this->Private->ChartSettings[ACTIVEPLOT]);
     this->Private->BigChart->SetSelectionMode(this->SelectionMode);
     }
-
+  this->Modified();
 }
 //-----------------------------------------------------------------------------
 void vtkScatterPlotMatrix::SetSelectionMode(int selMode)

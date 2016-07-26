@@ -31,7 +31,7 @@
 // void myWorkerFunction(vtkDataSet *ds)
 // {
 //   vtkCellIterator *it = ds->NewCellIterator();
-//   for (it->InitTraversal(); it->IsDoneWithTraversal(); it->GoToNextCell())
+//   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
 //     {
 //     if (it->GetCellType() != VTK_TETRA)
 //       {

@@ -113,6 +113,9 @@ class vtkWebMouseHandler(vtkWebProtocol):
         retVal = self.getApplication().HandleInteractionEvent(view, pvevent)
         del pvevent
 
+        if retVal:
+            self.getApplication().InvokeEvent('PushRender')
+
         return retVal
 
 # =============================================================================
@@ -138,6 +141,7 @@ class vtkWebViewPort(vtkWebProtocol):
             pass
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -150,6 +154,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.OrientationAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -162,6 +167,7 @@ class vtkWebViewPort(vtkWebProtocol):
         # FIXME seb: view.CenterAxesVisibility = (showAxis if 1 else 0);
 
         self.getApplication().InvalidateCache(view)
+        self.getApplication().InvokeEvent('PushRender')
 
         return str(self.getGlobalId(view))
 
@@ -174,6 +180,8 @@ class vtkWebViewPort(vtkWebProtocol):
         camera.SetCameraViewUp(view_up)
         camera.SetCameraPosition(position)
         self.getApplication().InvalidateCache(view)
+
+        self.getApplication().InvokeEvent('PushRender')
 
 # =============================================================================
 #

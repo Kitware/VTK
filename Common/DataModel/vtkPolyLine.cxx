@@ -18,9 +18,13 @@
 #include "vtkCellArray.h"
 #include "vtkObjectFactory.h"
 #include "vtkDoubleArray.h"
+#include "vtkIdList.h"
 #include "vtkLine.h"
+#include "vtkNew.h"
 #include "vtkPoints.h"
 #include "vtkIncrementalPointLocator.h"
+#include "vtkVector.h"
+#include "vtkVectorOperators.h"
 
 #include <algorithm>
 
@@ -45,207 +49,196 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
   return vtkPolyLine::GenerateSlidingNormals(pts, lines, normals, 0);
 }
 
+
+inline vtkIdType FindNextValidSegment(vtkPoints *points, vtkIdList *pointIds,
+                                      vtkIdType start)
+{
+  vtkVector3d ps;
+  points->GetPoint(pointIds->GetId(start), ps.GetData());
+
+  vtkIdType end = start + 1;
+  while (end < pointIds->GetNumberOfIds())
+    {
+    vtkVector3d pe;
+    points->GetPoint(pointIds->GetId(end), pe.GetData());
+    if (ps != pe)
+      {
+      return end - 1;
+      }
+    ++end;
+    }
+
+  return pointIds->GetNumberOfIds();
+}
+
 //----------------------------------------------------------------------------
 // Given points and lines, compute normals to lines. These are not true
 // normals, they are "orientation" normals used by classes like vtkTubeFilter
 // that control the rotation around the line. The normals try to stay pointing
-// in the same direction as much as possible (i.e., minimal rotation).
+// in the same direction as much as possible (i.e., minimal rotation) w.r.t the
+// firstNormal (computed if NULL). Allways returns 1 (success).
 int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
                                         vtkDataArray *normals,
                                         double* firstNormal)
 {
-  vtkIdType npts=0;
-  vtkIdType *linePts=0;
-  double sPrev[3], sNext[3], q[3], w[3], normal[3];
-  double p[3], pNext[3];
-  double c[3], f1, f2;
-  int i, j;
-  sNext[0]=0.0;
-  sNext[1]=0.0;
-  sNext[2]=0.0;
+  vtkVector3d normal(0.0, 0.0, 1.0); // arbitrary default value
 
-  //  Loop over all lines
-  //
-  for (lines->InitTraversal(); lines->GetNextCell(npts,linePts); )
+  vtkIdType lid = 0;
+  vtkNew<vtkIdList> linePts;
+  for (lines->InitTraversal(); lines->GetNextCell(linePts.GetPointer()); ++lid)
     {
-    //  Determine initial starting normal
-    //
-    if ( npts <= 0 )
+    vtkIdType npts = linePts->GetNumberOfIds();
+    if (npts <= 0)
       {
       continue;
       }
-
-    else if ( npts == 1 ) //return arbitrary
+    if ( npts == 1 ) //return arbitrary
       {
-      normal[0] = normal[1] = 0.0;
-      normal[2] = 1.0;
-      normals->InsertTuple(linePts[0],normal);
+      normals->InsertTuple(linePts->GetId(0), normal.GetData());
+      continue;
       }
 
-    else //more than one point
+
+    vtkIdType sPrevId = 0, sNextId = 0;
+    vtkVector3d sPrev, sNext;
+
+    sNextId = sPrevId = FindNextValidSegment(pts, linePts.GetPointer(), 0);
+    if (sPrevId != npts) // atleast one valid segment
       {
-      //  Compute first normal. All "new" normals try to point in the same
-      //  direction.
-      //
-      for (j=0; j<npts; j++)
+      vtkVector3d pt1, pt2;
+      pts->GetPoint(linePts->GetId(sPrevId), pt1.GetData());
+      pts->GetPoint(linePts->GetId(sPrevId + 1), pt2.GetData());
+      sPrev = (pt2 - pt1).Normalized();
+      }
+    else // no valid segments
+      {
+      for (vtkIdType i = 0; i < npts; ++i)
         {
+        normals->InsertTuple(linePts->GetId(i), normal.GetData());
+        }
+      continue;
+      }
 
-        if ( j == 0 ) //first point
+    // compute first normal
+    if (firstNormal)
+      {
+      normal = vtkVector3d(firstNormal);
+      }
+    else
+      {
+      // find the next valid, non-parallel segment
+      while (++sNextId < npts)
+        {
+        sNextId = FindNextValidSegment(pts, linePts.GetPointer(), sNextId);
+        if (sNextId != npts)
           {
-          pts->GetPoint(linePts[0],p);
-          pts->GetPoint(linePts[1],pNext);
+          vtkVector3d pt1, pt2;
+          pts->GetPoint(linePts->GetId(sNextId), pt1.GetData());
+          pts->GetPoint(linePts->GetId(sNextId + 1), pt2.GetData());
+          sNext = (pt2 - pt1).Normalized();
 
-          for (i=0; i<3; i++)
+          // now the starting normal should simply be the cross product
+          // in the following if statement we check for the case where
+          // the two segments are parallel, in which case, continue searching
+          // for the next valid segment
+          vtkVector3d n;
+          n = sPrev.Cross(sNext);
+          if (n.Norm() > 1.0E-3)
             {
-            sPrev[i] = pNext[i] - p[i];
-            sNext[i] = sPrev[i];
+            normal = n;
+            sPrevId = sNextId;
+            sPrev = sNext;
+            break;
             }
-
-          if ( vtkMath::Normalize(sNext) == 0.0 )
-            {
-            vtkGenericWarningMacro(<<"Coincident points in polyline...can't compute normals");
-            return 0;
-            }
-
-          if (!firstNormal)
-            {
-            // the following logic will produce a normal orthogonal
-            // to the first line segment. If we have three points
-            // we use special logic to select a normal orthogonal
-            // to the first two line segments
-            bool foundNormal = false;
-            if (npts > 2)
-              {
-              // Look at the line segments (0,1), (ipt-1, ipt)
-              // until a pair which meets the following criteria
-              // is found: ||(0,1)x(ipt-1,ipt)|| > 1.0E-3.
-              // This is used to eliminate nearly parallel cases.
-              for (int ipt=2; ipt < npts; ipt++)
-                {
-                double ftmp[3], ftmp2[3];
-
-                pts->GetPoint(linePts[ipt-1],ftmp);
-                pts->GetPoint(linePts[ipt]  ,ftmp2);
-
-                for (i=0; i<3; i++)
-                  {
-                  ftmp[i] = ftmp2[i] - ftmp[i];
-                  }
-
-                if ( vtkMath::Normalize(ftmp) == 0.0 )
-                  {
-                  continue;
-                  }
-
-                // now the starting normal should simply be the cross product
-                // in the following if statement we check for the case where
-                // the two segments are parallel
-                vtkMath::Cross(sNext,ftmp,normal);
-                if ( vtkMath::Norm(normal) > 1.0E-3 )
-                  {
-                  foundNormal = true;
-                  break;
-                  }
-                }
-              }
-
-            if ((npts <= 2) || !foundNormal)
-              {
-              for (i=0; i<3; i++)
-                {
-                // a little trick to find othogonal normal
-                if ( sNext[i] != 0.0 )
-                  {
-                  normal[(i+2)%3] = 0.0;
-                  normal[(i+1)%3] = 1.0;
-                  normal[i] = -sNext[(i+1)%3]/sNext[i];
-                  break;
-                  }
-                }
-              }
-            }
-          else
-            {
-            memcpy(normal, firstNormal, 3*sizeof(double));
-            }
-          vtkMath::Normalize(normal);
-          normals->InsertTuple(linePts[0],normal);
           }
+        }
 
-        else if ( j == (npts-1) ) //last point; just insert previous
+      if (sNextId >= npts) // only one valid segment
+        {
+        // a little trick to find othogonal normal
+        for (int i = 0; i < 3; ++i)
           {
-          normals->InsertTuple(linePts[j],normal);
+          if (sPrev[i] != 0.0)
+            {
+            normal[(i+2)%3] = 0.0;
+            normal[(i+1)%3] = 1.0;
+            normal[i] = -sPrev[(i+1)%3]/sPrev[i];
+            break;
+            }
           }
+        }
+      }
+    normal.Normalize();
 
-        else //inbetween points
-          {
-          //  Generate normals for new point by projecting previous normal
-          for (i=0; i<3; i++)
-            {
-            p[i] = pNext[i];
-            }
-          pts->GetPoint(linePts[j+1],pNext);
+    // compute remaining normals
+    vtkIdType lastNormalId = 0;
+    while (++sNextId < npts)
+      {
+      sNextId = FindNextValidSegment(pts, linePts.GetPointer(), sNextId);
+      if (sNextId == npts)
+        {
+        break;
+        }
 
-          for (i=0; i<3; i++)
-            {
-            sPrev[i] = sNext[i];
-            sNext[i] = pNext[i] - p[i];
-            }
+      vtkVector3d pt1, pt2;
+      pts->GetPoint(linePts->GetId(sNextId), pt1.GetData());
+      pts->GetPoint(linePts->GetId(sNextId + 1), pt2.GetData());
+      sNext = (pt2- pt1).Normalized();
 
-          if ( vtkMath::Normalize(sNext) == 0.0 )
-            {
-            vtkGenericWarningMacro(<<"Coincident points in polyline...can't compute normals");
-            return 0;
-            }
+      //compute rotation vector
+      vtkVector3d w = sPrev.Cross(normal);
+      if (w.Normalize() == 0.0) // cant use this segment
+        {
+        continue;
+        }
 
-          //compute rotation vector
-          vtkMath::Cross(sPrev,normal,w);
-          if ( vtkMath::Normalize(w) == 0.0 )
-            {
-            vtkGenericWarningMacro(<<"normal and sPrev coincident");
-            return 0;
-            }
+      //compute rotation of line segment
+      vtkVector3d q = sNext.Cross(sPrev);
+      if (q.Normalize() == 0.0) // cant use this segment
+        {
+        continue;
+        }
 
-          //compute rotation of line segment
-          vtkMath::Cross (sNext, sPrev, q);
-          if (vtkMath::Normalize(q) == 0.0)
-            { //no rotation, use previous normal
-            normals->InsertTuple(linePts[j],normal);
-            continue;
-            }
+      double f1 = q.Dot(normal);
+      double f2 = 1.0 - (f1 * f1);
+      if (f2 > 0.0)
+        {
+        f2 = sqrt(1.0 - (f1 * f1));
+        }
+      else
+        {
+        f2 = 0.0;
+        }
 
-          // new method
-          for (i=0; i<3; i++)
-            {
-            c[i] = sNext[i] + sPrev[i];
-            }
-          vtkMath::Normalize(c);
-          f1 = vtkMath::Dot(q,normal);
-          f2 = 1.0 - f1*f1;
-          if (f2 > 0.0)
-            {
-            f2 = sqrt(1.0 - f1*f1);
-            }
-          else
-            {
-            f2 = 0.0;
-            }
-          vtkMath::Cross(c,q,w);
-          vtkMath::Cross(sPrev,q,c);
-          if (vtkMath::Dot(normal,c)*vtkMath::Dot(w,c) < 0)
-            {
-            f2 = -1.0*f2;
-            }
-          for (i=0; i<3; i++)
-            {
-            normal[i] = f1*q[i] + f2*w[i];
-            }
+      vtkVector3d c = (sNext + sPrev).Normalized();
+      w = c.Cross(q);
+      c = sPrev.Cross(q);
+      if ((normal.Dot(c) * w.Dot(c)) < 0)
+        {
+        f2 = -1.0 * f2;
+        }
 
-          normals->InsertTuple(linePts[j],normal);
-          }//for this point
-        }//else
-      }//else if
-    }//for this line
+      // insert current normal before updating
+      for (vtkIdType i = lastNormalId; i < sNextId; ++i)
+        {
+        normals->InsertTuple(linePts->GetId(i), normal.GetData());
+        }
+      lastNormalId = sNextId;
+
+      // compute next normal
+      normal = (f1 * q) + (f2 * w);
+
+      sPrevId = sNextId;
+      sPrev = sNext;
+      }
+
+    // insert last normal for the remaining points
+    for (vtkIdType i = lastNormalId; i < npts; ++i)
+      {
+      normals->InsertTuple(linePts->GetId(i), normal.GetData());
+      }
+    }
+
   return 1;
 }
 

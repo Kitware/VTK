@@ -25,6 +25,9 @@
 #include "vtkPolyData.h"
 #include "vtkPolyLine.h"
 
+#include <algorithm>
+
+
 vtkStandardNewMacro(vtkTubeFilter);
 
 // Construct object with radius 0.5, radius variation turned off, the number
@@ -57,6 +60,28 @@ vtkTubeFilter::vtkTubeFilter()
   // by default process active point vectors
   this->SetInputArrayToProcess(1,0,0,vtkDataObject::FIELD_ASSOCIATION_POINTS,
                                vtkDataSetAttributes::VECTORS);
+}
+
+
+namespace {
+
+struct IdPointsEqual
+{
+  IdPointsEqual(vtkPoints *points)
+    : Points(points)
+  { }
+
+  bool operator()(vtkIdType id1, vtkIdType id2) const
+  {
+    double p1[3], p2[3];
+    this->Points->GetPoint(id1, p1);
+    this->Points->GetPoint(id2, p2);
+    return (p1[0] == p2[0] && p1[1] == p2[1] && p1[2] == p2[2]);
+  }
+
+  vtkPoints *Points;
+};
+
 }
 
 int vtkTubeFilter::RequestData(
@@ -224,9 +249,11 @@ int vtkTubeFilter::RequestData(
     this->UpdateProgress((double)inCellId/numLines);
     abort = this->GetAbortExecute();
 
+    // remove degenerate lines to avoid warnings
+    npts = static_cast<vtkIdType>(std::unique(pts, pts + npts, IdPointsEqual(inPts)) -
+           pts);
     if (npts < 2)
       {
-      vtkWarningMacro(<< "Less than two points in line!");
       continue; //skip tubing this polyline
       }
 
@@ -236,13 +263,7 @@ int vtkTubeFilter::RequestData(
       {
       singlePolyline->Reset(); //avoid instantiation
       singlePolyline->InsertNextCell(npts,pts);
-      if ( !lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline,
-                                                        inNormals) )
-        {
-        vtkWarningMacro("Could not generate normals for line. "
-                        "Skipping to next.");
-        continue; //skip tubing this polyline
-        }
+      lineNormalGenerator->GenerateSlidingNormals(inPts,singlePolyline, inNormals);
       }
 
     // Generate the points around the polyline. The tube is not stripped

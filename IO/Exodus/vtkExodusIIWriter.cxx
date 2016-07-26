@@ -282,7 +282,7 @@ void vtkExodusIIWriter::WriteData ()
   this->NewFlattenedNames.clear ();
   // Is it safe to assume this is the same?
   bool newHierarchy = false;
-  if (!this->FlattenHierarchy (this->OriginalInput, 0, newHierarchy))
+  if (!this->FlattenHierarchy (this->OriginalInput, "", newHierarchy))
     {
     vtkErrorMacro (
       "vtkExodusIIWriter::WriteData Unable to flatten hierarchy");
@@ -455,9 +455,14 @@ int vtkExodusIIWriter::FlattenHierarchy (vtkDataObject* input, const char *name,
          iter->GoToNextItem ())
       {
       name = iter->GetCurrentMetaData()->Get (vtkCompositeDataSet::NAME());
-      if (name != 0 && strstr (name, "Sets") != 0)
+      if (name != NULL && strstr (name, "Sets") != 0)
         {
         continue;
+        }
+      if (name == NULL)
+        {
+        // avoid null references in StdString
+        name = "";
         }
       if (iter->GetCurrentDataObject () && !this->FlattenHierarchy (iter->GetCurrentDataObject (), name, changed))
         {
