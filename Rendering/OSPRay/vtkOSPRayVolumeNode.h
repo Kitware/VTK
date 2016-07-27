@@ -49,7 +49,7 @@ protected:
   ~vtkOSPRayVolumeNode();
 
 private:
-  vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&); // Not implemented.
-  void operator=(const vtkOSPRayVolumeNode&); // Not implemented.
+  vtkOSPRayVolumeNode(const vtkOSPRayVolumeNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayVolumeNode&) VTK_DELETE_FUNCTION;
 };
 #endif

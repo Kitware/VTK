@@ -57,7 +57,7 @@ protected:
   std::vector<float> TFVals, TFOVals;
 
 private:
-  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&); // Not implemented.
-  void operator=(const vtkOSPRayVolumeMapperNode&); // Not implemented.
+  vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;
 };
 #endif

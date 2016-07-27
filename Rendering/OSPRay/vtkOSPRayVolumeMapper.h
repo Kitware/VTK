@@ -24,12 +24,8 @@
 
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkOSPRayVolumeInterface.h"
-#include "vtkNew.h" //to ease garbage collection
-#include "vtkGarbageCollector.h" //ditto
+#include <vector> //for GL interfacing z buffer
 
-#include <vector>
-
-class vtkGarbageCollector;
 class vtkOSPRayPass;
 class vtkRenderer;
 
@@ -52,11 +48,11 @@ public:
 
   vtkOSPRayPass *OSPRayPass;
   vtkRenderer *InternalRenderer;
-
   std::vector<float> ZBuffer;
+
 private:
-  vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&);  // Not implemented.
-  void operator=(const vtkOSPRayVolumeMapper&);  // Not implemented.
+  vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayVolumeMapper&) VTK_DELETE_FUNCTION;
 };
 
 #endif

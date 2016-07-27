@@ -135,15 +135,20 @@ namespace ospray {
 
     for (size_t j=0; j<glDepthBufferHeight; j++)
       for (size_t i=0; i<glDepthBufferWidth; i++) {
-      const osp::vec3f dir_ij = normalize(dir_00 + float(i)/float(glDepthBufferWidth-1) * dir_du + float(j)/float(glDepthBufferHeight-1) * dir_dv);
+      const osp::vec3f dir_ij = normalize(dir_00 +
+                                          float(i)/float(glDepthBufferWidth-1) * dir_du +
+                                          float(j)/float(glDepthBufferHeight-1) * dir_dv);
 
       const float t = ospDepth[j*glDepthBufferWidth+i] / dot(cameraDir, dir_ij);
           ospDepth[j*glDepthBufferWidth+i] = t;
       }
 
     // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
-    osp::vec2i texSize = {glDepthBufferWidth, glDepthBufferHeight};
-    OSPTexture2D depthTexture = ospNewTexture2D((osp::vec2i&)texSize, OSP_TEXTURE_R32F, ospDepth, OSP_TEXTURE_FILTER_NEAREST);
+    osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
+                          static_cast<int>(glDepthBufferHeight)};
+    OSPTexture2D depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
+                                                OSP_TEXTURE_R32F, ospDepth,
+                                                OSP_TEXTURE_FILTER_NEAREST);
 
     delete[] ospDepth;
 
@@ -185,8 +190,6 @@ void vtkOSPRayVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
                                    vtkVolume *vol)
 {
-  //TODO: all of this should be created the first, time then cached until
-  //changed or deleted
   if (!this->OSPRayPass)
     {
     this->OSPRayPass = vtkOSPRayPass::New();
@@ -217,8 +220,12 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
   double camDir[3];
   cam->GetViewUp(camUp);
   cam->GetFocalPoint(camDir);
-  osp::vec3f  cameraUp = {camUp[0], camUp[1], camUp[2]};
-  osp::vec3f  cameraDir = {camDir[0], camDir[1], camDir[2]};
+  osp::vec3f  cameraUp = {static_cast<float>(camUp[0]),
+                          static_cast<float>(camUp[1]),
+                          static_cast<float>(camUp[2])};
+  osp::vec3f  cameraDir = {static_cast<float>(camDir[0]),
+                           static_cast<float>(camDir[1]),
+                           static_cast<float>(camDir[2])};
   double cameraPos[3];
   cam->GetPosition(cameraPos);
   cameraDir.x -= cameraPos[0];
@@ -243,7 +250,7 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
     }
   this->InternalRenderer->SetPass(this->OSPRayPass);
   //TODO: unlikely to change, except at startup, so do this check then
-  //instead of frame
+  //instead of every frame
   if (!this->InternalRenderer->HasViewProp(vol))
     {
     this->InternalRenderer->RemoveAllViewProps();
@@ -259,15 +266,10 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
   //TODO: streamline this handoff
   vtkOSPRayRendererNode *rennode = vtkOSPRayRendererNode::SafeDownCast
     (this->OSPRayPass->GetSceneGraph()->GetViewNodeFor(this->InternalRenderer));
-  if (!rennode)
-    {
-    //this->OSPRayPass->SetMaxDepthTexture(glDepthTex);
-    }
-  else
+  if (rennode)
     {
     rennode->SetMaxDepthTexture(glDepthTex);
     }
-
 
   //ask the pass to render, it will blend onto the color buffer
   this->InternalRenderer->SetErase(0);

@@ -65,7 +65,9 @@ int TestSmartVolumeMapper(int argc,
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
+#ifdef VTK_OPENGL2
   volumeMapper->SetSampleDistance(0.01);
+#endif
 
   // Put inside an open box to evaluate composite order
   vtkNew<vtkDataSetSurfaceFilter> outlineFilter;
@@ -84,8 +86,9 @@ int TestSmartVolumeMapper(int argc,
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
+#ifdef VTK_OPENGL2
   volumeMapper->SetAutoAdjustSampleDistances(1);
-
+#endif
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
   vtkNew<vtkRenderer> ren;

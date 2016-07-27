@@ -427,7 +427,6 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
     }
   else
     {
-    //TODO: blending needs to be optional
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
       {
       unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
@@ -438,15 +437,27 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
         {
         if (*zptr<1.0)
           {
-          unsigned char a = (*(iptr+2));
-          float A = (float)a/255;
-          for (int h = 0; h<3; h++)
+          if (!this->MaxDepth)
             {
-            *optr = (unsigned char)(((float)*iptr)*(1-A) + ((float)*optr)*(A));
-            optr++; iptr++;
+            //ospray owns all layers in window
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
             }
-          optr++;
-          iptr++;
+          else
+            {
+            //ospray is cooperating with GL (osprayvolumemapper)
+            unsigned char a = (*(iptr+2));
+            float A = (float)a/255;
+            for (int h = 0; h<3; h++)
+              {
+              *optr = (unsigned char)(((float)*iptr)*(1-A) + ((float)*optr)*(A));
+              optr++; iptr++;
+              }
+            optr++;
+            iptr++;
+            }
           *ozptr = *zptr;
           }
         else
