@@ -62,7 +62,8 @@ int MomentCheck(double min, double max, std::size_t nValues)
 
   double empiricalMean     = mean;
   double empiricalVariance = M2/(nValues - 1.);
-  double empiricalSkewness = (sqrt(nValues)*M3)/pow(M2,1.5);
+  double empiricalSkewness = ((sqrt(static_cast<double>(nValues))*M3) /
+                              pow(M2,1.5));
   double empiricalKurtosis = (nValues*M4)/(M2*M2) - 3.;
 
   double analyticMean     = 1./2.*(min + max);
