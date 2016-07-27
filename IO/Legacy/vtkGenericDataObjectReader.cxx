@@ -22,6 +22,7 @@
 #include "vtkImageData.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
 #include "vtkNonOverlappingAMR.h"
@@ -128,6 +129,7 @@ int vtkGenericDataObjectReader::RequestDataObject(
       case VTK_DIRECTED_GRAPH:
         output = vtkDirectedGraph::New();
         break;
+      case VTK_MOLECULE:
       case VTK_UNDIRECTED_GRAPH:
         output = vtkUndirectedGraph::New();
         break;
@@ -199,6 +201,7 @@ int vtkGenericDataObjectReader::RequestInformation(
   int retVal;
   switch (this->ReadOutputType())
     {
+    case VTK_MOLECULE:
     case VTK_UNDIRECTED_GRAPH:
     case VTK_DIRECTED_GRAPH:
       reader = vtkGraphReader::New();
@@ -263,6 +266,11 @@ int vtkGenericDataObjectReader::RequestData(
 
   switch (this->ReadOutputType())
     {
+    case VTK_MOLECULE:
+      {
+      this->ReadData<vtkGraphReader, vtkMolecule>("vtkMolecule", output);
+      return 1;
+      }
     case VTK_DIRECTED_GRAPH:
       {
       this->ReadData<vtkGraphReader, vtkDirectedGraph>("vtkDirectedGraph", output);
@@ -381,11 +389,15 @@ int vtkGenericDataObjectReader::ReadOutputType()
 
     this->CloseVTKFile();
 
-    if(!strncmp(this->LowerCase(line), "directed_graph", 5))
+    if(!strncmp(this->LowerCase(line), "molecule", 8))
+      {
+      return VTK_MOLECULE;
+      }
+    if(!strncmp(this->LowerCase(line), "directed_graph", 14))
       {
       return VTK_DIRECTED_GRAPH;
       }
-    if(!strncmp(this->LowerCase(line), "undirected_graph", 5))
+    if(!strncmp(this->LowerCase(line), "undirected_graph", 16))
       {
       return VTK_UNDIRECTED_GRAPH;
       }
@@ -457,6 +469,11 @@ int vtkGenericDataObjectReader::ReadOutputType()
 vtkGraph *vtkGenericDataObjectReader::GetGraphOutput()
 {
   return vtkGraph::SafeDownCast(this->GetOutput());
+}
+
+vtkMolecule *vtkGenericDataObjectReader::GetMoleculeOutput()
+{
+  return vtkMolecule::SafeDownCast(this->GetOutput());
 }
 
 vtkPolyData *vtkGenericDataObjectReader::GetPolyDataOutput()

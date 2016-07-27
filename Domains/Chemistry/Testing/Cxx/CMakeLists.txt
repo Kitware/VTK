@@ -7,6 +7,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestFastRender.cxx
   TestLiquoriceSticks.cxx
   TestMolecule.cxx,NO_VALID
+  TestMoleculeIOLegacy.cxx
   TestMoleculeSelection.cxx,NO_VALID
   TestMoleculeMapperPropertyUpdate.cxx
   TestMultiCylinderOn.cxx

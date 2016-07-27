@@ -20,6 +20,7 @@
 #include "vtkEdgeListIterator.h"
 #include "vtkGraph.h"
 #include "vtkInformation.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 
 #if!defined(_WIN32) || defined(__CYGWIN__)
@@ -57,7 +58,11 @@ void vtkGraphWriter::WriteData()
     return;
     }
 
-  if(vtkDirectedGraph::SafeDownCast(input))
+  if (vtkMolecule::SafeDownCast(input)) // molecule is most derived, test first
+    {
+    *fp << "DATASET MOLECULE\n";
+    }
+  else if (vtkDirectedGraph::SafeDownCast(input))
     {
     *fp << "DATASET DIRECTED_GRAPH\n";
     }

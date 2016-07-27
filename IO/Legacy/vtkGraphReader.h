@@ -50,6 +50,14 @@ protected:
   vtkGraphReader();
   ~vtkGraphReader();
 
+  enum GraphType
+    {
+    UnknownGraph,
+    DirectedGraph,
+    UndirectedGraph,
+    Molecule
+    };
+
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
 
@@ -68,7 +76,7 @@ protected:
                                 vtkInformationVector *);
 
   // Read beginning of file to determine whether the graph is directed.
-  virtual int ReadGraphDirectedness(bool & directed);
+  virtual int ReadGraphType(GraphType &type);
 
 
   virtual int FillOutputPortInformation(int, vtkInformation*);

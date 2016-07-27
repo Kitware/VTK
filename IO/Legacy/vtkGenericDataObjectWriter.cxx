@@ -79,6 +79,7 @@ void vtkGenericDataObjectWriter::WriteData()
       return;
     case VTK_DIRECTED_GRAPH:
     case VTK_UNDIRECTED_GRAPH:
+    case VTK_MOLECULE:
       writer = CreateWriter<vtkGraphWriter>(input);
       break;
     case VTK_HIERARCHICAL_DATA_SET:

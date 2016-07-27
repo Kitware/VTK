@@ -20,6 +20,7 @@
 #include "vtkGraph.h"
 #include "vtkInformation.h"
 #include "vtkInformationVector.h"
+#include "vtkMolecule.h"
 #include "vtkMutableDirectedGraph.h"
 #include "vtkMutableUndirectedGraph.h"
 #include "vtkObjectFactory.h"
@@ -36,9 +37,8 @@ vtkStandardNewMacro(vtkGraphReader);
 vtkGraphReader::vtkGraphReader()
 {
   // We don't know the output type yet.
-  // It could be vtkDirectedGraph or vtkUndirectedGraph.
+  // It could be vtkDirectedGraph, vtkUndirectedGraph, or vtkMolecule.
   // We will set it in RequestInformation().
-
 }
 
 //----------------------------------------------------------------------------
@@ -103,8 +103,8 @@ int vtkGraphReader::RequestData(
   vtkDebugMacro(<<"Reading vtk graph ...");
   char line[256];
 
-  bool directed = true;
-  if (!this->ReadGraphDirectedness(directed))
+  GraphType graphType;
+  if (!this->ReadGraphType(graphType))
     {
     this->CloseVTKFile();
     return 1;
@@ -114,14 +114,23 @@ int vtkGraphReader::RequestData(
     vtkSmartPointer<vtkMutableDirectedGraph>::New();
   vtkSmartPointer<vtkMutableUndirectedGraph> undir_builder =
     vtkSmartPointer<vtkMutableUndirectedGraph>::New();
+
   vtkGraph *builder = 0;
-  if (directed)
+  switch (graphType)
     {
-    builder = dir_builder;
-    }
-  else
-    {
-    builder = undir_builder;
+    case vtkGraphReader::DirectedGraph:
+      builder = dir_builder;
+      break;
+
+    case vtkGraphReader::UndirectedGraph:
+    case vtkGraphReader::Molecule: // Extends undirected graph.
+      builder = undir_builder;
+      break;
+
+    default:
+      vtkErrorMacro("ReadGraphType gave invalid result.");
+      this->CloseVTKFile();
+      return 1;
     }
 
   while(true)
@@ -134,14 +143,21 @@ int vtkGraphReader::RequestData(
     if(!strncmp(this->LowerCase(line), "field", 5))
       {
       vtkFieldData* const field_data = this->ReadFieldData();
-      if (directed)
+      switch (graphType)
         {
-        dir_builder->SetFieldData(field_data);
+        case vtkGraphReader::DirectedGraph:
+          dir_builder->SetFieldData(field_data);
+          break;
+
+        case vtkGraphReader::UndirectedGraph:
+        case vtkGraphReader::Molecule:
+          undir_builder->SetFieldData(field_data);
+          break;
+
+        default: // Can't happen, would return earlier.
+          break;
         }
-      else
-        {
-        undir_builder->SetFieldData(field_data);
-        }
+
       field_data->Delete();
       continue;
       }
@@ -171,13 +187,19 @@ int vtkGraphReader::RequestData(
         }
       for (vtkIdType v = 0; v < vertex_count; ++v)
         {
-        if (directed)
+        switch (graphType)
           {
-          dir_builder->AddVertex();
-          }
-        else
-          {
-          undir_builder->AddVertex();
+          case vtkGraphReader::DirectedGraph:
+            dir_builder->AddVertex();
+            break;
+
+          case vtkGraphReader::UndirectedGraph:
+          case vtkGraphReader::Molecule:
+            undir_builder->AddVertex();
+            break;
+
+          default: // Can't happen, would return earlier.
+            break;
           }
         }
       continue;
@@ -203,13 +225,19 @@ int vtkGraphReader::RequestData(
           return 1;
           }
 
-        if (directed)
+        switch (graphType)
           {
-          dir_builder->AddEdge(source, target);
-          }
-        else
-          {
-          undir_builder->AddEdge(source, target);
+          case vtkGraphReader::DirectedGraph:
+            dir_builder->AddEdge(source, target);
+            break;
+
+          case vtkGraphReader::UndirectedGraph:
+          case vtkGraphReader::Molecule:
+            undir_builder->AddEdge(source, target);
+            break;
+
+          default: // Can't happen, would return earlier.
+            break;
           }
         }
       continue;
@@ -258,15 +286,9 @@ int vtkGraphReader::RequestData(
   // Copy builder into output.
   vtkGraph* const output = vtkGraph::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
   bool valid = true;
-  if (directed)
-    {
-    valid = output->CheckedShallowCopy(dir_builder);
-    }
-  else
-    {
-    valid = output->CheckedShallowCopy(undir_builder);
-    }
+  valid = output->CheckedShallowCopy(builder);
 
   if (!valid)
     {
@@ -277,8 +299,10 @@ int vtkGraphReader::RequestData(
 }
 
 //----------------------------------------------------------------------------
-int vtkGraphReader::ReadGraphDirectedness(bool & directed)
+int vtkGraphReader::ReadGraphType(GraphType &type)
   {
+  type = UnknownGraph;
+
   if(!this->OpenVTKFile() || !this->ReadHeader())
     {
     return 0;
@@ -309,11 +333,15 @@ int vtkGraphReader::ReadGraphDirectedness(bool & directed)
 
   if(!strncmp(this->LowerCase(line),"directed_graph", 14))
     {
-    directed = true;
+    type = DirectedGraph;
     }
   else if(!strncmp(this->LowerCase(line), "undirected_graph", 16))
     {
-    directed = false;
+    type = UndirectedGraph;
+    }
+  else if (!strncmp(this->LowerCase(line), "molecule", 8))
+    {
+    type = Molecule;
     }
   else
     {
@@ -336,8 +364,8 @@ int vtkGraphReader::RequestDataObject(vtkInformation *,
                                       vtkInformationVector **,
                                       vtkInformationVector *)
 {
-  bool directed = true;
-  if (!this->ReadGraphDirectedness(directed))
+  GraphType graphType;
+  if (!this->ReadGraphType(graphType))
     {
     this->CloseVTKFile();
     return 1;
@@ -345,15 +373,27 @@ int vtkGraphReader::RequestDataObject(vtkInformation *,
   this->CloseVTKFile();
 
   vtkGraph *output = 0;
-  if (directed)
+  switch (graphType)
     {
-    output = vtkDirectedGraph::New();
+    case vtkGraphReader::DirectedGraph:
+      output = vtkDirectedGraph::New();
+      break;
+
+    case vtkGraphReader::UndirectedGraph:
+      output = vtkUndirectedGraph::New();
+      break;
+
+    case vtkGraphReader::Molecule:
+      output = vtkMolecule::New();
+      break;
+
+    default:
+      vtkErrorMacro("ReadGraphType returned invalid result.");
+      return 1;
     }
-  else
-    {
-    output = vtkUndirectedGraph::New();
-    }
+
   this->SetOutput(output);
+
   // Releasing data for pipeline parallism.
   // Filters will know it is empty.
   output->ReleaseData();
