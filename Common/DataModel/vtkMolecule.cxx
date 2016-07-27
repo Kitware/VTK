@@ -33,10 +33,8 @@ vtkStandardNewMacro(vtkMolecule);
 
 //----------------------------------------------------------------------------
 vtkMolecule::vtkMolecule()
+  : ElectronicData(NULL)
 {
-  vtkPoints *points = vtkPoints::New();
-  this->SetPoints(points);
-  points->Delete();
   this->Initialize();
 }
 
@@ -57,7 +55,9 @@ void vtkMolecule::Initialize()
   vertData->SetScalars(atomicNums.GetPointer());
 
   // Nuclear coordinates
-  this->Points->Initialize();
+  vtkPoints *points = vtkPoints::New();
+  this->SetPoints(points);
+  points->Delete();
 
   // Setup edge data
   vtkDataSetAttributes *edgeData = this->GetEdgeData();
@@ -71,7 +71,7 @@ void vtkMolecule::Initialize()
   this->UpdateBondList();
 
   // Electronic data
-  this->ElectronicData = NULL;
+  this->SetElectronicData(NULL);
 
   this->Modified();
 }
