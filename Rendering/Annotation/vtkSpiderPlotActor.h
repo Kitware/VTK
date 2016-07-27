@@ -204,7 +204,6 @@ private:
   vtkLegendBoxActor *LegendActor;
   vtkGlyphSource2D *GlyphSource;
   int NumberOfRings;
-  int AutomaticRangeComputation;
 
   // Local variables needed to plot
   vtkIdType N;                 // The number of independent variables

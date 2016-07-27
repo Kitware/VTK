@@ -65,8 +65,6 @@ private:
   vtkWebGLPolyData(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;
   void operator=(const vtkWebGLPolyData&) VTK_DELETE_FUNCTION;
 
-  vtkTriangleFilter* TriangleFilter;
-
   class vtkInternal;
   vtkInternal* Internal;
 };
