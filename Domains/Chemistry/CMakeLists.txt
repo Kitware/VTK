@@ -12,6 +12,7 @@ set(Module_SRCS
   vtkProgrammableElectronicData.cxx
   vtkProteinRibbonFilter.cxx
   vtkSimpleBondPerceiver.cxx
+  vtkVASPAnimationReader.cxx
   vtkXYZMolReader2.cxx
   )
 

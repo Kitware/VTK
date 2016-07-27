@@ -8,6 +8,7 @@ vtk_module(vtkDomainsChemistry
   DEPENDS
     vtkCommonDataModel
     vtkRenderingCore
+    vtksys
   PRIVATE_DEPENDS
     vtkIOXML
     vtkFiltersSources
