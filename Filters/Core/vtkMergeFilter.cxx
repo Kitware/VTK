@@ -33,7 +33,7 @@ class vtkFieldNode
 public:
   vtkFieldNode(const char* name, vtkDataSet* ptr=0)
     {
-      int length = static_cast<int>(strlen(name));
+      size_t length = strlen(name);
       if (length > 0)
         {
         this->Name = new char[length+1];
@@ -58,8 +58,8 @@ public:
   vtkDataSet* Ptr;
   vtkFieldNode* Next;
 private:
-  vtkFieldNode(const vtkFieldNode&) {}
-  void operator=(const vtkFieldNode&) {}
+  vtkFieldNode(const vtkFieldNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkFieldNode&) VTK_DELETE_FUNCTION;
   char* Name;
 };
 

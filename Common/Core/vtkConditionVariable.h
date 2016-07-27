@@ -135,8 +135,8 @@ protected:
   vtkConditionType   ConditionVariable;
 
 private:
-  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other); // no copy constructor
-  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs); // no copy assignment
+  vtkSimpleConditionVariable(const vtkSimpleConditionVariable& other) VTK_DELETE_FUNCTION;
+  vtkSimpleConditionVariable& operator=(const vtkSimpleConditionVariable& rhs) VTK_DELETE_FUNCTION;
 };
 
 class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject

@@ -120,8 +120,8 @@ public:
 private:
   static unsigned int Count;
 private:
-  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other); // no copy constructor
-  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs); // no copy assignment
+  vtkInstantiatorInitialize(const vtkInstantiatorInitialize& other) VTK_DELETE_FUNCTION;
+  vtkInstantiatorInitialize& operator=(const vtkInstantiatorInitialize& rhs) VTK_DELETE_FUNCTION;
 };
 
 // This instance will show up in any translation unit that uses

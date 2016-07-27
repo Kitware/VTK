@@ -146,12 +146,14 @@ vtkMultiProcessStream::vtkMultiProcessStream(const vtkMultiProcessStream& other)
 {
   this->Internals = new vtkMultiProcessStream::vtkInternals();
   this->Internals->Data = other.Internals->Data;
+  this->Endianness = other.Endianness;
 }
 
 //----------------------------------------------------------------------------
 vtkMultiProcessStream& vtkMultiProcessStream::operator=(const vtkMultiProcessStream& other)
 {
   this->Internals->Data = other.Internals->Data;
+  this->Endianness = other.Endianness;
   return (*this);
 }
 
