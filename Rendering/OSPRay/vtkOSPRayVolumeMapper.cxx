@@ -156,7 +156,6 @@ vtkStandardNewMacro(vtkOSPRayVolumeMapper)
 // ----------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 {
-  cerr << "CONSTRUCT" << endl;
   this->InternalRenderer = NULL;
   this->OSPRayPass = NULL;
 }
@@ -164,7 +163,6 @@ vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 // ----------------------------------------------------------------------------
 vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
-  cerr << "DESTRUCT" << endl;
   if (this->InternalRenderer)
     {
     this->InternalRenderer->SetPass(NULL);
@@ -263,7 +261,6 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
     (this->OSPRayPass->GetSceneGraph()->GetViewNodeFor(this->InternalRenderer));
   if (!rennode)
     {
-    cerr << "NOT YET" << endl;
     //this->OSPRayPass->SetMaxDepthTexture(glDepthTex);
     }
   else
@@ -276,39 +273,5 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren,
   this->InternalRenderer->SetErase(0);
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(NULL);
-
-  cerr << "IR" << this->InternalRenderer->GetReferenceCount() << endl;
-  cerr << "OP" << this->OSPRayPass->GetReferenceCount() << endl;
-
-#if 0
-  //avoids the garbage collection memory leak cycle, but since
-  //we no longer maintain the internal renderer, we have to create it every
-  //render, which is very slow
-  this->InternalRenderer->Delete();
-  this->InternalRenderer = NULL;
-  this->OSPRayPass->Delete();
-  this->OSPRayPass = NULL;
-#endif
-}
-
-// ----------------------------------------------------------------------------
-void vtkOSPRayVolumeMapper::ReportReferences(vtkGarbageCollector* collector)
-{
-  cerr << "OVM REPORT REFS" << endl;
-  // Report references held by this object that may be in a loop.
-  this->Superclass::ReportReferences(collector);
-  vtkGarbageCollectorReport(collector, this->InternalRenderer, "InternalRenderer");
-  vtkGarbageCollectorReport(collector, this->OSPRayPass, "OSP ");
-}
-// ----------------------------------------------------------------------------
-void vtkOSPRayVolumeMapper::Register(vtkObjectBase* o)
-{
-  cerr << "OVM REGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
-  this->RegisterInternal(o, 1);
-}
-// ----------------------------------------------------------------------------
-void vtkOSPRayVolumeMapper::UnRegister(vtkObjectBase* o)
-{
-  cerr << "OVM UNREGISTERED FROM " << o << (o?o->GetClassName():"NONE") << endl;
-  this->UnRegisterInternal(o, 1);
+  this->InternalRenderer->RemoveVolume(vol); //prevent a mem leak
 }

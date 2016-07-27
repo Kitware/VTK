@@ -46,17 +46,12 @@ public:
   //Overridden to use OSPRay to do the work.
   virtual void Render(vtkRenderer *, vtkVolume *);
 
-  virtual void Register(vtkObjectBase* o);
-  virtual void UnRegister(vtkObjectBase* o);
-
  protected:
   vtkOSPRayVolumeMapper();
   ~vtkOSPRayVolumeMapper();
 
   vtkOSPRayPass *OSPRayPass;
   vtkRenderer *InternalRenderer;
-
-  virtual void ReportReferences(vtkGarbageCollector* collector);
 
   std::vector<float> ZBuffer;
 private:
