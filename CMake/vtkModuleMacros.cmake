@@ -211,7 +211,14 @@ endmacro()
 # The VTK_INSTALL_FIND_PACKAGE_<name>_DIR variable may be set
 # to an alternative location for the install tree to reference,
 # or to a false value to remove any default location.
+#
+# Additional arguments for find_package() call added to the module config
+# can be provided as extra arguments to this macro e.g.
+#
+#     vtk_module_export_code_find_package(Qt5 COMPONENTS Widgets)
+#
 macro(vtk_module_export_code_find_package _name)
+  string(REPLACE ";" " " _argn "${ARGN}")
   if(${_name}_DIR)
     if(DEFINED VTK_INSTALL_FIND_PACKAGE_${_name}_DIR)
       set(_dir "${VTK_INSTALL_FIND_PACKAGE_${_name}_DIR}")
@@ -225,13 +232,13 @@ if(NOT ${_name}_DIR)
 endif()")
     endif()
     set(${vtk-module}_EXPORT_CODE_INSTALL "${${vtk-module}_EXPORT_CODE_INSTALL}
-find_package(${_name} REQUIRED QUIET)
+find_package(${_name} REQUIRED QUIET ${_argn})
 ")
     set(${vtk-module}_EXPORT_CODE_BUILD "${${vtk-module}_EXPORT_CODE_BUILD}
 if(NOT ${_name}_DIR)
   set(${_name}_DIR \"${${_name}_DIR}\")
 endif()
-find_package(${_name} REQUIRED QUIET)
+find_package(${_name} REQUIRED QUIET ${_argn})
 ")
   endif()
 endmacro()
