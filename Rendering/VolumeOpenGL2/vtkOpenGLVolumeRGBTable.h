@@ -21,7 +21,7 @@
 #include <vtk_glew.h>
 
 //----------------------------------------------------------------------------
-class vtkOpenGLVolumeRGBTable
+class vtkOpenGLVolumeRGBTable // : public vtkObject
 {
 public:
   //--------------------------------------------------------------------------
@@ -91,6 +91,9 @@ public:
       needUpdate = true;
       }
 
+    this->TextureWidth = this->ComputeIdealSamplingPeriod(renWin, scalarRGB);
+    std::cout << "->>> tex width: " << this->TextureWidth << std::endl;
+
     if (scalarRGB->GetMTime() > this->BuildTime ||
         this->TextureObject->GetMTime() > this->BuildTime ||
         needUpdate || !this->TextureObject->GetHandle())
@@ -123,6 +126,45 @@ public:
       this->TextureObject->SetMinificationFilter(filterValue);
       }
     }
+
+  //--------------------------------------------------------------------------
+  inline int ComputeIdealSamplingPeriod(vtkOpenGLRenderWindow* renWin,
+    vtkColorTransferFunction* tf)
+  {
+  // Compute ideal width
+  double const d = tf->FindMinimumXDistance();
+  std::cout << "-> min dist: " << d << std::endl;
+
+  int idealWidth = 16384; /*test:  >5022*/
+
+  int const width = GetMaximumSupportedTextureWidth(renWin, idealWidth);
+  if (width < 0)
+    std::cout << "->>> Failed to query max texture size!" << std::endl;
+    //vtkErrorMacro("Failed to query max texture size!");
+
+  return width;
+  }
+
+  //--------------------------------------------------------------------------
+  inline int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin,
+    int idealWidth)
+  {
+  if (!this->TextureObject)
+    {
+    std::cout << "->>> vtkTextureObject not initialized!" << std::endl;
+    //vtkErrorMacro("vtkTextureObject not initialized!");
+    return -1;
+    }
+
+  int const maxWidth = this->TextureObject->GetMaximumTextureSize(renWin);
+  if (maxWidth >= idealWidth)
+    return idealWidth;
+
+//  vtkWarningMacro("This OpenGL implementation does not support the specified
+//    LUT size: " << idealWidth << ". Falling back to maximum allowed: "
+//    << maxWidth << ".");
+  return maxWidth;
+  }
 
   // Get the texture unit
   //--------------------------------------------------------------------------

@@ -246,6 +246,10 @@ public:
   // If there are no control points or \a idx < 0, then NanColor is returned.
   virtual void GetIndexedColor(vtkIdType idx, double rgba[4]);
 
+  // Description:
+  // Traverses the nodes to find the minimum distance. Assumes nodes are sorted.
+  double FindMinimumXDistance();
+
 protected:
   vtkColorTransferFunction();
   ~vtkColorTransferFunction();

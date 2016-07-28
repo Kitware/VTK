@@ -25,6 +25,7 @@
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
 #include "vtkTransform.h"
@@ -33,7 +34,7 @@
 #include "vtkXMLImageDataReader.h"
 
 //----------------------------------------------------------------------------
-int TestGPURayCastMapperLargeColorTransferFunction(int argc, char* argv[])
+int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
@@ -442,7 +443,6 @@ int TestGPURayCastMapperLargeColorTransferFunction(int argc, char* argv[])
     vtkSmartPointer<vtkRenderWindow>::New();
   renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(400, 400);
-  renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
@@ -454,14 +454,17 @@ int TestGPURayCastMapperLargeColorTransferFunction(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
+  vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
+    vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+  iren->SetInteractorStyle(style);
   iren->SetRenderWindow(renderWindow);
+  renderWindow->Render();// make sure we have an OpenGL context.
 
   int valid = volumeMapper->IsRenderSupported(renderWindow, volumeProperty);
 
   int retVal;
   if (valid)
     {
-    renderWindow->Render();
     iren->Initialize();
 
     retVal = vtkRegressionTestImage(renderWindow.GetPointer());

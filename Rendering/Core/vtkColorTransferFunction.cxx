@@ -1836,6 +1836,29 @@ int vtkColorTransferFunction::AdjustRange(double range[2])
 }
 
 //----------------------------------------------------------------------------
+double vtkColorTransferFunction::FindMinimumXDistance()
+{
+  std::vector<vtkCTFNode*> const & nodes = this->Internal->Nodes;
+  size_t const size = nodes.size();
+  if (size < 2)
+    return -1.0;
+
+  double distance = std::numeric_limits<double>::max();
+
+  for (size_t i = 0; i < size - 1; i++)
+    {
+    double const currentDist = nodes.at(i + 1)->X - nodes.at(i)->X;
+
+    if (currentDist < distance)
+      {
+      distance = currentDist;
+      }
+    }
+
+  return distance;
+}
+
+//----------------------------------------------------------------------------
 // Print method for vtkColorTransferFunction
 void vtkColorTransferFunction::PrintSelf(ostream& os, vtkIndent indent)
 {
