@@ -212,15 +212,15 @@ namespace
     class Header
     {
       friend class Attributes;
-      Header(Attributes& atts) : Atts(atts) {}
+      Header(Attributes* atts) : Atts(atts) {}
       void operator=(const Attributes::Header&) VTK_DELETE_FUNCTION;
 
-      Attributes& Atts;
+      Attributes* Atts;
 
       friend ostream& operator<<(ostream& out, const Attributes::Header& header)
       {
-        for (Attributes::AttIt it=header.Atts.AttVec.begin();
-             it != header.Atts.AttVec.end(); ++it)
+        for (Attributes::AttIt it=header.Atts->AttVec.begin();
+             it != header.Atts->AttVec.end(); ++it)
           {
           (*it)->StreamHeader(out);
           out << endl;
@@ -233,21 +233,21 @@ namespace
     {
       friend class Attributes;
 
-      Component(Attributes& atts, vtkIdType index) : Atts(atts),
+      Component(Attributes* atts, vtkIdType index) : Atts(atts),
                                                      Index(index) {}
 
-      Attributes& Atts;
+      Attributes* Atts;
       vtkIdType Index;
 
       friend ostream& operator<<(ostream& out,
                                  const Attributes::Component& component)
       {
-        for (Attributes::AttIt it=component.Atts.AttVec.begin();
-             it != component.Atts.AttVec.end(); ++it)
+        for (Attributes::AttIt it=component.Atts->AttVec.begin();
+             it != component.Atts->AttVec.end(); ++it)
           {
           (*it)->StreamData(out, component.Index);
 
-          if (it + 1 != component.Atts.AttVec.end())
+          if (it + 1 != component.Atts->AttVec.end())
             {
             out << " ";
             }
@@ -256,7 +256,7 @@ namespace
       }
     };
 
-    Attributes() : Hdr(*this) {}
+    Attributes() : Hdr(this) {}
     virtual ~Attributes()
     {
       for (AttIt it=this->AttVec.begin(); it != this->AttVec.end(); ++it)
@@ -269,7 +269,7 @@ namespace
 
     Component operator[](vtkIdType i)
     {
-      return Attributes::Component(*this, i);
+      return Attributes::Component(this, i);
     }
 
     template <typename DataType>
