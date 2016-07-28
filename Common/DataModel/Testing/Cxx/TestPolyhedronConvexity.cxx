@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestPolyhedron.cxx
+  Module:    TestPolyhedronConvexity.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -15,20 +15,19 @@
 
 #include <vector>
 
-#include "vtkSmartPointer.h"
-#include "vtkExtractEdges.h"
-#include "vtkProperty.h"
-#include "vtkUnstructuredGrid.h"
-#include "vtkPolyhedron.h"
 #include "vtkCellArray.h"
-#include "vtkPointData.h"
 #include "vtkCellData.h"
-#include "vtkPoints.h"
 #include "vtkDataArray.h"
 #include "vtkDoubleArray.h"
+#include "vtkExtractEdges.h"
 #include "vtkMath.h"
-
+#include "vtkPointData.h"
+#include "vtkPoints.h"
+#include "vtkPolyhedron.h"
+#include "vtkProperty.h"
+#include "vtkSmartPointer.h"
 #include "vtkTestUtilities.h"
+#include "vtkUnstructuredGrid.h"
 
 enum Shape
 {

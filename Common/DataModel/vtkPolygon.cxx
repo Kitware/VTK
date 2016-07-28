@@ -74,9 +74,9 @@ double vtkPolygon::ComputeArea()
 //----------------------------------------------------------------------------
 bool vtkPolygon::IsConvex()
 {
-  return vtkPolygon::IsConvex(this->GetNumberOfPoints(),
-                              this->GetPointIds()->GetPointer(0),
-                              this->GetPoints());
+  return vtkPolygon::IsConvex(this->GetPoints(),
+                              this->GetNumberOfPoints(),
+                              this->GetPointIds()->GetPointer(0));
 }
 
 #define VTK_POLYGON_FAILURE -1
@@ -239,12 +239,12 @@ void vtkPolygon::ComputeNormal (int numPts, double *pts, double n[3])
 // Determine whether or not a polygon is convex from a points list and a list
 // of point ids that index into the points list. Parameter pts can be NULL,
 // indicating that the polygon indexing is {0, 1, ..., numPts-1}.
-bool vtkPolygon::IsConvex(int numPts, vtkIdType *pts, vtkPoints *p)
+bool vtkPolygon::IsConvex(vtkPoints *p, int numPts, vtkIdType *pts)
 {
   int i;
   double v[3][3], *v0=v[0], *v1=v[1], *v2=v[2], *tmp, a[3], aMag, b[3], bMag;
   double n[3] = {0.,0.,0.}, ni[3] = {0.,0.,0.};
-  bool n_computed = false;
+  bool nComputed = false;
 
   if ( numPts < 3 )
     {
@@ -287,14 +287,14 @@ bool vtkPolygon::IsConvex(int numPts, vtkIdType *pts, vtkPoints *p)
     a[0] = v2[0] - v1[0]; a[1] = v2[1] - v1[1]; a[2] = v2[2] - v1[2];
     b[0] = v0[0] - v1[0]; b[1] = v0[1] - v1[1]; b[2] = v0[2] - v1[2];
 
-    if (!n_computed)
+    if (!nComputed)
       {
       aMag = vtkMath::Norm(a);
       bMag = vtkMath::Norm(b);
       if (aMag > VTK_DBL_EPSILON && bMag > VTK_DBL_EPSILON)
         {
         vtkMath::Cross(a,b,n);
-        n_computed =
+        nComputed =
           vtkMath::Norm(n) > VTK_DBL_EPSILON*(aMag < bMag ? bMag : aMag);
         }
       continue;
@@ -313,13 +313,13 @@ bool vtkPolygon::IsConvex(int numPts, vtkIdType *pts, vtkPoints *p)
 //----------------------------------------------------------------------------
 bool vtkPolygon::IsConvex(vtkIdTypeArray *ids, vtkPoints *p)
 {
-  return vtkPolygon::IsConvex(ids->GetNumberOfTuples(), ids->GetPointer(0), p);
+  return vtkPolygon::IsConvex(p, ids->GetNumberOfTuples(), ids->GetPointer(0));
 }
 
 //----------------------------------------------------------------------------
 bool vtkPolygon::IsConvex(vtkPoints *p)
 {
-  return vtkPolygon::IsConvex(p->GetNumberOfPoints(), NULL, p);
+  return vtkPolygon::IsConvex(p, p->GetNumberOfPoints(), NULL);
 }
 
 //----------------------------------------------------------------------------

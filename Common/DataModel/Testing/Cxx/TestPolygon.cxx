@@ -65,8 +65,8 @@ int TestPolygon(int,char *[])
 
   bool convex;
   convex = polygon->IsConvex();
-  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
-                                 polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(), idTypeArray);
   convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
   convex &= vtkPolygon::IsConvex(polygon->GetPoints());
 
@@ -92,8 +92,8 @@ int TestPolygon(int,char *[])
 
   bool nonconvex;
   nonconvex = !polygon->IsConvex();
-  nonconvex &= !vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
-                                     polygon->GetPoints());
+  nonconvex &= !vtkPolygon::IsConvex(polygon->GetPoints(),
+                                     polygon->GetNumberOfPoints(), idTypeArray);
   nonconvex &= !vtkPolygon::IsConvex(idArray,polygon->GetPoints());
   nonconvex &= !vtkPolygon::IsConvex(polygon->GetPoints());
 
@@ -119,8 +119,8 @@ int TestPolygon(int,char *[])
 
   bool convex;
   convex = polygon->IsConvex();
-  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
-                                     polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(), idTypeArray);
   convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
   convex &= vtkPolygon::IsConvex(polygon->GetPoints());
 
@@ -147,8 +147,8 @@ int TestPolygon(int,char *[])
 
   bool convex;
   convex = polygon->IsConvex();
-  convex &= vtkPolygon::IsConvex(polygon->GetNumberOfPoints(),idTypeArray,
-                                     polygon->GetPoints());
+  convex &= vtkPolygon::IsConvex(polygon->GetPoints(),
+                                 polygon->GetNumberOfPoints(),idTypeArray);
   convex &= vtkPolygon::IsConvex(idArray,polygon->GetPoints());
   convex &= vtkPolygon::IsConvex(polygon->GetPoints());
 

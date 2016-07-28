@@ -79,13 +79,6 @@ public:
   double ComputeArea();
 
   // Description:
-  // Determine whether or not a polygon is convex. This is a convenience
-  // function that simply calls static bool IsConvex(int numPts,
-  // vtkIdType *pts, vtkPoints *p) with the appropriate parameters from the
-  // instantiated vtkPolygon.
-  bool IsConvex();
-
-  // Description:
   // Compute the interpolation functions/derivatives.
   // (aka shape functions/derivatives)
   // Two interpolation algorithms are available: 1/r^2 and Mean Value
@@ -109,16 +102,22 @@ public:
   static void ComputeNormal(int numPts, double *pts, double n[3]);
 
   // Description:
+  // Determine whether or not a polygon is convex. This is a convenience
+  // function that simply calls static bool IsConvex(int numPts,
+  // vtkIdType *pts, vtkPoints *p) with the appropriate parameters from the
+  // instantiated vtkPolygon.
+  bool IsConvex();
+
+  // Description:
   // Determine whether or not a polygon is convex. If pts=NULL, point indexing
   // is assummed to be {0, 1, ..., numPts-1}.
-  static bool IsConvex(int numPts, vtkIdType *pts, vtkPoints *p);
+  static bool IsConvex(vtkPoints *p, int numPts, vtkIdType *pts);
   static bool IsConvex(vtkIdTypeArray *ids, vtkPoints *p);
   static bool IsConvex(vtkPoints *p);
 
-
   // Description:
   // Compute the centroid of a set of points. Returns false if the computation
-  // is invalid.
+  // is invalid (this occurs when numPts=0 or when ids is empty).
   static bool ComputeCentroid(vtkPoints *p, int numPts, vtkIdType *pts,
                               double centroid[3]);
   static bool ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts,
