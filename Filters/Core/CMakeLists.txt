@@ -64,6 +64,7 @@ set(Module_SRCS
   vtkTransposeTable.cxx
   vtkTriangleFilter.cxx
   vtkTubeFilter.cxx
+  vtkUnstructuredGridQuadricDecimation.cxx
   vtkVectorDot.cxx
   vtkVectorNorm.cxx
   vtkWindowedSincPolyDataFilter.cxx

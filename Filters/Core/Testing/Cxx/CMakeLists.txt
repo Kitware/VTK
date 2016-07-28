@@ -38,6 +38,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestThresholdPoints.cxx,NO_VALID
   TestTransposeTable.cxx,NO_VALID
   TestTubeFilter.cxx,NO_VALID
+  TestUnstructuredGridQuadricDecimation.cxx,NO_VALID
   UnitTestMaskPoints.cxx,NO_VALID
   UnitTestMergeFilter.cxx,NO_VALID
   )
