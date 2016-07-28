@@ -410,7 +410,7 @@ void vtkBiQuadraticQuadraticHexahedron::Contour(double value,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearHexs[i][j]));
       }
     this->Hex->Contour(value,this->Scalars,locator,verts,lines,polys,
-                       this->PointData,outPd,this->CellData,cellId,outCd);
+                       this->PointData,outPd,this->CellData,i,outCd);
     }
 }
 

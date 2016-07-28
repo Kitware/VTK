@@ -393,7 +393,7 @@ void vtkQuadraticWedge::Contour(double value,
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearWedges[i][j]));
       }
     this->Wedge->Contour(value,this->Scalars,locator,verts,lines,polys,
-                         this->PointData,outPd,this->CellData,cellId,outCd);
+                         this->PointData,outPd,this->CellData,i,outCd);
     }
 
 }
