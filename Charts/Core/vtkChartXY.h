@@ -205,6 +205,14 @@ public:
   vtkBooleanMacro(ZoomWithMouseWheel, bool);
 
   // Description:
+  // Adjust the minimum of a logarithmic axis to be greater than 0, regardless
+  // of the minimum data value.
+  // False by default.
+  vtkSetMacro(AdjustLowerBoundForLogPlot, bool);
+  vtkGetMacro(AdjustLowerBoundForLogPlot, bool);
+  vtkBooleanMacro(AdjustLowerBoundForLogPlot, bool);
+
+  // Description:
   // Set the information passed to the tooltip.
   virtual void SetTooltipInfo(const vtkContextMouseEvent &,
                               const vtkVector2d &,
@@ -336,10 +344,15 @@ protected:
   // False by default.
   bool ForceAxesToBounds;
 
-  // Desription:
+  // Description:
   // Property to enable zooming the chart with the mouse wheel.
   // True by default.
   bool ZoomWithMouseWheel;
+
+  // Description:
+  // Property to adjust the minimum of a logarithmic axis to be greater than 0,
+  // regardless of the minimum data value.
+  bool AdjustLowerBoundForLogPlot;
 
 private:
   vtkChartXY(const vtkChartXY &) VTK_DELETE_FUNCTION;
