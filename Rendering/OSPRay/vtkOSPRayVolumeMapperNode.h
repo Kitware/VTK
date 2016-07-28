@@ -39,6 +39,8 @@ public:
   //Description:
   //
   virtual void Render(bool prepass);
+  void SetSamplingRate(double rate) { this->SamplingRate = rate; }
+  double GetSamplingRate(double rate) { return this->SamplingRate; }
 
 protected:
   vtkOSPRayVolumeMapperNode();
@@ -46,15 +48,15 @@ protected:
 
   //TODO: SetAndGetters?
   int NumColors;
-  bool SharedData;
   double SamplingRate;
-
-  osp::Volume* OSPRayVolume;
 
   vtkTimeStamp BuildTime;
   vtkTimeStamp PropertyTime;
+
+  osp::Volume* OSPRayVolume;
   osp::TransferFunction* TransferFunction;
-  std::vector<float> TFVals, TFOVals;
+  std::vector<float> TFVals;
+  std::vector<float> TFOVals;
 
 private:
   vtkOSPRayVolumeMapperNode(const vtkOSPRayVolumeMapperNode&) VTK_DELETE_FUNCTION;

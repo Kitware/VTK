@@ -135,7 +135,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
 
   cb->Delete();
 
-  this->OSPRayHelper = NULL;
+  this->OSPRayMapper = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -170,10 +170,10 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     this->GPUResampleFilter->Delete();
     this->GPUResampleFilter = 0;
     }
-  if (this->OSPRayHelper)
+  if (this->OSPRayMapper)
     {
-    this->OSPRayHelper->Delete();
-    this->OSPRayHelper = 0;
+    this->OSPRayMapper->Delete();
+    this->OSPRayMapper = 0;
     }
 }
 
@@ -218,11 +218,11 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       break;
     case vtkSmartVolumeMapper::OSPRayRenderMode:
       {
-      if (!this->OSPRayHelper)
+      if (!this->OSPRayMapper)
         {
-        this->OSPRayHelper = vtkOSPRayVolumeInterface::New();
+        this->OSPRayMapper = vtkOSPRayVolumeInterface::New();
         }
-      this->OSPRayHelper->Render(ren, vol);
+      this->OSPRayMapper->Render(ren, vol);
       }
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not

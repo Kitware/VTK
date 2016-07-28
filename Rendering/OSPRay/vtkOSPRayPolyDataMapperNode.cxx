@@ -704,7 +704,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
         pointColors[i] = osp::vec4f{color[0] / 255.0f,
                                     color[1] / 255.0f,
                                     color[2] / 255.0f,
-                                    1};
+                                    1.f};
         }
       }
     }

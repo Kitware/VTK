@@ -2,8 +2,8 @@
 
   Program:   Visualization Toolkit
   Module:    vtkOSPRayVolumeMapper.h
-
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+
   All rights reserved.
   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
@@ -21,13 +21,12 @@
 #ifndef vtkOSPRayVolumeMapper_h
 #define vtkOSPRayVolumeMapper_h
 
-
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkOSPRayVolumeInterface.h"
-#include <vector> //for GL interfacing z buffer
 
 class vtkOSPRayPass;
 class vtkRenderer;
+class vtkWindow;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayVolumeMapper
   : public vtkOSPRayVolumeInterface
@@ -37,18 +36,27 @@ public:
   vtkTypeMacro(vtkOSPRayVolumeMapper,vtkOSPRayVolumeInterface);
   void PrintSelf( ostream& os, vtkIndent indent );
 
+  // Description:
+  // Release any graphics resources that are being consumed by this mapper.
+  // The parameter window could be used to determine which graphic
+  // resources to release.
+  virtual void ReleaseGraphicsResources(vtkWindow *);
+
+  // Initialize internal constructs
+  virtual void Init();
+
   //Description:
   //Render the volume onto the screen.
   //Overridden to use OSPRay to do the work.
   virtual void Render(vtkRenderer *, vtkVolume *);
 
- protected:
+protected:
   vtkOSPRayVolumeMapper();
   ~vtkOSPRayVolumeMapper();
 
-  vtkOSPRayPass *OSPRayPass;
+  vtkOSPRayPass *InternalOSPRayPass;
   vtkRenderer *InternalRenderer;
-  std::vector<float> ZBuffer;
+  bool Initialized;
 
 private:
   vtkOSPRayVolumeMapper(const vtkOSPRayVolumeMapper&) VTK_DELETE_FUNCTION;

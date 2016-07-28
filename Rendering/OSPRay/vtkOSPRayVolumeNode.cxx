@@ -29,6 +29,7 @@
 #include "vtkPiecewiseFunction.h"
 #include "vtkPolyData.h"
 #include "vtkViewNodeCollection.h"
+#include "vtkVolumeProperty.h"
 
 #include "ospray/ospray.h"
 
@@ -60,15 +61,15 @@ unsigned long vtkOSPRayVolumeNode::GetMTime()
     {
     mtime = vol->GetMTime();
     }
-  // vtkDataObject * dobj = NULL;
-  // vtkPolyData *poly = NULL;
+  if (vol->GetProperty())
+    {
+    mtime = std::max(mtime, vol->GetProperty()->GetMTime());
+    }
   vtkAbstractVolumeMapper *mapper = vol->GetMapper();
+
   if (mapper)
     {
-    //if (act->GetRedrawMTime() > mtime)
-    //  {
-    //  mtime = act->GetRedrawMTime();
-    // }
+    mtime = std::max(mtime, mapper->GetDataSetInput()->GetMTime());
     if (mapper->GetMTime() > mtime)
       {
       mtime = mapper->GetMTime();
@@ -77,41 +78,6 @@ unsigned long vtkOSPRayVolumeNode::GetMTime()
       {
       mtime = mapper->GetInformation()->GetMTime();
       }
-    // dobj = mapper->GetInputDataObject(0, 0);
-    // poly = vtkPolyData::SafeDownCast(dobj);
     }
-
-    //Carson: TODO: check datasets time
-
-  // if (poly)
-  //   {
-  //   if (poly->GetMTime() > mtime)
-  //     {
-  //     mtime = poly->GetMTime();
-  //     }
-  //   }
-  // else if (dobj)
-  //   {
-  //   vtkCompositeDataSet *comp = vtkCompositeDataSet::SafeDownCast
-  //     (dobj);
-  //   if (comp)
-  //     {
-  //     vtkCompositeDataIterator*dit = comp->NewIterator();
-  //     dit->SkipEmptyNodesOn();
-  //     while(!dit->IsDoneWithTraversal())
-  //       {
-  //       poly = vtkPolyData::SafeDownCast(comp->GetDataSet(dit));
-  //       if (poly)
-  //         {
-  //         if (poly->GetMTime() > mtime)
-  //           {
-  //           mtime = poly->GetMTime();
-  //           }
-  //         }
-  //       dit->GoToNextItem();
-  //       }
-  //     dit->Delete();
-  //     }
-  //   }
   return mtime;
 }

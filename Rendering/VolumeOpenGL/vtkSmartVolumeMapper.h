@@ -357,7 +357,7 @@ private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
 
-  vtkOSPRayVolumeInterface *OSPRayHelper;
+  vtkOSPRayVolumeInterface *OSPRayMapper;
 };
 
 #endif

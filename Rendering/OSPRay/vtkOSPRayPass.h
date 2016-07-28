@@ -53,8 +53,6 @@ public:
   // Called by the internals of this class
   virtual void RenderInternal(const vtkRenderState *s);
 
-  void SetMaxDepthTexture(void *dt);
-
  protected:
   // Description:
   // Default constructor.

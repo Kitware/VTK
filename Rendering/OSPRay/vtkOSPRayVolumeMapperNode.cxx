@@ -1,17 +1,17 @@
-// /*=========================================================================
+/*=========================================================================
 
-//   Program:   Visualization Toolkit
-//   Module:    vtkOSPRayVolumeMapperNode.cxx
+   Program:   Visualization Toolkit
+   Module:    vtkOSPRayVolumeMapperNode.cxx
 
-//   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
-//   All rights reserved.
-//   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+   All rights reserved.
+   See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
 
-//      This software is distributed WITHOUT ANY WARRANTY; without even
-//      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-//      PURPOSE.  See the above copyright notice for more information.
+      This software is distributed WITHOUT ANY WARRANTY; without even
+      the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+      PURPOSE.  See the above copyright notice for more information.
 
-// =========================================================================*/
+ =========================================================================*/
 #include "vtkOSPRayVolumeMapperNode.h"
 
 #include "vtkAbstractVolumeMapper.h"
@@ -36,7 +36,6 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 {
   this->SamplingRate=0.0;
   this->NumColors = 128;
-  this->SharedData = false;
   this->OSPRayVolume = NULL;
   this->TransferFunction = NULL;
 }
@@ -45,6 +44,7 @@ vtkOSPRayVolumeMapperNode::vtkOSPRayVolumeMapperNode()
 vtkOSPRayVolumeMapperNode::~vtkOSPRayVolumeMapperNode()
 {
   delete this->OSPRayVolume;
+  ospRelease(this->TransferFunction);
 }
 
 //----------------------------------------------------------------------------
@@ -53,52 +53,37 @@ void vtkOSPRayVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
-//----------------------------------------------------------------------------
 void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 {
-  //Carson: does not update with changes to underlying size
   if (prepass)
     {
     vtkVolumeNode* volNode = vtkVolumeNode::SafeDownCast(this->Parent);
     vtkVolume* vol = vtkVolume::SafeDownCast(volNode->GetRenderable());
-    vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
     if (vol->GetVisibility() == false)
       {
       return;
       }
+    vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!vol->GetProperty())
       {
-      vtkErrorMacro("VolumeMapper had no vtkProperty.");
+      vtkErrorMacro("VolumeMapper had no vtkProperty");
       return;
       }
 
     vtkOSPRayRendererNode *orn =
-      static_cast<vtkOSPRayRendererNode *>
-      (
-       this->GetFirstAncestorOfType("vtkOSPRayRendererNode")
-       );
-    osp::Model* OSPRayModel = orn->GetOModel();
+      static_cast<vtkOSPRayRendererNode *>(
+        this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
-    //if there are no changes, just reuse last result
-    unsigned long inTime = volNode->GetMTime();
-    if (this->RenderTime >= inTime && this->OSPRayVolume)
-      {
-      //ospAddVolume(OSPRayModel,(OSPVolume)this->OSPRayVolume);
-      //return;
-      }
-    this->RenderTime = inTime;
+    osp::Model* OSPRayModel = orn->GetOModel();
 
     // make sure that we have scalar input and update the scalar input
     if ( mapper->GetDataSetInput() == NULL )
       {
-      vtkErrorMacro("VolumeMapper had no Input!");
+      vtkErrorMacro("VolumeMapper had no input!");
       return;
       }
-    else
-      {
-      mapper->GetInputAlgorithm()->UpdateInformation();
-      mapper->GetInputAlgorithm()->Update();
-      }
+    mapper->GetInputAlgorithm()->UpdateInformation();
+    mapper->GetInputAlgorithm()->Update();
 
     vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
     if (!data)
@@ -106,10 +91,8 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkErrorMacro("VolumeMapper's Input has no data!");
       return;
       }
-
     void* ScalarDataPointer =
-      mapper->GetDataSetInput()->GetPointData()
-      ->GetScalars()->GetVoidPointer(0);
+      mapper->GetDataSetInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
     int ScalarDataType =
       mapper->GetDataSetInput()->GetPointData()->GetScalars()->GetDataType();
 
@@ -139,16 +122,8 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       return;
       }
 
-    if (SharedData)
-      {
-      delete this->OSPRayVolume;
-      this->OSPRayVolume = ospNewVolume("shared_structured_volume");
-      }
-    else
-      {
-      delete this->OSPRayVolume;
-      this->OSPRayVolume = ospNewVolume("block_bricked_volume");
-      }
+    delete this->OSPRayVolume;
+    this->OSPRayVolume = ospNewVolume("block_bricked_volume");
 
     //
     // Send Volumetric data to OSPRay
@@ -157,7 +132,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     size_t sizeBytes = dim[0]*dim[1]*dim[2] *typeSize;
 
     buffer = (char*)ScalarDataPointer;
-    ospSet3i(OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
+    ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
     double origin[3];
     double scale[3];
     vol->GetOrigin(origin);
@@ -169,8 +144,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     double spacing[3];
     data->GetSpacing(spacing);
-    // int extent[3];
-    // data->GetExtent(extent);  Carson: For some reason this call makes the volume disappear...
     scale[0] = (bds[1]-bds[0])/double(dim[0]-1);
     scale[1] = (bds[3]-bds[2])/double(dim[1]-1);
     scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
@@ -178,31 +151,23 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
     ospSet3f(this->OSPRayVolume, "gridSpacing", spacing[0]*scale[0],spacing[1]*scale[1],spacing[2]*scale[2]);
     ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
-    OSPData voxelData = NULL;
-    if (SharedData)
-      {
-      voxelData = ospNewData(sizeBytes, OSP_UCHAR,
-                             ScalarDataPointer, OSP_DATA_SHARED_BUFFER);
-      ospSetData(this->OSPRayVolume, "voxelData", voxelData);
-      }
-    else
-      {
-      osp::vec3i ll, uu;
-      ll.x = 0, ll.y = 0, ll.z = 0;
-      uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
-      ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
-      }
+
+    osp::vec3i ll, uu;
+    ll.x = 0, ll.y = 0, ll.z = 0;
+    uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
+    ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
 
     if (!this->TransferFunction)
       {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
       }
+    this->RenderTime = volNode->GetMTime();
 
+    //
     // test for modifications to volume properties
-    OSPData colorData = NULL;
-    OSPData tfAlphaData = NULL;
+    //
     if (vol->GetProperty()->GetMTime() > this->PropertyTime)
-      {
+    {
       vtkVolumeProperty* volProperty = vol->GetProperty();
       vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
@@ -220,35 +185,36 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
                         this->NumColors,
                         &this->TFVals[0]);
 
-      colorData = ospNewData(this->NumColors,
-                             OSP_FLOAT3,
-                             &this->TFVals[0]);
+      OSPData colorData = ospNewData(this->NumColors,
+                                     OSP_FLOAT3,
+                                     &this->TFVals[0]);
       ospSetData(this->TransferFunction, "colors", colorData);
-      tfAlphaData = ospNewData(this->NumColors,
-                               OSP_FLOAT, &this->TFOVals[0]);
+
+      OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);
       ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
-      ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
-               volProperty->GetShade());
-      this->PropertyTime.Modified();
-      }
+      ospCommit(this->TransferFunction);
+      ospSet1i(this->OSPRayVolume, "gradientShadingEnabled", volProperty->GetShade());
+      PropertyTime.Modified();
+      ospRelease(colorData);
+      ospRelease(tfAlphaData);
+    }
 
     // test for modifications to input
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
-      {
+    {
       ospSet2f(this->TransferFunction, "valueRange",
                data->GetScalarRange()[0], data->GetScalarRange()[1]);
 
       //! Commit the transfer function only after the initial colors and alphas have been set (workaround for Qt signalling issue).
-      }
-    ospCommit(this->TransferFunction);
-    ospSetObject((OSPObject)this->OSPRayVolume,
-                 "transferFunction", this->TransferFunction);
+      ospCommit(this->TransferFunction);
+    }
+    ospSetObject((OSPObject)this->OSPRayVolume, "transferFunction", this->TransferFunction);
     this->BuildTime.Modified();
 
-    if (this->SamplingRate == 0.0f)
+    if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
       {
-      //automatically determine sampling rate, for now just a simple switch
+      //automatically determine sampling rate
       int maxBound = std::max(dim[0],dim[1]);
       maxBound = std::max(maxBound,dim[2]);
       if (maxBound < 1000)
@@ -266,11 +232,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       {
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
       }
-
     ospCommit(this->OSPRayVolume);
-    delete colorData;
-    delete tfAlphaData;
-    delete voxelData;
     ospAddVolume(OSPRayModel,(OSPVolume)this->OSPRayVolume);
     ospCommit(OSPRayModel);
   }

@@ -21,7 +21,6 @@
 
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkRendererNode.h"
-
 #include <vector> // for ivars
 
 class vtkRenderer;
@@ -31,10 +30,15 @@ namespace osp {
 struct Model;
 struct Renderer;
 struct Light;
+struct Texture2D;
+struct FrameBuffer;
 }
 typedef osp::Model *OSPModel;
 typedef osp::Renderer *OSPRenderer;
 typedef osp::Light *OSPLight;
+typedef osp::FrameBuffer *OSPFrameBuffer;
+typedef osp::Texture2D* OSPTexture2D;
+typedef osp::FrameBuffer* OSPFrameBuffer;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayRendererNode :
   public vtkRendererNode
@@ -74,6 +78,7 @@ public:
   //When present on renderer, controls the number of ospray render calls
   //for each refresh.
   //default is 1
+  //TODO: NOT CURRENTLY USED
   static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer *renderer);
   static int GetMaxFrames(vtkRenderer *renderer);
@@ -84,9 +89,18 @@ public:
   //default is 4
   static vtkInformationIntegerKey* AMBIENT_SAMPLES();
   //Description:
-  //Convenience method to set/get SAMPLES_PER_PIXEL on a vtkRenderer.
+  //Convenience method to set/get AMBIENT_SAMPLES on a vtkRenderer.
   static void SetAmbientSamples(int, vtkRenderer *renderer);
   static int GetAmbientSamples(vtkRenderer *renderer);
+
+  //Description:
+  //used to make the renderer add ospray's content onto GL rendered
+  //content on the window
+  static vtkInformationIntegerKey* COMPOSITE_ON_GL();
+  //Description:
+  //Convenience method to set/get COMPOSITE_ON_GL on a vtkRenderer.
+  static void SetCompositeOnGL(int, vtkRenderer *renderer);
+  static int GetCompositeOnGL(vtkRenderer *renderer);
 
   // Description:
   // Methods for other nodes to access
@@ -109,8 +123,6 @@ public:
   // or way override this method
   virtual void Traverse(int operation);
 
-  void SetMaxDepthTexture(void *dt);
-
 protected:
   vtkOSPRayRendererNode();
   ~vtkOSPRayRendererNode();
@@ -121,9 +133,14 @@ protected:
 
   OSPModel OModel;
   OSPRenderer ORenderer;
+  OSPFrameBuffer OFrameBuffer;
+  int ImageX, ImageY;
   std::vector<OSPLight> Lights;
-  void *MaxDepth;
   int NumActors;
+  bool ComputeDepth;
+  bool Accumulate;
+  bool CompositeOnGL;
+
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
   void operator=(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;

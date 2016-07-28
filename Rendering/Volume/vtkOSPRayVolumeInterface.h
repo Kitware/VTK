@@ -22,17 +22,17 @@
 #define vtkOSPRayVolumeInterface_h
 
 #include "vtkRenderingVolumeModule.h" // For export macro
-#include "vtkObject.h"
+#include "vtkVolumeMapper.h"
 
 class vtkRenderer;
 class vtkVolume;
 
 class VTKRENDERINGVOLUME_EXPORT vtkOSPRayVolumeInterface
-: public vtkObject //TODO - reparent onto AbstractVolumeMapper
+: public vtkVolumeMapper
 {
 public:
   static vtkOSPRayVolumeInterface *New();
-  vtkTypeMacro(vtkOSPRayVolumeInterface,vtkObject);
+  vtkTypeMacro(vtkOSPRayVolumeInterface,vtkVolumeMapper);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   //Description:
