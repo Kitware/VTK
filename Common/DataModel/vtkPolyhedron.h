@@ -188,12 +188,19 @@ public:
   virtual void SetFaces(vtkIdType *faces);
   virtual vtkIdType *GetFaces();
 
-  // Descriprion:
+  // Description:
   // A method particular to vtkPolyhedron. It determines whether a point x[3]
   // is inside the polyhedron or not (returns 1 is the point is inside, 0
   // otherwise). The tolerance is expressed in normalized space; i.e., a
   // fraction of the size of the bounding box.
   int IsInside(double x[3], double tolerance);
+
+  // Description:
+  // Determine whether or not a polyhedron is convex. This method is adapted
+  // from Devillers et al., "Checking the Convexity of Polytopes and the
+  // Planarity of Subdivisions", Computational Geometry, Volume 11, Issues
+  // 3 – 4, December 1998, Pages 187 – 208.
+  bool IsConvex();
 
   // Description:
   // Construct polydata if no one exist, then return this->PolyData
@@ -224,6 +231,8 @@ protected:
   int             EdgesGenerated; //true/false
   vtkEdgeTable   *EdgeTable; //keep track of all edges
   vtkIdTypeArray *Edges; //edge pairs kept in this list, in canonical id space
+  vtkIdTypeArray *EdgeFaces; // face pairs that comprise each edge, with the
+                             // same ordering as EdgeTable
   int             GenerateEdges(); //method populates the edge table and edge array
 
   // If faces need renumbering into canonical numbering space these members

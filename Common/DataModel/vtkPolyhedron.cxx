@@ -1360,6 +1360,8 @@ vtkPolyhedron::vtkPolyhedron()
   this->EdgeTable = vtkEdgeTable::New();
   this->Edges = vtkIdTypeArray::New();
   this->Edges->SetNumberOfComponents(2);
+  this->EdgeFaces = vtkIdTypeArray::New();
+  this->EdgeFaces->SetNumberOfComponents(2);
 
   this->FacesGenerated = 0;
   this->Faces = vtkIdTypeArray::New();
@@ -1393,6 +1395,7 @@ vtkPolyhedron::~vtkPolyhedron()
   delete this->PointIdMap;
   this->EdgeTable->Delete();
   this->Edges->Delete();
+  this->EdgeFaces->Delete();
   this->Faces->Delete();
   this->PolyData->Delete();
   this->Polys->Delete();
@@ -1521,6 +1524,7 @@ void vtkPolyhedron::Initialize()
   this->EdgesGenerated = 0;
   this->EdgeTable->Reset();
   this->Edges->Reset();
+  this->EdgeFaces->Reset();
   this->Faces->Reset();
 
   // Polys have to be reset
@@ -1602,9 +1606,10 @@ int vtkPolyhedron::GenerateEdges()
   vtkIdType *faces = this->GlobalFaces->GetPointer(0);
   vtkIdType nfaces = faces[0];
   vtkIdType *face = faces + 1;
-  vtkIdType fid, i, edge[2], npts;
+  vtkIdType fid, i, edge[2], npts, edgeFaces[2], edgeId;
+  edgeFaces[1] = -1;
 
-  this->EdgeTable->InitEdgeInsertion(this->Points->GetNumberOfPoints());
+  this->EdgeTable->InitEdgeInsertion(this->Points->GetNumberOfPoints(),1);
   for (fid=0; fid < nfaces; ++fid)
     {
     npts = face[0];
@@ -1612,10 +1617,16 @@ int vtkPolyhedron::GenerateEdges()
       {
       edge[0] = (*this->PointIdMap)[face[i]];
       edge[1] = (*this->PointIdMap)[(i != npts ? face[i+1] : face[1])];
-      if ( this->EdgeTable->IsEdge(edge[0],edge[1]) == (-1) )
+      edgeFaces[0] = fid;
+      if ( (edgeId = this->EdgeTable->IsEdge(edge[0],edge[1])) == (-1) )
         {
-        this->EdgeTable->InsertEdge(edge[0],edge[1]);
+        edgeId = this->EdgeTable->InsertEdge(edge[0],edge[1]);
         this->Edges->InsertNextTypedTuple(edge);
+        this->EdgeFaces->InsertTypedTuple(edgeId,edgeFaces);
+        }
+      else
+        {
+        this->EdgeFaces->SetComponent(edgeId,1,fid);
         }
       }
     face += face[0] + 1;
@@ -1987,6 +1998,175 @@ int vtkPolyhedron::IsInside(double x[3], double tolerance)
 #undef VTK_MAX_ITER
 #undef VTK_VOTE_THRESHOLD
 
+
+//----------------------------------------------------------------------------
+// Determine whether or not a polyhedron is convex. This method is adapted
+// from Devillers et al., "Checking the Convexity of Polytopes and the
+// Planarity of Subdivisions", Computational Geometry, Volume 11, Issues 3 – 4,
+// December 1998, Pages 187 – 208.
+bool vtkPolyhedron::IsConvex()
+{
+  double x[2][3], n[3], c[3], c0[3], c1[3], c0p[3], c1p[3], n0[3], n1[3];
+  double n0p[3], n1p[3], np[3], tmp0, tmp1;
+  vtkIdType i, w[2], p0, p1, edgeId, edgeFaces[2], loc, v, *face, r=0;
+  const double eps = FLT_EPSILON;
+
+  std::vector<double> p(this->PointIds->GetNumberOfIds());
+  vtkIdVectorType d(this->PointIds->GetNumberOfIds(),0);
+
+  // initialization
+  this->GenerateEdges();
+  this->GenerateFaces();
+  this->ConstructPolyData();
+  this->ComputeBounds();
+
+  // loop over all edges in the polyhedron
+  this->EdgeTable->InitTraversal();
+  while ((edgeId = this->EdgeTable->GetNextEdge(w[0], w[1])) >= 0)
+    {
+    // get the global point ids
+    p0 = this->PointIds->GetId(w[0]);
+    p1 = this->PointIds->GetId(w[1]);
+
+    // get the edge points
+    this->Points->GetPoint(p0, x[0]);
+    this->Points->GetPoint(p1, x[1]);
+
+    // get the local face ids
+    this->EdgeFaces->GetTypedTuple(edgeId,edgeFaces);
+
+    // get the face vertex ids for the first face
+    loc = this->FaceLocations->GetValue(edgeFaces[0]);
+    face = this->GlobalFaces->GetPointer(loc);
+
+    // compute the centroid and normal for the first face
+    vtkPolygon::ComputeCentroid(this->Points, face[0], face + 1, c0);
+    vtkPolygon::ComputeNormal(this->Points, face[0], face + 1, n0);
+
+    // get the face vertex ids for the second face
+    loc = this->FaceLocations->GetValue(edgeFaces[1]);
+    face = this->GlobalFaces->GetPointer(loc);
+
+    // compute the centroid and normal for the second face
+    vtkPolygon::ComputeCentroid(this->Points, face[0], face + 1, c1);
+    vtkPolygon::ComputeNormal(this->Points, face[0], face + 1, n1);
+
+    // check for local convexity (the average of the two centroids must be
+    // "below" both faces, as defined by their outward normals).
+    for (i=0;i<3;i++)
+      {
+      c[i] = (c1[i] + c0[i])*.5;
+      c0p[i] = c[i] - c0[i];
+      c1p[i] = c[i] - c1[i];
+      }
+
+    if (vtkMath::Dot(n0,c0p) > 0. || vtkMath::Dot(n1,c1p) > 0.)
+      {
+      return false;
+      }
+
+    // check if the edge is a seam edge
+    // 1. the edge must not be vertical
+    // 2. the two faces must lie on the same side of a vertical plane
+    // 3. the upper face must not be vertical
+
+    // 1. simply check that the unit normal along the seam has x or y
+    //    components
+    for (i=0;i<3;i++)
+      {
+      n[i] = x[1][i] - x[0][i];
+      }
+    vtkMath::Normalize(n);
+    if (std::abs(n[0]) < eps && std::abs(n[1]) < eps)
+      {
+      continue;
+      }
+
+    // 2. we need a plane through the seam and through a vector parallel to the
+    //    z axis (or, more accurately, we need a vector perpendicular to this
+    //    plane). So, we take a vector pointing from the centroid of the seam
+    //    to the centroid of "higher" plane and remove the seam- and
+    //    z-components from it.
+    for (i=0;i<3;i++)
+      {
+      c[i] = (x[1][i] + x[0][i])*.5;
+      n0p[i] = c0[i] - c[i];
+      n1p[i] = c1[i] - c[i];
+      }
+    vtkMath::Normalize(n0p);
+    vtkMath::Normalize(n1p);
+
+    memcpy(np, (n0p[2] > n1p[2] ? n0p : n1p), sizeof(np));
+
+    tmp0 = vtkMath::Dot(np,n);
+    np[0] -= n[0]*tmp0;
+    np[1] -= n[1]*tmp0;
+    np[2] = 0.;
+
+    // 3. if np has zero magnitude, then condition 3 is violated. Otherwise,
+    //    we can use it to ensure condition 2.
+    if (std::abs(np[0]) < eps && std::abs(np[1]) < eps)
+      {
+      continue;
+      }
+
+    // if the vectors from the seam centroid to the face centroid are in the
+    // same direction relative to the plane, then condition 2 is satisfied.
+    tmp0 = vtkMath::Dot(np,n0p);
+    tmp1 = vtkMath::Dot(np,n1p);
+
+    if ((tmp0 < 0.) != (tmp1 < 0.))
+      {
+      continue;
+      }
+
+    // at this point, we know we have a seam edge. We now look at each vertex
+    // in the seam and determine whether or not it is a right-2-seam vertex. A
+    // convex polytope has exactly one right-2-seam vertex.
+    for (i = 0; i < 2; i++)
+      {
+      v = w[i];
+
+      // are there already 2 seams associated with this vertex? If so, then the
+      // projection of the polytope onto the x-y plane would have multiple seams
+      // emanating from the vertex => non-convex.
+      if (d[v] == 2)
+        {
+        return false;
+        }
+
+      // is this the first time that this vertex has been associated with a
+      // seam? If so, increment its seam count and record the x-coordinate of
+      // the adjacent edge vertex.
+      if (d[v] == 0)
+        {
+        d[v]++;
+        p[v] = x[(i+1)%2][0];
+        }
+      else
+        {
+        d[v]++;
+        // is v a right-2-seam vertex (i.e. is the x-value of v larger than the
+        // x-values of both u and p[v])?
+        if (x[i][0] > x[(i+1)%2][0] && x[i][0] > p[v])
+          {
+          // is this the first right-2-seam vertex?
+          if (r == 0)
+            {
+            r++;
+            }
+          else
+            {
+            return false;
+            }
+          }
+        }
+
+      }
+    }
+
+  return true;
+}
 
 //----------------------------------------------------------------------------
 int vtkPolyhedron::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
