@@ -31,6 +31,7 @@ class vtkIdTypeArray;
 class vtkMolecule;
 class vtkPeriodicTable;
 class vtkPolyData;
+class vtkPolyDataMapper;
 class vtkRenderer;
 class vtkSelection;
 class vtkSphereSource;
@@ -111,6 +112,13 @@ public:
   vtkSetMacro(RenderBonds, bool);
   vtkBooleanMacro(RenderBonds, bool);
 
+  // Description:
+  // Get/Set whether or not to render the unit cell lattice, if present.
+  // Default: On.
+  vtkGetMacro(RenderLattice, bool)
+  vtkSetMacro(RenderLattice, bool)
+  vtkBooleanMacro(RenderLattice, bool)
+
   enum {
     CovalentRadius = 0,
     VDWRadius,
@@ -187,6 +195,12 @@ public:
   vtkSetMacro(BondRadius, float);
 
   // Description:
+  // Get/Set the color of the bonds as an rgb tuple.
+  // Default: {255, 255, 255} (white)
+  vtkGetVector3Macro(LatticeColor, unsigned char)
+  vtkSetVector3Macro(LatticeColor, unsigned char)
+
+  // Description:
   // Extract the ids atoms and/or bonds rendered by this molecule from a
   // vtkSelection object. The vtkIdTypeArray
   virtual void GetSelectedAtomsAndBonds(vtkSelection *selection,
@@ -230,6 +244,8 @@ protected:
   float BondRadius;
   unsigned char BondColor[3];
 
+  bool RenderLattice;
+
   // Description:
   // Internal render methods
   void GlyphRender(vtkRenderer *ren, vtkActor *act);
@@ -249,6 +265,11 @@ protected:
   // Internal mappers
   vtkNew<vtkGlyph3DMapper> AtomGlyphMapper;
   vtkNew<vtkGlyph3DMapper> BondGlyphMapper;
+
+  unsigned char LatticeColor[3];
+  vtkNew<vtkPolyData> LatticePolyData;
+  vtkNew<vtkPolyDataMapper> LatticeMapper;
+  virtual void UpdateLatticePolyData();
 
   // Description:
   // Periodic table for lookups

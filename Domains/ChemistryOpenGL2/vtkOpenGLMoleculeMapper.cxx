@@ -82,6 +82,11 @@ void vtkOpenGLMoleculeMapper::Render(vtkRenderer *ren, vtkActor *act )
     this->FastBondMapper->Render(ren, act);
     //  this->BondGlyphMapper->Render(ren, act);
     }
+
+  if (this->RenderLattice)
+    {
+    this->LatticeMapper->Render(ren, act);
+    }
 }
 
 //----------------------------------------------------------------------------
