@@ -41,6 +41,15 @@ int TestGPURayCastPerspectiveParallel(int argc,
                                       char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
 
   // Create a spherical implicit function.
   vtkSphere *shape=vtkSphere::New();
@@ -125,7 +134,10 @@ int TestGPURayCastPerspectiveParallel(int argc,
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
-  ren1->SetPass(osprayPass.GetPointer());
+  if (useOSP)
+    {
+    ren1->SetPass(osprayPass.GetPointer());
+    }
 
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
 

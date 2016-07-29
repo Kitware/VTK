@@ -1,7 +1,8 @@
+
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    TestGPURayCastVolumeRotation.cxx
+  Module:    TestGPURayCastVolumeUpdate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,39 +13,35 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test covers additive method.
-// This test volume renders a synthetic dataset with unsigned char values,
-// with the additive method.
+// This test volume tests whether updating the volume MTime updates the ,
+// geometry in the volume mapper.
 
-#include <vtkCamera.h>
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
-#include <vtkImageReader.h>
-#include <vtkImageShiftScale.h>
+#include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkNew.h>
 #include <vtkOutlineFilter.h>
+#include <vtkOSPRayPass.h>
 #include <vtkPiecewiseFunction.h>
-#include <vtkPointData.h>
+#include <vtkPointDataToCellData.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkRegressionTestImage.h>
+#include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkRenderer.h>
+#include <vtkRTAnalyticSource.h>
 #include <vtkSmartPointer.h>
-#include <vtkStructuredPointsReader.h>
+#include <vtkTesting.h>
 #include <vtkTestUtilities.h>
-#include <vtkTimerLog.h>
 #include <vtkVolumeProperty.h>
 #include <vtkXMLImageDataReader.h>
-#include <vtkInteractorStyleTrackballCamera.h>
-#include <vtkOSPRayPass.h>
-#include <vtkProperty.h>
 
 
-int TestGPURayCastVolumeRotation(int argc, char *argv[])
+int TestGPURayCastCellData(int argc, char *argv[])
 {
+  cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
     {
@@ -62,80 +59,74 @@ int TestGPURayCastVolumeRotation(int argc, char *argv[])
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
-  const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
+  char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
-  volumeMapper->SetInputConnection(reader->GetOutputPort());
-  volumeMapper->SetSampleDistance(0.01);
+  delete[] volumeFile;
+
+  vtkNew<vtkPointDataToCellData> pointToCell;
+  pointToCell->SetInputConnection(reader->GetOutputPort());
+  volumeMapper->SetInputConnection(pointToCell->GetOutputPort());
 
   // Add outline filter
   vtkNew<vtkOutlineFilter> outlineFilter;
-  outlineFilter->SetInputConnection(reader->GetOutputPort());
+  outlineFilter->SetInputConnection(pointToCell->GetOutputPort());
   outlineMapper->SetInputConnection(outlineFilter->GetOutputPort());
   outlineActor->SetMapper(outlineMapper.GetPointer());
 
-  // OsprayPolyDataMapperNode requires transfer function spec.
-  vtkProperty* property = outlineActor->GetProperty();
-  property->SetColor(1.0, 1.0, 1.0);
-
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
+  volumeMapper->SetSampleDistance(0.1);
+  volumeMapper->SetAutoAdjustSampleDistances(0);
   volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
-  vtkNew<vtkRenderer> ren;
-  renWin->AddRenderer(ren.GetPointer());
-  ren->SetBackground(0.2, 0.2, 0.5);
   renWin->SetSize(400, 400);
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renWin.GetPointer());
-//  vtkNew<vtkInteractorStyleTrackballCamera> style;
-//  iren->SetInteractorStyle(style.GetPointer());
+  vtkNew<vtkInteractorStyleTrackballCamera> style;
+  iren->SetInteractorStyle(style.GetPointer());
+
+  renWin->Render(); // make sure we have an OpenGL context.
+
+  vtkNew<vtkRenderer> ren;
+  ren->SetBackground(0.2, 0.2, 0.5);
+  renWin->AddRenderer(ren.GetPointer());
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
-  scalarOpacity->AddPoint(75, 0.1);
+  scalarOpacity->AddPoint(75, 1.0);
 
   vtkNew<vtkVolumeProperty> volumeProperty;
-  volumeProperty->ShadeOff();
+  volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
-
   volumeProperty->SetScalarOpacity(scalarOpacity.GetPointer());
 
-  vtkSmartPointer<vtkColorTransferFunction> colorTransferFunction =
-    volumeProperty->GetRGBTransferFunction(0);
+  vtkNew<vtkColorTransferFunction> colorTransferFunction;
   colorTransferFunction->RemoveAllPoints();
-  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.0, 0.8, 0.1);
-  colorTransferFunction->AddRGBPoint(scalarRange[1], 0.0, 0.8, 0.1);
+  colorTransferFunction->AddRGBPoint(scalarRange[0], 0.6, 0.4, 0.1);
+  volumeProperty->SetColor(colorTransferFunction.GetPointer());
 
   vtkNew<vtkVolume> volume;
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  /// Rotate the volume for testing purposes
-  volume->RotateY(45.0);
-  outlineActor->RotateY(45.0);
-  volume->RotateZ(-90.0);
-  outlineActor->RotateZ(-90.0);
-  volume->RotateX(90.0);
-  outlineActor->RotateX(90.0);
+  ren->AddVolume(volume.GetPointer());
+  ren->AddActor(outlineActor.GetPointer());
+  ren->ResetCamera();
 
-// Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
     {
     ren->SetPass(osprayPass.GetPointer());
     }
 
-  ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+
   renWin->Render();
   ren->ResetCamera();
 
   iren->Initialize();
-  iren->SetDesiredUpdateRate(30.0);
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)

@@ -52,13 +52,28 @@ VTK_MODULE_INIT(vtkRenderingOSPRay);
 int TestSmartVolumeMapper(int argc,
                           char *argv[])
 {
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
   vtkNew<vtkSmartVolumeMapper> volumeMapper;
   //TODO: replace with OSPRayVolumeMapper when done
-  volumeMapper->SetRequestedRenderModeToOSPRay();
+  if (useOSP)
+    {
+    volumeMapper->SetRequestedRenderModeToOSPRay();
+    }
+  else
+    {
+    }
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(

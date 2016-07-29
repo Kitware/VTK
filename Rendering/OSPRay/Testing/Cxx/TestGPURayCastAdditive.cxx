@@ -36,7 +36,8 @@
 #include "vtkDataArray.h"
 #include "vtkOSPRayPass.h"
 #include "vtkProperty.h"
-
+#include "vtkSmartPointer.h"
+#include "vtkOSPRayTestInteractor.h"
 
 int TestGPURayCastAdditive(int argc,
                                  char *argv[])
@@ -88,7 +89,15 @@ int TestGPURayCastAdditive(int argc,
   // intentional odd and NPOT  width/height
   renWin->SetSize(301,300);
 
+  vtkNew<vtkOSPRayPass> osprayPass;
+  ren1->SetPass(osprayPass.GetPointer());
+
+  vtkSmartPointer<vtkOSPRayTestInteractor> style =
+    vtkSmartPointer<vtkOSPRayTestInteractor>::New();
+  style->SetPipelineControlPoints((vtkOpenGLRenderer*)ren1, osprayPass.Get(), NULL);
+
   vtkRenderWindowInteractor *iren = vtkRenderWindowInteractor::New();
+  iren->SetInteractorStyle(style);
   iren->SetRenderWindow(renWin);
   renWin->Delete();
 
@@ -134,10 +143,6 @@ int TestGPURayCastAdditive(int argc,
   volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty);
   ren1->AddViewProp(volume);
-
-// Attach OSPRay render pass
-  vtkNew<vtkOSPRayPass> osprayPass;
-  ren1->SetPass(osprayPass.GetPointer());
 
   int valid = volumeMapper->IsRenderSupported(renWin,volumeProperty);
 

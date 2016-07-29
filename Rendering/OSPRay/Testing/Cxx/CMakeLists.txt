@@ -17,6 +17,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayVolumeRenderer.cxx
   TestGPURayCastAdditive.cxx
   TestGPURayCastCameraInside.cxx
+  TestGPURayCastCellData.cxx
   TestGPURayCastCameraInsideSmallSpacing.cxx
   TestGPURayCastMapperBenchmark.cxx
   TestGPURayCastMapperSampleDistance.cxx

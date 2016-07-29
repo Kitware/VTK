@@ -20,11 +20,11 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
 #include <vtkNew.h>
+#include <vtkOSPRayVolumeMapper.h>
 #include <vtkPlane.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkPlane.h>
@@ -51,15 +51,14 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
 
   vtkNew<vtkActor> outlineActor;
   vtkNew<vtkPolyDataMapper> outlineMapper;
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
-  //TODO: replace with OSPRayVolumeMapper when done
+  vtkNew<vtkOSPRayVolumeMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
   const char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
-  volumeMapper->SetSampleDistance(0.01);
+  //volumeMapper->SetSampleDistance(0.01);
 
   // Put inside an open box to evaluate composite order
   vtkNew<vtkDataSetSurfaceFilter> outlineFilter;
@@ -78,7 +77,7 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
-  volumeMapper->SetAutoAdjustSampleDistances(1);
+  //volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
@@ -120,10 +119,6 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   volume->RotateX(90.0);
   outlineActor->RotateX(90.0);
 
-// Attach OSPRay render pass
-  //TODO: when OSPRayVolumeMapper works, don't use the pass
-  vtkNew<vtkOSPRayPass> osprayPass;
-  ren->SetPass(osprayPass.GetPointer());
   ren->AddViewProp(volume.GetPointer());
   ren->AddActor(outlineActor.GetPointer());
   renWin->Render();

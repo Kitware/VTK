@@ -36,11 +36,32 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
+  bool useOSP = true;
+  int EXT=128;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      useOSP = false;
+      }
+    if (!strcmp(argv[i], "-EXT"))
+      {
+      EXT = atoi(argv[i+1]);
+      }
+    }
+
   vtkNew<vtkRTAnalyticSource> wavelet;
-  wavelet->SetWholeExtent(-127, 128,
-                          -127, 128,
-                          -127, 128);
+  wavelet->SetWholeExtent(-(EXT-1), EXT,
+                          -(EXT-1), EXT,
+                          -(EXT-1), EXT);
   wavelet->SetCenter(0.0, 0.0, 0.0);
+  vtkNew<vtkTimerLog> timer;
+  cerr << "Make data" << endl;
+  timer->StartTimer();
+  wavelet->Update();
+  timer->StopTimer();
+  double makeDataTime = timer->GetElapsedTime();
+  cerr << "Make data time: " << makeDataTime << endl;
 
   vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
@@ -64,7 +85,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
   vtkNew<vtkRenderWindow> renderWindow;
   renderWindow->SetSize(900, 900);
-//  renderWindow->Render(); // make sure we have an OpenGL context.
+  renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> renderer;
   renderer->AddVolume(volume.GetPointer());
@@ -73,7 +94,10 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
-  renderer->SetPass(osprayPass.GetPointer());
+  if (useOSP)
+    {
+    renderer->SetPass(osprayPass.GetPointer());
+    }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
@@ -84,7 +108,6 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   if (valid)
     {
 
-    vtkNew<vtkTimerLog> timer;
     timer->StartTimer();
     renderWindow->Render();
     timer->StopTimer();

@@ -914,6 +914,16 @@ int TestGPURayCastCameraInside(int argc, char *argv[])
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
+
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                        argc, argv, "Data/ironProt.vtk");
   vtkNew<vtkStructuredPointsReader> reader;
@@ -961,7 +971,10 @@ int TestGPURayCastCameraInside(int argc, char *argv[])
 // Attach OSPRay render pass
   vtkSmartPointer<vtkOSPRayPass> osprayPass =
     vtkSmartPointer<vtkOSPRayPass>::New();
-  ren->SetPass(osprayPass.GetPointer());
+  if (!useOSP)
+    {
+    ren->SetPass(osprayPass.GetPointer());
+    }
 
   ren->AddVolume(volume.GetPointer());
   ren->ResetCamera();

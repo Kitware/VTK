@@ -47,6 +47,15 @@
 
 int TestGPURayCastVolumeScale(int argc, char *argv[])
 {
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
   double scalarRange[2];
 
   vtkNew<vtkActor> outlineActor;
@@ -113,7 +122,10 @@ int TestGPURayCastVolumeScale(int argc, char *argv[])
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
-  ren->SetPass(osprayPass.GetPointer());
+  if (useOSP)
+    {
+    ren->SetPass(osprayPass.GetPointer());
+    }
 
   renWin->Render();
   ren->ResetCamera();

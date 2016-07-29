@@ -36,6 +36,15 @@
 //----------------------------------------------------------------------------
 int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 {
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
   vtkNew<vtkRTAnalyticSource> wavelet;
   wavelet->SetWholeExtent(-127, 128,
                           -127, 128,
@@ -75,7 +84,10 @@ int TestGPURayCastMapperSampleDistance(int argc, char* argv[])
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
-  renderer->SetPass(osprayPass.GetPointer());
+  if (useOSP)
+    {
+    renderer->SetPass(osprayPass.GetPointer());
+    }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
