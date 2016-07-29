@@ -4,6 +4,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBondColorModeDiscreteByAtom.cxx
   TestBondColorModeSingleColor.cxx
   TestCompositeRender.cxx
+  TestCustomArrayRadius.cxx
   TestFastRender.cxx
   TestLiquoriceSticks.cxx
   TestMolecule.cxx,NO_VALID

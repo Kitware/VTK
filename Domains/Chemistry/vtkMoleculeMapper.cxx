@@ -208,6 +208,8 @@ const char * vtkMoleculeMapper::GetAtomicRadiusTypeAsString()
       return "VDWRadius";
     case UnitRadius:
       return "UnitRadius";
+    case CustomArrayRadius:
+      return "CustomArrayRadius";
     default:
       return "Invalid";
     }
@@ -395,6 +397,29 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
         scaleFactors->InsertNextValue(this->AtomicRadiusScaleFactor);
         }
       break;
+    case CustomArrayRadius: {
+      vtkDataArray *radii = molecule->GetVertexData()->GetArray("radii");
+      if (!radii)
+        {
+        vtkWarningMacro("AtomicRadiusType set to CustomArrayRadius, but no "
+                        "array named 'radii' found in input VertexData.");
+        scaleFactors->SetNumberOfTuples(numAtoms);
+        scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
+        }
+      else if (radii->GetNumberOfTuples() != numAtoms)
+        {
+        vtkWarningMacro("'radii' array contains " << radii->GetNumberOfTuples()
+                        << " entries, but there are " << numAtoms << " atoms.");
+        scaleFactors->SetNumberOfTuples(numAtoms);
+        scaleFactors->FillComponent(0, this->AtomicRadiusScaleFactor);
+        }
+      else
+        {
+        scaleFactors->DeepCopy(radii);
+        scaleFactors->SetName("Scale Factors"); // copy resets name.
+        }
+      break;
+      }
     }
 
   this->AtomGlyphPolyData->GetPointData()->AddArray(scaleFactors.GetPointer());

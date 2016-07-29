@@ -122,12 +122,14 @@ public:
   enum {
     CovalentRadius = 0,
     VDWRadius,
-    UnitRadius
+    UnitRadius,
+    CustomArrayRadius
   };
 
   // Description:
   // Get/Set the type of radius used to generate the atoms. Default:
-  // VDWRadius.
+  // VDWRadius. If CustomArrayRadius is used, the VertexData array named
+  // 'radii' is used for per-atom radii.
   vtkGetMacro(AtomicRadiusType, int);
   vtkSetMacro(AtomicRadiusType, int);
   const char * GetAtomicRadiusTypeAsString();
@@ -143,10 +145,15 @@ public:
   {
     this->SetAtomicRadiusType(UnitRadius);
   }
+  void SetAtomicRadiusTypeToCustomArrayRadius()
+  {
+    this->SetAtomicRadiusType(CustomArrayRadius);
+  }
 
   // Description:
-  // Get/Set the uniform scaling factor applied to the atoms. Default:
-  // 0.3.
+  // Get/Set the uniform scaling factor applied to the atoms.
+  // This is ignored when AtomicRadiusType == CustomArrayRadius.
+  // Default: 0.3.
   vtkGetMacro(AtomicRadiusScaleFactor, float);
   vtkSetMacro(AtomicRadiusScaleFactor, float);
 
