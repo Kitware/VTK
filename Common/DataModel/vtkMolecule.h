@@ -68,14 +68,16 @@
 
 #include "vtkCommonDataModelModule.h" // For export macro
 #include "vtkUndirectedGraph.h"
+#include "vtkSmartPointer.h" // For vtkSmartPointer
 
 #include "vtkAtom.h" // Simple proxy class dependent on vtkMolecule
 #include "vtkBond.h" // Simple proxy class dependent on vtkMolecule
 
 #include "vtkVector.h" // Small templated vector convenience class
 
-class vtkPlane;
 class vtkAbstractElectronicData;
+class vtkMatrix3x3;
+class vtkPlane;
 class vtkPoints;
 class vtkUnsignedShortArray;
 
@@ -253,6 +255,40 @@ public:
   static bool GetPlaneFromBond(const vtkAtom &atom1, const vtkAtom &atom2,
                                const vtkVector3f &normal, vtkPlane *plane);
 
+  // Description:
+  // Return true if a unit cell lattice is defined.
+  bool HasLattice();
+
+  // Description:
+  // Remove any unit cell lattice information from the molecule.
+  void ClearLattice();
+
+  // Description:
+  // The unit cell vectors. The matrix is stored using a row-major layout, with
+  // the vectors encoded as columns.
+  void SetLattice(vtkMatrix3x3 *matrix);
+  void SetLattice(const vtkVector3d &a,
+                  const vtkVector3d &b,
+                  const vtkVector3d &c);
+
+  // Description:
+  // Get the unit cell lattice vectors. The matrix is stored using a row-major
+  // layout, with the vectors encoded as columns. Will return NULL if no
+  // unit cell information is available.
+  // @sa GetLatticeOrigin
+  vtkMatrix3x3* GetLattice();
+
+  // Description:
+  // Get the unit cell lattice vectors, and optionally, the origin.
+  void GetLattice(vtkVector3d &a, vtkVector3d &b, vtkVector3d &c);
+  void GetLattice(vtkVector3d &a, vtkVector3d &b, vtkVector3d &c,
+                  vtkVector3d &origin);
+
+  // Description:
+  // Get the unit cell origin (for rendering purposes).
+  vtkGetMacro(LatticeOrigin, vtkVector3d)
+  vtkSetMacro(LatticeOrigin, vtkVector3d)
+
  protected:
   vtkMolecule();
   ~vtkMolecule();
@@ -279,6 +315,8 @@ public:
   friend class vtkBond;
 
   vtkAbstractElectronicData *ElectronicData;
+  vtkSmartPointer<vtkMatrix3x3> Lattice;
+  vtkVector3d LatticeOrigin;
 
 private:
   vtkMolecule(const vtkMolecule&) VTK_DELETE_FUNCTION;
