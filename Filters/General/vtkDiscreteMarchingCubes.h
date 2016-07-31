@@ -49,8 +49,11 @@
 // adjacent to specific label meshes. For example, if the input is a label
 // image that was created by running a watershed transformation on a distance
 // map followed by masking with the original binary segmentation. For further
-// details and images see https://github.com/Kitware/VTK/pull/18. This
-// extension to vtkDiscreteMarchingCubes was contributed by Roman Grothausmann.
+// details and images see the VTK Journal paper
+// "Providing values of adjacent voxel with vtkDiscreteMarchingCubes"
+// by Roman Grothausmann:
+// http://hdl.handle.net/10380/3559
+// http://www.vtkjournal.org/browse/publication/975
 // .SECTION Caveats
 // This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
