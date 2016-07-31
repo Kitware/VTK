@@ -130,6 +130,7 @@ vtkCell *vtkQuadraticPyramid::GetFace(int faceId)
 
   // load point id's and coordinates
   // be careful with the first one:
+
   if(faceId > 0)
     {
     for (int i=0; i<6; i++)
@@ -472,6 +473,7 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
   int inter;
 
   t = VTK_DOUBLE_MAX;
+  this->TriangleFace->GetPoints()->ShallowCopy(this->GetPoints());
   for (faceNum=0; faceNum<5; faceNum++)
     {
     // We have 8 nodes on rect face
@@ -488,6 +490,8 @@ int vtkQuadraticPyramid::IntersectWithLine(double* p1, double* p2,
       }
     else
       {
+      // No need to set the PointIds. They are set in the Face constructor
+      // Points need to be set to correspond with the contructor's PointIds.
       for (int i=0; i<8; i++)
         {
         this->Face->Points->SetPoint(i,
