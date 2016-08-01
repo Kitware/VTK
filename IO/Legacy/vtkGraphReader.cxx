@@ -133,6 +133,13 @@ int vtkGraphReader::RequestData(
       return 1;
     }
 
+  // Lattice information for molecules:
+  bool hasLattice = false;
+  vtkVector3d lattice_a;
+  vtkVector3d lattice_b;
+  vtkVector3d lattice_c;
+  vtkVector3d lattice_origin;
+
   while(true)
     {
     if(!this->ReadString(line))
@@ -272,6 +279,68 @@ int vtkGraphReader::RequestData(
       continue;
       }
 
+    if (!strncmp(this->LowerCase(line), "lattice_", 8))
+      {
+      switch (line[8]) // lattice_<line[8]> -- which vector: a, b, c, or origin?
+        {
+        case 'a':
+          hasLattice = true;
+          for (int i = 0; i < 3; ++i)
+            {
+            if (!this->Read(&lattice_a[i]))
+              {
+              vtkErrorMacro("Error while parsing lattice information.");
+              this->CloseVTKFile();
+              return 1;
+              }
+            }
+          continue;
+
+        case 'b':
+          hasLattice = true;
+          for (int i = 0; i < 3; ++i)
+            {
+            if (!this->Read(&lattice_b[i]))
+              {
+              vtkErrorMacro("Error while parsing lattice information.");
+              this->CloseVTKFile();
+              return 1;
+              }
+            }
+          continue;
+
+        case 'c':
+          hasLattice = true;
+          for (int i = 0; i < 3; ++i)
+            {
+            if (!this->Read(&lattice_c[i]))
+              {
+              vtkErrorMacro("Error while parsing lattice information.");
+              this->CloseVTKFile();
+              return 1;
+              }
+            }
+          continue;
+
+        case 'o':
+          hasLattice = true;
+          for (int i = 0; i < 3; ++i)
+            {
+            if (!this->Read(&lattice_origin[i]))
+              {
+              vtkErrorMacro("Error while parsing lattice information.");
+              this->CloseVTKFile();
+              return 1;
+              }
+            }
+          continue;
+
+        default:
+          break;
+        }
+
+      }
+
     vtkErrorMacro(<< "Unrecognized keyword: " << line);
     }
 
@@ -289,6 +358,13 @@ int vtkGraphReader::RequestData(
 
   bool valid = true;
   valid = output->CheckedShallowCopy(builder);
+
+  vtkMolecule *mol = vtkMolecule::SafeDownCast(output);
+  if (valid && hasLattice && mol)
+    {
+    mol->SetLattice(lattice_a, lattice_b, lattice_c);
+    mol->SetLatticeOrigin(lattice_origin);
+    }
 
   if (!valid)
     {

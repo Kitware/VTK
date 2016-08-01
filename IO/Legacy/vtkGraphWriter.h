@@ -26,6 +26,7 @@
 #include "vtkDataWriter.h"
 
 class vtkGraph;
+class vtkMolecule;
 
 class VTKIOLEGACY_EXPORT vtkGraphWriter : public vtkDataWriter
 {
@@ -44,6 +45,8 @@ protected:
   ~vtkGraphWriter() {}
 
   void WriteData();
+
+  void WriteMoleculeData(ostream *fp, vtkMolecule *m);
 
   virtual int FillInputPortInformation(int port, vtkInformation *info);
 

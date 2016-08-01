@@ -63,6 +63,14 @@ int TestMoleculeIOLegacy(int, char *[])
   mol->AppendBond( C6,  H4, 1);
   mol->AppendBond( O1,  H5, 1);
 
+  // Some dummy lattice info:
+  vtkVector3d a( 8.,  0.,  0.);
+  vtkVector3d b( 0.,  6.,  0.);
+  vtkVector3d c( 0.,  0.,  4.);
+  vtkVector3d o(-4., -2., -2.);
+  mol->SetLattice(a, b, c);
+  mol->SetLatticeOrigin(o);
+
   // Test passing the molecule through the IO reader/writer:
   vtkNew<vtkGenericDataObjectWriter> writer;
   writer->SetInputData(mol.Get());
@@ -100,6 +108,8 @@ int TestMoleculeIOLegacy(int, char *[])
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);
   win->SetMultiSamples(0);
+  win->Render();
+  ren->ResetCameraClippingRange();
   win->Render();
 
   // Finally render the scene and compare the image to a reference image

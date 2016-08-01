@@ -58,9 +58,11 @@ void vtkGraphWriter::WriteData()
     return;
     }
 
-  if (vtkMolecule::SafeDownCast(input)) // molecule is most derived, test first
+  vtkMolecule *mol = vtkMolecule::SafeDownCast(input);
+  if (mol) // molecule is most derived, test first
     {
     *fp << "DATASET MOLECULE\n";
+    this->WriteMoleculeData(fp, mol);
     }
   else if (vtkDirectedGraph::SafeDownCast(input))
     {
@@ -117,6 +119,23 @@ void vtkGraphWriter::WriteData()
     return;
     }
   this->CloseVTKFile(fp);
+}
+
+void vtkGraphWriter::WriteMoleculeData(std::ostream *fp, vtkMolecule *m)
+{
+  if (m->HasLattice())
+    {
+    vtkVector3d a;
+    vtkVector3d b;
+    vtkVector3d c;
+    vtkVector3d origin;
+    m->GetLattice(a, b, c, origin);
+    *fp << "LATTICE_A " << a[0] << " " << a[1] << " " << a[2] << "\n";
+    *fp << "LATTICE_B " << b[0] << " " << b[1] << " " << b[2] << "\n";
+    *fp << "LATTICE_C " << c[0] << " " << c[1] << " " << c[2] << "\n";
+    *fp << "LATTICE_ORIGIN " << origin[0] << " " << origin[1] << " "
+        << origin[2] << "\n";
+    }
 }
 
 int vtkGraphWriter::FillInputPortInformation(int, vtkInformation *info)
