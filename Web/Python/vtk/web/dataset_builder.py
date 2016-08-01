@@ -267,8 +267,9 @@ class VolumeCompositeDataSetBuilder(DataSetBuilder):
                 print 'Compress', root
                 for name in files:
                     if '.uint8' in name and '.gz' not in name:
-                        with open(os.path.join(root, name), 'rb') as f_in, gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
+                        with open(os.path.join(root, name), 'rb') as f_in:
+                            with gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
+                                shutil.copyfileobj(f_in, f_out)
                         os.remove(os.path.join(root, name))
 
 # -----------------------------------------------------------------------------
@@ -333,8 +334,9 @@ class DataProberDataSetBuilder(DataSetBuilder):
                 print 'Compress', root
                 for name in files:
                     if '.array' in name and '.gz' not in name:
-                        with open(os.path.join(root, name), 'rb') as f_in, gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
+                        with open(os.path.join(root, name), 'rb') as f_in:
+                            with gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
+                                shutil.copyfileobj(f_in, f_out)
                         os.remove(os.path.join(root, name))
 
 # -----------------------------------------------------------------------------
@@ -505,6 +507,7 @@ class SortedCompositeDataSetBuilder(VolumeCompositeDataSetBuilder):
                 print 'Compress', root
                 for name in files:
                     if '.uint8' in name and '.gz' not in name:
-                        with open(os.path.join(root, name), 'rb') as f_in, gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
-                            shutil.copyfileobj(f_in, f_out)
+                        with open(os.path.join(root, name), 'rb') as f_in:
+                            with gzip.open(os.path.join(root, name + '.gz'), 'wb') as f_out:
+                                shutil.copyfileobj(f_in, f_out)
                         os.remove(os.path.join(root, name))
