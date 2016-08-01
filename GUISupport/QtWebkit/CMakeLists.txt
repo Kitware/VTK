@@ -18,7 +18,7 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
     set(QT_LIBRARIES ${Qt5WebKitWidgets_LIBRARIES})
 
     # When this module is loaded by an app, load Qt too.
-    vtk_module_export_code_find_package(Qt5WebKitWidgets)
+    vtk_module_export_code_find_package(Qt5 COMPONENTS WebKitWidgets)
     set(_FOUND 1)
   else()
     message(STATUS "Qt5WebKitWidgets not found. vtkQtRichTextView is disabled.")
