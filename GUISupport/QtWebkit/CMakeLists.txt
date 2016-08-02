@@ -37,6 +37,8 @@ else()
   qt4_wrap_ui(UI_FILES vtkQtRichTextView.ui)
   qt4_wrap_cpp(LibMocSrcs ${MocHeaders})
   if (QT_WEBKIT_FOUND)
+    # When this module is loaded by an app, load Qt too.
+    vtk_module_export_code_find_package(Qt4 COMPONENTS QtCore QtGui QtWebKit)
     set(_FOUND 1)
   endif()
 endif()

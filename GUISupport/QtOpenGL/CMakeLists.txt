@@ -25,11 +25,16 @@ if(VTK_QT_VERSION VERSION_GREATER "4")
   vtk_module_export_code_find_package(Qt5 COMPONENTS OpenGL)
 else()
   # import Qt4 build settings
-  set(QT_USE_QTOPENGL 1)
-  find_package(Qt4 REQUIRED QUIET)
-  include(${QT_USE_FILE})
+  find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL REQUIRED QUIET)
+  include_directories(${QT_INCLUDES})
+  add_definitions(${QT_DEFINITIONS})
+
+  set(QT_LIBRARIES Qt4::QtCore Qt4::QtGui Qt4::QtOpenGL)
 
   qt4_wrap_cpp(LibMocSrcs ${MocHeaders})
+
+  # When this module is loaded by an app, load Qt too.
+  vtk_module_export_code_find_package(Qt4 COMPONENTS QtCore QtGui QtOpenGL)
 endif()
 
 set(${vtk-module}_NO_HeaderTest 1)
