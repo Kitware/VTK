@@ -160,6 +160,14 @@ endfunction()
 macro(vtk_module_impl)
   include(module.cmake OPTIONAL) # Load module meta-data
 
+  list(APPEND ${vtk-module}_INCLUDE_DIRS
+    ${${vtk-module}_BINARY_DIR}
+    ${${vtk-module}_SOURCE_DIR})
+  list(REMOVE_DUPLICATES ${vtk-module}_INCLUDE_DIRS)
+  if(${vtk-module}_INCLUDE_DIRS)
+    include_directories(${${vtk-module}_INCLUDE_DIRS})
+  endif()
+
   vtk_module_config(_dep ${${vtk-module}_DEPENDS})
   if(_dep_INCLUDE_DIRS)
     include_directories(${_dep_INCLUDE_DIRS})
@@ -179,14 +187,6 @@ macro(vtk_module_impl)
     endif()
   endif()
 
-  list(APPEND ${vtk-module}_INCLUDE_DIRS
-    ${${vtk-module}_BINARY_DIR}
-    ${${vtk-module}_SOURCE_DIR})
-  list(REMOVE_DUPLICATES ${vtk-module}_INCLUDE_DIRS)
-
-  if(${vtk-module}_INCLUDE_DIRS)
-    include_directories(${${vtk-module}_INCLUDE_DIRS})
-  endif()
   if(${vtk-module}_SYSTEM_INCLUDE_DIRS)
     include_directories(${${vtk-module}_SYSTEM_INCLUDE_DIRS})
   endif()
