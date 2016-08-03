@@ -184,6 +184,10 @@ public:
 class vtkUnstructuredGridQuadricDecimationSymMat4
 {
 public:
+  vtkUnstructuredGridQuadricDecimationSymMat4()
+  {
+    memset(values, 0, sizeof(values));
+  }
   void Identity()
   {
     memset(values, 0, sizeof(values));
