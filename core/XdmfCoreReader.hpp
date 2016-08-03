@@ -238,14 +238,6 @@ private:
 
 };
 
-#ifdef _WIN32
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-std::allocator<shared_ptr<XdmfItem> >;
-XDMFCORE_TEMPLATE template class XDMFCORE_EXPORT
-std::vector<shared_ptr<XdmfItem>,
-            std::allocator<shared_ptr<XdmfItem> > >;
-#endif
-
 #endif
 
 #ifdef __cplusplus

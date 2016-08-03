@@ -23,6 +23,13 @@ endif()
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/XdmfConfig.hpp.in
                ${CMAKE_CURRENT_BINARY_DIR}/XdmfConfig.hpp)
 
+if (WIN32)
+  set(XDMF_STATIC_AND_SHARED OFF)
+else()
+  option(XDMF_STATIC_AND_SHARED
+       "Build both static and shared libraries" ON)
+  mark_as_advanced(FORCE XDMF_STATIC_AND_SHARED)
+endif()
 
 # Enable CMake testing
 option(XDMF_BUILD_TESTING "Build Tests" OFF)
@@ -31,13 +38,9 @@ if(XDMF_BUILD_TESTING)
   include(CTest)
 endif()
 
-if (BUILD_SHARED_LIBS)
-  #STRING(REGEX MATCH "-fPIC" IS_FPIC "${CMAKE_CXX_FLAGS}")
-  #if ("${IS_FPIC}" STREQUAL "")
-  #  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
-  #endif ("${IS_FPIC}" STREQUAL "")
+if (XDMF_STATIC_AND_SHARED)
   add_definitions(-DXDMFSTATIC)
-endif (BUILD_SHARED_LIBS)
+endif ()
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -320,27 +323,29 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     XdmfTopologyType
     XdmfUnstructuredGrid)
 
-  add_library(XdmfObjects OBJECT ${XdmfSources})
-  set_target_properties(XdmfObjects PROPERTIES
-    POSITION_INDEPENDENT_CODE True)
-  add_library(${XDMF_LIBNAME} $<TARGET_OBJECTS:XdmfObjects>)
-  if (BUILD_SHARED_LIBS)
-    add_library(Xdmf_Static STATIC $<TARGET_OBJECTS:XdmfObjects>)
-    if (UNIX)
+  if(XDMF_STATIC_AND_SHARED)
+    add_library(XdmfObjects OBJECT ${XdmfSources})
+    set_target_properties(XdmfObjects PROPERTIES
+      POSITION_INDEPENDENT_CODE True)
+    add_library(${XDMF_LIBNAME} $<TARGET_OBJECTS:XdmfObjects>)
+    if (BUILD_SHARED_LIBS)
+      add_library(Xdmf_Static STATIC $<TARGET_OBJECTS:XdmfObjects>)
       set_target_properties(Xdmf_Static PROPERTIES
-        OUTPUT_NAME "Xdmf")
-    endif (UNIX)
-  endif (BUILD_SHARED_LIBS)
+          OUTPUT_NAME "Xdmf")
+    endif (BUILD_SHARED_LIBS)
+  else()
+    add_library(${XDMF_LIBNAME} ${LIBTYPE} ${XdmfSources})
+  endif()
   if(XDMF_BUILD_DSM)
     target_link_libraries(${XDMF_LIBNAME} XdmfCore XdmfDSM)
-    if (BUILD_SHARED_LIBS)
-      target_link_libraries(Xdmf_Static XdmfCore_Static XdmfDSM_Static)
-    endif (BUILD_SHARED_LIBS)
+    if(XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
+        target_link_libraries(Xdmf_Static XdmfCore_Static XdmfDSM_Static)
+    endif()
   else(XDMF_BUILD_DSM)
     target_link_libraries(${XDMF_LIBNAME} XdmfCore)
-    if (BUILD_SHARED_LIBS)
+    if(XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
       target_link_libraries(Xdmf_Static XdmfCore_Static)
-    endif (BUILD_SHARED_LIBS)
+    endif ()
   endif(XDMF_BUILD_DSM)
   if (COMMAND vtk_target_install)
     vtk_target_install(${XDMF_LIBNAME})
@@ -349,9 +354,11 @@ if(NOT XDMF_BUILD_CORE_ONLY)
   if(WIN32)
     if (BUILD_SHARED_LIBS)
       set_target_properties(${XDMF_LIBNAME} PROPERTIES
-        DEFINE_SYMBOL Xdmf_EXPORTS)
-      set_target_properties(Xdmf_Static PROPERTIES
-        DEFINE_SYMBOL Xdmf_EXPORTS)
+        DEFINE_SYMBOL XDMF_EXPORTS)
+      if(XDMF_STATIC_AND_SHARED)
+        set_target_properties(Xdmf_Static PROPERTIES
+          DEFINE_SYMBOL Xdmf_EXPORTS)
+      endif()
     endif ()
     if(NOT MSVC10)
       set_target_properties(${XDMF_LIBNAME} PROPERTIES
@@ -360,7 +367,7 @@ if(NOT XDMF_BUILD_CORE_ONLY)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
         LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
         ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-      if (BUILD_SHARED_LIBS)
+      if(XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
         set_target_properties(Xdmf_Static PROPERTIES
           PREFIX ../
           IMPORT_PREFIX ../
@@ -425,12 +432,12 @@ if(NOT XDMF_BUILD_CORE_ONLY)
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
-  if (BUILD_SHARED_LIBS)
+  if (XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
     install(TARGETS Xdmf_Static
       RUNTIME DESTINATION bin
       LIBRARY DESTINATION lib
       ARCHIVE DESTINATION lib)
-  endif (BUILD_SHARED_LIBS)
+  endif()
 endif()
 
 xdmf_create_config_file(${PROJECT_NAME})

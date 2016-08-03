@@ -150,24 +150,26 @@ if (TIFF_FOUND)
       XdmfTIFFController)
 endif()
 
-add_library(XdmfCoreObjects OBJECT ${XdmfCoreSources})
-set_target_properties(XdmfCoreObjects PROPERTIES
-  POSITION_INDEPENDENT_CODE True)
-add_library(XdmfCore ${LIBTYPE} $<TARGET_OBJECTS:XdmfCoreObjects>)
-if (BUILD_SHARED_LIBS)
-  add_library(XdmfCore_Static STATIC $<TARGET_OBJECTS:XdmfCoreObjects>)
-  if (UNIX)
+if (XDMF_STATIC_AND_SHARED)
+  add_library(XdmfCoreObjects OBJECT ${XdmfCoreSources})
+  set_target_properties(XdmfCoreObjects PROPERTIES
+    POSITION_INDEPENDENT_CODE True)
+  add_library(XdmfCore ${LIBTYPE} $<TARGET_OBJECTS:XdmfCoreObjects>)
+  if (BUILD_SHARED_LIBS)
+    add_library(XdmfCore_Static STATIC $<TARGET_OBJECTS:XdmfCoreObjects>)
     set_target_properties(XdmfCore_Static PROPERTIES
       OUTPUT_NAME "XdmfCore")
-  endif (UNIX)
-endif (BUILD_SHARED_LIBS)
+  endif (BUILD_SHARED_LIBS)
+else()
+  add_library(XdmfCore ${LIBTYPE} ${XdmfCoreSources})
+endif()
 
 link_directories(${XDMF_LIBRARY_DIRS})
 
 target_link_libraries(XdmfCore ${XDMF_LIBRARIES})
-if (BUILD_SHARED_LIBS)
+if (XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
   target_link_libraries(XdmfCore_Static ${XDMF_LIBRARIES})
-endif (BUILD_SHARED_LIBS)
+endif()
 
 if (COMMAND vtk_target_install)
   vtk_target_install(XdmfCore)
@@ -177,9 +179,11 @@ if(WIN32)
   add_definitions(-D_HDF5USEDLL_ -D_HDF5USEHLDLL_)
   if (BUILD_SHARED_LIBS)
     set_target_properties(XdmfCore PROPERTIES
-        DEFINE_SYMBOL XdmfCore_EXPORTS)
-    set_target_properties(XdmfCore_Static PROPERTIES
       DEFINE_SYMBOL XdmfCore_EXPORTS)
+    if (XDMF_STATIC_AND_SHARED)
+      set_target_properties(XdmfCore_Static PROPERTIES
+        DEFINE_SYMBOL XdmfCore_EXPORTS)
+    endif()
   endif()
   if(NOT MSVC10)
     set_target_properties(XdmfCore PROPERTIES
@@ -188,7 +192,7 @@ if(WIN32)
       RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
-    if (BUILD_SHARED_LIBS)
+    if (XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
       set_target_properties(XdmfCore_Static PROPERTIES
         PREFIX ../
         IMPORT_PREFIX ../
@@ -247,12 +251,12 @@ install(TARGETS XdmfCore
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib)
-if (BUILD_SHARED_LIBS)
+if (XDMF_STATIC_AND_SHARED AND BUILD_SHARED_LIBS)
   install(TARGETS XdmfCore_Static
     RUNTIME DESTINATION bin
     LIBRARY DESTINATION lib
     ARCHIVE DESTINATION lib)
-endif (BUILD_SHARED_LIBS)
+endif ()
 
 set(XdmfCore_INCLUDE_DIRS
   ${Boost_INCLUDE_DIRS}
