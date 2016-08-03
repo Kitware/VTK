@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Print directory to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Reset the glob by clearing the list of output filenames.

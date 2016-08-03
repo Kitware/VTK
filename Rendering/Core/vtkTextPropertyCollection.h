@@ -32,7 +32,7 @@ class VTKRENDERINGCORE_EXPORT vtkTextPropertyCollection : public vtkCollection
  public:
   static vtkTextPropertyCollection *New();
   vtkTypeMacro(vtkTextPropertyCollection, vtkCollection)
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add a vtkTextProperty to the list.

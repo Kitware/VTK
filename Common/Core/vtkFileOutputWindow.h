@@ -32,7 +32,7 @@ public:
 
   static vtkFileOutputWindow* New();
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Put the text into the log file.

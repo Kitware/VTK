@@ -33,7 +33,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLShaderCache : public vtkObject
 public:
   static vtkOpenGLShaderCache *New();
   vtkTypeMacro(vtkOpenGLShaderCache, vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // make sure the specified shaders are compiled, linked, and bound
   virtual vtkShaderProgram *ReadyShaderProgram(

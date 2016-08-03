@@ -30,7 +30,7 @@ class VTKRENDERINGFREETYPE_EXPORT vtkScaledTextActor : public vtkTextActor
 {
 public:
   vtkTypeMacro(vtkScaledTextActor,vtkTextActor);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Instantiate object with a rectangle in normaled view coordinates

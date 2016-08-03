@@ -33,7 +33,7 @@ public:
   vtkTypeMacro(vtkOverrideInformation,vtkObject);
   // Description:
   // Print ObjectFactor to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns the name of the class being overriden.  For example,

@@ -48,7 +48,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSightGoldReader : public vtkEnSightReader
 public:
   static vtkEnSightGoldReader *New();
   vtkTypeMacro(vtkEnSightGoldReader, vtkEnSightReader);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkEnSightGoldReader();

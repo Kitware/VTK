@@ -36,7 +36,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayCastFunction : publi
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayCastFunction,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual void Initialize( vtkRenderer *ren, vtkVolume   *vol )=0;
 

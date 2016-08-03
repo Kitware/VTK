@@ -32,7 +32,7 @@ class VTKRENDERINGPARALLELLIC_EXPORT vtkPSurfaceLICInterface : public vtkSurface
 public:
   static vtkPSurfaceLICInterface* New();
   vtkTypeMacro(vtkPSurfaceLICInterface, vtkSurfaceLICInterface);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Methods used for parallel benchmarks. Use cmake to define

@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeDFSIterator : public vtkTreeIterator
 public:
   static vtkTreeDFSIterator* New();
   vtkTypeMacro(vtkTreeDFSIterator, vtkTreeIterator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum ModeType
     {

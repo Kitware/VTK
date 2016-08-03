@@ -78,7 +78,7 @@ public:
   vtkTypeMacro(vtkMNITagPointWriter,vtkWriter);
 
   static vtkMNITagPointWriter *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the entension for this file format.

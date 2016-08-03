@@ -67,7 +67,7 @@ public:
   void StartLogging();
   void StopLogging();
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
 

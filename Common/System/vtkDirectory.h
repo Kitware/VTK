@@ -41,7 +41,7 @@ public:
 
   // Description:
   // Print directory to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Open the specified directory and load the names of the files

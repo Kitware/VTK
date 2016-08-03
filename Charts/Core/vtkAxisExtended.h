@@ -35,7 +35,7 @@ class VTKCHARTSCORE_EXPORT vtkAxisExtended : public vtkObject
 public:
    vtkTypeMacro(vtkAxisExtended, vtkObject);
    static vtkAxisExtended *New();
-   virtual void PrintSelf(ostream& os, vtkIndent indent);
+   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
    // Description:
    // This method return a value to make step sizes corresponding to low q

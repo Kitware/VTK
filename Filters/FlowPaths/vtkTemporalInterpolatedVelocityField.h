@@ -65,7 +65,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkTemporalInterpolatedVelocityField : public v
 {
 public:
   vtkTypeMacro(vtkTemporalInterpolatedVelocityField,vtkFunctionSet);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a vtkTemporalInterpolatedVelocityField with no initial data set.

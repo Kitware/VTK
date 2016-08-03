@@ -33,7 +33,7 @@ class VTKRENDERINGCORE_EXPORT vtkProp3DCollection : public vtkPropCollection
 public:
   static vtkProp3DCollection *New();
   vtkTypeMacro(vtkProp3DCollection,vtkPropCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add an actor to the list.

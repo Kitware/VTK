@@ -38,7 +38,7 @@ class VTKIOGEOMETRY_EXPORT vtkSTLWriter : public vtkWriter
 public:
   static vtkSTLWriter *New();
   vtkTypeMacro(vtkSTLWriter,vtkWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the input to this writer.

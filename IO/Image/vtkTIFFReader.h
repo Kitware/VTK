@@ -30,7 +30,7 @@ class VTKIOIMAGE_EXPORT vtkTIFFReader : public vtkImageReader2
 public:
   static vtkTIFFReader *New();
   vtkTypeMacro(vtkTIFFReader, vtkImageReader2)
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Is the given file name a tiff file?

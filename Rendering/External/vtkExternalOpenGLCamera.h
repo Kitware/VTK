@@ -31,7 +31,7 @@ class VTKRENDERINGEXTERNAL_EXPORT vtkExternalOpenGLCamera :
 public:
   static vtkExternalOpenGLCamera *New();
   vtkTypeMacro(vtkExternalOpenGLCamera, vtkOpenGLCamera);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement base class method.

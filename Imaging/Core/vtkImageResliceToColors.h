@@ -41,7 +41,7 @@ public:
   static vtkImageResliceToColors *New();
   vtkTypeMacro(vtkImageResliceToColors, vtkImageReslice);
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set a lookup table to apply to the data.  Use the Range,

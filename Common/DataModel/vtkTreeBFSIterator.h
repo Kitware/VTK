@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTreeBFSIterator : public vtkTreeIterator
 public:
   static vtkTreeBFSIterator* New();
   vtkTypeMacro(vtkTreeBFSIterator, vtkTreeIterator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTreeBFSIterator();

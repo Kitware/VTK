@@ -39,7 +39,7 @@ class VTKRENDERINGANNOTATION_EXPORT vtkAxisFollower : public vtkFollower
 {
 public:
  vtkTypeMacro(vtkAxisFollower,vtkFollower);
- virtual void PrintSelf(ostream& os, vtkIndent indent);
+ void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
  // Description:
  // Creates a follower with no camera set

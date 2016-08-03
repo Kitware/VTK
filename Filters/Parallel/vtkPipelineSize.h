@@ -28,7 +28,7 @@ class VTKFILTERSPARALLEL_EXPORT vtkPipelineSize : public vtkObject
 public:
   static vtkPipelineSize* New();
   vtkTypeMacro(vtkPipelineSize,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Compute an estimate of how much memory a pipline will require in

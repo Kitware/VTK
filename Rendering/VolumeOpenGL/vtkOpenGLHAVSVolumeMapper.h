@@ -120,7 +120,7 @@ public:
   static vtkOpenGLHAVSVolumeMapper *New();
   vtkTypeMacro(vtkOpenGLHAVSVolumeMapper,
                        vtkHAVSVolumeMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Render the volume

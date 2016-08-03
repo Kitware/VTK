@@ -38,7 +38,7 @@ class VTKCOMMONMATH_EXPORT vtkInitialValueProblemSolver : public vtkObject
 {
 public:
   vtkTypeMacro(vtkInitialValueProblemSolver,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Given initial values, xprev , initial time, t and a requested time

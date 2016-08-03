@@ -60,7 +60,7 @@ class VTKRENDERINGVOLUMEOPENGL_EXPORT vtkOpenGLGPUVolumeRayCastMapper
 public:
   static vtkOpenGLGPUVolumeRayCastMapper *New();
   vtkTypeMacro(vtkOpenGLGPUVolumeRayCastMapper,vtkGPUVolumeRayCastMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Based on hardware and properties, we may or may not be able to

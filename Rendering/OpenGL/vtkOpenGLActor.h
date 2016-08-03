@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLActor : public vtkActor
 public:
   static vtkOpenGLActor *New();
   vtkTypeMacro(vtkOpenGLActor, vtkActor);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Actual actor render method.

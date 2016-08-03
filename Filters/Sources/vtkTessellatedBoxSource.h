@@ -40,7 +40,7 @@ class VTKFILTERSSOURCES_EXPORT vtkTessellatedBoxSource : public vtkPolyDataAlgor
 public:
   static vtkTessellatedBoxSource *New();
   vtkTypeMacro(vtkTessellatedBoxSource,vtkPolyDataAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the bounds of the box. See GetBounds() for a detail description.

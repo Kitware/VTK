@@ -83,7 +83,7 @@ public:
   vtkTypeMacro(vtkMINCImageAttributes,vtkObject);
 
   static vtkMINCImageAttributes *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Reset all the attributes in preparation for loading

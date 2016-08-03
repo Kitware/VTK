@@ -48,7 +48,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageBSplineInterpolator :
 public:
   static vtkImageBSplineInterpolator *New();
   vtkTypeMacro(vtkImageBSplineInterpolator, vtkAbstractImageInterpolator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the degree of the spline polynomial.  The default value is 3,

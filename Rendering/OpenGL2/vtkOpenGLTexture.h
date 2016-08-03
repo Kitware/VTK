@@ -32,7 +32,7 @@ class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLTexture : public vtkTexture
 public:
   static vtkOpenGLTexture *New();
   vtkTypeMacro(vtkOpenGLTexture, vtkTexture);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Renders a texture map. It first checks the object's modified time

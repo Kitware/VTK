@@ -37,7 +37,7 @@ class VTKFILTERSSTATISTICS_EXPORT vtkExtractFunctionalBagPlot : public vtkTableA
 public:
   static vtkExtractFunctionalBagPlot* New();
   vtkTypeMacro(vtkExtractFunctionalBagPlot, vtkTableAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Density value for the median quartile.
   vtkSetMacro(DensityForP50, double);

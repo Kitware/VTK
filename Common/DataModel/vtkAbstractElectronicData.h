@@ -28,7 +28,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAbstractElectronicData : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAbstractElectronicData,vtkDataObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns the number of molecular orbitals available.

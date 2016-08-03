@@ -39,7 +39,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTreeNodeCache : public vtkObject
 public:
   static vtkGeoTreeNodeCache *New();
   vtkTypeMacro(vtkGeoTreeNodeCache,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The size of the cache of geospatial nodes.

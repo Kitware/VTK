@@ -30,7 +30,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLLight : public vtkLight
 public:
   static vtkOpenGLLight *New();
   vtkTypeMacro(vtkOpenGLLight, vtkLight);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement base class method.

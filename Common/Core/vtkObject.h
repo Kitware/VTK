@@ -100,7 +100,7 @@ public:
   // including superclasses. Typically not called by the user (use
   // Print() instead) but used in the hierarchical print process to
   // combine the output of several classes.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This is a global flag that controls whether any debug, warning

@@ -46,7 +46,7 @@ class VTKGEOVISCORE_EXPORT vtkGeoTerrain2D : public vtkGeoTerrain
 public:
   static vtkGeoTerrain2D *New();
   vtkTypeMacro(vtkGeoTerrain2D,vtkGeoTerrain);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The maximum size of a single texel in pixels.

@@ -33,7 +33,7 @@ class VTKIOIMAGE_EXPORT vtkJPEGReader : public vtkImageReader2
 public:
   static vtkJPEGReader *New();
   vtkTypeMacro(vtkJPEGReader,vtkImageReader2);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Is the given file a JPEG file?
