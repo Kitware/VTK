@@ -526,8 +526,7 @@ public:
   // compare by sorting the verts and one-one comparison
   bool operator<(const vtkUnstructuredGridQuadricDecimationFace &f) const
   {
-    register int i;
-    for (i = 0; i<3; i++)
+    for (int i = 0; i<3; i++)
       {
       if (Verts[i]<f.Verts[i])
         {
@@ -1149,11 +1148,6 @@ public:
 
 private:
   void AddCorner(vtkUnstructuredGridQuadricDecimationVertex *v, int corner);
-  void RemoveCorner(vtkUnstructuredGridQuadricDecimationVertex *v, int corner);
-  void RemoveVertex(vtkUnstructuredGridQuadricDecimationVertex *v);
-
-  // really clean up the memory of remove_tet
-  void DoDelete();
 
   // check if this edge can be collapsed (i.e. without violating boundary,
   // vol...)
@@ -1189,13 +1183,6 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::AddTet(
 }
 #undef VTK_ADDFACEBORDER
 
-void vtkUnstructuredGridQuadricDecimationTetMesh::RemoveVertex(
-  vtkUnstructuredGridQuadricDecimationVertex *v)
-{
-  v->Corner = -1;
-  unusedVerts++;
-}
-
 void vtkUnstructuredGridQuadricDecimationTetMesh::AddCorner(
   vtkUnstructuredGridQuadricDecimationVertex *v, int corner)
 {
@@ -1209,80 +1196,6 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::AddCorner(
     L[corner] = L[v->Corner];
     L[v->Corner] = corner;
     }
-}
-
-void vtkUnstructuredGridQuadricDecimationTetMesh::RemoveCorner(
-  vtkUnstructuredGridQuadricDecimationVertex *v, int base)
-{
-  int c = v->Corner;
-  if (c/4==base)
-    {
-    while (L[c]!=v->Corner)
-      {
-      c = L[c];
-      }
-    L[c] = L[v->Corner];
-    v->Corner = c;
-    }
-  else
-    {
-    do
-      {
-      if (L[c]/4==base)
-        {
-        L[c] = L[L[c]];
-        return;
-        }
-      c = L[c];
-      }
-    while (c!=v->Corner);
-    }
-}
-
-// really clean up the memory of remove_tet
-void vtkUnstructuredGridQuadricDecimationTetMesh::DoDelete()
-{
-  int i = 0;
-  int j = tCount-1;
-  do
-  {
-    while (i<=j && tets[i].index>=0)
-      {
-      i++;
-      }
-    while (j>=i && tets[j].index<0)
-      {
-      j--;
-      }
-    if (i<j)
-      {
-      tets[i] = tets[j];
-      i++; j--;
-      }
-  }
-  while (i<=j);
-  unusedTets = 0;
-
-  i = 0;
-  j = vCount-1;
-  do
-  {
-    while (i<=j && Verts[i].Corner>=0)
-      {
-      i++;
-      }
-    while (j>=i && Verts[j].Corner<0)
-      {
-      j--;
-      }
-    if (i<j)
-      {
-      Verts[i] = Verts[j];
-      i++; j--;
-      }
-  }
-  while (i<=j);
-  unusedVerts = 0;
 }
 
 // Clean the mesh
