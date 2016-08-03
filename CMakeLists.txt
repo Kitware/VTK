@@ -181,9 +181,12 @@ foreach(flag ${test_flags})
   endif (${test_c_flag})
 endforeach(flag ${test_flags})
 
+# XXX(kitware): vtk does postfixes elsewhere.
+if (FALSE)
 if(MSVC)
     set(CMAKE_DEBUG_POSTFIX "d")
 endif()
+endif ()
 
 option(ld-version-script "Enable linker version script" ON)
 # Check if LD supports linker scripts.
@@ -196,7 +199,7 @@ VERS_2 {
 } VERS_1;
 ")
 set(CMAKE_REQUIRED_FLAGS_SAVE ${CMAKE_REQUIRED_FLAGS})
-set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
+set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS} "-Werror -Wl,--version-script=${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
 check_c_source_compiles("int main(void){return 0;}" HAVE_LD_VERSION_SCRIPT)
 set(CMAKE_REQUIRED_FLAGS ${CMAKE_REQUIRED_FLAGS_SAVE})
 file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/conftest.map")
