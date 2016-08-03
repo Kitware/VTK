@@ -155,13 +155,17 @@ public:
 
   // Description:
   // Legacy.  Do not call.
+#ifndef VTK_LEGACY_REMOVE
   void PrintRevisions(ostream&) {}
+#endif
 
 protected:
   vtkObjectBase();
   virtual ~vtkObjectBase();
 
+#ifndef VTK_LEGACY_REMOVE
   virtual void CollectRevisions(ostream&) {} // Legacy; do not use!
+#endif
 
   vtkAtomicInt32 ReferenceCount;
   vtkWeakPointerBase **WeakPointers;
