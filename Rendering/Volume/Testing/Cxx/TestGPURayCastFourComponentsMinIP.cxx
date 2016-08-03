@@ -72,6 +72,7 @@ int TestGPURayCastFourComponentsMinIP(int argc,
   f->AddPoint(0,1.0);
   f->AddPoint(255,0.0);
   volumeProperty->SetScalarOpacity(f);
+  volumeProperty->ShadeOn();
   f->Delete();
 
   volume=vtkVolume::New();

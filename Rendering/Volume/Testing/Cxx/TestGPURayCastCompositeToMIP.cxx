@@ -98,7 +98,7 @@ int TestGPURayCastCompositeToMIP(int argc,
     t->GetOutputPort());
 
   volumeProperty=vtkVolumeProperty::New();
-  volumeProperty->ShadeOff();
+  volumeProperty->ShadeOn();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
 
   vtkPiecewiseFunction *mipOpacity = vtkPiecewiseFunction::New();

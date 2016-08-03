@@ -62,6 +62,7 @@ int TestGPURayCastFourComponentsMIP(int argc,
   volumeProperty=vtkVolumeProperty::New();
   volumeProperty->IndependentComponentsOff();
   volumeProperty->SetInterpolationType(VTK_LINEAR_INTERPOLATION);
+  volumeProperty->SetShade(1);
 
   vtkPiecewiseFunction *f = vtkPiecewiseFunction::New();
   f->AddPoint(0,0.0);
