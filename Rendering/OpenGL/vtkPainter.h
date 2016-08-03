@@ -93,8 +93,8 @@ public:
 
   // Description:
   // Take part in garbage collection.
-  virtual void Register(vtkObjectBase *o);
-  virtual void UnRegister(vtkObjectBase *o);
+  void Register(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
 
   enum {
     VERTS = 0x1,

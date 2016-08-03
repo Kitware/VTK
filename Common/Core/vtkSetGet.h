@@ -605,7 +605,7 @@ virtual double *Get##name() \
 // superclass of thisClass.
 #define vtkAbstractTypeMacroWithNewInstanceType(thisClass,superclass,instanceType,thisClassName) \
   protected: \
-  virtual const char* GetClassNameInternal() const \
+  const char* GetClassNameInternal() const VTK_OVERRIDE \
   { \
     return thisClassName; \
   } \
@@ -619,7 +619,7 @@ virtual double *Get##name() \
       } \
     return superclass::IsTypeOf(type); \
   } \
-  virtual vtkTypeBool IsA(const char *type) \
+  vtkTypeBool IsA(const char *type) VTK_OVERRIDE \
   { \
     return this->thisClass::IsTypeOf(type); \
   } \

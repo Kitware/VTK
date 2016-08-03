@@ -134,8 +134,8 @@ public:
 
   // Description:
   // Handle the PointSet <-> Locator loop.
-  virtual void Register(vtkObjectBase *o);
-  virtual void UnRegister(vtkObjectBase *o);
+  void Register(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
 
 protected:
   vtkLocator();

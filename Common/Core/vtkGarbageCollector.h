@@ -29,18 +29,18 @@
 // \code
 //
 //  public:
-//   virtual void Register(vtkObjectBase* o)
+//   void Register(vtkObjectBase* o) VTK_OVERRIDE
 //     {
 //     this->RegisterInternal(o, true);
 //     }
-//   virtual void UnRegister(vtkObjectBase* o)
+//   void UnRegister(vtkObjectBase* o) VTK_OVERRIDE
 //     {
 //     this->UnRegisterInternal(o, true);
 //     }
 //
 //  protected:
 //
-//   virtual void ReportReferences(vtkGarbageCollector* collector)
+//   void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE
 //     {
 //     // Report references held by this object that may be in a loop.
 //     this->Superclass::ReportReferences(collector);

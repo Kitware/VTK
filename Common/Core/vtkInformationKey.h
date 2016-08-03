@@ -40,11 +40,11 @@ public:
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void Register(vtkObjectBase*);
+  void Register(vtkObjectBase*) VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.
-  virtual void UnRegister(vtkObjectBase*);
+  void UnRegister(vtkObjectBase*) VTK_OVERRIDE;
 
   // Description:
   // Get the name of the key.  This is not the type of the key, but

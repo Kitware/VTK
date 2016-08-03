@@ -80,7 +80,7 @@ protected:
   // We don't expose this publicly, because the typename we generate
   // for our template instantiations isn't human-readable, unlike
   // "normal" VTK classes.
-  virtual vtkTypeBool IsA(const char *type)
+  vtkTypeBool IsA(const char *type) VTK_OVERRIDE
   {
     return this->IsTypeOf(type);
   }
@@ -101,7 +101,7 @@ private:
     return thisType.c_str();
   }
 
-  virtual const char* GetClassNameInternal() const
+  const char* GetClassNameInternal() const VTK_OVERRIDE
   {
     return this->GetClassNameInternalCachedName();
   }
