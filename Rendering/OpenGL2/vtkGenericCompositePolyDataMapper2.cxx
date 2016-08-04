@@ -75,11 +75,6 @@ protected:
     vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
-  // Set the shader parameteres related to the Camera, called by UpdateShader
-  void SetCameraShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  // Description:
   // Does the shader source need to be recomputed
   bool GetNeedToRebuildShaders(
     vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
@@ -103,15 +98,6 @@ private:
 };
 
 vtkStandardNewMacro(vtkCompositeMapperHelper);
-
-void vtkCompositeMapperHelper::SetCameraShaderParameters(vtkOpenGLHelper &cellBO,
-                                                       vtkRenderer *ren, vtkActor *actor)
-{
-  if (!this->Parent->GetShaderInitialized(cellBO.Program))
-    {
-    this->Superclass::SetCameraShaderParameters(cellBO, ren, actor);
-    }
-}
 
 void vtkCompositeMapperHelper::SetLightingShaderParameters(vtkOpenGLHelper &cellBO,
                                                        vtkRenderer *ren, vtkActor *actor)
