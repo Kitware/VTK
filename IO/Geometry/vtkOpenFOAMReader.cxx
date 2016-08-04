@@ -2496,7 +2496,7 @@ public:
         for (int i = 0; i < size; i++)
           {
           int tupleLength = sizeof(primitiveT) * nComponents;
-          double buffer[nComponents];
+          primitiveT buffer[nComponents];
           int readLength =
               io.Read(reinterpret_cast<unsigned char *>(buffer), tupleLength);
           if (readLength != tupleLength)
@@ -2505,7 +2505,7 @@ public:
                                  << size << ": Expected " << tupleLength
                                  << " bytes, got " << readLength << " bytes.";
             }
-          this->Ptr->SetTuple(i, buffer);
+          this->Ptr->SetTypedTuple(i, buffer);
           }
         }
     }
