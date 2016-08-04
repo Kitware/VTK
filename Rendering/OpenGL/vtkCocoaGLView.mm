@@ -216,13 +216,12 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
 
   if (type == NSKeyUp || type == NSKeyDown)
     {
-    // Get the characters associated with the key event as a utf8 string.
-    // This pointer is only valid for the duration of the current autorelease
-    // context!
-    const char* keyedChars = [[theEvent characters] UTF8String];
-    // Since vtk only supports ASCII, we just blindly use the first element
-    // of the above string, hoping it's ASCII.
-    charCode = (unsigned char)keyedChars[0];
+    // Try to get the characters associated with the key event as an ASCII string.
+    const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSASCIIStringEncoding];
+    if (keyedChars)
+      {
+      charCode = static_cast<unsigned char>(keyedChars[0]);
+      }
     // Get the virtual key code and convert it to a keysym as best we can.
     unsigned short macKeyCode = [theEvent keyCode];
     if (macKeyCode < 128)
