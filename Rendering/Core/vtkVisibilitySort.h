@@ -125,7 +125,7 @@ protected:
 
   int Direction;
 
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
 private:
   vtkVisibilitySort(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;

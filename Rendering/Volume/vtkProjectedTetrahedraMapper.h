@@ -83,7 +83,7 @@ protected:
   // Description:
   // The visibility sort will probably make a reference loop by holding a
   // reference to the input.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
 private:
   vtkProjectedTetrahedraMapper(const vtkProjectedTetrahedraMapper &) VTK_DELETE_FUNCTION;

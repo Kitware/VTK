@@ -142,7 +142,7 @@ protected:
   friend class vtkCollectionIterator;
 
   // See vtkGarbageCollector.h:
-  virtual void ReportReferences(vtkGarbageCollector* collector);
+  void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE;
 private:
   vtkCollection(const vtkCollection&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCollection&) VTK_DELETE_FUNCTION;
