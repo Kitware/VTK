@@ -207,6 +207,7 @@ int vtkPOpenFOAMReader::RequestInformation(vtkInformation *request,
         vtkOpenFOAMReader *masterReader = vtkOpenFOAMReader::New();
         masterReader->SetFileName(this->FileName);
         masterReader->SetParent(this);
+        masterReader->SetUse64BitLabels(this->Use64BitLabels);
         if (!masterReader->MakeInformationVector(outputVector, procNames
         ->GetValue(0)) || !masterReader->MakeMetaDataAtTimeStep(true))
           {
@@ -263,6 +264,7 @@ int vtkPOpenFOAMReader::RequestInformation(vtkInformation *request,
       vtkOpenFOAMReader *subReader = vtkOpenFOAMReader::New();
       subReader->SetFileName(this->FileName);
       subReader->SetParent(this);
+      subReader->SetUse64BitLabels(this->Use64BitLabels);
       // if getting metadata failed simply delete the reader instance
       if (subReader->MakeInformationVector(NULL, procNames->GetValue(procI))
           && subReader->MakeMetaDataAtTimeStep(true))
