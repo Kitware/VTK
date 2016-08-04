@@ -43,6 +43,8 @@
 
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS 1
+// No strtoll on msvc:
+#define strtoll _strtoi64
 #endif
 
 #if VTK_FOAMFILE_OMIT_CRCCHECK
@@ -583,10 +585,10 @@ public:
     return this->Indices->GetValue(i + 1) - this->Indices->GetValue(i);
   }
 
-  virtual void GetCell(vtkIdType i, CellType &cell) const
+  virtual void GetCell(vtkIdType cellId, CellType &cell) const
   {
-    LabelType cellStart = this->Indices->GetValue(i);
-    LabelType cellSize = this->Indices->GetValue(i + 1) - cellStart;
+    LabelType cellStart = this->Indices->GetValue(cellId);
+    LabelType cellSize = this->Indices->GetValue(cellId + 1) - cellStart;
     cell.resize(cellSize);
     for (vtkIdType i = 0; i < cellSize; ++i)
       {
@@ -594,10 +596,10 @@ public:
       }
   }
 
-  virtual void SetCell(vtkIdType i, const CellType &cell)
+  virtual void SetCell(vtkIdType cellId, const CellType &cell)
   {
-    LabelType cellStart = this->Indices->GetValue(i);
-    LabelType cellSize = this->Indices->GetValue(i + 1) - cellStart;
+    LabelType cellStart = this->Indices->GetValue(cellId);
+    LabelType cellSize = this->Indices->GetValue(cellId + 1) - cellStart;
     for (vtkIdType i = 0; i < cellSize; ++i)
       {
       this->Body->SetValue(cellStart + i, cell[i]);
@@ -768,8 +770,8 @@ public:
   template<> bool Is<vtkTypeInt64>() const;
   template<> bool Is<float>() const;
   template<> bool Is<double>() const;
-  template<> int To<vtkTypeInt32>() const;
-  template<> int To<vtkTypeInt64>() const;
+  template<> vtkTypeInt32 To<vtkTypeInt32>() const;
+  template<> vtkTypeInt64 To<vtkTypeInt64>() const;
   template<> float To<float>() const;
   template<> double To<double>() const;
 #endif
@@ -2477,12 +2479,13 @@ public:
         // skip label celli
         const size_t sz2 = sizeof(double) * nComponents + labelSize;
 
-        // allocate space along with the larger 1.4 format since the
-        // size must be determined at compile-time. we allocate on the
-        // stack to avoid leak when an exception is thrown.
-        double buffer[sz1/sizeof(double)];
         const int nBytes = static_cast<int>((io.GetIs13Positions() ? sz2
                                                                    : sz1));
+        std::vector<unsigned char> bufferContainer;
+        bufferContainer.resize(nBytes);
+        // This is templated code, but hardcoded to use doubles...I'm just gonna
+        // leave it as-is since it seems to be working for users.
+        double *buffer = reinterpret_cast<double*>(&bufferContainer[0]);
         for (int i = 0; i < size; i++)
           {
           io.ReadExpecting('(');
@@ -5341,7 +5344,7 @@ vtkOpenFOAMReaderPrivate::ReadOwnerNeighborFiles(
       }
     else
       {
-      cells = new vtkFoamLabel64VectorVector(nCells, 1);
+      cells = new vtkFoamLabel32VectorVector(nCells, 1);
       }
 
     // count number of faces for each cell
@@ -6036,7 +6039,7 @@ void vtkOpenFOAMReaderPrivate::InsertCellsToGrid(
     // OFpyramid | vtkPyramid || OFtet | vtkTetrahedron
     else if (cellType == VTK_PYRAMID || cellType == VTK_TETRA)
       {
-      size_t baseFaceId = -1, nPoints;
+      size_t baseFaceId = 0, nPoints;
       if (cellType == VTK_PYRAMID)
         {
         for (size_t j = 0; j < cellFaces.size(); j++)
@@ -6795,8 +6798,9 @@ vtkMultiBlockDataSet *vtkOpenFOAMReaderPrivate::MakeBoundaryMesh(
       vtkIdType nFacePoints = facesPoints->GetSize(j);
       for (int k = 0; k < nFacePoints; k++)
         {
-        SetLabelValue(boundaryPointList, pointI, use64BitLabels,
-                      GetLabelValue(facePoints, k, use64BitLabels));
+        SetLabelValue(boundaryPointList, pointI,
+                      GetLabelValue(facePoints, k, use64BitLabels),
+                      use64BitLabels);
         pointI++;
         }
       }
