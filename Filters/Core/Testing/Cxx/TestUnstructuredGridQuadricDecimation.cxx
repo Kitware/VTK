@@ -12,23 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-#include <vtkActor.h>
-#include <vtkCellArray.h>
+#include <vtkSmartPointer.h>
 #include <vtkCleanPolyData.h>
-#include <vtkDataSetMapper.h>
 #include <vtkDelaunay3D.h>
 #include <vtkDoubleArray.h>
-#include <vtkMath.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
 #include <vtkPointSource.h>
 #include <vtkPolyData.h>
-#include <vtkPolygon.h>
-#include <vtkProperty.h>
-#include <vtkRenderer.h>
-#include <vtkRenderWindow.h>
-#include <vtkRenderWindowInteractor.h>
-#include <vtkSmartPointer.h>
 #include <vtkUnstructuredGrid.h>
 #include <vtkUnstructuredGridQuadricDecimation.h>
 
@@ -86,7 +77,7 @@ int TestUnstructuredGridQuadricDecimation(int, char *[])
   radius->SetNumberOfTuples(points->GetNumberOfPoints());
   double xyz[3];
   double r;
-  for (vtkIdType i=0;i<points->GetNumberOfPoints();i++)
+  for (vtkIdType i=0; i<points->GetNumberOfPoints(); i++)
     {
     points->GetPoint(i,xyz);
     r = std::sqrt(xyz[0]*xyz[0] + xyz[1]*xyz[1] + xyz[2]*xyz[2]);
@@ -122,7 +113,7 @@ int TestUnstructuredGridQuadricDecimation(int, char *[])
     std::cout<<"Test # "<<test<<std::endl;
     std::cout<<"number of original tetras: "<<numberOfOriginalTetras<<std::endl;
     std::cout<<"number of tetras after decimation: "<<decimate->GetOutput()
-      ->GetNumberOfCells()<<std::endl;
+             ->GetNumberOfCells()<<std::endl;
     std::cout<<"fraction: "<<fraction<<std::endl;
     std::cout<<"expected fraction: "<<targetReduction[test]<<std::endl;
     if (std::fabs(fraction - targetReduction[test]) > absTolerance)

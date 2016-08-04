@@ -1,3 +1,19 @@
+/*=========================================================================
+
+  Program:   Visualization Toolkit
+  Module:    vtkUnstructuredGridQuadricDecimation.cxx
+
+  Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
+  All rights reserved.
+  See Copyright.txt or http://www.kitware.com/Copyright.htm for details.
+
+     This software is distributed WITHOUT ANY WARRANTY; without even
+     the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+     PURPOSE.  See the above copyright notice for more information.
+
+  Copyright 2007, 2008 by University of Utah.
+
+=========================================================================*/
 #include "vtkUnstructuredGridQuadricDecimation.h"
 
 #include "vtkUnstructuredGrid.h"
@@ -349,7 +365,6 @@ bool vtkUnstructuredGridQuadricDecimationSymMat4::ConjugateR(
   float e(1e-3 / 4. * (values[0] + values[2] + values[5] + values[9]));
   vtkUnstructuredGridQuadricDecimationVec4 r((A1-A2)*(p1-x));
   vtkUnstructuredGridQuadricDecimationVec4 p;
-  //  int k(0);
   for (int k=0; k<4; k++)
     {
     float s(r.Dot(r));
@@ -452,7 +467,9 @@ class vtkUnstructuredGridQuadricDecimationEdge
 public:
   // NOTE: vertex list are always sorted
   vtkUnstructuredGridQuadricDecimationEdge()
-  { Verts[0] = Verts[1] = NULL; }
+  {
+    Verts[0] = Verts[1] = NULL;
+  }
   vtkUnstructuredGridQuadricDecimationEdge(
     vtkUnstructuredGridQuadricDecimationVertex *va,
     vtkUnstructuredGridQuadricDecimationVertex *vb)
@@ -622,9 +639,9 @@ public:
 // FaceMap declaration
 // try to make a hash_map from Face -> Face *
 typedef std::map<vtkUnstructuredGridQuadricDecimationFace,
-  vtkUnstructuredGridQuadricDecimationFace *,
-  vtkUnstructuredGridQuadricDecimationFaceHash>
-vtkUnstructuredGridQuadricDecimationFaceHashMap;
+        vtkUnstructuredGridQuadricDecimationFace *,
+        vtkUnstructuredGridQuadricDecimationFaceHash>
+        vtkUnstructuredGridQuadricDecimationFaceHashMap;
 
 class vtkUnstructuredGridQuadricDecimationFaceMap
 {
@@ -632,7 +649,9 @@ public:
   vtkUnstructuredGridQuadricDecimationFaceMap()
   {}
   ~vtkUnstructuredGridQuadricDecimationFaceMap()
-  { clear(); }
+  {
+    clear();
+  }
 
   // for iteration
   vtkUnstructuredGridQuadricDecimationFaceHashMap::iterator begin()
@@ -690,19 +709,19 @@ double vtkUnstructuredGridQuadricDecimationFace::Orientation() const
   vtkUnstructuredGridQuadricDecimationVec4 v;
   // this is cross product of v1-v0 and v2-v0
   v[0] = (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]) *
-    (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
-    - (Verts[2]->Q.p[1] - Verts[0]->Q.p[1]) *
-    (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
+         (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
+         - (Verts[2]->Q.p[1] - Verts[0]->Q.p[1]) *
+         (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
 
   v[1] = - (Verts[1]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
-    + (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
+         (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
+         + (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
+         (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
 
   v[2] = (Verts[1]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[2]->Q.p[1] - Verts[0]->Q.p[1])
-    - (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]);
+         (Verts[2]->Q.p[1] - Verts[0]->Q.p[1])
+         - (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
+         (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]);
 
   v[3] = 0;
 
@@ -715,19 +734,19 @@ vtkUnstructuredGridQuadricDecimationFace::Normal() const
   vtkUnstructuredGridQuadricDecimationVec4 v;
   // this is cross product of v1-v0 and v2-v0
   v[0] = (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]) *
-    (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
-    - (Verts[2]->Q.p[1] - Verts[0]->Q.p[1]) *
-    (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
+         (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
+         - (Verts[2]->Q.p[1] - Verts[0]->Q.p[1]) *
+         (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
 
   v[1] = - (Verts[1]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
-    + (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
+         (Verts[2]->Q.p[2] - Verts[0]->Q.p[2])
+         + (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
+         (Verts[1]->Q.p[2] - Verts[0]->Q.p[2]);
 
   v[2] = (Verts[1]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[2]->Q.p[1] - Verts[0]->Q.p[1])
-    - (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
-    (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]);
+         (Verts[2]->Q.p[1] - Verts[0]->Q.p[1])
+         - (Verts[2]->Q.p[0] - Verts[0]->Q.p[0]) *
+         (Verts[1]->Q.p[1] - Verts[0]->Q.p[1]);
 
   v[3] = 0;
   return v/v.Length();
@@ -1295,7 +1314,7 @@ void vtkUnstructuredGridQuadricDecimationTetMesh::DeleteMin(
       {
       break;
       }
-  }
+    }
   lasterror = minQ.e;
 }
 
@@ -1580,10 +1599,7 @@ vtkStandardNewMacro(vtkUnstructuredGridQuadricDecimation);
 void vtkUnstructuredGridQuadricDecimation::PrintSelf(ostream& os,
                                                      vtkIndent indent)
 {
-  os << indent << "Debug: " << (this->Debug ? "On\n" : "Off\n");
-  os << indent << "Modified Time: " << this->GetMTime() << "\n";
   this->Superclass::PrintSelf(os,indent);
-  this->Superclass::PrintSelf(os, indent);
   os << indent << "Target Reduction: " << this->TargetReduction << "\n";
   os << indent << "Number of Tets to Output: " << this->NumberOfTetsOutput
      << "\n";
@@ -1621,17 +1637,17 @@ void vtkUnstructuredGridQuadricDecimation::ReportError(int err)
 {
   switch (err)
     {
-  case vtkUnstructuredGridQuadricDecimation::NON_TETRAHEDRA:
-    vtkErrorMacro(<< "Non-tetrahedral cells not supported!");
-    break;
-  case vtkUnstructuredGridQuadricDecimation::NO_SCALARS:
-    vtkErrorMacro(<< "Can't simplify without scalars!");
-    break;
-  case vtkUnstructuredGridQuadricDecimation::NO_CELLS:
-    vtkErrorMacro(<< "No Cells!");
-    break;
-  default:
-    break;
+    case vtkUnstructuredGridQuadricDecimation::NON_TETRAHEDRA:
+      vtkErrorMacro(<< "Non-tetrahedral cells not supported!");
+      break;
+    case vtkUnstructuredGridQuadricDecimation::NO_SCALARS:
+      vtkErrorMacro(<< "Can't simplify without scalars!");
+      break;
+    case vtkUnstructuredGridQuadricDecimation::NO_CELLS:
+      vtkErrorMacro(<< "No Cells!");
+      break;
+    default:
+      break;
     }
 }
 
@@ -1646,9 +1662,9 @@ int vtkUnstructuredGridQuadricDecimation::RequestData(
 
   // get the input and ouptut
   vtkUnstructuredGrid *input = vtkUnstructuredGrid::SafeDownCast(
-    inInfo->Get(vtkDataObject::DATA_OBJECT()));
+                                 inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
-    outInfo->Get(vtkDataObject::DATA_OBJECT()));
+                                  outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   vtkUnstructuredGridQuadricDecimationTetMesh myMesh;
   myMesh.doublingRatio = this->AutoAddCandidatesThreshold;
