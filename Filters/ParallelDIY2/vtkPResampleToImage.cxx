@@ -35,6 +35,7 @@
 #include "vtkUnsignedCharArray.h"
 
 #include "vtk_diy2.h"   // must include this before any diy header
+VTKDIY2_PRE_INCLUDE
 #include VTK_DIY2_HEADER(diy/assigner.hpp)
 #include VTK_DIY2_HEADER(diy/link.hpp)
 #include VTK_DIY2_HEADER(diy/master.hpp)
@@ -42,6 +43,7 @@
 #include VTK_DIY2_HEADER(diy/reduce.hpp)
 #include VTK_DIY2_HEADER(diy/partners/swap.hpp)
 #include VTK_DIY2_HEADER(diy/decomposition.hpp)
+VTKDIY2_POST_INCLUDE
 
 #include <algorithm>
 

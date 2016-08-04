@@ -30,4 +30,41 @@
 #  define VTK_DIY2_HEADER(header) #header
 #endif
 
+// disable warnings
+#if defined(_MSC_VER)
+
+#  define VTKDIY2_WARNING_PRAGMAS
+
+#  define VTKDIY2_WARNINGS_PUSH __pragma(warning(push))
+#  define VTKDIY2_WARNINGS_POP  __pragma(warning(pop))
+
+#elif defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__PGI) // for GCC and Clang only
+
+#  define VTKDIY2_WARNING_PRAGMAS \
+      _Pragma("GCC diagnostic ignored \"-Wshadow\"") \
+      _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
+      _Pragma("GCC diagnostic ignored \"-Wunused-result\"")
+
+// Older versions of GCC don't support the push/pop pragmas
+#  if (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
+#    define VTKDIY2_WARNINGS_PUSH
+#    define VTKDIY2_WARNINGS_POP
+#  else
+#    define VTKDIY2_WARNINGS_PUSH _Pragma("GCC diagnostic push")
+#    define VTKDIY2_WARNINGS_POP  _Pragma("GCC diagnostic pop")
+#  endif
+
+#else // all other compilers
+#  define VTKDIY2_WARNING_PRAGMAS
+#  define VTKDIY2_WARNINGS_PUSH
+#  define VTKDIY2_WARNINGS_POP
+#endif
+
+#define VTKDIY2_PRE_INCLUDE \
+   VTKDIY2_WARNINGS_PUSH \
+   VTKDIY2_WARNING_PRAGMAS
+
+#define VTKDIY2_POST_INCLUDE \
+   VTKDIY2_WARNINGS_POP
+
 #endif
