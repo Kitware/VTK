@@ -1243,19 +1243,8 @@ void vtkFixedPointVolumeRayCastMapper::PerVolumeInitialization( vtkRenderer *ren
   // Adjust the sample spacing if necessary
   if ( this->LockSampleDistanceToInputSpacing )
     {
-    // compute 1/2 the average spacing
-    double dist =
-      (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
-    double avgNumVoxels =
-      pow(static_cast<double>((inputExtent[1] - inputExtent[0]) *
-                              (inputExtent[3] - inputExtent[2]) *
-                              (inputExtent[5] - inputExtent[4])),
-          static_cast<double>(0.333));
-
-    if (avgNumVoxels < 100)
-      {
-      dist *= 0.01 + (1 - 0.01) * avgNumVoxels / 100;
-      }
+    double const dist = this->SpacingAdjustedSampleDistance(inputSpacing,
+      inputExtent);
 
     // Need to treat interactive renders differently, because if
     // AutoAdjustSampleDistances is on, then we doubled the sample

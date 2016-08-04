@@ -41,6 +41,7 @@ vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, MaskInput, vtkImageData);
 vtkCxxSetObjectMacro(vtkGPUVolumeRayCastMapper, TransformedInput, vtkImageData);
 
 vtkGPUVolumeRayCastMapper::vtkGPUVolumeRayCastMapper()
+: LockSampleDistanceToInputSpacing(0)
 {
   this->AutoAdjustSampleDistances  = 1;
   this->ImageSampleDistance        = 1.0;

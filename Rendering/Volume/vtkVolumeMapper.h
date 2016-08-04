@@ -138,6 +138,12 @@ protected:
   vtkVolumeMapper();
   ~vtkVolumeMapper();
 
+  // Compute a sample distance from the data spacing. When the number of
+  // voxels is 8, the sample distance will be roughly 1/200 the average voxel
+  // size. The distance will grow proportionally to numVoxels^(1/3).
+  double SpacingAdjustedSampleDistance(double inputSpacing[3],
+    int inputExtent[6]);
+
   int   BlendMode;
 
   // Cropping variables, and a method for converting the world

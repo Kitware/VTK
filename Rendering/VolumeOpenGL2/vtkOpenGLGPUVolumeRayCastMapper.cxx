@@ -1988,12 +1988,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::UpdateSamplingDistance(
 {
   if (!this->Parent->AutoAdjustSampleDistances)
     {
+    if (this->Parent->LockSampleDistanceToInputSpacing)
+      {
+      float const d = static_cast<float>(this->Parent->SpacingAdjustedSampleDistance(
+        this->CellSpacing, this->Extents));
+      float const sample = this->Parent->SampleDistance;
+
+      // ActualSampleDistance will grow proportionally to numVoxels^(1/3) (see
+      // vtkVolumeMapper.cxx). Until it reaches 1/2 average voxel size when number of
+      // voxels is 1E6.
+      this->ActualSampleDistance = (sample / d < 0.999f || sample / d > 1.001f) ?
+        d : this->Parent->SampleDistance;
+
+      return;
+      }
+
     this->ActualSampleDistance = this->Parent->SampleDistance;
     }
   else
     {
     input->GetSpacing(this->CellSpacing);
-
     vtkMatrix4x4* worldToDataset = vol->GetMatrix();
     double minWorldSpacing = VTK_DOUBLE_MAX;
     int i = 0;
