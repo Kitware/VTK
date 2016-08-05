@@ -1022,11 +1022,7 @@ int checkFunctionSignature(ClassInfo *data)
   else if (!strcmp("vtkObjectBase",data->Name))
     {
     /* remove the special vtkObjectBase methods */
-    if (!strcmp(currentFunction->Name,"Print")
-#ifndef VTK_LEGACY_REMOVE
-        || !strcmp(currentFunction->Name,"PrintRevisions")
-#endif
-        )
+    if (!strcmp(currentFunction->Name,"Print"))
       {
       args_ok = 0;
       }
@@ -1425,22 +1421,6 @@ int main(int argc, char *argv[])
 
     fprintf(fp,"  return tmp;\n");
     fprintf(fp,"}\n");
-
-#ifndef VTK_LEGACY_REMOVE
-    /* Add the PrintRevisions method to vtkObjectBase. */
-    fprintf(fp,"\nextern \"C\" JNIEXPORT jstring JNICALL Java_vtk_vtkObjectBase_PrintRevisions(JNIEnv *env,jobject obj)\n");
-    fprintf(fp,"{\n  vtkObjectBase *op;\n");
-    fprintf(fp,"  jstring tmp;\n\n");
-    fprintf(fp,"  op = (vtkObjectBase *)vtkJavaGetPointerFromObject(env,obj);\n");
-
-    fprintf(fp,"  std::ostringstream vtkmsg_with_warning_C4701;\n");
-    fprintf(fp,"  op->PrintRevisions(vtkmsg_with_warning_C4701);\n");
-    fprintf(fp,"  vtkmsg_with_warning_C4701.put('\\0');\n");
-    fprintf(fp,"  tmp = vtkJavaMakeJavaString(env,vtkmsg_with_warning_C4701.str().c_str());\n");
-
-    fprintf(fp,"  return tmp;\n");
-    fprintf(fp,"}\n");
-#endif
 
     fprintf(fp,"\nextern \"C\" JNIEXPORT jint JNICALL Java_vtk_vtkObject_AddObserver(JNIEnv *env,jobject obj, jstring id0, jobject id1, jstring id2)\n");
     fprintf(fp,"{\n  vtkObject *op;\n");
