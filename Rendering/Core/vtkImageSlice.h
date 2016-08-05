@@ -90,6 +90,12 @@ public:
   unsigned long GetRedrawMTime();
 
   // Description:
+  // Force the actor to be treated as translucent.
+  vtkGetMacro(ForceTranslucent, bool);
+  vtkSetMacro(ForceTranslucent, bool);
+  vtkBooleanMacro(ForceTranslucent, bool);
+
+  // Description:
   // Shallow copy of this vtkImageSlice. Overloads the virtual vtkProp method.
   void ShallowCopy(vtkProp *prop);
 
@@ -106,7 +112,8 @@ public:
   virtual int RenderTranslucentPolygonalGeometry(vtkViewport *viewport);
 
   // Description:
-  // Does this prop have some translucent polygonal geometry?
+  // Internal method, should only be used by rendering.
+  // This method will always return 0 unless ForceTranslucent is On.
   virtual int HasTranslucentPolygonalGeometry();
 
   // Description:
@@ -131,6 +138,8 @@ protected:
 
   vtkImageMapper3D *Mapper;
   vtkImageProperty *Property;
+
+  bool ForceTranslucent;
 
 private:
   vtkImageSlice(const vtkImageSlice&) VTK_DELETE_FUNCTION;

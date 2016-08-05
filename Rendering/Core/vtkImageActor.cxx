@@ -55,6 +55,7 @@ vtkImageActor::vtkImageActor()
 
   // The result of HasTranslucentPolygonalGeometry is cached
   this->TranslucentCachedResult = false;
+  this->ForceOpaque = false;
 }
 
 //----------------------------------------------------------------------------
@@ -431,6 +432,9 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "ForceOpaque: "
+     << (this->ForceOpaque ? "On\n" : "Off\n");
+
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
   os << indent << "Opacity: " << this->GetOpacity() << "\n";
@@ -478,6 +482,16 @@ int vtkImageActor::GetWholeZMax()
 // Does this prop have some translucent polygonal geometry?
 int vtkImageActor::HasTranslucentPolygonalGeometry()
 {
+  if (this->ForceOpaque)
+    {
+    return 0;
+    }
+
+  if (this->ForceTranslucent)
+    {
+    return 1;
+    }
+
   // Always consider translucent if opacity is less than unity
   if (this->GetOpacity() < 1.0)
     {
