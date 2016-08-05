@@ -138,6 +138,12 @@ public:
     this->Extents[4] = VTK_INT_MAX;
     this->Extents[5] = VTK_INT_MIN;
 
+    this->CellToPointMatrix->Identity();
+    this->AdjustedTexMin[0] = this->AdjustedTexMin[1] = this->AdjustedTexMin[2] = 0.0f;
+    this->AdjustedTexMin[3] = 1.0f;
+    this->AdjustedTexMax[0] = this->AdjustedTexMax[1] = this->AdjustedTexMax[2] = 1.0f;
+    this->AdjustedTexMax[3] = 1.0f;
+
     this->MaskTextures = new vtkMapMaskTextureId;
 
     this->Scale.clear();
@@ -272,6 +278,24 @@ public:
   // Test if camera is inside the volume geometry
   bool IsCameraInside(vtkRenderer* ren, vtkVolume* vol);
 
+  // Compute transformation from cell texture-coordinates to point texture-coords
+  // (CTP). Cell data maps correctly to OpenGL cells, point data does not (VTK
+  // defines points at the cell corners). To set the point data in the center of the
+  // OpenGL texels, a translation of 0.5 texels is applied, and the range is rescaled
+  // to the point range.
+  //
+  // delta = TextureExtentsMax - TextureExtentsMin;
+  // min   = vec3(0.5) / delta;
+  // max   = (delta - vec3(0.5)) / delta;
+  // range = max - min
+  //
+  // CTP = translation * Scale
+  // CTP = range.x,        0,        0,  min.x
+  //             0,  range.y,        0,  min.y
+  //             0,        0,  range.z,  min.z
+  //             0,        0,        0,    1.0
+  void ComputeCellToPointMatrix();
+
   // Update parameters for lighting that will be used in the shader.
   void SetLightingParameters(vtkRenderer* ren,
                                 vtkShaderProgram* prog,
@@ -405,6 +429,10 @@ public:
   vtkNew<vtkMatrix4x4> TextureToEyeTransposeInverse;
 
   vtkNew<vtkMatrix4x4> TempMatrix1;
+
+  vtkNew<vtkMatrix4x4> CellToPointMatrix;
+  float AdjustedTexMin[4];
+  float AdjustedTexMax[4];
 
   vtkSmartPointer<vtkPolyData> BBoxPolyData;
 
@@ -1542,6 +1570,47 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::SetLightingParameters(
   prog->SetUniform3fv("in_lightPosition", numberOfLights, lightPosition);
   prog->SetUniform1fv("in_lightExponent", numberOfLights, lightExponent);
   prog->SetUniform1fv("in_lightConeAngle", numberOfLights, lightConeAngle);
+}
+
+//-----------------------------------------------------------------------------
+void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::ComputeCellToPointMatrix()
+{
+  this->CellToPointMatrix->Identity();
+  this->AdjustedTexMin[0] = this->AdjustedTexMin[1] = this->AdjustedTexMin[2] = 0.0f;
+  this->AdjustedTexMin[3] = 1.0f;
+  this->AdjustedTexMax[0] = this->AdjustedTexMax[1] = this->AdjustedTexMax[2] = 1.0f;
+  this->AdjustedTexMax[3] = 1.0f;
+
+  if (!this->Parent->CellFlag) // point data
+    {
+    float delta[3];
+    delta[0] = this->Extents[1] - this->Extents[0];
+    delta[1] = this->Extents[3] - this->Extents[2];
+    delta[2] = this->Extents[5] - this->Extents[4];
+
+    float min[3];
+    min[0] = 0.5f / delta[0];
+    min[1] = 0.5f / delta[1];
+    min[2] = 0.5f / delta[2];
+
+    float range[3]; // max - min
+    range[0] = (delta[0] - 0.5f) / delta[0] - min[0];
+    range[1] = (delta[1] - 0.5f) / delta[1] - min[1];
+    range[2] = (delta[2] - 0.5f) / delta[2] - min[2];
+
+    this->CellToPointMatrix->SetElement(0, 0, range[0]); // Scale diag
+    this->CellToPointMatrix->SetElement(1, 1, range[1]);
+    this->CellToPointMatrix->SetElement(2, 2, range[2]);
+    this->CellToPointMatrix->SetElement(0, 3, min[0]);   // t vector
+    this->CellToPointMatrix->SetElement(1, 3, min[1]);
+    this->CellToPointMatrix->SetElement(2, 3, min[2]);
+
+    // Adjust limit coordinates for texture access.
+    float const zeros[4] = {0.0f, 0.0f, 0.0f, 1.0f}; // GL tex min
+    float const ones[4]  = {1.0f, 1.0f, 1.0f, 1.0f}; // GL tex max
+    this->CellToPointMatrix->MultiplyPoint(zeros, this->AdjustedTexMin);
+    this->CellToPointMatrix->MultiplyPoint(ones, this->AdjustedTexMax);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -3127,6 +3196,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
     this->Impl->ComputeBounds(input);
     this->Impl->LoadVolume(ren, input, volumeProperty,
                            scalars, independentComponents);
+    this->Impl->ComputeCellToPointMatrix();
     this->Impl->LoadMask(ren, input, this->MaskInput,
                          this->Impl->Extents, vol);
     }
@@ -3618,7 +3688,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   prog->SetUniform2fv("in_inverseWindowSize", 1, &fvalue2);
 
   prog->SetUniformi("in_useJittering", this->GetUseJittering());
+
   prog->SetUniformi("in_cellFlag", this->CellFlag);
+  vtkInternal::ToFloat(this->Impl->AdjustedTexMin[0],
+                       this->Impl->AdjustedTexMin[1],
+                       this->Impl->AdjustedTexMin[2], fvalue3);
+  prog->SetUniform3fv("in_texMin", 1, &fvalue3);
+
+  vtkInternal::ToFloat(this->Impl->AdjustedTexMax[0],
+                       this->Impl->AdjustedTexMax[1],
+                       this->Impl->AdjustedTexMax[2], fvalue3);
+  prog->SetUniform3fv("in_texMax", 1, &fvalue3);
+
+  this->Impl->TempMatrix1->DeepCopy(this->Impl->CellToPointMatrix.GetPointer());
+  this->Impl->TempMatrix1->Transpose();
+  prog->SetUniformMatrix("in_cellToPoint", this->Impl->TempMatrix1.GetPointer());
 
   prog->SetUniformi("in_clampDepthToBackface", this->GetClampDepthToBackface());
 

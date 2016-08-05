@@ -86,16 +86,18 @@ namespace vtkvolume
        \n  // to account for OpenGL treating voxel at the center of the cell.\
        \n  vec3 uvx = sign(in_cellSpacing) * (in_vertexPos - in_volumeExtentsMin) /\
        \n               (in_volumeExtentsMax - in_volumeExtentsMin);\
+       \n\
        \n  if (in_cellFlag)\
        \n    {\
        \n    ip_textureCoords = uvx;\
+       \n    ip_inverseTextureDataAdjusted = in_inverseTextureDatasetMatrix;\
        \n    }\
        \n  else\
        \n    {\
-       \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-       \n    ip_textureCoords = (uvx * (delta - vec3(1.0)) + vec3(0.5)) / delta;\
-       \n    }"
-    );
+       \n    // Transform cell tex-coordinates to point tex-coordinates\
+       \n    ip_textureCoords = (in_cellToPoint * vec4(uvx, 1.0)).xyz;\
+       \n    ip_inverseTextureDataAdjusted = in_cellToPoint * in_inverseTextureDatasetMatrix;\
+       \n    }");
     }
 
   //--------------------------------------------------------------------------
@@ -113,9 +115,14 @@ namespace vtkvolume
       \n  uniform vec3 in_volumeExtentsMin;\
       \n  uniform vec3 in_volumeExtentsMax;\
       \n\
+      \n  uniform mat4 in_inverseTextureDatasetMatrix;\
+      \n  uniform mat4 in_cellToPoint;\
       \n  uniform vec3 in_textureExtentsMax;\
-      \n  uniform vec3 in_textureExtentsMin;"
-    );
+      \n  uniform vec3 in_textureExtentsMin;\
+      \n\
+      \n  //This variable could be 'invariant varying' but it is declared\
+      \n  //as 'varying' to avoid compiler compatibility issues.\
+      \n  varying mat4 ip_inverseTextureDataAdjusted;");
     }
 
   //--------------------------------------------------------------------------
@@ -151,6 +158,9 @@ namespace vtkvolume
       \nuniform mat4 in_inverseModelViewMatrix;\
       \nuniform mat4 in_textureDatasetMatrix;\
       \nuniform mat4 in_inverseTextureDatasetMatrix;\
+      \nvarying mat4 ip_inverseTextureDataAdjusted;\
+      \nuniform vec3 in_texMin;\
+      \nuniform vec3 in_texMax;\
       \nuniform mat4 in_texureToEyeIt;\
       \n\
       \n// Ray step size\
@@ -324,7 +334,7 @@ namespace vtkvolume
         \n\
         \n  // Multiply the raymarching direction with the step size to get the\
         \n  // sub-step size we need to take at each raymarching step\
-        \n  g_dirStep = (in_inverseTextureDatasetMatrix *\
+        \n  g_dirStep = (ip_inverseTextureDataAdjusted *\
         \n              vec4(rayDir, 0.0)).xyz * in_sampleDistance;\
         \n\
         \n  float jitterValue = (texture2D(in_noiseSampler, g_dataPos.xy).x);\
@@ -1467,16 +1477,6 @@ namespace vtkvolume
                               vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n  // Minimum texture access coordinate\
-      \n  vec3 l_texMin = vec3(0.0);\
-      \n  vec3 l_texMax = vec3(1.0);\
-      \n  if (l_adjustTextureExtents)\
-      \n    {\
-      \n    vec3 delta = in_textureExtentsMax - in_textureExtentsMin;\
-      \n    l_texMin = vec3(0.5) / delta;\
-      \n    l_texMax = (delta - vec3(0.5)) / delta;\
-      \n    }\
-      \n\
       \n  // Flag to indicate if the raymarch loop should terminate \
       \n  bool stop = false;\
       \n\
@@ -1523,7 +1523,7 @@ namespace vtkvolume
       \n  // From normalized device coordinates to eye coordinates.\
       \n  // in_projectionMatrix is inversed because of way VT\
       \n  // From eye coordinates to texture coordinates\
-      \n  terminatePoint = in_inverseTextureDatasetMatrix *\
+      \n  terminatePoint = ip_inverseTextureDataAdjusted *\
       \n                   in_inverseVolumeMatrix *\
       \n                   in_inverseModelViewMatrix *\
       \n                   in_inverseProjectionMatrix *\
@@ -1541,8 +1541,8 @@ namespace vtkvolume
                                         vtkVolume* vtkNotUsed(vol))
     {
     return std::string("\
-      \n    if(any(greaterThan(g_dataPos, l_texMax)) ||\
-      \n      any(lessThan(g_dataPos, l_texMin)))\
+      \n    if(any(greaterThan(g_dataPos, in_texMax)) ||\
+      \n      any(lessThan(g_dataPos, in_texMin)))\
       \n      {\
       \n      break;\
       \n      }\
@@ -1821,7 +1821,8 @@ namespace vtkvolume
       \n        g_dataPos = newObjDataPos.xyz + g_dirStep;\
       \n        }\
       \n\
-      \n      bool stop = any(greaterThan(g_dataPos, l_texMax)) || any(lessThan(g_dataPos, l_texMin));\
+      \n      bool stop = any(greaterThan(g_dataPos, in_texMax)) ||\
+      \n        any(lessThan(g_dataPos, in_texMin));\
       \n      if (stop)\
       \n        {\
       \n        // The ray exits the bounding box before ever intersecting the plane (only\
