@@ -425,12 +425,6 @@ static void vtkWrapPython_ClassMethodDef(
             "  {\"GetAddressAsString\",  Py%s_GetAddressAsString, 1,\n"
             "   \"V.GetAddressAsString(string) -> string\\nC++: const char *GetAddressAsString()\\n\\nGet address of C++ object in format 'Addr=%%p' after casting to\\nthe specified type.  You can get the same information from o.__this__.\"},\n",
             classname);
-#ifndef VTK_LEGACY_REMOVE
-    fprintf(fp,
-            "  {\"PrintRevisions\",  Py%s_PrintRevisions, 1,\n"
-            "   \"V.PrintRevisions() -> string\\nC++: const char *PrintRevisions()\\n\\nPrints the .cxx file CVS revisions of the classes in the\\nobject's inheritance chain.\"},\n",
-            classname);
-#endif
     fprintf(fp,
             "  {\"Register\", Py%s_Register, 1,\n"
             "   \"V.Register(vtkObjectBase)\\nC++: virtual void Register(vtkObjectBase *o)\\n\\nIncrease the reference count by 1.\\n\"},\n"
@@ -873,9 +867,6 @@ static void vtkWrapPython_CustomMethods(
       theFunc = data->Functions[i];
 
       if ((strcmp(theFunc->Name, "GetAddressAsString") == 0) ||
-#ifndef VTK_LEGACY_REMOVE
-          (strcmp(theFunc->Name, "PrintRevisions") == 0) ||
-#endif
           (strcmp(theFunc->Name, "Register") == 0) ||
           (strcmp(theFunc->Name, "UnRegister") == 0))
         {
@@ -908,35 +899,6 @@ static void vtkWrapPython_CustomMethods(
             "}\n"
             "\n",
             classname, data->Name, data->Name);
-
-#ifndef VTK_LEGACY_REMOVE
-    /* add the PrintRevisions method to vtkObjectBase. */
-    fprintf(fp,
-            "static PyObject *\n"
-            "Py%s_PrintRevisions(PyObject *self, PyObject *args)\n"
-            "{\n"
-            "  vtkPythonArgs ap(self, args, \"PrintRevisions\");\n"
-            "  vtkObjectBase *vp = ap.GetSelfPointer(self, args);\n"
-            "  %s *op = static_cast<%s *>(vp);\n"
-            "\n"
-            "  const char *tempr;\n"
-            "  PyObject *result = NULL;\n"
-            "\n"
-            "  if (op && ap.CheckArgCount(0))\n"
-            "    {\n"
-            "    std::ostringstream vtkmsg_with_warning_C4701;\n"
-            "    op->PrintRevisions(vtkmsg_with_warning_C4701);\n"
-            "    vtkmsg_with_warning_C4701.put('\\0');\n"
-            "    tempr = vtkmsg_with_warning_C4701.str().c_str();\n"
-            "\n"
-            "    result = ap.BuildValue(tempr);\n"
-            "    }\n"
-            "\n"
-            "  return result;\n"
-            "}\n"
-            "\n",
-            classname, data->Name, data->Name);
-#endif
 
     /* Override the Register method to check whether to ignore Register */
     fprintf(fp,
