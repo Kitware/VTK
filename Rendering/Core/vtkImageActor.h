@@ -137,6 +137,10 @@ protected:
   // Convenience function that returns the input of the mapper
   vtkAlgorithm *GetInputAlgorithm();
 
+  // the result of HasTranslucentPolygonalGeometry is cached
+  vtkTimeStamp TranslucentComputationTime;
+  int TranslucentCachedResult;
+
 private:
   vtkImageActor(const vtkImageActor&) VTK_DELETE_FUNCTION;
   void operator=(const vtkImageActor&) VTK_DELETE_FUNCTION;
