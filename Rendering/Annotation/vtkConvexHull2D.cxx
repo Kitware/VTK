@@ -218,7 +218,7 @@ vtkRenderer* vtkConvexHull2D::GetRenderer()
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkConvexHull2D::GetMTime()
+vtkMTimeType vtkConvexHull2D::GetMTime()
 {
   if (this->Renderer)
     {

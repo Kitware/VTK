@@ -44,7 +44,7 @@ public:
 
   // Description:
   // Override Modifiedtime as we have added a lookuptable
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the window value for window/level

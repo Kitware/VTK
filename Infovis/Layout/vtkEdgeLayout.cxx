@@ -95,10 +95,10 @@ void vtkEdgeLayout::SetLayoutStrategy(vtkEdgeLayoutStrategy *strategy)
 
 // ----------------------------------------------------------------------
 
-unsigned long vtkEdgeLayout::GetMTime()
+vtkMTimeType vtkEdgeLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->LayoutStrategy != NULL)
     {

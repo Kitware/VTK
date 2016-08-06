@@ -161,7 +161,7 @@ vtkObject::~vtkObject()
 
 //----------------------------------------------------------------------------
 // Return the modification for this object.
-unsigned long int vtkObject::GetMTime()
+vtkMTimeType vtkObject::GetMTime()
 {
   return this->MTime.GetMTime();
 }

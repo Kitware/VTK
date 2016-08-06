@@ -105,7 +105,7 @@ public:
 
   // Description:
   // The modified time of this filter.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Convenience methods to calculate a convex hull from a set of vtkPointS.

@@ -54,7 +54,7 @@ public:
       vtkpiston::DeepCopy(this, other);
     }
 
-    unsigned long int mtime; //creation time of the data
+    vtkMTimeType mtime; //creation time of the data
     int type; //description of what data holds
     void *data; //the payload on GPU
 };

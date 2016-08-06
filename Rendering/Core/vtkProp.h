@@ -87,7 +87,7 @@ public:
   // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures
   // etc.
-  virtual unsigned long GetRedrawMTime()
+  virtual vtkMTimeType GetRedrawMTime()
     { return this->GetMTime(); }
 
   // Description:

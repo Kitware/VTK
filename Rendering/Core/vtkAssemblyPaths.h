@@ -57,7 +57,7 @@ public:
   // Description:
   // Override the standard GetMTime() to check for the modified times
   // of the paths.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Reentrant safe way to get an object in a collection. Just pass the

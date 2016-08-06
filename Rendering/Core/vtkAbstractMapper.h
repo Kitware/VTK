@@ -54,7 +54,7 @@ public:
 
   // Description:
   // Override Modifiedtime as we have added Clipping planes
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.

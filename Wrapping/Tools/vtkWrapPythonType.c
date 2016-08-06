@@ -531,7 +531,7 @@ static void vtkWrapPython_HashProtocol(
       "{\n"
       "  PyVTKSpecialObject *obj = (PyVTKSpecialObject *)self;\n"
       "  const vtkTimeStamp *op = static_cast<const vtkTimeStamp *>(obj->vtk_ptr);\n"
-      "  unsigned long mtime = *op;\n"
+      "  vtkMTimeType mtime = *op;\n"
       "  long h = (long)mtime;\n"
       "  if (h != -1) { return h; }\n"
       "  return -2;\n"

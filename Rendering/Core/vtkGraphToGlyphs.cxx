@@ -92,9 +92,9 @@ bool vtkGraphToGlyphs::GetScaling()
   return this->DistanceToCamera->GetScaling();
 }
 
-unsigned long vtkGraphToGlyphs::GetMTime()
+vtkMTimeType vtkGraphToGlyphs::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->GlyphType != VERTEX &&
       this->DistanceToCamera->GetMTime() > mtime)
     {

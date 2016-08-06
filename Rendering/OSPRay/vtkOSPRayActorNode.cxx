@@ -120,9 +120,9 @@ void vtkOSPRayActorNode::SetScaleFunction(vtkPiecewiseFunction *scaleFunction,
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkOSPRayActorNode::GetMTime()
+vtkMTimeType vtkOSPRayActorNode::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   vtkActor *act = (vtkActor*)this->GetRenderable();
   if (act->GetMTime() > mtime)
     {

@@ -192,7 +192,7 @@ private:
   vtkTreeHeatmapItem(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTreeHeatmapItem&) VTK_DELETE_FUNCTION;
 
-  unsigned long TreeHeatmapBuildTime;
+  vtkMTimeType TreeHeatmapBuildTime;
 };
 
 #endif

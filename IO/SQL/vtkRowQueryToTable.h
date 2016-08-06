@@ -54,7 +54,7 @@ public:
 
   // Description:
   // Update the modified time based on the query.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkRowQueryToTable();

@@ -207,10 +207,10 @@ int vtkTransformPolyDataFilter::RequestData(
   return 1;
 }
 
-unsigned long vtkTransformPolyDataFilter::GetMTime()
+vtkMTimeType vtkTransformPolyDataFilter::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long transMTime;
+  vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType transMTime;
 
   if ( this->Transform )
     {

@@ -26,7 +26,7 @@ static vtkAtomicInt64 TotalAtomic64(0);
 static const int Target = 1000000;
 static int Values32[Target+1];
 static int Values64[Target+1];
-static unsigned long MTimeValues[Target];
+static vtkMTimeType MTimeValues[Target];
 static int NumThreads = 5;
 
 
@@ -149,7 +149,7 @@ int TestAtomic(int, char*[])
       }
     }
 
-  unsigned long *from = MTimeValues, *to = MTimeValues + Target;
+  vtkMTimeType *from = MTimeValues, *to = MTimeValues + Target;
   std::sort(from, to);
   if (std::unique(from, to) != to)
     {

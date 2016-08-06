@@ -108,10 +108,10 @@ void vtkImageProperty::DeepCopy(vtkImageProperty *p)
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageProperty::GetMTime()
+vtkMTimeType vtkImageProperty::GetMTime()
 {
-  unsigned long mTime = this->vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->vtkObject::GetMTime();
+  vtkMTimeType time;
 
   if (this->LookupTable)
     {

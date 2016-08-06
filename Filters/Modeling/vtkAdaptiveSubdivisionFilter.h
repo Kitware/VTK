@@ -133,7 +133,7 @@ public:
 
   // Description:
   // Modified GetMTime because of the dependence on the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkAdaptiveSubdivisionFilter();

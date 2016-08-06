@@ -69,7 +69,7 @@ public:
 
   // Description:
   // Get the actors mtime plus consider its algorithm.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Get property of the internal actor.

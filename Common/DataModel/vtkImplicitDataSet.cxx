@@ -91,10 +91,10 @@ double vtkImplicitDataSet::EvaluateFunction(double x[3])
     }
 }
 
-unsigned long vtkImplicitDataSet::GetMTime()
+vtkMTimeType vtkImplicitDataSet::GetMTime()
 {
-  unsigned long mTime=this->vtkImplicitFunction::GetMTime();
-  unsigned long DataSetMTime;
+  vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType DataSetMTime;
 
   if ( this->DataSet != NULL )
     {

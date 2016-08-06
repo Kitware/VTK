@@ -73,7 +73,7 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       unsigned long* mtime);
+                       vtkMTimeType* mtime);
 
   // Description:
   // Bring the output information up to date.

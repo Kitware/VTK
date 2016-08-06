@@ -204,9 +204,9 @@ vtkSplineGraphEdges::~vtkSplineGraphEdges()
     }
 }
 
-unsigned long vtkSplineGraphEdges::GetMTime()
+vtkMTimeType vtkSplineGraphEdges::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->Spline && this->Spline->GetMTime() > mtime)
     {
     mtime = this->Spline->GetMTime();

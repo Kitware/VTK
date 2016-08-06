@@ -141,7 +141,7 @@ protected:
   vtkBSPIntersections();
   ~vtkBSPIntersections();
 
-  vtkGetMacro(RegionListBuildTime, unsigned long);
+  vtkGetMacro(RegionListBuildTime, vtkMTimeType);
 
   int BuildRegionList();
 

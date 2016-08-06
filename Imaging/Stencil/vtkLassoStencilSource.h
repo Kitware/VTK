@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Overload GetMTime() to include the timestamp on the points.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkLassoStencilSource();

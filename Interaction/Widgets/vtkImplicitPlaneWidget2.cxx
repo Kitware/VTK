@@ -410,7 +410,7 @@ void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
 //----------------------------------------------------------------------------
 void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
 {
-  unsigned long previousMtime;
+  vtkMTimeType previousMtime;
   vtkImplicitPlaneRepresentation* widgetRep =
       reinterpret_cast<vtkImplicitPlaneRepresentation*>(this->WidgetRep);
 

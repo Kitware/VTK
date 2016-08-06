@@ -431,10 +431,10 @@ void vtkMCubesReader::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-unsigned long int vtkMCubesReader::GetMTime()
+vtkMTimeType vtkMCubesReader::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

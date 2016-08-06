@@ -718,10 +718,10 @@ void vtkGraphMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGraphMapper::GetMTime()
+vtkMTimeType vtkGraphMapper::GetMTime()
 {
-  unsigned long mTime=this->vtkMapper::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkMapper::GetMTime();
+  vtkMTimeType time;
 
   if ( this->LookupTable != NULL )
     {

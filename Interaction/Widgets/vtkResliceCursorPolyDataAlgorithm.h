@@ -99,7 +99,7 @@ public:
   // Description:
   // Get the MTime. Check the MTime of the internal ResliceCursor as well, if
   // one has been set
-  virtual unsigned long int GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkResliceCursorPolyDataAlgorithm();

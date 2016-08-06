@@ -157,7 +157,7 @@ public:
 
   // Description:
   // Return the MTime also considering the parametric function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/get the desired precision for the output points.

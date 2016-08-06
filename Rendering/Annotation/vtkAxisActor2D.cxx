@@ -514,7 +514,7 @@ void vtkAxisActor2D::BuildAxis(vtkViewport *viewport)
     // but at this point the check on LabelFormat is "included" in
     // UpdateAdjustedRange(), which is the function that update
     // AdjustedRangeBuildTime or not.
-    unsigned long labeltime = this->AdjustedRangeBuildTime;
+    vtkMTimeType labeltime = this->AdjustedRangeBuildTime;
     if (this->AdjustedRangeBuildTime > this->BuildTime)
       {
       for (i = 0; i < this->AdjustedNumberOfLabels; i++)

@@ -584,7 +584,7 @@ int vtkExecutive::ProcessRequest(vtkInformation* request,
 int vtkExecutive::ComputePipelineMTime(vtkInformation*,
                                        vtkInformationVector**,
                                        vtkInformationVector*,
-                                       int, unsigned long*)
+                                       int, vtkMTimeType*)
 {
   // Demand-driven executives that use this request should implement
   // this method.

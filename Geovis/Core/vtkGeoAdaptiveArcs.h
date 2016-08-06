@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Return the modified time of this object.
-  virtual unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkGeoAdaptiveArcs();
@@ -85,7 +85,7 @@ protected:
   double GlobeRadius;
   double MaximumPixelSeparation;
   double MinimumPixelSeparation;
-  unsigned long LastInputMTime;
+  vtkMTimeType LastInputMTime;
   vtkPolyData* LastInput;
   vtkDoubleArray* InputLatitude;
   vtkDoubleArray* InputLongitude;

@@ -310,10 +310,10 @@ double *vtkPropAssembly::GetBounds()
     }
 }
 
-unsigned long int vtkPropAssembly::GetMTime()
+vtkMTimeType vtkPropAssembly::GetMTime()
 {
-  unsigned long mTime=this->vtkProp::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkProp::GetMTime();
+  vtkMTimeType time;
   vtkProp *part;
 
   vtkCollectionSimpleIterator pit;

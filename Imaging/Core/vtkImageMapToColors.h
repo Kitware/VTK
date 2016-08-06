@@ -67,7 +67,7 @@ public:
 
   // Description:
   // We need to check the modified time of the lookup table too.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get Color that should be used in case of UnMatching

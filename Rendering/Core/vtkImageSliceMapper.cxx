@@ -265,9 +265,9 @@ void vtkImageSliceMapper::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageSliceMapper::GetMTime()
+vtkMTimeType vtkImageSliceMapper::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if (this->SliceFacesCamera || this->SliceAtFocalPoint)
     {
@@ -277,7 +277,7 @@ unsigned long vtkImageSliceMapper::GetMTime()
     if (prop && ren)
       {
       vtkCamera *camera = ren->GetActiveCamera();
-      unsigned long mTime2 = prop->GetMTime();
+      vtkMTimeType mTime2 = prop->GetMTime();
       if (mTime2 > mTime)
         {
         mTime = mTime2;

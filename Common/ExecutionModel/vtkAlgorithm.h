@@ -131,7 +131,7 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       unsigned long* mtime);
+                       vtkMTimeType* mtime);
 
   // Description:
   // This method gives the algorithm a chance to modify the contents of a

@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Return the MTime also considering the Input dependency.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Evaluate plane equation of nearest triangle to point x[3].

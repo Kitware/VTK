@@ -127,7 +127,7 @@ public:
   // Description:
   // Override GetMTime because we delegate to vtkContourValues and refer to
   // vtkImplicitFunction.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description
   // Specify the implicit function to perform the cutting.

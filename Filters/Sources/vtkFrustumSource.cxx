@@ -392,12 +392,12 @@ void vtkFrustumSource::ComputePoint(int planes[3],
 // ----------------------------------------------------------------------------
 // Description:
 // Modified GetMTime because of Planes.
-unsigned long vtkFrustumSource::GetMTime()
+vtkMTimeType vtkFrustumSource::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if(this->Planes!=0)
     {
-    unsigned long time;
+    vtkMTimeType time;
     time = this->Planes->GetMTime();
     if(time>mTime)
       {

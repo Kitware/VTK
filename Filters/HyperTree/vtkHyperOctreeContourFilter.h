@@ -144,7 +144,7 @@ public:
 
   // Description:
   // Modified GetMTime Because we delegate to vtkContourValues
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set / get a spatial locator for merging points. By default,

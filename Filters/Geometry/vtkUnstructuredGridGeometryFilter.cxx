@@ -1576,10 +1576,10 @@ void vtkUnstructuredGridGeometryFilter::PrintSelf(ostream& os,
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkUnstructuredGridGeometryFilter::GetMTime()
+vtkMTimeType vtkUnstructuredGridGeometryFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

@@ -163,12 +163,12 @@ void vtkAnnotation::DeepCopy(vtkDataObject* other)
     }
 }
 
-unsigned long vtkAnnotation::GetMTime()
+vtkMTimeType vtkAnnotation::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->Selection)
     {
-    unsigned long stime = this->Selection->GetMTime();
+    vtkMTimeType stime = this->Selection->GetMTime();
     if (stime > mtime)
       {
       mtime = stime;

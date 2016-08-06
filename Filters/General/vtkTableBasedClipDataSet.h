@@ -111,7 +111,7 @@ public:
 
   // Description:
   // Get the MTime for which the point locator and clip function are considered.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the InsideOut flag. With this flag off, a vertex is considered

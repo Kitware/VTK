@@ -168,7 +168,7 @@ public:
 
   // Description:
   // Return the MTime also considering the implicit function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   // Description:

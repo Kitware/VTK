@@ -522,13 +522,13 @@ void vtkDepthSortPolyData::ComputeProjectionVector(double direction[3],
     }
 }
 
-unsigned long int vtkDepthSortPolyData::GetMTime()
+vtkMTimeType vtkDepthSortPolyData::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
 
   if ( this->Direction != VTK_DIRECTION_SPECIFIED_VECTOR )
     {
-    unsigned long time;
+    vtkMTimeType time;
     if ( this->Camera != NULL )
       {
       time = this->Camera->GetMTime();

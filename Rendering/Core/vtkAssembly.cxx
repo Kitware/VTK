@@ -416,16 +416,16 @@ double *vtkAssembly::GetBounds()
   return this->Bounds;
 }
 
-unsigned long int vtkAssembly::GetMTime()
+vtkMTimeType vtkAssembly::GetMTime()
 {
-  unsigned long mTime = this->vtkProp3D::GetMTime();
+  vtkMTimeType mTime = this->vtkProp3D::GetMTime();
   vtkProp3D *prop;
 
   vtkCollectionSimpleIterator pit;
   for (this->Parts->InitTraversal(pit);
     (prop = this->Parts->GetNextProp3D(pit));)
     {
-    unsigned long time = prop->GetMTime();
+    vtkMTimeType time = prop->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 

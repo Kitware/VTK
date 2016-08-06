@@ -55,7 +55,7 @@ public:
   void GenerateValues(int numContours, double rangeStart, double rangeEnd);
 
   // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the computation of normals. Normal computation is fairly

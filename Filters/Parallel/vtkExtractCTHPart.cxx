@@ -153,12 +153,12 @@ vtkExtractCTHPart::~vtkExtractCTHPart()
 //-----------------------------------------------------------------------------
 // Overload standard modified time function. If clip plane is modified,
 // then this object is modified as well.
-unsigned long vtkExtractCTHPart::GetMTime()
+vtkMTimeType vtkExtractCTHPart::GetMTime()
 {
-  unsigned long mTime= this->Superclass::GetMTime();
+  vtkMTimeType mTime= this->Superclass::GetMTime();
   if (this->ClipPlane)
     {
-    unsigned long time = this->ClipPlane->GetMTime();
+    vtkMTimeType time = this->ClipPlane->GetMTime();
     return time > mTime? time : mTime;
     }
 

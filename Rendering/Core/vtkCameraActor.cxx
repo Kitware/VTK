@@ -111,12 +111,12 @@ double *vtkCameraActor::GetBounds()
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkCameraActor::GetMTime()
+vtkMTimeType vtkCameraActor::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if(this->Camera!=0)
     {
-    unsigned long time;
+    vtkMTimeType time;
     time = this->Camera->GetMTime();
     if(time>mTime)
       {

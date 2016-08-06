@@ -1154,12 +1154,12 @@ vtkFlyingEdgesPlaneCutter::~vtkFlyingEdgesPlaneCutter()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If the plane definition is modified,
 // then this object is modified as well.
-unsigned long vtkFlyingEdgesPlaneCutter::GetMTime()
+vtkMTimeType vtkFlyingEdgesPlaneCutter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if ( this->Plane != NULL )
     {
-    unsigned long mTime2=this->Plane->GetMTime();
+    vtkMTimeType mTime2=this->Plane->GetMTime();
     return ( mTime2 > mTime ? mTime2 : mTime );
     }
   else

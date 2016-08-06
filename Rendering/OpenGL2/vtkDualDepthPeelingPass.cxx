@@ -306,7 +306,7 @@ bool vtkDualDepthPeelingPass::SetShaderParameters(vtkShaderProgram *program,
 }
 
 //------------------------------------------------------------------------------
-unsigned long vtkDualDepthPeelingPass::GetShaderStageMTime()
+vtkMTimeType vtkDualDepthPeelingPass::GetShaderStageMTime()
 {
   return this->CurrentStageTimeStamp.GetMTime();
 }

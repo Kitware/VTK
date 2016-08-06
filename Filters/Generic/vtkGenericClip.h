@@ -145,7 +145,7 @@ public:
 
   // Description:
   // Return the mtime also considering the locator and clip function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // If you want to clip by an arbitrary array, then set its name here.

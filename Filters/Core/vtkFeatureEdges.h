@@ -98,7 +98,7 @@ public:
 
   // Description:
   // Return MTime also considering the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/get the desired precision for the output types. See the documentation

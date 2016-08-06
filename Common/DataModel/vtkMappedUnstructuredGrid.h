@@ -173,7 +173,7 @@ public:
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
                            vtkIdType nfaces, vtkIdType *faces);
   void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   void SetImplementation(ImplementationType *impl);
   ImplementationType *GetImplementation();

@@ -43,7 +43,7 @@ namespace vtkpiston {
   void CudaRegisterBuffer(struct cudaGraphicsResource **vboResource,
                           GLuint vboBuffer);
   void CudaUnregisterResource(struct cudaGraphicsResource* vboResource);
-  void CudaTransferToGL(vtkPistonDataObject *id, unsigned long dataObjectMTimeCache,
+  void CudaTransferToGL(vtkPistonDataObject *id, vtkMTimeType dataObjectMTimeCache,
                         vtkPistonScalarsColors *psc,
                         struct cudaGraphicsResource **vboResources,
                         bool &hasNormals, bool &hasColors);
@@ -82,7 +82,7 @@ public:
   GLuint vboBuffers[3];
   struct cudaGraphicsResource* vboResources[3];
 
-  unsigned long DataObjectMTimeCache;
+  vtkMTimeType DataObjectMTimeCache;
   vtkPistonScalarsColors *PistonScalarsColors;
 };
 

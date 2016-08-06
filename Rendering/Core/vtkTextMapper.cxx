@@ -418,9 +418,9 @@ void vtkTextMapper::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTextMapper::GetMTime()
+vtkMTimeType vtkTextMapper::GetMTime()
 {
-  unsigned long result = this->Superclass::GetMTime();
+  vtkMTimeType result = this->Superclass::GetMTime();
   result = std::max(result, this->CoordsTime.GetMTime());
   result = std::max(result, this->Image->GetMTime());
   result = std::max(result, this->Points->GetMTime());

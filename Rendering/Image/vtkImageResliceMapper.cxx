@@ -116,7 +116,7 @@ void vtkImageResliceMapper::SetSlicePlane(vtkPlane *plane)
 void vtkImageResliceMapper::SetInterpolator(
   vtkAbstractImageInterpolator *interpolator)
 {
-  unsigned long mtime = this->ImageReslice->GetMTime();
+  vtkMTimeType mtime = this->ImageReslice->GetMTime();
 
   this->ImageReslice->SetInterpolator(interpolator);
 
@@ -1471,16 +1471,16 @@ const char *vtkImageResliceMapper::GetSlabTypeAsString()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageResliceMapper::GetMTime()
+vtkMTimeType vtkImageResliceMapper::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   // Check whether interpolator has changed
   vtkAbstractImageInterpolator *interpolator =
     this->ImageReslice->GetInterpolator();
   if (interpolator)
     {
-    unsigned long mTime2 = interpolator->GetMTime();
+    vtkMTimeType mTime2 = interpolator->GetMTime();
     if (mTime2 > mTime)
       {
       mTime = mTime2;
@@ -1496,21 +1496,21 @@ unsigned long vtkImageResliceMapper::GetMTime()
     if (ren)
       {
       vtkCamera *camera = ren->GetActiveCamera();
-      unsigned long mTime2 = camera->GetMTime();
+      vtkMTimeType mTime2 = camera->GetMTime();
       mTime = (mTime2 > mTime ? mTime2 : mTime);
       }
     }
 
   if (!this->SliceFacesCamera || !this->SliceAtFocalPoint)
     {
-    unsigned long sTime = this->SlicePlane->GetMTime();
+    vtkMTimeType sTime = this->SlicePlane->GetMTime();
     mTime = (sTime > mTime ? sTime : mTime);
     }
 
   vtkImageSlice *prop = this->GetCurrentProp();
   if (prop != NULL)
     {
-    unsigned long mTime2 = prop->GetUserTransformMatrixMTime();
+    vtkMTimeType mTime2 = prop->GetUserTransformMatrixMTime();
     mTime = (mTime2 > mTime ? mTime2 : mTime);
 
     vtkImageProperty *property = prop->GetProperty();

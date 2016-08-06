@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Returns the MTime also considering the RenderWindow.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkExporter();

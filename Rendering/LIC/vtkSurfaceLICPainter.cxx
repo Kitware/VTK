@@ -820,9 +820,9 @@ public:
   vtkWeakPointer<vtkOpenGLRenderWindow> Context;
   bool GLSupport;
   int Viewsize[2];
-  long long LastInputDataSetMTime;
-  long long LastPropertyMTime;
-  long long LastLUTMTime;
+  vtkMTimeType LastInputDataSetMTime;
+  vtkMTimeType LastPropertyMTime;
+  vtkMTimeType LastLUTMTime;
 
   deque<vtkPixelExtent> BlockExts;
   vtkPixelExtent DataSetExt;
@@ -2342,7 +2342,7 @@ bool vtkSurfaceLICPainter::NeedToRenderGeometry(
     }
 
   // props changed
-  long long propMTime = actor->GetProperty()->GetMTime();
+  vtkMTimeType propMTime = actor->GetProperty()->GetMTime();
   if ( this->Internals->LastPropertyMTime != propMTime )
     {
     this->Internals->LastPropertyMTime = propMTime;
@@ -2394,7 +2394,7 @@ bool vtkSurfaceLICPainter::NeedToUpdateOutputData()
 {
   vtkDataObject *input = this->GetInput();
   // input dataset changed
-  long long inputMTime = input->GetMTime();
+  vtkMTimeType inputMTime = input->GetMTime();
   if ( (this->Internals->LastInputDataSetMTime < inputMTime)
     || !this->Output
     || this->AlwaysUpdate)
@@ -2512,7 +2512,7 @@ void vtkSurfaceLICPainter::ProcessInformation(vtkInformation* info)
     {
     vtkObjectBase *lutObj = info->Get(vtkScalarsToColorsPainter::LOOKUP_TABLE());
     vtkScalarsToColors *lut = vtkScalarsToColors::SafeDownCast(lutObj);
-    long long lutMTime;
+    vtkMTimeType lutMTime;
     if (lut && ((lutMTime = lut->GetMTime()) > this->Internals->LastLUTMTime))
       {
       this->Internals->LastLUTMTime = lutMTime;

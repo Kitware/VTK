@@ -174,7 +174,7 @@ public:
   // Description:
   // Override GetMTime() because we depend on the interpolators which may be
   // modified outside of this class.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkCameraInterpolator();

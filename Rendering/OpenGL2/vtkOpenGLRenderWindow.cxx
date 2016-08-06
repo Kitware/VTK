@@ -198,7 +198,7 @@ void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()
+vtkMTimeType vtkOpenGLRenderWindow::GetContextCreationTime()
 {
   return this->ContextCreationTime.GetMTime();
 }

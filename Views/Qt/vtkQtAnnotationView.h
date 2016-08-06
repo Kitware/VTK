@@ -67,7 +67,7 @@ private slots:
   void slotQtSelectionChanged(const QItemSelection&,const QItemSelection&);
 
 private:
-  unsigned long LastInputMTime;
+  vtkMTimeType LastInputMTime;
 
   QPointer<QTableView> View;
   vtkQtAnnotationLayersModelAdapter* Adapter;

@@ -303,12 +303,12 @@ int vtkAnnotationLink::FillOutputPortInformation(int port, vtkInformation* info)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkAnnotationLink::GetMTime()
+vtkMTimeType vtkAnnotationLink::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->AnnotationLayers)
     {
-    unsigned long atime = this->AnnotationLayers->GetMTime();
+    vtkMTimeType atime = this->AnnotationLayers->GetMTime();
     if (atime > mtime)
       {
       mtime = atime;
@@ -317,7 +317,7 @@ unsigned long vtkAnnotationLink::GetMTime()
 
   if (this->DomainMaps)
     {
-    unsigned long dtime = this->DomainMaps->GetMTime();
+    vtkMTimeType dtime = this->DomainMaps->GetMTime();
     if (dtime > mtime)
       {
       mtime = dtime;

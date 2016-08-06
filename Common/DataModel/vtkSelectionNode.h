@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Return the MTime taking into account changes to the properties
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // vtkSelectionNode specific keys follow:
   // Description:

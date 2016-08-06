@@ -58,10 +58,10 @@ void vtkAdaptiveSubdivisionFilter::CreateDefaultLocator()
 
 //-----------------------------------------------------------------------------
 // Overload standard modified time function.
-unsigned long vtkAdaptiveSubdivisionFilter::GetMTime()
+vtkMTimeType vtkAdaptiveSubdivisionFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->Locator)
     {

@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Return the MTime taking into account changes to the implicit function
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Specify the implicit function for inside/outside checks.

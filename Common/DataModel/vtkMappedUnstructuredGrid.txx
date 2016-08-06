@@ -194,7 +194,7 @@ void vtkMappedUnstructuredGrid<Implementation, CellIterator>
 
 //------------------------------------------------------------------------------
 template <class Implementation, class CellIterator>
-unsigned long vtkMappedUnstructuredGrid<Implementation, CellIterator>
+vtkMTimeType vtkMappedUnstructuredGrid<Implementation, CellIterator>
 ::GetMTime()
 {
   return std::max(this->MTime.GetMTime(), this->Impl->GetMTime());

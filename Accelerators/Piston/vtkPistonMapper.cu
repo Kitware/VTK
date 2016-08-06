@@ -143,7 +143,7 @@ void CudaUnregisterResource(struct cudaGraphicsResource *vboResource)
 }
 
 //------------------------------------------------------------------------------
-void CudaTransferToGL(vtkPistonDataObject *id, unsigned long dataObjectMTimeCache,
+void CudaTransferToGL(vtkPistonDataObject *id, vtkMTimeType dataObjectMTimeCache,
                       vtkPistonScalarsColors *psc,
                       cudaGraphicsResource **vboResources,
                       bool &hasNormals, bool &hasColors)

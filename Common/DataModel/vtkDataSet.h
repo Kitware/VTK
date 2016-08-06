@@ -210,7 +210,7 @@ public:
   // Description:
   // Datasets are composite objects and need to check each part for MTime
   // THIS METHOD IS THREAD SAFE
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Return a pointer to this dataset's cell data.

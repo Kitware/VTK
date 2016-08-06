@@ -416,7 +416,7 @@
                                                         \
     object->Pick();                                     \
                                                         \
-    unsigned long redrawMTime = object->GetRedrawMTime();               \
+    vtkMTimeType redrawMTime = object->GetRedrawMTime();               \
     std::cout << "Redraw Modified Time = " << redrawMTime << std::endl; \
                                                                         \
     vtkSmartPointer< className > copyProp = vtkSmartPointer< className >::New(); \

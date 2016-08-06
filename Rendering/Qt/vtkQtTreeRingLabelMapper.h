@@ -97,7 +97,7 @@ public:
   // Description:
   // Return the object's MTime. This is overridden to include
   // the timestamp of its internal class.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   void SetRenderer(vtkRenderer* ren)
     {

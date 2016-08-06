@@ -159,15 +159,15 @@ void vtkAnnotationLayers::DeepCopy(vtkDataObject* other)
     }
 }
 
-unsigned long vtkAnnotationLayers::GetMTime()
+vtkMTimeType vtkAnnotationLayers::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   for (unsigned int a = 0; a < this->GetNumberOfAnnotations(); ++a)
     {
     vtkAnnotation* ann = this->GetAnnotation(a);
     if (ann)
       {
-      unsigned long atime = ann->GetMTime();
+      vtkMTimeType atime = ann->GetMTime();
       if (atime > mtime)
         {
         mtime = atime;
@@ -177,7 +177,7 @@ unsigned long vtkAnnotationLayers::GetMTime()
   vtkAnnotation* s = this->GetCurrentAnnotation();
   if (s)
     {
-    unsigned long stime = this->GetCurrentAnnotation()->GetMTime();
+    vtkMTimeType stime = this->GetCurrentAnnotation()->GetMTime();
     if (stime > mtime)
       {
       mtime = stime;

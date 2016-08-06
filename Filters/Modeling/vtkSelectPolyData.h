@@ -155,7 +155,7 @@ public:
   vtkPolyData *GetSelectionEdges();
 
   // Overload GetMTime() because we depend on Loop
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkSelectPolyData();

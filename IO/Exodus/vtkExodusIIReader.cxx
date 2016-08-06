@@ -5238,25 +5238,25 @@ void vtkExodusIIReader::Modified()
 }
 #endif // 0
 
-unsigned long vtkExodusIIReader::GetMTime()
+vtkMTimeType vtkExodusIIReader::GetMTime()
 {
   //return this->MTime.GetMTime();
   /*
-  unsigned long mtime1, mtime2;
-  unsigned long readerMTime = this->MTime.GetMTime();
-  unsigned long privateMTime = this->Metadata->GetMTime();
-  unsigned long fileNameMTime = this->FileNameMTime.GetMTime();
-  unsigned long xmlFileNameMTime = this->XMLFileNameMTime.GetMTime();
+  vtkMTimeType mtime1, mtime2;
+  vtkMTimeType readerMTime = this->MTime.GetMTime();
+  vtkMTimeType privateMTime = this->Metadata->GetMTime();
+  vtkMTimeType fileNameMTime = this->FileNameMTime.GetMTime();
+  vtkMTimeType xmlFileNameMTime = this->XMLFileNameMTime.GetMTime();
   mtime1 = privateMTime > readerMTime ? privateMTime : readerMTime;
   mtime2 = fileNameMTime > xmlFileNameMTime ? fileNameMTime : xmlFileNameMTime;
   return mtime1 > mtime2 ? mtime1 : mtime2;
   */
-  unsigned long readerMTime = this->MTime.GetMTime();
-  unsigned long privateMTime = this->Metadata->GetMTime();
+  vtkMTimeType readerMTime = this->MTime.GetMTime();
+  vtkMTimeType privateMTime = this->Metadata->GetMTime();
   return privateMTime > readerMTime ? privateMTime : readerMTime;
 }
 
-unsigned long vtkExodusIIReader::GetMetadataMTime()
+vtkMTimeType vtkExodusIIReader::GetMetadataMTime()
 {
   return this->Metadata->InformationTimeStamp < this->Metadata->GetMTime() ?
     this->Metadata->InformationTimeStamp : this->Metadata->GetMTime();

@@ -314,12 +314,12 @@ void vtkResliceCursorPolyDataAlgorithm
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkResliceCursorPolyDataAlgorithm::GetMTime()
+vtkMTimeType vtkResliceCursorPolyDataAlgorithm::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if (this->ResliceCursor)
     {
-    unsigned long time;
+    vtkMTimeType time;
     time = this->ResliceCursor->GetMTime();
     if (time > mTime)
       {

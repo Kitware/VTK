@@ -104,7 +104,7 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
 {
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     this->GetInputDataObject(0, 0));
-  unsigned long int lastMTime = std::max(input ? input->GetMTime() : 0, this->GetMTime());
+  vtkMTimeType lastMTime = std::max(input ? input->GetMTime() : 0, this->GetMTime());
   if (lastMTime <= this->LastOpaqueCheckTime)
     {
     return this->LastOpaqueCheckValue;

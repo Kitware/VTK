@@ -485,10 +485,10 @@ void vtkBridgeDataSet::FindPoint(double x[3],
 //----------------------------------------------------------------------------
 // Description:
 // Datasets are composite objects and need to check each part for MTime.
-unsigned long int vtkBridgeDataSet::GetMTime()
+vtkMTimeType vtkBridgeDataSet::GetMTime()
 {
-  unsigned long result;
-  unsigned long mtime;
+  vtkMTimeType result;
+  vtkMTimeType mtime;
 
   result = this->Superclass::GetMTime();
 

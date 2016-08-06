@@ -143,10 +143,10 @@ void vtkVolumeProperty::UpdateMTimes()
     }
 }
 
-unsigned long int vtkVolumeProperty::GetMTime()
+vtkMTimeType vtkVolumeProperty::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType time;
 
   for ( int i = 0; i < VTK_MAX_VRCOMP; i++ )
     {

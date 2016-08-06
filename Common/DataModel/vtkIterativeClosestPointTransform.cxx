@@ -180,10 +180,10 @@ void vtkIterativeClosestPointTransform::CreateDefaultLocator() {
 
 //------------------------------------------------------------------------
 
-unsigned long vtkIterativeClosestPointTransform::GetMTime()
+vtkMTimeType vtkIterativeClosestPointTransform::GetMTime()
 {
-  unsigned long result = this->vtkLinearTransform::GetMTime();
-  unsigned long mtime;
+  vtkMTimeType result = this->vtkLinearTransform::GetMTime();
+  vtkMTimeType mtime;
 
   if (this->Source)
     {

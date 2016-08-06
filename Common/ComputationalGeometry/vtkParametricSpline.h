@@ -157,7 +157,7 @@ protected:
   int    ParameterizeByLength;
 
   // Initializing the spline
-  unsigned long InitializeTime;
+  vtkMTimeType InitializeTime;
   int Initialize();
 
   // Internal variable for managing parametric coordinates

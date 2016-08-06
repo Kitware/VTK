@@ -308,7 +308,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Use this method only if you wish to compute the transformation in
@@ -333,7 +333,7 @@ protected:
 
   // this allows us to check whether people have been fooling
   // around with our matrix
-  unsigned long MatrixUpdateMTime;
+  vtkMTimeType MatrixUpdateMTime;
 
   float Point[4];
   double DoublePoint[4];

@@ -178,7 +178,7 @@ public:
 
   // Description:
   // Return the modified time for this object.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Return the number of labels rendered by the mapper.

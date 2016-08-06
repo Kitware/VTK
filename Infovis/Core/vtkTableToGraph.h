@@ -113,7 +113,7 @@ public:
 
   // Description:
   // Get the current modified time.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // A convenience method for setting the vertex table input.  This

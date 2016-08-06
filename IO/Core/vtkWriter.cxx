@@ -116,12 +116,12 @@ int vtkWriter::RequestData(
       }
     }
 
-  unsigned long lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
+  vtkMTimeType lastUpdateTime =  this->GetInput(0)->GetUpdateTime();
   for (idx = 1; idx < this->GetNumberOfInputPorts(); ++idx)
     {
     if (this->GetInput(idx))
       {
-      unsigned long updateTime = this->GetInput(idx)->GetUpdateTime();
+      vtkMTimeType updateTime = this->GetInput(idx)->GetUpdateTime();
       if ( updateTime > lastUpdateTime )
         {
         lastUpdateTime = updateTime;

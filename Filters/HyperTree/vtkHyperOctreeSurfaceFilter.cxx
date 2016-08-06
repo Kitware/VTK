@@ -747,10 +747,10 @@ void vtkHyperOctreeSurfaceFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkHyperOctreeSurfaceFilter::GetMTime()
+vtkMTimeType vtkHyperOctreeSurfaceFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if(this->Locator!=0)
     {

@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkShader2Collection : public vtkCollection
   // Description:
   // Modified GetMTime because the collection time depends on the
   // content of the shaders.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Add a shader to the list.

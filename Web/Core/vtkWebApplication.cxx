@@ -215,7 +215,7 @@ vtkUnsignedCharArray* vtkWebApplication::StillRender(vtkRenderWindow* view, int 
 }
 
 //----------------------------------------------------------------------------
-const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, unsigned long time, int quality)
+const char* vtkWebApplication::StillRenderToString(vtkRenderWindow* view, vtkMTimeType time, int quality)
 {
   vtkUnsignedCharArray* array = this->StillRender(view, quality);
   if (array && array->GetMTime() != time)

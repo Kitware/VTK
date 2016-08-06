@@ -58,7 +58,7 @@ public:
   // rebuilt (rather than reuse the last cached shader. This method should
   // return the last time that the shader stage changed, or 0 if the shader
   // is single-stage.
-  virtual unsigned long int GetShaderStageMTime();
+  virtual vtkMTimeType GetShaderStageMTime();
 
   // Description:
   // Key containing information about the current pass.

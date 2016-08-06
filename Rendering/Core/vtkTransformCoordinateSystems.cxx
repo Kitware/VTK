@@ -152,10 +152,10 @@ int vtkTransformCoordinateSystems::RequestData(
 }
 
 //------------------------------------------------------------------------
-unsigned long vtkTransformCoordinateSystems::GetMTime()
+vtkMTimeType vtkTransformCoordinateSystems::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long viewMTime;
+  vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType viewMTime;
 
   if ( this->Viewport )
     {

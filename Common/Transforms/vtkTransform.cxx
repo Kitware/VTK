@@ -298,10 +298,10 @@ vtkAbstractTransform *vtkTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransform::GetMTime()
+vtkMTimeType vtkTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkLinearTransform::GetMTime();
-  unsigned long mtime2;
+  vtkMTimeType mtime = this->vtkLinearTransform::GetMTime();
+  vtkMTimeType mtime2;
 
   // checking the matrix MTime is part of the legacy hack in InternalUpdate
   if ((mtime2 = this->Matrix->GetMTime()) > this->MatrixUpdateMTime)

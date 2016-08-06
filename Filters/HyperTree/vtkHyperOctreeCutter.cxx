@@ -104,11 +104,11 @@ vtkHyperOctreeCutter::~vtkHyperOctreeCutter()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If Cut function is modified,
 // then this object is modified as well.
-unsigned long vtkHyperOctreeCutter::GetMTime()
+vtkMTimeType vtkHyperOctreeCutter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime=this->ContourValues->GetMTime();
+  vtkMTimeType time;
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 

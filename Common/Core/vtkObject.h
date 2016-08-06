@@ -93,7 +93,7 @@ public:
 
   // Description:
   // Return this object's modified time.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Methods invoked by print to print information about the object

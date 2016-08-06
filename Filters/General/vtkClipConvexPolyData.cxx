@@ -76,12 +76,12 @@ vtkClipConvexPolyData::~vtkClipConvexPolyData()
 // Description:
 // Redefines this method, as this filter depends on time of its components
 // (planes)
-unsigned long int vtkClipConvexPolyData::GetMTime()
+vtkMTimeType vtkClipConvexPolyData::GetMTime()
 {
-  unsigned long int result=Superclass::GetMTime();
+  vtkMTimeType result=Superclass::GetMTime();
   if(this->Planes!=0)
     {
-    unsigned long int planesTime=this->Planes->GetMTime();
+    vtkMTimeType planesTime=this->Planes->GetMTime();
     if(planesTime>result)
       {
       result=planesTime;

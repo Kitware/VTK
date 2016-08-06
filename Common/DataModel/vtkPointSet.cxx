@@ -107,9 +107,9 @@ void vtkPointSet::ComputeBounds()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkPointSet::GetMTime()
+vtkMTimeType vtkPointSet::GetMTime()
 {
-  unsigned long int dsTime = vtkDataSet::GetMTime();
+  vtkMTimeType dsTime = vtkDataSet::GetMTime();
 
   if ( this->Points )
     {

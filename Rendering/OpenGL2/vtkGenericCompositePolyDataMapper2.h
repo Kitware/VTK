@@ -153,7 +153,7 @@ protected:
   friend class vtkCompositeMapperHelper;
 
 private:
-  unsigned long int LastOpaqueCheckTime;
+  vtkMTimeType LastOpaqueCheckTime;
   bool LastOpaqueCheckValue;
   double ColorResult[3];
 

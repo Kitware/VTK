@@ -938,7 +938,7 @@ void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 
     //if there are no changes, just reuse last result
     bool enable_cache = true; //turn off to force rebuilds for debugging
-    unsigned long inTime = aNode->GetMTime();
+    vtkMTimeType inTime = aNode->GetMTime();
     if (enable_cache && this->RenderTime >= inTime)
       {
       OSPModel oModel = static_cast<OSPModel>(orn->GetOModel());

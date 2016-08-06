@@ -130,7 +130,7 @@ public:
 
   // Description:
   // Return the time of the last data structure build.
-  vtkGetMacro(BuildTime, unsigned long);
+  vtkGetMacro(BuildTime, vtkMTimeType);
 
   // Description:
   // Handle the PointSet <-> Locator loop.

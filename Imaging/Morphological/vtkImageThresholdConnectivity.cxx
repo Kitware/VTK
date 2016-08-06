@@ -173,10 +173,10 @@ vtkImageStencilData *vtkImageThresholdConnectivity::GetStencil()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageThresholdConnectivity::GetMTime()
+vtkMTimeType vtkImageThresholdConnectivity::GetMTime()
 {
-  unsigned long mTime = this->MTime.GetMTime();
-  unsigned long pointsMTime;
+  vtkMTimeType mTime = this->MTime.GetMTime();
+  vtkMTimeType pointsMTime;
 
   if (this->SeedPoints)
     {

@@ -326,7 +326,7 @@ private:
   void operator=(const vtkDendrogramItem&) VTK_DELETE_FUNCTION;
 
   vtkSmartPointer<vtkTree> PrunedTree;
-  unsigned long DendrogramBuildTime;
+  vtkMTimeType DendrogramBuildTime;
   vtkNew<vtkGraphLayout> Layout;
   vtkNew<vtkPruneTreeFilter> PruneFilter;
   vtkNew<vtkLookupTable> TriangleLookupTable;

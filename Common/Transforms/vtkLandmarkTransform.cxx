@@ -371,10 +371,10 @@ void vtkLandmarkTransform::InternalUpdate()
 }
 
 //------------------------------------------------------------------------
-unsigned long vtkLandmarkTransform::GetMTime()
+vtkMTimeType vtkLandmarkTransform::GetMTime()
 {
-  unsigned long result = this->vtkLinearTransform::GetMTime();
-  unsigned long mtime;
+  vtkMTimeType result = this->vtkLinearTransform::GetMTime();
+  vtkMTimeType mtime;
 
   if (this->SourceLandmarks)
     {

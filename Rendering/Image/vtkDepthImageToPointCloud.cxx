@@ -196,11 +196,11 @@ vtkDepthImageToPointCloud::~vtkDepthImageToPointCloud()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkDepthImageToPointCloud::GetMTime()
+vtkMTimeType vtkDepthImageToPointCloud::GetMTime()
 {
   vtkCamera *cam = this->GetCamera();
-  unsigned long t1 = this->MTime.GetMTime();
-  unsigned long t2;
+  vtkMTimeType t1 = this->MTime.GetMTime();
+  vtkMTimeType t2;
 
   if (!cam)
     {

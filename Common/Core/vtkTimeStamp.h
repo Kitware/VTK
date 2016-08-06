@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Return this object's Modified time.
-  unsigned long GetMTime() const {return this->ModifiedTime;};
+  vtkMTimeType GetMTime() const {return this->ModifiedTime;};
 
   // Description:
   // Support comparisons of time stamp objects directly.
@@ -57,10 +57,10 @@ public:
 
   // Description:
   // Allow for typecasting to unsigned long.
-  operator unsigned long() const {return this->ModifiedTime;};
+  operator vtkMTimeType() const {return this->ModifiedTime;};
 
 private:
-  unsigned long ModifiedTime;
+  vtkMTimeType ModifiedTime;
 };
 
 #endif

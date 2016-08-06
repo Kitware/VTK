@@ -1058,10 +1058,10 @@ void vtkDelaunay3D::EndPointInsertion()
 }
 
 //--------------------------------------------------------------------------
-unsigned long int vtkDelaunay3D::GetMTime()
+vtkMTimeType vtkDelaunay3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

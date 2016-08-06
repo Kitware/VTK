@@ -141,14 +141,14 @@ public:
 
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Return the mtime of anything that would cause the rendered image to
   // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, textures,
   // etc.
-  virtual unsigned long GetRedrawMTime();
+  virtual vtkMTimeType GetRedrawMTime();
 
   // Description:
   // Force the actor to be treated as opaque or translucent

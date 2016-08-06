@@ -431,7 +431,7 @@ public:
 
   // Description:
   // Return the MTime that concerns recomputing the view rays of the camera.
-  unsigned long GetViewingRaysMTime();
+  vtkMTimeType GetViewingRaysMTime();
 
   // Description:
   // Mark that something has changed which requires the view rays

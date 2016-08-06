@@ -151,11 +151,11 @@ void vtkGenericCutter::GenerateValues(int numContours, double rangeStart,
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
 //
-unsigned long vtkGenericCutter::GetMTime()
+vtkMTimeType vtkGenericCutter::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long contourValuesMTime = this->ContourValues->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime = this->ContourValues->GetMTime();
+  vtkMTimeType time;
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 

@@ -180,7 +180,7 @@ public:
   // Description:
   // Overload the superclasses' GetMTime() because internal classes
   // are used to keep the state of the representation.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Overridden to set the rendererer on the internal representations.

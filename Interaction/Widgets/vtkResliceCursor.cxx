@@ -532,12 +532,12 @@ double * vtkResliceCursor::GetAxis( int i )
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkResliceCursor::GetMTime()
+vtkMTimeType vtkResliceCursor::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   for (int i = 0; i < 3; i++)
     {
-    unsigned long time = this->GetPlane(i)->GetMTime();
+    vtkMTimeType time = this->GetPlane(i)->GetMTime();
     if (time > mTime)
       {
       mTime = time;

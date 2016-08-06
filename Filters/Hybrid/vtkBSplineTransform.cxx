@@ -434,9 +434,9 @@ const char *vtkBSplineTransform::GetBorderModeAsString()
 
 //----------------------------------------------------------------------------
 // need to check the input image data to determine MTime
-unsigned long vtkBSplineTransform::GetMTime()
+vtkMTimeType vtkBSplineTransform::GetMTime()
 {
-  unsigned long mtime,result;
+  vtkMTimeType mtime,result;
   result = vtkWarpTransform::GetMTime();
   if (this->GetCoefficientData())
     {

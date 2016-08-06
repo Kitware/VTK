@@ -379,10 +379,10 @@ int  vtkArcPlotter::OffsetPoint(vtkIdType ptId, vtkPoints *inPts, double n[3],
   return newPts->InsertNextPoint(xNew);
 }
 
-unsigned long vtkArcPlotter::GetMTime()
+vtkMTimeType vtkArcPlotter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long cameraMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType cameraMTime;
 
   if ( this->Camera && ! this->UseDefaultNormal )
     {

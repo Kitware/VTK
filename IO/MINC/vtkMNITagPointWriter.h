@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Get the MTime.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Specify file name of vtk polygon data file to write.

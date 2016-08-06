@@ -167,7 +167,7 @@ public:
   // Description:
   // Return the MTime of this object. It takes into account MTimes
   // of position coordinates and border's property.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Subclasses should implement these methods. See the superclasses'

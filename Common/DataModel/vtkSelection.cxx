@@ -260,10 +260,10 @@ void vtkSelection::Subtract(vtkSelectionNode* node)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSelection::GetMTime()
+vtkMTimeType vtkSelection::GetMTime()
 {
-  unsigned long mTime = this->MTime.GetMTime();
-  unsigned long nodeMTime;
+  vtkMTimeType mTime = this->MTime.GetMTime();
+  vtkMTimeType nodeMTime;
   for (unsigned int n = 0; n < this->GetNumberOfNodes(); ++n)
     {
     vtkSelectionNode* node = this->GetNode(n);

@@ -738,9 +738,9 @@ void vtkGridTransform::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // need to check the input image data to determine MTime
-unsigned long vtkGridTransform::GetMTime()
+vtkMTimeType vtkGridTransform::GetMTime()
 {
-  unsigned long mtime,result;
+  vtkMTimeType mtime,result;
   result = vtkWarpTransform::GetMTime();
   if (this->GetDisplacementGrid())
     {

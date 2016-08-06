@@ -59,10 +59,10 @@ vtkUGFacetReader::~vtkUGFacetReader()
 
 // Overload standard modified time function. If locator is modified,
 // then this object is modified as well.
-unsigned long vtkUGFacetReader::GetMTime()
+vtkMTimeType vtkUGFacetReader::GetMTime()
 {
-  unsigned long mTime1=this->Superclass::GetMTime();
-  unsigned long mTime2;
+  vtkMTimeType mTime1=this->Superclass::GetMTime();
+  vtkMTimeType mTime2;
 
   if (this->Locator)
     {

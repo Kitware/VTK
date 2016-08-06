@@ -124,7 +124,7 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkOpenGLRenderWindow::GetContextCreationTime()
+vtkMTimeType vtkOpenGLRenderWindow::GetContextCreationTime()
 {
   return this->ContextCreationTime.GetMTime();
 }

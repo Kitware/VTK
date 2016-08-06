@@ -68,7 +68,7 @@ public:
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
   // The information object also needs to be considered.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Restore data object to initial state,
@@ -109,7 +109,7 @@ public:
   // Description:
   // Used by Threaded ports to determine if they should initiate an
   // asynchronous update (still in development).
-  unsigned long GetUpdateTime();
+  vtkMTimeType GetUpdateTime();
 
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number

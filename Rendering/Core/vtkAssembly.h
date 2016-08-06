@@ -134,7 +134,7 @@ public:
   // Description:
   // Override default GetMTime method to also consider all of the
   // assembly's parts.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Shallow copy of an assembly. Overloads the virtual vtkProp method.

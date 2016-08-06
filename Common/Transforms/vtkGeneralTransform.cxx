@@ -302,10 +302,10 @@ vtkAbstractTransform *vtkGeneralTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGeneralTransform::GetMTime()
+vtkMTimeType vtkGeneralTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkAbstractTransform::GetMTime();
-  unsigned long mtime2;
+  vtkMTimeType mtime = this->vtkAbstractTransform::GetMTime();
+  vtkMTimeType mtime2;
 
   if (this->Input)
     {

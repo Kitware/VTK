@@ -69,10 +69,10 @@ vtkClipPolyData::~vtkClipPolyData()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
-unsigned long vtkClipPolyData::GetMTime()
+vtkMTimeType vtkClipPolyData::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->ClipFunction != NULL )
     {

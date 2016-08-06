@@ -331,7 +331,7 @@ int vtkParticleTracerBase::RequestUpdateExtent(
       if(sddp)
         {
         sddp->UpdatePipelineMTime();
-        unsigned long pmt = sddp->GetPipelineMTime();
+        vtkMTimeType pmt = sddp->GetPipelineMTime();
         if(pmt>this->ExecuteTime.GetMTime())
           {
           PRINT("Reset cache of because upstream is newer")

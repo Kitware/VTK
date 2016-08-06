@@ -188,10 +188,10 @@ void vtkAreaLayout::GetBoundingArea(vtkIdType id, float *sinfo)
   sectorInfo->GetTypedTuple(id, sinfo);
 }
 
-unsigned long vtkAreaLayout::GetMTime()
+vtkMTimeType vtkAreaLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->LayoutStrategy != NULL)
     {

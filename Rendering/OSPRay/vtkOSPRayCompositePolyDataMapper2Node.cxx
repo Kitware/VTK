@@ -84,7 +84,7 @@ void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
 
     //if there are no changes, just reuse last result
-    unsigned long inTime = aNode->GetMTime();
+    vtkMTimeType inTime = aNode->GetMTime();
     if (this->RenderTime >= inTime)
       {
       this->AddMeshesToModel(orn->GetOModel());

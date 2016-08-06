@@ -51,10 +51,10 @@
 class OffsetsManager
 {
 public:
-  // Construct with default (unsigned long)-1  MTime
+  // Construct with default (vtkMTimeType)-1  MTime
   OffsetsManager()
     {
-      this->LastMTime = static_cast<unsigned long>(-1); //almost invalid state
+      this->LastMTime = static_cast<vtkMTimeType>(-1); //almost invalid state
     }
   void Allocate(int numTimeStep)
     {
@@ -84,12 +84,12 @@ public:
     assert( t < this->OffsetValues.size());
     return this->OffsetValues[t];
     }
-  unsigned long &GetLastMTime()
+  vtkMTimeType &GetLastMTime()
     {
     return this->LastMTime;
     }
 private:
-  unsigned long LastMTime; // Previously written dataarray mtime
+  vtkMTimeType LastMTime; // Previously written dataarray mtime
   // at some point these vectors could become a vector of map <string,ul>
   // where the string is the name of the offset, but that would be pretty fat
   // and slow, but if another couple offsets are added then we should

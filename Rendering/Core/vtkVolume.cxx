@@ -416,10 +416,10 @@ vtkVolumeProperty *vtkVolume::GetProperty()
   return this->Property;
 }
 
-unsigned long int vtkVolume::GetMTime()
+vtkMTimeType vtkVolume::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Property != NULL )
     {
@@ -442,10 +442,10 @@ unsigned long int vtkVolume::GetMTime()
   return mTime;
 }
 
-unsigned long int vtkVolume::GetRedrawMTime()
+vtkMTimeType vtkVolume::GetRedrawMTime()
 {
-  unsigned long mTime=this->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->GetMTime();
+  vtkMTimeType time;
 
   if ( this->Mapper != NULL )
     {

@@ -596,10 +596,10 @@ unsigned long vtkFieldData::GetActualMemorySize()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkFieldData::GetMTime()
+vtkMTimeType vtkFieldData::GetMTime()
 {
-  unsigned long int mTime = this->MTime;
-  unsigned long int otherMTime;
+  vtkMTimeType mTime = this->MTime;
+  vtkMTimeType otherMTime;
   vtkAbstractArray* aa;
 
   for(int i=0; i < this->NumberOfActiveArrays; i++)

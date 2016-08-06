@@ -124,7 +124,7 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       unsigned long* mtime);
+                       vtkMTimeType* mtime);
 
   // Description:
   // Set/get the scalar array name for this data set. Initial value is

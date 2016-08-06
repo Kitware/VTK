@@ -128,7 +128,7 @@ public:
   // Description:
   // Return MTime also considering the dependent objects: the camera
   // and/or the prop3D.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkDepthSortPolyData();

@@ -72,7 +72,7 @@ protected:
     vtkInformationVector **,
     vtkInformationVector *);
 
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   void GeneratePoints(vtkGraph* g, vtkIdType e);
   void GenerateBSpline(vtkGraph* g, vtkIdType e);

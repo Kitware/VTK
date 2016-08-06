@@ -219,7 +219,7 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
     this->LastSelectionState = picking;
     }
 
-  unsigned long int renderPassMTime = this->GetRenderPassStageMTime(actor);
+  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
   // has something changed that would require us to recreate the shader?
   // candidates are

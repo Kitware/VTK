@@ -127,7 +127,7 @@ protected:
   char* Name;
   double CentralMeridian;
   projPJ Projection;
-  unsigned long ProjectionMTime;
+  vtkMTimeType ProjectionMTime;
 
 private:
   vtkGeoProjection( const vtkGeoProjection& ) VTK_DELETE_FUNCTION;

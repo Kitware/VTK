@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Return this object's modified time.
-  virtual unsigned long int GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Shallow copy of this vtkTexturedActor2D. Overrides vtkActor2D method.

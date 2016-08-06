@@ -112,9 +112,9 @@ vtkBorderRepresentation::~vtkBorderRepresentation()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkBorderRepresentation::GetMTime()
+vtkMTimeType vtkBorderRepresentation::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   mTime = std::max(mTime, this->PositionCoordinate->GetMTime());
   mTime = std::max(mTime, this->Position2Coordinate->GetMTime());
   mTime = std::max(mTime, this->BorderProperty->GetMTime());

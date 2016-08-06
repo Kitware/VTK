@@ -62,7 +62,7 @@ public:
   // time of the object when it was placed into the Qt model adapter.
   // You can use this mtime as part of the checking to see whether
   // you need to update the the adapter by call SetVTKDataObject again. :)
-  unsigned long GetVTKDataObjectMTime() const;
+  vtkMTimeType GetVTKDataObjectMTime() const;
 
   // Description:
   // Selection conversion from VTK land to Qt land
@@ -105,7 +105,7 @@ protected:
 
   vtkTree* Tree;
   vtkAdjacentVertexIterator* ChildIterator;
-  unsigned long TreeMTime;
+  vtkMTimeType TreeMTime;
   QVector<QModelIndex> VTKIndexToQtModelIndex;
   QHash<QModelIndex, QVariant> IndexToDecoration;
 

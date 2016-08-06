@@ -82,10 +82,10 @@ vtkGlyph3D::~vtkGlyph3D()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkGlyph3D::GetMTime()
+vtkMTimeType vtkGlyph3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
   if ( this->SourceTransform != NULL )
     {
     time = this->SourceTransform ->GetMTime();

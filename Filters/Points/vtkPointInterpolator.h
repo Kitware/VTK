@@ -219,7 +219,7 @@ public:
 
   // Description:
   // Get the MTime of this object also considering the locator and kernel.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkPointInterpolator();

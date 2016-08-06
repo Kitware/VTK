@@ -194,10 +194,10 @@ int vtkActor2D::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkActor2D::GetMTime()
+vtkMTimeType vtkActor2D::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time  = this->PositionCoordinate->GetMTime();
   mTime = ( time > mTime ? time : mTime );

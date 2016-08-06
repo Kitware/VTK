@@ -133,10 +133,10 @@ vtkAbstractTransform *vtkPerspectiveTransform::MakeTransform()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkPerspectiveTransform::GetMTime()
+vtkMTimeType vtkPerspectiveTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkHomogeneousTransform::GetMTime();
-  unsigned long mtime2;
+  vtkMTimeType mtime = this->vtkHomogeneousTransform::GetMTime();
+  vtkMTimeType mtime2;
 
   if (this->Input)
     {

@@ -83,7 +83,7 @@ public:
 
   // Description:
   // Modified GetMTime Because we delegate to vtkContourValues
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the computation of normals. Normal computation is fairly

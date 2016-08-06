@@ -227,7 +227,7 @@ public:
 
   // Description:
   // Check object's components for modified times.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Get a field from a list of ids. Supplied field f should have same

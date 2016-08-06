@@ -94,13 +94,13 @@ const char *vtkLassoStencilSource::GetShapeAsString()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkLassoStencilSource::GetMTime()
+vtkMTimeType vtkLassoStencilSource::GetMTime()
 {
-  unsigned long mTime = this->vtkImageStencilSource::GetMTime();
+  vtkMTimeType mTime = this->vtkImageStencilSource::GetMTime();
 
   if ( this->Points != NULL )
     {
-    unsigned long t = this->Points->GetMTime();
+    vtkMTimeType t = this->Points->GetMTime();
     if (t > mTime)
       {
       mTime = t;
@@ -112,7 +112,7 @@ unsigned long int vtkLassoStencilSource::GetMTime()
     vtkLSSPointMap::iterator iter = this->PointMap->begin();
     while ( iter != this->PointMap->end() )
       {
-      unsigned long t = iter->second->GetMTime();
+      vtkMTimeType t = iter->second->GetMTime();
       if (t > mTime)
         {
         mTime = t;

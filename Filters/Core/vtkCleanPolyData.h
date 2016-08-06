@@ -135,7 +135,7 @@ public:
 
   // Description:
   // Get the MTime of this object also considering the locator.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Perform operation on a point

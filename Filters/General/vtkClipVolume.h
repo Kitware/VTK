@@ -161,7 +161,7 @@ public:
 
   // Description:
   // Return the mtime also considering the locator and clip function.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkClipVolume(vtkImplicitFunction *cf=NULL);

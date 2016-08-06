@@ -151,7 +151,7 @@ protected:
   vtkSmartPointer<vtkCompositeDataDisplayAttributes> CompositeAttributes;
 
 private:
-  unsigned long int LastOpaqueCheckTime;
+  vtkMTimeType LastOpaqueCheckTime;
   bool LastOpaqueCheckValue;
   double ColorResult[3];
   vtkCompositeSurfaceLICMapper(

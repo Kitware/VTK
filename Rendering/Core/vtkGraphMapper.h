@@ -178,7 +178,7 @@ public:
 
   // Description:
   // Get the mtime also considering the lookup table.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set the Input of this mapper.

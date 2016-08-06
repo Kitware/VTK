@@ -111,7 +111,7 @@ protected:
   vtkPainter* SelectionCompositePainter;
 
 private:
-  unsigned long int LastOpaqueCheckTime;
+  vtkMTimeType LastOpaqueCheckTime;
   bool LastOpaqueCheckValue;
 
 private:

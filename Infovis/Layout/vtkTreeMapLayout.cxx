@@ -204,10 +204,10 @@ void vtkTreeMapLayout::GetBoundingBox(vtkIdType id, float *binfo)
   boxInfo->GetTypedTuple(id, binfo);
 }
 
-unsigned long vtkTreeMapLayout::GetMTime()
+vtkMTimeType vtkTreeMapLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->LayoutStrategy != NULL)
     {

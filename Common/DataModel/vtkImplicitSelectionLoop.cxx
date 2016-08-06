@@ -175,10 +175,10 @@ void vtkImplicitSelectionLoop::EvaluateGradient(double x[3], double n[3])
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImplicitSelectionLoop::GetMTime()
+vtkMTimeType vtkImplicitSelectionLoop::GetMTime()
 {
-  unsigned long mTime=this->vtkImplicitFunction::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Loop != NULL )
     {

@@ -138,14 +138,14 @@ void vtkDataObject::PrintSelf(ostream& os, vtkIndent indent)
 
 //----------------------------------------------------------------------------
 // Determine the modified time of this object
-unsigned long int vtkDataObject::GetMTime()
+vtkMTimeType vtkDataObject::GetMTime()
 {
-  unsigned long result;
+  vtkMTimeType result;
 
   result = vtkObject::GetMTime();
   if ( this->FieldData )
     {
-    unsigned long mtime = this->FieldData->GetMTime();
+    vtkMTimeType mtime = this->FieldData->GetMTime();
     result = ( mtime > result ? mtime : result);
     }
 
@@ -502,7 +502,7 @@ void vtkDataObject::ReleaseData()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkDataObject::GetUpdateTime()
+vtkMTimeType vtkDataObject::GetUpdateTime()
 {
   return this->UpdateTime.GetMTime();
 }

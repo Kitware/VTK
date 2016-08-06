@@ -92,7 +92,7 @@ public:
 
   //Descriptions:
   //Allows smart caching
-  unsigned long RenderTime;
+  vtkMTimeType RenderTime;
 
   //Description:
   //internal mechanics of graph traversal and actions

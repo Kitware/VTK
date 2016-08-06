@@ -52,7 +52,7 @@ public:
 
   // Description:
   // Return the MTime taking into account changes to the Frustum
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set the selection frustum. The planes object must contain six planes.

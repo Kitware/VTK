@@ -198,7 +198,7 @@ public:
 
   // Description:
   // Overridden to include the ScalarOpacityFunction's MTime.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkDiscretizableColorTransferFunction();

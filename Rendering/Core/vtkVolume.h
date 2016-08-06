@@ -85,14 +85,14 @@ public:
 
   // Description:
   // Return the MTime also considering the property etc.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Return the mtime of anything that would cause the rendered image to
   // appear differently. Usually this involves checking the mtime of the
   // prop plus anything else it depends on such as properties, mappers,
   // etc.
-  unsigned long GetRedrawMTime();
+  vtkMTimeType GetRedrawMTime();
 
   // Description:
   // Shallow copy of this vtkVolume. Overloads the virtual vtkProp method.

@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Get the modification time of the layout algorithm.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Get the vertex whose area contains the point, or return -1

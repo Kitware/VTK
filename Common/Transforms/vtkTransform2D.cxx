@@ -74,7 +74,7 @@ void vtkTransform2D::InternalDeepCopy(vtkTransform2D *transform)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransform2D::GetMTime()
+vtkMTimeType vtkTransform2D::GetMTime()
 {
   return this->Matrix->GetMTime();
 }

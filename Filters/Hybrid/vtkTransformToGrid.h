@@ -105,7 +105,7 @@ protected:
   // will provide maximum grid precision for a particular integer type.
   void UpdateShiftScale();
 
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   vtkAbstractTransform *Input;
 

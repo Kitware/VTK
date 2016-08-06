@@ -88,10 +88,10 @@ double vtkImplicitVolume::EvaluateFunction(double x[3])
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImplicitVolume::GetMTime()
+vtkMTimeType vtkImplicitVolume::GetMTime()
 {
-  unsigned long mTime = this->vtkImplicitFunction::GetMTime();
-  unsigned long volumeMTime;
+  vtkMTimeType mTime = this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType volumeMTime;
 
   if ( this->Volume != NULL )
     {

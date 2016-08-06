@@ -540,7 +540,7 @@ bool vtkLabeledContourMapper::CheckInputs(vtkRenderer *ren)
 bool vtkLabeledContourMapper::CheckRebuild(vtkRenderer *, vtkActor *act)
 {
   // Get the highest mtime for the text properties:
-  unsigned long int tPropMTime = this->TextProperties->GetMTime();
+  vtkMTimeType tPropMTime = this->TextProperties->GetMTime();
   this->TextProperties->InitTraversal();
   while (vtkTextProperty *tprop = this->TextProperties->GetNextItem())
     {

@@ -843,10 +843,10 @@ vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 }
 
 //------------------------------------------------------------------------------
-unsigned long int vtkBandedPolyDataContourFilter::GetMTime()
+vtkMTimeType vtkBandedPolyDataContourFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time = this->ContourValues->GetMTime();
   mTime = ( time > mTime ? time : mTime );

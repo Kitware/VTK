@@ -146,7 +146,7 @@ public:
   // Description:
   // Overload standard modified time function. If lookup table is modified,
   // then this object is modified as well.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Specify a vtkCoordinate object to be used to transform the vtkPolyData

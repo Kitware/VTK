@@ -91,7 +91,7 @@ public:
 
   // Description:
   // The modified time for this object.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkAnnotationLayers();

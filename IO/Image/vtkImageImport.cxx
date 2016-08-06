@@ -214,7 +214,7 @@ int vtkImageImport::ComputePipelineMTime(
   vtkInformationVector** inInfoVec,
   vtkInformationVector* outInfoVec,
   int requestFromOutputPort,
-  unsigned long* mtime )
+  vtkMTimeType* mtime )
 {
   if (this->InvokePipelineModifiedCallbacks())
     {

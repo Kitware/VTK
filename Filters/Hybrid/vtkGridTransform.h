@@ -88,7 +88,7 @@ public:
 
   // Description:
   // Get the MTime.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkGridTransform();

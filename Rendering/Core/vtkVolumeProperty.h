@@ -59,7 +59,7 @@ public:
   // Description:
   // Get the modified time for this object (or the properties registered
   // with this object).
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Does the data have independent components, or do some define color

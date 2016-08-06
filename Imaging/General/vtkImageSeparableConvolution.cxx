@@ -88,10 +88,10 @@ static void ExecuteConvolve (float* kernel, int kernelSize, float* image, float*
 // Description:
 // Overload standard modified time function. If kernel arrays are modified,
 // then this object is modified as well.
-unsigned long vtkImageSeparableConvolution::GetMTime()
+vtkMTimeType vtkImageSeparableConvolution::GetMTime()
 {
-  unsigned long mTime=this->vtkImageDecomposeFilter::GetMTime();
-  unsigned long kTime;
+  vtkMTimeType mTime=this->vtkImageDecomposeFilter::GetMTime();
+  vtkMTimeType kTime;
 
   if ( this->XKernel )
     {

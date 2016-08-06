@@ -2794,9 +2794,9 @@ int vtkMPASReader::CanReadFile(const char *filename)
 }
 
 //------------------------------------------------------------------------------
-unsigned long vtkMPASReader::GetMTime()
+vtkMTimeType vtkMPASReader::GetMTime()
 {
-  unsigned long result = this->Superclass::GetMTime();
+  vtkMTimeType result = this->Superclass::GetMTime();
   result = std::max(result, this->CellDataArraySelection->GetMTime());
   result = std::max(result, this->PointDataArraySelection->GetMTime());
   // Excluded, as this just manages a cache:

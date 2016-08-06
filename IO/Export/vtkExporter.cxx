@@ -165,10 +165,10 @@ void vtkExporter::PrintSelf(ostream& os, vtkIndent indent)
     }
 }
 
-unsigned long int vtkExporter::GetMTime()
+vtkMTimeType vtkExporter::GetMTime()
 {
-  unsigned long mTime=this-> vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this-> vtkObject::GetMTime();
+  vtkMTimeType time;
 
   if ( this->RenderWindow != NULL )
     {

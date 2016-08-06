@@ -65,13 +65,13 @@ int vtkPistonSlice::ComputePipelineMTime(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector),
   int vtkNotUsed(requestFromOutputPort),
-  unsigned long* mtime)
+  vtkMTimeType* mtime)
 {
-  unsigned long mTime = this->GetMTime();
+  vtkMTimeType mTime = this->GetMTime();
 
   if (this->Plane)
     {
-    unsigned long planeMTime = this->Plane->GetMTime();
+    vtkMTimeType planeMTime = this->Plane->GetMTime();
     if (planeMTime > mTime)
       {
       mTime = planeMTime;

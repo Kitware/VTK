@@ -197,7 +197,7 @@ public:
 
   // Description:
   // Retrieve the modified time for this filter.
-  virtual long unsigned int GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkApplyColors();

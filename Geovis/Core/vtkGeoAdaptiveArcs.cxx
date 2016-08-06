@@ -288,12 +288,12 @@ void vtkGeoAdaptiveArcs::SetRenderer(vtkRenderer *ren)
 }
 
 //-------------------------------------------------------------------------
-unsigned long vtkGeoAdaptiveArcs::GetMTime()
+vtkMTimeType vtkGeoAdaptiveArcs::GetMTime()
 {
-  unsigned long retMTime = this->Superclass::GetMTime();
+  vtkMTimeType retMTime = this->Superclass::GetMTime();
   if ( this->Renderer )
     {
-    unsigned long tmpTime = this->Renderer->GetMTime();
+    vtkMTimeType tmpTime = this->Renderer->GetMTime();
     if ( tmpTime > retMTime )
       {
       retMTime = tmpTime;

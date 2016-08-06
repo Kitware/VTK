@@ -283,10 +283,10 @@ void vtkGenericDataSetTessellator::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkGenericDataSetTessellator::GetMTime()
+vtkMTimeType vtkGenericDataSetTessellator::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

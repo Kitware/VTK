@@ -95,10 +95,10 @@ void vtkImplicitWindowFunction::EvaluateGradient(double x[3], double n[3])
       }
 }
 
-unsigned long int vtkImplicitWindowFunction::GetMTime()
+vtkMTimeType vtkImplicitWindowFunction::GetMTime()
 {
-  unsigned long int fMtime;
-  unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType fMtime;
+  vtkMTimeType mtime = this->vtkImplicitFunction::GetMTime();
 
   if ( this->ImplicitFunction )
   {

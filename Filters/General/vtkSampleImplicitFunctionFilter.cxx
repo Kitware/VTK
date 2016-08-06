@@ -212,10 +212,10 @@ FillInputPortInformation(int, vtkInformation *info)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSampleImplicitFunctionFilter::GetMTime()
+vtkMTimeType vtkSampleImplicitFunctionFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long impFuncMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
     {

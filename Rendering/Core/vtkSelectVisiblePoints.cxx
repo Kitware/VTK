@@ -156,10 +156,10 @@ int vtkSelectVisiblePoints::RequestData(
   return 1;
 }
 
-unsigned long int vtkSelectVisiblePoints::GetMTime()
+vtkMTimeType vtkSelectVisiblePoints::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Renderer != NULL )
     {

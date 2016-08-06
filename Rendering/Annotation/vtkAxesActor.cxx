@@ -405,16 +405,16 @@ double *vtkAxesActor::GetBounds()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkAxesActor::GetMTime()
+vtkMTimeType vtkAxesActor::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   return mTime;
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkAxesActor::GetRedrawMTime()
+vtkMTimeType vtkAxesActor::GetRedrawMTime()
 {
-  unsigned long mTime = this->GetMTime();
+  vtkMTimeType mTime = this->GetMTime();
   return mTime;
 }
 

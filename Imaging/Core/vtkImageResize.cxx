@@ -989,10 +989,10 @@ vtkAbstractImageInterpolator *vtkImageResize::GetInternalInterpolator()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageResize::GetMTime()
+vtkMTimeType vtkImageResize::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->Interpolate != 0 && this->Interpolator != NULL)
     {

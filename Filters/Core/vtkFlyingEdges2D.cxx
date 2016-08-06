@@ -811,10 +811,10 @@ vtkFlyingEdges2D::~vtkFlyingEdges2D()
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
-unsigned long vtkFlyingEdges2D::GetMTime()
+vtkMTimeType vtkFlyingEdges2D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2=this->ContourValues->GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime2=this->ContourValues->GetMTime();
 
   return ( mTime2 > mTime ? mTime2 : mTime );
 }

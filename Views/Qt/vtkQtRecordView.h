@@ -99,9 +99,9 @@ private:
   vtkQtRecordView(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
   void operator=(const vtkQtRecordView&) VTK_DELETE_FUNCTION;
 
-  unsigned long CurrentSelectionMTime;
-  unsigned long LastInputMTime;
-  unsigned long LastMTime;
+  vtkMTimeType CurrentSelectionMTime;
+  vtkMTimeType LastInputMTime;
+  vtkMTimeType LastMTime;
 };
 
 #endif

@@ -77,7 +77,7 @@ void vtkPiecewiseControlPointsItem::emitEvent(unsigned long event, void* params)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkPiecewiseControlPointsItem::GetControlPointsMTime()
+vtkMTimeType vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 {
   if (this->PiecewiseFunction)
     {

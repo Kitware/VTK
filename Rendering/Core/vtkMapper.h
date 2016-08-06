@@ -91,7 +91,7 @@ public:
   // Description:
   // Overload standard modified time function. If lookup table is modified,
   // then this object is modified as well.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Method initiates the mapping process. Generally sent by the actor
