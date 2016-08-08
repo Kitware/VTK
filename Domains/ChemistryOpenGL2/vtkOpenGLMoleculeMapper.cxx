@@ -31,9 +31,6 @@ vtkStandardNewMacro(vtkOpenGLMoleculeMapper)
 vtkOpenGLMoleculeMapper::vtkOpenGLMoleculeMapper()
 {
   // Setup glyph mappers
-  vtkNew<vtkLookupTable> lut;
-  this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-  this->FastAtomMapper->SetLookupTable(lut.GetPointer());
   this->FastAtomMapper->SetScalarRange
     (0, this->PeriodicTable->GetNumberOfElements());
   this->FastAtomMapper->SetColorModeToMapScalars();
@@ -102,6 +99,7 @@ void vtkOpenGLMoleculeMapper::ReleaseGraphicsResources(vtkWindow *w)
 void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
 {
   this->Superclass::UpdateAtomGlyphPolyData();
+  this->FastAtomMapper->SetLookupTable(this->AtomGlyphMapper->GetLookupTable());
   this->FastAtomMapper->SelectColorArray("Atomic Numbers");
   this->FastAtomMapper->SetScaleArray("Scale Factors");
   this->FastAtomMapper->SetScalarMaterialMode(this->GetScalarMaterialMode());
@@ -111,6 +109,8 @@ void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
 // Generate position, scale, and orientation vectors for each bond cylinder
 void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
 {
+  this->Superclass::UpdateBondGlyphPolyData();
+
   switch(this->BondColorMode)
     {
     case SingleColor:
@@ -119,9 +119,8 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
       break;
     default:
     case DiscreteByAtom:
-      vtkNew<vtkLookupTable> lut;
-      this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-      this->FastBondMapper->SetLookupTable(lut.GetPointer());
+      this->FastBondMapper->SetLookupTable(
+            this->BondGlyphMapper->GetLookupTable());
       this->FastBondMapper->SetScalarRange
         (0, this->PeriodicTable->GetNumberOfElements());
       this->FastBondMapper->SetScalarModeToUsePointData();
@@ -130,7 +129,6 @@ void vtkOpenGLMoleculeMapper::UpdateBondGlyphPolyData()
     }
 
   // Setup glypher
-  this->Superclass::UpdateBondGlyphPolyData();
   this->FastBondMapper->SetScaleArray("Scale Factors");
   this->FastBondMapper->SetOrientationArray("Orientation Vectors");
   this->FastBondMapper->SetSelectionIdArray("Selection Ids");

@@ -89,10 +89,12 @@ vtkMoleculeMapper::vtkMoleculeMapper()
   cylXformFilter->Update();
   this->BondGlyphMapper->SetSourceConnection(cylXformFilter->GetOutputPort());
 
-  // Setup glyph mappers
+  // Configure default LookupTable
   vtkNew<vtkLookupTable> lut;
-  this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-  this->AtomGlyphMapper->SetLookupTable(lut.GetPointer());
+  this->PeriodicTable->GetDefaultLUT(lut.Get());
+  this->SetLookupTable(lut.Get());
+
+  // Setup glyph mappers
   this->AtomGlyphMapper->SetScalarRange
     (0, this->PeriodicTable->GetNumberOfElements());
   this->AtomGlyphMapper->SetColorModeToMapScalars();
@@ -129,11 +131,16 @@ vtkMoleculeMapper::vtkMoleculeMapper()
 
   // Force the glyph data to be generated on the next render:
   this->GlyphDataInitialized = false;
+
+  this->SetInputArrayToProcess(0, 0, 0,
+                               vtkDataObject::FIELD_ASSOCIATION_VERTICES,
+                               "Atomic Numbers");
 }
 
 //----------------------------------------------------------------------------
 vtkMoleculeMapper::~vtkMoleculeMapper()
 {
+  this->SetLookupTable(NULL);
 }
 
 //----------------------------------------------------------------------------
@@ -327,7 +334,8 @@ void vtkMoleculeMapper::UpdateGlyphPolyData()
 
   if (!this->GlyphDataInitialized || (
         (molecule->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
-         this->GetMTime() > this->AtomGlyphPolyData->GetMTime()) &&
+         this->GetMTime() > this->AtomGlyphPolyData->GetMTime() ||
+         this->LookupTable->GetMTime() > this->AtomGlyphPolyData->GetMTime()) &&
         this->RenderAtoms))
     {
     this->UpdateAtomGlyphPolyData();
@@ -335,7 +343,8 @@ void vtkMoleculeMapper::UpdateGlyphPolyData()
 
   if (!this->GlyphDataInitialized || (
         (molecule->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
-         this->GetMTime() > this->BondGlyphPolyData->GetMTime()) &&
+         this->GetMTime() > this->BondGlyphPolyData->GetMTime() ||
+         this->LookupTable->GetMTime() > this->BondGlyphPolyData->GetMTime()) &&
         this->RenderBonds))
     {
     this->UpdateBondGlyphPolyData();
@@ -365,6 +374,7 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
   this->AtomGlyphPolyData->GetPointData()->AddArray(atomicNums);
   this->AtomGlyphPolyData->SetPoints(molecule->GetAtomicPositionArray());
   this->AtomGlyphMapper->SelectColorArray("Atomic Numbers");
+  this->AtomGlyphMapper->SetLookupTable(this->LookupTable);
 
   vtkNew<vtkFloatArray> scaleFactors;
   scaleFactors->SetNumberOfComponents(1);
@@ -508,9 +518,7 @@ void vtkMoleculeMapper::UpdateBondGlyphPolyData()
       cylColors->Allocate(numCylinders);
       cylColors->SetName("Colors");
       this->BondGlyphPolyData->GetPointData()->SetScalars(cylColors);
-      vtkNew<vtkLookupTable> lut;
-      this->PeriodicTable->GetDefaultLUT(lut.GetPointer());
-      this->BondGlyphMapper->SetLookupTable(lut.GetPointer());
+      this->BondGlyphMapper->SetLookupTable(this->LookupTable);
       this->BondGlyphMapper->SetScalarRange
         (0, this->PeriodicTable->GetNumberOfElements());
       this->BondGlyphMapper->SetScalarModeToUsePointData();

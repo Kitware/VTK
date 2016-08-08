@@ -176,16 +176,18 @@ float vtkPeriodicTable::GetVDWRadius(const unsigned short atomicNum)
 }
 
 //----------------------------------------------------------------------------
-void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable * lut)
+void vtkPeriodicTable::GetDefaultLUT(vtkLookupTable *lut)
 {
   const unsigned short numColors = this->GetNumberOfElements() + 1;
   vtkFloatArray *colors = this->BlueObeliskData->GetDefaultColors();
   lut->SetNumberOfColors(numColors);
+  lut->SetIndexedLookup(true);
   float rgb[3];
   for (vtkIdType i = 0; static_cast<unsigned int>(i) < numColors; ++i)
     {
     colors->GetTypedTuple(i, rgb);
     lut->SetTableValue(i, rgb[0], rgb[1], rgb[2]);
+    lut->SetAnnotation(i, this->GetSymbol(static_cast<unsigned short>(i)));
     }
 }
 
