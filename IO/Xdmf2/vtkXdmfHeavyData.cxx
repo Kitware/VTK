@@ -45,6 +45,12 @@
 
 #include <libxml/tree.h>
 
+#ifdef VTK_USE_64BIT_IDS
+typedef XdmfInt64 vtkXdmfIdType;
+#else
+typedef XdmfInt32 vtkXdmfIdType;
+#endif
+
 using namespace xdmf2;
 
 static void vtkScaleExtents(int in_exts[6], int out_exts[6], int stride[3])
@@ -1491,7 +1497,7 @@ vtkDataSet* vtkXdmfHeavyData::ExtractCells(XdmfSet* xmfSet,
   vtkIdTypeArray* ids = vtkIdTypeArray::New();
   ids->SetNumberOfComponents(1);
   ids->SetNumberOfTuples(numIds);
-  xmfIds->GetValues(0, ids->GetPointer(0), numIds);
+  xmfIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(0), numIds);
 
   // release heavy data.
   xmfSet->Release();
@@ -1557,8 +1563,8 @@ vtkDataSet* vtkXdmfHeavyData::ExtractFaces(XdmfSet* xmfSet, vtkDataSet* dataSet)
   vtkIdTypeArray* ids = vtkIdTypeArray::New();
   ids->SetNumberOfComponents(2);
   ids->SetNumberOfTuples(numFaces);
-  xmfCellIds->GetValues(0, ids->GetPointer(0), numFaces, 1, 2);
-  xmfIds->GetValues(0, ids->GetPointer(1), numFaces, 1, 2);
+  xmfCellIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(0), numFaces, 1, 2);
+  xmfIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(1), numFaces, 1, 2);
 
   vtkPolyData* output = vtkPolyData::New();
   vtkCellArray* polys = vtkCellArray::New();
@@ -1647,9 +1653,9 @@ vtkDataSet* vtkXdmfHeavyData::ExtractEdges(XdmfSet* xmfSet, vtkDataSet* dataSet)
   vtkIdTypeArray* ids = vtkIdTypeArray::New();
   ids->SetNumberOfComponents(3);
   ids->SetNumberOfTuples(numEdges);
-  xmfCellIds->GetValues(0, ids->GetPointer(0), numEdges, 1, 3);
-  xmfFaceIds->GetValues(0, ids->GetPointer(1), numEdges, 1, 3);
-  xmfIds->GetValues(0, ids->GetPointer(2), numEdges, 1, 3);
+  xmfCellIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(0), numEdges, 1, 3);
+  xmfFaceIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(1), numEdges, 1, 3);
+  xmfIds->GetValues(0, (vtkXdmfIdType*)ids->GetPointer(2), numEdges, 1, 3);
 
   vtkPolyData* output = vtkPolyData::New();
   vtkCellArray* lines = vtkCellArray::New();
