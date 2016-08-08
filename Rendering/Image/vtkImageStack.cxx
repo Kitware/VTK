@@ -82,6 +82,7 @@ void vtkImageStack::AddImage(vtkImageSlice *prop)
     {
     this->Images->AddItem(prop);
     prop->AddConsumer(this);
+    this->Modified();
     }
 }
 
@@ -92,6 +93,7 @@ void vtkImageStack::RemoveImage(vtkImageSlice *prop)
     {
     prop->RemoveConsumer(this);
     this->Images->RemoveItem(prop);
+    this->Modified();
     }
 }
 
