@@ -171,15 +171,9 @@ public:
   int Send(const double* data, vtkIdType length, int remoteHandle, int tag) {
     return this->SendVoidArray(data, length, VTK_DOUBLE, remoteHandle, tag);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Send(const vtkIdType* data, vtkIdType length, int remoteHandle, int tag) {
-    return this->SendVoidArray(data, length, VTK_ID_TYPE, remoteHandle, tag);
-  }
-#else
   int Send(const long long* data, vtkIdType length, int remoteHandle, int tag) {
     return this->SendVoidArray(data, length, VTK_LONG_LONG, remoteHandle, tag);
   }
-#endif
   int Send(const unsigned long long* data, vtkIdType length, int remoteHandle, int tag) {
     return this->SendVoidArray(data, length, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
@@ -250,15 +244,9 @@ public:
   int Receive(double* data, vtkIdType maxlength, int remoteHandle, int tag) {
     return this->ReceiveVoidArray(data, maxlength, VTK_DOUBLE, remoteHandle, tag);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Receive(vtkIdType* data, vtkIdType maxlength, int remoteHandle, int tag) {
-    return this->ReceiveVoidArray(data, maxlength, VTK_ID_TYPE, remoteHandle, tag);
-  }
-#else
   int Receive(long long* data, vtkIdType maxlength, int remoteHandle, int tag) {
     return this->ReceiveVoidArray(data, maxlength, VTK_LONG_LONG, remoteHandle, tag);
   }
-#endif
   int Receive(unsigned long long* data, vtkIdType maxlength, int remoteHandle, int tag) {
     return this->ReceiveVoidArray(data, maxlength, VTK_UNSIGNED_LONG_LONG, remoteHandle, tag);
   }
@@ -318,15 +306,9 @@ public:
   int Broadcast(double *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data, length, VTK_DOUBLE, srcProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Broadcast(vtkIdType *data, vtkIdType length, int srcProcessId) {
-    return this->BroadcastVoidArray(data, length, VTK_ID_TYPE, srcProcessId);
-  }
-#else
   int Broadcast(long long *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data, length, VTK_LONG_LONG, srcProcessId);
   }
-#endif
   int Broadcast(unsigned long long *data, vtkIdType length, int srcProcessId) {
     return this->BroadcastVoidArray(data, length, VTK_UNSIGNED_LONG_LONG, srcProcessId);
   }
@@ -398,19 +380,11 @@ public:
     return this->GatherVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_DOUBLE, destProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Gather(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-             vtkIdType length, int destProcessId) {
-    return this->GatherVoidArray(sendBuffer, recvBuffer, length,
-                                 VTK_ID_TYPE, destProcessId);
-  }
-#else
   int Gather(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->GatherVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_LONG_LONG, destProcessId);
   }
-#endif
   int Gather(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int destProcessId) {
     return this->GatherVoidArray(sendBuffer, recvBuffer, length,
@@ -506,15 +480,6 @@ public:
                                   sendLength, recvLengths,
                                   offsets, VTK_DOUBLE, destProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int GatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
-              vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
-              int destProcessId) {
-    return this->GatherVVoidArray(sendBuffer, recvBuffer,
-                                  sendLength, recvLengths,
-                                  offsets, VTK_ID_TYPE, destProcessId);
-  }
-#else
   int GatherV(const long long* sendBuffer, long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -522,7 +487,6 @@ public:
                                   sendLength, recvLengths,
                                   offsets, VTK_LONG_LONG, destProcessId);
   }
-#endif
   int GatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
               vtkIdType sendLength, vtkIdType* recvLengths, vtkIdType* offsets,
               int destProcessId) {
@@ -619,19 +583,11 @@ public:
     return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
                                   VTK_DOUBLE, srcProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Scatter(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-             vtkIdType length, int srcProcessId) {
-    return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
-                                  VTK_ID_TYPE, srcProcessId);
-  }
-#else
   int Scatter(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int srcProcessId) {
     return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
                                   VTK_LONG_LONG, srcProcessId);
   }
-#endif
   int Scatter(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int srcProcessId) {
     return this->ScatterVoidArray(sendBuffer, recvBuffer, length,
@@ -723,15 +679,6 @@ public:
                                    sendLengths, offsets, recvLength,
                                    VTK_DOUBLE, srcProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int ScatterV(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-               vtkIdType *sendLengths, vtkIdType *offsets,
-               vtkIdType recvLength, int srcProcessId) {
-    return this->ScatterVVoidArray(sendBuffer, recvBuffer,
-                                   sendLengths, offsets, recvLength,
-                                   VTK_ID_TYPE, srcProcessId);
-  }
-#else
   int ScatterV(const long long *sendBuffer, long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -739,7 +686,6 @@ public:
                                    sendLengths, offsets, recvLength,
                                    VTK_LONG_LONG, srcProcessId);
   }
-#endif
   int ScatterV(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                vtkIdType *sendLengths, vtkIdType *offsets,
                vtkIdType recvLength, int srcProcessId) {
@@ -794,19 +740,11 @@ public:
                 double *recvBuffer, vtkIdType length) {
     return this->AllGatherVoidArray(sendBuffer, recvBuffer, length, VTK_DOUBLE);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int AllGather(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-                vtkIdType length) {
-    return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
-                                    VTK_ID_TYPE);
-  }
-#else
   int AllGather(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length) {
     return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
                                     VTK_LONG_LONG);
   }
-#endif
   int AllGather(const unsigned long long *sendBuffer,
                 unsigned long long *recvBuffer, vtkIdType length) {
     return this->AllGatherVoidArray(sendBuffer, recvBuffer, length,
@@ -893,15 +831,6 @@ public:
                                      sendLength, recvLengths,
                                      offsets, VTK_DOUBLE);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int AllGatherV(const vtkIdType* sendBuffer, vtkIdType* recvBuffer,
-                 vtkIdType sendLength, vtkIdType* recvLengths,
-                 vtkIdType* offsets) {
-    return this->AllGatherVVoidArray(sendBuffer, recvBuffer,
-                                     sendLength, recvLengths,
-                                     offsets, VTK_ID_TYPE);
-  }
-#else
   int AllGatherV(const long long* sendBuffer, long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -909,7 +838,6 @@ public:
                                      sendLength, recvLengths,
                                      offsets, VTK_LONG_LONG);
   }
-#endif
   int AllGatherV(const unsigned long long* sendBuffer, unsigned long long* recvBuffer,
                  vtkIdType sendLength, vtkIdType* recvLengths,
                  vtkIdType* offsets) {
@@ -980,19 +908,11 @@ public:
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_DOUBLE, operation, destProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Reduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-             vtkIdType length, int operation, int destProcessId) {
-    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
-                                 VTK_ID_TYPE, operation, destProcessId);
-  }
-#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_LONG_LONG, operation, destProcessId);
   }
-#endif
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, int operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
@@ -1059,19 +979,11 @@ public:
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_DOUBLE, operation, destProcessId);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int Reduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-             vtkIdType length, Operation *operation, int destProcessId) {
-    return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
-                                 VTK_ID_TYPE, operation, destProcessId);
-  }
-#else
   int Reduce(const long long *sendBuffer, long long *recvBuffer,
              vtkIdType length, Operation *operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
                                  VTK_LONG_LONG, operation, destProcessId);
   }
-#endif
   int Reduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
              vtkIdType length, Operation *operation, int destProcessId) {
     return this->ReduceVoidArray(sendBuffer, recvBuffer, length,
@@ -1137,19 +1049,11 @@ public:
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
                                     VTK_DOUBLE, operation);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int AllReduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-                vtkIdType length, int operation) {
-    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
-                                    VTK_ID_TYPE, operation);
-  }
-#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
                                     VTK_LONG_LONG, operation);
   }
-#endif
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, int operation) {
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
@@ -1212,19 +1116,11 @@ public:
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
                                     VTK_DOUBLE, operation);
   }
-#ifdef VTK_USE_64BIT_IDS
-  int AllReduce(const vtkIdType *sendBuffer, vtkIdType *recvBuffer,
-                vtkIdType length, Operation *operation) {
-    return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
-                                    VTK_ID_TYPE, operation);
-  }
-#else
   int AllReduce(const long long *sendBuffer, long long *recvBuffer,
                 vtkIdType length, Operation *operation) {
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
                                     VTK_LONG_LONG, operation);
   }
-#endif
   int AllReduce(const unsigned long long *sendBuffer, unsigned long long *recvBuffer,
                 vtkIdType length, Operation *operation) {
     return this->AllReduceVoidArray(sendBuffer, recvBuffer, length,
