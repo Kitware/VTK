@@ -2,6 +2,7 @@
 #define DIY_SERIALIZATION_HPP
 
 #include <vector>
+#include <valarray>
 #include <map>
 #include <set>
 #include <string>
@@ -94,7 +95,7 @@ namespace diy
   {
 #ifndef BUILD_GYP                   // C++11 does not work right in my nwjs- and node-gyp builds--TP
 #if __cplusplus > 199711L           // C++11
-#if !defined(__GNUG__) || __GNUC__ >= 5
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ >= 5)
     static_assert(std::is_trivially_copyable<T>::value, "Default serialization works only for trivially copyable types");
 #endif
 #endif
@@ -205,6 +206,34 @@ namespace diy
     }
   };
 
+  template<class U>
+  struct Serialization< std::valarray<U> >
+  {
+    typedef             std::valarray<U>        ValArray;
+
+    static void         save(BinaryBuffer& bb, const ValArray& v)
+    {
+      size_t s = v.size();
+      diy::save(bb, s);
+#if __cplusplus > 199711L           // C++11
+      diy::save(bb, &v[0], v.size());
+#else
+      // Before C++11 valarray::operator[] const returns by value, not const
+      // reference, so we cannot dereference it and pass directly to save.
+      for (size_t i = 0; i < v.size(); ++i)
+          diy::save(bb, v[i]);
+#endif
+    }
+
+    static void         load(BinaryBuffer& bb, ValArray& v)
+    {
+      size_t s;
+      diy::load(bb, s);
+      v.resize(s);
+      diy::load(bb, &v[0], s);
+    }
+  };
+
   // save/load for std::string
   template<>
   struct Serialization< std::string >
@@ -307,11 +336,11 @@ namespace diy
 
 #ifndef BUILD_GYP                   // C++11 does not work right in my nwjs- and node-gyp builds--TP
 #if __cplusplus > 199711L           // C++11
-  // save/load for std::unordered_map<K,V>
-  template<class K, class V>
-  struct Serialization< std::unordered_map<K,V> >
+  // save/load for std::unordered_map<K,V,H,E,A>
+  template<class K, class V, class H, class E, class A>
+  struct Serialization< std::unordered_map<K,V,H,E,A> >
   {
-    typedef             std::unordered_map<K,V>         Map;
+    typedef             std::unordered_map<K,V,H,E,A>   Map;
 
     static void         save(BinaryBuffer& bb, const Map& m)
     {
@@ -334,11 +363,11 @@ namespace diy
     }
   };
 
-  // save/load for std::unordered_set<T>
-  template<class T>
-  struct Serialization< std::unordered_set<T> >
+  // save/load for std::unordered_set<T,H,E,A>
+  template<class T, class H, class E, class A>
+  struct Serialization< std::unordered_set<T,H,E,A> >
   {
-    typedef             std::unordered_set<T>           Set;
+    typedef             std::unordered_set<T,H,E,A>     Set;
 
     static void         save(BinaryBuffer& bb, const Set& m)
     {
