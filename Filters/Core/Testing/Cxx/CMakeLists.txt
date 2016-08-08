@@ -31,6 +31,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestProbeFilterImageInput.cxx
   TestProbeFilterOutputAttributes.cxx,NO_VALID
   TestResampleToImage.cxx,NO_VALID
+  TestResampleWithDataSet.cxx,
   TestSmoothPolyDataFilter.cxx,NO_VALID
   TestSMPPipelineContour.cxx,NO_VALID
   TestStripper.cxx,NO_VALID
