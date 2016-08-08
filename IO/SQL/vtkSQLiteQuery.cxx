@@ -577,14 +577,14 @@ bool vtkSQLiteQuery::BindParameter(int index, long value)
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindParameter(int index, vtkTypeUInt64 value)
+bool vtkSQLiteQuery::BindParameter(int index, unsigned long long value)
 {
   return this->BindInt64Parameter(index, static_cast<vtkTypeInt64>(value));
 }
 
 // ----------------------------------------------------------------------
 
-bool vtkSQLiteQuery::BindParameter(int index, vtkTypeInt64 value)
+bool vtkSQLiteQuery::BindParameter(int index, long long value)
 {
   return this->BindInt64Parameter(index, value);
 }

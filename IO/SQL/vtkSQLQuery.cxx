@@ -134,13 +134,13 @@ bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), long vtkNotUsed(value))
   return false;
 }
 
-bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeUInt64 vtkNotUsed(value))
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), unsigned long long vtkNotUsed(value))
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;
 }
 
-bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), vtkTypeInt64 vtkNotUsed(value))
+bool vtkSQLQuery::BindParameter(int vtkNotUsed(index), long long vtkNotUsed(value))
 {
   vtkErrorMacro(<<"This database driver does not support bound parameters.");
   return false;
