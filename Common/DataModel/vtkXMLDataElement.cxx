@@ -716,6 +716,13 @@ int vtkXMLDataElement::GetScalarAttribute(const char* name, double& value)
 
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetScalarAttribute(const char* name,
+                                          long& value)
+{
+  return this->GetVectorAttribute(name, 1, &value);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataElement::GetScalarAttribute(const char* name,
                                           unsigned long& value)
 {
   return this->GetVectorAttribute(name, 1, &value);
@@ -769,6 +776,14 @@ int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
 //----------------------------------------------------------------------------
 int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
                                           double* data)
+{
+  return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
+                                               length, data);
+}
+
+//----------------------------------------------------------------------------
+int vtkXMLDataElement::GetVectorAttribute(const char* name, int length,
+                                          long* data)
 {
   return vtkXMLDataElementVectorAttributeParse(this->GetAttribute(name),
                                                length, data);

@@ -69,6 +69,7 @@ public:
   int GetScalarAttribute(const char* name, int& value);
   int GetScalarAttribute(const char* name, float& value);
   int GetScalarAttribute(const char* name, double& value);
+  int GetScalarAttribute(const char* name, long& value);
   int GetScalarAttribute(const char* name, unsigned long& value);
 
   // Description:
@@ -87,6 +88,7 @@ public:
   int GetVectorAttribute(const char* name, int length, int* value);
   int GetVectorAttribute(const char* name, int length, float* value);
   int GetVectorAttribute(const char* name, int length, double* value);
+  int GetVectorAttribute(const char* name, int length, long* value);
   int GetVectorAttribute(const char* name, int length, unsigned long* value);
 
   // Description:
