@@ -133,3 +133,24 @@ int vtkVolumeMapper::FillInputPortInformation(int port, vtkInformation* info)
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
+
+//----------------------------------------------------------------------------
+double vtkVolumeMapper::SpacingAdjustedSampleDistance(double inputSpacing[3],
+  int inputExtent[6])
+{
+  // compute 1/2 the average spacing
+  double dist =
+    (inputSpacing[0] + inputSpacing[1] + inputSpacing[2])/6.0;
+  double avgNumVoxels =
+    pow(static_cast<double>((inputExtent[1] - inputExtent[0]) *
+                            (inputExtent[3] - inputExtent[2]) *
+                            (inputExtent[5] - inputExtent[4])),
+        static_cast<double>(0.333));
+
+  if (avgNumVoxels < 100)
+    {
+    dist *= 0.01 + (1 - 0.01) * avgNumVoxels / 100;
+    }
+
+  return dist;
+}

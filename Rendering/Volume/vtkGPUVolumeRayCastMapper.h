@@ -49,6 +49,14 @@ public:
   vtkBooleanMacro( AutoAdjustSampleDistances, int );
 
   // Description:
+  // Compute the sample distance from the data spacing.  When the number of
+  // voxels is 8, the sample distance will be roughly 1/200 the average voxel
+  // size. The distance will grow proportionally to numVoxels^(1/3). Off by default.
+  vtkSetClampMacro( LockSampleDistanceToInputSpacing, int, 0, 1 );
+  vtkGetMacro( LockSampleDistanceToInputSpacing, int );
+  vtkBooleanMacro( LockSampleDistanceToInputSpacing, int );
+
+  // Description:
   // If UseJittering is on, each ray traversal direction will be
   // perturbed slightly using a noise-texture to get rid of wood-grain
   // effect.
@@ -324,6 +332,7 @@ protected:
   // cell data (1).
   void SetCellFlag(int cellFlag);
 
+  int LockSampleDistanceToInputSpacing;
   int    AutoAdjustSampleDistances;
   float  ImageSampleDistance;
   float  MinimumImageSampleDistance;

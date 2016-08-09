@@ -81,6 +81,7 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   // automatically computed from the spacing of the input data. This is
   // also true for the GPU ray cast mapper.
   this->RayCastMapper->LockSampleDistanceToInputSpacingOn();
+  this->GPUMapper->LockSampleDistanceToInputSpacingOn();
 
   // Default to the default mode - which will use the best option that
   // is supported by the hardware
