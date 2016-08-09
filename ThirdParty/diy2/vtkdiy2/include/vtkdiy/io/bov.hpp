@@ -99,7 +99,7 @@ read(const DiscreteBounds& bounds, T* buffer, bool collective, int chunk) const
   MPI_Type_create_subarray(dim, (int*) &shape_[0], &subsizes[0], (int*) &bounds.min[0], MPI_ORDER_C, T_type, &fileblk);
   MPI_Type_commit(&fileblk);
 
-  MPI_File_set_view(f_.handle(), offset_, T_type, fileblk, "native", MPI_INFO_NULL);
+  MPI_File_set_view(f_.handle(), offset_, T_type, fileblk, (char*)"native", MPI_INFO_NULL);
 
   mpi::status s;
   if (!collective)
@@ -154,13 +154,13 @@ write(const DiscreteBounds& bounds, const T* buffer, const DiscreteBounds& core,
   MPI_Type_commit(&fileblk);
   MPI_Type_commit(&subbuffer);
 
-  MPI_File_set_view(f_.handle(), offset_, T_type, fileblk, "native", MPI_INFO_NULL);
+  MPI_File_set_view(f_.handle(), offset_, T_type, fileblk, (char*)"native", MPI_INFO_NULL);
 
   mpi::status s;
   if (!collective)
-      MPI_File_write(f_.handle(), buffer, 1, subbuffer, &s.s);
+    MPI_File_write(f_.handle(), (void*)buffer, 1, subbuffer, &s.s);
   else
-      MPI_File_write_all(f_.handle(), buffer, 1, subbuffer, &s.s);
+    MPI_File_write_all(f_.handle(), (void*)buffer, 1, subbuffer, &s.s);
 
   if (chunk != 1)
     MPI_Type_free(&T_type);

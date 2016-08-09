@@ -38,6 +38,7 @@ namespace io
       void          close()                                 { if (fh != MPI_FILE_NULL) MPI_File_close(&fh); }
 
       offset        size() const                            { offset sz; MPI_File_get_size(fh, &sz); return sz; }
+      void          resize(offset size)                     { MPI_File_set_size(fh, size); }
 
       inline void   read_at(offset o, char* buffer, size_t size);
       inline void   read_at_all(offset o, char* buffer, size_t size);

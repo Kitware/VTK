@@ -5,21 +5,22 @@
 
 namespace diy
 {
-  template<class Bounds, class Point, class OutIter>
-  void near(const RegularLink<Bounds>& link, const Point& p, float r, OutIter out,
-            const Bounds& domain);
+    template<class Bounds, class Point, class OutIter>
+    void near(const RegularLink<Bounds>& link, const Point& p, float r, OutIter out,
+              const Bounds& domain);
 
-  template<class Bounds, class Point, class OutIter>
-  void in(const RegularLink<Bounds>& link, const Point& p, OutIter out, const Bounds& domain);
+    template<class Bounds, class Point, class OutIter>
+    void in(const RegularLink<Bounds>& link, const Point& p, OutIter out, const Bounds& domain);
 
-  template<class Point>
-  float distance(int dim, const ContinuousBounds& bounds, const Point& p);
+    template<class Point, class Bounds>
+    float distance(int dim, const Bounds& bounds, const Point& p);
 
-  inline
-  float distance(int dim, const ContinuousBounds& bounds1, const ContinuousBounds& bounds2);
+    template<class Bounds>
+    inline
+    float distance(int dim, const Bounds& bounds1, const Bounds& bounds2);
 
-  template<class Bounds>
-  void wrap_bounds(Bounds& bounds, Direction wrap_dir, const Bounds& domain, int dim);
+    template<class Bounds>
+    void wrap_bounds(Bounds& bounds, Direction wrap_dir, const Bounds& domain, int dim);
 }
 
 //! Finds the neighbors within radius r of a target point.
@@ -47,10 +48,10 @@ near(const RegularLink<Bounds>& link,  //!< neighbors
 }
 
 //! Find the distance between point `p` and box `bounds`.
-template<class Point>
+template<class Point, class Bounds>
 float
 diy::
-distance(int dim, const ContinuousBounds& bounds, const Point& p)
+distance(int dim, const Bounds& bounds, const Point& p)
 {
     float res = 0;
     for (int i = 0; i < dim; ++i)
@@ -69,9 +70,10 @@ distance(int dim, const ContinuousBounds& bounds, const Point& p)
     return sqrt(res);
 }
 
+template<class Bounds>
 float
 diy::
-distance(int dim, const ContinuousBounds& bounds1, const ContinuousBounds& bounds2)
+distance(int dim, const Bounds& bounds1, const Bounds& bounds2)
 {
     float res = 0;
     for (int i = 0; i < dim; ++i)
