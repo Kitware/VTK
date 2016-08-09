@@ -5,6 +5,7 @@ set(Module_SRCS
   vtkArrayCalculator.cxx
   vtkAssignAttribute.cxx
   vtkAttributeDataToFieldDataFilter.cxx
+  vtkBinCellDataFilter.cxx
   vtkCellDataToPointData.cxx
   vtkCleanPolyData.cxx
   vtkClipPolyData.cxx

@@ -4,6 +4,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestAppendSelection.cxx,NO_VALID
   TestArrayCalculator.cxx,NO_VALID
   TestAssignAttribute.cxx,NO_VALID
+  TestBinCellDataFilter.cxx,NO_VALID
   TestCategoricalPointDataToCellData.cxx,NO_VALID
   TestCellDataToPointData.cxx,NO_VALID
   TestCenterOfMass.cxx,NO_VALID
