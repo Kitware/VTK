@@ -219,6 +219,12 @@ public:
   vtkGetMacro(ReadZones, int);
   vtkBooleanMacro(ReadZones, int);
 
+  // Description:
+  // If true, labels are expected to be 64-bit, rather than 32.
+  vtkSetMacro(Use64BitLabels, bool)
+  vtkGetMacro(Use64BitLabels, bool)
+  vtkBooleanMacro(Use64BitLabels, bool)
+
   void SetRefresh() { this->Refresh = true; this->Modified(); }
 
   void SetParent(vtkOpenFOAMReader *parent) { this->Parent = parent; }
@@ -253,6 +259,9 @@ protected:
 
   // add dimensions to array names
   int AddDimensionsToArrayNames;
+
+  // Expect label size to be 64-bit integers instead of the default 32.
+  bool Use64BitLabels;
 
   char *FileName;
   vtkCharArray *CasePath;
