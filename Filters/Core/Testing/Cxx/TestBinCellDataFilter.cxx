@@ -22,6 +22,7 @@
 #include <vtkDoubleArray.h>
 #include <vtkGenericCell.h>
 #include <vtkIdTypeArray.h>
+#include <vtkMersenneTwister.h>
 #include <vtkNew.h>
 #include <vtkPointData.h>
 #include <vtkPoints.h>
@@ -31,7 +32,8 @@
 #include <vtkUnstructuredGrid.h>
 
 vtkSmartPointer<vtkUnstructuredGrid>
-ConstructDelaunay3DSphere(vtkIdType numberOfPoints, bool sampleShellOnly)
+ConstructDelaunay3DSphere(vtkIdType numberOfPoints, vtkMersenneTwister* seq,
+                          bool sampleShellOnly)
 {
   // This function constructs a tetrahedrally meshed sphere by first generating
   // <numberOfPoints> points randomly placed within a unit sphere, then removing
@@ -49,6 +51,7 @@ ConstructDelaunay3DSphere(vtkIdType numberOfPoints, bool sampleShellOnly)
   source->SetRadius(1.);
   source->SetDistributionToUniform();
   source->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
+  source->SetRandomSequence(seq);
   if (sampleShellOnly)
     {
     source->SetDistributionToShell();
@@ -107,88 +110,172 @@ int TestBinCellDataFilter(int, char*[])
   // binned within each cell of the input mesh, and the resulting binned values
   // are compared against precomputed expected values.
 
-  vtkMath::RandomSeed(0);
+  vtkNew<vtkMersenneTwister> seq;
+  seq->InitializeSequence(0, 0);
 
   const vtkIdType numberOfSourcePoints = 1.e4;
   const vtkIdType numberOfInputPoints = 1.e1;
 
   vtkSmartPointer<vtkUnstructuredGrid> sourceGrid =
-    ConstructDelaunay3DSphere(numberOfSourcePoints, false);
+    ConstructDelaunay3DSphere(numberOfSourcePoints, seq.GetPointer(), false);
   vtkSmartPointer<vtkUnstructuredGrid> inputGrid =
-    ConstructDelaunay3DSphere(numberOfInputPoints, true);
+    ConstructDelaunay3DSphere(numberOfInputPoints, seq.GetPointer(), true);
 
   vtkNew<vtkBinCellDataFilter> binDataFilter;
   binDataFilter->SetInputData(inputGrid);
   binDataFilter->SetSourceData(sourceGrid);
   binDataFilter->SetComputeTolerance(false);
   binDataFilter->GenerateValues(3, .2, .8);
-  binDataFilter->SetBinnedDataArrayName("BinnedData");
   binDataFilter->Update();
 
+  {
   vtkIdTypeArray* binnedData = vtkIdTypeArray::SafeDownCast(
-    binDataFilter->GetOutput()->GetCellData()->GetArray("BinnedData"));
+    binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
 
   if (!binnedData)
     {
-    std::cerr<<"No binned data!"<<std::endl;
+    cerr << "No binned data!" << endl;
     return 1;
     }
 
-  for (vtkIdType i=0; i<binnedData->GetNumberOfTuples(); i++)
+  for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
     {
-    std::cout<<"cell # "<<i<<std::endl;
-    std::cout<<"[ < "<<binDataFilter->GetValue(0)<<" ]:\t\t"
-             <<binnedData->GetTypedComponent(i,0)<<std::endl;
-    for (vtkIdType j=1; j<binDataFilter->GetNumberOfBins(); j++)
+    cout << "cell # "<<i << endl;
+    cout << "[ < "<<binDataFilter->GetValue(0) << " ]:\t\t"
+         << binnedData->GetTypedComponent(i,0) << endl;
+    for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
       {
-      std::cout << "[ " << binDataFilter->GetValue(j-1) << " - "
+      cout << "[ " << binDataFilter->GetValue(j-1) << " - "
                 << binDataFilter->GetValue(j) << " ]:\t"
-                << binnedData->GetTypedComponent(i,j) << std::endl;
+                << binnedData->GetTypedComponent(i,j) << endl;
       }
-    std::cout<<"[ > "<<binDataFilter->GetValue(binDataFilter->GetNumberOfBins())
-             <<" ]:\t\t"<<binnedData->
-      GetTypedComponent(i,binDataFilter->GetNumberOfBins())<<std::endl;
-    std::cout << std::endl;
+    cout << "[ > "<<binDataFilter->GetValue(binDataFilter->GetNumberOfBins())
+         << " ]:\t\t" << binnedData->
+      GetTypedComponent(i,binDataFilter->GetNumberOfBins()) << endl;
+    cout << endl;
     }
 
-  vtkIdType expectedBins[14][4] = {{0,0,291,290},
-                                   {0,0,592,547},
-                                   {0,0,276,104},
-                                   {0,0,132,204},
-                                   {0,0,69,576},
-                                   {0,0,55,65},
-                                   {0,69,1310,151},
-                                   {0,0,1100,298},
-                                   {0,0,0,138},
-                                   {0,212,753,91},
-                                   {281,3427,2660,165},
-                                   {0,150,1715,241},
-                                   {0,0,1725,452},
-                                   {0,0,130,246}};
+  vtkIdType expectedBins[17][4] = {{0,0,0,62},
+                                   {0,0,7,134},
+                                   {60,937,1471,152},
+                                   {0,0,392,526},
+                                   {99,373,352,216},
+                                   {6,1262,2054,316},
+                                   {0,36,74,4},
+                                   {33,358,357,46},
+                                   {302,1682,2064,362},
+                                   {26,60,58,41},
+                                   {162,444,620,186},
+                                   {0,316,752,187},
+                                   {0,279,300,23},
+                                   {0,838,1428,152},
+                                   {0,30,53,9},
+                                   {0,381,706,151},
+                                   {0,122,117,6}};
 
-  if (binnedData->GetNumberOfTuples() != 14)
+  if (binnedData->GetNumberOfTuples() != 17)
     {
-    std::cerr<<"Number of cells has deviated from expected value "<<14<<std::endl;
+    cerr << "Number of cells has deviated from expected value " << 17 << endl;
     return 1;
     }
 
   if (binnedData->GetNumberOfComponents() != 4)
     {
-    std::cerr<<"Number of bin values has deviated from expected value "<<4<<std::endl;
+    cerr << "Number of bin values has deviated from expected value "<< 4
+         << endl;
     return 1;
     }
 
-  for (vtkIdType i=0; i<binnedData->GetNumberOfTuples(); i++)
+  for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
     {
-    for (vtkIdType j=0; j<binnedData->GetNumberOfComponents(); j++)
+    for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
       {
       if (binnedData->GetTypedComponent(i,j) != expectedBins[i][j])
         {
-        std::cerr<<"Bin value ("<<i<<","<<j<<") has deviated from expected value "<<expectedBins[i][j]<<std::endl;
+        cerr << "Bin value (" << i << "," << j
+             << ") has deviated from expected value " << expectedBins[i][j]
+             << endl;
         return 1;
         }
       }
     }
+  }
+
+  binDataFilter->SetCellOverlapMethod(vtkBinCellDataFilter::CELL_POINTS);
+  binDataFilter->Update();
+
+  {
+  vtkIdTypeArray* binnedData = vtkIdTypeArray::SafeDownCast(
+    binDataFilter->GetOutput()->GetCellData()->GetArray("binned_radius"));
+
+  if (!binnedData)
+    {
+    cerr << "No binned data!" << endl;
+    return 1;
+    }
+
+  for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
+    {
+    cout << "cell # "<< i << endl;
+    cout << "[ < " << binDataFilter->GetValue(0) << " ]:\t\t"
+             <<binnedData->GetTypedComponent(i,0) << endl;
+    for (vtkIdType j = 1; j < binDataFilter->GetNumberOfBins(); j++)
+      {
+      cout << "[ " << binDataFilter->GetValue(j-1) << " - "
+           << binDataFilter->GetValue(j) << " ]:\t"
+           << binnedData->GetTypedComponent(i,j) << endl;
+      }
+    cout << "[ > " << binDataFilter->GetValue(binDataFilter->GetNumberOfBins())
+         << " ]:\t\t" << binnedData->
+      GetTypedComponent(i,binDataFilter->GetNumberOfBins()) << endl;
+    cout << endl;
+    }
+
+  vtkIdType expectedBins[17][4] = {{0,0,0,165},
+                                   {0,0,6,282},
+                                   {69,1096,1979,278},
+                                   {0,0,382,839},
+                                   {121,406,345,326},
+                                   {6,1352,2675,667},
+                                   {0,14,130,0},
+                                   {6,314,335,46},
+                                   {331,1858,2425,713},
+                                   {22,0,32,27},
+                                   {132,359,538,188},
+                                   {0,313,857,307},
+                                   {0,405,264,24},
+                                   {1,861,1880,270},
+                                   {0,31,77,1},
+                                   {0,406,1094,348},
+                                   {0,106,204,11}};
+
+  if (binnedData->GetNumberOfTuples() != 17)
+    {
+    cerr << "Number of cells has deviated from expected value " << 17 << endl;
+    return 1;
+    }
+
+  if (binnedData->GetNumberOfComponents() != 4)
+    {
+    cerr << "Number of bin values has deviated from expected value " << 4
+         << endl;
+    return 1;
+    }
+
+  for (vtkIdType i = 0; i < binnedData->GetNumberOfTuples(); i++)
+    {
+    for (vtkIdType j = 0; j < binnedData->GetNumberOfComponents(); j++)
+      {
+      if (binnedData->GetTypedComponent(i,j) != expectedBins[i][j])
+        {
+        cerr << "Bin value (" << i << "," << j
+             << ") has deviated from expected value "
+             << expectedBins[i][j] << endl;
+        return 1;
+        }
+      }
+    }
+  }
 
   return EXIT_SUCCESS;
 }

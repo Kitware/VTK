@@ -33,10 +33,7 @@
 
 #include "vtkContourValues.h" // Needed for inline methods
 
-class vtkIdTypeArray;
-class vtkCharArray;
-class vtkMaskPoints;
-class vtkImageData;
+class vtkCellLocator;
 
 class VTKFILTERSCORE_EXPORT vtkBinCellDataFilter : public vtkDataSetAlgorithm
 {
@@ -91,13 +88,6 @@ public:
   vtkBooleanMacro(SpatialMatch, int);
 
   // Description:
-  // Returns the name of the id array added to the output that holds the count
-  // of source cells whose centroids are within input cells.
-  // Set to "CellCount" by default.
-  vtkSetStringMacro(BinnedDataArrayName)
-  vtkGetStringMacro(BinnedDataArrayName)
-
-  // Description:
   // Set whether to store the number of nonzero bins for each cell.
   // On by default.
   vtkSetMacro(StoreNumberOfNonzeroBins, bool);
@@ -131,6 +121,25 @@ public:
   vtkSetMacro(ArrayComponent,int);
   vtkGetMacro(ArrayComponent,int);
 
+  enum CellOverlapCriterion
+  {
+    CELL_CENTROID=0,
+    CELL_POINTS=1,
+  };
+
+  // Description:
+  // Set whether cell overlap is determined by source cell centroid or by source
+  // cell points.
+  // Centroid by default.
+  vtkSetClampMacro(CellOverlapMethod,int,CELL_CENTROID,CELL_POINTS);
+  vtkGetMacro(CellOverlapMethod, int);
+
+  // Description:
+  // Set/Get a spatial locator for speeding the search process. By
+  // default an instance of vtkCellLocator is used.
+  virtual void SetCellLocator(vtkCellLocator *cellLocator);
+  vtkGetObjectMacro(CellLocator,vtkCellLocator);
+
 protected:
   vtkBinCellDataFilter();
   ~vtkBinCellDataFilter();
@@ -141,8 +150,10 @@ protected:
   double Tolerance;
   bool ComputeTolerance;
   int ArrayComponent;
+  int CellOverlapMethod;
 
   vtkBinValues *BinValues;
+  vtkCellLocator *CellLocator;
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
@@ -151,7 +162,8 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation *, vtkInformationVector **,
                                   vtkInformationVector *);
 
-  char* BinnedDataArrayName;
+  virtual void CreateDefaultLocator();
+
   char* NumberOfNonzeroBinsArrayName;
 
 private:
