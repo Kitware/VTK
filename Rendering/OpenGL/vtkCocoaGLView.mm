@@ -202,11 +202,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // first responder.
   NSPoint windowLoc = [[self window] mouseLocationOutsideOfEventStream];
   NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
   NSPoint backingLoc = [self convertPointToBacking:viewLoc];
-#else
-  NSPoint backingLoc = viewLoc;
-#endif
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
@@ -306,11 +302,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // left corner. Since this is a mouse event, we can use locationInWindow.
   NSPoint windowLoc = [theEvent locationInWindow];
   NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
   NSPoint backingLoc = [self convertPointToBacking:viewLoc];
-#else
-  NSPoint backingLoc = viewLoc;
-#endif
 
   NSUInteger flags = [theEvent modifierFlags];
   int shiftDown = ((flags & NSEventModifierFlagShift) != 0);
@@ -342,11 +334,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   // left corner. Since this is a mouse event, we can use locationInWindow.
   NSPoint windowLoc = [theEvent locationInWindow];
   NSPoint viewLoc = [self convertPoint:windowLoc fromView:nil];
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
   NSPoint backingLoc = [self convertPointToBacking:viewLoc];
-#else
-  NSPoint backingLoc = viewLoc;
-#endif
 
   int clickCount = static_cast<int>([theEvent clickCount]);
   int repeatCount = ((clickCount > 1) ? clickCount - 1 : 0);

@@ -49,13 +49,8 @@ void vtkCoreGraphicsGPUInfoList::Probe()
       {
         GLint vramGL = 0;
         vtkTypeUInt64 vramVTK = 0;
-#if MAC_OS_X_VERSION_MIN_REQUIRED >= 1070
         error = CGLDescribeRenderer(infoObj, i, kCGLRPVideoMemoryMegabytes, &vramGL);
         vramVTK = static_cast<vtkTypeUInt64>(vramGL) * 1024 * 1024;
-#else
-        error = CGLDescribeRenderer(infoObj, i, kCGLRPVideoMemory, &vramGL);
-        vramVTK = static_cast<vtkTypeUInt64>(vramGL);
-#endif
 
         // The software renderer will return a video memory of 0, so ignore it.
         if ((error == kCGLNoError) && (vramVTK > 0))
