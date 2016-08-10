@@ -34,6 +34,15 @@ namespace mpi
                 Datatype::datatype(), root, comm);
     }
 
+    static request ibroadcast(const communicator& comm, T& x, int root)
+    {
+      request r;
+      MPI_Ibcast(Datatype::address(x),
+                 Datatype::count(x),
+                 Datatype::datatype(), root, comm, &r.r);
+      return r;
+    }
+
     static void gather(const communicator& comm, const T& in, std::vector<T>& out, int root)
     {
       size_t s  = comm.size();
@@ -218,6 +227,14 @@ namespace mpi
   {
     Collectives<T,void*>::broadcast(comm, x, root);
   }
+
+  //! iBroadcast to all processes in `comm`.
+  template<class T>
+  request   ibroadcast(const communicator& comm, T& x, int root)
+  {
+    return Collectives<T,void*>::ibroadcast(comm, x, root);
+  }
+
   //! Gather from all processes in `comm`.
   //!  On `root` process, `out` is resized to `comm.size()` and filled with
   //! elements from the respective ranks.
