@@ -21,6 +21,7 @@
 #include "vtkParseMain.h"
 #include "vtkParseHierarchy.h"
 #include "vtkConfigure.h"
+#include "vtkType.h"
 #include "vtkWrap.h"
 
 HierarchyInfo *hierarchyInfo = NULL;
@@ -221,12 +222,12 @@ void use_hints(FILE *fp)
         }
       break;
 
+#if VTK_ID_TYPE_IMPL == VTK_INT
+    case VTK_PARSE_ID_TYPE_PTR:
+#endif
     case VTK_PARSE_INT_PTR:
     case VTK_PARSE_SHORT_PTR:
     case VTK_PARSE_SIGNED_CHAR_PTR:
-#ifndef VTK_USE_64BIT_IDS
-    case VTK_PARSE_ID_TYPE_PTR:
-#endif
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%i ");
@@ -240,6 +241,9 @@ void use_hints(FILE *fp)
         }
       break;
 
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+    case VTK_PARSE_ID_TYPE_PTR:
+#endif
     case VTK_PARSE_LONG_PTR:
       for (i = 0; i < currentFunction->HintSize; i++)
         {
@@ -247,19 +251,9 @@ void use_hints(FILE *fp)
         }
       break;
 
-#ifdef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_LONG_LONG
     case VTK_PARSE_ID_TYPE_PTR:
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-#  if defined(_MSC_VER)
-        fprintf(fp,"%%I64i ");
-#  else
-        fprintf(fp,"%%lli ");
-#  endif
-        }
-      break;
 #endif
-
     case VTK_PARSE_LONG_LONG_PTR:
       for (i = 0; i < currentFunction->HintSize; i++)
         {
@@ -274,18 +268,21 @@ void use_hints(FILE *fp)
         }
       break;
 
-    case VTK_PARSE_UNSIGNED_CHAR_PTR:
-    case VTK_PARSE_UNSIGNED_INT_PTR:
-    case VTK_PARSE_UNSIGNED_SHORT_PTR:
-#ifndef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_INT
     case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
 #endif
+    case VTK_PARSE_UNSIGNED_INT_PTR:
+    case VTK_PARSE_UNSIGNED_SHORT_PTR:
+    case VTK_PARSE_UNSIGNED_CHAR_PTR:
       for (i = 0; i < currentFunction->HintSize; i++)
         {
         fprintf(fp,"%%u ");
         }
       break;
 
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+    case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
+#endif
     case VTK_PARSE_UNSIGNED_LONG_PTR:
       for (i = 0; i < currentFunction->HintSize; i++)
         {
@@ -293,19 +290,9 @@ void use_hints(FILE *fp)
         }
       break;
 
-#ifdef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_LONG_LONG
     case VTK_PARSE_UNSIGNED_ID_TYPE_PTR:
-      for (i = 0; i < currentFunction->HintSize; i++)
-        {
-#  if defined(_MSC_VER)
-        fprintf(fp,"%%I64u ");
-#  else
-        fprintf(fp,"%%llu ");
-#  endif
-        }
-      break;
 #endif
-
     case VTK_PARSE_UNSIGNED_LONG_LONG_PTR:
       for (i = 0; i < currentFunction->HintSize; i++)
         {
@@ -362,10 +349,10 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case VTK_PARSE_INT:
-#ifndef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_INT
     case VTK_PARSE_ID_TYPE:
 #endif
+    case VTK_PARSE_INT:
     case VTK_PARSE_SIGNED_CHAR:
       /* rely on promotion to integer, since "%hhi" is non-standard */
       fprintf(fp,"    char tempResult[1024];\n");
@@ -385,24 +372,17 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+    case VTK_PARSE_ID_TYPE:
+#endif
     case VTK_PARSE_LONG:
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%li\",temp%i);\n",
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-#ifdef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_LONG_LONG
     case VTK_PARSE_ID_TYPE:
-      fprintf(fp,"    char tempResult[1024];\n");
-#  if defined(_MSC_VER)
-      fprintf(fp,"    sprintf(tempResult,\"%%I64i\",temp%i);\n",
-              MAX_ARGS);
-#  else
-      fprintf(fp,"    sprintf(tempResult,\"%%lli\",temp%i);\n",
-              MAX_ARGS);
-#  endif
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
-      break;
 #endif
     case VTK_PARSE_LONG_LONG:
       fprintf(fp,"    char tempResult[1024];\n");
@@ -416,10 +396,10 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-    case VTK_PARSE_UNSIGNED_INT:
-#ifndef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_INT
     case VTK_PARSE_UNSIGNED_ID_TYPE:
 #endif
+    case VTK_PARSE_UNSIGNED_INT:
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%u\",temp%i);\n",
               MAX_ARGS);
@@ -431,6 +411,9 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+    case VTK_PARSE_UNSIGNED_ID_TYPE:
+#endif
     case VTK_PARSE_UNSIGNED_LONG:
       fprintf(fp,"    char tempResult[1024];\n");
       fprintf(fp,"    sprintf(tempResult,\"%%lu\",temp%i);\n",
@@ -444,18 +427,8 @@ void return_result(FILE *fp)
               MAX_ARGS);
       fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
       break;
-#ifdef VTK_USE_64BIT_IDS
+#if VTK_ID_TYPE_IMPL == VTK_LONG_LONG
     case VTK_PARSE_UNSIGNED_ID_TYPE:
-      fprintf(fp,"    char tempResult[1024];\n");
-#  if defined(_MSC_VER)
-      fprintf(fp,"    sprintf(tempResult,\"%%I64u\",temp%i);\n",
-              MAX_ARGS);
-#  else
-      fprintf(fp,"    sprintf(tempResult,\"%%llu\",temp%i);\n",
-              MAX_ARGS);
-#  endif
-      fprintf(fp,"    Tcl_SetResult(interp, tempResult, TCL_VOLATILE);\n");
-      break;
 #endif
     case VTK_PARSE_UNSIGNED_LONG_LONG:
       fprintf(fp,"    char tempResult[1024];\n");

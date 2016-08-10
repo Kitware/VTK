@@ -65,7 +65,11 @@
 #ifdef VTK_USE_64BIT_IDS
 #ifdef NC_INT64
 // This may or may not work with the netCDF 4 library reading in netCDF 3 files.
-#define nc_get_vars_vtkIdType nc_get_vars_longlong
+#if VTK_ID_TYPE_IMPL == VTK_LONG
+# define nc_get_vars_vtkIdType nc_get_vars_long
+#else
+# define nc_get_vars_vtkIdType nc_get_vars_longlong
+#endif
 #else // NC_INT64
 static int nc_get_vars_vtkIdType(int ncid, int varid, const size_t start[],
                                  const size_t count[], const ptrdiff_t stride[],

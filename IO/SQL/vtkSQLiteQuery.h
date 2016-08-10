@@ -122,8 +122,8 @@ public:
 
   bool BindParameter(int index, unsigned long value);
   bool BindParameter(int index, long value);
-  bool BindParameter(int index, vtkTypeUInt64 value);
-  bool BindParameter(int index, vtkTypeInt64 value);
+  bool BindParameter(int index, unsigned long long value);
+  bool BindParameter(int index, long long value);
 
   bool BindParameter(int index, float value);
   bool BindParameter(int index, double value);

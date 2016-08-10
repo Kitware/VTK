@@ -140,8 +140,8 @@ public:
   virtual bool BindParameter(int index, int value);
 
   virtual bool BindParameter(int index, long value);
-  virtual bool BindParameter(int index, vtkTypeUInt64 value);
-  virtual bool BindParameter(int index, vtkTypeInt64 value);
+  virtual bool BindParameter(int index, unsigned long long value);
+  virtual bool BindParameter(int index, long long value);
 
   virtual bool BindParameter(int index, float value);
   virtual bool BindParameter(int index, double value);

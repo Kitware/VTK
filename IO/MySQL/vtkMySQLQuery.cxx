@@ -138,8 +138,8 @@ VTK_MYSQL_TYPENAME_MACRO(signed long, MYSQL_TYPE_LONG);
 VTK_MYSQL_TYPENAME_MACRO(unsigned long, MYSQL_TYPE_LONG);
 VTK_MYSQL_TYPENAME_MACRO(float, MYSQL_TYPE_FLOAT);
 VTK_MYSQL_TYPENAME_MACRO(double, MYSQL_TYPE_DOUBLE);
-VTK_MYSQL_TYPENAME_MACRO(vtkTypeInt64, MYSQL_TYPE_LONGLONG);
-VTK_MYSQL_TYPENAME_MACRO(vtkTypeUInt64, MYSQL_TYPE_LONGLONG);
+VTK_MYSQL_TYPENAME_MACRO(long long, MYSQL_TYPE_LONGLONG);
+VTK_MYSQL_TYPENAME_MACRO(unsigned long long, MYSQL_TYPE_LONGLONG);
 VTK_MYSQL_TYPENAME_MACRO(const char *, MYSQL_TYPE_STRING);
 VTK_MYSQL_TYPENAME_MACRO(char *, MYSQL_TYPE_STRING);
 VTK_MYSQL_TYPENAME_MACRO(void *, MYSQL_TYPE_BLOB);
@@ -175,7 +175,7 @@ bool vtkMySQLIsTypeUnsigned<unsigned long>(unsigned long)
 }
 
 template<>
-bool vtkMySQLIsTypeUnsigned<vtkTypeUInt64>(vtkTypeUInt64)
+bool vtkMySQLIsTypeUnsigned<unsigned long long>(unsigned long long)
 {
   return true;
 }
@@ -1092,7 +1092,7 @@ bool vtkMySQLQuery::BindParameter(int index, signed long value)
 
 // ----------------------------------------------------------------------
 
-bool vtkMySQLQuery::BindParameter(int index, vtkTypeUInt64 value)
+bool vtkMySQLQuery::BindParameter(int index, unsigned long long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildBoundParameter(value));
   return true;
@@ -1101,7 +1101,7 @@ bool vtkMySQLQuery::BindParameter(int index, vtkTypeUInt64 value)
 
 // ----------------------------------------------------------------------
 
-bool vtkMySQLQuery::BindParameter(int index, vtkTypeInt64 value)
+bool vtkMySQLQuery::BindParameter(int index, long long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildBoundParameter(value));
   return true;

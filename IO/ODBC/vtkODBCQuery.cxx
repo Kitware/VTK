@@ -205,8 +205,8 @@ VTK_ODBC_C_TYPENAME_MACRO(signed long, SQL_C_SLONG);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned long, SQL_C_ULONG);
 VTK_ODBC_C_TYPENAME_MACRO(float, SQL_C_FLOAT);
 VTK_ODBC_C_TYPENAME_MACRO(double, SQL_C_DOUBLE);
-VTK_ODBC_C_TYPENAME_MACRO(vtkTypeInt64, SQL_C_SBIGINT);
-VTK_ODBC_C_TYPENAME_MACRO(vtkTypeUInt64, SQL_C_UBIGINT);
+VTK_ODBC_C_TYPENAME_MACRO(long long, SQL_C_SBIGINT);
+VTK_ODBC_C_TYPENAME_MACRO(unsigned long long, SQL_C_UBIGINT);
 VTK_ODBC_C_TYPENAME_MACRO(const char *, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(char *, SQL_C_CHAR);
 VTK_ODBC_C_TYPENAME_MACRO(unsigned char *, SQL_C_CHAR);
@@ -227,8 +227,8 @@ VTK_ODBC_SQL_TYPENAME_MACRO(signed long, SQL_INTEGER);
 VTK_ODBC_SQL_TYPENAME_MACRO(unsigned long, SQL_INTEGER);
 VTK_ODBC_SQL_TYPENAME_MACRO(float, SQL_REAL);
 VTK_ODBC_SQL_TYPENAME_MACRO(double, SQL_DOUBLE);
-VTK_ODBC_SQL_TYPENAME_MACRO(vtkTypeInt64, SQL_BIGINT);
-VTK_ODBC_SQL_TYPENAME_MACRO(vtkTypeUInt64, SQL_BIGINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(long long, SQL_BIGINT);
+VTK_ODBC_SQL_TYPENAME_MACRO(unsigned long long, SQL_BIGINT);
 VTK_ODBC_SQL_TYPENAME_MACRO(const char *, SQL_VARCHAR);
 VTK_ODBC_SQL_TYPENAME_MACRO(char *, SQL_VARCHAR);
 VTK_ODBC_SQL_TYPENAME_MACRO(unsigned char *, SQL_VARCHAR);
@@ -1800,7 +1800,7 @@ vtkODBCQuery::BindParameter(int index, signed long value)
 // ----------------------------------------------------------------------
 
 bool
-vtkODBCQuery::BindParameter(int index, vtkTypeUInt64 value)
+vtkODBCQuery::BindParameter(int index, unsigned long long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
   return true;
@@ -1810,7 +1810,7 @@ vtkODBCQuery::BindParameter(int index, vtkTypeUInt64 value)
 // ----------------------------------------------------------------------
 
 bool
-vtkODBCQuery::BindParameter(int index, vtkTypeInt64 value)
+vtkODBCQuery::BindParameter(int index, long long value)
 {
   this->Internals->SetBoundParameter(index, vtkBuildODBCBoundParameter(value));
   return true;

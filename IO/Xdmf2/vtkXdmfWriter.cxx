@@ -62,6 +62,12 @@
 
 #include <libxml/tree.h> // always after std::blah stuff
 
+#ifdef VTK_USE_64BIT_IDS
+typedef XdmfInt64 vtkXdmfIdType;
+#else
+typedef XdmfInt32 vtkXdmfIdType;
+#endif
+
 using namespace xdmf2;
 
 struct  _xmlNode;
@@ -771,28 +777,28 @@ int vtkXdmfWriter::CreateTopology(vtkDataSet *ds, xdmf2::XdmfGrid *grid, vtkIdTy
         if ( ct->VTKType == VTK_VOXEL )
           {
           // Hack for VTK_VOXEL
-          di->SetValue(cvnt++, cellPoints->GetId(0));
-          di->SetValue(cvnt++, cellPoints->GetId(1));
-          di->SetValue(cvnt++, cellPoints->GetId(3));
-          di->SetValue(cvnt++, cellPoints->GetId(2));
-          di->SetValue(cvnt++, cellPoints->GetId(4));
-          di->SetValue(cvnt++, cellPoints->GetId(5));
-          di->SetValue(cvnt++, cellPoints->GetId(7));
-          di->SetValue(cvnt++, cellPoints->GetId(6));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(0));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(1));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(3));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(2));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(4));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(5));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(7));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(6));
           }
         else if ( ct->VTKType == VTK_PIXEL )
           {
           // Hack for VTK_PIXEL
-          di->SetValue(cvnt++, cellPoints->GetId(0));
-          di->SetValue(cvnt++, cellPoints->GetId(1));
-          di->SetValue(cvnt++, cellPoints->GetId(3));
-          di->SetValue(cvnt++, cellPoints->GetId(2));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(0));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(1));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(3));
+          di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(2));
           }
         else
           {
           for( vtkIdType j = 0 ; j < ppCell ; j++ )
             {
-            di->SetValue(cvnt++, cellPoints->GetId(j));
+            di->SetValue(cvnt++, (vtkXdmfIdType)cellPoints->GetId(j));
             }
           }//pd has 4 arrays, so it is rarely homogeoneous
         }
