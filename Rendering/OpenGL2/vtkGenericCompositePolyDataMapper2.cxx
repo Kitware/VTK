@@ -50,17 +50,11 @@ public:
   vtkTypeMacro(vtkCompositeMapperHelper, vtkOpenGLPolyDataMapper);
 
   vtkGenericCompositePolyDataMapper2 *Parent;
-  int LastColorCoordinates;
-  int LastNormalsOffset;
-  int LastTCoordComponents;
 
 protected:
   vtkCompositeMapperHelper()
     {
     this->Parent = 0;
-    this->LastColorCoordinates = 0;
-    this->LastNormalsOffset = 0;
-    this->LastTCoordComponents = 0;
     };
   ~vtkCompositeMapperHelper() VTK_OVERRIDE {};
 
@@ -72,11 +66,6 @@ protected:
   // Description:
   // Set the shader parameteres related to lighting, called by UpdateShader
   void SetLightingShaderParameters(
-    vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
-
-  // Description:
-  // Does the shader source need to be recomputed
-  bool GetNeedToRebuildShaders(
     vtkOpenGLHelper &cellBO, vtkRenderer *ren, vtkActor *act) VTK_OVERRIDE;
 
   // Description:
@@ -171,32 +160,6 @@ void vtkCompositeMapperHelper::UpdateShaders(
   this->Superclass::UpdateShaders(cellBO, ren, actor);
   // mark this shader as initialized
   this->Parent->SetShaderInitialized(cellBO.Program, true);
-}
-
-//-----------------------------------------------------------------------------
-// smarter version that knows actor/property/camera/lights are not changing
-bool vtkCompositeMapperHelper::GetNeedToRebuildShaders(
-  vtkOpenGLHelper &cellBO, vtkRenderer* ren, vtkActor *actor)
-{
-  if (!cellBO.Program ||  !this->Parent->GetShaderInitialized(cellBO.Program))
-    {
-    bool result =
-      this->Superclass::GetNeedToRebuildShaders(cellBO, ren, actor);
-    this->LastColorCoordinates = this->VBO->ColorComponents;
-    this->LastNormalsOffset = this->VBO->NormalOffset;
-    this->LastTCoordComponents = this->VBO->TCoordComponents;
-    return result;
-    }
-
-  // after the first datasedt we only look for changes in pointdata
-  if (this->LastColorCoordinates != this->VBO->ColorComponents ||
-      this->LastNormalsOffset != this->VBO->NormalOffset ||
-      this->LastTCoordComponents != this->VBO->TCoordComponents)
-    {
-    return true;
-    }
-
-  return false;
 }
 
 //===================================================================
