@@ -103,6 +103,7 @@ redundantAssignment:Rendering/OpenGL2/vtkRenderbuffer.cxx
 redundantAssignment:Rendering/OpenGL2/vtkTextureObject.cxx
 redundantAssignment:Rendering/VolumeOpenGL2/vtkOpenGLGPUVolumeRayCastMapper.cxx
 stlIfStrFind:Infovis/Core/vtkPipelineGraphSource.cxx
+stlIfStrFind:Rendering/OpenGL2/vtkOpenGLRenderer.cxx
 unassignedVariable:Common/Transforms/vtkHomogeneousTransform.cxx
 unassignedVariable:Filters/Core/vtkFlyingEdges3D.cxx
 unassignedVariable:Rendering/Core/vtkCamera.cxx
