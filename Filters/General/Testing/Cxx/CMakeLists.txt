@@ -21,6 +21,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestContourTriangulatorCutter.cxx
   TestContourTriangulator.cxx
   TestContourTriangulatorMarching.cxx
+  TestCountFaces.cxx,NO_VALID
   TestDeformPointSet.cxx
   TestDensifyPolyData.cxx
   TestDistancePolyDataFilter.cxx
