@@ -530,8 +530,13 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
   this->Internals->GeometryImage->Activate();
   this->Internals->LICImage->Activate();
 
+  if (!this->Internals->ColorPass->Program)
+    {
+    this->InitializeResources();
+    }
   vtkShaderProgram *colorPass = this->Internals->ColorPass->Program;
   renWin->GetShaderCache()->ReadyShaderProgram(colorPass);
+
   colorPass->SetUniformi("texVectors",
     this->Internals->VectorImage->GetTextureUnit());
   colorPass->SetUniformi("texGeomColors",
@@ -610,6 +615,10 @@ void vtkSurfaceLICInterface::CombineColorsAndLIC()
     this->Internals->HSLColorImage->Activate();
     this->Internals->LICImage->Activate();
 
+    if (!this->Internals->ColorEnhancePass->Program)
+      {
+      this->InitializeResources();
+      }
     vtkShaderProgram *colorEnhancePass =
       this->Internals->ColorEnhancePass->Program;
     renWin->GetShaderCache()->ReadyShaderProgram(colorEnhancePass);
@@ -670,6 +679,10 @@ void vtkSurfaceLICInterface::CopyToScreen()
   this->Internals->DepthImage->Activate();
   this->Internals->RGBColorImage->Activate();
 
+  if (!this->Internals->CopyPass->Program)
+    {
+    this->InitializeResources();
+    }
   vtkShaderProgram *copyPass =
     this->Internals->CopyPass->Program;
   renWin->GetShaderCache()->ReadyShaderProgram(copyPass);
@@ -1084,11 +1097,13 @@ namespace {
   if (*cbor == NULL)
     {
     *cbor = new vtkOpenGLHelper;
-    std::string GSSource;
+    }
+  if (!(*cbor)->Program)
+    {
     (*cbor)->Program =
         renWin->GetShaderCache()->ReadyShaderProgram(vert,
                                               frag,
-                                              GSSource.c_str());
+                                              "");
     }
   else
     {
@@ -1145,21 +1160,21 @@ void vtkSurfaceLICInterface::InitializeResources()
   // load shader codes
   vtkOpenGLRenderWindow *renWin = this->Internals->Context;
 
-  if (!this->Internals->ColorPass)
+  if (!this->Internals->ColorPass || !this->Internals->ColorPass->Program)
     {
     initialized = false;
     BuildAShader(renWin, &this->Internals->ColorPass,
       vtkTextureObjectVS, vtkSurfaceLICInterface_SC);
     }
 
-  if (!this->Internals->ColorEnhancePass)
+  if (!this->Internals->ColorEnhancePass || !this->Internals->ColorEnhancePass->Program)
     {
     initialized = false;
     BuildAShader(renWin, &this->Internals->ColorEnhancePass,
       vtkTextureObjectVS, vtkSurfaceLICInterface_CE);
     }
 
-  if (!this->Internals->CopyPass)
+  if (!this->Internals->CopyPass || !this->Internals->CopyPass->Program)
     {
     initialized = false;
     BuildAShader(renWin, &this->Internals->CopyPass,

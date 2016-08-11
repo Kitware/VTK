@@ -161,8 +161,21 @@ bool vtkSurfaceLICHelper::IsSupported(vtkOpenGLRenderWindow *context)
 
 // Description:
 // Free textures and shader programs we're holding a reference to.
-void vtkSurfaceLICHelper::ReleaseGraphicsResources(vtkWindow *)
+void vtkSurfaceLICHelper::ReleaseGraphicsResources(vtkWindow *win)
 {
+  if (this->ColorEnhancePass)
+    {
+    this->ColorEnhancePass->ReleaseGraphicsResources(win);
+    }
+  if (this->ColorPass)
+    {
+    this->ColorPass->ReleaseGraphicsResources(win);
+    }
+  if (this->CopyPass)
+    {
+    this->CopyPass->ReleaseGraphicsResources(win);
+    }
+
   this->ClearTextures();
 
   this->Compositor = NULL;
@@ -293,6 +306,8 @@ void vtkSurfaceLICHelper::RenderQuad(
       const vtkPixelExtent &viewportExt,
       vtkOpenGLHelper *cbo)
 {
+  vtkOpenGLStaticCheckErrorMacro("failed at RenderQuad");
+
   // cell to node
   vtkPixelExtent next(viewportExt);
   next.CellToNode();

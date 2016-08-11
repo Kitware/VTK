@@ -18,6 +18,7 @@
 #include "vtkNew.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkShaderProgram.h"
 
 // ----------------------------------------------------------------------------
 vtkOpenGLRenderUtilities::vtkOpenGLRenderUtilities()
@@ -62,6 +63,11 @@ void vtkOpenGLRenderUtilities::RenderTriangles(
     {
     vtkGenericWarningMacro(<< "Error must have verts, program and vao");
     return;
+    }
+
+  if (!program->isBound())
+    {
+    vtkGenericWarningMacro("attempt to render to unbound program");
     }
 
   vtkNew<vtkOpenGLBufferObject> vbo;
