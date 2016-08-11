@@ -266,6 +266,9 @@ protected:
   virtual void ReplaceShaderCoincidentOffset(
     std::map<vtkShader::Type, vtkShader *> shaders,
     vtkRenderer *ren, vtkActor *act);
+  virtual void ReplaceShaderDepth(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *ren, vtkActor *act);
 
   // Description:
   // Set the shader parameters related to the mapper/input data, called by UpdateShader

@@ -86,7 +86,7 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
     "uniform mat4 VCDCMatrix;\n";
   vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Dec",replacement);
 
-  vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl",
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Depth::Impl",
     // compute the eye position and unit direction
     "  vec3 EyePos;\n"
     "  vec3 EyeDir;\n"
@@ -129,16 +129,8 @@ void vtkOpenGLSphereMapper::ReplaceShaderValues(
     "  gl_FragDepth = (pos.z / pos.w + 1.0) / 2.0;\n"
     );
 
-  if (ren->GetLastRenderingUsedDepthPeeling())
-    {
-    vtkShaderProgram::Substitute(FSSource,
-      "//VTK::DepthPeeling::Impl",
-      "float odepth = texture2D(opaqueZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragDepth >= odepth) { discard; }\n"
-      "  float tdepth = texture2D(translucentZTexture, gl_FragCoord.xy/screenSize).r;\n"
-      "  if (gl_FragDepth <= tdepth) { discard; }\n"
-      );
-    }
+  // Strip out the normal line -- the normal is computed as part of the depth
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Normal::Impl", "");
 
   shaders[vtkShader::Vertex]->SetSource(VSSource);
   shaders[vtkShader::Fragment]->SetSource(FSSource);

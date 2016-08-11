@@ -1335,19 +1335,30 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
       vtkShaderProgram::Substitute(FSSource,
         "//VTK::UniformFlow::Impl",
         "float cscale = length(vec2(dFdx(gl_FragCoord.z),dFdy(gl_FragCoord.z)));\n"
-        "  gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n"
         "  //VTK::UniformFlow::Impl\n" // for other replacements
         );
+      vtkShaderProgram::Substitute(FSSource, "//VTK::Depth::Impl",
+        "gl_FragDepth = gl_FragCoord.z + cfactor*cscale + 0.000016*coffset;\n");
       }
     else
       {
       vtkShaderProgram::Substitute(FSSource,
-        "//VTK::Coincident::Impl",
+        "//VTK::Depth::Impl",
         "gl_FragDepth = gl_FragCoord.z + 0.000016*coffset;\n"
         );
       }
     shaders[vtkShader::Fragment]->SetSource(FSSource);
     }
+}
+
+void vtkOpenGLPolyDataMapper::ReplaceShaderDepth(
+    std::map<vtkShader::Type, vtkShader *> shaders,
+    vtkRenderer *, vtkActor *)
+{
+  std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
+  vtkShaderProgram::Substitute(FSSource,"//VTK::Depth::Impl",
+    "gl_FragDepth = gl_FragCoord.z;");
+  shaders[vtkShader::Fragment]->SetSource(FSSource);
 }
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
@@ -1364,6 +1375,7 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   this->ReplaceShaderPrimID(shaders, ren, actor);
   this->ReplaceShaderPositionVC(shaders, ren, actor);
   this->ReplaceShaderCoincidentOffset(shaders, ren, actor);
+  this->ReplaceShaderDepth(shaders, ren, actor);
 
   //cout << "VS: " << shaders[vtkShader::Vertex]->GetSource() << endl;
   //cout << "GS: " << shaders[vtkShader::Geometry]->GetSource() << endl;
