@@ -1,4 +1,6 @@
 set(TestVASPAnimationReader_ARGS DATA{../Data/VASP/NPT_Z_ANIMATE.out})
+set(TestVASPTessellationReader_ARGS DATA{../Data/VASP/NPT_Z_TESSELLATE.out})
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
@@ -19,6 +21,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx,NO_VALID
   TestVASPAnimationReader.cxx
+  TestVASPTessellationReader.cxx
   TestVDWSpheres.cxx
   TestCMLMoleculeReader.cxx
   )
