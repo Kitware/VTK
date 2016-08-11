@@ -212,9 +212,9 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
   const char *keySym = 0;
 
   NSEventType type = [theEvent type];
-  BOOL isPress = (type == NSKeyDown);
+  BOOL isPress = (type == NSEventTypeKeyDown);
 
-  if (type == NSKeyUp || type == NSKeyDown)
+  if (type == NSEventTypeKeyUp || type == NSEventTypeKeyDown)
     {
     // Try to get the characters associated with the key event as an ASCII string.
     const char* keyedChars = [[theEvent characters] cStringUsingEncoding:NSASCIIStringEncoding];
