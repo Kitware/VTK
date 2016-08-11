@@ -133,9 +133,9 @@ vtkStandardNewMacro(vtkXOpenGLRenderWindow);
 
 #ifdef VTK_USE_OSMESA
 // a couple of routines for offscreen rendering
-void vtkOSMesaDestroyWindow(void *Window)
+void vtkOSMesaDestroyWindow(void *window)
 {
-  free(Window);
+  free(window);
 }
 
 void *vtkOSMesaCreateWindow(int width, int height)
