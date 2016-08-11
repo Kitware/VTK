@@ -1,8 +1,6 @@
 vtk_module(vtkParallelMPI
   GROUPS
     MPI
-  DEPENDS
-    vtkParallelCore
   TEST_DEPENDS
     vtkTestingRendering
     vtkRenderingParallel
@@ -11,4 +9,9 @@ vtk_module(vtkParallelMPI
     vtkInteractionStyle
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonCore
+    vtkParallelCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
   )

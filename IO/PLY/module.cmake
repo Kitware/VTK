@@ -1,10 +1,6 @@
 vtk_module(vtkIOPLY
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonMisc
-    vtkCommonExecutionModel
-    vtkIOGeometry
   TEST_DEPENDS
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkIOImage
@@ -12,4 +8,10 @@ vtk_module(vtkIOPLY
     vtkInteractionStyle
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkIOCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMisc
   )

@@ -1,9 +1,14 @@
 vtk_module(vtkRenderingExternal
-  DEPENDS
-    vtkRenderingCore
-    vtkRendering${VTK_RENDERING_BACKEND}
   TEST_DEPENDS
     vtkglew
     vtkTestingRendering
   EXCLUDE_FROM_ALL
+  DEPENDS
+    vtkCommonCore
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonTransforms
+    vtkRenderingOpenGL
   )

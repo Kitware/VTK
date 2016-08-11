@@ -1,13 +1,6 @@
 vtk_module(vtkIOLegacy
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonSystem
-    vtkCommonMisc
-    vtkIOCore
-  PRIVATE_DEPENDS
-    vtksys
   TEST_DEPENDS
     vtkFiltersAMR
     vtkInteractionStyle
@@ -15,4 +8,12 @@ vtk_module(vtkIOLegacy
     vtkTestingRendering
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOCore
+  PRIVATE_DEPENDS
+    vtkCommonMisc
+    vtksys
   )

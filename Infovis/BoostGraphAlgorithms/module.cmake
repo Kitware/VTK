@@ -1,7 +1,4 @@
 vtk_module(vtkInfovisBoostGraphAlgorithms
-  DEPENDS
-    vtkInfovisCore
-    vtkCommonExecutionModel
   TEST_DEPENDS
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkTestingRendering
@@ -10,4 +7,11 @@ vtk_module(vtkInfovisBoostGraphAlgorithms
     vtkViewsInfovis
     vtkChartsCore
     vtkViewsContext2D
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkFiltersExtraction
+    vtkInfovisCore
   )

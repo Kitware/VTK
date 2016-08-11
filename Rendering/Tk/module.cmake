@@ -1,13 +1,18 @@
 vtk_module(vtkRenderingTk
   GROUPS
     Tk
-  DEPENDS
-    vtkRendering${VTK_RENDERING_BACKEND}
-    vtkInteractionStyle
-    vtkInteractionImage
   COMPILE_DEPENDS
     vtkTclTk
   TEST_DEPENDS
     vtkRenderingVolume
   EXCLUDE_FROM_WRAPPING
+  DEPENDS
+    vtkCommonCore
+    vtkInteractionImage
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingCore
+    vtkWrappingTcl
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
   )

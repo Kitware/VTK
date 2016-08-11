@@ -3,4 +3,6 @@ vtk_module(vtkInfovisBoost
     vtkTestingCore
     vtkCommonCore
   EXCLUDE_FROM_WRAPPING
+  DEPENDS
+    vtkCommonCore
   )

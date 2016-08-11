@@ -1,14 +1,6 @@
 vtk_module(vtkIOGeometry
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonSystem
-    vtkCommonMisc
-    vtkIOCore
-  PRIVATE_DEPENDS
-    vtkzlib
-    vtksys
   TEST_DEPENDS
     vtkIOAMR
     vtkIOLegacy
@@ -18,4 +10,16 @@ vtk_module(vtkIOGeometry
     vtkInteractionStyle
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkIOCore
+    vtkIOLegacy
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtksys
+    vtkzlib
   )

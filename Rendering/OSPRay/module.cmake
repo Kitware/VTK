@@ -2,13 +2,7 @@ set(optional_test_depends)
 if("${Module_vtkRenderingParallel}" AND "${Module_vtkParallelMPI}")
   set(optional_test_depends "vtkRenderingParallel;vtkParallelMPI")
 endif()
-
 vtk_module(vtkRenderingOSPRay
-  DEPENDS
-    vtkRenderingVolume
-    vtkRenderingSceneGraph
-    #todo promote compositedatadisplayattributes to rendering/core
-    vtkRendering${VTK_RENDERING_BACKEND} #only for comp.data.disp.attr.
   IMPLEMENTS
     vtkRenderingVolume
   TEST_DEPENDS
@@ -34,4 +28,13 @@ vtk_module(vtkRenderingOSPRay
     vtkIOLegacy
     vtkRenderingFreeType
   EXCLUDE_FROM_ALL
+  DEPENDS
+    vtkCommonDataModel
+    vtkRendering${VTK_RENDERING_BACKEND}
+    vtkRenderingCore
+    vtkRenderingSceneGraph
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkIOImage
+    vtkIOLegacy
   )

@@ -1,11 +1,6 @@
 vtk_module(vtkIOParallelNetCDF
   GROUPS
     MPI
-  DEPENDS
-    vtkCommonCore
-    vtkParallelMPI
-  PRIVATE_DEPENDS
-    vtknetcdf
   TEST_DEPENDS
     vtkCommonExecutionModel
     vtkRendering${VTK_RENDERING_BACKEND}
@@ -13,4 +8,11 @@ vtk_module(vtkIOParallelNetCDF
     vtkInteractionStyle
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkParallelMPI
+    vtknetcdf
   )

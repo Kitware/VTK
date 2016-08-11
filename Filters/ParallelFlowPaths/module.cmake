@@ -1,10 +1,6 @@
 vtk_module(vtkFiltersParallelFlowPaths
   IMPLEMENTS
     vtkFiltersFlowPaths
-  DEPENDS
-    vtkParallelMPI
-    vtkParallelCore
-    vtkFiltersAMR
   TEST_DEPENDS
     vtkIOAMR
     vtkTestingRendering
@@ -12,4 +8,17 @@ vtk_module(vtkFiltersParallelFlowPaths
     vtkIOParallel
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonCore
+    vtkFiltersFlowPaths
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
+    vtkCommonSystem
+    vtkFiltersAMR
+    vtkFiltersCore
+    vtkIOCore
+    vtkParallelCore
+    vtkParallelMPI
   )

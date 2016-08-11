@@ -5,10 +5,6 @@ if (NOT WIN32)
       vtkFiltersCore
     GROUPS
       MPI
-    DEPENDS
-      vtkFiltersCore
-      vtkParallelMPI
-      vtkdiy2
     TEST_DEPENDS
       vtkFiltersParallelMPI
       vtkInteractionStyle
@@ -18,5 +14,13 @@ if (NOT WIN32)
       vtkTestingRendering
     KIT
       vtkParallel
+    DEPENDS
+      vtkFiltersCore
+      vtkdiy2
+    PRIVATE_DEPENDS
+      vtkCommonCore
+      vtkCommonDataModel
+      vtkCommonExecutionModel
+      vtkParallelMPI
     )
 endif()

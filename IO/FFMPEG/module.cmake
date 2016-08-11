@@ -1,9 +1,13 @@
 vtk_module(vtkIOFFMPEG
-  DEPENDS
-   vtkIOMovie
   TEST_DEPENDS
-   vtkTestingCore
-   vtkImagingSources
+    vtkTestingCore
+    vtkImagingSources
   KIT
     vtkIO
+  DEPENDS
+    vtkIOMovie
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonMisc
   )

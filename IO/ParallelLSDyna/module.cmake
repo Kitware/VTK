@@ -1,14 +1,17 @@
 vtk_module(vtkIOParallelLSDyna
-  DEPENDS
-   vtkParallelCore
-   vtkIOLSDyna
-   vtkCommonDataModel
   TEST_DEPENDS
-   vtkParallelMPI
-   vtkRenderingParallel
-   vtkTestingRendering
-   vtkInteractionStyle
-   vtkRendering${VTK_RENDERING_BACKEND}
+    vtkParallelMPI
+    vtkRenderingParallel
+    vtkTestingRendering
+    vtkInteractionStyle
+    vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkParallel
+  DEPENDS
+    vtkIOLSDyna
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkParallelCore
   )

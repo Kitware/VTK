@@ -1,13 +1,21 @@
 vtk_module(vtkFiltersSMP
   GROUPS
     StandAlone
-  DEPENDS
-    vtkFiltersCore
-    vtkFiltersGeneral
   TEST_DEPENDS
     vtkImagingCore
     vtkIOXML
     vtkTestingCore
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMisc
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersGeneral
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonSystem
   )

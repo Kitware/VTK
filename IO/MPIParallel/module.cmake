@@ -4,16 +4,20 @@ vtk_module(vtkIOMPIParallel
     vtkIOParallel
   GROUPS
     MPI
-  DEPENDS
-    vtkIOGeometry
-    vtkIOParallel
-  PRIVATE_DEPENDS
-    vtksys
-    vtkParallelMPI
   TEST_DEPENDS
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle
   KIT
     vtkParallel
+  DEPENDS
+    vtkIOGeometry
+    vtkIOParallel
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMisc
+    vtkParallelMPI
+    vtksys
   )

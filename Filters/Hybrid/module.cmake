@@ -1,10 +1,6 @@
 vtk_module(vtkFiltersHybrid
   GROUPS
     StandAlone
-  DEPENDS
-    vtkImagingSources
-    vtkFiltersGeneral
-    vtkRenderingCore # For vtkCamera in vtkDepthSortPolyData
   TEST_DEPENDS
     vtkIOXML
     vtkRendering${VTK_RENDERING_BACKEND}
@@ -13,4 +9,17 @@ vtk_module(vtkFiltersHybrid
     vtkTestingRendering
     vtkInteractionStyle
     vtkIOLegacy
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonTransforms
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonMisc
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkImagingCore
+    vtkImagingSources
+    vtkRenderingCore
   )

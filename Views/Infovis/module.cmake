@@ -1,22 +1,36 @@
 vtk_module(vtkViewsInfovis
   GROUPS
     Rendering
-  DEPENDS
-    vtkRenderingContext2D
-    vtkViewsCore
-    vtkRenderingLabel
-    vtkInfovisLayout
-    vtkInteractionStyle
-    vtkFiltersModeling
-    vtkFiltersImaging
-    vtkCommonColor
-    vtkChartsCore
-  PRIVATE_DEPENDS
-    vtkFiltersGeometry
   TEST_DEPENDS
     vtkTestingRendering
     vtkIOInfovis
     vtkIOSQL
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     vtkViewsContext2D
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkInteractionStyle
+    vtkRenderingContext2D
+    vtkViewsCore
+  PRIVATE_DEPENDS
+    vtkChartsCore
+    vtkCommonColor
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersExtraction
+    vtkFiltersGeneral
+    vtkFiltersGeometry
+    vtkFiltersImaging
+    vtkFiltersModeling
+    vtkFiltersSources
+    vtkFiltersStatistics
+    vtkImagingGeneral
+    vtkInfovisCore
+    vtkInfovisLayout
+    vtkInteractionWidgets
+    vtkRenderingAnnotation
+    vtkRenderingCore
+    vtkRenderingLabel
   )

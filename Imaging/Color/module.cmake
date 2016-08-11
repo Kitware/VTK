@@ -2,8 +2,13 @@ vtk_module(vtkImagingColor
   GROUPS
     Imaging
     StandAlone
-  DEPENDS
-    vtkImagingCore
   KIT
     vtkImaging
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkImagingCore
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonSystem
   )

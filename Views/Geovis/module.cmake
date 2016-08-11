@@ -3,5 +3,11 @@ vtk_module(vtkViewsGeovis
     Views
   DEPENDS
     vtkViewsInfovis
+  PRIVATE_DEPENDS
+    vtkCommonCore
     vtkGeovisCore
+    vtkInfovisLayout
+    vtkInteractionStyle
+    vtkRenderingCore
+    vtkViewsCore
   )
