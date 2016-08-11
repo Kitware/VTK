@@ -120,12 +120,13 @@ int vtkProbeFilter::RequestData(
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
-  if (!source)
-    {
-    return 0;
-    }
+  // First, copy the input to the output as a starting point
+  output->CopyStructure(input);
 
-  this->Probe(input, source, output);
+  if (source)
+    {
+    this->Probe(input, source, output);
+    }
 
   this->PassAttributeData(input, source, output);
   return 1;
@@ -229,9 +230,6 @@ void vtkProbeFilter::InitializeForProbing(vtkDataSet* input,
   this->MaskPoints->FillComponent(0, 0);
   this->MaskPoints->SetName(this->ValidPointMaskArrayName?
     this->ValidPointMaskArrayName: "vtkValidPointMask");
-
-  // First, copy the input to the output as a starting point
-  output->CopyStructure(input);
 
   // Allocate storage for output PointData
   // All input PD is passed to output as PD. Those arrays in input CD that are

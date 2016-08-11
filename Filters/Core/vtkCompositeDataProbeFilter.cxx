@@ -99,41 +99,43 @@ int vtkCompositeDataProbeFilter::RequestData(
     return this->Superclass::RequestData(request, inputVector, outputVector);
     }
 
-  if (!this->BuildFieldList(sourceComposite))
+  // First, copy the input to the output as a starting point
+  output->CopyStructure(input);
+
+  if (this->BuildFieldList(sourceComposite))
     {
-    return 0;
-    }
-
-  vtkSmartPointer<vtkCompositeDataIterator> iter;
-  iter.TakeReference(sourceComposite->NewIterator());
-  // We do reverse traversal, so that for hierarchical datasets, we traverse the
-  // higher resolution blocks first.
-  int idx=0;
-  for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
-    sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
-    if (!sourceDS)
+    vtkSmartPointer<vtkCompositeDataIterator> iter;
+    iter.TakeReference(sourceComposite->NewIterator());
+    // We do reverse traversal, so that for hierarchical datasets, we traverse the
+    // higher resolution blocks first.
+    int idx=0;
+    for (iter->InitReverseTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
       {
-      vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
-      return 0;
-      }
+      sourceDS = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
+      if (!sourceDS)
+        {
+        vtkErrorMacro("All leaves in the multiblock dataset must be vtkDataSet.");
+        return 0;
+        }
 
-    if (sourceDS->GetNumberOfPoints() == 0)
-      {
-      continue;
-      }
+      if (sourceDS->GetNumberOfPoints() == 0)
+        {
+        continue;
+        }
 
-    if (idx==0)
-      {
-      this->InitializeForProbing(input, output);
+      if (idx==0)
+        {
+        this->InitializeForProbing(input, output);
+        }
+      this->DoProbing(input, idx, sourceDS, output);
+      idx++;
       }
-    this->DoProbing(input, idx, sourceDS, output);
-    idx++;
     }
 
   this->PassAttributeData(input, sourceComposite, output);
   return 1;
 }
+
 //----------------------------------------------------------------------------
 void vtkCompositeDataProbeFilter::InitializeForProbing(vtkDataSet *input, vtkDataSet *output)
 {
