@@ -39,7 +39,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapp
 public:
   static vtkOpenGLPolyDataMapper *New();
   vtkTypeMacro(vtkOpenGLPolyDataMapper,vtkPolyDataMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement superclass render method.

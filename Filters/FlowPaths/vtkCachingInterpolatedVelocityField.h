@@ -63,7 +63,7 @@ class VTKFILTERSFLOWPATHS_EXPORT vtkCachingInterpolatedVelocityField : public vt
 {
 public:
   vtkTypeMacro(vtkCachingInterpolatedVelocityField,vtkFunctionSet);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a vtkCachingInterpolatedVelocityField with no initial data set.

@@ -29,7 +29,7 @@ class VTKIOIMAGE_EXPORT vtkPNMWriter : public vtkImageWriter
 public:
   static vtkPNMWriter *New();
   vtkTypeMacro(vtkPNMWriter,vtkImageWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkPNMWriter() {}

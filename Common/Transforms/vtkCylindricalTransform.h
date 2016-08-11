@@ -36,7 +36,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkCylindricalTransform : public vtkWarpTransfo
 public:
   static vtkCylindricalTransform *New();
   vtkTypeMacro(vtkCylindricalTransform,vtkWarpTransform);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Make another transform of the same type.

@@ -119,7 +119,7 @@ public:
   vtkTypeMacro(vtkObjectFactory,vtkObject);
   // Description:
   // Print ObjectFactory to stream.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // All sub-classes of vtkObjectFactory should must return the version of

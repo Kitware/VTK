@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkVolumeCollection : public vtkPropCollection
  public:
   static vtkVolumeCollection *New();
   vtkTypeMacro(vtkVolumeCollection, vtkPropCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add a Volume to the list.

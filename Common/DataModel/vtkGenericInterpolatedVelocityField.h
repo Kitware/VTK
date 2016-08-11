@@ -52,7 +52,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericInterpolatedVelocityField : public vtk
 {
 public:
   vtkTypeMacro(vtkGenericInterpolatedVelocityField,vtkFunctionSet);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a vtkGenericInterpolatedVelocityField with no initial data set.

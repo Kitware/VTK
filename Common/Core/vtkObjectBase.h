@@ -144,7 +144,7 @@ public:
 
   // Description:
   // Return the current reference count of this object.
-  int  GetReferenceCount()
+  int GetReferenceCount()
   {
     return this->ReferenceCount;
   }

@@ -31,7 +31,7 @@ class VTKIOIMAGE_EXPORT vtkPNGReader : public vtkImageReader2
 public:
   static vtkPNGReader *New();
   vtkTypeMacro(vtkPNGReader,vtkImageReader2);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Is the given file a PNG file?

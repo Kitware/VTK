@@ -48,7 +48,7 @@ class VTKFILTERSHYBRID_EXPORT vtkBSplineTransform : public vtkWarpTransform
 public:
   static vtkBSplineTransform *New();
   vtkTypeMacro(vtkBSplineTransform,vtkWarpTransform);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the coefficient grid for the b-spline transform.

@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Print information about this object.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the version number for the NIfTI file format to use.

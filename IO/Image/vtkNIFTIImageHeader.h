@@ -166,7 +166,7 @@ public:
 
   // Description:
   // Print information about this object.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the magic number for the NIFTI file as a null-terminated string.

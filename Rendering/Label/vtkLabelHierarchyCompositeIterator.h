@@ -46,7 +46,7 @@ class VTKRENDERINGLABEL_EXPORT vtkLabelHierarchyCompositeIterator : public vtkLa
 {
 public:
   vtkTypeMacro(vtkLabelHierarchyCompositeIterator, vtkLabelHierarchyIterator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkLabelHierarchyCompositeIterator* New();
 
   // Description:

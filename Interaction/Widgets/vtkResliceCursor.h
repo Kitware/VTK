@@ -77,7 +77,7 @@ public:
 
   // Description:
   // Printself method.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the planes that represent normals along the X, Y and Z. The argument

@@ -76,7 +76,7 @@ public:
   vtkTypeMacro(vtkMNITransformWriter,vtkAlgorithm);
 
   static vtkMNITransformWriter *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the file name.

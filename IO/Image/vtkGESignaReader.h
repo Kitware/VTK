@@ -37,7 +37,7 @@ class VTKIOIMAGE_EXPORT vtkGESignaReader : public vtkMedicalImageReader2
 public:
   static vtkGESignaReader *New();
   vtkTypeMacro(vtkGESignaReader,vtkMedicalImageReader2);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Is the given file a GESigna file?

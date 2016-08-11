@@ -47,7 +47,7 @@ class VTKFILTERSSELECTION_EXPORT vtkCellDistanceSelector : public vtkSelectionAl
 {
  public:
   vtkTypeMacro(vtkCellDistanceSelector,vtkSelectionAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkCellDistanceSelector* New();
 

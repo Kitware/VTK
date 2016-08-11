@@ -41,7 +41,7 @@ class VTKIOIMAGE_EXPORT vtkPNMReader : public vtkImageReader
 public:
   static vtkPNMReader *New();
   vtkTypeMacro(vtkPNMReader,vtkImageReader);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   int CanReadFile(const char* fname);
   // Description:

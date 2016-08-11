@@ -34,7 +34,7 @@ class VTKRENDERINGCORE_EXPORT vtkLightCollection : public vtkCollection
  public:
   static vtkLightCollection *New();
   vtkTypeMacro(vtkLightCollection, vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add a light to the list.

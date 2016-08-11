@@ -38,7 +38,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkFixedPointRayCastImage : public vtkObject
 public:
   static vtkFixedPointRayCastImage *New();
   vtkTypeMacro(vtkFixedPointRayCastImage,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the internal storage for the image. It is a pointer to

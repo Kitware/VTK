@@ -37,7 +37,7 @@ public:
   // Description:
   // Standard type definition and print methods for a VTK class.
   vtkTypeMacro(vtkGenericAttributeCollection,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the number of attributes (e.g., instances of vtkGenericAttribute)

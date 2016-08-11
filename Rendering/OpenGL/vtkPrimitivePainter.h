@@ -104,7 +104,7 @@ protected:
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
   int SupportedPrimitive; // must be set by subclasses.
   vtkSetMacro(SupportedPrimitive, int);

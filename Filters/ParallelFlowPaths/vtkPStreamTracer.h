@@ -40,7 +40,7 @@ class  VTKFILTERSPARALLELFLOWPATHS_EXPORT vtkPStreamTracer : public vtkStreamTra
 {
 public:
   vtkTypeMacro(vtkPStreamTracer,vtkStreamTracer);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the controller use in compositing (set to

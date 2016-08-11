@@ -47,7 +47,7 @@ class VTKIOENSIGHT_EXPORT vtkEnSight6Reader : public vtkEnSightReader
 public:
   static vtkEnSight6Reader *New();
   vtkTypeMacro(vtkEnSight6Reader, vtkEnSightReader);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkEnSight6Reader();

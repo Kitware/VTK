@@ -32,7 +32,7 @@ class VTKIOIMAGE_EXPORT vtkImageReader2Collection : public vtkCollection
 public:
   vtkTypeMacro(vtkImageReader2Collection,vtkCollection);
   static vtkImageReader2Collection *New();
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add an image reader to the list.

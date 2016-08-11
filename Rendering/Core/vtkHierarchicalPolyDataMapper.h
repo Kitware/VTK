@@ -31,7 +31,7 @@ class VTKRENDERINGCORE_EXPORT vtkHierarchicalPolyDataMapper : public vtkComposit
 public:
   static vtkHierarchicalPolyDataMapper *New();
   vtkTypeMacro(vtkHierarchicalPolyDataMapper, vtkCompositePolyDataMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkHierarchicalPolyDataMapper();

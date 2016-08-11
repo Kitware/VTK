@@ -82,7 +82,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridBunykRayCastFunction : public
 public:
   static vtkUnstructuredGridBunykRayCastFunction *New();
   vtkTypeMacro(vtkUnstructuredGridBunykRayCastFunction,vtkUnstructuredGridVolumeRayCastFunction);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Called by the ray cast mapper at the start of rendering

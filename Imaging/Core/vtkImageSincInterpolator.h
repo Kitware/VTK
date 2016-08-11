@@ -54,7 +54,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageSincInterpolator :
 public:
   static vtkImageSincInterpolator *New();
   vtkTypeMacro(vtkImageSincInterpolator, vtkAbstractImageInterpolator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The window function to use.  The default is Lanczos, which is very

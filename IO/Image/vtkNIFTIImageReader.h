@@ -51,7 +51,7 @@ public:
 
   // Description:
   // Print information about this object.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Valid extensions for this file type.

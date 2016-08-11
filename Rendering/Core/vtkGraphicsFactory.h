@@ -26,7 +26,7 @@ class VTKRENDERINGCORE_EXPORT vtkGraphicsFactory : public vtkObject
 public:
   static vtkGraphicsFactory *New();
   vtkTypeMacro(vtkGraphicsFactory, vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Create and return an instance of the named vtk object.

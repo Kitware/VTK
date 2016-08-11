@@ -40,7 +40,7 @@ class VTKRENDERINGOPENGL_EXPORT vtkOpenGLImageSliceMapper :
 public:
   static vtkOpenGLImageSliceMapper *New();
   vtkTypeMacro(vtkOpenGLImageSliceMapper, vtkImageSliceMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement base class method.  Perform the render.

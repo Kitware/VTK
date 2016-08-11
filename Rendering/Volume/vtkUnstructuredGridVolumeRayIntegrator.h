@@ -39,7 +39,7 @@ class VTKRENDERINGVOLUME_EXPORT vtkUnstructuredGridVolumeRayIntegrator : public 
 {
 public:
   vtkTypeMacro(vtkUnstructuredGridVolumeRayIntegrator,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set up the integrator with the given properties and scalars.

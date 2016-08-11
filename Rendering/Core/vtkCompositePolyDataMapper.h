@@ -40,7 +40,7 @@ class VTKRENDERINGCORE_EXPORT vtkCompositePolyDataMapper : public vtkMapper
 public:
   static vtkCompositePolyDataMapper *New();
   vtkTypeMacro(vtkCompositePolyDataMapper, vtkMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Standard method for rendering a mapper. This method will be

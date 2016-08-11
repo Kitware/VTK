@@ -107,8 +107,8 @@ public:
 
   // Description:
   // Overwritten to enable garbage collection.
-  virtual void Register(vtkObjectBase *o);
-  virtual void UnRegister(vtkObjectBase *o);
+  void Register(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
 
 protected:
   vtkVisibilitySort();
@@ -125,7 +125,7 @@ protected:
 
   int Direction;
 
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
 private:
   vtkVisibilitySort(const vtkVisibilitySort &) VTK_DELETE_FUNCTION;

@@ -33,7 +33,7 @@ class VTKRENDERINGCORE_EXPORT vtkRendererCollection : public vtkCollection
 public:
   static vtkRendererCollection *New();
   vtkTypeMacro(vtkRendererCollection, vtkCollection);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add a Renderer to the list.

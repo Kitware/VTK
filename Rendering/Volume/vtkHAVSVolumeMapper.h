@@ -123,7 +123,7 @@ public:
   static vtkHAVSVolumeMapper *New();
   vtkTypeMacro(vtkHAVSVolumeMapper,
                        vtkUnstructuredGridVolumeMapper);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description: Set/get whether or not to attempt to handle non convex
   // regions by removing ray segments larger than the max cell size.

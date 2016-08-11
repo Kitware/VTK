@@ -42,7 +42,7 @@ class VTKFILTERSHYBRID_EXPORT vtkGridTransform : public vtkWarpTransform
 public:
   static vtkGridTransform *New();
   vtkTypeMacro(vtkGridTransform,vtkWarpTransform);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the grid transform (the grid transform must have three

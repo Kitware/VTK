@@ -35,7 +35,7 @@ class VTKIMAGINGCORE_EXPORT vtkImageInterpolator :
 public:
   static vtkImageInterpolator *New();
   vtkTypeMacro(vtkImageInterpolator, vtkAbstractImageInterpolator);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The interpolation mode for point scalars (default: linear).  Subclasses

@@ -58,7 +58,7 @@ class VTKIOADIOS_EXPORT vtkADIOSReader : public vtkDataObjectAlgorithm
 public:
   static vtkADIOSReader* New(void);
   vtkTypeMacro(vtkADIOSReader,vtkDataObjectAlgorithm);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Test wether or not a given file should even be attempted for use with this

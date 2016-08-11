@@ -54,7 +54,7 @@ public:
 
   // Description:
   // Printself method.
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the blend mode. Default is MIP (ie Max)

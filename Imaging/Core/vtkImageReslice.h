@@ -72,7 +72,7 @@ public:
   static vtkImageReslice *New();
   vtkTypeMacro(vtkImageReslice, vtkThreadedImageAlgorithm);
 
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This method is used to set up the axes for the output voxels.

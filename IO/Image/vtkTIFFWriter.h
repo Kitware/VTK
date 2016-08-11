@@ -32,7 +32,7 @@ class VTKIOIMAGE_EXPORT vtkTIFFWriter : public vtkImageWriter
 public:
   static vtkTIFFWriter *New();
   vtkTypeMacro(vtkTIFFWriter,vtkImageWriter);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The main interface which triggers the writer to start.

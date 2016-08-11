@@ -119,7 +119,7 @@ protected:
   void SetCursor(int state);
 
   // To break reference count loops
-  virtual void ReportReferences(vtkGarbageCollector* collector);
+  void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE;
 
   // The positioning handle widgets
   vtkHandleWidget **HandleWidgets;

@@ -93,8 +93,8 @@ public:
 
   // Description:
   // Take part in garbage collection.
-  virtual void Register(vtkObjectBase *o);
-  virtual void UnRegister(vtkObjectBase *o);
+  void Register(vtkObjectBase *o) VTK_OVERRIDE;
+  void UnRegister(vtkObjectBase *o) VTK_OVERRIDE;
 
   enum {
     VERTS = 0x1,
@@ -154,7 +154,7 @@ protected:
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
   // Description:
   // Updates the delegate painter. This method is called just before

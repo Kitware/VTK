@@ -160,7 +160,7 @@ protected:
 
   // Description:
   // Take part in garbage collection.
-  virtual void ReportReferences(vtkGarbageCollector *collector);
+  void ReportReferences(vtkGarbageCollector *collector) VTK_OVERRIDE;
 
   // Description:
   // Returns if we can use texture maps for scalar coloring. Note this doesn't

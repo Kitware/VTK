@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
 {
  public:
   vtkTypeMacro(vtkGenericAttribute,vtkObject);
-  virtual void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Name of the attribute. (e.g. "velocity")
