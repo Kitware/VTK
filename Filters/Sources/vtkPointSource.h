@@ -30,6 +30,8 @@
 #define VTK_POINT_UNIFORM   1
 #define VTK_POINT_SHELL     0
 
+class vtkRandomSequence;
+
 class VTKFILTERSSOURCES_EXPORT vtkPointSource : public vtkPolyDataAlgorithm
 {
 public:
@@ -72,17 +74,27 @@ public:
   vtkSetMacro(OutputPointsPrecision,int);
   vtkGetMacro(OutputPointsPrecision,int);
 
+  // Description:
+  // Set/Get a random sequence generator.
+  // By default, the generator in vtkMath is used to maintain backwards
+  // compatibility.
+  virtual void SetRandomSequence(vtkRandomSequence *randomSequence);
+  vtkGetObjectMacro(RandomSequence,vtkRandomSequence);
+
 protected:
   vtkPointSource(vtkIdType numPts=10);
-  ~vtkPointSource() {}
+  ~vtkPointSource();
 
   int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+
+  double Random();
 
   vtkIdType NumberOfPoints;
   double Center[3];
   double Radius;
   int Distribution;
   int OutputPointsPrecision;
+  vtkRandomSequence* RandomSequence;
 
 private:
   vtkPointSource(const vtkPointSource&) VTK_DELETE_FUNCTION;
