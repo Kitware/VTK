@@ -268,6 +268,7 @@ void vtkFollower::Render(vtkRenderer *ren)
     {
     this->Texture->Render(ren);
     }
+  this->Device->SetTexture(this->GetTexture());
 
   // make sure the device has the same matrix
   this->ComputeMatrix();
