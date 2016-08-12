@@ -265,7 +265,8 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 // vtkAOSDataArrayTemplate can be found externally. This prevents each library
 // from instantiating these on their own.
 #ifndef VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
-#if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
+#if defined(VTK_BUILD_SHARED_LIBS)
+#if defined(_MSC_VER)
 #pragma warning (push)
 
 // C4091: 'extern ' : ignored on left of 'int' when no variable is declared
@@ -304,8 +305,22 @@ extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
 
 #pragma warning (pop)
-
-#endif // VTK_BUILD_SHARED_LIBS && _MSC_VER
+#else // not MSVC
+extern template class vtkAOSDataArrayTemplate<char>;
+extern template class vtkAOSDataArrayTemplate<double>;
+extern template class vtkAOSDataArrayTemplate<float>;
+extern template class vtkAOSDataArrayTemplate<int>;
+extern template class vtkAOSDataArrayTemplate<long>;
+extern template class vtkAOSDataArrayTemplate<long long>;
+extern template class vtkAOSDataArrayTemplate<short>;
+extern template class vtkAOSDataArrayTemplate<signed char>;
+extern template class vtkAOSDataArrayTemplate<unsigned char>;
+extern template class vtkAOSDataArrayTemplate<unsigned int>;
+extern template class vtkAOSDataArrayTemplate<unsigned long>;
+extern template class vtkAOSDataArrayTemplate<unsigned long long>;
+extern template class vtkAOSDataArrayTemplate<unsigned short>;
+#endif // _MSC_VER
+#endif // VTK_BUILD_SHARED_LIBS
 #endif // VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATING
 
 // VTK-HeaderTest-Exclude: vtkAOSDataArrayTemplate.h
