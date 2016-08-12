@@ -268,13 +268,26 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
 {
   if(!program)
     {
+    vtkErrorMacro("attempt to add attribute without a program for attribute " << name);
     return false;
     }
 
   // Check the program is bound, and the buffer is valid.
-  if (!program->isBound() || buffer->GetHandle() == 0 ||
-                             buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer )
+  if (!program->isBound())
     {
+    vtkErrorMacro("attempt to add attribute without a bound program for attribute " << name);
+    return false;
+    }
+
+  if (buffer->GetHandle() == 0)
+    {
+    vtkErrorMacro("attempt to add attribute without a handleless buffer for attribute " << name);
+    return false;
+    }
+
+  if (buffer->GetType() != vtkOpenGLBufferObject::ArrayBuffer )
+    {
+    vtkErrorMacro("attempt to add attribute without an array buffer for attribute " << name);
     return false;
     }
 
@@ -286,6 +299,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
   if (!this->Internal->IsReady() ||
       this->Internal->HandleProgram != static_cast<GLuint>(program->GetHandle()))
     {
+    vtkErrorMacro("attempt to add attribute when not ready for attribute " << name);
     return false;
     }
 
@@ -302,6 +316,7 @@ bool vtkOpenGLVertexArrayObject::AddAttributeArrayWithDivisor(vtkShaderProgram *
 
   if (attribs.Index == -1)
     {
+    vtkErrorMacro("attempt to add attribute not found in program for attribute " << name);
     return false;
     }
 
