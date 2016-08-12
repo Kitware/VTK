@@ -59,6 +59,9 @@ void main()
   // Place any calls that require uniform flow (e.g. dFdx) here.
   //VTK::UniformFlow::Impl
 
+  // Set gl_FragDepth here (gl_FragCoord.z by default)
+  //VTK::Depth::Impl
+
   // Early depth peeling abort:
   //VTK::DepthPeeling::PreColor
 
