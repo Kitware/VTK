@@ -55,7 +55,7 @@ If you have found a bug:
 3. Finally, if the issue is not resolved by the above steps, open
    an entry in the [VTK Issue Tracker][].
 
-[VTK Issue Tracker]: http://www.vtk.org/Bug
+[VTK Issue Tracker]: https://gitlab.kitware.com/vtk/vtk/issues
 
 Requirements
 ============
