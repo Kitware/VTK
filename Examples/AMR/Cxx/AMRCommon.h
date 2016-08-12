@@ -45,7 +45,7 @@ namespace AMRCommon {
 //------------------------------------------------------------------------------
 // Description:
 // Writes a uniform grid as a structure grid
-void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
+void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 {
   assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
 
@@ -63,7 +63,7 @@ void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
 //------------------------------------------------------------------------------
 // Description:
 // Writes the given AMR dataset to a *.vth file with the given prefix.
-void WriteAMRData( vtkOverlappingAMR *amrData, std::string prefix )
+void WriteAMRData( vtkOverlappingAMR *amrData, const std::string &prefix )
 {
   // Sanity check
   assert( "pre: AMR dataset is NULL!" && (amrData != NULL) );
@@ -81,7 +81,7 @@ void WriteAMRData( vtkOverlappingAMR *amrData, std::string prefix )
 //------------------------------------------------------------------------------
 // Description:
 // Reads AMR data to the given data-structure from the prescribed file.
-vtkHierarchicalBoxDataSet* ReadAMRData( std::string file )
+vtkHierarchicalBoxDataSet* ReadAMRData( const std::string &file )
 {
   // Sanity check
 //  assert( "pre: AMR dataset is NULL!" && (amrData != NULL) );
@@ -110,7 +110,7 @@ vtkHierarchicalBoxDataSet* ReadAMRData( std::string file )
 //------------------------------------------------------------------------------
 // Description:
 // Writes the given multi-block data to an XML file with the prescribed prefix
-void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, std::string prefix )
+void WriteMultiBlockData( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
   // Sanity check
   assert( "pre: Multi-block dataset is NULL" && (mbds != NULL) );

@@ -44,7 +44,7 @@
 // Debugging utilites. Must link vtkIOXML to work
 #ifdef DEBUG_ON
 #include "vtkXMLImageDataWriter.h"
-void WriteUniformGrid( vtkUniformGrid *g, std::string prefix )
+void WriteUniformGrid( vtkUniformGrid *g, const std::string &prefix )
 {
   assert( "pre: Uniform grid (g) is NULL!" && (g != NULL) );
 

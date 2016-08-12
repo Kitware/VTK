@@ -25,7 +25,7 @@ namespace FlashReaderTest {
 
 //------------------------------------------------------------------------------
 template<class T>
-int CheckValue( std::string name, T actualValue, T expectedValue )
+int CheckValue( const std::string &name, T actualValue, T expectedValue )
 {
     if( actualValue != expectedValue )
       {

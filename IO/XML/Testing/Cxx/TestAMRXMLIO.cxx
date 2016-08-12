@@ -36,7 +36,7 @@ namespace
     return true;
     }
 
-  bool TestAMRXMLIO_OverlappingAMR2D(std::string output_dir)
+  bool TestAMRXMLIO_OverlappingAMR2D(const std::string &output_dir)
     {
     vtkNew<vtkAMRGaussianPulseSource> pulse;
     pulse->SetDimension(2);
@@ -58,7 +58,7 @@ namespace
       vtkOverlappingAMR::SafeDownCast(reader->GetOutputDataObject(0)));
     }
 
-  bool TestAMRXMLIO_OverlappingAMR3D(std::string output_dir)
+  bool TestAMRXMLIO_OverlappingAMR3D(const std::string &output_dir)
     {
     vtkNew<vtkAMRGaussianPulseSource> pulse;
     pulse->SetDimension(3);

@@ -84,7 +84,7 @@ const double origin[3] = {0.0,0.0,0.0};
 
 #ifdef ENABLE_IO
 //------------------------------------------------------------------------------
-void WriteGrid(vtkUniformGrid *grid, std::string prefix)
+void WriteGrid(vtkUniformGrid *grid, const std::string &prefix)
 {
   assert("pre: grid is NULL" && (grid != NULL) );
 
@@ -145,7 +145,7 @@ void GetGridExtent(
 }
 
 //------------------------------------------------------------------------------
-void WriteAMR(vtkOverlappingAMR *amr, std::string prefix)
+void WriteAMR(vtkOverlappingAMR *amr, const std::string &prefix)
 {
 #ifdef ENABLE_IO
   std::ostringstream oss;
@@ -172,7 +172,7 @@ void WriteAMR(vtkOverlappingAMR *amr, std::string prefix)
 }
 
 //------------------------------------------------------------------------------
-void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
+void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
 {
   assert( "pre: grd should not be NULL" && (grd != NULL)  );
 

@@ -33,8 +33,8 @@
 #include <cmath>
 #include <sstream>
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "", bool useProbs = true);
-template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description = "");
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "", bool useProbs = true);
+template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description = "");
 
 //-----------------------------------------------------------------------------
 int UnitTestKernels(int, char*[])
@@ -231,7 +231,7 @@ int UnitTestKernels(int, char*[])
   return status;
 }
 
-template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description, bool useProbs)
+template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description, bool useProbs)
 {
   int status = EXIT_SUCCESS;
 
@@ -395,7 +395,7 @@ template<typename T> int TestProbabilisticKernel (vtkSmartPointer<T> kernel, vtk
   return status;
 }
 
-template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, std::string description)
+template<typename T> int TestKernel (vtkSmartPointer<T> kernel, vtkIdType numberOfPoints, const std::string &description)
 {
   int status = 0;
   std::cout << "Testing " << description;

@@ -95,7 +95,7 @@ public:
       EncodeNonEmptyByteString5(writer, bytes);
       }
 
-  static inline void EncodeCharacterString3(vtkX3DExporterFIByteWriter* writer, std::string value)
+  static inline void EncodeCharacterString3(vtkX3DExporterFIByteWriter* writer, const std::string& value)
     {
     // We want to start at position 3
     assert(writer->CurrentBytePos == 2);
@@ -109,7 +109,7 @@ public:
 
   // ITU C.23: Encoding of the NonEmptyByteString starting
   // on the fifth bit of an byte
-  static inline void EncodeNonEmptyByteString5(vtkX3DExporterFIByteWriter* writer, std::string value)
+  static inline void EncodeNonEmptyByteString5(vtkX3DExporterFIByteWriter* writer, const std::string& value)
     {
     int length = static_cast<int>(value.length());
     if (length <= 8)

@@ -355,7 +355,7 @@ vtkMultiBlockDataSet* GetDataSet(
 
 //------------------------------------------------------------------------------
 void WriteDistributedDataSet(
-    std::string prefix, vtkMultiBlockDataSet *dataset)
+    const std::string &prefix, vtkMultiBlockDataSet *dataset)
 {
 #ifdef DEBUG_ON
   vtkXMLPMultiBlockDataWriter *writer = vtkXMLPMultiBlockDataWriter::New();

@@ -167,7 +167,7 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
 //------------------------------------------------------------------------------
 // Description:
 // Write the uniform grid multi-block dataset into an XML file.
-void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
+void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );
 

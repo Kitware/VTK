@@ -423,7 +423,7 @@ void vtkExtentRCBPartitioner::AcquireDataDescription()
 }
 
 //------------------------------------------------------------------------------
-void vtkExtentRCBPartitioner::PrintExtent( std::string name, int ext[6] )
+void vtkExtentRCBPartitioner::PrintExtent( const std::string &name, int ext[6] )
 {
   cout << name << ": [";
   for( int i=0; i < 6; ++i  )

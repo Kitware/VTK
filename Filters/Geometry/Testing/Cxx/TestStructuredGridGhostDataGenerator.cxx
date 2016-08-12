@@ -52,7 +52,7 @@ namespace
 //------------------------------------------------------------------------------
 // Description:
 // Write the uniform grid multi-block dataset into an XML file.
-void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
+void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
 #ifdef DEBUG_ON
   assert( "pre: Multi-block is NULL!" && (mbds != NULL) );

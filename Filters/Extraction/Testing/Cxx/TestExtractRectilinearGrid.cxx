@@ -39,7 +39,7 @@ double exponential_distribution(const int i, const double beta)
 }
 
 //------------------------------------------------------------------------------
-void WriteGrid(vtkRectilinearGrid* grid, std::string file)
+void WriteGrid(vtkRectilinearGrid* grid, const std::string& file)
 {
   assert( "pre: input grid instance is NULL!" && (grid != NULL) );
 

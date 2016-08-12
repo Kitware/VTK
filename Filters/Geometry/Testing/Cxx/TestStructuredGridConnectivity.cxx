@@ -149,7 +149,7 @@ void AttachNodeAndCellGhostFlags( vtkMultiBlockDataSet *mbds )
 // Description:
 // Applies an XYZ field to the nodes and cells of the grid whose value is
 // corresponding to the XYZ coordinates at that location
-void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
+void ApplyXYZFieldToGrid( vtkUniformGrid *grd, const std::string &prefix )
 {
   assert( "pre: grd should not be NULL" && (grd != NULL)  );
 
@@ -228,7 +228,7 @@ void ApplyXYZFieldToGrid( vtkUniformGrid *grd, std::string prefix )
 }
 
 //------------------------------------------------------------------------------
-void ApplyFieldsToDataSet( vtkMultiBlockDataSet *mbds, std::string prefix )
+void ApplyFieldsToDataSet( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
   unsigned int block = 0;
   for( ; block < mbds->GetNumberOfBlocks(); ++block )
@@ -416,7 +416,7 @@ void RegisterGrids(
 }
 
 //------------------------------------------------------------------------------
-void WriteMultiBlock( vtkMultiBlockDataSet *mbds, std::string prefix )
+void WriteMultiBlock( vtkMultiBlockDataSet *mbds, const std::string &prefix )
 {
 
 
@@ -517,7 +517,7 @@ vtkMultiBlockDataSet* GetGhostedDataSet(
 
 //------------------------------------------------------------------------------
 bool Check(
-    std::string name, const int val, const int expected, bool verbose=true )
+    const std::string &name, const int val, const int expected, bool verbose=true )
 {
   bool status = false;
 
