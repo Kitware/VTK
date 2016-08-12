@@ -164,7 +164,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
 
      // Description:
      // A convenience method for debugging purposes.
-     void PrintExtent( std::string name, int ext[6] );
+     void PrintExtent( const std::string& name, int ext[6] );
 
      int NumberOfGhostLayers;
      int DataDescription;

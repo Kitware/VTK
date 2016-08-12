@@ -646,7 +646,7 @@ void testPipeline(vtkUnstructuredGridBase *input, vtkDataSet *&output,
 }
 
 // Check that refOutput == testOutput, then delete and clear the outputs.
-bool validateFilterOutput(std::string name,
+bool validateFilterOutput(const std::string &name,
                           vtkDataSet *&refOutput, vtkDataSet *&testOutput)
 {
   if (refOutput->GetNumberOfPoints() == 0)

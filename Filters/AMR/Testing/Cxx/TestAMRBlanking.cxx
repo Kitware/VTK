@@ -189,7 +189,7 @@ int TestAMRVisibility( const int dataDescription )
 }
 
 //------------------------------------------------------------------------------
-void CheckTestStatus( int rc, std::string TestName )
+void CheckTestStatus( int rc, const std::string &TestName )
 {
   std::cout << "Test " << TestName << "...";
   std::cout.flush();

@@ -31,7 +31,7 @@
 //------------------------------------------------------------------------------
 // Description:
 // Writes multi-block dataset to grid
-void WriteMultiBlock(std::string file, vtkMultiBlockDataSet *mbds)
+void WriteMultiBlock(const std::string &file, vtkMultiBlockDataSet *mbds)
 {
   assert("pre: NULL multi-block dataset!" && (mbds != NULL) );
 
