@@ -381,6 +381,10 @@ class VTKNoneArray(object):
         __mul__, etc."""
         return NoneArray
 
+    def astype(self, dtype):
+        """Implements numpy array's astype method."""
+        return NoneArray
+
 NoneArray = VTKNoneArray()
 
 class VTKCompositeDataArrayMetaClass(type):
@@ -570,6 +574,18 @@ class VTKCompositeDataArray(object):
 
     def __str__(self):
         return self.Arrays.__str__()
+
+    def astype(self, dtype):
+        """Implements numpy array's as array method."""
+        res = []
+        if self is not NoneArray:
+            for a in self.Arrays:
+                if a is NoneArray:
+                    res.append(NoneArray)
+                else:
+                    res.append(a.astype(dtype))
+        return VTKCompositeDataArray(res, dataset = self.DataSet)
+
 
 class DataSetAttributes(VTKObjectWrapper):
     """This is a python friendly wrapper of vtkDataSetAttributes. It
