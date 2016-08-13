@@ -81,7 +81,7 @@ static std::vector<std::string> split(std::string s)
 }
 
 //-----------------------------------------------------------------------------
-static void GetVector(std::string s, std::vector<int> &dest)
+static void GetVector(std::string &s, std::vector<int> &dest)
 {
   std::vector<std::string> strlist = split(s);
   for (size_t i = 0; i < dest.size(); i++)
@@ -98,7 +98,7 @@ static void GetVector(std::string s, std::vector<int> &dest)
 }
 
 //-----------------------------------------------------------------------------
-static void GetVector(std::string s, std::vector<double> &dest)
+static void GetVector(std::string &s, std::vector<double> &dest)
 {
   std::vector<std::string> strlist = split(s);
   for (size_t i = 0; i < dest.size(); i++)

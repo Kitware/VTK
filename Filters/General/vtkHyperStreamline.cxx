@@ -79,6 +79,7 @@ public:
 
 vtkHyperPoint::vtkHyperPoint()
 {
+  // Alias V to V0,V1,V2.
   this->V[0] = this->V0;
   this->V[1] = this->V1;
   this->V[2] = this->V2;
@@ -95,6 +96,7 @@ vtkHyperPoint& vtkHyperPoint::operator=(const vtkHyperPoint& hp)
       {
       this->V[j][i] = hp.V[j][i];
       }
+    // Note: no need to write to V0,V1,V2 since they are written to via the V alias.
     }
   this->CellId = hp.CellId;
   this->SubId = hp.SubId;
