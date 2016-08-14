@@ -67,7 +67,7 @@
 // include blockers are put in place that prevent including the
 // C-style versions from ever including the sub-headers.  Therefore we
 // have to include the sub-headers here to get the using declarations.
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 # include <mem.h>    /* mem... functions from string.h */
 # include <search.h> /* search functions from stdlib.h */
 #endif

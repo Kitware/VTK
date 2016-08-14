@@ -90,7 +90,7 @@ union vtkIEEE754Bits {
   double d;
 };
 
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 // Borland C++ union initializers are broken.
 // Use an otherwise-discouraged aliasing trick:
 static vtkTypeUInt64 vtkMathNanBits    = 0x7FF8000000000000i64;
@@ -105,7 +105,7 @@ static union vtkIEEE754Bits vtkMathNegInfBits = { 0xFFF0000000000000LL };
 #endif //VTK_HAS_STD_NUMERIC_LIMITS
 
 #if defined(VTK_NON_FINITE_CAUSES_EXCEPTIONS)
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 const vtkTypeInt64 vtkMathDoubleExponent = 0x7FF0000000000000i64;
 const vtkTypeInt64 vtkMathDoubleMantissa = 0x000FFFFFFFFFFFFFi64;
 #else
@@ -3095,7 +3095,7 @@ double vtkMath::Inf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return std::numeric_limits<double>::infinity();
-#elif defined(__BORLANDC__)
+#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
   return *reinterpret_cast<double*>(&vtkMathInfBits);
 #else
   return vtkMathInfBits.d;
@@ -3107,7 +3107,7 @@ double vtkMath::NegInf()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return -std::numeric_limits<double>::infinity();
-#elif defined(__BORLANDC__)
+#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
   return *reinterpret_cast<double*>(&vtkMathNegInfBits);
 #else
   return vtkMathNegInfBits.d;
@@ -3119,7 +3119,7 @@ double vtkMath::Nan()
 {
 #if defined(VTK_HAS_STD_NUMERIC_LIMITS)
   return std::numeric_limits<double>::quiet_NaN();
-#elif defined(__BORLANDC__)
+#elif defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
   return *reinterpret_cast<double*>(&vtkMathNanBits);
 #else
   return vtkMathNanBits.d;

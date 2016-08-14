@@ -22,7 +22,7 @@
 #pragma warning ( push, 3 )
 #endif
 
-#ifdef __BORLANDC__
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
 #pragma warn -8027 /* functions containing while are not expanded inline */
 #endif
 

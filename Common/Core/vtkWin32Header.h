@@ -122,7 +122,7 @@ Do_not_include_vtkWin32Header_directly__vtkSystemIncludes_includes_it;
 # endif
 #endif
 
-#if defined(__BORLANDC__)
+#if defined(__BORLANDC__) && (__BORLANDC__ < 0x660)
   // Disable Borland compiler warning messages that often occur in valid code.
 # if !defined(VTK_DISPLAY_WIN32_WARNINGS)
 #  pragma warn -8004 /* assigned a value that is never used */
