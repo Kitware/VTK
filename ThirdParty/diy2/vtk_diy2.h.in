@@ -40,16 +40,14 @@
 
 #elif defined(__GNUC__) && !defined(__INTEL_COMPILER) && !defined(__PGI) // for GCC and Clang only
 
-#  define VTKDIY2_WARNING_PRAGMAS \
-      _Pragma("GCC diagnostic ignored \"-Wshadow\"") \
-      _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
-      _Pragma("GCC diagnostic ignored \"-Wunused-result\"")
+// Older versions of GCC don't support the push/pop pragmas and some dont
+// recognize the suppressed warnings
+#  if (__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6)
+#    define VTKDIY2_WARNING_PRAGMAS \
+       _Pragma("GCC diagnostic ignored \"-Wshadow\"") \
+       _Pragma("GCC diagnostic ignored \"-Wunused-parameter\"") \
+       _Pragma("GCC diagnostic ignored \"-Wunused-result\"")
 
-// Older versions of GCC don't support the push/pop pragmas
-#  if (__GNUC__ == 4 && __GNUC_MINOR__ < 6)
-#    define VTKDIY2_WARNINGS_PUSH
-#    define VTKDIY2_WARNINGS_POP
-#  else
 #    define VTKDIY2_WARNINGS_PUSH _Pragma("GCC diagnostic push")
 #    define VTKDIY2_WARNINGS_POP  _Pragma("GCC diagnostic pop")
 #  endif
