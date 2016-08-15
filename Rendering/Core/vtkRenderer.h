@@ -240,6 +240,13 @@ public:
   virtual void DeviceRender() =0;
 
   // Description:
+  // Render opaque polygonal geometry. Default implementation just calls
+  // UpdateOpaquePolygonalGeometry().
+  // Subclasses of vtkRenderer that can deal with, e.g. hidden line removal must
+  // override this method.
+  virtual void DeviceRenderOpaqueGeometry();
+
+  // Description:
   // Render translucent polygonal geometry. Default implementation just call
   // UpdateTranslucentPolygonalGeometry().
   // Subclasses of vtkRenderer that can deal with depth peeling must
@@ -528,6 +535,13 @@ public:
   vtkGetMacro(UseShadows,int);
   vtkBooleanMacro(UseShadows,int);
 
+  // Description:
+  // If this flag is true and the rendering engine supports it, wireframe
+  // geometry will be drawn using hidden line removal.
+  vtkSetMacro(UseHiddenLineRemoval, int)
+  vtkGetMacro(UseHiddenLineRemoval, int)
+  vtkBooleanMacro(UseHiddenLineRemoval, int)
+
   // Set/Get a custom render pass.
   // Initial value is NULL.
   void SetPass(vtkRenderPass *p);
@@ -650,6 +664,12 @@ protected:
   virtual int UpdateTranslucentPolygonalGeometry();
 
   // Description:
+  // Ask all props to update and draw any opaque polygonal
+  // geometry. This includes both vtkActors and vtkVolumes
+  // Return the number of rendered props.
+  virtual int UpdateOpaquePolygonalGeometry();
+
+  // Description:
   // Ask the active camera to do whatever it needs to do prior to rendering.
   // Creates a camera if none found active.
   virtual int UpdateCamera(void);
@@ -675,6 +695,11 @@ protected:
   // If this flag is on and the rendering engine supports it render shadows
   // Initial value is off.
   int UseShadows;
+
+  // Description:
+  // When this flag is on and the rendering engine supports it, wireframe
+  // polydata will be rendered using hidden line removal.
+  int UseHiddenLineRemoval;
 
   // Description:
   // If this flag is on and the GPU supports it, depth peeling is used

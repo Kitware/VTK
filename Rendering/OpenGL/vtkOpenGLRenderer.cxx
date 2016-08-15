@@ -15,7 +15,9 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkOpenGLRenderer.h"
 
 #include "vtkCuller.h"
+#include "vtkHiddenLineRemovalPass.h"
 #include "vtkLightCollection.h"
+#include "vtkNew.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLLight.h"
@@ -281,6 +283,29 @@ void vtkOpenGLRenderer::DeviceRender(void)
     }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
+{
+  bool useHLR =
+      this->UseHiddenLineRemoval &&
+      vtkHiddenLineRemovalPass::WireframePropsExist(this->PropArray,
+                                                    this->PropArrayCount);
+
+  if (useHLR)
+    {
+    vtkNew<vtkHiddenLineRemovalPass> hlrPass;
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    hlrPass->Render(&s);
+    this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
+    }
+  else
+    {
+    this->Superclass::DeviceRenderOpaqueGeometry();
+    }
 }
 
 // ----------------------------------------------------------------------------

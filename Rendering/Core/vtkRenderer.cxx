@@ -119,6 +119,8 @@ vtkRenderer::vtkRenderer()
 
   this->UseShadows = 0;
 
+  this->UseHiddenLineRemoval = 0;
+
   this->UseDepthPeeling=0;
   this->OcclusionRatio=0.0;
   this->MaximumNumberOfPeels=4;
@@ -379,6 +381,12 @@ void vtkRenderer::Render(void)
 }
 
 // ----------------------------------------------------------------------------
+void vtkRenderer::DeviceRenderOpaqueGeometry()
+{
+  this->UpdateOpaquePolygonalGeometry();
+}
+
+// ----------------------------------------------------------------------------
 // Description:
 // Render translucent polygonal geometry. Default implementation just call
 // UpdateTranslucentPolygonalGeometry().
@@ -580,13 +588,8 @@ int vtkRenderer::UpdateGeometry()
   // no time (culled) it would have been removed from
   // the list
 
-  // loop through props and give them a chance to
-  // render themselves as opaque geometry
-  for ( i = 0; i < this->PropArrayCount; i++ )
-    {
-    this->NumberOfPropsRendered +=
-      this->PropArray[i]->RenderOpaqueGeometry(this);
-    }
+  // Opaque geometry first:
+  this->DeviceRenderOpaqueGeometry();
 
   // do the render library specific stuff about translucent polygonal geometry.
   // As it can be expensive, do a quick check if we can skip this step
@@ -644,6 +647,18 @@ int vtkRenderer::UpdateTranslucentPolygonalGeometry()
     this->NumberOfPropsRendered += rendered;
     result+=rendered;
     }
+  return result;
+}
+
+// ----------------------------------------------------------------------------
+int vtkRenderer::UpdateOpaquePolygonalGeometry()
+{
+  int result = 0;
+  for (int i = 0; i < this->PropArrayCount; i++ )
+    {
+    result += this->PropArray[i]->RenderOpaqueGeometry(this);
+    }
+  this->NumberOfPropsRendered += result;
   return result;
 }
 
