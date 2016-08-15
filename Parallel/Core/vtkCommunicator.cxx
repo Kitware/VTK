@@ -1060,10 +1060,6 @@ int vtkCommunicator::GatherV(vtkDataObject *sendData,
   int sendType = sendData? sendData->GetDataObjectType() : -1;
   switch(sendType)
     {
-  case -1:
-    // NULL data.
-    return 1;
-
     //error on types we can't send
     case VTK_DATA_OBJECT:
     case VTK_DATA_SET:
@@ -1093,6 +1089,8 @@ int vtkCommunicator::GatherV(vtkDataObject *sendData,
     case VTK_UNSTRUCTURED_GRID:
     case VTK_MULTIBLOCK_DATA_SET:
     case VTK_UNIFORM_GRID_AMR:
+
+  case -1:
       return this->GatherVElementalDataObject(
         sendData, receiveData, destProcessId);
     }
