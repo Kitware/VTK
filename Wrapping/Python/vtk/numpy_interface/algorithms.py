@@ -212,6 +212,66 @@ def _global_func(impl, array, axis, controller):
 
     return res
 
+def bitwise_or(array1, array2):
+    """Implements element by element or (bitwise, | in C/C++) operation.
+    If one of the arrays is a NoneArray, this will return the array
+    that is not NoneArray, treating NoneArray as 0 in the or operation."""
+    if type(array1) == dsa.VTKCompositeDataArray and type(array2) == dsa.VTKCompositeDataArray:
+        res = []
+        for a1, a2 in izip(array1.Arrays, array2.Arrays):
+            l = dsa.reshape_append_ones(a1, a2)
+            res.append(bitwise_or(l[0], l[1]))
+        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
+    elif type(array1) == dsa.VTKCompositeDataArray:
+        res = []
+        for a in array1.Arrays :
+            l = dsa.reshape_append_ones(a, array2)
+            res.append(bitwise_or(l[0], l[1]))
+        return dsa.VTKCompositeDataArray(res, dataset = array1.DataSet)
+    elif array1 is dsa.NoneArray:
+        return array2
+    elif array2 is dsa.NoneArray:
+        return array1
+    else:
+        l = dsa.reshape_append_ones(array1, array2)
+        return numpy.bitwise_or(l[0], l[1])
+
+def make_point_mask_from_NaNs(dataset, array):
+    """This method will create a ghost array corresponding to an
+    input with NaN values. For each NaN value, the output array will
+    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENPOINT.
+    These values are also combined with any ghost values that the
+    dataset may have."""
+    from vtk import vtkDataSetAttributes
+    ghosts = dataset.PointData[vtkDataSetAttributes.GhostArrayName()]
+    return make_mask_from_NaNs(array, ghosts)
+
+def make_cell_mask_from_NaNs(dataset, array):
+    """This method will create a ghost array corresponding to an
+    input with NaN values. For each NaN value, the output array will
+    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENCELL.
+    These values are also combined with any ghost values that the
+    dataset may have."""
+    from vtk import vtkDataSetAttributes
+    ghosts = dataset.CellData[vtkDataSetAttributes.GhostArrayName()]
+    return make_mask_from_NaNs(array, ghosts, True)
+
+def make_mask_from_NaNs(array, ghost_array=dsa.NoneArray, is_cell=False):
+    """This method will create a ghost array corresponding to an
+    input with NaN values. For each NaN value, the output array will
+    have a corresponding value of vtk.vtkDataSetAttributes.HIDDENPOINT or
+    HIDDENCELL is the is_cell argument is true. If an input ghost_array
+    is passed, the array is bitwise_or'ed with it, simply adding
+    the new ghost values to it."""
+    from vtk import vtkDataSetAttributes
+    if is_cell:
+        mask_value = vtkDataSetAttributes.HIDDENCELL
+    else:
+        mask_value = vtkDataSetAttributes.HIDDENPOINT
+
+    return bitwise_or(isnan(array).astype(numpy.uint8) * mask_value,
+        ghost_array)
+
 def sum(array, axis=None, controller=None):
     """Returns the sum of all values along a particular axis (dimension).
     Given an array of m tuples and n components:
@@ -916,6 +976,9 @@ def unstructured_from_composite_arrays(points, arrays, controller=None):
                 da.SetName(name)
                 ugrid.GetPointData().AddArray(da)
     return ugrid
+
+isnan = _make_ufunc(numpy.isnan)
+isnan.__doc__ = "Returns a bool array, true if values is nan."
 
 sqrt = _make_ufunc(numpy.sqrt)
 sqrt.__doc__ = "Computes square root."
