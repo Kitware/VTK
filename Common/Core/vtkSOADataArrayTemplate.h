@@ -221,7 +221,8 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 // vtkSOADataArrayTemplate can be found externally. This prevents each library
 // from instantiating these on their own.
 #ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
-#if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
+#if defined(VTK_BUILD_SHARED_LIBS)
+#if defined(_MSC_VER)
 #pragma warning (push)
 
 // C4091: 'extern ' : ignored on left of 'int' when no variable is declared
@@ -260,8 +261,22 @@ extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
 
 #pragma warning (pop)
-
-#endif // VTK_BUILD_SHARED_LIBS && _MSC_VER
+#else // Not MSVC
+extern template class vtkSOADataArrayTemplate<char>;
+extern template class vtkSOADataArrayTemplate<double>;
+extern template class vtkSOADataArrayTemplate<float>;
+extern template class vtkSOADataArrayTemplate<int>;
+extern template class vtkSOADataArrayTemplate<long>;
+extern template class vtkSOADataArrayTemplate<long long>;
+extern template class vtkSOADataArrayTemplate<short>;
+extern template class vtkSOADataArrayTemplate<signed char>;
+extern template class vtkSOADataArrayTemplate<unsigned char>;
+extern template class vtkSOADataArrayTemplate<unsigned int>;
+extern template class vtkSOADataArrayTemplate<unsigned long>;
+extern template class vtkSOADataArrayTemplate<unsigned long long>;
+extern template class vtkSOADataArrayTemplate<unsigned short>;
+#endif // _MSC_VER
+#endif // VTK_BUILD_SHARED_LIBS
 #endif // VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
 
 // VTK-HeaderTest-Exclude: vtkSOADataArrayTemplate.h
