@@ -1284,6 +1284,7 @@ void vtkBoxRepresentation::HighlightFace(int cellId)
     this->HexPolyData->GetCellPoints(cellId, npts, pts);
     this->HexFacePolyData->Modified();
     cells->ReplaceCell(0,npts,pts);
+    cells->Modified();
     this->CurrentHexFace = cellId;
     this->HexFace->SetProperty(this->SelectedFaceProperty);
     if ( !this->CurrentHandle )
