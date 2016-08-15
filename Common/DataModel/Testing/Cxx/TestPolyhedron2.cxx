@@ -23,7 +23,7 @@
 #include "vtkPlane.h"
 #include "vtkXMLUnstructuredGridReader.h"
 
-// Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=14485
+// Test of contour/clip of vtkPolyhedron. uses input from https://gitlab.kitware.com/vtk/vtk/issues/14485
 int TestPolyhedron2( int argc, char* argv[] )
 {
   if (argc < 3) return 1; // test not run with data on the command line

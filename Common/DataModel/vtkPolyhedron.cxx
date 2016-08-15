@@ -759,7 +759,7 @@ static int CheckContourDimensions(vtkPoints* points, vtkIdType npts,
                                   const vtkIdType * ptIds,
                                   double * normal, double * center)
 {
-  static const double eigenvalueRatioThresh = 1e-12; // was 0.001, but 1e-12 seems better: http://www.paraview.org/Bug/view.php?id=13490
+  static const double eigenvalueRatioThresh = 1e-12; // was 0.001, but 1e-12 seems better: https://gitlab.kitware.com/paraview/paraview/issues/13490
   if (npts < 3)
     {
     // Defensively return zeros here for normal and center.

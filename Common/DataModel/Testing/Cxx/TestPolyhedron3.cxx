@@ -40,7 +40,7 @@ const char inputDataStream[] =
   "CELL_TYPES 1\n"
   "42\n";
 
-// Test of contour/clip of vtkPolyhedron. uses input from http://www.vtk.org/Bug/view.php?id=15026
+// Test of contour/clip of vtkPolyhedron. uses input from https://gitlab.kitware.com/vtk/vtk/issues/15026
 int TestPolyhedron3(int argc, char *argv[])
 {
   (void)argc;
