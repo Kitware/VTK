@@ -291,8 +291,8 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
     }
 
   std::string n = normal;
-  vtkIdType s = n.find(' ');
-  if( s == static_cast<int>( std::string::npos ) )
+  std::string::size_type s = n.find(' ');
+  if( s == std::string::npos )
     {
     this->Internals->Materials[M].setNormal(n);
     this->Internals->Materials[M].setNormalX("");
@@ -301,7 +301,7 @@ void vtkYoungsMaterialInterface::SetMaterialNormalArray( int M,  const char* nor
     }
   else
     {
-    vtkIdType s2 = n.rfind(' ');
+    std::string::size_type s2 = n.rfind(' ');
     this->Internals->Materials[M].setNormal("");
     this->Internals->Materials[M].setNormalX(n.substr(0,s));
     this->Internals->Materials[M].setNormalY(n.substr(s+1,s2-s-1));
