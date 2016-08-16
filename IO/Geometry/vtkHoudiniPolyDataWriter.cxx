@@ -215,8 +215,6 @@ namespace
       Header(Attributes* atts) : Atts(atts) {}
       void operator=(const Attributes::Header&) VTK_DELETE_FUNCTION;
 
-      Attributes* Atts;
-
       friend ostream& operator<<(ostream& out, const Attributes::Header& header)
       {
         for (Attributes::AttIt it=header.Atts->AttVec.begin();
@@ -227,6 +225,8 @@ namespace
           }
         return out;
       }
+    public:
+      Attributes* Atts;
     };
 
     class Component
@@ -256,7 +256,7 @@ namespace
       }
     };
 
-    Attributes() : Hdr(this) {}
+    Attributes() : Hdr(NULL) { this->Hdr.Atts = this; }
     virtual ~Attributes()
     {
       for (AttIt it=this->AttVec.begin(); it != this->AttVec.end(); ++it)
