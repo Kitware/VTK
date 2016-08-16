@@ -21,7 +21,9 @@
 #include "vtkStringArray.h"
 #include "vtkTable.h"
 #include "vtkIntArray.h"
+
 #include <algorithm>
+#include <string.h>
 
 inline void StdStringToUpper(std::string& s)
 {
