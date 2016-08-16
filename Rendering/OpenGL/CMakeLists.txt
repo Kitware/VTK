@@ -35,6 +35,7 @@ set(Module_SRCS
   vtkGLSLShaderDeviceAdapter2.cxx
   vtkGaussianBlurPass.cxx
   vtkGenericOpenGLRenderWindow.cxx
+  vtkHiddenLineRemovalPass.cxx
   vtkHardwareSelectionPolyDataPainter.cxx # Needed by vtkPainterPolyDataMapper
   vtkImageProcessingPass.cxx
   vtkLightingHelper.cxx

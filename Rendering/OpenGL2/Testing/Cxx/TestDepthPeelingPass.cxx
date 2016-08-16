@@ -24,7 +24,6 @@
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkTestUtilities.h"
-#include "vtkTimerLog.h"
 
 int TestDepthPeelingPass(int argc, char* argv[])
 {
@@ -42,6 +41,7 @@ int TestDepthPeelingPass(int argc, char* argv[])
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();
+  delete [] fileName;
 
   mapper->SetInputConnection(reader->GetOutputPort());
 

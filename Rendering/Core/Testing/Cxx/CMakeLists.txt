@@ -42,6 +42,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGlyph3DMapperOrientationArray.cxx
   TestGlyph3DMapperPicking.cxx
   TestGradientBackground.cxx
+  TestHiddenLineRemovalPass.cxx
   TestHomogeneousTransformOfActor.cxx
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID

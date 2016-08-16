@@ -10,6 +10,7 @@ vtk_module(vtkRenderingCore
     vtkFiltersGeometry
     vtksys
   TEST_DEPENDS
+    vtkIOExodus
     vtkIOLegacy
     vtkIOParallel
     vtkIOXML

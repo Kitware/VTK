@@ -20,6 +20,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkDepthPeelingPass.h"
 #include "vtkFloatArray.h"
 #include "vtkHardwareSelector.h"
+#include "vtkHiddenLineRemovalPass.h"
 #include "vtkLight.h"
 #include "vtkLightCollection.h"
 #include "vtkNew.h"
@@ -209,13 +210,8 @@ int vtkOpenGLRenderer::UpdateGeometry()
     }
   else
     {
-    // loop through props and give them a chance to
-    // render themselves as opaque geometry
-    for ( i = 0; i < this->PropArrayCount; i++ )
-      {
-      this->NumberOfPropsRendered +=
-        this->PropArray[i]->RenderOpaqueGeometry(this);
-      }
+    // Opaque geometry first:
+    this->DeviceRenderOpaqueGeometry();
 
     // do the render library specific stuff about translucent polygonal geometry.
     // As it can be expensive, do a quick check if we can skip this step
@@ -254,6 +250,30 @@ int vtkOpenGLRenderer::UpdateGeometry()
                     this->NumberOfPropsRendered << " actors" );
 
   return  this->NumberOfPropsRendered;
+}
+
+// ----------------------------------------------------------------------------
+void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
+{
+  // Do we need hidden line removal?
+  bool useHLR =
+      this->UseHiddenLineRemoval &&
+      vtkHiddenLineRemovalPass::WireframePropsExist(this->PropArray,
+                                                    this->PropArrayCount);
+
+  if (useHLR)
+    {
+    vtkNew<vtkHiddenLineRemovalPass> hlrPass;
+    vtkRenderState s(this);
+    s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
+    s.SetFrameBuffer(0);
+    hlrPass->Render(&s);
+    this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
+    }
+  else
+    {
+    this->Superclass::DeviceRenderOpaqueGeometry();
+    }
 }
 
 // ----------------------------------------------------------------------------

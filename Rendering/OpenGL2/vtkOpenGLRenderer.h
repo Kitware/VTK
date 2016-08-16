@@ -42,6 +42,10 @@ public:
   void DeviceRender(void);
 
   // Description:
+  // Overridden to support hidden line removal.
+  virtual void DeviceRenderOpaqueGeometry();
+
+  // Description:
   // Render translucent polygonal geometry. Default implementation just call
   // UpdateTranslucentPolygonalGeometry().
   // Subclasses of vtkRenderer that can deal with depth peeling must

@@ -26,6 +26,7 @@ set(Module_SRCS
   vtkGaussianBlurPass.cxx
   vtkGenericCompositePolyDataMapper2.cxx
   vtkGenericOpenGLRenderWindow.cxx
+  vtkHiddenLineRemovalPass.cxx
   vtkImageProcessingPass.cxx
   vtkLightingMapPass.cxx
   vtkLightsPass.cxx
