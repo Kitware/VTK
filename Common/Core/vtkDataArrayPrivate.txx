@@ -83,7 +83,7 @@ struct ComputeScalarRange
       }
 
     //compute the range for each component of the data array at the same time
-    const int numTuples = array->GetNumberOfTuples();
+    const vtkIdType numTuples = array->GetNumberOfTuples();
     for(vtkIdType tupleIdx = 0; tupleIdx < numTuples; ++tupleIdx)
       {
       for(int compIdx = 0, j = 0; compIdx < NumComps; ++compIdx, j+=2)
@@ -112,7 +112,7 @@ bool DoComputeScalarRange(ArrayT *array, double *ranges)
   vtkDataArrayAccessor<ArrayT> access(array);
   typedef typename vtkDataArrayAccessor<ArrayT>::APIType APIType;
 
-  const int numTuples = array->GetNumberOfTuples();
+  const vtkIdType numTuples = array->GetNumberOfTuples();
   const int numComp = array->GetNumberOfComponents();
 
   //setup the initial ranges to be the max,min for double
@@ -208,7 +208,7 @@ bool DoComputeVectorRange(ArrayT *array, double range[2])
 {
   vtkDataArrayAccessor<ArrayT> access(array);
 
-  const int numTuples = array->GetNumberOfTuples();
+  const vtkIdType numTuples = array->GetNumberOfTuples();
   const int numComps = array->GetNumberOfComponents();
 
   range[0] = vtkTypeTraits<double>::Max();
