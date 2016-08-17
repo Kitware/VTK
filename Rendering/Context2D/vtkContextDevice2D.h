@@ -138,7 +138,7 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
-  // NOTE: This function does not take account of the text rotation.
+  // NOTE: This function does not take account of the text rotation or justification.
   virtual void ComputeStringBounds(const vtkStdString &string,
                                    float bounds[4]) = 0;
 
@@ -151,9 +151,15 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
-  // NOTE: This function does not take account of the text rotation.
+  // NOTE: This function does not take account of the text rotation or justification.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
                                    float bounds[4]) = 0;
+
+  // Description:
+  // Compute the bounds of the supplied string while taking into account the
+  // justification of the currently applied text property. Simple rotations
+  // (0, 90, 180, 270) are also correctly taken into account.
+  virtual void ComputeJustifiedStringBounds(const char* string, float bounds[4]) = 0;
 
   // Description:
   // Draw text using MathText markup for mathematical equations. See
@@ -179,7 +185,7 @@ public:
   // Apply the supplied pen which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkPen
   // object in the vtkContext2D, it does not hold a pointer to the supplied object.
-  void ApplyPen(vtkPen *pen);
+  virtual void ApplyPen(vtkPen *pen);
 
   // Description:
   // Get the pen which controls the outlines of shapes, as well as lines,
@@ -191,7 +197,7 @@ public:
   // Apply the supplied brush which controls the outlines of shapes, as well as
   // lines, points and related primitives. This makes a deep copy of the vtkBrush
   // object in the vtkContext2D, it does not hold a pointer to the supplied object.
-  void ApplyBrush(vtkBrush *brush);
+  virtual void ApplyBrush(vtkBrush *brush);
 
   // Description:
   // Get the pen which controls the outlines of shapes as well as lines, points
@@ -202,7 +208,7 @@ public:
   // Apply the supplied text property which controls how text is rendered.
   // This makes a deep copy of the vtkTextProperty object in the vtkContext2D,
   // it does not hold a pointer to the supplied object.
-  void ApplyTextProp(vtkTextProperty *prop);
+  virtual void ApplyTextProp(vtkTextProperty *prop);
 
   // Description:
   // Get the text properties object for the vtkContext2D.

@@ -683,27 +683,7 @@ void vtkContext2D::ComputeStringBounds(const char* string,
 //-----------------------------------------------------------------------------
 void vtkContext2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
 {
-  this->ComputeStringBounds(string, bounds);
-
-  // Shift according to the text property justification
-  vtkTextProperty* textProp = this->Device->GetTextProp();
-  if (textProp->GetJustification() == VTK_TEXT_CENTERED)
-    {
-    bounds[0] -= 0.5f*bounds[2];
-    }
-  else if (textProp->GetJustification() == VTK_TEXT_RIGHT)
-    {
-    bounds[0] -= bounds[2];
-    }
-
-  if (textProp->GetVerticalJustification() == VTK_TEXT_CENTERED)
-    {
-    bounds[1] -= 0.5f*bounds[3];
-    }
-  else if (textProp->GetVerticalJustification() == VTK_TEXT_TOP)
-    {
-    bounds[1] -= bounds[3];
-    }
+  this->Device->ComputeJustifiedStringBounds(string, bounds);
 }
 
 //-----------------------------------------------------------------------------

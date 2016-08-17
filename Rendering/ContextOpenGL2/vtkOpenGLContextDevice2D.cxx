@@ -1627,6 +1627,15 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkStdString &string,
 }
 
 //-----------------------------------------------------------------------------
+void vtkOpenGLContextDevice2D::ComputeJustifiedStringBounds(const char* string, float bounds[4])
+{
+  this->ComputeStringBounds(string, bounds);
+
+  // Account for the justification and simple rotations.
+  this->AlignText(this->TextProp->GetOrientation(), bounds[2], bounds[3], bounds);
+}
+
+//-----------------------------------------------------------------------------
 void vtkOpenGLContextDevice2D::DrawString(float *point,
                                           const vtkUnicodeString &string)
 {
