@@ -25,10 +25,12 @@
 
 #include "vtkCommonMiscModule.h" // For export macro
 #include <map> //for private data members
+#include <vector> // for private data members
 #include <utility> //for private data members
 #include "vtkType.h" //for basic types
 #include <cstddef> //for size_t
 #include "vtkObject.h"
+#include "vtkIdList.h"
 
 class vtkIdListCollection;
 
@@ -55,6 +57,11 @@ private:
   typedef std::pair<vtkIdType,vtkIdType> Edge;
   typedef std::map<Edge,size_t> EdgeHistogram;
   typedef std::multimap<vtkIdType,vtkIdType> EdgeMap;
+  typedef std::vector<vtkIdType> Triangle;
+  typedef std::vector<Triangle> Triangles;
+  typedef std::map<vtkIdType, Triangles> TriangleMap;
+
+  TriangleMap Tris;
 
   EdgeHistogram EdgeCounter;
   EdgeMap Edges;
