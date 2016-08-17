@@ -45,6 +45,17 @@
 // Define to output details about each frame:
 //#define DEBUG_FRAME
 
+// Recent OSX/ATI drivers perform some out-of-order execution that's causing
+// the dFdx/dFdy calls to be conditionally executed. Specifically, it looks
+// like the early returns when the depth is not on a current peel layer
+// (Peeling pass, VTK::PreColor::Impl hook) are moved before the dFdx/dFdy
+// calls used to compute normals. Disable the early returns on apple for now, I
+// don't think most GPUs really benefit from them anyway at this point.
+#ifdef __APPLE__
+#define NO_PRECOLOR_EARLY_RETURN
+#endif
+
+
 vtkStandardNewMacro(vtkDualDepthPeelingPass)
 
 namespace
@@ -153,7 +164,13 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
             "  if (gl_FragDepth < minDepth - epsilon ||\n"
             "      gl_FragDepth > maxDepth + epsilon)\n"
             "    {\n"
+#ifndef NO_PRECOLOR_EARLY_RETURN
             "    return;\n"
+#else
+            "    // Early return removed to avoid instruction-reordering bug\n"
+            "    // with dFdx/dFdy on OSX drivers.\n"
+            "    // return;\n"
+#endif
             "    }\n"
             "\n"
             "  // Is this fragment inside the current peels?\n"
@@ -162,7 +179,13 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
             "    {\n"
             "    // Write out depth so this frag will be peeled later:\n"
             "    gl_FragData[2].xy = vec2(-gl_FragDepth, gl_FragDepth);\n"
+#ifndef NO_PRECOLOR_EARLY_RETURN
             "    return;\n"
+#else
+            "    // Early return removed to avoid instruction-reordering bug\n"
+            "    // with dFdx/dFdy on OSX drivers.\n"
+            "    // return;\n"
+#endif
             "    }\n"
             "\n"
             "  // Continue processing for fragments on the current peel:\n"
@@ -189,12 +212,29 @@ bool vtkDualDepthPeelingPass::ReplaceShaderValues(std::string &,
             "    // Write out (1-alpha):\n"
             "    gl_FragData[1].a = 1. - (front.a * (1. - frag.a));\n"
             "    }\n"
+#ifndef NO_PRECOLOR_EARLY_RETURN
+            // just 'else' is ok. We'd return earlier in this case.
             "  else // (gl_FragDepth == maxDepth)\n"
+#else
+            // Need to explicitly test if this is the back peel, since early
+            // returns are removed.
+            "  else if (gl_FragDepth >= maxDepth - epsilon &&\n"
+            "           gl_FragDepth <= maxDepth + epsilon)\n"
+#endif
             "    { // Back peel:\n"
             "    // Dump premultiplied fragment, it will be blended later:\n"
             "    frag.rgb *= frag.a;\n"
             "    gl_FragData[0] = frag;\n"
             "    }\n"
+#ifdef NO_PRECOLOR_EARLY_RETURN
+            // Since the color outputs now get clobbered without the early
+            // returns, reset them here.
+            "  else\n"
+            "    { // Need to clear the colors if not on a current peel.\n"
+            "    gl_FragData[0] = vec4(0.);\n"
+            "    gl_FragData[1] = front;\n"
+            "    }\n"
+#endif
             );
       break;
 
