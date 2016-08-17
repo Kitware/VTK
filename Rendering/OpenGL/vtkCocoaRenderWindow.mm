@@ -466,8 +466,13 @@ const char* vtkCocoaRenderWindow::ReportCapabilities()
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFADoubleBuffer forVirtualScreen: currentScreen];
   strm  << "  double buffer:  " << (pfd == 0 ? "No" : "Yes") << endl;
 
+  // "NSOpenGLPFAStereo" is deprecated in the 10.12 SDK, suppress warning about its use.
+  // No explanation is given for the deprecation, and no alternative is suggested.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStereo forVirtualScreen: currentScreen];
   strm  << "  stereo:  " << (pfd == 0 ? "No" : "Yes") << endl;
+#pragma clang diagnostic pop
 
   [pixelFormat getValues: &pfd forAttribute: NSOpenGLPFAStencilSize forVirtualScreen: currentScreen];
   strm  << "  stencil:  " << pfd << endl;
