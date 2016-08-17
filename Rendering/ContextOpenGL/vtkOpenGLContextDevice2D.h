@@ -164,6 +164,12 @@ public:
                                    float bounds[4]);
 
   // Description:
+  // Compute the bounds of the supplied string while taking into account the
+  // justification of the currently applied text property. Simple rotations
+  // (0, 90, 180, 270 degrees) are also propertly taken into account.
+  virtual void ComputeJustifiedStringBounds(const char* string, float bounds[4]);
+
+  // Description:
   // Draw text using MathText markup for mathematical equations. See
   // http://matplotlib.sourceforge.net/users/mathtext.html for more information.
   virtual void DrawMathTextString(float point[2], const vtkStdString &string);

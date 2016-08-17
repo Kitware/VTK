@@ -138,7 +138,7 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
-  // NOTE: This function does not take account of the text rotation.
+  // NOTE: This function does not take account of the text rotation or justification.
   virtual void ComputeStringBounds(const vtkStdString &string,
                                    float bounds[4]) = 0;
 
@@ -151,9 +151,15 @@ public:
   // supplied bounds variable, the first two elements are the bottom corner of
   // the string, and the second two elements are the width and height of the
   // bounding box.
-  // NOTE: This function does not take account of the text rotation.
+  // NOTE: This function does not take account of the text rotation or justification.
   virtual void ComputeStringBounds(const vtkUnicodeString &string,
                                    float bounds[4]) = 0;
+
+  // Description:
+  // Compute the bounds of the supplied string while taking into account the
+  // justification of the currently applied text property. Simple rotations
+  // (0, 90, 180, 270) are also correctly taken into account.
+  virtual void ComputeJustifiedStringBounds(const char* string, float bounds[4]) = 0;
 
   // Description:
   // Draw text using MathText markup for mathematical equations. See
