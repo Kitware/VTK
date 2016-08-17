@@ -50,6 +50,10 @@
 
 #    define VTKDIY2_WARNINGS_PUSH _Pragma("GCC diagnostic push")
 #    define VTKDIY2_WARNINGS_POP  _Pragma("GCC diagnostic pop")
+#  else // Older GCC / Clang
+#    define VTKDIY2_WARNING_PRAGMAS
+#    define VTKDIY2_WARNINGS_PUSH
+#    define VTKDIY2_WARNINGS_POP
 #  endif
 
 #else // all other compilers
