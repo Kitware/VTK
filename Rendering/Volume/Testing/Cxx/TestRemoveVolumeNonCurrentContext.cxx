@@ -17,6 +17,7 @@
 
 #include "vtkColorTransferFunction.h"
 #include "vtkCommand.h"
+#include "vtkInteractorStyleTrackballCamera.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRegressionTestImage.h"
@@ -604,8 +605,8 @@ public:
     }
 
   void Execute(vtkObject* caller,
-                       unsigned long eventId,
-                       void* vtkNotUsed(callData)) VTK_OVERRIDE
+               unsigned long eventId,
+               void* vtkNotUsed(callData)) VTK_OVERRIDE
     {
     if (eventId != vtkCommand::KeyPressEvent)
       {
@@ -623,6 +624,7 @@ public:
 
     if (strcmp(pressedKey, "9") == 0)
       {
+      renderer2->RemoveAllViewProps();
       renderWindow1->Render();
       renderWindow2->Render();
       }
@@ -671,6 +673,8 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   vtkNew<vtkRenderer> renderer1;
   vtkNew<vtkRenderWindow> renderWindow1;
   vtkNew<vtkRenderWindowInteractor> interactor1;
+  vtkNew<vtkInteractorStyleTrackballCamera> interactorStyle;
+  interactor1->SetInteractorStyle(interactorStyle.GetPointer());
 
   renderWindow1->SetParentId(0);
   renderWindow1->AddRenderer(renderer1.GetPointer());
@@ -679,7 +683,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   renderWindow1->SetPosition(100, 100);
   interactor1->SetRenderWindow(renderWindow1.GetPointer());
 
-  renderer1->AddActor(volume1.GetPointer());
+  renderer1->AddVolume(volume1.GetPointer());
   renderer1->SetBackground(1.0, 1.0, 1.0);
 
   // Create the second renderwindow/renderer/mapper.
@@ -703,7 +707,7 @@ int TestRemoveVolumeNonCurrentContext(int argc, char* argv[])
   renderWindow2->SetPosition(650, 100);
   interactor2->SetRenderWindow(renderWindow2.GetPointer());
 
-  renderer2->AddActor(volume2.GetPointer());
+  renderer2->AddVolume(volume2.GetPointer());
   renderer2->SetBackground(1.0, 1.0, 1.0);
 
   // Create callback so we can trigger the problem
