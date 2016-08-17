@@ -173,6 +173,9 @@ public:
 
   // Description:
   // Replace the point ids of the cell with a different list of point ids.
+  // Calling this method does not mark the vtkCellArray as modified.  This is
+  // the responsibility of the caller and may be done after multiple calls to
+  // ReplaceCell.
   void ReplaceCell(vtkIdType loc, int npts, const vtkIdType *pts);
 
   // Description:
