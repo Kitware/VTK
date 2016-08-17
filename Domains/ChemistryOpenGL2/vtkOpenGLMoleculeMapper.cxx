@@ -19,10 +19,10 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkGlyph3DMapper.h"
 #include "vtkLookupTable.h"
+#include "vtkMolecule.h"
 #include "vtkObjectFactory.h"
 #include "vtkPeriodicTable.h"
 #include "vtkTrivialProducer.h"
-
 
 //-----------------------------------------------------------------------------
 vtkStandardNewMacro(vtkOpenGLMoleculeMapper)
@@ -100,9 +100,11 @@ void vtkOpenGLMoleculeMapper::UpdateAtomGlyphPolyData()
 {
   this->Superclass::UpdateAtomGlyphPolyData();
   this->FastAtomMapper->SetLookupTable(this->AtomGlyphMapper->GetLookupTable());
-  this->FastAtomMapper->SelectColorArray("Atomic Numbers");
   this->FastAtomMapper->SetScaleArray("Scale Factors");
   this->FastAtomMapper->SetScalarMaterialMode(this->GetScalarMaterialMode());
+
+  // Copy the color array info:
+  this->FastAtomMapper->SelectColorArray(this->AtomGlyphMapper->GetArrayId());
 }
 
 //----------------------------------------------------------------------------

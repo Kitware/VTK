@@ -370,10 +370,25 @@ void vtkMoleculeMapper::UpdateAtomGlyphPolyData()
   vtkMolecule *molecule = this->GetInput();
   const vtkIdType numAtoms = molecule->GetNumberOfAtoms();
 
+  int assoc; // output var for GetInputAbstractArrayToProcess
+  vtkAbstractArray *colorArray =
+      this->GetInputAbstractArrayToProcess(0, molecule, assoc);
+  if (colorArray)
+    {
+    if (colorArray->GetNumberOfTuples() != molecule->GetNumberOfAtoms())
+      {
+      vtkErrorMacro("Color array size does not match number of atoms.");
+      }
+    else
+      {
+      int colorArrayIdx =
+          this->AtomGlyphPolyData->GetPointData()->AddArray(colorArray);
+      this->AtomGlyphMapper->SelectColorArray(colorArrayIdx);
+      }
+    }
+
   vtkUnsignedShortArray *atomicNums = molecule->GetAtomicNumberArray();
-  this->AtomGlyphPolyData->GetPointData()->AddArray(atomicNums);
   this->AtomGlyphPolyData->SetPoints(molecule->GetAtomicPositionArray());
-  this->AtomGlyphMapper->SelectColorArray("Atomic Numbers");
   this->AtomGlyphMapper->SetLookupTable(this->LookupTable);
 
   vtkNew<vtkFloatArray> scaleFactors;
