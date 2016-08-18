@@ -21,6 +21,9 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
+// Keep vtkPythonArgs.h from declaring "externs" for what we define here
+#define VTK_PYTHON_ARGS_CXX
+
 #include "vtkPythonArgs.h"
 #include "vtkPythonUtil.h"
 
@@ -1376,17 +1379,11 @@ vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
     }
 }
 
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<bool>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<float>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<double>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<char>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<signed char>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned char>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<short>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned short>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<int>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned int>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<long long>;
-template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<unsigned long long>;
+// Instantiate the Array class template over all types:
+
+#define vtkForPythonArrayTypeMacro(type) \
+  template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<type>;
+
+vtkExpandForPythonArrayTypesMacro()
+
+#undef vtkForPythonArrayTypeMacro

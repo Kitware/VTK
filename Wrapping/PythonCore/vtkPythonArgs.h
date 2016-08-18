@@ -805,4 +805,35 @@ PyObject *vtkPythonArgs::BuildBytes(const char *a, int n)
   return PyBytes_FromStringAndSize(a, n);
 }
 
+// List of all types for the Array class template:
+
+#define vtkExpandForPythonArrayTypesMacro() \
+  vtkForPythonArrayTypeMacro(bool) \
+  vtkForPythonArrayTypeMacro(float) \
+  vtkForPythonArrayTypeMacro(double) \
+  vtkForPythonArrayTypeMacro(char) \
+  vtkForPythonArrayTypeMacro(signed char) \
+  vtkForPythonArrayTypeMacro(unsigned char) \
+  vtkForPythonArrayTypeMacro(short) \
+  vtkForPythonArrayTypeMacro(unsigned short) \
+  vtkForPythonArrayTypeMacro(int) \
+  vtkForPythonArrayTypeMacro(unsigned int) \
+  vtkForPythonArrayTypeMacro(long) \
+  vtkForPythonArrayTypeMacro(unsigned long) \
+  vtkForPythonArrayTypeMacro(long long) \
+  vtkForPythonArrayTypeMacro(unsigned long long)
+
+// Forward declare the Array class template over all types:
+#if !defined(VTK_PYTHON_ARGS_CXX) && \
+    !defined(_MSC_VER) && !defined(__MINGW32__)
+
+#define vtkForPythonArrayTypeMacro(type) \
+  extern template class vtkPythonArgs::Array<type>;
+
+vtkExpandForPythonArrayTypesMacro()
+
+#undef vtkForPythonArrayTypeMacro
+
+#endif
+
 #endif
