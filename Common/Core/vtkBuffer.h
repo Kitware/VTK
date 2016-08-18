@@ -29,7 +29,7 @@ template <class ScalarTypeT>
 class vtkBuffer : public vtkObject
 {
 public:
-  vtkTypeMacro(vtkBuffer, vtkObject)
+  vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject)
   typedef ScalarTypeT ScalarType;
   enum
     {
