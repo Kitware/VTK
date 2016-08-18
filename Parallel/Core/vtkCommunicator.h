@@ -31,7 +31,8 @@
 
 #include "vtkParallelCoreModule.h" // For export macro
 #include "vtkObject.h"
-#include "vtkSmartPointer.h"
+#include "vtkSmartPointer.h" // needed for vtkSmartPointer.
+#include <vector> // needed for std::vector
 
 class vtkBoundingBox;
 class vtkCharArray;
@@ -392,6 +393,21 @@ public:
   }
   int Gather(vtkDataArray *sendBuffer, vtkDataArray *recvBuffer,
              int destProcessId);
+
+  // Description:
+  // Gathers vtkDataObject (\c sendBuffer) from all ranks to the \c destProcessId.
+  // @param[in] sendBuffer - data object to send from local process. Can be null if
+  //                     not sending any data from the current process.
+  // @param[out] recvBuffer - vector of data objects to receive data on the receiving
+  //                     rank (identified by \c destProcessId). This may be
+  //                     empty or filled with data object instances. If empty,
+  //                     data objects will be created as needed. If not empty,
+  //                     existing data object will be used.
+  // @param[in] destProcessId - process id to gather on.
+  // @return - 1 on success, 0 on failure.
+  int Gather(vtkDataObject* sendBuffer,
+    std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
+    int destProcessId);
 
   // Description:
   // GatherV is the vector variant of Gather.  It extends the functionality of
@@ -1196,6 +1212,13 @@ public:
   // WARNING: This will only work for types that have a vtkDataWriter class.
   static int MarshalDataObject(vtkDataObject *object, vtkCharArray *buffer);
   static int UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *object);
+
+  // Description:
+  // Same as UnMarshalDataObject(vtkCharArray*, vtkDataObject*) except that this
+  // method doesn't need to know the type of the data object a priori. It can
+  // deduce that from the contents of the \c buffer. May return NULL data object
+  // if \c buffer is NULL or empty.
+  static vtkSmartPointer<vtkDataObject> UnMarshalDataObject(vtkCharArray* buffer);
 
 protected:
 

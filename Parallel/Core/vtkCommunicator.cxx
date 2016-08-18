@@ -591,14 +591,36 @@ int vtkCommunicator::MarshalDataObject(vtkDataObject *object,
 }
 
 //-----------------------------------------------------------------------------
-int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
-                                         vtkDataObject *object)
+int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer, vtkDataObject *object)
 {
-  vtkIdType bufferSize = buffer->GetNumberOfTuples();
+  if (!object)
+    {
+    vtkGenericWarningMacro("Invalid 'object'!");
+    return 0;
+    }
+  vtkSmartPointer<vtkDataObject> dobj = vtkCommunicator::UnMarshalDataObject(buffer);
+  if (dobj)
+    {
+    if (!object->IsA(dobj->GetClassName()))
+      {
+      vtkGenericWarningMacro("Type mismatch while unmarshalling data.");
+      }
+    object->ShallowCopy(dobj);
+    }
+  else
+    {
+    object->Initialize();
+    }
+  return 1;
+}
+
+//-----------------------------------------------------------------------------
+vtkSmartPointer<vtkDataObject> vtkCommunicator::UnMarshalDataObject(vtkCharArray* buffer)
+{
+  vtkIdType bufferSize = buffer ? buffer->GetNumberOfTuples() : 0;
   if (bufferSize <= 0)
     {
-    object = NULL;
-    return 1;
+    return NULL;
     }
 
   // You would think that the extent information would be properly saved, but
@@ -615,36 +637,27 @@ int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
 
   // Make a temporary array object holding the part of the buffer that can be
   // parsed by the reader.
-  VTK_CREATE(vtkCharArray, objectBuffer);
+  vtkNew<vtkCharArray> objectBuffer;
   objectBuffer->SetNumberOfComponents(1);
   objectBuffer->SetArray(bufferArray, bufferSize, 1);
 
-  VTK_CREATE(vtkGenericDataObjectReader, reader);
+  vtkNew<vtkGenericDataObjectReader> reader;
   reader->ReadFromInputStringOn();
-
-  reader->SetInputArray(objectBuffer);
-
+  reader->SetInputArray(objectBuffer.Get());
   reader->Update();
-  if (!reader->GetOutput()->IsA(object->GetClassName()))
-    {
-    vtkGenericWarningMacro("Type mismatch while unmarshalling data.");
-    }
-  object->ShallowCopy(reader->GetOutput());
 
-  if (object->GetExtentType() == VTK_3D_EXTENT)
+  vtkSmartPointer<vtkDataObject> dobj = reader->GetOutputDataObject(0);
+  if (dobj->GetExtentType() == VTK_3D_EXTENT)
     {
-    vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(object);
-    vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(object);
-    vtkImageData* id = vtkImageData::SafeDownCast(object);
-    if (rg)
+    if (vtkRectilinearGrid* rg = vtkRectilinearGrid::SafeDownCast(dobj))
       {
       rg->SetExtent(extent);
       }
-    else if (sg)
+    else if (vtkStructuredGrid* sg = vtkStructuredGrid::SafeDownCast(dobj))
       {
       sg->SetExtent(extent);
       }
-    else if (id)
+    else if (vtkImageData* id = vtkImageData::SafeDownCast(dobj))
       {
       // If we fix the extent, we need to fix the origin too.
       double origin[3];
@@ -664,8 +677,7 @@ int vtkCommunicator::UnMarshalDataObject(vtkCharArray *buffer,
       id->SetOrigin(origin);
       }
     }
-
-  return 1;
+  return dobj;
 }
 
 // The processors are views as a heap tree. The root is the processor of
@@ -983,6 +995,45 @@ int vtkCommunicator::Gather(vtkDataArray *sendBuffer,
     }
   return this->GatherVoidArray(sb, rb, numComponents*numTuples, type,
                                destProcessId);
+}
+
+//-----------------------------------------------------------------------------
+int vtkCommunicator::Gather(vtkDataObject* sendBuffer,
+  std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
+  int destProcessId)
+{
+  vtkNew<vtkCharArray> sendArray;
+  if (vtkCommunicator::MarshalDataObject(sendBuffer, sendArray.Get()) == 0)
+    {
+    vtkErrorMacro("Marshalling failed! Cannot 'Gather' successfully!");
+    sendArray->Initialize();
+    }
+
+  vtkNew<vtkCharArray> fullRecvArray;
+  std::vector<vtkSmartPointer<vtkDataArray> > recvArrays(this->NumberOfProcesses);
+  if (this->LocalProcessId == destProcessId)
+    {
+    recvBuffer.resize(this->NumberOfProcesses);
+    for (int cc=0; cc < this->NumberOfProcesses; ++cc)
+      {
+      recvArrays[cc] = vtkSmartPointer<vtkCharArray>::New();
+      }
+    }
+
+  if (this->GatherV(sendArray.Get(), fullRecvArray.Get(), &recvArrays[0], destProcessId))
+    {
+    if (this->LocalProcessId == destProcessId)
+      {
+      for (int cc=0; cc < this->NumberOfProcesses; ++cc)
+        {
+        vtkSmartPointer<vtkDataObject> dobj = vtkCommunicator::UnMarshalDataObject(
+          vtkArrayDownCast<vtkCharArray>(recvArrays[cc]));
+        recvBuffer[cc] = dobj;
+        }
+      }
+    return 1;
+    }
+  return 0;
 }
 
 //-----------------------------------------------------------------------------
