@@ -99,15 +99,15 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
       }
 
 
-    vtkIdType sPrevId = 0, sNextId = 0;
+    vtkIdType sNextId = 0;
     vtkVector3d sPrev, sNext;
 
-    sNextId = sPrevId = FindNextValidSegment(pts, linePts.GetPointer(), 0);
-    if (sPrevId != npts) // atleast one valid segment
+    sNextId = FindNextValidSegment(pts, linePts.GetPointer(), 0);
+    if (sNextId != npts) // atleast one valid segment
       {
       vtkVector3d pt1, pt2;
-      pts->GetPoint(linePts->GetId(sPrevId), pt1.GetData());
-      pts->GetPoint(linePts->GetId(sPrevId + 1), pt2.GetData());
+      pts->GetPoint(linePts->GetId(sNextId), pt1.GetData());
+      pts->GetPoint(linePts->GetId(sNextId + 1), pt2.GetData());
       sPrev = (pt2 - pt1).Normalized();
       }
     else // no valid segments
@@ -146,7 +146,6 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
           if (n.Norm() > 1.0E-3)
             {
             normal = n;
-            sPrevId = sNextId;
             sPrev = sNext;
             break;
             }
@@ -224,12 +223,10 @@ int vtkPolyLine::GenerateSlidingNormals(vtkPoints *pts, vtkCellArray *lines,
         normals->InsertTuple(linePts->GetId(i), normal.GetData());
         }
       lastNormalId = sNextId;
+      sPrev = sNext;
 
       // compute next normal
       normal = (f1 * q) + (f2 * w);
-
-      sPrevId = sNextId;
-      sPrev = sNext;
       }
 
     // insert last normal for the remaining points
