@@ -200,6 +200,7 @@ vtkHardwareSelector::vtkHardwareSelector()
     }
   this->CurrentPass = -1;
   this->ProcessID = -1;
+  this->PropColorValue[0] = this->PropColorValue[1] = this->PropColorValue[2] = 0;
   this->InPropRender = 0;
   this->UseProcessIdFromData = false;
 }
