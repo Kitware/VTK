@@ -247,8 +247,9 @@ public:
   virtual void GetIndexedColor(vtkIdType idx, double rgba[4]);
 
   // Description:
-  // Traverses the nodes to find the minimum distance. Assumes nodes are sorted.
-  double FindMinimumXDistance();
+  // Estimates the minimum size of a table such that it would correctly sample this function.
+  // The returned value should be passed as parameter 'n' when calling GetTable().
+  int EstimateMinNumberOfSamples(double const & x1, double const & x2);
 
 protected:
   vtkColorTransferFunction();
@@ -340,6 +341,10 @@ protected:
   // Moves point from oldX to newX. It removed the point from oldX. If
   // any point existed at newX, it will also be removed.
   void MovePoint(double oldX, double newX);
+
+  // Description:
+  // Traverses the nodes to find the minimum distance. Assumes nodes are sorted.
+  double FindMinimumXDistance();
 
 private:
   vtkColorTransferFunction(const vtkColorTransferFunction&) VTK_DELETE_FUNCTION;

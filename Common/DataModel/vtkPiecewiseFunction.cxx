@@ -682,6 +682,37 @@ int vtkPiecewiseFunction::AdjustRange(double range[2])
   return 1;
 }
 
+//--------------------------------------------------------------------------
+int vtkPiecewiseFunction::EstimateMinNumberOfSamples(double const & x1,
+  double const & x2)
+{
+  double const d = this->FindMinimumXDistance();
+  int idealWidth = static_cast<int>(ceil((x2 - x1) / d));
+
+  return idealWidth;
+}
+
+//----------------------------------------------------------------------------
+double vtkPiecewiseFunction::FindMinimumXDistance()
+{
+  std::vector<vtkPiecewiseFunctionNode*> const & nodes = this->Internal->Nodes;
+  size_t const size = nodes.size();
+  if (size < 2)
+    return -1.0;
+
+  double distance = std::numeric_limits<double>::max();
+  for (size_t i = 0; i < size - 1; i++)
+    {
+    double const currentDist = nodes[i + 1]->X - nodes[i]->X;
+    if (currentDist < distance)
+      {
+      distance = currentDist;
+      }
+    }
+
+  return distance;
+}
+
 // Returns a table of function values evaluated at regular intervals
 void vtkPiecewiseFunction::GetTable( double xStart, double xEnd,
                                      int size, double* table,

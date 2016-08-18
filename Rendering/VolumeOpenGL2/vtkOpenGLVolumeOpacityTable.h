@@ -16,39 +16,22 @@
 #ifndef vtkOpenGLVolumeOpacityTable_h
 #define vtkOpenGLVolumeOpacityTable_h
 
+#include <vector>
+
+#include <vtkObjectFactory.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkTextureObject.h>
 #include <vtkVolumeMapper.h>
-
 #include <vtk_glew.h>
+#include <vtkMath.h>
+
 
 //----------------------------------------------------------------------------
-class vtkOpenGLVolumeOpacityTable
+class vtkOpenGLVolumeOpacityTable : public vtkObject
 {
 public:
-  //--------------------------------------------------------------------------
-  vtkOpenGLVolumeOpacityTable(int width = 1024)
-    {
-      this->TextureObject = 0;
-      this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
-      this->TextureWidth = width;
-      this->LastSampleDistance = 1.0;
-      this->Table = 0;
-      this->LastInterpolation = -1;
-      this->LastRange[0] = this->LastRange[1] = 0.0;
-    }
 
-  //--------------------------------------------------------------------------
-  ~vtkOpenGLVolumeOpacityTable()
-    {
-      if (this->TextureObject)
-        {
-        this->TextureObject->Delete();
-        this->TextureObject = 0;
-        }
-
-      delete[] this->Table;
-    }
+  static vtkOpenGLVolumeOpacityTable* New();
 
   // Activate texture.
   //--------------------------------------------------------------------------
@@ -105,8 +88,14 @@ public:
         this->LastSampleDistance != sampleDistance) ||
        needUpdate || !this->TextureObject->GetHandle())
       {
-      if(this->Table == 0)
+      int const idealW = scalarOpacity->EstimateMinNumberOfSamples(this->LastRange[0],
+        this->LastRange[1]);
+      int const newWidth = this->GetMaximumSupportedTextureWidth(renWin, idealW);
+
+      if(this->Table == NULL || this->TextureWidth != newWidth)
         {
+        this->TextureWidth = newWidth;
+        delete [] this->Table;
         this->Table = new float[this->TextureWidth];
         }
 
@@ -171,6 +160,38 @@ public:
       }
     }
 
+  //--------------------------------------------------------------------------
+  inline int GetMaximumSupportedTextureWidth(vtkOpenGLRenderWindow* renWin,
+    int idealWidth)
+  {
+    if (!this->TextureObject)
+      {
+      vtkErrorMacro("vtkTextureObject not initialized!");
+      return -1;
+      }
+
+    // Try to match the next power of two.
+    idealWidth = vtkMath::NearestPowerOfTwo(idealWidth);
+    int const maxWidth = this->TextureObject->GetMaximumTextureSize(renWin);
+    if (maxWidth < 0)
+      {
+      vtkErrorMacro("Failed to query max texture size! using default 1024.");
+      return 1024;
+      }
+
+    if (maxWidth >= idealWidth)
+      {
+      idealWidth = vtkMath::Max(1024, idealWidth);
+      return idealWidth;
+      }
+
+    vtkWarningMacro("This OpenGL implementation does not support the required "
+      "texture size of " << idealWidth << ". Falling back to maximum allowed, "
+      << maxWidth << "." << "This may cause an incorrect color table mapping.");
+
+    return maxWidth;
+  }
+
   // Get the texture unit
   //--------------------------------------------------------------------------
   int GetTextureUnit(void)
@@ -194,6 +215,32 @@ public:
     }
 
 protected:
+
+  //--------------------------------------------------------------------------
+  vtkOpenGLVolumeOpacityTable(int width = 1024)
+    {
+      this->TextureObject = NULL;
+      this->LastBlendMode = vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
+      this->TextureWidth = width;
+      this->LastSampleDistance = 1.0;
+      this->Table = NULL;
+      this->LastInterpolation = -1;
+      this->LastRange[0] = this->LastRange[1] = 0.0;
+    }
+
+  //--------------------------------------------------------------------------
+  ~vtkOpenGLVolumeOpacityTable()
+    {
+      if (this->TextureObject)
+        {
+        this->TextureObject->Delete();
+        this->TextureObject = NULL;
+        }
+
+      delete[] this->Table;
+    }
+
+
   vtkTextureObject * TextureObject;
   int LastBlendMode;
   int TextureWidth;
@@ -203,58 +250,73 @@ protected:
   float *Table;
   int LastInterpolation;
   double LastRange[2];
+
 private:
-  vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&);
-  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&);
+  vtkOpenGLVolumeOpacityTable(const vtkOpenGLVolumeOpacityTable&)
+    VTK_DELETE_FUNCTION;
+  vtkOpenGLVolumeOpacityTable& operator=(const vtkOpenGLVolumeOpacityTable&)
+    VTK_DELETE_FUNCTION;
 };
 
-//----------------------------------------------------------------------------
+vtkStandardNewMacro(vtkOpenGLVolumeOpacityTable);
+
+
+////////////////////////////////////////////////////////////////////////////////
 class vtkOpenGLVolumeOpacityTables
 {
 public:
   //--------------------------------------------------------------------------
   vtkOpenGLVolumeOpacityTables(unsigned int numberOfTables)
     {
-    this->Tables = new vtkOpenGLVolumeOpacityTable[numberOfTables];
-    this->NumberOfTables = numberOfTables;
+    this->Tables.reserve(static_cast<size_t>(numberOfTables));
+
+    for (unsigned int i = 0; i < numberOfTables; i++)
+      {
+      vtkOpenGLVolumeOpacityTable* table = vtkOpenGLVolumeOpacityTable::New();
+      this->Tables.push_back(table);
+      }
     }
 
   //--------------------------------------------------------------------------
   ~vtkOpenGLVolumeOpacityTables()
     {
-    delete [] this->Tables;
+    size_t const size = this->Tables.size();
+    for (size_t i = 0; i < size; i++)
+      {
+      this->Tables[i]->Delete();
+      }
     }
 
   // brief Get opacity table at a given index.
   //--------------------------------------------------------------------------
   vtkOpenGLVolumeOpacityTable* GetTable(unsigned int i)
     {
-    if (i >= this->NumberOfTables)
+    if (i >= this->Tables.size())
       {
       return NULL;
       }
-    return &this->Tables[i];
+    return this->Tables[i];
     }
 
   // Get number of opacity tables.
   //--------------------------------------------------------------------------
-  unsigned int GetNumberOfTables()
+  size_t GetNumberOfTables()
     {
-    return this->NumberOfTables;
+    return this->Tables.size();
     }
 
   //--------------------------------------------------------------------------
   void ReleaseGraphicsResources(vtkWindow *window)
     {
-    for (unsigned int i = 0; i <this->NumberOfTables; ++i)
+    size_t const size = this->Tables.size();
+    for (size_t i = 0; i < size; ++i)
       {
-      this->Tables[i].ReleaseGraphicsResources(window);
+      this->Tables[i]->ReleaseGraphicsResources(window);
       }
     }
 
 private:
-  unsigned int NumberOfTables;
-  vtkOpenGLVolumeOpacityTable *Tables;
+  std::vector<vtkOpenGLVolumeOpacityTable*> Tables;
 
   vtkOpenGLVolumeOpacityTables() VTK_DELETE_FUNCTION;
 

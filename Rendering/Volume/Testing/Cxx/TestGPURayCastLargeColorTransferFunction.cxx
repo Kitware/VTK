@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkLookupTable.h"
 #include "vtkPiecewiseFunction.h"
@@ -33,6 +34,9 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
+
+#define GPU_MAPPER
+
 //----------------------------------------------------------------------------
 int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 {
@@ -43,8 +47,16 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   // http://www.spl.harvard.edu/publications/item/view/2037
   vtkSmartPointer<vtkLookupTable> lut =
     vtkSmartPointer<vtkLookupTable>::New();
-  lut->SetNumberOfTableValues(5023);
-  lut->SetTableRange(0, 5022);
+
+  // Required for vtkLookupTable initialization
+  int const NumValues = 5023;
+  lut->SetNumberOfTableValues(NumValues);
+  lut->SetTableRange(0, NumValues-1);
+  for (int i = 0; i < NumValues; i++)
+    {
+    lut->SetTableValue(i, 0.0, 0.0, 0.0, 0.0);
+    }
+
   lut->SetTableValue(0, 0 / 255.0, 0 / 255.0, 0 / 255.0, 0 / 255.0);
   lut->SetTableValue(2, 250 / 255.0, 250 / 255.0, 225 / 255.0, 255 / 255.0);
   lut->SetTableValue(3, 225 / 255.0, 190 / 255.0, 150 / 255.0, 255 / 255.0);
@@ -80,7 +92,8 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   lut->SetTableValue(54, 98 / 255.0, 153 / 255.0, 112 / 255.0, 255 / 255.0);
   lut->SetTableValue(58, 165 / 255.0, 0 / 255.0, 255 / 255.0, 255 / 255.0);
   lut->SetTableValue(60, 165 / 255.0, 40 / 255.0, 40 / 255.0, 255 / 255.0);
-  lut->SetTableValue(61, 135 / 255.0, 205 / 255.0, 235 / 255.0, 255 / 255.0);
+//  lut->SetTableValue(61, 165 / 255.0, 40 / 255.0, 40 / 255.0, 255 / 255.0);
+  lut->SetTableValue(61, 135 / 255.0, 205 / 255.0, 235 / 255.0, 255 / 255.0); //medulla oblongata
   lut->SetTableValue(63, 90 / 255.0, 105 / 255.0, 215 / 255.0, 255 / 255.0);
   lut->SetTableValue(66, 0 / 255.0, 108 / 255.0, 112 / 255.0, 255 / 255.0);
   lut->SetTableValue(71, 0 / 255.0, 108 / 255.0, 112 / 255.0, 255 / 255.0);
@@ -393,6 +406,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   const double midPoint = 0.5;
   const double sharpness = 1.0;
   for (int i = 0; i < numColors; i++, value += step)
+//  for (int i = 0; i < numColors; i++, value += (50 * step) )
     {
     lut->GetTableValue(i, color);
 
@@ -412,8 +426,14 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   delete [] filename;
   filename = NULL;
 
+#ifdef GPU_MAPPER
   vtkSmartPointer<vtkGPUVolumeRayCastMapper> volumeMapper =
     vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
+#else
+  vtkSmartPointer<vtkFixedPointVolumeRayCastMapper> volumeMapper =
+    vtkSmartPointer<vtkFixedPointVolumeRayCastMapper>::New();
+#endif
+
   volumeMapper->SetInputData(reader->GetOutput());
 
   vtkSmartPointer<vtkVolumeProperty> volumeProperty =
@@ -421,7 +441,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(opacity);
   volumeProperty->SetInterpolationTypeToNearest();
-  volumeProperty->ShadeOn();
+//  volumeProperty->ShadeOn();
   volumeProperty->SetAmbient(0.3);
   volumeProperty->SetDiffuse(0.6);
   volumeProperty->SetSpecular(0.5);
@@ -437,6 +457,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   xf->RotateZ(180.0);
   xf->RotateY(25.0);
   xf->RotateX(-65.0);
+  //xf->RotateY(-90.0);
   volume->SetUserTransform(xf);
 
   vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -460,7 +481,11 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   iren->SetRenderWindow(renderWindow);
   renderWindow->Render();// make sure we have an OpenGL context.
 
+#ifdef GPU_MAPPER
   int valid = volumeMapper->IsRenderSupported(renderWindow, volumeProperty);
+#else
+  int valid = 1;
+#endif
 
   int retVal;
   if (valid)

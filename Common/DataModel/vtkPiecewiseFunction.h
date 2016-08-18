@@ -165,9 +165,25 @@ public:
   vtkGetMacro(AllowDuplicateScalars, int);
   vtkBooleanMacro(AllowDuplicateScalars, int);
 
+  // Description:
+  // Estimates the minimum size of a table such that it would correctly sample this function.
+  // The returned value should be passed as parameter 'n' when calling GetTable().
+  int EstimateMinNumberOfSamples(double const & x1, double const & x2);
+
 protected:
   vtkPiecewiseFunction();
   ~vtkPiecewiseFunction();
+
+  // Internal method to sort the vector and update the
+  // Range whenever a node is added, edited or removed.
+  // It always calls Modified().
+  void SortAndUpdateRange();
+  // Returns true if the range has been updated and Modified() has been called
+  bool UpdateRange();
+
+  // Description:
+  // Traverses the nodes to find the minimum distance. Assumes nodes are sorted.
+  double FindMinimumXDistance();
 
   // The internal STL structures
   vtkPiecewiseFunctionInternals *Internal;
@@ -183,13 +199,6 @@ protected:
 
   // Min and max range of function point locations
   double Range[2];
-
-  // Internal method to sort the vector and update the
-  // Range whenever a node is added, edited or removed.
-  // It always calls Modified().
-  void SortAndUpdateRange();
-  // Returns true if the range has been updated and Modified() has been called
-  bool UpdateRange();
 
   int AllowDuplicateScalars;
 

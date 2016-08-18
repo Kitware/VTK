@@ -248,9 +248,39 @@ vtkStandardNewMacro(vtkOpenGLGPUVolumeRayCastMapper);
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
-class vtkTextureTable
+class vtkTextureTable : public vtkObject
 {
 public:
+  bool IsLoaded()const
+    {
+    return this->Loaded;
+    }
+
+  void Bind()
+    {
+      assert("pre: uptodate" && this->Loaded);
+      glBindTexture(GL_TEXTURE_1D,this->TextureId);
+    }
+  int ComputeTableSize(vtkPiecewiseFunction* function)
+    {
+    int const idealW = function->EstimateMinNumberOfSamples(this->LastRange[0],
+      this->LastRange[1]);
+
+    return this->ComputeTableSize(idealW);
+    }
+  int ComputeTableSize(vtkColorTransferFunction* function)
+    {
+    int const idealW = function->EstimateMinNumberOfSamples(this->LastRange[0],
+      this->LastRange[1]);
+
+    return this->ComputeTableSize(idealW);
+    }
+  int ComputeTableSize(vtkLookupTable* function)
+    {
+    return this->ComputeTableSize(function->GetNumberOfTableValues());
+    }
+
+protected:
   vtkTextureTable()
     {
       this->TextureId=0;
@@ -270,30 +300,7 @@ public:
       delete[] this->Table;
       this->Table = 0;
     }
-  bool IsLoaded()const
-    {
-    return this->Loaded;
-    }
 
-  void Bind()
-    {
-      assert("pre: uptodate" && this->Loaded);
-      glBindTexture(GL_TEXTURE_1D,this->TextureId);
-    }
-  int ComputeTableSize(vtkPiecewiseFunction* function)
-    {
-    return this->ComputeTableSize(function->GetSize());
-    }
-  int ComputeTableSize(vtkColorTransferFunction* function)
-    {
-    return this->ComputeTableSize(function->GetSize());
-    }
-  int ComputeTableSize(vtkLookupTable* function)
-    {
-    return this->ComputeTableSize(function->GetNumberOfTableValues());
-    }
-
-protected:
   GLuint TextureId;
   vtkTimeStamp BuildTime;
   float *Table;
@@ -302,14 +309,38 @@ protected:
   double LastRange[2];
 
 private:
-  vtkTextureTable(const vtkTextureTable&);
-  vtkTextureTable& operator=(const vtkTextureTable&);
+  vtkTextureTable(const vtkTextureTable&); VTK_DELETE_FUNCTION
+  vtkTextureTable& operator=(const vtkTextureTable&); VTK_DELETE_FUNCTION
 
-  int ComputeTableSize(int functionSize)
+  // Description:
+  // Queries the GL_MAX_TEXTURE_SIZE and returns either the requested idealWidth
+  // or the maximum supported.
+  // Warning: This method assumes there is an active GL context.
+  int ComputeTableSize(int idealWidth)
     {
-    functionSize = std::max(functionSize,
-                            vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize);
-    return vtkMath::NearestPowerOfTwo(functionSize);
+    idealWidth = vtkMath::NearestPowerOfTwo(idealWidth);
+    GLint maxWidth = -1;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxWidth);
+    if (maxWidth < 0)
+      {
+      vtkErrorMacro("Failed to query max texture size! using default "
+        << vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize);
+      return vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize;
+      }
+
+    if (maxWidth >= idealWidth)
+      {
+      idealWidth = vtkMath::Max(vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,
+        idealWidth);
+
+      return idealWidth;
+      }
+
+    vtkWarningMacro("This OpenGL implementation does not support the required "
+      "texture size of " << idealWidth << ", falling back to maximum allowed, "
+      << maxWidth << "." << "This may cause an incorrect color table mapping.");
+
+    return maxWidth;
     }
 };
 
@@ -319,15 +350,8 @@ private:
 class vtkOpacityTable: public vtkTextureTable
 {
 public:
-  vtkOpacityTable()
-    {
-      this->LastBlendMode=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
-      this->LastSampleDistance=1.0;
-    }
-
-  ~vtkOpacityTable()
-    {
-    }
+  static vtkOpacityTable* New();
+  vtkTypeMacro(vtkOpacityTable, vtkTextureTable);
 
   // \pre the active texture is set to TEXTURE2
   void Update(vtkPiecewiseFunction *scalarOpacity,
@@ -439,13 +463,22 @@ public:
     vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 protected:
+  vtkOpacityTable()
+    {
+      this->LastBlendMode=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
+      this->LastSampleDistance=1.0;
+    }
+
+  ~vtkOpacityTable() {};
+
   int LastBlendMode;
   double LastSampleDistance;
 private:
-  vtkOpacityTable(const vtkOpacityTable&);
-  vtkOpacityTable& operator=(const vtkOpacityTable&);
+  vtkOpacityTable(const vtkOpacityTable&); VTK_DELETE_FUNCTION
+  vtkOpacityTable& operator=(const vtkOpacityTable&); VTK_DELETE_FUNCTION
 };
 
+vtkStandardNewMacro(vtkOpacityTable);
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -454,43 +487,41 @@ class vtkOpacityTables
 public:
   vtkOpacityTables(unsigned int numberOfTables)
     {
-    this->Tables = new vtkOpacityTable[numberOfTables];
-    this->NumberOfTables = numberOfTables;
+    this->Tables.reserve(static_cast<size_t>(numberOfTables));
+    for (unsigned int i = 0; i < numberOfTables; i++)
+      {
+      this->Tables.push_back(vtkOpacityTable::New());
+      }
     }
   ~vtkOpacityTables()
     {
-    delete [] this->Tables;
+    size_t const size = this->Tables.size();
+    for (size_t i = 0; i < size; i++)
+      {
+      this->Tables[i]->Delete();
+      }
     }
-  vtkOpacityTable* GetTable(unsigned int i)
+  vtkOpacityTable* GetTable(size_t const i)
     {
-    return &this->Tables[i];
+    return this->Tables[i];
     }
-  unsigned int GetNumberOfTables()
+  size_t GetNumberOfTables()
     {
-    return this->NumberOfTables;
+    return this->Tables.size();
     }
 private:
-  unsigned int NumberOfTables;
-  vtkOpacityTable *Tables;
-  // undefined default constructor.
-  vtkOpacityTables();
-  // undefined copy constructor.
-  vtkOpacityTables(const vtkOpacityTables &other);
-  // undefined assignment operator.
-  vtkOpacityTables &operator=(const vtkOpacityTables &other);
+  vtkOpacityTables(); VTK_DELETE_FUNCTION
+  vtkOpacityTables(const vtkOpacityTables &other); VTK_DELETE_FUNCTION
+  vtkOpacityTables &operator=(const vtkOpacityTables &other); VTK_DELETE_FUNCTION
+
+  std::vector<vtkOpacityTable*> Tables;
 };
 
 //-----------------------------------------------------------------------------
 class vtkRGBTable: public vtkTextureTable
 {
 public:
-  vtkRGBTable()
-    {
-    }
-
-  ~vtkRGBTable()
-    {
-    }
+  static vtkRGBTable* New();
 
   // \pre the active texture is set properly. (default color,
   // mask1, mask2,..)
@@ -510,6 +541,8 @@ public:
       if (range[0] != this->LastRange[0] || range[1] != this->LastRange[1])
         {
         needUpdate=true;
+        this->LastRange[0] = range[0];
+        this->LastRange[1] = range[1];
         }
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
       if(needUpdate)
@@ -535,8 +568,6 @@ public:
         vtkOpenGLStaticCheckErrorMacro("1d RGB texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
-        this->LastRange[0] = range[0];
-        this->LastRange[1] = range[1];
         }
 
       needUpdate=needUpdate ||
@@ -559,8 +590,16 @@ public:
     vtkOpenGLStaticCheckErrorMacro("failed after Update");
     }
 
+protected:
+  vtkRGBTable() {};
+  ~vtkRGBTable() {};
+
+private:
+  vtkRGBTable(const vtkRGBTable &other); VTK_DELETE_FUNCTION
+  vtkRGBTable &operator=(const vtkRGBTable &other); VTK_DELETE_FUNCTION
 };
 
+vtkStandardNewMacro(vtkRGBTable);
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -2535,14 +2574,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
       }
     }
 
-  delete this->RGBTable;
-  this->RGBTable=0;
+  if (this->RGBTable)
+    {
+    this->RGBTable->Delete();
+    this->RGBTable = NULL;
+    }
 
-  delete this->Mask1RGBTable;
-  this->Mask1RGBTable=0;
+  if (this->Mask1RGBTable)
+    {
+    this->Mask1RGBTable->Delete();
+    this->Mask1RGBTable = NULL;
+    }
 
-  delete this->Mask2RGBTable;
-  this->Mask2RGBTable=0;
+  if (this->Mask2RGBTable)
+    {
+    this->Mask2RGBTable->Delete();
+    this->Mask2RGBTable = NULL;
+    }
 
   delete this->OpacityTables;
   this->OpacityTables=0;
@@ -4067,20 +4115,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   this->TableRange[1]=scalarRange[1];
 
 
-  if(this->RGBTable==0)
+  if(this->RGBTable == NULL)
     {
-    this->RGBTable=new vtkRGBTable;
+    this->RGBTable = vtkRGBTable::New();
     }
 
-  if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
+  if (this->MaskInput != NULL && this->MaskType == LabelMapMaskType)
     {
-    if(this->Mask1RGBTable==0)
+    if(this->Mask1RGBTable == NULL)
       {
-      this->Mask1RGBTable=new vtkRGBTable;
+      this->Mask1RGBTable = vtkRGBTable::New();
       }
-    if(this->Mask2RGBTable==0)
+    if(this->Mask2RGBTable == NULL)
       {
-      this->Mask2RGBTable=new vtkRGBTable;
+      this->Mask2RGBTable = vtkRGBTable::New();
       }
     }
 
