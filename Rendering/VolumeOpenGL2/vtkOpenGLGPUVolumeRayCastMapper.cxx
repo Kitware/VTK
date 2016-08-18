@@ -729,12 +729,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         }
       break;
     case VTK_UNSIGNED_CHAR:
-      oglScale = 1.0/VTK_UNSIGNED_CHAR_MAX;
+      oglScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
       oglBias = 0.0;
       break;
     case VTK_SIGNED_CHAR:
-      oglScale = 2.0/(VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN);
-      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN*oglScale;
+      oglScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN * oglScale;
       break;
     case VTK_CHAR:
       // not supported
@@ -787,15 +787,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         }
       break;
     case VTK_SHORT:
-      oglScale = 2.0/(VTK_SHORT_MAX - VTK_SHORT_MIN);
-      oglBias = -1.0 - VTK_SHORT_MIN*oglScale;
+      oglScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      oglBias = -1.0 - VTK_SHORT_MIN * oglScale;
       break;
     case VTK_STRING:
       // not supported
       assert("check: impossible case" && 0);
       break;
     case VTK_UNSIGNED_SHORT:
-      oglScale = 1.0/VTK_UNSIGNED_SHORT_MAX;
+      oglScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
       oglBias = 0.0;
       break;
     default:
