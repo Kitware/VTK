@@ -53,7 +53,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDirectedAcyclicGraph : public vtkDirectedGrap
 public:
   static vtkDirectedAcyclicGraph *New();
   vtkTypeMacro(vtkDirectedAcyclicGraph, vtkDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.

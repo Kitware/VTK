@@ -48,7 +48,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkUndirectedGraphAlgorithm : public vtkAlg
 public:
   static vtkUndirectedGraphAlgorithm *New();
   vtkTypeMacro(vtkUndirectedGraphAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

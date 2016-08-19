@@ -35,7 +35,7 @@ public:
   static vtkExtentTranslator *New();
 
   vtkTypeMacro(vtkExtentTranslator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the Piece/NumPieces. Set the WholeExtent and then call PieceToExtent.

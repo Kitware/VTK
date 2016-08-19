@@ -274,7 +274,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGraph : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkGraph, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the vertex or edge data.

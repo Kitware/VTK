@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkProgressObserver : public vtkObject
 public:
   static vtkProgressObserver *New();
   vtkTypeMacro(vtkProgressObserver,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The default behavior is to update the Progress data member

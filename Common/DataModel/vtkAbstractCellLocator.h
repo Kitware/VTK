@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAbstractCellLocator : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkAbstractCellLocator,vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify the preferred/maximum number of cells in each node/bucket.

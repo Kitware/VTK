@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticWedge : public vtkNonLinearCell
 public:
   static vtkQuadraticWedge *New();
   vtkTypeMacro(vtkQuadraticWedge,vtkNonLinearCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions

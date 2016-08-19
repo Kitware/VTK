@@ -32,7 +32,7 @@ public:
   static vtkPath *New();
 
   vtkTypeMacro(vtkPath,vtkPointSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.

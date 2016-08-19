@@ -108,7 +108,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOrderedTriangulator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkOrderedTriangulator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct object.

@@ -35,7 +35,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricConicSpiral : public vt
 {
 public:
   vtkTypeMacro(vtkParametricConicSpiral,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a conic spiral surface with the following parameters:

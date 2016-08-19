@@ -90,7 +90,7 @@ public:
   static vtkMultiThreader *New();
 
   vtkTypeMacro(vtkMultiThreader,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This is the structure that is passed to the thread that is

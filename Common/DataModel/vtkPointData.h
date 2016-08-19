@@ -31,7 +31,7 @@ public:
   static vtkPointData *New();
 
   vtkTypeMacro(vtkPointData,vtkDataSetAttributes);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   void NullPoint(vtkIdType ptId);
 
 protected:

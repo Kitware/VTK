@@ -32,7 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkWindow : public vtkObject
 {
 public:
   vtkTypeMacro(vtkWindow,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // These are window system independent methods that are used

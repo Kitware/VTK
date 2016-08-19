@@ -33,7 +33,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBohemianDome : public v
 public:
 
   vtkTypeMacro(vtkParametricBohemianDome,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a Bohemian dome surface with the following parameters:

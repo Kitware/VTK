@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointsProjectedHull : public vtkPoints
     vtkTypeMacro(vtkPointsProjectedHull, vtkPoints);
 
 public:
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     static vtkPointsProjectedHull *New();
 

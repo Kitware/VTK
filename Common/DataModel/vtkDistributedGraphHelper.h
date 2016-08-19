@@ -74,7 +74,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
 {
  public:
   vtkTypeMacro(vtkDistributedGraphHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns owner of vertex v, by extracting top ceil(log2 P) bits of v.

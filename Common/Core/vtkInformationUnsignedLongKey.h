@@ -29,7 +29,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationUnsignedLongKey : public vtkInformation
 {
 public:
   vtkTypeMacro(vtkInformationUnsignedLongKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationUnsignedLongKey(const char* name, const char* location);
   ~vtkInformationUnsignedLongKey();

@@ -42,7 +42,7 @@ public:
   static vtkLandmarkTransform *New();
 
   vtkTypeMacro(vtkLandmarkTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify the source and target landmark sets. The two sets must have

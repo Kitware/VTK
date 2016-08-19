@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageToStructuredPoints : public vtkImag
 public:
   static vtkImageToStructuredPoints *New();
   vtkTypeMacro(vtkImageToStructuredPoints,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the input object from the image pipeline.

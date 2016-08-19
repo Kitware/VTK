@@ -32,7 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMergePoints : public vtkPointLocator
 public:
   static vtkMergePoints *New();
   vtkTypeMacro(vtkMergePoints,vtkPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.

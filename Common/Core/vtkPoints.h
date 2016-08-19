@@ -36,7 +36,7 @@ public:
   static vtkPoints *New();
 
   vtkTypeMacro(vtkPoints,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Allocate initial memory size. ext is no longer used.

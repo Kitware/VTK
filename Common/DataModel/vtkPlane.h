@@ -33,7 +33,7 @@ public:
   static vtkPlane *New();
 
   vtkTypeMacro(vtkPlane,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Evaluate plane equation for point x[3].

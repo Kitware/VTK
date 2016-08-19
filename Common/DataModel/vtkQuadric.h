@@ -28,7 +28,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadric : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkQuadric,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Construct quadric with all coefficients = 1.

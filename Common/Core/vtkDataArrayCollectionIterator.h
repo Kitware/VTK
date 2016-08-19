@@ -31,7 +31,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArrayCollectionIterator : public vtkCollection
 {
 public:
   vtkTypeMacro(vtkDataArrayCollectionIterator,vtkCollectionIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkDataArrayCollectionIterator* New();
 
   // Description:

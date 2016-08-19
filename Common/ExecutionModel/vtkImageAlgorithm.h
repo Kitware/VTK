@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageAlgorithm : public vtkAlgorithm
 {
 public:
   vtkTypeMacro(vtkImageAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.

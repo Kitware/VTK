@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPassInputTypeAlgorithm : public vtkAlgor
 public:
   static vtkPassInputTypeAlgorithm *New();
   vtkTypeMacro(vtkPassInputTypeAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.

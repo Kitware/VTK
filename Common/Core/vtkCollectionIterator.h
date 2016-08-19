@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkCollectionIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollectionIterator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkCollectionIterator* New();
 
   // Description:

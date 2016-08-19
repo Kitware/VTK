@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkInformationQuadratureSchemeDefinitionVectorKe
 {
 public:
   vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   // Description:
   // The name of the static instance and the class in which
   // it is defined(location) should be passed to the constructor.

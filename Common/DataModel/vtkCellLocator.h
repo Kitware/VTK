@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellLocator : public vtkAbstractCellLocator
 {
 public:
   vtkTypeMacro(vtkCellLocator,vtkAbstractCellLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct with automatic computation of divisions, averaging

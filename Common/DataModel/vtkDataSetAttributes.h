@@ -54,7 +54,7 @@ public:
   static vtkDataSetAttributes *New();
 
   vtkTypeMacro(vtkDataSetAttributes,vtkFieldData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Initialize all of the object's data to NULL

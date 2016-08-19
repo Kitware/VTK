@@ -32,7 +32,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKuen : public vtkParame
 public:
 
   vtkTypeMacro(vtkParametricKuen,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Kuen's surface with the following parameters:

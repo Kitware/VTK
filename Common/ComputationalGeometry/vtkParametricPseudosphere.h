@@ -33,7 +33,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricPseudosphere : public v
 public:
 
   vtkTypeMacro(vtkParametricPseudosphere,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a pseudosphere surface with the following parameters:

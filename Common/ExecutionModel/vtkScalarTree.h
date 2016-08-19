@@ -52,7 +52,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkScalarTree : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarTree,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Build the tree from the points/cells and scalars defining this

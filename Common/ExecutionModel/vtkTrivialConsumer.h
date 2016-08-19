@@ -30,7 +30,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTrivialConsumer : public vtkAlgorithm
 public:
   static vtkTrivialConsumer *New();
   vtkTypeMacro(vtkTrivialConsumer,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkTrivialConsumer();

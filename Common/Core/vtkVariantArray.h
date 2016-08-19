@@ -47,7 +47,7 @@ class VTKCOMMONCORE_EXPORT vtkVariantArray : public vtkAbstractArray
 public:
   static vtkVariantArray* New();
   vtkTypeMacro(vtkVariantArray,vtkAbstractArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //
   // Functions required by vtkAbstractArray

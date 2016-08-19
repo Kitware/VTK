@@ -53,7 +53,7 @@ public:
   static vtkFieldData *New();
 
   vtkTypeMacro(vtkFieldData,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Release all data but do not delete object.

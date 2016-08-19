@@ -64,7 +64,7 @@ public:
   // Description:
   // Standard type and print methods.
   vtkTypeMacro(vtkStaticPointLocator,vtkAbstractPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify the average number of points in each bucket. This data member is

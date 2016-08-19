@@ -45,7 +45,7 @@ public:
   virtual int GetDataObjectType() {return VTK_UNIFORM_GRID_AMR;}
 
   // Description:  // Print internal states
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Restore data object to initial

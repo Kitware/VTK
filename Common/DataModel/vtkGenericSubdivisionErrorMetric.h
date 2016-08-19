@@ -48,7 +48,7 @@ public:
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkGenericSubdivisionErrorMetric,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Does the edge need to be subdivided according to the implemented

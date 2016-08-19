@@ -34,7 +34,7 @@ class VTKCOMMONCORE_EXPORT vtkAndroidOutputWindow : public vtkOutputWindow
 public:
 // Methods from vtkObject
   vtkTypeMacro(vtkAndroidOutputWindow,vtkOutputWindow);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Create a vtkAndroidOutputWindow.

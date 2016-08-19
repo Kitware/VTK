@@ -68,7 +68,7 @@ class VTKCOMMONCORE_EXPORT vtkInstantiator : public vtkObject
 public:
   static vtkInstantiator* New();
   vtkTypeMacro(vtkInstantiator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Create an instance of the class whose name is given.  If creation

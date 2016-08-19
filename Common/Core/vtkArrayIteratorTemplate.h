@@ -32,7 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 public:
   static vtkArrayIteratorTemplate<T>* New();
   vtkTemplateTypeMacro(vtkArrayIteratorTemplate<T>, vtkArrayIterator)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the array this iterator will iterate over.

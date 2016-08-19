@@ -52,7 +52,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkArrayDataAlgorithm : public vtkAlgorithm
 public:
   static vtkArrayDataAlgorithm *New();
   vtkTypeMacro(vtkArrayDataAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

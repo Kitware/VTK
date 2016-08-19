@@ -47,7 +47,7 @@ public:
   static vtkTestDataArray<ArrayType>* New()
   { VTK_STANDARD_NEW_BODY(vtkTestDataArray<ArrayType>); }
 
-  virtual void PrintSelf(ostream &os, vtkIndent indent)
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
   { GenericDataArrayType::PrintSelf(os,indent); }
 
   ValueType GetValue(vtkIdType valueIdx) const

@@ -44,7 +44,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
  public:
   static vtkTransform2D *New();
   vtkTypeMacro(vtkTransform2D,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the transformation to the identity transformation.

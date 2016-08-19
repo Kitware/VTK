@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkVoxel : public vtkCell3D
 public:
   static vtkVoxel *New();
   vtkTypeMacro(vtkVoxel,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See vtkCell3D API for description of these methods.

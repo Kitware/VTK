@@ -46,7 +46,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArray : public vtkAbstractArray
 {
 public:
   vtkTypeMacro(vtkDataArray,vtkAbstractArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.

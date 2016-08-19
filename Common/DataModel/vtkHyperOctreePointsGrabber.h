@@ -33,7 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreePointsGrabber : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperOctreePointsGrabber,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the dimension of the hyperoctree.

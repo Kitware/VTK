@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAdjacentVertexIterator : public vtkObject
 public:
   static vtkAdjacentVertexIterator *New();
   vtkTypeMacro(vtkAdjacentVertexIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Initialize the iterator with a graph and vertex.

@@ -44,7 +44,7 @@ public:
   static vtkMatrix3x3 *New();
 
   vtkTypeMacro(vtkMatrix3x3,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the elements of the matrix to the same values as the elements

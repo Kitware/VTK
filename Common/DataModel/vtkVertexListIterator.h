@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkVertexListIterator : public vtkObject
 public:
   static vtkVertexListIterator *New();
   vtkTypeMacro(vtkVertexListIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Setup the iterator with a graph.

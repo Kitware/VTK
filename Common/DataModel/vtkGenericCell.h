@@ -38,7 +38,7 @@ public:
   static vtkGenericCell *New();
 
   vtkTypeMacro(vtkGenericCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the points object to use for this cell. This updates the internal cell

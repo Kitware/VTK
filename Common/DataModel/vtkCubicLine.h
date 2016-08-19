@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCubicLine : public vtkNonLinearCell
 public:
   static vtkCubicLine *New();
   vtkTypeMacro(vtkCubicLine,vtkNonLinearCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

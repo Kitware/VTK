@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBSPIntersections : public vtkObject
 {
 public:
   vtkTypeMacro(vtkBSPIntersections, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkBSPIntersections *New();
 

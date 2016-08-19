@@ -29,7 +29,7 @@ class VTKCOMMONCORE_EXPORT vtkGaussianRandomSequence : public vtkRandomSequence
 {
 public:
   vtkTypeMacro(vtkGaussianRandomSequence,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Convenient method to return a value given the mean and standard deviation

@@ -49,7 +49,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkAbstractTransform : public vtkObject
 public:
 
   vtkTypeMacro(vtkAbstractTransform,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Apply the transformation to a coordinate.  You can use the same

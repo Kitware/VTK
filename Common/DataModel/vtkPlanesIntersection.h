@@ -51,7 +51,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanesIntersection : public vtkPlanes
   vtkTypeMacro(vtkPlanesIntersection, vtkPlanes);
 
 public:
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkPlanesIntersection *New();
 

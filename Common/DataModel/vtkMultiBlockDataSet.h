@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMultiBlockDataSet : public vtkDataObjectTree
 public:
   static vtkMultiBlockDataSet* New();
   vtkTypeMacro(vtkMultiBlockDataSet, vtkDataObjectTree);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return class name of data type (see vtkType.h for

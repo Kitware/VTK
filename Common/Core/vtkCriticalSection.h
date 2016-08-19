@@ -43,7 +43,7 @@ public:
   static vtkCriticalSection *New();
 
   vtkTypeMacro(vtkCriticalSection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Lock the vtkCriticalSection

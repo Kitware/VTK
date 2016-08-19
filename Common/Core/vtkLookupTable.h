@@ -79,7 +79,7 @@ public:
   static vtkLookupTable *New();
 
   vtkTypeMacro(vtkLookupTable,vtkScalarsToColors);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return true if all of the values defining the mapping have an opacity

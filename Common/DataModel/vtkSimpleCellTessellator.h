@@ -67,7 +67,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSimpleCellTessellator : public vtkGenericCell
 public:
   static vtkSimpleCellTessellator *New();
   vtkTypeMacro(vtkSimpleCellTessellator,vtkGenericCellTessellator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the higher order cell in order to access the evaluation function.

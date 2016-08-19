@@ -74,7 +74,7 @@ public:
   static vtkTimerLog *New();
 
   vtkTypeMacro(vtkTimerLog,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This flag will turn loging of events off or on.

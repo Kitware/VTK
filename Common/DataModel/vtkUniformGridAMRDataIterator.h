@@ -35,7 +35,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUniformGridAMRDataIterator :
 public:
   static vtkUniformGridAMRDataIterator* New();
   vtkTypeMacro(vtkUniformGridAMRDataIterator, vtkCompositeDataIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns the meta-data associated with the current item.

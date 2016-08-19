@@ -36,7 +36,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationIterator : public vtkObject
 public:
   static vtkInformationIterator *New();
   vtkTypeMacro(vtkInformationIterator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the information to iterator over.

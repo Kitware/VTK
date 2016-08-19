@@ -55,7 +55,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperTreeCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperTreeCursor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the HyperTree on which the cursor points to.

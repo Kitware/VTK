@@ -30,7 +30,7 @@ class VTKCOMMONSYSTEM_EXPORT vtkSocketCollection : public vtkCollection
 public:
   static vtkSocketCollection* New();
   vtkTypeMacro(vtkSocketCollection, vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Add Socket to the collection.
   void AddItem(vtkSocket* soc);

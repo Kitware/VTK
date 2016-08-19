@@ -35,7 +35,7 @@ public:
   static vtkImplicitSum *New();
 
   vtkTypeMacro(vtkImplicitSum,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Evaluate implicit function using current functions and weights.

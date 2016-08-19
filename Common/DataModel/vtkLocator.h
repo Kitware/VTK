@@ -69,7 +69,7 @@ public:
   // Description:
   // Standard type and print methods.
   vtkTypeMacro(vtkLocator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Build the locator from the points/cells defining this dataset.

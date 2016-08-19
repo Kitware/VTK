@@ -82,7 +82,7 @@ public:
   static vtkMutexLock *New();
 
   vtkTypeMacro(vtkMutexLock,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Lock the vtkMutexLock

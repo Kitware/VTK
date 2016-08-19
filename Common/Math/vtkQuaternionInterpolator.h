@@ -62,7 +62,7 @@ class VTKCOMMONMATH_EXPORT vtkQuaternionInterpolator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkQuaternionInterpolator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Instantiate the class.

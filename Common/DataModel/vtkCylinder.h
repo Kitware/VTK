@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCylinder : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkCylinder,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Construct cylinder radius of 0.5; centered at origin with axis

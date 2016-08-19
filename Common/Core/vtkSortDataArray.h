@@ -77,7 +77,7 @@ public:
   // information about this class.
   static vtkSortDataArray *New();
   vtkTypeMacro(vtkSortDataArray, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Sorts the given array in ascending order. For this method, the keys must

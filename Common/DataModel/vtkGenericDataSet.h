@@ -69,7 +69,7 @@ public:
   // Description:
   // Standard VTK type and print macros.
   vtkTypeMacro(vtkGenericDataSet,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the number of points composing the dataset. See NewPointIterator()

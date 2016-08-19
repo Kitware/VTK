@@ -39,7 +39,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkMultiTimeStepAlgorithm : public vtkAlgor
 public:
   static vtkMultiTimeStepAlgorithm *New();
   vtkTypeMacro(vtkMultiTimeStepAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 
 protected:

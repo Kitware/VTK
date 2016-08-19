@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonLinearCell : public vtkCell
 {
 public:
   vtkTypeMacro(vtkNonLinearCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Non-linear cells require special treatment (tessellation) when

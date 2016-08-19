@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkXMLDataElement : public vtkObject
 {
 public:
   vtkTypeMacro(vtkXMLDataElement,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkXMLDataElement* New();
 
   // Description:

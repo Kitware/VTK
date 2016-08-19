@@ -47,7 +47,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCastToConcrete : public vtkDataSetAlgori
 public:
   static vtkCastToConcrete *New();
   vtkTypeMacro(vtkCastToConcrete,vtkDataSetAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkCastToConcrete() {}

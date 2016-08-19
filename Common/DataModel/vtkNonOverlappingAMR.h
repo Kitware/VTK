@@ -32,7 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkNonOverlappingAMR : public vtkUniformGridAMR
  public:
   static vtkNonOverlappingAMR* New();
   vtkTypeMacro(vtkNonOverlappingAMR,vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns object type (see vtkType.h for definitions).

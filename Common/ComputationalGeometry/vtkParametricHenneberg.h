@@ -31,7 +31,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricHenneberg : public vtkP
 public:
 
   vtkTypeMacro(vtkParametricHenneberg,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Henneberg's minimal surface with the following parameters:

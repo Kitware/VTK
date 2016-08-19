@@ -42,7 +42,7 @@ public:
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkAttributesErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Absolute tolerance of the active scalar (attribute+component).

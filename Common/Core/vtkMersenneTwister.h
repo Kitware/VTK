@@ -71,7 +71,7 @@ public:
   typedef vtkTypeUInt32 SequenceId;
 
   vtkTypeMacro(vtkMersenneTwister,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMersenneTwister* New();
 

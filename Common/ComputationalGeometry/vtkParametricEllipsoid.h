@@ -39,7 +39,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEllipsoid : public vtkP
 {
 public:
   vtkTypeMacro(vtkParametricEllipsoid,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct an ellipsoid with the following parameters:

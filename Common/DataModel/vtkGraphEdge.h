@@ -38,7 +38,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGraphEdge : public vtkObject
 public:
   static vtkGraphEdge *New();
   vtkTypeMacro(vtkGraphEdge, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // The source of the edge.

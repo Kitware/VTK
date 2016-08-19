@@ -33,7 +33,7 @@ public:
   static vtkThreadMessager *New();
 
   vtkTypeMacro(vtkThreadMessager,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Wait (block, non-busy) until another thread sends a

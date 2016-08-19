@@ -42,7 +42,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAnnotationLayersAlgorithm : public vtkAl
 public:
   static vtkAnnotationLayersAlgorithm *New();
   vtkTypeMacro(vtkAnnotationLayersAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

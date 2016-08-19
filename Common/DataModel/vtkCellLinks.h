@@ -52,7 +52,7 @@ public:
   // Standard methods to instantiate, print, and obtain type information.
   static vtkCellLinks *New();
   vtkTypeMacro(vtkCellLinks,vtkAbstractCellLinks);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Build the link list array. All subclasses of vtkAbstractCellLinks

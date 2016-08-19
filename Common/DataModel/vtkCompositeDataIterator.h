@@ -32,7 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataIterator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the composite dataset this iterator is iterating over.

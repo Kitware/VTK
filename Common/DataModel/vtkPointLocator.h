@@ -55,7 +55,7 @@ public:
   // Description:
   // Standard methods for type management and printing.
   vtkTypeMacro(vtkPointLocator,vtkIncrementalPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the number of divisions in x-y-z directions.

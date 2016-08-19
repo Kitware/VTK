@@ -52,7 +52,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkIterativeClosestPointTransform : public vtkLi
 public:
   static vtkIterativeClosestPointTransform *New();
   vtkTypeMacro(vtkIterativeClosestPointTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Specify the source and target data sets.

@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricEnneper : public vtkPar
 public:
 
   vtkTypeMacro(vtkParametricEnneper,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Enneper's surface with the following parameters:

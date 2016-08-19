@@ -44,7 +44,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkStreamingDemandDrivenPipeline : public v
 public:
   static vtkStreamingDemandDrivenPipeline* New();
   vtkTypeMacro(vtkStreamingDemandDrivenPipeline,vtkDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Generalized interface for asking the executive to fulfill update

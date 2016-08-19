@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBox : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkBox,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Construct box with center at (0,0,0) and each side of length 1.0.

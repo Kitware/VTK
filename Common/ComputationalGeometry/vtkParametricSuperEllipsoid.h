@@ -43,7 +43,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperEllipsoid : public
 {
 public:
   vtkTypeMacro(vtkParametricSuperEllipsoid,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a superellipsoid with the following parameters:

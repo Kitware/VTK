@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnimationScene: public vtkAnimationCue
 {
 public:
   vtkTypeMacro(vtkAnimationScene, vtkAnimationCue);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkAnimationScene* New();
 
   // Description:

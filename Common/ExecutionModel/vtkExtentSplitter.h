@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentSplitter : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExtentSplitter,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkExtentSplitter *New();
 
   // Description:

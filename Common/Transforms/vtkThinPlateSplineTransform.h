@@ -48,7 +48,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkThinPlateSplineTransform : public vtkWarpTra
 {
 public:
   vtkTypeMacro(vtkThinPlateSplineTransform,vtkWarpTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkThinPlateSplineTransform *New();
 
   // Description:

@@ -32,7 +32,7 @@ public:
   static vtkCellData *New();
 
   vtkTypeMacro(vtkCellData,vtkDataSetAttributes);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkCellData() {} //make sure constructor and desctructor are protected

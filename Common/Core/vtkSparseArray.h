@@ -74,7 +74,7 @@ class vtkSparseArray : public vtkTypedArray<T>
 public:
   vtkTemplateTypeMacro(vtkSparseArray<T>, vtkTypedArray<T>)
   static vtkSparseArray<T>* New();
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::DimensionT DimensionT;

@@ -35,7 +35,7 @@ public:
   // Construct an empty uniform grid.
   static vtkUniformGrid *New();
   vtkTypeMacro(vtkUniformGrid,vtkImageData);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Copy the geometric and topological structure of an input image data

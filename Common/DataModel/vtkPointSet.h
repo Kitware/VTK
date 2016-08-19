@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPointSet : public vtkDataSet
 {
 public:
   vtkTypeMacro(vtkPointSet,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Reset to an empty state and free any memory.

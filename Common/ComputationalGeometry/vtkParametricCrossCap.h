@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCrossCap : public vtkPa
 public:
 
   vtkTypeMacro(vtkParametricCrossCap,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a cross-cap with the following parameters:

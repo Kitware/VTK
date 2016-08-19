@@ -35,7 +35,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSelection : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkSelection,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkSelection* New();
 
   // Description:

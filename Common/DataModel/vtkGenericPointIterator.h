@@ -40,7 +40,7 @@ public:
   // Description:
   // Standard VTK construction and type macros.
   vtkTypeMacro(vtkGenericPointIterator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Move iterator to first position if any (loop initialization).

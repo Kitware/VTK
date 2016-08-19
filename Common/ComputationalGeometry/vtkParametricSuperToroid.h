@@ -47,7 +47,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricSuperToroid : public vt
 {
 public:
   vtkTypeMacro(vtkParametricSuperToroid,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a supertoroid with the following parameters:

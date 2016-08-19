@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdTreePointLocator : public vtkAbstractPointL
 public:
   vtkTypeMacro(vtkKdTreePointLocator,vtkAbstractPointLocator);
   static vtkKdTreePointLocator* New();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Given a position x, return the id of the point closest to it. Alternative

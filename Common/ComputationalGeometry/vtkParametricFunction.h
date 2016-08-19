@@ -57,7 +57,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFunction : public vtkOb
 {
 public:
   vtkTypeMacro(vtkParametricFunction, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Return the dimension of parametric space. Depending on the dimension,

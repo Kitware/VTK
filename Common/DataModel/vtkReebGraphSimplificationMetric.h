@@ -56,7 +56,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkReebGraphSimplificationMetric :
 public:
   static vtkReebGraphSimplificationMetric* New();
   vtkTypeMacro(vtkReebGraphSimplificationMetric, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the lowest possible value for the custom metric space.

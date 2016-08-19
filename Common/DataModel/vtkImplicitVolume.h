@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitVolume : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitVolume,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Construct an vtkImplicitVolume with no initial volume; the OutValue

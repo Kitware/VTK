@@ -46,7 +46,7 @@ class VTKCOMMONCORE_EXPORT vtkCollection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCollection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct with empty list.

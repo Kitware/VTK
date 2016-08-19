@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricDini : public vtkParame
 public:
 
   vtkTypeMacro(vtkParametricDini,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Dini's surface with the following parameters:

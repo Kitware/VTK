@@ -57,7 +57,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericCellTessellator : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGenericCellTessellator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Tessellate a face of a 3D `cell'. The face is specified by the

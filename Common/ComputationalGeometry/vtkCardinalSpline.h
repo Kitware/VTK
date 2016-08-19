@@ -35,7 +35,7 @@ public:
   static vtkCardinalSpline *New();
 
   vtkTypeMacro(vtkCardinalSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Compute Cardinal Splines for each dependent variable

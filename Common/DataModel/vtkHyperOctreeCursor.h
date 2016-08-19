@@ -49,7 +49,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHyperOctreeCursor : public vtkObject
 {
 public:
   vtkTypeMacro(vtkHyperOctreeCursor,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the index of the current leaf in the data arrays.

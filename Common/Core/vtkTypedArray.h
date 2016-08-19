@@ -59,7 +59,7 @@ public:
   using vtkArray::GetVariantValue;
   using vtkArray::SetVariantValue;
 
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // vtkArray API
   virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates);
