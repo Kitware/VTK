@@ -176,7 +176,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, s
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
 
   vtkMTimeType dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
-  dataMTime += (vtkMTimeType)actor->GetMapper();
+  dataMTime += (vtkMTimeType) actor->GetMapper();
   if (scalarbar) dataMTime += scalarbar->GetLookupTable()->GetMTime();
   if (dataMTime != actorTime && actor->GetVisibility())
     {
@@ -213,7 +213,7 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, s
     {
     this->Internal->ActorTimestamp[key] = dataMTime;
     std::stringstream ss;
-    ss << (long)actor;
+    ss << (vtkMTimeType) actor;
     for (size_t i=0; i<this->Internal->tempObj.size(); i++)
       {
       if (this->Internal->tempObj[i]->GetId().compare(ss.str()) == 0)
