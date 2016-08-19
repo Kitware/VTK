@@ -158,7 +158,7 @@ public:
 
   // Description:
   // Override GetMTime because we delegate to a vtkQuadric
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Helpers to convert string descriptors & mask to bit arrays

@@ -121,10 +121,10 @@ vtkContourFilter::~vtkContourFilter()
 //-----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
-unsigned long vtkContourFilter::GetMTime()
+vtkMTimeType vtkContourFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->ContourValues)
     {

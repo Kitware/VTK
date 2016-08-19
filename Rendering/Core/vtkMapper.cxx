@@ -358,11 +358,11 @@ int vtkMapper::GetResolveCoincidentTopologyPolygonOffsetFaces()
 
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
-unsigned long vtkMapper::GetMTime()
+vtkMTimeType vtkMapper::GetMTime()
 {
-  //unsigned long mTime=this->MTime.GetMTime();
-  unsigned long mTime=vtkAbstractMapper::GetMTime();
-  unsigned long lutMTime;
+  //vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType mTime=vtkAbstractMapper::GetMTime();
+  vtkMTimeType lutMTime;
 
   if ( this->LookupTable != NULL )
     {

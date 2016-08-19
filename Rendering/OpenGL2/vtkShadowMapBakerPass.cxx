@@ -292,7 +292,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
 
     int propArrayCount=0;
     vtkProp **propArray=0;
-    unsigned long latestPropTime=0;
+    vtkMTimeType latestPropTime=0;
 
     if(hasLight)
       {
@@ -303,7 +303,7 @@ void vtkShadowMapBakerPass::Render(const vtkRenderState *s)
       propArray=new vtkProp*[props->GetNumberOfItems()];
       while(p!=0)
         {
-        unsigned long mTime=p->GetMTime();
+        vtkMTimeType mTime=p->GetMTime();
         if(latestPropTime<mTime)
           {
           latestPropTime=mTime;

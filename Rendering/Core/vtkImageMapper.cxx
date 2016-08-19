@@ -70,9 +70,9 @@ vtkImageData *vtkImageMapper::GetInput()
     this->GetExecutive()->GetInputData(0, 0));
 }
 
-unsigned long int vtkImageMapper::GetMTime()
+vtkMTimeType vtkImageMapper::GetMTime()
 {
-  unsigned long mTime=this->vtkMapper2D::GetMTime();
+  vtkMTimeType mTime=this->vtkMapper2D::GetMTime();
   return mTime;
 }
 

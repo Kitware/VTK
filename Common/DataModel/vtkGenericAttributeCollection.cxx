@@ -360,10 +360,10 @@ void vtkGenericAttributeCollection::ShallowCopy(vtkGenericAttributeCollection *o
 //----------------------------------------------------------------------------
 // Description:
 // Collection is composite object and need to check each part for MTime.
-unsigned long int vtkGenericAttributeCollection::GetMTime()
+vtkMTimeType vtkGenericAttributeCollection::GetMTime()
 {
-  unsigned long result;
-  unsigned long mtime;
+  vtkMTimeType result;
+  vtkMTimeType mtime;
 
   result = vtkObject::GetMTime();
 

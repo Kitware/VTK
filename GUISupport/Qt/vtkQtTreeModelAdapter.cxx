@@ -124,7 +124,7 @@ vtkDataObject* vtkQtTreeModelAdapter::GetVTKDataObject() const
   return this->Tree;
 }
 
-unsigned long vtkQtTreeModelAdapter::GetVTKDataObjectMTime() const
+vtkMTimeType vtkQtTreeModelAdapter::GetVTKDataObjectMTime() const
 {
   return this->TreeMTime;
 }

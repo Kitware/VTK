@@ -234,7 +234,7 @@ public:
 
   // Description:
   // Override GetMTime necessary because of inverse transforms.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Needs a special UnRegister() implementation to avoid
@@ -365,7 +365,7 @@ public:
 
   // Description:
   // get maximum MTime of all transforms
-  unsigned long GetMaxMTime();
+  vtkMTimeType GetMaxMTime();
 
   void PrintSelf(ostream& os, vtkIndent indent);
 

@@ -96,14 +96,14 @@ void vtkAssemblyPath::ShallowCopy(vtkAssemblyPath *path)
     }
 }
 
-unsigned long vtkAssemblyPath::GetMTime()
+vtkMTimeType vtkAssemblyPath::GetMTime()
 {
-  unsigned long mtime = this->vtkCollection::GetMTime();
+  vtkMTimeType mtime = this->vtkCollection::GetMTime();
 
   vtkAssemblyNode *node;
   for (this->InitTraversal(); (node = this->GetNextNode());)
     {
-    unsigned long nodeMTime = node->GetMTime();
+    vtkMTimeType nodeMTime = node->GetMTime();
     if (nodeMTime > mtime)
       {
       mtime = nodeMTime;

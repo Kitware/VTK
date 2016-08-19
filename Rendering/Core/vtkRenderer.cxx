@@ -1518,10 +1518,10 @@ int vtkRenderer::VisibleVolumeCount()
   return count;
 }
 
-unsigned long int vtkRenderer::GetMTime()
+vtkMTimeType vtkRenderer::GetMTime()
 {
-  unsigned long mTime=this-> vtkViewport::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this-> vtkViewport::GetMTime();
+  vtkMTimeType time;
 
   if ( this->ActiveCamera != NULL )
     {

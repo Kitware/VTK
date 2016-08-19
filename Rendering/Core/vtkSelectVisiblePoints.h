@@ -112,7 +112,7 @@ public:
 
   // Description:
   // Return MTime also considering the renderer.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkSelectVisiblePoints();

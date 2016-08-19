@@ -128,7 +128,7 @@ public:
 
   // Description:
   // Override the MTime to account for the seed points.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // After the filter has executed, use GetNumberOfVoxels() to find

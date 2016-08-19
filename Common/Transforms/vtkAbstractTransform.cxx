@@ -306,12 +306,12 @@ int vtkAbstractTransform::CircuitCheck(vtkAbstractTransform *transform)
 
 //----------------------------------------------------------------------------
 // Need to check inverse's MTime if we are an inverse transform
-unsigned long vtkAbstractTransform::GetMTime()
+vtkMTimeType vtkAbstractTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkObject::GetMTime();
+  vtkMTimeType mtime = this->vtkObject::GetMTime();
   if (this->DependsOnInverse)
     {
-    unsigned long inverseMTime = this->MyInverse->GetMTime();
+    vtkMTimeType inverseMTime = this->MyInverse->GetMTime();
     if (inverseMTime > mtime)
       {
       return inverseMTime;
@@ -697,10 +697,10 @@ vtkAbstractTransform *vtkTransformConcatenation::GetTransform(int i)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransformConcatenation::GetMaxMTime()
+vtkMTimeType vtkTransformConcatenation::GetMaxMTime()
 {
-  unsigned long result = 0;
-  unsigned long mtime;
+  vtkMTimeType result = 0;
+  vtkMTimeType mtime;
 
   for (int i = 0; i < this->NumberOfTransforms; i++)
     {

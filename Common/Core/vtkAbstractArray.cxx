@@ -619,7 +619,7 @@ void SampleProminentValues(
     { // Choose random blocks
     vtkNew<vtkMinimalStandardRandomSequence> seq;
     // test different blocks each time we're called:
-    seq->SetSeed(seq->GetMTime() ^ 0xdeadbeef);
+    seq->SetSeed(static_cast<int>(seq->GetMTime()) ^ 0xdeadbeef);
     vtkIdType totalBlockCount =
       nt / blockSize +
       (nt % blockSize ? 1 : 0);

@@ -181,10 +181,10 @@ void vtkLinearToQuadraticCellsFilter::CreateDefaultLocator()
 
 //----------------------------------------------------------------------------
 // Overload standard modified time function.
-unsigned long vtkLinearToQuadraticCellsFilter::GetMTime()
+vtkMTimeType vtkLinearToQuadraticCellsFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->Locator != NULL)
     {

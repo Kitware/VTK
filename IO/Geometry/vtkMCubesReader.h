@@ -131,7 +131,7 @@ public:
 
   // Description:
   // Return the mtime also considering the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkMCubesReader();

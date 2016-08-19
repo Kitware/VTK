@@ -1667,10 +1667,10 @@ void vtkTableBasedClipDataSet::InternalProgressCallback
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkTableBasedClipDataSet::GetMTime()
+vtkMTimeType vtkTableBasedClipDataSet::GetMTime()
 {
-  unsigned long time;
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if ( this->ClipFunction != NULL )
     {

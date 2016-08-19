@@ -51,7 +51,7 @@ public:
   // Description:
   // The modified time of this producer is the newer of this object or
   // the assigned output.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Set the whole extent to use for the data this producer is producing.

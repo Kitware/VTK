@@ -831,11 +831,11 @@ int vtkWeightedTransformFilter::RequestData(
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkWeightedTransformFilter::GetMTime()
+vtkMTimeType vtkWeightedTransformFilter::GetMTime()
 {
   int i;
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long transMTime;
+  vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType transMTime;
 
   if ( this->Transforms )
     {

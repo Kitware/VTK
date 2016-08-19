@@ -172,12 +172,12 @@ double *vtkLightActor::GetBounds()
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkLightActor::GetMTime()
+vtkMTimeType vtkLightActor::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
    if(this->Light!=0)
     {
-    unsigned long time;
+    vtkMTimeType time;
     time = this->Light->GetMTime();
     if(time>mTime)
       {

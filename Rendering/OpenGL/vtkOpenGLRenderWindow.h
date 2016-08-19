@@ -170,7 +170,7 @@ public:
 
   // Description:
   // Get the time when the OpenGL context was created.
-  virtual unsigned long GetContextCreationTime();
+  virtual vtkMTimeType GetContextCreationTime();
 
   // Description:
   // Returns the extension manager. A new one will be created if one hasn't

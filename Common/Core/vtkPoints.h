@@ -190,7 +190,7 @@ public:
 
   // Description:
   // The modified time of the points.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkPoints(int dataType = VTK_FLOAT);

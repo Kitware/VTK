@@ -690,7 +690,7 @@ int vtkXYPlotActor::RenderOverlay( vtkViewport *viewport )
 // Plot scalar data for each input dataset.
 int vtkXYPlotActor::RenderOpaqueGeometry( vtkViewport* viewport )
 {
-  unsigned long mtime, dsMtime;
+  vtkMTimeType mtime, dsMtime;
   vtkDataObject* dobj;
   int numDS, numDO, renderedSomething=0;
 
@@ -1285,9 +1285,9 @@ void vtkXYPlotActor::ReleaseGraphicsResources( vtkWindow *win )
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkXYPlotActor::GetMTime()
+vtkMTimeType vtkXYPlotActor::GetMTime()
 {
-  unsigned long mtime, mtime2;
+  vtkMTimeType mtime, mtime2;
   mtime = this->vtkActor2D::GetMTime();
 
   if ( this->Legend )

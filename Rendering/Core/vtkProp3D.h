@@ -264,11 +264,11 @@ public:
 
   // Description:
   // Get the vtkProp3D's mtime
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Get the modified time of the user matrix or user transform.
-  unsigned long int GetUserTransformMatrixMTime();
+  vtkMTimeType GetUserTransformMatrixMTime();
 
   // Description:
   // Generate the matrix based on ivars

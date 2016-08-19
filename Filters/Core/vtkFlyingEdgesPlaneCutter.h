@@ -62,7 +62,7 @@ public:
 
   // Description:
   // The modified time depends on the delegated cut plane.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description
   // Specify the plane (an implicit function) to perform the cutting. The

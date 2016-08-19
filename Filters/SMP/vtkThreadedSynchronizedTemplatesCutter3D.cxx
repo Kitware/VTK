@@ -71,13 +71,13 @@ vtkThreadedSynchronizedTemplatesCutter3D::~vtkThreadedSynchronizedTemplatesCutte
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If cut functions is modified,
 // or contour values modified, then this object is modified as well.
-unsigned long vtkThreadedSynchronizedTemplatesCutter3D::GetMTime()
+vtkMTimeType vtkThreadedSynchronizedTemplatesCutter3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
 
   if ( this->CutFunction != NULL )
     {
-    unsigned long time = this->CutFunction->GetMTime();
+    vtkMTimeType time = this->CutFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 

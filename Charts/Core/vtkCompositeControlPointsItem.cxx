@@ -100,9 +100,9 @@ void vtkCompositeControlPointsItem::emitEvent(unsigned long event, void* params)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkCompositeControlPointsItem::GetControlPointsMTime()
+vtkMTimeType vtkCompositeControlPointsItem::GetControlPointsMTime()
 {
-  unsigned long int mTime = this->Superclass::GetControlPointsMTime();
+  vtkMTimeType mTime = this->Superclass::GetControlPointsMTime();
   if (this->OpacityFunction)
     {
     mTime = std::max(mTime, this->OpacityFunction->GetMTime());

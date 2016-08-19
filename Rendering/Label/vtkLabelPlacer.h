@@ -118,7 +118,7 @@ public:
   vtkGetMacro(UseUnicodeStrings,bool);
   vtkBooleanMacro(UseUnicodeStrings,bool);
 
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Use label anchor point coordinates as normal vectors and eliminate those

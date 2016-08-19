@@ -89,7 +89,7 @@ public:
   vtkSetMacro(SingleSelectionThreshold, double);
   vtkGetMacro(SingleSelectionThreshold, double);
 
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkKdTreeSelector();

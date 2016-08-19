@@ -422,9 +422,9 @@ int TestVectors()
     }
 
   // Invalidate function should change the function's mtime
-  unsigned long int before = parser->GetMTime();
+  vtkMTimeType before = parser->GetMTime();
   parser->InvalidateFunction();
-  unsigned long int after = parser->GetMTime();
+  vtkMTimeType after = parser->GetMTime();
 
   if (before >= after)
     {

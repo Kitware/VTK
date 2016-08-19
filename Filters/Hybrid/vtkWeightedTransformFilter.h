@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Return the MTime also considering the filter's transforms.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // WeightArray is the string name of the DataArray in the input's

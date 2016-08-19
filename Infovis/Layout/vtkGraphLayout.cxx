@@ -112,11 +112,11 @@ vtkGraphLayout::SetLayoutStrategy(vtkGraphLayoutStrategy *strategy)
 
 // ----------------------------------------------------------------------
 
-unsigned long
+vtkMTimeType
 vtkGraphLayout::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if (this->LayoutStrategy != NULL)
     {

@@ -932,10 +932,10 @@ int vtkTableToGraph::RequestDataObject(
 }
 
 //---------------------------------------------------------------------------
-unsigned long vtkTableToGraph::GetMTime()
+vtkMTimeType vtkTableToGraph::GetMTime()
 {
-  unsigned long time = this->Superclass::GetMTime();
-  unsigned long linkGraphTime = this->LinkGraph->GetMTime();
+  vtkMTimeType time = this->Superclass::GetMTime();
+  vtkMTimeType linkGraphTime = this->LinkGraph->GetMTime();
   time = (linkGraphTime > time ? linkGraphTime : time);
   return time;
 }

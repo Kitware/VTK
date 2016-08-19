@@ -60,12 +60,12 @@ void vtkRowQueryToTable::PrintSelf(ostream& os, vtkIndent indent)
 
 vtkCxxSetObjectMacro(vtkRowQueryToTable, Query, vtkRowQuery);
 
-unsigned long vtkRowQueryToTable::GetMTime()
+vtkMTimeType vtkRowQueryToTable::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   if (this->Query != NULL)
     {
-    unsigned long time = this->Query->GetMTime();
+    vtkMTimeType time = this->Query->GetMTime();
     mTime = (time > mTime ? time : mTime);
     }
   return mTime;

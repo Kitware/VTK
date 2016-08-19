@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Get the mtime of this object.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkAnnotationLink();

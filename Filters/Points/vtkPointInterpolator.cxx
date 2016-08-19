@@ -493,10 +493,10 @@ int vtkPointInterpolator::RequestUpdateExtent(
 }
 
 //--------------------------------------------------------------------------
-unsigned long vtkPointInterpolator::GetMTime()
+vtkMTimeType vtkPointInterpolator::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime2;
   if ( this->Locator != NULL )
     {
     mTime2 = this->Locator->GetMTime();

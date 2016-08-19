@@ -86,7 +86,7 @@ public:
 
   // Description:
   // Get the mtime for the mapper.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // The bounding box (array of six doubles) of data expressed as

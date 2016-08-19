@@ -573,7 +573,7 @@ enum Alignment {
 
   // Description:
   // Take into account the modified time of internal helper classes.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Write the XY Ploat Actor as a CSV (comma separated value) representation.

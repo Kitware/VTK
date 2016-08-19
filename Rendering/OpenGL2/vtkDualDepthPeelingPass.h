@@ -73,7 +73,7 @@ public:
                                    vtkProp *prop);
   virtual bool SetShaderParameters(vtkShaderProgram *program,
                                    vtkAbstractMapper *mapper, vtkProp *prop);
-  virtual unsigned long int GetShaderStageMTime();
+  virtual vtkMTimeType GetShaderStageMTime();
 
 protected:
 

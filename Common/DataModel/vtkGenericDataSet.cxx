@@ -167,10 +167,10 @@ double vtkGenericDataSet::GetLength()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkGenericDataSet::GetMTime()
+vtkMTimeType vtkGenericDataSet::GetMTime()
 {
-  unsigned long result;
-  unsigned long mtime;
+  vtkMTimeType result;
+  vtkMTimeType mtime;
 
   result = this->Superclass::GetMTime();
 

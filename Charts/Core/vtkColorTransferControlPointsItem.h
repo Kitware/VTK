@@ -94,7 +94,7 @@ protected:
 
   virtual void emitEvent(unsigned long event, void* params);
 
-  virtual unsigned long int GetControlPointsMTime();
+  virtual vtkMTimeType GetControlPointsMTime();
 
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);
   virtual void EditPoint(float tX, float tY);

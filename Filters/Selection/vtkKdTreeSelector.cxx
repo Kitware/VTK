@@ -105,12 +105,12 @@ void vtkKdTreeSelector::SetKdTree(vtkKdTree* arg)
     }
 }
 
-unsigned long vtkKdTreeSelector::GetMTime()
+vtkMTimeType vtkKdTreeSelector::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
   if (this->KdTree != NULL)
     {
-    unsigned long time = this->KdTree->GetMTime();
+    vtkMTimeType time = this->KdTree->GetMTime();
     mTime = (time > mTime ? time : mTime);
     }
   return mTime;

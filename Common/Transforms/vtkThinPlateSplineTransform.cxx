@@ -168,10 +168,10 @@ void vtkThinPlateSplineTransform::SetTargetLandmarks(vtkPoints *target)
 }
 
 //------------------------------------------------------------------------
-unsigned long vtkThinPlateSplineTransform::GetMTime()
+vtkMTimeType vtkThinPlateSplineTransform::GetMTime()
 {
-  unsigned long result = this->vtkWarpTransform::GetMTime();
-  unsigned long mtime;
+  vtkMTimeType result = this->vtkWarpTransform::GetMTime();
+  vtkMTimeType mtime;
 
   if (this->SourceLandmarks)
     {

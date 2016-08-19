@@ -103,9 +103,9 @@ void vtkPoints::GetBounds(double bounds[6])
   memcpy(bounds, this->Bounds, 6 * sizeof(double));
 }
 
-unsigned long int vtkPoints::GetMTime()
+vtkMTimeType vtkPoints::GetMTime()
 {
-  unsigned long int doTime = this->Superclass::GetMTime();
+  vtkMTimeType doTime = this->Superclass::GetMTime();
   if ( this->Data->GetMTime() > doTime )
     {
     doTime = this->Data->GetMTime();

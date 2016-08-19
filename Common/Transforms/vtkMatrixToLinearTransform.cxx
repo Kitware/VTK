@@ -89,13 +89,13 @@ vtkAbstractTransform *vtkMatrixToLinearTransform::MakeTransform()
 
 //----------------------------------------------------------------------------
 // Get the MTime
-unsigned long vtkMatrixToLinearTransform::GetMTime()
+vtkMTimeType vtkMatrixToLinearTransform::GetMTime()
 {
-  unsigned long mtime = this->vtkLinearTransform::GetMTime();
+  vtkMTimeType mtime = this->vtkLinearTransform::GetMTime();
 
   if (this->Input)
     {
-    unsigned long matrixMTime = this->Input->GetMTime();
+    vtkMTimeType matrixMTime = this->Input->GetMTime();
     if (matrixMTime > mtime)
       {
       return matrixMTime;

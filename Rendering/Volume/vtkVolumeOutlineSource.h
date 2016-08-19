@@ -142,7 +142,7 @@ protected:
                                    vtkInformationVector** inputVector,
                                    vtkInformationVector* outputVector,
                                    int requestFromOutputPort,
-                                   unsigned long* mtime);
+                                   vtkMTimeType* mtime);
 
   virtual int RequestInformation(vtkInformation* request,
                                  vtkInformationVector** inputVector,

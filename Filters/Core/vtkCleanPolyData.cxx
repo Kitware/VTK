@@ -678,10 +678,10 @@ void vtkCleanPolyData::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //--------------------------------------------------------------------------
-unsigned long int vtkCleanPolyData::GetMTime()
+vtkMTimeType vtkCleanPolyData::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType time;
   if ( this->Locator != NULL )
     {
     time = this->Locator->GetMTime();

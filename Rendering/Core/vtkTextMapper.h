@@ -104,7 +104,7 @@ public:
 
   void RenderOverlay(vtkViewport *, vtkActor2D *);
   void ReleaseGraphicsResources(vtkWindow *);
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkTextMapper();

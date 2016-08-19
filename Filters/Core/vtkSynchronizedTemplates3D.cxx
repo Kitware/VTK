@@ -71,10 +71,10 @@ vtkSynchronizedTemplates3D::~vtkSynchronizedTemplates3D()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
-unsigned long vtkSynchronizedTemplates3D::GetMTime()
+vtkMTimeType vtkSynchronizedTemplates3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2=this->ContourValues->GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime2=this->ContourValues->GetMTime();
 
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   return mTime;

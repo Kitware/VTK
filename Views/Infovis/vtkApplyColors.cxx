@@ -451,9 +451,9 @@ void vtkApplyColors::ProcessColorArray(
     }
 }
 
-long unsigned int vtkApplyColors::GetMTime()
+vtkMTimeType vtkApplyColors::GetMTime()
 {
-  long unsigned int mtime = Superclass::GetMTime();
+  vtkMTimeType mtime = Superclass::GetMTime();
   if (this->PointLookupTable && this->PointLookupTable->GetMTime() > mtime)
     {
     mtime = this->PointLookupTable->GetMTime();

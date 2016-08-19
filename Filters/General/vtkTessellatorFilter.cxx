@@ -275,10 +275,10 @@ void vtkTessellatorFilter::PrintSelf( ostream& os, vtkIndent indent )
 }
 
 // override for proper Update() behavior
-unsigned long vtkTessellatorFilter::GetMTime()
+vtkMTimeType vtkTessellatorFilter::GetMTime()
 {
-  unsigned long mt = this->MTime;
-  unsigned long tmp;
+  vtkMTimeType mt = this->MTime;
+  vtkMTimeType tmp;
 
   if ( this->Tessellator )
     {

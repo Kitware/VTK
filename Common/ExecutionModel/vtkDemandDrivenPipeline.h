@@ -63,7 +63,7 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       unsigned long* mtime);
+                       vtkMTimeType* mtime);
 
   // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
@@ -73,7 +73,7 @@ public:
 
   // Description:
   // Get the PipelineMTime for this exective.
-  vtkGetMacro(PipelineMTime, unsigned long);
+  vtkGetMacro(PipelineMTime, vtkMTimeType);
 
   // Description:
   // Set whether the given output port releases data when it is
@@ -205,7 +205,7 @@ protected:
 
   // Largest MTime of any algorithm on this executive or preceding
   // executives.
-  unsigned long PipelineMTime;
+  vtkMTimeType PipelineMTime;
 
   // Time when information or data were last generated.
   vtkTimeStamp DataObjectTime;

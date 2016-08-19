@@ -81,10 +81,10 @@ vtkProp3D::~vtkProp3D()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkProp3D::GetMTime()
+vtkMTimeType vtkProp3D::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   time = this->GetUserTransformMatrixMTime();
   mTime = ( time > mTime ? time : mTime );
@@ -93,10 +93,10 @@ unsigned long int vtkProp3D::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkProp3D::GetUserTransformMatrixMTime()
+vtkMTimeType vtkProp3D::GetUserTransformMatrixMTime()
 {
-  unsigned long mTime = 0;
-  unsigned long time;
+  vtkMTimeType mTime = 0;
+  vtkMTimeType time;
 
   // Factored out of GetMTime because there are times we want
   // just this information, without being influenced by other

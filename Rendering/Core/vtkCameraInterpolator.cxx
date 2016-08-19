@@ -105,10 +105,10 @@ vtkCameraInterpolator::~vtkCameraInterpolator()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkCameraInterpolator::GetMTime()
+vtkMTimeType vtkCameraInterpolator::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long posMTime, fpMTime, vupMTime, vaMTime, psMTime, crMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType posMTime, fpMTime, vupMTime, vaMTime, psMTime, crMTime;
 
   if ( this->PositionInterpolator )
     {

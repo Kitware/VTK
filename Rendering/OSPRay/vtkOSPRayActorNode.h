@@ -42,7 +42,7 @@ public:
   // Description:
   // Overridden to take into account my renderables time, including
   // mapper and data into mapper inclusive of composite input
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // When added to the mapper, enables scale array and scale function.

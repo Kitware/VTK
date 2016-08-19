@@ -131,7 +131,7 @@ public:
 
   // Description:
   // Override GetMTime to include point coordinates
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkSliderRepresentation3D();

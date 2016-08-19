@@ -54,13 +54,13 @@ void vtkImplicitFunctionToImageStencil::PrintSelf(ostream& os,
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImplicitFunctionToImageStencil::GetMTime()
+vtkMTimeType vtkImplicitFunctionToImageStencil::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if ( this->Input != NULL )
     {
-    unsigned long nTime = this->Input->GetMTime();
+    vtkMTimeType nTime = this->Input->GetMTime();
     mTime = ( nTime > mTime ? nTime : mTime );
     }
 

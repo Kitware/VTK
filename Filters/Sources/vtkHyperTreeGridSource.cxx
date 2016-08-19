@@ -1121,13 +1121,13 @@ double* vtkHyperTreeGridSource::GetQuadricCoefficients()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkHyperTreeGridSource::GetMTime()
+vtkMTimeType vtkHyperTreeGridSource::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if ( this->Quadric )
     {
-    unsigned long time = this->Quadric->GetMTime();
+    vtkMTimeType time = this->Quadric->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     }
 

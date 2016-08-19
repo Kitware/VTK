@@ -129,7 +129,7 @@ public:
 
   // Description:
   // Return the MTime also considering the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkGeometryFilter();

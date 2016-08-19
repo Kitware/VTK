@@ -66,7 +66,7 @@ public:
 
   // Description:
   // Modified GetMTime because of Planes.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/get the desired precision for the output points.

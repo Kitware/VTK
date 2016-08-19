@@ -320,7 +320,7 @@ public:
 
   // Description:
   // The modified time of the graph.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Initializes the out edge iterator to iterate over

@@ -2294,9 +2294,9 @@ void vtkFunctionParser::RemoveAllVariables()
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkFunctionParser::GetMTime()
+vtkMTimeType vtkFunctionParser::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
+  vtkMTimeType mTime = this->Superclass::GetMTime();
 
   if (this->EvaluateMTime > mTime)
     {

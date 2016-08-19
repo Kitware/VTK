@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Return parser's MTime
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get input string to evaluate.

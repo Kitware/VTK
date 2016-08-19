@@ -201,7 +201,7 @@ public:
 
   // Description:
   // Get the time when the OpenGL context was created.
-  virtual unsigned long GetContextCreationTime();
+  virtual vtkMTimeType GetContextCreationTime();
 
   // Description:
   // Returns an Shader Cache object

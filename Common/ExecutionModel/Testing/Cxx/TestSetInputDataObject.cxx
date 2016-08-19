@@ -27,12 +27,12 @@ int TestSetInputDataObject(int, char*[])
 
   vtkNew<vtkPolyDataNormals> filter;
 
-  unsigned long mtime = filter->GetMTime();
+  vtkMTimeType mtime = filter->GetMTime();
 
   // this should change the filter's mtime.
   filter->SetInputDataObject(inputData.GetPointer());
 
-  unsigned long changed_mtime = filter->GetMTime();
+  vtkMTimeType changed_mtime = filter->GetMTime();
   if (changed_mtime <= mtime)
     {
     cerr << __LINE__ << ": ERROR: SetInputDataObject() did not change the Mtime!!!" << endl;

@@ -97,7 +97,7 @@ public:
   // Description:
   // Override default GetMTime method to also consider all of the
   // prop assembly's parts.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Methods to traverse the paths (i.e., leaf nodes) of a prop

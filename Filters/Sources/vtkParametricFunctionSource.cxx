@@ -604,10 +604,10 @@ void vtkParametricFunctionSource::SetAllParametricTriangulatorParameters (
 */
 
 //----------------------------------------------------------------------------
-unsigned long vtkParametricFunctionSource::GetMTime()
+vtkMTimeType vtkParametricFunctionSource::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long funcMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType funcMTime;
 
   if ( this->ParametricFunction != NULL )
     {

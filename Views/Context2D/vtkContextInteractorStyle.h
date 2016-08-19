@@ -143,7 +143,7 @@ protected:
   vtkNew<vtkCallbackCommand> SceneCallbackCommand;
   vtkNew<vtkCallbackCommand> InteractorCallbackCommand;
   int                 ProcessingEvents;
-  unsigned long int   LastSceneRepaintMTime;
+  vtkMTimeType        LastSceneRepaintMTime;
 
   int                 TimerId;
   bool                TimerCallbackInitialized;

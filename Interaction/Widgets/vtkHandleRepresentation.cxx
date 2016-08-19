@@ -192,12 +192,12 @@ void vtkHandleRepresentation::ShallowCopy(vtkProp *prop)
 }
 
 //----------------------------------------------------------------------
-unsigned long vtkHandleRepresentation::GetMTime()
+vtkMTimeType vtkHandleRepresentation::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long wMTime=this->WorldPosition->GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType wMTime=this->WorldPosition->GetMTime();
   mTime = ( wMTime > mTime ? wMTime : mTime );
-  unsigned long dMTime=this->DisplayPosition->GetMTime();
+  vtkMTimeType dMTime=this->DisplayPosition->GetMTime();
   mTime = ( dMTime > mTime ? dMTime : mTime );
 
   return mTime;

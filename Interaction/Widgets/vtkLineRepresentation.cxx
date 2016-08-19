@@ -899,10 +899,10 @@ int vtkLineRepresentation::HasTranslucentPolygonalGeometry()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkLineRepresentation::GetMTime()
+vtkMTimeType vtkLineRepresentation::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long mTime2=this->Point1Representation->GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime2=this->Point1Representation->GetMTime();
   mTime = ( mTime2 > mTime ? mTime2 : mTime );
   mTime2=this->Point2Representation->GetMTime();
   mTime = ( mTime2 > mTime ? mTime2 : mTime );

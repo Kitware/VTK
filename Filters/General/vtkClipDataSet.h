@@ -150,7 +150,7 @@ public:
 
   // Description:
   // Return the mtime also considering the locator and clip function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/get the desired precision for the output types. See the documentation

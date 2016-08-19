@@ -44,7 +44,7 @@ public:
   // Description:
   // Redefines this method, as this filter depends on time of its components
   // (planes)
-  virtual unsigned long int GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkClipConvexPolyData();

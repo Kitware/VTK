@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Get MTime which also considers its vtkPoints MTime.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Compute the (X, Y, Z)  bounds of the data.

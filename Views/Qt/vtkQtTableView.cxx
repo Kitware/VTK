@@ -434,7 +434,7 @@ void vtkQtTableView::Update()
   annConn = rep->GetInternalAnnotationOutputPort();
   selConn = rep->GetInternalSelectionOutputPort();
   vtkDataObject *d = conn->GetProducer()->GetOutputDataObject(0);
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
   if (d->GetMTime() > this->LastInputMTime ||
       this->GetMTime() > this->LastMTime  ||
       atime > this->LastSelectionMTime)

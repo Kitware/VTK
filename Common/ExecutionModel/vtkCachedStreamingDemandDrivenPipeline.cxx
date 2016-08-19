@@ -79,7 +79,7 @@ void vtkCachedStreamingDemandDrivenPipeline::SetCacheSize(int size)
     }
 
   this->Data = new vtkDataObject* [size];
-  this->Times = new unsigned long [size];
+  this->Times = new vtkMTimeType [size];
 
   for (idx = 0; idx < size; ++idx)
     {
@@ -126,7 +126,7 @@ int vtkCachedStreamingDemandDrivenPipeline
 
   // First look through the cached data to see if it is still valid.
   int i;
-  unsigned long pmt = this->GetPipelineMTime();
+  vtkMTimeType pmt = this->GetPipelineMTime();
   for (i = 0; i < this->CacheSize; ++i)
     {
     if (this->Data[i] && this->Times[i] < pmt)
@@ -242,7 +242,7 @@ int vtkCachedStreamingDemandDrivenPipeline
   int result = this->Superclass::ExecuteData(request, inInfoVec, outInfoVec);
 
   // then save the newly generated data
-  unsigned long bestTime = VTK_INT_MAX;
+  vtkMTimeType bestTime = VTK_INT_MAX;
   int bestIdx = 0;
 
   // Save the image in cache.

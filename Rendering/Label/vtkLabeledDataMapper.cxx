@@ -243,7 +243,7 @@ void vtkLabeledDataMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     }
 
   // Check for property updates.
-  unsigned long propMTime = 0;
+  vtkMTimeType propMTime = 0;
   std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
@@ -751,17 +751,16 @@ vtkLabeledDataMapper::SetFieldDataArray(int arrayIndex)
 }
 
 // ----------------------------------------------------------------------
-unsigned long
-vtkLabeledDataMapper::GetMTime()
+vtkMTimeType vtkLabeledDataMapper::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   std::map<int, vtkSmartPointer<vtkTextProperty> >::iterator it, itEnd;
   it = this->Implementation->TextProperties.begin();
   itEnd = this->Implementation->TextProperties.end();
   for (; it != itEnd; ++it)
     {
     vtkTextProperty* p = it->second;
-    unsigned long curMTime = p->GetMTime();
+    vtkMTimeType curMTime = p->GetMTime();
     if (curMTime > mtime)
       {
       mtime = curMTime;

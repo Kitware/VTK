@@ -70,7 +70,7 @@ public:
 
   // Description:
   // Return the MTime also considering the instance of vtkCoordinate.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // In order for a successful coordinate transformation to occur, an

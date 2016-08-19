@@ -130,7 +130,7 @@ public:
 
   // Description:
   // New GetMTime because of camera dependency.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkArcPlotter();

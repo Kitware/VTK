@@ -122,7 +122,7 @@ public:
 
   // Description:
   // Get the modified time of the filter.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImageResize();

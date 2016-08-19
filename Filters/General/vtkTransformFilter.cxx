@@ -286,10 +286,10 @@ int vtkTransformFilter::RequestData(
   return 1;
 }
 
-unsigned long vtkTransformFilter::GetMTime()
+vtkMTimeType vtkTransformFilter::GetMTime()
 {
-  unsigned long mTime=this->MTime.GetMTime();
-  unsigned long transMTime;
+  vtkMTimeType mTime=this->MTime.GetMTime();
+  vtkMTimeType transMTime;
 
   if ( this->Transform )
     {

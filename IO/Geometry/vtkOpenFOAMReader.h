@@ -274,10 +274,10 @@ protected:
   vtkDataArraySelection *LagrangianDataArraySelection;
 
   // old selection status
-  unsigned long int PatchSelectionMTimeOld;
-  unsigned long int CellSelectionMTimeOld;
-  unsigned long int PointSelectionMTimeOld;
-  unsigned long int LagrangianSelectionMTimeOld;
+  vtkMTimeType PatchSelectionMTimeOld;
+  vtkMTimeType CellSelectionMTimeOld;
+  vtkMTimeType PointSelectionMTimeOld;
+  vtkMTimeType LagrangianSelectionMTimeOld;
 
   // preserved old information
   vtkStdString *FileNameOld;

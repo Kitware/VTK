@@ -491,10 +491,10 @@ void vtkImageStack::ReleaseGraphicsResources(vtkWindow *win)
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageStack::GetMTime()
+vtkMTimeType vtkImageStack::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long t;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType t;
 
   // Get the max mtime of all the images
   vtkCollectionSimpleIterator pit;
@@ -510,11 +510,11 @@ unsigned long int vtkImageStack::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageStack::GetRedrawMTime()
+vtkMTimeType vtkImageStack::GetRedrawMTime()
 {
   // Just call GetMTime on ourselves, not GetRedrawMTime
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long t;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType t;
 
   // Get the max mtime of all the images
   vtkCollectionSimpleIterator pit;

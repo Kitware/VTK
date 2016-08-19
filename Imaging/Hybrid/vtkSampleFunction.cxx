@@ -470,10 +470,10 @@ ExecuteDataWithInformation(vtkDataObject *outp, vtkInformation *outInfo)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSampleFunction::GetMTime()
+vtkMTimeType vtkSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long impFuncMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
     {

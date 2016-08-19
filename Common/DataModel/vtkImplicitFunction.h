@@ -61,7 +61,7 @@ public:
   // Description:
   // Overload standard modified time function. If Transform is modified,
   // then this object is modified as well.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Evaluate function at position x-y-z and return value. Point x[3] is

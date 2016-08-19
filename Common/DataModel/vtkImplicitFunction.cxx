@@ -114,10 +114,10 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 
 // Overload standard modified time function. If Transform is modified,
 // then this object is modified as well.
-unsigned long vtkImplicitFunction::GetMTime()
+vtkMTimeType vtkImplicitFunction::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long TransformMTime;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType TransformMTime;
 
   if ( this->Transform != NULL )
     {

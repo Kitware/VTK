@@ -118,7 +118,7 @@ public:
 
   // Description:
   // Get the MTime. Check the MTime of the internal planes as well.
-  virtual unsigned long int GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Reset the cursor to the default position, ie with the axes, normal

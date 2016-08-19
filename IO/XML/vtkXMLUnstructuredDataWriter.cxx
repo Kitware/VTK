@@ -832,8 +832,8 @@ void vtkXMLUnstructuredDataWriter::WriteCellsAppendedDataWorker(
       // Set the range of progress for the connectivity array.
       this->SetProgressRange(progressRange, i, fractions);
 
-      unsigned long mtime = allcells[i]->GetMTime();
-      unsigned long &cellsMTime = cellsManager->GetElement(i).GetLastMTime();
+      vtkMTimeType mtime = allcells[i]->GetMTime();
+      vtkMTimeType &cellsMTime = cellsManager->GetElement(i).GetLastMTime();
       // Only write cells if MTime has changed
       if( cellsMTime != mtime )
         {

@@ -325,10 +325,10 @@ bool vtkOpenGLPolyDataMapper::HaveWideLines(
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
+vtkMTimeType vtkOpenGLPolyDataMapper::GetRenderPassStageMTime(vtkActor *actor)
 {
   vtkInformation *info = actor->GetPropertyKeys();
-  unsigned long int renderPassMTime = 0;
+  vtkMTimeType renderPassMTime = 0;
 
   int curRenderPasses = 0;
   if (info && info->Has(vtkOpenGLRenderPass::RenderPasses()))
@@ -1452,7 +1452,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
     }
 
   // Have the renderpasses changed?
-  unsigned long int renderPassMTime = this->GetRenderPassStageMTime(actor);
+  vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
   // has something changed that would require us to recreate the shader?
   // candidates are

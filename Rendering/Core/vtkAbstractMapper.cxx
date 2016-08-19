@@ -50,10 +50,10 @@ vtkAbstractMapper::~vtkAbstractMapper()
 
 // Description:
 // Override Modifiedtime as we have added Clipping planes
-unsigned long vtkAbstractMapper::GetMTime()
+vtkMTimeType vtkAbstractMapper::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long clipMTime;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType clipMTime;
 
   if ( this->ClippingPlanes != NULL )
     {

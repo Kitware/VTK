@@ -75,13 +75,13 @@ public:
   // Description:
   // Get the last execution time. This is updated every
   // time the scalars or the gradient opacity values are computed
-  unsigned long GetLastMinMaxBuildTime()
+  vtkMTimeType GetLastMinMaxBuildTime()
     { return LastMinMaxBuildTime.GetMTime(); }
 
   // Description:
   // Get the last execution time. This is updated every time the flags bits
   // are re-computed.
-  unsigned long GetLastMinMaxFlagTime()
+  vtkMTimeType GetLastMinMaxFlagTime()
     { return LastMinMaxFlagTime.GetMTime(); }
 
   // Description:

@@ -431,10 +431,10 @@ void vtkHyperOctreeSampleFunction::Subdivide(vtkHyperOctreeCursor *cursor,
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkHyperOctreeSampleFunction::GetMTime()
+vtkMTimeType vtkHyperOctreeSampleFunction::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long impFuncMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
     {

@@ -67,7 +67,7 @@ public:
 
   // Description:
   // Override modified time retrieval because of object dependencies.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Add another implicit function to the list of functions.

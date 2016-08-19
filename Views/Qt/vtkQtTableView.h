@@ -187,9 +187,9 @@ private slots:
 
 private:
   void SetVTKSelection();
-  unsigned long LastSelectionMTime;
-  unsigned long LastInputMTime;
-  unsigned long LastMTime;
+  vtkMTimeType LastSelectionMTime;
+  vtkMTimeType LastInputMTime;
+  vtkMTimeType LastMTime;
 
   vtkSetStringMacro(ColorArrayNameInternal);
   vtkGetStringMacro(ColorArrayNameInternal);

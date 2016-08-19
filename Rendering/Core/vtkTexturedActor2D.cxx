@@ -113,10 +113,10 @@ int vtkTexturedActor2D::RenderTranslucentPolygonalGeometry(
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkTexturedActor2D::GetMTime()
+vtkMTimeType vtkTexturedActor2D::GetMTime()
 {
-  unsigned long int mTime = vtkActor2D::GetMTime();
-  unsigned long int time;
+  vtkMTimeType mTime = vtkActor2D::GetMTime();
+  vtkMTimeType time;
   if (this->Texture)
     {
     time = this->Texture->GetMTime();

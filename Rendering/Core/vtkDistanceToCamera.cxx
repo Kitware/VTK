@@ -66,7 +66,7 @@ void vtkDistanceToCamera::SetRenderer(vtkRenderer* ren)
     }
 }
 
-unsigned long vtkDistanceToCamera::GetMTime()
+vtkMTimeType vtkDistanceToCamera::GetMTime()
 {
   // Check for minimal changes
   if (this->Renderer)

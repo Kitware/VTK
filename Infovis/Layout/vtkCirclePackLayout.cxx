@@ -266,10 +266,10 @@ void vtkCirclePackLayout::GetBoundingCircle(vtkIdType id, double *cinfo)
     boxInfo->GetTypedTuple(id, cinfo);
 }
 
-unsigned long vtkCirclePackLayout::GetMTime()
+vtkMTimeType vtkCirclePackLayout::GetMTime()
 {
-    unsigned long mTime = this->Superclass::GetMTime();
-    unsigned long time;
+    vtkMTimeType mTime = this->Superclass::GetMTime();
+    vtkMTimeType time;
 
     if (this->LayoutStrategy != NULL)
       {

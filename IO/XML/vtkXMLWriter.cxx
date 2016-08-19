@@ -2630,9 +2630,9 @@ void vtkXMLWriter::WritePointDataAppendedData(vtkPointData* pd, int timestep,
   for (int i = 0; i < pd->GetNumberOfArrays(); ++i)
     {
     this->SetProgressRange(progressRange, i, pd->GetNumberOfArrays());
-    unsigned long mtime = pd->GetMTime();
+    vtkMTimeType mtime = pd->GetMTime();
     // Only write pd if MTime has changed
-    unsigned long &pdMTime = pdManager->GetElement(i).GetLastMTime();
+    vtkMTimeType &pdMTime = pdManager->GetElement(i).GetLastMTime();
     vtkAbstractArray* a = pd->GetAbstractArray(i);
     if ( pdMTime != mtime )
       {
@@ -2723,9 +2723,9 @@ void vtkXMLWriter::WriteCellDataAppendedData(vtkCellData* cd, int timestep,
   for (int i = 0; i < cd->GetNumberOfArrays(); ++i)
     {
     this->SetProgressRange(progressRange, i, cd->GetNumberOfArrays());
-    unsigned long mtime = cd->GetMTime();
+    vtkMTimeType mtime = cd->GetMTime();
     // Only write pd if MTime has changed
-    unsigned long &cdMTime = cdManager->GetElement(i).GetLastMTime();
+    vtkMTimeType &cdMTime = cdManager->GetElement(i).GetLastMTime();
     vtkAbstractArray* a = cd->GetAbstractArray(i);
     if ( cdMTime != mtime )
       {
@@ -2825,9 +2825,9 @@ void vtkXMLWriter::WritePointsAppendedData(vtkPoints* points, int timestep,
   // Only write points if they exist.
   if (points)
     {
-    unsigned long mtime = points->GetMTime();
+    vtkMTimeType mtime = points->GetMTime();
     // Only write points if MTime has changed
-    unsigned long &pointsMTime = ptManager->GetLastMTime();
+    vtkMTimeType &pointsMTime = ptManager->GetLastMTime();
     // since points->Data is a vtkDataArray.
     vtkDataArray* outPoints = points->GetData();
     if ( pointsMTime != mtime || timestep == 0 )
@@ -3011,9 +3011,9 @@ void vtkXMLWriter::WriteCoordinatesAppendedData(vtkDataArray* xc, vtkDataArray* 
     for (int i = 0; i < 3; ++i)
       {
       this->SetProgressRange(progressRange, i, fractions);
-      unsigned long mtime = allcoords[i]->GetMTime();
+      vtkMTimeType mtime = allcoords[i]->GetMTime();
       // Only write pd if MTime has changed
-      unsigned long &coordMTime = coordManager->GetElement(i).GetLastMTime();
+      vtkMTimeType &coordMTime = coordManager->GetElement(i).GetLastMTime();
       if (coordMTime != mtime)
         {
         coordMTime = mtime;

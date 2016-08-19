@@ -43,7 +43,7 @@ public:
 
   // Description:
   // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set a particular contour value at contour number i. The index i ranges

@@ -362,7 +362,7 @@ int vtkImageExport::PipelineModifiedCallback()
     return 0;
     }
 
-  unsigned long mtime = 0;
+  vtkMTimeType mtime = 0;
   if (this->GetInputAlgorithm())
     {
     vtkExecutive* e = this->GetInputAlgorithm()->GetExecutive();

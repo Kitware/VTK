@@ -148,9 +148,9 @@ int vtkMNITagPointWriter::FillInputPortInformation(
 }
 
 //-------------------------------------------------------------------------
-unsigned long vtkMNITagPointWriter::GetMTime()
+vtkMTimeType vtkMNITagPointWriter::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
 
   vtkObject *objects[6];
   objects[0] = this->Points[0];
@@ -164,7 +164,7 @@ unsigned long vtkMNITagPointWriter::GetMTime()
     {
     if (objects[i])
       {
-      unsigned long m = objects[i]->GetMTime();
+      vtkMTimeType m = objects[i]->GetMTime();
       if (m > mtime)
         {
         mtime = m;
@@ -493,7 +493,7 @@ int vtkMNITagPointWriter::RequestData(
   input[0] = 0;
   input[1] = 0;
 
-  unsigned long lastUpdateTime = 0;
+  vtkMTimeType lastUpdateTime = 0;
   for (int idx = 0; idx < 2; ++idx)
     {
     if (inInfo[idx])
@@ -502,7 +502,7 @@ int vtkMNITagPointWriter::RequestData(
         inInfo[idx]->Get(vtkDataObject::DATA_OBJECT()));
       if (input[idx])
         {
-        unsigned long updateTime = input[idx]->GetUpdateTime();
+        vtkMTimeType updateTime = input[idx]->GetUpdateTime();
         if (updateTime > lastUpdateTime)
           {
           lastUpdateTime = updateTime;

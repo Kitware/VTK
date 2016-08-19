@@ -77,7 +77,7 @@ public:
   // Description:
   // When determining the modified time of the filter,
   // this check the modified time of the transform and matrix.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImageResliceToColors();

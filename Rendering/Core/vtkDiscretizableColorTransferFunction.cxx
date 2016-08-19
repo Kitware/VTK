@@ -61,12 +61,12 @@ vtkDiscretizableColorTransferFunction::~vtkDiscretizableColorTransferFunction()
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkDiscretizableColorTransferFunction::GetMTime()
+vtkMTimeType vtkDiscretizableColorTransferFunction::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if (this->ScalarOpacityFunction)
     {
-    unsigned long somtime = this->ScalarOpacityFunction->GetMTime();
+    vtkMTimeType somtime = this->ScalarOpacityFunction->GetMTime();
     mtime = somtime > mtime? somtime : mtime;
     }
   if (this->LookupTable)

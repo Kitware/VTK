@@ -78,7 +78,7 @@ void vtkColorTransferControlPointsItem::emitEvent(unsigned long event, void* par
 }
 
 //-----------------------------------------------------------------------------
-unsigned long int vtkColorTransferControlPointsItem::GetControlPointsMTime()
+vtkMTimeType vtkColorTransferControlPointsItem::GetControlPointsMTime()
 {
   if (this->ColorTransferFunction)
     {

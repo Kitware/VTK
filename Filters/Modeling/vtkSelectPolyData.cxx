@@ -613,10 +613,10 @@ void vtkSelectPolyData::GetPointNeighbors (vtkIdType ptId, vtkIdList *nei)
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkSelectPolyData::GetMTime()
+vtkMTimeType vtkSelectPolyData::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Loop != NULL )
     {

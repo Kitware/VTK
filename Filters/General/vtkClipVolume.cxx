@@ -87,9 +87,9 @@ vtkUnstructuredGrid *vtkClipVolume::GetClippedOutput()
 
 // Overload standard modified time function. If Clip functions is modified,
 // then this object is modified as well.
-unsigned long vtkClipVolume::GetMTime()
+vtkMTimeType vtkClipVolume::GetMTime()
 {
-  unsigned long mTime, time;
+  vtkMTimeType mTime, time;
 
   mTime=this->Superclass::GetMTime();
 

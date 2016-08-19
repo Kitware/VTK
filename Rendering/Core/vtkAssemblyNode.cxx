@@ -65,10 +65,10 @@ void vtkAssemblyNode::SetMatrix(vtkMatrix4x4 *matrix)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkAssemblyNode::GetMTime()
+vtkMTimeType vtkAssemblyNode::GetMTime()
 {
-  unsigned long propMTime = 0;
-  unsigned long matrixMTime = 0;
+  vtkMTimeType propMTime = 0;
+  vtkMTimeType matrixMTime = 0;
 
   if (this->ViewProp)
     {

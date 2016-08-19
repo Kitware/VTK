@@ -75,7 +75,7 @@ public:
   // Description:
   // Override the standard GetMTime() to check for the modified times
   // of the prop and matrix.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkAssemblyNode();

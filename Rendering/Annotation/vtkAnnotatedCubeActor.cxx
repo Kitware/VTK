@@ -327,7 +327,7 @@ double *vtkAnnotatedCubeActor::GetBounds()
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkAnnotatedCubeActor::GetMTime()
+vtkMTimeType vtkAnnotatedCubeActor::GetMTime()
 {
   return this->Assembly->GetMTime();
 }

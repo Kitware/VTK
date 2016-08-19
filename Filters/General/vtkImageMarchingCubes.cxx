@@ -53,10 +53,10 @@ vtkImageMarchingCubes::~vtkImageMarchingCubes()
 // Description:
 // Overload standard modified time function. If contour values are modified,
 // then this object is modified as well.
-unsigned long vtkImageMarchingCubes::GetMTime()
+vtkMTimeType vtkImageMarchingCubes::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime=this->ContourValues->GetMTime();
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 

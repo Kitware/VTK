@@ -47,7 +47,7 @@ bool vtkOpenGLRenderPass::SetShaderParameters(vtkShaderProgram *,
 }
 
 //------------------------------------------------------------------------------
-unsigned long int vtkOpenGLRenderPass::GetShaderStageMTime()
+vtkMTimeType vtkOpenGLRenderPass::GetShaderStageMTime()
 {
   return 0;
 }

@@ -61,7 +61,7 @@ public:
   // Render a view and obtain the rendered image.
   vtkUnsignedCharArray* StillRender(vtkRenderWindow* view, int quality = 100);
   vtkUnsignedCharArray* InteractiveRender(vtkRenderWindow* view, int quality = 50);
-  const char* StillRenderToString(vtkRenderWindow* view, unsigned long time = 0, int quality = 100);
+  const char* StillRenderToString(vtkRenderWindow* view, vtkMTimeType time = 0, int quality = 100);
 
   // Description:
   // StillRenderToString() need not necessary returns the most recently rendered
@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Return the MTime of the last array exported by StillRenderToString.
-  vtkGetMacro(LastStillRenderToStringMTime, unsigned long);
+  vtkGetMacro(LastStillRenderToStringMTime, vtkMTimeType);
 
   // Description:
   // Return the Meta data description of the input scene in JSON format.
@@ -102,7 +102,7 @@ protected:
 
   int ImageEncoding;
   int ImageCompression;
-  unsigned long LastStillRenderToStringMTime;
+  vtkMTimeType LastStillRenderToStringMTime;
 
 private:
   vtkWebApplication(const vtkWebApplication&) VTK_DELETE_FUNCTION;

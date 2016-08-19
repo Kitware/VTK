@@ -379,7 +379,7 @@ private:
   friend class PIMPL;
 
   vtkWeakPointer<vtkContext2D> CurrentPainter;
-  unsigned long LayoutUpdatedTime;
+  vtkMTimeType LayoutUpdatedTime;
 
   // Go through the process of calculating axis ranges, etc...
   void UpdateAxes();

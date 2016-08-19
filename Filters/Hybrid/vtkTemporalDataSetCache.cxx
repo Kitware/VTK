@@ -187,7 +187,7 @@ int vtkTemporalDataSetCache
     }
 
 
-  unsigned long pmt = ddp->GetPipelineMTime();
+  vtkMTimeType pmt = ddp->GetPipelineMTime();
   for (pos = this->Cache.begin(); pos != this->Cache.end();)
     {
     if (pos->second.first < pmt)
@@ -274,7 +274,7 @@ int vtkTemporalDataSetCache::RequestData(
   vtkInformation     *outInfo = outputVector->GetInformationObject(0);
   vtkDataObject       *output = NULL;
 
-  unsigned long outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
+  vtkMTimeType outputUpdateTime = outInfo->Get(vtkDataObject::DATA_OBJECT())->GetUpdateTime();
 
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 

@@ -63,13 +63,13 @@ public:
 
   // Description:
   // Return the object's MTime. This is overridden to include the timestamp of its internal class.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Return the MTime of the internal data structure.
   // This is really only intended for use by vtkPExodusIIReader in order
   // to determine if the filename is newer than the metadata.
-  virtual unsigned long GetMetadataMTime();
+  virtual vtkMTimeType GetMetadataMTime();
 
   // Description:
   // Specify file name of the Exodus file.

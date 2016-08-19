@@ -143,12 +143,12 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(
   vtkInformationVector** vtkNotUsed(inputVector),
   vtkInformationVector* vtkNotUsed(outputVector),
   int vtkNotUsed(requestFromOutputPort),
-  unsigned long* mtime)
+  vtkMTimeType* mtime)
 {
-  unsigned long mTime = this->GetMTime();
+  vtkMTimeType mTime = this->GetMTime();
   if (this->VolumeMapper)
     {
-    unsigned long mapperMTime = this->VolumeMapper->GetMTime();
+    vtkMTimeType mapperMTime = this->VolumeMapper->GetMTime();
     if (mapperMTime > mTime)
       {
       mTime = mapperMTime;
@@ -161,7 +161,7 @@ int vtkVolumeOutlineSource::ComputePipelineMTime(
       // Need to do this because we are not formally connected
       // to the Mapper's pipeline
       input->UpdateInformation();
-      unsigned long pipelineMTime = input->GetPipelineMTime();
+      vtkMTimeType pipelineMTime = input->GetPipelineMTime();
       if (pipelineMTime > mTime)
         {
         mTime = pipelineMTime;

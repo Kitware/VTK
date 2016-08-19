@@ -59,7 +59,7 @@ public:
 
   // Description:
   // Return the MTime also considering the Renderer.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Indicates what renderer to get the pixel data from.

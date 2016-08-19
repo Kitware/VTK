@@ -371,7 +371,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   std::vector<float> &matrices,
   std::vector<float> &normalMatrices,
   std::vector<vtkIdType> &pickIds,
-  unsigned long pointMTime)
+  vtkMTimeType pointMTime)
 {
   // we always tell our triangle VAO to emulate unless we
   // have opngl 3.2 to be safe
@@ -525,7 +525,7 @@ void vtkOpenGLGlyph3DHelper::GlyphRenderInstances(
     vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
     std::vector<unsigned char> &colors, std::vector<float> &matrices,
     std::vector<float> &normalMatrices,
-    unsigned long pointMTime)
+    vtkMTimeType pointMTime)
 {
   this->UsingInstancing = true;
   this->RenderPieceStart(ren,actor);

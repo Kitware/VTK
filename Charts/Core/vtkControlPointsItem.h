@@ -312,7 +312,7 @@ protected:
   // Must be reimplemented by subclasses to calculate the points to draw.
   // It's subclass responsibility to call ComputePoints() via the callback
   virtual void ComputePoints();
-  virtual unsigned long int GetControlPointsMTime() =0;
+  virtual vtkMTimeType GetControlPointsMTime() =0;
 
   // Description:
   // Returns true if the supplied x, y coordinate is on a control point.

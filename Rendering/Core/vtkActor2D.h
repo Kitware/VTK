@@ -102,7 +102,7 @@ public:
 
   // Description:
   // Return this objects MTime.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // For some exporters and other other operations we must be

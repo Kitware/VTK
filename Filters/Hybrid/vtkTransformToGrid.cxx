@@ -412,13 +412,13 @@ void vtkTransformToGrid::RequestData(
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransformToGrid::GetMTime()
+vtkMTimeType vtkTransformToGrid::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
 
   if (this->Input)
     {
-    unsigned long mtime2 = this->Input->GetMTime();
+    vtkMTimeType mtime2 = this->Input->GetMTime();
     if (mtime2 > mtime)
       {
       mtime = mtime2;

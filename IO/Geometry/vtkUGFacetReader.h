@@ -41,7 +41,7 @@ public:
   // Description:
   // Overload standard modified time function. If locator is modified,
   // then this object is modified as well.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Specify Unigraphics file name.

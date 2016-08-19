@@ -126,7 +126,7 @@ public:
 
   // Description:
   // Return the mtime also considering the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Tells if clipping happens with a box parallel with coordinate axis

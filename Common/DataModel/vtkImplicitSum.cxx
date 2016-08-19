@@ -41,10 +41,10 @@ vtkImplicitSum::~vtkImplicitSum()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImplicitSum::GetMTime()
+vtkMTimeType vtkImplicitSum::GetMTime()
 {
-  unsigned long int fMtime;
-  unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType fMtime;
+  vtkMTimeType mtime = this->vtkImplicitFunction::GetMTime();
   vtkImplicitFunction *f;
 
   fMtime = this->Weights->GetMTime();

@@ -294,7 +294,7 @@ void vtkLabelPlacer::SetGravity( int gravity )
   this->Modified();
 }
 
-unsigned long vtkLabelPlacer::GetMTime()
+vtkMTimeType vtkLabelPlacer::GetMTime()
 {
   // Check for minimal changes
   if ( this->Renderer )

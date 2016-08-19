@@ -59,7 +59,7 @@ public:
   // Description:
   // Overload standard modified time function. If kernel arrays are modified,
   // then this object is modified as well.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImageSeparableConvolution();

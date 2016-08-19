@@ -72,7 +72,7 @@ public:
 
   // Description:
   // Return the MTime also taking into account the implicit function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkSampleImplicitFunctionFilter();

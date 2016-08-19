@@ -434,10 +434,10 @@ double *vtkActor::GetBounds()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkActor::GetMTime()
+vtkMTimeType vtkActor::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Property != NULL )
     {
@@ -461,10 +461,10 @@ unsigned long int vtkActor::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkActor::GetRedrawMTime()
+vtkMTimeType vtkActor::GetRedrawMTime()
 {
-  unsigned long mTime=this->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->GetMTime();
+  vtkMTimeType time;
 
   if ( this->Mapper != NULL )
     {

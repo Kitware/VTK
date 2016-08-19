@@ -196,7 +196,7 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   // Returns true if the given file can be read.
   static int CanReadFile(const char *filename);
 
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
  protected:
   vtkMPASReader();

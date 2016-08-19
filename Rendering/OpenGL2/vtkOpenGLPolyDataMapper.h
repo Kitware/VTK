@@ -332,7 +332,7 @@ protected:
 
   // Check the renderpasses in actor's property keys to see if they've changed
   // render stages:
-  unsigned long GetRenderPassStageMTime(vtkActor *actor);
+  vtkMTimeType GetRenderPassStageMTime(vtkActor *actor);
 
   bool UsingScalarColoring;
   vtkTimeStamp VBOBuildTime; // When was the OpenGL VBO updated?

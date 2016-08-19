@@ -54,7 +54,7 @@ protected:
   int CacheSize;
 
   vtkDataObject **Data;
-  unsigned long *Times;
+  vtkMTimeType *Times;
 
 private:
   vtkCachedStreamingDemandDrivenPipeline(const vtkCachedStreamingDemandDrivenPipeline&) VTK_DELETE_FUNCTION;

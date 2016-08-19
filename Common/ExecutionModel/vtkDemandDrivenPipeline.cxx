@@ -86,7 +86,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
                                               vtkInformationVector** inInfoVec,
                                               vtkInformationVector* outInfoVec,
                                               int requestFromOutputPort,
-                                              unsigned long* mtime)
+                                              vtkMTimeType* mtime)
 {
   // The pipeline's MTime starts with this algorithm's MTime.
   // Invoke the request on the algorithm.
@@ -135,7 +135,7 @@ vtkDemandDrivenPipeline::ComputePipelineMTime(vtkInformation* request,
         vtkExecutive::PRODUCER()->Get(info,e,producerPort);
         if(e)
           {
-          unsigned long pmtime;
+          vtkMTimeType pmtime;
           if(!e->ComputePipelineMTime(request,
                                       e->GetInputInformation(),
                                       e->GetOutputInformation(),
@@ -333,7 +333,7 @@ int vtkDemandDrivenPipeline::UpdatePipelineMTime()
     }
 
   // Send the request for pipeline modified time.
-  unsigned long mtime;
+  vtkMTimeType mtime;
   this->ComputePipelineMTime(0,
                              this->GetInputInformation(),
                              this->GetOutputInformation(),
@@ -487,7 +487,7 @@ int vtkDemandDrivenPipeline::ExecuteData(vtkInformation* request,
 {
   this->ExecuteDataStart(request, inInfo, outInfo);
   // Invoke the request on the algorithm.
-//   unsigned long mTimeBefore = this->Algorithm->GetMTime();
+//   vtkMTimeType mTimeBefore = this->Algorithm->GetMTime();
   int result = this->CallAlgorithm(request, vtkExecutive::RequestDownstream,
                                    inInfo, outInfo);
 //   if (mTimeBefore != this->Algorithm->GetMTime())

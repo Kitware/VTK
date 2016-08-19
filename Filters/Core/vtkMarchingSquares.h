@@ -74,7 +74,7 @@ public:
 
   // Description:
   // Because we delegate to vtkContourValues
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   void SetLocator(vtkIncrementalPointLocator *locator);
   vtkGetObjectMacro(Locator,vtkIncrementalPointLocator);

@@ -63,13 +63,13 @@ vtkSTLReader::~vtkSTLReader()
 //------------------------------------------------------------------------------
 // Overload standard modified time function. If locator is modified,
 // then this object is modified as well.
-unsigned long vtkSTLReader::GetMTime()
+vtkMTimeType vtkSTLReader::GetMTime()
 {
-  unsigned long mTime1 = this->Superclass::GetMTime();
+  vtkMTimeType mTime1 = this->Superclass::GetMTime();
 
   if (this->Locator)
     {
-    unsigned long mTime2 = this->Locator->GetMTime();
+    vtkMTimeType mTime2 = this->Locator->GetMTime();
     mTime1 = std::max(mTime1, mTime2);
     }
 

@@ -56,7 +56,7 @@ public:
   // Description:
   // Override GetMTime because we delegate to vtkContourValues and refer to
   // vtkImplicitFunction.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkThreadedSynchronizedTemplatesCutter3D();

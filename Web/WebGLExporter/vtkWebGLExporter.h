@@ -70,12 +70,12 @@ protected:
 
   void parseRenderer(vtkRenderer* render, const char* viewId, bool onlyWidget, void* mapTime);
   void generateRendererData(vtkRendererCollection* renderers, const char* viewId);
-  void parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget);
-  void parseActor2D(vtkActor2D* actor, long actorTime, size_t renderId, int layer, bool isWidget);
+  void parseActor(vtkActor* actor, vtkMTimeType actorTime, size_t rendererId, int layer, bool isWidget);
+  void parseActor2D(vtkActor2D* actor, vtkMTimeType actorTime, size_t renderId, int layer, bool isWidget);
   const char* GenerateExportMetadata();
 
   // Get the dataset from the mapper
-  vtkTriangleFilter* GetPolyData(vtkMapper* mapper, unsigned long& dataMTime);
+  vtkTriangleFilter* GetPolyData(vtkMapper* mapper, vtkMTimeType& dataMTime);
 
   vtkTriangleFilter* TriangleFilter;         // Last Polygon Dataset Parse
   double CameraLookAt[10];                   // Camera Look At (fov, position[3], up[3], eye[3])

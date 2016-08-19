@@ -76,7 +76,7 @@ public:
   virtual void SetSubdivider( vtkDataSetEdgeSubdivisionCriterion* );
   vtkGetObjectMacro(Subdivider, vtkDataSetEdgeSubdivisionCriterion);
 
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Set the dimension of the output tessellation.

@@ -528,10 +528,10 @@ vtkAbstractImageInterpolator *vtkImageReslice::GetInterpolator()
 //----------------------------------------------------------------------------
 // Account for the MTime of the transform and its matrix when determining
 // the MTime of the filter
-unsigned long int vtkImageReslice::GetMTime()
+vtkMTimeType vtkImageReslice::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->ResliceTransform != NULL )
     {

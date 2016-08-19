@@ -70,8 +70,8 @@ class vtkWebGLExporter::vtkInternal
 {
 public:
   std::string LastMetaData;
-  std::map<vtkProp*, unsigned long> ActorTimestamp;
-  std::map<vtkProp*, unsigned long> OldActorTimestamp;
+  std::map<vtkProp*, vtkMTimeType> ActorTimestamp;
+  std::map<vtkProp*, vtkMTimeType> OldActorTimestamp;
   std::vector<vtkWebGLObject*> Objects;
   std::vector<vtkWebGLObject*> tempObj;
 };
@@ -149,7 +149,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         {
         vtkActor* actor = vtkActor::SafeDownCast(allactors->GetItemAsObject(j));
         vtkActor* key = actor;
-        unsigned long previousValue = this->Internal->OldActorTimestamp[key];
+        vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
         this->parseActor(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       allactors->Delete();
@@ -162,7 +162,7 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
         {
         vtkActor2D* actor = vtkActor2D::SafeDownCast(all2dactors->GetItemAsObject(k));
         vtkActor2D* key = actor;
-        unsigned long previousValue = this->Internal->OldActorTimestamp[key];
+        vtkMTimeType previousValue = this->Internal->OldActorTimestamp[key];
         this->parseActor2D(actor, previousValue, (size_t)renderer, renderer->GetLayer(), trt != NULL);
         }
       all2dactors->Delete();
@@ -170,13 +170,13 @@ void vtkWebGLExporter::parseRenderer(vtkRenderer *renderer, const char* vtkNotUs
     }
   }
 
-void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t renderId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, vtkMTimeType actorTime, size_t renderId, int layer, bool isWidget)
   {
   vtkActor2D* key = actor;
   vtkScalarBarActor* scalarbar = vtkScalarBarActor::SafeDownCast(actor);
 
-  long dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
-  dataMTime += (long)actor->GetMapper();
+  vtkMTimeType dataMTime = actor->GetMTime() + actor->GetRedrawMTime() + actor->GetProperty()->GetMTime();
+  dataMTime += (vtkMTimeType)actor->GetMapper();
   if (scalarbar) dataMTime += scalarbar->GetLookupTable()->GetMTime();
   if (dataMTime != actorTime && actor->GetVisibility())
     {
@@ -227,12 +227,12 @@ void vtkWebGLExporter::parseActor2D(vtkActor2D *actor, long actorTime, size_t re
     }
   }
 
-void vtkWebGLExporter::parseActor(vtkActor* actor, unsigned long actorTime, size_t rendererId, int layer, bool isWidget)
+void vtkWebGLExporter::parseActor(vtkActor* actor, vtkMTimeType actorTime, size_t rendererId, int layer, bool isWidget)
   {
   vtkMapper* mapper = actor->GetMapper();
   if (mapper)
     {
-    unsigned long dataMTime;
+    vtkMTimeType dataMTime;
     vtkTriangleFilter* polydata = this->GetPolyData(mapper, dataMTime);
     vtkActor* key = actor;
     dataMTime = actor->GetMTime() + mapper->GetLookupTable()->GetMTime();
@@ -494,7 +494,7 @@ void vtkWebGLExporter::generateRendererData(vtkRendererCollection* renderers, co
   this->renderersMetaData = ss.str();
   }
 
-vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, unsigned long& dataMTime)
+vtkTriangleFilter* vtkWebGLExporter::GetPolyData(vtkMapper* mapper, vtkMTimeType& dataMTime)
 {
   vtkDataSet* dataset = NULL;
   vtkSmartPointer<vtkDataSet> tempDS;

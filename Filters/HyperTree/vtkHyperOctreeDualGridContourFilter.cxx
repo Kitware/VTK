@@ -118,11 +118,11 @@ vtkHyperOctreeDualGridContourFilter::~vtkHyperOctreeDualGridContourFilter()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If Cut function is modified,
 // then this object is modified as well.
-unsigned long vtkHyperOctreeDualGridContourFilter::GetMTime()
+vtkMTimeType vtkHyperOctreeDualGridContourFilter::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long contourValuesMTime=this->ContourValues->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType contourValuesMTime=this->ContourValues->GetMTime();
+  vtkMTimeType time;
 
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 

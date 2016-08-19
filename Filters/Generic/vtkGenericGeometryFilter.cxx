@@ -468,10 +468,10 @@ void vtkGenericGeometryFilter::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkGenericGeometryFilter::GetMTime()
+vtkMTimeType vtkGenericGeometryFilter::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

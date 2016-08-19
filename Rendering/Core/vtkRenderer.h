@@ -414,7 +414,7 @@ public:
 
   // Description:
   // Return the MTime of the renderer also considering its ivars.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Get the time required, in seconds, for the last Render call.

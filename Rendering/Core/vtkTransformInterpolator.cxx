@@ -102,10 +102,10 @@ vtkTransformInterpolator::~vtkTransformInterpolator()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTransformInterpolator::GetMTime()
+vtkMTimeType vtkTransformInterpolator::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
-  unsigned long posMTime, scaleMTime, rotMTime;
+  vtkMTimeType mTime=this->Superclass::GetMTime();
+  vtkMTimeType posMTime, scaleMTime, rotMTime;
 
   if ( this->PositionInterpolator )
     {

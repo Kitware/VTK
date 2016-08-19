@@ -53,7 +53,7 @@ public:
 
   // Description:
   // Return the MTime also considering the locator.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // If on, the output polygonal dataset will have a celldata array that

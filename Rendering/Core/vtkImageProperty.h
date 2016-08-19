@@ -141,7 +141,7 @@ public:
   // Description:
   // Get the MTime for this property.  If the lookup table is set,
   // the mtime will include the mtime of the lookup table.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImageProperty();

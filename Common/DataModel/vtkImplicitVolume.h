@@ -58,7 +58,7 @@ public:
   // Returns the mtime also considering the volume.  This also calls Update
   // on the volume, and it therefore must be called before the function is
   // evaluated.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description
   // Evaluate the ImplicitVolume. This returns the interpolated scalar value

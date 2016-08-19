@@ -65,7 +65,7 @@ protected:
 private:
   vtkMultiProcessController *Controller;
   caseType CaseType;
-  unsigned long MTimeOld;
+  vtkMTimeType MTimeOld;
   int NumProcesses;
   int ProcessId;
 

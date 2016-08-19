@@ -1228,7 +1228,7 @@ void vtkCamera::GetFrustumPlanes(double aspect, double planes[24])
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkCamera::GetViewingRaysMTime()
+vtkMTimeType vtkCamera::GetViewingRaysMTime()
 {
   return this->ViewingRaysMTime.GetMTime();
 }

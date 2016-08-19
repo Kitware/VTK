@@ -152,9 +152,9 @@ void vtkImageOpenClose3D::Modified()
 //----------------------------------------------------------------------------
 // This method considers the sub filters MTimes when computing this objects
 // MTime
-unsigned long int vtkImageOpenClose3D::GetMTime()
+vtkMTimeType vtkImageOpenClose3D::GetMTime()
 {
-  unsigned long int t1, t2;
+  vtkMTimeType t1, t2;
 
   t1 = this->Superclass::GetMTime();
   if (this->Filter0)
@@ -183,7 +183,7 @@ vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation* request,
                                           vtkInformationVector** inInfoVec,
                                           vtkInformationVector* outInfoVec,
                                           int requestFromOutputPort,
-                                          unsigned long* mtime)
+                                          vtkMTimeType* mtime)
 {
   // Process the request on the internal pipeline.  Share our input
   // information with the first filter and our output information with
@@ -192,7 +192,7 @@ vtkImageOpenClose3D::ComputePipelineMTime(vtkInformation* request,
   vtkExecutive* exec1 = this->Filter1->GetExecutive();
   exec0->SetSharedInputInformation(inInfoVec);
   exec1->SetSharedOutputInformation(outInfoVec);
-  unsigned long mtime1;
+  vtkMTimeType mtime1;
   if(exec1->ComputePipelineMTime(request,
                                  exec1->GetInputInformation(),
                                  exec1->GetOutputInformation(),

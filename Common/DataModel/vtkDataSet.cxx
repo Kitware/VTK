@@ -253,9 +253,9 @@ double vtkDataSet::GetLength()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkDataSet::GetMTime()
+vtkMTimeType vtkDataSet::GetMTime()
 {
-  unsigned long mtime, result;
+  vtkMTimeType mtime, result;
 
   result = vtkDataObject::GetMTime();
 

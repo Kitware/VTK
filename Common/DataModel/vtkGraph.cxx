@@ -216,9 +216,9 @@ void vtkGraph::GetBounds(double bounds[6])
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkGraph::GetMTime()
+vtkMTimeType vtkGraph::GetMTime()
 {
-  unsigned long int doTime = vtkDataObject::GetMTime();
+  vtkMTimeType doTime = vtkDataObject::GetMTime();
 
   if ( this->VertexData->GetMTime() > doTime )
     {

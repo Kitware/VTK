@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Return the MTime also considering the transform.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Specify the transform object used to transform points.

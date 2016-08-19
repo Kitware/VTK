@@ -56,7 +56,7 @@ public:
   void GlyphRender(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices, std::vector<vtkIdType> &pickIds,
-      unsigned long pointMTime);
+      vtkMTimeType pointMTime);
 
   // Description:
   // Release any graphics resources that are being consumed by this mapper.
@@ -73,7 +73,7 @@ protected:
   void GlyphRenderInstances(vtkRenderer* ren, vtkActor* actor, vtkIdType numPts,
       std::vector<unsigned char> &colors, std::vector<float> &matrices,
       std::vector<float> &normalMatrices,
-      unsigned long pointMTime);
+      vtkMTimeType pointMTime);
 #endif
 
   // Description:

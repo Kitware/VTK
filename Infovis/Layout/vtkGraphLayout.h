@@ -56,7 +56,7 @@ public:
 
   // Description:
   // Get the modification time of the layout algorithm.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Set the ZRange for the output data.
@@ -94,7 +94,7 @@ private:
 
   vtkGraph* LastInput;
   vtkGraph* InternalGraph;
-  unsigned long LastInputMTime;
+  vtkMTimeType LastInputMTime;
   bool StrategyChanged;
   double ZRange;
   vtkAbstractTransform* Transform;

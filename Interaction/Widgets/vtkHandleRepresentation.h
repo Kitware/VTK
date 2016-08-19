@@ -128,7 +128,7 @@ public:
   // Description:
   // Overload the superclasses' GetMTime() because the internal vtkCoordinates
   // are used to keep the state of the representation.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the point placer. Point placers can be used to dictate constraints

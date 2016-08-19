@@ -142,7 +142,7 @@ public:
 
   // Description:
   // Return the MTime also considering the Piecewise function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Deep copy of spline data.
@@ -152,7 +152,7 @@ protected:
   vtkSpline();
   ~vtkSpline();
 
-  unsigned long ComputeTime;
+  vtkMTimeType ComputeTime;
   int ClampValue;
   double *Intervals;
   double *Coefficients;

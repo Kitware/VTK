@@ -60,7 +60,7 @@ public:
 
   // Description:
   // The modified time of this filter.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkDistanceToCamera();

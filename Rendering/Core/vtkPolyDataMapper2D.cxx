@@ -114,10 +114,10 @@ vtkPolyData *vtkPolyDataMapper2D::GetInput()
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If lookup table is modified,
 // then this object is modified as well.
-unsigned long vtkPolyDataMapper2D::GetMTime()
+vtkMTimeType vtkPolyDataMapper2D::GetMTime()
 {
-  unsigned long mTime = this->MTime;
-  unsigned long lutMTime;
+  vtkMTimeType mTime = this->MTime;
+  vtkMTimeType lutMTime;
 
   if (this->LookupTable != NULL)
     {

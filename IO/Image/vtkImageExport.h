@@ -168,7 +168,7 @@ protected:
   int DataDimensions[3];
   void *ExportVoidPointer;
 
-  unsigned long LastPipelineMTime;
+  vtkMTimeType LastPipelineMTime;
 
 private:
   vtkImageExport(const vtkImageExport&) VTK_DELETE_FUNCTION;

@@ -46,7 +46,7 @@ protected:
   virtual int ComputePipelineMTime(
     vtkInformation* request, vtkInformationVector** inputVector,
     vtkInformationVector* outputVector, int requestFromOutputPort,
-    unsigned long* mtime);
+    vtkMTimeType* mtime);
 
   // Description:
   // Method that does the actual calculation.

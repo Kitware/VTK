@@ -190,7 +190,7 @@ private:
   Internals *Internal;
 
   vtkGraph *Graph;
-  unsigned long GraphBuildTime;
+  vtkMTimeType GraphBuildTime;
   vtkNew<vtkImageData> Sprite;
   vtkNew<vtkIncrementalForceLayout> Layout;
   vtkNew<vtkTooltipItem> Tooltip;

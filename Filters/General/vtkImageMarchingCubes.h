@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Because we delegate to vtkContourValues & refer to vtkImplicitFunction
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the computation of scalars.

@@ -81,7 +81,7 @@ public:
 
   // Description:
   // Return the MTime also considering the camera.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Indicates what camera was used to generate the depth image. The camera

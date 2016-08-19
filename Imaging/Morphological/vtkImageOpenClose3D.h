@@ -49,7 +49,7 @@ public:
   // Description:
   // This method considers the sub filters MTimes when computing this objects
   // modified time.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Turn debugging output on. (in sub filters also)
@@ -96,7 +96,7 @@ public:
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       unsigned long* mtime);
+                       vtkMTimeType* mtime);
 
 protected:
   vtkImageOpenClose3D();

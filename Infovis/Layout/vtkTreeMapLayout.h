@@ -80,7 +80,7 @@ public:
 
   // Description:
   // Get the modification time of the layout algorithm.
-  virtual unsigned long GetMTime();
+  virtual vtkMTimeType GetMTime();
 
 protected:
   vtkTreeMapLayout();

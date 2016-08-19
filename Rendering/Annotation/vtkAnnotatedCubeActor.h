@@ -91,7 +91,7 @@ public:
 
   // Description:
   // Get the actors mtime plus consider its properties and texture if set.
-  unsigned long int GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set/Get the scale factor for the face text

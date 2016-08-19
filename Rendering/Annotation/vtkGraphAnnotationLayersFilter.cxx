@@ -124,7 +124,7 @@ void vtkGraphAnnotationLayersFilter::SetRenderer(vtkRenderer* renderer)
 }
 
 //-----------------------------------------------------------------------------
-unsigned long vtkGraphAnnotationLayersFilter::GetMTime()
+vtkMTimeType vtkGraphAnnotationLayersFilter::GetMTime()
 {
   if (this->ConvexHullFilter)
     {

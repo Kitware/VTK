@@ -242,11 +242,11 @@ void vtkRendererSource::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //----------------------------------------------------------------------------
-unsigned long vtkRendererSource::GetMTime()
+vtkMTimeType vtkRendererSource::GetMTime()
 {
   vtkRenderer *ren = this->GetInput();
-  unsigned long t1 = this->MTime.GetMTime();
-  unsigned long t2;
+  vtkMTimeType t1 = this->MTime.GetMTime();
+  vtkMTimeType t2;
 
   if (!ren)
     {

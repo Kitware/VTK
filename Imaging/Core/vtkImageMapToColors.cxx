@@ -56,9 +56,9 @@ vtkImageMapToColors::~vtkImageMapToColors()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageMapToColors::GetMTime()
+vtkMTimeType vtkImageMapToColors::GetMTime()
 {
-  unsigned long t1, t2;
+  vtkMTimeType t1, t2;
 
   t1 = this->Superclass::GetMTime();
   if (this->LookupTable)

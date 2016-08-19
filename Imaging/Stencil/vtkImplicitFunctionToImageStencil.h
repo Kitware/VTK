@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Override GetMTime() to account for the implicit function.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
 protected:
   vtkImplicitFunctionToImageStencil();

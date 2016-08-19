@@ -40,14 +40,14 @@ vtkShader2Collection::~vtkShader2Collection()
 }
 
 // ----------------------------------------------------------------------------
-unsigned long vtkShader2Collection::GetMTime()
+vtkMTimeType vtkShader2Collection::GetMTime()
 {
-  unsigned long result = this->Superclass::GetMTime();
+  vtkMTimeType result = this->Superclass::GetMTime();
   this->InitTraversal();
   vtkShader2 *s = this->GetNextShader();
   while (s!=0)
     {
-    unsigned long time = s->GetMTime();
+    vtkMTimeType time = s->GetMTime();
     if (time > result)
       {
       result = time;

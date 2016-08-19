@@ -198,7 +198,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   vtkImageData *input, int extent[6], bool recursive)
 {
   // get the previous texture load time
-  unsigned long loadTime = this->LoadTime.GetMTime();
+  vtkMTimeType loadTime = this->LoadTime.GetMTime();
 
   // the render window, needed for state information
   vtkOpenGLRenderWindow *renWin =
@@ -242,7 +242,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
   this->LastSliceNumber = this->SliceNumber;
 
   // get the mtime of the property, including the lookup table
-  unsigned long propertyMTime = 0;
+  vtkMTimeType propertyMTime = 0;
   if (property)
     {
     propertyMTime = property->GetMTime();
@@ -251,7 +251,7 @@ void vtkOpenGLImageSliceMapper::RenderTexturedPolygon(
       vtkScalarsToColors *table = property->GetLookupTable();
       if (table)
         {
-        unsigned long mtime = table->GetMTime();
+        vtkMTimeType mtime = table->GetMTime();
         if (mtime > propertyMTime)
           {
           propertyMTime = mtime;

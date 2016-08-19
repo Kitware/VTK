@@ -110,7 +110,7 @@ protected:
 
   virtual void emitEvent(unsigned long event, void* params);
 
-  virtual unsigned long int GetControlPointsMTime();
+  virtual vtkMTimeType GetControlPointsMTime();
 
   virtual vtkIdType GetNumberOfPoints()const;
   virtual void DrawPoint(vtkContext2D* painter, vtkIdType index);

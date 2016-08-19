@@ -340,7 +340,7 @@ struct SetTuplesRangeWorker
 
 template<typename InfoType, typename KeyType>
 bool hasValidKey(InfoType info, KeyType key,
-                   unsigned long mtime, double range[2] )
+                   vtkMTimeType mtime, double range[2] )
 {
   if ( info->Has( key ) )
     {
@@ -355,7 +355,7 @@ bool hasValidKey(InfoType info, KeyType key,
 
 template<typename InfoType, typename KeyType, typename ComponentKeyType>
 bool hasValidKey(InfoType info, KeyType key, ComponentKeyType ckey,
-                   unsigned long mtime, double range[2], int comp )
+                   vtkMTimeType mtime, double range[2], int comp )
 {
   if ( info->Has( key ) )
     {

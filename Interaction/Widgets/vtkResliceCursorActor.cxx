@@ -177,12 +177,12 @@ double *vtkResliceCursorActor::GetBounds()
 }
 
 //-------------------------------------------------------------------------
-unsigned long int vtkResliceCursorActor::GetMTime()
+vtkMTimeType vtkResliceCursorActor::GetMTime()
 {
-  unsigned long mTime=this->Superclass::GetMTime();
+  vtkMTimeType mTime=this->Superclass::GetMTime();
   if (this->CursorAlgorithm)
     {
-    unsigned long time;
+    vtkMTimeType time;
     time = this->CursorAlgorithm->GetMTime();
     if (time > mTime)
       {

@@ -455,7 +455,7 @@ void vtkQtTreeView::Update()
     this->LastInputMTime = tree->GetMTime();
     }
 
-  unsigned long atime = rep->GetAnnotationLink()->GetMTime();
+  vtkMTimeType atime = rep->GetAnnotationLink()->GetMTime();
   if (atime > this->CurrentSelectionMTime)
     {
     this->SetVTKSelection();

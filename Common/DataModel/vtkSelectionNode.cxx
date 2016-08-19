@@ -463,11 +463,11 @@ void vtkSelectionNode::SubtractSelectionList(vtkSelectionNode* other)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkSelectionNode::GetMTime()
+vtkMTimeType vtkSelectionNode::GetMTime()
 {
-  unsigned long mTime = this->MTime.GetMTime();
-  unsigned long propMTime;
-  unsigned long fieldMTime;
+  vtkMTimeType mTime = this->MTime.GetMTime();
+  vtkMTimeType propMTime;
+  vtkMTimeType fieldMTime;
   if (this->Properties)
     {
     propMTime = this->Properties->GetMTime();

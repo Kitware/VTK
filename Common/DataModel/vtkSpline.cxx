@@ -165,10 +165,10 @@ void vtkSpline::DeepCopy(vtkSpline *s)
 //----------------------------------------------------------------------------
 // Overload standard modified time function. If data is modified,
 // then this object is modified as well.
-unsigned long vtkSpline::GetMTime()
+vtkMTimeType vtkSpline::GetMTime()
 {
-  unsigned long mTime=this->vtkObject::GetMTime();
-  unsigned long DataMTime;
+  vtkMTimeType mTime=this->vtkObject::GetMTime();
+  vtkMTimeType DataMTime;
 
   if ( this->PiecewiseFunction != NULL )
     {

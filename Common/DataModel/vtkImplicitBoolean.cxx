@@ -33,10 +33,10 @@ vtkImplicitBoolean::~vtkImplicitBoolean()
   this->FunctionList->Delete();
 }
 
-unsigned long int vtkImplicitBoolean::GetMTime()
+vtkMTimeType vtkImplicitBoolean::GetMTime()
 {
-  unsigned long int fMtime;
-  unsigned long int mtime = this->vtkImplicitFunction::GetMTime();
+  vtkMTimeType fMtime;
+  vtkMTimeType mtime = this->vtkImplicitFunction::GetMTime();
   vtkImplicitFunction *f;
 
   vtkCollectionSimpleIterator sit;

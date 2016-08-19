@@ -78,12 +78,12 @@ void vtkTrivialProducer::SetOutput(vtkDataObject*newOutput)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkTrivialProducer::GetMTime()
+vtkMTimeType vtkTrivialProducer::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   if(this->Output)
     {
-    unsigned long omtime = this->Output->GetMTime();
+    vtkMTimeType omtime = this->Output->GetMTime();
     if(omtime > mtime)
       {
       mtime = omtime;

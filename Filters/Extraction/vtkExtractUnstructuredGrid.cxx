@@ -273,10 +273,10 @@ int vtkExtractUnstructuredGrid::RequestData(
   return 1;
 }
 
-unsigned long int vtkExtractUnstructuredGrid::GetMTime()
+vtkMTimeType vtkExtractUnstructuredGrid::GetMTime()
 {
-  unsigned long mTime= this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime= this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Locator != NULL )
     {

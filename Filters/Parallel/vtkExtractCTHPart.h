@@ -108,7 +108,7 @@ public:
 
   // Description:
   // Look at clip plane to compute MTime.
-  unsigned long GetMTime();
+  vtkMTimeType GetMTime();
 
   // Description:
   // Set and get the volume fraction surface value. This value should be

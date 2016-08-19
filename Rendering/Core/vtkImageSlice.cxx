@@ -380,10 +380,10 @@ vtkImageProperty *vtkImageSlice::GetProperty()
 }
 
 //----------------------------------------------------------------------------
-unsigned long int vtkImageSlice::GetMTime()
+vtkMTimeType vtkImageSlice::GetMTime()
 {
-  unsigned long mTime = this->Superclass::GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->Superclass::GetMTime();
+  vtkMTimeType time;
 
   if ( this->Property != NULL )
     {
@@ -407,10 +407,10 @@ unsigned long int vtkImageSlice::GetMTime()
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkImageSlice::GetRedrawMTime()
+vtkMTimeType vtkImageSlice::GetRedrawMTime()
 {
-  unsigned long mTime = this->GetMTime();
-  unsigned long time;
+  vtkMTimeType mTime = this->GetMTime();
+  vtkMTimeType time;
 
   if ( this->Mapper != NULL )
     {
