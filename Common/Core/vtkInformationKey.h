@@ -35,8 +35,8 @@ class vtkInformation;
 class VTKCOMMONCORE_EXPORT vtkInformationKey : public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationKey,vtkObjectBase);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  vtkBaseTypeMacro(vtkInformationKey,vtkObjectBase);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Prevent normal vtkObject reference counting behavior.

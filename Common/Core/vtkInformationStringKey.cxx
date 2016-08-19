@@ -41,7 +41,7 @@ void vtkInformationStringKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationStringValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationStringValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationStringValue, vtkObjectBase);
   std::string Value;
 };
 

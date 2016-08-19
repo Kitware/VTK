@@ -40,7 +40,7 @@ void vtkInformationVariantKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationVariantValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationVariantValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationVariantValue, vtkObjectBase);
   vtkVariant Value;
   static vtkVariant Invalid;
 };

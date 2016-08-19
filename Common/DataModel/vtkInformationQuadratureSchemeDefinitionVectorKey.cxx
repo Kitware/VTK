@@ -25,7 +25,7 @@
 class vtkInformationQuadratureSchemeDefinitionVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationQuadratureSchemeDefinitionVectorValue, vtkObjectBase);
   //
   vtkInformationQuadratureSchemeDefinitionVectorValue()
   {

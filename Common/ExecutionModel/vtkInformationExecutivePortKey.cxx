@@ -41,7 +41,7 @@ void vtkInformationExecutivePortKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationExecutivePortValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationExecutivePortValue, vtkObjectBase);
   vtkSmartPointer<vtkExecutive> Executive;
   int Port;
 };

@@ -49,7 +49,7 @@ void vtkInformationExecutivePortVectorKey::PrintSelf(ostream& os, vtkIndent inde
 class vtkInformationExecutivePortVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationExecutivePortVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationExecutivePortVectorValue, vtkObjectBase);
   std::vector<vtkExecutive*> Executives;
   std::vector<int> Ports;
 

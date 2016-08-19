@@ -272,8 +272,8 @@ class TestVTKFiles:
         count = 0
         lines = []
         oldlines = []
-        typere = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
-        typesplitre = "^\s*vtk(Abstract)?Type(Revision)*Macro\s*\("
+        typere = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\(\s*(vtk[^ ,]+)\s*,\s*(vtk[^ \)]+)\s*\)\s*"
+        typesplitre = "^\s*vtk(Abstract|Base)?Type(Revision)*Macro\s*\("
 
         regx = re.compile(typere)
         regxs = re.compile(typesplitre)

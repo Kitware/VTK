@@ -44,7 +44,7 @@ void vtkInformationIntegerPointerKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationIntegerPointerValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerPointerValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationIntegerPointerValue, vtkObjectBase);
   int* Value;
   unsigned int Length;
 };
