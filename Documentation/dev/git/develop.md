@@ -228,6 +228,30 @@ Follow these steps:
 7.  Use the "**Submit merge request**" button to create the merge request
     and visit its page.
 
+Guidelines for Merge Requests
+-----------------------------
+
+Remember to *motivate & summarize*. When creating a merge request, consider the
+reviewers and future perusers of the software. Provide enough information to motivate
+the merge request such as:
+
+1.  Is this merge request important and why?
+2.  If addressing an issue, which issue(s)?
+3.  If a new feature, why is it useful and/or necessary?
+4.  Are there background references or documentation?
+
+Also provide a summary statement expressing what you did and if there is a choice
+in implementation or design pattern, the rationale for choosing a certain path.
+Notable software or data features should be mentioned as well.
+
+A well written merge request will motivate your reviewers, and bring them up
+to speed faster. Future software developers will be able to understand the
+reasons why something was done, and possibly avoid chasing down dead ends,
+Although it may take you a little more time to write a good merge request,
+you’ll likely see payback in faster reviews and better understood and
+maintainable software.
+
+
 Review a Merge Request
 ----------------------
 
