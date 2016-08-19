@@ -62,13 +62,13 @@ public:
   void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // vtkArray API
-  virtual vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates);
-  virtual vtkVariant GetVariantValueN(const SizeT n);
-  virtual void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value);
-  virtual void SetVariantValueN(const SizeT n, const vtkVariant& value);
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates);
-  virtual void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates);
-  virtual void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index);
+  vtkVariant GetVariantValue(const vtkArrayCoordinates& coordinates) VTK_OVERRIDE;
+  vtkVariant GetVariantValueN(const SizeT n) VTK_OVERRIDE;
+  void SetVariantValue(const vtkArrayCoordinates& coordinates, const vtkVariant& value) VTK_OVERRIDE;
+  void SetVariantValueN(const SizeT n, const vtkVariant& value) VTK_OVERRIDE;
+  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const vtkArrayCoordinates& target_coordinates) VTK_OVERRIDE;
+  void CopyValue(vtkArray* source, const SizeT source_index, const vtkArrayCoordinates& target_coordinates) VTK_OVERRIDE;
+  void CopyValue(vtkArray* source, const vtkArrayCoordinates& source_coordinates, const SizeT target_index) VTK_OVERRIDE;
 
   // Description:
   // Returns the value stored in the array at the given coordinates.

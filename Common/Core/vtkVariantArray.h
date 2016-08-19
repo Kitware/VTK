@@ -56,22 +56,22 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000) VTK_OVERRIDE;
 
   // Description:
   // Release storage and reset array to initial state.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Return the underlying data type. An integer indicating data type is
   // returned as specified in vtkSetGet.h.
-  virtual int GetDataType();
+  int GetDataType() VTK_OVERRIDE;
 
   // Description:
   // Return the size of the underlying data type.  For a bit, 1 is
   // returned.  For string 0 is returned. Arrays with variable length
   // components return 0.
-  virtual int GetDataTypeSize();
+  int GetDataTypeSize() VTK_OVERRIDE;
 
   // Description:
   // Return the size, in bytes, of the lowest-level element of an
@@ -79,55 +79,57 @@ public:
   // data type.  For vtkStringArray, this is
   // sizeof(vtkStdString::value_type), which winds up being
   // sizeof(char).
-  virtual int GetElementComponentSize();
+  int GetElementComponentSize() VTK_OVERRIDE;
 
   // Description:
   // Set the number of tuples (a component group) in the array. Note that
   // this may allocate space depending on the number of components.
-  virtual void SetNumberOfTuples(vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
 
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
   // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+  void SetTuple(vtkIdType i, vtkIdType j,
+                vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+  void InsertTuple(vtkIdType i, vtkIdType j,
+                   vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Copy the tuples indexed in srcIds from the source array to the tuple
   // locations indexed by dstIds in this array.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source);
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                    vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Copy n consecutive tuples starting at srcStart from the source array to
   // this array, starting at the dstStart location.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Return a void pointer. For image pipeline interface and other
   // special pointer manipulation.
-  virtual void *GetVoidPointer(vtkIdType id);
+  void *GetVoidPointer(vtkIdType id) VTK_OVERRIDE;
 
   // Description:
   // Deep copy of data. Implementation left to subclasses, which
   // should support as many type conversions as possible given the
   // data type.
-  virtual void DeepCopy(vtkAbstractArray *da);
+  void DeepCopy(vtkAbstractArray *da) VTK_OVERRIDE;
 
   // Description:
   // Set the ith tuple in this array as the interpolated tuple value,
@@ -135,8 +137,8 @@ public:
   // interpolation weights.
   // This method assumes that the two arrays are of the same type
   // and strcuture.
-  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights);
+  void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
+    vtkAbstractArray* source,  double* weights) VTK_OVERRIDE;
 
   // Description
   // Insert the ith tuple in this array as interpolated from the two values,
@@ -145,20 +147,20 @@ public:
   // with t=0 located at p1. This method assumes that the three arrays are of
   // the same type. p1 is value at index id1 in source1, while, p2 is
   // value at index id2 in source2.
-  virtual void InterpolateTuple(vtkIdType i,
+  void InterpolateTuple(vtkIdType i,
     vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t);
+    vtkIdType id2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
 
   // Description:
   // Free any unnecessary memory.
   // Description:
   // Resize object to just fit data requirement. Reclaims extra memory.
-  virtual void Squeeze();
+  void Squeeze() VTK_OVERRIDE;
 
   // Description:
   // Resize the array while conserving the data.  Returns 1 if
   // resizing succeeded and 0 otherwise.
-  virtual int Resize(vtkIdType numTuples);
+  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
 
   // Description:
   // This method lets the user specify data to be held by the array.  The
@@ -167,8 +169,9 @@ public:
   // from deleting the array when it cleans up or reallocates memory.
   // The class uses the actual array provided; it does not copy the data
   // from the supplied array.
-  virtual void SetVoidArray(void *arr, vtkIdType size, int save);
-  virtual void SetVoidArray(void *arr, vtkIdType size, int save, int deleteM);
+  void SetVoidArray(void *arr, vtkIdType size, int save) VTK_OVERRIDE;
+  void SetVoidArray(void *arr, vtkIdType size, int save,
+                    int deleteM) VTK_OVERRIDE;
 
   // Description:
   // Return the memory in kibibytes (1024 bytes) consumed by this data array. Used to
@@ -177,16 +180,16 @@ public:
   // actually represent the data represented by this object. The
   // information returned is valid only after the pipeline has
   // been updated.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Since each item can be of a different type, we say that a variant array is not numeric.
-  virtual int IsNumeric();
+  int IsNumeric() VTK_OVERRIDE;
 
   // Description:
   // Subclasses must override this method and provide the right
   // kind of templated vtkArrayIteratorTemplate.
-  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() VTK_OVERRIDE;
 
   //
   // Additional functions
@@ -209,11 +212,11 @@ public:
 
   // Description:
   // Insert a value into the array from a variant.
-  void SetVariantValue(vtkIdType idx, vtkVariant value);
+  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Safely insert a value into the array from a variant.
-  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Expand the array by one and set the value at that location.
@@ -232,7 +235,7 @@ public:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  void SetNumberOfValues(vtkIdType number);
+  void SetNumberOfValues(vtkIdType number) VTK_OVERRIDE;
 
   // Description:
   // Return the number of values in the array.
@@ -240,8 +243,8 @@ public:
 
   // Description:
   // Return the indices where a specific value appears.
-  virtual vtkIdType LookupValue(vtkVariant value);
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
+  void LookupValue(vtkVariant value, vtkIdList* ids) VTK_OVERRIDE;
 
   // Description:
   // Tell the array explicitly that the data has changed.
@@ -250,7 +253,7 @@ public:
   // data and modify the array contents).  You need to call this so that
   // the fast lookup will know to rebuild itself.  Otherwise, the lookup
   // functions will give incorrect results.
-  virtual void DataChanged();
+  void DataChanged() VTK_OVERRIDE;
 
   // Description:
   // Tell the array explicitly that a single data element has
@@ -262,7 +265,7 @@ public:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
-  virtual void ClearLookup();
+  void ClearLookup() VTK_OVERRIDE;
 
   // Description:
   // This destructor is public to work around a bug in version 1.36.0 of

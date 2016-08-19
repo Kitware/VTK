@@ -36,7 +36,7 @@ public:
   // so long as the Array has not been modified
   // (except using the iterator itself).
   // If the array is modified, the iterator must be re-intialized.
-  virtual void Initialize(vtkAbstractArray* array);
+  void Initialize(vtkAbstractArray* array) VTK_OVERRIDE;
 
   // Description:
   // Get the array.
@@ -64,7 +64,7 @@ public:
 
   // Description:
   // Get the data type from the underlying array.
-  int GetDataType();
+  int GetDataType() VTK_OVERRIDE;
 
   // Description:
   // Get the data type size from the underlying array.

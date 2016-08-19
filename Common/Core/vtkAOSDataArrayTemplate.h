@@ -106,7 +106,7 @@ public:
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
   ValueType* WritePointer(vtkIdType valueIdx, vtkIdType numValues);
-  virtual void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues);
+  void* WriteVoidPointer(vtkIdType valueIdx, vtkIdType numValues) VTK_OVERRIDE;
 
   // Description:
   // Get the address of a particular data index. Performs no checks
@@ -115,7 +115,7 @@ public:
   // the array data in order to return a suitable pointer. See vtkArrayDispatch
   // for a safer alternative for fast data access.
   ValueType* GetPointer(vtkIdType valueIdx);
-  virtual void* GetVoidPointer(vtkIdType valueIdx);
+  void* GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE;
 
   // Description:
   // This method lets the user specify data to be held by the array.  The
@@ -129,9 +129,9 @@ public:
   // DELETE, delete[] will be used. The default is FREE.
   void SetArray(ValueType* array, vtkIdType size, int save, int deleteMethod);
   void SetArray(ValueType* array, vtkIdType size, int save);
-  virtual void SetVoidArray(void* array, vtkIdType size, int save);
-  virtual void SetVoidArray(void* array, vtkIdType size, int save,
-                            int deleteMethod);
+  void SetVoidArray(void* array, vtkIdType size, int save) VTK_OVERRIDE;
+  void SetVoidArray(void* array, vtkIdType size, int save,
+                    int deleteMethod) VTK_OVERRIDE;
 
   // Description:
   // Tell the array explicitly that a single data element has
@@ -176,10 +176,10 @@ public:
     return NULL;
   }
 
-  virtual int GetArrayType() { return vtkAbstractArray::AoSDataArrayTemplate; }
-  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
-  virtual bool HasStandardMemoryLayout() { return true; }
-  virtual void ShallowCopy(vtkDataArray *other);
+  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::AoSDataArrayTemplate; }
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
+  bool HasStandardMemoryLayout() VTK_OVERRIDE { return true; }
+  void ShallowCopy(vtkDataArray *other) VTK_OVERRIDE;
 
   // Description:
   // @deprecated Replace TupleValue with TypedTuple to use the new method
@@ -190,12 +190,12 @@ public:
   VTK_LEGACY(vtkIdType InsertNextTupleValue(const ValueType *tuple));
 
   // Reimplemented for efficiency:
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkAbstractArray* source) VTK_OVERRIDE;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
-//  using Superclass::InsertTuples;
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source)
+  // using Superclass::InsertTuples;
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                    vtkAbstractArray *source) VTK_OVERRIDE
   { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:

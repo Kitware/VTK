@@ -81,23 +81,23 @@ public:
   typedef typename vtkArray::SizeT SizeT;
 
   // vtkArray API
-  bool IsDense();
-  const vtkArrayExtents& GetExtents();
-  SizeT GetNonNullSize();
-  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates);
-  vtkArray* DeepCopy();
+  bool IsDense() VTK_OVERRIDE;
+  const vtkArrayExtents& GetExtents() VTK_OVERRIDE;
+  SizeT GetNonNullSize() VTK_OVERRIDE;
+  void GetCoordinatesN(const SizeT n, vtkArrayCoordinates& coordinates) VTK_OVERRIDE;
+  vtkArray* DeepCopy() VTK_OVERRIDE;
 
   // vtkTypedArray API
-  const T& GetValue(CoordinateT i);
-  const T& GetValue(CoordinateT i, CoordinateT j);
-  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k);
-  const T& GetValue(const vtkArrayCoordinates& coordinates);
-  const T& GetValueN(const SizeT n);
-  void SetValue(CoordinateT i, const T& value);
-  void SetValue(CoordinateT i, CoordinateT j, const T& value);
-  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value);
-  void SetValue(const vtkArrayCoordinates& coordinates, const T& value);
-  void SetValueN(const SizeT n, const T& value);
+  const T& GetValue(CoordinateT i) VTK_OVERRIDE;
+  const T& GetValue(CoordinateT i, CoordinateT j) VTK_OVERRIDE;
+  const T& GetValue(CoordinateT i, CoordinateT j, CoordinateT k) VTK_OVERRIDE;
+  const T& GetValue(const vtkArrayCoordinates& coordinates) VTK_OVERRIDE;
+  const T& GetValueN(const SizeT n) VTK_OVERRIDE;
+  void SetValue(CoordinateT i, const T& value) VTK_OVERRIDE;
+  void SetValue(CoordinateT i, CoordinateT j, const T& value) VTK_OVERRIDE;
+  void SetValue(CoordinateT i, CoordinateT j, CoordinateT k, const T& value) VTK_OVERRIDE;
+  void SetValue(const vtkArrayCoordinates& coordinates, const T& value) VTK_OVERRIDE;
+  void SetValueN(const SizeT n, const T& value) VTK_OVERRIDE;
 
   // vtkSparseArray API
 
@@ -199,9 +199,9 @@ private:
   vtkSparseArray(const vtkSparseArray&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSparseArray&) VTK_DELETE_FUNCTION;
 
-  void InternalResize(const vtkArrayExtents& extents);
-  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label);
-  vtkStdString InternalGetDimensionLabel(DimensionT i);
+  void InternalResize(const vtkArrayExtents& extents) VTK_OVERRIDE;
+  void InternalSetDimensionLabel(DimensionT i, const vtkStdString& label) VTK_OVERRIDE;
+  vtkStdString InternalGetDimensionLabel(DimensionT i) VTK_OVERRIDE;
 
   typedef vtkSparseArray<T> ThisT;
 
