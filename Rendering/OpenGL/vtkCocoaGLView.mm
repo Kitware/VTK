@@ -233,7 +233,7 @@ static const char *vtkMacKeyCodeToKeySymTable[128] = {
       keySym = vtkMacCharCodeToKeySymTable[charCode];
       }
     }
-  else if (type == NSFlagsChanged)
+  else if (type == NSEventTypeFlagsChanged)
     {
     // Check to see what modifier flag changed.
     if (controlDown != interactor->GetControlKey())

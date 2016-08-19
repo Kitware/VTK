@@ -50,6 +50,7 @@ PURPOSE.  See the above copyright notice for more information.
   #define NSEventTypeKeyDown NSKeyDown
   #define NSEventTypeKeyUp NSKeyUp
   #define NSEventTypeApplicationDefined NSApplicationDefined
+  #define NSEventTypeFlagsChanged NSFlagsChanged
 #endif
 
 // Create handy #defines that indicate the Objective-C memory management model.
