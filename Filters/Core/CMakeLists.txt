@@ -51,6 +51,7 @@ set(Module_SRCS
   vtkQuadricDecimation.cxx
   vtkRearrangeFields.cxx
   vtkResampleToImage.cxx
+  vtkResampleWithDataSet.cxx
   vtkReverseSense.cxx
   vtkSimpleElevationFilter.cxx
   vtkSmoothPolyDataFilter.cxx
