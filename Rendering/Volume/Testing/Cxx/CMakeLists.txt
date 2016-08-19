@@ -17,7 +17,6 @@ set (GenericVolumeCxxTests
   TestGPURayCastFourComponentsMinIP.cxx
   TestGPURayCastFourComponentsMIP.cxx
   TestGPURayCastMapperBenchmark.cxx
-  TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastMapperSampleDistance.cxx
   TestGPURayCastMIPBinaryMask.cxx
   TestGPURayCastMIPToComposite.cxx
@@ -82,6 +81,7 @@ set (VolumeOpenGL2CxxTests
   TestProjectedTetrahedraTransform.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestRemoveVolumeNonCurrentContext.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
   )
 
 # everyone gets these tests

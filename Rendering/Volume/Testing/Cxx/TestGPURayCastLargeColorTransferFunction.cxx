@@ -34,8 +34,8 @@
 #include "vtkVolumeProperty.h"
 #include "vtkXMLImageDataReader.h"
 
-
 #define GPU_MAPPER
+
 
 //----------------------------------------------------------------------------
 int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
@@ -48,7 +48,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   vtkSmartPointer<vtkLookupTable> lut =
     vtkSmartPointer<vtkLookupTable>::New();
 
-  // Required for vtkLookupTable initialization
+  // Initialize vtkLookupTable
   int const NumValues = 5023;
   lut->SetNumberOfTableValues(NumValues);
   lut->SetTableRange(0, NumValues-1);
@@ -92,8 +92,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   lut->SetTableValue(54, 98 / 255.0, 153 / 255.0, 112 / 255.0, 255 / 255.0);
   lut->SetTableValue(58, 165 / 255.0, 0 / 255.0, 255 / 255.0, 255 / 255.0);
   lut->SetTableValue(60, 165 / 255.0, 40 / 255.0, 40 / 255.0, 255 / 255.0);
-//  lut->SetTableValue(61, 165 / 255.0, 40 / 255.0, 40 / 255.0, 255 / 255.0);
-  lut->SetTableValue(61, 135 / 255.0, 205 / 255.0, 235 / 255.0, 255 / 255.0); //medulla oblongata
+  lut->SetTableValue(61, 135 / 255.0, 205 / 255.0, 235 / 255.0, 255 / 255.0);
   lut->SetTableValue(63, 90 / 255.0, 105 / 255.0, 215 / 255.0, 255 / 255.0);
   lut->SetTableValue(66, 0 / 255.0, 108 / 255.0, 112 / 255.0, 255 / 255.0);
   lut->SetTableValue(71, 0 / 255.0, 108 / 255.0, 112 / 255.0, 255 / 255.0);
@@ -406,7 +405,6 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   const double midPoint = 0.5;
   const double sharpness = 1.0;
   for (int i = 0; i < numColors; i++, value += step)
-//  for (int i = 0; i < numColors; i++, value += (50 * step) )
     {
     lut->GetTableValue(i, color);
 
@@ -441,11 +439,6 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   volumeProperty->SetColor(colorTransferFunction);
   volumeProperty->SetScalarOpacity(opacity);
   volumeProperty->SetInterpolationTypeToNearest();
-//  volumeProperty->ShadeOn();
-  volumeProperty->SetAmbient(0.3);
-  volumeProperty->SetDiffuse(0.6);
-  volumeProperty->SetSpecular(0.5);
-  volumeProperty->SetSpecularPower(40);
 
   vtkSmartPointer<vtkVolume> volume =
     vtkSmartPointer<vtkVolume>::New();
@@ -454,10 +447,8 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 
   vtkSmartPointer<vtkTransform> xf =
     vtkSmartPointer<vtkTransform>::New();
-  xf->RotateZ(180.0);
-  xf->RotateY(25.0);
-  xf->RotateX(-65.0);
-  //xf->RotateY(-90.0);
+  xf->RotateY(-90.0);
+  xf->RotateX(180);
   volume->SetUserTransform(xf);
 
   vtkSmartPointer<vtkRenderWindow> renderWindow =
@@ -469,8 +460,10 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
     vtkSmartPointer<vtkRenderer>::New();
   renderer->AddVolume(volume);
   renderer->GetActiveCamera()->ParallelProjectionOn();
+  renderer->GetActiveCamera()->SetFocalPoint(0, 0, -1);
+  renderer->GetActiveCamera()->SetPosition(0, 0, 1);
   renderer->ResetCamera();
-  renderer->GetActiveCamera()->Zoom(2.0);
+  renderer->GetActiveCamera()->Zoom(1.7);
   renderWindow->AddRenderer(renderer);
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
