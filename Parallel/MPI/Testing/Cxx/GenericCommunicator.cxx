@@ -15,23 +15,25 @@
 #include <mpi.h>
 
 #include "vtkActor.h"
-#include "vtkCharArray.h"
 #include "vtkCallbackCommand.h"
+#include "vtkCharArray.h"
 #include "vtkContourFilter.h"
 #include "vtkDebugLeaks.h"
 #include "vtkDoubleArray.h"
 #include "vtkFloatArray.h"
 #include "vtkIdTypeArray.h"
+#include "vtkImageData.h"
 #include "vtkIntArray.h"
 #include "vtkMPIController.h"
+#include "vtkNew.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkRTAnalyticSource.h"
+#include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
-#include "vtkRenderer.h"
+#include "vtkRTAnalyticSource.h"
+#include "vtkSphereSource.h"
 #include "vtkUnsignedLongArray.h"
-#include "vtkImageData.h"
 
 #include "vtkDebugLeaks.h"
 #include "vtkRegressionTestImage.h"
@@ -172,6 +174,22 @@ void Process2(vtkMultiProcessController *contr, void* vtkNotUsed(arg))
     }
   ita->Delete();
 
+
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->Update();
+  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
+    {
+    cerr << "Server error: Error gathering data." << endl;
+    retVal = 0;
+    }
+  rdata.clear();
+  if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
+    {
+    cerr << "Server error: Error gathering data." << endl;
+    retVal = 0;
+    }
+
   comm->Send(&retVal, 1, 0, 11);
 }
 
@@ -283,6 +301,41 @@ void Process1(vtkMultiProcessController *contr, void *arg)
     *(args->retVal) = 0;
     }
   ita->Delete();
+
+  vtkNew<vtkSphereSource> sphereSource;
+  sphereSource->Update();
+  std::vector<vtkSmartPointer<vtkDataObject> > rdata;
+  if (!comm->Gather(sphereSource->GetOutputDataObject(0), rdata, 0))
+    {
+    cerr << "Client error: Error gathering data." << endl;
+    *(args->retVal) = 0;
+    }
+  if (rdata.size() == 2
+    && vtkPolyData::SafeDownCast(rdata[0])
+    && vtkPolyData::SafeDownCast(rdata[1]))
+    {
+    }
+  else
+    {
+    cerr << "Client error: Error gathering data (invalid data received)." << endl;
+    *(args->retVal) = 0;
+    }
+  rdata.clear();
+  if (!comm->Gather(NULL, rdata, 0))
+    {
+    cerr << "Client error: Error gathering data." << endl;
+    *(args->retVal) = 0;
+    }
+  if (rdata.size() == 2
+    && rdata[0] == NULL
+    && vtkPolyData::SafeDownCast(rdata[1]))
+    {
+    }
+  else
+    {
+    cerr << "Client error: Error gathering data (invalid data received)." << endl;
+    *(args->retVal) = 0;
+    }
 
   int remoteRetVal;
   comm->Receive(&remoteRetVal, 1, 1, 11);
