@@ -153,7 +153,7 @@ int TestPResampleWithDataSet(int argc, char *argv[])
 
   // Render
   vtkNew<vtkCompositeDataGeometryFilter> toPoly;
-  toPoly->SetInputData(resample->GetOutputDataObject(0));
+  toPoly->SetInputConnection(resample->GetOutputPort());
 
   double range[2];
   toPoly->Update();
@@ -184,33 +184,23 @@ int TestPResampleWithDataSet(int argc, char *argv[])
   actor->SetMapper(mapper.GetPointer());
   renderer->AddActor(actor.GetPointer());
 
-  int retVal;
+  int r1 = vtkTesting::PASSED;
   if (rank == 0)
     {
     prm->ResetAllCameras();
 
+    std::cout << "Test with RegularPartition" << std::endl;
     renWin->Render();
-    retVal = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
-    if (!retVal)
+    r1 = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
+    if (!r1)
       {
       std::cout << "Test with RegularPartition failed" << std::endl;
       }
-
-    resample->UseBalancedPartitionForPointsLookupOn();
-    renWin->Render();
-    int retVal2 = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
-    if (!retVal2)
+    else if (r1 == vtkRegressionTester::DO_INTERACTOR)
       {
-      std::cout << "Test with BalancedPartition failed" << std::endl;
+      iren->Start();
       }
-
-    retVal &= retVal2;
-
-    if (retVal2 == vtkRegressionTester::DO_INTERACTOR)
-      {
-      prm->StartInteractor();
-      }
-    controller->TriggerBreakRMIs();
+    prm->StopServices();
     }
   else
     {
@@ -218,8 +208,34 @@ int TestPResampleWithDataSet(int argc, char *argv[])
     }
   controller->Barrier();
 
-  controller->Broadcast(&retVal, 1, 0);
+  resample->UseBalancedPartitionForPointsLookupOn();
+  int r2 = vtkTesting::PASSED;
+  if (rank == 0)
+    {
+    prm->ResetAllCameras();
+
+    std::cout << "Test with BalancedPartition" << std::endl;
+    renWin->Render();
+    r2 = vtkRegressionTester::Test(argc, argv, renWin.GetPointer(), 10);
+    if (!r2)
+      {
+      std::cout << "Test with BalancedPartition failed" << std::endl;
+      }
+    else if (r2 == vtkRegressionTester::DO_INTERACTOR)
+      {
+      iren->Start();
+      }
+    prm->StopServices();
+    }
+  else
+    {
+    prm->StartServices();
+    }
+  controller->Barrier();
+
+  int status = r1 && r2;
+  controller->Broadcast(&status, 1, 0);
   controller->Finalize();
 
-  return !retVal;
+  return !status;
 }
