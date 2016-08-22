@@ -119,8 +119,18 @@ public:
 
   // Description:
   // Internal method, should only be used by rendering.
-  // Does this prop have some translucent polygonal geometry?
+  // Returns true if this image actor has an alpha component or if it
+  // has an opacity that is less than 1.0.  This can be overridden by
+  // ForceOpaqueOn(), which forces this method to return false, or
+  // ForceTranslucentOn(), which forces this method to return true.
   virtual int HasTranslucentPolygonalGeometry();
+
+  // Description:
+  // Force the actor to be rendered during the opaque rendering pass.
+  // See also: ForceTranslucentOn() to use translucent rendering pass.
+  vtkGetMacro(ForceOpaque, bool);
+  vtkSetMacro(ForceOpaque, bool);
+  vtkBooleanMacro(ForceOpaque, bool);
 
 protected:
   vtkImageActor();
@@ -136,6 +146,11 @@ protected:
 
   // Convenience function that returns the input of the mapper
   vtkAlgorithm *GetInputAlgorithm();
+
+  // the result of HasTranslucentPolygonalGeometry is cached
+  vtkTimeStamp TranslucentComputationTime;
+  int TranslucentCachedResult;
+  bool ForceOpaque;
 
 private:
   vtkImageActor(const vtkImageActor&) VTK_DELETE_FUNCTION;

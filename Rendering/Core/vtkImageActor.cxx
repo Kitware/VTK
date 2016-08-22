@@ -15,6 +15,7 @@
 #include "vtkImageActor.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkDataSetAttributes.h"
 #include "vtkImageData.h"
 #include "vtkMath.h"
 #include "vtkMatrix4x4.h"
@@ -51,6 +52,10 @@ vtkImageActor::vtkImageActor()
   mapper->SetOrientationToZ();
   // For backwards compabilitity, make Streaming the default behavior
   mapper->StreamingOn();
+
+  // The result of HasTranslucentPolygonalGeometry is cached
+  this->TranslucentCachedResult = false;
+  this->ForceOpaque = false;
 }
 
 //----------------------------------------------------------------------------
@@ -427,6 +432,9 @@ void vtkImageActor::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
 
+  os << indent << "ForceOpaque: "
+     << (this->ForceOpaque ? "On\n" : "Off\n");
+
   os << indent << "Input: " << this->GetInput() << "\n";
   os << indent << "Interpolate: " << (this->GetInterpolate() ? "On\n" : "Off\n");
   os << indent << "Opacity: " << this->GetOpacity() << "\n";
@@ -474,22 +482,79 @@ int vtkImageActor::GetWholeZMax()
 // Does this prop have some translucent polygonal geometry?
 int vtkImageActor::HasTranslucentPolygonalGeometry()
 {
-  vtkImageData *input = this->GetInput();
-  if (!input)
+  if (this->ForceOpaque)
     {
     return 0;
     }
 
-  // This requires that Update has been called on the mapper,
-  // which the Renderer does immediately before it renders.
-  if ( input->GetScalarType() == VTK_UNSIGNED_CHAR )
+  if (this->ForceTranslucent)
     {
-    if (!(this->GetOpacity() >= 1.0 &&
-          input->GetNumberOfScalarComponents() % 2))
+    return 1;
+    }
+
+  // Always consider translucent if opacity is less than unity
+  if (this->GetOpacity() < 1.0)
+    {
+    return 1;
+    }
+
+  // Otherwise check the scalar information, and if the image has
+  // color scalars (i.e. type is unsigned char) and if it has an
+  // alpha channel (4-component RGBA, or 2-component Luminance + Alpha),
+  // then we "guess" that it is meant to be translucent.  This is for
+  // backwards compatibility, note that the newer vtkImageSlice class
+  // does not do this check.
+
+  if (!this->Mapper || this->Mapper->GetNumberOfInputConnections(0) == 0)
+    {
+    return 0;
+    }
+
+  vtkAlgorithm *inputAlg = this->Mapper->GetInputAlgorithm();
+  if (!inputAlg)
+    {
+    return 0;
+    }
+
+  // This MTime check is the same as done in vtkTexture
+  if (this->GetMTime() < this->TranslucentComputationTime)
+    {
+    vtkImageData *input = this->GetInput();
+    if (input == NULL ||
+        input->GetMTime() <= this->TranslucentComputationTime)
       {
-      return 1;
+      return this->TranslucentCachedResult;
       }
     }
 
-  return 0;
+  int scalarType = VTK_VOID;
+  int numComp = 1;
+
+  vtkInformation *inputInfo = this->Mapper->GetInputInformation();
+  inputAlg->UpdateInformation();
+
+  // Get the information for the image scalars
+  vtkInformation *scalarInfo =
+    vtkDataObject::GetActiveFieldInformation(
+       inputInfo,
+       vtkDataObject::FIELD_ASSOCIATION_POINTS,
+       vtkDataSetAttributes::SCALARS);
+
+  if (scalarInfo)
+    {
+    if (scalarInfo->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
+      {
+      scalarType = scalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+      }
+    if (scalarInfo->Has(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()))
+      {
+      numComp = scalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+      }
+    }
+
+  this->TranslucentCachedResult = (scalarType == VTK_UNSIGNED_CHAR &&
+                                   numComp % 2 == 0);
+  this->TranslucentComputationTime.Modified();
+
+  return this->TranslucentCachedResult;
 }

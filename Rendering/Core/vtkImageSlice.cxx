@@ -76,6 +76,8 @@ vtkImageSlice::vtkImageSlice()
 {
   this->Mapper = NULL;
   this->Property = NULL;
+
+  this->ForceTranslucent = false;
 }
 
 //----------------------------------------------------------------------------
@@ -243,11 +245,14 @@ double vtkImageSlice::GetMaxZBound()
 // Does this prop have some translucent polygonal geometry?
 int vtkImageSlice::HasTranslucentPolygonalGeometry()
 {
-  // Always render during opaque pass, to keep the behavior
-  // predictable and because depth-peeling kills alpha-blending.
-  // In the future, the Renderer should render images in layers,
-  // i.e. where each image will have a layer number assigned to it,
-  // and the Renderer will do the images in their own pass.
+  if (this->ForceTranslucent)
+    {
+    return 1;
+    }
+
+  // Unless forced to translucent, always render during opaque pass,
+  // to keep the behavior predictable and because depth-peeling kills
+  // alpha-blending.
   return 0;
 }
 
@@ -488,4 +493,7 @@ void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
     {
     os << indent << "Bounds: (not defined)\n";
     }
+
+  os << indent << "ForceTranslucent: "
+     << (this->ForceTranslucent ? "On\n" : "Off\n");
 }
