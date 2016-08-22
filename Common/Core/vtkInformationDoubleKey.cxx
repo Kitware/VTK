@@ -39,7 +39,7 @@ void vtkInformationDoubleKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationDoubleValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationDoubleValue, vtkObjectBase);
   double Value;
 };
 

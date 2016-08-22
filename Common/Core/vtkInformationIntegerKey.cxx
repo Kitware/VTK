@@ -39,7 +39,7 @@ void vtkInformationIntegerKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationIntegerValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationIntegerValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationIntegerValue, vtkObjectBase);
   int Value;
 };
 

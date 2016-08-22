@@ -338,7 +338,7 @@
 class VTKCOMMONCORE_EXPORT vtkCommand : public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkCommand,vtkObjectBase);
+  vtkBaseTypeMacro(vtkCommand,vtkObjectBase);
 
   // Description:
   // Decrease the reference count (release by another object). This has

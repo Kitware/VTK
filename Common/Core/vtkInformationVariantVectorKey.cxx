@@ -44,7 +44,7 @@ void vtkInformationVariantVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationVariantVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationVariantVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationVariantVectorValue, vtkObjectBase);
   std::vector<vtkVariant> Value;
   static vtkVariant Invalid;
 };

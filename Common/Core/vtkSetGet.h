@@ -646,6 +646,21 @@ virtual double *Get##name() \
 #define vtkTypeMacro(thisClass,superclass) \
   vtkAbstractTypeMacro(thisClass, superclass) \
   protected: \
+  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE \
+  { \
+    return thisClass::New(); \
+  } \
+  public:
+
+// Macro to use when you are a direct child class of vtkObjectBase, instead
+// of vtkTypeMacro. This is required to properly specify NewInstanceInternal
+// as a virtual method.
+// It is used to determine whether a class is the same class or a subclass
+// of the named class.
+
+#define vtkBaseTypeMacro(thisClass,superclass) \
+  vtkAbstractTypeMacro(thisClass, superclass) \
+  protected: \
   virtual vtkObjectBase *NewInstanceInternal() const \
   { \
     return thisClass::New(); \
@@ -672,7 +687,7 @@ virtual double *Get##name() \
 #define vtkTemplateTypeMacro(thisClass,superclass) \
   vtkAbstractTemplateTypeMacro(thisClass, superclass) \
   protected: \
-  virtual vtkObjectBase *NewInstanceInternal() const \
+  vtkObjectBase *NewInstanceInternal() const VTK_OVERRIDE \
   { \
     return thisClass::New(); \
   } \

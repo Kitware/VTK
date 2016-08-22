@@ -39,7 +39,7 @@ void vtkInformationUnsignedLongKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationUnsignedLongValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationUnsignedLongValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationUnsignedLongValue, vtkObjectBase);
   unsigned long Value;
 };
 

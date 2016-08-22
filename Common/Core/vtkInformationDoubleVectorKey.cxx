@@ -43,7 +43,7 @@ void vtkInformationDoubleVectorKey::PrintSelf(ostream& os, vtkIndent indent)
 class vtkInformationDoubleVectorValue: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
+  vtkBaseTypeMacro(vtkInformationDoubleVectorValue, vtkObjectBase);
   std::vector<double> Value;
 };
 

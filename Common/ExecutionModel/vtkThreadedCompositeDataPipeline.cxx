@@ -75,7 +75,7 @@ namespace
 class ProcessBlockData: public vtkObjectBase
 {
 public:
-  vtkTypeMacro(ProcessBlockData, vtkObjectBase);
+  vtkBaseTypeMacro(ProcessBlockData, vtkObjectBase);
   vtkInformationVector** In;
   vtkInformationVector* Out;
   int InSize;
