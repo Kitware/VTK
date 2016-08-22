@@ -40,7 +40,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPolyDataAlgorithm : public vtkAlgorithm
 public:
   static vtkPolyDataAlgorithm *New();
   vtkTypeMacro(vtkPolyDataAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.

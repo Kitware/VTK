@@ -52,7 +52,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
  public:
   static vtkPerspectiveTransform *New();
   vtkTypeMacro(vtkPerspectiveTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set this transformation to the identity transformation.  If

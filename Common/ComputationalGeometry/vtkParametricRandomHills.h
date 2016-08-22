@@ -42,7 +42,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRandomHills : public vt
 
 public:
   vtkTypeMacro(vtkParametricRandomHills,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Return the parametric dimension of the class.

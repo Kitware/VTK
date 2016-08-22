@@ -31,7 +31,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyVertex : public vtkCell
 public:
   static vtkPolyVertex *New();
   vtkTypeMacro(vtkPolyVertex,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

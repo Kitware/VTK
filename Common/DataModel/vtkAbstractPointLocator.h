@@ -38,7 +38,7 @@ public:
   // Description:
   // Standard type and print methods.
   vtkTypeMacro(vtkAbstractPointLocator,vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Given a position x, return the id of the point closest to it. Alternative

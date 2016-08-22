@@ -58,7 +58,7 @@ class VTKCOMMONCORE_EXPORT vtkScalarsToColors : public vtkObject
 {
 public:
   vtkTypeMacro(vtkScalarsToColors,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkScalarsToColors *New();
 
   // Description:

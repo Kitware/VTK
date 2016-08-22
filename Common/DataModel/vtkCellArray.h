@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkCellArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Instantiate cell array (connectivity list).

@@ -79,7 +79,7 @@ class VTK_INFORMATION_EXPORT vtkInformation : public vtkObject
 public:
   VTKCOMMONCORE_EXPORT static vtkInformation *New();
   vtkTypeMacro(vtkInformation,vtkObject);
-  VTKCOMMONCORE_EXPORT void PrintSelf(ostream& os, vtkIndent indent);
+  VTKCOMMONCORE_EXPORT void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   VTKCOMMONCORE_EXPORT void PrintKeys(ostream& os, vtkIndent indent);
 
   // Description:

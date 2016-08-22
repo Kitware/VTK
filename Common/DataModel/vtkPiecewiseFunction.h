@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPiecewiseFunction : public vtkDataObject
 public:
   static vtkPiecewiseFunction *New();
   vtkTypeMacro(vtkPiecewiseFunction,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void DeepCopy( vtkDataObject *f );
   void ShallowCopy( vtkDataObject *f );

@@ -60,7 +60,7 @@ public:
   // Description:
   // Standard type related macros and PrintSelf() method.
   vtkTypeMacro(vtkSimpleScalarTree,vtkScalarTree);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the branching factor for the tree. This is the number of

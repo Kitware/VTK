@@ -33,7 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPolyDataCollection : public vtkCollection
 public:
   static vtkPolyDataCollection *New();
   vtkTypeMacro(vtkPolyDataCollection,vtkCollection);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Add a poly data to the list.

@@ -73,7 +73,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdTree : public vtkLocator
 {
 public:
   vtkTypeMacro(vtkKdTree, vtkLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkKdTree *New();
 

@@ -44,7 +44,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTreeAlgorithm : public vtkAlgorithm
 public:
   static vtkTreeAlgorithm *New();
   vtkTypeMacro(vtkTreeAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

@@ -28,7 +28,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkEmptyCell : public vtkCell
 public:
   static vtkEmptyCell *New();
   vtkTypeMacro(vtkEmptyCell,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

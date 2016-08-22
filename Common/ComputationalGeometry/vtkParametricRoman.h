@@ -35,7 +35,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricRoman : public vtkParam
 
 public:
   vtkTypeMacro(vtkParametricRoman,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Return the parametric dimension of the class.

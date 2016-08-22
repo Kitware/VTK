@@ -32,7 +32,7 @@ public:
   static vtkCachedStreamingDemandDrivenPipeline* New();
   vtkTypeMacro(vtkCachedStreamingDemandDrivenPipeline,
                        vtkStreamingDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This is the maximum number of images that can be retained in memory.

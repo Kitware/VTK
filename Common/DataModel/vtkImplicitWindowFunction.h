@@ -37,7 +37,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitWindowFunction : public vtkImplicitFu
 {
 public:
   vtkTypeMacro(vtkImplicitWindowFunction,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct object with window range (0,1) and window values (0,1).

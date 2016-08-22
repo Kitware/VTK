@@ -36,7 +36,7 @@ public:
 
     // Description:
     // Lists all known keys.
-    virtual void PrintSelf(ostream &os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     // Description:
     // Find an information key from name and location strings. For example,

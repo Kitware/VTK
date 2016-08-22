@@ -42,7 +42,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkRectilinearGridAlgorithm : public vtkAlg
 public:
   static vtkRectilinearGridAlgorithm *New();
   vtkTypeMacro(vtkRectilinearGridAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.

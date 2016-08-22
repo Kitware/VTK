@@ -38,7 +38,7 @@ public:
   int Allocate(const vtkIdType sz, const int strategy=0);
 
   vtkTypeMacro(vtkIdList,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the number of id's in the list.

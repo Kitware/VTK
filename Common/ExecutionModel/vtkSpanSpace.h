@@ -52,7 +52,7 @@ public:
   // Description:
   // Standard type related macros and PrintSelf() method.
   vtkTypeMacro(vtkSpanSpace,vtkScalarTree);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   //----------------------------------------------------------------------
   // The following methods are specific to the creationg and configuration of

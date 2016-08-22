@@ -30,7 +30,7 @@ public:
   static vtkTestNewVar * New();
 
   vtkTypeMacro(vtkTestNewVar, vtkObject)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the reference count for the points object.

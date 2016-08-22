@@ -74,7 +74,7 @@ class vtkPoints;
 class VTKCOMMONDATAMODEL_EXPORT vtkCellIterator : public vtkObject
 {
 public:
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   vtkAbstractTypeMacro(vtkCellIterator, vtkObject)
 
   // Description:

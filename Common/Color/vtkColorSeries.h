@@ -49,7 +49,7 @@ class VTKCOMMONCOLOR_EXPORT vtkColorSeries : public vtkObject
 {
 public:
   vtkTypeMacro(vtkColorSeries, vtkObject);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Create a new vtkColorSeries with the SPECTRUM color scheme.

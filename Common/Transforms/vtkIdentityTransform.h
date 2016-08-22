@@ -33,7 +33,7 @@ public:
   static vtkIdentityTransform *New();
 
   vtkTypeMacro(vtkIdentityTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Apply the transformation to a series of points, and append the

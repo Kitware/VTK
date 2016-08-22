@@ -33,7 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridCellIterator :
 public:
   static vtkUnstructuredGridCellIterator *New();
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   bool IsDoneWithTraversal();
   vtkIdType GetCellId();

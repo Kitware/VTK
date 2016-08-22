@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPerlinNoise : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkPerlinNoise,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Instantiate the class.

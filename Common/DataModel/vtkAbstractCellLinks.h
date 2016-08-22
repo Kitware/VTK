@@ -42,7 +42,7 @@ public:
   // Description:
   // Standard type and print methods.
   vtkTypeMacro(vtkAbstractCellLinks,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Build the link list array. All subclasses must implement this method.

@@ -51,7 +51,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPentagonalPrism : public vtkCell3D
 public:
   static vtkPentagonalPrism *New();
   vtkTypeMacro(vtkPentagonalPrism,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See vtkCell3D API for description of these methods.

@@ -44,7 +44,7 @@ public:
   vtkTypeMacro(vtkAMRDataInternals, vtkObject);
 
   void Initialize();
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void Insert(unsigned int index, vtkUniformGrid* grid);
   vtkUniformGrid* GetDataSet(unsigned int compositeIndex);

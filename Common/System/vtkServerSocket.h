@@ -28,7 +28,7 @@ class VTKCOMMONSYSTEM_EXPORT vtkServerSocket : public vtkSocket
 public:
   static vtkServerSocket* New();
   vtkTypeMacro(vtkServerSocket, vtkSocket);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Creates a server socket at a given port and binds to it.

@@ -44,7 +44,7 @@ public:
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkSmoothErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the flatness threshold.

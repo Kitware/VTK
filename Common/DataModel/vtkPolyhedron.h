@@ -58,7 +58,7 @@ public:
   // Standard new methods.
   static vtkPolyhedron *New();
   vtkTypeMacro(vtkPolyhedron,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See vtkCell3D API for description of these methods.

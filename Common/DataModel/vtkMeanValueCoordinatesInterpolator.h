@@ -59,7 +59,7 @@ public:
   // Standard instantiable class methods.
   static vtkMeanValueCoordinatesInterpolator *New();
   vtkTypeMacro(vtkMeanValueCoordinatesInterpolator,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Method to generate interpolation weights for a point x[3] from a list of

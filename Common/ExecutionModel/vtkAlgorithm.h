@@ -52,7 +52,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithm : public vtkObject
 public:
   static vtkAlgorithm *New();
   vtkTypeMacro(vtkAlgorithm,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Values used for setting the desired output precision for various

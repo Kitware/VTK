@@ -28,7 +28,7 @@ class VTKCOMMONCORE_EXPORT vtkBitArrayIterator : public vtkArrayIterator
 public:
   static vtkBitArrayIterator* New();
   vtkTypeMacro(vtkBitArrayIterator, vtkArrayIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the array this iterator will iterate over.

@@ -43,7 +43,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPointSetAlgorithm : public vtkAlgorithm
 public:
   static vtkPointSetAlgorithm *New();
   vtkTypeMacro(vtkPointSetAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.

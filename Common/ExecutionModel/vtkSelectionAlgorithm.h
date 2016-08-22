@@ -45,7 +45,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSelectionAlgorithm : public vtkAlgorithm
 public:
   static vtkSelectionAlgorithm *New();
   vtkTypeMacro(vtkSelectionAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

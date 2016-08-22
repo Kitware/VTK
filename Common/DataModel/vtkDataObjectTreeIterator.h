@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataObjectTreeIterator : public vtkCompositeD
 public:
   static vtkDataObjectTreeIterator* New();
   vtkTypeMacro(vtkDataObjectTreeIterator, vtkCompositeDataIterator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Move the iterator to the beginning of the collection.

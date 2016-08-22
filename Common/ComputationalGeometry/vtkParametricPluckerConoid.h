@@ -37,7 +37,7 @@ public:
 
 
   vtkTypeMacro(vtkParametricPluckerConoid,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This is the number of folds in the conoid.

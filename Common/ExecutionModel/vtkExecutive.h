@@ -44,7 +44,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExecutive : public vtkObject
 {
 public:
   vtkTypeMacro(vtkExecutive,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the algorithm to which this executive has been assigned.

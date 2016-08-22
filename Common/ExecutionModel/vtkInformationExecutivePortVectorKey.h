@@ -32,7 +32,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationExecutivePortVectorKey : publ
 {
 public:
   vtkTypeMacro(vtkInformationExecutivePortVectorKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationExecutivePortVectorKey(const char* name, const char* location);
   ~vtkInformationExecutivePortVectorKey();

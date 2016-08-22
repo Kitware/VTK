@@ -53,7 +53,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
  public:
   static vtkTransform *New();
   vtkTypeMacro(vtkTransform,vtkLinearTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the transformation to the identity transformation.  If

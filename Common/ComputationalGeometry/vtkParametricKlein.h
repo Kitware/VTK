@@ -43,7 +43,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricKlein : public vtkParam
 {
 public:
   vtkTypeMacro(vtkParametricKlein,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a Klein Bottle with the following parameters:

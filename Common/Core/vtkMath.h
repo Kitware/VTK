@@ -82,7 +82,7 @@ class VTKCOMMONCORE_EXPORT vtkMath : public vtkObject
 public:
   static vtkMath *New();
   vtkTypeMacro(vtkMath,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // A mathematical constant. This version is atan(1.0) * 4.0

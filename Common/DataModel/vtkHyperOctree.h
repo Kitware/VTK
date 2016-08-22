@@ -146,7 +146,7 @@ public:
   static vtkHyperOctree *New();
 
   vtkTypeMacro(vtkHyperOctree,vtkDataSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.

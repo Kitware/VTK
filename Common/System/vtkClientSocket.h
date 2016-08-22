@@ -26,7 +26,7 @@ class VTKCOMMONSYSTEM_EXPORT vtkClientSocket : public vtkSocket
 public:
   static vtkClientSocket* New();
   vtkTypeMacro(vtkClientSocket, vtkSocket);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Connects to host. Returns 0 on success, -1 on error.

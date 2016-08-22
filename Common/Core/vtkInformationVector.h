@@ -34,7 +34,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationVector : public vtkObject
 public:
   static vtkInformationVector *New();
   vtkTypeMacro(vtkInformationVector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get/Set the number of information objects in the vector.  Setting

@@ -53,7 +53,7 @@ class vtkDenseArray : public vtkTypedArray<T>
 public:
   static vtkDenseArray<T>* New();
   vtkTemplateTypeMacro(vtkDenseArray<T>, vtkTypedArray<T>)
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   typedef typename vtkArray::CoordinateT CoordinateT;
   typedef typename vtkArray::DimensionT DimensionT;

@@ -29,7 +29,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkInformationDataObjectMetaDataKey : publi
 {
 public:
   vtkTypeMacro(vtkInformationDataObjectMetaDataKey,vtkInformationDataObjectKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDataObjectMetaDataKey(const char* name, const char* location);
   ~vtkInformationDataObjectMetaDataKey();

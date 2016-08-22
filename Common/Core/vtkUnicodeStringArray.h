@@ -39,7 +39,7 @@ class VTKCOMMONCORE_EXPORT vtkUnicodeStringArray :
 public:
   static vtkUnicodeStringArray* New();
   vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);
   virtual void Initialize();

@@ -43,7 +43,7 @@ public:
   // Description:
   // Standard VTK type and print macros.
   vtkTypeMacro(vtkGenericEdgeTable,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Split the edge with the indicated point id.

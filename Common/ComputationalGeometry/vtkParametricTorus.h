@@ -35,7 +35,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricTorus : public vtkParam
 
 public:
   vtkTypeMacro(vtkParametricTorus,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a torus with the following parameters:

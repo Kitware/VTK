@@ -32,7 +32,7 @@ class VTKCOMMONCORE_EXPORT vtkDataArraySelection : public vtkObject
 {
 public:
   vtkTypeMacro(vtkDataArraySelection,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkDataArraySelection* New();
 
   // Description:

@@ -29,7 +29,7 @@ class VTKCOMMONCORE_EXPORT vtkInformationIntegerKey : public vtkInformationKey
 {
 public:
   vtkTypeMacro(vtkInformationIntegerKey,vtkInformationKey);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationIntegerKey(const char* name, const char* location);
   ~vtkInformationIntegerKey();

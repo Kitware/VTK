@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitDataSet : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitDataSet,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Construct an vtkImplicitDataSet with no initial dataset; the OutValue

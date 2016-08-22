@@ -58,7 +58,7 @@ public:
   static vtkDataObject *New();
 
   vtkTypeMacro(vtkDataObject,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the information object associated with this data object.

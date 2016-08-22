@@ -30,7 +30,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkPiecewiseFunctionShiftScale : public vtk
 public:
   static vtkPiecewiseFunctionShiftScale *New();
   vtkTypeMacro(vtkPiecewiseFunctionShiftScale, vtkPiecewiseFunctionAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkSetMacro(PositionShift, double);
   vtkSetMacro(PositionScale, double);

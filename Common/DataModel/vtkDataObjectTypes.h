@@ -35,7 +35,7 @@ public:
   static vtkDataObjectTypes *New();
 
   vtkTypeMacro(vtkDataObjectTypes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Given an int (as defined in vtkType.h) identifier for a class

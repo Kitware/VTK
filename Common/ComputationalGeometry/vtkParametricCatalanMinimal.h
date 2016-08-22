@@ -32,7 +32,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricCatalanMinimal : public
 public:
 
   vtkTypeMacro(vtkParametricCatalanMinimal,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Catalan's minimal surface with the following parameters:

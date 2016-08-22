@@ -35,7 +35,7 @@ class VTKCOMMONCORE_EXPORT vtkRandomSequence : public vtkObject
 {
 public:
   vtkTypeMacro(vtkRandomSequence,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Current value

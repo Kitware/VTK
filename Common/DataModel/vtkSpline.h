@@ -61,7 +61,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkSpline : public vtkObject
 {
 public:
   vtkTypeMacro(vtkSpline,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the parametric range. If not set, the range is determined

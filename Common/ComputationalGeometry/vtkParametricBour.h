@@ -31,7 +31,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBour : public vtkParame
 public:
 
   vtkTypeMacro(vtkParametricBour,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Bour's minimal surface with the following parameters:

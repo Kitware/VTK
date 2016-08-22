@@ -41,7 +41,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkConvexPointSet : public vtkCell3D
 public:
   static vtkConvexPointSet *New();
   vtkTypeMacro(vtkConvexPointSet,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See vtkCell3D API for description of this method.

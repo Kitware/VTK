@@ -46,7 +46,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnnotation : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAnnotation, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkAnnotation* New();
 
   // Description:

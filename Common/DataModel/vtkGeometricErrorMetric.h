@@ -41,7 +41,7 @@ public:
   // Description:
   // Standard VTK type and error macros.
   vtkTypeMacro(vtkGeometricErrorMetric,vtkGenericSubdivisionErrorMetric);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the squared absolute geometric accuracy. See

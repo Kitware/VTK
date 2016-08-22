@@ -31,7 +31,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkWarpTransform : public vtkAbstractTransform
 public:
 
   vtkTypeMacro(vtkWarpTransform,vtkAbstractTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Invert the transformation.  Warp transformations are usually

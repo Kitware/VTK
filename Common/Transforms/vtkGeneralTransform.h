@@ -37,7 +37,7 @@ public:
   static vtkGeneralTransform *New();
 
   vtkTypeMacro(vtkGeneralTransform,vtkAbstractTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set this transformation to the identity transformation.  If

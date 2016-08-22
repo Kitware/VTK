@@ -39,7 +39,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMultiPieceDataSet : public vtkDataObjectTree
 public:
   static vtkMultiPieceDataSet* New();
   vtkTypeMacro(vtkMultiPieceDataSet, vtkDataObjectTree);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return class name of data type (see vtkType.h for

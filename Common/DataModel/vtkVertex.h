@@ -29,7 +29,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkVertex : public vtkCell
 public:
   static vtkVertex *New();
   vtkTypeMacro(vtkVertex,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Make a new vtkVertex object with the same information as this object.

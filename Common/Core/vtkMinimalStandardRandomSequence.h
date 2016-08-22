@@ -40,7 +40,7 @@ class VTKCOMMONCORE_EXPORT vtkMinimalStandardRandomSequence
 {
 public:
   vtkTypeMacro(vtkMinimalStandardRandomSequence,vtkRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkMinimalStandardRandomSequence* New();
 

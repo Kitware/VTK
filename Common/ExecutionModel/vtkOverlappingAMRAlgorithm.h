@@ -33,7 +33,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkOverlappingAMRAlgorithm :
   public:
     static vtkOverlappingAMRAlgorithm* New();
     vtkTypeMacro(vtkOverlappingAMRAlgorithm,vtkUniformGridAMRAlgorithm);
-    void PrintSelf(ostream& os, vtkIndent indent);
+    void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
     // Description:
     // Get the output data object for a port on this algorithm

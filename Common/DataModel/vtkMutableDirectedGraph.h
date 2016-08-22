@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMutableDirectedGraph : public vtkDirectedGrap
 public:
   static vtkMutableDirectedGraph *New();
   vtkTypeMacro(vtkMutableDirectedGraph, vtkDirectedGraph);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Allocates space for the specified number of vertices in the graph's

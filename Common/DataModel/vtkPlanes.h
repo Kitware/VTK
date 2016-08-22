@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPlanes : public vtkImplicitFunction
 public:
   static vtkPlanes *New();
   vtkTypeMacro(vtkPlanes,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Evaluate plane equations. Return smallest absolute value.

@@ -56,7 +56,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitFunction : public vtkObject
 {
 public:
   vtkTypeMacro(vtkImplicitFunction,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Overload standard modified time function. If Transform is modified,

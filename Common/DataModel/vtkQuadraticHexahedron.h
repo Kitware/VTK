@@ -44,7 +44,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticHexahedron : public vtkNonLinearCell
 public:
   static vtkQuadraticHexahedron *New();
   vtkTypeMacro(vtkQuadraticHexahedron,vtkNonLinearCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions

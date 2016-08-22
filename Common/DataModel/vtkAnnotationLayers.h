@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAnnotationLayers : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkAnnotationLayers, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkAnnotationLayers* New();
 
   // Description:

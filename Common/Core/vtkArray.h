@@ -62,7 +62,7 @@ class VTKCOMMONCORE_EXPORT vtkArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkArray, vtkObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   typedef vtkArrayExtents::CoordinateT CoordinateT;
   typedef vtkArrayExtents::DimensionT DimensionT;

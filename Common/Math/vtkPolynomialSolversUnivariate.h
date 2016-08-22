@@ -54,7 +54,7 @@ class VTKCOMMONMATH_EXPORT vtkPolynomialSolversUnivariate : public vtkObject
 public:
   static vtkPolynomialSolversUnivariate *New();
   vtkTypeMacro(vtkPolynomialSolversUnivariate,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static ostream& PrintPolynomial( ostream& os, double* P, int degP );
 
   // Description:

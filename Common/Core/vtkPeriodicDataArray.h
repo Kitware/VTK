@@ -38,7 +38,7 @@ public:
   vtkTemplateTypeMacro(vtkPeriodicDataArray<Scalar>, GenericBase)
   typedef typename Superclass::ValueType ValueType;
 
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Initialize the mapped array with the original input data array.

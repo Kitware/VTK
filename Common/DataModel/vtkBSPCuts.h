@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBSPCuts : public vtkDataObject
 public:
   static vtkBSPCuts *New();
   vtkTypeMacro(vtkBSPCuts, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   //   Initialize the cuts with arrays of information.  This type of

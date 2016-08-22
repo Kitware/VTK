@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkThreadedImageAlgorithm : public vtkImage
 {
 public:
   vtkTypeMacro(vtkThreadedImageAlgorithm,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // If the subclass does not define an Execute method, then the task

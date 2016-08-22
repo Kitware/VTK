@@ -50,7 +50,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkKochanekSpline : public vtkSpline
 {
 public:
   vtkTypeMacro(vtkKochanekSpline,vtkSpline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a KochanekSpline with the following defaults: DefaultBias = 0,

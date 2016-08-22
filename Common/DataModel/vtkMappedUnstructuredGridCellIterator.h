@@ -39,7 +39,7 @@ public:
   typedef Implementation ImplementationType;
   typedef vtkMappedUnstructuredGridCellIterator<ImplementationType> ThisType;
   static vtkMappedUnstructuredGridCellIterator<ImplementationType> *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetMappedUnstructuredGrid(
       vtkMappedUnstructuredGrid<ImplementationType, ThisType> *grid);

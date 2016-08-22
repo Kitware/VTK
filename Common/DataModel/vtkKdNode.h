@@ -40,7 +40,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkKdNode : public vtkObject
 {
 public:
   vtkTypeMacro(vtkKdNode, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkKdNode *New();
 

@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCellTypes : public vtkObject
 public:
   static vtkCellTypes *New();
   vtkTypeMacro(vtkCellTypes,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

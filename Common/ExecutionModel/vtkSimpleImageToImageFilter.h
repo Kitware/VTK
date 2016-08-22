@@ -44,7 +44,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSimpleImageToImageFilter : public vtkIma
 {
 public:
   vtkTypeMacro(vtkSimpleImageToImageFilter,vtkImageAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
 protected:
   vtkSimpleImageToImageFilter();

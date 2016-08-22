@@ -45,7 +45,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadratureSchemeDefinition : public vtkObject
 public:
   // vtk stuff
   vtkTypeMacro(vtkQuadratureSchemeDefinition,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkInformationQuadratureSchemeDefinitionVectorKey* DICTIONARY();
   static vtkInformationStringKey* QUADRATURE_OFFSET_ARRAY_NAME();
 

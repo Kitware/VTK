@@ -33,7 +33,7 @@ class VTKCOMMONCORE_EXPORT vtkTimePointUtility : public vtkObject
 public:
   static vtkTimePointUtility *New();
   vtkTypeMacro(vtkTimePointUtility,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return the time point for 12:00am on a specified day.

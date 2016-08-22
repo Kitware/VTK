@@ -29,7 +29,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSetCellIterator: public vtkCellIterator
 public:
   static vtkDataSetCellIterator *New();
   vtkTypeMacro(vtkDataSetCellIterator, vtkCellIterator)
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   bool IsDoneWithTraversal();
   vtkIdType GetCellId();

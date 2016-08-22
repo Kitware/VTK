@@ -38,7 +38,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkEnsembleSource : public vtkAlgorithm
 public:
   static vtkEnsembleSource *New();
   vtkTypeMacro(vtkEnsembleSource,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Descriptions:
   // Add an algorithm (source) that will produce the next ensemble member.

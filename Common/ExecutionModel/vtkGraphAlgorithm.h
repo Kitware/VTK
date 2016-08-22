@@ -50,7 +50,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkGraphAlgorithm : public vtkAlgorithm
 public:
   static vtkGraphAlgorithm *New();
   vtkTypeMacro(vtkGraphAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

@@ -36,7 +36,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCell3D : public vtkCell
 {
 public:
   vtkTypeMacro(vtkCell3D,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the pair of vertices that define an edge. The method returns the

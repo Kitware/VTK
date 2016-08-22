@@ -56,7 +56,7 @@ public:
   // Standard methods for instantiation, type manipulation and printing.
   static vtkStaticCellLinks *New();
   vtkTypeMacro(vtkStaticCellLinks,vtkAbstractCellLinks);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Build the link list array. Satisfy the superclass API.

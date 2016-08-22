@@ -31,7 +31,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkLinearTransform : public vtkHomogeneousTrans
 public:
 
   vtkTypeMacro(vtkLinearTransform,vtkHomogeneousTransform);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Apply the transformation to a normal.

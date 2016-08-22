@@ -47,7 +47,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkTableAlgorithm : public vtkAlgorithm
 public:
   static vtkTableAlgorithm *New();
   vtkTypeMacro(vtkTableAlgorithm,vtkAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // see vtkAlgorithm for details

@@ -73,7 +73,7 @@ class VTKCOMMONCORE_EXPORT vtkAbstractArray : public vtkObject
 {
 public:
   vtkTypeMacro(vtkAbstractArray,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.

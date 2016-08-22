@@ -49,7 +49,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkEdgeListIterator : public vtkObject
 public:
   static vtkEdgeListIterator *New();
   vtkTypeMacro(vtkEdgeListIterator, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkGetObjectMacro(Graph, vtkGraph);
   virtual void SetGraph(vtkGraph *graph);

@@ -54,7 +54,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkDataSet,vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Copy the geometric and topological structure of an object. Note that

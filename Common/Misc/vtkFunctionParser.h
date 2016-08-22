@@ -130,7 +130,7 @@ class VTKCOMMONMISC_EXPORT vtkFunctionParser : public vtkObject
 public:
   static vtkFunctionParser *New();
   vtkTypeMacro(vtkFunctionParser, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return parser's MTime

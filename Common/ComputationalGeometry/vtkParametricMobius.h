@@ -34,7 +34,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricMobius : public vtkPara
 {
 public:
   vtkTypeMacro(vtkParametricMobius,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a Mobius strip with the following parameters:

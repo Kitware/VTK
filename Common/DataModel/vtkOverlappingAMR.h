@@ -44,7 +44,7 @@ public:
   virtual int GetDataObjectType() {return VTK_OVERLAPPING_AMR;}
 
   vtkTypeMacro(vtkOverlappingAMR,vtkUniformGridAMR);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).

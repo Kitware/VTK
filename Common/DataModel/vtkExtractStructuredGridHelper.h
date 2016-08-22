@@ -51,7 +51,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkExtractStructuredGridHelper :
 public:
   static vtkExtractStructuredGridHelper *New();
   vtkTypeMacro(vtkExtractStructuredGridHelper,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Get & Set Macros
   vtkGetVector6Macro(OutputWholeExtent,int);

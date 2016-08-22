@@ -52,7 +52,7 @@ class VTKCOMMONMISC_EXPORT vtkHeap : public vtkObject
 public:
   static vtkHeap *New();
   vtkTypeMacro(vtkHeap,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Allocate the memory requested.

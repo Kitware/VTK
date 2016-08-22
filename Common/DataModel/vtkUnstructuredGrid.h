@@ -76,7 +76,7 @@ public:
   static vtkUnstructuredGrid *New();
 
   vtkTypeMacro(vtkUnstructuredGrid, vtkUnstructuredGridBase)
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.

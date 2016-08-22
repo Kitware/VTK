@@ -35,7 +35,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkAlgorithmOutput : public vtkObject
 public:
   static vtkAlgorithmOutput *New();
   vtkTypeMacro(vtkAlgorithmOutput,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   void SetIndex(int index);
   int GetIndex();

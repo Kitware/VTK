@@ -48,7 +48,7 @@ public:
   static vtkAMRInformation* New();
   vtkTypeMacro(vtkAMRInformation, vtkObject);
 
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   bool operator==(const vtkAMRInformation& other);
 

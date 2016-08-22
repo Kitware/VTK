@@ -33,7 +33,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkSMPProgressObserver : public vtkProgress
 public:
   static vtkSMPProgressObserver *New();
   vtkTypeMacro(vtkSMPProgressObserver,vtkProgressObserver);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Passes the progress event to a thread local ProgressObserver

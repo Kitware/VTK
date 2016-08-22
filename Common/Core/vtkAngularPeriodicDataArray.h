@@ -42,7 +42,7 @@ public:
                                vtkPeriodicDataArray<Scalar>)
   vtkAOSArrayNewInstanceMacro(vtkAngularPeriodicDataArray<Scalar>)
   static vtkAngularPeriodicDataArray *New();
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Initialize the mapped array with the original input data array.

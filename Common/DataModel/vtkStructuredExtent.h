@@ -31,7 +31,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkStructuredExtent : public vtkObject
 public:
   static vtkStructuredExtent* New();
   vtkTypeMacro(vtkStructuredExtent, vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Clamps \c ext to fit in \c wholeExt.

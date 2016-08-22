@@ -34,7 +34,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTriangle : public vtkCell
 public:
   static vtkTriangle *New();
   vtkTypeMacro(vtkTriangle,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Get the edge specified by edgeId (range 0 to 2) and return that edge's

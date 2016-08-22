@@ -78,7 +78,7 @@ public:
   static vtkPolyData *New();
 
   vtkTypeMacro(vtkPolyData,vtkPointSet);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.

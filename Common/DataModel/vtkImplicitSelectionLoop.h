@@ -57,7 +57,7 @@ public:
   // Description:
   // Standard VTK methods for printing and type information.
   vtkTypeMacro(vtkImplicitSelectionLoop,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Instantiate object with no initial loop.

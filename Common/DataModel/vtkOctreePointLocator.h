@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkOctreePointLocator : public vtkAbstractPointL
 {
 public:
   vtkTypeMacro(vtkOctreePointLocator, vtkAbstractPointLocator);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkOctreePointLocator *New();
 

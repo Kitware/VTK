@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkQuadraticTriangle : public vtkNonLinearCell
 public:
   static vtkQuadraticTriangle *New();
   vtkTypeMacro(vtkQuadraticTriangle,vtkNonLinearCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions

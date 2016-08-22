@@ -59,7 +59,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkCompositeDataPipeline :
 public:
   static vtkCompositeDataPipeline* New();
   vtkTypeMacro(vtkCompositeDataPipeline,vtkStreamingDemandDrivenPipeline);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Returns the data object stored with the DATA_OBJECT() in the

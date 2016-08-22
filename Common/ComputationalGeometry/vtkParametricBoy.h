@@ -37,7 +37,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricBoy : public vtkParamet
 public:
 
   vtkTypeMacro(vtkParametricBoy,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct Boy's surface with the following parameters:

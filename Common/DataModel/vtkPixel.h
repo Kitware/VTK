@@ -33,7 +33,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkPixel : public vtkCell
 public:
   static vtkPixel *New();
   vtkTypeMacro(vtkPixel,vtkCell);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell API for descriptions of these methods.

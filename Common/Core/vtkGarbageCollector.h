@@ -94,7 +94,7 @@ class VTKCOMMONCORE_EXPORT vtkGarbageCollector : public vtkObject
 {
 public:
   vtkTypeMacro(vtkGarbageCollector,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
   static vtkGarbageCollector* New();
 
   // Description:

@@ -41,7 +41,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkImplicitBoolean : public vtkImplicitFunction
 {
 public:
   vtkTypeMacro(vtkImplicitBoolean,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum OperationType
   {

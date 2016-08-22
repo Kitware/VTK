@@ -39,7 +39,7 @@ public:
   static vtkCone *New();
 
   vtkTypeMacro(vtkCone,vtkImplicitFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description
   // Evaluate cone equation.

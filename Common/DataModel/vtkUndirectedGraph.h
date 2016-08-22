@@ -47,7 +47,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUndirectedGraph : public vtkGraph
 public:
   static vtkUndirectedGraph *New();
   vtkTypeMacro(vtkUndirectedGraph, vtkGraph);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.

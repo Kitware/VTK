@@ -43,7 +43,7 @@ class VTKCOMMONCOMPUTATIONALGEOMETRY_EXPORT vtkParametricFigure8Klein : public v
 {
 public:
   vtkTypeMacro(vtkParametricFigure8Klein,vtkParametricFunction);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Construct a figure-8 Klein Bottle with the following parameters:

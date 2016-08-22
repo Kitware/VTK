@@ -43,7 +43,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkCompositeDataSet : public vtkDataObject
 {
 public:
   vtkTypeMacro(vtkCompositeDataSet, vtkDataObject);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).

@@ -30,7 +30,7 @@ class VTKCOMMONCORE_EXPORT vtkBoxMuellerRandomSequence: public vtkGaussianRandom
 {
 public:
   vtkTypeMacro(vtkBoxMuellerRandomSequence,vtkGaussianRandomSequence);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkBoxMuellerRandomSequence* New();
 

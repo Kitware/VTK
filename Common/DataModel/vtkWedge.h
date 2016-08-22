@@ -42,7 +42,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkWedge : public vtkCell3D
 public:
   static vtkWedge *New();
   vtkTypeMacro(vtkWedge,vtkCell3D);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // See vtkCell3D API for description of these methods.

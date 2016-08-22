@@ -54,7 +54,7 @@ public:
   // information about this class.
   static vtkSortFieldData *New();
   vtkTypeMacro(vtkSortFieldData, vtkSortDataArray);
-  virtual void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Given field data (and derived classes such as point data and cell data),
