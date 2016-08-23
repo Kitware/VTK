@@ -37,99 +37,102 @@ public:
   // Description:
   // Allocate memory for this array. Delete old storage only if necessary.
   // Note that ext is no longer used.
-  int Allocate(vtkIdType sz, vtkIdType ext=1000);
+  int Allocate(vtkIdType sz, vtkIdType ext=1000) VTK_OVERRIDE;
 
   // Description:
   // Release storage and reset array to initial state.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // satisfy vtkDataArray API
-  int GetDataType() {return VTK_BIT;};
-  int GetDataTypeSize() { return 0; }
+  int GetDataType() VTK_OVERRIDE {return VTK_BIT;}
+  int GetDataTypeSize() VTK_OVERRIDE { return 0; }
 
   // Description:
   // Set the number of n-tuples in the array.
-  void SetNumberOfTuples(vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
 
   // Description:
   // Set the tuple at the ith location using the jth tuple in the source array.
   // This method assumes that the two arrays have the same type
   // and structure. Note that range checking and memory allocation is not
   // performed; use in conjunction with SetNumberOfTuples() to allocate space.
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+  virtual void SetTuple(vtkIdType i, vtkIdType j,
+                        vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at ith location in this array.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
+  virtual void InsertTuple(vtkIdType i, vtkIdType j,
+                           vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Copy the tuples indexed in srcIds from the source array to the tuple
   // locations indexed by dstIds in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source);
+                            vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Copy n consecutive tuples starting at srcStart from the source array to
   // this array, starting at the dstStart location.
   // Note that memory allocation is performed as necessary to hold the data.
   virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
+                            vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Insert the jth tuple in the source array, at the end in this array.
   // Note that memory allocation is performed as necessary to hold the data.
   // Returns the location at which the data was inserted.
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
+  virtual vtkIdType InsertNextTuple(vtkIdType j,
+                                    vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Get a pointer to a tuple at the ith location. This is a dangerous method
   // (it is not thread safe since a pointer is returned).
-  double *GetTuple(vtkIdType i);
+  double *GetTuple(vtkIdType i) VTK_OVERRIDE;
 
   // Description:
   // Copy the tuple value into a user-provided array.
-  void GetTuple(vtkIdType i, double * tuple);
+  void GetTuple(vtkIdType i, double * tuple) VTK_OVERRIDE;
 
   // Description:
   // Set the tuple value at the ith location in the array.
-  void SetTuple(vtkIdType i, const float * tuple);
-  void SetTuple(vtkIdType i, const double * tuple);
+  void SetTuple(vtkIdType i, const float * tuple) VTK_OVERRIDE;
+  void SetTuple(vtkIdType i, const double * tuple) VTK_OVERRIDE;
 
   // Description:
   // Insert (memory allocation performed) the tuple into the ith location
   // in the array.
-  void InsertTuple(vtkIdType i, const float * tuple);
-  void InsertTuple(vtkIdType i, const double * tuple);
+  void InsertTuple(vtkIdType i, const float * tuple) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType i, const double * tuple) VTK_OVERRIDE;
 
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
-  vtkIdType InsertNextTuple(const float * tuple);
-  vtkIdType InsertNextTuple(const double * tuple);
+  vtkIdType InsertNextTuple(const float * tuple) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(const double * tuple) VTK_OVERRIDE;
 
   // Description:
   // These methods remove tuples from the data array. They shift data and
   // resize array, so the data array is still valid after this operation. Note,
   // this operation is fairly slow.
-  virtual void RemoveTuple(vtkIdType id);
-  virtual void RemoveFirstTuple();
-  virtual void RemoveLastTuple();
+  virtual void RemoveTuple(vtkIdType id) VTK_OVERRIDE;
+  virtual void RemoveFirstTuple() VTK_OVERRIDE;
+  virtual void RemoveLastTuple() VTK_OVERRIDE;
 
   // Description:
   // Set the data component at the ith tuple and jth component location.
   // Note that i is less then NumberOfTuples and j is less then
   // NumberOfComponents. Make sure enough memory has been allocated (use
   // SetNumberOfTuples() and  SetNumberOfComponents()).
-  void SetComponent(vtkIdType i, int j, double c);
+  void SetComponent(vtkIdType i, int j, double c) VTK_OVERRIDE;
 
   // Description:
   // Free any unneeded memory.
-  void Squeeze();
+  void Squeeze() VTK_OVERRIDE;
 
   // Description:
   // Resize the array while conserving the data.
-  virtual int Resize(vtkIdType numTuples);
+  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
 
   // Description:
   // Get the data at a particular index.
@@ -141,7 +144,7 @@ public:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  void SetNumberOfValues(vtkIdType number);
+  void SetNumberOfValues(vtkIdType number) VTK_OVERRIDE;
 
   // Description:
   // Set the data at a particular index. Does not do range checking. Make sure
@@ -154,39 +157,44 @@ public:
 
   // Description:
   // Set a value in the array from a variant.
-  void SetVariantValue(vtkIdType idx, vtkVariant value);
+  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Inserts values from a variant and checks to ensure there is enough memory
-  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   vtkIdType InsertNextValue(int i);
 
   // Description:
   // Insert the data component at ith tuple and jth component location.
   // Note that memory allocation is performed as necessary to hold the data.
-  virtual void InsertComponent(vtkIdType i, int j, double c);
+  void InsertComponent(vtkIdType i, int j, double c) VTK_OVERRIDE;
 
   // Description:
   // Direct manipulation of the underlying data.
-  unsigned char *GetPointer(vtkIdType id) {return this->Array + id/8;}
+  unsigned char *GetPointer(vtkIdType id)
+    { return this->Array + id/8; }
 
   // Description:
   // Get the address of a particular data index. Make sure data is allocated
   // for the number of items requested. Set MaxId according to the number of
   // data values requested.
   unsigned char *WritePointer(vtkIdType id, vtkIdType number);
-  void* WriteVoidPointer(vtkIdType id, vtkIdType number)
-    { return this->WritePointer(id, number); }
-  void *GetVoidPointer(vtkIdType id)
+
+  void* WriteVoidPointer(vtkIdType id, vtkIdType number) VTK_OVERRIDE
+    {
+    return this->WritePointer(id, number);
+    }
+
+  void *GetVoidPointer(vtkIdType id) VTK_OVERRIDE
     {
       return static_cast<void *>(this->GetPointer(id));
     }
 
   // Description:
   // Deep copy of another bit array.
-  void DeepCopy(vtkDataArray *da);
-  void DeepCopy(vtkAbstractArray* aa)
+  void DeepCopy(vtkDataArray *da) VTK_OVERRIDE;
+  void DeepCopy(vtkAbstractArray* aa) VTK_OVERRIDE
     { this->Superclass::DeepCopy(aa); }
 
   // Description:
@@ -200,24 +208,24 @@ public:
 #ifndef __VTK_WRAP__
   void SetArray(unsigned char* array, vtkIdType size, int save);
 #endif
-  void SetVoidArray(void *array, vtkIdType size, int save)
+  void SetVoidArray(void *array, vtkIdType size, int save) VTK_OVERRIDE
     {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
     }
   void SetVoidArray(void *array, vtkIdType size, int save,
-                    int vtkNotUsed(deleteMethod))
+                    int vtkNotUsed(deleteMethod)) VTK_OVERRIDE
     {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
     }
 
   // Description:
   // Returns a new vtkBitArrayIterator instance.
-  VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() VTK_OVERRIDE;
 
   // Description:
   // Return the indices where a specific value appears.
-  virtual vtkIdType LookupValue(vtkVariant value);
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
+  void LookupValue(vtkVariant value, vtkIdList* ids) VTK_OVERRIDE;
   vtkIdType LookupValue(int value);
   void LookupValue(int value, vtkIdList* ids);
 
@@ -228,13 +236,13 @@ public:
   // data and modify the array contents).  You need to call this so that
   // the fast lookup will know to rebuild itself.  Otherwise, the lookup
   // functions will give incorrect results.
-  virtual void DataChanged();
+  void DataChanged() VTK_OVERRIDE;
 
   // Description:
   // Delete the associated fast lookup data structure on this array,
   // if it exists.  The lookup will be rebuilt on the next call to a lookup
   // function.
-  virtual void ClearLookup();
+  void ClearLookup() VTK_OVERRIDE;
 
 protected:
   vtkBitArray();

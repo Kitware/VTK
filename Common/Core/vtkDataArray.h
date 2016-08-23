@@ -60,32 +60,32 @@ public:
   // must return true if and only if an array contains numeric data.
   // All vtkDataArray subclasses contain numeric data, hence this method
   // always returns 1(true).
-  virtual int IsNumeric()
+  int IsNumeric() VTK_OVERRIDE
     { return 1; }
 
   // Description:
   // Return the size, in bytes, of the lowest-level element of an
   // array.  For vtkDataArray and subclasses this is the size of the
   // data type.
-  virtual int GetElementComponentSize()
+  int GetElementComponentSize() VTK_OVERRIDE
     { return this->GetDataTypeSize(); }
 
   // Reimplemented virtuals (doc strings are inherited from superclass):
-  virtual void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                           vtkAbstractArray* source);
-  virtual vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
-                                    vtkAbstractArray* source);
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source);
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
-  virtual void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output);
-  virtual void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
-  virtual void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
-                                vtkAbstractArray* source,  double* weights);
-  virtual void InterpolateTuple(vtkIdType dstTupleIdx,
+  void InsertTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                   vtkAbstractArray* source) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(vtkIdType srcTupleIdx,
+                                    vtkAbstractArray* source) VTK_OVERRIDE;
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                            vtkAbstractArray *source) VTK_OVERRIDE;
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                            vtkAbstractArray* source) VTK_OVERRIDE;
+  void GetTuples(vtkIdList *tupleIds, vtkAbstractArray *output) VTK_OVERRIDE;
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) VTK_OVERRIDE;
+  void InterpolateTuple(vtkIdType dstTupleIdx, vtkIdList *ptIndices,
+                                vtkAbstractArray* source,  double* weights) VTK_OVERRIDE;
+  void InterpolateTuple(vtkIdType dstTupleIdx,
     vtkIdType srcTupleIdx1, vtkAbstractArray* source1,
-    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t);
+    vtkIdType srcTupleIdx2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
 
   // Description:
   // Get the data tuple at tupleIdx. Return it as a pointer to an array.
@@ -110,8 +110,8 @@ public:
   double* GetTuple6(vtkIdType tupleIdx);
   double* GetTuple9(vtkIdType tupleIdx);
 
-  virtual void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
-                        vtkAbstractArray* source);
+  void SetTuple(vtkIdType dstTupleIdx, vtkIdType srcTupleIdx,
+                        vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Set the data tuple at tupleIdx. Note that range checking or
@@ -217,7 +217,7 @@ public:
   // Description:
   // Deep copy of data. Copies data from different data arrays even if
   // they are different types (using doubleing-point exchange).
-  virtual void DeepCopy(vtkAbstractArray *aa);
+  void DeepCopy(vtkAbstractArray *aa) VTK_OVERRIDE;
   virtual void DeepCopy(vtkDataArray *da);
 
   // Description:
@@ -260,7 +260,7 @@ public:
   // actually represent the data represented by this object. The
   // information returned is valid only after the pipeline has
   // been updated.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Create default lookup table. Generally used to create one when none
@@ -372,11 +372,11 @@ public:
   // this regard because certain keys should not be coppied, while
   // others must be. NOTE: Up to the implmeneter to make sure that
   // keys not inteneded to be coppied are excluded here.
-  virtual int CopyInformation(vtkInformation *infoFrom, int deep=1);
+  int CopyInformation(vtkInformation *infoFrom, int deep=1) VTK_OVERRIDE;
 
   // Description:
   // Method for type-checking in FastDownCast implementations.
-  virtual int GetArrayType() { return DataArray; }
+  int GetArrayType() VTK_OVERRIDE { return DataArray; }
 
 protected:
 

@@ -48,7 +48,7 @@ public:
 
   // Description:
   // Get the data type.
-  int GetDataType()
+  int GetDataType() VTK_OVERRIDE
     {
       // This needs to overwritten from superclass because
       // the templated superclass is not able to differentiate

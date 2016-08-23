@@ -128,12 +128,12 @@ public:
   // Description:
   // Use of this method is discouraged, it creates a deep copy of the data into
   // a contiguous AoS-ordered buffer and prints a warning.
-  virtual void *GetVoidPointer(vtkIdType valueIdx);
+  void *GetVoidPointer(vtkIdType valueIdx) VTK_OVERRIDE;
 
   // Description:
   // Export a copy of the data in AoS ordering to the preallocated memory
   // buffer.
-  void ExportToVoidPointer(void *ptr);
+  void ExportToVoidPointer(void *ptr) VTK_OVERRIDE;
 
   // Description:
   // Perform a fast, safe cast from a vtkAbstractArray to a vtkDataArray.
@@ -159,18 +159,18 @@ public:
     return NULL;
   }
 
-  virtual int GetArrayType() { return vtkAbstractArray::SoADataArrayTemplate; }
-  virtual VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
-  virtual void SetNumberOfComponents(int numComps);
-  virtual void ShallowCopy(vtkDataArray *other);
+  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::SoADataArrayTemplate; }
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
+  void SetNumberOfComponents(int numComps) VTK_OVERRIDE;
+  void ShallowCopy(vtkDataArray *other) VTK_OVERRIDE;
 
   // Reimplemented for efficiency:
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkAbstractArray* source) VTK_OVERRIDE;
   // MSVC doesn't like 'using' here (error C2487). Just forward instead:
-  //  using Superclass::InsertTuples;
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source)
+  // using Superclass::InsertTuples;
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                    vtkAbstractArray *source) VTK_OVERRIDE
   { this->Superclass::InsertTuples(dstIds, srcIds, source); }
 
 protected:

@@ -46,7 +46,7 @@ public:
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
+  void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Set/Get the rotation angle in degrees. Default is 0.
@@ -72,7 +72,7 @@ protected:
 
   // Description:
   // Transform the provided tuple
-  virtual void Transform(Scalar* tuple) const;
+  void Transform(Scalar* tuple) const VTK_OVERRIDE;
 
   // Description:
   // Update rotation matrix from Axis, Angle and Center

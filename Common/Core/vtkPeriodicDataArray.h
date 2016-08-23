@@ -42,66 +42,66 @@ public:
 
   // Description:
   // Initialize the mapped array with the original input data array.
-  virtual void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
+  void InitializeArray(vtkAOSDataArrayTemplate<Scalar>* inputData);
 
   // Description:
   // Initialize array with zero values
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Copy tuples values, selected by ptIds into provided array
-  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output);
+  void GetTuples(vtkIdList *ptIds, vtkAbstractArray *output) VTK_OVERRIDE;
 
   // Description:
   // Copy tuples from id p1 to id p2 included into provided array
-  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output);
+  void GetTuples(vtkIdType p1, vtkIdType p2, vtkAbstractArray *output) VTK_OVERRIDE;
 
   // Description:
   // No effect
-  void Squeeze();
+  void Squeeze() VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  VTK_NEWINSTANCE vtkArrayIterator *NewIterator();
+  VTK_NEWINSTANCE vtkArrayIterator *NewIterator() VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  vtkIdType LookupValue(vtkVariant value);
+  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  void LookupValue(vtkVariant value, vtkIdList *ids);
+  void LookupValue(vtkVariant value, vtkIdList *ids) VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  vtkVariant GetVariantValue(vtkIdType idx);
+  vtkVariant GetVariantValue(vtkIdType idx) VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  void ClearLookup();
+  void ClearLookup() VTK_OVERRIDE;
 
   // Description:
   // Return tuple at location i.
   // Pointer valid until next call to this object
-  double* GetTuple(vtkIdType i);
+  double* GetTuple(vtkIdType i) VTK_OVERRIDE;
 
   // Description:
   // Copy tuple at location i into user provided array
-  void GetTuple(vtkIdType i, double *tuple);
+  void GetTuple(vtkIdType i, double *tuple) VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  vtkIdType LookupTypedValue(Scalar value);
+  vtkIdType LookupTypedValue(Scalar value) VTK_OVERRIDE;
 
   // Description:
   // Not implemented
-  void LookupTypedValue(Scalar value, vtkIdList *ids);
+  void LookupTypedValue(Scalar value, vtkIdList *ids) VTK_OVERRIDE;
 
   // Description:
   // Get value at index idx.
   // Warning, it internally call GetTypedTuple,
   // so it is an inneficcient way if reading all data
-  ValueType GetValue(vtkIdType idx) const;
+  ValueType GetValue(vtkIdType idx) const ;
 
   // Description:
   // Get value at index idx as reference.
@@ -121,103 +121,103 @@ public:
 
   // Description:
   // Return the memory in kilobytes consumed by this data array.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  int Allocate(vtkIdType sz, vtkIdType ext);
+  int Allocate(vtkIdType sz, vtkIdType ext) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  int Resize(vtkIdType numTuples);
+  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void SetNumberOfTuples(vtkIdType number);
+  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source);
+  void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void SetTuple(vtkIdType i, const float *source);
+  void SetTuple(vtkIdType i, const float *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void SetTuple(vtkIdType i, const double *source);
+  void SetTuple(vtkIdType i, const double *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source);
+  void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void InsertTuple(vtkIdType i, const float *source);
+  void InsertTuple(vtkIdType i, const float *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void InsertTuple(vtkIdType i, const double *source);
+  void InsertTuple(vtkIdType i, const double *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
   void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                    vtkAbstractArray *source);
+                    vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
   void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                    vtkAbstractArray* source);
+                    vtkAbstractArray* source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, error.
-  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source);
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  vtkIdType InsertNextTuple(const float *source);
+  vtkIdType InsertNextTuple(const float *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  vtkIdType InsertNextTuple(const double *source);
+  vtkIdType InsertNextTuple(const double *source) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void DeepCopy(vtkAbstractArray *aa);
+  void DeepCopy(vtkAbstractArray *aa) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void DeepCopy(vtkDataArray *da);
+  void DeepCopy(vtkDataArray *da) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
   void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-                        vtkAbstractArray* source, double* weights);
+                        vtkAbstractArray* source, double* weights) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
   void InterpolateTuple(vtkIdType i, vtkIdType id1, vtkAbstractArray *source1,
-                        vtkIdType id2, vtkAbstractArray *source2, double t);
+                        vtkIdType id2, vtkAbstractArray *source2, double t) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void SetVariantValue(vtkIdType idx, vtkVariant value);
+  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void InsertVariantValue(vtkIdType idx, vtkVariant value);
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void RemoveTuple(vtkIdType id);
+  void RemoveTuple(vtkIdType id) VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void RemoveFirstTuple();
+  void RemoveFirstTuple() VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
-  void RemoveLastTuple();
+  void RemoveLastTuple() VTK_OVERRIDE;
 
   // Description:
   // Read only container, not supported.
@@ -267,11 +267,11 @@ protected:
 
   // Description:
   // Get the transformed range by components
-  virtual bool ComputeScalarRange(double* range);
+  bool ComputeScalarRange(double* range) VTK_OVERRIDE;
 
   // Description:
   // Get the transformed range on all components
-  virtual bool ComputeVectorRange(double range[2]);
+  bool ComputeVectorRange(double range[2]) VTK_OVERRIDE;
 
   // Description:
   // Update the transformed periodic range

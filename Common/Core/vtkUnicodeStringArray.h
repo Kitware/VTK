@@ -41,41 +41,44 @@ public:
   vtkTypeMacro(vtkUnicodeStringArray,vtkAbstractArray);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  virtual int Allocate(vtkIdType sz, vtkIdType ext=1000);
-  virtual void Initialize();
-  virtual int GetDataType();
-  virtual int GetDataTypeSize();
-  virtual int GetElementComponentSize();
-  virtual void SetNumberOfTuples(vtkIdType number);
-  virtual void SetTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
-  virtual void InsertTuple(vtkIdType i, vtkIdType j, vtkAbstractArray* source);
-  virtual void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
-                            vtkAbstractArray *source);
-  virtual void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
-                            vtkAbstractArray* source);
-  virtual vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source);
-  virtual void* GetVoidPointer(vtkIdType id);
-  virtual void DeepCopy(vtkAbstractArray* da);
-  virtual void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
-    vtkAbstractArray* source,  double* weights);
-  virtual void InterpolateTuple(vtkIdType i,
+  int Allocate(vtkIdType sz, vtkIdType ext=1000) VTK_OVERRIDE;
+  void Initialize() VTK_OVERRIDE;
+  int GetDataType() VTK_OVERRIDE;
+  int GetDataTypeSize() VTK_OVERRIDE;
+  int GetElementComponentSize() VTK_OVERRIDE;
+  void SetNumberOfTuples(vtkIdType number) VTK_OVERRIDE;
+  void SetTuple(vtkIdType i, vtkIdType j,
+                vtkAbstractArray* source) VTK_OVERRIDE;
+  void InsertTuple(vtkIdType i, vtkIdType j,
+                   vtkAbstractArray* source) VTK_OVERRIDE;
+  void InsertTuples(vtkIdList *dstIds, vtkIdList *srcIds,
+                    vtkAbstractArray *source) VTK_OVERRIDE;
+  void InsertTuples(vtkIdType dstStart, vtkIdType n, vtkIdType srcStart,
+                    vtkAbstractArray* source) VTK_OVERRIDE;
+  vtkIdType InsertNextTuple(vtkIdType j, vtkAbstractArray* source) VTK_OVERRIDE;
+  void* GetVoidPointer(vtkIdType id) VTK_OVERRIDE;
+  void DeepCopy(vtkAbstractArray* da) VTK_OVERRIDE;
+  void InterpolateTuple(vtkIdType i, vtkIdList *ptIndices,
+    vtkAbstractArray* source,  double* weights) VTK_OVERRIDE;
+  void InterpolateTuple(vtkIdType i,
     vtkIdType id1, vtkAbstractArray* source1,
-    vtkIdType id2, vtkAbstractArray* source2, double t);
-  virtual void Squeeze();
-  virtual int Resize(vtkIdType numTuples);
-  virtual void SetVoidArray(void *array, vtkIdType size, int save);
-  virtual void SetVoidArray(void *array, vtkIdType size, int save, int deleteMethod);
-  virtual unsigned long GetActualMemorySize(); // in bytes
-  virtual int IsNumeric();
-  virtual VTK_NEWINSTANCE vtkArrayIterator* NewIterator();
-  virtual vtkVariant GetVariantValue(vtkIdType idx);
-  virtual vtkIdType LookupValue(vtkVariant value);
-  virtual void LookupValue(vtkVariant value, vtkIdList* ids);
+    vtkIdType id2, vtkAbstractArray* source2, double t) VTK_OVERRIDE;
+  void Squeeze() VTK_OVERRIDE;
+  int Resize(vtkIdType numTuples) VTK_OVERRIDE;
+  void SetVoidArray(void *array, vtkIdType size, int save) VTK_OVERRIDE;
+  void SetVoidArray(void *array, vtkIdType size, int save,
+                    int deleteMethod) VTK_OVERRIDE;
+  unsigned long GetActualMemorySize() VTK_OVERRIDE; // in bytes
+  int IsNumeric() VTK_OVERRIDE;
+  VTK_NEWINSTANCE vtkArrayIterator* NewIterator() VTK_OVERRIDE;
+  vtkVariant GetVariantValue(vtkIdType idx) VTK_OVERRIDE;
+  vtkIdType LookupValue(vtkVariant value) VTK_OVERRIDE;
+  void LookupValue(vtkVariant value, vtkIdList* ids) VTK_OVERRIDE;
 
-  virtual void SetVariantValue(vtkIdType idx, vtkVariant value);
-  virtual void InsertVariantValue(vtkIdType idx, vtkVariant value);
-  virtual void DataChanged();
-  virtual void ClearLookup();
+  void SetVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
+  void InsertVariantValue(vtkIdType idx, vtkVariant value) VTK_OVERRIDE;
+  void DataChanged() VTK_OVERRIDE;
+  void ClearLookup() VTK_OVERRIDE;
 
   vtkIdType InsertNextValue(const vtkUnicodeString&);
   void InsertValue(vtkIdType idx, const vtkUnicodeString&); // Ranged checked
