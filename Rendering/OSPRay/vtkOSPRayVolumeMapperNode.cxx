@@ -15,6 +15,7 @@
 #include "vtkOSPRayVolumeMapperNode.h"
 
 #include "vtkAbstractVolumeMapper.h"
+#include "vtkCellData.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkDataArray.h"
 #include "vtkImageData.h"
@@ -91,13 +92,28 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkErrorMacro("VolumeMapper's Input has no data!");
       return;
       }
-    void* ScalarDataPointer =
-      mapper->GetDataSetInput()->GetPointData()->GetScalars()->GetVoidPointer(0);
-    int ScalarDataType =
-      mapper->GetDataSetInput()->GetPointData()->GetScalars()->GetDataType();
-
+    vtkDataArray *sa = mapper->GetDataSetInput()->GetPointData()->GetScalars();
+    bool onPoints = true;
+    if (!sa)
+      {
+      onPoints = false;
+      sa = mapper->GetDataSetInput()->GetCellData()->GetScalars();
+      }
+    if (!sa)
+      {
+      vtkErrorMacro("VolumeMapper's Input has no scalar array!");
+      return;
+      }
+    int ScalarDataType = sa->GetDataType();
+    void* ScalarDataPointer = sa->GetVoidPointer(0);
     int dim[3];
     data->GetDimensions(dim);
+    if (!onPoints)
+      {
+      dim[0] = dim[0]-1;
+      dim[1] = dim[1]-1;
+      dim[2] = dim[2]-1;
+      }
 
     size_t typeSize = 0;
     std::string voxelType;
@@ -135,7 +151,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
     double origin[3];
     double scale[3];
-    vol->GetOrigin(origin);
+    data->GetOrigin(origin);
     vol->GetScale(scale);
     double *bds = vol->GetBounds();
     origin[0] = bds[0];
@@ -149,7 +165,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
 
     ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
-    ospSet3f(this->OSPRayVolume, "gridSpacing", spacing[0]*scale[0],spacing[1]*scale[1],spacing[2]*scale[2]);
+    ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
     ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
 
     osp::vec3i ll, uu;
@@ -167,7 +183,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     // test for modifications to volume properties
     //
     if (vol->GetProperty()->GetMTime() > this->PropertyTime)
-    {
+      {
       vtkVolumeProperty* volProperty = vol->GetProperty();
       vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
@@ -198,17 +214,17 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       PropertyTime.Modified();
       ospRelease(colorData);
       ospRelease(tfAlphaData);
-    }
+      }
 
     // test for modifications to input
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
-    {
+      {
       ospSet2f(this->TransferFunction, "valueRange",
                data->GetScalarRange()[0], data->GetScalarRange()[1]);
 
       //! Commit the transfer function only after the initial colors and alphas have been set (workaround for Qt signalling issue).
       ospCommit(this->TransferFunction);
-    }
+      }
     ospSetObject((OSPObject)this->OSPRayVolume, "transferFunction", this->TransferFunction);
     this->BuildTime.Modified();
 

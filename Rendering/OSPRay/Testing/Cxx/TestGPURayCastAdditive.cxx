@@ -44,6 +44,16 @@ int TestGPURayCastAdditive(int argc,
 {
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
+  bool useOSP = true;
+  for (int i = 0; i < argc; i++)
+    {
+    if (!strcmp(argv[i], "-GL"))
+      {
+      cerr << "GL" << endl;
+      useOSP = false;
+      }
+    }
+
   // Create a spherical implicit function.
   vtkSphere *shape = vtkSphere::New();
   shape->SetRadius(0.1);
@@ -90,7 +100,10 @@ int TestGPURayCastAdditive(int argc,
   renWin->SetSize(301,300);
 
   vtkNew<vtkOSPRayPass> osprayPass;
-  ren1->SetPass(osprayPass.GetPointer());
+  if (useOSP)
+    {
+    ren1->SetPass(osprayPass.GetPointer());
+    }
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();

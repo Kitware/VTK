@@ -38,6 +38,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
   bool useOSP = true;
   int EXT=128;
+  int RES=900;
   for (int i = 0; i < argc; i++)
     {
     if (!strcmp(argv[i], "-GL"))
@@ -47,6 +48,10 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     if (!strcmp(argv[i], "-EXT"))
       {
       EXT = atoi(argv[i+1]);
+      }
+    if (!strcmp(argv[i], "-RES"))
+      {
+      RES = atoi(argv[i+1]);
       }
     }
 
@@ -84,7 +89,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   volume->SetProperty(volumeProperty.GetPointer());
 
   vtkNew<vtkRenderWindow> renderWindow;
-  renderWindow->SetSize(900, 900);
+  renderWindow->SetSize(RES, RES);
   renderWindow->Render(); // make sure we have an OpenGL context.
 
   vtkNew<vtkRenderer> renderer;

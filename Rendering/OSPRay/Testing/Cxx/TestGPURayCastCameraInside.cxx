@@ -971,7 +971,7 @@ int TestGPURayCastCameraInside(int argc, char *argv[])
 // Attach OSPRay render pass
   vtkSmartPointer<vtkOSPRayPass> osprayPass =
     vtkSmartPointer<vtkOSPRayPass>::New();
-  if (!useOSP)
+  if (useOSP)
     {
     ren->SetPass(osprayPass.GetPointer());
     }

@@ -25,6 +25,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGPURayCastVolumeLightKit.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
+  TestGPURayCastVolumeUpdate.cxx
   TestGPUVolumeRayCastMapper.cxx
   TestGPURayCastVolumePolyData.cxx
   )

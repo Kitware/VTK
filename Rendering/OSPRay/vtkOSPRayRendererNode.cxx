@@ -540,8 +540,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       double camDir[3];
       cam->GetViewUp(camUp);
       cam->GetFocalPoint(camDir);
-      osp::vec3f cameraUp = {camUp[0], camUp[1], camUp[2]};
-      osp::vec3f cameraDir = {camDir[0], camDir[1], camDir[2]};
+      osp::vec3f cameraUp = {static_cast<float>(camUp[0]),
+                             static_cast<float>(camUp[1]),
+                             static_cast<float>(camUp[2])};
+      osp::vec3f cameraDir = {static_cast<float>(camDir[0]),
+                              static_cast<float>(camDir[1]),
+                              static_cast<float>(camDir[2])};
       double cameraPos[3];
       cam->GetPosition(cameraPos);
       cameraDir.x -= cameraPos[0];
