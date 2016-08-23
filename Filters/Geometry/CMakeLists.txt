@@ -12,6 +12,7 @@ set(Module_SRCS
   vtkUnstructuredGridGeometryFilter.cxx
 
   vtkDataSetSurfaceFilter.cxx
+  vtkDataSetRegionSurfaceFilter.cxx
 
   vtkAbstractGridConnectivity.cxx
   vtkDataSetGhostGenerator.cxx
