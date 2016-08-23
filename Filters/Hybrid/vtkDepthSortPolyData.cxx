@@ -383,7 +383,8 @@ int vtkDepthSortPolyData::RequestData(
     output->SetVerts(outputVertCells);
     outputVertCells->Delete();
     vtkIdTypeArray *outputVerts = outputVertCells->GetData();
-    outputVerts->SetNumberOfTuples(input->GetVerts()->GetSize());
+    outputVerts->SetNumberOfTuples(
+          input->GetVerts()->GetNumberOfConnectivityEntries());
     pOutputVerts = outputVerts->GetPointer(0);
     }
 
@@ -395,7 +396,8 @@ int vtkDepthSortPolyData::RequestData(
     output->SetLines(outputLineCells);
     outputLineCells->Delete();
     vtkIdTypeArray *outputLines = outputLineCells->GetData();
-    outputLines->SetNumberOfTuples(input->GetLines()->GetSize());
+    outputLines->SetNumberOfTuples(
+          input->GetLines()->GetNumberOfConnectivityEntries());
     pOutputLines = outputLines->GetPointer(0);
     }
 
@@ -407,7 +409,8 @@ int vtkDepthSortPolyData::RequestData(
     output->SetPolys(outputPolyCells);
     outputPolyCells->Delete();
     vtkIdTypeArray *outputPolys = outputPolyCells->GetData();
-    outputPolys->SetNumberOfTuples(input->GetPolys()->GetSize());
+    outputPolys->SetNumberOfTuples(
+          input->GetPolys()->GetNumberOfConnectivityEntries());
     pOutputPolys = outputPolys->GetPointer(0);
     }
 
@@ -419,7 +422,8 @@ int vtkDepthSortPolyData::RequestData(
     output->SetStrips(outputStripCells);
     outputStripCells->Delete();
     vtkIdTypeArray *outputStrips = outputStripCells->GetData();
-    outputStrips->SetNumberOfTuples(input->GetStrips()->GetSize());
+    outputStrips->SetNumberOfTuples(
+          input->GetStrips()->GetNumberOfConnectivityEntries());
     pOutputStrips = outputStrips->GetPointer(0);
     }
 
