@@ -1148,12 +1148,27 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderNormal(
           "//VTK::Normal::Dec",
           "uniform mat3 normalMatrix;\n"
           "uniform samplerBuffer textureN;\n");
-        vtkShaderProgram::Substitute(FSSource,
-          "//VTK::Normal::Impl",
-          "vec3 normalVCVSOutput = normalize(normalMatrix *\n"
-          "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz);\n"
-          "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
-          );
+        if (this->CellNormalTexture->GetVTKDataType() == VTK_FLOAT)
+          {
+          vtkShaderProgram::Substitute(FSSource,
+            "//VTK::Normal::Impl",
+            "vec3 normalVCVSOutput = \n"
+            "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
+            "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
+            "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
+            );
+          }
+        else
+          {
+          vtkShaderProgram::Substitute(FSSource,
+            "//VTK::Normal::Impl",
+            "vec3 normalVCVSOutput = \n"
+            "    texelFetchBuffer(textureN, gl_PrimitiveID + PrimitiveIDOffset).xyz;\n"
+            "normalVCVSOutput = normalVCVSOutput * 255.0/127.0 - 1.0;\n"
+            "normalVCVSOutput = normalize(normalMatrix * normalVCVSOutput);\n"
+            "  if (gl_FrontFacing == false) { normalVCVSOutput = -normalVCVSOutput; }\n"
+            );
+          }
         }
       else
         {
@@ -2796,7 +2811,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
         newNorms.push_back(norms[0]);
         newNorms.push_back(norms[1]);
         newNorms.push_back(norms[2]);
-        newNorms.push_back(1.0);
+        newNorms.push_back(0);
         }
       }
     }
@@ -2844,12 +2859,37 @@ void vtkOpenGLPolyDataMapper::BuildCellTextures(
       }
     this->CellNormalTexture->SetContext(
       static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
-    this->CellNormalBuffer->Upload(newNorms,
-      vtkOpenGLBufferObject::TextureBuffer);
-    this->CellNormalTexture->CreateTextureBuffer(
-      static_cast<unsigned int>(newNorms.size()/4),
-      4, VTK_FLOAT,
-      this->CellNormalBuffer);
+
+    // do we have float texture support ?
+    int ftex =
+      static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow())->
+        GetDefaultTextureInternalFormat(VTK_FLOAT, 4, false, true);
+
+    if (ftex)
+      {
+      this->CellNormalBuffer->Upload(newNorms,
+        vtkOpenGLBufferObject::TextureBuffer);
+      this->CellNormalTexture->CreateTextureBuffer(
+        static_cast<unsigned int>(newNorms.size()/4),
+        4, VTK_FLOAT,
+        this->CellNormalBuffer);
+      }
+    else
+      {
+      // have to convert to unsigned char if no float support
+      std::vector<unsigned char> ucNewNorms;
+      ucNewNorms.resize(newNorms.size());
+      for (size_t i = 0; i < newNorms.size(); i++)
+        {
+        ucNewNorms[i] = 127.0*(newNorms[i] + 1.0);
+        }
+      this->CellNormalBuffer->Upload(ucNewNorms,
+        vtkOpenGLBufferObject::TextureBuffer);
+      this->CellNormalTexture->CreateTextureBuffer(
+        static_cast<unsigned int>(newNorms.size()/4),
+        4, VTK_UNSIGNED_CHAR,
+        this->CellNormalBuffer);
+      }
     }
 }
 

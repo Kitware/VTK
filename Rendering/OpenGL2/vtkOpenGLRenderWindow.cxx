@@ -549,6 +549,24 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 #endif
     }
 
+  // on mesa we may not have float textures even though we think we do
+  // this is due to Mesa being iompacted by a patent issue with SGI
+  if (haveFloatTextures)
+    {
+    const char *glVersion =
+      reinterpret_cast<const char *>(glGetString(GL_VERSION));
+    if (glVersion && strstr(glVersion,"Mesa") != NULL &&
+        !GLEW_ARB_texture_float)
+      {
+      haveFloatTextures = false;
+      // mesa without float support cannot even use
+      // uchar textures with underlying float data
+      // so pretty much anything with float data
+      // is out of luck so return
+      return;
+      }
+    }
+
   if (haveFloatTextures)
     {
 #ifdef GL_R32F
