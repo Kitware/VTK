@@ -318,6 +318,22 @@ protected:
   // do we have wide lines that require special handling
   virtual bool HaveWideLines(vtkRenderer *, vtkActor *);
 
+  // do we have textures that require special handling
+  virtual bool HaveTextures(vtkActor *actor);
+
+  // how many textures do we have
+  virtual unsigned int GetNumberOfTextures(vtkActor *actor);
+
+  // populate a vector with the textures we have
+  // the order is always
+  //  ColorInternalTexture
+  //  Actors texture
+  //  Properies textures
+  virtual std::vector<vtkTexture *> GetTextures(vtkActor *actor);
+
+  // do we have textures coordinates that require special handling
+  virtual bool HaveTCoords(vtkPolyData *poly);
+
   // values we use to determine if we need to rebuild shaders
   std::map<const vtkOpenGLHelper *, int> LastLightComplexity;
   std::map<const vtkOpenGLHelper *, vtkTimeStamp> LightComplexityChanged;
