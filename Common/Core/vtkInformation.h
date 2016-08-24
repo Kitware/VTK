@@ -85,7 +85,7 @@ public:
   // Description:
   // Modified signature with no arguments that calls Modified
   // on vtkObject superclass.
-  VTKCOMMONCORE_EXPORT void Modified();
+  VTKCOMMONCORE_EXPORT void Modified() VTK_OVERRIDE;
 
   // Description:
   // Modified signature that takes an information key as an argument.
