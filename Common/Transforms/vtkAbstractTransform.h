@@ -239,7 +239,7 @@ public:
   // Description:
   // Needs a special UnRegister() implementation to avoid
   // circular references.
-  virtual void UnRegister(vtkObjectBase *O);
+  void UnRegister(vtkObjectBase *O) VTK_OVERRIDE;
 
 protected:
   vtkAbstractTransform();

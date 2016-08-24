@@ -43,13 +43,15 @@ public:
   // Set this transformation to the identity transformation.  If
   // the transform has an Input, then the transformation will be
   // reset so that it is the same as the Input.
-  void Identity() { this->Concatenation->Identity(); this->Modified(); };
+  void Identity()
+    { this->Concatenation->Identity(); this->Modified(); };
 
   // Description:
   // Invert the transformation.  This will also set a flag so that
   // the transformation will use the inverse of its Input, if an Input
   // has been set.
-  void Inverse() { this->Concatenation->Inverse(); this->Modified(); };
+  void Inverse() VTK_OVERRIDE
+    { this->Concatenation->Inverse(); this->Modified(); }
 
   // Description:
   // Create a translation matrix and concatenate it with the current
@@ -185,17 +187,17 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-  void InternalTransformPoint(const double in[3], double out[3]);
+  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   // Description:
   // This will calculate the transformation as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]);
+                                   float derivative[3][3]) VTK_OVERRIDE;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]);
+                                   double derivative[3][3]) VTK_OVERRIDE;
 
   // Description:
   // Check for self-reference.  Will return true if concatenating
@@ -204,11 +206,11 @@ public:
   // CircuitCheck is automatically called by SetInput(), SetInverse(),
   // and Concatenate(vtkXTransform *).  Avoid using this function,
   // it is experimental.
-  int CircuitCheck(vtkAbstractTransform *transform);
+  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   // Description:
   // Make another transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
   // Description:
   // Override GetMTime to account for input and concatenation.
@@ -218,8 +220,8 @@ protected:
   vtkGeneralTransform();
   ~vtkGeneralTransform();
 
-  void InternalDeepCopy(vtkAbstractTransform *t);
-  void InternalUpdate();
+  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
+  void InternalUpdate() VTK_OVERRIDE;
 
   vtkAbstractTransform *Input;
   vtkTransformConcatenation *Concatenation;

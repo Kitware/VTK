@@ -40,7 +40,7 @@ public:
 
   // Description:
   // Make another transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkCylindricalTransform();
@@ -48,25 +48,25 @@ protected:
 
   // Description:
   // Copy this transform from another of the same type.
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   // Description:
   // Internal functions for calculating the transformation.
-  void ForwardTransformPoint(const float in[3], float out[3]);
-  void ForwardTransformPoint(const double in[3], double out[3]);
+  void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void ForwardTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]);
+                                  float derivative[3][3]) VTK_OVERRIDE;
   void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]);
+                                  double derivative[3][3]) VTK_OVERRIDE;
 
-  void InverseTransformPoint(const float in[3], float out[3]);
-  void InverseTransformPoint(const double in[3], double out[3]);
+  void InverseTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void InverseTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   void InverseTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]);
+                                  float derivative[3][3]) VTK_OVERRIDE;
   void InverseTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]);
+                                  double derivative[3][3]) VTK_OVERRIDE;
 
 private:
   vtkCylindricalTransform(const vtkCylindricalTransform&) VTK_DELETE_FUNCTION;
