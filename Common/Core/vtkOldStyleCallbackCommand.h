@@ -45,7 +45,9 @@ public:
 
   // Description:
   // Satisfy the superclass API for callbacks.
-  void Execute(vtkObject *invoker, unsigned long eid, void *calldata);
+  void Execute(vtkObject *invoker,
+               unsigned long eid,
+               void *calldata) VTK_OVERRIDE;
 
   // Description:
   // Methods to set and get client and callback information.
