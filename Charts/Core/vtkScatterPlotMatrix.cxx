@@ -43,15 +43,16 @@
 #include "vtkVectorOperators.h"
 
 // STL includes
-#include <map>
+#include <algorithm>
 #include <cassert>
+#include <map>
 #include <vector>
 
 class vtkScatterPlotMatrix::PIMPL
 {
 public:
   PIMPL() : VisibleColumnsModified(true), BigChart(NULL),
-    AnimationCallbackInitialized(false), TimerId(0),
+    ResizingBigChart(false), AnimationCallbackInitialized(false), TimerId(0),
     TimerCallbackInitialized(false)
   {
     pimplChartSetting* scatterplotSettings = new pimplChartSetting();
@@ -175,6 +176,8 @@ public:
   vtkNew<vtkTable> Histogram;
   bool VisibleColumnsModified;
   vtkWeakPointer<vtkChart> BigChart;
+  vtkVector2i BigChartPos;
+  bool ResizingBigChart;
   vtkNew<vtkAnnotationLink> Link;
 
   // Settings for the charts in the scatter plot matrix.
@@ -390,7 +393,9 @@ bool vtkScatterPlotMatrix::Paint(vtkContext2D *painter)
 {
   this->CurrentPainter = painter;
   this->Update();
-  return Superclass::Paint(painter);
+  bool ret = this->Superclass::Paint(painter);
+  this->ResizeBigChart();
+  return ret;
 }
 
 void vtkScatterPlotMatrix::SetScene(vtkContextScene *scene)
@@ -1375,19 +1380,18 @@ void vtkScatterPlotMatrix::UpdateLayout()
   // originate in the bottom-left. S = scatter plot, H = histogram and + is the
   // big chart.
   this->LayoutUpdatedTime = this->GetMTime();
-  this->ClearSpecificResizes();
   int n = this->Size.GetX();
   this->UpdateAxes();
   this->Private->BigChart3D->SetAnnotationLink(this->Private->Link.GetPointer());
   for (int i = 0; i < n; ++i)
-  {
+    {
     vtkStdString column = this->GetColumnName(i);
     for (int j = 0; j < n; ++j)
-    {
+      {
       vtkStdString row = this->GetRowName(j);
       vtkVector2i pos(i, j);
       if (this->GetPlotType(pos) == SCATTERPLOT)
-      {
+        {
         vtkChart* chart = this->GetChart(pos);
         this->ApplyAxisSetting(chart, column, row);
         chart->ClearPlots();
@@ -1407,9 +1411,9 @@ void vtkScatterPlotMatrix::UpdateLayout()
                                   ->MarkerSize);
         plotPoints->SetMarkerStyle(this->Private->ChartSettings[SCATTERPLOT]
                                    ->MarkerStyle);
-      }
+        }
       else if (this->GetPlotType(pos) == HISTOGRAM)
-      {
+        {
         // We are on the diagonal - need a histogram plot.
         vtkChart* chart = this->GetChart(pos);
         chart->SetInteractive(false);
@@ -1434,19 +1438,20 @@ void vtkScatterPlotMatrix::UpdateLayout()
         // Set the plot corner to the top-right
         vtkChartXY *xy = vtkChartXY::SafeDownCast(chart);
         if (xy)
-        {
+          {
           xy->SetBarWidthFraction(1.0);
           xy->SetPlotCorner(plot, 2);
-        }
+          }
 
         // set background color to light gray
         xy->SetBackgroundBrush(this->Private->ChartSettings[HISTOGRAM]
                                ->BackgroundBrush.GetPointer());
-      }
+        }
       else if (this->GetPlotType(pos) == ACTIVEPLOT)
-      {
+        {
         // This big plot in the top-right
         this->Private->BigChart = this->GetChart(pos);
+        this->Private->BigChartPos = pos;
         this->Private->BigChart->SetAnnotationLink(
               this->Private->Link.GetPointer());
         this->Private->BigChart->AddObserver(
@@ -1457,68 +1462,103 @@ void vtkScatterPlotMatrix::UpdateLayout()
         vtkChartXY *chartXY =
           vtkChartXY::SafeDownCast(this->Private->BigChart.GetPointer());
         if(chartXY)
-        {
+          {
           chartXY->SetTooltip(this->Private->TooltipItem);
-        }
+          }
 
         this->SetChartSpan(pos, vtkVector2i(n - i, n - j));
         this->SetActivePlot(vtkVector2i(0, n - 2));
-
-        // The big chart need to be resized only when it is
-        // "between" the histograms, ie. when n is even.
-        if (n%2 == 0)
-        {
-          vtkVector2f resize(30, 30);
-          if (this->CurrentPainter)
-          {
-            // Try to use painter to resize the big plot
-            vtkVector2i posLeft(i - 1, j);
-            vtkVector2i posBottom(i, j - 1);
-            vtkAxis* axis1 = this->GetChart(posLeft)->GetAxis(vtkAxis::RIGHT);
-            vtkAxis* axis2 = this->GetChart(posBottom)->GetAxis(vtkAxis::TOP);
-            int resizeX = std::max(axis1->GetBoundingRect(this->CurrentPainter).GetWidth()
-              - this->Gutter.GetX(), this->Gutter.GetX());
-            int resizeY = std::max(axis2->GetBoundingRect(this->CurrentPainter).GetWidth()
-              - this->Gutter.GetY(), this->Gutter.GetY());
-            resize.Set(resizeX, resizeY);
-          }
-
-          // Move big plot bottom left point to avoid overlap
-          this->SetSpecificResize(pos, resize);
         }
-      }
       // Only show bottom axis label for bottom plots
       if (j > 0)
-      {
+        {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
         axis->SetBehavior(vtkAxis::FIXED);
-      }
+        }
       else
-      {
+        {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::BOTTOM);
         axis->SetTitle(this->VisibleColumns->GetValue(i));
         axis->SetLabelsVisible(false);
         this->AttachAxisRangeListener(axis);
-      }
+        }
       // Only show the left axis labels for left-most plots
       if (i > 0)
-      {
+        {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle("");
         axis->SetLabelsVisible(false);
         axis->SetBehavior(vtkAxis::FIXED);
-      }
+        }
       else
-      {
+        {
         vtkAxis *axis = this->GetChart(pos)->GetAxis(vtkAxis::LEFT);
         axis->SetTitle(this->VisibleColumns->GetValue(n - j - 1));
         axis->SetLabelsVisible(false);
         this->AttachAxisRangeListener(axis);
+        }
       }
     }
-  }
+}
+
+void vtkScatterPlotMatrix::ResizeBigChart()
+{
+  if (!this->Private->ResizingBigChart)
+    {
+    this->ClearSpecificResizes();
+    int n = this->Size.GetX();
+    // The big chart need to be resized only when it is
+    // "between" the histograms, ie. when n is even.
+    if (n%2 == 0)
+      {
+      // 30*30 is an acceptable default size to resize with
+      int resizeX = 30;
+      int resizeY = 30;
+      if (this->CurrentPainter)
+        {
+        // Try to use painter to resize the big plot
+        int i = this->Private->BigChartPos.GetX();
+        int j = this->Private->BigChartPos.GetY();
+        vtkVector2i posLeft(i - 1, j);
+        vtkVector2i posBottom(i, j - 1);
+        vtkChart* leftChart = this->GetChart(posLeft);
+        vtkChart* bottomChart = this->GetChart(posLeft);
+        if (leftChart)
+          {
+          vtkAxis* leftAxis = leftChart->GetAxis(vtkAxis::RIGHT);
+          if (leftAxis)
+            {
+            resizeX = std::max(leftAxis->GetBoundingRect(
+              this->CurrentPainter).GetWidth() - this->Gutter.GetX(), this->Gutter.GetX());
+            }
+          }
+        if (bottomChart)
+          {
+          vtkAxis* bottomAxis = bottomChart->GetAxis(vtkAxis::TOP);
+          if (bottomAxis)
+            {
+            resizeY = std::max(bottomAxis->GetBoundingRect(
+              this->CurrentPainter).GetHeight() - this->Gutter.GetY(), this->Gutter.GetY());
+            }
+          }
+        }
+
+      // Move big plot bottom left point to avoid overlap
+      vtkVector2f resize(resizeX, resizeY);
+      this->SetSpecificResize(this->Private->BigChartPos, resize);
+      if (this->LayoutIsDirty)
+        {
+        this->Private->ResizingBigChart = true;
+        this->GetScene()->SetDirty(true);
+        }
+      }
+    }
+  else
+    {
+    this->Private->ResizingBigChart = false;
+    }
 }
 
 void vtkScatterPlotMatrix::AttachAxisRangeListener(vtkAxis* axis)
