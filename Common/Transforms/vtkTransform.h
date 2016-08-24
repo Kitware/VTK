@@ -308,7 +308,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Use this method only if you wish to compute the transformation in

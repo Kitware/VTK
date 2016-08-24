@@ -75,7 +75,7 @@ public:
 
   // Description:
   // Get MTime which also considers its vtkPoints MTime.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Compute the (X, Y, Z)  bounds of the data.

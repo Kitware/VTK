@@ -154,7 +154,7 @@ protected:
 
   // Description:
   // Get the MTime of this object also considering the locator.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   vtkIterativeClosestPointTransform();
   ~vtkIterativeClosestPointTransform();

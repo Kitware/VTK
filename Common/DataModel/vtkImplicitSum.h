@@ -50,7 +50,7 @@ public:
 
   // Description:
   // Override modified time retrieval because of object dependencies.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Add another implicit function to the list of functions, along with a

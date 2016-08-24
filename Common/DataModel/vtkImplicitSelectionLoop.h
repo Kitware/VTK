@@ -95,7 +95,7 @@ public:
 
   // Description:
   // Overload GetMTime() because we depend on the Loop
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkImplicitSelectionLoop();

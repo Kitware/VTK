@@ -212,7 +212,7 @@ public:
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkGeneralTransform();

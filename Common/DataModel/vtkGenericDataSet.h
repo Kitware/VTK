@@ -160,7 +160,7 @@ public:
   // Description:
   // Datasets are composite objects and need to check each part for their
   // modified time.
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Compute the geometry bounding box.

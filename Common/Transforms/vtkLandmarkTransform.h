@@ -78,7 +78,7 @@ public:
 
   // Description:
   // Get the MTime.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Make another transform of the same type.

@@ -51,7 +51,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
 
   // Description:
   // Get the MTime: this is the bit of magic that makes everything work.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Make a new transform of the same type.
