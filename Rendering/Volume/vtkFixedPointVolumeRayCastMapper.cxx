@@ -395,13 +395,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   unsigned short      *dirPtr, *cdirPtr;
   unsigned char       *magPtr, *cmagPtr;
 
-  int thread_id = 0;
-  int thread_count = 1;
-
-  if ( thread_id == 0 )
-    {
-    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
-    }
+  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsStartEvent, NULL );
 
   double avgSpacing = (spacing[0]+spacing[1]+spacing[2])/3.0;
 
@@ -449,10 +443,8 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
   x_limit = dim[0];
   y_start = 0;
   y_limit = dim[1];
-  z_start = (int)(( (float)thread_id / (float)thread_count ) *
-                  dim[2] );
-  z_limit = (int)(( (float)(thread_id + 1) / (float)thread_count ) *
-                  dim[2] );
+  z_start = 0;
+  z_limit = dim[2];
 
   // Do final error checking on limits - make sure they are all within bounds
   // of the scalar input
@@ -597,7 +589,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
         magPtr  +=   increment;
         }
       }
-    if ( (z/thread_count)%8 == 7 )
+    if ( z%8 == 7 )
       {
       double args[1];
       args[0] =
@@ -607,10 +599,7 @@ void vtkFixedPointVolumeRayCastMapperComputeGradients( T *dataPtr,
       }
     }
 
-  if ( thread_id == 0 )
-    {
-    me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
-    }
+  me->InvokeEvent( vtkCommand::VolumeMapperComputeGradientsEndEvent, NULL );
 }
 
 //----------------------------------------------------------------------------
