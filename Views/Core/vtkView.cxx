@@ -186,6 +186,14 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
 {
   if (rep != NULL && !this->IsRepresentationPresent(rep))
     {
+    // We add the representation to the internal data-structure before calling
+    // AddToView(). This ensures that if the `rep` itself calls
+    // AddRepresentation() for an internal representation, the internal
+    // representation gets added after the `rep` which makes more sense as it
+    // preserves the order for representations in which AddRepresentation() was
+    // called.
+    size_t index = this->Implementation->Representations.size();
+    this->Implementation->Representations.push_back(rep);
     if (rep->AddToView(this))
       {
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
@@ -196,7 +204,11 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
       rep->AddObserver(vtkCommand::UpdateEvent, this->GetObserver());
 
       this->AddRepresentationInternal(rep);
-      this->Implementation->Representations.push_back(rep);
+      }
+    else
+      {
+      this->Implementation->Representations.erase(
+        this->Implementation->Representations.begin() + index);
       }
     }
 }
