@@ -81,6 +81,7 @@ set (VolumeOpenGL2CxxTests
   TestProjectedTetrahedraTransform.cxx
   TestProjectedTetrahedraOffscreen.cxx
   TestRemoveVolumeNonCurrentContext.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
   )
 
 # everyone gets these tests

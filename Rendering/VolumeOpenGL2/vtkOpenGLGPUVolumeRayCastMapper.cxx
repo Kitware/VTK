@@ -560,13 +560,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::Initialize(
   if (this->Parent->MaskInput != 0 &&
       this->Parent->MaskType == LabelMapMaskType)
     {
-    if(this->Mask1RGBTable == 0)
+    if(this->Mask1RGBTable == NULL)
       {
-      this->Mask1RGBTable = new vtkOpenGLVolumeRGBTable();
+      this->Mask1RGBTable = vtkOpenGLVolumeRGBTable::New();
       }
-    if(this->Mask2RGBTable == 0)
+    if(this->Mask2RGBTable == NULL)
       {
-      this->Mask2RGBTable = new vtkOpenGLVolumeRGBTable();
+      this->Mask2RGBTable = vtkOpenGLVolumeRGBTable::New();
       }
     }
 
@@ -729,12 +729,12 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         }
       break;
     case VTK_UNSIGNED_CHAR:
-      oglScale = 1.0/VTK_UNSIGNED_CHAR_MAX;
+      oglScale = 1.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
       oglBias = 0.0;
       break;
     case VTK_SIGNED_CHAR:
-      oglScale = 2.0/(VTK_SIGNED_CHAR_MAX - VTK_SIGNED_CHAR_MIN);
-      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN*oglScale;
+      oglScale = 2.0 / (VTK_UNSIGNED_CHAR_MAX + 1);
+      oglBias = -1.0 - VTK_SIGNED_CHAR_MIN * oglScale;
       break;
     case VTK_CHAR:
       // not supported
@@ -787,15 +787,15 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadVolume(
         }
       break;
     case VTK_SHORT:
-      oglScale = 2.0/(VTK_SHORT_MAX - VTK_SHORT_MIN);
-      oglBias = -1.0 - VTK_SHORT_MIN*oglScale;
+      oglScale = 2.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
+      oglBias = -1.0 - VTK_SHORT_MIN * oglScale;
       break;
     case VTK_STRING:
       // not supported
       assert("check: impossible case" && 0);
       break;
     case VTK_UNSIGNED_SHORT:
-      oglScale = 1.0/VTK_UNSIGNED_SHORT_MAX;
+      oglScale = 1.0 / (VTK_UNSIGNED_SHORT_MAX + 1);
       oglBias = 0.0;
       break;
     default:
@@ -985,21 +985,27 @@ bool vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::LoadMask(vtkRenderer* ren,
 void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::DeleteTransferFunctions()
 {
   delete this->RGBTables;
-  this->RGBTables = 0;
+  this->RGBTables = NULL;
 
-  delete this->Mask1RGBTable;
-  this->Mask1RGBTable=0;
+  if (this->Mask1RGBTable)
+    {
+    this->Mask1RGBTable->Delete();
+    this->Mask1RGBTable = NULL;
+    }
 
-  delete this->Mask2RGBTable;
-  this->Mask2RGBTable=0;
+  if (this->Mask2RGBTable)
+    {
+    this->Mask2RGBTable->Delete();
+    this->Mask2RGBTable = NULL;
+    }
 
   delete this->OpacityTables;
-  this->OpacityTables = 0;
+  this->OpacityTables = NULL;
 
   delete this->GradientOpacityTables;
-  this->GradientOpacityTables = 0;
+  this->GradientOpacityTables = NULL;
 
-  if (this->MaskTextures != 0)
+  if (this->MaskTextures != NULL)
     {
     if (!this->MaskTextures->Map.empty())
       {
@@ -2637,15 +2643,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   if(this->Impl->Mask1RGBTable)
     {
     this->Impl->Mask1RGBTable->ReleaseGraphicsResources(window);
-    delete this->Impl->Mask1RGBTable;
-    this->Impl->Mask1RGBTable = 0;
+    this->Impl->Mask1RGBTable->Delete();
+    this->Impl->Mask1RGBTable = NULL;
     }
 
   if(this->Impl->Mask2RGBTable)
     {
     this->Impl->Mask2RGBTable->ReleaseGraphicsResources(window);
-    delete this->Impl->Mask2RGBTable;
-    this->Impl->Mask2RGBTable = 0;
+    this->Impl->Mask2RGBTable->Delete();
+    this->Impl->Mask2RGBTable = NULL;
     }
 
   if(this->Impl->OpacityTables)
