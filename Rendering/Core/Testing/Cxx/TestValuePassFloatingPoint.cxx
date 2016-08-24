@@ -188,7 +188,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     vtkSmartPointer<vtkValuePass>::New();
   valuePass->SetRenderingMode(RenderingMode);
   valuePass->SetInputComponentToProcess(comp);
-  //valuePass->SetScalarRange(bounds[0], bounds[1]); /*use the full range*/
+  //valuePass->SetScalarRange(bounds[0], bounds[1]); /*using the full range*/
   valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA,
     "elevationVector");
 
@@ -214,7 +214,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
 
   if (RenderingMode == vtkValuePass::FLOATING_POINT)
     {
-    /// Prepare a lut to map the floating point values
+    // Prepare a lut to map the floating point values
     vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
     lut->SetAlpha(1.0);
     //lut->SetRange(elevRange[0], elevRange[1]); /*use the full range*/
@@ -223,22 +223,22 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     //series->SetColorScheme(vtkColorSeries::BREWER_DIVERGING_SPECTRAL_11);
     series->BuildLookupTable(lut, vtkColorSeries::ORDINAL);
 
-    /// Render each component in a separate image
+    // Render each component in a separate image
     std::vector<vtkSmartPointer<vtkImageData> > colorImages;
     for(int c = 0; c < 3; c++)
       {
       valuePass->SetInputComponentToProcess(c);
       window->Render();
 
-      /// Get the result.
-      vtkFloatArray* result = valuePass->GetFloatImageData(renderer);
-      std::vector<int> ext = valuePass->GetFloatImageExtents(renderer);
+      /// Get the resulting values
+      vtkFloatArray* result = valuePass->GetFloatImageDataArray(renderer);
+      std::vector<int> ext = valuePass->GetFloatImageExtents();
 
-      /// Map the resulting float image to a color table
+      // Map the resulting float image to a color table
       vtkUnsignedCharArray* colored = lut->MapScalars(result, VTK_COLOR_MODE_DEFAULT,
         0/* single comp*/);
 
-      /// Create an image dataset to render in a quad.
+      // Create an image dataset to render in a quad.
       vtkSmartPointer<vtkImageData> colorIm = vtkSmartPointer<vtkImageData>::New();
       colorIm->SetExtent(&(ext.front()));
       colorIm->GetPointData()->SetScalars(colored);

@@ -38,7 +38,6 @@
 vtkStandardNewMacro(vtkValuePass);
 
 vtkInformationKeyMacro(vtkValuePass, RENDER_VALUES, Integer);
-
 vtkInformationKeyMacro(vtkValuePass, SCALAR_MODE, Integer);
 vtkInformationKeyMacro(vtkValuePass, ARRAY_MODE, Integer);
 vtkInformationKeyMacro(vtkValuePass, ARRAY_ID, Integer);
@@ -56,11 +55,17 @@ public:
   int Component;
   double ScalarRange[2];
   bool ScalarRangeSet;
-  vtkSmartPointer<vtkClearRGBPass> ClearPass;
+
+  // Array holder for FLOATING_POINT mode. The result pixels are downloaded
+  // into this array.
+  vtkSmartPointer<vtkFloatArray> Values;
 
   vtkInternals()
-  : ClearPass(vtkSmartPointer<vtkClearRGBPass>::New())
+  : Values(NULL)
     {
+    this->Values = vtkSmartPointer<vtkFloatArray>::New();
+    this->Values->SetNumberOfComponents(1); /* GL_RED */
+
     this->FieldAssociation = 0;
     this->FieldAttributeType = 0;
     this->FieldName = "";
@@ -74,15 +79,13 @@ public:
 
 // ----------------------------------------------------------------------------
 vtkValuePass::vtkValuePass()
-: RenderingMode(1)
+: ValueFrameBO(NULL)
 , ValueRenderBO(NULL)
-, ValueFrameBO(NULL)
+, DepthRenderBO(NULL)
 , ValuePassResourcesAllocated(false)
+, RenderingMode(INVERTIBLE_LUT)
 {
   this->Internals = new vtkInternals();
-
-  this->Size[0] = 0;
-  this->Size[1] = 0;
 }
 
 // ----------------------------------------------------------------------------
@@ -161,13 +164,8 @@ void vtkValuePass::Render(const vtkRenderState *s)
 
   this->BeginPass(s->GetRenderer());
 
-  this->Internals->ClearPass->Render(s);
-
-  this->NumberOfRenderedProps=0;
+  this->NumberOfRenderedProps = 0;
   this->RenderOpaqueGeometry(s);
-
-  // vtkFrameBufferObject2 is not supported
-  //s->SetFrameBuffer(this->ValueFrameBO);
 
   this->EndPass();
 }
@@ -249,8 +247,16 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
   {
   case vtkValuePass::FLOATING_POINT:
     // Allocate if necessary and bind frame buffer.
-    this->InitializeFloatingPointMode(ren);
-    this->ValueFrameBO->Bind(GL_DRAW_FRAMEBUFFER);
+    if (this->HasWindowSizeChanged(ren))
+      {
+      this->ReleaseFloatingPointMode(ren);
+      }
+
+    if (this->InitializeFloatingPointMode(ren))
+      {
+      this->ValueFrameBO->SaveCurrentBindings();
+      this->ValueFrameBO->Bind(GL_DRAW_FRAMEBUFFER);
+      }
     break;
 
   case vtkValuePass::INVERTIBLE_LUT:
@@ -259,6 +265,11 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
     this->ReleaseFloatingPointMode(ren);
     break;
   }
+
+  // Clear buffers
+  glClearDepth(1.0);
+  glClearColor(0.0, 0.0, 0.0, 0.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 //------------------------------------------------------------------------------
@@ -279,48 +290,80 @@ void vtkValuePass::EndPass()
 }
 
 //------------------------------------------------------------------------------
-void vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
+bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
+{
+  if (!this->ValueFrameBO)
+    {
+    return true;
+    }
+
+  int* size = ren->GetSize();
+  int* fboSize = this->ValueFrameBO->GetLastSize(false);
+
+  return (fboSize[0] != size[0] || fboSize[1] != size[1]);
+}
+
+//------------------------------------------------------------------------------
+bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 {
   if (this->ValuePassResourcesAllocated)
-    return;
+    {
+    return true;
+    }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   if (!this->IsFloatFBOSupported(renWin))
-    return;
+    {
+    vtkWarningMacro("Switching to INVERTIBLE_LUT mode.");
+    this->RenderingMode = vtkValuePass::INVERTIBLE_LUT;
+    return false;
+    }
 
-  // Allocate FBO's Color attachment target
   int* size = ren->GetSize();
-  this->Size[0] = size[0];
-  this->Size[1] = size[1];
-
+  // Allocate FBO's Color attachment target
   this->ValueRenderBO = vtkRenderbuffer::New();
   this->ValueRenderBO->SetContext(renWin);
-  this->ValueRenderBO->CreateColorAttachment(this->Size[0], this->Size[1]);
+  // CreateColorAttachment formats the attachment RGBA32F by
+  // default, this is what vtkValuePass expects.
+  this->ValueRenderBO->CreateColorAttachment(size[0], size[1]);
+
+  // Allocate FBO's depth attachment target
+  this->DepthRenderBO = vtkRenderbuffer::New();
+  this->DepthRenderBO->SetContext(renWin);
+  this->DepthRenderBO->CreateDepthAttachment(size[0], size[1]);
 
   // Initialize the FBO into which the float value pass is rendered.
   this->ValueFrameBO = vtkFrameBufferObject2::New();
   this->ValueFrameBO->SetContext(renWin);
+  this->ValueFrameBO->SaveCurrentBindings();
   this->ValueFrameBO->Bind(GL_FRAMEBUFFER);
-  this->ValueFrameBO->InitializeViewport(this->Size[0], this->Size[1]);
+  this->ValueFrameBO->InitializeViewport(size[0], size[1]);
+  this->ValueFrameBO->GetLastSize(true); /*force a cached size update*/
   /* GL_COLOR_ATTACHMENT0 */
   this->ValueFrameBO->AddColorAttachment(GL_FRAMEBUFFER, 0, this->ValueRenderBO);
+  this->ValueFrameBO->AddDepthAttachment(GL_FRAMEBUFFER, this->DepthRenderBO);
 
   // Verify FBO
   if(!this->ValueFrameBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
     {
     vtkErrorMacro("Failed to attach FBO.");
     this->ReleaseFloatingPointMode(ren);
+    return false;
     }
 
   this->ValueFrameBO->UnBind(GL_FRAMEBUFFER);
   this->ValuePassResourcesAllocated = true;
+
+  return true;
 }
 
 //-----------------------------------------------------------------------------
 void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
 {
   if (!this->ValuePassResourcesAllocated)
+    {
     return;
+    }
 
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   renWin->MakeCurrent();
@@ -331,6 +374,9 @@ void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
 
   this->ValueRenderBO->Delete();
   this->ValueRenderBO = NULL;
+
+  this->DepthRenderBO->Delete();
+  this->DepthRenderBO = NULL;
 
   this->ValuePassResourcesAllocated = false;
 }
@@ -369,16 +415,29 @@ bool vtkValuePass::IsFloatFBOSupported(vtkRenderWindow *renWin)
 }
 
 //------------------------------------------------------------------------------
-vtkFloatArray* vtkValuePass::GetFloatImageData(vtkRenderer* ren)
+vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
 {
   vtkRenderWindow* renWin = ren->GetRenderWindow();
   renWin->MakeCurrent();
 
   //Allocate output array.
-  vtkFloatArray* pixels = vtkFloatArray::New();
-  pixels->SetNumberOfValues(this->Size[0] * this->Size[1] /* * numComponents */);
+  int* size = this->ValueFrameBO->GetLastSize(false);
+  this->Internals->Values->SetNumberOfTuples(size[0] * size[1]);
 
+  // RGB channels are equivalent in the FBO (they all contain the rendered
+  // values).
+  this->GetFloatImageData(GL_RED, size[0], size[1],
+    this->Internals->Values->GetVoidPointer(0));
+
+  return this->Internals->Values;
+}
+
+//-------------------------------------------------------------------------------
+void vtkValuePass::GetFloatImageData(int const format, int const width,
+  int const height, void* data)
+{
   // Prepare and bind value texture and FBO.
+  this->ValueFrameBO->SaveCurrentBindings();
   this->ValueFrameBO->Bind(GL_READ_FRAMEBUFFER);
 
   GLint originalReadBuff;
@@ -389,27 +448,24 @@ vtkFloatArray* vtkValuePass::GetFloatImageData(vtkRenderer* ren)
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   glClampColor(GL_CLAMP_READ_COLOR, GL_FALSE);
 
-  glReadPixels(0, 0, this->Size[0], this->Size[1], GL_RED, GL_FLOAT,
-    pixels->GetVoidPointer(0));
+  glReadPixels(0, 0, width, height, format, GL_FLOAT,
+    data);
 
   glReadBuffer(originalReadBuff);
   this->ValueFrameBO->UnBind(GL_READ_FRAMEBUFFER);
 
   vtkOpenGLCheckErrorMacro("Failed to read pixels from OpenGL buffer!");
-  return pixels;
 }
 
 //-------------------------------------------------------------------------------
-std::vector<int> vtkValuePass::GetFloatImageExtents(vtkRenderer* ren)
+std::vector<int> vtkValuePass::GetFloatImageExtents()
 {
-  vtkRenderWindow* renWin = ren->GetRenderWindow();
-  renWin->MakeCurrent();
-  int* size = ren->GetSize();
+  int* size = this->ValueFrameBO->GetLastSize(false);
 
   std::vector<int> ext;
   ext.reserve(6);
-  ext.push_back(0); ext.push_back(this->Size[0] - 1);
-  ext.push_back(0); ext.push_back(this->Size[1] - 1);
+  ext.push_back(0); ext.push_back(size[0] - 1);
+  ext.push_back(0); ext.push_back(size[1] - 1);
   ext.push_back(0); ext.push_back(0);
 
   return ext;

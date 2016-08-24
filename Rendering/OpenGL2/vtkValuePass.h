@@ -71,9 +71,22 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
 
-  /// \brief Interface to get the result of a render pass in FLOATING_POINT mode.
-  vtkFloatArray* GetFloatImageData(vtkRenderer* ren);
-  std::vector<int> GetFloatImageExtents(vtkRenderer* ren);
+  /// @{
+  /// @description Interface to get the result of a render pass in
+  /// FLOATING_POINT mode.
+
+  /// @brief Returns a single component array containing the rendered values.
+  /// The returned array is owned by vtkValuePass so it is intended to be deep copied.
+  vtkFloatArray* GetFloatImageDataArray(vtkRenderer* ren);
+
+  /// @brief Image extents of the value array.
+  std::vector<int> GetFloatImageExtents();
+
+  /// @brief Low level API, a format for the internal glReadPixels call can be
+  /// specified. 'data' is expected to be allocated and cleaned-up by the caller.
+  void GetFloatImageData(int const format, int const width, int const height,
+    void* data);
+  /// @}
 
  protected:
   // Description:
@@ -101,21 +114,22 @@ public:
   /// \brief Member methods managing graphics resources required during FLOATING_POINT
   /// mode.
   bool IsFloatFBOSupported(vtkRenderWindow* renWin);
-  void InitializeFloatingPointMode(vtkRenderer* ren);
+  bool HasWindowSizeChanged(vtkRenderer* ren);
+  bool InitializeFloatingPointMode(vtkRenderer* ren);
   void ReleaseFloatingPointMode(vtkRenderer* ren);
 
 ///////////////////////////////////////////////////////////////////////////////
-
-  class vtkInternals;
-  vtkInternals *Internals;
-  int RenderingMode;
 
   /// \brief FLOATING_POINT mode resources. FBO, attachments and other
   /// control variables.
   vtkFrameBufferObject2* ValueFrameBO;
   vtkRenderbuffer* ValueRenderBO;
-  int Size[2];
+  vtkRenderbuffer* DepthRenderBO;
   bool ValuePassResourcesAllocated;
+  int RenderingMode;
+
+  class vtkInternals;
+  vtkInternals *Internals;
 
  private:
   vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;
