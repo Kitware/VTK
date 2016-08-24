@@ -68,7 +68,7 @@ public:
   // Description:
   // Data objects are composite objects and need to check each part for MTime.
   // The information object also needs to be considered.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Restore data object to initial state,

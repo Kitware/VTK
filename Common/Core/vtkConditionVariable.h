@@ -144,7 +144,7 @@ class VTKCOMMONCORE_EXPORT vtkConditionVariable : public vtkObject
 public:
   static vtkConditionVariable* New();
   vtkTypeMacro(vtkConditionVariable,vtkObject);
-  void PrintSelf( ostream& os, vtkIndent indent );
+  void PrintSelf( ostream& os, vtkIndent indent ) VTK_OVERRIDE;
 
   // Description:
   // Wake one thread waiting for the condition to change.

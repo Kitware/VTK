@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Set the collection over which to iterate.
-  virtual void SetCollection(vtkCollection*);
+  void SetCollection(vtkCollection*) VTK_OVERRIDE;
   void SetCollection(vtkDataArrayCollection*);
 
   // Description:
