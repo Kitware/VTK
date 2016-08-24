@@ -3015,11 +3015,20 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // only rebuild what we need to
   // if the data or mapper or selection state changed
   // then rebuild the cell arrays
-  if (this->VBOBuildTime < this->GetMTime() ||
-      this->VBOBuildTime < this->CurrentInput->GetMTime() ||
-      this->VBOBuildTime < this->SelectionStateChanged)
+  std::ostringstream toString;
+  toString.str("");
+  toString.clear();
+  toString << (prims[0]->GetNumberOfCells() ? prims[0]->GetMTime() : 0) <<
+    'A' << (prims[1]->GetNumberOfCells() ? prims[1]->GetMTime() : 0) <<
+    'B' << (prims[2]->GetNumberOfCells() ? prims[2]->GetMTime() : 0) <<
+    'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
+    'D' << representation <<
+    'E' << this->LastSelectionState <<
+    'F' << poly->GetMTime();
+  if (this->CellTextureBuildString != toString.str())
     {
     this->BuildCellTextures(ren, act, prims, representation);
+    this->CellTextureBuildString = toString.str();
     }
 
   // on apple with the AMD PrimID bug we use a slow
@@ -3090,7 +3099,6 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   // the input data is clearly one as it can change all four items tcoords may
   // haveTextures or not colors may change based on quite a few mapping
   // parameters in the mapper
-  std::ostringstream toString;
   toString.str("");
   toString.clear();
   toString << poly->GetMTime() <<
