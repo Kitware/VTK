@@ -34,7 +34,7 @@ XdmfItem::XdmfItem() :
 {
 }
 
-XdmfItem::XdmfItem(XdmfItem &refItem) :
+XdmfItem::XdmfItem(const XdmfItem &refItem) :
   mInformations(refItem.mInformations),
   mIsChanged(true)
 {

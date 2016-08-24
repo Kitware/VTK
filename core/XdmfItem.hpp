@@ -37,8 +37,12 @@ class XdmfVisitor;
 
 // Includes
 #include <loki/Visitor.h>
+#define vtk_libxml2_reference reference // Reversing VTK name mangling
 #include <libxml/xmlexports.h>
 #include <libxml/tree.h>
+#include <libxml/uri.h>
+#include <libxml/xpointer.h>
+#include <libxml/xmlreader.h>
 #include <map>
 #include <set>
 #include <string>
@@ -375,7 +379,7 @@ public:
    */
   virtual void traverse(const shared_ptr<XdmfBaseVisitor> visitor);
 
-  XdmfItem(XdmfItem &);
+  XdmfItem(const XdmfItem &);
 
 protected:
 
@@ -409,7 +413,7 @@ protected:
 
 private:
 
-  XdmfItem(const XdmfItem &);  // Not implemented.
+//  XdmfItem(const XdmfItem &);  // It is implemented for C wrappers.
   void operator=(const XdmfItem &);  // Not implemented.
 
 };

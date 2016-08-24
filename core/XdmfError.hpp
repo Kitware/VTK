@@ -323,4 +323,4 @@ catch (XdmfError & e) {                  \
 }
 #endif
 
-#endif
+#endif /* XDMFERROR_HPP_ */
