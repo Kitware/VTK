@@ -39,6 +39,8 @@ vtkFrameBufferObject2::vtkFrameBufferObject2()
   this->PreviousReadFBO = 0;
   this->PreviousDrawBuffer = GL_NONE;
   this->PreviousReadBuffer = GL_NONE;
+  this->LastViewportSize[0] = -1;
+  this->LastViewportSize[1] = -1;
 }
 
 //----------------------------------------------------------------------------
@@ -176,7 +178,7 @@ void vtkFrameBufferObject2::Bind(unsigned int mode)
 {
   assert(this->FBOIndex!=0); // need to call glGenFramebuffers first
 
-  // need to ensure that binding is esxtablished *every* time because
+  // need to ensure that binding is established *every* time because
   // if other code binds over us then all of our subsequent calls
   // will affect that fbo not ours.
   glBindFramebuffer((GLenum)mode, this->FBOIndex);
@@ -552,6 +554,54 @@ void vtkFrameBufferObject2::Download(
 }
 
 //-----------------------------------------------------------------------------
+int* vtkFrameBufferObject2::GetLastSize(bool forceUpdate)
+{
+  if (forceUpdate)
+    this->QueryViewportSize();
+
+  return this->LastViewportSize;
+}
+
+//-----------------------------------------------------------------------------
+int* vtkFrameBufferObject2::GetLastSize()
+{
+  this->QueryViewportSize();
+  return this->LastViewportSize;
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::GetLastSize(int &width, int &height)
+{
+  this->QueryViewportSize();
+  width = this->LastViewportSize[0];
+  height = this->LastViewportSize[1];
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::GetLastSize(int size[2])
+{
+  this->GetLastSize(size[0], size[1]);
+}
+
+//-----------------------------------------------------------------------------
+void vtkFrameBufferObject2::QueryViewportSize()
+{
+  if (!this->Context)
+    {
+    vtkErrorMacro("Failed to query viewport size because"
+      "there is no context set!");
+    return;
+    }
+
+  GLint vp[4];
+  glGetIntegerv(GL_VIEWPORT, vp);
+  vtkOpenGLStaticCheckErrorMacro("Error querying viewport size!");
+
+  this->LastViewportSize[0] = vp[2];
+  this->LastViewportSize[1] = vp[3];
+}
+
+//-----------------------------------------------------------------------------
 int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
 {
   // convert vtk type to open gl type
@@ -727,5 +777,7 @@ void vtkFrameBufferObject2::PrintSelf(ostream& os, vtkIndent indent)
     << indent << "PreviousReadFBO=" << this->PreviousReadFBO << endl
     << indent << "PreviousDrawBuffer=" << this->PreviousDrawBuffer << endl
     << indent << "PreviousReadBuffer=" << this->PreviousReadBuffer << endl
+    << indent << "Last Viewport Size =" << "[" << this->LastViewportSize[0] << ", "
+      << this->LastViewportSize[1] << "]" << endl
     << endl;
 }
