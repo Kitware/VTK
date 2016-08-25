@@ -35,6 +35,7 @@
 #include "vtkUnsignedCharArray.h"
 #include "vtkMultiBlockDataSet.h"
 #include "vtkMultiPieceDataSet.h"
+#include "vtkSurfaceLICInterface.h"
 
 #include <algorithm>
 
@@ -544,7 +545,8 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer *ren, vtkActor *actor)
   else // otherwise just reinitialize the shaders
     {
     // if we have changed recopy our mapper settings to the helpers
-    if (this->GetMTime() > this->HelperMTime)
+    if (this->GetMTime() > this->HelperMTime ||
+        this->LICInterface->GetMTime() > this->HelperMTime)
       {
       std::map<const vtkDataSet*, vtkCompositeLICHelper *>::iterator miter
         = this->Helpers.begin();
@@ -552,6 +554,7 @@ void vtkCompositeSurfaceLICMapper::Render(vtkRenderer *ren, vtkActor *actor)
         {
         this->CopyMapperValuesToHelper(miter->second);
         }
+      this->HelperMTime.Modified();
       }
     }
 
