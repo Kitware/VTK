@@ -37,6 +37,8 @@ public:
   //Make ospray calls to render me.
   virtual void Render(bool prepass);
 
+  virtual void Invalidate(bool prepass);
+
 protected:
   vtkOSPRayPolyDataMapperNode();
   ~vtkOSPRayPolyDataMapperNode();

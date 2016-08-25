@@ -174,6 +174,7 @@ void vtkViewNode::AddMissingNode(vtkObject *obj)
 //----------------------------------------------------------------------------
 void vtkViewNode::TraverseAllPasses()
 {
+  // this->Traverse(invalidate); // do we want this here?
   this->Traverse(build);
   this->Traverse(synchronize);
   this->Traverse(render);
@@ -253,6 +254,9 @@ void vtkViewNode::Apply(int operation, bool prepass)
       break;
     case render:
       this->Render(prepass);
+      break;
+    case invalidate:
+      this->Invalidate(prepass);
       break;
     default:
       cerr << "UNKNOWN OPERATION" << operation << endl;

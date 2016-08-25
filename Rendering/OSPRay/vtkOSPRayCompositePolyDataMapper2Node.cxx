@@ -64,6 +64,14 @@ void vtkOSPRayCompositePolyDataMapper2Node::PrintSelf(ostream& os, vtkIndent ind
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
+void vtkOSPRayCompositePolyDataMapper2Node::Invalidate(bool prepass)
+{
+  if (prepass)
+    {
+      this->RenderTime = 0;
+    }
+}
 
 //----------------------------------------------------------------------------
 void vtkOSPRayCompositePolyDataMapper2Node::Render(bool prepass)

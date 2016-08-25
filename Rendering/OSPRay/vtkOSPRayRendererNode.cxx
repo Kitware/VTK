@@ -18,6 +18,7 @@
 #include "vtkCollectionIterator.h"
 #include "vtkInformation.h"
 #include "vtkInformationIntegerKey.h"
+#include "vtkInformationStringKey.h"
 #include "vtkObjectFactory.h"
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
@@ -161,6 +162,7 @@ vtkInformationKeyMacro(vtkOSPRayRendererNode, SAMPLES_PER_PIXEL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, RENDERER_TYPE, String);
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayRendererNode);
@@ -249,6 +251,32 @@ int vtkOSPRayRendererNode::GetMaxFrames(vtkRenderer *renderer)
     return (info->Get(vtkOSPRayRendererNode::MAX_FRAMES()));
     }
   return 1;
+}
+
+//----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetRendererType(std::string name, vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), name);
+}
+
+//----------------------------------------------------------------------------
+std::string vtkOSPRayRendererNode::GetRendererType(vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return std::string("scivis");
+    }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::RENDERER_TYPE()))
+    {
+    return (info->Get(vtkOSPRayRendererNode::RENDERER_TYPE()));
+    }
+  return std::string("scivis");
 }
 
 //----------------------------------------------------------------------------
@@ -428,6 +456,15 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::Invalidate(bool prepass)
+{
+  if (prepass)
+    {
+      this->RenderTime = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::Build(bool prepass)
 {
   if (prepass)
@@ -454,11 +491,15 @@ void vtkOSPRayRendererNode::Render(bool prepass)
   if (prepass)
     {
     OSPRenderer oRenderer = NULL;
-    if (!this->ORenderer)
+    static std::string previousType;
+    std::string type = this->GetRendererType(static_cast<vtkRenderer*>(this->Renderable));
+    if (!this->ORenderer || previousType != type)
       {
+      this->Traverse(invalidate);
       ospRelease((osp::Renderer*)this->ORenderer);
-      oRenderer = (osp::Renderer*)ospNewRenderer("scivis");
+      oRenderer = (osp::Renderer*)ospNewRenderer(type.c_str());
       this->ORenderer = oRenderer;
+      previousType = type;
       }
     else
       {
