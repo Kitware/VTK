@@ -309,8 +309,8 @@ protected:
   double LastRange[2];
 
 private:
-  vtkTextureTable(const vtkTextureTable&); VTK_DELETE_FUNCTION
-  vtkTextureTable& operator=(const vtkTextureTable&); VTK_DELETE_FUNCTION
+  vtkTextureTable(const vtkTextureTable&) VTK_DELETE_FUNCTION;
+  vtkTextureTable& operator=(const vtkTextureTable&) VTK_DELETE_FUNCTION;
 
   // Description:
   // Queries the GL_MAX_TEXTURE_SIZE and returns either the requested idealWidth
@@ -474,8 +474,8 @@ protected:
   int LastBlendMode;
   double LastSampleDistance;
 private:
-  vtkOpacityTable(const vtkOpacityTable&); VTK_DELETE_FUNCTION
-  vtkOpacityTable& operator=(const vtkOpacityTable&); VTK_DELETE_FUNCTION
+  vtkOpacityTable(const vtkOpacityTable&) VTK_DELETE_FUNCTION;
+  vtkOpacityTable& operator=(const vtkOpacityTable&) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkOpacityTable);
@@ -510,9 +510,9 @@ public:
     return this->Tables.size();
     }
 private:
-  vtkOpacityTables(); VTK_DELETE_FUNCTION
-  vtkOpacityTables(const vtkOpacityTables &other); VTK_DELETE_FUNCTION
-  vtkOpacityTables &operator=(const vtkOpacityTables &other); VTK_DELETE_FUNCTION
+  vtkOpacityTables() VTK_DELETE_FUNCTION;
+  vtkOpacityTables(const vtkOpacityTables &other) VTK_DELETE_FUNCTION;
+  vtkOpacityTables &operator=(const vtkOpacityTables &other) VTK_DELETE_FUNCTION;
 
   std::vector<vtkOpacityTable*> Tables;
 };
@@ -595,8 +595,8 @@ protected:
   ~vtkRGBTable() {};
 
 private:
-  vtkRGBTable(const vtkRGBTable &other); VTK_DELETE_FUNCTION
-  vtkRGBTable &operator=(const vtkRGBTable &other); VTK_DELETE_FUNCTION
+  vtkRGBTable(const vtkRGBTable &other) VTK_DELETE_FUNCTION;
+  vtkRGBTable &operator=(const vtkRGBTable &other) VTK_DELETE_FUNCTION;
 };
 
 vtkStandardNewMacro(vtkRGBTable);
