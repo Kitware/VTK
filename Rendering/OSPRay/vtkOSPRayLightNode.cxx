@@ -79,35 +79,32 @@ void vtkOSPRayLightNode::Render(bool prepass)
       }
     if (light->GetPositional())
       {
+      double px, py, pz;
+      light->GetTransformedPosition(px, py, pz);
       OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
-      ospSet3f(ospLight, "color",
-               color[0],
-               color[1],
-               color[2]);
+      ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
          vtkMath::Pi() //since OSP 0.10.0
          );
       ospSet1f(ospLight, "intensity", fI);
-      ospSet3f(ospLight, "position",
-               light->GetPosition()[0],
-               light->GetPosition()[1],
-               light->GetPosition()[2]);
+      ospSet3f(ospLight, "position", px, py, pz);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
       }
     else
       {
+      double px, py, pz;
+      double fx, fy, fz;
+      light->GetTransformedPosition(px, py, pz);
+      light->GetTransformedFocalPoint(fx, fy, fz);
       double direction[3];
-      direction[0] = light->GetPosition()[0] - light->GetFocalPoint()[0];
-      direction[1] = light->GetPosition()[1] - light->GetFocalPoint()[1];
-      direction[2] = light->GetPosition()[2] - light->GetFocalPoint()[2];
+      direction[0] = fx - px;
+      direction[1] = fy - py;
+      direction[2] = fz - pz;
       OSPLight ospLight = ospNewLight(oRenderer, "DirectionalLight");
-      ospSet3f(ospLight, "color",
-               color[0],
-               color[1],
-               color[2]);
+      ospSet3f(ospLight, "color", color[0], color[1], color[2]);
       float fI = static_cast<float>
         (vtkOSPRayLightNode::LightScale*
          light->GetIntensity()*
@@ -115,7 +112,7 @@ void vtkOSPRayLightNode::Render(bool prepass)
       ospSet1f(ospLight, "intensity", fI);
       vtkMath::Normalize(direction);
       ospSet3f(ospLight, "direction",
-               -direction[0],-direction[1],-direction[2]);
+               direction[0], direction[1], direction[2]);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
       }
