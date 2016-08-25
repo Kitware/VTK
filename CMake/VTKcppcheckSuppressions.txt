@@ -125,6 +125,7 @@ unsafeClassCanLeak:Filters/General/vtkDensifyPolyData.cxx
 unsafeClassCanLeak:GUISupport/Qt/QVTKInteractorInternal.h
 unsafeClassCanLeak:Interaction/Widgets/vtkBiDimensionalRepresentation.h
 unusedAllocatedMemory:IO/Legacy/vtkDataWriter.cxx
+unusedLabelSwitch:IO/Exodus/vtkCPExodusIINodalCoordinatesTemplate.txx
 unusedStructMember:Common/Core/vtkTypeList.txx
 unusedStructMember:Common/Misc/vtkHeap.cxx
 unusedStructMember:IO/Image/vtkMRCReader.cxx
