@@ -3024,7 +3024,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
     'C' << (prims[3]->GetNumberOfCells() ? prims[3]->GetMTime() : 0) <<
     'D' << representation <<
     'E' << this->LastSelectionState <<
-    'F' << poly->GetMTime();
+    'F' << poly->GetMTime() <<
+    'G' << this->GetMTime();
   if (this->CellTextureBuildString != toString.str())
     {
     this->BuildCellTextures(ren, act, prims, representation);
