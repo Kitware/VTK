@@ -381,6 +381,7 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char **attr)
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
+  this->CurrentValueType = None;
   this->IsProcessingValue = false;
   this->CharacterDataValueBuffer.clear();
 }
