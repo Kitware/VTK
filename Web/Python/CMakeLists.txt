@@ -5,11 +5,11 @@ endif()
 
 # autobahn (a dependency) only supports python 2.7 and 3.3+.  Make this a configure error.
 if (PYTHON_MAJOR_VERSION EQUAL 3)
-  if (PYTHON_VERSION VERSION_LESS 3.3)
+  if (PYTHON_MINOR_VERSION LESS 3)
     message(FATAL_ERROR "Web group cannot work with this Python version, please update to 2.7 or 3.3+")
   endif()
 else()
-  if (PYTHON_VERSION VERSION_LESS 2.7)
+  if (PYTHON_MINOR_VERSION LESS 7)
     message(FATAL_ERROR "Web group cannot work with this Python version, please update to 2.7 or 3.3+")
   endif()
 endif()
