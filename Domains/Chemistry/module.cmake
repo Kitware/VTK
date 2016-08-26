@@ -8,10 +8,10 @@ vtk_module(vtkDomainsChemistry
   DEPENDS
     vtkCommonDataModel
     vtkRenderingCore
-    vtksys
   PRIVATE_DEPENDS
     vtkIOXML
     vtkFiltersSources
+    vtksys
   TEST_DEPENDS
     vtkIOLegacy
     vtkTestingCore
