@@ -159,6 +159,7 @@ void vtkSurfaceLICInterface::ShallowCopy(vtkSurfaceLICInterface *m)
   this->SetMaskThreshold(m->GetMaskThreshold());
   this->SetMaskIntensity(m->GetMaskIntensity());
   this->SetMaskColor(m->GetMaskColor());
+  this->SetEnable(m->GetEnable());
 }
 
 void vtkSurfaceLICInterface::UpdateCommunicator(
