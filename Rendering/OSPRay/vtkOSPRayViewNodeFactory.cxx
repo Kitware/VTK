@@ -88,6 +88,7 @@ vtkOSPRayViewNodeFactory::vtkOSPRayViewNodeFactory()
   this->RegisterOverride("vtkPainterPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkOpenGLPolyDataMapper", pd_maker);
   this->RegisterOverride("vtkSmartVolumeMapper", vm_maker);
+  this->RegisterOverride("vtkOSPRayVolumeMapper", vm_maker);
   this->RegisterOverride("vtkOpenGLGPUVolumeRayCastMapper", vm_maker);
   this->RegisterOverride("vtkCompositePolyDataMapper2", cpd_maker);
 }

@@ -21,7 +21,6 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkDataArray.h>
 #include <vtkDataSetSurfaceFilter.h>
-#include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkImageData.h>
 #include <vtkImageReader.h>
 #include <vtkImageShiftScale.h>
@@ -49,8 +48,7 @@
 #include <vtkAutoInit.h>
 VTK_MODULE_INIT(vtkRenderingOSPRay);
 
-int TestSmartVolumeMapper(int argc,
-                          char *argv[])
+int TestSmartVolumeMapper(int argc, char *argv[])
 {
   bool useOSP = true;
   for (int i = 0; i < argc; i++)

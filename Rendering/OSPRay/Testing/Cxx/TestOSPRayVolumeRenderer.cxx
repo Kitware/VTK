@@ -44,13 +44,15 @@
 #include <vtkOSPRayPass.h>
 #include <vtkProperty.h>
 
+#include <vtkAutoInit.h>
+VTK_MODULE_INIT(vtkRenderingOSPRay);
 
 int TestOSPRayVolumeRenderer(int argc, char *argv[])
 {
   double scalarRange[2];
 
-  vtkNew<vtkActor> outlineActor;
-  vtkNew<vtkPolyDataMapper> outlineMapper;
+  vtkNew<vtkActor> dssActor;
+  vtkNew<vtkPolyDataMapper> dssMapper;
   vtkNew<vtkOSPRayVolumeMapper> volumeMapper;
 
   vtkNew<vtkXMLImageDataReader> reader;
@@ -58,26 +60,23 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
                             argc, argv, "Data/vase_1comp.vti");
   reader->SetFileName(volumeFile);
   volumeMapper->SetInputConnection(reader->GetOutputPort());
-  //volumeMapper->SetSampleDistance(0.01);
-
   // Put inside an open box to evaluate composite order
-  vtkNew<vtkDataSetSurfaceFilter> outlineFilter;
-  outlineFilter->SetInputConnection(reader->GetOutputPort());
+  vtkNew<vtkDataSetSurfaceFilter> dssFilter;
+  dssFilter->SetInputConnection(reader->GetOutputPort());
   vtkNew<vtkClipPolyData> clip;
   vtkNew<vtkPlane> plane;
   plane->SetOrigin(0,50,0);
   plane->SetNormal(0,-1,0);
-  clip->SetInputConnection(outlineFilter->GetOutputPort());
+  clip->SetInputConnection(dssFilter->GetOutputPort());
   clip->SetClipFunction(plane.GetPointer());
-  outlineMapper->SetInputConnection(clip->GetOutputPort());
-  outlineMapper->ScalarVisibilityOff();
-  outlineActor->SetMapper(outlineMapper.GetPointer());
-  vtkProperty* property = outlineActor->GetProperty();
+  dssMapper->SetInputConnection(clip->GetOutputPort());
+  dssMapper->ScalarVisibilityOff();
+  dssActor->SetMapper(dssMapper.GetPointer());
+  vtkProperty* property = dssActor->GetProperty();
   property->SetDiffuseColor(0.5, 0.5, 0.5);
 
   volumeMapper->GetInput()->GetScalarRange(scalarRange);
   volumeMapper->SetBlendModeToComposite();
-  //volumeMapper->SetAutoAdjustSampleDistances(1);
 
   vtkNew<vtkRenderWindow> renWin;
   renWin->SetMultiSamples(0);
@@ -111,16 +110,8 @@ int TestOSPRayVolumeRenderer(int argc, char *argv[])
   volume->SetMapper(volumeMapper.GetPointer());
   volume->SetProperty(volumeProperty.GetPointer());
 
-  /// Rotate the volume for testing purposes
-  volume->RotateY(45.0);
-  outlineActor->RotateY(45.0);
-  volume->RotateZ(-90.0);
-  outlineActor->RotateZ(-90.0);
-  volume->RotateX(90.0);
-  outlineActor->RotateX(90.0);
-
   ren->AddViewProp(volume.GetPointer());
-  ren->AddActor(outlineActor.GetPointer());
+  ren->AddActor(dssActor.GetPointer());
   renWin->Render();
   ren->ResetCamera();
 
