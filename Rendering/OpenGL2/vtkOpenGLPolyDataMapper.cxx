@@ -399,7 +399,7 @@ bool vtkOpenGLPolyDataMapper::HaveTextures(vtkActor *actor)
 unsigned int vtkOpenGLPolyDataMapper::GetNumberOfTextures(vtkActor *actor)
 {
   unsigned int res = 0;
-  if (this->InternalColorTexture)
+  if (this->ColorTextureMap)
     {
     res++;
     }
