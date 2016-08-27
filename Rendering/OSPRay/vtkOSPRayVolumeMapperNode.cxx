@@ -180,10 +180,16 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       }
     this->RenderTime = volNode->GetMTime();
 
-    //
+    // test for modifications to input
+    if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
+      {
+      ospSet2f(this->TransferFunction, "valueRange",
+               data->GetScalarRange()[0], data->GetScalarRange()[1]);
+      }
+
     // test for modifications to volume properties
-    //
-    if (vol->GetProperty()->GetMTime() > this->PropertyTime)
+    if (vol->GetProperty()->GetMTime() > this->PropertyTime
+        || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
       {
       vtkVolumeProperty* volProperty = vol->GetProperty();
       vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
@@ -217,15 +223,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       ospRelease(tfAlphaData);
       }
 
-    // test for modifications to input
-    if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
-      {
-      ospSet2f(this->TransferFunction, "valueRange",
-               data->GetScalarRange()[0], data->GetScalarRange()[1]);
-
-      //! Commit the transfer function only after the initial colors and alphas have been set (workaround for Qt signalling issue).
-      ospCommit(this->TransferFunction);
-      }
     ospSetObject((OSPObject)this->OSPRayVolume, "transferFunction", this->TransferFunction);
     this->BuildTime.Modified();
 
