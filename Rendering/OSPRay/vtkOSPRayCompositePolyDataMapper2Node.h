@@ -40,6 +40,8 @@ public:
   //Make ospray calls to render me.
   virtual void Render(bool prepass);
 
+  //Description:
+  //Invalidates cached rendering data.
   virtual void Invalidate(bool prepass);
 
 protected:

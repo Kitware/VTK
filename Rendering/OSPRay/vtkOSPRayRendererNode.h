@@ -58,7 +58,7 @@ public:
   virtual void Render(bool prepass);
 
   //Description:
-  //Invalidate cached data
+  //Invalidates cached rendering data.
   virtual void Invalidate(bool prepass);
 
   //Description:
@@ -88,7 +88,9 @@ public:
   static void SetMaxFrames(int, vtkRenderer *renderer);
   static int GetMaxFrames(vtkRenderer *renderer);
 
-  //
+  //Description:
+  //Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
+  //default is scivis
   static vtkInformationStringKey* RENDERER_TYPE();
   static void SetRendererType(std::string name, vtkRenderer *renderer);
   static std::string GetRendererType(vtkRenderer *renderer);
@@ -153,8 +155,8 @@ protected:
   float* ODepthBuffer;
 
 private:
-  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&); // Not implemented.
-  void operator=(const vtkOSPRayRendererNode&); // Not implemented.
+  vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif
