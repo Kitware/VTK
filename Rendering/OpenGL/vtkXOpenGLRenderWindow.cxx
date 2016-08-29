@@ -398,7 +398,7 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
 vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
 {
-  this->ParentId = static_cast<Window>(0);
+  this->ParentId = 0;
   this->ScreenSize[0] = 0;
   this->ScreenSize[1] = 0;
   this->OwnDisplay = 0;
@@ -406,8 +406,8 @@ vtkXOpenGLRenderWindow::vtkXOpenGLRenderWindow()
   this->ForceMakeCurrent = 0;
   this->UsingHardware = 0;
   this->DisplayId = static_cast<Display *>(NULL);
-  this->WindowId = static_cast<Window>(0);
-  this->NextWindowId = static_cast<Window>(0);
+  this->WindowId = 0;
+  this->NextWindowId = 0;
   this->ColorMap = static_cast<Colormap>(0);
   this->OwnWindow = 0;
 
@@ -788,7 +788,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   if (this->OwnWindow && this->DisplayId && this->WindowId)
     {
     XDestroyWindow(this->DisplayId,this->WindowId);
-    this->WindowId = static_cast<Window>(0);
+    this->WindowId = 0;
     }
 
   // if we create the display, we'll delete it
@@ -1178,7 +1178,7 @@ void vtkXOpenGLRenderWindow::WindowRemap()
 
   // set the default windowid
   this->WindowId = this->NextWindowId;
-  this->NextWindowId = static_cast<Window>(0);
+  this->NextWindowId = 0;
 
   // set everything up again
   this->Initialize();
