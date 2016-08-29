@@ -11,6 +11,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayOrthographic.cxx,
   TestOSPRayPass.cxx,
   TestOSPRayRenderMesh.cxx,
+  TestOSPRayRendererType.cxx,
   TestOSPRayScalarBar.cxx
   TestOSPRayTime.cxx,
   TestOSPRayWindow.cxx
