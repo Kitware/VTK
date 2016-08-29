@@ -364,10 +364,15 @@ class ImagePushBinaryWebSocketServerProtocol(WebSocketServerProtocol):
             if viewId not in self.viewToCapture:
                 self.viewToCapture[viewId] = { 'quality': 100, 'enabled': True, 'view': self.helper.getView(viewId), 'view_id': viewId, 'mtime': 0 }
 
-            # Update fields
-            objToUpdate = self.viewToCapture[viewId]
-            for key in request:
-                objToUpdate[key] = request[key]
+            if 'invalidate_cache' in request:
+                if self.viewToCapture[viewId]['view']:
+                    self.app.InvalidateCache(self.viewToCapture[viewId]['view'].SMProxy)
+                    self.render()
+            else:
+                # Update fields
+                objToUpdate = self.viewToCapture[viewId]
+                for key in request:
+                    objToUpdate[key] = request[key]
 
     def onClose(self, wasClean, code, reason):
         self.viewToCapture = {}
