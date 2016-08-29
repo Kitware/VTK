@@ -98,6 +98,11 @@ class VTKDOMAINSCHEMISTRY_EXPORT vtkBlueObeliskData : public vtkObject
   vtkGetNewMacro(Periods, vtkUnsignedShortArray);
   vtkGetNewMacro(Groups, vtkUnsignedShortArray);
 
+  // Description:
+  // Static method to generate the data header file used by this class from the
+  // BODR elements.xml. See the GenerateBlueObeliskHeader test in this module.
+  static bool GenerateHeaderFromXML(std::istream &xml, std::ostream &header);
+
  protected:
   friend class vtkBlueObeliskDataParser;
 

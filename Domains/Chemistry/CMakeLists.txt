@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkBlueObeliskData.cxx
+  vtkBlueObeliskDataInternal.h
   vtkBlueObeliskDataParser.cxx
   vtkCMLMoleculeReader.cxx
   vtkGaussianCubeReader2.cxx
@@ -24,8 +25,16 @@ set_source_files_properties(
 
 set_source_files_properties(
   vtkBlueObeliskData.cxx
+  vtkBlueObeliskDataInternal.h
   vtkBlueObeliskDataParser.cxx
-  WRAP_EXCLUDE
+  PROPERTIES
+    WRAP_EXCLUDE 1
+  )
+
+set_source_files_properties(
+  vtkBlueObeliskDataInternal.h
+  PROPERTIES
+    WRAP_EXCLUDE_PYTHON 1
   )
 
 # Generate configured header file
@@ -34,6 +43,3 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/vtkChemistryConfigure.h.in"
 
 set(${vtk-module}_NO_HeaderTest 1) # TODO: Fix headers and enable test.
 vtk_module_library(${vtk-module} ${Module_SRCS})
-
-install(FILES elements.xml COPYING
-  DESTINATION ${VTK_INSTALL_DATA_DIR}/vtkDomainsChemistry)
