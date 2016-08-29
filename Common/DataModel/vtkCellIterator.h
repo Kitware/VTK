@@ -115,7 +115,8 @@ public:
   vtkPoints *GetPoints();
 
   // Description:
-  // Get the faces for a polyhedral cell.
+  // Get the faces for a polyhedral cell. This is only valid when CellType
+  // is VTK_POLYHEDRON.
   vtkIdList *GetFaces();
 
   // Description:
@@ -130,7 +131,7 @@ public:
   vtkIdType GetNumberOfPoints();
 
   // Description:
-  // Return the number of faces in the current polyhedral cell.
+  // Return the number of faces in the current cell.
   // This should only be called when IsDoneWithTraversal() returns false.
   vtkIdType GetNumberOfFaces();
 
@@ -277,12 +278,82 @@ inline vtkIdType vtkCellIterator::GetNumberOfPoints()
 //------------------------------------------------------------------------------
 inline vtkIdType vtkCellIterator::GetNumberOfFaces()
 {
-  if (!this->CheckCache(FacesFlag))
+  switch (this->GetCellType())
     {
-    this->FetchFaces();
-    this->SetCache(FacesFlag);
+    case VTK_EMPTY_CELL:
+    case VTK_VERTEX:
+    case VTK_POLY_VERTEX:
+    case VTK_LINE:
+    case VTK_POLY_LINE:
+    case VTK_TRIANGLE:
+    case VTK_TRIANGLE_STRIP:
+    case VTK_POLYGON:
+    case VTK_PIXEL:
+    case VTK_QUAD:
+    case VTK_QUADRATIC_EDGE:
+    case VTK_QUADRATIC_TRIANGLE:
+    case VTK_QUADRATIC_QUAD:
+    case VTK_QUADRATIC_POLYGON:
+    case VTK_BIQUADRATIC_QUAD:
+    case VTK_QUADRATIC_LINEAR_QUAD:
+    case VTK_BIQUADRATIC_TRIANGLE:
+    case VTK_CUBIC_LINE:
+    case VTK_CONVEX_POINT_SET:
+    case VTK_PARAMETRIC_CURVE:
+    case VTK_PARAMETRIC_SURFACE:
+    case VTK_PARAMETRIC_TRI_SURFACE:
+    case VTK_PARAMETRIC_QUAD_SURFACE:
+    case VTK_HIGHER_ORDER_EDGE:
+    case VTK_HIGHER_ORDER_TRIANGLE:
+    case VTK_HIGHER_ORDER_QUAD:
+    case VTK_HIGHER_ORDER_POLYGON:
+      return 0;
+
+    case VTK_TETRA:
+    case VTK_QUADRATIC_TETRA:
+    case VTK_PARAMETRIC_TETRA_REGION:
+    case VTK_HIGHER_ORDER_TETRAHEDRON:
+      return 4;
+
+    case VTK_PYRAMID:
+    case VTK_QUADRATIC_PYRAMID:
+    case VTK_HIGHER_ORDER_PYRAMID:
+    case VTK_WEDGE:
+    case VTK_QUADRATIC_WEDGE:
+    case VTK_QUADRATIC_LINEAR_WEDGE:
+    case VTK_BIQUADRATIC_QUADRATIC_WEDGE:
+    case VTK_HIGHER_ORDER_WEDGE:
+      return 5;
+
+    case VTK_VOXEL:
+    case VTK_HEXAHEDRON:
+    case VTK_QUADRATIC_HEXAHEDRON:
+    case VTK_TRIQUADRATIC_HEXAHEDRON:
+    case VTK_HIGHER_ORDER_HEXAHEDRON:
+    case VTK_PARAMETRIC_HEX_REGION:
+    case VTK_BIQUADRATIC_QUADRATIC_HEXAHEDRON:
+      return 6;
+
+    case VTK_PENTAGONAL_PRISM:
+      return 7;
+
+    case VTK_HEXAGONAL_PRISM:
+      return 8;
+
+    case VTK_POLYHEDRON: // Need to look these up
+      if (!this->CheckCache(FacesFlag))
+        {
+        this->FetchFaces();
+        this->SetCache(FacesFlag);
+        }
+      return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
+
+    default:
+      vtkGenericWarningMacro("Unknown cell type: " << this->CellType);
+      break;
     }
-  return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
+
+  return 0;
 }
 
 #endif //vtkCellIterator_h

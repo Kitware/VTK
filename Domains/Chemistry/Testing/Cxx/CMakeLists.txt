@@ -1,9 +1,13 @@
+set(TestVASPAnimationReader_ARGS DATA{../Data/VASP/NPT_Z_ANIMATE.out})
+set(TestVASPTessellationReader_ARGS DATA{../Data/VASP/NPT_Z_TESSELLATE.out})
+
 vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
   TestBondColorModeSingleColor.cxx
   TestCompositeRender.cxx
+  TestCustomArrayRadius.cxx
   TestFastRender.cxx
   TestLiquoriceSticks.cxx
   TestMolecule.cxx,NO_VALID
@@ -16,6 +20,8 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestProgrammableElectronicData.cxx,NO_VALID
   TestProteinRibbon.cxx
   TestSimpleBondPerceiver.cxx,NO_VALID
+  TestVASPAnimationReader.cxx
+  TestVASPTessellationReader.cxx
   TestVDWSpheres.cxx
   TestCMLMoleculeReader.cxx
   )

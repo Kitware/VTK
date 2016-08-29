@@ -17,18 +17,18 @@
 
 #include "vtkActor.h"
 #include "vtkCamera.h"
-#include "vtkGenericDataObjectReader.h"
-#include "vtkGenericDataObjectWriter.h"
+#include "vtkDataSetAttributes.h"
+#include "vtkFloatArray.h"
 #include "vtkLight.h"
 #include "vtkMolecule.h"
 #include "vtkMoleculeMapper.h"
 #include "vtkNew.h"
 #include "vtkProperty.h"
-#include "vtkRenderWindowInteractor.h"
-#include "vtkRenderWindow.h"
 #include "vtkRenderer.h"
+#include "vtkRenderWindow.h"
+#include "vtkRenderWindowInteractor.h"
 
-int TestMoleculeIOLegacy(int, char *[])
+int TestCustomArrayRadius(int, char *[])
 {
   vtkNew<vtkMolecule> mol;
 
@@ -63,28 +63,21 @@ int TestMoleculeIOLegacy(int, char *[])
   mol->AppendBond( C6,  H4, 1);
   mol->AppendBond( O1,  H5, 1);
 
-  // Some dummy lattice info:
-  vtkVector3d a( 8.,  0.,  0.);
-  vtkVector3d b( 0.,  6.,  0.);
-  vtkVector3d c( 0.,  0.,  4.);
-  vtkVector3d o(-4., -2., -2.);
-  mol->SetLattice(a, b, c);
-  mol->SetLatticeOrigin(o);
-
-  // Test passing the molecule through the IO reader/writer:
-  vtkNew<vtkGenericDataObjectWriter> writer;
-  writer->SetInputData(mol.Get());
-  writer->WriteToOutputStringOn();
-  writer->Write();
-
-  vtkNew<vtkGenericDataObjectReader> reader;
-  reader->ReadFromInputStringOn();
-  reader->SetInputString(writer->GetOutputStdString());
-  reader->Update();
+  // build custom radii array
+  vtkNew<vtkFloatArray> radii;
+  radii->SetName("radii");
+  radii->SetNumberOfTuples(mol->GetNumberOfAtoms());
+  for (vtkIdType i = 0; i < mol->GetNumberOfAtoms(); ++i)
+    {
+    radii->SetTypedComponent(i, 0, (i % 2) ? 0.5f : 1.0f);
+    }
+  mol->GetVertexData()->AddArray(radii.Get());
 
   vtkNew<vtkMoleculeMapper> molmapper;
-  molmapper->SetInputConnection(reader->GetOutputPort());
+  molmapper->SetInputData(mol.GetPointer());
+
   molmapper->UseBallAndStickSettings();
+  molmapper->SetAtomicRadiusTypeToCustomArrayRadius();
 
   vtkNew<vtkActor> actor;
   actor->SetMapper(molmapper.GetPointer());
@@ -107,12 +100,11 @@ int TestMoleculeIOLegacy(int, char *[])
 
   ren->SetBackground(0.0, 0.0, 0.0);
   win->SetSize(450, 450);
-  win->SetMultiSamples(0);
   win->Render();
-  ren->ResetCameraClippingRange();
-  win->Render();
+  ren->GetActiveCamera()->Zoom(2.2);
 
   // Finally render the scene and compare the image to a reference image
+  win->SetMultiSamples(0);
   win->GetInteractor()->Initialize();
   win->GetInteractor()->Start();
 

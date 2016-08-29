@@ -24,7 +24,13 @@
 
 #include "vtkTimerLog.h"
 
+#include "vtkMath.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iomanip>
 #include <stdarg.h>  // Needed for ...
+#include <vector>
 
 #ifndef _WIN32
 #include <climits>     // for CLK_TCK
@@ -410,6 +416,104 @@ void vtkTimerLog::DumpLogWithIndents(ostream *os, double threshold)
     }
 
 #endif
+}
+
+//----------------------------------------------------------------------------
+void vtkTimerLog::DumpLogWithIndentsAndPercentages(std::ostream *os)
+{
+  assert(os);
+  // Use indents to pair start/end events. Indents work like this:
+  // Indent | Event
+  // ------ | -----
+  //   0    | Event 1 Start
+  //   1    | SubEvent 1 Start
+  //   2    | SubEvent 1 End
+  //   1    | SubEvent 2 Start
+  //   2    | SubSubEvent 1 Start
+  //   3    | SubSubEvent 1 End
+  //   2    | SubEvent 2 End
+  //   1    | Event 1 End
+
+  // If we've wrapped the entry buffer, the indent information will be
+  // nonsensical. I don't trust the parsing logic below to not do bizarre,
+  // possibly crashy things in this case, so let's just error out and let the
+  // dev know how to fix the issue.
+  if (vtkTimerLog::WrapFlag)
+    {
+    *os << "Error: Event log has exceeded vtkTimerLog::MaxEntries.\n"
+           "Call vtkTimerLog::SetMaxEntries to increase the log buffer size.\n"
+           "Current vtkTimerLog::MaxEntries: " << vtkTimerLog::MaxEntries
+        << ".\n";
+    return;
+    }
+
+  // Store previous 'scopes' in a LIFO buffer
+  typedef std::pair<int, double> IndentTime;
+  std::vector<IndentTime> parentInfo;
+
+  // Find the longest event string:
+  int numEvents = vtkTimerLog::GetNumberOfEvents();
+  int longestString = 0;
+  for (int i = 0; i < numEvents; ++i)
+    {
+    longestString = std::max(longestString, static_cast<int>(
+                               strlen(vtkTimerLog::GetEventString(i))));
+    }
+
+  // Loop to numEvents - 1, since the last event must be an end event.
+  for (int startIdx = 0; startIdx < numEvents - 1; ++startIdx)
+    {
+    int curIndent = vtkTimerLog::GetEventIndent(startIdx);
+
+    // Skip this event if it is an end event:
+    if (startIdx > 0 && // first event cannot be end
+        // end events are always followed by a smaller indent:
+        curIndent > vtkTimerLog::GetEventIndent(startIdx + 1))
+      {
+      assert(!parentInfo.empty());
+      parentInfo.pop_back();
+      continue;
+      }
+
+    // Find the event that follows the end event:
+    int endIdx = startIdx + 1;
+    for (; endIdx < numEvents; ++endIdx)
+      {
+      if (vtkTimerLog::GetEventIndent(endIdx) == curIndent)
+        {
+        break;
+        }
+      }
+
+    // Move back one event to get our end event (also works when we've reached
+    // the end of the event log).
+    endIdx--;
+
+    // Get the current event time:
+    double elapsedTime = (vtkTimerLog::GetEventWallTime(endIdx) -
+                          vtkTimerLog::GetEventWallTime(startIdx));
+
+    // The total time the parent took to execute. If empty, this is the first
+    // event, and just set to 100%.
+    IndentTime parent = parentInfo.empty() ? IndentTime(-1, elapsedTime)
+                                           : parentInfo.back();
+
+    // Percentage of parent exec time, rounded to a single decimal:
+    float percentage =
+        vtkMath::Round(elapsedTime / parent.second * 1000.) / 10.f;
+
+    *os << std::setw(8) << std::setprecision(6) << std::fixed
+        << elapsedTime
+        << std::setw(0) << "s"
+        << std::setw(curIndent * 2) << " "
+        << std::setprecision(1) << std::setw(5) << std::right << percentage
+        << std::setw(0) << std::left << "% "
+        << std::setw(longestString) << vtkTimerLog::GetEventString(startIdx)
+        << "\n";
+
+    // Add our parent info:
+    parentInfo.push_back(IndentTime(curIndent, elapsedTime));
+    }
 }
 
 //----------------------------------------------------------------------------

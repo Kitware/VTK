@@ -78,7 +78,7 @@ int TestPDBBallAndStickShadowsDOFSSAA(int argc, char *argv[])
     lut->SetTableValue(i, 0.45 + rgb[0]*0.55,
       0.45 + rgb[1]*0.55, 0.45 + rgb[2]*0.55);
     }
-  molmapper->GetFastAtomMapper()->SetLookupTable(lut.Get());
+  molmapper->SetLookupTable(lut.Get());
 
 
   vtkNew<vtkActor> actor;

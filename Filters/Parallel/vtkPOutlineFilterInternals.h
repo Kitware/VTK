@@ -29,6 +29,7 @@ class vtkBoundingBox;
 class vtkDataObject;
 class vtkDataObjectTree;
 class vtkDataSet;
+class vtkGraph;
 class vtkInformation;
 class vtkInformationVector;
 class vtkMultiProcessController;
@@ -55,6 +56,7 @@ private:
   int RequestData(vtkUniformGridAMR* amr, vtkPolyData* output);
   int RequestData(vtkDataObjectTree* cd, vtkPolyData* output);
   int RequestData(vtkDataSet* ds, vtkPolyData* output);
+  int RequestData(vtkGraph* graph, vtkPolyData* output);
 
 
   void CollectCompositeBounds(vtkDataObject* input);

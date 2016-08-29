@@ -11,6 +11,7 @@ vtk_module(vtkDomainsChemistry
   PRIVATE_DEPENDS
     vtkIOXML
     vtkFiltersSources
+    vtksys
   TEST_DEPENDS
     vtkIOLegacy
     vtkTestingCore

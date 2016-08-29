@@ -19,6 +19,7 @@
 #include "vtkBoundingBox.h"
 #include "vtkCompositeDataIterator.h"
 #include "vtkDataObjectTree.h"
+#include "vtkGraph.h"
 #include "vtkMath.h"
 #include "vtkMultiProcessController.h"
 #include "vtkNew.h"
@@ -132,6 +133,12 @@ int vtkPOutlineFilterInternals::RequestData(
   if (ds)
     {
     return this->RequestData(ds, output);
+    }
+
+  vtkGraph *graph = vtkGraph::SafeDownCast(input);
+  if (graph)
+    {
+    return this->RequestData(graph, output);
     }
   return 0;
 }
@@ -341,6 +348,50 @@ int vtkPOutlineFilterInternals::RequestData(vtkUniformGridAMR* input,
 // ----------------------------------------------------------------------------
 int vtkPOutlineFilterInternals::RequestData(
   vtkDataSet* input, vtkPolyData* output)
+{
+  double bounds[6];
+  input->GetBounds(bounds);
+
+  if (this->Controller->GetNumberOfProcesses() > 1)
+    {
+    double reduced_bounds[6];
+    int procid = this->Controller->GetLocalProcessId();
+    AddBoundsListOperator operation;
+    this->Controller->Reduce(bounds, reduced_bounds, 6, &operation, 0);
+    if (procid > 0)
+      {
+      // Satellite node
+      return 1;
+      }
+    memcpy(bounds, reduced_bounds, 6*sizeof(double));
+    }
+
+  if (vtkMath::AreBoundsInitialized(bounds))
+    {
+    // only output in process 0.
+    if(this->IsCornerSource)
+      {
+      vtkNew<vtkOutlineCornerSource> corner;
+      corner->SetBounds(bounds);
+      corner->SetCornerFactor(this->CornerFactor);
+      corner->Update();
+      output->ShallowCopy(corner->GetOutput());
+      }
+    else
+      {
+      vtkNew<vtkOutlineSource> corner;
+      corner->SetBounds(bounds);
+      corner->Update();
+      output->ShallowCopy(corner->GetOutput());
+      }
+    }
+
+  return 1;
+}
+
+// ----------------------------------------------------------------------------
+int vtkPOutlineFilterInternals::RequestData(vtkGraph *input,
+                                            vtkPolyData *output)
 {
   double bounds[6];
   input->GetBounds(bounds);
