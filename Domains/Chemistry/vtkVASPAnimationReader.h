@@ -69,19 +69,10 @@ protected:
 
   bool ReadMolecule(std::istream &in, vtkMolecule *molecule);
 
-  // Description:
-  // Determine lattice vectors by analysing the segment boundary info. If this
-  // method returns false, a parsing error occurred and the read should be
-  // aborted. If latticeFound is false, parsing succeeded, but the lattice
-  // could not be determined.
-  bool DetermineLatticeVectors(std::istream &in, vtkVector3d lattice[3],
-                               vtkVector3d &origin, bool &latticeFound);
-
-
   char *FileName;
 
   vtksys::RegularExpression *TimeParser;
-  vtksys::RegularExpression *SegmentParser;
+  vtksys::RegularExpression *LatticeParser;
   vtksys::RegularExpression *AtomCountParser;
   vtksys::RegularExpression *AtomParser;
 
