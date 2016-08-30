@@ -51,22 +51,6 @@ vtkBlueObeliskDataParser::vtkBlueObeliskDataParser()
     CurrentElectronicConfiguration(new vtkStdString),
     CurrentFamily(new vtkStdString)
 {
-  // Find elements.xml. Check the share directory first, then the source dir
-  // if running from the build directory before installing.
-  struct stat buf;
-  if (stat(VTK_BODR_DATA_PATH "/elements.xml", &buf) == 0)
-    {
-    this->SetFileName(VTK_BODR_DATA_PATH "/elements.xml");
-    }
-  else if (stat(VTK_BODR_DATA_PATH_BUILD "/elements.xml", &buf) == 0)
-    {
-    this->SetFileName(VTK_BODR_DATA_PATH_BUILD "/elements.xml");
-    }
-  else
-    {
-    vtkErrorMacro(<<"Cannot find elements.xml. Checked " VTK_BODR_DATA_PATH
-                  " and " VTK_BODR_DATA_PATH_BUILD)
-    }
 }
 
 //----------------------------------------------------------------------------
@@ -381,6 +365,7 @@ void vtkBlueObeliskDataParser::NewValueStarted(const char **attr)
 //----------------------------------------------------------------------------
 void vtkBlueObeliskDataParser::NewValueFinished()
 {
+  this->CurrentValueType = None;
   this->IsProcessingValue = false;
   this->CharacterDataValueBuffer.clear();
 }

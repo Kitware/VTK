@@ -1,7 +1,21 @@
+option(VTK_BUILD_BODR_DATA_GENERATOR
+  "If enabled, the test used to generate the vtkBlueObeliskDataInternal.h header will be built."
+  OFF
+)
+mark_as_advanced(VTK_BUILD_BODR_DATA_GENERATOR)
+
+set(generator_test)
+if(VTK_BUILD_BODR_DATA_GENERATOR)
+  set(generator_test
+    "GenerateBlueObeliskHeader.cxx,NO_VALID,NO_DATA,NO_OUTPUT"
+  )
+endif()
+
 set(TestVASPAnimationReader_ARGS DATA{../Data/VASP/NPT_Z_ANIMATE.out})
 set(TestVASPTessellationReader_ARGS DATA{../Data/VASP/NPT_Z_TESSELLATE.out})
 
 vtk_add_test_cxx(${vtk-module}CxxTests tests
+  ${generator_test}
   TestBallAndStick.cxx
   TestPDBBallAndStick.cxx
   TestBondColorModeDiscreteByAtom.cxx
