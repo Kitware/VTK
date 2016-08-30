@@ -50,11 +50,6 @@ bool parse(const std::string &str, T &result)
   return false;
 }
 
-bool approxEqual(const vtkVector3d &a, const vtkVector3d &b, float tol)
-{
-  return (a - b).SquaredNorm() < tol;
-}
-
 } // end anon namespace
 
 vtkStandardNewMacro(vtkVASPAnimationReader)
@@ -69,10 +64,7 @@ void vtkVASPAnimationReader::PrintSelf(std::ostream &os, vtkIndent indent)
 vtkVASPAnimationReader::vtkVASPAnimationReader()
   : FileName(NULL),
     TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
-    SegmentParser(new RegEx("^ *([0-9EeDd.+-]+) +" // Set of 6 floats
-                            "([0-9EeDd.+-]+) +"
-                            "([0-9EeDd.+-]+) +"
-                            "([0-9EeDd.+-]+) +"
+    LatticeParser(new RegEx("^ *([0-9EeDd.+-]+) +" // Set of 3 floats
                             "([0-9EeDd.+-]+) +"
                             "([0-9EeDd.+-]+) *$")),
     AtomCountParser(new RegEx("^ *([0-9]+) *$")), // Just a single integer
@@ -93,7 +85,7 @@ vtkVASPAnimationReader::~vtkVASPAnimationReader()
 {
   this->SetFileName(NULL);
   delete this->TimeParser;
-  delete this->SegmentParser;
+  delete this->LatticeParser;
   delete this->AtomCountParser;
   delete this->AtomParser;
 }
@@ -231,24 +223,49 @@ size_t vtkVASPAnimationReader::SelectTimeStepIndex(vtkInformation *info)
 bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
                                           vtkMolecule *molecule)
 {
+  // Note: The leading time = XXXX line has already been read.
   std::string line;
 
-  bool latticeFound;
   vtkVector3d lattice[3];
-  vtkVector3d origin;
-  if (!this->DetermineLatticeVectors(in, lattice, origin, latticeFound))
-    { // parse error. DetermineLatticeVectors prints the error message for us.
-    return false;
+  for (size_t i = 0; i < 3; ++i)
+    {
+    if (!std::getline(in, line))
+      {
+      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
+                    "specification. Unexpected EOF.");
+      return false;
+      }
+    if (!this->LatticeParser->find(line))
+      {
+      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
+                    "specification. Expected three floats: " << line);
+      return false;
+      }
+    if (!parse(this->LatticeParser->match(1), lattice[i][0]))
+      {
+      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
+                    "specification. X component is not parsable: "
+                    << this->LatticeParser->match(1));
+      return false;
+      }
+    if (!parse(this->LatticeParser->match(2), lattice[i][1]))
+      {
+      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
+                    "specification. Y component is not parsable: "
+                    << this->LatticeParser->match(2));
+      return false;
+      }
+    if (!parse(this->LatticeParser->match(3), lattice[i][2]))
+      {
+      vtkErrorMacro("Error reading line " << (i + 1) << " of the lattice "
+                    "specification. Z component is not parsable: "
+                    << this->LatticeParser->match(3));
+      return false;
+      }
     }
 
-  // If lattice determination fails, it's not fatal -- it's likely that the
-  // code for determining the vectors missed a corner case. We should still
-  // ship out the atomic data.
-  if (latticeFound)
-    {
-    molecule->SetLattice(lattice[0], lattice[1], lattice[2]);
-    molecule->SetLatticeOrigin(origin);
-    }
+  molecule->SetLattice(lattice[0], lattice[1], lattice[2]);
+  molecule->SetLatticeOrigin(vtkVector3d(0.));
 
   // Next line should be the number of atoms in the molecule:
   if (!std::getline(in, line))
@@ -345,124 +362,5 @@ bool vtkVASPAnimationReader::ReadMolecule(std::istream &in,
   atomData->AddArray(radii.Get());
   atomData->AddArray(kineticEnergies.Get());
 
-  return true;
-}
-
-bool vtkVASPAnimationReader::DetermineLatticeVectors(std::istream &in,
-                                                     vtkVector3d lattice[3],
-                                                     vtkVector3d &origin,
-                                                     bool &latticeFound)
-{
-  latticeFound = false;
-  const float tol = 1e-5; // Tolerance for vector comparisons
-  std::string line;
-
-  // Read segment info from input:
-  typedef vtkVector3d Segment[2];
-  Segment segments[12];
-  for (size_t segmentIdx = 0; segmentIdx < 12; ++segmentIdx)
-    {
-    if (!std::getline(in, line))
-      {
-      vtkErrorMacro("Unexpected EOF while parsing boundary segments.");
-      return false;
-      }
-    if (!this->SegmentParser->find(line))
-      {
-      vtkErrorMacro("Malformed boundary segment specification: " << line);
-      return false;
-      }
-    for (int pointIdx = 0; pointIdx < 2; ++pointIdx)
-      {
-      for (int compIdx = 0; compIdx < 3; ++compIdx)
-        {
-        int matchIdx = pointIdx * 3 + compIdx + 1; // for regex match lookup
-        if (!parse(this->SegmentParser->match(matchIdx),
-                   segments[segmentIdx][pointIdx][compIdx]))
-          {
-          vtkErrorMacro("Error parsing boundary specification: Value is not a "
-                        "floating point number: "
-                        << this->SegmentParser->match(matchIdx));
-          return false;
-          }
-        }
-      }
-    }
-
-  // Choose an origin. Select the most negative point considering x, y, then z:
-  origin = segments[0][0];
-  for (size_t segmentIdx = 0; segmentIdx < 12; ++segmentIdx)
-    {
-    for (size_t pointIdx = 0; pointIdx < 2; ++pointIdx)
-      {
-      const vtkVector3d &candidateOrigin = segments[segmentIdx][pointIdx];
-      for (int compIdx = 0; compIdx < 3; ++compIdx)
-        {
-        if (candidateOrigin[compIdx] < origin[compIdx] - tol)
-          { // definitely less than, this is the new origin
-          origin = candidateOrigin;
-          break;
-          }
-        else if (candidateOrigin[compIdx] > origin[compIdx] + tol)
-          { // definitely greater than, move to the next point
-          break;
-          }
-        else
-          { // approximately equal, check next component
-          continue;
-          }
-        }
-      }
-    }
-
-  // Find the segments containing the origin point. There should be 3.
-  size_t latticeIdx = 0;
-  for (size_t segmentIdx = 0; segmentIdx < 12 && latticeIdx < 3; ++segmentIdx)
-    {
-    for (size_t pointIdx = 0; pointIdx < 2 && latticeIdx < 3; ++pointIdx)
-      {
-      const vtkVector3d &candidateOrigin = segments[segmentIdx][pointIdx];
-      const vtkVector3d &endpoint = segments[segmentIdx][pointIdx + 1 % 2];
-
-      if (approxEqual(origin, candidateOrigin, tol))
-        {
-        // Compute the lattice vector:
-        lattice[latticeIdx++] = endpoint - candidateOrigin;
-        }
-      }
-    }
-
-  if (latticeIdx < 3)
-    {
-    vtkWarningMacro("Error determining lattice vectors from boundary segments. "
-                    "Only " << latticeIdx << " segments contain the selected "
-                    "origin point (" << origin[0] << " " << origin[1] << " "
-                    << origin[2] << ").");
-    // return true -- parsing succeeded. latticeFound is false to indicate the
-    // error.
-    return true;
-    }
-
-  // Finally, sort the lattice vectors to the usual convention:
-  // a: largest x component
-  // b: in x-y plane
-  // c: largest z component
-
-  // Set a to the vector with the greatest x:
-  for (size_t i = 1; i < 2; ++i)
-    {
-    if (lattice[i][0] > lattice[0][0])
-      {
-      std::swap(lattice[i], lattice[0]);
-      }
-    }
-
-  // Sort the last two by just comparing the z values:
-  if (lattice[1][2] > lattice[2][2])
-    {
-    std::swap(lattice[1], lattice[2]);
-    }
-
-  latticeFound = true;
   return true;
 }

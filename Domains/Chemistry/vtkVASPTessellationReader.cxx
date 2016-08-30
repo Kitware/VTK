@@ -126,12 +126,12 @@ void vtkVASPTessellationReader::PrintSelf(std::ostream &os, vtkIndent indent)
 vtkVASPTessellationReader::vtkVASPTessellationReader()
   : FileName(NULL),
     TimeParser(new RegEx("^ *time *= *([0-9EeDd.+-]+) *$")), // time = (timeVal)
-    LatticeParser(new RegEx("^ *Rxx *= *([0-9EeDd.+-]+) *," // Rxx
-                            " *Rxy *= *([0-9EeDd.+-]+) *," // Rxy
-                            " *Rxz *= *([0-9EeDd.+-]+) *," // Rxz
-                            " *Ryy *= *([0-9EeDd.+-]+) *," // Ryy
-                            " *Ryz *= *([0-9EeDd.+-]+) *," // Ryz
-                            " *Rzz *= *([0-9EeDd.+-]+) *$" // Rzz
+    LatticeParser(new RegEx("^ *Rx1 *= *([0-9EeDd.+-]+) *," // Rx1
+                            " *Rx2 *= *([0-9EeDd.+-]+) *," // Rx2
+                            " *Rx3 *= *([0-9EeDd.+-]+) *," // Rx3
+                            " *Ry2 *= *([0-9EeDd.+-]+) *," // Ry2
+                            " *Ry3 *= *([0-9EeDd.+-]+) *," // Ry3
+                            " *Rz3 *= *([0-9EeDd.+-]+) *$" // Rz3
                             )),
     AtomCountParser(new RegEx("^ *Natoms *= *([0-9]+) *$")), // Natoms = (int)),
     AtomParser(new RegEx("^ *([0-9]+) *," // Atom index
