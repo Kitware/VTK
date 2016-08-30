@@ -10,6 +10,7 @@ vtk_add_test_python(
   TestDiscreteMarchingCubesAdjacentScalars.py
   TestGraphLayoutFilter.py
   TestMultiBlockStreamer.py
+  TestMultiBlockFromTimeSeries.py
   TestPointConnectivityFilter.py
   TestRectilinearGridToTetrahedra.py
   TestSplineFilter.py
