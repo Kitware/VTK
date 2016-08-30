@@ -11,11 +11,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// This test is intended to benchmark render times for the vtkGPURayCastMapper
+// This test is intended to benchmark render times for the volumemappers
 
 #include "vtkCamera.h"
 #include "vtkColorTransferFunction.h"
 #include "vtkGPUVolumeRayCastMapper.h"
+#include "vtkFixedPointVolumeRayCastMapper.h"
 #include "vtkImageData.h"
 #include "vtkNew.h"
 #include "vtkPiecewiseFunction.h"
@@ -37,6 +38,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
 
   bool useOSP = true;
+  bool useFP = false;
   int EXT=128;
   int RES=900;
   for (int i = 0; i < argc; i++)
@@ -44,6 +46,10 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
     if (!strcmp(argv[i], "-GL"))
       {
       useOSP = false;
+      }
+    if (!strcmp(argv[i], "-FP"))
+      {
+      useFP = true;
       }
     if (!strcmp(argv[i], "-EXT"))
       {
@@ -68,7 +74,15 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   double makeDataTime = timer->GetElapsedTime();
   cerr << "Make data time: " << makeDataTime << endl;
 
-  vtkNew<vtkGPUVolumeRayCastMapper> volumeMapper;
+  vtkNew<vtkGPUVolumeRayCastMapper> gpu_volumeMapper;
+  vtkNew<vtkFixedPointVolumeRayCastMapper> cpu_volumeMapper;
+  vtkVolumeMapper *volumeMapper = gpu_volumeMapper.GetPointer();
+  if (useFP)
+    {
+    cerr << "USE FP" << endl;
+    volumeMapper = cpu_volumeMapper.GetPointer();
+    }
+
   volumeMapper->SetInputConnection(wavelet->GetOutputPort());
 
   vtkNew<vtkVolumeProperty> volumeProperty;
@@ -85,7 +99,7 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   volumeProperty->SetScalarOpacity(pwf.GetPointer());
 
   vtkNew<vtkVolume> volume;
-  volume->SetMapper(volumeMapper.GetPointer());
+  volume->SetMapper(volumeMapper);
   volume->SetProperty(volumeProperty.GetPointer());
 
   vtkNew<vtkRenderWindow> renderWindow;
@@ -99,20 +113,24 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
 
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
-  if (useOSP)
+  if (useOSP && !useFP)
     {
+    cerr << "OSP PASS" << endl;
     renderer->SetPass(osprayPass.GetPointer());
     }
 
   vtkNew<vtkRenderWindowInteractor> iren;
   iren->SetRenderWindow(renderWindow.GetPointer());
 
-  int valid = volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
-                                              volumeProperty.GetPointer());
+  int valid = true;
+  if (!useFP)
+    {
+    valid = gpu_volumeMapper->IsRenderSupported(renderWindow.GetPointer(),
+                                                volumeProperty.GetPointer());
+    }
   int retVal;
   if (valid)
     {
-
     timer->StartTimer();
     renderWindow->Render();
     timer->StopTimer();
