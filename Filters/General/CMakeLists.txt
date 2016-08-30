@@ -18,6 +18,7 @@ set(Module_SRCS
   vtkCoincidentPoints.cxx
   vtkContourTriangulator.cxx
   vtkCountFaces.cxx
+  vtkCountVertices.cxx
   vtkCursor2D.cxx
   vtkCursor3D.cxx
   vtkCurvatures.cxx
