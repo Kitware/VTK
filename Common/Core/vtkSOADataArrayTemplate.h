@@ -261,7 +261,7 @@ extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
 
 #pragma warning (pop)
-#else // Not MSVC
+#elif !defined(__MINGW32__)
 extern template class vtkSOADataArrayTemplate<char>;
 extern template class vtkSOADataArrayTemplate<double>;
 extern template class vtkSOADataArrayTemplate<float>;
