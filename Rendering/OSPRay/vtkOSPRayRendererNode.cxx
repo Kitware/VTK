@@ -487,7 +487,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
-      osp::vec2i isize = {this->Size[0], this->Size[1]};
       this->OFrameBuffer = ospNewFrameBuffer
         (isize,
          OSP_FB_RGBA8,
@@ -554,7 +553,6 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       cameraDir = ospray::opengl::normalize(cameraDir);
 
       float *ospDepthBuffer=nullptr;
-      float *glDepthBuffer = this->GetZBuffer();
       ospDepthBuffer = new float[viewportWidth * viewportHeight];
       glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,

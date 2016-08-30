@@ -116,21 +116,17 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       dim[2] = dim[2]-1;
       }
 
-    size_t typeSize = 0;
     std::string voxelType;
     if (ScalarDataType == VTK_FLOAT)
       {
-      typeSize = sizeof(float);
       voxelType = "float";
       }
     else if (ScalarDataType == VTK_UNSIGNED_CHAR)
       {
-      typeSize = sizeof(unsigned char);
       voxelType = "uchar";
       }
     else if (ScalarDataType == VTK_DOUBLE)
       {
-      typeSize = sizeof(double);
       voxelType = "double";
       }
     else
@@ -153,10 +149,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       //
       // Send Volumetric data to OSPRay
       //
-      char* buffer = NULL;
-      size_t sizeBytes = dim[0]*dim[1]*dim[2] *typeSize;
-
-      buffer = (char*)ScalarDataPointer;
       ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
       double origin[3];
       double scale[3];
@@ -194,8 +186,6 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       vtkColorTransferFunction* colorTF =
         volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
-      int numNodes = colorTF->GetSize();
-      double* tfData = colorTF->GetDataPointer();
 
       this->TFVals.resize(this->NumColors*3);
       this->TFOVals.resize(this->NumColors);

@@ -115,7 +115,6 @@ int TestGPURayCastMapperBenchmark(int argc, char* argv[])
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP && !useFP)
     {
-    cerr << "OSP PASS" << endl;
     renderer->SetPass(osprayPass.GetPointer());
     }
 

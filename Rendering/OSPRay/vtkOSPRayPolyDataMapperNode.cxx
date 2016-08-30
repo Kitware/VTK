@@ -604,7 +604,6 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     };
 
   ospSet3fv(oMaterial,"Ka",ambientf);
-  double scale = property->GetDiffuse();
   if (property->GetDiffuse()==0.0)
     {
     //a workaround for ParaView, remove when ospray supports Ka
