@@ -139,60 +139,60 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       return;
       }
 
-    delete this->OSPRayVolume;
-    this->OSPRayVolume = ospNewVolume("block_bricked_volume");
-
-    //
-    // Send Volumetric data to OSPRay
-    //
-    char* buffer = NULL;
-    size_t sizeBytes = dim[0]*dim[1]*dim[2] *typeSize;
-
-    buffer = (char*)ScalarDataPointer;
-    ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
-    double origin[3];
-    double scale[3];
-    data->GetOrigin(origin);
-    vol->GetScale(scale);
-    double *bds = vol->GetBounds();
-    origin[0] = bds[0];
-    origin[1] = bds[2];
-    origin[2] = bds[4];
-
-    double spacing[3];
-    data->GetSpacing(spacing);
-    scale[0] = (bds[1]-bds[0])/double(dim[0]-1);
-    scale[1] = (bds[3]-bds[2])/double(dim[1]-1);
-    scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
-
-    ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
-    ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
-    ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
-
-    osp::vec3i ll, uu;
-    ll.x = 0, ll.y = 0, ll.z = 0;
-    uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
-    ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
-
     if (!this->TransferFunction)
       {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
       }
-    this->RenderTime = volNode->GetMTime();
 
-    // test for modifications to input
+    // when input data is modified
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
       {
+      delete this->OSPRayVolume;
+      this->OSPRayVolume = ospNewVolume("block_bricked_volume");
+
+      //
+      // Send Volumetric data to OSPRay
+      //
+      char* buffer = NULL;
+      size_t sizeBytes = dim[0]*dim[1]*dim[2] *typeSize;
+
+      buffer = (char*)ScalarDataPointer;
+      ospSet3i(this->OSPRayVolume, "dimensions", dim[0], dim[1], dim[2]);
+      double origin[3];
+      double scale[3];
+      data->GetOrigin(origin);
+      vol->GetScale(scale);
+      double *bds = vol->GetBounds();
+      origin[0] = bds[0];
+      origin[1] = bds[2];
+      origin[2] = bds[4];
+
+      double spacing[3];
+      data->GetSpacing(spacing);
+      scale[0] = (bds[1]-bds[0])/double(dim[0]-1);
+      scale[1] = (bds[3]-bds[2])/double(dim[1]-1);
+      scale[2] = (bds[5]-bds[4])/double(dim[2]-1);
+
+      ospSet3f(this->OSPRayVolume, "gridOrigin", origin[0], origin[1], origin[2]);
+      ospSet3f(this->OSPRayVolume, "gridSpacing", scale[0], scale[1], scale[2]);
+      ospSetString(this->OSPRayVolume, "voxelType", voxelType.c_str());
+
+      osp::vec3i ll, uu;
+      ll.x = 0, ll.y = 0, ll.z = 0;
+      uu.x = dim[0], uu.y = dim[1], uu.z = dim[2];
+      ospSetRegion(this->OSPRayVolume, ScalarDataPointer, ll, uu);
+
       ospSet2f(this->TransferFunction, "valueRange",
                data->GetScalarRange()[0], data->GetScalarRange()[1]);
       }
 
     // test for modifications to volume properties
+    vtkVolumeProperty* volProperty = vol->GetProperty();
     if (vol->GetProperty()->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
       {
-      vtkVolumeProperty* volProperty = vol->GetProperty();
-      vtkColorTransferFunction* colorTF = volProperty->GetRGBTransferFunction(0);
+      vtkColorTransferFunction* colorTF =
+        volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
       int numNodes = colorTF->GetSize();
       double* tfData = colorTF->GetDataPointer();
@@ -216,15 +216,15 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       OSPData tfAlphaData = ospNewData(NumColors, OSP_FLOAT, &TFOVals[0]);
       ospSetData(this->TransferFunction, "opacities", tfAlphaData);
 
-      ospCommit(this->TransferFunction);
-      ospSet1i(this->OSPRayVolume, "gradientShadingEnabled", volProperty->GetShade());
+      ospSetObject(this->OSPRayVolume, "transferFunction",
+                   this->TransferFunction);
+
+      ospSet1i(this->OSPRayVolume, "gradientShadingEnabled",
+               volProperty->GetShade());
       PropertyTime.Modified();
       ospRelease(colorData);
       ospRelease(tfAlphaData);
       }
-
-    ospSetObject((OSPObject)this->OSPRayVolume, "transferFunction", this->TransferFunction);
-    this->BuildTime.Modified();
 
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
       {
@@ -246,8 +246,13 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       {
       ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
       }
+
+    this->RenderTime = volNode->GetMTime();
+    this->BuildTime.Modified();
+
+    ospCommit(this->TransferFunction);
     ospCommit(this->OSPRayVolume);
-    ospAddVolume(OSPRayModel,(OSPVolume)this->OSPRayVolume);
-    ospCommit(OSPRayModel);
+    ospAddVolume(OSPRayModel, this->OSPRayVolume);
+    //ospCommit(OSPRayModel);
   }
 }
