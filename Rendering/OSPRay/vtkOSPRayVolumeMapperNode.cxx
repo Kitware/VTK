@@ -54,6 +54,7 @@ void vtkOSPRayVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 }
 
+//----------------------------------------------------------------------------
 void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 {
   if (prepass)
