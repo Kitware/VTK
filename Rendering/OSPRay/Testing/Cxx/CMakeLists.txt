@@ -7,6 +7,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestOSPRayLights.cxx,
   TestOSPRayMultiBlock.cxx
   TestOSPRayMultiBlockPartialArrayFieldData.cxx,
+  TestOSPRayOrthographic.cxx,
   TestOSPRayPass.cxx,
   TestOSPRayRenderMesh.cxx,
   TestOSPRayScalarBar.cxx
