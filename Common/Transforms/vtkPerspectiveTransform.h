@@ -64,7 +64,8 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   // Invert the transformation.  This will also set a flag so that
   // the transformation will use the inverse of its Input, if an Input
   // has been set.
-  void Inverse() { this->Concatenation->Inverse(); this->Modified(); };
+  void Inverse() VTK_OVERRIDE
+    { this->Concatenation->Inverse(); this->Modified(); };
 
   // Description:
   // Perform an adjustment to the viewport coordinates.  By default Ortho,
@@ -301,7 +302,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   // Description:
   // Make a new transform of the same type -- you are responsible for
   // deleting the transform when you are done with it.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
   // Description:
   // Check for self-reference.  Will return true if concatenating
@@ -310,18 +311,18 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkPerspectiveTransform : public vtkHomogeneous
   // CircuitCheck is automatically called by SetInput(), SetInverse(),
   // and Concatenate(vtkXTransform *).  Avoid using this function,
   // it is experimental.
-  int CircuitCheck(vtkAbstractTransform *transform);
+  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkPerspectiveTransform();
   ~vtkPerspectiveTransform();
 
-  void InternalDeepCopy(vtkAbstractTransform *t);
-  void InternalUpdate();
+  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
+  void InternalUpdate() VTK_OVERRIDE;
 
   vtkHomogeneousTransform *Input;
   vtkTransformConcatenation *Concatenation;

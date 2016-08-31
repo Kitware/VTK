@@ -37,7 +37,7 @@ public:
   // Description:
   // Put the text into the log file.
   // New lines are converted to carriage return new lines.
-  virtual void DisplayText(const char*);
+  void DisplayText(const char*) VTK_OVERRIDE;
 
   // Description:
   // Get the current output as a string

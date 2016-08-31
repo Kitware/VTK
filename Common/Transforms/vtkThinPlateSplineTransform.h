@@ -96,11 +96,11 @@ public:
 
   // Description:
   // Get the MTime.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Make another transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkThinPlateSplineTransform();
@@ -108,19 +108,19 @@ protected:
 
   // Description:
   // Prepare the transformation for application.
-  void InternalUpdate();
+  void InternalUpdate() VTK_OVERRIDE;
 
   // Description:
   // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
-  void ForwardTransformPoint(const float in[3], float out[3]);
-  void ForwardTransformPoint(const double in[3], double out[3]);
+  void ForwardTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void ForwardTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   void ForwardTransformDerivative(const float in[3], float out[3],
-                                  float derivative[3][3]);
+                                  float derivative[3][3]) VTK_OVERRIDE;
   void ForwardTransformDerivative(const double in[3], double out[3],
-                                  double derivative[3][3]);
+                                  double derivative[3][3]) VTK_OVERRIDE;
 
   double Sigma;
   vtkPoints *SourceLandmarks;

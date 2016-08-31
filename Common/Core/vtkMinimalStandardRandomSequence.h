@@ -79,11 +79,11 @@ public:
   // Description:
   // Current value
   // \post unit_range: result>=0.0 && result<=1.0
-  virtual double GetValue();
+  double GetValue() VTK_OVERRIDE;
 
   // Description:
   // Move to the next number in the random sequence.
-  virtual void Next();
+  void Next() VTK_OVERRIDE;
 
   // Description:
   // Convenient method to return a value in a specific range from the

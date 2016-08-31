@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Override GetMTime to include the polyline
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkPolyPlane();

@@ -55,7 +55,7 @@ public:
 
   // Description:
   // Return the MTime also considering the DataSet dependency.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description
   // Evaluate the implicit function. This returns the interpolated scalar value

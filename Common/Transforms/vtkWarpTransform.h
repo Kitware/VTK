@@ -38,7 +38,7 @@ public:
   // inverted using an iterative technique such as Newton's method.
   // The inverse transform is usually around five or six times as
   // computationally expensive as the forward transform.
-  void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   // Description:
   // Get the inverse flag of the transformation.  This flag is
@@ -64,17 +64,17 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-  void InternalTransformPoint(const double in[3], double out[3]);
+  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   // Description:
   // This will calculate the transformation, as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]);
+                                   float derivative[3][3]) VTK_OVERRIDE;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]);
+                                   double derivative[3][3]) VTK_OVERRIDE;
 
   // Description:
   // Do not use these methods.  They exists only as a work-around for

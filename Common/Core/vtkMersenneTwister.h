@@ -98,7 +98,7 @@ public:
   // Description:
   // Current value
   // \post unit_range: result>=0.0 && result<=1.0
-  virtual double GetValue() { return this->GetValue(0); }
+  double GetValue() VTK_OVERRIDE { return this->GetValue(0); }
 
   // Description:
   // Move to the next number in random sequence <id>. If no sequence is
@@ -110,7 +110,7 @@ public:
   // Move to the next number in random sequence <0>. If no sequence is
   // associated with this id, a warning is given and a sequence is generated
   // with default values.
-  virtual void Next() { return this->Next(0); }
+  void Next() VTK_OVERRIDE { return this->Next(0); }
 
 protected:
   vtkMersenneTwister();

@@ -50,11 +50,11 @@ public:
   // Put the text into the log file. The text is processed to
   // replace &, <, > with &amp, &lt, and &gt.
   // Each display method outputs a different XML tag.
-  virtual void DisplayText(const char*);
-  virtual void DisplayErrorText(const char*);
-  virtual void DisplayWarningText(const char*);
-  virtual void DisplayGenericWarningText(const char*);
-  virtual void DisplayDebugText(const char*);
+  void DisplayText(const char*) VTK_OVERRIDE;
+  void DisplayErrorText(const char*) VTK_OVERRIDE;
+  void DisplayWarningText(const char*) VTK_OVERRIDE;
+  void DisplayGenericWarningText(const char*) VTK_OVERRIDE;
+  void DisplayDebugText(const char*) VTK_OVERRIDE;
 
   // Description:
   // Put the text into the log file without processing it.

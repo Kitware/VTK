@@ -39,17 +39,17 @@ public:
   // Description:
   // Apply the transformation to a series of points, and append the
   // results to outPts.
-  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts);
+  void TransformPoints(vtkPoints *inPts, vtkPoints *outPts) VTK_OVERRIDE;
 
   // Description:
   // Apply the transformation to a combination of points, normals
   // and vectors.
-  virtual void TransformPointsNormalsVectors(vtkPoints *inPts,
-                                             vtkPoints *outPts,
-                                             vtkDataArray *inNms,
-                                             vtkDataArray *outNms,
-                                             vtkDataArray *inVrs,
-                                             vtkDataArray *outVrs);
+  void TransformPointsNormalsVectors(vtkPoints *inPts,
+                                     vtkPoints *outPts,
+                                     vtkDataArray *inNms,
+                                     vtkDataArray *outNms,
+                                     vtkDataArray *inVrs,
+                                     vtkDataArray *outVrs) VTK_OVERRIDE;
 
   // Description:
   // Get a copy of the internal transformation matrix.  The
@@ -75,23 +75,23 @@ public:
   // Description:
   // This will calculate the transformation without calling Update.
   // Meant for use only within other VTK classes.
-  void InternalTransformPoint(const float in[3], float out[3]);
-  void InternalTransformPoint(const double in[3], double out[3]);
+  void InternalTransformPoint(const float in[3], float out[3]) VTK_OVERRIDE;
+  void InternalTransformPoint(const double in[3], double out[3]) VTK_OVERRIDE;
 
   // Description:
   // This will calculate the transformation as well as its derivative
   // without calling Update.  Meant for use only within other VTK
   // classes.
   void InternalTransformDerivative(const float in[3], float out[3],
-                                   float derivative[3][3]);
+                                   float derivative[3][3]) VTK_OVERRIDE;
   void InternalTransformDerivative(const double in[3], double out[3],
-                                   double derivative[3][3]);
+                                   double derivative[3][3]) VTK_OVERRIDE;
 
 protected:
   vtkHomogeneousTransform();
   ~vtkHomogeneousTransform();
 
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   vtkMatrix4x4 *Matrix;
 

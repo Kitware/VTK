@@ -91,7 +91,7 @@ public:
 
   // Description:
   // The modified time for this object.
-  virtual vtkMTimeType GetMTime();
+  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkAnnotationLayers();

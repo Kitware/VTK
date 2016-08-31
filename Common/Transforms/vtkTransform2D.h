@@ -119,7 +119,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Apply the transformation to a series of points, and append the

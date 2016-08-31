@@ -65,7 +65,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   // Invert the transformation.  This will also set a flag so that
   // the transformation will use the inverse of its Input, if an Input
   // has been set.
-  void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   // Description:
   // Create a translation matrix and concatenate it with the current
@@ -295,7 +295,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
   // CircuitCheck is automatically called by SetInput(), SetInverse(),
   // and Concatenate(vtkXTransform *).  Avoid using this function,
   // it is experimental.
-  int CircuitCheck(vtkAbstractTransform *transform);
+  int CircuitCheck(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   // Return an inverse transform which will always update itself
   // to match this transform.
@@ -304,11 +304,11 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
 
   // Description:
   // Make a new transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
   // Description:
   // Override GetMTime to account for input and concatenation.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Use this method only if you wish to compute the transformation in
@@ -323,9 +323,9 @@ protected:
   vtkTransform ();
   ~vtkTransform ();
 
-  void InternalDeepCopy(vtkAbstractTransform *t);
+  void InternalDeepCopy(vtkAbstractTransform *t) VTK_OVERRIDE;
 
-  void InternalUpdate();
+  void InternalUpdate() VTK_OVERRIDE;
 
   vtkLinearTransform *Input;
   vtkTransformConcatenation *Concatenation;

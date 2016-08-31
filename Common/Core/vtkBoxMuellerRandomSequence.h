@@ -36,11 +36,11 @@ public:
 
   // Description:
   // Current value.
-  virtual double GetValue();
+  double GetValue() VTK_OVERRIDE;
 
   // Description:
   // Move to the next number in the random sequence.
-  virtual void Next();
+  void Next() VTK_OVERRIDE;
 
   // Description:
   // Return the uniformly distributed sequence of random numbers.

@@ -66,8 +66,9 @@ public:
   // OutOfDomain = 1,
   // NotInitialized = 2,
   // UnexpectedValue = 3
-  virtual int ComputeNextStep(double* xprev, double* xnext, double t,
-                              double& delT, double maxError, double& error)
+  int ComputeNextStep(double* xprev, double* xnext,
+                      double t, double& delT,
+                      double maxError, double& error) VTK_OVERRIDE
     {
       double minStep = delT;
       double maxStep = delT;
@@ -75,9 +76,9 @@ public:
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
-                              double t, double& delT,
-                              double maxError, double& error)
+  int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                      double t, double& delT,
+                      double maxError, double& error) VTK_OVERRIDE
     {
       double minStep = delT;
       double maxStep = delT;
@@ -85,24 +86,24 @@ public:
       return this->ComputeNextStep(xprev, dxprev, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* xnext,
-                              double t, double& delT, double& delTActual,
-                              double minStep, double maxStep,
-                              double maxError, double& error)
+  int ComputeNextStep(double* xprev, double* xnext,
+                      double t, double& delT, double& delTActual,
+                      double minStep, double maxStep,
+                      double maxError, double& error) VTK_OVERRIDE
     {
       return this->ComputeNextStep(xprev, 0, xnext, t, delT, delTActual,
                                    minStep, maxStep, maxError, error);
     }
-  virtual int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
-                              double t, double& delT, double& delTActual,
-                              double minStep, double maxStep,
-                              double maxError, double& error);
+  int ComputeNextStep(double* xprev, double* dxprev, double* xnext,
+                      double t, double& delT, double& delTActual,
+                      double minStep, double maxStep,
+                      double maxError, double& error) VTK_OVERRIDE;
 
 protected:
   vtkRungeKutta45();
   ~vtkRungeKutta45();
 
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Cash-Karp parameters
   static double A[5];

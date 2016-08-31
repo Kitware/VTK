@@ -345,7 +345,7 @@ public:
   // the same effect as invoking Delete() (i.e., it reduces the reference
   // count by 1).
   void UnRegister();
-  virtual void UnRegister(vtkObjectBase *)
+  void UnRegister(vtkObjectBase *) VTK_OVERRIDE
     { this->UnRegister(); }
 
   // Description:

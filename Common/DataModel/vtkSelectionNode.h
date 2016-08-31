@@ -92,7 +92,7 @@ public:
 
   // Description:
   // Return the MTime taking into account changes to the properties
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // vtkSelectionNode specific keys follow:
   // Description:

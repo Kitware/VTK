@@ -36,7 +36,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
  public:
   static vtkMatrixToHomogeneousTransform *New();
   vtkTypeMacro(vtkMatrixToHomogeneousTransform,vtkHomogeneousTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Set the input matrix.  Any modifications to the matrix will be
   // reflected in the transformation.
@@ -46,22 +46,22 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToHomogeneousTransform : public vtkHom
   // Description:
   // The input matrix is left as-is, but the transformation matrix
   // is inverted.
-  void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   // Description:
   // Get the MTime: this is the bit of magic that makes everything work.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Make a new transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkMatrixToHomogeneousTransform();
   ~vtkMatrixToHomogeneousTransform();
 
-  void InternalUpdate();
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalUpdate() VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   int InverseFlag;
   vtkMatrix4x4 *Input;

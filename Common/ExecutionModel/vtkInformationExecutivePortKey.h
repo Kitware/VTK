@@ -58,15 +58,15 @@ public:
   // Copy the entry associated with this key from one information
   // object to another.  If there is no entry in the first information
   // object for this key, the value is removed from the second.
-  virtual void ShallowCopy(vtkInformation* from, vtkInformation* to);
+  void ShallowCopy(vtkInformation* from, vtkInformation* to) VTK_OVERRIDE;
 
   // Description:
   // Report a reference this key has in the given information object.
-  virtual void Report(vtkInformation* info, vtkGarbageCollector* collector);
+  void Report(vtkInformation* info, vtkGarbageCollector* collector) VTK_OVERRIDE;
 
   // Description:
   // Print the key's value in an information object to a stream.
-  virtual void Print(ostream& os, vtkInformation* info);
+  void Print(ostream& os, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkInformationExecutivePortKey(const vtkInformationExecutivePortKey&) VTK_DELETE_FUNCTION;

@@ -234,12 +234,12 @@ public:
 
   // Description:
   // Override GetMTime necessary because of inverse transforms.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Needs a special UnRegister() implementation to avoid
   // circular references.
-  virtual void UnRegister(vtkObjectBase *O);
+  void UnRegister(vtkObjectBase *O) VTK_OVERRIDE;
 
 protected:
   vtkAbstractTransform();

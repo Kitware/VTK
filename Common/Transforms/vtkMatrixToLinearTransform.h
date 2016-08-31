@@ -36,7 +36,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
  public:
   static vtkMatrixToLinearTransform *New();
   vtkTypeMacro(vtkMatrixToLinearTransform,vtkLinearTransform);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Set the input matrix.  Any modifications to the matrix will be
@@ -47,22 +47,22 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkMatrixToLinearTransform : public vtkLinearTr
   // Description:
   // The input matrix is left as-is, but the transformation matrix
   // is inverted.
-  void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   // Description:
   // Get the MTime: this is the bit of magic that makes everything work.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Make a new transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
   vtkMatrixToLinearTransform();
   ~vtkMatrixToLinearTransform();
 
-  void InternalUpdate();
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalUpdate() VTK_OVERRIDE;
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   int InverseFlag;
   vtkMatrix4x4 *Input;

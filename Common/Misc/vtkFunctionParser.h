@@ -134,7 +134,7 @@ public:
 
   // Description:
   // Return parser's MTime
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Set/Get input string to evaluate.

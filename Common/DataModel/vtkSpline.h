@@ -142,7 +142,7 @@ public:
 
   // Description:
   // Return the MTime also considering the Piecewise function.
-  vtkMTimeType GetMTime();
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Deep copy of spline data.
