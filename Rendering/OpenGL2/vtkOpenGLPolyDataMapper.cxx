@@ -1403,11 +1403,11 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderPrimID(
 
 void vtkOpenGLPolyDataMapper::ReplaceShaderCoincidentOffset(
   std::map<vtkShader::Type, vtkShader *> shaders,
-  vtkRenderer *, vtkActor *actor)
+  vtkRenderer *ren, vtkActor *actor)
 {
   float factor = 0.0;
   float offset = 0.0;
-  this->GetCoincidentParameters(actor,factor,offset);
+  this->GetCoincidentParameters(ren, actor,factor,offset);
 
   // if we need an offset handle it here
   // The value of .000016 is suitable for depth buffers
@@ -1818,7 +1818,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
   if (cellBO.Program->IsUniformUsed("coffset"))
     {
     float factor, offset;
-    this->GetCoincidentParameters(actor,factor,offset);
+    this->GetCoincidentParameters(ren, actor,factor,offset);
     cellBO.Program->SetUniformf("coffset",offset);
     // cfactor isn't always used when coffset is.
     if (cellBO.Program->IsUniformUsed("cfactor"))
@@ -2149,8 +2149,18 @@ int getPickState(vtkRenderer *ren)
 }
 
 void vtkOpenGLPolyDataMapper::GetCoincidentParameters(
-  vtkActor *actor, float &factor, float &offset)
+  vtkRenderer* ren, vtkActor *actor,
+  float &factor, float &offset)
 {
+  // hardware picking alsways offset due to saved zbuffer
+  vtkHardwareSelector* selector = ren->GetSelector();
+  if (selector)
+    {
+    offset = 2.0;
+    factor = 0.0;
+    return;
+    }
+
   // 1. ResolveCoincidentTopology is On and non zero for this primitive
   // type
   factor = 0.0;
@@ -2240,6 +2250,12 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
     this->LastSelectionState = picking;
     }
 
+  // render points for point picking in a special way
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+    glDepthMask(GL_FALSE);
+    }
   if (selector && this->PopulateSelectionSettings)
     {
     selector->BeginRenderProp();
@@ -2290,9 +2306,8 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
   // all cell types should be rendered as points
   vtkHardwareSelector* selector = ren->GetSelector();
   bool pointPicking = false;
-  if (selector && this->PopulateSelectionSettings &&
-      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     representation = VTK_POINTS;
     pointPicking = true;
@@ -2449,15 +2464,14 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
   vtkActor *actor)
 {
   vtkHardwareSelector* selector = ren->GetSelector();
+  // render points for point picking in a special way
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+    glDepthMask(GL_TRUE);
+    }
   if (selector && this->PopulateSelectionSettings)
     {
-    // render points for point picking in a special way
-    if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-        selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
-      {
-      glDepthMask(GL_TRUE);
-      glDisable(GL_POLYGON_OFFSET_FILL);
-      }
     selector->EndRenderProp();
     }
 
@@ -2621,7 +2635,8 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
   vtkInformation *info = act->GetPropertyKeys();
   if (info && info->Has(vtkValuePass::RENDER_VALUES()))
     {
-    this->UseInvertibleColorFor(info->Get(vtkValuePass::SCALAR_MODE()),
+    this->UseInvertibleColorFor(this->CurrentInput,
+                                info->Get(vtkValuePass::SCALAR_MODE()),
                                 info->Get(vtkValuePass::ARRAY_MODE()),
                                 info->Get(vtkValuePass::ARRAY_ID()),
                                 info->Get(vtkValuePass::ARRAY_NAME()),
@@ -2719,9 +2734,41 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     this->HavePickScalars = true;
     }
 
+  // handle composite ID point picking seperately as the data is on Cells
+  if (this->HavePickScalars &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
+      selector->GetCurrentPass() == vtkHardwareSelector::COMPOSITE_INDEX_PASS)
+    {
+    std::vector<unsigned char> tmpColors;
+    // composite id is stored in ***CELL DATA*** but in point
+    // rendering each point of each cell is rendered. So we
+    // put the provided value into the texture for each point
+    // of each cell
+    vtkIdType* indices(NULL);
+    vtkIdType npts(0);
+    // for each prim type
+    vtkIdType cellNum = 0;
+    for (int j = 0; j < 4; j++)
+      {
+      for (prims[j]->InitTraversal(); prims[j]->GetNextCell(npts, indices); )
+        {
+        unsigned int value = mapArray->GetValue(cellNum);
+        value++; // see vtkHardwareSelector.cxx ID_OFFSET
+        for (int i = 0; i < npts; i++)
+          {
+          newColors.push_back(value & 0xff);
+          newColors.push_back((value & 0xff00) >> 8);
+          newColors.push_back((value & 0xff0000) >> 16);
+          newColors.push_back(0xff);
+          }
+        } // for cell
+      }
+    return;
+    }
+
+
   // handle point picking, all is drawn as points
   if (this->HavePickScalars &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24 &&
       selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     vtkIdType* indices(NULL);
@@ -2738,6 +2785,10 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
             {
             value = mapArrayId->GetValue(indices[i]);
             }
+          if (mapArray)
+            {
+            value = mapArray->GetValue(indices[i]);
+            }
           value++;
           if (selector->GetCurrentPass() == vtkHardwareSelector::ID_MID24)
             {
@@ -2753,7 +2804,7 @@ void vtkOpenGLPolyDataMapper::AppendCellTextures(
     return;
     }
 
-  // handle process_id picking
+  // handle call based process_id picking
   if (this->HavePickScalars &&
       selector->GetCurrentPass() == vtkHardwareSelector::PROCESS_PASS)
     {
@@ -3109,9 +3160,8 @@ void vtkOpenGLPolyDataMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act
   int representation = act->GetProperty()->GetRepresentation();
   vtkHardwareSelector* selector = ren->GetSelector();
   bool pointPicking = false;
-  if (selector && this->PopulateSelectionSettings &&
-      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     representation = VTK_POINTS;
     pointPicking = true;
@@ -3277,9 +3327,8 @@ void vtkOpenGLPolyDataMapper::BuildIBO(
 
   vtkHardwareSelector* selector = ren->GetSelector();
 
-  if (selector && this->PopulateSelectionSettings &&
-      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
-      selector->GetCurrentPass() >= vtkHardwareSelector::ID_LOW24)
+  if (selector &&
+      selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS)
     {
     representation = VTK_POINTS;
     }

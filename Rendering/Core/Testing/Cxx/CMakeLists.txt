@@ -1,13 +1,25 @@
 if(VTK_RENDERING_BACKEND STREQUAL "OpenGL2")
   set(extra_opengl2_tests
     TestCompositePolyDataMapper2.cxx,NO_DATA
+    TestCompositePolyDataMapper2Picking.cxx,NO_DATA
     TestCompositePolyDataMapper2Scalars.cxx,NO_DATA
+    TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA
+    TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA
+    TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA
     TestMultiBlockPartialArrayPointData.cxx
     TestMultiBlockPartialArrayFieldData.cxx
     # the following produce incorrect results in OpenGL
     TestTranslucentLUTAlphaBlending.cxx
     TestTranslucentLUTTextureAlphaBlending.cxx
     TestAreaSelections.cxx
+    )
+else()
+  set(extra_opengl2_tests
+    TestCompositePolyDataMapper2.cxx,NO_DATA,NO_VALID
+    TestCompositePolyDataMapper2Scalars.cxx,NO_DATA,NO_VALID
+    TestCompositePolyDataMapper2CellScalars.cxx,NO_DATA,NO_VALID
+    TestCompositePolyDataMapper2MixedGeometryCellScalars.cxx,NO_DATA,NO_VALID
+    TestCompositePolyDataMapper2MixedGeometryEdges.cxx,NO_DATA,NO_VALID
     )
 endif()
 

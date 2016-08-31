@@ -73,6 +73,7 @@ class vtkWindow;
 class vtkRenderer;
 class vtkActor;
 class vtkDataSet;
+class vtkDataObject;
 class vtkFloatArray;
 class vtkImageData;
 class vtkScalarsToColors;
@@ -472,6 +473,13 @@ public:
 
   // Description:
   // Used internally by vtkValuePass
+  void UseInvertibleColorFor(vtkDataObject *input,
+    int scalarMode,
+    int arrayAccessMode,
+    int arrayId,
+    const char *arrayName,
+    int arrayComponent,
+    double *scalarRange);
   void UseInvertibleColorFor(int scalarMode,
     int arrayAccessMode,
     int arrayId,

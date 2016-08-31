@@ -87,8 +87,18 @@ public:
   size_t CreateStripIndexBuffer(
     vtkCellArray *cells, bool wireframeTriStrips);
 
+  static void AppendStripIndexBuffer(
+    std::vector<unsigned int> &indexArray,
+    vtkCellArray *cells,
+    vtkIdType vertexOffset,  bool wireframeTriStrips);
+
   // Description:
   // special index buffer for polys wireframe with edge visibilityflags
+  static void AppendEdgeFlagIndexBuffer(
+    std::vector<unsigned int> &indexArray,
+    vtkCellArray *cells,
+    vtkIdType vertexOffset,  vtkDataArray *edgeflags);
+
   size_t CreateEdgeFlagIndexBuffer(
     vtkCellArray *cells, vtkDataArray *edgeflags);
 

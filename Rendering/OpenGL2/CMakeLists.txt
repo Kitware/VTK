@@ -24,7 +24,6 @@ set(Module_SRCS
   vtkEDLShading.cxx
   vtkFrameBufferObject.cxx
   vtkGaussianBlurPass.cxx
-  vtkGenericCompositePolyDataMapper2.cxx
   vtkGenericOpenGLRenderWindow.cxx
   vtkHiddenLineRemovalPass.cxx
   vtkImageProcessingPass.cxx
