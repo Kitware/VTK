@@ -551,6 +551,7 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
 
   // on mesa we may not have float textures even though we think we do
   // this is due to Mesa being iompacted by a patent issue with SGI
+#if GL_ES_VERSION_2_0 != 1
   if (haveFloatTextures)
     {
     const char *glVersion =
@@ -566,6 +567,7 @@ void vtkOpenGLRenderWindow::InitializeTextureInternalFormats()
       return;
       }
     }
+#endif
 
   if (haveFloatTextures)
     {
