@@ -161,6 +161,12 @@
 # define VTK_DELETE_FUNCTION
 #endif
 
+/** extern template declarations for C++11
+ */
+#if __cplusplus >= 201103L && !defined(_MSC_VER) && !defined(__MINGW32__)
+#define VTK_USE_EXTERN_TEMPLATE
+#endif
+
 /** std::auto_ptr is deprecated in C++11 and will be removed in C++17
  *  use std::unique_ptr in C++11 and later compilers.
  */

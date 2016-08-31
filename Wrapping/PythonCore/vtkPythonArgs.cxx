@@ -21,7 +21,7 @@ more efficient and flexible that the original PyArg_ParseTuple() code,
 resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
-// Keep vtkPythonArgs.h from declaring "externs" for what we define here
+// Keep vtkPythonArgs.h from declaring externs for templates we instantiate
 #define VTK_PYTHON_ARGS_CXX
 
 #include "vtkPythonArgs.h"

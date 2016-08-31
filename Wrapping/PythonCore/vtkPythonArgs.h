@@ -824,8 +824,7 @@ PyObject *vtkPythonArgs::BuildBytes(const char *a, int n)
   vtkForPythonArrayTypeMacro(unsigned long long)
 
 // Forward declare the Array class template over all types:
-#if !defined(VTK_PYTHON_ARGS_CXX) && \
-    !defined(_MSC_VER) && !defined(__MINGW32__)
+#if defined(VTK_USE_EXTERN_TEMPLATE) && !defined(VTK_PYTHON_ARGS_CXX)
 
 #define vtkForPythonArrayTypeMacro(type) \
   extern template class vtkPythonArgs::Array<type>;
