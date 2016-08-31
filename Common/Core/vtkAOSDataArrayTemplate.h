@@ -305,7 +305,7 @@ extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
 extern VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
 
 #pragma warning (pop)
-#elif !defined(__MINGW32__)
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
 extern template class vtkAOSDataArrayTemplate<char>;
 extern template class vtkAOSDataArrayTemplate<double>;
 extern template class vtkAOSDataArrayTemplate<float>;
