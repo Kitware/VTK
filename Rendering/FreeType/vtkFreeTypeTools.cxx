@@ -1452,7 +1452,8 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   int numLines = metaData.lineMetrics.size();
   double lineSpacing = numLines > 1 ? metaData.textProperty->GetLineSpacing()
                                     : 1.;
-  int fullHeight = numLines * metaData.height * lineSpacing +
+  int fullHeight = numLines * metaData.height +
+                   (numLines - 1) * metaData.height * (lineSpacing - 1.) +
                    metaData.textProperty->GetLineOffset();
 
   // Will we be rendering a background?
