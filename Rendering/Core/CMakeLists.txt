@@ -62,6 +62,7 @@ set(Module_SRCS
   vtkProp3DFollower.cxx
   vtkPropAssembly.cxx
   vtkPropCollection.cxx
+  vtkPropPicker3D.cxx
   vtkProp.cxx
   vtkProperty2D.cxx
   vtkProperty.cxx
@@ -74,6 +75,7 @@ set(Module_SRCS
   vtkRenderWindowCollection.cxx
   vtkRenderWindow.cxx
   vtkRenderWindowInteractor.cxx
+  vtkRenderWindowInteractor3D.cxx
   vtkSelectVisiblePoints.cxx
   vtkShaderDeviceAdapter2.cxx
   vtkTextActor.cxx
@@ -113,6 +115,7 @@ set(Module_SRCS
   # Needed by vtkRenderWindowInteractor, for the default interactor.
   vtkInteractorStyle.cxx
   vtkInteractorStyleSwitchBase.cxx
+  vtkInteractorStyle3D.cxx
   # vtkTDx stuff dragged in by vtkInteractorStyle
   vtkTDxInteractorStyle.cxx
   vtkTDxInteractorStyleCamera.cxx
