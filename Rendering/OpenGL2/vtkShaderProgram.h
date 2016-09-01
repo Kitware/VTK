@@ -207,6 +207,20 @@ public:
   // name.
   bool IsAttributeUsed(const char *name);
 
+  // maps of std::string are super slow when calling find
+  // with a string literal or const char * as find
+  // forces construction/copy/destruction of a
+  // std::sting copy of the const char *
+  // In spite of the doubters this can really be a
+  // huge CPU hog.
+  struct cmp_str
+  {
+     bool operator()(const char *a, const char *b) const
+     {
+        return strcmp(a, b) < 0;
+     }
+  };
+
 protected:
   vtkShaderProgram();
   ~vtkShaderProgram();
@@ -284,10 +298,11 @@ protected:
 
   std::string Error;
 
-  std::map<std::string, int> AttributeLocs;
-
-
-  std::map<std::string, int> UniformLocs;
+  // since we are using const char * arrays we have to
+  // free our memory :-)
+  void ClearMaps();
+  std::map<const char *, int, cmp_str> AttributeLocs;
+  std::map<const char *, int, cmp_str> UniformLocs;
 
   friend class VertexArrayObject;
 

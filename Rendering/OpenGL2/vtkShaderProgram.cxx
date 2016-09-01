@@ -59,6 +59,8 @@ inline GLenum convertTypeToGL(int type)
 
 } // end anon namespace
 
+typedef std::map<const char *, int, vtkShaderProgram::cmp_str>::iterator IterT;
+
 vtkStandardNewMacro(vtkShaderProgram)
 
 vtkCxxSetObjectMacro(vtkShaderProgram,VertexShader,vtkShader)
@@ -89,6 +91,7 @@ vtkShaderProgram::vtkShaderProgram()
 
 vtkShaderProgram::~vtkShaderProgram()
 {
+  this->ClearMaps();
   if (this->VertexShader)
     {
     this->VertexShader->Delete();
@@ -281,6 +284,20 @@ bool vtkShaderProgram::DetachShader(const vtkShader *shader)
     }
 }
 
+void vtkShaderProgram::ClearMaps()
+{
+  for (IterT i = this->UniformLocs.begin(); i != this->UniformLocs.end(); i++)
+    {
+    free(const_cast<char *>(i->first));
+    }
+  this->UniformLocs.clear();
+  for (IterT i = this->AttributeLocs.begin(); i != this->AttributeLocs.end(); i++)
+    {
+    free(const_cast<char *>(i->first));
+    }
+  this->AttributeLocs.clear();
+}
+
 bool vtkShaderProgram::Link()
 {
   if (this->Linked)
@@ -295,7 +312,7 @@ bool vtkShaderProgram::Link()
     }
 
   // clear out the list of uniforms used
-  this->UniformLocs.clear();
+  this->ClearMaps();
 
 #if GL_ES_VERSION_2_0 != 1
   // bind the outputs if specified
@@ -330,7 +347,6 @@ bool vtkShaderProgram::Link()
     return false;
     }
   this->Linked = true;
-  this->AttributeLocs.clear();
   return true;
 }
 
@@ -504,7 +520,8 @@ bool vtkShaderProgram::UseAttributeArray(const char *name, int offset,
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not use attribute " + std::string(name) + ". No such attribute.";
+    this->Error = "Could not use attribute (does not exist) ";
+    this->Error += name;
     return false;
     }
   glVertexAttribPointer(location, elementTupleSize, convertTypeToGL(elementType),
@@ -518,7 +535,8 @@ bool vtkShaderProgram::SetUniformi(const char *name, int i)
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform1i(location, static_cast<GLint>(i));
@@ -530,7 +548,8 @@ bool vtkShaderProgram::SetUniformf(const char *name, float f)
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform1f(location, static_cast<GLfloat>(f));
@@ -543,7 +562,8 @@ bool vtkShaderProgram::SetUniformMatrix(const char *name,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   float data[16];
@@ -561,7 +581,8 @@ bool vtkShaderProgram::SetUniformMatrix3x3(const char *name,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniformMatrix3fv(location, 1, GL_FALSE, matrix);
@@ -582,7 +603,8 @@ bool vtkShaderProgram::SetUniformMatrix4x4v(
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniformMatrix4fv(location, count, GL_FALSE, matrix);
@@ -595,7 +617,8 @@ bool vtkShaderProgram::SetUniformMatrix(const char *name,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   float data[9];
@@ -613,7 +636,8 @@ bool vtkShaderProgram::SetUniform1fv(const char *name, const int count,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform1fv(location, count, static_cast<const GLfloat *>(v));
@@ -626,7 +650,8 @@ bool vtkShaderProgram::SetUniform1iv(const char *name, const int count,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform1iv(location, count, static_cast<const GLint *>(v));
@@ -639,7 +664,8 @@ bool vtkShaderProgram::SetUniform3fv(const char *name, const int count,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform3fv(location, count, (const GLfloat *)v);
@@ -652,7 +678,8 @@ bool vtkShaderProgram::SetUniform4fv(const char *name, const int count,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform4fv(location, count, (const GLfloat *)v);
@@ -664,7 +691,8 @@ bool vtkShaderProgram::SetUniform2f(const char *name, const float v[2])
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform2fv(location, 1, v);
@@ -677,7 +705,8 @@ bool vtkShaderProgram::SetUniform2fv(const char *name, const int count,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform2fv(location, count, (const GLfloat *)f);
@@ -689,7 +718,8 @@ bool vtkShaderProgram::SetUniform3f(const char *name, const float v[3])
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform3fv(location, 1, v);
@@ -701,7 +731,8 @@ bool vtkShaderProgram::SetUniform4f(const char *name, const float v[4])
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform4fv(location, 1, v);
@@ -713,7 +744,8 @@ bool vtkShaderProgram::SetUniform2i(const char *name, const int v[2])
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   glUniform2iv(location, 1, v);
@@ -726,7 +758,8 @@ bool vtkShaderProgram::SetUniform3uc(const char *name,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   float colorf[3] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f};
@@ -740,7 +773,8 @@ bool vtkShaderProgram::SetUniform4uc(const char *name,
   GLint location = static_cast<GLint>(this->FindUniform(name));
   if (location == -1)
     {
-    this->Error = "Could not set uniform " + std::string(name) + ". No such uniform.";
+    this->Error = "Could not set uniform (does not exist) ";
+    this->Error += name;
     return false;
     }
   float colorf[4] = {v[0] / 255.0f, v[1] / 255.0f, v[2] / 255.0f, v[3] / 255.0f};
@@ -754,13 +788,15 @@ bool vtkShaderProgram::SetAttributeArrayInternal(
 {
   if (type == -1)
     {
-    this->Error = "Unrecognized data type for attribute " + std::string(name) + ".";
+    this->Error = "Unrecognized data type for attribute ";
+    this->Error += name;
     return false;
     }
   GLint location = static_cast<GLint>(this->FindAttributeArray(name));
   if (location == -1)
     {
-    this->Error = "Could not set attribute " + std::string(name) + ". No such attribute.";
+    this->Error = "Could not set attribute (does not exist) ";
+    this->Error += name;
     return false;
     }
   const GLvoid *data = static_cast<const GLvoid *>(buffer);
@@ -776,28 +812,20 @@ inline int vtkShaderProgram::FindAttributeArray(const char *cname)
     return -1;
     }
 
-  std::string name(cname);
   GLint loc = -1;
 
-  typedef std::map<std::string, int>::iterator IterT;
-  IterT iter = this->AttributeLocs.find(name);
+  IterT iter = this->AttributeLocs.find(cname);
   if (iter == this->AttributeLocs.end())
     {
     loc = glGetAttribLocation(static_cast<GLuint>(Handle),
                               static_cast<const GLchar *>(cname));
-    this->AttributeLocs.insert(std::make_pair(name, static_cast<int>(loc)));
+    const char *allocStr = strdup(cname);
+    this->AttributeLocs.insert(std::make_pair(allocStr, static_cast<int>(loc)));
     }
   else
     {
     loc = iter->second;
     }
-
-  if (loc == -1)
-    {
-    this->Error = "Specified attribute not found in current shader program: ";
-    this->Error += name;
-    }
-
   return loc;
 }
 
@@ -808,87 +836,44 @@ inline int vtkShaderProgram::FindUniform(const char *cname)
     return -1;
     }
 
-  std::string name(cname);
   GLint loc = -1;
 
-  typedef std::map<std::string, int>::iterator IterT;
-  IterT iter = this->UniformLocs.find(name);
+  IterT iter = this->UniformLocs.find(cname);
   if (iter == this->UniformLocs.end())
     {
     loc = static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
                                                 (const GLchar *)cname));
-    this->UniformLocs.insert(std::make_pair(cname, static_cast<int>(loc)));
+    const char *allocStr = strdup(cname);
+    this->UniformLocs.insert(std::make_pair(allocStr, static_cast<int>(loc)));
     }
   else
     {
     loc = iter->second;
     }
-
-  if (loc == -1)
-    {
-    this->Error = "Uniform " + name + " not found in current shader program.";
-    }
-
   return loc;
 }
 
-
 bool vtkShaderProgram::IsUniformUsed(const char *cname)
 {
-  if (cname == NULL)
+  int result = this->FindUniform(cname);
+
+  if (result == -1 && !this->Linked)
     {
-    return false;
+    vtkErrorMacro("attempt to find uniform when the shader program is not linked");
     }
-
-  std::string name(cname);
-
-  // see if we have cached the result
-  typedef std::map<std::string, int>::iterator iter;
-  iter found = this->UniformLocs.find(name);
-  // if not, go query openGL
-  if (found == this->UniformLocs.end())
-    {
-    if (!this->Linked)
-      {
-      vtkErrorMacro("attempt to find uniform when the shader program is not linked");
-      return false;
-      }
-    GLint location =
-      static_cast<int>(glGetUniformLocation(static_cast<GLuint>(Handle),
-                                            (const GLchar *)cname));
-    std::pair<iter, bool> res = this->UniformLocs.insert(
-          std::make_pair(name, static_cast<int>(location)));
-    found = res.first;
-    }
-
-  return found->second != -1;
+  return (result != -1);
 }
 
 // ----------------------------------------------------------------------------
 bool vtkShaderProgram::IsAttributeUsed(const char *cname)
 {
-  if (cname == NULL || !this->Linked)
-    {
-    return -1;
-    }
+  int result = this->FindAttributeArray(cname);
 
-  std::string name(cname);
-  GLint loc = -1;
-
-  typedef std::map<std::string, int>::iterator IterT;
-  IterT iter = this->AttributeLocs.find(name);
-  if (iter == this->AttributeLocs.end())
+  if (result == -1 && !this->Linked)
     {
-    loc = glGetAttribLocation(static_cast<GLuint>(Handle),
-                              static_cast<const GLchar*>(cname));
-    this->AttributeLocs.insert(std::make_pair(name, static_cast<int>(loc)));
+    vtkErrorMacro("attempt to find attribute when the shader program is not linked");
     }
-  else
-    {
-    loc = iter->second;
-    }
-
-  return loc != -1;
+  return (result != -1);
 }
 
 // ----------------------------------------------------------------------------
