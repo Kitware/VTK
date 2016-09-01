@@ -320,5 +320,30 @@ inline vtkTypeBool vtkDataTypesCompare(int a, int b)
 }
 #endif
 
+/*--------------------------------------------------------------------------*/
+/** A macro to instantiate a template over all numerical types */
+#define vtkInstantiateTemplateMacro(decl) \
+  decl<float>; \
+  decl<double>; \
+  decl<char>; \
+  decl<signed char>; \
+  decl<unsigned char>; \
+  decl<short>; \
+  decl<unsigned short>; \
+  decl<int>; \
+  decl<unsigned int>; \
+  decl<long>; \
+  decl<unsigned long>; \
+  decl<long long>; \
+  decl<unsigned long long>;
+
+/** A macro to declare extern templates for all numerical types */
+#ifdef VTK_USE_EXTERN_TEMPLATE
+#define vtkExternTemplateMacro(decl) \
+  vtkInstantiateTemplateMacro(decl)
+#else
+#define vtkExternTemplateMacro(decl)
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkType.h
