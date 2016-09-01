@@ -211,18 +211,33 @@ private:
 // Declare vtkArrayDownCast implementations for SoA containers:
 vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 
-# define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
-  template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate< T >
-
 #endif // header guard
 
 // This portion must be OUTSIDE the include blockers. This is used to tell
 // libraries other than vtkCommonCore that instantiations of
 // vtkSOADataArrayTemplate can be found externally. This prevents each library
 // from instantiating these on their own.
-#ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
-#if defined(VTK_BUILD_SHARED_LIBS)
-#if defined(_MSC_VER)
+#ifdef VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+#define VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(T) \
+  template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate< T >
+#elif defined(VTK_USE_EXTERN_TEMPLATE)
+#ifndef VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
+#define VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
+#ifdef _MSC_VER
+#pragma warning (push)
+// The following is needed when the vtkSOADataArrayTemplate is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+#endif
+vtkExternTemplateMacro(
+  extern template class VTKCOMMONCORE_EXTERN vtkSOADataArrayTemplate)
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+#endif // VTK_SOA_DATA_ARRAY_TEMPLATE_EXTERN
+
+// The following clause is only for MSVC 2008 and 2010
+#elif defined(_MSC_VER) && !defined(VTK_BUILD_SHARED_LIBS)
 #pragma warning (push)
 
 // C4091: 'extern ' : ignored on left of 'int' when no variable is declared
@@ -246,37 +261,11 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkSOADataArrayTemplate)
 
 // Use an "extern explicit instantiation" to give the class a DLL
 // interface.  This is a compiler-specific extension.
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(char);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(double);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(float);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(int);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(long);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(long long);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(short);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(signed char);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned int);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned long long);
-extern VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned short);
+vtkInstantiateTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkSOADataArrayTemplate)
 
 #pragma warning (pop)
-#elif defined(VTK_USE_EXTERN_TEMPLATE)
-extern template class vtkSOADataArrayTemplate<char>;
-extern template class vtkSOADataArrayTemplate<double>;
-extern template class vtkSOADataArrayTemplate<float>;
-extern template class vtkSOADataArrayTemplate<int>;
-extern template class vtkSOADataArrayTemplate<long>;
-extern template class vtkSOADataArrayTemplate<long long>;
-extern template class vtkSOADataArrayTemplate<short>;
-extern template class vtkSOADataArrayTemplate<signed char>;
-extern template class vtkSOADataArrayTemplate<unsigned char>;
-extern template class vtkSOADataArrayTemplate<unsigned int>;
-extern template class vtkSOADataArrayTemplate<unsigned long>;
-extern template class vtkSOADataArrayTemplate<unsigned long long>;
-extern template class vtkSOADataArrayTemplate<unsigned short>;
-#endif // _MSC_VER
-#endif // VTK_BUILD_SHARED_LIBS
-#endif // VTK_SOA_DATA_ARRAY_TEMPLATE_INSTANTIATING
+
+#endif
 
 // VTK-HeaderTest-Exclude: vtkSOADataArrayTemplate.h
