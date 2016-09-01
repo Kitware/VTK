@@ -177,18 +177,9 @@ inline int vtkMPICommunicatorGetVTKType(MPI_Datatype type)
   return VTK_CHAR;
 }
 
-inline int vtkMPICommunicatorCheckSize(int vtkType, vtkIdType length)
+inline int vtkMPICommunicatorCheckSize(vtkIdType length)
 {
-  int typeSize;
-  switch(vtkType)
-    {
-    vtkTemplateMacro(typeSize = sizeof(VTK_TT));
-    default:
-      typeSize = 1;
-      break;
-    }
-
-  if (length*typeSize > VTK_INT_MAX)
+  if (length > VTK_INT_MAX)
     {
     vtkGenericWarningMacro(<< "This operation not yet supported for more than "
                            << VTK_INT_MAX << " bytes");
@@ -310,7 +301,7 @@ int vtkMPICommunicatorReduceData(const void *sendBuffer, void *recvBuffer,
                                  MPI_Op operation, int destProcessId,
                                  MPI_Comm *comm)
 {
-  if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return MPI_Reduce(const_cast<void *>(sendBuffer), recvBuffer, length, mpiType,
                     operation, destProcessId, *comm);
@@ -320,7 +311,7 @@ int vtkMPICommunicatorAllReduceData(const void *sendBuffer, void *recvBuffer,
                                     vtkIdType length, int type,
                                     MPI_Op operation, MPI_Comm *comm)
 {
-  if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return MPI_Allreduce(const_cast<void *>(sendBuffer), recvBuffer,
                        length, mpiType, operation, *comm);
@@ -1163,7 +1154,7 @@ int vtkMPICommunicator::BroadcastVoidArray(void *data, vtkIdType length,
                                            int type, int root)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
-  if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length)) return 0;
   return CheckForMPIError(MPI_Bcast(data, length,
                                     vtkMPICommunicatorGetMPIType(type),
                                     root, *this->MPIComm->Handle));
@@ -1178,7 +1169,7 @@ int vtkMPICommunicator::GatherVoidArray(const void *sendBuffer,
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
-  if (!vtkMPICommunicatorCheckSize(type, length*numProc)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length*numProc)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return CheckForMPIError(MPI_Gather(const_cast<void *>(sendBuffer),
                                      length, mpiType,
@@ -1195,7 +1186,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
                                          int destProcessId)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
-  if (!vtkMPICommunicatorCheckSize(type, sendLength)) return 0;
+  if (!vtkMPICommunicatorCheckSize(sendLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
   // become int arrays.
@@ -1225,7 +1216,7 @@ int vtkMPICommunicator::GatherVVoidArray(const void *sendBuffer,
     mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
       {
-      if (!vtkMPICommunicatorCheckSize(type, recvLengths[i] + offsets[i]))
+      if (!vtkMPICommunicatorCheckSize(recvLengths[i] + offsets[i]))
         {
         return 0;
         }
@@ -1254,7 +1245,7 @@ int vtkMPICommunicator::ScatterVoidArray(const void *sendBuffer,
                                          int srcProcessId)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
-  if (!vtkMPICommunicatorCheckSize(type, length)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return CheckForMPIError(MPI_Scatter(const_cast<void *>(sendBuffer),
                                       length, mpiType,
@@ -1271,7 +1262,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
                                           int srcProcessId)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
-  if (!vtkMPICommunicatorCheckSize(type, recvLength)) return 0;
+  if (!vtkMPICommunicatorCheckSize(recvLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
   // become int arrays.
@@ -1302,7 +1293,7 @@ int vtkMPICommunicator::ScatterVVoidArray(const void *sendBuffer,
     mpiSendLengths.resize(numProc);  mpiOffsets.resize(numProc);
     for (int i = 0; i < numProc; i++)
       {
-      if (!vtkMPICommunicatorCheckSize(type, sendLengths[i] + offsets[i]))
+      if (!vtkMPICommunicatorCheckSize(sendLengths[i] + offsets[i]))
         {
         return 0;
         }
@@ -1331,7 +1322,7 @@ int vtkMPICommunicator::AllGatherVoidArray(const void *sendBuffer,
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
   int numProc;
   MPI_Comm_size(*this->MPIComm->Handle, &numProc);
-  if (!vtkMPICommunicatorCheckSize(type, length*numProc)) return 0;
+  if (!vtkMPICommunicatorCheckSize(length*numProc)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   return CheckForMPIError(MPI_Allgather(const_cast<void *>(sendBuffer),
                                         length, mpiType,
@@ -1347,7 +1338,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
                                             vtkIdType *offsets, int type)
 {
   vtkMPICommunicatorDebugBarrier(this->MPIComm->Handle);
-  if (!vtkMPICommunicatorCheckSize(type, sendLength)) return 0;
+  if (!vtkMPICommunicatorCheckSize(sendLength)) return 0;
   MPI_Datatype mpiType = vtkMPICommunicatorGetMPIType(type);
   // We have to jump through several hoops to make sure vtkIdType arrays
   // become int arrays.
@@ -1388,7 +1379,7 @@ int vtkMPICommunicator::AllGatherVVoidArray(const void *sendBuffer,
   mpiRecvLengths.resize(numProc);  mpiOffsets.resize(numProc);
   for (int i = 0; i < numProc; i++)
     {
-    if (!vtkMPICommunicatorCheckSize(type, recvLengths[i] + offsets[i]))
+    if (!vtkMPICommunicatorCheckSize(recvLengths[i] + offsets[i]))
       {
       return 0;
       }
