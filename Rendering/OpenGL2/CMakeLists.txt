@@ -54,6 +54,8 @@ set(Module_SRCS
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
   vtkOpenGLShaderCache.cxx
+  vtkOpenGLSphereMapper.cxx
+  vtkOpenGLStickMapper.cxx
   vtkOpenGLTextActor.cxx
   vtkOpenGLTextActor3D.cxx
   vtkOpenGLTextMapper.cxx
@@ -157,6 +159,8 @@ set(shader_files
   glsl/vtkSSAAPassFS.glsl
   glsl/vtkSobelGradientMagnitudePass1FS.glsl
   glsl/vtkSobelGradientMagnitudePass2FS.glsl
+  glsl/vtkSphereMapperVS.glsl
+  glsl/vtkStickMapperVS.glsl
   glsl/vtkTextureObjectFS.glsl
   glsl/vtkTextureObjectVS.glsl
   )

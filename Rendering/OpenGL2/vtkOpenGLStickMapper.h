@@ -19,10 +19,10 @@
 #ifndef vtkOpenGLStickMapper_h
 #define vtkOpenGLStickMapper_h
 
-#include "vtkDomainsChemistryOpenGL2Module.h" // For export macro
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkOpenGLPolyDataMapper.h"
 
-class VTKDOMAINSCHEMISTRYOPENGL2_EXPORT vtkOpenGLStickMapper : public vtkOpenGLPolyDataMapper
+class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLStickMapper : public vtkOpenGLPolyDataMapper
 {
 public:
   static vtkOpenGLStickMapper* New();
