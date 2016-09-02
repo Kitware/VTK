@@ -185,9 +185,18 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
 {
   delete[] this->Buffer;
   delete[] this->ZBuffer;
-  ospRelease((OSPModel)this->OModel);
-  ospRelease((OSPRenderer)this->ORenderer);
-  ospRelease(this->OFrameBuffer);
+  if (this->OModel)
+    {
+    ospRelease((OSPModel)this->OModel);
+    }
+  if (this->ORenderer)
+    {
+    ospRelease((OSPRenderer)this->ORenderer);
+    }
+  if (this->OFrameBuffer)
+    {
+    ospRelease(this->OFrameBuffer);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -384,7 +393,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       (numAct != this->NumActors))
     {
     this->NumActors = numAct;
-    ospRelease((OSPModel)this->OModel);
+    //ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
     it->InitTraversal();
@@ -405,8 +414,9 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       it->GoToNextItem();
       }
     this->RenderTime = recent;
-    ospSetObject(oRenderer,"model", oModel);
     ospCommit(oModel);
+    ospSetObject(oRenderer,"model", oModel);
+    ospCommit(oRenderer);
     }
   else
     {
@@ -454,6 +464,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
       oRenderer = (osp::Renderer*)this->ORenderer;
       }
+    ospCommit(this->ORenderer);
 
     vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
     int *tmp = ren->GetSize();
@@ -514,10 +525,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     if (this->CompositeOnGL)
       {
       OSPTexture2D glDepthTex=NULL;
+      /*
       if (glDepthTex)
         {
         ospRelease(glDepthTex);
         }
+      */
       vtkRenderWindow *rwin =
       vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
       int viewportX, viewportY;
@@ -560,8 +573,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
          this->GetZBuffer(), ospDepthBuffer, viewportWidth, viewportHeight);
 
       ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
-      ospCommit(oRenderer);
       }
+    else
+      {
+      ospSetObject(oRenderer, "maxDepthTexture", 0);
+      }
+    ospCommit(oRenderer);
 
     ospRenderFrame(this->OFrameBuffer, oRenderer,
       OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
