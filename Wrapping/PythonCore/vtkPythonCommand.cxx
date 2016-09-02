@@ -86,8 +86,12 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
 
 #ifndef VTK_NO_PYTHON_THREADS
   vtkPythonScopeGilEnsurer gilEnsurer(true);
-#endif
-
+#else
+  // We only need to do this if we are not calling PyGILState_Ensure(), in fact
+  // the code below is not safe if not executed on the same thread that the
+  // AddObserver call was made on, as we will end up swapping in the wrong
+  // thread state.
+  //
   // If a threadstate has been set using vtkPythonCommand::SetThreadState,
   // then swap it in here.  See the email to vtk-developers@vtk.org from
   // June 18, 2009 with subject "Py_NewInterpreter and vtkPythonCallback issue"
@@ -96,6 +100,8 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     {
     prevThreadState = PyThreadState_Swap(this->ThreadState);
     }
+#endif
+
 
   PyObject * obj2 = NULL;
   if (ptr && ptr->GetReferenceCount() > 0)
@@ -248,9 +254,11 @@ void vtkPythonCommand::Execute(vtkObject *ptr, unsigned long eventtype,
     PyErr_Print();
     }
 
+#ifdef VTK_NO_PYTHON_THREADS
   // If we did the swap near the top of this function then swap back now.
   if (this->ThreadState)
     {
     PyThreadState_Swap(prevThreadState);
     }
+#endif
 }
