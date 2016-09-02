@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <sstream>
+#include <limits>
 
 // Print debug info
 #define VTK_FTFC_DEBUG 0
@@ -1340,7 +1342,7 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
-  // Draw a yellow dot at the anchor point:
+  // Draw a red dot at the anchor point:
   if (this->DebugTextures)
     {
     unsigned char *ptr =
@@ -1348,12 +1350,11 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     if (ptr)
       {
       ptr[0] = 255;
-      ptr[1] = 255;
+      ptr[1] = 0;
       ptr[2] = 0;
       ptr[3] = 255;
       }
     }
-
   return true;
 }
 
@@ -1389,10 +1390,27 @@ bool vtkFreeTypeTools::StringToPathInternal(vtkTextProperty *tprop,
   return true;
 }
 
+namespace
+{
+const char* DEFAULT_HEIGHT_STRING = "_/7Agfy";
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::CalculateBoundingBox(const vtkUnicodeString& str, MetaData &metaData)
+{
+  return CalculateBoundingBox(str, metaData, vtkUnicodeString::from_utf8(DEFAULT_HEIGHT_STRING));
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData &metaData)
+{
+  return CalculateBoundingBox(str, metaData, vtkStdString(DEFAULT_HEIGHT_STRING));
+}
+
 //----------------------------------------------------------------------------
 template <typename T>
 bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
-                                            MetaData &metaData)
+                                            MetaData &metaData, const T& defaultHeightString)
 {
   // Calculate the metrics for each line. These will be used to calculate
   // a bounding box, but first we need to know the maximum line length to
@@ -1424,18 +1442,26 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
                                    metaData.lineMetrics.back().width);
 
   // Calculate line height from a reference set of characters, since the global
-  // face values are usually way too big. This is the same string used to
-  // determine height in vtkFreeTypeUtilities.
-  const char *heightString = "_/7Agfy";
-  metaData.ascent = 0;
-  metaData.descent = 0;
-  while (*heightString)
+  // face values are usually way too big.
+  T heightString;
+  if (metaData.textProperty->GetUseTightBoundingBox())
+    {
+    heightString = str;
+    }
+  else
+    {
+    heightString = defaultHeightString;
+    }
+  metaData.ascent = std::numeric_limits<int>::min();
+  metaData.descent = std::numeric_limits<int>::max();
+  typename T::const_iterator it = heightString.begin();
+  while (it != heightString.end())
     {
     FT_BitmapGlyph bitmapGlyph;
     FT_UInt glyphIndex;
     // Use the unrotated face to get correct metrics:
     FT_Bitmap *bitmap = this->GetBitmap(
-          *heightString, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
+          *it, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
     if (bitmap)
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
@@ -1443,7 +1469,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
                                                      (bitmapGlyph->top - 1))),
                                   metaData.descent);
       }
-    ++heightString;
+    ++it;
     }
   // Set line height. Descent is negative.
   metaData.height = metaData.ascent - metaData.descent;
