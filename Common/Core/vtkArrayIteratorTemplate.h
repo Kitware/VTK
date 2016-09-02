@@ -26,6 +26,10 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkArrayIterator.h"
 
+#include "vtkStdString.h" // For template instantiation
+#include "vtkUnicodeString.h" // For template instantiation
+#include "vtkVariant.h" // For template instantiation
+
 template <class T>
 class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate : public vtkArrayIterator
 {
@@ -101,26 +105,28 @@ private:
  vtkAbstractArray* Array;
 };
 
-#define VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(T) \
-  template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate< T >
+#ifdef VTK_USE_EXTERN_TEMPLATE
+#ifndef vtkArrayIteratorTemplateInstantiate_cxx
+#ifdef _MSC_VER
+#pragma warning (push)
+// The following is needed when the vtkArrayIteratorTemplate is declared
+// dllexport and is used from another class in vtkCommonCore
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+#endif
+vtkInstantiateTemplateMacro(
+  extern template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate)
+extern template class VTKCOMMONCORE_EXPORT
+  vtkArrayIteratorTemplate<vtkStdString>;
+extern template class VTKCOMMONCORE_EXPORT
+  vtkArrayIteratorTemplate<vtkUnicodeString>;
+extern template class VTKCOMMONCORE_EXPORT
+  vtkArrayIteratorTemplate<vtkVariant>;
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+#endif
+#endif // VTK_USE_EXTERN_TEMPLATE
 
-#endif // !defined(vtkArrayIteratorTemplate_h)
-
-// This portion must be OUTSIDE the include blockers.  Each
-// vtkArrayIteratorTemplate subclass uses this to give its instantiation
-// of this template a DLL interface.
-#if defined(VTK_ARRAY_ITERATOR_TEMPLATE_TYPE)
-# if defined(VTK_BUILD_SHARED_LIBS) && defined(_MSC_VER)
-#  pragma warning (push)
-#  pragma warning (disable: 4091) // warning C4091: 'extern ' :
-   // ignored on left of 'int' when no variable is declared
-#  pragma warning (disable: 4231) // Compiler-specific extension warning.
-   // Use an "extern explicit instantiation" to give the class a DLL
-   // interface.  This is a compiler-specific extension.
-   extern VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(VTK_ARRAY_ITERATOR_TEMPLATE_TYPE);
-#  pragma warning (pop)
-# endif
-# undef VTK_ARRAY_ITERATOR_TEMPLATE_TYPE
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayIteratorTemplate.h

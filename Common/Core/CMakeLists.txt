@@ -156,6 +156,7 @@ SET(Module_SRCS
   vtkArrayExtentsList.cxx
   vtkArrayIterator.cxx
   vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -584,6 +585,7 @@ set_source_files_properties(
   vtkArrayExtents.cxx
   vtkArrayExtentsList.cxx
   vtkArrayIteratorTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkArrayRange.cxx
   vtkArraySort.cxx
   vtkArrayWeights.cxx
@@ -621,7 +623,6 @@ set_source_files_properties(
   vtkArrayIteratorIncludes.h
   vtkArrayIteratorTemplate.h
   vtkArrayIteratorTemplateImplicit.txx
-  vtkArrayIteratorTemplate.txx
   vtkArrayPrint.h
   vtkArrayPrint.txx
   vtkAtomicTypeConcepts.h
@@ -670,6 +671,7 @@ set_source_files_properties(
 set_source_files_properties(
   vtkABI.h
   vtkAOSDataArrayTemplate.txx
+  vtkArrayIteratorTemplateInstantiate.cxx
   vtkAtomic.h
   vtkAutoInit.h
   vtkIOStream.cxx
@@ -704,6 +706,7 @@ set_source_files_properties(
   )
 
 set_source_files_properties(
+  vtkArrayIteratorTemplateInstantiate.cxx # Has no header
   vtkSOADataArrayTemplateInstantiate.cxx # Has no header
   PROPERTIES SKIP_HEADER_INSTALL 1
 )

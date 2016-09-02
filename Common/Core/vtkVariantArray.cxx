@@ -26,14 +26,13 @@
 
 #include "vtkVariantArray.h"
 
+#include "vtkArrayIteratorTemplate.h"
 #include "vtkDataArray.h"
 #include "vtkIdList.h"
+#include "vtkObjectFactory.h"
 #include "vtkSortDataArray.h"
 #include "vtkStringArray.h"
 #include "vtkVariant.h"
-
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkVariant);
 
 #include <utility>
 #include <algorithm>

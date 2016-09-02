@@ -274,7 +274,7 @@ vtkArrayDownCast_TemplateFastCastMacro(vtkAOSDataArrayTemplate)
 #pragma warning (disable: 4910) // extern and dllexport incompatible
 #endif
 vtkExternTemplateMacro(
-  extern template class VTKCOMMONCORE_EXTERN vtkAOSDataArrayTemplate)
+  extern template class VTKCOMMONCORE_EXPORT vtkAOSDataArrayTemplate)
 #ifdef _MSC_VER
 #pragma warning (pop)
 #endif

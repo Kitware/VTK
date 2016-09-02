@@ -13,8 +13,6 @@
 
 =========================================================================*/
 
-
-
 // We do not provide a definition for the copy constructor or
 // operator=.  Block the warning.
 #ifdef _MSC_VER
@@ -22,9 +20,6 @@
 #endif
 
 #include "vtkStdString.h"
-
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkStdString);
 
 #include "vtkStringArray.h"
 
