@@ -57,6 +57,29 @@ public:
   // vectors, etc. for the output points based on the point locations.
   void SetSourceConnection(vtkAlgorithmOutput* algOutput);
 
+  // Description:
+  // Shallow copy the input cell data arrays to the output.
+  // Off by default.
+  void SetPassCellArrays(bool arg);
+  bool GetPassCellArrays();
+  vtkBooleanMacro(PassCellArrays, bool);
+
+  // Description:
+  // Shallow copy the input point data arrays to the output
+  // Off by default.
+  void SetPassPointArrays(bool arg);
+  bool GetPassPointArrays();
+  vtkBooleanMacro(PassPointArrays, bool);
+
+  // Description:
+  // Set whether to pass the field-data arrays from the Input i.e. the input
+  // providing the geometry to the output. On by default.
+  void SetPassFieldArrays(bool arg);
+  bool GetPassFieldArrays();
+  vtkBooleanMacro(PassFieldArrays, bool);
+
+  virtual vtkMTimeType GetMTime();
+
 protected:
   vtkResampleWithDataSet();
   ~vtkResampleWithDataSet();

@@ -16,6 +16,7 @@
 #include "vtkResampleWithDataSet.h"
 
 #include "vtkActor.h"
+#include "vtkCellData.h"
 #include "vtkCompositeDataGeometryFilter.h"
 #include "vtkCompositePolyDataMapper.h"
 #include "vtkCylinder.h"
@@ -23,6 +24,7 @@
 #include "vtkMultiBlockDataSet.h"
 #include "vtkNew.h"
 #include "vtkPointData.h"
+#include "vtkRandomAttributeGenerator.h"
 #include "vtkRegressionTestImage.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -70,6 +72,13 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
   transFilter->SetInputConnection(clipSphr->GetOutputPort());
   transFilter->SetTransform(transform.GetPointer());
 
+  vtkNew<vtkRandomAttributeGenerator> randomAttrs;
+  randomAttrs->SetInputConnection(transFilter->GetOutputPort());
+  randomAttrs->GenerateAllPointDataOn();
+  randomAttrs->GenerateAllCellDataOn();
+  randomAttrs->GenerateFieldArrayOn();
+  randomAttrs->SetNumberOfTuples(100);
+
   for (int i = 0; i < numberOfBlocks; ++i)
     {
     int blockExtent[6];
@@ -79,10 +88,10 @@ void CreateInputDataSet(vtkMultiBlockDataSet* dataset, int numberOfBlocks)
 
     wavelet->UpdateExtent(blockExtent);
     clipCyl->SetInputData(wavelet->GetOutputDataObject(0));
-    transFilter->Update();
+    randomAttrs->Update();
 
-    vtkDataObject *block = transFilter->GetOutputDataObject(0)->NewInstance();
-    block->DeepCopy(transFilter->GetOutputDataObject(0));
+    vtkDataObject *block = randomAttrs->GetOutputDataObject(0)->NewInstance();
+    block->DeepCopy(randomAttrs->GetOutputDataObject(0));
     dataset->SetBlock(i, block);
     block->Delete();
     }
@@ -132,8 +141,45 @@ int TestResampleWithDataSet(int argc, char *argv[])
   vtkNew<vtkResampleWithDataSet> resample;
   resample->SetInputData(input.GetPointer());
   resample->SetSourceData(source.GetPointer());
-  resample->Update();
 
+  // test default output
+  resample->Update();
+  vtkMultiBlockDataSet *result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
+  vtkDataSet *block = static_cast<vtkDataSet*>(result->GetBlock(0));
+  if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
+      block->GetCellData()->GetNumberOfArrays() != 1 ||
+      block->GetPointData()->GetNumberOfArrays() != 3)
+    {
+    std::cout << "Unexpected number of arrays in default output" << std::endl;
+    return !vtkTesting::FAILED;
+    }
+
+  // pass point and cell arrays
+  resample->PassCellArraysOn();
+  resample->PassPointArraysOn();
+  resample->Update();
+  result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
+  block = static_cast<vtkDataSet*>(result->GetBlock(0));
+  if (block->GetFieldData()->GetNumberOfArrays() != 1 ||
+      block->GetCellData()->GetNumberOfArrays() != 6 ||
+      block->GetPointData()->GetNumberOfArrays() != 8)
+    {
+    std::cout << "Unexpected number of arrays in output with pass cell and point arrays" << std::endl;
+    return !vtkTesting::FAILED;
+    }
+
+  // dont pass field arrays
+  resample->PassFieldArraysOff();
+  resample->Update();
+  result = static_cast<vtkMultiBlockDataSet*>(resample->GetOutput());
+  block = static_cast<vtkDataSet*>(result->GetBlock(0));
+  if (block->GetFieldData()->GetNumberOfArrays() != 0 ||
+      block->GetCellData()->GetNumberOfArrays() != 6 ||
+      block->GetPointData()->GetNumberOfArrays() != 8)
+    {
+    std::cout << "Unexpected number of arrays in output with pass field arrays off" << std::endl;
+    return !vtkTesting::FAILED;
+    }
 
   // Render
   vtkNew<vtkCompositeDataGeometryFilter> toPoly;
