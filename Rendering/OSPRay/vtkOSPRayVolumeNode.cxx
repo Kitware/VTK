@@ -69,7 +69,11 @@ unsigned long vtkOSPRayVolumeNode::GetMTime()
 
   if (mapper)
     {
-    mtime = std::max(mtime, mapper->GetDataSetInput()->GetMTime());
+    vtkDataObject *dobj = mapper->GetDataSetInput();
+    if (dobj)
+      {
+      mtime = std::max(mtime, dobj->GetMTime());
+      }
     if (mapper->GetMTime() > mtime)
       {
       mtime = mapper->GetMTime();

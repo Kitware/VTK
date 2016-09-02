@@ -68,7 +68,7 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
     vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!vol->GetProperty())
       {
-      vtkErrorMacro("VolumeMapper had no vtkProperty");
+      // this is OK, happens in paraview client side for instance
       return;
       }
 
