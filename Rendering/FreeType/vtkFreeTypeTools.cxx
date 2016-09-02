@@ -80,8 +80,10 @@ public:
   FT_Matrix inverseRotation;
 
   // Set by CalculateBoundingBox
-  int ascent;
-  int descent;
+  int ascent;    // position of the highest point of character from baseline which
+                 // has position 0. Negative if below baseline.
+  int descent;   // position of the the lowest point of character from baseline which
+                 // has position 0. Negative if below baseline
   int height;
   struct LineMetrics {
     vtkVector2i origin;
@@ -1466,13 +1468,13 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
       metaData.descent = std::min(-static_cast<int>((bitmap->rows -
-                                                     (bitmapGlyph->top - 1))),
+                                                     bitmapGlyph->top)),
                                   metaData.descent);
       }
     ++it;
     }
   // Set line height. Descent is negative.
-  metaData.height = metaData.ascent - metaData.descent;
+  metaData.height = metaData.ascent - metaData.descent + 1;
 
   // The unrotated height of the text
   int numLines = metaData.lineMetrics.size();
