@@ -1443,15 +1443,19 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.maxLineWidth = std::max(metaData.maxLineWidth,
                                    metaData.lineMetrics.back().width);
 
-  // Calculate line height from a reference set of characters, since the global
-  // face values are usually way too big.
+  int numLines = metaData.lineMetrics.size();
   T heightString;
-  if (metaData.textProperty->GetUseTightBoundingBox())
+  if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
     {
+    // Calculate line hight from actual characters. This works only for single line text
+    // and may result in a hight that does not include descent. It is used to get
+    // a centered label.
     heightString = str;
     }
   else
     {
+    // Calculate line height from a reference set of characters, since the global
+    // face values are usually way too big.
     heightString = defaultHeightString;
     }
   metaData.ascent = std::numeric_limits<int>::min();
@@ -1477,11 +1481,9 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.height = metaData.ascent - metaData.descent + 1;
 
   // The unrotated height of the text
-  int numLines = metaData.lineMetrics.size();
-  double lineSpacing = numLines > 1 ? metaData.textProperty->GetLineSpacing()
-                                    : 1.;
+  int interLineSpacing = (metaData.textProperty->GetLineSpacing() - 1) * metaData.height;
   int fullHeight = numLines * metaData.height +
-                   (numLines - 1) * metaData.height * (lineSpacing - 1.) +
+                   (numLines - 1) * interLineSpacing +
                    metaData.textProperty->GetLineOffset();
 
   // Will we be rendering a background?
@@ -1555,7 +1557,6 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // First baseline offset from top-left corner.
   vtkVector2i penOffset(pad, -pad);
   // Account for line spacing to center the text vertically in the bbox:
-  penOffset[1] -= vtkMath::Ceil((lineSpacing - 1.) * metaData.height * 0.5);
   penOffset[1] -= metaData.ascent;
   penOffset[1] -= metaData.textProperty->GetLineOffset();
   rotateVector2i(penOffset, s, c);
@@ -1568,7 +1569,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   textBbox[2] = textBbox[3] = pen[1];
 
   // Calculate line offset:
-  vtkVector2i lineFeed(0, -(metaData.height * lineSpacing));
+  vtkVector2i lineFeed(0, -(metaData.height + interLineSpacing));
   rotateVector2i(lineFeed, s, c);
 
   // Compile the metrics data to determine the final bounding box. Set line
