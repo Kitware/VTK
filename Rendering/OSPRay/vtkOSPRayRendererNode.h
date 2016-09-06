@@ -140,6 +140,7 @@ protected:
   bool ComputeDepth;
   bool Accumulate;
   bool CompositeOnGL;
+  float* ODepthBuffer;
 
 private:
   vtkOSPRayRendererNode(const vtkOSPRayRendererNode&) VTK_DELETE_FUNCTION;

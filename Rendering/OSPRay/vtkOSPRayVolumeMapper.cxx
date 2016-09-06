@@ -57,7 +57,6 @@ void vtkOSPRayVolumeMapper::Init()
   this->InternalRenderer = vtkRenderer::New();
   vtkOSPRayRendererNode::SetCompositeOnGL(1, this->InternalRenderer);
   this->InternalRenderer->SetLayer(0); //TODO: hacked in for now
-  this->InternalRenderer->SetErase(0);
   this->Initialized = true;
 }
 
@@ -84,6 +83,8 @@ void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
   this->InternalRenderer->SetPass(this->InternalOSPRayPass);
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(0);
+  vtkOSPRayRendererNode::SetCompositeOnGL(ren->GetNumberOfPropsRendered() > 0, this->InternalRenderer);
+  this->InternalRenderer->SetErase(ren->GetNumberOfPropsRendered() < 1);
   this->InternalRenderer->RemoveVolume(vol); //prevent a mem leak
 }
 

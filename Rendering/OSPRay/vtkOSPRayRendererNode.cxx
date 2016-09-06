@@ -511,6 +511,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
       delete[] this->ZBuffer;
       this->ZBuffer = new float[this->Size[0]*this->Size[1]];
+      if (this->CompositeOnGL)
+      {
+        ODepthBuffer = new float[this->Size[0] * this->Size[1]];
+      }
       }
     else if (this->Accumulate)
       {
@@ -565,12 +569,10 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       cameraDir.z -= cameraPos[2];
       cameraDir = ospray::opengl::normalize(cameraDir);
 
-      float *ospDepthBuffer=nullptr;
-      ospDepthBuffer = new float[viewportWidth * viewportHeight];
       glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
         (fovy, aspect, zNear, zFar,
          (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
-         this->GetZBuffer(), ospDepthBuffer, viewportWidth, viewportHeight);
+         this->GetZBuffer(), ODepthBuffer, viewportWidth, viewportHeight);
 
       ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
       }
