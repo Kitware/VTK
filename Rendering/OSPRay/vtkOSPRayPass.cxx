@@ -31,6 +31,7 @@
 
 #include "ospray/ospray.h"
 
+#include <sstream>
 #include <stdexcept>
 
 class vtkOSPRayPassInternals : public vtkRenderPass
@@ -67,15 +68,45 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->SceneGraph = NULL;
 
   int ac = 1;
-  const char* av[] = {"pvOSPRay\0"};
-  try
+  const char* envArgs = getenv("VTKOSPRAY_ARGS");
+  if (envArgs)
     {
-    ospInit(&ac, av);
+    std::stringstream ss(envArgs);
+    std::string arg;
+    std::vector<std::string> args;
+    while (ss >> arg)
+      {
+      args.push_back(arg);
+      }
+    int ac =args.size()+1;
+    char* av[ac];
+    av[0] = new char[512];
+    strcpy(av[0],"pvOSPRay\0");
+    for(int i=1;i < ac; i++)
+      {
+      av[i] = new char[args[i-1].size()+1];
+      strcpy(av[i], args[i-1].c_str());
+      }
+    try
+      {
+      ospInit(&ac, (const char**)av);
+      }
+    catch (std::runtime_error &vtkNotUsed(e))
+      {
+      //todo: request addition of ospFinalize() to ospray
+      }
     }
-  catch (std::runtime_error &vtkNotUsed(e))
+  else
     {
-    //todo: request addition of ospFinalize() to ospray
-    //cerr << "warning: double init" << endl;
+    const char* av[] = {"pvOSPRay\0"};
+    try
+      {
+      ospInit(&ac, av);
+      }
+    catch (std::runtime_error &vtkNotUsed(e))
+      {
+      //todo: request addition of ospFinalize() to ospray
+      }
     }
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
