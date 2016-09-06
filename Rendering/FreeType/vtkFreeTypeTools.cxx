@@ -1357,6 +1357,7 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
       ptr[3] = 255;
       }
     }
+
   return true;
 }
 
@@ -1509,8 +1510,12 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // The rotated padding on the text's vertical and horizontal axes:
   vtkVector2i hPad(pad, 0);
   vtkVector2i vPad(0, pad);
+  vtkVector2i hOne(1, 0);
+  vtkVector2i vOne(0, 1);
   rotateVector2i(hPad, s, c);
   rotateVector2i(vPad, s, c);
+  rotateVector2i(hOne, s, c);
+  rotateVector2i(vOne, s, c);
 
   // Calculate the bottom left corner of the data rect. Start at anchor point
   // (0, 0) and subtract out justification. Account for background/frame padding to
@@ -1522,7 +1527,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - (metaData.dx * 0.5);
       break;
     case VTK_TEXT_RIGHT:
-      metaData.BL = metaData.BL - metaData.dx + hPad;
+      metaData.BL = metaData.BL - metaData.dx + hPad + hOne;
       break;
     case VTK_TEXT_LEFT:
       metaData.BL = metaData.BL - hPad;
@@ -1541,7 +1546,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - vPad;
       break;
     case VTK_TEXT_TOP:
-      metaData.BL = metaData.BL - metaData.dy + vPad;
+      metaData.BL = metaData.BL - metaData.dy + vPad + vOne;
       break;
     default:
       vtkErrorMacro(<< "Bad vertical alignment flag: "
@@ -1550,9 +1555,9 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     }
 
   // Compute the other corners of the data:
-  metaData.TL = metaData.BL + metaData.dy;
-  metaData.TR = metaData.TL + metaData.dx;
-  metaData.BR = metaData.BL + metaData.dx;
+  metaData.TL = metaData.BL + metaData.dy - vOne;
+  metaData.TR = metaData.TL + metaData.dx - hOne;
+  metaData.BR = metaData.BL + metaData.dx - hOne;
 
   // First baseline offset from top-left corner.
   vtkVector2i penOffset(pad, -pad);
