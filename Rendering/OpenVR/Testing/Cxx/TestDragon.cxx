@@ -38,6 +38,11 @@
 
 #include "vtkLight.h"
 
+#include "vtkOpenVRRenderer.h"
+     #include "vtkOpenVRCamera.h"
+     #include "vtkOpenVRRenderWindow.h"
+     #include "vtkOpenVRRenderWindowINteractor.h"
+
 // #include "vtkLODPointCloudMapper.h"
 // #include "vtkXMLMultiBlockDataReader.h"
 
@@ -45,13 +50,15 @@
 int TestDragon(int argc, char *argv[])
 {
   vtkNew<vtkActor> actor;
-  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkOpenVRRenderer> renderer;
   renderer->SetBackground(0.2, 0.3, 0.4);
-  vtkNew<vtkRenderWindow> renderWindow;
+  vtkNew<vtkOpenVRRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkOpenVRRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
+  vtkNew<vtkOpenVRCamera> cam;
+  renderer->SetActiveCamera(cam.Get());
 
   // crazy frame rate requirement
   // need to look into that at some point

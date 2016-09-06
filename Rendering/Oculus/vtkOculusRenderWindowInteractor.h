@@ -60,12 +60,6 @@ public:
   virtual void ExitCallback();
 
   // Description:
-  // Set/Get the optional scale to map world coordinates into the
-  // 3D physical space (meters).
-  virtual void SetPhysicalScale(vtkCamera *, double);
-  virtual double GetPhysicalScale(vtkCamera *);
-
-  // Description:
   // Set/Get the optional translation to map world coordinates into the
   // 3D physical space (meters, 0,0,0).
   virtual void SetPhysicalTranslation(vtkCamera *, double, double, double);

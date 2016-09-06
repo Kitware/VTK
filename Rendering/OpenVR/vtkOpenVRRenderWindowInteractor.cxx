@@ -48,20 +48,6 @@ vtkOpenVRRenderWindowInteractor::~vtkOpenVRRenderWindowInteractor()
 {
 }
 
-void vtkOpenVRRenderWindowInteractor::SetPhysicalScale(vtkCamera *camin, double s)
-{
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(camin);
-  cam->SetScale(s);
-}
-
-double vtkOpenVRRenderWindowInteractor::GetPhysicalScale(vtkCamera *camin)
-{
-  vtkOpenVRCamera *cam =
-    static_cast<vtkOpenVRCamera *>(camin);
-  return cam->GetScale();
-}
-
 void vtkOpenVRRenderWindowInteractor::SetPhysicalTranslation(vtkCamera *camin, double t1, double t2, double t3)
 {
   vtkOpenVRCamera *cam =
@@ -90,12 +76,12 @@ void vtkOpenVRRenderWindowInteractor::ConvertPoseToWorldCoordinates(
 
   vtkOpenVRCamera *cam =
     static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
-  double scale = cam->GetScale();
+  double distance = cam->GetDistance();
   double *trans = cam->GetTranslation();
 
   for (int i = 0; i < 3; i++)
     {
-    pos[i] = pos[i]/scale - trans[i];
+    pos[i] = pos[i]*distance - trans[i];
     }
 
   double ortho[3][3];

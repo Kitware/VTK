@@ -531,19 +531,6 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
   // update the camera values based on the pose
   if ( this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].bPoseIsValid )
     {
-    double elems[16];
-    for (int j = 0; j < 3; j++)
-      {
-      for (int i = 0; i < 4; i++)
-        {
-        elems[i+j*4] = this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd].mDeviceToAbsoluteTracking.m[j][i];
-        }
-      }
-    elems[12] = 0.0;
-    elems[13] = 0.0;
-    elems[14] = 0.0;
-    elems[15] = 1.0;
-
     vtkRenderer *ren;
     vtkCollectionSimpleIterator rit;
     this->Renderers->InitTraversal(rit);
@@ -551,15 +538,68 @@ void vtkOpenVRRenderWindow::UpdateHMDMatrixPose()
       {
       vtkOpenVRCamera *cam = static_cast<vtkOpenVRCamera *>(ren->GetActiveCamera());
       this->HMDTransform->Identity();
+
+      // get the position and orientation of the HMD
+      vr::TrackedDevicePose_t &tdPose =
+        this->TrackedDevicePose[vr::k_unTrackedDeviceIndex_Hmd];
+      double pos[3];
+      for (int i = 0; i < 3; i++)
+        {
+        pos[i] = tdPose.mDeviceToAbsoluteTracking.m[i][3];
+        }
+
+      double distance = cam->GetDistance();
       double *trans = cam->GetTranslation();
-      this->HMDTransform->Translate(-trans[0],-trans[1],-trans[2]);
-      double scale = 1.0/cam->GetScale();
-      this->HMDTransform->Scale(scale,scale,scale);
-      this->HMDTransform->Concatenate(elems);
+
+      for (int i = 0; i < 3; i++)
+        {
+        pos[i] = pos[i]*distance - trans[i];
+        }
+
+      double ortho[3][3];
+      for (int i = 0; i < 3; i++)
+        {
+        ortho[0][i] = tdPose.mDeviceToAbsoluteTracking.m[0][i];
+        ortho[1][i] = tdPose.mDeviceToAbsoluteTracking.m[1][i];
+        ortho[2][i] = tdPose.mDeviceToAbsoluteTracking.m[2][i];
+        }
+      if (vtkMath::Determinant3x3(ortho) < 0)
+        {
+        ortho[0][2] = -ortho[0][2];
+        ortho[1][2] = -ortho[1][2];
+        ortho[2][2] = -ortho[2][2];
+        }
+      double wxyz[4];
+      vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
+
+      // calc the return value wxyz
+     double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
+      if ( mag != 0.0 )
+        {
+        wxyz[0] = 2.0 * vtkMath::DegreesFromRadians( atan2( mag, wxyz[0] ) );
+        wxyz[1] /= mag;
+        wxyz[2] /= mag;
+        wxyz[3] /= mag;
+        }
+      else
+        {
+        wxyz[0] = 0.0;
+        wxyz[1] = 0.0;
+        wxyz[2] = 0.0;
+        wxyz[3] = 1.0;
+        }
+
+      this->HMDTransform->RotateWXYZ(wxyz[0], wxyz[1], wxyz[2], wxyz[3]);
       cam->SetFocalPoint(0,0,-1);
       cam->SetPosition(0,0,0);
       cam->SetViewUp(0,1,0);
       cam->ApplyTransform(this->HMDTransform);
+      double *dop = cam->GetDirectionOfProjection();
+      cam->SetFocalPoint(
+        pos[0] + dop[0]*distance,
+        pos[1] + dop[1]*distance,
+        pos[2] + dop[2]*distance);
+      cam->SetPosition(pos[0], pos[1], pos[2]);
       }
     }
 }

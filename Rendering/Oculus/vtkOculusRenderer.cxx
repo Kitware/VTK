@@ -152,7 +152,6 @@ void vtkOculusRenderer::ResetCamera(double bounds[6])
   // the center of the world to be in front of the user
   vtkOculusCamera *cam = vtkOculusCamera::SafeDownCast(this->ActiveCamera);
   cam->SetTranslation(-center[0],-center[1],-center[2]-distance);
-  cam->SetScale(1.0/distance);
 }
 
 // Alternative version of ResetCamera(bounds[6]);
