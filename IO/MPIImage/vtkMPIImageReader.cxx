@@ -432,7 +432,7 @@ void vtkMPIImageReader::ExecuteDataWithInformation(vtkDataObject *output,
   data->GetIncrements(inIncrements);
   vtkDataArray *outputDataArray = data->GetPointData()->GetScalars();
   vtkIdType numValues = (  outputDataArray->GetNumberOfComponents()
-                         + outputDataArray->GetNumberOfTuples() );
+                         * outputDataArray->GetNumberOfTuples() );
 
   outputDataArray->SetName(this->ScalarArrayName);
 
