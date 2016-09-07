@@ -22,6 +22,7 @@
 #include "vtkOSPRayActorNode.h"
 #include "vtkOSPRayCameraNode.h"
 #include "vtkOSPRayLightNode.h"
+#include "vtkOSPRayVolumeNode.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkViewNodeCollection.h"
@@ -31,18 +32,135 @@
 
 #include <cmath>
 
-#if 0
-//debug includes
-#include "vtkDataSetWriter.h"
-#include "vtkImageImport.h"
-#include "vtkSmartPointer.h"
-#include "vtkWindowToImageFilter.h"
-#include <unistd.h>
-#endif
+namespace ospray {
+  namespace opengl {
+
+    //code borrowed from ospray::modules::opengl to facilitate updating
+    //and linking
+    //todo: use ospray's copy instead of this
+    inline osp::vec3f operator*(const osp::vec3f &a, const osp::vec3f &b)
+    {
+      return (osp::vec3f){a.x*b.x, a.y*b.y, a.z*b.z};
+    }
+    inline osp::vec3f operator*(const osp::vec3f &a, float b)
+    {
+      return (osp::vec3f){a.x*b, a.y*b, a.z*b};
+    }
+    inline osp::vec3f operator/(const osp::vec3f &a, float b)
+    {
+      return (osp::vec3f){a.x/b, a.y/b, a.z/b};
+    }
+    inline osp::vec3f operator*(float b, const osp::vec3f &a)
+    {
+      return (osp::vec3f){a.x*b, a.y*b, a.z*b};
+    }
+    inline osp::vec3f operator*=(osp::vec3f a, float b)
+    {
+      return a = (osp::vec3f){a.x*b, a.y*b, a.z*b};
+    }
+    inline osp::vec3f operator-(const osp::vec3f& a, const osp::vec3f& b)
+    {
+      return (osp::vec3f){a.x-b.x, a.y-b.y, a.z-b.z};
+    }
+    inline osp::vec3f operator+(const osp::vec3f& a, const osp::vec3f& b)
+    {
+      return (osp::vec3f){a.x+b.x, a.y+b.y, a.z+b.z};
+    }
+    inline osp::vec3f cross(const osp::vec3f &a, const osp::vec3f &b)
+    {
+      return (osp::vec3f){a.y*b.z-a.z*b.y,
+          a.z*b.x-a.x*b.z,
+          a.x*b.y-a.y*b.x};
+    }
+
+    inline float dot(const osp::vec3f &a, const osp::vec3f &b)
+    {
+      return a.x*b.x+a.y*b.y+a.z*b.z;
+    }
+    inline osp::vec3f normalize(const osp::vec3f &v)
+    {
+      return v/sqrtf(dot(v,v));
+    }
+
+    /*! \brief Compute and return OpenGL depth values from the depth component of the given
+      OSPRay framebuffer, using parameters of the current OpenGL context and assuming a
+      perspective projection.
+
+      This function automatically determines the parameters of the OpenGL perspective
+      projection and camera direction / up vectors. It assumes these values match those
+      provided to OSPRay (fovy, aspect, camera direction / up vectors). It then maps the
+      OSPRay depth buffer and transforms it to OpenGL depth values according to the OpenGL
+      perspective projection.
+
+      The OSPRay frame buffer object must have been constructed with the OSP_FB_DEPTH flag.
+    */
+    OSPTexture2D getOSPDepthTextureFromOpenGLPerspective(const double &fovy,
+                                                         const double &aspect,
+                                                         const double &zNear,
+                                                         const double &zFar,
+                                                         const osp::vec3f &_cameraDir,
+                                                         const osp::vec3f &_cameraUp,
+                                                         const float *glDepthBuffer,
+                                                         float *ospDepthBuffer,
+                                                         const size_t &glDepthBufferWidth,
+                                                         const size_t &glDepthBufferHeight)
+    {
+      osp::vec3f cameraDir = (osp::vec3f&)_cameraDir;
+      osp::vec3f cameraUp = (osp::vec3f&)_cameraUp;
+      // this should later be done in ISPC...
+
+      // transform OpenGL depth to linear depth
+      for (size_t i=0; i<glDepthBufferWidth*glDepthBufferHeight; i++)
+        {
+        const double z_n = 2.0 * glDepthBuffer[i] - 1.0;
+        ospDepthBuffer[i] = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
+        if (isnan(ospDepthBuffer[i]))
+          {
+          ospDepthBuffer[i] = FLT_MAX;
+          }
+        }
+
+      // transform from orthogonal Z depth to ray distance t
+      osp::vec3f dir_du = normalize(cross(cameraDir, cameraUp));
+      osp::vec3f dir_dv = normalize(cross(dir_du, cameraDir));
+
+      const float imagePlaneSizeY = 2.f * tanf(fovy/2.f * M_PI/180.f);
+      const float imagePlaneSizeX = imagePlaneSizeY * aspect;
+
+      dir_du *= imagePlaneSizeX;
+      dir_dv *= imagePlaneSizeY;
+
+      const osp::vec3f dir_00 = cameraDir - .5f * dir_du - .5f * dir_dv;
+
+      for (size_t j=0; j<glDepthBufferHeight; j++)
+        {
+        for (size_t i=0; i<glDepthBufferWidth; i++)
+          {
+          const osp::vec3f dir_ij = normalize(dir_00 +
+                                              float(i)/float(glDepthBufferWidth-1) * dir_du +
+                                              float(j)/float(glDepthBufferHeight-1) * dir_dv);
+
+          const float t = ospDepthBuffer[j*glDepthBufferWidth+i] / dot(cameraDir, dir_ij);
+          ospDepthBuffer[j*glDepthBufferWidth+i] = t;
+          }
+        }
+
+      // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
+      osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
+                            static_cast<int>(glDepthBufferHeight)};
+      OSPTexture2D depthTexture = ospNewTexture2D((osp::vec2i&)texSize,
+                                                  OSP_TEXTURE_R32F, ospDepthBuffer,
+                                                  OSP_TEXTURE_FILTER_NEAREST);
+
+      return depthTexture;
+    }
+  }
+}
 
 vtkInformationKeyMacro(vtkOSPRayRendererNode, SAMPLES_PER_PIXEL, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, MAX_FRAMES, Integer);
 vtkInformationKeyMacro(vtkOSPRayRendererNode, AMBIENT_SAMPLES, Integer);
+vtkInformationKeyMacro(vtkOSPRayRendererNode, COMPOSITE_ON_GL, Integer);
 
 //============================================================================
 vtkStandardNewMacro(vtkOSPRayRendererNode);
@@ -55,6 +173,11 @@ vtkOSPRayRendererNode::vtkOSPRayRendererNode()
   this->OModel = NULL;
   this->ORenderer = NULL;
   this->NumActors = 0;
+  this->ComputeDepth = true;
+  this->OFrameBuffer = nullptr;
+  this->ImageX = this->ImageY = -1;
+  this->Accumulate = false;
+  this->CompositeOnGL = false;
 }
 
 //----------------------------------------------------------------------------
@@ -62,8 +185,18 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
 {
   delete[] this->Buffer;
   delete[] this->ZBuffer;
-  ospRelease((OSPModel)this->OModel);
-  ospRelease((OSPRenderer)this->ORenderer);
+  if (this->OModel)
+    {
+    ospRelease((OSPModel)this->OModel);
+    }
+  if (this->ORenderer)
+    {
+    ospRelease((OSPRenderer)this->ORenderer);
+    }
+  if (this->OFrameBuffer)
+    {
+    ospRelease(this->OFrameBuffer);
+    }
 }
 
 //----------------------------------------------------------------------------
@@ -145,6 +278,32 @@ int vtkOSPRayRendererNode::GetAmbientSamples(vtkRenderer *renderer)
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayRendererNode::SetCompositeOnGL(int value, vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  info->Set(vtkOSPRayRendererNode::COMPOSITE_ON_GL(), value);
+}
+
+//----------------------------------------------------------------------------
+int vtkOSPRayRendererNode::GetCompositeOnGL(vtkRenderer *renderer)
+{
+  if (!renderer)
+    {
+    return 0;
+    }
+  vtkInformation *info = renderer->GetInformation();
+  if (info && info->Has(vtkOSPRayRendererNode::COMPOSITE_ON_GL()))
+    {
+    return (info->Get(vtkOSPRayRendererNode::COMPOSITE_ON_GL()));
+    }
+  return 0;
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
@@ -211,15 +370,19 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     {
     vtkOSPRayActorNode *child =
       vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
+    vtkOSPRayVolumeNode *vchild =
+      vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
     if (child)
       {
       numAct++;
-      unsigned int mtime = child->GetMTime();
-      if (mtime > recent)
-        {
-        recent = mtime;
-        }
+      recent = std::max(recent,(unsigned int)child->GetMTime());
       }
+    if (vchild)
+      {
+      numAct++;
+      recent = std::max(recent,(unsigned int)vchild->GetMTime());
+      }
+
     it->GoToNextItem();
     }
 
@@ -230,7 +393,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
       (numAct != this->NumActors))
     {
     this->NumActors = numAct;
-    ospRelease((OSPModel)this->OModel);
+    //ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
     it->InitTraversal();
@@ -242,11 +405,18 @@ void vtkOSPRayRendererNode::Traverse(int operation)
         {
         child->Traverse(operation);
         }
+      vtkOSPRayVolumeNode *vchild =
+        vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
+      if (vchild)
+        {
+        vchild->Traverse(operation);
+        }
       it->GoToNextItem();
       }
     this->RenderTime = recent;
-    ospSetObject(oRenderer,"model", oModel);
     ospCommit(oModel);
+    ospSetObject(oRenderer,"model", oModel);
+    ospCommit(oRenderer);
     }
   else
     {
@@ -275,6 +445,12 @@ void vtkOSPRayRendererNode::Build(bool prepass)
 //----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::Render(bool prepass)
 {
+  vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
+  if (!ren)
+    {
+    return;
+    }
+
   if (prepass)
     {
     OSPRenderer oRenderer = NULL;
@@ -288,6 +464,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
       oRenderer = (osp::Renderer*)this->ORenderer;
       }
+    ospCommit(this->ORenderer);
 
     vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
     int *tmp = ren->GetSize();
@@ -305,6 +482,8 @@ void vtkOSPRayRendererNode::Render(bool prepass)
              this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
     ospSet1i(oRenderer,"spp",
              this->GetSamplesPerPixel(static_cast<vtkRenderer*>(this->Renderable)));
+    this->CompositeOnGL =
+      this->GetCompositeOnGL(static_cast<vtkRenderer*>(this->Renderable));
 
     double *bg = ren->GetBackground();
     ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
@@ -315,63 +494,117 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospCommit(oRenderer);
 
     osp::vec2i isize = {this->Size[0], this->Size[1]};
-    OSPFrameBuffer osp_framebuffer = ospNewFrameBuffer
-      (isize,
-  #if OSPRAY_VERSION_MAJOR < 1 && OSPRAY_VERSION_MINOR < 10 && OSPRAY_VERSION_PATCH < 2
-       OSP_RGBA_I8, OSP_FB_COLOR | OSP_FB_DEPTH | OSP_FB_ACCUM);
-  #else
-       OSP_FB_RGBA8, OSP_FB_COLOR | OSP_FB_DEPTH | OSP_FB_ACCUM);
-  #endif
-    ospSet1f(osp_framebuffer, "gamma", 1.0f);
-    ospCommit(osp_framebuffer);
-    ospFrameBufferClear(osp_framebuffer, OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
-    for (int i = 0; i < this->GetMaxFrames(static_cast<vtkRenderer*>(this->Renderable)); i++)
+    if (this->ImageX != this->Size[0] || this->ImageY != this->Size[1])
       {
-      ospRenderFrame(osp_framebuffer, oRenderer,
-                     OSP_FB_COLOR|OSP_FB_DEPTH|OSP_FB_ACCUM);
+      this->ImageX = this->Size[0];
+      this->ImageY = this->Size[1];
+      this->OFrameBuffer = ospNewFrameBuffer
+        (isize,
+         OSP_FB_RGBA8,
+         OSP_FB_COLOR | (this->ComputeDepth? OSP_FB_DEPTH : 0) | (this->Accumulate? OSP_FB_ACCUM : 0));
+      ospSet1f(this->OFrameBuffer, "gamma", 1.0f);
+      ospCommit(this->OFrameBuffer);
+      ospFrameBufferClear
+        (this->OFrameBuffer,
+         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+      delete[] this->Buffer;
+      this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
+      delete[] this->ZBuffer;
+      this->ZBuffer = new float[this->Size[0]*this->Size[1]];
+      if (this->CompositeOnGL)
+      {
+        ODepthBuffer = new float[this->Size[0] * this->Size[1]];
       }
-    const void* rgba = ospMapFrameBuffer(osp_framebuffer, OSP_FB_COLOR);
-    delete[] this->Buffer;
-    this->Buffer = new unsigned char[this->Size[0]*this->Size[1]*4];
-    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
-    ospUnmapFrameBuffer(rgba, osp_framebuffer);
-
-    vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->
-      GetActiveCamera();
-    double *clipValues = cam->GetClippingRange();
-    double clipMin = clipValues[0];
-    double clipMax = clipValues[1];
-    double clipDiv = 1.0 / (clipMax - clipMin);
-
-    const void *Z = ospMapFrameBuffer(osp_framebuffer, OSP_FB_DEPTH);
-    delete[] this->ZBuffer;
-    this->ZBuffer = new float[this->Size[0]*this->Size[1]];
-    float *s = (float *)Z;
-    float *d = this->ZBuffer;
-    /*
-    float minS = 1000.0;
-    float maxS = -1000.0;
-    float minD = 1000.0;
-    float maxD = -10000.0;
-    */
-    for (int i = 0; i < (this->Size[0]*this->Size[1]); i++, s++, d++)
+      }
+    else if (this->Accumulate)
       {
-      *d = (*s<clipMin? 1.0 : (*s - clipMin) * clipDiv);
+      ospFrameBufferClear
+        (this->OFrameBuffer,
+         OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+      }
+
+    vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
+
+    ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
+    if (this->CompositeOnGL)
+      {
+      OSPTexture2D glDepthTex=NULL;
       /*
-      if (*d < minD) minD = *d;
-      if (*d > maxD) maxD = *d;
-      if (*s < minS) minS = *s;
-      if (*s > maxS) maxS = *s;
+      if (glDepthTex)
+        {
+        ospRelease(glDepthTex);
+        }
       */
-      }
-    /*
-    cerr << "CmM" << clipMin << "," << clipMax << "\t";
-    cerr << "SmM " << minS << "," << maxS << "\t";
-    cerr << "DmM " << minD << "," << maxD << endl;
-    */
-    ospUnmapFrameBuffer(Z, osp_framebuffer);
+      vtkRenderWindow *rwin =
+      vtkRenderWindow::SafeDownCast(ren->GetVTKWindow());
+      int viewportX, viewportY;
+      int viewportWidth, viewportHeight;
+      ren->GetTiledSizeAndOrigin(&viewportWidth,&viewportHeight,
+        &viewportX,&viewportY);
+      rwin->GetZbufferData(
+        viewportX,  viewportY,
+        viewportX+viewportWidth-1,
+        viewportY+viewportHeight-1,
+        this->GetZBuffer());
 
-    ospRelease(osp_framebuffer);
+      double zNear, zFar;
+      double fovy, aspect;
+      fovy = cam->GetViewAngle();
+      aspect = double(viewportWidth)/double(viewportHeight);
+      cam->GetClippingRange(zNear,zFar);
+      double camUp[3];
+      double camDir[3];
+      cam->GetViewUp(camUp);
+      cam->GetFocalPoint(camDir);
+      osp::vec3f cameraUp = {static_cast<float>(camUp[0]),
+                             static_cast<float>(camUp[1]),
+                             static_cast<float>(camUp[2])};
+      osp::vec3f cameraDir = {static_cast<float>(camDir[0]),
+                              static_cast<float>(camDir[1]),
+                              static_cast<float>(camDir[2])};
+      double cameraPos[3];
+      cam->GetPosition(cameraPos);
+      cameraDir.x -= cameraPos[0];
+      cameraDir.y -= cameraPos[1];
+      cameraDir.z -= cameraPos[2];
+      cameraDir = ospray::opengl::normalize(cameraDir);
+
+      glDepthTex = ospray::opengl::getOSPDepthTextureFromOpenGLPerspective
+        (fovy, aspect, zNear, zFar,
+         (osp::vec3f&)cameraDir, (osp::vec3f&)cameraUp,
+         this->GetZBuffer(), ODepthBuffer, viewportWidth, viewportHeight);
+
+      ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
+      }
+    else
+      {
+      ospSetObject(oRenderer, "maxDepthTexture", 0);
+      }
+    ospCommit(oRenderer);
+
+    ospRenderFrame(this->OFrameBuffer, oRenderer,
+      OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
+
+    const void* rgba = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_COLOR);
+    memcpy((void*)this->Buffer, rgba, this->Size[0]*this->Size[1]*sizeof(char)*4);
+    ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
+
+    if (this->ComputeDepth)
+      {
+      double *clipValues = cam->GetClippingRange();
+      double clipMin = clipValues[0];
+      double clipMax = clipValues[1];
+      double clipDiv = 1.0 / (clipMax - clipMin);
+
+      const void *Z = ospMapFrameBuffer(this->OFrameBuffer, OSP_FB_DEPTH);
+      float *s = (float *)Z;
+      float *d = this->ZBuffer;
+      for (int i = 0; i < (this->Size[0]*this->Size[1]); i++, s++, d++)
+        {
+        *d = (*s<clipMin? 1.0 : (*s - clipMin) * clipDiv);
+        }
+      ospUnmapFrameBuffer(Z, this->OFrameBuffer);
+      }
     }
 }
 
@@ -410,10 +643,27 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
         {
         if (*zptr<1.0)
           {
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
-          *optr++ = *iptr++;
+          if (this->CompositeOnGL)
+            {
+            //ospray is cooperating with GL (osprayvolumemapper)
+            unsigned char a = (*(iptr+2));
+            float A = (float)a/255;
+            for (int h = 0; h<3; h++)
+              {
+              *optr = (unsigned char)(((float)*iptr)*(1-A) + ((float)*optr)*(A));
+              optr++; iptr++;
+              }
+            optr++;
+            iptr++;
+            }
+          else
+            {
+            //ospray owns all layers in window
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
+            *optr++ = *iptr++;
+            }
           *ozptr = *zptr;
           }
         else

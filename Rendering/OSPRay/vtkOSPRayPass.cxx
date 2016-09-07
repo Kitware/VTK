@@ -31,6 +31,7 @@
 
 #include "ospray/ospray.h"
 
+#include <sstream>
 #include <stdexcept>
 
 class vtkOSPRayPassInternals : public vtkRenderPass
@@ -67,22 +68,51 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->SceneGraph = NULL;
 
   int ac = 1;
-  const char* av[] = {"pvOSPRay\0"};
-  try
+  const char* envArgs = getenv("VTKOSPRAY_ARGS");
+  if (envArgs)
     {
-    ospInit(&ac, av);
+    std::stringstream ss(envArgs);
+    std::string arg;
+    std::vector<std::string> args;
+    while (ss >> arg)
+      {
+      args.push_back(arg);
+      }
+    int ac =args.size()+1;
+    char* av[ac];
+    av[0] = new char[512];
+    strcpy(av[0],"pvOSPRay\0");
+    for(int i=1;i < ac; i++)
+      {
+      av[i] = new char[args[i-1].size()+1];
+      strcpy(av[i], args[i-1].c_str());
+      }
+    try
+      {
+      ospInit(&ac, (const char**)av);
+      }
+    catch (std::runtime_error &vtkNotUsed(e))
+      {
+      //todo: request addition of ospFinalize() to ospray
+      }
     }
-  catch (std::runtime_error &vtkNotUsed(e))
+  else
     {
-    //todo: request addition of ospFinalize() to ospray
-    //cerr << "warning: double init" << endl;
+    const char* av[] = {"pvOSPRay\0"};
+    try
+      {
+      ospInit(&ac, av);
+      }
+    catch (std::runtime_error &vtkNotUsed(e))
+      {
+      //todo: request addition of ospFinalize() to ospray
+      }
     }
 
   vtkOSPRayViewNodeFactory *vnf = vtkOSPRayViewNodeFactory::New();
   this->Internal = vtkOSPRayPassInternals::New();
   this->Internal->Factory = vnf;
   this->Internal->Parent = this;
-
 
   this->CameraPass = vtkCameraPass::New();
   this->LightsPass = vtkLightsPass::New();
@@ -93,8 +123,6 @@ vtkOSPRayPass::vtkOSPRayPass()
   this->RenderPassCollection = vtkRenderPassCollection::New();
   this->RenderPassCollection->AddItem(this->LightsPass);
   this->RenderPassCollection->AddItem(this->Internal);
-//  this->RenderPassCollection->AddItem(vtkOpaquePass::New());
-  this->RenderPassCollection->AddItem(this->VolumetricPass);
   this->RenderPassCollection->AddItem(this->OverlayPass);
 
   this->SequencePass->SetPasses(this->RenderPassCollection);
@@ -181,6 +209,8 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
     int viewportWidth, viewportHeight;
     ren->GetTiledSizeAndOrigin(&viewportWidth,&viewportHeight,
                                 &viewportX,&viewportY);
+    vtkOSPRayRendererNode* oren= vtkOSPRayRendererNode::SafeDownCast
+      (this->SceneGraph->GetViewNodeFor(ren));
     int layer = ren->GetLayer();
     if (layer == 0)
       {
@@ -194,10 +224,11 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
         viewportX+viewportWidth-1,
         viewportY+viewportHeight-1,
         this->SceneGraph->GetBuffer(),
-        0, 0 );
+        0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
       }
     else
       {
+
       float *ontoZ = rwin->GetZbufferData
         (viewportX,  viewportY,
          viewportX+viewportWidth-1,
@@ -207,8 +238,6 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
          viewportX+viewportWidth-1,
          viewportY+viewportHeight-1,
          0);
-      vtkOSPRayRendererNode* oren= vtkOSPRayRendererNode::SafeDownCast
-        (this->SceneGraph->GetViewNodeFor(ren));
       oren->WriteLayer(ontoRGBA, ontoZ, viewportWidth, viewportHeight, layer);
       rwin->SetZbufferData(
          viewportX,  viewportY,
@@ -220,7 +249,7 @@ void vtkOSPRayPass::RenderInternal(const vtkRenderState *s)
          viewportX+viewportWidth-1,
          viewportY+viewportHeight-1,
          ontoRGBA,
-         0, 0 );
+         0, vtkOSPRayRendererNode::GetCompositeOnGL(ren) );
       delete[] ontoZ;
       delete[] ontoRGBA;
       }

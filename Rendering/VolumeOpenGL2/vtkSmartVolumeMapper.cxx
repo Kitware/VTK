@@ -22,6 +22,7 @@
 #include "vtkEventForwarderCommand.h"
 #include "vtkImageData.h"
 #include "vtkImageResample.h"
+#include "vtkOSPRayVolumeInterface.h"
 #include "vtkPiecewiseFunction.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
@@ -123,6 +124,8 @@ vtkSmartVolumeMapper::vtkSmartVolumeMapper()
   ***/
 
   cb->Delete();
+
+  this->OSPRayMapper = NULL;
 }
 
 // ----------------------------------------------------------------------------
@@ -149,6 +152,11 @@ vtkSmartVolumeMapper::~vtkSmartVolumeMapper()
     {
     this->GPUResampleFilter->Delete();
     this->GPUResampleFilter = 0;
+    }
+  if (this->OSPRayMapper)
+    {
+    this->OSPRayMapper->Delete();
+    this->OSPRayMapper = 0;
     }
 }
 
@@ -205,6 +213,14 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
         }
       usedMapper->Render(ren, vol);
       break;
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      {
+      if (!this->OSPRayMapper)
+        {
+        this->OSPRayMapper = vtkOSPRayVolumeInterface::New();
+        }
+      this->OSPRayMapper->Render(ren, vol);
+      }
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
       // valid was selected so we will render nothing
@@ -360,6 +376,10 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
         }
       break;
 
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      this->CurrentRenderMode = vtkSmartVolumeMapper::OSPRayRenderMode;
+      break;
+
       // This should never happen since the SetRequestedRenderMode
       // protects against invalid states
     default:
@@ -460,6 +480,9 @@ void vtkSmartVolumeMapper::ComputeRenderMode(vtkRenderer *ren, vtkVolume *vol)
 
       break;
 
+    case vtkSmartVolumeMapper::OSPRayRenderMode:
+      break;
+
       // The user selected a RequestedRenderMode that is
       // not supported. In this case the mapper will just
       // silently fail.
@@ -546,7 +569,7 @@ void vtkSmartVolumeMapper::SetRequestedRenderMode(int mode)
 
   // Make sure it is a valid mode
   if ( mode < vtkSmartVolumeMapper::DefaultRenderMode ||
-       mode > vtkSmartVolumeMapper::GPURenderMode)
+       mode > vtkSmartVolumeMapper::OSPRayRenderMode)
     {
     vtkErrorMacro("Invalid Render Mode.");
     return;
@@ -574,6 +597,13 @@ void vtkSmartVolumeMapper::SetRequestedRenderModeToGPU()
 {
   this->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
 }
+
+// ----------------------------------------------------------------------------
+void vtkSmartVolumeMapper::SetRequestedRenderModeToOSPRay()
+{
+  this->SetRequestedRenderMode(vtkSmartVolumeMapper::OSPRayRenderMode);
+}
+
 
 // ----------------------------------------------------------------------------
 void vtkSmartVolumeMapper::ReleaseGraphicsResources(vtkWindow *w)

@@ -24,14 +24,14 @@
 #include "vtkRenderingOSPRayModule.h" // For export macro
 #include "vtkRenderPass.h"
 
-class vtkOSPRayRendererNode;
 class vtkCameraPass;
 class vtkLightsPass;
+class vtkOSPRayPassInternals;
+class vtkOSPRayRendererNode;
 class vtkOverlayPass;
 class vtkRenderPassCollection;
 class vtkSequencePass;
 class vtkVolumetricPass;
-class vtkOSPRayPassInternals;
 
 class VTKRENDERINGOSPRAY_EXPORT vtkOSPRayPass : public vtkRenderPass
 {

@@ -5,9 +5,12 @@ endif()
 
 vtk_module(vtkRenderingOSPRay
   DEPENDS
+    vtkRenderingVolume
     vtkRenderingSceneGraph
     #todo promote compositedatadisplayattributes to rendering/core
     vtkRendering${VTK_RENDERING_BACKEND} #only for comp.data.disp.attr.
+  IMPLEMENTS
+    vtkRenderingVolume
   TEST_DEPENDS
     vtkFiltersTexture
     vtkInteractionStyle
@@ -18,5 +21,17 @@ vtk_module(vtkRenderingOSPRay
     vtkTestingCore
     vtkTestingRendering
     ${optional_test_depends}
+    # Dependencies for volume rendering tests
+    vtkRenderingVolume
+    vtkRenderingVolume${VTK_RENDERING_BACKEND}
+    vtkFiltersCore
+    vtkFiltersHybrid
+    vtkFiltersModeling
+    vtkImagingSources
+    vtkImagingGeneral
+    vtkImagingHybrid
+    vtkInteractionStyle
+    vtkIOLegacy
+    vtkRenderingFreeType
   EXCLUDE_FROM_ALL
   )

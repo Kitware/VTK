@@ -33,7 +33,6 @@
 #include "vtkSmartPointer.h"
 
 #include "ospray/ospray.h"
-//#include "ospray/common/OSPCommon.h"
 #include "ospray/version.h"
 
 #include <map>
@@ -605,7 +604,6 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
     };
 
   ospSet3fv(oMaterial,"Ka",ambientf);
-  double scale = property->GetDiffuse();
   if (property->GetDiffuse()==0.0)
     {
     //a workaround for ParaView, remove when ospray supports Ka
@@ -705,7 +703,7 @@ void vtkOSPRayPolyDataMapperNode::ORenderPoly(
         pointColors[i] = osp::vec4f{color[0] / 255.0f,
                                     color[1] / 255.0f,
                                     color[2] / 255.0f,
-                                    1};
+                                    1.f};
         }
       }
     }

@@ -76,6 +76,7 @@
 class vtkFixedPointVolumeRayCastMapper;
 class vtkGPUVolumeRayCastMapper;
 class vtkImageResample;
+class vtkOSPRayVolumeInterface;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkVolumeProperty;
@@ -127,7 +128,8 @@ public:
 #endif // !VTK_LEGACY_REMOVE
     GPURenderMode=4,
     UndefinedRenderMode=5,
-    InvalidRenderMode=6
+    OSPRayRenderMode=6,
+    InvalidRenderMode=7
   };
 
   // Description:
@@ -152,6 +154,11 @@ public:
   // This option will use hardware accelerated rendering exclusively. This is a
   // good option if you know there is hardware acceleration.
   void SetRequestedRenderModeToGPU();
+
+  // Description:
+  // Set the requested render mode to vtkSmartVolumeMapper::OSPRayRenderMode.
+  // This option will use intel OSPRay to do software rendering exclusively.
+  void SetRequestedRenderModeToOSPRay();
 
   // Description:
   // Get the requested render mode.
@@ -345,6 +352,8 @@ protected:
 private:
   vtkSmartVolumeMapper(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSmartVolumeMapper&) VTK_DELETE_FUNCTION;
+
+  vtkOSPRayVolumeInterface *OSPRayMapper;
 };
 
 #endif
