@@ -14,6 +14,7 @@
 =========================================================================*/
 #include "vtkResampleWithDataSet.h"
 
+#include "vtkCellData.h"
 #include "vtkCharArray.h"
 #include "vtkCompositeDataProbeFilter.h"
 #include "vtkCompositeDataIterator.h"
@@ -63,6 +64,45 @@ void vtkResampleWithDataSet::SetSourceConnection(vtkAlgorithmOutput* algOutput)
 void vtkResampleWithDataSet::SetSourceData(vtkDataObject *input)
 {
   this->SetInputData(1, input);
+}
+
+//----------------------------------------------------------------------------
+void vtkResampleWithDataSet::SetPassCellArrays(bool arg)
+{
+  this->Prober->SetPassCellArrays(arg);
+}
+
+bool vtkResampleWithDataSet::GetPassCellArrays()
+{
+  // work arround for Visual Studio warning C4800:
+  // 'int' : forcing value to bool 'true' or 'false' (performance warning)
+  return this->Prober->GetPassCellArrays() ? true : false;
+}
+
+void vtkResampleWithDataSet::SetPassPointArrays(bool arg)
+{
+  this->Prober->SetPassPointArrays(arg);
+}
+
+bool vtkResampleWithDataSet::GetPassPointArrays()
+{
+  return this->Prober->GetPassPointArrays() ? true : false;
+}
+
+void vtkResampleWithDataSet::SetPassFieldArrays(bool arg)
+{
+  this->Prober->SetPassFieldArrays(arg);
+}
+
+bool vtkResampleWithDataSet::GetPassFieldArrays()
+{
+  return this->Prober->GetPassFieldArrays() ? true : false;
+}
+
+//----------------------------------------------------------------------------
+vtkMTimeType vtkResampleWithDataSet::GetMTime()
+{
+  return std::max(this->Superclass::GetMTime(), this->Prober->GetMTime());
 }
 
 //-----------------------------------------------------------------------------
@@ -166,10 +206,11 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   vtkDataObject *source = sourceInfo->Get(vtkDataObject::DATA_OBJECT());
 
   vtkDataObject *inDataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
+  vtkDataObject *outDataObject = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if (inDataObject->IsA("vtkDataSet"))
     {
     vtkDataSet *input = vtkDataSet::SafeDownCast(inDataObject);
-    vtkDataSet *output = vtkDataSet::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkDataSet *output = vtkDataSet::SafeDownCast(outDataObject);
 
     this->Prober->SetInputData(input);
     this->Prober->SetSourceData(source);
@@ -180,8 +221,7 @@ int vtkResampleWithDataSet::RequestData(vtkInformation *vtkNotUsed(request),
   else if (inDataObject->IsA("vtkCompositeDataSet"))
     {
     vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(inDataObject);
-    vtkCompositeDataSet *output = vtkCompositeDataSet::SafeDownCast(
-      outInfo->Get(vtkDataObject::DATA_OBJECT()));
+    vtkCompositeDataSet *output = vtkCompositeDataSet::SafeDownCast(outDataObject);
     output->CopyStructure(input);
 
     this->Prober->SetSourceData(source);
