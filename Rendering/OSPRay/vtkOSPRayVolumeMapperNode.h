@@ -37,8 +37,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   //Description:
-  //
+  //Make ospray calls to render me.
   virtual void Render(bool prepass);
+
+  //Description:
+  //TODO: fix me
+  //should be controlled by VTK SampleDistance, otherwise
+  //should use macros and modify self.
   void SetSamplingRate(double rate) { this->SamplingRate = rate; }
   double GetSamplingRate(double rate) { return this->SamplingRate; }
 
