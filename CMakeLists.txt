@@ -209,6 +209,12 @@ else()
   set(HAVE_LD_VERSION_SCRIPT FALSE)
 endif()
 
+# XXX(kitware): drop the flag for Xcode.
+if (CMAKE_GENERATOR MATCHES "Xcode" AND HAVE_LD_VERSION_SCRIPT)
+  message(STATUS "tiff: ignoring support for -Wl,--version-script=")
+  set(HAVE_LD_VERSION_SCRIPT FALSE)
+endif ()
+
 # Find libm, if available
 find_library(M_LIBRARY m)
 
