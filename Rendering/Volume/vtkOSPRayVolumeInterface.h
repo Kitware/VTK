@@ -45,8 +45,8 @@ protected:
 
 private:
   vtkOSPRayVolumeInterface
-    (const vtkOSPRayVolumeInterface&);  // Not implemented.
-  void operator=(const vtkOSPRayVolumeInterface&);  // Not implemented.
+    (const vtkOSPRayVolumeInterface&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkOSPRayVolumeInterface&) VTK_DELETE_FUNCTION;
 };
 
 #endif
