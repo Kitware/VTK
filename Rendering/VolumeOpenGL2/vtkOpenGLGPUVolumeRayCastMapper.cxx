@@ -1803,9 +1803,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::vtkInternal::RenderVolumeGeometry(
     vtkIdType npts;
     vtkIdType *pts;
 
+    // See if the volume transform is orientation-preserving
+    // and orient polygons accordingly
+    vtkMatrix4x4* volMat = vol->GetMatrix();
+    double det = vtkMath::Determinant3x3(
+      volMat->GetElement(0, 0), volMat->GetElement(0, 1), volMat->GetElement(0, 2),
+      volMat->GetElement(1, 0), volMat->GetElement(1, 1), volMat->GetElement(1, 2),
+      volMat->GetElement(2, 0), volMat->GetElement(2, 1), volMat->GetElement(2, 2));
+    bool preservesOrientation = det > 0.0;
+
+    const vtkIdType indexMap[3] = {
+      preservesOrientation ? 0 : 2,
+      1,
+      preservesOrientation ? 2 : 0
+    };
+
     while(cells->GetNextCell(npts, pts))
       {
-      polys->InsertNextTuple3(pts[0], pts[1], pts[2]);
+      polys->InsertNextTuple3(pts[indexMap[0]], pts[indexMap[1]], pts[indexMap[2]]);
       }
 
     // Dispose any previously created buffers
