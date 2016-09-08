@@ -291,13 +291,14 @@ void vtkModelMetadata::FreeAllMetadata()
 void vtkModelMetadata::FreeAllIvars()
 {
   this->FreeAllMetadata();
-
-  FREE(this->BlockElementIdListIndex);
   FREE(this->BlockAttributesIndex);
-  FREE(this->NodeSetNodeIdListIndex);
+  FREE(this->BlockElementIdListIndex);
   FREE(this->NodeSetDistributionFactorIndex);
-  FREE(this->SideSetListIndex);
+  FREE(this->NodeSetIds);
+  FREE(this->NodeSetNodeIdListIndex);
+  FREE(this->NodeSetSize);
   FREE(this->SideSetDistributionFactorIndex);
+  FREE(this->SideSetListIndex);
 }
 //
 // At last: The constructor, destructor and copy operator
