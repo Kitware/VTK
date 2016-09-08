@@ -2353,7 +2353,9 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     this->Lines.IBO->Release();
-    this->PrimitiveIDOffset += (int)this->Lines.IBO->IndexCount/2;
+    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
+      static_cast<int>((representation == VTK_POINTS ? this->Lines.IBO->IndexCount
+        : this->Lines.IBO->IndexCount/2));
     }
 
   // draw polygons
@@ -2380,7 +2382,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                       GL_UNSIGNED_INT,
                       reinterpret_cast<const GLvoid *>(NULL));
     this->Tris.IBO->Release();
-    this->PrimitiveIDOffset += (int)this->Tris.IBO->IndexCount/3;
+    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
+      static_cast<int>((representation == VTK_POINTS ? this->Tris.IBO->IndexCount
+        : (representation == VTK_WIREFRAME ? this->Tris.IBO->IndexCount/2
+          : this->Tris.IBO->IndexCount/3)));
     }
 
   // draw strips
@@ -2424,8 +2429,10 @@ void vtkOpenGLPolyDataMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
                           reinterpret_cast<const GLvoid *>(NULL));
       }
     this->TriStrips.IBO->Release();
-    // just be safe and divide by 3
-    this->PrimitiveIDOffset += (int)this->TriStrips.IBO->IndexCount/3;
+    this->PrimitiveIDOffset = this->PrimitiveIDOffset +
+      static_cast<int>((representation == VTK_POINTS ? this->TriStrips.IBO->IndexCount
+        : (representation == VTK_WIREFRAME ? this->TriStrips.IBO->IndexCount/2
+          : this->TriStrips.IBO->IndexCount/3)));
     }
 
   if (selector && (
