@@ -245,7 +245,7 @@ Grid.SetPoints(Pts)
 Grid.SetLines(Lines)
 # Set up the coordinate system.
 normCoords = vtk.vtkCoordinate()
-normCoords.SetCoordinateSystemToNormalizedViewport()
+normCoords.SetCoordinateSystemToNormalizedDisplay()
 # Set up the mapper and actor (2D) for the grid.
 mapper = vtk.vtkPolyDataMapper2D()
 mapper.SetInputData(Grid)
