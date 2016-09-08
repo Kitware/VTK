@@ -976,12 +976,22 @@ void vtkPolyData::BuildCells()
     numCellPts = pLines[0];
     pLocs[0] = 0;
     pTypes[0] = numCellPts > 2 ? VTK_POLY_LINE : VTK_LINE;
+    if (numCellPts == 1)
+      {
+      vtkWarningMacro("Building VTK_LINE 0 with only one point, but VTK_LINE "
+      "needs at least two points. Check the input.");
+      }
     nextCellPts = numCellPts + 1;
     for (vtkIdType i = 1; i < nLines; ++i)
       {
       numCellPts = pLines[nextCellPts];
       pLocs[i] = nextCellPts;
       pTypes[i] = numCellPts > 2 ? VTK_POLY_LINE : VTK_LINE;
+      if (numCellPts == 1)
+        {
+        vtkWarningMacro("Building VTK_LINE " << i <<" with only one point, but "
+        "VTK_LINE needs at least two points. Check the input.");
+        }
       nextCellPts += numCellPts + 1;
       }
     pLocs += nLines;
@@ -994,6 +1004,11 @@ void vtkPolyData::BuildCells()
     vtkIdType *pPolys = polyCells->GetData()->GetPointer(0);
     numCellPts = pPolys[0];
     pLocs[0] = 0;
+    if (numCellPts < 3)
+      {
+      vtkWarningMacro("Building VTK_TRIANGLE 0 with less than three points, but"
+      " VTK_TRIANGLE needs at least three points. Check the input.");
+      }
     pTypes[0] = numCellPts == 3 ? VTK_TRIANGLE :
       numCellPts == 4 ? VTK_QUAD : VTK_POLYGON;
     nextCellPts = numCellPts + 1;
@@ -1001,6 +1016,12 @@ void vtkPolyData::BuildCells()
       {
       numCellPts = pPolys[nextCellPts];
       pLocs[i] = nextCellPts;
+      if (numCellPts < 3)
+        {
+        vtkWarningMacro("Building VTK_TRIANGLE "<< i << " with less than three "
+        "points, but VTK_TRIANGLE needs at least three points. "
+        "Check the input.");
+        }
       pTypes[i] = numCellPts == 3 ? VTK_TRIANGLE :
         numCellPts == 4 ? VTK_QUAD : VTK_POLYGON;
       nextCellPts += numCellPts + 1;
