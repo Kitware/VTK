@@ -83,6 +83,16 @@ int TestKdTreeFunctions()
     retVal++;
     }
 
+  double center[3] = {0.0, 0.0, 0.0};
+  vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
+  kd->FindPointsWithinRadius(10, center, idList);
+  vtkIdType n = idList->GetNumberOfIds();
+  if (n != 10)
+    {
+    cerr << "FindPointsWithinRadius failed" << endl;
+    retVal++;
+    }
+
   return retVal;
 }
 
