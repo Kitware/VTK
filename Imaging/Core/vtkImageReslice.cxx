@@ -3191,6 +3191,20 @@ int vtkImageReslice::RequestData(
   vtkInformationVector** inputVector,
   vtkInformationVector* outputVector)
 {
+  // Generation of the StencilOutput is incompatible with splitting
+  // along the x-axis when multithreaded, because of InsertNextExtent()
+  if (this->GenerateStencilOutput && this->SplitPathLength == 3)
+    {
+    if (this->SplitMode == vtkThreadedImageAlgorithm::BLOCK)
+      {
+      vtkWarningMacro("RequestData: SetSplitModeToBlock() is incompatible "
+                      "with GenerateStencilOutputOn().  Denying any splits "
+                      "along x-axis in order to avoid corrupt stencil!");
+      }
+    // Ensure that x-axis is never split
+    this->SplitPathLength = 2;
+    }
+
   vtkAbstractImageInterpolator *interpolator = this->GetInterpolator();
   vtkInformation* info = inputVector[0]->GetInformationObject(0);
   interpolator->Initialize(info->Get(vtkDataObject::DATA_OBJECT()));
