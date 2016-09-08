@@ -40,9 +40,9 @@ protected:
   vtkVolumeNode();
   ~vtkVolumeNode();
 
- private:
-  vtkVolumeNode(const vtkVolumeNode&); // Not implemented.
-  void operator=(const vtkVolumeNode&); // Not implemented.
+private:
+  vtkVolumeNode(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkVolumeNode&) VTK_DELETE_FUNCTION;
 };
 
 #endif
