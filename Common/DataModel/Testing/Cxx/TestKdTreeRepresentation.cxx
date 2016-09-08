@@ -32,6 +32,60 @@
 #define VTK_CREATE(type,name) \
   vtkSmartPointer<type> name = vtkSmartPointer<type>::New()
 
+int TestKdTreeFunctions()
+{
+  int retVal = 0;
+
+  const int num_points = 10;
+  double p[num_points][3] =
+  {
+    {0.840188, 0.394383, 0.783099},
+    {0.79844, 0.911647, 0.197551},
+    {0.335223, 0.76823, 0.277775},
+    {0.55397, 0.477397, 0.628871},
+    {0.364784, 0.513401, 0.95223},
+    {0.916195, 0.635712, 0.717297},
+    {0.141603, 0.606969, 0.0163006},
+    {0.242887, 0.137232, 0.804177},
+    {0.156679, 0.400944, 0.12979},
+    {0.108809, 0.998925, 0.218257}
+  };
+
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+  for (int i = 0; i < num_points; i++)
+  {
+    points->InsertNextPoint(p[i]);
+  }
+
+  vtkSmartPointer<vtkKdTree> kd = vtkSmartPointer<vtkKdTree>::New();
+  kd->BuildLocatorFromPoints(points);
+
+  double distance;
+  vtkIdType id = kd->FindClosestPoint(0.5, 0.5, 0.5, distance);
+  if (id != 3)
+    {
+    cerr << "FindClosestPoint failed" << endl;
+    retVal++;
+    }
+
+  double area[6] =
+    {
+    0.2, 0.8,
+    0.2, 0.8,
+    0.2, 0.8,
+    };
+  vtkSmartPointer<vtkIdTypeArray> ids = vtkSmartPointer<vtkIdTypeArray>::New();
+  kd->FindPointsInArea(area, ids);
+  vtkIdType count = ids->GetNumberOfValues();
+  if (count != 2)
+    {
+    cerr << "FindPointsInArea failed" << endl;
+    retVal++;
+    }
+
+  return retVal;
+}
+
 int TestKdTreeRepresentation(int argc, char *argv[])
 {
   double glyphSize = 0.05;
@@ -130,5 +184,7 @@ int TestKdTreeRepresentation(int argc, char *argv[])
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
     }
-  return (!retVal);
+  retVal = !retVal;
+  retVal += TestKdTreeFunctions();
+  return retVal;
 }
