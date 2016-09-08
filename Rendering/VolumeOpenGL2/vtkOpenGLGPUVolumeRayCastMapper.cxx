@@ -3557,17 +3557,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::DoGPURender(vtkRenderer* ren,
   //--------------------------------------------------------------------------
   this->Impl->SetLightingParameters(ren, prog, vol);
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetAmbient();
-  prog->SetUniform3f("in_ambient", fvalue3);
+  float ambient[4][3];
+  float diffuse[4][3];
+  float specular[4][3];
+  float specularPower[4];
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetDiffuse();
-  prog->SetUniform3f("in_diffuse", fvalue3);
+  for (int i = 0; i < numberOfSamplers; ++i)
+    {
+    ambient[i][0] = ambient[i][1] = ambient[i][2] =
+      volumeProperty->GetAmbient(i);
+    diffuse[i][0] = diffuse[i][1] = diffuse[i][2] =
+      volumeProperty->GetDiffuse(i);
+    specular[i][0] = specular[i][1] = specular[i][2] =
+      volumeProperty->GetSpecular(i);
+    specularPower[i] = volumeProperty->GetSpecularPower(i);
+    }
 
-  fvalue3[0] = fvalue3[1] = fvalue3[2] = volumeProperty->GetSpecular();
-  prog->SetUniform3f("in_specular", fvalue3);
-
-  fvalue3[0] = volumeProperty->GetSpecularPower();
-  prog->SetUniformf("in_shininess", fvalue3[0]);
+  prog->SetUniform3fv("in_ambient", numberOfSamplers, ambient);
+  prog->SetUniform3fv("in_diffuse", numberOfSamplers, diffuse);
+  prog->SetUniform3fv("in_specular", numberOfSamplers, specular);
+  prog->SetUniform1fv("in_shininess", numberOfSamplers, specularPower);
 
   double clippingRange[2];
   cam->GetClippingRange(clippingRange);
