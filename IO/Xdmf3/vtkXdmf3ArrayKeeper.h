@@ -22,7 +22,6 @@
 //
 // This file is a helper for the vtkXdmf3Reader and not intended to be
 // part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h
 
 #ifndef vtkXdmf3ArrayKeeper_h
 #define vtkXdmf3ArrayKeeper_h
@@ -62,3 +61,4 @@ private:
 };
 
 #endif //vtkXdmf3ArrayKeeper_h
+// VTK-HeaderTest-Exclude: vtkXdmf3ArrayKeeper.h

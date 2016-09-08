@@ -97,17 +97,13 @@ public:
   // Varyings and setting NumberOfVertices.
   size_t GetBufferSize() const;
 
-  /*
-   * GL_SEPARATE_ATTRIBS is not supported yet.
-   *
   // Description:
+  // GL_SEPARATE_ATTRIBS is not supported yet.
   // The bufferMode argument to glTransformFeedbackVaryings. Must be
   // GL_INTERLEAVED_ATTRIBS or GL_SEPARATE_ATTRIBS. Default is interleaved. Must
   // be set prior to calling BindVaryings.
-  vtkSetMacro(BufferMode, int)
-  vtkGetMacro(BufferMode, int)
-  *
-  */
+  //vtkSetMacro(BufferMode, int)
+  //vtkGetMacro(BufferMode, int)
 
   // Description:
   // Call glTransformFeedbackVaryings(). Must be called after the shaders are

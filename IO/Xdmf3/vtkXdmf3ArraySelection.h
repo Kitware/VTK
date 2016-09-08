@@ -21,7 +21,6 @@
 //
 // This file is a helper for the vtkXdmf3Reader and not intended to be
 // part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h
 
 #ifndef vtkXdmf3ArraySelection_h
 #define vtkXdmf3ArraySelection_h
@@ -66,3 +65,4 @@ public:
 };
 
 #endif //# vtkXdmf3ArraySelection_h
+// VTK-HeaderTest-Exclude: vtkXdmf3ArraySelection.h

@@ -69,7 +69,7 @@
 
 // .SECTION Thanks
 // This class was written by Philippe Pebay, Kitware SAS 2012
-// This work was supported by CEA/DIF - Commissariat a l'Energie Atomique, 
+// This work was supported by CEA/DIF - Commissariat a l'Energie Atomique,
 // Centre DAM Ile-De-France, BP12, F-91297 Arpajon, France.
 
 // .SECTION See Also

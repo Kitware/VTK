@@ -12,14 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME - Place points on the surface of polygonal data.
+// .NAME vtkPolygonalSurfacePointPlacer - Place points on the surface of polygonal data.
 //
 // .SECTION Description
 // vtkPolygonalSurfacePointPlacer places points on polygonal data and is
 // meant to be used in conjunction with
 // vtkPolygonalSurfaceContourLineInterpolator.
-//
-// .SECTION Usage
 //
 // .SECTION Caveats
 // You should have computed cell normals for the input polydata if you are

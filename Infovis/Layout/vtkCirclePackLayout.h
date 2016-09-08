@@ -31,7 +31,7 @@
 // An array by default called "size" can be attached to the input tree
 // that specifies the size of each leaf node in the tree.  The filter will
 // calculate the sizes of all interior nodes in the tree based on the sum
-// of the leaf node sizes.  If no "size" array is given in the input vtkTree, 
+// of the leaf node sizes.  If no "size" array is given in the input vtkTree,
 // a size of 1 is used for all leaf nodes to find the size of the interior nodes.
 //
 // .SECTION Thanks

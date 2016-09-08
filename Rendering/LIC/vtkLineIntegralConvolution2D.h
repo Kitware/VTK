@@ -278,7 +278,6 @@ public:
   // licExtent       : part of the inpute extent to compute on
   // outputTexExtent : screen space extent of the output texture
   // outputExtent    : part of the output texture to store the result
-  //
   vtkTextureObject *Execute(
         const vtkPixelExtent &inputTexExtent,
         const std::deque<vtkPixelExtent> &vectorExtent,

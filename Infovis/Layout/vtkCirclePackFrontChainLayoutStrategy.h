@@ -59,7 +59,6 @@ public:
   // Perform the layout of the input tree, and store the circle
   // bounds of each vertex as a tuple in a data array.
   // (Xcenter, Ycenter, Radius).
-  //
   virtual void Layout(vtkTree *inputTree, vtkDataArray *areaArray,
                       vtkDataArray* sizeArray);
 

@@ -22,13 +22,13 @@
 // L0    L1        L2
 // RR  | .R. ... | ...
 // For this tree:
-/*  HTG:       .         */
-/*           /   \       */
-/*  L0:     .     .      */
-/*         /|\   /|\     */
-/*  L1:   c . c c c c    */
-/*         /|\           */
-/*  L2:   c c c          */
+//  HTG:       .
+//           /   \
+//  L0:     .     .
+//         /|\   /|\
+//  L1:   c . c c c c
+//         /|\
+//  L2:   c c c
 // The top level of the tree is not considered a grid level
 // NB: For ease of legibility, white spaces are allowed and ignored.
 //

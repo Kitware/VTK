@@ -18,7 +18,7 @@
 // may look like a torus "eating" its own tail.
 //
 // For further information about this surface, please consult the
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
+// technical description "Parametric surfaces" in http://www.vtk.org/publications
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks

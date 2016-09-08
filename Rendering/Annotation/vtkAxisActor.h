@@ -334,7 +334,6 @@ public:
   // to the x-edge in the bounding box where Y values are minimum and
   // Z values are minimum. For a y-type axis, MAXMIN corresponds to the
   // y-edge where X values are maximum and Z values are minimum.
-  //
   vtkSetClampMacro(AxisPosition, int, VTK_AXIS_POS_MINMIN, VTK_AXIS_POS_MAXMIN);
   vtkGetMacro(AxisPosition, int);
 

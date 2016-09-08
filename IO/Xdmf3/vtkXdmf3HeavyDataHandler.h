@@ -20,7 +20,6 @@
 //
 // This file is a helper for the vtkXdmf3Reader and not intended to be
 // part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h
 
 #ifndef vtkXdmf3HeavyDataHandler_h
 #define vtkXdmf3HeavyDataHandler_h
@@ -128,3 +127,4 @@ protected:
 };
 
 #endif //vtkXdmf3HeavyDataHandler_h
+// VTK-HeaderTest-Exclude: vtkXdmf3HeavyDataHandler.h

@@ -163,7 +163,6 @@ public:
   // vtkReebGraph::ERR_NOT_A_SIMPLICIAL_MESH: the input mesh 'mesh' is not a
   // simplicial mesh (for example, the surface mesh contains quads instead of
   // triangles).
-  //
   int Build(vtkPolyData *mesh, vtkDataArray *scalarField);
 
   // Description:
@@ -177,7 +176,6 @@ public:
   //
   // vtkReebGraph::ERR_NOT_A_SIMPLICIAL_MESH: the input mesh 'mesh' is not a
   // simplicial mesh.
-  //
   int Build(vtkUnstructuredGrid *mesh, vtkDataArray *scalarField);
 
 
@@ -196,7 +194,6 @@ public:
   //
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the Id
   // 'scalarFieldId' does not exist.
-  //
   int Build(vtkPolyData *mesh, vtkIdType scalarFieldId);
 
   // Description:
@@ -213,7 +210,6 @@ public:
   //
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the Id
   // 'scalarFieldId' does not exist.
-  //
   int Build(vtkUnstructuredGrid *mesh, vtkIdType scalarFieldId);
 
 
@@ -232,7 +228,6 @@ public:
   //
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
   // 'scalarFieldName' does not exist.
-  //
   int Build(vtkPolyData *mesh, const char* scalarFieldName);
 
   // Description:
@@ -249,7 +244,6 @@ public:
   //
   // vtkReebGraph::ERR_NO_SUCH_FIELD: the scalar field given by the name
   // 'scalarFieldName' does not exist.
-  //
   int Build(vtkUnstructuredGrid *mesh, const char* scalarFieldName);
 
   // Description:

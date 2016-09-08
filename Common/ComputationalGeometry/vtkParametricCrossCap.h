@@ -19,7 +19,7 @@
 // This is one possible image of a projective plane in three-space.
 //
 // For further information about this surface, please consult the
-// technical description "Parametric surfaces" in http://www.vtk.org/documents.php
+// technical description "Parametric surfaces" in http://www.vtk.org/publications
 // in the "VTK Technical Documents" section in the VTk.org web pages.
 //
 // .SECTION Thanks
@@ -74,7 +74,6 @@ public:
   //
   // If the user does not need to calculate a scalar, then the
   // instantiated function should return zero.
-  //
   double EvaluateScalar(double uvw[3], double Pt[3], double Duvw[9]) VTK_OVERRIDE;
 
 protected:

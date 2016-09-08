@@ -12,18 +12,6 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-
-#ifndef vtkComputeQuartiles_h
-#define vtkComputeQuartiles_h
-
-#include "vtkFiltersStatisticsModule.h" // For export macro
-#include "vtkTableAlgorithm.h"
-
-class vtkDataSet;
-class vtkDoubleArray;
-class vtkFieldData;
-class vtkTable;
-
 // .NAME vtkComputeQuartiles - Extract quartiles and extremum values
 // of all columns of a table or all fields of a dataset.
 //
@@ -39,6 +27,18 @@ class vtkTable;
 //
 // .SECTION Thanks
 // This class was written by Kitware SAS and supported by EDF - www.edf.fr
+
+#ifndef vtkComputeQuartiles_h
+#define vtkComputeQuartiles_h
+
+#include "vtkFiltersStatisticsModule.h" // For export macro
+#include "vtkTableAlgorithm.h"
+
+class vtkDataSet;
+class vtkDoubleArray;
+class vtkFieldData;
+class vtkTable;
+
 
 class VTKFILTERSSTATISTICS_EXPORT vtkComputeQuartiles : public vtkTableAlgorithm
 {

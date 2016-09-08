@@ -21,7 +21,6 @@
 //
 // This file is a helper for the vtkXdmf3Reader and not intended to be
 // part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3LightDataHandler.h
 
 #ifndef vtkXdmf3LightDataHandler_h
 #define vtkXdmf3LightDataHandler_h
@@ -123,3 +122,4 @@ private:
 };
 
 #endif //vtkXdmf3LightDataHandler_h
+// VTK-HeaderTest-Exclude: vtkXdmf3LightDataHandler.h

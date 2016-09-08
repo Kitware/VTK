@@ -113,7 +113,6 @@ public:
   // Description:
   // Default constructor which will create an instance of the DefaultFunctorType
   // and use that single instance for all calls.
-  //
   vtkDataArrayDispatcher();
 
   virtual ~vtkDataArrayDispatcher();

@@ -200,7 +200,6 @@ private:
   // Before using this function, ensure that: UResolution,
   // VResolution, MinimumU, MaximumU, MinimumV, MaximumV, JoinU, JoinV,
   // TwistU, TwistV, ordering are set appropriately for the parametric function.
-  //
   void MakeTriangles ( vtkCellArray * strips, int PtsU, int PtsV );
 
   vtkParametricFunctionSource(const vtkParametricFunctionSource&) VTK_DELETE_FUNCTION;

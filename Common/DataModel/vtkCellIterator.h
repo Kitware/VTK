@@ -35,19 +35,19 @@
 //     {
 //     if (it->GetCellType() != VTK_TETRA)
 //       {
-//       continue; /* Skip non-tetrahedral cells */
+//       continue; // Skip non-tetrahedral cells
 //       }
 //
 //     vtkIdList *pointIds = it->GetPointIds();
-//     /* Do screening on the point ids, maybe figure out scalar range and skip
-//        cells that do not lie in a certain range? */
+//     // Do screening on the point ids, maybe figure out scalar range and skip
+//        cells that do not lie in a certain range?
 //
 //     vtkPoints *points = it->GetPoints();
-//     /* Do work using the cell points, or ... */
+//     // Do work using the cell points, or ...
 //
 //     vtkGenericCell *cell = ...;
 //     it->GetCell(cell);
-//     /* ... do work with a vtkCell. */
+//     // ... do work with a vtkCell.
 //     }
 //   it->Delete();
 // }

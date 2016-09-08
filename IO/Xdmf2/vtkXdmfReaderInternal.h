@@ -15,7 +15,6 @@
 // .NAME vtkXdmfReaderInternal -- private class(es) used by vtkXdmfReader
 // .SECTION Description
 
-// VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h
 
 #ifndef vtkXdmfReaderInternal_h
 #define vtkXdmfReaderInternal_h
@@ -338,3 +337,4 @@ private:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkXdmfReaderInternal.h

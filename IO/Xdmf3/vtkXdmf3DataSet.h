@@ -20,7 +20,6 @@
 //
 // This file is a helper for the vtkXdmf3Reader and vtkXdmf3Writer and
 // not intended to be part of VTK public API
-// VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h
 
 #ifndef vtkXdmf3DataSet_h
 #define vtkXdmf3DataSet_h
@@ -252,3 +251,4 @@ public:
 };
 
 #endif
+// VTK-HeaderTest-Exclude: vtkXdmf3DataSet.h

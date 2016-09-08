@@ -121,7 +121,6 @@ public:
   // vanilla VTK code should use e.g:
   //
   // table_to_graph->SetInputConnection(1, vertex_table->output());
-  //
   void SetVertexTableConnection(vtkAlgorithmOutput* in);
 
 protected:

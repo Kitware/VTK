@@ -126,7 +126,7 @@
 // ----------------------------------------------------------------------
 // vtkNew<MyGrid> grid;
 // grid->GetImplementation()->SetImplementationDetails(...);
-// /* grid is now ready to use. */
+// // grid is now ready to use.
 // @endcode
 //
 // The vtkCPExodusIIElementBlock class provides an example of

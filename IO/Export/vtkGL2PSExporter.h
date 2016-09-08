@@ -71,8 +71,6 @@
 // .SECTION Thanks
 // Thanks to Goodwin Lawlor and Prabhu Ramachandran for this class.
 
-class vtkPropCollection;
-
 #ifndef vtkGL2PSExporter_h
 #define vtkGL2PSExporter_h
 
@@ -80,6 +78,8 @@ class vtkPropCollection;
 #include "vtkExporter.h"
 
 #include "vtkNew.h" // For vtkNew
+
+class vtkPropCollection;
 
 class VTKIOEXPORT_EXPORT vtkGL2PSExporter : public vtkExporter
 {

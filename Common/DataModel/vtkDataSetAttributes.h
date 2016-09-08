@@ -235,7 +235,6 @@ public:
   //     is vtkDataSetAttributes::PEDIGREEIDS (error indicator)
   // - aa has a number of components incompatible with the attribute type
   //     (error indicator)
-  //
   int SetAttribute(vtkAbstractArray* aa, int attributeType);
 
   // Description:

@@ -141,7 +141,6 @@ public:
   //     ...
   //     return vtkTesting::InteractorEventLoop( argc, argv, iren );
   //   }
-  //
   static int InteractorEventLoop(int argc, char *argv[],
                                  vtkRenderWindowInteractor *iren,
                                  const char *stream = NULL);

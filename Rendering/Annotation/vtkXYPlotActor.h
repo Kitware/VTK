@@ -74,7 +74,7 @@
 // .SECTION Thanks
 // This class was written by:
 // Will Schroeder, Jim Miller, Charles Law, Sebastien Barre, Amy Squillacote,
-// Ken Martin, Mathieu Malaterre, Jeff Lee, Francois Finet, Julien Bertel, 
+// Ken Martin, Mathieu Malaterre, Jeff Lee, Francois Finet, Julien Bertel,
 // Claire Guilbaud, and Philippe Pebay
 
 // .SECTION See Also
