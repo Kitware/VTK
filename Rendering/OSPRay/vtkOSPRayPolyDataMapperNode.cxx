@@ -915,6 +915,15 @@ void vtkOSPRayPolyDataMapperNode::CreateNewMeshes()
 }
 
 //----------------------------------------------------------------------------
+void vtkOSPRayPolyDataMapperNode::Invalidate(bool prepass)
+{
+  if (prepass)
+    {
+      this->RenderTime = 0;
+    }
+}
+
+//----------------------------------------------------------------------------
 void vtkOSPRayPolyDataMapperNode::Render(bool prepass)
 {
   if (prepass)

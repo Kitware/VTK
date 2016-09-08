@@ -23,6 +23,7 @@
 // l        => turns on each light in the scene in turn
 // I/i      => increase/decrease the global light intensity scale
 // D/d      => increase/decrease the number of ambient occlusion samples
+// t        => change renderer type: scivis, pathtracer
 
 #ifndef vtkOSPRayTestInteractor_h
 #define vtkOSPRayTestInteractor_h

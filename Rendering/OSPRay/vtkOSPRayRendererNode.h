@@ -25,6 +25,7 @@
 
 class vtkRenderer;
 class vtkInformationIntegerKey;
+class vtkInformationStringKey;
 // ospray forward decs so that someone does not need to include ospray.h
 namespace osp {
 struct Model;
@@ -57,6 +58,10 @@ public:
   virtual void Render(bool prepass);
 
   //Description:
+  //Invalidates cached rendering data.
+  virtual void Invalidate(bool prepass);
+
+  //Description:
   //Put my results into the correct place in the provided pixel buffer.
   virtual void WriteLayer(unsigned char *buffer, float *zbuffer,
                           int buffx, int buffy, int layer);
@@ -82,6 +87,13 @@ public:
   static vtkInformationIntegerKey* MAX_FRAMES();
   static void SetMaxFrames(int, vtkRenderer *renderer);
   static int GetMaxFrames(vtkRenderer *renderer);
+
+  //Description:
+  //Set the OSPRay renderer type to use (e.g. scivis vs. pathtracer)
+  //default is scivis
+  static vtkInformationStringKey* RENDERER_TYPE();
+  static void SetRendererType(std::string name, vtkRenderer *renderer);
+  static std::string GetRendererType(vtkRenderer *renderer);
 
   //Description:
   //When present on renderer, controls the number of ambient occlusion

@@ -173,6 +173,20 @@ void vtkOSPRayTestInteractor::OnKeyPress()
     this->GLRenderer->GetRenderWindow()->Render();
     }
 
+  if(key == "t")
+    {
+    std::string type = vtkOSPRayRendererNode::GetRendererType(this->GLRenderer);
+    if (type == std::string("scivis"))
+      {
+      vtkOSPRayRendererNode::SetRendererType("pathtracer", this->GLRenderer);
+      }
+    else
+      {
+      vtkOSPRayRendererNode::SetRendererType("scivis", this->GLRenderer);
+      }
+    this->GLRenderer->GetRenderWindow()->Render();
+    }
+
   if(key == "2")
     {
     int spp = vtkOSPRayRendererNode::GetSamplesPerPixel(this->GLRenderer);

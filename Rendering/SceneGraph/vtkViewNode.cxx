@@ -254,6 +254,9 @@ void vtkViewNode::Apply(int operation, bool prepass)
     case render:
       this->Render(prepass);
       break;
+    case invalidate:
+      this->Invalidate(prepass);
+      break;
     default:
       cerr << "UNKNOWN OPERATION" << operation << endl;
     }

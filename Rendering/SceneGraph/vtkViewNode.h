@@ -55,6 +55,10 @@ public:
   virtual void Render(bool /*prepass*/) {};
 
   //Description:
+  //Clear any cached data.
+  virtual void Invalidate(bool /*prepass*/) {};
+
+  //Description:
   //Access the node that owns this one.
   virtual void SetParent(vtkViewNode*);
   virtual vtkViewNode * GetParent();
@@ -96,7 +100,7 @@ public:
 
   //Description:
   //internal mechanics of graph traversal and actions
-  enum operation_type{noop, build, synchronize, render};
+  enum operation_type{noop, build, synchronize, render, invalidate};
 
 protected:
   vtkViewNode();
