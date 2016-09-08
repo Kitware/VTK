@@ -83,7 +83,6 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
 {
   int dimensions[3], i, j, k, l, m;
   vtkIdType newCellId, inId;
-  vtkGenericCell *cell = vtkGenericCell::New();
   vtkCellData *inCD = input->GetCellData();
   vtkCellData *outCD = output->GetCellData();
   vtkPoints *cellPts = vtkPoints::New();
@@ -147,7 +146,7 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
       for (i = 0; i < dimensions[0]; i++)
         {
         inId = i+(j+(k*dimensions[1]))*dimensions[0];
-        input->GetCell(inId, cell);
+        vtkCell *cell = input->GetCell(inId);
         if ((i+j+k)%2 == 0)
           {
           cell->Triangulate(0, cellPtIds, cellPts);
@@ -195,7 +194,6 @@ void vtkDataSetTriangleFilter::StructuredExecute(vtkDataSet *input,
   output->GetPointData()->PassData(input->GetPointData());
   output->Squeeze();
 
-  cell->Delete();
   newPoints->Delete();
   cellPts->Delete();
   cellPtIds->Delete();
