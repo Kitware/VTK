@@ -43,6 +43,17 @@
 // filters that can handle non-manifold polydata
 // (e.g. vtkWindowedSincPolyDataFilter).
 // Also note, Normals and Gradients are not computed.
+// If ComputeAdjacentScalars is on (default is off), each output point will have
+// point data that contains the label value of the neighbouring voxel.
+// This allows to remove regions of the resulting vtkPolyData that are
+// adjacent to specific label meshes. For example, if the input is a label
+// image that was created by running a watershed transformation on a distance
+// map followed by masking with the original binary segmentation. For further
+// details and images see the VTK Journal paper
+// "Providing values of adjacent voxel with vtkDiscreteMarchingCubes"
+// by Roman Grothausmann:
+// http://hdl.handle.net/10380/3559
+// http://www.vtkjournal.org/browse/publication/975
 // .SECTION Caveats
 // This filter is specialized to volumes. If you are interested in
 // contouring other types of data, use the general vtkContourFilter. If you
@@ -62,12 +73,19 @@ public:
   static vtkDiscreteMarchingCubes *New();
   vtkTypeMacro(vtkDiscreteMarchingCubes,vtkMarchingCubes);
 
+  // Description:
+  // Set/Get the computation of neighbouring voxel values.
+  vtkSetMacro(ComputeAdjacentScalars,int);
+  vtkGetMacro(ComputeAdjacentScalars,int);
+  vtkBooleanMacro(ComputeAdjacentScalars,int);
+
 protected:
   vtkDiscreteMarchingCubes();
   ~vtkDiscreteMarchingCubes();
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);
+  int ComputeAdjacentScalars;
 
 private:
   vtkDiscreteMarchingCubes(const vtkDiscreteMarchingCubes&) VTK_DELETE_FUNCTION;

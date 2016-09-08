@@ -42,12 +42,13 @@ vtkStandardNewMacro(vtkDiscreteMarchingCubes);
 
 // Description:
 // Construct object with initial range (0,1) and single contour value
-// of 0.0. ComputeNormals is off, ComputeGradients is off and ComputeScalars is on.
+// of 0.0. ComputeNormals is off, ComputeGradients is off, ComputeScalars is on and ComputeAdjacentScalars is off.
 vtkDiscreteMarchingCubes::vtkDiscreteMarchingCubes()
 {
   this->ComputeNormals = 0;
   this->ComputeGradients = 0;
   this->ComputeScalars = 1;
+  this->ComputeAdjacentScalars = 0;
 }
 
 vtkDiscreteMarchingCubes::~vtkDiscreteMarchingCubes()
@@ -64,6 +65,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   double origin[3], double spacing[3],
   vtkIncrementalPointLocator *locator,
   vtkDataArray *newCellScalars,
+  vtkDataArray *newPointScalars,
   vtkCellArray *newPolys, double *values,
   int numValues)
 {
@@ -78,6 +80,7 @@ void vtkDiscreteMarchingCubesComputeGradient(
   vtkIdType ptIds[3];
   int extent[6];
   int ComputeScalars = newCellScalars != NULL;
+  int ComputeAdjacentScalars = newPointScalars != NULL;
   double t, *x1, *x2, x[3], min, max;
   double pts[8][3], xp, yp, zp;
   static int edges[12][2] = { {0,1}, {1,2}, {3,2}, {0,3},
@@ -217,7 +220,21 @@ void vtkDiscreteMarchingCubesComputeGradient(
               x[2] = x1[2] + t * (x2[2] - x1[2]);
 
               // add point
-              locator->InsertUniquePoint(x, ptIds[ii]);
+              if ( locator->InsertUniquePoint(x, ptIds[ii]) )
+                 {
+                 if (ComputeAdjacentScalars)
+                    {
+                    // check which vert holds the neighbour value
+                    if (s[vert[0]] == value)
+                       {
+                       newPointScalars->InsertTuple(ptIds[ii],&s[vert[1]]);
+                       }
+                    else
+                       {
+                       newPointScalars->InsertTuple(ptIds[ii],&s[vert[0]]);
+                       }
+                    }
+                 }
               }
             // check for degenerate triangle
             if ( ptIds[0] != ptIds[1] &&
@@ -255,6 +272,7 @@ int vtkDiscreteMarchingCubes::RequestData(
   vtkPoints *newPts;
   vtkCellArray *newPolys;
   vtkFloatArray *newCellScalars;
+  vtkFloatArray *newPointScalars;
   vtkImageData *input = vtkImageData::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPointData *pd;
@@ -335,6 +353,16 @@ int vtkDiscreteMarchingCubes::RequestData(
     newCellScalars = NULL;
     }
 
+  if (this->ComputeAdjacentScalars)
+    {
+    newPointScalars = vtkFloatArray::New();
+    newPointScalars->Allocate(estimatedSize,estimatedSize/2);
+    }
+  else
+    {
+    newPointScalars = NULL;
+    }
+
   if (inScalars->GetNumberOfComponents() == 1 )
     {
     void* scalars = inScalars->GetVoidPointer(0);
@@ -345,6 +373,7 @@ int vtkDiscreteMarchingCubes::RequestData(
                                                 static_cast<VTK_TT*>(scalars),
                                                 dims, origin, spacing,
                                                 this->Locator, newCellScalars,
+                                                newPointScalars,
                                                 newPolys, values, numContours)
         );
       } //switch
@@ -368,6 +397,7 @@ int vtkDiscreteMarchingCubes::RequestData(
                                             spacing,
                                             this->Locator,
                                             newCellScalars,
+                                            newPointScalars,
                                             newPolys,
                                             values,
                                             numContours);
@@ -391,6 +421,12 @@ int vtkDiscreteMarchingCubes::RequestData(
     {
     output->GetCellData()->SetScalars(newCellScalars);
     newCellScalars->Delete();
+    }
+  if (newPointScalars)
+    {
+    int idx = output->GetPointData()->AddArray(newPointScalars);
+    output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
+    newPointScalars->Delete();
     }
   output->Squeeze();
   if (this->Locator)
