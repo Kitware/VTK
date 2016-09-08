@@ -2996,23 +2996,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildShader(vtkRenderer* ren,
   if (this->Impl->CurrentSelectionPass != (vtkHardwareSelector::MIN_KNOWN_PASS - 1))
     {
     switch(this->Impl->CurrentSelectionPass)
-    {
-    case vtkHardwareSelector::ID_LOW24:
-      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
-        vtkvolume::PickingIdLow24PassExit(ren, this, vol), true);
-      break;
-    case vtkHardwareSelector::ID_MID24:
-      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
-        vtkvolume::PickingIdMid24PassExit(ren, this, vol), true);
-      break;
-    default: // ACTOR_PASS, PROCESS_PASS
-      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Dec",
-        vtkvolume::PickingActorPassDeclaration(ren, this, vol), true);
+      {
+      case vtkHardwareSelector::ID_LOW24:
+        fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+          vtkvolume::PickingIdLow24PassExit(ren, this, vol), true);
+        break;
+      case vtkHardwareSelector::ID_MID24:
+        fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+          vtkvolume::PickingIdMid24PassExit(ren, this, vol), true);
+        break;
+      default: // ACTOR_PASS, PROCESS_PASS
+        fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Dec",
+          vtkvolume::PickingActorPassDeclaration(ren, this, vol), true);
 
-      fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
-        vtkvolume::PickingActorPassExit(ren, this, vol), true);
-      break;
-    }
+        fragmentShader = vtkvolume::replace(fragmentShader, "//VTK::Picking::Exit",
+          vtkvolume::PickingActorPassExit(ren, this, vol), true);
+        break;
+      }
     }
 
   // Render to texture
