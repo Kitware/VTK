@@ -214,13 +214,12 @@ void vtkSmartVolumeMapper::Render( vtkRenderer *ren, vtkVolume *vol )
       usedMapper->Render(ren, vol);
       break;
     case vtkSmartVolumeMapper::OSPRayRenderMode:
-      {
       if (!this->OSPRayMapper)
         {
         this->OSPRayMapper = vtkOSPRayVolumeInterface::New();
         }
       this->OSPRayMapper->Render(ren, vol);
-      }
+      break;
     case vtkSmartVolumeMapper::InvalidRenderMode:
       // Silently fail - a render mode that is not
       // valid was selected so we will render nothing
