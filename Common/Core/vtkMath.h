@@ -39,6 +39,7 @@
 #include "vtkCommonCoreModule.h" // For export macro
 #include "vtkObject.h"
 #include "vtkTypeTraits.h" // For type traits
+#include "vtkSmartPointer.h" // For vtkSmartPointer.
 
 #include "vtkMathConfigure.h" // For <cmath> and VTK_HAS_ISNAN etc.
 
@@ -990,7 +991,7 @@ protected:
   vtkMath() {}
   ~vtkMath() {}
 
-  static vtkMathInternal Internal;
+  static vtkSmartPointer<vtkMathInternal> Internal;
 private:
   vtkMath(const vtkMath&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMath&) VTK_DELETE_FUNCTION;

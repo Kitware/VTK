@@ -23,27 +23,40 @@
 
 =========================================================================*/
 #include "vtkMath.h"
-#include "vtkObjectFactory.h"
+
+#include "vtkBoxMuellerRandomSequence.h"
 #include "vtkDataArray.h"
+#include "vtkDebugLeaks.h"
+#include "vtkMinimalStandardRandomSequence.h"
+#include "vtkObjectFactory.h"
+#include "vtkTypeTraits.h"
+
 #include <cassert>
 #include <cmath>
 #include <limits>
 #include <vector>
 
-#include "vtkBoxMuellerRandomSequence.h"
-#include "vtkMinimalStandardRandomSequence.h"
-#include "vtkTypeTraits.h"
 
 vtkStandardNewMacro(vtkMath);
 
-class vtkMathInternal
+class vtkMathInternal : public vtkObjectBase
 {
 public:
-  vtkMathInternal();
-  ~vtkMathInternal();
+  vtkBaseTypeMacro(vtkMathInternal, vtkObjectBase);
+  static vtkMathInternal* New()
+    {
+#ifdef VTK_DEBUG_LEAKS
+    vtkDebugLeaks::ConstructClass("vtkMathInternal");
+#endif
+    return new vtkMathInternal();
+    }
+
   vtkMinimalStandardRandomSequence *Uniform;
   vtkBoxMuellerRandomSequence *Gaussian;
   std::vector<vtkTypeInt64> MemoizeFactorial;
+private:
+  vtkMathInternal();
+  ~vtkMathInternal();
 };
 
 vtkMathInternal::vtkMathInternal()
@@ -63,7 +76,7 @@ vtkMathInternal::~vtkMathInternal()
   this->Gaussian->Delete();
 }
 
-vtkMathInternal vtkMath::Internal;
+vtkSmartPointer<vtkMathInternal> vtkMath::Internal = vtkSmartPointer<vtkMathInternal>::New();
 
 #ifdef VTK_HAS_STD_NUMERIC_LIMITS
 
@@ -142,8 +155,8 @@ int vtkMath::CeilLog2(vtkTypeUInt64 x)
 // This is used to provide portability across different systems.
 double vtkMath::Random()
 {
-  vtkMath::Internal.Uniform->Next();
-  return vtkMath::Internal.Uniform->GetValue();
+  vtkMath::Internal->Uniform->Next();
+  return vtkMath::Internal->Uniform->GetValue();
 }
 
 //----------------------------------------------------------------------------
@@ -155,7 +168,7 @@ double vtkMath::Random()
 //
 void vtkMath::RandomSeed(int s)
 {
-  vtkMath::Internal.Uniform->SetSeed(s);
+  vtkMath::Internal->Uniform->SetSeed(s);
 }
 
 //----------------------------------------------------------------------------
@@ -163,28 +176,28 @@ void vtkMath::RandomSeed(int s)
 // Return the current seed used by the random number generator.
 int vtkMath::GetSeed()
 {
-  return vtkMath::Internal.Uniform->GetSeed();
+  return vtkMath::Internal->Uniform->GetSeed();
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Random( double min, double max )
 {
-  vtkMath::Internal.Uniform->Next();
-  return vtkMath::Internal.Uniform->GetRangeValue(min,max);
+  vtkMath::Internal->Uniform->Next();
+  return vtkMath::Internal->Uniform->GetRangeValue(min,max);
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Gaussian()
 {
-  vtkMath::Internal.Gaussian->Next();
-  return vtkMath::Internal.Gaussian->GetValue();
+  vtkMath::Internal->Gaussian->Next();
+  return vtkMath::Internal->Gaussian->GetValue();
 }
 
 //----------------------------------------------------------------------------
 double vtkMath::Gaussian( double mean, double std )
 {
-  vtkMath::Internal.Gaussian->Next();
-  return vtkMath::Internal.Gaussian->GetScaledValue(mean,std);
+  vtkMath::Internal->Gaussian->Next();
+  return vtkMath::Internal->Gaussian->GetScaledValue(mean,std);
 }
 
 //----------------------------------------------------------------------------
@@ -201,13 +214,13 @@ vtkTypeInt64 vtkMath::Factorial( int N )
     return 1;
     }
 
-  if (vtkMath::Internal.MemoizeFactorial[N] != 0)
+  if (vtkMath::Internal->MemoizeFactorial[N] != 0)
     {
-    return vtkMath::Internal.MemoizeFactorial[N];
+    return vtkMath::Internal->MemoizeFactorial[N];
     }
 
   vtkTypeInt64 r = vtkMath::Factorial(N - 1) * N;
-  vtkMath::Internal.MemoizeFactorial[N] = r;
+  vtkMath::Internal->MemoizeFactorial[N] = r;
   return r;
 }
 
@@ -3073,7 +3086,7 @@ void vtkMath::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
 
-  os << indent << "Seed: " << vtkMath::Internal.Uniform->GetSeed() << "\n";
+  os << indent << "Seed: " << vtkMath::Internal->Uniform->GetSeed() << "\n";
 }
 
 
