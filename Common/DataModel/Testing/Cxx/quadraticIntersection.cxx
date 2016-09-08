@@ -162,6 +162,7 @@ int TestIntersectWithLine(int argc, char* argv[])
 
   vtkSmartPointer<vtkRenderWindow> renderWindow =
     vtkSmartPointer<vtkRenderWindow>::New();
+  renderWindow->SetMultiSamples(0);
   renderWindow->SetSize(500,300);
 
   vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
