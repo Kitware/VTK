@@ -152,7 +152,6 @@ void vtkOpenVRRenderer::ResetCamera(double bounds[6])
   // the center of the world to be 1 meter up
   vtkOpenVRCamera *cam = vtkOpenVRCamera::SafeDownCast(this->ActiveCamera);
   cam->SetTranslation(-center[0],-center[1]+distance,-center[2]);
-  cam->SetScale(1.0/distance);
 }
 
 // Alternative version of ResetCamera(bounds[6]);

@@ -322,8 +322,7 @@ void vtkInteractorStyle3D::Dolly()
 
   double *trans = rwi->GetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera());
-  double scale = rwi->GetPhysicalScale(
-    this->CurrentRenderer->GetActiveCamera());
+  double distance = this->CurrentRenderer->GetActiveCamera()->GetDistance();
 
   // move at a max rate of 0.1 meters per frame in HMD space
   // this works out to about 10 meters per second
@@ -335,9 +334,9 @@ void vtkInteractorStyle3D::Dolly()
   float *tpos = rwi->GetTouchPadPosition();
   rwi->SetPhysicalTranslation(
     this->CurrentRenderer->GetActiveCamera(),
-    trans[0]-vdir[0]*0.05*tpos[1]/scale,
-    trans[1]-vdir[1]*0.05*tpos[1]/scale,
-    trans[2]-vdir[2]*0.05*tpos[1]/scale);
+    trans[0]-vdir[0]*0.05*tpos[1]*distance,
+    trans[1]-vdir[1]*0.05*tpos[1]*distance,
+    trans[2]-vdir[2]*0.05*tpos[1]*distance);
 
   if (this->AutoAdjustCameraClippingRange)
     {
@@ -365,8 +364,39 @@ void vtkInteractorStyle3D::OnPinch()
 
   double dyf = this->Interactor->GetScale()/this->Interactor->GetLastScale();
 
-  double scale = rwi->GetPhysicalScale(camera);
-  rwi->SetPhysicalScale(camera, scale*dyf);
+  double *trans = rwi->GetPhysicalTranslation(
+    this->CurrentRenderer->GetActiveCamera());
+  double distance = camera->GetDistance();
+  double *dop = camera->GetDirectionOfProjection();
+  double *pos = camera->GetPosition();
+  double hmd[3];
+  hmd[0] = (pos[0] + trans[0])/distance;
+  hmd[1] = (pos[1] + trans[1])/distance;
+  hmd[2] = (pos[2] + trans[2])/distance;
+
+  double newDistance = distance/dyf;
+  rwi->SetPhysicalTranslation(camera,
+    trans[0],  trans[1] - distance + newDistance, trans[2]);
+  trans = rwi->GetPhysicalTranslation(camera);
+
+  double newPos[3];
+  newPos[0] = hmd[0]*newDistance - trans[0];
+  newPos[1] = hmd[1]*newDistance - trans[1];
+  newPos[2] = hmd[2]*newDistance - trans[2];
+
+  camera->SetFocalPoint(
+    newPos[0] + dop[0]*newDistance,
+    newPos[1] + dop[1]*newDistance,
+    newPos[2] + dop[2]*newDistance);
+  camera->SetPosition(
+    newPos[0],
+    newPos[1],
+    newPos[2]);
+
+  if (this->AutoAdjustCameraClippingRange)
+    {
+    this->CurrentRenderer->ResetCameraClippingRange();
+    }
 }
 
 
@@ -391,14 +421,14 @@ void vtkInteractorStyle3D::OnPan()
   double *trans = rwi->GetTranslation3D();
 
   double *ptrans = rwi->GetPhysicalTranslation(camera);
-  double scale = rwi->GetPhysicalScale(camera);
+  double distance = camera->GetDistance();
   rwi->SetPhysicalTranslation(camera,
-    ptrans[0] - this->AppliedTranslation[0] + trans[0]/scale,
-    ptrans[1] - this->AppliedTranslation[1] + trans[1]/scale,
-    ptrans[2] - this->AppliedTranslation[2] + trans[2]/scale);
-  this->AppliedTranslation[0] = trans[0]/scale;
-  this->AppliedTranslation[1] = trans[1]/scale;
-  this->AppliedTranslation[2] = trans[2]/scale;
+    ptrans[0] - this->AppliedTranslation[0] + trans[0]*distance,
+    ptrans[1] - this->AppliedTranslation[1] + trans[1]*distance,
+    ptrans[2] - this->AppliedTranslation[2] + trans[2]*distance);
+  this->AppliedTranslation[0] = trans[0]*distance;
+  this->AppliedTranslation[1] = trans[1]*distance;
+  this->AppliedTranslation[2] = trans[2]*distance;
 
   // clean up
   if (this->Interactor->GetLightFollowCamera())

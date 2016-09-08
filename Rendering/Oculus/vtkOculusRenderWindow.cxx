@@ -199,7 +199,7 @@ void vtkOculusRenderWindow::UpdateHMDMatrixPose()
       this->HMDTransform->Identity();
       double *trans = cam->GetTranslation();
       this->HMDTransform->Translate(-trans[0],-trans[1],-trans[2]);
-      double scale = 1.0/cam->GetScale();
+      double scale = cam->GetDistance();
       this->HMDTransform->Scale(scale,scale,scale);
 
       this->HMDTransform->Concatenate(elems);
@@ -270,6 +270,10 @@ void vtkOculusRenderWindow::Frame(void)
       // Submit frame with one layer we have.
       ovrLayerHeader* layers = &this->OVRLayer.Header;
       ovrResult result = ovr_SubmitFrame(this->Session, 0, nullptr, &layers, 1);
+      while (result == ovrSuccess_NotVisible)
+        {
+        result = ovr_SubmitFrame(this->Session, 0, nullptr, &layers, 1);
+        }
       if (result != ovrSuccess)
         {
         vtkWarningMacro("failed to submit frame");

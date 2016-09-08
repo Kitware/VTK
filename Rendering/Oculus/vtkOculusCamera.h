@@ -47,12 +47,6 @@ public:
   virtual void GetTrackingToDCMatrix(vtkMatrix4x4 *&TCDCMatrix);
 
   // Description:
-  // Set/Get the scale to map world coordinates into the
-  // Oculus physical space (meters).
-  vtkSetMacro(Scale,double);
-  vtkGetMacro(Scale,double);
-
-  // Description:
   // Set/Get the translation to map world coordinates into the
   // Oculus physical space (meters, 0,0,0).
   vtkSetVector3Macro(Translation,double);
@@ -74,7 +68,6 @@ protected:
 
   vtkMatrix4x4 *RightWCDCMatrix;
   vtkMatrix4x4 *RightWCVCMatrix;
-  vtkMatrix3x3 *RightNormalMatrix;
   vtkMatrix4x4 *RightVCDCMatrix;
 
   vtkMatrix4x4 *LeftEyeTCDCMatrix;
@@ -82,7 +75,6 @@ protected:
 
   // used to scale and/or translate the
   // View to the HMD space
-  double Scale;
   double Translation[3];
   vtkNew<vtkTransform> PoseTransform;
 

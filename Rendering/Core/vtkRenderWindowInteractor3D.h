@@ -208,12 +208,6 @@ public:
   vtkGetVector2Macro(TouchPadPosition,float);
 
   // Description:
-  // Set/Get the optional scale to map world coordinates into the
-  // 3D physical space (meters).
-  virtual void SetPhysicalScale(vtkCamera *, double) {};
-  virtual double GetPhysicalScale(vtkCamera *) { return 1.0; };
-
-  // Description:
   // Set/Get the optional translation to map world coordinates into the
   // 3D physical space (meters, 0,0,0).
   virtual void SetPhysicalTranslation(vtkCamera *, double, double, double) {};
@@ -233,9 +227,7 @@ protected:
   int     StartedMessageLoop;
   float TouchPadPosition[2];
   double Translation3D[3];
-  double LastTranslation3D[23];
-  double PhysicalScale;
-  double PhysicalTranslation;
+  double LastTranslation3D[3];
 
   bool Done;  // is the event loop done running
 

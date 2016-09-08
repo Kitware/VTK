@@ -31,17 +31,24 @@
 #include "vtkCullerCollection.h"
 #include "vtkLight.h"
 
+#include "vtkOculusCamera.h"
+#include "vtkOculusRenderer.h"
+#include "vtkOculusRenderWindow.h"
+#include "vtkOculusRenderWindowInteractor.h"
+
 //----------------------------------------------------------------------------
 int TestDragon(int argc, char *argv[])
 {
   vtkNew<vtkActor> actor;
-  vtkNew<vtkRenderer> renderer;
+  vtkNew<vtkOculusRenderer> renderer;
   renderer->SetBackground(0.2, 0.3, 0.4);
-  vtkNew<vtkRenderWindow> renderWindow;
+  vtkNew<vtkOculusRenderWindow> renderWindow;
   renderWindow->AddRenderer(renderer.Get());
   renderer->AddActor(actor.Get());
-  vtkNew<vtkRenderWindowInteractor>  iren;
+  vtkNew<vtkOculusRenderWindowInteractor>  iren;
   iren->SetRenderWindow(renderWindow.Get());
+  vtkNew<vtkOculusCamera> cam;
+  renderer->SetActiveCamera(cam.Get());
 
   // crazy frame rate requirement
   // need to look into that at some point
@@ -56,8 +63,9 @@ int TestDragon(int argc, char *argv[])
   light->SetPosition(0.0, 1.0, 0.3);
   renderer->AddLight(light.Get());
 
-  const char* fileName = vtkTestUtilities::ExpandDataFileName(argc, argv,
-                                                               "Data/dragon.ply");
+  const char* fileName =
+    vtkTestUtilities::ExpandDataFileName(
+      argc, argv, "Data/dragon.ply");
   vtkNew<vtkPLYReader> reader;
   reader->SetFileName(fileName);
   reader->Update();

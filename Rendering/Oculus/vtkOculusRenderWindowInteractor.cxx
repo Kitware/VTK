@@ -48,20 +48,6 @@ vtkOculusRenderWindowInteractor::~vtkOculusRenderWindowInteractor()
 {
 }
 
-void vtkOculusRenderWindowInteractor::SetPhysicalScale(vtkCamera *camin, double s)
-{
-  vtkOculusCamera *cam =
-    static_cast<vtkOculusCamera *>(camin);
-  cam->SetScale(s);
-}
-
-double vtkOculusRenderWindowInteractor::GetPhysicalScale(vtkCamera *camin)
-{
-  vtkOculusCamera *cam =
-    static_cast<vtkOculusCamera *>(camin);
-  return cam->GetScale();
-}
-
 void vtkOculusRenderWindowInteractor::SetPhysicalTranslation(vtkCamera *camin, double t1, double t2, double t3)
 {
   vtkOculusCamera *cam =
