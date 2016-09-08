@@ -332,8 +332,8 @@ int vtkPyramid::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
 static int edges[8][2] = { {0,1}, {1,2}, {2,3},
                            {3,0}, {0,4}, {1,4},
                            {2,4}, {3,4} };
-static int faces[5][4] = { {0,3,2,1}, {0,1,4,-1},
-                           {1,2,4,-1}, {2,3,4,-1}, {3,0,4,-1} };
+static int faces[5][5] = { {0,3,2,1,-1}, {0,1,4,-1,-1},
+                           {1,2,4,-1,-1}, {2,3,4,-1,-1}, {3,0,4,-1,-1} };
 
 typedef int EDGE_LIST;
 typedef struct {
