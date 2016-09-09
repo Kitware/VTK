@@ -48,6 +48,7 @@
 #include <vtkOpenGLError.h>
 #include <vtkOpenGLCamera.h>
 #include <vtkOpenGLRenderWindow.h>
+#include "vtkOpenGLResourceFreeCallback.h"
 #include <vtkOpenGLShaderCache.h>
 #include <vtkPerlinNoise.h>
 #include <vtkPixelBufferObject.h>
@@ -2557,11 +2558,20 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper() :
   this->Impl = new vtkInternal(this);
   this->ReductionFactor = 1.0;
   this->CurrentPass = RenderPass;
+
+  this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLGPUVolumeRayCastMapper>(this,
+    &vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources);
 }
 
 //----------------------------------------------------------------------------
 vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 {
+  if (this->ResourceCallback)
+    {
+    this->ResourceCallback->Release();
+    delete this->ResourceCallback;
+    this->ResourceCallback = NULL;
+    }
   delete this->Impl;
   this->Impl = 0;
 }
@@ -2605,6 +2615,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetColorImage(vtkImageData* output)
 void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   vtkWindow *window)
 {
+  if (!this->ResourceCallback->IsReleasing())
+    {
+    this->ResourceCallback->Release();
+    return;
+    }
+
   this->Impl->DeleteBufferObjects();
 
   if (this->Impl->VolumeTextureObject)
@@ -3136,6 +3152,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer* ren,
                                                 vtkVolume* vol)
 {
   vtkOpenGLClearErrorMacro();
+
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
 
   this->Impl->TempMatrix1->Identity();
 

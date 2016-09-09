@@ -23,6 +23,7 @@
 #define vtkXOpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <stack> // for ivar
 #include "vtkOpenGLRenderWindow.h"
 #include <X11/Xlib.h> // Needed for X types used in the public interface
 #include <X11/Xutil.h> // Needed for X types used in the public interface
@@ -229,6 +230,15 @@ public:
   // Render without displaying the window.
   void SetOffScreenRendering(int i);
 
+  // Description
+  // Ability to push and pop this window's context
+  // as the current context. The idea being to
+  // if needed make this window's context current
+  // and when done releasing resources restore
+  // the prior context
+  virtual void PushContext();
+  virtual void PopContext();
+
 protected:
   vtkXOpenGLRenderWindow();
   ~vtkXOpenGLRenderWindow();
@@ -247,6 +257,10 @@ protected:
   int      ForceMakeCurrent;
   int      UsingHardware;
   char    *Capabilities;
+
+  std::stack<Display *> DisplayStack;
+  std::stack<Drawable> DrawableStack;
+  std::stack<void *> ContextStack;
 
   // we must keep track of the cursors we are using
   Cursor XCCrosshair;

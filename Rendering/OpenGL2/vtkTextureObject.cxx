@@ -28,6 +28,7 @@
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -255,13 +256,21 @@ vtkTextureObject::vtkTextureObject()
   this->BorderColor[3] = 0.0f;
   this->BufferObject = 0;
 
+  this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkTextureObject>(this,
+    &vtkTextureObject::ReleaseGraphicsResources);
+
   this->ResetFormatAndType();
 }
 
 //----------------------------------------------------------------------------
 vtkTextureObject::~vtkTextureObject()
 {
-  this->DestroyTexture();
+  if (this->ResourceCallback)
+    {
+    this->ResourceCallback->Release();
+    delete this->ResourceCallback;
+    this->ResourceCallback = NULL;
+    }
   if (this->ShaderProgram)
     {
     delete this->ShaderProgram;
@@ -362,8 +371,9 @@ void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
     {
     return;
     }
-  // free previous resources
-  this->DestroyTexture();
+
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
+
   this->Context = NULL;
   this->Modified();
   // all done if assigned null
@@ -501,30 +511,32 @@ void vtkTextureObject::Deactivate()
 //---------------------------------------------------------------------------
 void vtkTextureObject::ReleaseGraphicsResources(vtkWindow *win)
 {
+  if (!this->ResourceCallback->IsReleasing())
+    {
+    this->ResourceCallback->Release();
+    return;
+    }
+
   vtkOpenGLRenderWindow *rwin =
    vtkOpenGLRenderWindow::SafeDownCast(win);
 
-  if (rwin)
+  // Ensure that the context is current before releasing any graphics
+  // resources tied to it.
+  if (this->Handle)
     {
-    // Ensure that the context is current before releasing any graphics
-    // resources tied to it.
-    rwin->MakeCurrent();
-    if (this->Handle)
-      {
-      rwin->ActivateTexture(this);
-      this->UnBind();
-      rwin->DeactivateTexture(this);
-      GLuint tex = this->Handle;
-      glDeleteTextures(1, &tex);
-      this->Handle = 0;
-      this->NumberOfDimensions = 0;
-      this->Target =0;
-      this->InternalFormat = 0;
-      this->Format = 0;
-      this->Type = 0;
-      this->Components = 0;
-      this->Width = this->Height = this->Depth = 0;
-      }
+    rwin->ActivateTexture(this);
+    this->UnBind();
+    rwin->DeactivateTexture(this);
+    GLuint tex = this->Handle;
+    glDeleteTextures(1, &tex);
+    this->Handle = 0;
+    this->NumberOfDimensions = 0;
+    this->Target =0;
+    this->InternalFormat = 0;
+    this->Format = 0;
+    this->Type = 0;
+    this->Components = 0;
+    this->Width = this->Height = this->Depth = 0;
     }
   if (this->ShaderProgram)
     {

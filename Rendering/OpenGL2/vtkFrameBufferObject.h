@@ -38,6 +38,8 @@ class vtkPixelBufferObject;
 class vtkOpenGLRenderWindow;
 class vtkShaderProgram;
 class vtkOpenGLVertexArrayObject;
+class vtkGenericOpenGLResourceFreeCallback;
+class vtkWindow;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkFrameBufferObject : public vtkFrameBufferObjectBase
 {
@@ -167,11 +169,17 @@ public:
   // prints detected errors to vtkErrorMacro.
   int CheckFrameBufferStatus(unsigned int mode);
 
+  // Description:
+  // Deactivate and UnBind
+  virtual void ReleaseGraphicsResources(vtkWindow *win);
+
 protected:
   // Description:
   // Load all necessary extensions.
   static
   bool LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin);
+
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // gen buffer (occurs when context is set)
   void CreateFBO();

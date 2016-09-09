@@ -22,6 +22,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkWin32OpenGLRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <stack> // for ivar
 #include "vtkOpenGLRenderWindow.h"
 
 #include "vtkWindows.h" // For windows API
@@ -210,6 +211,15 @@ public:
   // on and off screen rendering.
   virtual void SetOffScreenRendering(int offscreen);
 
+  // Description
+  // Ability to push and pop this window's context
+  // as the current context. The idea being to
+  // if needed make this window's context current
+  // and when done releasing resources restore
+  // the prior context
+  virtual void PushContext();
+  virtual void PopContext();
+
 protected:
   vtkWin32OpenGLRenderWindow();
   ~vtkWin32OpenGLRenderWindow();
@@ -225,6 +235,9 @@ protected:
   HWND      NextWindowId;
   int       OwnWindow;
   int       ScreenSize[2];
+
+  std::stack<HGLRC> ContextStack;
+  std::stack<HDC> DCStack;
 
   int CreatingOffScreenWindow; // to avoid recursion (and memory leaks...)
 

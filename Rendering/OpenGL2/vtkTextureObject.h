@@ -30,6 +30,7 @@ class vtkOpenGLRenderWindow;
 class vtkOpenGLVertexArrayObject;
 class vtkShaderProgram;
 class vtkWindow;
+class vtkGenericOpenGLResourceFreeCallback;
 
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
 class vtkPixelBufferObject;
@@ -623,6 +624,8 @@ public:
 protected:
   vtkTextureObject();
   ~vtkTextureObject();
+
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
   // Load all necessary extensions.

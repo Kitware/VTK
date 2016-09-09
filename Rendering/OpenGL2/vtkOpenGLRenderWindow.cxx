@@ -39,6 +39,7 @@
 #include "vtkTextureObject.h"
 #include "vtkTextureUnitManager.h"
 #include "vtkUnsignedCharArray.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 
 #include "vtkTextureObjectVS.h"  // a pass through shader
 
@@ -166,6 +167,16 @@ vtkOpenGLRenderWindow::~vtkOpenGLRenderWindow()
 // ----------------------------------------------------------------------------
 void vtkOpenGLRenderWindow::ReleaseGraphicsResources(vtkRenderWindow *renWin)
 {
+  // release the registered resources
+
+  std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
+   = this->Resources.begin();
+  while (it != this->Resources.end() )
+    {
+    (*it)->Release();
+    it = this->Resources.begin();
+    }
+
   vtkCollectionSimpleIterator rsit;
   this->Renderers->InitTraversal(rsit);
   vtkRenderer *aren;
