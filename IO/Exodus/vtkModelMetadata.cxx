@@ -296,6 +296,7 @@ void vtkModelMetadata::FreeAllIvars()
   FREE(this->NodeSetDistributionFactorIndex);
   FREE(this->NodeSetIds);
   FREE(this->NodeSetNodeIdListIndex);
+  FREE(this->NodeSetNumberOfDistributionFactors);
   FREE(this->NodeSetSize);
   FREE(this->SideSetDistributionFactorIndex);
   FREE(this->SideSetListIndex);
