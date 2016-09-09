@@ -131,9 +131,9 @@ public:
   // Description:
   // Given a point x, and a list of basis points pIds, compute interpolation
   // weights, plus derivative weights, associated with these basis points.
-  virtual vtkIdType ComputeGradWeights(double x[3], vtkIdList *pIds,
-                                       vtkDoubleArray *weights,
-                                       vtkDoubleArray *gradWeights);
+  virtual vtkIdType ComputeDerivWeights(double x[3], vtkIdList *pIds,
+                                        vtkDoubleArray *weights,
+                                        vtkDoubleArray *gradWeights);
 
   // Description:
   // Compute weighting factor given a normalized distance from a sample point.
@@ -142,7 +142,14 @@ public:
   // Description:
   // Compute weighting factor for derivative quantities given a normalized
   // distance from a sample point.
-  virtual double ComputeGradientWeight(const double d) = 0;
+  virtual double ComputeDerivWeight(const double d) = 0;
+
+  // Description:
+  // Return the SPH normalization factor. This also includes the contribution
+  // of 1/h^d, where h is the smoothing length (i.e., spatial step) and d is
+  // the dimension of the kernel. The returned value is only valid after the
+  // kernel is initialized.
+  vtkGetMacro(NormFactor,double);
 
 protected:
   vtkSPHKernel();
@@ -163,7 +170,7 @@ protected:
   double Cutoff; //the spatial step * cutoff factor
   double Sigma; //normalization constant
   double DistNorm; //distance normalization factor 1/(spatial step)
-  double DimNorm; //dimensional normalization factor sigma/(spatial step)^Dimension
+  double NormFactor; //dimensional normalization factor sigma/(spatial step)^Dimension
   double DefaultVolume; //if mass and density arrays not specified, use this
   bool UseCutoffArray; //if single component cutoff array provided
   bool UseArraysForVolume; //if both mass and density arrays are present

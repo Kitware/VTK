@@ -65,7 +65,7 @@ struct ProbePoints
   // so make them thread local.
   vtkSMPThreadLocalObject<vtkIdList> PIds;
   vtkSMPThreadLocalObject<vtkDoubleArray> Weights;
-  vtkSMPThreadLocalObject<vtkDoubleArray> GradWeights;
+  vtkSMPThreadLocalObject<vtkDoubleArray> DerivWeights;
 
   ProbePoints(vtkSPHInterpolator *sphInt, vtkDataSet *input,
               vtkPointData *inPD, vtkPointData *outPD,
@@ -119,7 +119,7 @@ struct ProbePoints
     pIds->Allocate(128); //allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->Allocate(128);
-    vtkDoubleArray*& gradWeights = this->GradWeights.Local();
+    vtkDoubleArray*& gradWeights = this->DerivWeights.Local();
     gradWeights->Allocate(128);
     }
 
@@ -130,7 +130,7 @@ struct ProbePoints
       vtkIdList*& pIds = this->PIds.Local();
       vtkIdType numWeights;
       vtkDoubleArray*& weights = this->Weights.Local();
-      vtkDoubleArray*& gradWeights = this->GradWeights.Local();
+      vtkDoubleArray*& gradWeights = this->DerivWeights.Local();
 
       for ( ; ptId < endPtId; ++ptId)
         {
@@ -144,7 +144,7 @@ struct ProbePoints
             }
           else
             {
-            this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
+            this->Kernel->ComputeDerivWeights(x, pIds, weights, gradWeights);
             this->DerivArrays.Interpolate(numWeights, pIds->GetPointer(0),
                                           gradWeights->GetPointer(0), ptId);
             }
@@ -210,7 +210,7 @@ struct ImageProbePoints : public ProbePoints
       vtkIdType ptId, jOffset, kOffset, sliceSize=dims[0]*dims[1];
       vtkIdList*& pIds = this->PIds.Local();
       vtkDoubleArray*& weights = this->Weights.Local();
-      vtkDoubleArray*& gradWeights = this->GradWeights.Local();
+      vtkDoubleArray*& gradWeights = this->DerivWeights.Local();
 
       for ( ; slice < sliceEnd; ++slice)
         {
@@ -235,7 +235,7 @@ struct ImageProbePoints : public ProbePoints
                 }
               else
                 {
-                this->Kernel->ComputeGradWeights(x, pIds, weights, gradWeights);
+                this->Kernel->ComputeDerivWeights(x, pIds, weights, gradWeights);
                 this->DerivArrays.Interpolate(numWeights, pIds->GetPointer(0),
                                               gradWeights->GetPointer(0), ptId);
                 }
