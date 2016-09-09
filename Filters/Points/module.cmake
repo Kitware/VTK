@@ -8,7 +8,6 @@ vtk_module(vtkFiltersPoints
     vtkCommonMisc
     vtkCommonTransforms
     vtkCommonMath
-    vtkRenderingContext2D
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
@@ -21,6 +20,7 @@ vtk_module(vtkFiltersPoints
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
     vtkRenderingContext${VTK_RENDERING_BACKEND}
+    vtkRenderingContext2D
   KIT
     vtkFilters
   )
