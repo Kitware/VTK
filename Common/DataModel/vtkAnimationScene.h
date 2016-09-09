@@ -85,12 +85,11 @@ public:
   // Description:
   // Makes the state of the scene same as the given time.
   void SetAnimationTime(double time);
-  vtkGetMacro(AnimationTime, double);
 
   // Description:
   // Overridden to allow change to Normalized mode only
   // if none of the constituent cues is in Relative time mode.
-  virtual void SetTimeMode(int mode);
+  void SetTimeMode(int mode) VTK_OVERRIDE;
 
   // Description:
   // Returns if the animation is being played.
@@ -109,9 +108,9 @@ protected:
   // Description:
   // Called on every valid tick.
   // Calls ticks on all the contained cues.
-  virtual void TickInternal(double currenttime, double deltatime, double clocktime);
-  virtual void StartCueInternal();
-  virtual void EndCueInternal();
+  void TickInternal(double currenttime, double deltatime, double clocktime) VTK_OVERRIDE;
+  void StartCueInternal() VTK_OVERRIDE;
+  void EndCueInternal() VTK_OVERRIDE;
 
   void InitializeChildren();
   void FinalizeChildren();

@@ -140,7 +140,7 @@ public:
   // Description:
   // vtkAttributeCollection is a composite object and needs to check each
   // member of its collection for modified time.
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // *** ALL THE FOLLOWING METHODS SHOULD BE REMOVED WHEN when the
   // new pipeline update mechanism is checked in.

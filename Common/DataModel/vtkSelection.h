@@ -40,11 +40,11 @@ public:
 
   // Description:
   // Restore data object to initial state,
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Returns VTK_SELECTION enumeration value.
-  virtual int GetDataObjectType() {return VTK_SELECTION;}
+  int GetDataObjectType() VTK_OVERRIDE  {return VTK_SELECTION;}
 
   // Description:
   // Returns the number of nodes in this selection.
@@ -68,13 +68,13 @@ public:
 
   // Description:
   // Copy selection nodes of the input.
-  virtual void DeepCopy(vtkDataObject* src);
+  void DeepCopy(vtkDataObject* src) VTK_OVERRIDE;
 
   // Description:
   // Copy selection nodes of the input.
   // This is a shallow copy: selection lists and pointers in the
   // properties are passed by reference.
-  virtual void ShallowCopy(vtkDataObject* src);
+  void ShallowCopy(vtkDataObject* src) VTK_OVERRIDE;
 
   // Description:
   // Union this selection with the specified selection.

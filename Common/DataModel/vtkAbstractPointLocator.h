@@ -87,13 +87,6 @@ public:
   // after the locator is constructed.
   vtkGetMacro(NumberOfBuckets,vtkIdType);
 
-  // Description:
-  // See vtkLocator interface documentation.
-  // These methods are not thread safe.
-  virtual void FreeSearchStructure() = 0;
-  virtual void BuildLocator() = 0;
-  virtual void GenerateRepresentation(int level, vtkPolyData *pd) = 0;
-
 protected:
   vtkAbstractPointLocator();
   virtual ~vtkAbstractPointLocator();

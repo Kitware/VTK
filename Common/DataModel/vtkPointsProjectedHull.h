@@ -120,8 +120,8 @@ public:
 
     int GetSizeCCWHullZ();
 
-    void Initialize();
-    void Reset(){this->Initialize();}
+    void Initialize() VTK_OVERRIDE;
+    void Reset() VTK_OVERRIDE {this->Initialize();}
 
     // Description:
     //   Forces recalculation of convex hulls, use this if

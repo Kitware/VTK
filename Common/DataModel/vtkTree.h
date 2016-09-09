@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_TREE;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_TREE;}
 
   // Description:
   // Get the root vertex of the tree.
@@ -116,7 +116,7 @@ protected:
   // Description:
   // Check the storage, and accept it if it is a valid
   // tree.
-  virtual bool IsStructureValid(vtkGraph *g);
+  bool IsStructureValid(vtkGraph *g) VTK_OVERRIDE;
 
   // Description:
   // The root of the tree.

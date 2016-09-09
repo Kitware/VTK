@@ -55,34 +55,34 @@ public:
 
   // Description:
   // See vtkCell3D API for description of these methods.
-  virtual void GetEdgePoints(int edgeId, int* &pts);
-  virtual void GetFacePoints(int faceId, int* &pts);
+  void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
+  void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell3D API for descriptions of these methods.
-  int GetCellType() {return VTK_PENTAGONAL_PRISM;};
-  int GetCellDimension() {return 3;};
-  int GetNumberOfEdges() {return 15;};
-  int GetNumberOfFaces() {return 7;};
-  vtkCell *GetEdge(int edgeId);
-  vtkCell *GetFace(int faceId);
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  int GetCellType() VTK_OVERRIDE {return VTK_PENTAGONAL_PRISM;};
+  int GetCellDimension() VTK_OVERRIDE {return 3;};
+  int GetNumberOfEdges() VTK_OVERRIDE {return 15;};
+  int GetNumberOfFaces() VTK_OVERRIDE {return 7;};
+  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
+  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
 
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
+                       double& dist2, double *weights) VTK_OVERRIDE;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
+                        double *weights) VTK_OVERRIDE;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
+                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
-  double *GetParametricCoords();
+                   int dim, double *derivs) VTK_OVERRIDE;
+  double *GetParametricCoords() VTK_OVERRIDE;
 
   // Description:
   // Return the center of the wedge in parametric coordinates.
-  int GetParametricCenter(double pcoords[3]);
+  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
   // Description:
   // @deprecated Replaced by vtkPentagonalPrism::InterpolateFunctions as of VTK 5.2
@@ -93,11 +93,11 @@ public:
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double weights[10])
+  void InterpolateFunctions(double pcoords[3], double weights[10]) VTK_OVERRIDE
     {
     vtkPentagonalPrism::InterpolationFunctions(pcoords, weights);
     }
-  virtual void InterpolateDerivs(double pcoords[3], double derivs[30])
+  void InterpolateDerivs(double pcoords[3], double derivs[30]) VTK_OVERRIDE
     {
     vtkPentagonalPrism::InterpolationDerivs(pcoords, derivs);
     }

@@ -61,32 +61,34 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_STRUCTURED_GRID;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_STRUCTURED_GRID;}
 
   // Description:
   // Copy the geometric and topological structure of an input poly data object.
-  void CopyStructure(vtkDataSet *ds);
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  vtkIdType GetNumberOfPoints() {return vtkPointSet::GetNumberOfPoints();}
-  double *GetPoint(vtkIdType ptId) {return this->vtkPointSet::GetPoint(ptId);}
-  void GetPoint(vtkIdType ptId, double p[3])
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE
+    {return vtkPointSet::GetNumberOfPoints();}
+  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE
+    {return this->vtkPointSet::GetPoint(ptId);}
+  void GetPoint(vtkIdType ptId, double p[3]) VTK_OVERRIDE
     {this->vtkPointSet::GetPoint(ptId,p);}
-  vtkCell *GetCell(vtkIdType cellId);
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  void GetCellBounds(vtkIdType cellId, double bounds[6]);
-  int GetCellType(vtkIdType cellId);
-  vtkIdType GetNumberOfCells();
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
     {
       vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());
     }
-  void Initialize();
-  int GetMaxCellSize() {return 8;}; //hexahedron is the largest
+  void Initialize() VTK_OVERRIDE;
+  int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds);
+                        vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // following methods are specific to structured grid
@@ -117,16 +119,16 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; }
+  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; }
 
   // Description:
   // Methods for supporting blanking of cells. Blanking turns on or off
@@ -159,11 +161,11 @@ public:
   // Description:
   // Returns 1 if there is any visibility constraint on the points,
   // 0 otherwise.
-  virtual bool HasAnyBlankPoints();
+  bool HasAnyBlankPoints() VTK_OVERRIDE;
   // Description:
   // Returns 1 if there is any visibility constraint on the cells,
   // 0 otherwise.
-  virtual bool HasAnyBlankCells();
+  bool HasAnyBlankCells() VTK_OVERRIDE;
 
   // Description:
   // Given the node dimensions of this grid instance, this method computes the
@@ -176,7 +178,7 @@ public:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested,
   // and the source generated more than the update extent.
-  virtual void Crop(const int* updateExtent);
+  void Crop(const int* updateExtent) VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.
@@ -212,7 +214,7 @@ protected:
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange
   // only if the cache became invalid (ScalarRangeComputeTime).
-  virtual void ComputeScalarRange();
+  void ComputeScalarRange() VTK_OVERRIDE;
 
 private:
   // Description:

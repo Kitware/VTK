@@ -59,7 +59,7 @@ public:
   // Description:
   // Initialize all of the object's data to NULL
   // Also, clear the copy flags.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Attributes have a chance to bring themselves up to date; right
@@ -72,12 +72,12 @@ public:
   // Deep copy of data (i.e., create new data arrays and
   // copy from input data).
   // Ignores the copy flags but preserves them in the output.
-  virtual void DeepCopy(vtkFieldData *pd);
+  void DeepCopy(vtkFieldData *pd) VTK_OVERRIDE;
 
   // Description:
   // Shallow copy of data (i.e., use reference counting).
   // Ignores the copy flags but preserves them in the output.
-  virtual void ShallowCopy(vtkFieldData *pd);
+  void ShallowCopy(vtkFieldData *pd) VTK_OVERRIDE;
 
   // -- attribute types -----------------------------------------------------
 
@@ -256,7 +256,7 @@ public:
   // Description:
   // Remove an array (with the given name) from the list of arrays.
   using vtkFieldData::RemoveArray;
-  virtual void RemoveArray(int index);
+  void RemoveArray(int index) VTK_OVERRIDE;
 
 
   // Description:
@@ -338,10 +338,10 @@ public:
   vtkBooleanMacro(CopyPedigreeIds, int);
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  virtual void CopyAllOn(int ctype=ALLCOPY);
+  void CopyAllOn(int ctype=ALLCOPY) VTK_OVERRIDE;
 
   /// @copydoc vtkDataSetAttributes::SetCopyAttribute()
-  virtual void CopyAllOff(int ctype=ALLCOPY);
+  void CopyAllOff(int ctype=ALLCOPY) VTK_OVERRIDE;
 
   // -- passthrough operations ----------------------------------------------
 
@@ -353,7 +353,7 @@ public:
   // for that attribute, ignore (2) and (3), 2) if there is a copy field for
   // that field (on or off), obey the flag, ignore (3) 3) obey
   // CopyAllOn/Off
-  virtual void PassData(vtkFieldData* fd);
+  void PassData(vtkFieldData* fd) VTK_OVERRIDE;
 
   // -- copytuple operations ------------------------------------------------
 
@@ -523,7 +523,7 @@ protected:
 
   // Description:
   // Initialize all of the object's data to NULL
-  virtual void InitializeFields();
+  void InitializeFields() VTK_OVERRIDE;
 
   int AttributeIndices[NUM_ATTRIBUTES]; //index to attribute array in field data
   int CopyAttributeFlags[ALLCOPY][NUM_ATTRIBUTES]; //copy flag for attribute data

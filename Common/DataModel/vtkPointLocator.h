@@ -75,7 +75,7 @@ public:
   // method requires separate x-y-z values.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestPoint(const double x[3]);
+  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Given a position x and a radius r, return the id of the point
@@ -83,25 +83,27 @@ public:
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first. dist2 returns the squared
   // distance to the point.
+  vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
   virtual vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2);
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double inputDataLength, double& dist2);
+    double radius, const double x[3],
+    double inputDataLength, double& dist2);
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
-  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6]);
+  int InitPointInsertion(vtkPoints *newPts,
+                         const double bounds[6]) VTK_OVERRIDE;
 
   // Description:
   // Initialize the point insertion process. The newPts is an object
   // representing point coordinates into which incremental insertion methods
   // place their data. Bounds are the box that the points lie in.
   // Not thread safe.
-  virtual int InitPointInsertion(vtkPoints *newPts, const double bounds[6],
-                                 vtkIdType estSize);
+  int InitPointInsertion(vtkPoints *newPts, const double bounds[6],
+                         vtkIdType estSize) VTK_OVERRIDE;
 
   // Description:
   // Incrementally insert a point into search structure with a particular
@@ -111,7 +113,7 @@ public:
   // newPts have been supplied, the bounds has been set properly, and that
   // divs are properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual void InsertPoint(vtkIdType ptId, const double x[3]);
+  void InsertPoint(vtkIdType ptId, const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Incrementally insert a point into search structure. The method returns
@@ -122,19 +124,19 @@ public:
   // supplied, the bounds has been set properly, and that divs are
   // properly set. (See InitPointInsertion().)
   // Not thread safe.
-  virtual vtkIdType InsertNextPoint(const double x[3]);
+  vtkIdType InsertNextPoint(const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
   // Return id of previously inserted point if this is true, otherwise return
   // -1. This method is thread safe.
-  vtkIdType IsInsertedPoint(double x, double  y, double z)
+  vtkIdType IsInsertedPoint(double x, double  y, double z) VTK_OVERRIDE
     {
     double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->IsInsertedPoint (xyz);
     };
-  virtual vtkIdType IsInsertedPoint(const double x[3]);
+  vtkIdType IsInsertedPoint(const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Determine whether point given by x[3] has been inserted into points list.
@@ -144,7 +146,7 @@ public:
   // Note this combines the functionality of IsInsertedPoint() followed
   // by a call to InsertNextPoint().
   // This method is not thread safe.
-  virtual int InsertUniquePoint(const double x[3], vtkIdType &ptId);
+  int InsertUniquePoint(const double x[3], vtkIdType &ptId) VTK_OVERRIDE;
 
   // Description:
   // Given a position x, return the id of the point closest to it. This method
@@ -152,7 +154,7 @@ public:
   // indicates that no point was found.
   // This method is thread safe if  BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestInsertedPoint(const double x[3]);
+  vtkIdType FindClosestInsertedPoint(const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Find the closest N points to a position. This returns the closest
@@ -161,7 +163,8 @@ public:
   // The returned points are sorted from closest to farthest.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
+  void FindClosestNPoints(int N, const double x[3],
+                          vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // Find the closest points to a position such that each octant of
@@ -179,8 +182,8 @@ public:
   // The result is not sorted in any specific manner.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindPointsWithinRadius(double R, const double x[3],
-                                      vtkIdList *result);
+  void FindPointsWithinRadius(double R, const double x[3],
+                              vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // Given a position x, return the list of points in the bucket that
@@ -196,10 +199,10 @@ public:
   // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.
-  void Initialize();
-  void FreeSearchStructure();
-  void BuildLocator();
-  void GenerateRepresentation(int level, vtkPolyData *pd);
+  void Initialize() VTK_OVERRIDE;
+  void FreeSearchStructure() VTK_OVERRIDE;
+  void BuildLocator() VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
 protected:
   vtkPointLocator();

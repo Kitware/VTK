@@ -35,19 +35,19 @@ public:
   vtkTypeMacro(vtkUnstructuredGridCellIterator, vtkCellIterator)
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  bool IsDoneWithTraversal();
-  vtkIdType GetCellId();
+  bool IsDoneWithTraversal() VTK_OVERRIDE;
+  vtkIdType GetCellId() VTK_OVERRIDE;
 
 protected:
   vtkUnstructuredGridCellIterator();
   ~vtkUnstructuredGridCellIterator();
 
-  void ResetToFirstCell();
-  void IncrementToNextCell();
-  void FetchCellType();
-  void FetchPointIds();
-  void FetchPoints();
-  void FetchFaces();
+  void ResetToFirstCell() VTK_OVERRIDE;
+  void IncrementToNextCell() VTK_OVERRIDE;
+  void FetchCellType() VTK_OVERRIDE;
+  void FetchPointIds() VTK_OVERRIDE;
+  void FetchPoints() VTK_OVERRIDE;
+  void FetchFaces() VTK_OVERRIDE;
 
   friend class vtkUnstructuredGrid;
   void SetUnstructuredGrid(vtkUnstructuredGrid *ug);

@@ -66,7 +66,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalOctreeNode : public vtkObject
 {
 public:
   vtkTypeMacro( vtkIncrementalOctreeNode, vtkObject );
-  void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
 
   static vtkIncrementalOctreeNode * New();
 

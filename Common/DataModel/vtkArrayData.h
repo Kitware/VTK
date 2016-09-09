@@ -48,7 +48,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkArrayData : public vtkDataObject
 public:
   static vtkArrayData* New();
   vtkTypeMacro(vtkArrayData, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   static vtkArrayData* GetData(vtkInformation* info);
   static vtkArrayData* GetData(vtkInformationVector* v, int i = 0);
@@ -75,10 +75,10 @@ public:
 
   // Description:
   // Return class name of data type (VTK_ARRAY_DATA).
-  virtual int GetDataObjectType() {return VTK_ARRAY_DATA;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_ARRAY_DATA;}
 
-  virtual void ShallowCopy(vtkDataObject* other);
-  virtual void DeepCopy(vtkDataObject* other);
+  void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
 
 protected:
   vtkArrayData();

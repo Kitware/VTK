@@ -141,7 +141,7 @@ public:
   // VTK_STRUCTURED_POINTS, VTK_UNSTRUCTURED_GRID, VTK_POLY_DATA, or
   // VTK_RECTILINEAR_GRID (see vtkSetGet.h for definitions).
   // THIS METHOD IS THREAD SAFE
-  virtual int GetDataObjectType() {return VTK_REEB_GRAPH;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_REEB_GRAPH;}
 
 
   enum
@@ -299,7 +299,7 @@ public:
 
   // Descrition:
   // Implements deep copy
-  void DeepCopy(vtkDataObject *src);
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Simplify the Reeb graph given a threshold 'simplificationThreshold'

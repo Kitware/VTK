@@ -86,12 +86,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkMolecule : public vtkUndirectedGraph
 public:
   static vtkMolecule *New();
   vtkTypeMacro(vtkMolecule,vtkUndirectedGraph);
-  void PrintSelf(ostream &os, vtkIndent indent);
-  virtual void Initialize();
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_MOLECULE;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_MOLECULE;}
 
   // Description:
   // Add new atom with atomic number 0 (dummy atom) at origin. Return
@@ -190,21 +190,21 @@ public:
   // Performs the same operation as ShallowCopy(),
   // but instead of reporting an error for an incompatible graph,
   // returns false.
-  virtual bool CheckedShallowCopy(vtkGraph *g);
+  bool CheckedShallowCopy(vtkGraph *g) VTK_OVERRIDE;
 
   // Description:
   // Performs the same operation as DeepCopy(),
   // but instead of reporting an error for an incompatible graph,
   // returns false.
-  virtual bool CheckedDeepCopy(vtkGraph *g);
+  bool CheckedDeepCopy(vtkGraph *g) VTK_OVERRIDE;
 
   // Description:
   // Shallow copies the data object into this molecule.
-  virtual void ShallowCopy(vtkDataObject *obj);
+  void ShallowCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
   // Description:
   // Deep copies the data object into this molecule.
-  virtual void DeepCopy(vtkDataObject *obj);
+  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
   // Description:
   // Shallow copies the atoms and bonds from @a m into @a this.

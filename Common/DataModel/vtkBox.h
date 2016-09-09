@@ -44,13 +44,13 @@ public:
 
   // Description
   // Evaluate box defined by the two points (pMin,pMax).
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); }
 
   // Description
   // Evaluate the gradient of the box.
-  void EvaluateGradient(double x[3], double n[3]);
+  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
 
   // Description:
   // Set / get the bounding box using various methods.

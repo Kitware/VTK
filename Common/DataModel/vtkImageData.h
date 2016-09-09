@@ -44,48 +44,48 @@ public:
   // Description:
   // Copy the geometric and topological structure of an input image data
   // object.
-  virtual void CopyStructure(vtkDataSet *ds);
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_IMAGE_DATA;};
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_IMAGE_DATA;};
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  virtual vtkIdType GetNumberOfCells();
-  virtual vtkIdType GetNumberOfPoints();
-  virtual double *GetPoint(vtkIdType ptId);
-  virtual void GetPoint(vtkIdType id, double x[3]);
-  virtual vtkCell *GetCell(vtkIdType cellId);
-  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  virtual void GetCellBounds(vtkIdType cellId, double bounds[6]);
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
+  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
+  void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   virtual vtkIdType FindPoint(double x, double y, double z)
     {
     return this->vtkDataSet::FindPoint(x, y, z);
     }
-  virtual vtkIdType FindPoint(double x[3]);
-  virtual vtkIdType FindCell(
+  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
+  vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-    int& subId, double pcoords[3], double *weights);
-  virtual vtkIdType FindCell(
+    int& subId, double pcoords[3], double *weights) VTK_OVERRIDE;
+  vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkGenericCell *gencell,
     vtkIdType cellId, double tol2, int& subId,
-    double pcoords[3], double *weights);
-  virtual vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
+    double pcoords[3], double *weights) VTK_OVERRIDE;
+  vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
                                   double tol2, int& subId, double pcoords[3],
-                                  double *weights);
-  virtual int GetCellType(vtkIdType cellId);
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
+                                  double *weights) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
                                       this->GetDimensions());}
-  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());}
-  virtual void ComputeBounds();
-  virtual int GetMaxCellSize() {return 8;}; //voxel is the largest
+  void ComputeBounds() VTK_OVERRIDE;
+  int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //voxel is the largest
 
   // Description:
   // Restore data object to initial state.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // \deprecated{This is for backward compatibility only - use SetExtent().}
@@ -265,7 +265,7 @@ public:
   // Reallocates and copies to set the Extent to updateExtent.
   // This is used internally when the exact extent is requested,
   // and the source generated more than the update extent.
-  virtual void Crop(const int* updateExtent);
+  void Crop(const int* updateExtent) VTK_OVERRIDE;
 
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -274,7 +274,7 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Set the spacing (width,height,length) of the cubical cells that
@@ -310,24 +310,24 @@ public:
   // Description:
   // Override these to handle origin, spacing, scalar type, and scalar
   // number of components.  See vtkDataObject for details.
-  virtual void CopyInformationFromPipeline(vtkInformation* information);
+  void CopyInformationFromPipeline(vtkInformation* information) VTK_OVERRIDE;
 
   // Description:
   // Copy information from this data object to the pipeline information.
   // This is used by the vtkTrivialProducer that is created when someone
   // calls SetInputData() to connect the image to a pipeline.
-  virtual void CopyInformationToPipeline(vtkInformation* information);
+  void CopyInformationToPipeline(vtkInformation* information) VTK_OVERRIDE;
 
   // Description:
   // make the output data ready for new data to be inserted. For most
   // objects we just call Initialize. But for image data we leave the old
   // data in case the memory can be reused.
-  virtual void PrepareForNewData();
+  void PrepareForNewData() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   //--------------------------------------------------------------------------
   // Methods that apply to any array (not just scalars).
@@ -355,7 +355,7 @@ public:
 
   // Description:
   // The extent type is a 3D extent
-  virtual int GetExtentType() { return VTK_3D_EXTENT; };
+  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; };
 
   // Description:
   // Retrieve an instance of this class from an information object.

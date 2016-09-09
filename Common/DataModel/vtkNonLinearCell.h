@@ -40,7 +40,7 @@ public:
   // Non-linear cells require special treatment (tessellation) when
   // converting to graphics primitives (during mapping). The vtkCell
   // API IsLinear() is modified to indicate this requirement.
-  virtual int IsLinear() {return 0;}
+  int IsLinear() VTK_OVERRIDE {return 0;}
 
 protected:
   vtkNonLinearCell();

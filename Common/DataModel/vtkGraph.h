@@ -283,11 +283,11 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_GRAPH;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_GRAPH;}
 
   // Description:
   // Initialize to an empty graph.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // These methods return the point (0,0,0) until the points structure
@@ -429,12 +429,12 @@ public:
   // Description:
   // Shallow copies the data object into this graph.
   // If it is an incompatible graph, reports an error.
-  virtual void ShallowCopy(vtkDataObject *obj);
+  void ShallowCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
   // Description:
   // Deep copies the data object into this graph.
   // If it is an incompatible graph, reports an error.
-  virtual void DeepCopy(vtkDataObject *obj);
+  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
   // Description:
   // Does a shallow copy of the topological information,
@@ -541,11 +541,11 @@ public:
   // This returns non-null values in all the same cases as GetAttributes,
   // in addition to the case of FIELD, which will return the field data
   // for any vtkDataObject subclass.
-  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
 
   // Description:
   // Get the number of elements for a specific attribute type (VERTEX, EDGE, etc.).
-  virtual vtkIdType GetNumberOfElements(int type);
+  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
 
   // Description:
   // Dump the contents of the graph to standard output.

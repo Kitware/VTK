@@ -34,15 +34,15 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataSet:
 public:
   static vtkHierarchicalBoxDataSet *New();
   vtkTypeMacro(vtkHierarchicalBoxDataSet,vtkOverlappingAMR);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by user).
-  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_HIERARCHICAL_BOX_DATA_SET;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_HIERARCHICAL_BOX_DATA_SET;}
 
   // Description:
   // Retrieve an instance of this class from an information object.

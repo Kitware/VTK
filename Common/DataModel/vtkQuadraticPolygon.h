@@ -48,38 +48,38 @@ public:
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
-  int GetCellType() { return VTK_QUADRATIC_POLYGON; }
-  int GetCellDimension() { return 2;}
-  int GetNumberOfEdges() { return this->GetNumberOfPoints() / 2; }
-  int GetNumberOfFaces() { return 0; }
-  vtkCell *GetEdge(int);
-  vtkCell *GetFace(int) { return 0; }
-  int IsPrimaryCell() { return 0; }
+  int GetCellType()      VTK_OVERRIDE { return VTK_QUADRATIC_POLYGON; }
+  int GetCellDimension() VTK_OVERRIDE { return 2;}
+  int GetNumberOfEdges() VTK_OVERRIDE { return this->GetNumberOfPoints() / 2; }
+  int GetNumberOfFaces() VTK_OVERRIDE { return 0; }
+  vtkCell *GetEdge(int)  VTK_OVERRIDE;
+  vtkCell *GetFace(int)  VTK_OVERRIDE { return 0; }
+  int IsPrimaryCell()    VTK_OVERRIDE { return 0; }
 
   // Description:
   // These methods are based on the vtkPolygon ones :
   // the vtkQuadraticPolygon (with n edges and 2*n points)
   // is transform into a vtkPolygon (with 2*n edges and 2*n points)
   // and the vtkPolygon methods are called.
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *polys,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut);
+            int insideOut) VTK_OVERRIDE;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
+                       double& dist2, double *weights) VTK_OVERRIDE;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
+                        double *weights) VTK_OVERRIDE;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  virtual void InterpolateFunctions(double x[3], double *weights);
+                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
+  void InterpolateFunctions(double x[3], double *weights) VTK_OVERRIDE;
   static void ComputeCentroid(vtkIdTypeArray *ids, vtkPoints *pts,
                               double centroid[3]);
   int ParameterizePolygon(double p0[3], double p10[3], double &l10,
@@ -87,7 +87,7 @@ public:
   static int PointInPolygon(double x[3], int numPts, double *pts,
                             double bounds[6], double n[3]);
   int Triangulate(vtkIdList *outTris);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
   int NonDegenerateTriangulate(vtkIdList *outTris);
   static double DistanceToPolygon(double x[3], int numPts, double *pts,
                                   double bounds[6], double closest[3]);
@@ -100,7 +100,7 @@ public:
 
   // Not implemented
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
+                   int dim, double *derivs) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the flag indicating whether to use Mean Value Coordinate for the

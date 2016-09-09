@@ -38,7 +38,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkAMRUtilities : public vtkObject
 public:
   // Standard Routines
   vtkTypeMacro(vtkAMRUtilities,vtkObject);
-  void PrintSelf(ostream& os, vtkIndent indent );
+  void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // This method detects and strips partially overlapping cells from a

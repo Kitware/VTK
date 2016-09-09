@@ -80,14 +80,14 @@ public:
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  int GetDataObjectType() {return VTK_UNSTRUCTURED_GRID;};
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_UNSTRUCTURED_GRID;};
 
   // Description:
   // Method allocates initial storage for the cell connectivity. Use this
   // method before the method InsertNextCell(). The array capacity is
   // doubled when the inserting a cell exceeds the current capacity.
   // extSize is no longer used.
-  virtual void Allocate(vtkIdType numCells=1000, int extSize=1000);
+  void Allocate(vtkIdType numCells=1000, int extSize=1000) VTK_OVERRIDE;
 
   // Description:
   // Insert/create cell in object by type and list of point ids defining
@@ -98,7 +98,7 @@ public:
   // npts is the number of faces in the cell. ptIds is the list of face stream:
   // (numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
   // Make sure you have called Allocate() before calling this method
-  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds) VTK_OVERRIDE;
 
   // Description:
   // Insert/create cell in object by a list of point ids defining
@@ -108,7 +108,7 @@ public:
   // a special ptIds input format is required:
   // (numCellFaces, numFace0Pts, id1, id2, id3, numFace1Pts,id1, id2, id3, ...)
   // Make sure you have called Allocate() before calling this method
-  vtkIdType InsertNextCell(int type, vtkIdList *ptIds);
+  vtkIdType InsertNextCell(int type, vtkIdList *ptIds) VTK_OVERRIDE;
 
   // Desciption:
   // Insert/create a polyhedron cell. npts is the number of unique points in
@@ -118,26 +118,26 @@ public:
   // All point Ids are global.
   // Make sure you have called Allocate() before calling this method
   vtkIdType InsertNextCell(int type, vtkIdType npts, vtkIdType *ptIds,
-                           vtkIdType nfaces, vtkIdType *faces);
+                           vtkIdType nfaces, vtkIdType *faces) VTK_OVERRIDE;
 
   // Description:
   // Standard vtkDataSet methods; see vtkDataSet.h for documentation.
   void Reset();
-  virtual void CopyStructure(vtkDataSet *ds);
-  vtkIdType GetNumberOfCells();
-  virtual vtkCell *GetCell(vtkIdType cellId);
-  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  virtual void GetCellBounds(vtkIdType cellId, double bounds[6]);
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
-  vtkCellIterator* NewCellIterator();
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
+  vtkCellIterator* NewCellIterator() VTK_OVERRIDE;
 
-  int GetCellType(vtkIdType cellId);
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
   vtkUnsignedCharArray* GetCellTypesArray() { return this->Types; }
   vtkIdTypeArray* GetCellLocationsArray() { return this->Locations; }
-  void Squeeze();
-  void Initialize();
-  int GetMaxCellSize();
+  void Squeeze() VTK_OVERRIDE;
+  void Initialize() VTK_OVERRIDE;
+  int GetMaxCellSize() VTK_OVERRIDE;
   void BuildLinks();
   vtkCellLinks *GetCellLinks() {return this->Links;};
   virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
@@ -180,7 +180,7 @@ public:
                 vtkIdTypeArray *faces);
 
   vtkCellArray *GetCells() {return this->Connectivity;};
-  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts);
+  void ReplaceCell(vtkIdType cellId, int npts, vtkIdType *pts) VTK_OVERRIDE;
   vtkIdType InsertNextLinkedCell(int type, int npts, vtkIdType *pts);
   void RemoveReferenceToCell(vtkIdType ptId, vtkIdType cellId);
   void AddReferenceToCell(vtkIdType ptId, vtkIdType cellId);
@@ -191,8 +191,8 @@ public:
   // cell specified (e.g., cellId).
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                                vtkIdList *cellIds);
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // Set / Get the piece and the number of pieces. Similar to extent in 3D.
@@ -210,22 +210,22 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Fill vtkIdTypeArray container with list of cell Ids.  This
   // method traverses all cells and, for a particular cell type,
   // inserts the cell Id into the container.
-  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array);
+  void GetIdsOfCellsOfType(int type, vtkIdTypeArray *array) VTK_OVERRIDE;
 
   // Description:
   // Traverse cells and determine if cells are all of the same type.
-  int IsHomogeneous();
+  int IsHomogeneous() VTK_OVERRIDE;
 
   // Description:
   // This method will remove any cell that is marked as ghost

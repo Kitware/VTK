@@ -46,12 +46,12 @@ public:
   vtkTypeMacro(vtkPiecewiseFunction,vtkDataObject);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
-  void DeepCopy( vtkDataObject *f );
-  void ShallowCopy( vtkDataObject *f );
+  void DeepCopy( vtkDataObject *f ) VTK_OVERRIDE;
+  void ShallowCopy( vtkDataObject *f ) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_PIECEWISE_FUNCTION;};
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_PIECEWISE_FUNCTION;};
 
   // Description:
   // Get the number of points used to specify the function
@@ -151,7 +151,7 @@ public:
   // Clears out the current function. A newly created vtkPiecewiseFunction
   // is alreay initialized, so there is no need to call this method which
   // in turn simply calls RemoveAllPoints()
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.

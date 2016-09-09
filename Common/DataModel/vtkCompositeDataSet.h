@@ -52,7 +52,7 @@ public:
   // Description:
   // Return class name of data type (see vtkType.h for
   // definitions).
-  virtual int GetDataObjectType() {return VTK_COMPOSITE_DATA_SET;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_COMPOSITE_DATA_SET;}
 
   // Description:
   // Copies the tree structure from the input. All pointers to non-composite
@@ -78,7 +78,7 @@ public:
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number
   // is valid only after the pipeline has updated.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.
@@ -87,12 +87,12 @@ public:
 
   // Description:
   // Restore data object to initial state,
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Returns the total number of points of all blocks. This will

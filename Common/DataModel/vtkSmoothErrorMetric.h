@@ -76,7 +76,7 @@ public:
   // \pre valid_size: sizeof(leftPoint)=sizeof(midPoint)=sizeof(rightPoint)
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   int RequiresEdgeSubdivision(double *leftPoint, double *midPoint,
-                              double *rightPoint, double alpha);
+                              double *rightPoint, double alpha) VTK_OVERRIDE;
 
   // Description:
   // Return the error at the mid-point. It will return an error relative to
@@ -91,7 +91,7 @@ public:
   //          =GetAttributeCollection()->GetNumberOfPointCenteredComponents()+6
   // \post positive_result: result>=0
   double GetError(double *leftPoint, double *midPoint, double *rightPoint,
-                  double alpha);
+                  double alpha) VTK_OVERRIDE;
 
 protected:
   vtkSmoothErrorMetric();

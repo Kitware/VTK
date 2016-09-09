@@ -131,11 +131,11 @@ public:
   // Description:
   // Invert the transformation.  This is done by switching the
   // source and target.
-  void Inverse();
+  void Inverse() VTK_OVERRIDE;
 
   // Description:
   // Make another transform of the same type.
-  vtkAbstractTransform *MakeTransform();
+  vtkAbstractTransform *MakeTransform() VTK_OVERRIDE;
 
 protected:
 
@@ -159,11 +159,11 @@ protected:
   vtkIterativeClosestPointTransform();
   ~vtkIterativeClosestPointTransform();
 
-  void InternalUpdate();
+  void InternalUpdate() VTK_OVERRIDE;
 
   // Description:
   // This method does no type checking, use DeepCopy instead.
-  void InternalDeepCopy(vtkAbstractTransform *transform);
+  void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 
   vtkDataSet* Source;
   vtkDataSet* Target;

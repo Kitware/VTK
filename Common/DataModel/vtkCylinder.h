@@ -49,13 +49,13 @@ public:
 
   // Description
   // Evaluate cylinder equation F(r) = r^2 - Radius^2.
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate cylinder function gradient.
-  void EvaluateGradient(double x[3], double g[3]);
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the cylinder radius.

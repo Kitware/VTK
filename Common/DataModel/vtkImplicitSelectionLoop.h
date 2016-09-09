@@ -65,13 +65,13 @@ public:
 
   // Description:
   // Evaluate selection loop returning a signed distance.
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate selection loop returning the gradient.
-  void EvaluateGradient(double x[3], double n[3]);
+  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
 
   // Description:
   // Set/Get the array of point coordinates defining the loop. There must

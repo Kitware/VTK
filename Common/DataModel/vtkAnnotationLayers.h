@@ -72,17 +72,17 @@ public:
 
   // Description:
   // Initialize the data structure to an empty state.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Copy data from another data object into this one
   // which references the same member annotations.
-  virtual void ShallowCopy(vtkDataObject* other);
+  void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
 
   // Description:
   // Copy data from another data object into this one,
   // performing a deep copy of member annotations.
-  virtual void DeepCopy(vtkDataObject* other);
+  void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
 
   // Description:
   // Retrieve a vtkAnnotationLayers stored inside an information object.
@@ -91,7 +91,7 @@ public:
 
   // Description:
   // The modified time for this object.
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkAnnotationLayers();

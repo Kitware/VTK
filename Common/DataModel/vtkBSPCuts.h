@@ -105,13 +105,13 @@ public:
 
   // Description:
   // Restore data object to initial state,
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Shallow copy.  These copy the data, but not any of the
   // pipeline connections.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
 protected:
 

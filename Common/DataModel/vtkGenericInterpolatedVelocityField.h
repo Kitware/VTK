@@ -62,7 +62,7 @@ public:
   // Description:
   // Evaluate the velocity field, f, at (x, y, z, t).
   // For now, t is ignored.
-  virtual int FunctionValues(double* x, double* f);
+  int FunctionValues(double* x, double* f) VTK_OVERRIDE;
 
   // Description:
   // Add a dataset used for the implicit function evaluation.

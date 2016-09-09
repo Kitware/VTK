@@ -54,11 +54,12 @@ public:
   // 0<=faceId<this->GetNumberOfFaces().
   virtual void GetFacePoints(int faceId, int* &pts) = 0;
 
-  virtual void Contour(double value, vtkDataArray *cellScalars,
+  void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId,
+               vtkCellData *outCd) VTK_OVERRIDE;
 
   // Description:
   // Cut (or clip) the cell based on the input cellScalars and the specified
@@ -71,15 +72,15 @@ public:
   // generated contouring primitives. (Note: the CopyAllocate() method must
   // be invoked on both the output cell and point data. The cellId refers to
   // the cell from which the cell data is copied.)  (Satisfies vtkCell API.)
-  virtual void Clip(double value, vtkDataArray *cellScalars,
-                    vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
-                    vtkPointData *inPd, vtkPointData *outPd,
-                    vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-                    int insideOut);
+  void Clip(double value, vtkDataArray *cellScalars,
+            vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
+            vtkPointData *inPd, vtkPointData *outPd,
+            vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
+            int insideOut) VTK_OVERRIDE;
 
   // Description:
   // The topological dimension of the cell. (Satisfies vtkCell API.)
-  virtual int GetCellDimension() {return 3;}
+  int GetCellDimension() VTK_OVERRIDE {return 3;}
 
   // Description:
   // Set the tolerance for merging clip intersection points that are near

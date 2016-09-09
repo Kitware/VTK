@@ -44,52 +44,52 @@ public:
 
   // Description:
   // See vtkCell3D API for description of these methods.
-  virtual void GetEdgePoints(int edgeId, int* &pts);
-  virtual void GetFacePoints(int faceId, int* &pts);
+  void GetEdgePoints(int edgeId, int* &pts) VTK_OVERRIDE;
+  void GetFacePoints(int faceId, int* &pts) VTK_OVERRIDE;
 
   // Description:
   // See the vtkCell API for descriptions of these methods.
-  int GetCellType() {return VTK_TETRA;}
-  int GetNumberOfEdges() {return 6;}
-  int GetNumberOfFaces() {return 4;}
-  vtkCell *GetEdge(int edgeId);
-  vtkCell *GetFace(int faceId);
+  int GetCellType() VTK_OVERRIDE {return VTK_TETRA;}
+  int GetNumberOfEdges() VTK_OVERRIDE {return 6;}
+  int GetNumberOfFaces() VTK_OVERRIDE {return 4;}
+  vtkCell *GetEdge(int edgeId) VTK_OVERRIDE;
+  vtkCell *GetFace(int faceId) VTK_OVERRIDE;
   void Contour(double value, vtkDataArray *cellScalars,
                vtkIncrementalPointLocator *locator, vtkCellArray *verts,
                vtkCellArray *lines, vtkCellArray *polys,
                vtkPointData *inPd, vtkPointData *outPd,
-               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd);
+               vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd) VTK_OVERRIDE;
   void Clip(double value, vtkDataArray *cellScalars,
             vtkIncrementalPointLocator *locator, vtkCellArray *connectivity,
             vtkPointData *inPd, vtkPointData *outPd,
             vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd,
-            int insideOut);
+            int insideOut) VTK_OVERRIDE;
   int EvaluatePosition(double x[3], double* closestPoint,
                        int& subId, double pcoords[3],
-                       double& dist2, double *weights);
+                       double& dist2, double *weights) VTK_OVERRIDE;
   void EvaluateLocation(int& subId, double pcoords[3], double x[3],
-                        double *weights);
+                        double *weights) VTK_OVERRIDE;
   int IntersectWithLine(double p1[3], double p2[3], double tol, double& t,
-                        double x[3], double pcoords[3], int& subId);
-  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts);
+                        double x[3], double pcoords[3], int& subId) VTK_OVERRIDE;
+  int Triangulate(int index, vtkIdList *ptIds, vtkPoints *pts) VTK_OVERRIDE;
   void Derivatives(int subId, double pcoords[3], double *values,
-                   int dim, double *derivs);
-  virtual double *GetParametricCoords();
+                   int dim, double *derivs) VTK_OVERRIDE;
+  double *GetParametricCoords() VTK_OVERRIDE;
 
   // Description:
   // Returns the set of points that are on the boundary of the tetrahedron that
   // are closest parametrically to the point specified. This may include faces,
   // edges, or vertices.
-  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts);
+  int CellBoundary(int subId, double pcoords[3], vtkIdList *pts) VTK_OVERRIDE;
 
   // Description:
   // Return the center of the tetrahedron in parametric coordinates.
-  int GetParametricCenter(double pcoords[3]);
+  int GetParametricCenter(double pcoords[3]) VTK_OVERRIDE;
 
   // Description:
   // Return the distance of the parametric coordinate provided to the
   // cell. If inside the cell, a distance of zero is returned.
-  double GetParametricDistance(double pcoords[3]);
+  double GetParametricDistance(double pcoords[3]) VTK_OVERRIDE;
 
   // Description:
   // Compute the center of the tetrahedron,
@@ -145,11 +145,11 @@ public:
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions(double pcoords[3], double weights[4])
+  void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
     {
     vtkTetra::InterpolationFunctions(pcoords,weights);
     }
-  virtual void InterpolateDerivs(double pcoords[3], double derivs[12])
+  void InterpolateDerivs(double pcoords[3], double derivs[12]) VTK_OVERRIDE
     {
     vtkTetra::InterpolationDerivs(pcoords,derivs);
     }

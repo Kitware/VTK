@@ -41,37 +41,39 @@ public:
 
   // Description:
   // Reset to an empty state and free any memory.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Copy the geometric structure of an input point set object.
-  void CopyStructure(vtkDataSet *pd);
+  void CopyStructure(vtkDataSet *pd) VTK_OVERRIDE;
 
   // Description:
   // See vtkDataSet for additional information.
-  vtkIdType GetNumberOfPoints();
-  void GetPoint(vtkIdType ptId, double x[3]) {this->Points->GetPoint(ptId,x);};
-  virtual vtkIdType FindPoint(double x[3]);
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
+  void GetPoint(vtkIdType ptId, double x[3]) VTK_OVERRIDE
+    {this->Points->GetPoint(ptId,x);};
+  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
   vtkIdType FindPoint(double x, double y, double z) {
     return this->vtkDataSet::FindPoint(x, y, z);};
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
-                             double *weights);
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell,
+                             double *weights) VTK_OVERRIDE;
+  vtkIdType FindCell(double x[3], vtkCell *cell,
                              vtkGenericCell *gencell, vtkIdType cellId,
                              double tol2, int& subId, double pcoords[3],
-                             double *weights);
+                             double *weights) VTK_OVERRIDE;
 
   // Description:
   // See vtkDataSet for additional information.
   // WARNING: Just don't use this error-prone method, the returned pointer
   // and its values are only valid as long as another method invocation is not
   // performed. Prefer GetPoint() with the return value in argument.
-  double *GetPoint(vtkIdType ptId) {return this->Points->GetPoint(ptId);};
+  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE
+    {return this->Points->GetPoint(ptId);};
 
   // Description:
   // Return an iterator that traverses the cells in this data set.
-  vtkCellIterator* NewCellIterator();
+  vtkCellIterator* NewCellIterator() VTK_OVERRIDE;
 
   // Description:
   // Get MTime which also considers its vtkPoints MTime.
@@ -79,11 +81,11 @@ public:
 
   // Description:
   // Compute the (X, Y, Z)  bounds of the data.
-  void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   // Description:
   // Reclaim any unused memory.
-  void Squeeze();
+  void Squeeze() VTK_OVERRIDE;
 
   // Description:
   // Specify point array to define point coordinates.
@@ -97,12 +99,12 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Overwritten to handle the data/locator loop

@@ -51,13 +51,13 @@ public:
 
   // Description
   // Evaluate plane equations. Return smallest absolute value.
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate planes gradient.
-  void EvaluateGradient(double x[3], double n[3]);
+  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
 
   // Description:
   // Specify a list of points defining points through which the planes pass.

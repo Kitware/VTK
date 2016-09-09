@@ -50,11 +50,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkIncrementalPointLocator : public vtkAbstractP
 public:
 
   vtkTypeMacro( vtkIncrementalPointLocator, vtkAbstractPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent );
-
-  // Description:
-  // Delete the search structure.
-  virtual void Initialize() = 0;
+  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
 
   // Description:
   // Given a point x assumed to be covered by the search structure, return the

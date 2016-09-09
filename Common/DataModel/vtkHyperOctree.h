@@ -150,12 +150,12 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType();
+  int GetDataObjectType() VTK_OVERRIDE;
 
   // Description:
   // Copy the geometric and topological structure of an input rectilinear grid
   // object.
-  void CopyStructure(vtkDataSet *ds);
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
 
   // Return the node describes by the path from the root.
   // Path is a sequence of number between 0 and 7.
@@ -189,7 +189,7 @@ public:
   // Description:
   // Return the number of cells in the dual grid.
   // \post positive_result: result>=0
-  vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
   // Description:
   // Get the number of leaves in the tree.
@@ -198,7 +198,7 @@ public:
   // Description:
   // Return the number of points in the dual grid.
   // \post positive_result: result>=0
-  vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
 
   // Description:
   // Return the number of points corresponding to an hyperoctree starting at
@@ -274,19 +274,19 @@ public:
   // Description:
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual double *GetPoint(vtkIdType ptId);
+  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
 
   // Description:
   // Copy point coordinates into user provided array x[3] for specified
   // point id.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPoint(vtkIdType id, double x[3]);
+  void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell *GetCell(vtkIdType cellId);
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
 
   // Description:
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
@@ -294,20 +294,20 @@ public:
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCell(vtkIdType cellId, vtkGenericCell *cell);
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
 
 
   // Description:
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual int GetCellType(vtkIdType cellId);
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
 
   // Description:
   // Topological inquiry to get points defining cell.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
   virtual void GetCellPoints(vtkIdType cellId, vtkIdType& npts,
                              vtkIdType* &pts);
 
@@ -315,7 +315,7 @@ public:
   // Topological inquiry to get cells using point.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
 
 
   // Description:
@@ -324,10 +324,10 @@ public:
   // cells that use ALL the points provided.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                                vtkIdList *cellIds);
+  void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
+                        vtkIdList *cellIds) VTK_OVERRIDE;
 
-  virtual vtkIdType FindPoint(double x[3]);
+  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Locate cell based on global coordinate x and tolerance
@@ -339,9 +339,9 @@ public:
   // points in the found cell). Tolerance is used to control how close
   // the point is to be considered "in" the cell.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
-                             double tol2, int& subId, double pcoords[3],
-                             double *weights);
+  vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId,
+                     double tol2, int& subId, double pcoords[3],
+                     double *weights) VTK_OVERRIDE;
 
   // Description:
   // This is a version of the above method that can be used with
@@ -349,27 +349,27 @@ public:
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual vtkIdType FindCell(double x[3], vtkCell *cell,
-                             vtkGenericCell *gencell, vtkIdType cellId,
-                             double tol2, int& subId, double pcoords[3],
-                             double *weights);
+  vtkIdType FindCell(double x[3], vtkCell *cell,
+                     vtkGenericCell *gencell, vtkIdType cellId,
+                     double tol2, int& subId, double pcoords[3],
+                     double *weights) VTK_OVERRIDE;
 
   // Description:
   // Restore data object to initial state,
   // THIS METHOD IS NOT THREAD SAFE.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Convenience method returns largest cell size in dataset. This is generally
   // used to allocate memory for supporting data structures.
   // This is the number of points of a cell.
   // THIS METHOD IS THREAD SAFE
-  virtual int GetMaxCellSize();
+  int GetMaxCellSize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Get the points of node `sibling' on its face `face'.
@@ -476,7 +476,7 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.
@@ -488,7 +488,7 @@ protected:
   vtkHyperOctree();
   ~vtkHyperOctree();
 
-  void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   int Dimension; // 1, 2 or 3.
 
