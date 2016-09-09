@@ -13,6 +13,7 @@ set(Module_SRCS
   vtkSPHQuarticKernel.cxx
   vtkSPHQuinticKernel.cxx
   vtkShepardKernel.cxx
+  vtkWendlandQuinticKernel.cxx
   vtkVoronoiKernel.cxx
   )
 

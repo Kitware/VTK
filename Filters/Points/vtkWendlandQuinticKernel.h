@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkSPHQuarticKernel.h
+  Module:    vtkWendlandQuinticKernel.h
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkSPHQuarticKernel - a quartic SPH interpolation kernel
+// .NAME vtkWendlandQuinticKernel - a quintic SPH interpolation kernel
 
 // .SECTION Description
-// vtkSPHQuarticKernel is an smooth particle hydrodynamics interpolation kernel as
-// described by D.J. Price. This is a quartic formulation.
+// vtkWendlandQuinticKernel is an smooth particle hydrodynamics interpolation kernel as
+// described by D.J. Price. This is a quintic formulation.
 //
 // .SECTION Caveats
-// For more information see D.J. Price, Smoothed particle hydrodynamics and
+// FOr more information see D.J. Price, Smoothed particle hydrodynamics and
 // magnetohydrodynamics, J. Comput. Phys. 231:759-794, 2012. Especially
 // equation 49.
 
@@ -32,8 +32,8 @@
 // vtkSPHKernel vtkSPHInterpolator
 
 
-#ifndef vtkSPHQuarticKernel_h
-#define vtkSPHQuarticKernel_h
+#ifndef vtkWendlandQuinticKernel_h
+#define vtkWendlandQuinticKernel_h
 
 #include "vtkFiltersPointsModule.h" // For export macro
 #include "vtkSPHKernel.h"
@@ -43,13 +43,13 @@ class vtkIdList;
 class vtkDoubleArray;
 
 
-class VTKFILTERSPOINTS_EXPORT vtkSPHQuarticKernel : public vtkSPHKernel
+class VTKFILTERSPOINTS_EXPORT vtkWendlandQuinticKernel : public vtkSPHKernel
 {
 public:
   // Description:
   // Standard methods for instantiation, obtaining type information, and printing.
-  static vtkSPHQuarticKernel *New();
-  vtkTypeMacro(vtkSPHQuarticKernel,vtkSPHKernel);
+  static vtkWendlandQuinticKernel *New();
+  vtkTypeMacro(vtkWendlandQuinticKernel,vtkSPHKernel);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -60,13 +60,19 @@ public:
 
   // Description:
   // Compute weighting factor given a normalized distance from a sample point.
+  // Note that the formulation is slightly different to avoid an extra operation
+  // (which has the effect of affecting the NormFactor by 1/16).
   virtual double ComputeFunctionWeight(const double d)
   {
-    double tmp1 = 2.5 - std::min(d,2.5);
-    double tmp2 = 1.5 - std::min(d,1.5);
-    double tmp3 = 0.5 - std::min(d,0.5);
-    return (tmp1*tmp1*tmp1*tmp1 - 5.0*tmp2*tmp2*tmp2*tmp2 +
-            10.0*tmp3*tmp3*tmp3*tmp3);
+    if ( d >= 2.0 )
+      {
+      return 0.0;
+      }
+    else
+      {
+      double tmp = 1.0 - 0.5*d;
+      return (tmp*tmp*tmp*tmp) * (1.0 + 2.0*d);
+      }
   }
 
   // Description:
@@ -74,19 +80,25 @@ public:
   // distance from a sample point.
   virtual double ComputeDerivWeight(const double d)
   {
-    double tmp1 = 2.5 - std::min(d,2.5);
-    double tmp2 = 1.5 - std::min(d,1.5);
-    double tmp3 = 0.5 - std::min(d,0.5);
-    return (-4.0*tmp1*tmp1*tmp1 + 20.0*tmp2*tmp2*tmp2 - 40.0*tmp3*tmp3*tmp3);
+    if ( d >= 2.0 )
+      {
+      return 0.0;
+      }
+    else
+      {
+      double tmp = 1.0 - 0.5*d;
+      return -2.0*(tmp*tmp*tmp) * (1.0 + 2.0*d) +
+        2.0*(tmp*tmp*tmp*tmp);
+      }
   }
 
 protected:
-  vtkSPHQuarticKernel();
-  ~vtkSPHQuarticKernel();
+  vtkWendlandQuinticKernel();
+  ~vtkWendlandQuinticKernel();
 
 private:
-  vtkSPHQuarticKernel(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
-  void operator=(const vtkSPHQuarticKernel&) VTK_DELETE_FUNCTION;
+  vtkWendlandQuinticKernel(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
+  void operator=(const vtkWendlandQuinticKernel&) VTK_DELETE_FUNCTION;
 };
 
 #endif

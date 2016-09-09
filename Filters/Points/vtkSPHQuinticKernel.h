@@ -72,13 +72,13 @@ public:
   // Description:
   // Compute weighting factor for derivative quantities given a normalized
   // distance from a sample point.
-  virtual double ComputeGradientWeight(const double d)
+  virtual double ComputeDerivWeight(const double d)
   {
     double tmp1 = 3.0 - std::min(d,3.0);
     double tmp2 = 2.0 - std::min(d,2.0);
     double tmp3 = 1.0 - std::min(d,1.0);
-    return (tmp1*tmp1*tmp1*tmp1 - 6.0*tmp2*tmp2*tmp2*tmp2 +
-            15.0*tmp3*tmp3*tmp3*tmp3);
+    return (-5.0*tmp1*tmp1*tmp1*tmp1 + 30.0*tmp2*tmp2*tmp2*tmp2 +
+            -75.0*tmp3*tmp3*tmp3*tmp3);
   }
 
 protected:

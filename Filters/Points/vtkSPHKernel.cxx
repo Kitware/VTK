@@ -56,7 +56,7 @@ Initialize(vtkAbstractPointLocator *loc, vtkDataSet *ds, vtkPointData *attr)
   // this->CutoffFactor should have been set by subclass
   this->Cutoff = this->CutoffFactor * this->SpatialStep;
   this->DistNorm = 1.0 / this->SpatialStep;
-  this->DimNorm = this->Sigma * pow(this->DistNorm,this->Dimension);
+  this->NormFactor = this->Sigma * pow(this->DistNorm,this->Dimension);
   this->DefaultVolume = pow(this->SpatialStep,this->Dimension);
 
   // See if cutoff array is provided.
@@ -134,7 +134,7 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
       volume = this->DefaultVolume;
       }
 
-    w[i] = this->DimNorm * KW * volume;
+    w[i] = this->NormFactor * KW * volume;
     }//over all neighbor points
 
   return numPts;
@@ -142,8 +142,8 @@ ComputeWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights)
 
 //----------------------------------------------------------------------------
 vtkIdType vtkSPHKernel::
-ComputeGradWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
-                   vtkDoubleArray *gradWeights)
+ComputeDerivWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
+                    vtkDoubleArray *gradWeights)
 {
   vtkIdType numPts = pIds->GetNumberOfIds();
   int i;
@@ -163,10 +163,10 @@ ComputeGradWeights(double x[3], vtkIdList *pIds, vtkDoubleArray *weights,
     d = sqrt( vtkMath::Distance2BetweenPoints(x,y) );
 
     KW = this->ComputeFunctionWeight(d*this->DistNorm);
-    GW = this->ComputeGradientWeight(d*this->DistNorm);
+    GW = this->ComputeDerivWeight(d*this->DistNorm);
 
-    w[i] = this->DimNorm * KW * volume;
-    gw[i] = this->DimNorm * GW * volume;
+    w[i] = this->NormFactor * KW * volume;
+    gw[i] = this->NormFactor * GW * volume;
     }//over all neighbor points
 
   return numPts;
