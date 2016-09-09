@@ -12,14 +12,14 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkPentagonalPrism - a 3D cell that represents a prism with
+// .NAME vtkPentagonalPrism - a 3D cell that represents a convex prism with
 // pentagonal base
 // .SECTION Description
 // vtkPentagonalPrism is a concrete implementation of vtkCell to represent a
-// linear 3D prism with pentagonal base. Such prism is defined by the ten points (0-9)
-// where (0,1,2,3,4) is the base of the prism which, using the right hand
-// rule, forms a pentagon whose normal points is in the direction of the
-// opposite face (5,6,7,8,9).
+// linear convex 3D prism with pentagonal base. Such prism is defined by the
+// ten points (0-9), where (0,1,2,3,4) is the base of the prism which, using
+// the right hand rule, forms a pentagon whose normal points is in the direction
+// of the opposite face (5,6,7,8,9).
 
 // .SECTION Thanks
 // Thanks to Philippe Guerville who developed this class.
