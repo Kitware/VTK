@@ -147,6 +147,8 @@ public:
   // Instantiate a new vtkCell based on it's cell type value
   static vtkCell* InstantiateCell(int cellType);
 
+  vtkCell* GetRepresentativeCell() { return this->Cell; }
+
 protected:
   vtkGenericCell();
   ~vtkGenericCell();
@@ -159,5 +161,3 @@ private:
 };
 
 #endif
-
-
