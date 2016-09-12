@@ -105,7 +105,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
       double radius = sqrt( x[idx1] * x[idx1] + x[idx2] * x[idx2] );
       if ( radius > 0. )
         {
-        double tempd = x[0] / radius;
+        double tempd = x[idx1] / radius;
         if ( tempd < -1. )
           {
           tempd = -1.;
@@ -116,7 +116,7 @@ int vtkQuadRotationalExtrusionFilter::RotateAroundAxis( double blockAngle,
           }
         double theta = acos( tempd );
 
-        tempd = x[1] / radius;
+        tempd = x[idx2] / radius;
         if ( tempd < -1. )
           {
           tempd = -1.;
