@@ -37,6 +37,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestEdgeFlags.cxx
   TestFollowerPicking.cxx
   TestGlyph3DMapper.cxx
+  TestGlyph3DMapper2.cxx,NO_VALID,NO_RT,NO_DATA
   TestGlyph3DMapperArrow.cxx
   TestGlyph3DMapperMasking.cxx
   TestGlyph3DMapperOrientationArray.cxx
