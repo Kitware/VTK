@@ -505,17 +505,19 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
       text_bbox[0] = 0;
       text_bbox[2] = 0;
       }
-
+    // adjust the quad so that the anchor point and a point with the same
+    // coordinates fall on the same pixel.
+    double shiftPixel = 1;
     double x = static_cast<double>(text_bbox[0]);
     double y = static_cast<double>(text_bbox[2]);
     double w = static_cast<double>(this->TextDims[0]);
     double h = static_cast<double>(this->TextDims[1]);
 
     this->Points->Reset();
-    this->Points->InsertNextPoint(x, y, 0.);
-    this->Points->InsertNextPoint(x, y + h, 0.);
-    this->Points->InsertNextPoint(x + w, y + h, 0.);
-    this->Points->InsertNextPoint(x + w, y, 0.);
+    this->Points->InsertNextPoint(x - shiftPixel, y - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x - shiftPixel, y + h - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x + w - shiftPixel, y + h - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x + w - shiftPixel, y - shiftPixel, 0.);
     this->CoordsTime.Modified();
     }
 }
