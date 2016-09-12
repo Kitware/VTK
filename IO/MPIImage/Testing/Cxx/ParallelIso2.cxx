@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    ParallelIso.cxx
+  Module:    ParallelIso2.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -29,7 +29,7 @@
 #include "vtkElevationFilter.h"
 #include "vtkMath.h"
 #include "vtkMPIController.h"
-#include "vtkPNrrdReader.h"
+#include "vtkMPIImageReader.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
 #include "vtkTestUtilities.h"
@@ -91,7 +91,7 @@ void SetIsoValueRMI(void *localArg, void* vtkNotUsed(remoteArg),
 // This will be called by all processes
 void MyMain( vtkMultiProcessController *controller, void *arg )
 {
-  vtkPNrrdReader *reader;
+  vtkMPIImageReader *reader;
   vtkContourFilter *iso;
   vtkElevationFilter *elev;
   int myid, numProcs;
@@ -106,14 +106,14 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   // Create the reader, the data file name might have
   // to be changed depending on where the data files are.
   char* fname = vtkTestUtilities::ExpandDataFileName(args->argc, args->argv,
-                                                    "Data/headsq/quarter.nhdr");
-  reader = vtkPNrrdReader::New();
-  reader->SetFileName(fname);
-  // reader->SetDataByteOrderToLittleEndian();
-  // reader->SetDataExtent(0, 63, 0, 63, 1, 93);
-  // reader->SetFilePrefix(fname);
-  // reader->SetDataSpacing(3.2, 3.2, 1.5);
+                                                   "Data/headsq/quarter");
+  reader = vtkMPIImageReader::New();
+  reader->SetDataByteOrderToLittleEndian();
+  reader->SetDataExtent(0, 63, 0, 63, 1, 93);
+  reader->SetFilePrefix(fname);
+  reader->SetDataSpacing(3.2, 3.2, 1.5);
   delete[] fname;
+
 
   // Iso-surface.
   iso = vtkContourFilter::New();
@@ -235,7 +235,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
 } // end anon namespace
 
-int ParallelIso( int argc, char* argv[] )
+int ParallelIso2( int argc, char* argv[] )
 {
   // This is here to avoid false leak messages from vtkDebugLeaks when
   // using mpich. It appears that the root process which spawns all the
