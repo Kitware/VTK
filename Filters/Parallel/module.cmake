@@ -1,12 +1,6 @@
 vtk_module(vtkFiltersParallel
   GROUPS
     StandAlone
-  DEPENDS
-    vtkParallelCore
-    vtkFiltersExtraction
-    vtkRenderingCore
-    vtkFiltersModeling
-    vtkFiltersGeometry
   TEST_DEPENDS
     vtkParallelMPI
     vtkTestingCore
@@ -21,4 +15,20 @@ vtk_module(vtkFiltersParallel
     vtkIOLegacy
   KIT
     vtkParallel
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkFiltersCore
+    vtkFiltersExtraction
+    vtkFiltersGeneral
+    vtkFiltersGeometry
+    vtkFiltersModeling
+    vtkFiltersSources
+  PRIVATE_DEPENDS
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkIOLegacy
+    vtkParallelCore
+    vtkRenderingCore
   )

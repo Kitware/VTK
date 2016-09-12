@@ -9,4 +9,9 @@ vtk_module(vtkRenderingFreeTypeFontConfig
   EXCLUDE_FROM_WRAPPING
   KIT
     vtkRendering
+  DEPENDS
+    vtkRenderingFreeType
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkRenderingCore
   )

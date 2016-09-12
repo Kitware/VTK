@@ -1,22 +1,6 @@
 vtk_module(vtkIOImage
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkCommonSystem
-    vtkCommonMath
-    vtkCommonMisc
-    vtkCommonTransforms
-    vtkIOCore
-  PRIVATE_DEPENDS
-    vtkjpeg
-    vtkpng
-    vtktiff
-    vtkMetaIO
-    vtkDICOMParser
-    vtkzlib
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkImagingSources
@@ -29,4 +13,20 @@ vtk_module(vtkIOImage
     vtkIOLegacy
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkDICOMParser
+    vtkMetaIO
+    vtkjpeg
+    vtkpng
+    vtksys
+    vtktiff
+    vtkzlib
   )

@@ -3,11 +3,6 @@ vtk_module(vtkIOMPIImage
     vtkIOImage
   GROUPS
     MPI
-  DEPENDS
-    vtkParallelMPI
-    vtkIOImage
-  PRIVATE_DEPENDS
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
@@ -15,4 +10,13 @@ vtk_module(vtkIOMPIImage
     vtkRendering${VTK_RENDERING_BACKEND}
   KIT
     vtkParallel
+  DEPENDS
+    vtkIOImage
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonTransforms
+    vtkParallelCore
+    vtkParallelMPI
+    vtksys
   )

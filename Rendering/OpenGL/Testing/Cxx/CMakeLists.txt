@@ -98,12 +98,7 @@ foreach(exe
   add_executable(${exe} ${exe}.cxx)
   vtk_opengl_link(${exe})
   target_link_libraries(${exe} LINK_PRIVATE
-    vtkRenderingOpenGL
-    vtkInteractionStyle
-    vtkImagingSources
-    vtkImagingGeneral
-    vtkFiltersSources
-    vtkIOCore)
+    ${${vtk-module-test}-Cxx_LIBRARIES})
   if(APPLE AND NOT VTK_USE_OSMESA)
     target_link_libraries(${exe} LINK_PRIVATE "-framework GLUT")
   endif()

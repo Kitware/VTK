@@ -1,12 +1,6 @@
 vtk_module(vtkFiltersStatisticsGnuR
   IMPLEMENTS
     vtkFiltersStatistics
-  DEPENDS
-    vtkCommonCore
-    vtkCommonExecutionModel
-    vtkFiltersStatistics
-  PRIVATE_DEPENDS
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkFiltersSources
@@ -14,4 +8,12 @@ vtk_module(vtkFiltersStatisticsGnuR
   EXCLUDE_FROM_ALL
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkFiltersStatistics
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMisc
+    vtksys
   )

@@ -1,9 +1,6 @@
 vtk_module(vtkRenderingVolume
   GROUPS
     Rendering
-  DEPENDS
-    vtkImagingCore
-    vtkRenderingCore
   TEST_DEPENDS
     vtkFiltersModeling
     vtkTestingCore
@@ -18,4 +15,16 @@ vtk_module(vtkRenderingVolume
     vtkIOLegacy
   KIT
     vtkRendering
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMath
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkIOXML
+    vtkImagingCore
   )

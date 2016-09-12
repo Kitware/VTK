@@ -2,9 +2,6 @@ vtk_module(vtkImagingMorphological
   GROUPS
     Imaging
     StandAlone
-  DEPENDS
-    vtkImagingCore
-    vtkImagingGeneral
   TEST_DEPENDS
     vtkInteractionStyle
     vtkInteractionImage
@@ -12,4 +9,12 @@ vtk_module(vtkImagingMorphological
     vtkTestingRendering
   KIT
     vtkImaging
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkImagingCore
+    vtkImagingGeneral
+  PRIVATE_DEPENDS
+    vtkImagingSources
   )

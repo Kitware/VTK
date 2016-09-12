@@ -3,18 +3,26 @@ vtk_module(vtkRenderingLICOpenGL2
     vtkRenderingLICOpenGLII
   BACKEND
     OpenGL2
-  DEPENDS
-    vtkIOXML
-    vtkIOLegacy
-    vtkImagingSources
-    vtkRendering${VTK_RENDERING_BACKEND}
-  PRIVATE_DEPENDS
-    vtkglew
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
     vtkInteractionStyle
   KIT
     vtkOpenGL
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkRendering${VTK_RENDERING_BACKEND}
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonSystem
+    vtkIOCore
+    vtkIOLegacy
+    vtkIOXML
+    vtkImagingCore
+    vtkImagingSources
+    vtkRenderingCore
+    vtkglew
+    vtksys
   )

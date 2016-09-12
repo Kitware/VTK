@@ -1,8 +1,4 @@
 vtk_module(vtkIOPostgreSQL
-  DEPENDS
-    vtkCommonDataModel
-  PRIVATE_DEPENDS
-    vtksys
   IMPLEMENTS
     vtkIOSQL
   TEST_DEPENDS
@@ -10,4 +6,11 @@ vtk_module(vtkIOPostgreSQL
     vtkTestingCore
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkIOSQL
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtksys
   )

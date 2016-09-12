@@ -1,11 +1,6 @@
 vtk_module(vtkRenderingAnnotation
   GROUPS
     Rendering
-  DEPENDS
-    vtkRenderingFreeType
-    vtkImagingColor
-  PRIVATE_DEPENDS
-    vtkFiltersSources
   TEST_DEPENDS
     vtkIOGeometry
     vtkIOParallel
@@ -16,4 +11,17 @@ vtk_module(vtkRenderingAnnotation
     vtkImagingSources
   KIT
     vtkRendering
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkRenderingCore
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersGeneral
+    vtkFiltersSources
+    vtkImagingColor
+    vtkRenderingFreeType
   )

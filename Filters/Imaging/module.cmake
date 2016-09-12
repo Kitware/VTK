@@ -2,10 +2,14 @@ vtk_module(vtkFiltersImaging
   GROUPS
     Imaging
     StandAlone
-  DEPENDS
-    vtkImagingSources
-    vtkImagingGeneral
-    vtkFiltersStatistics
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkFiltersStatistics
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonSystem
+    vtkImagingGeneral
   )

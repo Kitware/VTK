@@ -1,11 +1,6 @@
 vtk_module(vtkFiltersFlowPaths
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonExecutionModel
-    vtkFiltersGeneral
-    vtkFiltersSources
-    vtkIOCore
   TEST_DEPENDS
     vtkFiltersAMR
     vtkFiltersImaging
@@ -13,4 +8,13 @@ vtk_module(vtkFiltersFlowPaths
     vtkTestingRendering
     vtkInteractionStyle
     vtkRendering${VTK_RENDERING_BACKEND}
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMath
+  PRIVATE_DEPENDS
+    vtkFiltersCore
+    vtkFiltersSources
+    vtkIOCore
   )

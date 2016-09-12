@@ -1,12 +1,6 @@
 vtk_module(vtkChartsCore
   GROUPS
     StandAlone
-  DEPENDS
-    vtkRenderingContext2D
-    vtksys
-  PRIVATE_DEPENDS
-    vtkCommonColor
-    vtkInfovisCore # Needed for plot parallel coordinates vtkStringToCategory
   TEST_DEPENDS
     vtkTestingCore
     vtkTestingRendering
@@ -14,4 +8,16 @@ vtk_module(vtkChartsCore
     vtkRenderingContext${VTK_RENDERING_BACKEND}
     #vtkIOExport
     vtkIOInfovis
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersGeneral
+    vtkRenderingContext2D
+    vtkRenderingCore
+    vtksys
+  PRIVATE_DEPENDS
+    vtkCommonColor
+    vtkCommonExecutionModel
+    vtkCommonTransforms
+    vtkInfovisCore
   )

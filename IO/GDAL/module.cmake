@@ -1,8 +1,4 @@
 vtk_module(vtkIOGDAL
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkIOImage
   TEST_DEPENDS
     vtkTestingCore
     vtkRendering${VTK_RENDERING_BACKEND}
@@ -10,4 +6,10 @@ vtk_module(vtkIOGDAL
     vtkInteractionStyle
   KIT
     vtkIO
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtkIOImage
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
 )

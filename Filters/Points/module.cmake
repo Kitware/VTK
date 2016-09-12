@@ -1,13 +1,6 @@
 vtk_module(vtkFiltersPoints
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkCommonSystem
-    vtkCommonMisc
-    vtkCommonTransforms
-    vtkCommonMath
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
@@ -23,4 +16,9 @@ vtk_module(vtkFiltersPoints
     vtkRenderingContext2D
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
   )

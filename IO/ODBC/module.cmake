@@ -1,11 +1,11 @@
 vtk_module(vtkIOODBC
-  DEPENDS
-    vtkCommonDataModel
-    vtkIOSQL
-  PRIVATE_DEPENDS
-    vtksys
   TEST_DEPENDS
     vtkTestingCore
   KIT
     vtkIO
+  DEPENDS
+    vtkIOSQL
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtksys
   )

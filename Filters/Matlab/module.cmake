@@ -1,13 +1,12 @@
 vtk_module(vtkFiltersMatlab
-  DEPENDS
-    vtkCommonCore
-    vtkCommonMath
-    vtkCommonExecutionModel
-    vtkCommonTransforms
-    vtkCommonMisc
-    vtkCommonDataModel
-    vtksys
   EXCLUDE_FROM_WRAPPING
   EXCLUDE_FROM_WRAP_HIERARCHY
   EXCLUDE_FROM_ALL
+  DEPENDS
+    vtkCommonCore
+    vtkCommonExecutionModel
+    vtksys
+  PRIVATE_DEPENDS
+    vtkCommonDataModel
+    vtkCommonMisc
   )

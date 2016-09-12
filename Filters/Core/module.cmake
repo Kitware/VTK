@@ -1,12 +1,6 @@
 vtk_module(vtkFiltersCore
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonExecutionModel
-    vtkCommonSystem
-    vtkCommonMisc
-    vtkCommonTransforms
-    vtkCommonMath
   TEST_DEPENDS
     vtkTestingRendering
     vtkInteractionStyle
@@ -18,4 +12,13 @@ vtk_module(vtkFiltersCore
     vtkRenderingVolume${VTK_RENDERING_BACKEND}
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkCommonMisc
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonSystem
+    vtkCommonTransforms
   )

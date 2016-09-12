@@ -1,9 +1,6 @@
 vtk_module(vtkFiltersGeneric
   GROUPS
     StandAlone
-  DEPENDS
-    vtkFiltersCore
-    vtkFiltersSources
   TEST_DEPENDS
     vtkIOXML
     vtkIOLegacy
@@ -15,4 +12,15 @@ vtk_module(vtkFiltersGeneric
     vtkTestingGenericBridge
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkCommonMath
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonMisc
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkFiltersCore
+    vtkFiltersSources
   )

@@ -1,8 +1,6 @@
 vtk_module(vtkCommonExecutionModel
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
   COMPILE_DEPENDS
     vtkCommonMisc
   TEST_DEPENDS
@@ -13,4 +11,10 @@ vtk_module(vtkCommonExecutionModel
     vtkIOLegacy
   KIT
     vtkCommon
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+  PRIVATE_DEPENDS
+    vtkCommonMisc
+    vtkCommonSystem
   )

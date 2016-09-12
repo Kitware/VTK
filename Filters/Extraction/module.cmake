@@ -1,12 +1,6 @@
 vtk_module(vtkFiltersExtraction
   GROUPS
     StandAlone
-  DEPENDS
-    vtkCommonDataModel
-    vtkCommonExecutionModel
-    vtkFiltersCore
-    vtkFiltersGeneral
-    vtkFiltersStatistics
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
@@ -15,4 +9,12 @@ vtk_module(vtkFiltersExtraction
     vtkInteractionStyle
   KIT
     vtkFilters
+  DEPENDS
+    vtkCommonExecutionModel
+    vtkFiltersGeneral
+  PRIVATE_DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkFiltersCore
+    vtkFiltersStatistics
   )

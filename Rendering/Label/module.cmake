@@ -1,10 +1,6 @@
 vtk_module(vtkRenderingLabel
   GROUPS
     Rendering
-  DEPENDS
-    vtkRenderingFreeType
-  PRIVATE_DEPENDS
-    vtkFiltersExtraction
   TEST_DEPENDS
     vtkIOXML
     vtkTestingCore
@@ -13,4 +9,15 @@ vtk_module(vtkRenderingLabel
     vtkInteractionStyle
   KIT
     vtkRendering
+  DEPENDS
+    vtkCommonCore
+    vtkCommonDataModel
+    vtkCommonExecutionModel
+    vtkRenderingCore
+    vtkRenderingFreeType
+  PRIVATE_DEPENDS
+    vtkCommonMath
+    vtkCommonSystem
+    vtkCommonTransforms
+    vtkFiltersGeneral
   )

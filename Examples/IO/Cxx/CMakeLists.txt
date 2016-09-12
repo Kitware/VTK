@@ -12,6 +12,7 @@ find_package(VTK COMPONENTS
   vtkCommonCore
   vtkIOLegacy
   vtkIOXML
+  vtkIOGeometry
   vtkTestingRendering
   vtksys
 )
