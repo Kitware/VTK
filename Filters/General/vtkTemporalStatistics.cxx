@@ -152,6 +152,7 @@ vtkTemporalStatistics::vtkTemporalStatistics()
   this->ComputeStandardDeviation = 1;
 
   this->CurrentTimeIndex = 0;
+  this->GeneratedChangingTopologyWarning = false;
 }
 
 vtkTemporalStatistics::~vtkTemporalStatistics()
@@ -730,9 +731,15 @@ vtkDataArray *vtkTemporalStatistics::GetArray(vtkFieldData *fieldData,
   if (   (inArray->GetNumberOfComponents() != outArray->GetNumberOfComponents())
       || (inArray->GetNumberOfTuples() != outArray->GetNumberOfTuples()) )
     {
-    vtkWarningMacro(<< "Size of array " << outArray->GetName()
-                    << " has changed.  Does the source change the topology "
-                    << " over time?");
+    if(!this->GeneratedChangingTopologyWarning)
+      {
+      std::string fieldType = vtkCellData::SafeDownCast(fieldData) == NULL ?
+        "points" : "cells";
+      vtkWarningMacro("The number of " << fieldType << " has changed between time "
+                      << "steps. No arrays of this type will be output since this "
+                      << "filter can not handle grids that change over time.");
+      this->GeneratedChangingTopologyWarning = true;
+      }
     fieldData->RemoveArray(outArray->GetName());
     return NULL;
     }
