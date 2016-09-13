@@ -125,5 +125,20 @@ protected:
   DType *SpanEndPointer;    // end of current span
 };
 
+#ifndef vtkImageStencilIterator_cxx
+#ifdef _MSC_VER
+#pragma warning (push)
+// The following is needed when the vtkImageStencilIterator template
+// class is declared dllexport and is used within vtkImagingCore
+#pragma warning (disable: 4910) // extern and dllexport incompatible
+#endif
+vtkExternTemplateMacro(
+  extern template class VTKIMAGINGCORE_EXPORT vtkImageStencilIterator
+)
+#ifdef _MSC_VER
+#pragma warning (pop)
+#endif
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkImageStencilIterator.h

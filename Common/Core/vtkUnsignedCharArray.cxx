@@ -17,9 +17,6 @@
 #include "vtkAOSDataArrayTemplate.txx"
 VTK_AOS_DATA_ARRAY_TEMPLATE_INSTANTIATE(unsigned char);
 
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(unsigned char);
-
 #include "vtkUnsignedCharArray.h"
 
 #include "vtkObjectFactory.h"

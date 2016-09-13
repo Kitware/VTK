@@ -80,5 +80,11 @@ protected:
   vtkIdType    ContinuousIncrements[3];
 };
 
+#ifndef vtkImageIterator_cxx
+vtkExternTemplateMacro(
+  extern template class VTKCOMMONDATAMODEL_EXPORT vtkImageIterator
+)
+#endif
+
 #endif
 // VTK-HeaderTest-Exclude: vtkImageIterator.h

@@ -15,9 +15,7 @@
 
 #include "vtkUnicodeString.h"
 
-#include "vtkArrayIteratorTemplate.txx"
-VTK_ARRAY_ITERATOR_TEMPLATE_INSTANTIATE(vtkUnicodeString);
-
+#include "vtkArrayIteratorTemplate.h"
 #include "vtkIdList.h"
 #include "vtkObjectFactory.h"
 #include "vtkUnicodeStringArray.h"

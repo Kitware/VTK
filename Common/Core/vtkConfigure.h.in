@@ -166,7 +166,7 @@
 
 /** extern template declarations for C++11
  */
-#if __cplusplus >= 201103L && !defined(_MSC_VER) && !defined(__MINGW32__)
+#if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1700)
 #define VTK_USE_EXTERN_TEMPLATE
 #endif
 

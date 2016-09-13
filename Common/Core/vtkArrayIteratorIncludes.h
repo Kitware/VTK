@@ -35,9 +35,6 @@
 #include "vtkArrayIteratorTemplate.h"
 #include "vtkBitArrayIterator.h"
 
-// DataTypes for Iterators.
-#include "vtkStdString.h"
-
 #endif
 
 // VTK-HeaderTest-Exclude: vtkArrayIteratorIncludes.h

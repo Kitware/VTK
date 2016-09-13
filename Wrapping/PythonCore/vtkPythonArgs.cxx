@@ -22,7 +22,7 @@ resulting in wrapper code that is faster and more compact.
 -----------------------------------------------------------------------*/
 
 // Keep vtkPythonArgs.h from declaring externs for templates we instantiate
-#define VTK_PYTHON_ARGS_CXX
+#define vtkPythonArgs_cxx
 
 #include "vtkPythonArgs.h"
 #include "vtkPythonUtil.h"
@@ -1380,10 +1380,6 @@ vtkPythonArgs::Array<T>::Array(Py_ssize_t n) : Pointer(0)
 }
 
 // Instantiate the Array class template over all types:
-
-#define vtkForPythonArrayTypeMacro(type) \
-  template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array<type>;
-
-vtkExpandForPythonArrayTypesMacro()
-
-#undef vtkForPythonArrayTypeMacro
+vtkPythonArgsTemplateMacro(
+  template class VTKWRAPPINGPYTHONCORE_EXPORT vtkPythonArgs::Array
+)

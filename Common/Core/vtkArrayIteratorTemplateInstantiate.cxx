@@ -1,7 +1,7 @@
 /*=========================================================================
 
   Program:   Visualization Toolkit
-  Module:    vtkImageProgressIterator.cxx
+  Module:    vtkArrayIteratorTemplateInstantiate.cxx
 
   Copyright (c) Ken Martin, Will Schroeder, Bill Lorensen
   All rights reserved.
@@ -12,11 +12,12 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+#define vtkArrayIteratorTemplateInstantiate_cxx
 
-#define vtkImageProgressIterator_cxx
-
-#include "vtkImageProgressIterator.txx"
+#include "vtkArrayIteratorTemplate.txx"
 
 vtkInstantiateTemplateMacro(
-  template class VTKCOMMONEXECUTIONMODEL_EXPORT vtkImageProgressIterator
-)
+  template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate)
+template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkStdString>;
+template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkUnicodeString>;
+template class VTKCOMMONCORE_EXPORT vtkArrayIteratorTemplate<vtkVariant>;
