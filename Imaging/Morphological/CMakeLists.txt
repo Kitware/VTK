@@ -1,5 +1,6 @@
 set(Module_SRCS
   vtkImageConnector.cxx
+  vtkImageConnectivityFilter.cxx
   vtkImageContinuousDilate3D.cxx
   vtkImageContinuousErode3D.cxx
   vtkImageDilateErode3D.cxx
