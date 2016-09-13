@@ -4,6 +4,7 @@ vtk_module(vtkFiltersExtraction
   TEST_DEPENDS
     vtkIOLegacy
     vtkIOXML
+    vtkIOExodus
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
     vtkInteractionStyle

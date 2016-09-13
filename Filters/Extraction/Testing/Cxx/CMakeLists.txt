@@ -3,5 +3,6 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestExtractSelection.cxx
   TestExtraction.cxx
   TestExtractRectilinearGrid.cxx,NO_VALID,NO_DATA
+  TestExtractTimeSteps.cxx,NO_VALID
   )
 vtk_test_cxx_executable(${vtk-module}CxxTests tests)
