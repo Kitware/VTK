@@ -71,7 +71,7 @@ vtkMTimeType vtkDiscretizableColorTransferFunction::GetMTime()
     }
   if (this->LookupTable)
     {
-    unsigned ltmtime = this->LookupTable->GetMTime();
+    vtkMTimeType ltmtime = this->LookupTable->GetMTime();
     mtime = ltmtime > mtime? ltmtime : mtime;
     }
 

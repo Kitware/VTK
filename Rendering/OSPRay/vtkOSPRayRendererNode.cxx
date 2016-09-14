@@ -392,7 +392,7 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   //let's see if we can avoid that in the common case when
   //the objects have not changed. Note we also cache in actornodes
   //to reuse already created ospray meshes
-  unsigned int recent = 0;
+  vtkMTimeType recent = 0;
   int numAct = 0; //catches removed actors
   while (!it->IsDoneWithTraversal())
     {
@@ -403,12 +403,12 @@ void vtkOSPRayRendererNode::Traverse(int operation)
     if (child)
       {
       numAct++;
-      recent = std::max(recent,(unsigned int)child->GetMTime());
+      recent = std::max(recent, child->GetMTime());
       }
     if (vchild)
       {
       numAct++;
-      recent = std::max(recent,(unsigned int)vchild->GetMTime());
+      recent = std::max(recent, vchild->GetMTime());
       }
 
     it->GoToNextItem();

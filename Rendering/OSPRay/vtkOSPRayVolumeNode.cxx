@@ -53,9 +53,9 @@ void vtkOSPRayVolumeNode::PrintSelf(ostream& os, vtkIndent indent)
 }
 
 //----------------------------------------------------------------------------
-unsigned long vtkOSPRayVolumeNode::GetMTime()
+vtkMTimeType vtkOSPRayVolumeNode::GetMTime()
 {
-  unsigned long mtime = this->Superclass::GetMTime();
+  vtkMTimeType mtime = this->Superclass::GetMTime();
   vtkVolume *vol = (vtkVolume*)this->GetRenderable();
   if (vol->GetMTime() > mtime)
     {
