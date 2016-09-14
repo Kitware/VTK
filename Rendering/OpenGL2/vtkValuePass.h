@@ -65,6 +65,7 @@ public:
   static vtkInformationStringKey *ARRAY_NAME();
   static vtkInformationIntegerKey *ARRAY_COMPONENT();
   static vtkInformationDoubleVectorKey *SCALAR_RANGE();
+  static vtkInformationIntegerKey *RELOAD_DATA();
 
   // Description:
   // Perform rendering according to a render state \p s.

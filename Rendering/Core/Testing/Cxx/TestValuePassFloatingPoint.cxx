@@ -15,59 +15,53 @@
 
 // Description:
 // Tests vtkValuePass in FLOATING_POINT mode. The test generates a 3-component
-// float array ("elevationVector") using the loaded polygonal data.  Polygons
-// are rendered with the ValuePass to its internal floating point frame-buffer.
+// float array ("elevationVector") using the loaded polygonal data (points and cells).
+// Polygons are rendered with the ValuePass to its internal floating point frame-buffer.
 // The rendered float image is then queried from the vtkValuePass and used to
 // generate a color image using vtkLookupTable, the color image is rendered with
 // an image actor on-screen. This is repeated for each component.
 
-#include "vtkRegressionTestImage.h"
-#include "vtkTestUtilities.h"
 #include "vtkActor.h"
+#include "vtkArrayCalculator.h"
+#include "vtkCamera.h"
 #include "vtkCameraPass.h"
-#include "vtkCellArray.h"
+#include "vtkCellData.h"
 #include "vtkElevationFilter.h"
-#include "vtkInformation.h"
+#include "vtkFloatArray.h"
+#include "vtkImageActor.h"
+#include "vtkImageData.h"
+#include "vtkImageMapper3D.h"
+#include "vtkInteractorStyleTrackballCamera.h"
+#include "vtkLookupTable.h"
 #include "vtkOpenGLRenderer.h"
-#include "vtkPLYReader.h"
 #include "vtkPointData.h"
 #include "vtkPointDataToCellData.h"
 #include "vtkPolyData.h"
 #include "vtkPolyDataMapper.h"
-#include "vtkOpenGLPolyDataMapper.h"
+#include "vtkRegressionTestImage.h"
 #include "vtkRenderPassCollection.h"
 #include "vtkRenderWindow.h"
 #include "vtkRenderWindowInteractor.h"
 #include "vtkSequencePass.h"
 #include "vtkSmartPointer.h"
+#include "vtkSphereSource.h"
+#include "vtkTestUtilities.h"
 #include "vtkValuePass.h"
 
-#include "vtkCamera.h"
-#include "vtkInteractorStyleTrackballCamera.h"
-#include "vtkAbstractMapper.h"
-#include "vtkXMLPolyDataReader.h"
-#include "vtkFloatArray.h"
-#include "vtkLookupTable.h"
-#include "vtkColorSeries.h"
-#include "vtkImageData.h"
-#include "vtkImageActor.h"
-#include "vtkImageMapper3D.h"
-#include "vtkArrayCalculator.h"
 
-
-void GenerateElevationArray(vtkSmartPointer<vtkPLYReader> reader)
+void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
 {
-  vtkPolyData* data = reader->GetOutput();
+  vtkPolyData* data = source->GetOutput();
   double* bounds = data->GetBounds();
 
   vtkSmartPointer<vtkElevationFilter> elevation =
     vtkSmartPointer<vtkElevationFilter>::New();
-  elevation->SetInputConnection(reader->GetOutputPort());
+  elevation->SetInputConnection(source->GetOutputPort());
 
-  /// Use vtkElevation to generate an array per component. vtkElevation generates
-  /// a projected distance from each point in the dataset to the line, with respect to
-  /// the LowPoint ([0, 1] in this case. This is different from having the actual
-  /// coordinates of a given point.
+  // Use vtkElevation to generate an array per component. vtkElevation generates
+  // a projected distance from each point in the dataset to the line, with respect to
+  // the LowPoint ([0, 1] in this case. This is different from having the actual
+  // coordinates of a given point.
   for (int c = 0; c < 3; c++)
     {
     std::string name;
@@ -93,7 +87,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPLYReader> reader)
 
     vtkPolyData* result = vtkPolyData::SafeDownCast(elevation->GetOutput());
     int outCellFlag;
-    /// Enums defined in vtkAbstractMapper
+    // Enums defined in vtkAbstractMapper
     vtkDataArray* elevArray = vtkAbstractMapper::GetScalars(result,
       VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, VTK_GET_ARRAY_BY_NAME/*acc mode*/,
       0/*arr id*/, "Elevation"/*arr name*/, outCellFlag);
@@ -107,10 +101,13 @@ void GenerateElevationArray(vtkSmartPointer<vtkPLYReader> reader)
     data->GetPointData()->AddArray(elevArray);
     }
 
-  /// Generate a 3-component vector array using the single components
-  /// form elevation.
-  vtkSmartPointer<vtkArrayCalculator> calc = vtkSmartPointer<vtkArrayCalculator>::New();
-  calc->SetInputConnection(reader->GetOutputPort());
+  // Generate a 3-component vector array using the single components
+  // form elevation
+
+  // Point data
+  vtkSmartPointer<vtkArrayCalculator> calc =
+    vtkSmartPointer<vtkArrayCalculator>::New();
+  calc->SetInputConnection(source->GetOutputPort());
   calc->SetAttributeModeToUsePointData();
   calc->AddScalarArrayName("delta_x");
   calc->AddScalarArrayName("delta_y");
@@ -119,39 +116,68 @@ void GenerateElevationArray(vtkSmartPointer<vtkPLYReader> reader)
   calc->SetResultArrayName("elevationVector");
   calc->Update();
 
-  vtkPolyData* result = vtkPolyData::SafeDownCast(calc->GetOutput());
-  int outCellFlag;
-  vtkDataArray* coordArray = vtkAbstractMapper::GetScalars(result,
-    VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, VTK_GET_ARRAY_BY_NAME/*acc mode*/,
-    0/*arr id*/, "elevationVector", outCellFlag);
-  if (!coordArray)
+  // Cell data
+  vtkSmartPointer<vtkPointDataToCellData> p2c =
+    vtkSmartPointer<vtkPointDataToCellData>::New();
+  p2c->SetInputConnection(calc->GetOutputPort());
+  p2c->PassPointDataOn();
+  p2c->Update();
+
+  /// Include the elevation vector (point and cell data) in the original data
+  vtkPolyData* outputP2c = vtkPolyData::SafeDownCast(p2c->GetOutput());
+  data->GetPointData()->AddArray(calc->GetOutput()->GetPointData()->GetArray(
+    "elevationVector"));
+  data->GetCellData()->AddArray(outputP2c->GetCellData()->GetArray("elevationVector"));
+};
+
+//------------------------------------------------------------------------------
+void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImOut,
+  vtkRenderWindow* window, vtkRenderer* renderer,
+  vtkValuePass* valuePass, int dataMode, char const* name)
+{
+  valuePass->SetInputArrayToProcess(dataMode, name);
+
+  // Prepare a lut to map the floating point values
+  vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
+  lut->SetAlpha(1.0);
+  lut->Build();
+
+  // Render each component in a separate image
+  for(int c = 0; c < 3; c++)
     {
-    std::cout << "->> Error: could not find array!" << std::endl;
-    return;
+    valuePass->SetInputComponentToProcess(c);
+    window->Render();
+
+    /// Get the resulting values
+    vtkFloatArray* result = valuePass->GetFloatImageDataArray(renderer);
+    std::vector<int> ext = valuePass->GetFloatImageExtents();
+
+    // Map the resulting float image to a color table
+    vtkUnsignedCharArray* colored = lut->MapScalars(result, VTK_COLOR_MODE_DEFAULT,
+      0/* single comp*/);
+
+    // Create an image dataset to render in a quad.
+    vtkSmartPointer<vtkImageData> colorIm = vtkSmartPointer<vtkImageData>::New();
+    colorIm->SetExtent(&(ext.front()));
+    colorIm->GetPointData()->SetScalars(colored);
+    colorImOut.push_back(colorIm);
     }
-
-  /// Include the elevation vector in the original data
-  data->GetPointData()->AddArray(coordArray);
-}
-
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 int TestValuePassFloatingPoint(int argc, char *argv[])
 {
   // Load data
-  const char *fileName =
-    vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/dragon.ply");
-  vtkSmartPointer<vtkPLYReader> reader =
-    vtkSmartPointer<vtkPLYReader>::New();
-  reader->SetFileName(fileName);
-  reader->Update();
+  vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
+  sphere->SetThetaResolution(8.0);
+  sphere->SetPhiResolution(8.0);
+  sphere->Update();
 
   // Prepare a 3-component array (data will be appended to reader's output)
-  GenerateElevationArray(reader);
-
+  GenerateElevationArray(sphere);
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();
-  mapper->SetInputConnection(reader->GetOutputPort());
+  mapper->SetInputData(sphere->GetOutput());
   mapper->ScalarVisibilityOn();
 
   vtkSmartPointer<vtkActor> actor =
@@ -168,7 +194,8 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
 
   vtkSmartPointer<vtkRenderWindow> window =
     vtkSmartPointer<vtkRenderWindow>::New();
-  window->SetSize(320, 320);
+  window->SetMultiSamples(0);
+  window->SetSize(640, 640);
 
   vtkSmartPointer<vtkRenderer> renderer =
     vtkSmartPointer<vtkRenderer>::New();
@@ -188,9 +215,11 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     vtkSmartPointer<vtkValuePass>::New();
   valuePass->SetRenderingMode(RenderingMode);
   valuePass->SetInputComponentToProcess(comp);
-  //valuePass->SetScalarRange(bounds[0], bounds[1]); /*using the full range*/
+  // Initial data mode
   valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA,
     "elevationVector");
+  //valuePass->SetInputArrayToProcess(VTK_SCALAR_MODE_USE_CELL_FIELD_DATA,
+  //  "elevationVector");
 
   // 3. Add it to a sequence of passes
   vtkSmartPointer<vtkRenderPassCollection> passes =
@@ -214,54 +243,53 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
 
   if (RenderingMode == vtkValuePass::FLOATING_POINT)
     {
-    // Prepare a lut to map the floating point values
-    vtkSmartPointer<vtkLookupTable> lut = vtkSmartPointer<vtkLookupTable>::New();
-    lut->SetAlpha(1.0);
-    //lut->SetRange(elevRange[0], elevRange[1]); /*use the full range*/
-    vtkSmartPointer<vtkColorSeries> series = vtkSmartPointer<vtkColorSeries>::New();
-    series->SetColorScheme(vtkColorSeries::WARM);
-    //series->SetColorScheme(vtkColorSeries::BREWER_DIVERGING_SPECTRAL_11);
-    series->BuildLookupTable(lut, vtkColorSeries::ORDINAL);
+    // Render point data images
+    std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;
+    RenderComponentImages(colorImagesPoint, window, renderer, valuePass,
+      VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, "elevationVector");
 
-    // Render each component in a separate image
-    std::vector<vtkSmartPointer<vtkImageData> > colorImages;
-    for(int c = 0; c < 3; c++)
-      {
-      valuePass->SetInputComponentToProcess(c);
-      window->Render();
+    // Render cell data images
+   std::vector<vtkSmartPointer<vtkImageData> > colorImagesCell;
+    RenderComponentImages(colorImagesCell, window, renderer, valuePass,
+      VTK_SCALAR_MODE_USE_CELL_FIELD_DATA, "elevationVector");
 
-      /// Get the resulting values
-      vtkFloatArray* result = valuePass->GetFloatImageDataArray(renderer);
-      std::vector<int> ext = valuePass->GetFloatImageExtents();
-
-      // Map the resulting float image to a color table
-      vtkUnsignedCharArray* colored = lut->MapScalars(result, VTK_COLOR_MODE_DEFAULT,
-        0/* single comp*/);
-
-      // Create an image dataset to render in a quad.
-      vtkSmartPointer<vtkImageData> colorIm = vtkSmartPointer<vtkImageData>::New();
-      colorIm->SetExtent(&(ext.front()));
-      colorIm->GetPointData()->SetScalars(colored);
-      colorImages.push_back(colorIm);
-      }
-
-    // Render the image on-screen
+    ////// Render results on-screen
     renderer->RemoveActor(actor);
 
+    // Add image actors to display the point dataArray's componets
     vtkSmartPointer<vtkImageActor> ia_x = vtkSmartPointer<vtkImageActor>::New();
-    ia_x->GetMapper()->SetInputData(colorImages.at(0));
+    ia_x->GetMapper()->SetInputData(colorImagesPoint.at(0));
     renderer->AddActor(ia_x);
 
     vtkSmartPointer<vtkImageActor> ia_y = vtkSmartPointer<vtkImageActor>::New();
     ia_y->RotateX(90);
-    ia_y->GetMapper()->SetInputData(colorImages.at(1));
+    ia_y->GetMapper()->SetInputData(colorImagesPoint.at(1));
     renderer->AddActor(ia_y);
 
     vtkSmartPointer<vtkImageActor> ia_z = vtkSmartPointer<vtkImageActor>::New();
     ia_z->RotateY(-90);
-    ia_z->GetMapper()->SetInputData(colorImages.at(2));
+    ia_z->GetMapper()->SetInputData(colorImagesPoint.at(2));
     renderer->AddActor(ia_z);
 
+    // Add image actors to display cell dataArray's components
+    vtkSmartPointer<vtkImageActor> iacell_x = vtkSmartPointer<vtkImageActor>::New();
+    iacell_x->SetPosition(-500, 600, 600);
+    iacell_x->GetMapper()->SetInputData(colorImagesCell.at(0));
+    renderer->AddActor(iacell_x);
+
+    vtkSmartPointer<vtkImageActor> iacell_y = vtkSmartPointer<vtkImageActor>::New();
+    iacell_y->RotateX(90);
+    iacell_y->SetPosition(-500, 600, 600);
+    iacell_y->GetMapper()->SetInputData(colorImagesCell.at(1));
+    renderer->AddActor(iacell_y);
+
+    vtkSmartPointer<vtkImageActor> iacell_z = vtkSmartPointer<vtkImageActor>::New();
+    iacell_z->RotateY(-90);
+    iacell_z->SetPosition(-500, 600, 600);
+    iacell_z->GetMapper()->SetInputData(colorImagesCell.at(2));
+    renderer->AddActor(iacell_z);
+
+    // Adjust viewpoint
     vtkCamera* cam = renderer->GetActiveCamera();
     cam->SetPosition(2, 2, 2);
     cam->SetFocalPoint(0, 0, 1);

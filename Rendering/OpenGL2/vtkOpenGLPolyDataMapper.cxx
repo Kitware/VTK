@@ -211,6 +211,9 @@ void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
     {
     this->CellNormalBuffer->ReleaseGraphicsResources();
     }
+
+  this->ValuePassHelper->ReleaseGraphicsResources(win);
+
   if (this->AppleBugPrimIDBuffer)
     {
     this->AppleBugPrimIDBuffer->ReleaseGraphicsResources();
@@ -1487,16 +1490,6 @@ void vtkOpenGLPolyDataMapper::ReplaceShaderValues(
   //cout << "VS: " << shaders[vtkShader::Vertex]->GetSource() << endl;
   //cout << "GS: " << shaders[vtkShader::Geometry]->GetSource() << endl;
   //cout << "FS: " << shaders[vtkShader::Fragment]->GetSource() << endl;
-
-//  std::string vertexShader = shaders[vtkShader::Vertex]->GetSource();
-//  std::string fragmentShader = shaders[vtkShader::Fragment]->GetSource();
-//  std::ofstream file("/home/alvaro/testShaders/PolyData_valuePass.frag");
-//  file << fragmentShader;
-//  file.close();
-//
-//  file.open("/home/alvaro/testShaders/PolyData_valuePass.vert");
-//  file << vertexShader;
-//  file.close();
 }
 
 //-----------------------------------------------------------------------------
@@ -1582,7 +1575,8 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < renderPassMTime ||
-      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO])
+      cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
+      this->ValuePassHelper->RequiresShaderRebuild(actor))
     {
     return true;
     }
@@ -1615,32 +1609,6 @@ void vtkOpenGLPolyDataMapper::UpdateShaders(
     shaders[vtkShader::Fragment] = fss;
 
     this->BuildShaders(shaders, ren, actor);
-
-
-//  vtkInformation *info = actor->GetPropertyKeys();
-//    if (info && info->Has(vtkValuePass::RENDER_VALUES()))
-//    {
-//  // Load shaders
-//  //---------------
-//  std::string path = "/home/alvaro/testShaders/";
-//  std::string filename = "pv_values";
-//
-//  std::string vfilepath = path + filename + ".vert";
-//  std::ifstream file(vfilepath.c_str());
-//  std::string vert = std::string(std::istreambuf_iterator<char>(file),
-//    std::istreambuf_iterator<char>());
-//  file.close();
-//
-//  std::string ffilepath = path + filename + ".frag";
-//  file.open(ffilepath.c_str());
-//  std::string frag = std::string(std::istreambuf_iterator<char>(file),
-//    std::istreambuf_iterator<char>());
-//  file.close();
-//
-//    shaders[vtkShader::Vertex]->SetSource(vert);
-//    shaders[vtkShader::Fragment]->SetSource(frag);
-//    }
-
 
     // compile and bind the program if needed
     vtkShaderProgram *newShader =
@@ -1742,7 +1710,7 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
 
     if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
       {
-      this->ValuePassHelper->BindValueBuffer(cellBO);
+      this->ValuePassHelper->BindAttributes(cellBO);
       }
 
     cellBO.AttributeUpdateTime.Modified();
@@ -1794,6 +1762,11 @@ void vtkOpenGLPolyDataMapper::SetMapperShaderParameters(vtkOpenGLHelper &cellBO,
     {
     int tunit = this->CellNormalTexture->GetTextureUnit();
     cellBO.Program->SetUniformi("textureN", tunit);
+    }
+
+  if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
+    {
+    this->ValuePassHelper->BindUniforms(cellBO);
     }
 
   // Handle render pass setup:
@@ -2344,7 +2317,7 @@ void vtkOpenGLPolyDataMapper::RenderPieceStart(vtkRenderer* ren, vtkActor *actor
 
   if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
     {
-    this->ValuePassHelper->UploadValueData(actor, this->CurrentInput);
+    this->ValuePassHelper->RenderPieceStart(actor, this->CurrentInput);
     }
 
   // If we are coloring by texture, then load the texture map.
@@ -2576,6 +2549,11 @@ void vtkOpenGLPolyDataMapper::RenderPieceFinish(vtkRenderer* ren,
   if (this->HaveCellNormals)
     {
     this->CellNormalTexture->Deactivate();
+    }
+
+  if (this->ValuePassHelper->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
+    {
+    this->ValuePassHelper->RenderPieceFinish();
     }
 
   this->UpdateProgress(1.0);

@@ -44,6 +44,7 @@ vtkInformationKeyMacro(vtkValuePass, ARRAY_ID, Integer);
 vtkInformationKeyMacro(vtkValuePass, ARRAY_NAME, String);
 vtkInformationKeyMacro(vtkValuePass, ARRAY_COMPONENT, Integer);
 vtkInformationKeyMacro(vtkValuePass, SCALAR_RANGE, DoubleVector);
+vtkInformationKeyMacro(vtkValuePass, RELOAD_DATA, Integer);
 
 class vtkValuePass::vtkInternals
 {
@@ -55,6 +56,7 @@ public:
   int Component;
   double ScalarRange[2];
   bool ScalarRangeSet;
+  bool ReloadData;
 
   // Array holder for FLOATING_POINT mode. The result pixels are downloaded
   // into this array.
@@ -74,6 +76,7 @@ public:
     this->ScalarRange[0] = 0.0;
     this->ScalarRange[1] = -1.0;
     this->ScalarRangeSet = false;
+    this->ReloadData = true;
     }
 };
 
@@ -111,6 +114,7 @@ void vtkValuePass::SetInputArrayToProcess(int fieldAssociation,
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldName = name;
     this->Internals->FieldNameSet = true;
+    this->Internals->ReloadData = true;
     this->Modified();
     }
 }
@@ -126,6 +130,7 @@ void vtkValuePass::SetInputArrayToProcess(int fieldAssociation,
     this->Internals->FieldAssociation = fieldAssociation;
     this->Internals->FieldAttributeType = fieldAttributeType;
     this->Internals->FieldNameSet = false;
+    this->Internals->ReloadData = true;
     this->Modified();
     }
 }
@@ -136,6 +141,7 @@ void vtkValuePass::SetInputComponentToProcess(int component)
   if (this->Internals->Component != component)
     {
     this->Internals->Component = component;
+    this->Internals->ReloadData = true;
     this->Modified();
     }
 }
@@ -152,7 +158,6 @@ void vtkValuePass::SetScalarRange(double min, double max)
     this->Modified();
     }
 }
-
 
 // ----------------------------------------------------------------------------
 // Description:
@@ -199,6 +204,7 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
       {
       keys.TakeReference(vtkInformation::New());
       }
+
     keys->Set(vtkValuePass::RENDER_VALUES(), this->RenderingMode);
     keys->Set(vtkValuePass::SCALAR_MODE(), this->Internals->FieldAssociation);
     keys->Set(vtkValuePass::ARRAY_MODE(), this->Internals->FieldNameSet);
@@ -206,6 +212,11 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     keys->Set(vtkValuePass::ARRAY_NAME(), this->Internals->FieldName.c_str());
     keys->Set(vtkValuePass::ARRAY_COMPONENT(), this->Internals->Component);
     keys->Set(vtkValuePass::SCALAR_RANGE(), this->Internals->ScalarRange, 2);
+    if (this->Internals->ReloadData)
+      {
+      keys->Set(vtkValuePass::RELOAD_DATA(), 1);
+      }
+
     p->SetPropertyKeys(keys);
 
     int rendered =
@@ -235,6 +246,12 @@ void vtkValuePass::RenderOpaqueGeometry(const vtkRenderState *s)
     keys->Remove(vtkValuePass::ARRAY_NAME());
     keys->Remove(vtkValuePass::ARRAY_COMPONENT());
     keys->Remove(vtkValuePass::SCALAR_RANGE());
+    if (this->Internals->ReloadData)
+      {
+      keys->Remove(vtkValuePass::RELOAD_DATA());
+      this->Internals->ReloadData = false;
+      }
+
     p->SetPropertyKeys(keys);
     ++i;
     }

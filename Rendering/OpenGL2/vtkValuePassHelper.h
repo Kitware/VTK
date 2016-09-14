@@ -4,16 +4,17 @@
 #include "vtkRenderingOpenGL2Module.h"
 
 
-class vtkOpenGLBufferObject;
-//class vtkTimeStamp;
-class vtkDataArray;
-class vtkRenderer;
 class vtkActor;
+class vtkDataArray;
 class vtkDataSet;
-class vtkOpenGLHelper;
 class vtkFloatArray;
 class vtkMapper;
-
+class vtkOpenGLBufferObject;
+class vtkOpenGLHelper;
+class vtkRenderer;
+class vtkTextureObject;
+class vtkWindow;
+class vtkValuePass;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkValuePassHelper : public vtkObject
 {
@@ -31,24 +32,32 @@ protected:
   vtkGetMacro(RenderingMode, int);
 
   void UpdateConfiguration(vtkRenderer* ren, vtkActor* act, vtkMapper* mapper);
-  void UploadValueData(vtkActor* actor, vtkDataSet* input);
+  void RenderPieceStart(vtkActor* actor, vtkDataSet* input);
   void UpdateShaders(std::string & VSSource, std::string & FSSource,
     std::string & required);
-  void BindValueBuffer(vtkOpenGLHelper& cellBO);
+  void BindAttributes(vtkOpenGLHelper& cellBO);
+  void BindUniforms(vtkOpenGLHelper& cellBO);
+  void ReleaseGraphicsResources(vtkWindow* win);
+  void RenderPieceFinish();
+  bool RequiresShaderRebuild(vtkActor* actor);
 
 private:
+
+  void AllocateGraphicsResources(vtkRenderer* ren);
 
   vtkValuePassHelper(const vtkValuePassHelper &); // Not implemented.
   void operator=(const vtkValuePassHelper &); // Not implemented.
 
-  void AllocateBuffer(vtkRenderer* ren);
-  void ReleaseBuffer(vtkRenderer* ren);
-
 ////////////////////////////////////////////////////////////////////////////////
 
-  //vtkTimeStamp ValueBufferTime;
   vtkOpenGLBufferObject* ValueBuffer;
   vtkDataArray* ValuePassArray;
   std::vector<float> Buffer;
+  int CurrentDataArrayMode;
+  int LastDataArrayMode;
   int RenderingMode;
+  bool ResourcesAllocated;
+
+  vtkTextureObject* CellFloatTexture;
+  vtkOpenGLBufferObject* CellFloatBuffer;
 };
