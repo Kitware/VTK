@@ -244,7 +244,7 @@ int vtkAppendPolyData::ExecuteAppend(vtkPolyData* output,
     } // for a non NULL input
   } // for each input
 
-  if (numPts < 1 || numCells < 1)
+  if (numPts < 1 && numCells < 1)
   {
     vtkDebugMacro(<<"No data to append!");
     return 1;
