@@ -231,6 +231,17 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
       {
       vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
         this->FieldName, this->AttributeType);
+      vtkInformation *inputAttributeInfo = vtkDataObject::GetNamedFieldInformation(
+        inInfo, fieldAssociation, this->FieldName);
+      if (inputAttributeInfo)
+        {
+        const int type = inputAttributeInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+        const int numComponents = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        const int numTuples = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES());
+
+        vtkDataObject::SetActiveAttributeInfo(outInfo, fieldAssociation,
+          this->AttributeType, this->FieldName, type, numComponents, numTuples);
+        }
       }
     else if (this->FieldTypeAssignment == vtkAssignAttribute::ATTRIBUTE  &&
       this->InputAttributeType != -1)
@@ -239,9 +250,14 @@ int vtkAssignAttribute::RequestInformation(vtkInformation *vtkNotUsed(request),
         inInfo, fieldAssociation, this->InputAttributeType);
       if (inputAttributeInfo) // do we have an active field of requested type
         {
-        vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation,
-          inputAttributeInfo->Get( vtkDataObject::FIELD_NAME() ),
-          this->AttributeType);
+        const char * name = inputAttributeInfo->Get(vtkDataObject::FIELD_NAME());
+        const int type = inputAttributeInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
+        const int numComponents = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS());
+        const int numTuples = inputAttributeInfo->Get(vtkDataObject::FIELD_NUMBER_OF_TUPLES());
+
+        vtkDataObject::SetActiveAttribute(outInfo, fieldAssociation, name, this->AttributeType);
+        vtkDataObject::SetActiveAttributeInfo(outInfo, fieldAssociation,
+          this->AttributeType, name, type, numComponents, numTuples);
         }
       }
     }
