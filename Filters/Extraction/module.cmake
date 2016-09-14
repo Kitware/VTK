@@ -2,12 +2,13 @@ vtk_module(vtkFiltersExtraction
   GROUPS
     StandAlone
   TEST_DEPENDS
+    vtkInteractionStyle
+    vtkIOExodus
     vtkIOLegacy
     vtkIOXML
     vtkIOExodus
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkTestingRendering
-    vtkInteractionStyle
   KIT
     vtkFilters
   DEPENDS
