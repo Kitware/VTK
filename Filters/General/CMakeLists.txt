@@ -45,6 +45,7 @@ set(Module_SRCS
   vtkLinkEdgels.cxx
   vtkMergeCells.cxx
   vtkMultiBlockDataGroupFilter.cxx
+  vtkMultiBlockFromTimeSeriesFilter.cxx
   vtkMultiBlockMergeFilter.cxx
   vtkMultiThreshold.cxx
   vtkOBBDicer.cxx
