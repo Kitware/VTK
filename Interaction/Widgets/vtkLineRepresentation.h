@@ -42,9 +42,9 @@
 #include "vtkWidgetRepresentation.h"
 
 class vtkActor;
+class vtkConeSource;
 class vtkPolyDataMapper;
 class vtkLineSource;
-class vtkSphereSource;
 class vtkProperty;
 class vtkPolyData;
 class vtkPolyDataAlgorithm;
@@ -220,6 +220,16 @@ public:
   vtkGetMacro(RepresentationState, int);
   //@}
 
+  //@{
+  /**
+   * Sets the representation to be a directional line with point 1 represented
+   * as a cone.
+   */
+  void SetDirectionalLine(bool val);
+  vtkGetMacro(DirectionalLine, bool);
+  vtkBooleanMacro(DirectionalLine, bool);
+  //@}
+
   /**
    * Overload the superclasses' GetMTime() because internal classes
    * are used to keep the state of the representation.
@@ -290,6 +300,14 @@ public:
   vtkGetObjectMacro(TextActor, vtkFollower);
   //@}
 
+  enum { RestrictNone = 0, RestrictToX, RestrictToY, RestrictToZ };
+
+  /**
+   * Set if translations should be restricted to one of the axes (disabled if
+   * RestrictNone is specified).
+   */
+  vtkSetClampMacro(RestrictFlag, int, RestrictNone, RestrictToZ);
+
 protected:
   vtkLineRepresentation();
   ~vtkLineRepresentation();
@@ -302,6 +320,7 @@ protected:
 
   // Manage how the representation appears
   int RepresentationState;
+  bool DirectionalLine;
 
   // the line
   vtkActor          *LineActor;
@@ -309,9 +328,9 @@ protected:
   vtkLineSource     *LineSource;
 
   // glyphs representing hot spots (e.g., handles)
-  vtkActor          **Handle;
-  vtkPolyDataMapper **HandleMapper;
-  vtkSphereSource   **HandleGeometry;
+  vtkActor              **Handle;
+  vtkPolyDataMapper     **HandleMapper;
+  vtkPolyDataAlgorithm  **HandleGeometry;
 
   // Properties used to control the appearance of selected objects and
   // the manipulator in general.
@@ -361,6 +380,8 @@ protected:
   bool               AnnotationTextScaleInitialized;
 
   vtkCellPicker     *LinePicker;
+
+  int RestrictFlag;
 
 private:
   vtkLineRepresentation(const vtkLineRepresentation&) VTK_DELETE_FUNCTION;
