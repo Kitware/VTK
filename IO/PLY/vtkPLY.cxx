@@ -1812,6 +1812,10 @@ char **vtkPLY::get_words(FILE *fp, int *nwords, char **orig_line)
     }
   }
 
+  /* Terminate the copy with null character */
+  /* so that the returned orig_line is terminated*/
+  *ptr2 = '\0';
+
   /* find the words in the line */
 
   ptr = str;
