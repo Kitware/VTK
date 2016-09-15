@@ -53,8 +53,10 @@ int TestImageConnectivityFilter(int argc, char *argv[])
   iren->SetInteractorStyle(style);
 
   // Use a 3D image for the test
-  std::string fname =
+  char *temp =
     vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
+  std::string fname = temp;
+  delete [] temp;
 
   vtkSmartPointer<vtkImageReader2> reader =
     vtkSmartPointer<vtkImageReader2>::New();
