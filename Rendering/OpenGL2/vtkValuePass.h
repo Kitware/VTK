@@ -12,17 +12,29 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
-// .NAME vtkValuePass - TO DO
+// .NAME vtkValuePass
+//
 // .SECTION Description
-// TO DO
+// Renders geometry using the values of a field array as fragment colors. The
+// output can be used for deferred color mapping. It supports using arrays of
+// either point or cell data. The target array can be selected by setting an
+// array name/id and a component number. Only opaque geometry is supported.
+//
+// There are two rendering modes available:
+//
+// * INVERTIBLE_LUT  Encodes array values as RGB data and renders the result to
+// the default framebuffer.
+//
+// * FLOATING_POINT  Renders actual array values as floating point data to an
+// internal RGBA32F framebuffer.  This class binds and unbinds the framebuffer
+// on each render pass.
 //
 // .SECTION See Also
-// vtkRenderPass vtkDefaultPass
+// vtkRenderPass vtkDefaultPass vtkValuePassHelper vtkMapper
+
 
 #ifndef vtkValuePass_h
 #define vtkValuePass_h
-
-#include <vector>
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkDefaultPass.h"
@@ -32,8 +44,6 @@ class vtkInformationIntegerKey;
 class vtkInformationStringKey;
 class vtkRenderer;
 class vtkRenderWindow;
-class vtkFrameBufferObject2;
-class vtkRenderbuffer;
 class vtkFloatArray;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkValuePass : public vtkDefaultPass
@@ -72,22 +82,23 @@ public:
   // \pre s_exists: s!=0
   virtual void Render(const vtkRenderState *s);
 
-  /// @{
-  /// @description Interface to get the result of a render pass in
-  /// FLOATING_POINT mode.
-
-  /// @brief Returns a single component array containing the rendered values.
-  /// The returned array is owned by vtkValuePass so it is intended to be deep copied.
+  // Description:
+  // Interface to get the rendered image in FLOATING_POINT mode.  Returns a
+  // single component array containing the rendered values.  The returned array
+  // is owned by vtkValuePass so it is intended to be deep copied.
   vtkFloatArray* GetFloatImageDataArray(vtkRenderer* ren);
 
-  /// @brief Image extents of the value array.
-  std::vector<int> GetFloatImageExtents();
-
-  /// @brief Low level API, a format for the internal glReadPixels call can be
-  /// specified. 'data' is expected to be allocated and cleaned-up by the caller.
+  // Description:
+  // Interface to get the rendered image in FLOATING_POINT mode.  Low level API,
+  // a format for the internal glReadPixels call can be specified. 'data' is expected
+  // to be allocated and cleaned-up by the caller.
   void GetFloatImageData(int const format, int const width, int const height,
     void* data);
-  /// @}
+
+  // Description:
+  // Interface to get the rendered image in FLOATING_POINT mode.  Image extents of
+  // the value array.
+  int* GetFloatImageExtents();
 
  protected:
   // Description:
@@ -112,25 +123,17 @@ public:
   // Unbinds internal FBO when FLOATING_POINT mode is enabled.
   void EndPass();
 
-  /// \brief Member methods managing graphics resources required during FLOATING_POINT
-  /// mode.
+  // Description:
+  //  Methods managing graphics resources required during FLOATING_POINT mode.
   bool IsFloatFBOSupported(vtkRenderWindow* renWin);
   bool HasWindowSizeChanged(vtkRenderer* ren);
   bool InitializeFloatingPointMode(vtkRenderer* ren);
   void ReleaseFloatingPointMode(vtkRenderer* ren);
 
-///////////////////////////////////////////////////////////////////////////////
-
-  /// \brief FLOATING_POINT mode resources. FBO, attachments and other
-  /// control variables.
-  vtkFrameBufferObject2* ValueFrameBO;
-  vtkRenderbuffer* ValueRenderBO;
-  vtkRenderbuffer* DepthRenderBO;
-  bool ValuePassResourcesAllocated;
-  int RenderingMode;
 
   class vtkInternals;
   vtkInternals *Internals;
+  int RenderingMode;
 
  private:
   vtkValuePass(const vtkValuePass&) VTK_DELETE_FUNCTION;

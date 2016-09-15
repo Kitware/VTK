@@ -58,12 +58,25 @@ public:
   bool ScalarRangeSet;
   bool ReloadData;
 
+  // Description:
   // Array holder for FLOATING_POINT mode. The result pixels are downloaded
   // into this array.
   vtkSmartPointer<vtkFloatArray> Values;
 
+  // Description:
+  // FLOATING_POINT mode resources. FBO, attachments and other control variables.
+  vtkFrameBufferObject2* ValueFrameBO;
+  vtkRenderbuffer* ValueRenderBO;
+  vtkRenderbuffer* DepthRenderBO;
+  bool ValuePassResourcesAllocated;
+  int FloatImageExt[6];
+
   vtkInternals()
   : Values(NULL)
+  , ValueFrameBO(NULL)
+  , ValueRenderBO(NULL)
+  , DepthRenderBO(NULL)
+  , ValuePassResourcesAllocated(false)
     {
     this->Values = vtkSmartPointer<vtkFloatArray>::New();
     this->Values->SetNumberOfComponents(1); /* GL_RED */
@@ -77,16 +90,31 @@ public:
     this->ScalarRange[1] = -1.0;
     this->ScalarRangeSet = false;
     this->ReloadData = true;
+    this->FloatImageExt[0] = 0; this->FloatImageExt[1] = 0;
+    this->FloatImageExt[2] = 0; this->FloatImageExt[3] = 0;
+    this->FloatImageExt[4] = 0; this->FloatImageExt[5] = 0;
+    }
+
+  ~vtkInternals()
+    {
+    if (this->ValueFrameBO)
+      {
+      this->ValueFrameBO->Delete();
+      }
+    if (this->ValueRenderBO)
+      {
+      this->ValueRenderBO->Delete();
+      }
+    if (this->DepthRenderBO)
+      {
+      this->DepthRenderBO->Delete();
+      }
     }
 };
 
 // ----------------------------------------------------------------------------
 vtkValuePass::vtkValuePass()
-: ValueFrameBO(NULL)
-, ValueRenderBO(NULL)
-, DepthRenderBO(NULL)
-, ValuePassResourcesAllocated(false)
-, RenderingMode(INVERTIBLE_LUT)
+: RenderingMode(INVERTIBLE_LUT)
 {
   this->Internals = new vtkInternals();
 }
@@ -271,8 +299,8 @@ void vtkValuePass::BeginPass(vtkRenderer* ren)
 
     if (this->InitializeFloatingPointMode(ren))
       {
-      this->ValueFrameBO->SaveCurrentBindings();
-      this->ValueFrameBO->Bind(GL_DRAW_FRAMEBUFFER);
+      this->Internals->ValueFrameBO->SaveCurrentBindings();
+      this->Internals->ValueFrameBO->Bind(GL_DRAW_FRAMEBUFFER);
       }
     break;
 
@@ -296,7 +324,7 @@ void vtkValuePass::EndPass()
   {
   case vtkValuePass::FLOATING_POINT:
     // Unbind the float FBO and glReadPixels to host side.
-    this->ValueFrameBO->UnBind(GL_DRAW_FRAMEBUFFER);
+    this->Internals->ValueFrameBO->UnBind(GL_DRAW_FRAMEBUFFER);
     break;
 
   case vtkValuePass::INVERTIBLE_LUT:
@@ -309,13 +337,13 @@ void vtkValuePass::EndPass()
 //------------------------------------------------------------------------------
 bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
 {
-  if (!this->ValueFrameBO)
+  if (!this->Internals->ValueFrameBO)
     {
     return true;
     }
 
   int* size = ren->GetSize();
-  int* fboSize = this->ValueFrameBO->GetLastSize(false);
+  int* fboSize = this->Internals->ValueFrameBO->GetLastSize(false);
 
   return (fboSize[0] != size[0] || fboSize[1] != size[1]);
 }
@@ -323,7 +351,7 @@ bool vtkValuePass::HasWindowSizeChanged(vtkRenderer* ren)
 //------------------------------------------------------------------------------
 bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 {
-  if (this->ValuePassResourcesAllocated)
+  if (this->Internals->ValuePassResourcesAllocated)
     {
     return true;
     }
@@ -338,38 +366,38 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 
   int* size = ren->GetSize();
   // Allocate FBO's Color attachment target
-  this->ValueRenderBO = vtkRenderbuffer::New();
-  this->ValueRenderBO->SetContext(renWin);
+  this->Internals->ValueRenderBO = vtkRenderbuffer::New();
+  this->Internals->ValueRenderBO->SetContext(renWin);
   // CreateColorAttachment formats the attachment RGBA32F by
   // default, this is what vtkValuePass expects.
-  this->ValueRenderBO->CreateColorAttachment(size[0], size[1]);
+  this->Internals->ValueRenderBO->CreateColorAttachment(size[0], size[1]);
 
   // Allocate FBO's depth attachment target
-  this->DepthRenderBO = vtkRenderbuffer::New();
-  this->DepthRenderBO->SetContext(renWin);
-  this->DepthRenderBO->CreateDepthAttachment(size[0], size[1]);
+  this->Internals->DepthRenderBO = vtkRenderbuffer::New();
+  this->Internals->DepthRenderBO->SetContext(renWin);
+  this->Internals->DepthRenderBO->CreateDepthAttachment(size[0], size[1]);
 
   // Initialize the FBO into which the float value pass is rendered.
-  this->ValueFrameBO = vtkFrameBufferObject2::New();
-  this->ValueFrameBO->SetContext(renWin);
-  this->ValueFrameBO->SaveCurrentBindings();
-  this->ValueFrameBO->Bind(GL_FRAMEBUFFER);
-  this->ValueFrameBO->InitializeViewport(size[0], size[1]);
-  this->ValueFrameBO->GetLastSize(true); /*force a cached size update*/
+  this->Internals->ValueFrameBO = vtkFrameBufferObject2::New();
+  this->Internals->ValueFrameBO->SetContext(renWin);
+  this->Internals->ValueFrameBO->SaveCurrentBindings();
+  this->Internals->ValueFrameBO->Bind(GL_FRAMEBUFFER);
+  this->Internals->ValueFrameBO->InitializeViewport(size[0], size[1]);
+  this->Internals->ValueFrameBO->GetLastSize(true); /*force a cached size update*/
   /* GL_COLOR_ATTACHMENT0 */
-  this->ValueFrameBO->AddColorAttachment(GL_FRAMEBUFFER, 0, this->ValueRenderBO);
-  this->ValueFrameBO->AddDepthAttachment(GL_FRAMEBUFFER, this->DepthRenderBO);
+  this->Internals->ValueFrameBO->AddColorAttachment(GL_FRAMEBUFFER, 0, this->Internals->ValueRenderBO);
+  this->Internals->ValueFrameBO->AddDepthAttachment(GL_FRAMEBUFFER, this->Internals->DepthRenderBO);
 
   // Verify FBO
-  if(!this->ValueFrameBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
+  if(!this->Internals->ValueFrameBO->CheckFrameBufferStatus(GL_FRAMEBUFFER))
     {
     vtkErrorMacro("Failed to attach FBO.");
     this->ReleaseFloatingPointMode(ren);
     return false;
     }
 
-  this->ValueFrameBO->UnBind(GL_FRAMEBUFFER);
-  this->ValuePassResourcesAllocated = true;
+  this->Internals->ValueFrameBO->UnBind(GL_FRAMEBUFFER);
+  this->Internals->ValuePassResourcesAllocated = true;
 
   return true;
 }
@@ -377,7 +405,7 @@ bool vtkValuePass::InitializeFloatingPointMode(vtkRenderer* ren)
 //-----------------------------------------------------------------------------
 void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
 {
-  if (!this->ValuePassResourcesAllocated)
+  if (!this->Internals->ValuePassResourcesAllocated)
     {
     return;
     }
@@ -386,16 +414,16 @@ void vtkValuePass::ReleaseFloatingPointMode(vtkRenderer* ren)
   renWin->MakeCurrent();
 
   // Cleanup FBO (grahpics resources cleaned internally)
-  this->ValueFrameBO->Delete();
-  this->ValueFrameBO = NULL;
+  this->Internals->ValueFrameBO->Delete();
+  this->Internals->ValueFrameBO = NULL;
 
-  this->ValueRenderBO->Delete();
-  this->ValueRenderBO = NULL;
+  this->Internals->ValueRenderBO->Delete();
+  this->Internals->ValueRenderBO = NULL;
 
-  this->DepthRenderBO->Delete();
-  this->DepthRenderBO = NULL;
+  this->Internals->DepthRenderBO->Delete();
+  this->Internals->DepthRenderBO = NULL;
 
-  this->ValuePassResourcesAllocated = false;
+  this->Internals->ValuePassResourcesAllocated = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -425,7 +453,7 @@ bool vtkValuePass::IsFloatFBOSupported(vtkRenderWindow *renWin)
       << " supported.");
     }
 
-  return contextSupport || extSupport;
+  return contextSupport && extSupport;
 #else
   return true;
 #endif
@@ -438,7 +466,7 @@ vtkFloatArray* vtkValuePass::GetFloatImageDataArray(vtkRenderer* ren)
   renWin->MakeCurrent();
 
   //Allocate output array.
-  int* size = this->ValueFrameBO->GetLastSize(false);
+  int* size = this->Internals->ValueFrameBO->GetLastSize(false);
   this->Internals->Values->SetNumberOfTuples(size[0] * size[1]);
 
   // RGB channels are equivalent in the FBO (they all contain the rendered
@@ -454,8 +482,8 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
   int const height, void* data)
 {
   // Prepare and bind value texture and FBO.
-  this->ValueFrameBO->SaveCurrentBindings();
-  this->ValueFrameBO->Bind(GL_READ_FRAMEBUFFER);
+  this->Internals->ValueFrameBO->SaveCurrentBindings();
+  this->Internals->ValueFrameBO->Bind(GL_READ_FRAMEBUFFER);
 
   GLint originalReadBuff;
   glGetIntegerv(GL_READ_BUFFER, &originalReadBuff);
@@ -469,21 +497,19 @@ void vtkValuePass::GetFloatImageData(int const format, int const width,
     data);
 
   glReadBuffer(originalReadBuff);
-  this->ValueFrameBO->UnBind(GL_READ_FRAMEBUFFER);
+  this->Internals->ValueFrameBO->UnBind(GL_READ_FRAMEBUFFER);
 
   vtkOpenGLCheckErrorMacro("Failed to read pixels from OpenGL buffer!");
 }
 
 //-------------------------------------------------------------------------------
-std::vector<int> vtkValuePass::GetFloatImageExtents()
+int* vtkValuePass::GetFloatImageExtents()
 {
-  int* size = this->ValueFrameBO->GetLastSize(false);
+  int* size = this->Internals->ValueFrameBO->GetLastSize(false);
 
-  std::vector<int> ext;
-  ext.reserve(6);
-  ext.push_back(0); ext.push_back(size[0] - 1);
-  ext.push_back(0); ext.push_back(size[1] - 1);
-  ext.push_back(0); ext.push_back(0);
+  this->Internals->FloatImageExt[0] = 0; this->Internals->FloatImageExt[1] = size[0] - 1;
+  this->Internals->FloatImageExt[2] = 0; this->Internals->FloatImageExt[3] = size[1] - 1;
+  this->Internals->FloatImageExt[4] = 0; this->Internals->FloatImageExt[5] = 0;
 
-  return ext;
+  return this->Internals->FloatImageExt;
 }

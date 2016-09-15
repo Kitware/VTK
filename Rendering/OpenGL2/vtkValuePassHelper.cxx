@@ -1,4 +1,5 @@
 #include "vtkDataArray.h"
+#include "vtkFloatArray.h"
 #include "vtkInformation.h"
 #include "vtkMapper.h"
 #include "vtkObjectFactory.h"
@@ -12,83 +13,110 @@
 #include "vtkTextureObject.h"
 #include "vtkValuePass.h"
 #include "vtkValuePassHelper.h"
+#include "vtkNew.h"
 
 
 vtkStandardNewMacro(vtkValuePassHelper)
 
-// ----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+class vtkValuePassHelper::vtkInternals
+{
+public:
+
+  vtkInternals()
+  : PointBuffer(NULL)
+  , ValuePassArray(NULL)
+  , CurrentDataArrayMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+  , LastDataArrayMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+  , ResourcesAllocated(false)
+  , CellFloatTexture(NULL)
+  , CellFloatBuffer(NULL)
+  {
+    this->CurrentValues->SetNumberOfComponents(1);
+  }
+
+  ~vtkInternals()
+  {
+    // Graphics resources released previously by the parent mapper or after switching
+    // to INVERTIBLE_LUT mode
+    if (this->PointBuffer)
+      {
+      this->PointBuffer->Delete();
+      this->PointBuffer = NULL;
+      }
+
+    if (this->CellFloatTexture)
+      {
+      this->CellFloatTexture->Delete();
+      this->CellFloatTexture = NULL;
+      }
+
+    if (this->CellFloatBuffer)
+      {
+      this->CellFloatBuffer->Delete();
+      this->CellFloatBuffer = NULL;
+      }
+  }
+
+  vtkOpenGLBufferObject* PointBuffer;
+  vtkDataArray* ValuePassArray;
+  vtkNew<vtkFloatArray> CurrentValues;
+  int CurrentDataArrayMode;
+  int LastDataArrayMode;
+  bool ResourcesAllocated;
+  vtkTextureObject* CellFloatTexture;
+  vtkOpenGLBufferObject* CellFloatBuffer;
+};
+
+////////////////////////////////////////////////////////////////////////////////
 vtkValuePassHelper::vtkValuePassHelper()
-: ValueBuffer(NULL)
-, ValuePassArray(NULL)
-, CellFloatTexture(NULL)
-, CellFloatBuffer(NULL)
+: Impl(new vtkInternals)
 , RenderingMode(-1)
-, ResourcesAllocated(false)
-, CurrentDataArrayMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
-, LastDataArrayMode(VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
 {
 }
 
 //-----------------------------------------------------------------------------
 vtkValuePassHelper::~vtkValuePassHelper()
 {
-  // Graphics resources released previously by the parent mapper or after switching
-  // to INVERTIBLE_LUT mode
-  if (this->ValueBuffer)
-    {
-    this->ValueBuffer->Delete();
-    this->ValueBuffer = NULL;
-    }
-
-  if (this->CellFloatTexture)
-    {
-    this->CellFloatTexture->Delete();
-    this->CellFloatTexture = NULL;
-    }
-
-  if (this->CellFloatBuffer)
-    {
-    this->CellFloatBuffer->Delete();
-    this->CellFloatBuffer = NULL;
-    }
+  delete Impl;
 }
 
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::ReleaseGraphicsResources(vtkWindow *win)
 {
-  if (this->CellFloatTexture)
+  if (this->Impl->CellFloatTexture)
     {
-    this->CellFloatTexture->ReleaseGraphicsResources(win);
-    this->CellFloatTexture->Delete();
-    this->CellFloatTexture = NULL;
+    this->Impl->CellFloatTexture->ReleaseGraphicsResources(win);
+    this->Impl->CellFloatTexture->Delete();
+    this->Impl->CellFloatTexture = NULL;
     }
 
-  if (this->CellFloatBuffer)
+  if (this->Impl->CellFloatBuffer)
     {
-    this->CellFloatBuffer->ReleaseGraphicsResources();
-    this->CellFloatBuffer->Delete();
-    this->CellFloatBuffer = NULL;
+    this->Impl->CellFloatBuffer->ReleaseGraphicsResources();
+    this->Impl->CellFloatBuffer->Delete();
+    this->Impl->CellFloatBuffer = NULL;
     }
 
-  if (this->ValueBuffer)
+  if (this->Impl->PointBuffer)
     {
-    this->ValueBuffer->ReleaseGraphicsResources();
-    this->ValueBuffer->Delete();
-    this->ValueBuffer = NULL;
+    this->Impl->PointBuffer->ReleaseGraphicsResources();
+    this->Impl->PointBuffer->Delete();
+    this->Impl->PointBuffer = NULL;
     }
 
-  this->ValuePassArray = NULL;
-  this->ResourcesAllocated = false;
+  this->Impl->ValuePassArray = NULL;
+  this->Impl->ResourcesAllocated = false;
 }
 
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::RenderPieceFinish()
 {
-  if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
+  if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
-    if (this->CellFloatTexture)
+    if (this->Impl->CellFloatTexture)
       {
-      this->CellFloatTexture->Deactivate();
+      this->Impl->CellFloatTexture->Deactivate();
       }
     }
 }
@@ -108,51 +136,44 @@ void vtkValuePassHelper::RenderPieceStart(vtkActor* actor, vtkDataSet* input)
     {
     int cellFlag = 0;
     typedef vtkValuePass vp;
-    this->ValuePassArray = vtkAbstractMapper::GetScalars(input,
+    this->Impl->ValuePassArray = vtkAbstractMapper::GetScalars(input,
       info->Get(vp::SCALAR_MODE()), info->Get(vp::ARRAY_MODE()),
       info->Get(vp::ARRAY_ID()), info->Get(vp::ARRAY_NAME()), cellFlag);
 
-    if (!this->ValuePassArray)
+    if (!this->Impl->ValuePassArray)
       {
       vtkErrorMacro("Invalid data array from GetScalars()!");
       return;
       }
 
-    // Extract the current component value from the array.
-    vtkIdType const numTuples = this->ValuePassArray->GetNumberOfTuples();
-    int const compIndex = info->Get(vp::ARRAY_COMPONENT());
-    this->Buffer.clear();
-    this->Buffer.reserve(numTuples);
-
-    for (vtkIdType id = 0; id < numTuples; id++)
-      {
-      double* tuple = this->ValuePassArray->GetTuple(id);
-      float value = static_cast<float>(tuple[compIndex]);
-      this->Buffer.push_back(value);
-      }
+    vtkIdType const numTuples = this->Impl->ValuePassArray->GetNumberOfTuples();
+    int const comp = info->Get(vp::ARRAY_COMPONENT());
+    this->Impl->CurrentValues->SetNumberOfTuples(numTuples);
+    this->Impl->CurrentValues->CopyComponent(0, this->Impl->ValuePassArray, comp);
+    float const* data = static_cast<float*>(this->Impl->CurrentValues->GetVoidPointer(0));
 
     // Upload array data
-    if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+    if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
       {
       // Point data
-      this->ValueBuffer->Upload(&(this->Buffer.front()), static_cast<size_t>(numTuples),
+      this->Impl->PointBuffer->Upload(data, static_cast<size_t>(numTuples),
         vtkOpenGLBufferObject::ArrayBuffer);
       }
     else
       {
       // Cell data
-      this->CellFloatBuffer->Upload(&(this->Buffer.front()), numTuples,
+      this->Impl->CellFloatBuffer->Upload(data, static_cast<size_t>(numTuples),
         vtkOpenGLBufferObject::TextureBuffer);
 
-      this->CellFloatTexture->CreateTextureBuffer(static_cast<unsigned int>(numTuples),
-        1, VTK_FLOAT, this->CellFloatBuffer);
+      this->Impl->CellFloatTexture->CreateTextureBuffer(static_cast<unsigned int>(numTuples),
+        1, VTK_FLOAT, this->Impl->CellFloatBuffer);
       }
     }
 
   // Bind textures
-  if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
+  if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
-    this->CellFloatTexture->Activate();
+    this->Impl->CellFloatTexture->Activate();
     }
 }
 
@@ -170,12 +191,8 @@ void vtkValuePassHelper::UpdateConfiguration(vtkRenderer* ren, vtkActor* act,
   // Configure the mapper's behavior if the ValuePass is active.
   if (this->RenderingMode > 0)
     {
-    vtkInformation *info = act->GetPropertyKeys();
-    if (info)
-      {
-      // Since it has RENDER_VALUES it is assumed it has all the tags from ValuePass
-      this->CurrentDataArrayMode = info->Get(vtkValuePass::SCALAR_MODE());
-      }
+    // Since it has RENDER_VALUES it is assumed it has all the tags from ValuePass
+    this->Impl->CurrentDataArrayMode = info->Get(vtkValuePass::SCALAR_MODE());
 
     switch (this->RenderingMode)
       {
@@ -186,7 +203,6 @@ void vtkValuePassHelper::UpdateConfiguration(vtkRenderer* ren, vtkActor* act,
       case vtkValuePass::INVERTIBLE_LUT:
       default:
         {
-        vtkInformation* info = act->GetPropertyKeys();
         mapper->UseInvertibleColorFor(info->Get(vtkValuePass::SCALAR_MODE()),
                                     info->Get(vtkValuePass::ARRAY_MODE()),
                                     info->Get(vtkValuePass::ARRAY_ID()),
@@ -207,24 +223,24 @@ void vtkValuePassHelper::UpdateConfiguration(vtkRenderer* ren, vtkActor* act,
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::AllocateGraphicsResources(vtkRenderer* ren)
 {
-  if (this->ResourcesAllocated)
+  if (this->Impl->ResourcesAllocated)
     {
     return;
     }
 
   // For point data
-  this->ValueBuffer = vtkOpenGLBufferObject::New();
-  this->ValueBuffer->SetType(vtkOpenGLBufferObject::ArrayBuffer);
+  this->Impl->PointBuffer = vtkOpenGLBufferObject::New();
+  this->Impl->PointBuffer->SetType(vtkOpenGLBufferObject::ArrayBuffer);
 
   // For cell data
-  this->CellFloatTexture = vtkTextureObject::New();
-  this->CellFloatTexture->SetContext
+  this->Impl->CellFloatTexture = vtkTextureObject::New();
+  this->Impl->CellFloatTexture->SetContext
     (static_cast<vtkOpenGLRenderWindow*>(ren->GetVTKWindow()));
 
-  this->CellFloatBuffer = vtkOpenGLBufferObject::New();
-  this->CellFloatBuffer->SetType(vtkOpenGLBufferObject::TextureBuffer);
+  this->Impl->CellFloatBuffer = vtkOpenGLBufferObject::New();
+  this->Impl->CellFloatBuffer->SetType(vtkOpenGLBufferObject::TextureBuffer);
 
-  this->ResourcesAllocated = true;
+  this->Impl->ResourcesAllocated = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -248,7 +264,7 @@ void vtkValuePassHelper::UpdateShaders(std::string & VSSource, std::string & FSS
     "varying float dataValue;\n"
     "uniform samplerBuffer textureF;\n");
 
-  if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+  if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
     {
     required += std::string
       (
@@ -275,15 +291,15 @@ void vtkValuePassHelper::UpdateShaders(std::string & VSSource, std::string & FSS
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::BindAttributes(vtkOpenGLHelper& cellBO)
 {
-  if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
+  if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)
     {
-    if (this->ValuePassArray)
+    if (this->Impl->ValuePassArray)
       {
       if (cellBO.Program->IsAttributeUsed("dataAttribute"))
         {
         size_t const stride = sizeof(float);
 
-        if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->ValueBuffer,
+        if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->Impl->PointBuffer,
           "dataAttribute", 0, stride, VTK_FLOAT, 1, false))
           {
           vtkErrorMacro(<< "Error setting 'dataAttribute' in shader VAO.");
@@ -296,25 +312,31 @@ void vtkValuePassHelper::BindAttributes(vtkOpenGLHelper& cellBO)
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::BindUniforms(vtkOpenGLHelper& cellBO)
 {
-  if (this->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
+  if (this->Impl->CurrentDataArrayMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
     {
     if (cellBO.Program->IsAttributeUsed("textureF"))
       {
-      int tunit = this->CellFloatTexture->GetTextureUnit();
+      int tunit = this->Impl->CellFloatTexture->GetTextureUnit();
       cellBO.Program->SetUniformi("textureF", tunit);
       }
     }
 }
 
 //-----------------------------------------------------------------------------
-bool vtkValuePassHelper::RequiresShaderRebuild(vtkActor* act)
+bool vtkValuePassHelper::RequiresShaderRebuild()
 {
   if (this->RenderingMode == vtkValuePass::FLOATING_POINT &&
-   this->CurrentDataArrayMode != this->LastDataArrayMode)
+   this->Impl->CurrentDataArrayMode != this->Impl->LastDataArrayMode)
     {
-    this->LastDataArrayMode = this->CurrentDataArrayMode;
+    this->Impl->LastDataArrayMode = this->Impl->CurrentDataArrayMode;
     return true;
     }
 
   return false;
+}
+
+// ----------------------------------------------------------------------------
+void vtkValuePassHelper::PrintSelf(ostream& os, vtkIndent indent)
+{
+  this->Superclass::PrintSelf(os,indent);
 }

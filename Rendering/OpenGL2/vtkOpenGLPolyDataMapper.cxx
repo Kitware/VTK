@@ -1576,7 +1576,7 @@ bool vtkOpenGLPolyDataMapper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < renderPassMTime ||
       cellBO.ShaderSourceTime < this->LightComplexityChanged[&cellBO] ||
-      this->ValuePassHelper->RequiresShaderRebuild(actor))
+      this->ValuePassHelper->RequiresShaderRebuild())
     {
     return true;
     }

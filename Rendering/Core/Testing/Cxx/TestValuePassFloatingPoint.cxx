@@ -150,7 +150,7 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImO
 
     /// Get the resulting values
     vtkFloatArray* result = valuePass->GetFloatImageDataArray(renderer);
-    std::vector<int> ext = valuePass->GetFloatImageExtents();
+    int* ext = valuePass->GetFloatImageExtents();
 
     // Map the resulting float image to a color table
     vtkUnsignedCharArray* colored = lut->MapScalars(result, VTK_COLOR_MODE_DEFAULT,
@@ -158,9 +158,10 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImO
 
     // Create an image dataset to render in a quad.
     vtkSmartPointer<vtkImageData> colorIm = vtkSmartPointer<vtkImageData>::New();
-    colorIm->SetExtent(&(ext.front()));
+    colorIm->SetExtent(ext);
     colorIm->GetPointData()->SetScalars(colored);
     colorImOut.push_back(colorIm);
+    colored->Delete();
     }
 };
 
@@ -241,7 +242,9 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   glRenderer->SetPass(cameraPass);
   window->Render();
 
-  if (RenderingMode == vtkValuePass::FLOATING_POINT)
+  // Check whether the RenderingMode change (this could happen due to a lack of
+  // extension/context support
+  if (valuePass->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
     {
     // Render point data images
     std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;

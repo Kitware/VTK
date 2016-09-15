@@ -132,6 +132,7 @@ set_source_files_properties(
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
+  vtkValuePassHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
 set_source_files_properties(
