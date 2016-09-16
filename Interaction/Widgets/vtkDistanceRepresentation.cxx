@@ -38,6 +38,7 @@ vtkDistanceRepresentation::vtkDistanceRepresentation()
   this->LabelFormat = new char[8];
   sprintf(this->LabelFormat,"%s","%-#6.3g");
 
+  this->Scale = 1.0;
   this->RulerMode = 0;
   this->RulerDistance = 1.0;
   this->NumberOfRulerTicks = 5;
@@ -176,6 +177,7 @@ void vtkDistanceRepresentation::PrintSelf(ostream& os, vtkIndent indent)
     os << "(none)\n";
     }
 
+  os << indent << "Scale: " << this->GetScale() << "\n";
   os << indent << "Ruler Mode: "
      << (this->RulerMode ? "On" : "Off") <<"\n";
   os << indent << "Ruler Distance: " << this->GetRulerDistance() <<"\n";

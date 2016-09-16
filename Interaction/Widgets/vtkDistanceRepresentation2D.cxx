@@ -180,14 +180,19 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->Point2Representation->GetWorldPosition(p2);
     this->Distance = sqrt(vtkMath::Distance2BetweenPoints(p1,p2));
 
-      this->AxisActor->GetPoint1Coordinate()->SetValue(p1);
+    this->AxisActor->GetPoint1Coordinate()->SetValue(p1);
     this->AxisActor->GetPoint2Coordinate()->SetValue(p2);
     this->AxisActor->SetRulerMode(this->RulerMode);
-    this->AxisActor->SetRulerDistance(this->RulerDistance);
+    this->AxisActor->SetRulerDistance(this->RulerDistance * this->Scale);
     this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
 
+    double scaledDistance = this->Distance;
+    if (this->Scale != 0.0)
+      {
+      scaledDistance /= this->Scale;
+      }
     char string[512];
-    sprintf(string, this->LabelFormat, this->Distance);
+    sprintf(string, this->LabelFormat, scaledDistance);
     this->AxisActor->SetTitle(string);
 
     this->BuildTime.Modified();
@@ -210,14 +215,14 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
     return this->AxisActor->RenderOverlay(v);
     }
   else
-    {
-    return 0;
-    }
-}
+      {
+      return 0;
+      }
+  }
 
-//----------------------------------------------------------------------
-int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport *v)
-{
+  //----------------------------------------------------------------------
+  int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport *v)
+  {
   this->BuildRepresentation();
 
   if ( this->AxisActor->GetVisibility() )

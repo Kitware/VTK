@@ -944,13 +944,13 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   widget->CreateDefaultRepresentation();
   widget->SetRepresentation(rep);
 
-
-
   VTK_CREATE(vtkDistanceCallback, mcbk);
   mcbk->Renderer = ren1;
   mcbk->RenderWindow = renWin;
   mcbk->Distance = rep;
   mcbk->DistanceWidget = widget;
+
+  rep->SetScale(0.5);
 
   // Add the actors to the renderer, set the background and size
   //
@@ -1052,5 +1052,13 @@ int TestDistanceWidget(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   double p2d[3];
   rep->GetPoint2DisplayPosition(p2d);
   std::cout << "Point 2 Display Position: " << p2d[0] << ", " << p2d[1] << ", " << p2d[2] << std::endl;
+
+  rep->SetScale(0.75);
+  if (rep->GetScale() != 0.75)
+    {
+    std::cerr << "Error: GetScale() did not return value set by SetScale()\n";
+    return EXIT_FAILURE;
+    }
+
   return EXIT_SUCCESS;
 }
