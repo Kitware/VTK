@@ -32,9 +32,10 @@ const double e = 1e-5;
 
 int TestExtractTimeSteps(int argc, char *argv[])
 {
-  const char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
+  char *fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/can.ex2");
   vtkNew<vtkExodusIIReader> reader;
   reader->SetFileName(fname);
+  delete [] fname;
 
   vtkNew<vtkExtractTimeSteps> extracter;
   extracter->SetInputConnection(reader->GetOutputPort());
