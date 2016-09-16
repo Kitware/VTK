@@ -79,7 +79,7 @@ vtkOSPRayPass::vtkOSPRayPass()
       args.push_back(arg);
       }
     int ac =args.size()+1;
-    char* av[ac];
+    const char* av[ac];
     av[0] = new char[512];
     strcpy(av[0],"pvOSPRay\0");
     for(int i=1;i < ac; i++)
@@ -89,7 +89,7 @@ vtkOSPRayPass::vtkOSPRayPass()
       }
     try
       {
-      ospInit(&ac, (const char**)av);
+      ospInit(&ac, av);
       }
     catch (std::runtime_error &vtkNotUsed(e))
       {
