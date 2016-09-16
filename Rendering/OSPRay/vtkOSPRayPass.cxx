@@ -79,7 +79,7 @@ vtkOSPRayPass::vtkOSPRayPass()
       args.push_back(arg);
       }
     int ac =args.size()+1;
-    const char* av[ac];
+    const char** av = new const char*[ac];
     av[0] = new char[512];
     strcpy(av[0],"pvOSPRay\0");
     for(int i=1;i < ac; i++)
@@ -95,6 +95,7 @@ vtkOSPRayPass::vtkOSPRayPass()
       {
       //todo: request addition of ospFinalize() to ospray
       }
+    delete [] av;
     }
   else
     {
