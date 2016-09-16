@@ -656,7 +656,9 @@ double* vtkGlyph3DMapper::GetBounds()
     ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds)
       {
-      bbox.AddBounds(ds->GetBounds());
+      double tmpBounds[6];
+      this->GetBoundsInternal(ds, tmpBounds);
+      bbox.AddBounds(tmpBounds);
       }
     }
   bbox.GetBounds(this->Bounds);
