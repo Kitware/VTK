@@ -117,6 +117,15 @@ vtkRenderer::vtkRenderer()
 
   this->GL2PSSpecialPropCollection = NULL;
 
+  this->UseFXAA = false;
+  this->FXAARelativeContrastThreshold = 1.f / 8.f;
+  this->FXAAHardContrastThreshold = 1.f / 16.f;
+  this->FXAASubpixelBlendLimit = 3.f / 4.f;
+  this->FXAASubpixelContrastThreshold = 1.f / 4.f;
+  this->FXAAEndpointSearchIterations = 12;
+  this->FXAAUseHighQualityEndpoints = true;
+  this->FXAADebugOption = 0;
+
   this->UseShadows = 0;
 
   this->UseHiddenLineRemoval = 0;

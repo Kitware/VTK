@@ -11,6 +11,7 @@ vtk_module(vtkRenderingOpenGL2
   TEST_DEPENDS
     vtkIOLegacy
     vtkRenderingImage
+    vtkRenderingFreeType
     vtkTestingCore
     vtkTestingRendering
     vtkImagingGeneral

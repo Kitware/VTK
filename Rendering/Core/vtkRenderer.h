@@ -529,6 +529,31 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
+  // Turn on/off FXAA anti-aliasing, if supported. Initial value is off.
+  vtkSetMacro(UseFXAA, bool)
+  vtkGetMacro(UseFXAA, bool)
+  vtkBooleanMacro(UseFXAA, bool)
+
+  // Description:
+  // Tuning parameters for FXAA. See vtkOpenGLFXAAFilter.h for documentation
+  // and suggested values.
+  vtkSetClampMacro(FXAARelativeContrastThreshold, float, 0.f, 1.f)
+  vtkGetMacro(FXAARelativeContrastThreshold, float)
+  vtkSetClampMacro(FXAAHardContrastThreshold, float, 0.f, 1.f)
+  vtkGetMacro(FXAAHardContrastThreshold, float)
+  vtkSetClampMacro(FXAASubpixelBlendLimit, float, 0.f, 1.f)
+  vtkGetMacro(FXAASubpixelBlendLimit, float)
+  vtkSetClampMacro(FXAASubpixelContrastThreshold, float, 0.f, 1.f)
+  vtkGetMacro(FXAASubpixelContrastThreshold, float)
+  vtkSetClampMacro(FXAAEndpointSearchIterations, int, 0, VTK_INT_MAX)
+  vtkGetMacro(FXAAEndpointSearchIterations, int)
+  vtkSetMacro(FXAAUseHighQualityEndpoints, bool)
+  vtkGetMacro(FXAAUseHighQualityEndpoints, bool)
+  vtkBooleanMacro(FXAAUseHighQualityEndpoints, bool)
+  vtkSetMacro(FXAADebugOption, int)
+  vtkGetMacro(FXAADebugOption, int)
+
+  // Description:
   // Turn on/off rendering of shadows if supported
   // Initial value is off.
   vtkSetMacro(UseShadows,int);
@@ -690,6 +715,22 @@ protected:
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
+
+  // Description:
+  // If this flag is on and the rendering engine supports it, FXAA will be used
+  // to antialias the scene. Default is off.
+  bool UseFXAA;
+
+  // Description:
+  // Parameters for FXAA. See vtkOpenGLFXAAFilter.h for documentation and
+  // suggested values.
+  float FXAARelativeContrastThreshold;
+  float FXAAHardContrastThreshold;
+  float FXAASubpixelBlendLimit;
+  float FXAASubpixelContrastThreshold;
+  int FXAAEndpointSearchIterations;
+  bool FXAAUseHighQualityEndpoints;
+  int FXAADebugOption;
 
   // Description:
   // If this flag is on and the rendering engine supports it render shadows

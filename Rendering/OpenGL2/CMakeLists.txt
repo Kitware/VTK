@@ -33,6 +33,7 @@ set(Module_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLFXAAFilter.cxx
   vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
@@ -148,6 +149,7 @@ set(shader_files
   glsl/vtkEDLBilateralFilterFS.glsl
   glsl/vtkEDLComposeFS.glsl
   glsl/vtkEDLShadeFS.glsl
+  glsl/vtkFXAAFilterFS.glsl
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl

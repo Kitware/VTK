@@ -24,6 +24,7 @@
 #include "vtkRenderer.h"
 #include <vector>  // STL Header
 
+class vtkOpenGLFXAAFilter;
 class vtkRenderPass;
 class vtkOpenGLTexture;
 class vtkTextureObject;
@@ -106,6 +107,10 @@ protected:
   friend class vtkOpenGLTexture;
   friend class vtkOpenGLImageSliceMapper;
   friend class vtkOpenGLImageResliceMapper;
+
+  // Description:
+  // FXAA is delegated to an instance of vtkOpenGLFXAAFilter
+  vtkOpenGLFXAAFilter *FXAAFilter;
 
   // Description:
   // Depth peeling is delegated to an instance of vtkDepthPeelingPass
