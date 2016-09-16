@@ -152,6 +152,12 @@ protected:
 private:
   vtkTemporalStatistics(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
   void operator=(const vtkTemporalStatistics &) VTK_DELETE_FUNCTION;
+
+  // Description:
+  // Used to avoid multiple warnings for the same filter when
+  // the number of points or cells in the data set is changing
+  // between time steps.
+  bool GeneratedChangingTopologyWarning;
 };
 
 #endif //_vtkTemporalStatistics_h
