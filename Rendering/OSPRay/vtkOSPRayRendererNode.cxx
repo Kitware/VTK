@@ -47,35 +47,35 @@ namespace ospray {
     //todo: use ospray's copy instead of this
     inline osp::vec3f operator*(const osp::vec3f &a, const osp::vec3f &b)
     {
-      return (osp::vec3f){a.x*b.x, a.y*b.y, a.z*b.z};
+      return osp::vec3f{a.x*b.x, a.y*b.y, a.z*b.z};
     }
     inline osp::vec3f operator*(const osp::vec3f &a, float b)
     {
-      return (osp::vec3f){a.x*b, a.y*b, a.z*b};
+      return osp::vec3f{a.x*b, a.y*b, a.z*b};
     }
     inline osp::vec3f operator/(const osp::vec3f &a, float b)
     {
-      return (osp::vec3f){a.x/b, a.y/b, a.z/b};
+      return osp::vec3f{a.x/b, a.y/b, a.z/b};
     }
     inline osp::vec3f operator*(float b, const osp::vec3f &a)
     {
-      return (osp::vec3f){a.x*b, a.y*b, a.z*b};
+      return osp::vec3f{a.x*b, a.y*b, a.z*b};
     }
     inline osp::vec3f operator*=(osp::vec3f a, float b)
     {
-      return a = (osp::vec3f){a.x*b, a.y*b, a.z*b};
+      return osp::vec3f{a.x*b, a.y*b, a.z*b};
     }
     inline osp::vec3f operator-(const osp::vec3f& a, const osp::vec3f& b)
     {
-      return (osp::vec3f){a.x-b.x, a.y-b.y, a.z-b.z};
+      return osp::vec3f{a.x-b.x, a.y-b.y, a.z-b.z};
     }
     inline osp::vec3f operator+(const osp::vec3f& a, const osp::vec3f& b)
     {
-      return (osp::vec3f){a.x+b.x, a.y+b.y, a.z+b.z};
+      return osp::vec3f{a.x+b.x, a.y+b.y, a.z+b.z};
     }
     inline osp::vec3f cross(const osp::vec3f &a, const osp::vec3f &b)
     {
-      return (osp::vec3f){a.y*b.z-a.z*b.y,
+      return osp::vec3f{a.y*b.z-a.z*b.y,
           a.z*b.x-a.x*b.z,
           a.x*b.y-a.y*b.x};
     }
