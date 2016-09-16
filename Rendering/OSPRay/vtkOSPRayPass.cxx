@@ -80,12 +80,10 @@ vtkOSPRayPass::vtkOSPRayPass()
       }
     int ac =args.size()+1;
     const char** av = new const char*[ac];
-    av[0] = new char[512];
-    strcpy(av[0],"pvOSPRay\0");
+    av[0] = "pvOSPRay";
     for(int i=1;i < ac; i++)
       {
-      av[i] = new char[args[i-1].size()+1];
-      strcpy(av[i], args[i-1].c_str());
+      av[i] = args[i - 1].c_str();
       }
     try
       {
