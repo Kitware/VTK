@@ -139,4 +139,8 @@ void vtkMappedUnstructuredGridCellIterator<Implementation>
   this->GridPoints = grid->GetPoints();
   this->CellId = 0;
   this->NumberOfCells = grid->GetNumberOfCells();
+  if(this->GridPoints)
+    {
+    this->Points->SetDataType(this->GridPoints->GetDataType());
+    }
 }
