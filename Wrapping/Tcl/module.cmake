@@ -7,4 +7,5 @@ vtk_module(vtkWrappingTcl
   DEPENDS
     vtkCommonCore
     vtksys
+    vtkRenderingTk
   )

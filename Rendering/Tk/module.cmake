@@ -11,7 +11,6 @@ vtk_module(vtkRenderingTk
     vtkInteractionImage
     vtkRendering${VTK_RENDERING_BACKEND}
     vtkRenderingCore
-    vtkWrappingTcl
   PRIVATE_DEPENDS
     vtkCommonDataModel
     vtkCommonExecutionModel
