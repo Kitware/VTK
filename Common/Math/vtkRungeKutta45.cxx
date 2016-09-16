@@ -268,11 +268,11 @@ int vtkRungeKutta45::ComputeAStep(
     if ( !this->FunctionSet->FunctionValues(this->Vals,
                                             this->NextDerivs[i]) )
     {
-      for(i=0; i<numVals-1; i++)
+      for(int l = 0; l < numVals - 1; l++)
       {
-        xnext[i] = this->Vals[i];
+        xnext[l] = this->Vals[l];
       }
-      actualDelT = delT;
+      actualDelT = delT * A[i - 1];
       return OUT_OF_DOMAIN;
     }
   }
