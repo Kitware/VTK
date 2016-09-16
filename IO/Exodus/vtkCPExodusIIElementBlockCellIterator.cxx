@@ -103,6 +103,10 @@ void vtkCPExodusIIElementBlockCellIterator::SetStorage(
     {
     this->Storage = eb->GetInternals();
     this->DataSetPoints= eb->GetPoints();
+    if(this->DataSetPoints)
+      {
+      this->Points->SetDataType(this->DataSetPoints->GetDataType());
+      }
     }
   else
     {

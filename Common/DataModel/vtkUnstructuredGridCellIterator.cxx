@@ -57,6 +57,11 @@ void vtkUnstructuredGridCellIterator::SetUnstructuredGrid(
   vtkCellArray *cellArray = ug ? ug->GetCells() : NULL;
   vtkPoints *points = ug ? ug->GetPoints() : NULL;
 
+  if(points)
+    {
+    this->Points->SetDataType(points->GetDataType());
+    }
+
   if (ug && cellTypeArray && cellArray && points)
     {
     // Cell types
