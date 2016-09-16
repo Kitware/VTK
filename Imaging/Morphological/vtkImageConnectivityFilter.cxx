@@ -393,7 +393,7 @@ public:
   const int &operator*() const { return value; }
   int &operator*() { return value; }
 
-  const vtkICF::Seed &operator = (const vtkICF::Seed seed) {
+  vtkICF::Seed &operator=(const vtkICF::Seed& seed) {
     pos[0] = seed.pos[0];
     pos[1] = seed.pos[1];
     pos[2] = seed.pos[2];
