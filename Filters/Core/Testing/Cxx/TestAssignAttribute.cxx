@@ -167,7 +167,6 @@ int TestAssignAttribute(int, char *[])
   outFieldInfo = vtkDataObject::GetActiveFieldInformation(outInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::VECTORS);
   if (!outFieldInfo
-    || !outFieldInfo
     || !outFieldInfo->Has(vtkDataObject::FIELD_NAME())
     || std::strcmp(outFieldInfo->Get(vtkDataObject::FIELD_NAME()), scalars->GetName())
     || outFieldInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()) != scalars->GetNumberOfComponents()
