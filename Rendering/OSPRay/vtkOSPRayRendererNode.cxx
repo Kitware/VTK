@@ -12,6 +12,11 @@
      PURPOSE.  See the above copyright notice for more information.
 
 =========================================================================*/
+
+#ifdef _WIN32
+#define _USE_MATH_DEFINES
+#endif
+
 #include "vtkOSPRayRendererNode.h"
 
 #include "vtkCamera.h"
