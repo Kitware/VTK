@@ -36,6 +36,7 @@
 #include "ospray/ospray.h"
 #include "ospray/version.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace ospray {
