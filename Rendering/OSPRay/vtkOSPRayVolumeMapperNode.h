@@ -45,7 +45,7 @@ public:
   //should be controlled by VTK SampleDistance, otherwise
   //should use macros and modify self.
   void SetSamplingRate(double rate) { this->SamplingRate = rate; }
-  double GetSamplingRate(double rate) { return this->SamplingRate; }
+  double GetSamplingRate() { return this->SamplingRate; }
 
 protected:
   vtkOSPRayVolumeMapperNode();
