@@ -21,8 +21,8 @@
   order to wrap these methods, a custom method descriptor is needed.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKMethodDescriptor_h
-#define __PyVTKMethodDescriptor_h
+#ifndef PyVTKMethodDescriptor_h
+#define PyVTKMethodDescriptor_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"

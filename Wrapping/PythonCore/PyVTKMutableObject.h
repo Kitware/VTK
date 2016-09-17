@@ -19,8 +19,8 @@
   to be passed to VTK methods that require a ref to a numeric type.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKMutableObject_h
-#define __PyVTKMutableObject_h
+#ifndef PyVTKMutableObject_h
+#define PyVTKMutableObject_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"

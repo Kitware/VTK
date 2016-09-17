@@ -17,8 +17,8 @@
   It was rewritten in Jul 2015 to wrap VTK classes as python type objects.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKObject_h
-#define __PyVTKObject_h
+#ifndef PyVTKObject_h
+#define PyVTKObject_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
