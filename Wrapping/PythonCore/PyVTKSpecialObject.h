@@ -17,8 +17,8 @@
   The PyVTKSpecialType class was created in April 2010 by David Gobbi.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKSpecialObject_h
-#define __PyVTKSpecialObject_h
+#ifndef PyVTKSpecialObject_h
+#define PyVTKSpecialObject_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"

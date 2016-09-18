@@ -18,8 +18,8 @@
   This is a PyModule subclass for wrapping C++ namespaces.
 -----------------------------------------------------------------------*/
 
-#ifndef __PyVTKNamespace_h
-#define __PyVTKNamespace_h
+#ifndef PyVTKNamespace_h
+#define PyVTKNamespace_h
 
 #include "vtkWrappingPythonCoreModule.h" // For export macro
 #include "vtkPython.h"
