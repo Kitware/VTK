@@ -267,9 +267,20 @@ size_t vtkOpenGLIndexBufferObject::CreateStripIndexBuffer(
     this->IndexCount = 0;
     return 0;
     }
+  std::vector<unsigned int> indexArray;
+  AppendStripIndexBuffer(indexArray, cells, 0, wireframeTriStrips);
+  this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
+  this->IndexCount = indexArray.size();
+  return indexArray.size();
+}
+
+void vtkOpenGLIndexBufferObject::AppendStripIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkIdType vOffset, bool wireframeTriStrips)
+{
   vtkIdType      *pts = 0;
   vtkIdType      npts = 0;
-  std::vector<unsigned int> indexArray;
 
   size_t triCount = cells->GetNumberOfConnectivityEntries()
     - 3*cells->GetNumberOfCells();
@@ -281,14 +292,14 @@ size_t vtkOpenGLIndexBufferObject::CreateStripIndexBuffer(
     {
     for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
       {
-      indexArray.push_back(static_cast<unsigned int>(pts[0]));
-      indexArray.push_back(static_cast<unsigned int>(pts[1]));
+      indexArray.push_back(static_cast<unsigned int>(pts[0]+vOffset));
+      indexArray.push_back(static_cast<unsigned int>(pts[1]+vOffset));
       for (int j = 0; j < npts-2; ++j)
         {
-        indexArray.push_back(static_cast<unsigned int>(pts[j]));
-        indexArray.push_back(static_cast<unsigned int>(pts[j+2]));
-        indexArray.push_back(static_cast<unsigned int>(pts[j+1]));
-        indexArray.push_back(static_cast<unsigned int>(pts[j+2]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+2]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+2]+vOffset));
         }
       }
     }
@@ -298,15 +309,12 @@ size_t vtkOpenGLIndexBufferObject::CreateStripIndexBuffer(
       {
       for (int j = 0; j < npts-2; ++j)
         {
-        indexArray.push_back(static_cast<unsigned int>(pts[j]));
-        indexArray.push_back(static_cast<unsigned int>(pts[j+1+j%2]));
-        indexArray.push_back(static_cast<unsigned int>(pts[j+1+(j+1)%2]));
+        indexArray.push_back(static_cast<unsigned int>(pts[j]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1+j%2]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(pts[j+1+(j+1)%2]+vOffset));
         }
       }
     }
-  this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
-  this->IndexCount = indexArray.size();
-  return indexArray.size();
 }
 
 // Create supporting arays that are needed when rendering cell data
@@ -436,6 +444,50 @@ void vtkOpenGLIndexBufferObject::CreateCellSupportArrays(
 }
 
 // used to create an IBO for polys in wireframe with edge flags
+void vtkOpenGLIndexBufferObject::AppendEdgeFlagIndexBuffer(
+  std::vector<unsigned int> &indexArray,
+  vtkCellArray *cells,
+  vtkIdType vOffset,
+  vtkDataArray *ef)
+{
+  vtkIdType* pts(NULL);
+  vtkIdType npts(0);
+
+  unsigned char *ucef = NULL;
+  ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
+
+  // possibly adjust size
+  if (cells->GetNumberOfConnectivityEntries() >
+      2*cells->GetNumberOfCells())
+    {
+    size_t targetSize = indexArray.size() + 2*(
+      cells->GetNumberOfConnectivityEntries()
+      - 2*cells->GetNumberOfCells());
+    if (targetSize > indexArray.capacity())
+      {
+      if (targetSize < indexArray.capacity()*1.5)
+        {
+        targetSize = indexArray.capacity()*1.5;
+        }
+      indexArray.reserve(targetSize);
+      }
+    }
+  for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
+    {
+    for (int j = 0; j < npts; ++j)
+      {
+      if (ucef[pts[j]] && npts > 1) // draw this edge and poly is not degenerate
+        {
+        // determine the ending vertex
+        vtkIdType nextVert = (j == npts-1) ? pts[0] : pts[j+1];
+        indexArray.push_back(static_cast<unsigned int>(pts[j]+vOffset));
+        indexArray.push_back(static_cast<unsigned int>(nextVert + vOffset));
+        }
+      }
+    }
+}
+
+// used to create an IBO for polys in wireframe with edge flags
 size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
   vtkCellArray *cells,
   vtkDataArray *ef)
@@ -445,25 +497,8 @@ size_t vtkOpenGLIndexBufferObject::CreateEdgeFlagIndexBuffer(
     this->IndexCount = 0;
     return 0;
     }
-  vtkIdType      *pts = 0;
-  vtkIdType      npts = 0;
   std::vector<unsigned int> indexArray;
-  unsigned char *ucef = NULL;
-  ucef = vtkArrayDownCast<vtkUnsignedCharArray>(ef)->GetPointer(0);
-  indexArray.reserve(cells->GetData()->GetSize()*2);
-  for (cells->InitTraversal(); cells->GetNextCell(npts,pts); )
-    {
-    for (int j = 0; j < npts; ++j)
-      {
-      if (ucef[pts[j]] && npts > 1) // draw this edge and poly is not degenerate
-        {
-        // determine the ending vertex
-        vtkIdType nextVert = (j == npts-1) ? pts[0] : pts[j+1];
-        indexArray.push_back(static_cast<unsigned int>(pts[j]));
-        indexArray.push_back(static_cast<unsigned int>(nextVert));
-        }
-      }
-    }
+  AppendEdgeFlagIndexBuffer(indexArray, cells, 0, ef);
   this->Upload(indexArray, vtkOpenGLIndexBufferObject::ElementArrayBuffer);
   this->IndexCount = indexArray.size();
   return indexArray.size();

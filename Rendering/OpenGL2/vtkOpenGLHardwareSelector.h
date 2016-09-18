@@ -55,6 +55,9 @@ public:
   // effect when this->UseProcessIdFromData is true.
   virtual void RenderProcessId(unsigned int processid);
 
+  // we need to initialze the depth buffer
+  virtual bool CaptureBuffers();
+
 protected:
   vtkOpenGLHardwareSelector();
   virtual ~vtkOpenGLHardwareSelector();

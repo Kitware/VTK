@@ -781,12 +781,25 @@ void vtkMapper::UseInvertibleColorFor(int scalarMode,
                                       int arrayComponent,
                                       double *scalarRange)
 {
+  vtkDataObject *dataObject = this->GetExecutive()->GetInputData(0, 0);
+  this->UseInvertibleColorFor(dataObject,
+    scalarMode, arrayAccessMode, arrayId,
+    arrayName, arrayComponent, scalarRange);
+}
+
+//-------------------------------------------------------------------
+void vtkMapper::UseInvertibleColorFor(vtkDataObject *dataObject,
+                                      int scalarMode,
+                                      int arrayAccessMode,
+                                      int arrayId,
+                                      const char *arrayName,
+                                      int arrayComponent,
+                                      double *scalarRange)
+{
   //find and hold onto the array to use later
   int cellFlag = 0; // not used
 
   vtkAbstractArray *abstractArray = NULL;
-
-  vtkDataObject *dataObject = this->GetExecutive()->GetInputData(0, 0);
 
   // Check for a regular data set
   vtkDataSet *input = vtkDataSet::SafeDownCast(dataObject);

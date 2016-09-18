@@ -387,6 +387,9 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
   bool selecting_points = selector && (selector->GetFieldAssociation() ==
     vtkDataObject::FIELD_ASSOCIATION_POINTS);
 
+  int representation = actor->GetProperty()->GetRepresentation();
+
+
 #if GL_ES_VERSION_2_0 != 1 || GL_ES_VERSION_3_0 == 1
   if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE &&
       !selector && GLEW_ARB_instanced_arrays)
@@ -398,6 +401,17 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
 #endif
 
   bool primed = false;
+
+  // First we do the triangles, update the shader, set uniforms, etc.
+  GLenum mode = (representation == VTK_POINTS) ? GL_POINTS :
+    (representation == VTK_WIREFRAME) ? GL_LINES : GL_TRIANGLES;
+  if (selecting_points)
+    {
+#if GL_ES_VERSION_2_0 != 1
+    glPointSize(6.0);
+#endif
+    mode = GL_POINTS;
+    }
 
   for (vtkIdType inPtId = 0; inPtId < numPts; inPtId++)
     {
@@ -433,34 +447,11 @@ void vtkOpenGLGlyph3DHelper::GlyphRender(
       program->SetUniform3f("mapperIndex", selector->GetPropColorValue());
       }
 
-    // First we do the triangles, update the shader, set uniforms, etc.
-    if (actor->GetProperty()->GetRepresentation() == VTK_POINTS)
-      {
-      glDrawRangeElements(GL_POINTS, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-      }
-    if (actor->GetProperty()->GetRepresentation() == VTK_WIREFRAME)
-      {
-      // TODO wireframe of triangles is not lit properly right now
-      // you either have to generate normals and send them down
-      // or use a geometry shader.
-      glDrawRangeElements(GL_LINES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-      }
-    if (actor->GetProperty()->GetRepresentation() == VTK_SURFACE)
-      {
-      glDrawRangeElements(GL_TRIANGLES, 0,
-                          static_cast<GLuint>(this->VBO->VertexCount - 1),
-                          static_cast<GLsizei>(this->Tris.IBO->IndexCount),
-                          GL_UNSIGNED_INT,
-                          reinterpret_cast<const GLvoid *>(NULL));
-      }
+    glDrawRangeElements(mode, 0,
+                        static_cast<GLuint>(this->VBO->VertexCount - 1),
+                        static_cast<GLsizei>(this->Tris.IBO->IndexCount),
+                        GL_UNSIGNED_INT,
+                        reinterpret_cast<const GLvoid *>(NULL));
     }
   if (primed)
     {

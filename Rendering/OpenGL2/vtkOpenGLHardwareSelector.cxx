@@ -17,6 +17,7 @@
 #include "vtk_glew.h"
 
 #include "vtkObjectFactory.h"
+#include "vtkDataObject.h"
 #include "vtkRenderer.h"
 #include "vtkRenderWindow.h"
 #include "vtkOpenGLRenderWindow.h"
@@ -147,6 +148,29 @@ vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector()
   cerr << "=====vtkOpenGLHardwareSelector::~vtkOpenGLHardwareSelector" << endl;
   #endif
   delete this->Internals;
+}
+
+//----------------------------------------------------------------------------
+bool vtkOpenGLHardwareSelector::CaptureBuffers()
+{
+  if (!this->Renderer)
+    {
+    vtkErrorMacro("Renderer must be set before calling Select.");
+    return false;
+    }
+
+  if (this->FieldAssociation == vtkDataObject::FIELD_ASSOCIATION_POINTS)
+    {
+    vtkRenderWindow *rwin = this->Renderer->GetRenderWindow();
+
+    this->Renderer->Clear();
+    rwin->SwapBuffersOff();
+    // do a normal render to set the zbuffer first
+    rwin->Render();
+    this->Renderer->PreserveDepthBufferOn();
+    }
+
+  return this->Superclass::CaptureBuffers();
 }
 
 //----------------------------------------------------------------------------

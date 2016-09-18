@@ -39,6 +39,12 @@
 
 int TestCompositePolyDataMapper2Scalars(int argc, char* argv[])
 {
+  bool timeit = false;
+  if (argc > 1 && argv[1] && !strcmp(argv[1], "-timeit"))
+    {
+    timeit = true;
+    }
+
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -68,8 +74,12 @@ int TestCompositePolyDataMapper2Scalars(int argc, char* argv[])
 
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
-//  int blocksPerLevel[3] = {1,64,256};
   int blocksPerLevel[3] = {1,32,64};
+  if (timeit)
+    {
+    blocksPerLevel[1] = 64;
+    blocksPerLevel[2] = 256;
+    }
   std::vector<vtkSmartPointer<vtkMultiBlockDataSet> > blocks;
   blocks.push_back(data.GetPointer());
   unsigned levelStart = 0;
@@ -99,7 +109,7 @@ int TestCompositePolyDataMapper2Scalars(int argc, char* argv[])
           // test not setting it on some
           if (block % 11)
             {
-            mapper->SetBlockOpacity(parent+numLeaves, (block + 3) % 7 == 0 ? 0.3 : 1.0);
+//            mapper->SetBlockOpacity(parent+numLeaves, (block + 3) % 7 == 0 ? 0.3 : 1.0);
             mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
             }
           ++numLeaves;
@@ -145,7 +155,7 @@ int TestCompositePolyDataMapper2Scalars(int argc, char* argv[])
 
   timer->StartTimer();
 
-  int numFrames = 2;
+  int numFrames = (timeit ? 300 : 2);
   for (int i = 0; i <= numFrames; i++)
     {
     ren->GetActiveCamera()->Elevation(40.0/numFrames);
@@ -155,8 +165,11 @@ int TestCompositePolyDataMapper2Scalars(int argc, char* argv[])
     }
 
   timer->StopTimer();
-  double t =  timer->GetElapsedTime();
-  cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
+  if (timeit)
+    {
+    double t =  timer->GetElapsedTime();
+    cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
+    }
 
   int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)

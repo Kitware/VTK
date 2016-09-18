@@ -30,24 +30,25 @@
 #include "vtkSmartPointer.h"
 #include "vtkTimerLog.h"
 #include "vtkTrivialProducer.h"
+#include "vtkPointDataToCellData.h"
 
 #include <vtkTestUtilities.h>
 #include <vtkRegressionTestImage.h>
 
-#define syntheticData
-#ifdef syntheticData
 #include "vtkCylinderSource.h"
-#else
-#include "vtkXMLMultiBlockDataReader.h"
-#endif
+#include "vtkElevationFilter.h"
+#include "vtkPlaneSource.h"
+#include "vtkAppendPolyData.h"
+#include "vtkExtractEdges.h"
 
-int TestCompositePolyDataMapper2(int argc, char* argv[])
+int TestCompositePolyDataMapper2MixedGeometryEdges(int argc, char* argv[])
 {
   bool timeit = false;
   if (argc > 1 && argv[1] && !strcmp(argv[1], "-timeit"))
     {
     timeit = true;
     }
+
   vtkSmartPointer<vtkRenderWindow> win =
     vtkSmartPointer<vtkRenderWindow>::New();
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
@@ -57,22 +58,45 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   win->AddRenderer(ren);
   win->SetInteractor(iren);
 
+  win->SetMultiSamples(0);
+
   vtkSmartPointer<vtkCompositePolyDataMapper2> mapper =
     vtkSmartPointer<vtkCompositePolyDataMapper2>::New();
   vtkNew<vtkCompositeDataDisplayAttributes> cdsa;
   mapper->SetCompositeDataDisplayAttributes(cdsa.GetPointer());
 
-#ifdef syntheticData
-
   int resolution = 18;
   vtkNew<vtkCylinderSource> cyl;
   cyl->CappingOn();
   cyl->SetRadius(0.2);
+  cyl->SetHeight(0.8);
   cyl->SetResolution(resolution);
+
+  vtkNew<vtkPlaneSource> plane;
+  plane->SetResolution(resolution, resolution);
+  plane->SetOrigin(-0.2, -0.2, 0.0);
+  plane->SetPoint1(0.2, -0.2, 0.0);
+  plane->SetPoint2(-0.2, 0.2, 0.0);
+
+  vtkNew<vtkExtractEdges> extract;
+  extract->SetInputConnection(plane->GetOutputPort());
+
+  vtkNew<vtkAppendPolyData> append;
+  append->SetUserManagedInputs(1);
+  append->SetNumberOfInputs(2);
+  append->SetInputConnectionByNumber(0, cyl->GetOutputPort());
+  append->SetInputConnectionByNumber(1, extract->GetOutputPort());
+
+  vtkNew<vtkElevationFilter> elev;
+  elev->SetInputConnection(append->GetOutputPort());
+
+  vtkNew<vtkPointDataToCellData> p2c;
+  p2c->SetInputConnection(elev->GetOutputPort());
+  p2c->PassPointDataOff();
 
   // build a composite dataset
   vtkNew<vtkMultiBlockDataSet> data;
-  int blocksPerLevel[3] = {1,32,64};
+  int blocksPerLevel[3] = {1,8,16};
   if (timeit)
     {
     blocksPerLevel[1] = 64;
@@ -97,19 +121,19 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
         if (level == numLevels - 1)
           {
           vtkNew<vtkPolyData> child;
-          cyl->SetCenter(block*0.25, 0.0, parent*0.5);
-          cyl->Update();
-          child->DeepCopy(cyl->GetOutput(0));
+          cyl->SetCenter(block*0.25, -0.3, parent*0.5);
+          plane->SetCenter(block*0.25, 0.5, parent*0.5);
+          elev->SetLowPoint(block*0.25 - 0.2 + 0.2*block/nblocks, -0.02, 0.0);
+          elev->SetHighPoint(block*0.25 + 0.1 + 0.2*block/nblocks, 0.02, 0.0);
+          p2c->Update();
+          child->DeepCopy(p2c->GetOutput(0));
           blocks[parent]->SetBlock(
             block, (block % 2) ? NULL : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
-          // test not setting it on some
+          // test not seting it on some
           if (block % 11)
             {
-            mapper->SetBlockColor(parent+numLeaves+1,
-              vtkMath::HSVToRGB(0.8*block/nblocks, 0.2 + 0.8*((parent - levelStart) % 8)/7.0, 1.0));
-//            mapper->SetBlockOpacity(parent+numLeaves, (block + 3) % 7 == 0 ? 0.3 : 1.0);
             mapper->SetBlockVisibility(parent+numLeaves, (block % 7) != 0);
             }
           ++numLeaves;
@@ -127,31 +151,13 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
     }
 
   mapper->SetInputData((vtkPolyData *)(data.GetPointer()));
-
-#else
-
-  vtkNew<vtkXMLMultiBlockDataReader> reader;
-  reader->SetFileName("C:/Users/ken.martin/Documents/vtk/data/stargate.vtm");
-  mapper->SetInputConnection(reader->GetOutputPort(0));
-
-  // stargate seems to have cell scalars but all white cell scalars
-  // are slow slow slow so do not use the unless they add value
-  mapper->ScalarVisibilityOff();
-
-  // comment the following in/out for worst/best case
-  // for (int i = 0; i < 20000; ++i)
-  //   {
-  //   mapper->SetBlockColor(i,
-  //     vtkMath::HSVToRGB(0.8*(i%100)/100.0, 1.0, 1.0));
-  //   }
-
-#endif
+  mapper->SetScalarModeToUseCellData();
 
   vtkSmartPointer<vtkActor> actor =
     vtkSmartPointer<vtkActor>::New();
   actor->SetMapper(mapper);
-  actor->GetProperty()->SetEdgeColor(1,0,0);
-//  actor->GetProperty()->EdgeVisibilityOn();
+  actor->GetProperty()->SetEdgeColor(1,1,1);
+  actor->GetProperty()->EdgeVisibilityOn();
   ren->AddActor(actor);
   win->SetSize(400,400);
 
@@ -161,13 +167,11 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   win->Render();  // get the window up
 
-#ifdef syntheticData
   // modify the data to force a rebuild of OpenGL structs
   // after rendering set one cylinder to white
-  mapper->SetBlockColor(1011,1.0,1.0,1.0);
-  mapper->SetBlockOpacity(1011,1.0);
-  mapper->SetBlockVisibility(1011,1.0);
-#endif
+  mapper->SetBlockColor(40,1.0,1.0,1.0);
+  mapper->SetBlockOpacity(40,1.0);
+  mapper->SetBlockVisibility(40,1.0);
 
   timer->StartTimer();
   win->Render();
@@ -179,9 +183,10 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
   int numFrames = (timeit ? 300 : 2);
   for (int i = 0; i <= numFrames; i++)
     {
-    ren->GetActiveCamera()->Elevation(40.0/numFrames);
-    ren->GetActiveCamera()->Zoom(pow(2.0,1.0/numFrames));
-    ren->GetActiveCamera()->Roll(20.0/numFrames);
+    ren->GetActiveCamera()->Elevation(15.0/numFrames);
+    ren->GetActiveCamera()->Azimuth(-130.0/numFrames);
+    ren->GetActiveCamera()->Zoom(pow(1.6,1.0/numFrames));
+    ren->GetActiveCamera()->Roll(0.0/numFrames);
     win->Render();
     }
 
@@ -191,6 +196,7 @@ int TestCompositePolyDataMapper2(int argc, char* argv[])
     double t =  timer->GetElapsedTime();
     cout << "Avg Frame time: " << t/numFrames << " Frame Rate: " << numFrames / t << "\n";
     }
+
   int retVal = vtkRegressionTestImageThreshold( win.GetPointer(),15);
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
     {
