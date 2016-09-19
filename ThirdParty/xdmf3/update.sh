@@ -14,6 +14,7 @@ CMake
 CMakeLists.txt
 CTestConfig.cmake
 Copyright.txt
+Xdmf.dtd
 Xdmf.hpp
 XdmfAggregate.cpp
 XdmfAggregate.hpp
