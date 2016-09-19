@@ -10,5 +10,5 @@ vtk_module(vtkRenderingExternal
   PRIVATE_DEPENDS
     vtkCommonMath
     vtkCommonTransforms
-    vtkRenderingOpenGL
+    vtkRendering${VTK_RENDERING_BACKEND}
   )
