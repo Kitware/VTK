@@ -1,3 +1,4 @@
+
 vtk_module(vtkIOSQL
   GROUPS
     StandAlone
@@ -12,9 +13,6 @@ vtk_module(vtkIOSQL
     vtkCommonExecutionModel
     vtkIOCore
   PRIVATE_DEPENDS
-    vtkCommonDataModel
-    vtkInfovisCore
-    vtkInfovisLayout
     vtksqlite
     vtksys
   )
