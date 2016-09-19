@@ -23,6 +23,7 @@
 #include "vtkPixelBufferObject.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 
 #include <cassert>
 #include <vector>
@@ -44,11 +45,19 @@ vtkFrameBufferObject::vtkFrameBufferObject()
   this->LastSize[0] = this->LastSize[1] = -1;
   this->SetActiveBuffer(0);
   this->NumberOfRenderTargets = 1;
+  this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkFrameBufferObject>(this,
+    &vtkFrameBufferObject::ReleaseGraphicsResources);
 }
 
 //----------------------------------------------------------------------------
 vtkFrameBufferObject::~vtkFrameBufferObject()
 {
+  if (this->ResourceCallback)
+    {
+    this->ResourceCallback->Release();
+    delete this->ResourceCallback;
+    this->ResourceCallback = NULL;
+    }
   this->DestroyFBO();
   this->DestroyDepthBuffer();
   this->DestroyColorBuffers();
@@ -119,6 +128,22 @@ bool vtkFrameBufferObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *)
   return fbo && fboBlit;
 }
 
+void vtkFrameBufferObject::ReleaseGraphicsResources(vtkWindow *)
+{
+  if (!this->ResourceCallback->IsReleasing())
+    {
+    this->ResourceCallback->Release();
+    return;
+    }
+
+  // free previous resources
+  this->DestroyDepthBuffer();
+  this->DestroyColorBuffers();
+  this->DestroyFBO();
+  this->Context = NULL;
+  this->Modified();
+}
+
 //----------------------------------------------------------------------------
 void vtkFrameBufferObject::SetContext(vtkOpenGLRenderWindow *renWin)
 {
@@ -127,12 +152,9 @@ void vtkFrameBufferObject::SetContext(vtkOpenGLRenderWindow *renWin)
     {
     return;
     }
-  // free previous resources
-  this->DestroyDepthBuffer();
-  this->DestroyColorBuffers();
-  this->DestroyFBO();
-  this->Context = NULL;
-  this->Modified();
+
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
+
   // all done if assigned null
   if (!renWin)
     {

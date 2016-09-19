@@ -36,6 +36,7 @@ class vtkOpenGLBufferObject;
 class vtkOpenGLVertexBufferObject;
 class vtkTextureObject;
 class vtkTransform;
+class vtkGenericOpenGLResourceFreeCallback;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLPolyDataMapper : public vtkPolyDataMapper
 {
@@ -184,6 +185,8 @@ public:
 protected:
   vtkOpenGLPolyDataMapper();
   ~vtkOpenGLPolyDataMapper();
+
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // the following is all extra stuff to work around the
   // fact that gl_PrimitiveID does not work correctly on

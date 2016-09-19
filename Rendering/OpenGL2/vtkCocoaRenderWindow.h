@@ -41,6 +41,7 @@ PURPOSE.  See the above copyright notice for more information.
 #define vtkCocoaRenderWindow_h
 
 #include "vtkRenderingOpenGL2Module.h" // For export macro
+#include <stack> // for ivar
 #include "vtkOpenGLRenderWindow.h"
 
 class VTKRENDERINGOPENGL2_EXPORT vtkCocoaRenderWindow : public vtkOpenGLRenderWindow
@@ -292,9 +293,20 @@ public:
   void SetPixelFormat(void *pixelFormat);
   void *GetPixelFormat();
 
+  // Description
+  // Ability to push and pop this window's context
+  // as the current context. The idea being to
+  // if needed make this window's context current
+  // and when done releasing resources restore
+  // the prior context
+  virtual void PushContext();
+  virtual void PopContext();
+
 protected:
   vtkCocoaRenderWindow();
   ~vtkCocoaRenderWindow();
+
+  std::stack<void *> ContextStack;
 
   void CreateGLContext();
 

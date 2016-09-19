@@ -1365,8 +1365,8 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
     result=this->Internal->OffScreenContextId==OSMesaGetCurrentContext();
     }
   else
-    {
 #endif
+    {
       if(this->OffScreenRendering && this->Internal->PixmapContextId)
         {
         result=this->Internal->PixmapContextId==glXGetCurrentContext();
@@ -1378,11 +1378,44 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
           result=this->Internal->ContextId==glXGetCurrentContext();
           }
         }
-#ifdef VTK_USE_OSMESA
     }
-#endif
   return result;
 }
+
+void vtkXOpenGLRenderWindow::PushContext()
+{
+#ifdef VTK_USE_OSMESA
+  this->MakeCurrent();
+  return;
+#else
+  GLXContext current = glXGetCurrentContext();
+  this->ContextStack.push(current);
+  this->DisplayStack.push(glXGetCurrentDisplay());
+  this->DrawableStack.push(glXGetCurrentDrawable());
+  if(this->Internal->ContextId != current)
+    {
+    this->MakeCurrent();
+    }
+#endif
+}
+
+void vtkXOpenGLRenderWindow::PopContext()
+{
+#ifndef VTK_USE_OSMESA
+  GLXContext current = glXGetCurrentContext();
+  GLXContext target = static_cast<GLXContext>(this->ContextStack.top());
+  this->ContextStack.pop();
+  if (target != current)
+    {
+    glXMakeCurrent(this->DisplayStack.top(),
+      this->DrawableStack.top(),
+      target);
+    }
+  this->DisplayStack.pop();
+  this->DrawableStack.pop();
+#endif
+}
+
 
 void vtkXOpenGLRenderWindow::SetForceMakeCurrent()
 {

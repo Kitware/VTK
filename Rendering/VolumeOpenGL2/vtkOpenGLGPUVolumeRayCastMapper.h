@@ -24,6 +24,7 @@
 class vtkOpenGLCamera;
 class vtkShaderProgram;
 class vtkTextureObject;
+class vtkGenericOpenGLResourceFreeCallback;
 
 //----------------------------------------------------------------------------
 class VTKRENDERINGVOLUMEOPENGL2_EXPORT vtkOpenGLGPUVolumeRayCastMapper :
@@ -80,6 +81,7 @@ protected:
   // Delete OpenGL objects.
   // \post done: this->OpenGLObjectsCreated==0
   virtual void ReleaseGraphicsResources(vtkWindow *window);
+  vtkGenericOpenGLResourceFreeCallback *ResourceCallback;
 
   // Description:
   // Build vertex and fragment shader for the volume rendering

@@ -26,6 +26,7 @@
 #include "vtkRenderWindow.h"
 #include <string> // for ivar
 #include <map> // for ivar
+#include <set> // for ivar
 #include "vtkType.h" // for ivar
 
 class vtkIdList;
@@ -37,6 +38,7 @@ class vtkStdString;
 class vtkTexture;
 class vtkTextureObject;
 class vtkTextureUnitManager;
+class vtkGenericOpenGLResourceFreeCallback;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkOpenGLRenderWindow : public vtkRenderWindow
 {
@@ -291,6 +293,37 @@ public:
   // should be possible to call them multiple times, even changing WindowId
   // in-between.  This is what WindowRemap does.
   virtual void Initialize(void) {};
+
+  std::set<vtkGenericOpenGLResourceFreeCallback *> Resources;
+
+  void RegisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback *cb) {
+    std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
+     = this->Resources.find(cb);
+    if (it == this->Resources.end())
+      {
+      this->Resources.insert(cb);
+      }
+  }
+
+  void UnregisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback *cb) {
+    std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
+     = this->Resources.find(cb);
+    if (it != this->Resources.end())
+      {
+      this->Resources.erase(it);
+      }
+  }
+
+  // Description:
+  // Ability to push and pop this window's context
+  // as the current context. The idea being to
+  // if needed make this window's context current
+  // and when done releasing resources restore
+  // the prior context.  The default implementation
+  // here is only meant as a backup for subclasses
+  // that lack a proper implementation.
+  virtual void PushContext() { this->MakeCurrent(); }
+  virtual void PopContext() {}
 
 protected:
   vtkOpenGLRenderWindow();

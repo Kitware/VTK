@@ -238,6 +238,30 @@ void vtkWin32OpenGLRenderWindow::MakeCurrent()
     }
 }
 
+void vtkWin32OpenGLRenderWindow::PushContext()
+{
+  HGLRC current = wglGetCurrentContext();
+  this->ContextStack.push(current);
+  this->DCStack.push(wglGetCurrentDC());
+  if (current != this->ContextId)
+    {
+    this->MakeCurrent();
+    }
+}
+
+void vtkWin32OpenGLRenderWindow::PopContext()
+{
+  HGLRC current = wglGetCurrentContext();
+  HGLRC target = this->ContextStack.top();
+  HDC dc = this->DCStack.top();
+  this->ContextStack.pop();
+  this->DCStack.pop();
+  if (target != current)
+    {
+    wglMakeCurrent(dc, target);
+    }
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.

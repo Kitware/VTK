@@ -37,6 +37,7 @@
 #include "vtkOpenGLRenderPass.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLResourceFreeCallback.h"
 #include "vtkOpenGLShaderCache.h"
 #include "vtkOpenGLTexture.h"
 #include "vtkOpenGLVertexArrayObject.h"
@@ -112,11 +113,19 @@ vtkOpenGLPolyDataMapper::vtkOpenGLPolyDataMapper()
   this->LastLightComplexity[&this->TriStripsEdges] = -1;
 
   this->TimerQuery = 0;
+  this->ResourceCallback = new vtkOpenGLResourceFreeCallback<vtkOpenGLPolyDataMapper>(this,
+    &vtkOpenGLPolyDataMapper::ReleaseGraphicsResources);
 }
 
 //-----------------------------------------------------------------------------
 vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 {
+  if (this->ResourceCallback)
+    {
+    this->ResourceCallback->Release();
+    delete this->ResourceCallback;
+    this->ResourceCallback = NULL;
+    }
   if (this->InternalColorTexture)
     { // Resources released previously.
     this->InternalColorTexture->Delete();
@@ -167,13 +176,10 @@ vtkOpenGLPolyDataMapper::~vtkOpenGLPolyDataMapper()
 //-----------------------------------------------------------------------------
 void vtkOpenGLPolyDataMapper::ReleaseGraphicsResources(vtkWindow* win)
 {
-  vtkOpenGLRenderWindow *rwin =
-   vtkOpenGLRenderWindow::SafeDownCast(win);
-  if (rwin)
+  if (!this->ResourceCallback->IsReleasing())
     {
-    // Ensure that the context is current before releasing any
-    // graphics resources tied to it.
-    rwin->MakeCurrent();
+    this->ResourceCallback->Release();
+    return;
     }
 
   this->VBO->ReleaseGraphicsResources();
@@ -2527,6 +2533,9 @@ void vtkOpenGLPolyDataMapper::RenderPiece(vtkRenderer* ren, vtkActor *actor)
     {
     return;
     }
+
+  this->ResourceCallback->RegisterGraphicsResources(
+    static_cast<vtkOpenGLRenderWindow *>(ren->GetRenderWindow()));
 
   this->CurrentInput = this->GetInput();
 

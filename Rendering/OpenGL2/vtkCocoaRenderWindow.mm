@@ -358,6 +358,29 @@ void vtkCocoaRenderWindow::MakeCurrent()
     }
 }
 
+void vtkCocoaRenderWindow::PushContext()
+{
+  NSOpenGLContext *current = [NSOpenGLContext currentContext];
+  NSOpenGLContext *mine = static_cast<NSOpenGLContext *>(this->GetContextId());
+  this->ContextStack.push(current);
+  if (current != mine)
+    {
+    this->MakeCurrent();
+    }
+}
+
+void vtkCocoaRenderWindow::PopContext()
+{
+  NSOpenGLContext *current = [NSOpenGLContext currentContext];
+  NSOpenGLContext *target =
+    static_cast<NSOpenGLContext *>(this->ContextStack.top());
+  this->ContextStack.pop();
+  if (target != current)
+    {
+    [target makeCurrentContext];
+    }
+}
+
 // ----------------------------------------------------------------------------
 // Description:
 // Tells if this window is the current OpenGL context for the calling thread.
