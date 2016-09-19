@@ -39,6 +39,7 @@
 #ifndef vtkCocoaGLView_h
 #define vtkCocoaGLView_h
 
+#include "vtkRenderingOpenGL2Module.h" // For export macro
 #import <Cocoa/Cocoa.h>
 
 // Note: This file should be includable by both pure Objective-C and Objective-C++ source files.
@@ -57,6 +58,7 @@
   typedef void *vtkCocoaRenderWindowInteractorRef;
 #endif
 
+VTKRENDERINGOPENGL2_EXPORT
 @interface vtkCocoaGLView : NSView
 {
   @private
