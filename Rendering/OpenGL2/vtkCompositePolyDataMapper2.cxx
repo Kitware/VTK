@@ -84,7 +84,8 @@ public:
       this->OverridesColor != next->OverridesColor ||
       this->AmbientColor != next->AmbientColor ||
       this->DiffuseColor != next->DiffuseColor ||
-      (primType >= 0 && this->PrimOffsets[primType+1] != next->PrimOffsets[primType]);
+      (primType >= 0 && primType <= 3 &&
+        this->PrimOffsets[primType+1] != next->PrimOffsets[primType]);
     }
 
 };

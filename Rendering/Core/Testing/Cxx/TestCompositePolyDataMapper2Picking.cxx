@@ -313,7 +313,7 @@ int TestCompositePolyDataMapper2Picking(int argc, char* argv[])
       bPrims.find(48) == bPrims.end() ||
       std::find(bPrims[48].begin(), bPrims[48].end(), 14) == bPrims[48].end() ||
       bPrims.find(97) == bPrims.end() ||
-      std::find(bPrims[97].begin(), bPrims[97].end(), 42) == bPrims[97].end()
+      std::find(bPrims[82].begin(), bPrims[82].end(), 114) == bPrims[82].end()
       )
     {
     cerr << "Incorrect pick results (if any picks were performed inter"
