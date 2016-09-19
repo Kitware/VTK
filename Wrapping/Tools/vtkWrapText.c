@@ -547,6 +547,8 @@ const char *vtkWrapText_FormatComment(
               strncmp(&cp[l+1], "cmdparam", 8) == 0 ||
               strncmp(&cp[l+1], "exception", 9) == 0 ||
               strncmp(&cp[l+1], "return", 6) == 0 ||
+              strncmp(&cp[l+1], "warning", 7) == 0 ||
+              strncmp(&cp[l+1], "sa", 2) == 0 ||
               strncmp(&cp[l+1], "li", 2) == 0)
             {
             nojoin = 2;
@@ -742,6 +744,14 @@ const char *vtkWrapText_FormatComment(
           indent = 0;
           i += 2;
           j = text->len;
+          }
+        else if (strncmp(&cp[i+1], "brief", 5) == 0)
+          {
+          i += 6;
+          while (cp[i] == ' ' || cp[i] == '\r' || cp[i] == '\t')
+            {
+            i++;
+            }
           }
         else if (strncmp(&cp[i+1], "code", 4) == 0)
           {
