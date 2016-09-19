@@ -18,8 +18,8 @@ tf.SetInputConnection(ps.GetOutputPort())
 attr = vtk.vtkRandomAttributeGenerator()
 attr.SetInputConnection(tf.GetOutputPort())
 attr.GeneratePointScalarsOn()
-attr.SetMinimumComponentValue(-1)
-attr.SetMaximumComponentValue(1)
+attr.SetMinimumComponentValue(-0.05)
+attr.SetMaximumComponentValue(0.05)
 
 # This jitters the geometry
 warp = vtk.vtkWarpScalar()
@@ -34,7 +34,7 @@ deci.AttributeErrorMetricOn()
 deci.VolumePreservationOff()
 
 mapper = vtk.vtkPolyDataMapper()
-mapper.SetInputConnection(deci.GetOutputPort())
+mapper.SetInputConnection(warp.GetOutputPort())
 
 actor = vtk.vtkActor()
 actor.SetMapper(mapper)
@@ -47,20 +47,31 @@ deci2.AttributeErrorMetricOn()
 deci2.VolumePreservationOn()
 
 mapper2 = vtk.vtkPolyDataMapper()
-mapper2.SetInputConnection(deci2.GetOutputPort())
+mapper2.SetInputConnection(deci.GetOutputPort())
 
 actor2 = vtk.vtkActor()
 actor2.SetMapper(mapper2)
 
+# Original noisy surface
+#
+mapper3 = vtk.vtkPolyDataMapper()
+mapper3.SetInputConnection(deci2.GetOutputPort())
+
+actor3 = vtk.vtkActor()
+actor3.SetMapper(mapper3)
+
 # Create rendering instances
 #
 ren0 = vtk.vtkRenderer()
-ren0.SetViewport(0,0,.5,1)
+ren0.SetViewport(0,0,.33,1)
 ren1 = vtk.vtkRenderer()
-ren1.SetViewport(0.5,0,1,1)
+ren1.SetViewport(0.33,0,0.66,1)
+ren2 = vtk.vtkRenderer()
+ren2.SetViewport(0.66,0,1,1)
 renWin = vtk.vtkRenderWindow()
 renWin.AddRenderer(ren0)
 renWin.AddRenderer(ren1)
+renWin.AddRenderer(ren2)
 
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
@@ -70,15 +81,19 @@ iren.SetRenderWindow(renWin)
 camera = vtk.vtkCamera()
 camera.SetFocalPoint(0,0,0)
 camera.SetPosition(0,0,1)
+camera.Elevation(45.0)
 ren0.SetActiveCamera(camera)
 ren1.SetActiveCamera(camera)
+ren2.SetActiveCamera(camera)
 
 # Add the actors to the renderer, set the background and size
 #
 ren0.AddActor(actor)
 ren1.AddActor(actor2)
+ren2.AddActor(actor3)
 ren0.SetBackground(0,0,0)
 ren1.SetBackground(0,0,0)
+ren2.SetBackground(0,0,0)
 renWin.SetSize(600,300)
 ren0.ResetCamera()
 renWin.Render()
