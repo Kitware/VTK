@@ -75,6 +75,8 @@ public:
     { this->SetBlendMode( vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND ); }
   void SetBlendModeToMinimumIntensity()
     { this->SetBlendMode( vtkVolumeMapper::MINIMUM_INTENSITY_BLEND ); }
+  void SetBlendModeToAverageIntensity()
+    { this->SetBlendMode( vtkVolumeMapper::AVERAGE_INTENSITY_BLEND ); }
   void SetBlendModeToAdditive()
     { this->SetBlendMode( vtkVolumeMapper::ADDITIVE_BLEND ); }
   vtkGetMacro( BlendMode, int );
@@ -154,6 +156,7 @@ public:
     COMPOSITE_BLEND,
     MAXIMUM_INTENSITY_BLEND,
     MINIMUM_INTENSITY_BLEND,
+    AVERAGE_INTENSITY_BLEND,
     ADDITIVE_BLEND
   };
 
