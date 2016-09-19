@@ -65,7 +65,10 @@ set(SO_REVISION "${LIBTIFF_REVISION}")
 message(STATUS "Building tiff version ${LIBTIFF_MAJOR_VERSION}.${LIBTIFF_MINOR_VERSION}.${LIBTIFF_MICRO_VERSION}${LIBTIFF_ALPHA_VERSION}")
 message(STATUS "libtiff library version ${SO_MAJOR}.${SO_MINOR}.${SO_REVISION}")
 
+# XXX(kitware): build tiff using as how vtk is being built
+if(FALSE)
 set(BUILD_SHARED_LIBS ON CACHE BOOL "Build shared libraries")
+endif()
 
 # Project version
 project(tiff C)
@@ -122,6 +125,11 @@ set(EXTRA_DIST
   nmake.opt
   libtiff-4.pc.in)
 
+
+if(TRUE)# XXX(kitware): make cache variables stack variables
+  set(extra-warnings OFF)
+  set(fatal-warnings OFF)
+else()
 # These are annoyingly verbose, produce false positives or don't work
 # nicely with all supported compiler versions, so are disabled unless
 # explicitly enabled.
@@ -129,6 +137,7 @@ option(extra-warnings "Enable extra compiler warnings" OFF)
 
 # This will cause the compiler to fail when an error occurs.
 option(fatal-warnings "Compiler warnings are errors" OFF)
+endif()
 
 # Check if the compiler supports each of the following additional
 # flags, and enable them if supported.  This greatly improves the
@@ -188,7 +197,9 @@ if(MSVC)
 endif()
 endif ()
 
-option(ld-version-script "Enable linker version script" ON)
+# XXX(kitware): make cache variables stack variables
+set(ld-version-script ON)
+#option(ld-version-script "Enable linker version script" ON)
 # Check if LD supports linker scripts.
 file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/conftest.map" "VERS_1 {
         global: sym;
@@ -217,6 +228,8 @@ endif ()
 
 # Find libm, if available
 find_library(M_LIBRARY m)
+# XXX(kitware): drop the flag for Xcode.
+mark_as_advanced(M_LIBRARY)
 
 check_include_file(assert.h    HAVE_ASSERT_H)
 check_include_file(dlfcn.h     HAVE_DLFCN_H)
@@ -489,6 +502,16 @@ set(LIBTIFF_DOCDIR "${CMAKE_INSTALL_FULL_DOCDIR}")
 
 # Options to enable and disable internal codecs
 
+if(TRUE)# XXX(kitware): make cache variables stack variables
+  set(CCITT_SUPPORT ON)
+  set(PACKBITS_SUPPORT ON)
+  set(LZW_SUPPORT ON)
+  set(THUNDER_SUPPORT ON)
+  set(NEXT_SUPPORT ON)
+  set(LOGLUV_SUPPORT ON)
+  set(MDI_SUPPORT ON)
+else()
+
 option(ccitt "support for CCITT Group 3 & 4 algorithms" ON)
 set(CCITT_SUPPORT ${ccitt})
 
@@ -511,6 +534,9 @@ set(LOGLUV_SUPPORT ${logluv})
 option(mdi "support for Microsoft Document Imaging" ON)
 set(MDI_SUPPORT ${mdi})
 
+endif()
+
+
 # XXX(kitware): defer finding jpeg and zlib to vtk/thirdparty
 #
 set(zlib OFF) #explicitly turn off to override existing cached variables
@@ -522,7 +548,7 @@ set(ZLIB_LIBRARIES ${vtkzlib_LIBRARIES})
 set(JPEG_LIBRARIES ${vtkjpeg_LIBRARIES})
 
 # ZLIB
-option(zlib "use zlib (required for Deflate compression)" OFF)
+# option(zlib "use zlib (required for Deflate compression)" OFF)
 if (zlib)
   find_package(ZLIB)
 endif()
@@ -534,7 +560,9 @@ set(ZIP_SUPPORT ${ZLIB_SUPPORT})
 # Option for Pixar log-format algorithm
 
 # Pixar log format
-option(pixarlog "support for Pixar log-format algorithm (requires Zlib)" ON)
+# XXX(kitware): make cache variables stack variables
+set(pixarlog ON)
+#option(pixarlog "support for Pixar log-format algorithm (requires Zlib)" ON)
 set(PIXARLOG_SUPPORT FALSE)
 if (ZLIB_SUPPORT)
   if(pixarlog)
@@ -543,7 +571,9 @@ if (ZLIB_SUPPORT)
 endif()
 
 # JPEG
-option(jpeg "use libjpeg (required for JPEG compression)" OFF)
+# XXX(kitware): make cache variables stack variables
+set(jpeg OFF)
+#option(jpeg "use libjpeg (required for JPEG compression)" OFF)
 if (jpeg)
   find_package(JPEG)
 endif()
@@ -552,7 +582,9 @@ if(JPEG_FOUND)
   set(JPEG_SUPPORT TRUE)
 endif()
 
-option(old-jpeg "support for Old JPEG compression (read-only)" OFF)
+# XXX(kitware): make cache variables stack variables
+set(old-jpeg OFF)
+#option(old-jpeg "support for Old JPEG compression (read-only)" OFF)
 set(OJPEG_SUPPORT FALSE)
 if (JPEG_SUPPORT)
   if (old-jpeg)
@@ -561,7 +593,9 @@ if (JPEG_SUPPORT)
 endif()
 
 # JBIG-KIT
-option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" OFF)
+# XXX(kitware): make cache variables stack variables
+set(jbig OFF)
+#option(jbig "use ISO JBIG compression (requires JBIT-KIT library)" OFF)
 if (jbig)
   set(JBIG_FOUND 0)
   find_path(JBIG_INCLUDE_DIR jbig.h)
@@ -589,7 +623,8 @@ set(CMAKE_REQUIRED_LIBRARIES ${CMAKE_REQUIRED_LIBRARIES_SAVE})
 set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES_SAVE})
 
 # liblzma2
-option(lzma "use liblzma (required for LZMA2 compression)" OFF)
+#XXX(kitware): make cache variables stack variables
+#option(lzma "use liblzma (required for LZMA2 compression)" OFF)
 if (lzma)
   find_package(LibLZMA)
 endif()
@@ -599,10 +634,15 @@ if(LIBLZMA_FOUND)
 endif()
 
 # 8/12-bit jpeg mode
-option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate
-12-bit libjpeg build)" OFF)
-set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
-set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
+# XXX(kitware): make cache variables stack variables
+set(jpeg12 OFF)
+set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND)
+set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND)
+#option(jpeg12 "enable libjpeg 8/12-bit dual mode (requires separate 12-bit libjpeg build)" OFF)
+#set(JPEG12_INCLUDE_DIR JPEG12_INCLUDE_DIR-NOTFOUND CACHE PATH "Include directory for 12-bit libjpeg")
+#set(JPEG12_LIBRARY JPEG12_LIBRARY-NOTFOUND CACHE FILEPATH "12-bit libjpeg library")
+
+
 set(JPEG12_FOUND FALSE)
 if (JPEG12_INCLUDE_DIR AND JPEG12_LIBRARY)
   set(JPEG12_LIBRARIES ${JPEG12_LIBRARY})
@@ -614,7 +654,9 @@ if (JPEG12_FOUND)
 endif()
 
 # C++ support
-option(cxx "Enable C++ stream API building (requires C++ compiler)" ON)
+# XXX(kitware): make cache variables stack variables
+set(cxx ON)
+#option(cxx "Enable C++ stream API building (requires C++ compiler)" ON)
 set(CXX_SUPPORT FALSE)
 if (cxx)
   enable_language(CXX)
@@ -642,7 +684,10 @@ set(win32_io FALSE)
 if(WIN32)
   set(win32_io TRUE)
 endif()
-set(USE_WIN32_FILEIO ${win32_io} CACHE BOOL "Use win32 IO system (Microsoft Windows only)")
+
+# XXX(kitware): make cache variables stack variables
+set(USE_WIN32_FILEIO ${win32_io})
+#set(USE_WIN32_FILEIO ${win32_io} CACHE BOOL "Use win32 IO system (Microsoft Windows only)")
 if (USE_WIN32_FILEIO)
   set(USE_WIN32_FILEIO TRUE)
 else()
@@ -652,6 +697,23 @@ endif()
 # Orthogonal features
 
 # Strip chopping
+if(TRUE)# XXX(kitware): make cache variables stack variables
+  set(STRIPCHOP_DEFAULT TRUE)
+  set(TIFF_DEFAULT_STRIP_SIZE 8192)
+  set(STRIP_SIZE_DEFAULT "${TIFF_DEFAULT_STRIP_SIZE}")
+
+  set(DEFER_STRILE_LOAD OFF)
+
+  set(CHUNKY_STRIP_READ_SUPPORT OFF)
+
+  # SUBIFD support
+  set(SUBIFD_SUPPORT 1)
+
+  set(DEFAULT_EXTRASAMPLE_AS_ALPHA 1)
+
+  set(CHECK_JPEG_YCBCR_SUBSAMPLING 1)
+
+else()
 option(strip-chopping "strip chopping (whether or not to convert single-strip uncompressed images to mutiple strips of specified size to reduce memory usage)" ON)
 set(TIFF_DEFAULT_STRIP_SIZE 8192 CACHE STRING "default size of the strip in bytes (when strip chopping is enabled)")
 
@@ -687,6 +749,7 @@ if (check-ycbcr-subsampling)
   set(CHECK_JPEG_YCBCR_SUBSAMPLING 1)
 endif()
 
+endif()
 if (FALSE) # XXX(kitware): no need for a pkg-config file
 # Generate pkg-config file
 set(prefix "${CMAKE_INSTALL_PREFIX}")

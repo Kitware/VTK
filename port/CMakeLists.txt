@@ -52,7 +52,9 @@ if(NOT HAVE_STRTOULL)
   list(APPEND port_USED_FILES strtoull.c)
 endif()
 
+if(FALSE) # XXX(kitware): Not building tools, don't need the port library
 add_library(port STATIC ${port_USED_FILES})
+endif()
 
 foreach(file ${port_USED_FILES})
   list(APPEND tiff_port_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/${file}")
