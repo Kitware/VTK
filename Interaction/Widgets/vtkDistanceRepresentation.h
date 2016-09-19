@@ -93,6 +93,16 @@ public:
   vtkGetStringMacro(LabelFormat);
 
   // Description:
+  // Set the scale factor from VTK world coordinates. The ruler marks and label
+  // will be defined in terms of the scaled space. For example, if the VTK world
+  // coordinates are assumed to be in inches, but the desired distance units
+  // should be defined in terms of centimeters, the scale factor should be set
+  // to 0.3937. The ruler marks will then be spaced in terms of centimeters, and
+  // the label will contain the measurement in centimeters.
+  vtkSetMacro(Scale,double);
+  vtkGetMacro(Scale,double);
+
+  // Description:
   // Enable or disable ruler mode. When enabled, the ticks on the distance widget
   // are separated by the amount specified by RulerDistance. Otherwise, the ivar
   // NumberOfRulerTicks is used to draw the tick marks.
@@ -139,6 +149,10 @@ protected:
 
   // Format for printing the distance
   char *LabelFormat;
+
+  // Scale to change from the VTK world coordinates to the desired coordinate
+  // system.
+  double Scale;
 
   // Ruler related stuff
   int RulerMode;
