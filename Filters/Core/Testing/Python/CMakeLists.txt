@@ -14,6 +14,7 @@ vtk_add_test_python(
   Delaunay3D.py
   Delaunay3DAlphaTest.py
   QuadricDecimation.py
+  QuadricDecimation2.py
   StreamPolyData.py
   TestElevationFilter.py
   TestFlyingEdges2D.py

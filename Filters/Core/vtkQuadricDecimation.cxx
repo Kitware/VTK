@@ -66,6 +66,7 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->EndPoint1List = vtkIdList::New();
   this->EndPoint2List = vtkIdList::New();
   this->ErrorQuadrics = NULL;
+  this->VolumeConstraints = NULL;
   this->TargetPoints = vtkDoubleArray::New();
 
   this->TargetReduction = 0.9;
@@ -73,6 +74,7 @@ vtkQuadricDecimation::vtkQuadricDecimation()
   this->NumberOfComponents = 0;
 
   this->AttributeErrorMetric = 0;
+  this->VolumePreservation = 0;
   this->ScalarsAttribute = 1;
   this->VectorsAttribute = 1;
   this->NormalsAttribute = 1;
@@ -200,7 +202,7 @@ int vtkQuadricDecimation::RequestData(
   vtkIdType npts, *pts;
   vtkIdType numDeletedTris=0;
 
-  // check some assuptiona about the data
+  // check some assumptions about the data
   if (input->GetPolys() == NULL || input->GetPoints() == NULL ||
       input->GetPointData() == NULL  || input->GetFieldData() == NULL)
     {
@@ -238,6 +240,16 @@ int vtkQuadricDecimation::RequestData(
 
   this->ErrorQuadrics =
     new vtkQuadricDecimation::ErrorQuadric[numPts];
+  if (this->VolumePreservation)
+    {
+    this->VolumeConstraints =
+      new double[numPts * 4];
+
+    for (i = 0; i < numPts * 4; i++)
+      {
+      this->VolumeConstraints[i] = 0.0;
+      }
+    }
 
   vtkDebugMacro(<<"Computing Edges");
   this->Edges->InitEdgeInsertion(numPts, 1); // storing edge id as attribute
@@ -268,19 +280,19 @@ int vtkQuadricDecimation::RequestData(
     {
     this->ComputeNumberOfComponents();
     }
-  x = new double [3+this->NumberOfComponents];
+  x = new double [3+this->NumberOfComponents+this->VolumePreservation];
   this->CollapseCellIds = vtkIdList::New();
-  this->TempX = new double [3+this->NumberOfComponents];
-  this->TempQuad = new double[11 + 4 * this->NumberOfComponents];
+  this->TempX = new double [3+this->NumberOfComponents+this->VolumePreservation];
+  this->TempQuad = new double[11 + 4 * this->NumberOfComponents+this->VolumePreservation];
 
-  this->TempB = new double [3 +  this->NumberOfComponents];
-  this->TempA = new double*[3 +  this->NumberOfComponents];
-  this->TempData = new double [(3 +  this->NumberOfComponents)*(3 +  this->NumberOfComponents)];
-  for (i = 0; i < 3 +  this->NumberOfComponents; i++)
+  this->TempB = new double [3 +  this->NumberOfComponents+this->VolumePreservation];
+  this->TempA = new double*[3 +  this->NumberOfComponents+this->VolumePreservation];
+  this->TempData = new double [(3 +  this->NumberOfComponents+this->VolumePreservation)*(3 +  this->NumberOfComponents+VolumePreservation)];
+  for (i = 0; i < 3 +  this->NumberOfComponents+this->VolumePreservation; i++)
     {
-    this->TempA[i] = this->TempData+i*(3 +  this->NumberOfComponents);
+    this->TempA[i] = this->TempData+i*(3 +  this->NumberOfComponents+this->VolumePreservation);
     }
-  this->TargetPoints->SetNumberOfComponents(3+this->NumberOfComponents);
+  this->TargetPoints->SetNumberOfComponents(3+this->NumberOfComponents+this->VolumePreservation);
 
   vtkDebugMacro(<<"Computing Quadrics");
   this->InitializeQuadrics(numPts);
@@ -363,6 +375,9 @@ int vtkQuadricDecimation::RequestData(
     delete [] this->ErrorQuadrics[i].Quadric;
     }
   delete [] this->ErrorQuadrics;
+
+  if (this->VolumePreservation)
+    delete[] this->VolumeConstraints;
   delete [] x;
   this->CollapseCellIds->Delete();
   delete [] this->TempX;
@@ -425,7 +440,7 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
   A[2] = data+8;
   A[3] = data+12;
 
-  // allocate local QEM sparce matrix
+  // allocate local QEM sparse matrix
   QEM = new double[11 + 4 * this->NumberOfComponents];
 
   // clear and allocate global QEM array
@@ -552,15 +567,27 @@ void vtkQuadricDecimation::InitializeQuadrics(vtkIdType numPts)
         }
       }
 
-      // add the QEM to all point of the face
+    // add the QEM to all points of the face
     for (i = 0; i < 3; i++)
       {
       for (j = 0; j < 11 + 4 * this->NumberOfComponents; j++)
         {
         this->ErrorQuadrics[pts[i]].Quadric[j] += QEM[j] * triArea2;
         }
-      }
-    }//for all triangles
+
+      // Set volume constraint values g_vol and d_vol
+      if (this->VolumePreservation)
+      {
+        // Vector g_vol
+        for (j = 0; j < 3; j++)
+          {
+          this->VolumeConstraints[pts[i] * 4 + j] += n[j] * triArea2 * 2.0; // triangle normal with length triArea * 2
+          }
+        // Scalar d_vol
+        this->VolumeConstraints[pts[i] * 4 + 3] += -d * triArea2 * 2.0; // (triangle normal with length triArea * 2) * (pts[0] position)
+        }
+     }
+  }//for all triangles
 
   delete [] QEM;
 }
@@ -660,6 +687,14 @@ void vtkQuadricDecimation::AddQuadric(vtkIdType oldPtId, vtkIdType newPtId)
     this->ErrorQuadrics[newPtId].Quadric[i] +=
       this->ErrorQuadrics[oldPtId].Quadric[i];
     }
+
+  if (this->VolumePreservation)
+  {
+    for (i = 0; i < 4; i++)
+      {
+      this->VolumeConstraints[newPtId * 4 + i] += this->VolumeConstraints[oldPtId * 4 + i];
+      }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -890,7 +925,7 @@ double vtkQuadricDecimation::ComputeCost(vtkIdType edgeId, double *x)
 double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
 {
   // this function is so ugly because the functionality of converting an QEM
-  // into a dence matrix was not extracted into a separate function and
+  // into a dense matrix was not extracted into a separate function and
   // neither was multiplication and some other matrix and vector primitives
   static const double errorNumber = 1e-10;
   vtkIdType pointIds[2];
@@ -908,7 +943,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
     }
 
   // copy the temp quad into TempA
-  // converting from the sparce matrix format into a dence
+  // converting from the sparse matrix format into a dense
   this->TempA[0][0] = this->TempQuad[0];
   this->TempA[0][1] = this->TempA[1][0] = this->TempQuad[1];
   this->TempA[0][2] = this->TempA[2][0] = this->TempQuad[2];
@@ -928,6 +963,8 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
     this->TempB[i] = -this->TempQuad[11+4*(i-3)+3];
     }
 
+
+  // Set zero to all components of the submatrix a[3:n;3:n] and al to its diagonal
   for (i = 3; i < 3 +  this->NumberOfComponents; i++)
     {
     for (j = 3; j < 3 +  this->NumberOfComponents; j++)
@@ -942,8 +979,30 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
         }
       }
     }
+  if (this->VolumePreservation)
+  {
+    // Add row/col for volume constraint
+    for (i = 0; i < 3 + this->NumberOfComponents + 1; i++)
+      {
+      if (i >= 3)
+      {
+        this->TempA[i][3 + this->NumberOfComponents] = 0;
+        this->TempA[3 + this->NumberOfComponents][i] = 0;
+      }
+      else
+      {
+        this->TempA[i][3 + this->NumberOfComponents] = this->VolumeConstraints[pointIds[0] * 4 + i];
+        this->TempA[3 + this->NumberOfComponents][i] = this->VolumeConstraints[pointIds[0] * 4 + i];
+        this->TempA[i][3 + this->NumberOfComponents] += this->VolumeConstraints[pointIds[1] * 4 + i];
+        this->TempA[3 + this->NumberOfComponents][i] += this->VolumeConstraints[pointIds[1] * 4 + i];
+      }
+    }
+    // Add constraint to b
+    this->TempB[3 + this->NumberOfComponents] = this->VolumeConstraints[pointIds[0] * 4 + 3];
+    this->TempB[3 + this->NumberOfComponents] += this->VolumeConstraints[pointIds[1] * 4 + 3];
+  }
 
-  for (i = 0; i < 3 + this->NumberOfComponents; i++)
+  for (i = 0; i < 3 + this->NumberOfComponents + this->VolumePreservation; i++)
     {
     x[i] = this->TempB[i];
     }
@@ -951,7 +1010,7 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
   // solve A*x = b
   // this clobers A
   // need to develop a quality of the solution test??
-  solveOk = vtkMath::SolveLinearSystem(this->TempA, x, 3 +  this->NumberOfComponents);
+  solveOk = vtkMath::SolveLinearSystem(this->TempA, x, 3 + this->NumberOfComponents + this->VolumePreservation);
 
   // need to copy back into A
   this->TempA[0][0] = this->TempQuad[0];
@@ -982,6 +1041,25 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
         }
       }
     }
+  if (this->VolumePreservation)
+  {
+    // Add row/col for volume constraint
+    for (i = 0; i < 3 + this->NumberOfComponents + 1; i++)
+      {
+      if (i >= 3)
+      {
+        this->TempA[i][3 + this->NumberOfComponents] = 0;
+        this->TempA[3 + this->NumberOfComponents][i] = 0;
+      }
+      else
+      {
+        this->TempA[i][3 + this->NumberOfComponents] = this->VolumeConstraints[pointIds[0] * 4 + i];
+        this->TempA[3 + this->NumberOfComponents][i] = this->VolumeConstraints[pointIds[0] * 4 + i];
+        this->TempA[i][3 + this->NumberOfComponents] += this->VolumeConstraints[pointIds[1] * 4 + i];
+        this->TempA[3 + this->NumberOfComponents][i] += this->VolumeConstraints[pointIds[1] * 4 + i];
+      }
+    }
+  }
 
   // check for failure to solve the system
   if (!solveOk)
@@ -1067,15 +1145,15 @@ double vtkQuadricDecimation::ComputeCost2(vtkIdType edgeId, double *x)
 
   // Compute the cost
   // x'*A*x - 2*b*x + d
-  for (i = 0; i < 3+this->NumberOfComponents; i++)
+  for (i = 0; i < 3+this->NumberOfComponents + this->VolumePreservation; i++)
     {
     cost += this->TempA[i][i]*x[i]*x[i];
-    for (j = i+1; j < 3+this->NumberOfComponents; j++)
+    for (j = i+1; j < 3+this->NumberOfComponents + this->VolumePreservation; j++)
       {
       cost += 2.0*this->TempA[i][j]*x[i]*x[j];
       }
     }
-  for (i = 0; i < 3+this->NumberOfComponents; i++)
+  for (i = 0; i < 3+this->NumberOfComponents + this->VolumePreservation; i++)
     {
     cost -=  2.0 * this->TempB[i]*x[i];
     }
@@ -1357,6 +1435,8 @@ void vtkQuadricDecimation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Attribute Error Metric: "
      << (this->AttributeErrorMetric ? "On\n" : "Off\n");
+  os << indent << "Volume Preservation: "
+    << (this->VolumePreservation ? "On\n" : "Off\n");
   os << indent << "Scalars Attribute: "
      << (this->ScalarsAttribute ? "On\n" : "Off\n");
   os << indent << "Vectors Attribute: "
