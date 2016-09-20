@@ -2677,7 +2677,7 @@ void vtkOpenGLPolyDataMapper::UpdateBufferObjects(vtkRenderer *ren, vtkActor *ac
   // Checks for the pass's rendering mode and updates its configuration.
   // Depending on the case, updates the mapper's color mapping or allocates
   // a buffer.
-  this->ValuePassHelper->UpdateConfiguration(ren, act, this);
+  this->ValuePassHelper->UpdateConfiguration(ren, act, this, this->CurrentInput);
 
   // Rebuild buffers if needed
   if (this->GetNeedToRebuildBufferObjects(ren,act))
