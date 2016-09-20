@@ -35,6 +35,7 @@
 #include "vtkVolumeCollection.h" // Needed for access in inline members
 #include "vtkActorCollection.h" // Needed for access in inline members
 
+class vtkFXAAOptions;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkCuller;
@@ -535,23 +536,9 @@ public:
   vtkBooleanMacro(UseFXAA, bool)
 
   // Description:
-  // Tuning parameters for FXAA. See vtkOpenGLFXAAFilter.h for documentation
-  // and suggested values.
-  vtkSetClampMacro(FXAARelativeContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(FXAARelativeContrastThreshold, float)
-  vtkSetClampMacro(FXAAHardContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(FXAAHardContrastThreshold, float)
-  vtkSetClampMacro(FXAASubpixelBlendLimit, float, 0.f, 1.f)
-  vtkGetMacro(FXAASubpixelBlendLimit, float)
-  vtkSetClampMacro(FXAASubpixelContrastThreshold, float, 0.f, 1.f)
-  vtkGetMacro(FXAASubpixelContrastThreshold, float)
-  vtkSetClampMacro(FXAAEndpointSearchIterations, int, 0, VTK_INT_MAX)
-  vtkGetMacro(FXAAEndpointSearchIterations, int)
-  vtkSetMacro(FXAAUseHighQualityEndpoints, bool)
-  vtkGetMacro(FXAAUseHighQualityEndpoints, bool)
-  vtkBooleanMacro(FXAAUseHighQualityEndpoints, bool)
-  vtkSetMacro(FXAADebugOption, int)
-  vtkGetMacro(FXAADebugOption, int)
+  // The configuration object for FXAA antialiasing.
+  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
+  virtual void SetFXAAOptions(vtkFXAAOptions*);
 
   // Description:
   // Turn on/off rendering of shadows if supported
@@ -722,15 +709,8 @@ protected:
   bool UseFXAA;
 
   // Description:
-  // Parameters for FXAA. See vtkOpenGLFXAAFilter.h for documentation and
-  // suggested values.
-  float FXAARelativeContrastThreshold;
-  float FXAAHardContrastThreshold;
-  float FXAASubpixelBlendLimit;
-  float FXAASubpixelContrastThreshold;
-  int FXAAEndpointSearchIterations;
-  bool FXAAUseHighQualityEndpoints;
-  int FXAADebugOption;
+  // Holds the FXAA configuration.
+  vtkFXAAOptions *FXAAOptions;
 
   // Description:
   // If this flag is on and the rendering engine supports it render shadows

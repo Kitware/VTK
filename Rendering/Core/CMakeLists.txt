@@ -25,6 +25,7 @@ set(Module_SRCS
   vtkFollower.cxx
   vtkFrameBufferObjectBase.cxx
   vtkFrustumCoverageCuller.cxx
+  vtkFXAAOptions.cxx
   vtkGenericRenderWindowInteractor.cxx
   vtkGenericVertexAttributeMapping.cxx
   vtkGlyph3DMapper.cxx

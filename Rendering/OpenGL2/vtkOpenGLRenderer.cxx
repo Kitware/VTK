@@ -238,21 +238,10 @@ int vtkOpenGLRenderer::UpdateGeometry()
       {
       this->FXAAFilter = vtkOpenGLFXAAFilter::New();
       }
-
-    this->FXAAFilter->SetRelativeContrastThreshold(
-          this->FXAARelativeContrastThreshold);
-    this->FXAAFilter->SetHardContrastThreshold(
-          this->FXAAHardContrastThreshold);
-    this->FXAAFilter->SetSubpixelBlendLimit(
-          this->FXAASubpixelBlendLimit);
-    this->FXAAFilter->SetSubpixelContrastThreshold(
-          this->FXAASubpixelContrastThreshold);
-    this->FXAAFilter->SetEndpointSearchIterations(
-          this->FXAAEndpointSearchIterations);
-    this->FXAAFilter->SetUseHighQualityEndpoints(
-          this->FXAAUseHighQualityEndpoints);
-    this->FXAAFilter->SetDebugOptionValue(
-          static_cast<vtkOpenGLFXAAFilter::DebugOption>(this->FXAADebugOption));
+    if (this->FXAAOptions)
+      {
+      this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
+      }
 
     this->FXAAFilter->Execute(this);
     }

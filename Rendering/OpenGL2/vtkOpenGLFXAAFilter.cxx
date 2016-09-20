@@ -17,6 +17,7 @@
 
 #include "vtk_glew.h"
 
+#include "vtkFXAAOptions.h"
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
@@ -45,6 +46,49 @@ vtkStandardNewMacro(vtkOpenGLFXAAFilter)
 void vtkOpenGLFXAAFilter::PrintSelf(std::ostream &os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
+
+  os << indent << "RelativeContrastThreshold: "
+     << this->RelativeContrastThreshold << "\n";
+  os << indent << "HardContrastThreshold: "
+     << this->HardContrastThreshold << "\n";
+  os << indent << "SubpixelBlendLimit: " <<
+        this->SubpixelBlendLimit << "\n";
+  os << indent << "SubpixelContrastThreshold: "
+     << this->SubpixelContrastThreshold << "\n";
+  os << indent << "EndpointSearchIterations: "
+     << this->EndpointSearchIterations << "\n";
+  os << indent << "UseHighQualityEndpoints: "
+     << this->UseHighQualityEndpoints << "\n";
+
+  os << indent << "DebugOptionValue: ";
+  switch (this->DebugOptionValue)
+    {
+    default:
+    case vtkFXAAOptions::FXAA_NO_DEBUG:
+      os << "FXAA_NO_DEBUG\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_SUBPIXEL_ALIASING:
+      os << "FXAA_DEBUG_SUBPIXEL_ALIASING\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_EDGE_DIRECTION:
+      os << "FXAA_DEBUG_EDGE_DIRECTION\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_EDGE_NUM_STEPS:
+      os << "FXAA_DEBUG_EDGE_NUM_STEPS\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_EDGE_DISTANCE:
+      os << "FXAA_DEBUG_EDGE_DISTANCE\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_EDGE_SAMPLE_OFFSET:
+      os << "FXAA_DEBUG_EDGE_SAMPLE_OFFSET\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_ONLY_SUBPIX_AA:
+      os << "FXAA_DEBUG_ONLY_SUBPIX_AA\n";
+      break;
+    case vtkFXAAOptions::FXAA_DEBUG_ONLY_EDGE_AA:
+      os << "FXAA_DEBUG_ONLY_EDGE_AA\n";
+      break;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -79,6 +123,20 @@ void vtkOpenGLFXAAFilter::ReleaseGraphicsResources()
 }
 
 //------------------------------------------------------------------------------
+void vtkOpenGLFXAAFilter::UpdateConfiguration(vtkFXAAOptions *opts)
+{
+  // Use the setters -- some of these options will trigger a shader rebuild
+  // when they change, and the setters hold the logic for determining this.
+  this->SetRelativeContrastThreshold(opts->GetRelativeContrastThreshold());
+  this->SetHardContrastThreshold(opts->GetHardContrastThreshold());
+  this->SetSubpixelBlendLimit(opts->GetSubpixelBlendLimit());
+  this->SetSubpixelContrastThreshold(opts->GetSubpixelContrastThreshold());
+  this->SetEndpointSearchIterations(opts->GetEndpointSearchIterations());
+  this->SetUseHighQualityEndpoints(opts->GetUseHighQualityEndpoints());
+  this->SetDebugOptionValue(opts->GetDebugOptionValue());
+}
+
+//------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::SetUseHighQualityEndpoints(bool val)
 {
   if (this->UseHighQualityEndpoints != val)
@@ -90,7 +148,7 @@ void vtkOpenGLFXAAFilter::SetUseHighQualityEndpoints(bool val)
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::SetDebugOptionValue(DebugOption opt)
+void vtkOpenGLFXAAFilter::SetDebugOptionValue(vtkFXAAOptions::DebugOption opt)
 {
   if (this->DebugOptionValue != opt)
     {
@@ -116,6 +174,7 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
     SubpixelContrastThreshold(1.f/4.f),
     EndpointSearchIterations(12),
     UseHighQualityEndpoints(true),
+    DebugOptionValue(vtkFXAAOptions::FXAA_NO_DEBUG),
     NeedToRebuildShader(true),
     Renderer(NULL),
     Input(NULL),
@@ -298,7 +357,7 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
     }
 
 #define DEBUG_OPT_CASE(optName) \
-  case optName: \
+  case vtkFXAAOptions::optName: \
     vtkShaderProgram::Substitute(fragShader, "//VTK::DebugOptions::Def", \
                                  "#define " #optName); \
     break
@@ -307,7 +366,7 @@ void vtkOpenGLFXAAFilter::SubstituteFragmentShader(std::string &fragShader)
   switch (this->DebugOptionValue)
     {
     default:
-    case FXAA_NO_DEBUG:
+    case vtkFXAAOptions::FXAA_NO_DEBUG:
       break;
     DEBUG_OPT_CASE(FXAA_DEBUG_SUBPIXEL_ALIASING);
     DEBUG_OPT_CASE(FXAA_DEBUG_EDGE_DIRECTION);

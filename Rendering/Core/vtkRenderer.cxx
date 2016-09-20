@@ -22,6 +22,7 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
+#include "vtkFXAAOptions.h"
 #include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
@@ -44,6 +45,7 @@ vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -118,13 +120,7 @@ vtkRenderer::vtkRenderer()
   this->GL2PSSpecialPropCollection = NULL;
 
   this->UseFXAA = false;
-  this->FXAARelativeContrastThreshold = 1.f / 8.f;
-  this->FXAAHardContrastThreshold = 1.f / 16.f;
-  this->FXAASubpixelBlendLimit = 3.f / 4.f;
-  this->FXAASubpixelContrastThreshold = 1.f / 4.f;
-  this->FXAAEndpointSearchIterations = 12;
-  this->FXAAUseHighQualityEndpoints = true;
-  this->FXAADebugOption = 0;
+  this->FXAAOptions = vtkFXAAOptions::New();
 
   this->UseShadows = 0;
 
@@ -174,6 +170,12 @@ vtkRenderer::~vtkRenderer()
   this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
+
+  if (this->FXAAOptions != NULL)
+    {
+    this->FXAAOptions->Delete();
+    this->FXAAOptions = NULL;
+    }
 
   if(this->Delegate!=0)
     {

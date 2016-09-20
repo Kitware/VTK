@@ -21,6 +21,7 @@
 #include "vtkConeSource.h"
 #include "vtkCylinderSource.h"
 #include "vtkDiskSource.h"
+#include "vtkFXAAOptions.h"
 #include "vtkLineSource.h"
 #include "vtkNew.h"
 #include "vtkOpenGLRenderer.h"
