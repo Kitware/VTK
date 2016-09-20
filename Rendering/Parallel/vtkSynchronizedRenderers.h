@@ -31,9 +31,11 @@
 #include "vtkUnsignedCharArray.h" // needed for vtkUnsignedCharArray.
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 
+class vtkFXAAOptions;
 class vtkRenderer;
 class vtkMultiProcessController;
 class vtkMultiProcessStream;
+class vtkOpenGLFXAAFilter;
 class vtkOpenGLRenderer;
 
 class VTKRENDERINGPARALLEL_EXPORT vtkSynchronizedRenderers : public vtkObject
@@ -76,6 +78,18 @@ public:
   vtkSetMacro(WriteBackImages, bool);
   vtkGetMacro(WriteBackImages, bool);
   vtkBooleanMacro(WriteBackImages, bool);
+
+  // Description:
+  // Enable FXAA antialiasing. FXAA is applied after all rendering results are
+  // composited into the final image.
+  vtkSetMacro(UseFXAA, bool)
+  vtkGetMacro(UseFXAA, bool)
+  vtkBooleanMacro(UseFXAA, bool)
+
+  // Description:
+  // The configuration options for FXAA antialiasing.
+  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
+  virtual void SetFXAAOptions(vtkFXAAOptions*);
 
   // Description:
   // Get/Set the root-process id. This is required when the ParallelController
@@ -197,6 +211,10 @@ protected:
     void CopyFrom(vtkRenderer*);
     void CopyTo(vtkRenderer*);
     };
+
+  bool UseFXAA;
+  vtkFXAAOptions *FXAAOptions;
+  vtkOpenGLFXAAFilter *FXAAFilter;
 
   // These methods are called on all processes as a consequence of corresponding
   // events being called on the renderer.

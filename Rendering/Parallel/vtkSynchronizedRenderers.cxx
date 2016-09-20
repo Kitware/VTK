@@ -18,6 +18,7 @@
 #include "vtkCamera.h"
 #include "vtkCommand.h"
 #include "vtkCommunicator.h"
+#include "vtkFXAAOptions.h"
 #include "vtkImageData.h"
 #include "vtkMatrix4x4.h"
 #include "vtkMultiProcessController.h"
@@ -32,9 +33,13 @@
 
 #ifndef VTK_OPENGL2
 # include "vtkgl.h"
+#else // VTK_OPENGL2
+#include "vtkOpenGLFXAAFilter.h"
 #endif
 
 #include <cassert>
+
+vtkCxxSetObjectMacro(vtkSynchronizedRenderers, FXAAOptions, vtkFXAAOptions)
 
 //----------------------------------------------------------------------------
 class vtkSynchronizedRenderers::vtkObserver : public vtkCommand
@@ -82,6 +87,10 @@ vtkSynchronizedRenderers::vtkSynchronizedRenderers()
   this->Observer = vtkSynchronizedRenderers::vtkObserver::New();
   this->Observer->Target = this;
 
+  this->UseFXAA = false;
+  this->FXAAOptions = vtkFXAAOptions::New();
+  this->FXAAFilter = NULL;
+
   this->Renderer = 0;
   this->ParallelController = 0;
   this->ParallelRendering = true;
@@ -105,6 +114,21 @@ vtkSynchronizedRenderers::~vtkSynchronizedRenderers()
   this->SetParallelController(0);
   this->Observer->Delete();
   this->Observer = 0;
+
+  if (this->FXAAOptions)
+    {
+    this->FXAAOptions->Delete();
+    this->FXAAOptions = NULL;
+    }
+
+  // vtkOpenGLFXAAFilter is only available on opengl2:
+#ifdef VTK_OPENGL2
+  if (this->FXAAFilter)
+    {
+    this->FXAAFilter->Delete();
+    this->FXAAFilter = NULL;
+    }
+#endif // VTK_OPENGL2
 }
 
 //----------------------------------------------------------------------------
@@ -286,6 +310,22 @@ void vtkSynchronizedRenderers::PushImageToScreen()
     }
 
   rawImage.PushToViewport(this->Renderer);
+
+#ifdef VTK_OPENGL2
+  if (this->UseFXAA)
+    {
+    if (!this->FXAAFilter)
+      {
+      this->FXAAFilter = vtkOpenGLFXAAFilter::New();
+      }
+    if (this->FXAAOptions)
+      {
+      this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
+      }
+    this->FXAAFilter->Execute(this->Renderer);
+    }
+#endif // VTK_OPENGL2
+
 }
 
 ////----------------------------------------------------------------------------
