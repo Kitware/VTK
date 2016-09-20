@@ -431,7 +431,9 @@ void vtkCompositeMapperHelper2::DrawIBO(
       if (endhdata->Visibility &&
           endhdata->NextIndex[primType] > starthdata->StartIndex[primType])
         {
-        if (!this->DrawingEdges)
+        //compilers think this can exceed the bounds so we also
+        // test against primType even though we should not need to
+        if (!this->DrawingEdges && primType < 4)
           {
           this->SetShaderValues(prog, starthdata,
             starthdata->PrimOffsets[primType]);
