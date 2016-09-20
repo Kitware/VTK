@@ -32,6 +32,8 @@ class VTKRENDERINGCORE_EXPORT vtkFrameBufferObjectBase : public vtkObject
   vtkTypeMacro(vtkFrameBufferObjectBase, vtkObject);
   void PrintSelf(ostream& os, vtkIndent indent);
 
+  // Description:
+  // Dimensions in pixels of the framebuffer.
   virtual int *GetLastSize() = 0;
   virtual void GetLastSize (int &_arg1, int &_arg2) = 0;
   virtual void GetLastSize (int _arg[2]) = 0;

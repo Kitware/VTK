@@ -51,6 +51,9 @@ uniform int PrimitiveIDOffset;
 // handle coincident offsets
 //VTK::Coincident::Dec
 
+// Value raster
+//VTK::ValuePass::Dec
+
 void main()
 {
   // VC position of this fragment. This should not branch/return/discard.

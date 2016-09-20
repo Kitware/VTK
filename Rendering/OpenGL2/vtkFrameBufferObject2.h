@@ -42,7 +42,7 @@
 #ifndef vtkFrameBufferObject2_h
 #define vtkFrameBufferObject2_h
 
-#include "vtkObject.h"
+#include "vtkFrameBufferObjectBase.h"
 #include "vtkRenderingOpenGL2Module.h" // For export macro
 #include "vtkSmartPointer.h" // needed for vtkSmartPointer.
 #include "vtkWeakPointer.h" // needed for vtkWeakPointer.
@@ -78,11 +78,11 @@ class vtkRenderbuffer;
 class vtkPixelBufferObject;
 class vtkOpenGLRenderWindow;
 
-class VTKRENDERINGOPENGL2_EXPORT vtkFrameBufferObject2 : public vtkObject
+class VTKRENDERINGOPENGL2_EXPORT vtkFrameBufferObject2 : public vtkFrameBufferObjectBase
 {
 public:
   static vtkFrameBufferObject2* New();
-  vtkTypeMacro(vtkFrameBufferObject2, vtkObject);
+  vtkTypeMacro(vtkFrameBufferObject2, vtkFrameBufferObjectBase);
   void PrintSelf(ostream& os, vtkIndent indent);
 
   // Description:
@@ -274,6 +274,23 @@ public:
         int oglFormat,
         vtkPixelBufferObject *pbo);
 
+  // Description:
+  // Dimensions in pixels of the framebuffer. Given that InitializeViewport
+  // is static, these methods query the viewport size directly from GL. The
+  // cached size (LastViewportSize) will appear uninitialized (-1) until one
+  // one of these methods has been called. As with InitializeViewport, the
+  // methods affect the currently bound FBO (user must bind first).
+  virtual int* GetLastSize();
+  virtual void GetLastSize(int &width, int &height);
+  virtual void GetLastSize(int size[2]);
+
+  // Description:
+  // Additional overload which lets the user decide whether the returned size
+  // should be the currently cached value or first be updated from GL. As with
+  // InitializeViewport, the method affects the currently bound FBO (user must
+  // bind first).
+  int* GetLastSize(bool forceUpdate);
+
 protected:
   // Description:
   // Load all necessary extensions.
@@ -285,7 +302,6 @@ protected:
 
   // delete buffer (occurs during destruction or context swicth)
   void DestroyFBO();
-
 
   // Description:
   // Given a vtk type get a compatible open gl type.
@@ -301,8 +317,13 @@ protected:
   unsigned int PreviousReadFBO;
   unsigned int PreviousDrawBuffer;
   unsigned int PreviousReadBuffer;
+  int LastViewportSize[2];
 
 private:
+  // Description:
+  // Queries viewport dimensions from GL.
+  inline void QueryViewportSize();
+
   vtkFrameBufferObject2(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
   void operator=(const vtkFrameBufferObject2&) VTK_DELETE_FUNCTION;
 
