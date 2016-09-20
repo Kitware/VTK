@@ -118,6 +118,7 @@ set_source_files_properties(
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHelper
   vtkOpenGLIndexBufferObject
+  vtkOpenGLRenderTimer
   vtkOpenGLShaderCache
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
@@ -134,6 +135,7 @@ set_source_files_properties(
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
+  vtkOpenGLRenderTimer
   vtkValuePassHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
