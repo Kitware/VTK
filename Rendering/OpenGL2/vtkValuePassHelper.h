@@ -45,6 +45,7 @@ class vtkMapper;
 class vtkOpenGLHelper;
 class vtkRenderer;
 class vtkWindow;
+class vtkPolyData;
 
 class VTKRENDERINGOPENGL2_EXPORT vtkValuePassHelper : public vtkObject
 {
@@ -66,7 +67,8 @@ protected:
   // Description:
   // Configure the internal state depending on the settings defined by the
   // vtkValuePass (RenderingMode,  RENDER_VALUES, SCALAR_MODE, etc.).
-  void UpdateConfiguration(vtkRenderer* ren, vtkActor* act, vtkMapper* mapper);
+  void UpdateConfiguration(vtkRenderer* ren, vtkActor* act, vtkMapper* mapper,
+    vtkPolyData* input);
 
   // Description:
   // Upload new data if necessary, bind textures, etc.

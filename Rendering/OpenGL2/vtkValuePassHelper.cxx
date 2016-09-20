@@ -8,6 +8,7 @@
 #include "vtkOpenGLHelper.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLVertexArrayObject.h"
+#include "vtkPolyData.h"
 #include "vtkRenderer.h"
 #include "vtkShaderProgram.h"
 #include "vtkTextureObject.h"
@@ -179,7 +180,7 @@ void vtkValuePassHelper::RenderPieceStart(vtkActor* actor, vtkDataSet* input)
 
 //-----------------------------------------------------------------------------
 void vtkValuePassHelper::UpdateConfiguration(vtkRenderer* ren, vtkActor* act,
-  vtkMapper* mapper)
+  vtkMapper* mapper, vtkPolyData* input)
 {
   this->RenderingMode = -1;
   vtkInformation *info = act->GetPropertyKeys();
@@ -203,7 +204,8 @@ void vtkValuePassHelper::UpdateConfiguration(vtkRenderer* ren, vtkActor* act,
       case vtkValuePass::INVERTIBLE_LUT:
       default:
         {
-        mapper->UseInvertibleColorFor(info->Get(vtkValuePass::SCALAR_MODE()),
+        mapper->UseInvertibleColorFor(input,
+                                    info->Get(vtkValuePass::SCALAR_MODE()),
                                     info->Get(vtkValuePass::ARRAY_MODE()),
                                     info->Get(vtkValuePass::ARRAY_ID()),
                                     info->Get(vtkValuePass::ARRAY_NAME()),
