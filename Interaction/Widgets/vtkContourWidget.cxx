@@ -58,6 +58,10 @@ vtkContourWidget::vtkContourWidget()
                                           vtkWidgetEvent::Delete,
                                           this, vtkContourWidget::DeleteAction);
   this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
+                                          vtkEvent::NoModifier, 8, 1, "BackSpace",
+                                          vtkWidgetEvent::Delete,
+                                          this, vtkContourWidget::DeleteAction);
+  this->CallbackMapper->SetCallbackMethod(vtkCommand::KeyPressEvent,
                                           vtkEvent::ShiftModifier, 127, 1, "Delete",
                                           vtkWidgetEvent::Reset,
                                           this, vtkContourWidget::ResetAction);
