@@ -22,6 +22,7 @@
 #include "vtkOpenGLBufferObject.h"
 #include "vtkOpenGLError.h"
 #include "vtkOpenGLRenderer.h"
+#include "vtkOpenGLRenderTimer.h"
 #include "vtkOpenGLRenderUtilities.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkOpenGLShaderCache.h"
@@ -97,21 +98,17 @@ void vtkOpenGLFXAAFilter::Execute(vtkOpenGLRenderer *ren)
   assert(ren);
   this->Renderer = ren;
 
-  this->StartTimeQuery(this->PreparationTimeQuery,
-                       this->PreparationTimeQueryActive);
-
+  this->StartTimeQuery(this->PreparationTimer);
   this->Prepare();
   this->LoadInput();
+  this->EndTimeQuery(this->PreparationTimer);
 
-  this->EndTimeQuery(this->PreparationTimeQuery,
-                     this->PreparationTimeQueryActive);
-  this->StartTimeQuery(this->FXAATimeQuery, this->FXAATimeQueryActive);
-
+  this->StartTimeQuery(this->FXAATimer);
   this->ApplyFilter();
-
-  this->EndTimeQuery(this->FXAATimeQuery, this->FXAATimeQueryActive);
+  this->EndTimeQuery(this->FXAATimer);
 
   this->Finalize();
+  this->PrintBenchmark();
 
   this->Renderer = NULL;
 }
@@ -162,12 +159,8 @@ void vtkOpenGLFXAAFilter::SetDebugOptionValue(vtkFXAAOptions::DebugOption opt)
 vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
   : BlendState(false),
     DepthTestState(false),
-    PreparationTimeQueryActive(false),
-    FXAATimeQueryActive(false),
-    PreparationTimeQuery(0),
-    FXAATimeQuery(0),
-    PreparationTime(0),
-    FXAATime(0),
+    PreparationTimer(new vtkOpenGLRenderTimer),
+    FXAATimer(new vtkOpenGLRenderTimer),
     RelativeContrastThreshold(1.f/8.f),
     HardContrastThreshold(1.f/16.f),
     SubpixelBlendLimit(3.f/4.f),
@@ -189,6 +182,8 @@ vtkOpenGLFXAAFilter::vtkOpenGLFXAAFilter()
 vtkOpenGLFXAAFilter::~vtkOpenGLFXAAFilter()
 {
   this->FreeGLObjects();
+  delete PreparationTimer;
+  delete FXAATimer;
 }
 
 //------------------------------------------------------------------------------
@@ -243,17 +238,6 @@ void vtkOpenGLFXAAFilter::FreeGLObjects()
 //  DeleteHelper(this->Program); // Managed by the shader cache
   DeleteHelper(this->VAO);
   DeleteHelper(this->VBO);
-
-  if (this->FXAATimeQuery > 0)
-    {
-    glDeleteQueries(1, &this->FXAATimeQuery);
-    this->FXAATimeQuery = 0;
-    }
-  if (this->PreparationTimeQuery > 0)
-    {
-    glDeleteQueries(1, &this->PreparationTimeQuery);
-    this->PreparationTimeQuery = 0;
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -393,116 +377,60 @@ void vtkOpenGLFXAAFilter::Finalize()
     }
 
   vtkOpenGLCheckErrorMacro("Error after restoring GL state.");
-
-#ifdef FXAA_BENCHMARK
-  if (this->GetTimeQueryResult(this->PreparationTimeQuery,
-                               this->PreparationTime) ||
-      this->GetTimeQueryResult(this->FXAATimeQuery,
-                               this->FXAATime))
-    {
-    this->PrintBenchmark();
-    }
-#endif // FXAA_BENCHMARK
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::StartTimeQuery(unsigned int &queryId, bool &tracker)
+void vtkOpenGLFXAAFilter::StartTimeQuery(vtkOpenGLRenderTimer *timer)
 {
-#ifdef FXAA_BENCHMARK
-  // Don't start a new query until the old results are in:
-  if (tracker || queryId != 0)
+  // Since it may take a few frames for the results to become available,
+  // check if we've started the timer already.
+  if (!timer->Started())
     {
-    return;
+    timer->Start();
     }
-
-  glGenQueries(1, &queryId);
-  glBeginQuery(GL_TIME_ELAPSED, queryId);
-  tracker = true;
-
-  vtkOpenGLCheckErrorMacro("Error after starting GL_TIME_ELAPSED query.");
-#else // FXAA_BENCHMARK
-  (void)queryId;
-  (void)tracker;
-#endif // FXAA_BENCHMARK
 }
 
 //------------------------------------------------------------------------------
-void vtkOpenGLFXAAFilter::EndTimeQuery(unsigned int &queryId, bool &tracker)
+void vtkOpenGLFXAAFilter::EndTimeQuery(vtkOpenGLRenderTimer *timer)
 {
-#ifdef FXAA_BENCHMARK
-  if (!tracker || queryId == 0)
-    { // Shouldn't happen, but just in case...
-    return;
-    }
-
-  glEndQuery(GL_TIME_ELAPSED);
-  tracker = false;
-
-  vtkOpenGLCheckErrorMacro("Error after ending GL_TIME_ELAPSED query.");
-#else // FXAA_BENCHMARK
-  (void)queryId;
-  (void)tracker;
-#endif // FXAA_BENCHMARK
-}
-
-//------------------------------------------------------------------------------
-bool vtkOpenGLFXAAFilter::GetTimeQueryResult(unsigned int &queryId,
-                                             unsigned int &result)
-{
-#ifdef FXAA_BENCHMARK
-  if (queryId == 0)
+  // Since it may take a few frames for the results to become available,
+  // check if we've stopped the timer already.
+  if (!timer->Stopped())
     {
-    return false;
+    timer->Stop();
     }
-
-  GLint ready;
-  glGetQueryObjectiv(queryId, GL_QUERY_RESULT_AVAILABLE, &ready);
-  vtkOpenGLCheckErrorMacro("Error after checking GL_TIME_ELAPSED status.");
-  if (!ready)
-    {
-    return false;
-    }
-
-  glGetQueryObjectuiv(queryId, GL_QUERY_RESULT, &result);
-  vtkOpenGLCheckErrorMacro("Error after checking GL_TIME_ELAPSED result.");
-
-  // Free the query:
-  glDeleteQueries(1, &queryId);
-  queryId = 0;
-
-  return true;
-#else // FXAA_BENCHMARK
-  (void)queryId;
-  (void)result;
-  return false;
-#endif // FXAA_BENCHMARK
 }
 
 //------------------------------------------------------------------------------
 void vtkOpenGLFXAAFilter::PrintBenchmark()
 {
+  if (this->PreparationTimer->Ready() &&
+      this->FXAATimer->Ready())
+    {
+
 #ifdef FXAA_BENCHMARK
-  int numPixels = this->Input->GetWidth() * this->Input->GetHeight();
-  float ptime = static_cast<float>(this->PreparationTime);
-  float ftime = static_cast<float>(this->FXAATime);
-  float ttime = ptime + ftime;
+    int numPixels = this->Input->GetWidth() * this->Input->GetHeight();
+    float ptime = this->PreparationTimer->GetElapsedMilliseconds();
+    float ftime = this->FXAATimer->GetElapsedMilliseconds();
+    float ttime = ptime + ftime;
 
-  float ptimePerPixel = ptime / numPixels;
-  float ftimePerPixel = ftime / numPixels;
-  float ttimePerPixel = ttime / numPixels;
+    float ptimePerPixel = (this->PreparationTimer->GetElapsedNanoseconds() /
+                           static_cast<float>(numPixels));
+    float ftimePerPixel = (this->FXAATimer->GetElapsedNanoseconds() /
+                           static_cast<float>(numPixels));
+    float ttimePerPixel =  ptimePerPixel + ftimePerPixel;
 
-  // Convert the non-per-pixel times to ms:
-  ptime *= 1e-6f;
-  ftime *= 1e-6f;
-  ttime *= 1e-6f;
-
-  std::cerr << "FXAA Info:\n"
-            << " - Number of pixels: " << numPixels << "\n"
-            << " - Preparation time: " << ptime << "ms ("
-            << ptimePerPixel << "ns per pixel)\n"
-            << " - FXAA time: " << ftime << "ms ("
-            << ftimePerPixel << "ns per pixel)\n"
-            << " - Total time: " << ttime << "ms ("
-            << ttimePerPixel << "ns per pixel)\n";
+    std::cerr << "FXAA Info:\n"
+              << " - Number of pixels: " << numPixels << "\n"
+              << " - Preparation time: " << ptime << "ms ("
+              << ptimePerPixel << "ns per pixel)\n"
+              << " - FXAA time: " << ftime << "ms ("
+              << ftimePerPixel << "ns per pixel)\n"
+              << " - Total time: " << ttime << "ms ("
+              << ttimePerPixel << "ns per pixel)\n";
 #endif // FXAA_BENCHMARK
+
+    this->PreparationTimer->Reset();
+    this->FXAATimer->Reset();
+    }
 }

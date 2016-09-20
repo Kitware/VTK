@@ -50,6 +50,7 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderPass.cxx
+  vtkOpenGLRenderTimer.cxx
   vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx

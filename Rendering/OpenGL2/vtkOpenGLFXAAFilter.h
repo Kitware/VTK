@@ -45,6 +45,7 @@ class vtkFXAAOptions;
 class vtkOpenGLBufferObject;
 class vtkOpenGLVertexArrayObject;
 class vtkOpenGLRenderer;
+class vtkOpenGLRenderTimer;
 class vtkShaderProgram;
 class vtkTextureObject;
 
@@ -100,9 +101,8 @@ protected:
   void SubstituteFragmentShader(std::string &fragShader);
   void Finalize();
 
-  void StartTimeQuery(unsigned int &queryId, bool &tracker);
-  void EndTimeQuery(unsigned int &queryId, bool &tracker);
-  bool GetTimeQueryResult(unsigned int &queryId, unsigned int &result);
+  void StartTimeQuery(vtkOpenGLRenderTimer *timer);
+  void EndTimeQuery(vtkOpenGLRenderTimer *timer);
   void PrintBenchmark();
 
   // Cache GL state that we modify
@@ -112,12 +112,8 @@ protected:
   int Viewport[4]; // x, y, width, height
 
   // Used to measure execution time:
-  bool PreparationTimeQueryActive;
-  bool FXAATimeQueryActive;
-  unsigned int PreparationTimeQuery;
-  unsigned int FXAATimeQuery;
-  unsigned int PreparationTime;
-  unsigned int FXAATime;
+  vtkOpenGLRenderTimer *PreparationTimer;
+  vtkOpenGLRenderTimer *FXAATimer;
 
   // Parameters:
   float RelativeContrastThreshold;
