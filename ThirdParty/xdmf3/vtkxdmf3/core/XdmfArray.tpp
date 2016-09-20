@@ -662,9 +662,7 @@ XdmfArray::initialize(const std::vector<unsigned int> & dimensions)
 {
   mDimensions = dimensions;
   const unsigned int size = static_cast<unsigned int>(
-    std::accumulate(dimensions.begin(),
-                                            dimensions.end(),
-                                            1,
+    std::accumulate(dimensions.begin(), dimensions.end(), 1,
                     std::multiplies<unsigned int>()));
   return this->initialize<T>(size);
 }
@@ -707,10 +705,11 @@ template <typename T>
 void
 XdmfArray::pushBack(const T & value)
 {
+  this->setIsChanged(true);
   return boost::apply_visitor(PushBack<T>(value,
                                           this),
                               mArray);
-  this->setIsChanged(true);
+
 }
 
 template<typename T>
@@ -718,11 +717,12 @@ void
 XdmfArray::resize(const unsigned int numValues,
                   const T & value)
 {
+  this->setIsChanged(true);
   return boost::apply_visitor(Resize<T>(this,
                                         numValues,
                                         value),
                               mArray);
-  this->setIsChanged(true);
+
 }
 
 template<typename T>
@@ -730,11 +730,8 @@ void
 XdmfArray::resize(const std::vector<unsigned int> & dimensions,
                   const T & value)
 {
-  const unsigned int size = static_cast<unsigned int>(
-    std::accumulate(dimensions.begin(),
-                                            dimensions.end(),
-                                            1,
-                    std::multiplies<unsigned int>()));
+  const unsigned int size = static_cast<unsigned int>(std::accumulate(dimensions.begin(), dimensions.end(), 1,
+                                                                      std::multiplies<unsigned int>()));
   this->resize(size, value);
   mDimensions = dimensions;
   this->setIsChanged(true);

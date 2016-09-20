@@ -26,9 +26,9 @@
 
 // C Compatible Includes
 #include "XdmfCore.hpp"
+#include "XdmfItem.hpp"
 #include "XdmfArrayReference.hpp"
 #include "XdmfHeavyDataController.hpp"
-#include "XdmfItem.hpp"
 
 #ifdef __cplusplus
 

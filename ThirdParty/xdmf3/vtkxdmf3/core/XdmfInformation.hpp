@@ -221,7 +221,7 @@ protected:
 
 private:
 
-  XdmfInformation(const XdmfInformation &);
+  XdmfInformation(const XdmfInformation &);  // Not implemented.
   void operator=(const XdmfInformation &);  // Not implemented.
 
   std::string mKey;

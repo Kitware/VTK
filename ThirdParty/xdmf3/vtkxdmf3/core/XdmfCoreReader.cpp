@@ -21,9 +21,6 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <libxml/uri.h>
-#include <libxml/xpointer.h>
-#include <libxml/xmlreader.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/tokenizer.hpp>
 #include <cstring>
@@ -215,7 +212,6 @@ public:
         if (mItemFactory->isArrayTag((char *)currNode->name)) {
           while(childNode != NULL) {
             if(childNode->type == XML_TEXT_NODE && childNode->content) {
-#if 1 //ARL's side
               const char * content = (char*)childNode->content;
 
               // Determine if content is whitespace
@@ -237,16 +233,6 @@ public:
                 itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
                 break;
               }
-#else //VTK's side, breaks XDMF's tests, revisit if problematic in VTK
-              std::string content((char *)childNode->content);
-              boost::algorithm::trim(content);
-
-              if(content.size() != 0) {
-                itemProperties.insert(std::make_pair("Content", content));
-                itemProperties.insert(std::make_pair("XMLDir", mXMLDir));
-                break;
-              }
-#endif
             }
             childNode = childNode->next;
           }
