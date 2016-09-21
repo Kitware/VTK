@@ -183,16 +183,14 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->AxisActor->GetPoint1Coordinate()->SetValue(p1);
     this->AxisActor->GetPoint2Coordinate()->SetValue(p2);
     this->AxisActor->SetRulerMode(this->RulerMode);
-    this->AxisActor->SetRulerDistance(this->RulerDistance * this->Scale);
-    this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
-
-    double scaledDistance = this->Distance;
     if (this->Scale != 0.0)
       {
-      scaledDistance /= this->Scale;
+      this->AxisActor->SetRulerDistance(this->RulerDistance / this->Scale);
       }
+    this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
+
     char string[512];
-    sprintf(string, this->LabelFormat, scaledDistance);
+    sprintf(string, this->LabelFormat, this->Distance * this->Scale);
     this->AxisActor->SetTitle(string);
 
     this->BuildTime.Modified();
