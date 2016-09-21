@@ -182,6 +182,7 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   AddPointDataArray(unsigned long,vtkUnsignedLongArray,1,0);
   AddPointDataArray(unsigned long long,vtkUnsignedLongLongArray,1,0);
   AddPointDataArray(unsigned short,vtkUnsignedShortArray,1,0);
+  AddPointDataArray(vtkIdType,vtkIdTypeArray,1,0);
   AddPointDataArray(char,vtkCharArray,1,'0');
   AddPointDataArray(unsigned char,vtkUnsignedCharArray,1,'0');
   AddPointDataArray(signed char,vtkSignedCharArray,1,'0');
@@ -196,6 +197,7 @@ vtkSmartPointer<vtkPolyData> GeneratePolyData()
   AddCellDataArray(unsigned long,vtkUnsignedLongArray,1,0);
   AddCellDataArray(unsigned long long,vtkUnsignedLongLongArray,1,0);
   AddCellDataArray(unsigned short,vtkUnsignedShortArray,1,0);
+  AddCellDataArray(vtkIdType,vtkIdTypeArray,1,0);
   AddCellDataArray(char,vtkCharArray,1,'0');
   AddCellDataArray(unsigned char,vtkUnsignedCharArray,1,'0');
   AddCellDataArray(signed char,vtkSignedCharArray,1,'0');

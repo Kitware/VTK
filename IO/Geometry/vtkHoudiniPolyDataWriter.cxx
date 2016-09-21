@@ -59,13 +59,14 @@ namespace
     virtual void StreamData(std::ostream&, vtkIdType) const = 0;
   };
 
-  template <typename AttributeType>
+  template <int AttributeId>
   struct AttributeTrait;
 
-#define DefineAttributeTrait(attType, attName, vtkArray, attDefault)    \
+#define DefineAttributeTrait(attId, attType, attName, vtkArray, attDefault) \
   template <>                                                           \
-  struct AttributeTrait<attType>                                        \
+  struct AttributeTrait<attId>                                          \
   {                                                                     \
+    typedef attType Type;                                               \
     typedef vtkArray vtkArrayType;                                      \
     std::string Name() const { return std::string(attName); }           \
     attType Default() const { return static_cast<attType>(attDefault); } \
@@ -74,22 +75,24 @@ namespace
     static void Stream(std::ostream& out, attType t) { out << t; }      \
   }
 
-  DefineAttributeTrait(int, "int", vtkIntArray, 0);
-  DefineAttributeTrait(long, "int", vtkLongArray, 0);
-  DefineAttributeTrait(long long, "int", vtkLongLongArray, 0);
-  DefineAttributeTrait(short, "int", vtkShortArray, 0);
-  DefineAttributeTrait(unsigned int, "int", vtkUnsignedIntArray, 0);
-  DefineAttributeTrait(unsigned long, "int", vtkUnsignedLongArray, 0);
-  DefineAttributeTrait(unsigned long long, "int", vtkUnsignedLongLongArray, 0);
-  DefineAttributeTrait(unsigned short, "int", vtkUnsignedShortArray, 0);
-  DefineAttributeTrait(float, "float", vtkFloatArray, 0.0);
-  DefineAttributeTrait(double, "float", vtkDoubleArray, 0.0);
+  DefineAttributeTrait(VTK_DOUBLE, double, "float", vtkDoubleArray, 0.0);
+  DefineAttributeTrait(VTK_FLOAT, float, "float", vtkFloatArray, 0.0);
+  DefineAttributeTrait(VTK_LONG_LONG, long long, "int", vtkLongLongArray, 0);
+  DefineAttributeTrait(VTK_UNSIGNED_LONG_LONG, unsigned long long, "int", vtkUnsignedLongLongArray, 0);
+  DefineAttributeTrait(VTK_ID_TYPE, vtkIdType, "int", vtkIdTypeArray, 0);
+  DefineAttributeTrait(VTK_LONG, long, "int", vtkLongArray, 0);
+  DefineAttributeTrait(VTK_UNSIGNED_LONG, unsigned long, "int", vtkUnsignedLongArray, 0);
+  DefineAttributeTrait(VTK_INT, int, "int", vtkIntArray, 0);
+  DefineAttributeTrait(VTK_UNSIGNED_INT, unsigned int, "int", vtkUnsignedIntArray, 0);
+  DefineAttributeTrait(VTK_SHORT, short, "int", vtkShortArray, 0);
+  DefineAttributeTrait(VTK_UNSIGNED_SHORT, unsigned short, "int", vtkUnsignedShortArray, 0);
 
 #undef DefineAttributeTrait
 
   template <>
-  struct AttributeTrait<char>
+  struct AttributeTrait<VTK_CHAR>
   {
+    typedef char Type;
     typedef vtkCharArray vtkArrayType;
     std::string Name() const { return std::string("int"); }
     int Default() const { return static_cast<int>('0'); }
@@ -102,8 +105,9 @@ namespace
   };
 
   template <>
-  struct AttributeTrait<signed char>
+  struct AttributeTrait<VTK_SIGNED_CHAR>
   {
+    typedef signed char Type;
     typedef vtkSignedCharArray vtkArrayType;
     std::string Name() const { return std::string("int"); }
     int Default() const { return static_cast<int>('0'); }
@@ -116,8 +120,9 @@ namespace
   };
 
   template <>
-  struct AttributeTrait<unsigned char>
+  struct AttributeTrait<VTK_UNSIGNED_CHAR>
   {
+    typedef unsigned char Type;
     typedef vtkUnsignedCharArray vtkArrayType;
     std::string Name() const { return std::string("int"); }
     int Default() const { return static_cast<int>('0'); }
@@ -131,8 +136,9 @@ namespace
   };
 
   template <>
-  struct AttributeTrait<vtkStdString>
+  struct AttributeTrait<VTK_STRING>
   {
+    typedef vtkStdString Type;
     typedef vtkStringArray vtkArrayType;
     std::string Name() const { return std::string("string"); }
     vtkStdString Default() const { return vtkStdString("None"); }
@@ -157,10 +163,10 @@ namespace
     }
   };
 
-  template <typename AttributeType>
+  template <int AttributeId>
   struct Attribute : public AttributeBase
   {
-    typedef typename AttributeTrait<AttributeType>::vtkArrayType vtkArrayType;
+    typedef typename AttributeTrait<AttributeId>::vtkArrayType vtkArrayType;
 
     Attribute(vtkAbstractArray* array) : AttributeBase()
     {
@@ -175,13 +181,13 @@ namespace
       std::replace(s.begin(), s.end(), ' ', '_');
       std::replace(s.begin(), s.end(), '\t', '-');
 
-      AttributeTrait<AttributeType> trait;
+      AttributeTrait<AttributeId> trait;
       out << s << " " << this->Array->GetNumberOfComponents() << " "
           << trait.Name() << " " << trait.Default();
       for (int i = 1; i < this->Array->GetNumberOfComponents(); i++)
         {
         out << " ";
-        AttributeTrait<AttributeType>::Stream(out, trait.Default());
+        AttributeTrait<AttributeId>::Stream(out, trait.Default());
         }
     }
 
@@ -189,18 +195,18 @@ namespace
     {
       assert(index < this->Array->GetNumberOfTuples());
 
-      AttributeTrait<AttributeType>::Get(index, &this->Value[0], this->Array);
-      AttributeTrait<AttributeType>::Stream(out, this->Value[0]);
+      AttributeTrait<AttributeId>::Get(index, &this->Value[0], this->Array);
+      AttributeTrait<AttributeId>::Stream(out, this->Value[0]);
 
       for (int i = 1; i < this->Array->GetNumberOfComponents(); i++)
         {
           out << " ";
-        AttributeTrait<AttributeType>::Stream(out, this->Value[i]);
+        AttributeTrait<AttributeId>::Stream(out, this->Value[i]);
         }
     }
 
   protected:
-    mutable std::vector<AttributeType> Value;
+    mutable std::vector<typename AttributeTrait<AttributeId>::Type> Value;
     mutable vtkArrayType* Array;
   };
 
@@ -272,20 +278,20 @@ namespace
       return Attributes::Component(this, i);
     }
 
-    template <typename DataType>
+    template <int TypeId>
     void AddAttribute(vtkAbstractArray* array)
     {
-      this->AttVec.push_back(new Attribute<DataType>(array));
+      this->AttVec.push_back(new Attribute<TypeId>(array));
     }
 
     Header Hdr;
     std::vector<AttributeBase*> AttVec;
   };
 
-  template <typename DataType>
-  void AddAttribute(DataType*, Attributes& atts, vtkAbstractArray* array)
+  template <int TypeId>
+  void AddAttribute(Attributes& atts, vtkAbstractArray* array)
   {
-    atts.AddAttribute<DataType>(array);
+    atts.AddAttribute<TypeId>(array);
   }
 }
 
@@ -347,6 +353,24 @@ void vtkHoudiniPolyDataWriter::WriteData()
        << "NPrimAttrib " << input->GetCellData()->GetNumberOfArrays() << " "
        << "NAttrib " << 0 << endl;
 
+#define vtkHoudiniTemplateMacroCase(typeN, atts, arr)           \
+  case typeN: { AddAttribute<typeN>(atts, arr); }; break
+#define vtkHoudiniTemplateMacro(atts, arr)                              \
+  vtkHoudiniTemplateMacroCase(VTK_DOUBLE, atts, arr);                   \
+  vtkHoudiniTemplateMacroCase(VTK_FLOAT, atts, arr);                    \
+  vtkHoudiniTemplateMacroCase(VTK_LONG_LONG, atts, arr);                \
+  vtkHoudiniTemplateMacroCase(VTK_UNSIGNED_LONG_LONG, atts, arr);       \
+  vtkHoudiniTemplateMacroCase(VTK_ID_TYPE, atts, arr);                  \
+  vtkHoudiniTemplateMacroCase(VTK_LONG, atts, arr);                     \
+  vtkHoudiniTemplateMacroCase(VTK_UNSIGNED_LONG, atts, arr);            \
+  vtkHoudiniTemplateMacroCase(VTK_INT, atts, arr);                      \
+  vtkHoudiniTemplateMacroCase(VTK_UNSIGNED_INT, atts, arr);             \
+  vtkHoudiniTemplateMacroCase(VTK_SHORT, atts, arr);                    \
+  vtkHoudiniTemplateMacroCase(VTK_UNSIGNED_SHORT, atts, arr);           \
+  vtkHoudiniTemplateMacroCase(VTK_CHAR, atts, arr);                     \
+  vtkHoudiniTemplateMacroCase(VTK_SIGNED_CHAR, atts, arr);              \
+  vtkHoudiniTemplateMacroCase(VTK_UNSIGNED_CHAR, atts, arr)
+
   // Construct Attributes instance for points
   Attributes pointAttributes;
   for (vtkIdType i = 0; i < input->GetPointData()->GetNumberOfArrays(); i++)
@@ -354,12 +378,9 @@ void vtkHoudiniPolyDataWriter::WriteData()
     vtkAbstractArray* array = input->GetPointData()->GetAbstractArray(i);
     switch (array->GetDataType())
       {
-      vtkTemplateMacro(
-        AddAttribute(static_cast<VTK_TT*>(NULL), pointAttributes, array));
+      vtkHoudiniTemplateMacro(pointAttributes, array);
 #if 0
-    case VTK_STRING:
-      AddAttribute(static_cast<vtkStdString*>(NULL), pointAttributes, array);
-      break;
+    case VTK_STRING: { AddAttribute<VTK_STRING>(pointAttributes, array); }; break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
@@ -395,17 +416,17 @@ void vtkHoudiniPolyDataWriter::WriteData()
     vtkAbstractArray* array = input->GetCellData()->GetAbstractArray(i);
     switch (array->GetDataType())
       {
-      vtkTemplateMacro(
-        AddAttribute(static_cast<VTK_TT*>(NULL), cellAttributes, array));
+      vtkHoudiniTemplateMacro(cellAttributes, array);
 #if 0
-    case VTK_STRING:
-      AddAttribute(static_cast<vtkStdString*>(NULL), cellAttributes, array);
-      break;
+    case VTK_STRING: { AddAttribute<VTK_STRING>(cellAttributes, array); }; break;
 #endif
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
       }
     }
+
+#undef vtkHoudiniTemplateMacro
+#undef vtkHoudiniTemplateMacroCase
 
   // Write cell attributes header info
   if (input->GetCellData()->GetNumberOfArrays() != 0 &&
