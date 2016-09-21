@@ -97,8 +97,8 @@ public:
   // will be defined in terms of the scaled space. For example, if the VTK world
   // coordinates are assumed to be in inches, but the desired distance units
   // should be defined in terms of centimeters, the scale factor should be set
-  // to 0.3937. The ruler marks will then be spaced in terms of centimeters, and
-  // the label will contain the measurement in centimeters.
+  // to 2.54. The ruler marks will then be spaced in terms of centimeters, and
+  // the label will show the measurement in centimeters.
   vtkSetMacro(Scale,double);
   vtkGetMacro(Scale,double);
 
