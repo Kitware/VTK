@@ -180,10 +180,10 @@ namespace vtkvolume
       \nuniform vec3 in_textureExtentsMin;\
       \n\
       \n// Material and lighting\
-      \nuniform vec3 in_diffuse;\
-      \nuniform vec3 in_ambient;\
-      \nuniform vec3 in_specular;\
-      \nuniform float in_shininess;\
+      \nuniform vec3 in_diffuse[4];\
+      \nuniform vec3 in_ambient[4];\
+      \nuniform vec3 in_specular[4];\
+      \nuniform float in_shininess[4];\
       \n\
       \n// Others\
       \nuniform bool in_cellFlag;\
@@ -616,14 +616,16 @@ namespace vtkvolume
           \n     }\
           \n   if (nDotL > 0.0)\
           \n     {\
-          \n     diffuse = nDotL * in_diffuse * in_lightDiffuseColor[0]\
-          \n                 * color.rgb;\
+          \n     diffuse = nDotL * in_diffuse[component] *\
+          \n               in_lightDiffuseColor[0] * color.rgb;\
           \n     }\
-          \n    specular = pow(nDotH, in_shininess) * in_specular *\
+          \n    specular = pow(nDotH, in_shininess[component]) *\
+          \n                 in_specular[component] *\
           \n                 in_lightSpecularColor[0];\
           \n  // For the headlight, ignore the light's ambient color\
           \n  // for now as it is causing the old mapper tests to fail\
-          \n  finalColor.xyz = in_ambient * color.rgb + diffuse + specular;"
+          \n  finalColor.xyz = in_ambient[component] * color.rgb +\
+          \n                   diffuse + specular;"
           );
         }
       else if (lightingComplexity == 2)
@@ -669,13 +671,14 @@ namespace vtkvolume
           \n    }\
           \n  if (nDotH > 0.0)\
           \n    {\
-          \n    specular = in_lightSpecularColor[lightNum] * pow(nDotH, in_shininess);\
+          \n    specular = in_lightSpecularColor[lightNum] *\
+          \n               pow(nDotH, in_shininess[component]);\
           \n    }\
           \n  ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  finalColor.xyz = in_ambient * ambient +\
-          \n                   in_diffuse * diffuse * color.rgb +\
-          \n                   in_specular * specular;"
+          \n  finalColor.xyz = in_ambient[component] * ambient +\
+          \n                   in_diffuse[component] * diffuse * color.rgb +\
+          \n                   in_specular[component] * specular;"
           );
         }
       else if (lightingComplexity == 3)
@@ -746,13 +749,14 @@ namespace vtkvolume
           \n    }\
           \n  if (nDotH > 0.0)\
           \n    {\
-          \n    float sf = attenuation * pow(nDotH, in_shininess);\
+          \n    float sf = attenuation * pow(nDotH, in_shininess[component]);\
           \n    specular += (sf * in_lightSpecularColor[lightNum]);\
           \n    }\
           \n    ambient += in_lightAmbientColor[lightNum];\
           \n  }\
-          \n  finalColor.xyz = in_ambient * ambient + in_diffuse *\
-          \n                   diffuse * color.rgb + in_specular * specular;\
+          \n  finalColor.xyz = in_ambient[component] * ambient +\
+          \n                   in_diffuse[component] * diffuse * color.rgb +\
+          \n                   in_specular[component] * specular;\
         ");
         }
       }

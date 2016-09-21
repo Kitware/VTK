@@ -60,9 +60,12 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastClipping.cxx
   TestGPURayCastClippingPolyData.cxx
   TestGPURayCastClippingUserTransform.cxx
+  TestGPURayCastDependentComponentsLightParameters.cxx
   TestGPURayCastFourComponentsDependentGradient.cxx
   TestGPURayCastGradientOpacity.cxx
   TestGPURayCastGradientOpacityLight.cxx
+  TestGPURayCastIndependentComponentsLightParameters.cxx
+  TestGPURayCastLargeColorTransferFunction.cxx
   TestGPURayCastPositionalLights.cxx
   TestGPURayCastReleaseResources.cxx
   TestGPURayCastRenderDepthToImage.cxx
@@ -79,10 +82,9 @@ set (VolumeOpenGL2CxxTests
   TestGPURayCastVolumePolyData.cxx
   TestGPURayCastVolumeRotation.cxx
   TestGPURayCastVolumeScale.cxx
-  TestProjectedTetrahedraTransform.cxx
   TestProjectedTetrahedraOffscreen.cxx
+  TestProjectedTetrahedraTransform.cxx
   TestRemoveVolumeNonCurrentContext.cxx
-  TestGPURayCastLargeColorTransferFunction.cxx
   )
 
 # everyone gets these tests
