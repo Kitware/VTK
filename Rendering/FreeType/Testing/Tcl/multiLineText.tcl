@@ -58,7 +58,7 @@ vtkActor2D singleLineTextActorC
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorC GetPositionCoordinate] SetValue 0.05 0.75
 
-# The text is on a single line and top-justified.
+# The text is on a single line and top-justified - above 0.5
 vtkTextMapper singleLineTextT
     singleLineTextT SetInput "Single line (top)"
     set tprop [singleLineTextT GetTextProperty]
@@ -71,7 +71,89 @@ vtkActor2D singleLineTextActorT
           SetCoordinateSystemToNormalizedDisplay
     [singleLineTextActorT GetPositionCoordinate] SetValue 0.05 0.65
 
-# The text is on multiple lines and left- and top-justified.
+# The text is on a single line and top-justified -below 0.5
+vtkTextMapper singleLineTextTB
+    singleLineTextTB SetInput "Single line below (top)"
+    set tprop [singleLineTextTB GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetVerticalJustificationToTop
+    $tprop SetColor 0 0 1
+vtkActor2D singleLineTextActorTB
+    singleLineTextActorTB SetMapper singleLineTextTB
+    [singleLineTextActorTB GetPositionCoordinate] \
+        SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorTB GetPositionCoordinate] SetValue 0.5 0.25
+
+# The text is on a single line and centered -below 0.5
+vtkTextMapper singleLineTextCC
+    singleLineTextCC SetInput "HHHHH"
+    set tprop [singleLineTextCC GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetJustificationToCentered
+    $tprop SetVerticalJustificationToCentered
+    $tprop UseTightBoundingBoxOn
+    $tprop SetColor 0 0 0
+vtkActor2D singleLineTextActorCC
+    singleLineTextActorCC SetMapper singleLineTextCC
+    [singleLineTextActorCC GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorCC GetPositionCoordinate] SetValue 0.5 0.15
+
+# The text is on a single line and bottom-right justified with a tight bounding-box
+vtkTextMapper singleLineTextBR
+    singleLineTextBR SetInput "Line bottom"
+    set tprop [singleLineTextBR GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetJustificationToRight
+    $tprop SetVerticalJustificationToBottom
+    $tprop UseTightBoundingBoxOn
+    $tprop SetColor 0 0 1
+vtkActor2D singleLineTextActorBR
+    singleLineTextActorBR SetMapper singleLineTextBR
+    [singleLineTextActorBR GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorBR GetPositionCoordinate] SetValue 0.95 0.15
+
+# The text is on a single line and bottom-right justified with a tight bounding-box
+vtkTextMapper singleLineTextBL
+    singleLineTextBL SetInput "Tight line (bottom)"
+    set tprop [singleLineTextBL GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetJustificationToLeft
+    $tprop SetVerticalJustificationToBottom
+    $tprop UseTightBoundingBoxOn
+    $tprop SetColor 0 0 1
+vtkActor2D singleLineTextActorBL
+    singleLineTextActorBL SetMapper singleLineTextBL
+    [singleLineTextActorBL GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorBL GetPositionCoordinate] SetValue 0.05 0.15
+
+# The text is on a single line and top-justified - above 0.5
+vtkTextMapper singleLineTextLTT
+    singleLineTextLTT SetInput "Single line (top)"
+    set tprop [singleLineTextLTT GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetVerticalJustificationToTop
+    $tprop UseTightBoundingBoxOn
+    $tprop SetColor 0 0 1
+vtkActor2D singleLineTextActorLTT
+    singleLineTextActorLTT SetMapper singleLineTextLTT
+    [singleLineTextActorLTT GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorLTT GetPositionCoordinate] SetValue 0.05 0.15
+
+# The text is on a single line and top-justified - above 0.5
+vtkTextMapper singleLineTextRTT
+    singleLineTextRTT SetInput "nge ne op"
+    set tprop [singleLineTextRTT GetTextProperty]
+    $tprop ShallowCopy singleLineTextProp
+    $tprop SetJustificationToRight
+    $tprop SetVerticalJustificationToTop
+    $tprop UseTightBoundingBoxOn
+    $tprop SetColor 0 0 1
+vtkActor2D singleLineTextActorRTT
+    singleLineTextActorRTT SetMapper singleLineTextRTT
+    [singleLineTextActorRTT GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [singleLineTextActorRTT GetPositionCoordinate] SetValue 0.95 0.15
+
+# The text is on multiple lines and left- and top-justified - below 0.5
 vtkTextMapper textMapperL
     textMapperL SetInput "This is\nmulti-line\ntext output\n(left-top)"
     set tprop [textMapperL GetTextProperty]
@@ -83,6 +165,19 @@ vtkActor2D textActorL
     textActorL SetMapper textMapperL
     [textActorL GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
     [textActorL GetPositionCoordinate] SetValue 0.05 0.5
+
+# The text is on multiple lines and left- and top-justified - above 0.5
+vtkTextMapper textMapperLA
+    textMapperLA SetInput "This is\nmulti-line\ntext output\nabove (left-top)"
+    set tprop [textMapperLA GetTextProperty]
+    $tprop ShallowCopy multiLineTextProp
+    $tprop SetJustificationToLeft
+    $tprop SetVerticalJustificationToTop
+    $tprop SetColor 1 0 0
+vtkActor2D textActorLA
+    textActorLA SetMapper textMapperLA
+    [textActorLA GetPositionCoordinate] SetCoordinateSystemToNormalizedDisplay
+    [textActorLA GetPositionCoordinate] SetValue 0.5 0.85
 
 # The text is on multiple lines and center-justified (both horizontal and
 # vertical).
@@ -123,12 +218,17 @@ vtkPoints Pts
     Pts InsertNextPoint 0.95 1.0 0.0
     Pts InsertNextPoint 0.0 0.5 0.0
     Pts InsertNextPoint 1.0 0.5 0.0
-    Pts InsertNextPoint 0.00 0.85 0.0
-    Pts InsertNextPoint 0.50 0.85 0.0
+    Pts InsertNextPoint 0.0 0.85 0.0
+    Pts InsertNextPoint 1.0 0.85 0.0
     Pts InsertNextPoint 0.00 0.75 0.0
     Pts InsertNextPoint 0.50 0.75 0.0
     Pts InsertNextPoint 0.00 0.65 0.0
     Pts InsertNextPoint 0.50 0.65 0.0
+    Pts InsertNextPoint 0.00 0.25 0.0
+    Pts InsertNextPoint 1.00 0.25 0.0
+    Pts InsertNextPoint 0.00 0.15 0.0
+    Pts InsertNextPoint 1.00 0.15 0.0
+
 # Set up the lines that use these points.
 vtkCellArray Lines
     Lines InsertNextCell 2
@@ -152,13 +252,20 @@ vtkCellArray Lines
     Lines InsertNextCell 2
     Lines InsertCellPoint 12
     Lines InsertCellPoint 13
+    Lines InsertNextCell 2
+    Lines InsertCellPoint 14
+    Lines InsertCellPoint 15
+    Lines InsertNextCell 2
+    Lines InsertCellPoint 16
+    Lines InsertCellPoint 17
+
 # Create a grid that uses these points and lines.
 vtkPolyData Grid
     Grid SetPoints Pts
     Grid SetLines Lines
 # Set up the coordinate system.
 vtkCoordinate normCoords
-    normCoords SetCoordinateSystemToNormalizedViewport
+    normCoords SetCoordinateSystemToNormalizedDisplay
 
 # Set up the mapper and actor (2D) for the grid.
 vtkPolyDataMapper2D mapper
@@ -182,11 +289,18 @@ vtkRenderWindowInteractor iren
 #
 ren1 AddActor2D gridActor
 ren1 AddActor2D textActorL
+ren1 AddActor2D singleLineTextActorT
+ren1 AddActor2D textActorLA
 ren1 AddActor2D textActorC
 ren1 AddActor2D textActorR
 ren1 AddActor2D singleLineTextActorB
 ren1 AddActor2D singleLineTextActorC
-ren1 AddActor2D singleLineTextActorT
+ren1 AddActor2D singleLineTextActorLTT
+ren1 AddActor2D singleLineTextActorRTT
+ren1 AddActor2D singleLineTextActorTB
+ren1 AddActor2D singleLineTextActorBR
+ren1 AddActor2D singleLineTextActorBL
+ren1 AddActor2D singleLineTextActorCC
 
 ren1 SetBackground 1 1 1
 renWin SetSize 500 300

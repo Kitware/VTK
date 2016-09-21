@@ -51,6 +51,7 @@ vtkTextProperty::vtkTextProperty()
 
   this->Justification = VTK_TEXT_LEFT;
   this->VerticalJustification = VTK_TEXT_BOTTOM;
+  this->UseTightBoundingBox = 0;
 
   this->LineOffset = 0.0;
   this->LineSpacing = 1.1; // why not 1.0 ?

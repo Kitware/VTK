@@ -40,6 +40,8 @@
 #include <algorithm>
 #include <map>
 #include <vector>
+#include <sstream>
+#include <limits>
 
 // Print debug info
 #define VTK_FTFC_DEBUG 0
@@ -78,8 +80,10 @@ public:
   FT_Matrix inverseRotation;
 
   // Set by CalculateBoundingBox
-  int ascent;
-  int descent;
+  int ascent;    // position of the highest point of character from baseline which
+                 // has position 0. Negative if below baseline.
+  int descent;   // position of the the lowest point of character from baseline which
+                 // has position 0. Negative if below baseline
   int height;
   struct LineMetrics {
     vtkVector2i origin;
@@ -1340,7 +1344,7 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     return false;
     }
 
-  // Draw a yellow dot at the anchor point:
+  // Draw a red dot at the anchor point:
   if (this->DebugTextures)
     {
     unsigned char *ptr =
@@ -1348,7 +1352,7 @@ bool vtkFreeTypeTools::RenderStringInternal(vtkTextProperty *tprop,
     if (ptr)
       {
       ptr[0] = 255;
-      ptr[1] = 255;
+      ptr[1] = 0;
       ptr[2] = 0;
       ptr[3] = 255;
       }
@@ -1389,10 +1393,27 @@ bool vtkFreeTypeTools::StringToPathInternal(vtkTextProperty *tprop,
   return true;
 }
 
+namespace
+{
+const char* DEFAULT_HEIGHT_STRING = "_/7Agfy";
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::CalculateBoundingBox(const vtkUnicodeString& str, MetaData &metaData)
+{
+  return CalculateBoundingBox(str, metaData, vtkUnicodeString::from_utf8(DEFAULT_HEIGHT_STRING));
+}
+
+//----------------------------------------------------------------------------
+bool vtkFreeTypeTools::CalculateBoundingBox(const vtkStdString& str, MetaData &metaData)
+{
+  return CalculateBoundingBox(str, metaData, vtkStdString(DEFAULT_HEIGHT_STRING));
+}
+
 //----------------------------------------------------------------------------
 template <typename T>
 bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
-                                            MetaData &metaData)
+                                            MetaData &metaData, const T& defaultHeightString)
 {
   // Calculate the metrics for each line. These will be used to calculate
   // a bounding box, but first we need to know the maximum line length to
@@ -1423,36 +1444,47 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   metaData.maxLineWidth = std::max(metaData.maxLineWidth,
                                    metaData.lineMetrics.back().width);
 
-  // Calculate line height from a reference set of characters, since the global
-  // face values are usually way too big. This is the same string used to
-  // determine height in vtkFreeTypeUtilities.
-  const char *heightString = "_/7Agfy";
-  metaData.ascent = 0;
-  metaData.descent = 0;
-  while (*heightString)
+  int numLines = metaData.lineMetrics.size();
+  T heightString;
+  if (metaData.textProperty->GetUseTightBoundingBox() && numLines == 1)
+    {
+    // Calculate line hight from actual characters. This works only for single line text
+    // and may result in a hight that does not include descent. It is used to get
+    // a centered label.
+    heightString = str;
+    }
+  else
+    {
+    // Calculate line height from a reference set of characters, since the global
+    // face values are usually way too big.
+    heightString = defaultHeightString;
+    }
+  metaData.ascent = std::numeric_limits<int>::min();
+  metaData.descent = std::numeric_limits<int>::max();
+  typename T::const_iterator it = heightString.begin();
+  while (it != heightString.end())
     {
     FT_BitmapGlyph bitmapGlyph;
     FT_UInt glyphIndex;
     // Use the unrotated face to get correct metrics:
     FT_Bitmap *bitmap = this->GetBitmap(
-          *heightString, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
+          *it, &metaData.unrotatedScaler, glyphIndex, bitmapGlyph);
     if (bitmap)
       {
       metaData.ascent = std::max(bitmapGlyph->top - 1, metaData.ascent);
       metaData.descent = std::min(-static_cast<int>((bitmap->rows -
-                                                     (bitmapGlyph->top - 1))),
+                                                     bitmapGlyph->top)),
                                   metaData.descent);
       }
-    ++heightString;
+    ++it;
     }
   // Set line height. Descent is negative.
-  metaData.height = metaData.ascent - metaData.descent;
+  metaData.height = metaData.ascent - metaData.descent + 1;
 
   // The unrotated height of the text
-  int numLines = metaData.lineMetrics.size();
-  double lineSpacing = numLines > 1 ? metaData.textProperty->GetLineSpacing()
-                                    : 1.;
-  int fullHeight = numLines * metaData.height * lineSpacing +
+  int interLineSpacing = (metaData.textProperty->GetLineSpacing() - 1) * metaData.height;
+  int fullHeight = numLines * metaData.height +
+                   (numLines - 1) * interLineSpacing +
                    metaData.textProperty->GetLineOffset();
 
   // Will we be rendering a background?
@@ -1478,8 +1510,12 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   // The rotated padding on the text's vertical and horizontal axes:
   vtkVector2i hPad(pad, 0);
   vtkVector2i vPad(0, pad);
+  vtkVector2i hOne(1, 0);
+  vtkVector2i vOne(0, 1);
   rotateVector2i(hPad, s, c);
   rotateVector2i(vPad, s, c);
+  rotateVector2i(hOne, s, c);
+  rotateVector2i(vOne, s, c);
 
   // Calculate the bottom left corner of the data rect. Start at anchor point
   // (0, 0) and subtract out justification. Account for background/frame padding to
@@ -1491,7 +1527,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - (metaData.dx * 0.5);
       break;
     case VTK_TEXT_RIGHT:
-      metaData.BL = metaData.BL - metaData.dx + hPad;
+      metaData.BL = metaData.BL - metaData.dx + hPad + hOne;
       break;
     case VTK_TEXT_LEFT:
       metaData.BL = metaData.BL - hPad;
@@ -1510,7 +1546,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
       metaData.BL = metaData.BL - vPad;
       break;
     case VTK_TEXT_TOP:
-      metaData.BL = metaData.BL - metaData.dy + vPad;
+      metaData.BL = metaData.BL - metaData.dy + vPad + vOne;
       break;
     default:
       vtkErrorMacro(<< "Bad vertical alignment flag: "
@@ -1519,14 +1555,13 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
     }
 
   // Compute the other corners of the data:
-  metaData.TL = metaData.BL + metaData.dy;
-  metaData.TR = metaData.TL + metaData.dx;
-  metaData.BR = metaData.BL + metaData.dx;
+  metaData.TL = metaData.BL + metaData.dy - vOne;
+  metaData.TR = metaData.TL + metaData.dx - hOne;
+  metaData.BR = metaData.BL + metaData.dx - hOne;
 
   // First baseline offset from top-left corner.
   vtkVector2i penOffset(pad, -pad);
   // Account for line spacing to center the text vertically in the bbox:
-  penOffset[1] -= vtkMath::Ceil((lineSpacing - 1.) * metaData.height * 0.5);
   penOffset[1] -= metaData.ascent;
   penOffset[1] -= metaData.textProperty->GetLineOffset();
   rotateVector2i(penOffset, s, c);
@@ -1539,7 +1574,7 @@ bool vtkFreeTypeTools::CalculateBoundingBox(const T& str,
   textBbox[2] = textBbox[3] = pen[1];
 
   // Calculate line offset:
-  vtkVector2i lineFeed(0, -(metaData.height * lineSpacing));
+  vtkVector2i lineFeed(0, -(metaData.height + interLineSpacing));
   rotateVector2i(lineFeed, s, c);
 
   // Compile the metrics data to determine the final bounding box. Set line

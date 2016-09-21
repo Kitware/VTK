@@ -356,8 +356,10 @@ private:
   // Description:
   // This function initializes calculates the size of the required bounding box
   // and stores it in the MetaData provided.
+  bool CalculateBoundingBox(const vtkStdString& str, MetaData &metaData);
+  bool CalculateBoundingBox(const vtkUnicodeString& str, MetaData &metaData);
   template <typename T>
-  bool CalculateBoundingBox(const T& str, MetaData &metaData);
+  bool CalculateBoundingBox(const T& str, MetaData &metaData, const T& defaultHeightString);
 
   // Description:
   // Internal helper method called by RenderString.

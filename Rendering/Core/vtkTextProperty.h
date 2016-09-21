@@ -160,6 +160,15 @@ public:
   const char *GetVerticalJustificationAsString();
 
   // Description:
+  // If this property is on, text is alligned to drawn pixels not to font metrix.
+  // If the text does not include descents, the bounding box will not extend below
+  // the baseline. This option can be used to get centered labels. It does not
+  // work well if the string changes as the string position will move around.
+  vtkSetMacro(UseTightBoundingBox, int);
+  vtkGetMacro(UseTightBoundingBox, int);
+  vtkBooleanMacro(UseTightBoundingBox, int);
+
+  // Description:
   // Set/Get the text's orientation (in degrees).
   vtkSetMacro(Orientation,double);
   vtkGetMacro(Orientation,double);
@@ -199,6 +208,7 @@ protected:
   int   ShadowOffset[2];
   int   Justification;
   int   VerticalJustification;
+  int   UseTightBoundingBox;
   double Orientation;
   double LineOffset;
   double LineSpacing;

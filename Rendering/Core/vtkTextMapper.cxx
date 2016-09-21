@@ -441,21 +441,17 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
     int dims[3];
     this->Image->GetDimensions(dims);
 
-    // Add a fudge factor to the texture coordinates to prevent the top
-    // row of pixels from being truncated on some systems. The coordinates
-    // are calculated to be centered on a texel and trim the padding from the
-    // image. (padding is often added to create textures that have power-of-two
-    // dimensions)
+    // The coordinates are calculated to be centered on a texel and
+    // trim the padding from the image. (padding is often added to
+    // create textures that have power-of-two dimensions)
     float tw = static_cast<float>(this->TextDims[0]);
     float th = static_cast<float>(this->TextDims[1]);
     float iw = static_cast<float>(dims[0]);
     float ih = static_cast<float>(dims[1]);
-    float tcXMin = 1.f / (2.f * iw);
-    float tcYMin = 1.f / (2.f * ih);
-    float tcXMax = std::min(1.0f,
-                            (((2.f * tw - 1.f) / (2.f)) + 0.000001f) / iw);
-    float tcYMax = std::min(1.0f,
-                            (((2.f * th - 1.f) / (2.f)) + 0.000001f) / ih);
+    float tcXMin = 0;
+    float tcYMin = 0;
+    float tcXMax = static_cast<float>(tw) / iw;
+    float tcYMax = static_cast<float>(th) / ih;
     if (vtkFloatArray *tc =
         vtkArrayDownCast<vtkFloatArray>(
           this->PolyData->GetPointData()->GetTCoords()))
@@ -505,17 +501,19 @@ void vtkTextMapper::UpdateQuad(vtkActor2D *actor, int dpi)
       text_bbox[0] = 0;
       text_bbox[2] = 0;
       }
-
+    // adjust the quad so that the anchor point and a point with the same
+    // coordinates fall on the same pixel.
+    double shiftPixel = 1;
     double x = static_cast<double>(text_bbox[0]);
     double y = static_cast<double>(text_bbox[2]);
     double w = static_cast<double>(this->TextDims[0]);
     double h = static_cast<double>(this->TextDims[1]);
 
     this->Points->Reset();
-    this->Points->InsertNextPoint(x, y, 0.);
-    this->Points->InsertNextPoint(x, y + h, 0.);
-    this->Points->InsertNextPoint(x + w, y + h, 0.);
-    this->Points->InsertNextPoint(x + w, y, 0.);
+    this->Points->InsertNextPoint(x - shiftPixel, y - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x - shiftPixel, y + h - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x + w - shiftPixel, y + h - shiftPixel, 0.);
+    this->Points->InsertNextPoint(x + w - shiftPixel, y - shiftPixel, 0.);
     this->CoordsTime.Modified();
     }
 }
