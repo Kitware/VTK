@@ -60,7 +60,7 @@ public:
 
   // Description:
   // Build the link list array. Satisfy the superclass API.
-  virtual void BuildLinks(vtkDataSet *ds)
+  void BuildLinks(vtkDataSet *ds) VTK_OVERRIDE
     {this->Impl->BuildLinks(ds);}
 
   // Description:

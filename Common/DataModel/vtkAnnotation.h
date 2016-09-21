@@ -92,21 +92,21 @@ public:
 
   // Description:
   // Initialize the annotation to an empty state.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Make this annotation have the same properties and have
   // the same selection of another annotation.
-  virtual void ShallowCopy(vtkDataObject* other);
+  void ShallowCopy(vtkDataObject* other) VTK_OVERRIDE;
 
   // Description:
   // Make this annotation have the same properties and have
   // a copy of the selection of another annotation.
-  virtual void DeepCopy(vtkDataObject* other);
+  void DeepCopy(vtkDataObject* other) VTK_OVERRIDE;
 
   // Description:
   // Get the modified time of this object.
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
 protected:
   vtkAnnotation();

@@ -265,7 +265,7 @@ public:
   // Description:
   // Restore data object to initial state.
   // THIS METHOD IS NOT THREAD SAFE.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Convenience method to get the range of the first component (and only
@@ -301,17 +301,16 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Return the type of data object.
-  int GetDataObjectType()
-    {return VTK_DATA_SET;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_DATA_SET;}
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   enum FieldDataType
   {
@@ -349,11 +348,11 @@ public:
   // This returns non-null values in all the same cases as GetAttributes,
   // in addition to the case of FIELD, which will return the field data
   // for any vtkDataObject subclass.
-  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
 
   // Description:
   // Get the number of elements for a specific attribute type (POINT, CELL, etc.).
-  virtual vtkIdType GetNumberOfElements(int type);
+  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
 
   // Description:
   // Returns 1 if there are any ghost cells

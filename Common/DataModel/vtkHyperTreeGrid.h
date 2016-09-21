@@ -70,16 +70,16 @@ public:
   static vtkHyperTreeGrid* New();
 
   vtkTypeMacro(vtkHyperTreeGrid, vtkDataSet);
-  void PrintSelf( ostream&, vtkIndent );
+  void PrintSelf( ostream&, vtkIndent ) VTK_OVERRIDE;
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType();
+  int GetDataObjectType() VTK_OVERRIDE;
 
   // Description:
   // Copy the internal geometric and topological structure of a
   // vtkHyperTreeGrid object.
-  void CopyStructure( vtkDataSet* );
+  void CopyStructure( vtkDataSet* ) VTK_OVERRIDE;
 
   // Description:
   // Set/Get sizes of this rectilinear grid dataset
@@ -117,11 +117,11 @@ public:
 
   // Description:
   // Return the number of cells in the dual grid.
-  vtkIdType GetNumberOfCells();
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
 
   // Description:
   // Return the number of points in the dual grid.
-  vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
 
   // Description:
   // Get the number of leaves in the primal tree grid.
@@ -182,7 +182,7 @@ public:
   // Random access to points requires that arrays are created explicitly.
   // Get point coordinates with ptId such that: 0 <= ptId < NumberOfPoints.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual double* GetPoint( vtkIdType );
+  double* GetPoint( vtkIdType ) VTK_OVERRIDE;
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -191,14 +191,14 @@ public:
   // point id.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPoint( vtkIdType, double[3] );
+  void GetPoint( vtkIdType, double[3] ) VTK_OVERRIDE;
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
   // Random access to cells requires that connectivity arrays are created explicitly.
   // Get cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkCell* GetCell( vtkIdType );
+  vtkCell* GetCell( vtkIdType ) VTK_OVERRIDE;
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -208,14 +208,14 @@ public:
   // method.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCell( vtkIdType, vtkGenericCell* );
+  void GetCell( vtkIdType, vtkGenericCell* ) VTK_OVERRIDE;
 
   // Description:
   // All cell types are 2: quadrilaters,3d: hexahedrons.  They may be degenerate though.
   // Get type of cell with cellId such that: 0 <= cellId < NumberOfCells.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual int GetCellType( vtkIdType );
+  int GetCellType( vtkIdType ) VTK_OVERRIDE;
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -223,7 +223,7 @@ public:
   // Topological inquiry to get points defining cell.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellPoints( vtkIdType, vtkIdList* );
+  void GetCellPoints( vtkIdType, vtkIdList* ) VTK_OVERRIDE;
 
   // Description:
   // Return a pointer to a list of point ids defining cell.
@@ -236,7 +236,7 @@ public:
   // Topological inquiry to get cells using point.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetPointCells( vtkIdType, vtkIdList* );
+  void GetPointCells( vtkIdType, vtkIdList* ) VTK_OVERRIDE;
 
   // Description:
   // This method should be avoided in favor of cell/point iterators.
@@ -247,14 +247,14 @@ public:
   // This is exactly the same as GetCellNeighbors in unstructured grid.
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual void GetCellNeighbors( vtkIdType, vtkIdList*, vtkIdList* );
+  void GetCellNeighbors( vtkIdType, vtkIdList*, vtkIdList* ) VTK_OVERRIDE;
 
   // Description:
   // Find cell to which this point belongs, or at least closest one,
   // even if the point is outside the grid.
   // Since dual points are leaves, use the structure of the Tree instead
   // of a point locator.
-  virtual vtkIdType FindPoint( double x[3] );
+  vtkIdType FindPoint( double x[3] ) VTK_OVERRIDE;
 
   // Description:
   // Locate cell based on global coordinate x and tolerance
@@ -267,10 +267,10 @@ public:
   // the point is to be considered "in" the cell.
   // NB: There is actually no need for a starting cell, just use the
   // point, as the tree structure is efficient enough.
-// THIS METHOD IS NOT THREAD SAFE.
-  virtual vtkIdType FindCell( double x[3], vtkCell *cell, vtkIdType cellId,
-                              double tol2, int& subId, double pcoords[3],
-                              double *weights );
+  // THIS METHOD IS NOT THREAD SAFE.
+  vtkIdType FindCell( double x[3], vtkCell *cell, vtkIdType cellId,
+                      double tol2, int& subId, double pcoords[3],
+                      double *weights ) VTK_OVERRIDE;
 
   // Description:
   // This is a version of the above method that can be used with
@@ -278,15 +278,15 @@ public:
   // to be used in internal calls that might be made to GetCell()
   // THIS METHOD IS THREAD SAFE IF FIRST CALLED FROM A SINGLE THREAD AND
   // THE DATASET IS NOT MODIFIED
-  virtual vtkIdType FindCell( double x[3], vtkCell *cell,
-                              vtkGenericCell *gencell, vtkIdType cellId,
-                              double tol2, int& subId, double pcoords[3],
-                              double *weights );
+  vtkIdType FindCell( double x[3], vtkCell *cell,
+                      vtkGenericCell *gencell, vtkIdType cellId,
+                      double tol2, int& subId, double pcoords[3],
+                      double *weights ) VTK_OVERRIDE;
 
   // Description:
   // Restore data object to initial state,
   // THIS METHOD IS NOT THREAD SAFE.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Initialize an iterator to browse level 0 trees.
@@ -297,16 +297,16 @@ public:
   // used to allocate memory for supporting data structures.
   // This is the number of points of a cell.
   // THIS METHOD IS THREAD SAFE
-  virtual int GetMaxCellSize();
+  int GetMaxCellSize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy( vtkDataObject* );
-  void DeepCopy( vtkDataObject* );
+  void ShallowCopy( vtkDataObject* ) VTK_OVERRIDE;
+  void DeepCopy( vtkDataObject* ) VTK_OVERRIDE;
 
   // Description:
   // Structured extent. The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; }
+  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; }
 
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -315,7 +315,7 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Generate the table before calling InitializeSuperCursorChild.
@@ -357,7 +357,7 @@ protected:
   vtkHyperTreeGrid();
   ~vtkHyperTreeGrid();
 
-  void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   void GetCell( vtkIdType, vtkCell* );
 

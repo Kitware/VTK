@@ -54,46 +54,46 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_RECTILINEAR_GRID;};
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_RECTILINEAR_GRID;};
 
   // Description:
   // Copy the geometric and topological structure of an input rectilinear grid
   // object.
-  void CopyStructure(vtkDataSet *ds);
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
 
   // Description:
   // Restore object to initial state. Release memory back to system.
-  void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Standard vtkDataSet API methods. See vtkDataSet for more information.
-  vtkIdType GetNumberOfCells();
-  vtkIdType GetNumberOfPoints();
-  double *GetPoint(vtkIdType ptId);
-  void GetPoint(vtkIdType id, double x[3]);
-  vtkCell *GetCell(vtkIdType cellId);
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  void GetCellBounds(vtkIdType cellId, double bounds[6]);
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
+  double *GetPoint(vtkIdType ptId) VTK_OVERRIDE;
+  void GetPoint(vtkIdType id, double x[3]) VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   vtkIdType FindPoint(double x, double y, double z) { return this->vtkDataSet::FindPoint(x, y, z);};
-  vtkIdType FindPoint(double x[3]);
+  vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkIdType cellId, double tol2,
-                     int& subId, double pcoords[3], double *weights);
+                     int& subId, double pcoords[3], double *weights) VTK_OVERRIDE;
   vtkIdType FindCell(double x[3], vtkCell *cell, vtkGenericCell *gencell,
                      vtkIdType cellId, double tol2, int& subId,
-                     double pcoords[3], double *weights);
+                     double pcoords[3], double *weights) VTK_OVERRIDE;
   vtkCell *FindAndGetCell(double x[3], vtkCell *cell, vtkIdType cellId,
                           double tol2, int& subId, double pcoords[3],
-                          double *weights);
-  int GetCellType(vtkIdType cellId);
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds)
+                          double *weights) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE
     {vtkStructuredData::GetCellPoints(cellId,ptIds,this->DataDescription,
                                       this->Dimensions);}
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds)
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
     {vtkStructuredData::GetPointCells(ptId,cellIds,this->Dimensions);}
-  void ComputeBounds();
-  int GetMaxCellSize() {return 8;}; //voxel is the largest
+  void ComputeBounds() VTK_OVERRIDE;
+  int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //voxel is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds);
+                        vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // Given a user-supplied vtkPoints container object, this method fills in all
@@ -165,22 +165,22 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Structured extent. The extent type is a 3D extent
-  int GetExtentType() { return VTK_3D_EXTENT; };
+  int GetExtentType() VTK_OVERRIDE { return VTK_3D_EXTENT; };
 
   // Description:
   // Reallocates and copies to set the Extent to the UpdateExtent.
   // This is used internally when the exact extent is requested,
   // and the source generated more than the update extent.
-  virtual void Crop(const int* updateExtent);
+  void Crop(const int* updateExtent) VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.

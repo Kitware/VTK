@@ -45,8 +45,8 @@ protected:
   vtkTreeBFSIterator();
   ~vtkTreeBFSIterator();
 
-  virtual void Initialize();
-  virtual vtkIdType NextInternal();
+  void Initialize() VTK_OVERRIDE;
+  vtkIdType NextInternal() VTK_OVERRIDE;
 
   vtkTreeBFSIteratorInternals* Internals;
   vtkIntArray* Color;

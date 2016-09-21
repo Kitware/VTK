@@ -36,7 +36,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_PATH;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_PATH;}
 
   // Description:
   // Enumeration of recognized control point types:
@@ -72,22 +72,22 @@ public:
 
   // Description:
   //vtkPath doesn't use cells. These methods return trivial values.
-  vtkIdType GetNumberOfCells() { return 0; }
-  vtkCell *GetCell(vtkIdType) { return NULL; }
-  void GetCell(vtkIdType, vtkGenericCell *);
-  int GetCellType(vtkIdType) { return 0; }
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE { return 0; }
+  vtkCell *GetCell(vtkIdType)  VTK_OVERRIDE { return NULL; }
+  void GetCell(vtkIdType, vtkGenericCell *) VTK_OVERRIDE;
+  int GetCellType(vtkIdType)   VTK_OVERRIDE { return 0; }
 
   // Description:
   // vtkPath doesn't use cells, this method just clears ptIds.
-  void GetCellPoints(vtkIdType, vtkIdList *ptIds);
+  void GetCellPoints(vtkIdType, vtkIdList *ptIds) VTK_OVERRIDE;
 
   // Description:
   // vtkPath doesn't use cells, this method just clears cellIds.
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // Return the maximum cell size in this poly data.
-  int GetMaxCellSize() { return 0; }
+  int GetMaxCellSize() VTK_OVERRIDE { return 0; }
 
   // Description:
   // Method allocates initial storage for points. Use this method before the

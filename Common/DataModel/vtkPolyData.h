@@ -82,21 +82,21 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_POLY_DATA;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_POLY_DATA;}
 
   // Description:
   // Copy the geometric and topological structure of an input poly data object.
-  void CopyStructure(vtkDataSet *ds);
+  void CopyStructure(vtkDataSet *ds) VTK_OVERRIDE;
 
   // Description:
   // Standard vtkDataSet interface.
-  vtkIdType GetNumberOfCells();
-  vtkCell *GetCell(vtkIdType cellId);
-  void GetCell(vtkIdType cellId, vtkGenericCell *cell);
-  int GetCellType(vtkIdType cellId);
-  void GetCellBounds(vtkIdType cellId, double bounds[6]);
+  vtkIdType GetNumberOfCells() VTK_OVERRIDE;
+  vtkCell *GetCell(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
+  int GetCellType(vtkIdType cellId) VTK_OVERRIDE;
+  void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
-                        vtkIdList *cellIds);
+                        vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // Copy cells listed in idList from pd, including points, point data,
@@ -108,27 +108,27 @@ public:
 
   // Description:
   // Copy a cells point ids into list provided. (Less efficient.)
-  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds);
+  void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
 
   // Description:
   // Efficient method to obtain cells using a particular point. Make sure that
   // routine BuildLinks() has been called.
-  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds);
+  void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE;
 
   // Description:
   // Compute the (X, Y, Z)  bounds of the data.
-  void ComputeBounds();
+  void ComputeBounds() VTK_OVERRIDE;
 
   // Description:
   // Recover extra allocated memory when creating data whose initial size
   // is unknown. Examples include using the InsertNextCell() method, or
   // when using the CellArray::EstimateSize() method to create vertices,
   // lines, polygons, or triangle strips.
-  void Squeeze();
+  void Squeeze() VTK_OVERRIDE;
 
   // Description:
   // Return the maximum cell size in this poly data.
-  int GetMaxCellSize();
+  int GetMaxCellSize() VTK_OVERRIDE;
 
   // Description:
   // Set the cell array defining vertices.
@@ -377,7 +377,7 @@ public:
 
   // Description:
   // Restore object to initial state. Release memory back to system.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Get the piece and the number of pieces. Similar to extent in 3D.
@@ -395,12 +395,12 @@ public:
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value). THIS METHOD
   // IS THREAD SAFE.
-  unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  void ShallowCopy(vtkDataObject *src);
-  void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // This method will remove any cell that is marked as ghost

@@ -160,7 +160,7 @@ public:
   // Description:
   // Datasets are composite objects and need to check each part for their
   // modified time.
-  virtual vtkMTimeType GetMTime() VTK_OVERRIDE;
+  vtkMTimeType GetMTime() VTK_OVERRIDE;
 
   // Description:
   // Compute the geometry bounding box.
@@ -211,7 +211,7 @@ public:
   // field data is stored as a vtkFieldData instance, not a
   // vtkDataSetAttributes instance. To retrieve field data, use
   // GetAttributesAsFieldData.
-  virtual vtkDataSetAttributes* GetAttributes(int type)
+  vtkDataSetAttributes* GetAttributes(int type) VTK_OVERRIDE
     { return this->Superclass::GetAttributes(type); }
 
   // Description:
@@ -225,11 +225,11 @@ public:
   // Actual size of the data in kibibytes (1024 bytes); only valid after the pipeline has
   // updated. It is guaranteed to be greater than or equal to the memory
   // required to represent the data.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Return the type of data object.
-  int GetDataObjectType();
+  int GetDataObjectType() VTK_OVERRIDE;
 
   // Description:
   // Estimated size needed after tessellation (or special operation)

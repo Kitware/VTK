@@ -47,7 +47,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_DIRECTED_GRAPH;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_DIRECTED_GRAPH;}
 
   // Description:
   // Retrieve a graph from an information vector.
@@ -58,7 +58,7 @@ public:
   // Check the storage, and accept it if it is a valid
   // undirected graph. This is public to allow
   // the ToDirected/UndirectedGraph to work.
-  virtual bool IsStructureValid(vtkGraph *g);
+  bool IsStructureValid(vtkGraph *g) VTK_OVERRIDE;
 
 protected:
   vtkDirectedGraph();

@@ -56,10 +56,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // ImplicitFunction interface
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
-  void EvaluateGradient(double x[3], double g[3]);
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
   // Description:
   // Set the center of the superquadric. Default is 0,0,0.

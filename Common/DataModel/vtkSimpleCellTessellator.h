@@ -90,7 +90,7 @@ public:
                       vtkIdType index,
                       vtkDoubleArray *points,
                       vtkCellArray *cellArray,
-                      vtkPointData *internalPd);
+                      vtkPointData *internalPd) VTK_OVERRIDE;
 
   // Description:
   // Tessellate a 3D `cell'. The result is a set of smaller linear
@@ -105,7 +105,7 @@ public:
                   vtkGenericAttributeCollection *att,
                   vtkDoubleArray *points,
                   vtkCellArray *cellArray,
-                  vtkPointData *internalPd );
+                  vtkPointData *internalPd ) VTK_OVERRIDE;
 
   // Description:
   // Triangulate a 2D `cell'. The result is a set of smaller linear triangles
@@ -120,7 +120,7 @@ public:
                    vtkGenericAttributeCollection *att,
                    vtkDoubleArray *points,
                    vtkCellArray *cellArray,
-                   vtkPointData *internalPd);
+                   vtkPointData *internalPd) VTK_OVERRIDE;
 
   // Description:
   // Reset the output for repeated use of this class.
@@ -129,7 +129,7 @@ public:
 
   // Description:
   // Initialize the tessellator with a data set `ds'.
-  void Initialize(vtkGenericDataSet *ds);
+  void Initialize(vtkGenericDataSet *ds) VTK_OVERRIDE;
 
   // Description:
   // Return the number of fixed subdivisions. It is used to prevent from

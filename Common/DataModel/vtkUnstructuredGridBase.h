@@ -32,12 +32,12 @@ class VTKCOMMONDATAMODEL_EXPORT vtkUnstructuredGridBase : public vtkPointSet
 {
 public:
   vtkAbstractTypeMacro(vtkUnstructuredGridBase,vtkPointSet)
-  void PrintSelf(ostream &os, vtkIndent indent)
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE
   {
     this->Superclass::PrintSelf(os, indent);
   }
 
-  int GetDataObjectType() { return VTK_UNSTRUCTURED_GRID_BASE; }
+  int GetDataObjectType() VTK_OVERRIDE { return VTK_UNSTRUCTURED_GRID_BASE; }
 
   // Description:
   // Allocate memory for the number of cells indicated. extSize is not used.
@@ -45,7 +45,7 @@ public:
 
   // Description:
   // Shallow and Deep copy.
-  void DeepCopy(vtkDataObject *src);
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Insert/create cell in object by type and list of point ids defining

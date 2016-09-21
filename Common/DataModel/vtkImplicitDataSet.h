@@ -60,13 +60,13 @@ public:
   // Description
   // Evaluate the implicit function. This returns the interpolated scalar value
   // at x[3].
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description
   // Evaluate implicit function gradient.
-  void EvaluateGradient(double x[3], double n[3]);
+  void EvaluateGradient(double x[3], double n[3]) VTK_OVERRIDE;
 
   // Description:
   // Set / get the dataset used for the implicit function evaluation.

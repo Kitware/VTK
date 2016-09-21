@@ -57,7 +57,7 @@ public:
   // Description:
   // Build the link list array. All subclasses of vtkAbstractCellLinks
   // must support this method.
-  virtual void BuildLinks(vtkDataSet *data);
+  void BuildLinks(vtkDataSet *data) VTK_OVERRIDE;
 
   // Description:
   // Build the link list array with a provided connectivity array.

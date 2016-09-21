@@ -38,40 +38,40 @@ public:
 
   // Description:
   // Move the iterator to the beginning of the collection.
-  virtual void GoToFirstItem();
+  void GoToFirstItem() VTK_OVERRIDE;
 
   // Description:
   // Move the iterator to the next item in the collection.
-  virtual void GoToNextItem();
+  void GoToNextItem() VTK_OVERRIDE;
 
   // Description:
   // Test whether the iterator is finished with the traversal.
   // Returns 1 for yes, and 0 for no.
   // It is safe to call any of the GetCurrent...() methods only when
   // IsDoneWithTraversal() returns 0.
-  virtual int IsDoneWithTraversal();
+  int IsDoneWithTraversal() VTK_OVERRIDE;
 
   // Description:
   // Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
-  virtual vtkDataObject* GetCurrentDataObject();
+  vtkDataObject* GetCurrentDataObject() VTK_OVERRIDE;
 
   // Description:
   // Returns the meta-data associated with the current item.
   // Note that, depending on iterator implementation, the returned information
   // is not necessarily stored on the current object. So modifying the information
   // is forbidden.
-  virtual vtkInformation* GetCurrentMetaData();
+  vtkInformation* GetCurrentMetaData() VTK_OVERRIDE;
 
   // Description:
   // Returns if the a meta-data information object is present for the current
   // item. Return 1 on success, 0 otherwise.
-  virtual int HasCurrentMetaData();
+  int HasCurrentMetaData() VTK_OVERRIDE;
 
   // Description:
   // Flat index is an index obtained by traversing the tree in preorder.
   // This can be used to uniquely identify nodes in the tree.
   // Not valid if IsDoneWithTraversal() returns true.
-  virtual unsigned int GetCurrentFlatIndex();
+  unsigned int GetCurrentFlatIndex() VTK_OVERRIDE;
 
   // Description:
   // If VisitOnlyLeaves is true, the iterator will only visit nodes

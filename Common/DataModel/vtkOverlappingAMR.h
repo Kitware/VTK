@@ -41,14 +41,14 @@ public:
 
   // Description:
   // Return class name of data type (see vtkType.h for definitions).
-  virtual int GetDataObjectType() {return VTK_OVERLAPPING_AMR;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_OVERLAPPING_AMR;}
 
   vtkTypeMacro(vtkOverlappingAMR,vtkUniformGridAMR);
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Return a new iterator (the iterator has to be deleted by the user).
-  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
 
   //Description:
   //Get/Set the global origin of the amr data set
@@ -140,8 +140,10 @@ public:
 
   // Description:
   // Get/Set the interal representation of amr meta meta data
-  vtkAMRInformation* GetAMRInfo(){ return Superclass::GetAMRInfo();}
-  virtual void SetAMRInfo(vtkAMRInformation* info){ return Superclass::SetAMRInfo(info);}
+  vtkAMRInformation* GetAMRInfo() VTK_OVERRIDE
+    { return Superclass::GetAMRInfo();}
+  void SetAMRInfo(vtkAMRInformation* info) VTK_OVERRIDE
+    { return Superclass::SetAMRInfo(info);}
 
   // Description
   //Check whether the data set is internally consistent, e.g.

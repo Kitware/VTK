@@ -57,7 +57,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  virtual int GetDataObjectType() {return VTK_DIRECTED_ACYCLIC_GRAPH;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_DIRECTED_ACYCLIC_GRAPH;}
 
   // Description:
   // Retrieve a graph from an information vector.
@@ -71,7 +71,7 @@ protected:
   // Description:
   // Check the storage, and accept it if it is a valid
   // tree.
-  virtual bool IsStructureValid(vtkGraph *g);
+  bool IsStructureValid(vtkGraph *g) VTK_OVERRIDE;
 
 private:
   vtkDirectedAcyclicGraph(const vtkDirectedAcyclicGraph&) VTK_DELETE_FUNCTION;

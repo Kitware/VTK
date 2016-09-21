@@ -42,20 +42,20 @@ public:
   // Note that this points to a single instance of vtkInformation object
   // allocated by the iterator and will be changed as soon as GoToNextItem is
   // called.
-  virtual vtkInformation* GetCurrentMetaData();
+  vtkInformation* GetCurrentMetaData() VTK_OVERRIDE;
 
   // Description:
-  virtual int HasCurrentMetaData() { return 1;}
+  int HasCurrentMetaData() VTK_OVERRIDE { return 1;}
 
   // Description:
   // Returns the current item. Valid only when IsDoneWithTraversal() returns 0.
-  virtual vtkDataObject* GetCurrentDataObject();
+  vtkDataObject* GetCurrentDataObject() VTK_OVERRIDE;
 
   // Description:
   // Flat index is an index obtained by traversing the tree in preorder.
   // This can be used to uniquely identify nodes in the tree.
   // Not valid if IsDoneWithTraversal() returns true.
-  unsigned int GetCurrentFlatIndex();
+  unsigned int GetCurrentFlatIndex() VTK_OVERRIDE;
 
   // Description:
   // Returns the level for the current dataset.
@@ -68,18 +68,18 @@ public:
 
   // Description:
   // Move the iterator to the beginning of the collection.
-  virtual void GoToFirstItem();
+  void GoToFirstItem() VTK_OVERRIDE;
 
   // Description:
   // Move the iterator to the next item in the collection.
-  virtual void GoToNextItem();
+  void GoToNextItem() VTK_OVERRIDE;
 
   // Description:
   // Test whether the iterator is finished with the traversal.
   // Returns 1 for yes, and 0 for no.
   // It is safe to call any of the GetCurrent...() methods only when
   // IsDoneWithTraversal() returns 0.
-  virtual int IsDoneWithTraversal();
+  int IsDoneWithTraversal() VTK_OVERRIDE;
 
 protected:
   vtkUniformGridAMRDataIterator();

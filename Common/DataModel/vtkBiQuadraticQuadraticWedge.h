@@ -53,32 +53,33 @@ class VTKCOMMONDATAMODEL_EXPORT vtkBiQuadraticQuadraticWedge : public vtkNonLine
 public:
   static vtkBiQuadraticQuadraticWedge *New ();
   vtkTypeMacro(vtkBiQuadraticQuadraticWedge,vtkNonLinearCell);
-  void PrintSelf (ostream & os, vtkIndent indent);
+  void PrintSelf (ostream & os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Implement the vtkCell API. See the vtkCell API for descriptions
   // of these methods.
-  int GetCellType () { return VTK_BIQUADRATIC_QUADRATIC_WEDGE; }
-  int GetCellDimension () { return 3; }
-  int GetNumberOfEdges () { return 9; }
-  int GetNumberOfFaces () { return 5; }
-  vtkCell *GetEdge (int edgeId);
-  vtkCell *GetFace (int faceId);
+  int GetCellType() VTK_OVERRIDE { return VTK_BIQUADRATIC_QUADRATIC_WEDGE; }
+  int GetCellDimension() VTK_OVERRIDE { return 3; }
+  int GetNumberOfEdges() VTK_OVERRIDE { return 9; }
+  int GetNumberOfFaces() VTK_OVERRIDE { return 5; }
+  vtkCell *GetEdge (int edgeId) VTK_OVERRIDE;
+  vtkCell *GetFace (int faceId) VTK_OVERRIDE;
 
-  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts);
+  int CellBoundary (int subId, double pcoords[3], vtkIdList * pts) VTK_OVERRIDE;
   void Contour (double value, vtkDataArray * cellScalars,
     vtkIncrementalPointLocator * locator, vtkCellArray * verts,
     vtkCellArray * lines, vtkCellArray * polys,
     vtkPointData * inPd, vtkPointData * outPd, vtkCellData * inCd,
-    vtkIdType cellId, vtkCellData * outCd);
+    vtkIdType cellId, vtkCellData * outCd) VTK_OVERRIDE;
   int EvaluatePosition (double x[3], double *closestPoint,
-      int &subId, double pcoords[3], double &dist2, double *weights);
+      int &subId, double pcoords[3], double &dist2,
+      double *weights) VTK_OVERRIDE;
   void EvaluateLocation (int &subId, double pcoords[3], double x[3],
-    double *weights);
-  int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts);
+    double *weights) VTK_OVERRIDE;
+  int Triangulate (int index, vtkIdList * ptIds, vtkPoints * pts) VTK_OVERRIDE;
   void Derivatives (int subId, double pcoords[3], double *values, int dim,
-    double *derivs);
-  virtual double *GetParametricCoords ();
+    double *derivs) VTK_OVERRIDE;
+  double *GetParametricCoords () VTK_OVERRIDE;
 
   // Description:
   // Clip this quadratic Wedge using scalar value provided. Like
@@ -88,18 +89,18 @@ public:
        vtkIncrementalPointLocator * locator, vtkCellArray * tetras,
        vtkPointData * inPd, vtkPointData * outPd,
        vtkCellData * inCd, vtkIdType cellId, vtkCellData * outCd,
-       int insideOut);
+       int insideOut) VTK_OVERRIDE;
 
   // Description:
   // Line-edge intersection. Intersection has to occur within [0,1] parametric
   // coordinates and with specified tolerance.
   int IntersectWithLine (double p1[3], double p2[3], double tol, double &t,
-    double x[3], double pcoords[3], int &subId);
+    double x[3], double pcoords[3], int &subId) VTK_OVERRIDE;
 
 
   // Description:
   // Return the center of the quadratic wedge in parametric coordinates.
-  int GetParametricCenter (double pcoords[3]);
+  int GetParametricCenter (double pcoords[3]) VTK_OVERRIDE;
 
   // Description:
   // @deprecated Replaced by vtkBiQuadraticQuadraticWedge::InterpolateFunctions as of VTK 5.2
@@ -110,11 +111,11 @@ public:
   // Description:
   // Compute the interpolation functions/derivatives
   // (aka shape functions/derivatives)
-  virtual void InterpolateFunctions (double pcoords[3], double weights[15])
+  void InterpolateFunctions (double pcoords[3], double weights[15]) VTK_OVERRIDE
     {
     vtkBiQuadraticQuadraticWedge::InterpolationFunctions(pcoords,weights);
     }
-  virtual void InterpolateDerivs (double pcoords[3], double derivs[45])
+  void InterpolateDerivs (double pcoords[3], double derivs[45]) VTK_OVERRIDE
     {
     vtkBiQuadraticQuadraticWedge::InterpolationDerivs(pcoords,derivs);
     }

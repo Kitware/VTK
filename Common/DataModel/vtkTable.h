@@ -60,7 +60,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkTable : public vtkDataObject
 public:
   static vtkTable* New();
   vtkTypeMacro(vtkTable, vtkDataObject);
-  void PrintSelf(ostream &os, vtkIndent indent);
+  void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   // Description:
   // Dump table contents.  If rowLimit is -1 then the full table
@@ -71,7 +71,7 @@ public:
 
   // Description:
   // Return what type of dataset this is.
-  int GetDataObjectType() {return VTK_TABLE;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_TABLE;}
 
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number
@@ -79,7 +79,7 @@ public:
   // returned is guaranteed to be greater than or equal to the
   // memory required to represent the data (e.g., extra space in
   // arrays, etc. are not included in the return value).
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Get/Set the main data (columns) of the table.
@@ -181,7 +181,7 @@ public:
 
   // Description:
   // Initialize to an empty table.
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Retrieve the table from vtkInformation.
@@ -190,19 +190,19 @@ public:
 
   // Description:
   // Shallow/deep copy the data from src into this object.
-  virtual void ShallowCopy(vtkDataObject* src);
-  virtual void DeepCopy(vtkDataObject* src);
+  void ShallowCopy(vtkDataObject* src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject* src) VTK_OVERRIDE;
 
   // Description:
   // Returns the attributes of the data object as a vtkFieldData.
   // This returns non-null values in all the same cases as GetAttributes,
   // in addition to the case of FIELD, which will return the field data
   // for any vtkDataObject subclass.
-  virtual vtkFieldData* GetAttributesAsFieldData(int type);
+  vtkFieldData* GetAttributesAsFieldData(int type) VTK_OVERRIDE;
 
   // Description:
   // Get the number of elements for a specific attribute type (ROW, etc.).
-  virtual vtkIdType GetNumberOfElements(int type);
+  vtkIdType GetNumberOfElements(int type) VTK_OVERRIDE;
 
 protected:
   vtkTable();

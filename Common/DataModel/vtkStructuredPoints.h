@@ -39,7 +39,7 @@ public:
 
   // Description:
   // To simplify filter superclasses,
-  int GetDataObjectType() {return VTK_STRUCTURED_POINTS;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_STRUCTURED_POINTS;}
 
 protected:
   vtkStructuredPoints();

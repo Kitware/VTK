@@ -41,14 +41,14 @@ public:
   // method requires separate x-y-z values.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual vtkIdType FindClosestPoint(const double x[3]);
+  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
 
   // Description:
   // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2);
+  vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
 
   // Description:
   // Find the closest N points to a position. This returns the closest
@@ -57,23 +57,23 @@ public:
   // The returned points are sorted from closest to farthest.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindClosestNPoints(
-    int N, const double x[3], vtkIdList *result);
+  void FindClosestNPoints(
+    int N, const double x[3], vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // Find all points within a specified radius R of position x.
   // The result is not sorted in any specific manner.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  virtual void FindPointsWithinRadius(double R, const double x[3],
-                                      vtkIdList *result);
+  void FindPointsWithinRadius(double R, const double x[3],
+                              vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // See vtkLocator interface documentation.
   // These methods are not thread safe.
-  virtual void FreeSearchStructure();
-  virtual void BuildLocator();
-  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+  void FreeSearchStructure() VTK_OVERRIDE;
+  void BuildLocator() VTK_OVERRIDE;
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
 protected:
   vtkKdTreePointLocator();

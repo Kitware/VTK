@@ -28,7 +28,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
   public:
     static vtkHierarchicalBoxDataIterator* New();
     vtkTypeMacro(vtkHierarchicalBoxDataIterator,vtkUniformGridAMRDataIterator);
-    void PrintSelf(ostream &os, vtkIndent indent);
+    void PrintSelf(ostream &os, vtkIndent indent) VTK_OVERRIDE;
 
   protected:
     vtkHierarchicalBoxDataIterator();

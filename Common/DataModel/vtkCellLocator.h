@@ -68,10 +68,10 @@ public:
   // Return intersection point (if any) AND the cell which was intersected by
   // the finite line. The cell is returned as a cell id and as a generic cell.
   // For other IntersectWithLine signatures, see vtkAbstractCellLocator
-  virtual int IntersectWithLine(double a0[3], double a1[3], double tol,
-                                double& t, double x[3], double pcoords[3],
-                                int &subId, vtkIdType &cellId,
-                                vtkGenericCell *cell);
+  int IntersectWithLine(double a0[3], double a1[3], double tol,
+                        double& t, double x[3], double pcoords[3],
+                        int &subId, vtkIdType &cellId,
+                        vtkGenericCell *cell) VTK_OVERRIDE;
 
   // Description:
   // Return the closest point and the cell which is closest to the point x.
@@ -83,10 +83,10 @@ public:
   // deallocation can be done only once outside the for loop.  If a cell is
   // found, "cell" contains the points and ptIds for the cell "cellId" upon
   // exit.
-  virtual void FindClosestPoint(
+  void FindClosestPoint(
     double x[3], double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2);
+    int &subId, double& dist2) VTK_OVERRIDE;
 
   // Description:
   // Return the closest point within a specified radius and the cell which is
@@ -104,10 +104,10 @@ public:
   // inside returns the return value of the EvaluatePosition call to the
   // closest cell; inside(=1) or outside(=0).
   // For other FindClosestPointWithinRadius signatures, see vtkAbstractCellLocator
-  virtual vtkIdType FindClosestPointWithinRadius(
+  vtkIdType FindClosestPointWithinRadius(
     double x[3], double radius, double closestPoint[3],
     vtkGenericCell *cell, vtkIdType &cellId,
-    int &subId, double& dist2, int &inside);
+    int &subId, double& dist2, int &inside) VTK_OVERRIDE;
 
   // Description:
   // Get the cells in a particular bucket.
@@ -122,15 +122,15 @@ public:
   // Find the cell containing a given point. returns -1 if no cell found
   // the cell parameters are copied into the supplied variables, a cell must
   // be provided to store the information.
-  virtual vtkIdType FindCell(
+  vtkIdType FindCell(
     double x[3], double tol2, vtkGenericCell *GenCell,
-    double pcoords[3], double *weights);
+    double pcoords[3], double *weights) VTK_OVERRIDE;
 
   // Description:
   // Return a list of unique cell ids inside of a given bounding box. The
   // user must provide the vtkIdList to populate. This method returns data
   // only after the locator has been built.
-  virtual void FindCellsWithinBounds(double *bbox, vtkIdList *cells);
+  void FindCellsWithinBounds(double *bbox, vtkIdList *cells) VTK_OVERRIDE;
 
   // Description:
   // Given a finite line defined by the two points (p1,p2), return the list
@@ -138,17 +138,17 @@ public:
   // that an empty cell list is returned. The user must provide the vtkIdList
   // to populate. This method returns data only after the locator has been
   // built.
-  virtual void FindCellsAlongLine(
-    double p1[3], double p2[3], double tolerance, vtkIdList *cells);
+  void FindCellsAlongLine(double p1[3], double p2[3],
+                          double tolerance, vtkIdList *cells) VTK_OVERRIDE;
 
   // Description:
   // Satisfy vtkLocator abstract interface.
-  virtual void FreeSearchStructure();
-  virtual void BuildLocator();
+  void FreeSearchStructure() VTK_OVERRIDE;
+  void BuildLocator() VTK_OVERRIDE;
   virtual void BuildLocatorIfNeeded();
   virtual void ForceBuildLocator();
   virtual void BuildLocatorInternal();
-  virtual void GenerateRepresentation(int level, vtkPolyData *pd);
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
 protected:
   vtkCellLocator();

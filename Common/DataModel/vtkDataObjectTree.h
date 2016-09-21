@@ -56,20 +56,21 @@ public:
   // Use NewTreeIterator when you have a pointer to a vtkDataObjectTree
   // and NewIterator when you have a pointer to a vtkCompositeDataSet;
   // NewIterator is inherited and calls NewTreeIterator internally.
-  virtual VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator();
+  VTK_NEWINSTANCE vtkCompositeDataIterator* NewIterator() VTK_OVERRIDE;
 
   // Description:
   // Copies the tree structure from the input. All pointers to non-composite
   // data objects are intialized to NULL. This also shallow copies the meta data
   // associated with all the nodes.
-  virtual void CopyStructure(vtkCompositeDataSet* input);
+  void CopyStructure(vtkCompositeDataSet* input) VTK_OVERRIDE;
 
   // Description:
   // Sets the data set at the location pointed by the iterator.
   // The iterator does not need to be iterating over this dataset itself. It can
   // be any composite datasite with similar structure (achieved by using
   // CopyStructure).
-  virtual void SetDataSet(vtkCompositeDataIterator* iter, vtkDataObject* dataObj);
+  void SetDataSet(vtkCompositeDataIterator* iter,
+                  vtkDataObject* dataObj) VTK_OVERRIDE;
 
   // Description:
   // Sets the data at the location provided by a vtkDataObjectTreeIterator
@@ -80,7 +81,7 @@ public:
   // The iterator does not need to be iterating over this dataset itself. It can
   // be an iterator for composite dataset with similar structure (achieved by
   // using CopyStructure).
-  virtual vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter);
+  vtkDataObject* GetDataSet(vtkCompositeDataIterator* iter) VTK_OVERRIDE;
 
   // Description:
   // Returns the meta-data associated with the position pointed by the iterator.
@@ -101,22 +102,22 @@ public:
   // Description:
   // Return the actual size of the data in kibibytes (1024 bytes). This number
   // is valid only after the pipeline has updated.
-  virtual unsigned long GetActualMemorySize();
+  unsigned long GetActualMemorySize() VTK_OVERRIDE;
 
   // Description:
   // Restore data object to initial state,
-  virtual void Initialize();
+  void Initialize() VTK_OVERRIDE;
 
   // Description:
   // Shallow and Deep copy.
-  virtual void ShallowCopy(vtkDataObject *src);
-  virtual void DeepCopy(vtkDataObject *src);
+  void ShallowCopy(vtkDataObject *src) VTK_OVERRIDE;
+  void DeepCopy(vtkDataObject *src) VTK_OVERRIDE;
 
   // Description:
   // Returns the total number of points of all blocks. This will
   // iterate over all blocks and call GetNumberOfPoints() so it
   // might be expansive.
-  virtual vtkIdType GetNumberOfPoints();
+  vtkIdType GetNumberOfPoints() VTK_OVERRIDE;
 
   // Description:
   // Retrieve an instance of this class from an information object.

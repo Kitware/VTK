@@ -72,8 +72,8 @@ public:
   // Description:
   //   Get the spatial bounds of the entire octree space. Sets
   //    bounds array to xmin, xmax, ymin, ymax, zmin, zmax.
-  virtual double *GetBounds();
-  virtual void GetBounds(double *bounds);
+  double *GetBounds() VTK_OVERRIDE;
+  void GetBounds(double *bounds) VTK_OVERRIDE;
 
   // Description:
   //   The number of leaf nodes of the tree, the spatial regions
@@ -95,20 +95,20 @@ public:
   // Create the octree decomposition of the cells of the data set
   // or data sets.  Cells are assigned to octree spatial regions
   // based on the location of their centroids.
-  virtual void BuildLocator();
+  void BuildLocator() VTK_OVERRIDE;
 
   // Description:
   // Return the Id of the point that is closest to the given point.
   // Set the square of the distance between the two points.
-  virtual vtkIdType FindClosestPoint(const double x[3]);
+  vtkIdType FindClosestPoint(const double x[3]) VTK_OVERRIDE;
   vtkIdType FindClosestPoint(double x, double y, double z, double &dist2);
 
   // Description:
   // Given a position x and a radius r, return the id of the point
   // closest to the point in that radius.
   // dist2 returns the squared distance to the point.
-  virtual vtkIdType FindClosestPointWithinRadius(
-    double radius, const double x[3], double& dist2);
+  vtkIdType FindClosestPointWithinRadius(
+    double radius, const double x[3], double& dist2) VTK_OVERRIDE;
 
   // Description:
   // Find the Id of the point in the given leaf region which is
@@ -121,8 +121,8 @@ public:
   // Description:
   // Find all points within a specified radius of position x.
   // The result is not sorted in any specific manner.
-  virtual void FindPointsWithinRadius(
-    double radius, const double x[3], vtkIdList *result);
+  void FindPointsWithinRadius(
+    double radius, const double x[3], vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // Find the closest N points to a position. This returns the closest
@@ -131,7 +131,8 @@ public:
   // The returned points are sorted from closest to farthest.
   // These methods are thread safe if BuildLocator() is directly or
   // indirectly called from a single thread first.
-  void FindClosestNPoints(int N, const double x[3], vtkIdList *result);
+  void FindClosestNPoints(int N, const double x[3],
+                          vtkIdList *result) VTK_OVERRIDE;
 
   // Description:
   // Get a list of the original IDs of all points in a leaf node.
@@ -139,12 +140,12 @@ public:
 
   // Description:
   // Delete the octree data structure.
-  virtual void FreeSearchStructure();
+  void FreeSearchStructure() VTK_OVERRIDE;
 
   // Description:
   // Create a polydata representation of the boundaries of
   // the octree regions.
-  void GenerateRepresentation(int level, vtkPolyData *pd);
+  void GenerateRepresentation(int level, vtkPolyData *pd) VTK_OVERRIDE;
 
   // Description:
   // Fill ids with points found in area.  The area is a 6-tuple containing

@@ -44,7 +44,7 @@ public:
   // Description:
   // Return class name of data type (see vtkType.h for
   // definitions).
-  virtual int GetDataObjectType() {return VTK_MULTIPIECE_DATA_SET;}
+  int GetDataObjectType() VTK_OVERRIDE {return VTK_MULTIPIECE_DATA_SET;}
 
   // Description:
   // Set the number of pieces. This will cause allocation if the new number of
@@ -86,12 +86,12 @@ public:
 
   // Description:
   // Unhiding superclass method.
-  virtual vtkInformation* GetMetaData(vtkCompositeDataIterator* iter)
+  vtkInformation* GetMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
     { return this->Superclass::GetMetaData(iter); }
 
   // Description:
   // Unhiding superclass method.
-  virtual int HasMetaData(vtkCompositeDataIterator* iter)
+  int HasMetaData(vtkCompositeDataIterator* iter) VTK_OVERRIDE
     { return this->Superclass::HasMetaData(iter); }
 
 protected:

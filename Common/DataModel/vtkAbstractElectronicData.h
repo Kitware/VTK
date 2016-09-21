@@ -87,7 +87,7 @@ public:
 
   // Description:
   // Deep copies the data object into this.
-  virtual void DeepCopy(vtkDataObject *obj);
+  void DeepCopy(vtkDataObject *obj) VTK_OVERRIDE;
 
   // Description:
   // Get the padding between the molecule and the cube boundaries. This is

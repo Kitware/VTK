@@ -39,14 +39,14 @@ public:
 
   // Description:
   // Evaluate implicit function using current functions and weights.
-  double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   double EvaluateFunction(double x, double y, double z)
     {return this->vtkImplicitFunction::EvaluateFunction(x, y, z); } ;
 
   // Description:
   // Evaluate gradient of the weighted sum of functions.  Input functions
   // should be linear.
-  void EvaluateGradient(double x[3], double g[3]);
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
   // Description:
   // Override modified time retrieval because of object dependencies.

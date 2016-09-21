@@ -44,7 +44,7 @@ public:
 
   // Description
   // Evaluate the equation.
-  virtual double EvaluateFunction(double x[3]);
+  double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   virtual double EvaluateFunction(double x, double y, double z)
     {
       return this->vtkImplicitFunction::EvaluateFunction(x, y, z);
@@ -52,7 +52,7 @@ public:
 
   // Description
   // Evaluate normal. Not implemented.
-  void EvaluateGradient(double x[3], double g[3]);
+  void EvaluateGradient(double x[3], double g[3]) VTK_OVERRIDE;
 
   // Description:
   // Radius of the sphere.

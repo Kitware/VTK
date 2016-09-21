@@ -69,8 +69,8 @@ protected:
   vtkTreeDFSIterator();
   ~vtkTreeDFSIterator();
 
-  virtual void Initialize();
-  virtual vtkIdType NextInternal();
+  void Initialize() VTK_OVERRIDE;
+  vtkIdType NextInternal() VTK_OVERRIDE;
 
   int Mode;
   vtkIdType CurRoot;

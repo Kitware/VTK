@@ -42,21 +42,23 @@ public:
   static vtkNonMergingPointLocator * New();
 
   vtkTypeMacro( vtkNonMergingPointLocator, vtkPointLocator );
-  void PrintSelf( ostream & os, vtkIndent indent );
+  void PrintSelf( ostream & os, vtkIndent indent ) VTK_OVERRIDE;
 
   // Description:
   // Determine whether a given point x has been inserted into the points list.
   // Return the id of the already inserted point if it is true, or -1 else.
   // Note this function always returns -1 since any point is always inserted.
-  virtual vtkIdType IsInsertedPoint( const double [3] ) { return -1; }
-  virtual vtkIdType IsInsertedPoint( double, double, double ) { return -1; }
+  vtkIdType IsInsertedPoint( const double [3] ) VTK_OVERRIDE
+    { return -1; }
+  vtkIdType IsInsertedPoint( double, double, double ) VTK_OVERRIDE
+    { return -1; }
 
   // Description:
   // Determine whether a given point x has been inserted into the points list.
   // Return 0 if a duplicate has been inserted in the list, or 1 else. Note
   // this function always returns 1 since any point is always inserted. The
   // index of the point is returned via ptId.
-  virtual int InsertUniquePoint( const double x[3], vtkIdType & ptId );
+  int InsertUniquePoint( const double x[3], vtkIdType & ptId ) VTK_OVERRIDE;
 
 protected:
   vtkNonMergingPointLocator() { };
