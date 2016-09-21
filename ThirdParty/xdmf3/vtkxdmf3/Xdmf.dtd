@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Root element of dataset-->
+<!ELEMENT Xdmf (Information*, Domain+)>
+<!ATTLIST Xdmf
+    Version CDATA #IMPLIED
+>
+<!--Contains domain data information-->
+<!ELEMENT Domain (Information*, Grid+)>
+<!ATTLIST Domain
+	Name CDATA #IMPLIED
+>
+<!--Contains a collection of homogeneous elements-->
+<!ELEMENT Grid (Information*, Time*, Grid*, Topology*, Geometry*, Attribute*)>
+<!ATTLIST Grid
+	Name CDATA #IMPLIED
+	GridType (Uniform | Collection) "Uniform"
+        CollectionType   (Spatial | Temporal) "Spatial"
+>
+<!--Contains a graph of points-->
+<!ELEMENT Graph (Information*, Time*, Attribute*)>
+<!ATTLIST Graph
+        Name CDATA #IMPLIED
+        NumberColumns CDATA #REQUIRED
+        NumberRows CDATA #REQUIRED
+>
+<!-- Described Temporal Relationship -->
+<!ELEMENT Time (Information*)>
+<!ATTLIST Time
+    Value CDATA #IMPLIED
+>
+<!--Describes the general organization of the data-->
+<!ELEMENT Topology (Information*, DataItem*)>
+<!ATTLIST Topology
+        TopologyType (NoTopologyType | Polyvertex | Polyline | Polygon | Triangle | Quadrilateral | Tetrahedron | Wedge | Hexahedron | Edge_3 | Triangle_6 | Quadrilateral_8 | Quadrilateral_9 | Tetrahedron_10 | Pyramid_13 | Wedge_15 | Wedge_18 | Hexahedron_20 | Hexahedron_24 | Hexahedron_27 | Hexahedron_64 | Hexahedron_125 | Hexahedron_216 | Hexahedron_343 | Hexahedron_512 | Hexahedron_729 | Hexahedron_1000 | Hexahedron_1331 | Hexahedron_Spectral_64 | Hexahedron_Spectral_125 | Hexahedron_Spectral_216 | Hexahedron_Spectral_343 | Hexahedron_Spectral_512 | Hexahedron_Spectral_729 | Hexahedron_Spectral_1000 | Hexahedron_Spectral_1331 | Mixed | 2DSMesh | 2DRectMesh | 2DCoRectMesh | 3DSMesh | 3DRectMesh | 3DCoRectMesh) #REQUIRED
+	Dimensions CDATA #IMPLIED
+	Order CDATA #IMPLIED
+	NodesPerElement CDATA #IMPLIED
+>
+<!--Describes the XYZ values of the mesh-->
+<!ELEMENT Geometry (Information*, DataItem+)>
+<!ATTLIST Geometry
+	Name CDATA #IMPLIED
+	GeometryType (XYZ | XY | X_Y_Z | VXVYVZ | ORIGIN_DXDYDZ) "XYZ"
+>
+<!--Lowest level element, describes the data that is present in the XDMF dataset-->
+<!ELEMENT DataItem (#PCDATA | DataItem)*>
+<!ATTLIST DataItem
+	Name CDATA #IMPLIED
+        ItemType (Uniform | HyperSlab | Function) "Uniform"
+	Dimensions CDATA #REQUIRED
+	NumberType (Char | UChar | Float | Int | UInt) "Float"
+	Precision (1 | 4 | 8) "4"
+	Reference CDATA #IMPLIED
+        Endian (Big | Little | Native) "Native"
+	Format (XML | HDF | Binary | TIFF) "XML"
+>
+<!--Describes the values on the mesh-->
+<!ELEMENT Attribute (Information*, DataItem)>
+<!ATTLIST Attribute
+	Name CDATA #IMPLIED
+	Center (Node | Cell | Grid | Face | Edge) "Node"
+	AttributeType (Scalar | Vector | Tensor | Tensor6 | Matrix) "Scalar"
+>
+<!--Describes subsections of a grid-->
+<!ELEMENT Set (Information*, DataItem)>
+<!ATTLIST Set
+        Name CDATA #IMPLIED
+        Type (NoSetType | Node | Cell | Face | Edge) "Node"
+>
+<!--Describes a node maping-->
+<!ELEMENT Map (Information*, DataItem*)>
+<!ATTLIST Map
+        Name CDATA #IMPLIED
+>
+<!-- Application Dependent -->
+<!ELEMENT Information (#PCDATA | Information | EMPTY)*>
+<!ATTLIST Information 
+	Name CDATA #IMPLIED
+	Value CDATA #IMPLIED
+>
+
+<!--The Definitions of these three items are extremely loose-->
+<!ELEMENT Aggregate ANY>
+<!ELEMENT Subset ANY>
+<!ELEMENT Function ANY>

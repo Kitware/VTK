@@ -62,7 +62,7 @@ MACRO(VersionWrite vProjectName export_name)
     FOREACH(il ${include_list})
         SET(includes "${includes}\n\#include \"${il}\"")
     ENDFOREACH()
-    FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.hpp
+    FILE(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${vProjectName}Version.hpp
 "/* Current Version of ${vProjectName}
  * Major is: ${vMajor}
  * Minor is: ${vMinor}
@@ -73,7 +73,7 @@ ${includes}
 extern ${export_name} ProjectVersion ${vProjectName}Version;\n"
     )
 
-        FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${vProjectName}Version.cpp
+        FILE(WRITE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${vProjectName}Version.cpp
 "/* Current Version of ${vProjectName}
  * Make sure to include this file in your built sources
  */

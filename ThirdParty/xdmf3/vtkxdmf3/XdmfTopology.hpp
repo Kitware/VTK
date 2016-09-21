@@ -192,7 +192,7 @@ protected:
 
 private:
 
-  XdmfTopology(const XdmfTopology &);
+  XdmfTopology(const XdmfTopology &);  // Not implemented.
   void operator=(const XdmfTopology &);  // Not implemented.
 
   shared_ptr<const XdmfTopologyType> mType;

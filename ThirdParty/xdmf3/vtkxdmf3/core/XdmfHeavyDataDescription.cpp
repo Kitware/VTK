@@ -76,6 +76,8 @@ XdmfHeavyDataDescription::traverse(const shared_ptr<XdmfBaseVisitor> visitor)
 
 }
 
+// C Wrappers
+
 XDMFHEAVYDATADESCRIPTION *
 XdmfHeavyDataDescriptionNew(char * key, char * value)
 {

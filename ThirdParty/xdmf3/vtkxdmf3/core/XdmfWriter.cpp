@@ -22,7 +22,6 @@
 /*****************************************************************************/
 
 #include <fstream>
-#include <libxml/tree.h>
 #include <sstream>
 #include <utility>
 #include "XdmfArray.hpp"
@@ -120,6 +119,9 @@ public:
                (xmlChar*)"Version",
                (xmlChar*)mVersionString.c_str());
     xmlDocSetRootElement(mXMLDocument, mXMLCurrentNode);
+    if(mHeavyDataWriter->getMode() == XdmfHeavyDataWriter::Default) {
+      mHeavyDataWriter->openFile();
+    }
   }
 
   int mDepth;
@@ -374,9 +376,11 @@ XdmfWriter::visit(XdmfArray & array,
 
       // Take care of writing to single heavy data file (Default behavior)
       if(!array.isInitialized() && array.getHeavyDataController(0) &&
-         array.getHeavyDataController(0)->getFilePath().compare(mImpl->mHeavyDataWriter->getFilePath()) != 0 &&
          mImpl->mMode == Default) {
-        array.read();
+        if (array.getHeavyDataController(0)->getFilePath().compare(mImpl->mHeavyDataWriter->getFilePath()) != 0)
+        {
+          array.read();
+        }
       }
 
       if(array.getHeavyDataController(0) ||

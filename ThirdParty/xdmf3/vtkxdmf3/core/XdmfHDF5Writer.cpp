@@ -123,6 +123,7 @@ XdmfHDF5Writer::New(const std::string & filePath,
   return p;
 }
 
+//Set mUseDeflate(true), and mDeflateFactor(6) for default compression
 XdmfHDF5Writer::XdmfHDF5Writer(const std::string & filePath) :
   XdmfHeavyDataWriter(filePath, 1, 800),
   mImpl(new XdmfHDF5WriterImpl()),
@@ -131,6 +132,7 @@ XdmfHDF5Writer::XdmfHDF5Writer(const std::string & filePath) :
 {
 }
 
+//Set mUseDeflate(true), and mDeflateFactor(6) for default compression
 XdmfHDF5Writer::XdmfHDF5Writer(const XdmfHDF5Writer & writerRef) :
   XdmfHeavyDataWriter(writerRef.getFilePath(), 1, 800),
   mImpl(new XdmfHDF5WriterImpl()),
@@ -1399,7 +1401,7 @@ XdmfHDF5Writer::write(XdmfArray & array)
           const hsize_t totalDimensionsSize =
             std::accumulate(current_dims.begin(),
                             current_dims.end(),
-                            1,
+                            (hsize_t) 1,
                             std::multiplies<hsize_t>());
           // The Nth root of the chunk size divided by the dimensions added together
           const double factor =
