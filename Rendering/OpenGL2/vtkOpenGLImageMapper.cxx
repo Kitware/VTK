@@ -607,6 +607,9 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     return;
     }
 
+
+  this->Actor->SetProperty(actor->GetProperty());
+
   // Make this window current. May have become not current due to
   // data updates since the render started.
   window->MakeCurrent();
@@ -691,9 +694,7 @@ void vtkOpenGLImageMapper::DrawPixels(vtkViewport *viewport, int width, int heig
 
   this->Actor->GetTexture()->SetInputData(id);
 
-  glDisable(GL_DEPTH_TEST);
   this->Actor->RenderOverlay(viewport);
-  glEnable(GL_DEPTH_TEST);
   id->Delete();
 }
 

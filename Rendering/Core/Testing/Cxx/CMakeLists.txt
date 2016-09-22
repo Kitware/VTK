@@ -58,6 +58,7 @@ vtk_add_test_cxx(${vtk-module}CxxTests tests
   TestGradientBackground.cxx
   TestHiddenLineRemovalPass.cxx
   TestHomogeneousTransformOfActor.cxx
+  TestImageAndAnnotations.cxx,NO_DATA
   TestInteractorStyleImageProperty.cxx,NO_VALID
   TestInteractorTimers.cxx,NO_VALID
   TestLabeledContourMapper.cxx
