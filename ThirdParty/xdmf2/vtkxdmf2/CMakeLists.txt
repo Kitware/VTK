@@ -38,23 +38,10 @@ if(EXISTS "${HDF5_CONFIG}")
   add_definitions(${HDF5_EXTRA_FLAGS})
 endif()
 
-# Some HDF5 configurations don't properly detect parallel support so
-# we need to do it manually ourselves
-if(NOT HDF5_IS_PARALLEL)
-  include(CheckSymbolExists)
-  set(CMAKE_REQUIRED_INCLUDES ${XDMF_HDF5_INCLUDE_DIRS})
-  check_symbol_exists(H5_HAVE_PARALLEL hdf5.h HDF5_IS_PARALLEL)
-  unset(CMAKE_REQUIRED_INCLUDES)
-endif()
-
 #optional dependencies
 #MPI
 option(XDMF_BUILD_MPI "XDMF should use MPI" OFF)
 mark_as_advanced(XDMF_BUILD_MPI)
-if(HDF5_IS_PARALLEL AND NOT XDMF_BUILD_MPI)
-  message(STATUS "Xdmf2: Enabling MPI since a parallel HDF5 is being used.")
-  set(XDMF_BUILD_MPI ON)
-endif()
 if (XDMF_BUILD_MPI)
   find_package(MPI REQUIRED)
   include_directories(${MPI_C_INCLUDE_PATH})
