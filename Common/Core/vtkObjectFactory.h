@@ -200,7 +200,7 @@ protected:
   virtual vtkObject* CreateObject(const char* vtkclassname );
 
   vtkObjectFactory();
-  ~vtkObjectFactory();
+  ~vtkObjectFactory() VTK_OVERRIDE;
 
   struct OverrideInformation
   {

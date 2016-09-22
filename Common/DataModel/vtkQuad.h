@@ -100,7 +100,7 @@ public:
 
 protected:
   vtkQuad();
-  ~vtkQuad();
+  ~vtkQuad() VTK_OVERRIDE;
 
   vtkLine     *Line;
   vtkTriangle *Triangle;

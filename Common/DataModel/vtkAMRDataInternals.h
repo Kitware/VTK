@@ -61,7 +61,7 @@ public:
 protected:
 
   vtkAMRDataInternals();
-  ~vtkAMRDataInternals();
+  ~vtkAMRDataInternals() VTK_OVERRIDE;
 
   void GenerateIndex(bool force=false);
 

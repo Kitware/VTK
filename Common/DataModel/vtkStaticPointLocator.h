@@ -151,7 +151,7 @@ public:
 
 protected:
   vtkStaticPointLocator();
-  virtual ~vtkStaticPointLocator();
+  ~vtkStaticPointLocator() VTK_OVERRIDE;
 
   int NumberOfPointsPerBucket; // Used with AutomaticOn to control subdivide
   int Divisions[3]; // Number of sub-divisions in x-y-z directions

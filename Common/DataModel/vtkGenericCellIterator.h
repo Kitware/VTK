@@ -78,7 +78,7 @@ public:
 
 protected:
   vtkGenericCellIterator();
-  virtual ~vtkGenericCellIterator();
+  ~vtkGenericCellIterator() VTK_OVERRIDE;
 
 private:
   vtkGenericCellIterator(const vtkGenericCellIterator&) VTK_DELETE_FUNCTION;

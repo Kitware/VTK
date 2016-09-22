@@ -164,7 +164,7 @@ public:
 
 protected:
   vtkLine();
-  ~vtkLine() {}
+  ~vtkLine() VTK_OVERRIDE {}
 
 private:
   vtkLine(const vtkLine&) VTK_DELETE_FUNCTION;

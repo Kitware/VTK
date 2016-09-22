@@ -192,7 +192,7 @@ public:
 
 protected:
   vtkTriangle();
-  ~vtkTriangle();
+  ~vtkTriangle() VTK_OVERRIDE;
 
   vtkLine *Line;
 

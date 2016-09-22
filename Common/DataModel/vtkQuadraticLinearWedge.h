@@ -133,7 +133,7 @@ public:
 
 protected:
   vtkQuadraticLinearWedge ();
-  ~vtkQuadraticLinearWedge ();
+  ~vtkQuadraticLinearWedge () VTK_OVERRIDE;
 
   vtkQuadraticEdge *QuadEdge;
   vtkLine *Edge;

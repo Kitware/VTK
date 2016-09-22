@@ -152,7 +152,7 @@ public:
 
 protected:
   vtkCellLocator();
-  ~vtkCellLocator();
+  ~vtkCellLocator() VTK_OVERRIDE;
 
   void GetBucketNeighbors(int ijk[3], int ndivs, int level);
   void GetOverlappingBuckets(double x[3], int ijk[3], double dist,

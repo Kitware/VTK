@@ -550,7 +550,7 @@ public:
 protected:
   // Construct object with default tuple dimension (number of components) of 1.
   vtkAbstractArray();
-  ~vtkAbstractArray();
+  ~vtkAbstractArray() VTK_OVERRIDE;
 
   // Description:
   // Set an information object that can be used to annotate the array.

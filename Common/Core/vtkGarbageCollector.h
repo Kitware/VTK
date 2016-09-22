@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkGarbageCollector();
-  ~vtkGarbageCollector();
+  ~vtkGarbageCollector() VTK_OVERRIDE;
 
 private:
 

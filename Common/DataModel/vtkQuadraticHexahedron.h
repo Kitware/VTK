@@ -120,7 +120,7 @@ public:
 
 protected:
   vtkQuadraticHexahedron();
-  ~vtkQuadraticHexahedron();
+  ~vtkQuadraticHexahedron() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticQuad *Face;

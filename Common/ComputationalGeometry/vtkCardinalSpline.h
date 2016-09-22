@@ -39,19 +39,19 @@ public:
 
   // Description
   // Compute Cardinal Splines for each dependent variable
-  void Compute ();
+  void Compute () VTK_OVERRIDE;
 
   // Description:
   // Evaluate a 1D cardinal spline.
-  virtual double Evaluate (double t);
+  double Evaluate (double t) VTK_OVERRIDE;
 
   // Description:
   // Deep copy of cardinal spline data.
-  virtual void DeepCopy(vtkSpline *s);
+  void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
 
 protected:
   vtkCardinalSpline();
-  ~vtkCardinalSpline() {}
+  ~vtkCardinalSpline() VTK_OVERRIDE {}
 
   void Fit1D (int n, double *x, double *y, double *w, double coefficients[][4],
               int leftConstraint, double leftValue, int rightConstraint,

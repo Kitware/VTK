@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkReebGraphSimplificationMetric();
-  ~vtkReebGraphSimplificationMetric();
+  ~vtkReebGraphSimplificationMetric() VTK_OVERRIDE;
 
   double    LowerBound, UpperBound;
 

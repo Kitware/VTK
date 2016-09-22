@@ -80,7 +80,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctreePointsGrabber();
-  virtual ~vtkHyperOctreePointsGrabber();
+  ~vtkHyperOctreePointsGrabber() VTK_OVERRIDE;
 
   int Dimension;
 

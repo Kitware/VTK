@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkAbstractPointLocator();
-  virtual ~vtkAbstractPointLocator();
+  ~vtkAbstractPointLocator() VTK_OVERRIDE;
 
   double Bounds[6]; // bounds of points
   vtkIdType NumberOfBuckets; // total size of locator

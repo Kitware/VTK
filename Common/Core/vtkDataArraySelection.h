@@ -129,7 +129,7 @@ public:
   void CopySelections(vtkDataArraySelection* selections);
 protected:
   vtkDataArraySelection();
-  ~vtkDataArraySelection();
+  ~vtkDataArraySelection() VTK_OVERRIDE;
 
   // Internal implementation details.
   vtkDataArraySelectionInternals* Internal;

@@ -97,7 +97,7 @@ public:
 
 protected:
   vtkGenericSubdivisionErrorMetric();
-  ~vtkGenericSubdivisionErrorMetric();
+  ~vtkGenericSubdivisionErrorMetric() VTK_OVERRIDE;
 
   vtkGenericAdaptorCell *GenericCell;
   vtkGenericDataSet *DataSet;

@@ -42,14 +42,14 @@ public:
 
 protected:
   vtkCachedStreamingDemandDrivenPipeline();
-  ~vtkCachedStreamingDemandDrivenPipeline();
+  ~vtkCachedStreamingDemandDrivenPipeline() VTK_OVERRIDE;
 
-  virtual int NeedToExecuteData(int outputPort,
+  int NeedToExecuteData(int outputPort,
                                 vtkInformationVector** inInfoVec,
-                                vtkInformationVector* outInfoVec);
-  virtual int ExecuteData(vtkInformation* request,
+                                vtkInformationVector* outInfoVec) VTK_OVERRIDE;
+  int ExecuteData(vtkInformation* request,
                           vtkInformationVector** inInfoVec,
-                          vtkInformationVector* outInfoVec);
+                          vtkInformationVector* outInfoVec) VTK_OVERRIDE;
 
   int CacheSize;
 

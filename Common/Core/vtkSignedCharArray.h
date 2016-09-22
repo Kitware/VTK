@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkSignedCharArray();
-  ~vtkSignedCharArray();
+  ~vtkSignedCharArray() VTK_OVERRIDE;
 
 private:
 

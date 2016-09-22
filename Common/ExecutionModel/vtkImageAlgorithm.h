@@ -47,9 +47,9 @@ public:
   // Process a request from the executive.  For vtkImageAlgorithm, the
   // request will be delegated to one of the following methods: RequestData,
   // RequestInformation, or RequestUpdateExtent.
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // Description:
   // Assign a data object as input. Note that this method does not
@@ -75,7 +75,7 @@ public:
 
 protected:
   vtkImageAlgorithm();
-  ~vtkImageAlgorithm();
+  ~vtkImageAlgorithm() VTK_OVERRIDE;
 
   // Description:
   // Subclasses can reimplement this method to collect information
@@ -145,8 +145,8 @@ protected:
   // These method should be reimplemented by subclasses that have
   // more than a single input or single output.
   // See vtkAlgorithm for more information.
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkImageAlgorithm(const vtkImageAlgorithm&) VTK_DELETE_FUNCTION;

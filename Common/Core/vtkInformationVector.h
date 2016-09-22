@@ -73,7 +73,7 @@ public:
 
 protected:
   vtkInformationVector();
-  ~vtkInformationVector();
+  ~vtkInformationVector() VTK_OVERRIDE;
 
   // Internal implementation details.
   vtkInformationVectorInternals* Internal;

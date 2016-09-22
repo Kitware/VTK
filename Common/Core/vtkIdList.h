@@ -126,7 +126,7 @@ public:
 
 protected:
   vtkIdList();
-  ~vtkIdList();
+  ~vtkIdList() VTK_OVERRIDE;
 
   vtkIdType NumberOfIds;
   vtkIdType Size;

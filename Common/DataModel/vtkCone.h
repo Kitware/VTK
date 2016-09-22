@@ -58,7 +58,7 @@ public:
 
 protected:
   vtkCone();
-  ~vtkCone() {}
+  ~vtkCone() VTK_OVERRIDE {}
 
   double Angle;
 

@@ -35,7 +35,7 @@ public:
 
   vtkInformationObjectBaseKey(const char* name, const char* location,
                               const char* requiredClass=0);
-  ~vtkInformationObjectBaseKey();
+  ~vtkInformationObjectBaseKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationObjectBaseKey, given a

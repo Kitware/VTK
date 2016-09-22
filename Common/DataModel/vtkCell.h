@@ -318,7 +318,7 @@ public:
 
 protected:
   vtkCell();
-  ~vtkCell();
+  ~vtkCell() VTK_OVERRIDE;
 
   double Bounds[6];
 

@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkUniformGridAMR();
-  virtual ~vtkUniformGridAMR();
+  ~vtkUniformGridAMR() VTK_OVERRIDE;
 
   // Description:
   // Get/Set the meta AMR meta data

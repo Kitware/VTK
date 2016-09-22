@@ -197,7 +197,7 @@ public:
 
 protected:
   vtkStructuredGrid();
-  ~vtkStructuredGrid();
+  ~vtkStructuredGrid() VTK_OVERRIDE;
 
   // for the GetCell method
   vtkVertex *Vertex;

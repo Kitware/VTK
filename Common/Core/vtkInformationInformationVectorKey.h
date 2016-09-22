@@ -34,7 +34,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationInformationVectorKey(const char* name, const char* location);
-  ~vtkInformationInformationVectorKey();
+  ~vtkInformationInformationVectorKey() VTK_OVERRIDE;
 
   // Description:
   // Get/Set the value associated with this key in the given

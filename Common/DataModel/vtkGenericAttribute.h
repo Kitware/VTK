@@ -193,7 +193,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkGenericAttribute : public vtkObject
 
 protected:
   vtkGenericAttribute();
-  ~vtkGenericAttribute();
+  ~vtkGenericAttribute() VTK_OVERRIDE;
 
 private:
   vtkGenericAttribute(const vtkGenericAttribute&) VTK_DELETE_FUNCTION;

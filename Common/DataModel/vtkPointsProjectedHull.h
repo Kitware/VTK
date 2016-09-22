@@ -132,7 +132,7 @@ public:
 protected:
 
     vtkPointsProjectedHull();
-    ~vtkPointsProjectedHull();
+    ~vtkPointsProjectedHull() VTK_OVERRIDE;
 
 private:
 

@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkPlaneCollection() {}
-  ~vtkPlaneCollection() {}
+  ~vtkPlaneCollection() VTK_OVERRIDE {}
 
 
 private:

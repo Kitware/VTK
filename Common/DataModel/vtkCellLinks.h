@@ -140,7 +140,7 @@ public:
 
 protected:
   vtkCellLinks():Array(NULL),Size(0),MaxId(-1),Extend(1000) {}
-  virtual ~vtkCellLinks();
+  ~vtkCellLinks() VTK_OVERRIDE;
 
   // Description:
   // Increment the count of the number of cells using the point.

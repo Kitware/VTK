@@ -53,7 +53,7 @@ public:
 
 protected:
   vtkImplicitFunctionCollection() {}
-  ~vtkImplicitFunctionCollection() {}
+  ~vtkImplicitFunctionCollection() VTK_OVERRIDE {}
 
 
 private:

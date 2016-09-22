@@ -153,7 +153,7 @@ public:
 
 protected:
   vtkGenericCell();
-  ~vtkGenericCell();
+  ~vtkGenericCell() VTK_OVERRIDE;
 
   vtkCell *Cell;
 

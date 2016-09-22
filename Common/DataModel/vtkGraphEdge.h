@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkGraphEdge();
-  ~vtkGraphEdge();
+  ~vtkGraphEdge() VTK_OVERRIDE;
 
   vtkIdType Source;
   vtkIdType Target;

@@ -94,7 +94,7 @@ public:
   typedef T ValueType;
 protected:
   vtkArrayIteratorTemplate();
-  ~vtkArrayIteratorTemplate();
+  ~vtkArrayIteratorTemplate() VTK_OVERRIDE;
 
   T* Pointer;
 private:

@@ -37,7 +37,7 @@ public:
 
 protected:
   vtkPointSetCellIterator();
-  ~vtkPointSetCellIterator();
+  ~vtkPointSetCellIterator() VTK_OVERRIDE;
 
   void ResetToFirstCell() VTK_OVERRIDE;
   void IncrementToNextCell() VTK_OVERRIDE;

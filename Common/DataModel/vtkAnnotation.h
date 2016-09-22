@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkAnnotation();
-  ~vtkAnnotation();
+  ~vtkAnnotation() VTK_OVERRIDE;
 
   vtkSelection* Selection;
 

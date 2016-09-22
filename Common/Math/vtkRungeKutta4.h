@@ -87,7 +87,7 @@ public:
 
 protected:
   vtkRungeKutta4();
-  ~vtkRungeKutta4();
+  ~vtkRungeKutta4() VTK_OVERRIDE;
 
   void Initialize() VTK_OVERRIDE;
 

@@ -59,11 +59,11 @@ public:
 
   // Description:
   // Compute Kochanek Spline coefficients.
-  void Compute ();
+  void Compute () VTK_OVERRIDE;
 
   // Description:
   // Evaluate a 1D Kochanek spline.
-  double Evaluate (double t);
+  double Evaluate (double t) VTK_OVERRIDE;
 
   // Description:
   // Set the bias for all points. Default is 0.
@@ -82,11 +82,11 @@ public:
 
   // Description:
   // Deep copy of cardinal spline data.
-  virtual void DeepCopy(vtkSpline *s);
+  void DeepCopy(vtkSpline *s) VTK_OVERRIDE;
 
 protected:
   vtkKochanekSpline();
-  ~vtkKochanekSpline() {}
+  ~vtkKochanekSpline() VTK_OVERRIDE {}
 
   void Fit1D (int n, double *x, double *y, double tension, double bias,
               double continuity, double coefficients[][4], int leftConstraint,

@@ -117,7 +117,7 @@ public:
 
 protected:
   vtkAttributesErrorMetric();
-  virtual ~vtkAttributesErrorMetric();
+  ~vtkAttributesErrorMetric() VTK_OVERRIDE;
 
   // Description:
   // Compute the square absolute attribute tolerance, only if the cached value

@@ -166,7 +166,7 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform2D : public vtkObject
 
 protected:
   vtkTransform2D ();
-  ~vtkTransform2D ();
+  ~vtkTransform2D () VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkTransform2D *t);
 

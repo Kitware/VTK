@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkDirectedGraph();
-  ~vtkDirectedGraph();
+  ~vtkDirectedGraph() VTK_OVERRIDE;
 
 private:
   vtkDirectedGraph(const vtkDirectedGraph&) VTK_DELETE_FUNCTION;

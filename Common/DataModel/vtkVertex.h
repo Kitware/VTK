@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkVertex();
-  ~vtkVertex() {}
+  ~vtkVertex() VTK_OVERRIDE {}
 
 private:
   vtkVertex(const vtkVertex&) VTK_DELETE_FUNCTION;

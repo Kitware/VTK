@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkStaticCellLinks();
-  virtual ~vtkStaticCellLinks();
+  ~vtkStaticCellLinks() VTK_OVERRIDE;
 
   vtkStaticCellLinksTemplate<vtkIdType> *Impl;
 

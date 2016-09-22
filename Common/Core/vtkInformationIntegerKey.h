@@ -32,7 +32,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationIntegerKey(const char* name, const char* location);
-  ~vtkInformationIntegerKey();
+  ~vtkInformationIntegerKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationIntegerKey, given a

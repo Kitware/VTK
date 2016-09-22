@@ -154,7 +154,7 @@ public:
 
 protected:
   vtkUniformGrid();
-  ~vtkUniformGrid();
+  ~vtkUniformGrid() VTK_OVERRIDE;
 
   // Description:
   // Returns the cell dimensions for this vtkUniformGrid instance.

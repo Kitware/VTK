@@ -34,10 +34,10 @@ public:
 
 protected:
   vtkTrivialConsumer();
-  ~vtkTrivialConsumer();
+  ~vtkTrivialConsumer() VTK_OVERRIDE;
 
-  virtual int FillInputPortInformation(int, vtkInformation*);
-  virtual int FillOutputPortInformation(int, vtkInformation*);
+  int FillInputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
+  int FillOutputPortInformation(int, vtkInformation*) VTK_OVERRIDE;
 private:
   vtkTrivialConsumer(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;
   void operator=(const vtkTrivialConsumer&) VTK_DELETE_FUNCTION;

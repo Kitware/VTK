@@ -32,7 +32,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkHierarchicalBoxDataIterator :
 
   protected:
     vtkHierarchicalBoxDataIterator();
-    virtual ~vtkHierarchicalBoxDataIterator();
+    ~vtkHierarchicalBoxDataIterator() VTK_OVERRIDE;
 
   private:
     vtkHierarchicalBoxDataIterator(const vtkHierarchicalBoxDataIterator&) VTK_DELETE_FUNCTION;

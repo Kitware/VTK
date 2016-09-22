@@ -136,7 +136,7 @@ class VTKCOMMONDATAMODEL_EXPORT vtkDistributedGraphHelper : public vtkObject
 
  protected:
   vtkDistributedGraphHelper();
-  virtual ~vtkDistributedGraphHelper();
+  ~vtkDistributedGraphHelper() VTK_OVERRIDE;
 
   // Description:
   // Add a vertex, optionally with properties, to the distributed graph.

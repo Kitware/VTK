@@ -116,7 +116,7 @@ public:
 
 protected:
   vtkQuadratureSchemeDefinition();
-  ~vtkQuadratureSchemeDefinition();
+  ~vtkQuadratureSchemeDefinition() VTK_OVERRIDE;
 private:
   // Description:
   // Allocate/De-allocate resources that will be used by the definition.

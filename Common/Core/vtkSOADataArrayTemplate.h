@@ -175,7 +175,7 @@ public:
 
 protected:
   vtkSOADataArrayTemplate();
-  ~vtkSOADataArrayTemplate();
+  ~vtkSOADataArrayTemplate() VTK_OVERRIDE;
 
   // Description:
   // Allocate space for numTuples. Old data is not preserved. If numTuples == 0,

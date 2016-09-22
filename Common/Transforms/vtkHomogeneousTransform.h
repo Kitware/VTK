@@ -89,7 +89,7 @@ public:
 
 protected:
   vtkHomogeneousTransform();
-  ~vtkHomogeneousTransform();
+  ~vtkHomogeneousTransform() VTK_OVERRIDE;
 
   void InternalDeepCopy(vtkAbstractTransform *transform) VTK_OVERRIDE;
 

@@ -228,7 +228,7 @@ public:
 protected:
 
   vtkKdNode();
-  ~vtkKdNode();
+  ~vtkKdNode() VTK_OVERRIDE;
 
 private:
 

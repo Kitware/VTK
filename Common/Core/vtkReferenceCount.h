@@ -34,7 +34,7 @@ public:
 
 protected:
   vtkReferenceCount();
-  ~vtkReferenceCount();
+  ~vtkReferenceCount() VTK_OVERRIDE;
 
 private:
   vtkReferenceCount(const vtkReferenceCount&) VTK_DELETE_FUNCTION;

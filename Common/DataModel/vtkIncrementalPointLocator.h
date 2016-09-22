@@ -119,7 +119,7 @@ public:
 
 protected:
   vtkIncrementalPointLocator();
-  virtual ~vtkIncrementalPointLocator();
+  ~vtkIncrementalPointLocator() VTK_OVERRIDE;
 
 private:
   vtkIncrementalPointLocator( const vtkIncrementalPointLocator & ) VTK_DELETE_FUNCTION;

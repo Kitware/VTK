@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkTreeIterator();
-  ~vtkTreeIterator();
+  ~vtkTreeIterator() VTK_OVERRIDE;
 
   virtual void Initialize() = 0;
   virtual vtkIdType NextInternal() = 0;

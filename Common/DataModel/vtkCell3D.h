@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkCell3D();
-  ~vtkCell3D();
+  ~vtkCell3D() VTK_OVERRIDE;
 
   vtkOrderedTriangulator *Triangulator;
   double                  MergeTolerance;

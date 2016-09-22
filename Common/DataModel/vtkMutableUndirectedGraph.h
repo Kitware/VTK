@@ -298,7 +298,7 @@ public:
 
 protected:
   vtkMutableUndirectedGraph();
-  ~vtkMutableUndirectedGraph();
+  ~vtkMutableUndirectedGraph() VTK_OVERRIDE;
 
   // Description:
   // Graph edge that is reused of AddGraphEdge calls.

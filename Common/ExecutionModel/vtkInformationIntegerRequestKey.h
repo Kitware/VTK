@@ -42,7 +42,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationIntegerRequestKey(const char* name, const char* location);
-  ~vtkInformationIntegerRequestKey();
+  ~vtkInformationIntegerRequestKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationIntegerRequestKey,
@@ -57,22 +57,22 @@ public:
   // Returns true if a value of type DataKey does not exist in dobjInfo
   // or if it is different that the value stored in pipelineInfo using
   // this key.
-  virtual bool NeedToExecute(vtkInformation* pipelineInfo,
-                             vtkInformation* dobjInfo);
+  bool NeedToExecute(vtkInformation* pipelineInfo,
+                             vtkInformation* dobjInfo) VTK_OVERRIDE;
 
   // Description:
   // Copies the value stored in pipelineInfo using this key into
   // dobjInfo.
-  virtual void StoreMetaData(vtkInformation* request,
+  void StoreMetaData(vtkInformation* request,
                              vtkInformation* pipelineInfo,
-                             vtkInformation* dobjInfo);
+                             vtkInformation* dobjInfo) VTK_OVERRIDE;
 
   // Description:
   // Copies the value stored in fromInfo using this key into toInfo
   // if request has the REQUEST_UPDATE_EXTENT key.
-  virtual void CopyDefaultInformation(vtkInformation* request,
+  void CopyDefaultInformation(vtkInformation* request,
                                       vtkInformation* fromInfo,
-                                      vtkInformation* toInfo);
+                                      vtkInformation* toInfo) VTK_OVERRIDE;
 
 protected:
   vtkInformationIntegerKey* DataKey;

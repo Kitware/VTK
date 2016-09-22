@@ -81,7 +81,7 @@ public:
 
 protected:
   vtkSphere();
-  ~vtkSphere() {}
+  ~vtkSphere() VTK_OVERRIDE {}
 
   double Radius;
   double Center[3];

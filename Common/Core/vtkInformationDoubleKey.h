@@ -32,7 +32,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDoubleKey(const char* name, const char* location);
-  ~vtkInformationDoubleKey();
+  ~vtkInformationDoubleKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationDoubleKey, given a

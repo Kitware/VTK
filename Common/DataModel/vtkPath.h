@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkPath();
-  ~vtkPath();
+  ~vtkPath() VTK_OVERRIDE;
 
 private:
   vtkPath(const vtkPath&) VTK_DELETE_FUNCTION;

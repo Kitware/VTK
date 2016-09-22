@@ -150,7 +150,7 @@ public:
 
 protected:
   vtkSpline();
-  ~vtkSpline();
+  ~vtkSpline() VTK_OVERRIDE;
 
   vtkMTimeType ComputeTime;
   int ClampValue;

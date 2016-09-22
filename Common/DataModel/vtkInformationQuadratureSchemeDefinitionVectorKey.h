@@ -42,7 +42,7 @@ public:
           const char* name,
           const char* location);
   //
-  ~vtkInformationQuadratureSchemeDefinitionVectorKey();
+  ~vtkInformationQuadratureSchemeDefinitionVectorKey() VTK_OVERRIDE;
 
   // Description:
   // Clear the vector.

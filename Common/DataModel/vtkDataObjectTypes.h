@@ -57,7 +57,7 @@ public:
 
 protected:
   vtkDataObjectTypes() {}
-  ~vtkDataObjectTypes() {}
+  ~vtkDataObjectTypes() VTK_OVERRIDE {}
 
   // Description:
   // Method used to validate data object types, for testing purposes

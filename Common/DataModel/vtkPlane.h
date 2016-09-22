@@ -109,7 +109,7 @@ public:
 
 protected:
   vtkPlane();
-  ~vtkPlane() {}
+  ~vtkPlane() VTK_OVERRIDE {}
 
   double Normal[3];
   double Origin[3];

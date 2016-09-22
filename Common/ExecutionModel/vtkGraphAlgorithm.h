@@ -54,9 +54,9 @@ public:
 
   // Description:
   // see vtkAlgorithm for details
-  virtual int ProcessRequest(vtkInformation*,
+  int ProcessRequest(vtkInformation*,
                              vtkInformationVector**,
-                             vtkInformationVector*);
+                             vtkInformationVector*) VTK_OVERRIDE;
 
   // Description:
   // Get the output data object for a port on this algorithm.
@@ -72,7 +72,7 @@ public:
 
 protected:
   vtkGraphAlgorithm();
-  ~vtkGraphAlgorithm();
+  ~vtkGraphAlgorithm() VTK_OVERRIDE;
 
   // convenience method
   virtual int RequestInformation(vtkInformation* request,
@@ -99,8 +99,8 @@ protected:
                                   vtkInformationVector*);
 
   // see algorithm for more info
-  virtual int FillOutputPortInformation(int port, vtkInformation* info);
-  virtual int FillInputPortInformation(int port, vtkInformation* info);
+  int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+  int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
 private:
   vtkGraphAlgorithm(const vtkGraphAlgorithm&) VTK_DELETE_FUNCTION;

@@ -486,7 +486,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkHyperOctree();
-  ~vtkHyperOctree();
+  ~vtkHyperOctree() VTK_OVERRIDE;
 
   void ComputeBounds() VTK_OVERRIDE;
 

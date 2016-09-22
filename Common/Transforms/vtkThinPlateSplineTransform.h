@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkThinPlateSplineTransform();
-  ~vtkThinPlateSplineTransform();
+  ~vtkThinPlateSplineTransform() VTK_OVERRIDE;
 
   // Description:
   // Prepare the transformation for application.

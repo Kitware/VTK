@@ -74,7 +74,7 @@ public:
 
 protected:
   vtkInformationIterator();
-  ~vtkInformationIterator();
+  ~vtkInformationIterator() VTK_OVERRIDE;
 
   vtkInformation* Information;
   vtkInformationIteratorInternals* Internal;

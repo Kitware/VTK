@@ -313,7 +313,7 @@ public:
 
 protected:
   vtkUnstructuredGrid();
-  ~vtkUnstructuredGrid();
+  ~vtkUnstructuredGrid() VTK_OVERRIDE;
 
   // used by GetCell method
   vtkVertex                         *Vertex;

@@ -123,7 +123,7 @@ public:
 
 protected:
   vtkScalarTree();
-  ~vtkScalarTree();
+  ~vtkScalarTree() VTK_OVERRIDE;
 
   vtkDataSet   *DataSet;    //the dataset over which the scalar tree is built
   vtkDataArray *Scalars;    //the scalars of the DataSet

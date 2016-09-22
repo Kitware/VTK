@@ -83,7 +83,7 @@ public:
 
 protected:
   vtkHeap();
-  ~vtkHeap();
+  ~vtkHeap() VTK_OVERRIDE;
 
   void Add(size_t blockSize);
   void CleanAll();

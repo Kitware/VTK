@@ -63,7 +63,7 @@ public:
 
 protected:
   vtkCharArray();
-  ~vtkCharArray();
+  ~vtkCharArray() VTK_OVERRIDE;
 
 private:
 

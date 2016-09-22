@@ -52,24 +52,24 @@ public:
   // Description:
   // Generalized interface for asking the executive to fulfill update
   // requests.
-  virtual int ProcessRequest(vtkInformation* request,
+  int ProcessRequest(vtkInformation* request,
                              vtkInformationVector** inInfo,
-                             vtkInformationVector* outInfo);
+                             vtkInformationVector* outInfo) VTK_OVERRIDE;
 
   // Description:
   // Implement the pipeline modified time request.
-  virtual int
+  int
   ComputePipelineMTime(vtkInformation* request,
                        vtkInformationVector** inInfoVec,
                        vtkInformationVector* outInfoVec,
                        int requestFromOutputPort,
-                       vtkMTimeType* mtime);
+                       vtkMTimeType* mtime) VTK_OVERRIDE;
 
   // Description:
   // Bring the algorithm's outputs up-to-date.  Returns 1 for success
   // and 0 for failure.
-  virtual int Update();
-  virtual int Update(int port);
+  int Update() VTK_OVERRIDE;
+  int Update(int port) VTK_OVERRIDE;
 
   // Description:
   // Get the PipelineMTime for this exective.
@@ -92,11 +92,11 @@ public:
   // Bring the output data object's existence up to date.  This does
   // not actually produce data, but does create the data object that
   // will store data produced during the UpdateData step.
-  virtual int UpdateDataObject();
+  int UpdateDataObject() VTK_OVERRIDE;
 
   // Description:
   // Bring the output information up to date.
-  virtual int UpdateInformation();
+  int UpdateInformation() VTK_OVERRIDE;
 
   // Description:
   // Bring the output data up to date.  This should be called only
@@ -146,7 +146,7 @@ public:
 
 protected:
   vtkDemandDrivenPipeline();
-  ~vtkDemandDrivenPipeline();
+  ~vtkDemandDrivenPipeline() VTK_OVERRIDE;
 
   // Helper methods to send requests to the algorithm.
   virtual int ExecuteDataObject(vtkInformation* request,
@@ -161,7 +161,7 @@ protected:
 
 
   // Reset the pipeline update values in the given output information object.
-  virtual void ResetPipelineInformation(int, vtkInformation*);
+  void ResetPipelineInformation(int, vtkInformation*) VTK_OVERRIDE;
 
   // Check whether the data object in the pipeline information for an
   // output port exists and has a valid type.

@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkThreadMessager();
-  ~vtkThreadMessager();
+  ~vtkThreadMessager() VTK_OVERRIDE;
 
 #ifdef VTK_USE_PTHREADS
   pthread_mutex_t Mutex;

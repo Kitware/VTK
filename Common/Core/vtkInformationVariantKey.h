@@ -34,7 +34,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationVariantKey(const char* name, const char* location);
-  ~vtkInformationVariantKey();
+  ~vtkInformationVariantKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationVariantKey, given a

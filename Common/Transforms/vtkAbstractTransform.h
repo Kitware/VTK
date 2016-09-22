@@ -243,7 +243,7 @@ public:
 
 protected:
   vtkAbstractTransform();
-  ~vtkAbstractTransform();
+  ~vtkAbstractTransform() VTK_OVERRIDE;
 
   // Description:
   // Perform any subclass-specific Update.

@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkSphericalTransform();
-  ~vtkSphericalTransform();
+  ~vtkSphericalTransform() VTK_OVERRIDE;
 
   // Description:
   // Copy this transform from another of the same type.

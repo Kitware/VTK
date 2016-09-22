@@ -51,7 +51,7 @@ public:
 
 protected:
   vtkHierarchicalBoxDataSet();
-  virtual ~vtkHierarchicalBoxDataSet();
+  ~vtkHierarchicalBoxDataSet() VTK_OVERRIDE;
 
 private:
   vtkHierarchicalBoxDataSet(const vtkHierarchicalBoxDataSet&) VTK_DELETE_FUNCTION;

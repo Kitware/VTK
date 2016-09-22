@@ -34,11 +34,11 @@ public:
 
 protected:
   vtkImageInPlaceFilter();
-  ~vtkImageInPlaceFilter();
+  ~vtkImageInPlaceFilter() VTK_OVERRIDE;
 
-  virtual int RequestData(vtkInformation *request,
+  int RequestData(vtkInformation *request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   void CopyData(vtkImageData *in, vtkImageData *out, int* outExt);
 

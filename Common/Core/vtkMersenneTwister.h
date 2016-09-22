@@ -114,7 +114,7 @@ public:
 
 protected:
   vtkMersenneTwister();
-  virtual ~vtkMersenneTwister();
+  ~vtkMersenneTwister() VTK_OVERRIDE;
 
   vtkMersenneTwisterInternals* Internal;
 

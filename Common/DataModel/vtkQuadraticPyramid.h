@@ -131,7 +131,7 @@ public:
 
 protected:
   vtkQuadraticPyramid();
-  ~vtkQuadraticPyramid();
+  ~vtkQuadraticPyramid() VTK_OVERRIDE;
 
   vtkQuadraticEdge *Edge;
   vtkQuadraticTriangle *TriangleFace;

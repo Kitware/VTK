@@ -60,7 +60,7 @@ public:
 
 protected:
   vtkAbstractCellLinks();
-  virtual ~vtkAbstractCellLinks();
+  ~vtkAbstractCellLinks() VTK_OVERRIDE;
 
 private:
   vtkAbstractCellLinks(const vtkAbstractCellLinks&) VTK_DELETE_FUNCTION;

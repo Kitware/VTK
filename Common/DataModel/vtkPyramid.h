@@ -107,7 +107,7 @@ public:
 
 protected:
   vtkPyramid();
-  ~vtkPyramid();
+  ~vtkPyramid() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkTriangle *Triangle;

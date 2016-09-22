@@ -84,7 +84,7 @@ public:
 
 protected:
   vtkPolyLine();
-  ~vtkPolyLine();
+  ~vtkPolyLine() VTK_OVERRIDE;
 
   vtkLine *Line;
 

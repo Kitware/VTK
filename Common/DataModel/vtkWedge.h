@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkWedge();
-  ~vtkWedge();
+  ~vtkWedge() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkTriangle *Triangle;

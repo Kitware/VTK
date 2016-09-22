@@ -542,7 +542,7 @@ public:
 protected:
 
   vtkKdTree();
-  ~vtkKdTree();
+  ~vtkKdTree() VTK_OVERRIDE;
 
   vtkBSPIntersections *BSPCalculator;
   int UserDefinedCuts;

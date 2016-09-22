@@ -52,7 +52,7 @@ public:
 
 protected:
   vtkTransformCollection() {}
-  ~vtkTransformCollection() {}
+  ~vtkTransformCollection() VTK_OVERRIDE {}
 
 
 private:

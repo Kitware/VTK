@@ -68,7 +68,7 @@ public:
 
 protected:
   vtkUnsignedShortArray();
-  ~vtkUnsignedShortArray();
+  ~vtkUnsignedShortArray() VTK_OVERRIDE;
 
 private:
 

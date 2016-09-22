@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkInstantiator();
-  ~vtkInstantiator();
+  ~vtkInstantiator() VTK_OVERRIDE;
 
   // Internal storage for registered creation functions.
   static vtkInstantiatorHashTable* CreatorTable;

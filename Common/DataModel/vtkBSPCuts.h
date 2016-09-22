@@ -116,7 +116,7 @@ public:
 protected:
 
   vtkBSPCuts();
-  ~vtkBSPCuts();
+  ~vtkBSPCuts() VTK_OVERRIDE;
 
   static void DeleteAllDescendants(vtkKdNode *kd);
 

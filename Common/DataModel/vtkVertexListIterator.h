@@ -71,7 +71,7 @@ public:
 
 protected:
   vtkVertexListIterator();
-  ~vtkVertexListIterator();
+  ~vtkVertexListIterator() VTK_OVERRIDE;
 
   vtkGraph *Graph;
   vtkIdType  Current;

@@ -64,7 +64,7 @@ public:
 
 protected:
   vtkOldStyleCallbackCommand();
-  ~vtkOldStyleCallbackCommand();
+  ~vtkOldStyleCallbackCommand() VTK_OVERRIDE;
 };
 
 

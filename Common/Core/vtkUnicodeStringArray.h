@@ -91,7 +91,7 @@ public:
 
 protected:
   vtkUnicodeStringArray();
-  ~vtkUnicodeStringArray();
+  ~vtkUnicodeStringArray() VTK_OVERRIDE;
 
 private:
   vtkUnicodeStringArray(const vtkUnicodeStringArray&) VTK_DELETE_FUNCTION;

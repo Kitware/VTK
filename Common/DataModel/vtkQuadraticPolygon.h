@@ -112,7 +112,7 @@ public:
 
 protected:
   vtkQuadraticPolygon();
-  ~vtkQuadraticPolygon();
+  ~vtkQuadraticPolygon() VTK_OVERRIDE;
 
   // variables used by instances of this class
   vtkPolygon       *Polygon;

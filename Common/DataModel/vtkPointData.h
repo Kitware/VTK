@@ -36,7 +36,7 @@ public:
 
 protected:
   vtkPointData() {}
-  ~vtkPointData() {}
+  ~vtkPointData() VTK_OVERRIDE {}
 
 private:
   vtkPointData(const vtkPointData&) VTK_DELETE_FUNCTION;

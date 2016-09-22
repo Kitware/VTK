@@ -48,17 +48,17 @@ public:
 
 protected:
   vtkSimpleImageToImageFilter();
-  ~vtkSimpleImageToImageFilter();
+  ~vtkSimpleImageToImageFilter() VTK_OVERRIDE;
 
   // These are called by the superclass.
-  virtual int RequestUpdateExtent (vtkInformation *,
+  int RequestUpdateExtent (vtkInformation *,
                                    vtkInformationVector **,
-                                   vtkInformationVector *);
+                                   vtkInformationVector *) VTK_OVERRIDE;
 
   // You don't have to touch this unless you have a good reason.
-  virtual int RequestData(vtkInformation *,
+  int RequestData(vtkInformation *,
                           vtkInformationVector **,
-                          vtkInformationVector *);
+                          vtkInformationVector *) VTK_OVERRIDE;
 
   // In the simplest case, this is the only method you need to define.
   virtual void SimpleExecute(vtkImageData* input, vtkImageData* output) = 0;

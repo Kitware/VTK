@@ -48,7 +48,7 @@ public:
 
 protected:
   vtkProgressObserver();
-  ~vtkProgressObserver();
+  ~vtkProgressObserver() VTK_OVERRIDE;
 
   double Progress;
 

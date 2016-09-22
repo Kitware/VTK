@@ -56,7 +56,7 @@ public:
 
 protected:
   vtkDataArrayCollection() {}
-  ~vtkDataArrayCollection() {}
+  ~vtkDataArrayCollection() VTK_OVERRIDE {}
 
 
 private:

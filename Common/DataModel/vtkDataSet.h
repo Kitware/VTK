@@ -406,7 +406,7 @@ public:
 protected:
   // Constructor with default bounds (0,1, 0,1, 0,1).
   vtkDataSet();
-  ~vtkDataSet();
+  ~vtkDataSet() VTK_OVERRIDE;
 
   // Description:
   // Compute the range of the scalars and cache it into ScalarRange

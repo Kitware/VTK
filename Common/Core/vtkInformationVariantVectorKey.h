@@ -35,7 +35,7 @@ public:
 
   vtkInformationVariantVectorKey(const char* name, const char* location,
                                  int length=-1);
-  ~vtkInformationVariantVectorKey();
+  ~vtkInformationVariantVectorKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationVariantVectorKey, given a

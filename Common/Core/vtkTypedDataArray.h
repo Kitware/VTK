@@ -77,17 +77,17 @@ public:
 
   // Description:
   // Return the VTK data type held by this array.
-  int GetDataType();
+  int GetDataType() VTK_OVERRIDE;
 
   // Description:
   // Return the size of the element type in bytes.
-  int GetDataTypeSize();
+  int GetDataTypeSize() VTK_OVERRIDE;
 
   // Description:
   // Specify the number of values for this object to hold. Does an
   // allocation as well as setting the MaxId ivar. Used in conjunction with
   // SetValue() method for fast insertion.
-  virtual void SetNumberOfValues(vtkIdType num);
+  void SetNumberOfValues(vtkIdType num) VTK_OVERRIDE;
 
   // Description:
   // Set the tuple value at the ith location in the array.
@@ -101,11 +101,6 @@ public:
   // Description:
   // Insert (memory allocation performed) the tuple onto the end of the array.
   virtual vtkIdType InsertNextTypedTuple(const ValueType *t) = 0;
-
-  // Description:
-  // Return the indices where a specific value appears.
-  virtual vtkIdType LookupTypedValue(ValueType value) = 0;
-  virtual void LookupTypedValue(ValueType value, vtkIdList *ids) = 0;
 
   // Description:
   // Get the data at a particular index.
@@ -137,7 +132,7 @@ public:
 
   // Description:
   // Method for type-checking in FastDownCast implementations.
-  virtual int GetArrayType() { return vtkAbstractArray::TypedDataArray; }
+  int GetArrayType() VTK_OVERRIDE { return vtkAbstractArray::TypedDataArray; }
 
   // Reintroduced as pure virtual since the base vtkGenericDataArray method
   // requires new allocation/resize APIs, though existing MappedDataArrays

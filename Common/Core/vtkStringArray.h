@@ -282,7 +282,7 @@ public:
 
 protected:
   vtkStringArray();
-  ~vtkStringArray();
+  ~vtkStringArray() VTK_OVERRIDE;
 
   vtkStdString* Array;   // pointer to data
   vtkStdString* ResizeAndExtend(vtkIdType sz);  // function to resize data

@@ -85,7 +85,7 @@ public:
 
 protected:
   vtkImplicitDataSet();
-  ~vtkImplicitDataSet();
+  ~vtkImplicitDataSet() VTK_OVERRIDE;
 
   void ReportReferences(vtkGarbageCollector*) VTK_OVERRIDE;
 

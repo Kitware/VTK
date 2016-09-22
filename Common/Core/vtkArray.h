@@ -210,7 +210,7 @@ public:
 
 protected:
   vtkArray();
-  ~vtkArray();
+  ~vtkArray() VTK_OVERRIDE;
 
 private:
   vtkArray(const vtkArray&) VTK_DELETE_FUNCTION;

@@ -38,7 +38,7 @@ public:
   // Description:
   // Passes the progress event to a thread local ProgressObserver
   // instance.
-  void UpdateProgress(double amount);
+  void UpdateProgress(double amount) VTK_OVERRIDE;
 
   // Description:
   // Returns the progress observer local to the thread it was
@@ -50,7 +50,7 @@ public:
 
 protected:
   vtkSMPProgressObserver();
-  ~vtkSMPProgressObserver();
+  ~vtkSMPProgressObserver() VTK_OVERRIDE;
 
   vtkSMPThreadLocalObject<vtkProgressObserver> Observers;
 

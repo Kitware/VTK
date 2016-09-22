@@ -106,7 +106,7 @@ public:
 
 protected:
   vtkQuadraticEdge();
-  ~vtkQuadraticEdge();
+  ~vtkQuadraticEdge() VTK_OVERRIDE;
 
   vtkLine *Line;
   vtkDoubleArray *Scalars; //used to avoid New/Delete in contouring/clipping

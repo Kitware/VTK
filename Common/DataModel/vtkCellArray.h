@@ -233,7 +233,7 @@ public:
 
 protected:
   vtkCellArray();
-  ~vtkCellArray();
+  ~vtkCellArray() VTK_OVERRIDE;
 
   vtkIdType NumberOfCells;
   vtkIdType InsertLocation;     //keep track of current insertion point

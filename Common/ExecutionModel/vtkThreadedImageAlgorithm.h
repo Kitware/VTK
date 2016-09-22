@@ -103,7 +103,7 @@ public:
 
 protected:
   vtkThreadedImageAlgorithm();
-  ~vtkThreadedImageAlgorithm();
+  ~vtkThreadedImageAlgorithm() VTK_OVERRIDE;
 
   vtkMultiThreader *Threader;
   int NumberOfThreads;
@@ -127,9 +127,9 @@ protected:
   // Description:
   // This is called by the superclass.
   // This is the method you should override.
-  virtual int RequestData(vtkInformation* request,
+  int RequestData(vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) VTK_OVERRIDE;
 
   // Description:
   // Execute ThreadedRequestData for the given set of pieces.

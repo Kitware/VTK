@@ -139,7 +139,7 @@ public:
 
 protected:
   vtkLocator();
-  ~vtkLocator();
+  ~vtkLocator() VTK_OVERRIDE;
 
   vtkDataSet *DataSet;
   int Automatic; // boolean controls automatic subdivision (or uses user spec.)

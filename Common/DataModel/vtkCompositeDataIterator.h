@@ -95,7 +95,7 @@ public:
 
 protected:
   vtkCompositeDataIterator();
-  virtual ~vtkCompositeDataIterator();
+  ~vtkCompositeDataIterator() VTK_OVERRIDE;
   int SkipEmptyNodes;
   int Reverse;
   vtkCompositeDataSet* DataSet;

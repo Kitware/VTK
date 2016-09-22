@@ -51,10 +51,10 @@ public:
 
 protected:
   vtkCastToConcrete() {}
-  ~vtkCastToConcrete() {}
+  ~vtkCastToConcrete() VTK_OVERRIDE {}
 
-  virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *); //insures compatibility; satisfies abstract api in vtkFilter
-  virtual int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *);
+  int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE; //insures compatibility; satisfies abstract api in vtkFilter
+  int RequestInformation(vtkInformation *, vtkInformationVector **, vtkInformationVector *) VTK_OVERRIDE;
 private:
   vtkCastToConcrete(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;
   void operator=(const vtkCastToConcrete&) VTK_DELETE_FUNCTION;

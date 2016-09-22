@@ -65,7 +65,7 @@ public:
 
 protected:
   vtkAMRUtilities() {}
-  ~vtkAMRUtilities() {}
+  ~vtkAMRUtilities() VTK_OVERRIDE {}
 
   // Description:
   // Given the real-extent w.r.t. the ghosted grid, this method copies the

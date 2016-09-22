@@ -152,7 +152,7 @@ public:
   void Audit();
  protected:
   vtkOverlappingAMR();
-  virtual ~vtkOverlappingAMR();
+  ~vtkOverlappingAMR() VTK_OVERRIDE;
 
 private:
   vtkOverlappingAMR(const vtkOverlappingAMR&) VTK_DELETE_FUNCTION;

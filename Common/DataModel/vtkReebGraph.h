@@ -352,7 +352,7 @@ public:
 protected:
 
   vtkReebGraph();
-  ~vtkReebGraph();
+  ~vtkReebGraph() VTK_OVERRIDE;
 
   class Implementation;
   Implementation* Storage;

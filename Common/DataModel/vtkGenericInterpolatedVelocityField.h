@@ -121,7 +121,7 @@ public:
 
 protected:
   vtkGenericInterpolatedVelocityField();
-  ~vtkGenericInterpolatedVelocityField();
+  ~vtkGenericInterpolatedVelocityField() VTK_OVERRIDE;
 
   vtkGenericCellIterator *GenCell; // last cell
 

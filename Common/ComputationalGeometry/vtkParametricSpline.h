@@ -56,17 +56,17 @@ public:
 
   // Description
   // Return the parametric dimension of the class.
-  virtual int GetDimension() {return 1;}
+  int GetDimension() VTK_OVERRIDE {return 1;}
 
   // Description:
   // Evaluate the spline at parametric coordinate u[0] returning
   // the point coordinate Pt[3].
-  virtual void Evaluate(double u[3], double Pt[3], double Du[9]);
+  void Evaluate(double u[3], double Pt[3], double Du[9]) VTK_OVERRIDE;
 
   // Description:
   // Evaluate a scalar value at parametric coordinate u[0] and Pt[3].
   // The scalar value is just the parameter u[0].
-  virtual double EvaluateScalar(double u[3], double Pt[3], double Du[9]);
+  double EvaluateScalar(double u[3], double Pt[3], double Du[9]) VTK_OVERRIDE;
 
   // Description:
   // By default, this class is constructed with three instances of
@@ -138,7 +138,7 @@ public:
 
 protected:
   vtkParametricSpline();
-  ~vtkParametricSpline();
+  ~vtkParametricSpline() VTK_OVERRIDE;
 
   // Points definition
   vtkPoints *Points;

@@ -110,7 +110,7 @@ public:
 
 protected:
   vtkBox();
-  ~vtkBox();
+  ~vtkBox() VTK_OVERRIDE;
 
   vtkBoundingBox *BBox;
   double Bounds[6]; //supports the GetBounds() method

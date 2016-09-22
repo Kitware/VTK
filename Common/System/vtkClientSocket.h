@@ -41,7 +41,7 @@ public:
 
 protected:
   vtkClientSocket();
-  ~vtkClientSocket();
+  ~vtkClientSocket() VTK_OVERRIDE;
 
   vtkSetMacro(ConnectingSide, bool);
   bool ConnectingSide;

@@ -96,7 +96,7 @@ public:
 
 protected:
   vtkDataObjectTreeIterator();
-  virtual ~vtkDataObjectTreeIterator();
+  ~vtkDataObjectTreeIterator() VTK_OVERRIDE;
 
   // Takes the current location to the next dataset. This traverses the tree in
   // preorder fashion.

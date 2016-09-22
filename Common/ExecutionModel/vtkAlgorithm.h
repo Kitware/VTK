@@ -646,7 +646,7 @@ public:
 
 protected:
   vtkAlgorithm();
-  ~vtkAlgorithm();
+  ~vtkAlgorithm() VTK_OVERRIDE;
 
   // Keys used to indicate that input/output port information has been
   // filled.

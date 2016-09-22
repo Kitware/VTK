@@ -43,7 +43,7 @@ public:
 
 protected:
   vtkTreeBFSIterator();
-  ~vtkTreeBFSIterator();
+  ~vtkTreeBFSIterator() VTK_OVERRIDE;
 
   void Initialize() VTK_OVERRIDE;
   vtkIdType NextInternal() VTK_OVERRIDE;

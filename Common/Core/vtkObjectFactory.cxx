@@ -470,11 +470,11 @@ void vtkObjectFactory::RegisterOverride(const char* classOverride,
   this->GrowOverrideArray();
   int nextIndex = this->OverrideArrayLength;
   this->OverrideArrayLength++;
-  char* override = strcpy(new char[strlen(classOverride)+1], classOverride);
+  char* className = strcpy(new char[strlen(classOverride)+1], classOverride);
   char* desc = strcpy(new char[strlen(description)+1], description);
   char* ocn =  strcpy(new char[strlen(subclass)+1],
                       subclass);
-  this->OverrideClassNames[nextIndex] = override;
+  this->OverrideClassNames[nextIndex] = className;
   this->OverrideArray[nextIndex].Description = desc;
   this->OverrideArray[nextIndex].OverrideWithName = ocn;
   this->OverrideArray[nextIndex].EnabledFlag = enableFlag;

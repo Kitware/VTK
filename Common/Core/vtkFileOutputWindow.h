@@ -62,7 +62,7 @@ public:
 
 protected:
   vtkFileOutputWindow();
-  virtual ~vtkFileOutputWindow();
+  ~vtkFileOutputWindow() VTK_OVERRIDE;
   void Initialize();
 
   char* FileName;

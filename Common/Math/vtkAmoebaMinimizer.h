@@ -152,7 +152,7 @@ public:
 
 protected:
   vtkAmoebaMinimizer();
-  ~vtkAmoebaMinimizer();
+  ~vtkAmoebaMinimizer() VTK_OVERRIDE;
 
   void (*Function)(void *);
   void (*FunctionArgDelete)(void *);

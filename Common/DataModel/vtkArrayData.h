@@ -82,7 +82,7 @@ public:
 
 protected:
   vtkArrayData();
-  ~vtkArrayData();
+  ~vtkArrayData() VTK_OVERRIDE;
 
 private:
   vtkArrayData(const vtkArrayData&) VTK_DELETE_FUNCTION;

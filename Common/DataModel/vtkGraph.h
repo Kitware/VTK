@@ -571,7 +571,7 @@ public:
 protected:
 
   vtkGraph();
-  ~vtkGraph();
+  ~vtkGraph() VTK_OVERRIDE;
 
   // Description:
   // Protected method for adding vertices, optionally with properties,

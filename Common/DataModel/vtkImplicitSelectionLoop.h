@@ -99,7 +99,7 @@ public:
 
 protected:
   vtkImplicitSelectionLoop();
-  ~vtkImplicitSelectionLoop();
+  ~vtkImplicitSelectionLoop() VTK_OVERRIDE;
 
   vtkPoints *Loop;
   double Normal[3];

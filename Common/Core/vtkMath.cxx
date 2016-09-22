@@ -56,7 +56,7 @@ public:
   std::vector<vtkTypeInt64> MemoizeFactorial;
 private:
   vtkMathInternal();
-  ~vtkMathInternal();
+  ~vtkMathInternal() VTK_OVERRIDE;
 };
 
 vtkMathInternal::vtkMathInternal()

@@ -102,8 +102,8 @@ public:
   {
   public:
     HeapMemoryBlock(const vtkArrayExtents& extents);
-    virtual ~HeapMemoryBlock();
-    virtual T* GetAddress();
+    ~HeapMemoryBlock() VTK_OVERRIDE;
+    T* GetAddress() VTK_OVERRIDE;
 
   private:
     T* Storage;
@@ -159,7 +159,7 @@ public:
 
 protected:
   vtkDenseArray();
-  ~vtkDenseArray();
+  ~vtkDenseArray() VTK_OVERRIDE;
 
 private:
   vtkDenseArray(const vtkDenseArray&) VTK_DELETE_FUNCTION;

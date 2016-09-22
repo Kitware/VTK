@@ -115,7 +115,7 @@ public:
 
 protected:
   vtkSelection();
-  ~vtkSelection();
+  ~vtkSelection() VTK_OVERRIDE;
 
 private:
   vtkSelection(const vtkSelection&) VTK_DELETE_FUNCTION;

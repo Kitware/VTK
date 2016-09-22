@@ -263,7 +263,7 @@ public:
 
 protected:
   vtkPolynomialSolversUnivariate() {}
-  ~vtkPolynomialSolversUnivariate() {}
+  ~vtkPolynomialSolversUnivariate() VTK_OVERRIDE {}
 
   static double DivisionTolerance;
 

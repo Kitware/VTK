@@ -136,7 +136,7 @@ public:
 
 protected:
   vtkGenericCellTessellator();
-  ~vtkGenericCellTessellator();
+  ~vtkGenericCellTessellator() VTK_OVERRIDE;
 
   // Description:
   // Does the edge need to be subdivided according to at least one error

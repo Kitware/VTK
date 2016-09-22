@@ -86,7 +86,7 @@ public:
 
 protected:
   vtkLandmarkTransform();
-  ~vtkLandmarkTransform();
+  ~vtkLandmarkTransform() VTK_OVERRIDE;
 
   // Update the matrix from the quaternion.
   void InternalUpdate() VTK_OVERRIDE;

@@ -266,7 +266,7 @@ public:
 
 protected:
   vtkFunctionParser();
-  ~vtkFunctionParser();
+  ~vtkFunctionParser() VTK_OVERRIDE;
 
   int Parse();
 

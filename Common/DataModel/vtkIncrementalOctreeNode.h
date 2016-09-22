@@ -189,7 +189,7 @@ public:
 protected:
 
   vtkIncrementalOctreeNode();
-  ~vtkIncrementalOctreeNode();
+  ~vtkIncrementalOctreeNode() VTK_OVERRIDE;
 
 private:
 

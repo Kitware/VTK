@@ -201,7 +201,7 @@ public:
 
 protected:
   vtkExtractStructuredGridHelper();
-  ~vtkExtractStructuredGridHelper();
+  ~vtkExtractStructuredGridHelper() VTK_OVERRIDE;
 
   // Input parameters -- used to reinitialize when data changes.
   int VOI[6];

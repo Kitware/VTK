@@ -104,7 +104,7 @@ public:
 
 protected:
   vtkWarpTransform();
-  ~vtkWarpTransform();
+  ~vtkWarpTransform() VTK_OVERRIDE;
 
   // Description:
   // If the InverseFlag is set to 0, then a call to InternalTransformPoint

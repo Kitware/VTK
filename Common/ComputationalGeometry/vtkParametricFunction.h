@@ -188,7 +188,7 @@ public:
 
 protected:
   vtkParametricFunction();
-  virtual ~vtkParametricFunction();
+  ~vtkParametricFunction() VTK_OVERRIDE;
 
   // Variables
   double MinimumU;

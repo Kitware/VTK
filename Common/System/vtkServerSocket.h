@@ -46,7 +46,7 @@ public:
   int GetServerPort();
 protected:
   vtkServerSocket();
-  ~vtkServerSocket();
+  ~vtkServerSocket() VTK_OVERRIDE;
 
 private:
   vtkServerSocket(const vtkServerSocket&) VTK_DELETE_FUNCTION;

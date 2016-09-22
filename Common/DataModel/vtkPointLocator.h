@@ -206,7 +206,7 @@ public:
 
 protected:
   vtkPointLocator();
-  virtual ~vtkPointLocator();
+  ~vtkPointLocator() VTK_OVERRIDE;
 
   // place points in appropriate buckets
   void GetBucketNeighbors(vtkNeighborPoints* buckets,

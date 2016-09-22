@@ -45,7 +45,7 @@ public:
 
 protected:
   vtkAlgorithmOutput();
-  ~vtkAlgorithmOutput();
+  ~vtkAlgorithmOutput() VTK_OVERRIDE;
 
   int Index;
   vtkAlgorithm* Producer;

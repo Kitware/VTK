@@ -41,12 +41,12 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkNonOverlappingAMRAlgorithm :
 
   protected:
     vtkNonOverlappingAMRAlgorithm();
-    virtual ~vtkNonOverlappingAMRAlgorithm();
+    ~vtkNonOverlappingAMRAlgorithm() VTK_OVERRIDE;
 
     // Description:
     // See algorithm for more info.
-    virtual int FillOutputPortInformation(int port, vtkInformation* info);
-    virtual int FillInputPortInformation(int port, vtkInformation* info);
+    int FillOutputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
+    int FillInputPortInformation(int port, vtkInformation* info) VTK_OVERRIDE;
 
   private:
     vtkNonOverlappingAMRAlgorithm(const vtkNonOverlappingAMRAlgorithm&) VTK_DELETE_FUNCTION;

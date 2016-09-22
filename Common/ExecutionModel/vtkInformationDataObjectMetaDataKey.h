@@ -32,7 +32,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   vtkInformationDataObjectMetaDataKey(const char* name, const char* location);
-  ~vtkInformationDataObjectMetaDataKey();
+  ~vtkInformationDataObjectMetaDataKey() VTK_OVERRIDE;
 
   // Description:
   // This method simply returns a new vtkInformationDataObjectMetaDataKey, given a
@@ -47,9 +47,9 @@ public:
   // Simply shallow copies the key from fromInfo to toInfo if request
   // has the REQUEST_INFORMATION() key.
   // This is used by the pipeline to propagate this key downstream.
-  virtual void CopyDefaultInformation(vtkInformation* request,
+  void CopyDefaultInformation(vtkInformation* request,
                                       vtkInformation* fromInfo,
-                                      vtkInformation* toInfo);
+                                      vtkInformation* toInfo) VTK_OVERRIDE;
 
 private:
   vtkInformationDataObjectMetaDataKey(const vtkInformationDataObjectMetaDataKey&) VTK_DELETE_FUNCTION;

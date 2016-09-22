@@ -77,7 +77,7 @@ public:
 
 protected:
   vtkKdTreePointLocator();
-  virtual ~vtkKdTreePointLocator();
+  ~vtkKdTreePointLocator() VTK_OVERRIDE;
 
   vtkKdTree* KdTree;
 
