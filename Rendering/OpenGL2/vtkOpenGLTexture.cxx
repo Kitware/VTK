@@ -320,6 +320,12 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 
   if (this->PremultipliedAlpha)
     {
+    // save off current state of src / dst blend functions
+    glGetIntegerv(GL_BLEND_SRC_RGB, &this->PrevBlendParams[0]);
+    glGetIntegerv(GL_BLEND_DST_RGB, &this->PrevBlendParams[1]);
+    glGetIntegerv(GL_BLEND_SRC_ALPHA, &this->PrevBlendParams[2]);
+    glGetIntegerv(GL_BLEND_DST_ALPHA, &this->PrevBlendParams[3]);
+
     // make the blend function correct for textures premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     }
@@ -331,6 +337,14 @@ void vtkOpenGLTexture::Load(vtkRenderer *ren)
 void vtkOpenGLTexture::PostRender(vtkRenderer *vtkNotUsed(ren))
 {
   this->TextureObject->Deactivate();
+
+  if (this->GetInput() && this->PremultipliedAlpha)
+    {
+    // restore the blend function
+    glBlendFuncSeparate(
+      this->PrevBlendParams[0], this->PrevBlendParams[1],
+      this->PrevBlendParams[2], this->PrevBlendParams[3]);
+    }
 }
 
 // ----------------------------------------------------------------------------
