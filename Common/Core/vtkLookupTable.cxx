@@ -415,8 +415,8 @@ inline void vtkLookupTableLogRange(const double range[2], double logRange[2])
 
 //----------------------------------------------------------------------------
 // Apply log to value, with appropriate constraints.
-inline double vtkApplyLogScale(double v, const double range[2],
-                               const double logRange[2])
+static double vtkApplyLogScaleMain(double v, const double range[2],
+                                   const double logRange[2])
 {
   // is the range set for negative numbers?
   if (range[0] < 0)
@@ -450,6 +450,40 @@ inline double vtkApplyLogScale(double v, const double range[2],
       }
     }
   return v;
+}
+
+//----------------------------------------------------------------------------
+template<class T>
+double vtkApplyLogScale(T v, const double range[2],
+                        const double logRange[2])
+{
+  return vtkApplyLogScaleMain(v, range, logRange);
+}
+
+//----------------------------------------------------------------------------
+// Apply log to a float value (NaN values pass through)
+inline double vtkApplyLogScale(float v, const double range[2],
+                               const double logRange[2])
+{
+  if (vtkMath::IsNan(v))
+    {
+    return v;
+    }
+
+  return vtkApplyLogScaleMain(v, range, logRange);
+}
+
+//----------------------------------------------------------------------------
+// Apply log to a double value (NaN values pass through)
+inline double vtkApplyLogScale(double v, const double range[2],
+                               const double logRange[2])
+{
+  if (vtkMath::IsNan(v))
+    {
+    return v;
+    }
+
+  return vtkApplyLogScaleMain(v, range, logRange);
 }
 
 //----------------------------------------------------------------------------
