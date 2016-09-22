@@ -166,6 +166,7 @@ int TestLookupTable(int,char *[])
   TestAssert(table->GetIndex(hi) == 255);
   TestAssert(table->GetIndex(lo+tol) == 0);
   TestAssert(table->GetIndex(hi-tol) == 255);
+  TestAssert(table->GetIndex(vtkMath::Nan()) == -1);
 
   // Note - both below- and above-range colors are enabled at this point
   TestAssert(table->GetIndex(lo/step) == 0);
