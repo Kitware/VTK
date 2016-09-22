@@ -22,6 +22,7 @@
 #include "vtkCullerCollection.h"
 #include "vtkCuller.h"
 #include "vtkFrustumCoverageCuller.h"
+#include "vtkFXAAOptions.h"
 #include "vtkObjectFactory.h"
 #include "vtkHardwareSelector.h"
 #include "vtkInformation.h"
@@ -44,6 +45,7 @@ vtkCxxSetObjectMacro(vtkRenderer, Information, vtkInformation);
 vtkCxxSetObjectMacro(vtkRenderer, Delegate, vtkRendererDelegate);
 vtkCxxSetObjectMacro(vtkRenderer, BackgroundTexture, vtkTexture);
 vtkCxxSetObjectMacro(vtkRenderer, Pass, vtkRenderPass);
+vtkCxxSetObjectMacro(vtkRenderer, FXAAOptions, vtkFXAAOptions);
 
 //----------------------------------------------------------------------------
 // Return NULL if no override is supplied.
@@ -117,6 +119,9 @@ vtkRenderer::vtkRenderer()
 
   this->GL2PSSpecialPropCollection = NULL;
 
+  this->UseFXAA = false;
+  this->FXAAOptions = vtkFXAAOptions::New();
+
   this->UseShadows = 0;
 
   this->UseHiddenLineRemoval = 0;
@@ -165,6 +170,12 @@ vtkRenderer::~vtkRenderer()
   this->Lights = NULL;
   this->Cullers->Delete();
   this->Cullers = NULL;
+
+  if (this->FXAAOptions != NULL)
+    {
+    this->FXAAOptions->Delete();
+    this->FXAAOptions = NULL;
+    }
 
   if(this->Delegate!=0)
     {

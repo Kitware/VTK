@@ -33,6 +33,7 @@ set(Module_SRCS
   vtkOpenGLActor.cxx
   vtkOpenGLBufferObject.cxx
   vtkOpenGLCamera.cxx
+  vtkOpenGLFXAAFilter.cxx
   vtkOpenGLGL2PSHelper.cxx
   vtkOpenGLGlyph3DHelper.cxx
   vtkOpenGLGlyph3DMapper.cxx
@@ -49,6 +50,7 @@ set(Module_SRCS
   vtkOpenGLPolyDataMapper2D.cxx
   vtkOpenGLProperty.cxx
   vtkOpenGLRenderPass.cxx
+  vtkOpenGLRenderTimer.cxx
   vtkOpenGLRenderUtilities.cxx
   vtkOpenGLRenderWindow.cxx
   vtkOpenGLRenderer.cxx
@@ -116,6 +118,7 @@ set_source_files_properties(
   vtkOpenGLGlyph3DMapper
   vtkOpenGLHelper
   vtkOpenGLIndexBufferObject
+  vtkOpenGLRenderTimer
   vtkOpenGLShaderCache
   vtkOpenGLVertexArrayObject
   vtkOpenGLVertexBufferObject
@@ -132,6 +135,7 @@ set_source_files_properties(
   vtkOpenGLGL2PSHelper
   vtkOpenGLGlyph3DHelper
   vtkOpenGLHelper
+  vtkOpenGLRenderTimer
   vtkValuePassHelper
   PROPERTIES WRAP_EXCLUDE_PYTHON 1)
 
@@ -148,6 +152,7 @@ set(shader_files
   glsl/vtkEDLBilateralFilterFS.glsl
   glsl/vtkEDLComposeFS.glsl
   glsl/vtkEDLShadeFS.glsl
+  glsl/vtkFXAAFilterFS.glsl
   glsl/vtkGaussianBlurPassFS.glsl
   glsl/vtkGaussianBlurPassVS.glsl
   glsl/vtkGlyph3DVS.glsl

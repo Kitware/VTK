@@ -35,6 +35,7 @@
 #include "vtkVolumeCollection.h" // Needed for access in inline members
 #include "vtkActorCollection.h" // Needed for access in inline members
 
+class vtkFXAAOptions;
 class vtkRenderWindow;
 class vtkVolume;
 class vtkCuller;
@@ -529,6 +530,17 @@ public:
   virtual void ReleaseGraphicsResources(vtkWindow *);
 
   // Description:
+  // Turn on/off FXAA anti-aliasing, if supported. Initial value is off.
+  vtkSetMacro(UseFXAA, bool)
+  vtkGetMacro(UseFXAA, bool)
+  vtkBooleanMacro(UseFXAA, bool)
+
+  // Description:
+  // The configuration object for FXAA antialiasing.
+  vtkGetObjectMacro(FXAAOptions, vtkFXAAOptions)
+  virtual void SetFXAAOptions(vtkFXAAOptions*);
+
+  // Description:
   // Turn on/off rendering of shadows if supported
   // Initial value is off.
   vtkSetMacro(UseShadows,int);
@@ -690,6 +702,15 @@ protected:
   // automatically (see GetActiveCamera).
   // This is only used internally.
   vtkCamera *GetActiveCameraAndResetIfCreated();
+
+  // Description:
+  // If this flag is on and the rendering engine supports it, FXAA will be used
+  // to antialias the scene. Default is off.
+  bool UseFXAA;
+
+  // Description:
+  // Holds the FXAA configuration.
+  vtkFXAAOptions *FXAAOptions;
 
   // Description:
   // If this flag is on and the rendering engine supports it render shadows

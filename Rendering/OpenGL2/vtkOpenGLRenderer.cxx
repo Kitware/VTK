@@ -27,6 +27,7 @@ PURPOSE.  See the above copyright notice for more information.
 #include "vtkObjectFactory.h"
 #include "vtkOpenGLCamera.h"
 #include "vtkOpenGLError.h"
+#include "vtkOpenGLFXAAFilter.h"
 #include "vtkOpenGLRenderWindow.h"
 #include "vtkPointData.h"
 #include "vtkPoints.h"
@@ -73,6 +74,7 @@ vtkOpenGLRenderer::vtkOpenGLRenderer()
   this->PickInfo->NumPicked = 0;
   this->PickedZ = 0;
 
+  this->FXAAFilter = 0;
   this->DepthPeelingPass = 0;
   this->ShadowMapPass = 0;
   this->DepthPeelingHigherLayer=0;
@@ -226,6 +228,22 @@ int vtkOpenGLRenderer::UpdateGeometry()
       {
       this->DeviceRenderTranslucentPolygonalGeometry();
       }
+    }
+
+  // Apply FXAA before volumes and overlays. Volumes don't need AA, and overlays
+  // are usually things like text, which are already antialiased.
+  if (this->UseFXAA)
+    {
+    if (!this->FXAAFilter)
+      {
+      this->FXAAFilter = vtkOpenGLFXAAFilter::New();
+      }
+    if (this->FXAAOptions)
+      {
+      this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
+      }
+
+    this->FXAAFilter->Execute(this);
     }
 
   // loop through props and give them a chance to
@@ -587,6 +605,10 @@ void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
     {
     this->Pass->ReleaseGraphicsResources(w);
     }
+  if (this->FXAAFilter)
+    {
+    this->FXAAFilter->ReleaseGraphicsResources();
+    }
   if (w && this->DepthPeelingPass)
     {
     this->DepthPeelingPass->ReleaseGraphicsResources(w);
@@ -713,6 +735,12 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
     {
     this->Pass->UnRegister(this);
     this->Pass = NULL;
+    }
+
+  if (this->FXAAFilter)
+    {
+    this->FXAAFilter->Delete();
+    this->FXAAFilter = 0;
     }
 
   if (this->ShadowMapPass)
