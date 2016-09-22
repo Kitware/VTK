@@ -1,25 +1,41 @@
 set(Module_SRCS
+  vtkBoundedPointSource.cxx
   vtkEllipsoidalGaussianKernel.cxx
+  vtkEuclideanClusterExtraction.cxx
+  vtkExtractHierarchicalBins.cxx
+  vtkExtractPointCloudPiece.cxx
+  vtkExtractPoints.cxx
+  vtkExtractSurface.cxx
+  vtkFitImplicitFunction.cxx
   vtkGaussianKernel.cxx
   vtkGeneralizedKernel.cxx
+  vtkHierarchicalBinningFilter.cxx
   vtkInterpolationKernel.cxx
   vtkLinearKernel.cxx
+  vtkPCACurvatureEstimation.cxx
+  vtkPCANormalEstimation.cxx
+  vtkPointCloudFilter.cxx
   vtkPointInterpolator.cxx
   vtkPointInterpolator2D.cxx
   vtkProbabilisticVoronoiKernel.cxx
+  vtkRadiusOutlierRemoval.cxx
   vtkSPHInterpolator.cxx
   vtkSPHCubicKernel.cxx
   vtkSPHKernel.cxx
   vtkSPHQuarticKernel.cxx
   vtkSPHQuinticKernel.cxx
   vtkShepardKernel.cxx
-  vtkWendlandQuinticKernel.cxx
+  vtkSignedDistance.cxx
+  vtkStatisticalOutlierRemoval.cxx
+  vtkVoxelGrid.cxx
   vtkVoronoiKernel.cxx
+  vtkWendlandQuinticKernel.cxx
   )
 
 set_source_files_properties(
   vtkGeneralizedKernel.cxx
   vtkInterpolationKernel
+  vtkPointCloudFilter
   ABSTRACT
   )
 
