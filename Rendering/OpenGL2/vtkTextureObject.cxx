@@ -366,13 +366,15 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkOpenGLRenderWindow *renWin)
 //----------------------------------------------------------------------------
 void vtkTextureObject::SetContext(vtkOpenGLRenderWindow* renWin)
 {
+  this->ResourceCallback->RegisterGraphicsResources(renWin);
+
   // avoid pointless reassignment
   if (this->Context == renWin)
     {
     return;
     }
 
-  this->ResourceCallback->RegisterGraphicsResources(renWin);
+  this->ResetFormatAndType();
 
   this->Context = NULL;
   this->Modified();
@@ -427,6 +429,8 @@ void vtkTextureObject::DestroyTexture()
 void vtkTextureObject::CreateTexture()
 {
   assert(this->Context);
+
+  this->ResourceCallback->RegisterGraphicsResources(this->Context);
 
   // reuse the existing handle if we have one
   if (!this->Handle)
