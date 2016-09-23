@@ -189,6 +189,8 @@ namespace vtkvolume
       \nuniform bool in_cellFlag;\
       \n uniform bool in_useJittering;\
       \n uniform bool in_clampDepthToBackface;\
+      \n\
+      \n uniform vec2 in_averageIP
       ");
 
     if (lightingComplexity > 0 || hasGradientOpacity)
@@ -1007,6 +1009,15 @@ namespace vtkvolume
         \n  vec4 l_minValue = vec4(1.0);"
       );
     }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      return std::string("\
+        \n  //We get data between 0.0 - 1.0 range\
+        \n  float l_sumValue = 0.0;\
+        \n  // Keep track of number of samples\
+        \n  uint l_numSamples = 0;"
+      );
+    }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
     {
       return std::string("\
@@ -1151,6 +1162,39 @@ namespace vtkvolume
           \n        l_firstValue = false;\
           \n        }"
         );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      if (noOfComponents > 1)
+      {
+        if (!independentComponents)
+        {
+          shaderStr += std::string("\
+          \n      if (in_averageIPRange.x <= scalar.x <= in_averageIPRange.y)
+          \n        {\
+          \n        float opacity = computeOpacity(scalar);\
+          \n        l_sumValue = l_sumValue + opacity * scalar.x;\
+          \n        }"
+         );
+        }
+        else
+        {
+          shaderStr += std::string("\
+          \n       for (int i = 0; i < in_noOfComponents; ++i)\
+          \n         {\
+          \n         float opacity = computeOpacity(scalar, i);\
+          \n         l_sumValue[i] = l_sumValue[i] + opacity * scalar[i];\
+          \n         }"
+          );
+        }
+      }
+      else
+      {
+         shaderStr += std::string("\
+           \n      float opacity = computeOpacity(scalar);\
+           \n      l_sumValue = l_sumValue + opacity * scalar.x;"
+         );
       }
     }
     else if (mapper->GetBlendMode() == vtkVolumeMapper::ADDITIVE_BLEND)
@@ -1425,6 +1469,23 @@ namespace vtkvolume
           \n                            computeOpacity(l_minValue));\
           \n  g_fragColor.rgb = g_srcColor.rgb * g_srcColor.a;\
           \n  g_fragColor.a = g_srcColor.a;"
+        );
+      }
+    }
+    else if (mapper->GetBlendMode() == vtkVolumeMapper::AVERAGE_INTENSITY_BLEND)
+    {
+      if (noOfComponents > 1 && independentComponents)
+      {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(l_sumValue);"
+        );
+      }
+      else
+      {
+        return std::string("\
+          \n  l_sumValue = clamp(l_sumValue, 0.0, 1.0);\
+          \n  g_fragColor = vec4(vec3(l_sumValue), 1.0);"
         );
       }
     }

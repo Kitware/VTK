@@ -84,6 +84,19 @@ public:
 
   //@{
   /**
+   * Set/Get the scalar range to be considered for average intensity projection
+   * blend mode. Only scalar values between this range will be averaged during
+   * ray casting. This can be useful when volume rendering CT datasets where the
+   * areas occupied by air would deviate the final rendering. By default, the
+   * range is set to (VTK_DOUBLE_MIN, VTK_DOUBLE_MAX).
+   * \sa SetBlendModeToAverageIntensity()
+   */
+  vtkSetVector2Macro(AverageIPScalarRange, double);
+  vtkGetVectorMacro(AverageIPScalarRange, double, 2);
+  //@}
+
+  //@{
+  /**
    * Turn On/Off orthogonal cropping. (Clipping planes are
    * perpendicular to the coordinate axes.)
    */
@@ -171,6 +184,9 @@ protected:
     int inputExtent[6]);
 
   int   BlendMode;
+
+  // Threshold range for average intensity projection
+  double AverageIPScalarRange[2];
 
   // Cropping variables, and a method for converting the world
   // coordinate cropping region planes to voxel coordinates
