@@ -33,12 +33,12 @@ vtkAMRDataSetCache::~vtkAMRDataSetCache()
 {
   AMRCacheType::iterator iter = this->Cache.begin();
   for( ; iter != this->Cache.end(); ++iter )
-    {
+  {
     if( iter->second != NULL )
-      {
+    {
       iter->second->Delete();
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -55,9 +55,9 @@ void vtkAMRDataSetCache::InsertAMRBlock(
 
   vtkTimerLog::MarkStartEvent( "AMRCache::InsertBlock" );
   if( !this->HasAMRBlock( compositeIdx ) )
-    {
+  {
     this->Cache[ compositeIdx ] = amrGrid;
-    }
+  }
   vtkTimerLog::MarkEndEvent( "AMRCache::InsertBlock" );
 }
 
@@ -77,9 +77,9 @@ void vtkAMRDataSetCache::InsertAMRBlockPointData(
   assert( "pre: PointData should not be NULL" && ( PD != NULL ) );
 
   if( !PD->HasArray( dataArray->GetName() ) )
-    {
+  {
     PD->AddArray( dataArray );
-    }
+  }
 
   vtkTimerLog::MarkEndEvent( "AMRCache::InsertAMRBlockPointData" );
 }
@@ -101,9 +101,9 @@ void vtkAMRDataSetCache::InsertAMRBlockCellData(
   assert( "pre: CellData should not be NULL" && (CD != NULL) );
 
   if( !CD->HasArray( dataArray->GetName() ) )
-    {
+  {
     CD->AddArray( dataArray );
-    }
+  }
 
   vtkTimerLog::MarkEndEvent( "AMRCache::InsertAMRBlockCellData" );
 }
@@ -113,7 +113,7 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockCellData(
     int compositeIdx, const char *dataName )
 {
   if( this->HasAMRBlockCellData( compositeIdx, dataName ) )
-    {
+  {
     vtkUniformGrid *amrBlock = this->GetAMRBlock( compositeIdx );
     assert( "pre: AMR block should not be NULL" &&
             (this->HasAMRBlock( compositeIdx ) ) );
@@ -122,14 +122,14 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockCellData(
     assert( "pre: CellData should not be NULL" && (CD != NULL) );
 
     if( CD->HasArray( dataName ) )
-      {
+    {
       return CD->GetArray( dataName );
-      }
-    else
-      {
-      return NULL;
-      }
     }
+    else
+    {
+      return NULL;
+    }
+  }
   return NULL;
 }
 
@@ -139,7 +139,7 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockPointData(
 {
 
   if( this->HasAMRBlockPointData( compositeIdx, dataName ) )
-    {
+  {
     vtkUniformGrid *amrBlock = this->GetAMRBlock( compositeIdx );
     assert( "pre: AMR block should not be NULL" && ( amrBlock != NULL ) );
 
@@ -147,14 +147,14 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockPointData(
     assert( "pre: PointData should not be NULL" && ( PD != NULL ) );
 
     if( PD->HasArray( dataName ) )
-      {
+    {
       return PD->GetArray( dataName );
-      }
-    else
-      {
-      return NULL;
-      }
     }
+    else
+    {
+      return NULL;
+    }
+  }
   return NULL;
 }
 
@@ -162,9 +162,9 @@ vtkDataArray* vtkAMRDataSetCache::GetAMRBlockPointData(
 vtkUniformGrid* vtkAMRDataSetCache::GetAMRBlock( const int compositeIdx )
 {
   if( this->HasAMRBlock( compositeIdx ) )
-    {
+  {
     return this->Cache[ compositeIdx ];
-    }
+  }
   return NULL;
 }
 
@@ -175,7 +175,7 @@ bool vtkAMRDataSetCache::HasAMRBlockCellData(
   assert( "pre: array name is NULL" && (name != NULL) );
 
   if( this->HasAMRBlock( compositeIdx ) )
-    {
+  {
     vtkUniformGrid *gridPtr = this->GetAMRBlock( compositeIdx );
     assert( "pre: cachedk block is NULL!" && (gridPtr != NULL) );
 
@@ -183,14 +183,14 @@ bool vtkAMRDataSetCache::HasAMRBlockCellData(
     assert( "pre: cell data is NULL" && (CD != NULL) );
 
     if( CD->HasArray( name ) )
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
   return false;
 }
 
@@ -201,7 +201,7 @@ bool vtkAMRDataSetCache::HasAMRBlockPointData(
   assert( "pre: array name is NULL" && (name != NULL) );
 
   if( this->HasAMRBlock( compositeIdx ) )
-    {
+  {
     vtkUniformGrid *gridPtr = this->GetAMRBlock( compositeIdx );
     assert( "pre: cachedk block is NULL!" && (gridPtr != NULL) );
 
@@ -209,14 +209,14 @@ bool vtkAMRDataSetCache::HasAMRBlockPointData(
     assert( "pre: point data is NULL" && (PD != NULL) );
 
     if( PD->HasArray( name ) )
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
   return false;
 }
 
@@ -226,16 +226,16 @@ bool vtkAMRDataSetCache::HasAMRBlock(int compositeIdx )
   vtkTimerLog::MarkStartEvent( "AMRCache::CheckIfBlockExists" );
 
   if( this->Cache.empty( ) )
-    {
+  {
     vtkTimerLog::MarkEndEvent( "AMRCache::CheckIfBlockExists" );
     return false;
-    }
+  }
 
   if( this->Cache.find( compositeIdx ) != this->Cache.end() )
-    {
+  {
     vtkTimerLog::MarkEndEvent( "AMRCache::CheckIfBlockExists" );
     return true;
-    }
+  }
 
   vtkTimerLog::MarkEndEvent( "AMRCache::CheckIfBlockExists" );
   return false;

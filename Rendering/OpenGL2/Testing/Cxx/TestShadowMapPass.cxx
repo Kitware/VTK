@@ -128,11 +128,11 @@ int TestShadowMapPass(int argc, char *argv[])
   timer->StartTimer();
   int numRenders = 8;
   for (int i = 0; i < numRenders; ++i)
-    {
+  {
     renderer->GetActiveCamera()->Azimuth(80.0/numRenders);
     renderer->GetActiveCamera()->Elevation(80.0/numRenders);
     renderWindow->Render();
-    }
+  }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
   cerr << "interactive render time: " << elapsed / numRenders << endl;
@@ -150,9 +150,9 @@ int TestShadowMapPass(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

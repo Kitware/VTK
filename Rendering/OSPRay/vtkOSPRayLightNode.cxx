@@ -62,7 +62,7 @@ void vtkOSPRayLightNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayLightNode::Render(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -72,13 +72,13 @@ void vtkOSPRayLightNode::Render(bool prepass)
 
     float color[3] = {0.0,0.0,0.0};
     if (light->GetSwitch())
-      {
+    {
       color[0] = static_cast<float>(light->GetDiffuseColor()[0]);
       color[1] = static_cast<float>(light->GetDiffuseColor()[1]);
       color[2] = static_cast<float>(light->GetDiffuseColor()[2]);
-      }
+    }
     if (light->GetPositional())
-      {
+    {
       double px, py, pz;
       light->GetTransformedPosition(px, py, pz);
       OSPLight ospLight = ospNewLight(oRenderer, "PointLight");
@@ -92,9 +92,9 @@ void vtkOSPRayLightNode::Render(bool prepass)
       ospSet3f(ospLight, "position", px, py, pz);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
-      }
+    }
     else
-      {
+    {
       double px, py, pz;
       double fx, fy, fz;
       light->GetTransformedPosition(px, py, pz);
@@ -115,6 +115,6 @@ void vtkOSPRayLightNode::Render(bool prepass)
                direction[0], direction[1], direction[2]);
       ospCommit(ospLight);
       orn->AddLight(ospLight);
-      }
     }
+  }
 }

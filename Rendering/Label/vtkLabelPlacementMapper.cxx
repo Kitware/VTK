@@ -113,7 +113,7 @@ public:
     double ca = cos(rotation);
     double sa = sin(rotation);
     for (int i = 0; i < 4; ++i)
-      {
+    {
       Corner[i][0] -= RotationOrigin[0];
       Corner[i][1] -= RotationOrigin[1];
       double rotx = Corner[i][0]*ca - Corner[i][1]*sa;
@@ -122,7 +122,7 @@ public:
       Corner[i][1] = roty;
       Corner[i][0] += RotationOrigin[0];
       Corner[i][1] += RotationOrigin[1];
-      }
+    }
 
     ComputeAxes();
   }
@@ -132,29 +132,29 @@ public:
   {
     // Take care of easy case first
     if ( Rotation == 0.0 && other.Rotation == 0.0 )
-      {
+    {
       double d0 = Corner[0][0] - other.Corner[2][0];
       double d1 = other.Corner[0][0] - Corner[2][0];
       double d2 = Corner[0][1] - other.Corner[2][1];
       double d3 = other.Corner[0][1] - Corner[2][1];
       if ( d0 < 0. && d1 < 0. && d2 < 0. && d3 < 0. )
-        {
-        return true;
-        }
-      return false;
-      }
-    else
       {
-      return Overlaps1Way(other) && other.Overlaps1Way(*this);
+        return true;
       }
+      return false;
+    }
+    else
+    {
+      return Overlaps1Way(other) && other.Overlaps1Way(*this);
+    }
   }
 
   void Render(vtkRenderer* ren, int shape, int style, double margin, double color[3], double opacity) const
   {
     if (shape == vtkLabelPlacementMapper::NONE)
-      {
+    {
       return;
-      }
+    }
 
     vtkSmartPointer<vtkCellArray> cells = vtkSmartPointer<vtkCellArray>::New();
     vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
@@ -173,7 +173,7 @@ public:
     switch (shape)
     {
       case vtkLabelPlacementMapper::ROUNDED_RECT:
-        {
+      {
         double roundedFactor = vtkMath::Pi()/4;
         double rx[2];
         double ry[2];
@@ -195,35 +195,35 @@ public:
         pts->InsertNextPoint(Corner[3][0]-dx[0], Corner[3][1]-dx[1], 0);
         cells->InsertNextCell(13);
         for (int i = 0; i < 13; ++i)
-          {
+        {
           cells->InsertCellPoint(i%12);
-          }
-        break;
         }
+        break;
+      }
       case vtkLabelPlacementMapper::RECT:
       default:
-        {
+      {
         pts->InsertNextPoint(Corner[0][0]-dx[0]-dy[0], Corner[0][1]-dx[1]-dy[1], 0);
         pts->InsertNextPoint(Corner[1][0]+dx[0]-dy[0], Corner[1][1]+dx[1]-dy[1], 0);
         pts->InsertNextPoint(Corner[2][0]+dx[0]+dy[0], Corner[2][1]+dx[1]+dy[1], 0);
         pts->InsertNextPoint(Corner[3][0]-dx[0]+dy[0], Corner[3][1]-dx[1]+dy[1], 0);
         cells->InsertNextCell(5);
         for (int c = 0; c < 5; ++c)
-          {
+        {
           cells->InsertCellPoint(c%4);
-          }
-        break;
         }
+        break;
+      }
     }
     poly->SetPoints(pts);
     if (style == vtkLabelPlacementMapper::OUTLINE)
-      {
+    {
       poly->SetLines(cells);
-      }
+    }
     else
-      {
+    {
       poly->SetPolys(cells);
-      }
+    }
     mapper->SetInputData(poly);
     actor->SetMapper(mapper);
     actor->GetProperty()->SetColor(color);
@@ -236,7 +236,7 @@ private:
   bool Overlaps1Way(const LabelRect& other) const
   {
     for (int a = 0; a < 2; ++a)
-      {
+    {
       //double t = other.corner[0].dot(axis[a]);
       double t = other.Corner[0][0]*Axis[a][0] + other.Corner[0][1]*Axis[a][1];
 
@@ -245,30 +245,30 @@ private:
       double tMax = t;
 
       for (int c = 1; c < 4; ++c)
-        {
+      {
         //t = other.corner[c].dot(axis[a]);
         t = other.Corner[c][0]*Axis[a][0] + other.Corner[c][1]*Axis[a][1];
 
         if (t < tMin)
-          {
+        {
           tMin = t;
-          }
-        else if (t > tMax)
-          {
-          tMax = t;
-          }
         }
+        else if (t > tMax)
+        {
+          tMax = t;
+        }
+      }
 
       // We have to subtract off the origin
 
       // See if [tMin, tMax] intersects [0, 1]
       if ((tMin > 1 + Origin[a]) || (tMax < Origin[a]))
-        {
+      {
         // There was no intersection along this dimension;
         // the boxes cannot possibly overlap.
         return false;
-        }
       }
+    }
 
     // There was no dimension along which there is no intersection.
     // Therefore the boxes overlap.
@@ -288,36 +288,36 @@ private:
     // dot product must be less than 1 to fall within the edge.
 
     for (int a = 0; a < 2; ++a)
-      {
+    {
       double len = Axis[a][0]*Axis[a][0] + Axis[a][1]*Axis[a][1];
       Axis[a][0] /= len;
       Axis[a][1] /= len;
       Origin[a] = Corner[0][0]*Axis[a][0] + Corner[0][1]*Axis[a][1];
-      }
+    }
 
     Bounds[0] = Corner[0][0];
     Bounds[1] = Corner[0][0];
     Bounds[2] = Corner[0][1];
     Bounds[3] = Corner[0][1];
     for (int i = 1; i < 4; ++i)
-      {
+    {
       if (Corner[i][0] < Bounds[0])
-        {
+      {
         Bounds[0] = Corner[i][0];
-        }
-      if (Corner[i][0] > Bounds[1])
-        {
-        Bounds[1] = Corner[i][0];
-        }
-      if (Corner[i][1] < Bounds[2])
-        {
-        Bounds[2] = Corner[i][1];
-        }
-      if (Corner[i][1] > Bounds[3])
-        {
-        Bounds[3] = Corner[i][1];
-        }
       }
+      if (Corner[i][0] > Bounds[1])
+      {
+        Bounds[1] = Corner[i][0];
+      }
+      if (Corner[i][1] < Bounds[2])
+      {
+        Bounds[2] = Corner[i][1];
+      }
+      if (Corner[i][1] > Bounds[3])
+      {
+        Bounds[3] = Corner[i][1];
+      }
+    }
   }
 
 };
@@ -328,29 +328,29 @@ public:
 
   /// A rectangular tile on the screen. It contains a set of labels that overlap it.
   struct ScreenTile
-    {
+  {
     std::vector<LabelRect> Labels;
     ScreenTile() { }
     /// Is there space to place the given rectangle in this tile so that it doesn't overlap any labels in this tile?
     bool IsSpotOpen( const LabelRect& r )
-      {
+    {
       for ( std::vector<LabelRect>::iterator it = this->Labels.begin(); it != this->Labels.end(); ++ it )
-        {
+      {
         if (r.Overlaps(*it))
-          {
+        {
           return false;
-          }
         }
-      return true;
       }
+      return true;
+    }
 
     /// Prepare for the next frame.
     void Reset() { this->Labels.clear(); }
     void Insert( const LabelRect& rect )
-      {
+    {
       this->Labels.push_back( rect );
-      }
-    };
+    }
+  };
   std::vector<std::vector<ScreenTile> > Tiles;
   float ScreenOrigin[2];
   float TileSize[2];
@@ -359,7 +359,7 @@ public:
   vtkSmartPointer<vtkIdTypeArray> LastLabelsPlaced;
 
   Internal( float viewport[4], float tilesize[2] )
-    {
+  {
     this->NewLabelsPlaced = vtkSmartPointer<vtkIdTypeArray>::New();
     this->LastLabelsPlaced = vtkSmartPointer<vtkIdTypeArray>::New();
     this->ScreenOrigin[0] = viewport[0];
@@ -371,10 +371,10 @@ public:
     this->Tiles.resize( this->NumTiles[0] );
     for ( int i = 0; i < this->NumTiles[0]; ++ i )
       this->Tiles[i].resize( this->NumTiles[1] );
-    }
+  }
 
   bool PlaceLabel( const LabelRect& r )
-    {
+  {
     // Determine intersected tiles
     float rx0 = r.Bounds[0] / TileSize[0];
     float rx1 = r.Bounds[1] / TileSize[0];
@@ -392,29 +392,29 @@ public:
     if ( ty1 >= this->NumTiles[1] ) { ty1 = this->NumTiles[1] - 1; ry1 = ty1; }
     // Check all applicable tiles for overlap.
     for ( int tx = tx0; tx <= tx1; ++ tx )
-      {
+    {
       for ( int ty = ty0; ty <= ty1; ++ ty )
-        {
+      {
         std::vector<ScreenTile>* trow = &this->Tiles[tx];
         // Do this check here for speed, even though we repeat w/ small mod below.
         if ( ! (*trow)[ty].IsSpotOpen( r ) )
           return false;
-        }
       }
+    }
     // OK, we made it this far... we can place the label.
     // Add it to each tile it overlaps.
     for ( int tx = tx0; tx <= tx1; ++ tx )
-      {
+    {
       for ( int ty = ty0; ty <= ty1; ++ ty )
-        {
+      {
         this->Tiles[tx][ty].Insert( r );
-        }
       }
-    return true;
     }
+    return true;
+  }
 
   void Reset( float viewport[4], float tileSize[2] )
-    {
+  {
     // Clear out any tiles we get to reuse
     for ( int tx = 0; tx < this->NumTiles[0]; ++ tx )
       for ( int ty = 0; ty < this->NumTiles[1]; ++ ty )
@@ -438,7 +438,7 @@ public:
     this->LastLabelsPlaced = this->NewLabelsPlaced;
     this->NewLabelsPlaced = tmp;
     this->NewLabelsPlaced->Reset();
-    }
+  }
 };
 
 vtkStandardNewMacro(vtkLabelPlacementMapper);
@@ -496,9 +496,9 @@ vtkLabelPlacementMapper::~vtkLabelPlacementMapper()
   delete this->Buckets;
   this->VisiblePoints->Delete();
   if ( this->RenderStrategy )
-    {
+  {
     this->RenderStrategy->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -520,39 +520,39 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
   vtkRenderer* ren = vtkRenderer::SafeDownCast(viewport);
   if ( ! ren )
-    {
+  {
     vtkErrorMacro( "No renderer -- can't determine screen space size." );
     return;
-    }
+  }
 
   if ( ! ren->GetRenderWindow() )
-    {
+  {
     vtkErrorMacro( "No render window -- can't get window size to query z buffer." );
     return;
-    }
+  }
 
   // This will trigger if you do something like ResetCamera before the Renderer or
   // RenderWindow have allocated their appropriate system resources (like creating
   // an OpenGL context). Resource allocation must occur before we can use the Z
   // buffer.
   if ( ren->GetRenderWindow()->GetNeverRendered() )
-    {
+  {
     vtkDebugMacro( "RenderWindow not initialized -- aborting update." );
     return;
-    }
+  }
 
   vtkCamera* cam = ren->GetActiveCamera();
   if ( ! cam )
-    {
+  {
     return;
-    }
+  }
 
   // If the renderer size is zero, silently place no labels.
   int* renSize = ren->GetSize();
   if ( renSize[0] == 0 || renSize[1] == 0 )
-    {
+  {
     return;
-    }
+  }
 
   // Update the pipeline if necessary
   this->Update();
@@ -572,13 +572,13 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     ! this->Buckets ||
     this->Buckets->NumTiles[0] * this->Buckets->TileSize[0] < tvpsz[2] ||
     this->Buckets->NumTiles[1] * this->Buckets->TileSize[1] < tvpsz[3] )
-    {
+  {
     this->Buckets = new Internal( kdbounds, tileSize );
-    }
+  }
   else
-    {
+  {
     this->Buckets->Reset( kdbounds, tileSize );
-    }
+  }
 
   float * zPtr = NULL;
   int placed = 0;
@@ -600,9 +600,9 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   unsigned long iteratedLabelArea = 0;
   double camVec[3];
   if ( this->PositionsAsNormals )
-    {
+  {
     cam->GetViewPlaneNormal( camVec );
-    }
+  }
 
   // Make a composite iterator that will iterate over all the input
   // label hierarchies in a round-robin sequence.
@@ -611,24 +611,24 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
   vtkSmartPointer<vtkPolyData> boundsPoly = vtkSmartPointer<vtkPolyData>::New();
   if ( this->OutputTraversedBounds )
-    {
+  {
     vtkSmartPointer<vtkPoints> pts = vtkSmartPointer<vtkPoints>::New();
     boundsPoly->SetPoints( pts );
     vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
     boundsPoly->SetLines( lines );
     inIter->SetTraversedBounds( boundsPoly );
-    }
+  }
 
   int numInputs = this->GetNumberOfInputConnections( 0 );
   for ( int i = 0; i < numInputs; ++i )
-    {
+  {
     vtkLabelHierarchy* inData = vtkLabelHierarchy::SafeDownCast(
         this->GetInputDataObject( 0, i ) );
     vtkLabelHierarchyIterator* it = inData->NewIterator(
       this->IteratorType, ren, cam, frustumPlanes, this->PositionsAsNormals, tileSize );
     inIter->AddIterator( it );
     it->Delete();
-    }
+  }
 
   vtkSmartPointer<vtkTimerLog> timer = vtkSmartPointer<vtkTimerLog>::New();
   timer->StartTimer();
@@ -637,10 +637,10 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   this->Buckets->NewLabelsPlaced->Initialize();
 
   if ( this->UseDepthBuffer )
-    {
+  {
     this->VisiblePoints->SetRenderer( ren );
     zPtr = this->VisiblePoints->Initialize( true );
-    }
+  }
 
   // Start rendering labels
   this->RenderStrategy->SetRenderer(ren);
@@ -653,14 +653,14 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
   vtkSmartPointer<vtkTextProperty> tpropCopy = vtkSmartPointer<vtkTextProperty>::New();
 
   for ( ; ! inIter->IsAtEnd(); inIter->Next() )
-    {
+  {
     // Ignore labels that don't have text or an icon.
     vtkIdType labelType = inIter->GetType();
     if ( labelType < 0 || labelType > 1 )
-      {
+    {
       vtkDebugMacro("Arf. Bad label type " << labelType);
       continue;
-      }
+    }
 
     inIter->GetPoint( x );
     // Cull points behind the camera. Cannot rely on hither-yon planes because the camera
@@ -670,25 +670,25 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     double* eye = cam->GetPosition();
     double* dir = cam->GetViewPlaneNormal();
     if ( ( x[0] - eye[0] ) * dir[0] + ( x[1] - eye[1] ) * dir[1] + ( x[2] - eye[2] ) * dir[2] > 0 )
-      {
+    {
       continue;
-      }
+    }
 
     // Ignore labels pointing the wrong direction (HACK)
     if ( this->PositionsAsNormals )
-      {
+    {
       if ( camVec[0] * x[0] + camVec[1] * x[1] + camVec[2] * x[2] < 0. )
-        {
+      {
         continue;
-        }
       }
+    }
 
     // Test for occlusion using the z-buffer
     if (this->UseDepthBuffer && !this->VisiblePoints->IsPointOccluded(x, zPtr))
-      {
+    {
       occluded++;
       continue;
-      }
+    }
 
     this->AnchorTransform->SetValue( x );
     int* originPtr = this->AnchorTransform->GetComputedDisplayValue( ren );
@@ -700,19 +700,19 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     tpropCopy->ShallowCopy( tprop );
 
     if ( this->RenderStrategy->SupportsRotation() && inIter->GetHierarchy()->GetOrientations() )
-      {
+    {
       tpropCopy->SetOrientation( inIter->GetOrientation() );
-      }
+    }
 
     double bds[4];
     if ( this->UseUnicodeStrings )
-      {
+    {
       this->RenderStrategy->ComputeLabelBounds( tpropCopy, inIter->GetUnicodeLabel(), bds );
-      }
+    }
     else
-      {
+    {
       this->RenderStrategy->ComputeLabelBounds( tpropCopy, inIter->GetLabel(), bds );
-      }
+    }
 
     // Offset display position by lower left corner of bounding box
     dispx[0] = static_cast<int>(origin[0] + bds[0]);
@@ -726,9 +726,9 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
 
     // If it has no size, skip it
     if ( sz[0] == 0.0 || sz[1] == 0.0 )
-      {
+    {
       continue;
-      }
+    }
 
     ll[0] = dispx[0];
     ll[1] = dispx[1];
@@ -736,13 +736,13 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     ur[1] = dispx[1] + sz[1];
 
     if ( ll[1] > kdbounds[3] || ur[1] < kdbounds[2] || ll[0] > kdbounds[1] || ll[1] < kdbounds[0] )
-      {
+    {
       continue; // cull label not in frame
-      }
+    }
 
     // Special case: if there are bounded sizes, try to render every one we encounter.
     if ( this->RenderStrategy->SupportsBoundedSize() && inIter->GetHierarchy()->GetBoundedSizes() )
-      {
+    {
       double p[3] = { static_cast<double>(origin[0]), static_cast<double>(origin[1]), 0.0 };
       double boundedSize[2];
       inIter->GetBoundedSize( boundedSize );
@@ -754,9 +754,9 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       double pWidth[3] = { static_cast<double>(origin2[0]), static_cast<double>(origin2[1]), 0.0 };
       int width = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pWidth)));
       if ( width < 20 )
-        {
+      {
         continue;
-        }
+      }
 
       // Figure out if height is too small to fit
       double xHeight[3] = {x[0], x[1] + boundedSize[1], x[2]};
@@ -765,50 +765,50 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
       double pHeight[3] = { static_cast<double>(origin2[0]), static_cast<double>(origin2[1]), 0.0 };
       int height = static_cast<int>(sqrt(vtkMath::Distance2BetweenPoints(p, pHeight)));
       if ( height < bds[3] - bds[2] )
-        {
+      {
         continue;
-        }
+      }
 
       // Label is not text
       if ( labelType != 0 )
-        {
+      {
         continue;
-        }
+      }
 
       // Render it
       if( this->UseUnicodeStrings )
-        {
+      {
         this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetUnicodeLabel(), width );
-        }
+      }
       else
-        {
+      {
         this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetLabel(), width );
-        }
+      }
       int renderedHeight = static_cast<int>( bds[3] - bds[2] );
       int renderedWidth = static_cast<int>( (bds[1] - bds[0] < width) ? (bds[1] - bds[0]) : width );
       renderedLabelArea += static_cast<unsigned long>( renderedWidth * renderedHeight );
       continue;
-      }
+    }
 
     if ( this->Debug )
-      {
+    {
       vtkDebugMacro("Try: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ")");
       if ( labelType == 0 )
-        {
+      {
         if( this->UseUnicodeStrings )
-          {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << inIter->GetUnicodeLabel().utf8_str() << "\"");
-          }
-        else
-          {
-          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << inIter->GetLabel().c_str() << "\"");
-          }
-        }
-      else
         {
-        vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea);
+          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << inIter->GetUnicodeLabel().utf8_str() << "\"");
+        }
+        else
+        {
+          vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea << " \"" << inIter->GetLabel().c_str() << "\"");
         }
       }
+      else
+      {
+        vtkDebugMacro("Area: " << renderedLabelArea << "  /  " << allowableLabelArea);
+      }
+    }
 
     iteratedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
 
@@ -829,40 +829,40 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     LabelRect r( xTrans, originTrans, orientRad );
 
     if ( this->PlaceAllLabels || this->Buckets->PlaceLabel( r ) )
-      {
+    {
       r.Render(ren, this->Shape, this->Style, this->Margin, this->BackgroundColor, this->BackgroundOpacity);
       renderedLabelArea += static_cast<unsigned long>( sz[0] * sz[1] );
       if ( labelType == 0 )
-        {
+      {
         // label is text
         if( this->UseUnicodeStrings )
-          {
+        {
           this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetUnicodeLabel() );
-          }
+        }
         else
-          {
+        {
           this->RenderStrategy->RenderLabel( origin, tpropCopy, inIter->GetLabel() );
-          }
+        }
 
         // TODO: 1. Perturb coincident points.
         //       2. Use GeneratePerturbedLabelSpokes to possibly render perturbed points.
-        }
+      }
       else
-        { // label is an icon
+      { // label is an icon
         // TODO: Do something ...
-        }
+      }
 
       vtkDebugMacro("Placed: " << inIter->GetLabelId() << " (" << ll[0] << ", " << ll[1] << "  " << ur[0] << "," << ur[1] << ") " << labelType);
       placed++;
-      }
     }
+  }
 
   // Done rendering labels
   this->RenderStrategy->EndFrame();
   this->RenderStrategy->SetRenderer(0);
 
   if ( this->OutputTraversedBounds )
-    {
+  {
     // For some reason I cannot use vtkPolyDataMapper, I need to use
     // vtkPolyDataMapper2D. This causes lines behind the camera to be sometimes
     // transformed on-screen. Since this is for debugging, I'm going to punt
@@ -876,7 +876,7 @@ void vtkLabelPlacementMapper::RenderOverlay(vtkViewport *viewport,
     trans->SetViewport( ren );
     boundsMapper->SetInputConnection( trans->GetOutputPort() );
     boundsMapper->RenderOverlay( ren, boundsActor );
-    }
+  }
 
   vtkDebugMacro("------");
   vtkDebugMacro("Placed: " << placed);

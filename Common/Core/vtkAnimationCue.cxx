@@ -88,25 +88,25 @@ void vtkAnimationCue::Tick(double currenttime, double deltatime, double clocktim
   // Check to see if we have crossed the Cue start.
   if (currenttime >= this->StartTime &&
     this->CueState == vtkAnimationCue::UNINITIALIZED)
-    {
+  {
     this->CueState = vtkAnimationCue::ACTIVE;
     this->StartCueInternal();
-    }
+  }
 
   // Note that Tick event is sent for both start time and
   // end time.
   if (this->CueState == vtkAnimationCue::ACTIVE)
-    {
+  {
     if (currenttime <= this->EndTime)
-      {
+    {
       this->TickInternal(currenttime, deltatime, clocktime);
-      }
+    }
     if (currenttime >= this->EndTime)
-      {
+    {
       this->EndCueInternal();
       this->CueState = vtkAnimationCue::INACTIVE;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -125,9 +125,9 @@ void vtkAnimationCue::Initialize()
 void vtkAnimationCue::Finalize()
 {
   if (this->CueState == vtkAnimationCue::ACTIVE)
-    {
+  {
     this->EndCueInternal();
-    }
+  }
   this->CueState = vtkAnimationCue::INACTIVE;
 }
 

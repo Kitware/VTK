@@ -94,22 +94,22 @@ int vtkWarpScalar::RequestDataObject(vtkInformation *request,
   vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
   if (inImage || inRect)
-    {
+  {
     vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
     if (!output)
-      {
+    {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     return this->Superclass::RequestDataObject(request,
                                                inputVector,
                                                outputVector);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -122,36 +122,36 @@ int vtkWarpScalar::RequestData(
   vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
   if (!input)
-    {
+  {
     // Try converting image data.
     vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
-      {
+    {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     // Try converting rectilinear grid.
     vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
-      {
+    {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Invalid or missing input");
     return 0;
-    }
+  }
 
   vtkPoints *inPts;
   vtkDataArray *inNormals;
@@ -173,28 +173,28 @@ int vtkWarpScalar::RequestData(
 
   inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( !inPts || !inScalars )
-    {
+  {
     vtkDebugMacro(<<"No data to warp");
     return 1;
-    }
+  }
 
   numPts = inPts->GetNumberOfPoints();
 
   if ( inNormals && !this->UseNormal )
-    {
+  {
     this->PointNormal = &vtkWarpScalar::DataNormal;
     vtkDebugMacro(<<"Using data normals");
-    }
+  }
   else if ( this->XYPlane )
-    {
+  {
     this->PointNormal = &vtkWarpScalar::ZNormal;
     vtkDebugMacro(<<"Using x-y plane normal");
-    }
+  }
   else
-    {
+  {
     this->PointNormal = &vtkWarpScalar::InstanceNormal;
     vtkDebugMacro(<<"Using Normal instance variable");
-    }
+  }
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numPts);
@@ -202,32 +202,32 @@ int vtkWarpScalar::RequestData(
   // Loop over all points, adjusting locations
   //
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     if ( ! (ptId % 10000) )
-      {
+    {
       this->UpdateProgress ((double)ptId/numPts);
       if (this->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     inPts->GetPoint(ptId, x);
     n = (this->*(this->PointNormal))(ptId,inNormals);
     if ( this->XYPlane )
-      {
+    {
       s = x[2];
-      }
-    else
-      {
-      s = inScalars->GetComponent(ptId,0);
-      }
-    for (i=0; i<3; i++)
-      {
-      newX[i] = x[i] + this->ScaleFactor * s * n[i];
-      }
-    newPts->SetPoint(ptId, newX);
     }
+    else
+    {
+      s = inScalars->GetComponent(ptId,0);
+    }
+    for (i=0; i<3; i++)
+    {
+      newX[i] = x[i] + this->ScaleFactor * s * n[i];
+    }
+    newPts->SetPoint(ptId, newX);
+  }
 
   // Update ourselves and release memory
   //

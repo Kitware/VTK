@@ -22,9 +22,9 @@
 vtkAbstractPointLocator::vtkAbstractPointLocator()
 {
   for(int i=0;i<6;i++)
-    {
+  {
     this->Bounds[i] = 0;
-    }
+  }
   this->NumberOfBuckets = 0;
 }
 
@@ -72,9 +72,9 @@ void vtkAbstractPointLocator::FindPointsWithinRadius(double R, double x,
 void vtkAbstractPointLocator::GetBounds(double* bnds)
 {
   for(int i=0;i<6;i++)
-    {
+  {
     bnds[i] = this->Bounds[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -83,9 +83,9 @@ void vtkAbstractPointLocator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   for(int i=0;i<6;i++)
-    {
+  {
     os << indent << "Bounds[" << i << "]: " << this->Bounds[i] << "\n";
-    }
+  }
 
   os << indent << "Number of Buckets: " << this->NumberOfBuckets << "\n";
 }

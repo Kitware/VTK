@@ -133,11 +133,11 @@ public:
   virtual void CopyAllOff();
 
   enum FieldLocation
-    {
+  {
       OBJECT_DATA=0,
       POINT_DATA=1,
       CELL_DATA=2
-    };
+  };
 
 protected:
   vtkMaskFields();

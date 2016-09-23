@@ -68,11 +68,11 @@ public:
    */
   void SetFocalPoint(double x[3]);
   void SetFocalPoint(double x, double y, double z)
-    {
+  {
       double xyz[3];
       xyz[0] = x; xyz[1] = y; xyz[2] = z;
       this->SetFocalPoint(xyz);
-    }
+  }
   vtkGetVectorMacro(FocalPoint,double,3);
   //@}
 

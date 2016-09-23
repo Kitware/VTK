@@ -57,23 +57,23 @@ void vtkAMREnzoReader::ComputeStats(vtkEnzoReaderInternal* internal, std::vector
   numBlocks.resize( this->Internal->NumberOfLevels, 0 );
 
   for( int i=0; i < internal->NumberOfBlocks; ++i )
-    {
+  {
     vtkEnzoReaderBlock &theBlock = internal->Blocks[ i+1 ];
     double* gridMin = theBlock.MinBounds;
     if( gridMin[0] < min[0] )
-      {
+    {
       min[0] = gridMin[0];
-      }
-    if( gridMin[1] < min[1] )
-      {
-      min[1] = gridMin[1];
-      }
-    if( gridMin[2] < min[2] )
-      {
-      min[2] = gridMin[2];
-      }
-    numBlocks[theBlock.Level]++;
     }
+    if( gridMin[1] < min[1] )
+    {
+      min[1] = gridMin[1];
+    }
+    if( gridMin[2] < min[2] )
+    {
+      min[2] = gridMin[2];
+    }
+    numBlocks[theBlock.Level]++;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,17 +116,17 @@ int vtkAMREnzoReader::GetIndexFromArrayName( std::string arrayName )
 double vtkAMREnzoReader::GetConversionFactor( const std::string &name )
 {
   if( this->label2idx.find( name ) != this->label2idx.end() )
-    {
+  {
     int idx = this->label2idx[ name ];
     if( this->conversionFactors.find( idx ) != this->conversionFactors.end() )
-      {
+    {
       return( this->conversionFactors[ idx ] );
-      }
-    else
-      {
-      return( 1.0 );
-      }
     }
+    else
+    {
+      return( 1.0 );
+    }
+  }
   return( 1.0 );
 }
 
@@ -140,12 +140,12 @@ void vtkAMREnzoReader::ParseLabel(
   std::istringstream iss( labelString );
   std::string word;
   while ( iss >> word )
-    {
+  {
     if( !vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
-      {
+    {
       strings.push_back( word );
-      }
     }
+  }
 
   idx   = this->GetIndexFromArrayName( strings[0] );
   label = strings[ strings.size()-1 ];
@@ -160,12 +160,12 @@ void vtkAMREnzoReader::ParseCFactor(
   std::istringstream iss( labelString );
   std::string word;
   while( iss >> word )
-    {
+  {
     if( ! vtksys::SystemTools::StringStartsWith( word.c_str(), "=") )
-      {
+    {
       strings.push_back( word );
-      }
     }
+  }
 
   idx    = this->GetIndexFromArrayName( strings[0] );
   factor = atof( strings[ strings.size()-1 ].c_str() );
@@ -189,10 +189,10 @@ void vtkAMREnzoReader::ParseConversionFactors( )
   std::ifstream ifs;
   ifs.open( paramsFile.c_str() );
   if( !ifs.is_open( ) )
-    {
+  {
     vtkWarningMacro( "Cannot open ENZO parameters file!\n" );
     return;
-    }
+  }
 
   // STEP 2: Parsing parameters file
   std::string line;  // temp string to store a line read from the params file
@@ -200,20 +200,20 @@ void vtkAMREnzoReader::ParseConversionFactors( )
   double cf;         // stores the conversion factor
   int    idx;        // stores the attribute label index
   while( getline(ifs, line) )
-    {
+  {
     if( vtksys::SystemTools::StringStartsWith(
         line.c_str(), "DataLabel" ) )
-      {
+    {
       this->ParseLabel( line, idx, label );
       this->label2idx[ label ] = idx;
-      }
+    }
     else if( vtksys::SystemTools::StringStartsWith(
              line.c_str(), "#DataCGSConversionFactor" ) )
-      {
+    {
       this->ParseCFactor( line, idx, cf );
       this->conversionFactors[ idx ] = cf;
-      }
     }
+  }
 
   // STEP 3: Close parameters file
   ifs.close();
@@ -226,40 +226,40 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
 
   if( fileName && strcmp( fileName, "" ) &&
     ( (this->FileName==NULL) || (strcmp(fileName,this->FileName ) ) ) )
-    {
+  {
     std::string  tempName( fileName );
     std::string  bExtName( ".boundary" );
     std::string  hExtName( ".hierarchy" );
 
     if( tempName.length() > hExtName.length() &&
         tempName.substr(tempName.length()-hExtName.length() )== hExtName )
-      {
+    {
       this->Internal->MajorFileName =
           tempName.substr( 0, tempName.length() - hExtName.length() );
       this->Internal->HierarchyFileName = tempName;
       this->Internal->BoundaryFileName  = this->Internal->MajorFileName+bExtName;
-      }
+    }
    else if( tempName.length() > bExtName.length() &&
        tempName.substr( tempName.length() - bExtName.length() )==bExtName )
-     {
+   {
      this->Internal->MajorFileName =
         tempName.substr( 0, tempName.length() - bExtName.length() );
      this->Internal->BoundaryFileName  = tempName;
      this->Internal->HierarchyFileName = this->Internal->MajorFileName+hExtName;
-     }
+   }
     else
-      {
+    {
       vtkErrorMacro( "Enzo file has invalid extension!");
       return;
-      }
+    }
 
     this->IsReady = true;
     this->Internal->DirectoryName =
         GetEnzoDirectory(this->Internal->MajorFileName.c_str());
-    }
+  }
 
   if( this->IsReady )
-    {
+  {
     this->BlockMap.clear();
     this->Internal->Blocks.clear();
     this->Internal->NumberOfBlocks = 0;
@@ -280,7 +280,7 @@ void vtkAMREnzoReader::SetFileName( const char* fileName )
     this->Internal->ReadMetaData();
     this->SetUpDataArraySelections();
     this->InitializeArraySelections();
-    }
+  }
 
 
   this->Modified();
@@ -293,9 +293,9 @@ void vtkAMREnzoReader::ReadMetaData()
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
 
   if( !this->IsReady )
-    {
+  {
     return;
-    }
+  }
 
   this->Internal->ReadMetaData();
 }
@@ -307,17 +307,17 @@ int vtkAMREnzoReader::GetBlockLevel( const int blockIdx )
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
 
   if( !this->IsReady )
-    {
+  {
     return( -1 );
-    }
+  }
 
   this->Internal->ReadMetaData();
 
   if( blockIdx < 0 || blockIdx >= this->Internal->NumberOfBlocks )
-    {
+  {
     vtkErrorMacro( "Block Index (" << blockIdx << ") is out-of-bounds!" );
     return( -1 );
-    }
+  }
   return( this->Internal->Blocks[ blockIdx+1 ].Level );
 }
 
@@ -326,9 +326,9 @@ int vtkAMREnzoReader::GetNumberOfBlocks()
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
   if( !this->IsReady )
-    {
+  {
     return 0;
-    }
+  }
 
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfBlocks );
@@ -339,9 +339,9 @@ int vtkAMREnzoReader::GetNumberOfLevels()
 {
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
   if( !this->IsReady )
-    {
+  {
     return 0;
-    }
+  }
 
   this->Internal->ReadMetaData();
   return( this->Internal->NumberOfLevels );
@@ -353,9 +353,9 @@ int vtkAMREnzoReader::FillMetaData( )
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
   assert( "pre: metadata object is NULL" && (this->Metadata != NULL) );
   if( !this->IsReady )
-    {
+  {
     return 0;
-    }
+  }
 
   this->Internal->ReadMetaData();
 
@@ -369,7 +369,7 @@ int vtkAMREnzoReader::FillMetaData( )
 
   std::vector< int > b2level( this->Internal->NumberOfLevels+1, 0 );
   for( int block=0; block < this->Internal->NumberOfBlocks; ++block )
-    {
+  {
     vtkEnzoReaderBlock &theBlock = this->Internal->Blocks[ block+1 ];
     int level                    = theBlock.Level;
     int internalIdx              = block;
@@ -378,10 +378,10 @@ int vtkAMREnzoReader::FillMetaData( )
     //compute spacing
     double spacing[3];
     for(int d=0; d<3; ++d)
-      {
+    {
       spacing[d] = (theBlock.BlockNodeDimensions[d] > 1)?
         (theBlock.MaxBounds[d]-theBlock.MinBounds[d])/(theBlock.BlockNodeDimensions[d]-1.0):1.0;
-      }
+    }
     //compute AMRBox
     vtkAMRBox box(theBlock.MinBounds, theBlock.BlockNodeDimensions, spacing, origin, VTK_XYZ_GRID);
 
@@ -390,7 +390,7 @@ int vtkAMREnzoReader::FillMetaData( )
     this->Metadata->SetAMRBox(level, id, box);
     this->Metadata->SetAMRBlockSourceIndex(level,id, internalIdx);
     b2level[ level ]++;
-    }
+  }
   this->Metadata->GenerateParentChildInformation();
   this->Metadata->GetInformation()->Set(vtkDataObject::DATA_TIME_STEP(),this->Internal->DataTime);
   return( 1 );
@@ -402,9 +402,9 @@ vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
   assert( "pre: Internal Enzo Reader is NULL" && (this->Internal != NULL) );
 
   if( !this->IsReady )
-    {
+  {
     return NULL;
-    }
+  }
 
   this->Internal->ReadMetaData();
 
@@ -415,12 +415,12 @@ vtkUniformGrid* vtkAMREnzoReader::GetAMRGrid( const int blockIdx )
   double spacings[3];
 
   for( int i=0; i < 3; ++i )
-    {
+  {
     blockMin[ i ] = theBlock.MinBounds[ i ];
     blockMax[ i ] = theBlock.MaxBounds[ i ];
     spacings[ i ] = (theBlock.BlockNodeDimensions[i] > 1)?
         (blockMax[i]-blockMin[i])/(theBlock.BlockNodeDimensions[i]-1.0) : 1.0;
-    }
+  }
 
   vtkUniformGrid *ug = vtkUniformGrid::New();
   ug->SetDimensions( theBlock.BlockNodeDimensions );
@@ -437,25 +437,25 @@ void vtkAMREnzoReader::GetAMRGridData(
 
   this->Internal->GetBlockAttribute( field, blockIdx, block );
   if( this->ConvertToCGS == 1 )
-    {
+  {
     double conversionFactor = this->GetConversionFactor(field);
     if( conversionFactor != 1.0 )
-      {
+    {
       vtkDataArray *data = block->GetCellData()->GetArray( field );
       assert( "pre: data array is NULL!" && (data != NULL) );
 
       vtkIdType numTuples = data->GetNumberOfTuples();
       for( vtkIdType t=0; t < numTuples; ++t )
-        {
+      {
         int numComp = data->GetNumberOfComponents();
         for( int c=0; c < numComp; ++c )
-         {
+        {
          double f = data->GetComponent( t, c );
          data->SetComponent( t, c, f*conversionFactor );
-         } // END for all components
-        } // END for all tuples
-      } // END if the conversion factor is not 1.0
-    } // END if conversion to CGS units is requested
+        } // END for all components
+      } // END for all tuples
+    } // END if the conversion factor is not 1.0
+  } // END if conversion to CGS units is requested
 }
 
 
@@ -468,9 +468,9 @@ void vtkAMREnzoReader::SetUpDataArraySelections()
 
   int numAttrs = static_cast< int >(this->Internal->BlockAttributeNames.size());
   for( int i=0; i < numAttrs; i++ )
-    {
+  {
     this->CellDataArraySelection->AddArray(
         this->Internal->BlockAttributeNames[i].c_str() );
-    } // END for all attributes
+  } // END for all attributes
 
 }

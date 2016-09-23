@@ -455,30 +455,30 @@ protected:
   char* CompositeIdArrayName;
 
   class ReplacementSpec
-    {
+  {
     public:
       std::string OriginalValue;
       vtkShader::Type ShaderType;
       bool ReplaceFirst;
       bool operator<(const ReplacementSpec &v1) const
-        {
+      {
         if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue < v1.OriginalValue; }
         if (this->ShaderType != v1.ShaderType) { return this->ShaderType < v1.ShaderType; }
         return (this->ReplaceFirst < v1.ReplaceFirst);
-        }
+      }
       bool operator>(const ReplacementSpec &v1) const
-        {
+      {
         if (this->OriginalValue != v1.OriginalValue) { return this->OriginalValue > v1.OriginalValue; }
         if (this->ShaderType != v1.ShaderType) { return this->ShaderType > v1.ShaderType; }
         return (this->ReplaceFirst > v1.ReplaceFirst);
-        }
-      };
+      }
+  };
   class ReplacementValue
-    {
+  {
     public:
       std::string Replacement;
       bool ReplaceAll;
-    };
+  };
 
   std::map<const ReplacementSpec,ReplacementValue> UserShaderReplacements;
 

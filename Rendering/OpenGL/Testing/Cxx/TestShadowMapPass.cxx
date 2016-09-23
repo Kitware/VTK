@@ -291,13 +291,13 @@ int TestShadowMapPass(int argc, char* argv[])
 
   renWin->Render();
   if(peeling->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
 
   renderer->ResetCamera();
   vtkCamera *camera=renderer->GetActiveCamera();
@@ -308,9 +308,9 @@ int TestShadowMapPass(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
    opaqueCameraPass->Delete();

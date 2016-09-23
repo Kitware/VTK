@@ -46,10 +46,10 @@ public:
   typedef typename Superclass::ValueType ValueType;
 
   enum DeleteMethod
-    {
+  {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
-    };
+  };
 
   static vtkSOADataArrayTemplate* New();
 
@@ -85,9 +85,9 @@ public:
   inline void GetTypedTuple(vtkIdType tupleIdx, ValueType* tuple) const
   {
     for (size_t cc=0; cc < this->Data.size(); cc++)
-      {
+    {
       tuple[cc] = this->Data[cc]->GetBuffer()[tupleIdx];
-      }
+    }
   }
 
   /**
@@ -96,9 +96,9 @@ public:
   inline void SetTypedTuple(vtkIdType tupleIdx, const ValueType* tuple)
   {
     for (size_t cc=0; cc < this->Data.size(); ++cc)
-      {
+    {
       this->Data[cc]->GetBuffer()[tupleIdx] = tuple[cc];
-      }
+    }
   }
 
   /**
@@ -163,18 +163,18 @@ public:
   FastDownCast(vtkAbstractArray *source)
   {
     if (source)
-      {
+    {
       switch (source->GetArrayType())
-        {
+      {
         case vtkAbstractArray::SoADataArrayTemplate:
           if (vtkDataTypesCompare(source->GetDataType(),
                                   vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-            {
+          {
             return static_cast<vtkSOADataArrayTemplate<ValueType>*>(source);
-            }
+          }
           break;
-        }
       }
+    }
     return NULL;
   }
   //@}

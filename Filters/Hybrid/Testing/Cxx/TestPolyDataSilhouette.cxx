@@ -17,15 +17,15 @@ int TestPolyDataSilhouette(int argc, char *argv[])
   vtkSmartPointer<vtkPolyData> polyData;
   char* fname(NULL);
   if (argc < 2)
-    {
+  {
     vtkSmartPointer<vtkSphereSource> sphereSource =
       vtkSmartPointer<vtkSphereSource>::New();
     sphereSource->Update();
 
     polyData = sphereSource->GetOutput();
-    }
+  }
   else
-    {
+  {
     fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/cow.vtp");
     vtkSmartPointer<vtkXMLPolyDataReader> reader =
       vtkSmartPointer<vtkXMLPolyDataReader>::New();
@@ -37,7 +37,7 @@ int TestPolyDataSilhouette(int argc, char *argv[])
     clean->Update();
 
     polyData = clean->GetOutput();
-    }
+  }
 
   //create mapper and actor for original model
   vtkSmartPointer<vtkPolyDataMapper> mapper =

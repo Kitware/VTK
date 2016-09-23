@@ -148,10 +148,10 @@ void vtkAxesTransformRepresentation::GetOriginWorldPosition(double pos[3])
 double* vtkAxesTransformRepresentation::GetOriginWorldPosition()
 {
   if (!this->OriginRepresentation)
-    {
+  {
     static double temp[3]=  {0, 0, 0};
     return temp;
-    }
+  }
   return this->OriginRepresentation->GetWorldPosition();
 }
 
@@ -168,9 +168,9 @@ void vtkAxesTransformRepresentation::SetOriginDisplayPosition(double x[3])
 void vtkAxesTransformRepresentation::SetOriginWorldPosition(double x[3])
 {
   if (this->OriginRepresentation)
-    {
+  {
     this->OriginRepresentation->SetWorldPosition(x);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -227,19 +227,19 @@ int vtkAxesTransformRepresentation::ComputeInteractionState(int X, int Y, int vt
   int p1State = this->OriginRepresentation->ComputeInteractionState(X,Y,0);
 
   if ( p1State == vtkHandleRepresentation::Nearby )
-    {
+  {
     this->InteractionState = vtkAxesTransformRepresentation::OnOrigin;
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkAxesTransformRepresentation::Outside;
-    }
+  }
 
   // Okay if we're near a handle return, otherwise test the line
   if ( this->InteractionState != vtkAxesTransformRepresentation::Outside )
-    {
+  {
     return this->InteractionState;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -252,10 +252,10 @@ void vtkAxesTransformRepresentation::BuildRepresentation()
        this->SelectionRepresentation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -317,36 +317,36 @@ void vtkAxesTransformRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   os << indent << "Label Format: ";
   if ( this->LabelFormat )
-    {
+  {
     os << this->LabelFormat << endl;
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Tolerance: " << this->Tolerance << endl;
   os << indent << "InteractionState: " << this->InteractionState << endl;
 
   os << indent << "Origin Representation: ";
   if ( this->OriginRepresentation )
-    {
+  {
     this->OriginRepresentation->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Selection Representation: " << endl;
   if ( this->SelectionRepresentation )
-    {
+  {
     this->SelectionRepresentation->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   this->Superclass::PrintSelf(os,indent);
 }

@@ -45,15 +45,15 @@ void vtkLocator::Initialize()
 void vtkLocator::Update()
 {
   if (!this->DataSet)
-    {
+  {
     vtkErrorMacro(<< "Input not set!");
     return;
-    }
+  }
   if ((this->MTime > this->BuildTime) ||
       (this->DataSet->GetMTime() > this->BuildTime))
-    {
+  {
     this->BuildLocator();
-    }
+  }
 }
 
 void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
@@ -61,13 +61,13 @@ void vtkLocator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
-    {
+  {
     os << indent << "DataSet: " << this->DataSet << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "DataSet: (none)\n";
-    }
+  }
 
   os << indent << "Automatic: "  << (this->Automatic ? "On\n" : "Off\n");
   os << indent << "Tolerance: "  << this->Tolerance << "\n" ;

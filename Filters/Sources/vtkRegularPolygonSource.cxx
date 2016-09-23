@@ -63,42 +63,42 @@ int vtkRegularPolygonSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
 
   if ( this->GeneratePolyline )
-    {
+  {
     newLine = vtkCellArray::New();
     newLine->Allocate(newLine->EstimateSize(1,numPts));
     newLine->InsertNextCell(numPts+1);
     for (i=0; i<numPts; i++)
-      {
+    {
       newLine->InsertCellPoint(i);
-      }
+    }
     newLine->InsertCellPoint(0); //close the polyline
     output->SetLines(newLine);
     newLine->Delete();
-    }
+  }
 
   if ( this->GeneratePolygon )
-    {
+  {
     newPoly = vtkCellArray::New();
     newPoly->Allocate(newPoly->EstimateSize(1,numPts));
     newPoly->InsertNextCell(numPts);
     for (i=0; i<numPts; i++)
-      {
+    {
       newPoly->InsertCellPoint(i);
-      }
+    }
     output->SetPolys(newPoly);
     newPoly->Delete();
-    }
+  }
 
   // Produce a unit vector in the plane of the polygon (i.e., perpendicular
   // to the normal)
@@ -109,11 +109,11 @@ int vtkRegularPolygonSource::RequestData(
   n[1] = this->Normal[1];
   n[2] = this->Normal[2];
   if ( vtkMath::Normalize(n) == 0.0 )
-    {
+  {
     n[0] = 0.0;
     n[1] = 0.0;
     n[2] = 1.0;
-    }
+  }
 
   // Cross with unit axis vectors and eventually find vector in the polygon plane
   int foundPlaneVector = 0;
@@ -122,41 +122,41 @@ int vtkRegularPolygonSource::RequestData(
   axis[2] = 0.0;
   vtkMath::Cross(n,axis,px);
   if ( vtkMath::Normalize(px) > 1.0E-3 )
-    {
+  {
     foundPlaneVector = 1;
-    }
+  }
   if ( ! foundPlaneVector )
-    {
+  {
     axis[0] = 0.0;
     axis[1] = 1.0;
     axis[2] = 0.0;
     vtkMath::Cross(n,axis,px);
     if ( vtkMath::Normalize(px) > 1.0E-3 )
-      {
-      foundPlaneVector = 1;
-      }
-    }
-  if ( ! foundPlaneVector )
     {
+      foundPlaneVector = 1;
+    }
+  }
+  if ( ! foundPlaneVector )
+  {
     axis[0] = 0.0;
     axis[1] = 0.0;
     axis[2] = 1.0;
     vtkMath::Cross(n,axis,px);
     vtkMath::Normalize(px);
-    }
+  }
   vtkMath::Cross(px,n,py); //created two orthogonal axes in the polygon plane, px & py
 
   // Now run around normal vector to produce polygon points.
   double theta = 2.0 * vtkMath::Pi() / numPts;
   for (j=0; j<numPts; j++)
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       r[i] = px[i]*cos((double)j*theta) + py[i]*sin((double)j*theta);
       x[i] = this->Center[i] + this->Radius * r[i];
-      }
-    newPoints->InsertNextPoint(x);
     }
+    newPoints->InsertNextPoint(x);
+  }
 
   output->SetPoints(newPoints);
   newPoints->Delete();

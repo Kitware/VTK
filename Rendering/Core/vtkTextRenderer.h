@@ -128,14 +128,14 @@ public:
    * Custom overrides should define other backends starting at 16.
    */
   enum Backend
-    {
+  {
     Default = -1,
     Detect = 0,
     FreeType,
     MathText,
 
     UserBackend = 16
-    };
+  };
 
   //@{
   /**

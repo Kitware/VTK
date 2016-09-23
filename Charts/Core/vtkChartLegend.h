@@ -68,7 +68,7 @@ public:
     TOP,
     BOTTOM,
     CUSTOM
-    };
+  };
 
   /**
    * Set point the legend box is anchored to.

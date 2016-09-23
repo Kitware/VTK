@@ -78,39 +78,39 @@ int vtkVertexGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
 
   vtkPoints *points = 0;
   if (psInput)
-    {
+  {
     points = psInput->GetPoints();
-    }
+  }
   else
-    {
+  {
     points = graphInput->GetPoints();
-    }
+  }
 
   // If no points, then nothing to do.
   if (points == NULL)
-    {
+  {
     return 1;
-    }
+  }
 
   output->SetPoints(points);
   vtkIdType numPoints = points->GetNumberOfPoints();
 
   if (psInput)
-    {
+  {
     output->GetPointData()->PassData(psInput->GetPointData());
-    }
+  }
   else
-    {
+  {
     output->GetPointData()->PassData(graphInput->GetVertexData());
-    }
+  }
 
   VTK_CREATE(vtkCellArray, cells);
   cells->Allocate(2*numPoints);
 
   for (vtkIdType i = 0; i < numPoints; i++)
-    {
+  {
     cells->InsertNextCell(1, &i);
-    }
+  }
   output->SetVerts(cells);
 
   return 1;

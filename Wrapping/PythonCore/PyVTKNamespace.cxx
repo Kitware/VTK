@@ -98,11 +98,11 @@ PyObject *PyVTKNamespace_New(const char *name)
   // first check to see if this namespace exists
   PyObject *self = vtkPythonUtil::FindNamespace(name);
   if (self)
-    {
+  {
     Py_INCREF(self);
-    }
+  }
   else
-    {
+  {
     // make sure python has readied the type object
     PyType_Ready(&PyVTKNamespace_Type);
     // call the allocator provided by python for this type
@@ -114,7 +114,7 @@ PyObject *PyVTKNamespace_New(const char *name)
     Py_DECREF(args);
     // remember the object for later reference
     vtkPythonUtil::AddNamespaceToMap(self);
-    }
+  }
   return self;
 }
 

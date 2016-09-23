@@ -115,24 +115,24 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
                                   vtkMultiBlockDataSet *outMeta)
 {
   if ( !outMeta )
-    {
+  {
     return;
-    }
+  }
 
   if (this->NumberOfBins[0] == 0 || this->NumberOfBins[1] == 0)
-    {
+  {
     vtkErrorMacro(<<"Error: histogram dimensions not set (use SetNumberOfBins).");
     return;
-    }
+  }
 
   vtkImageData* outImage = vtkImageData::SafeDownCast(
     this->GetOutputDataObject(vtkExtractHistogram2D::HISTOGRAM_IMAGE));
 
   vtkDataArray* col1=NULL, *col2=NULL;
   if (! this->GetInputArrays(col1,col2))
-    {
+  {
     return;
-    }
+  }
 
   this->ComputeBinExtents(col1,col2);
 
@@ -141,10 +141,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
 
   int numValues = col1->GetNumberOfTuples();
   if (numValues != col2->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro(<<"Error: columns must have same length.");
     return;
-    }
+  }
 
   // compute the bin width
   double binWidth[2] = {0.0,0.0};
@@ -164,10 +164,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
 
   vtkDataArray* histogram = outImage->GetPointData()->GetScalars();
   if (!histogram)
-    {
+  {
     vtkErrorMacro(<<"Error: histogram array not allocated.");
     return;
-    }
+  }
 
   vtkIdType bin1,bin2,idx;
   double v1,v2,ct;
@@ -179,7 +179,7 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
   // compute the histogram.
   this->MaximumBinCount = 0;
   for (int i=0; i<numValues; i++)
-    {
+  {
     v1 = col1->GetComponent(i,this->ComponentsToProcess[0]);
     v2 = col2->GetComponent(i,this->ComponentsToProcess[1]);
 
@@ -196,10 +196,10 @@ void vtkExtractHistogram2D::Learn(vtkTable *vtkNotUsed(inData),
     histogram->SetComponent(idx,0,ct);
 
     if (ct > this->MaximumBinCount)
-      {
+    {
       this->MaximumBinCount = static_cast<vtkIdType>(ct);
-      }
     }
+  }
 
   primaryTab->Initialize();
   primaryTab->AddColumn(histogram);
@@ -245,13 +245,13 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
   vtkTable* inData = vtkTable::SafeDownCast(this->GetInputDataObject(0,0));
 
   if (!inData)
-    {
+  {
     vtkErrorMacro(<<"Error: Empty input.");
     return 0;
-    }
+  }
 
   if (this->Internals->Requests.size() > 0)
-    {
+  {
     vtkStdString colName;
 
     this->Internals->GetColumnForRequest( 0, (this->SwapColumns != 0), colName );
@@ -259,39 +259,39 @@ int vtkExtractHistogram2D::GetInputArrays(vtkDataArray*& col1, vtkDataArray*& co
 
     this->Internals->GetColumnForRequest( 0, (this->SwapColumns == 0), colName );
     col2 = vtkArrayDownCast<vtkDataArray>( inData->GetColumnByName( colName ) );
-    }
+  }
   else
-    {
+  {
     col1 = vtkArrayDownCast<vtkDataArray>( inData->GetColumn( 0 ) );
     col2 = vtkArrayDownCast<vtkDataArray>( inData->GetColumn( 1 ) );
-    }
+  }
 
   if (!col2)
     col2=col1;
 
   if (!col1)
-    {
+  {
     vtkErrorMacro(<<"Error: could not find first column.");
     return 0;
-    }
+  }
 
   if (!col2)
-    {
+  {
     vtkErrorMacro(<<"Error: could not find second column.");
     return 0;
-    }
+  }
 
   if (col1->GetNumberOfComponents() <= this->ComponentsToProcess[0])
-    {
+  {
     vtkErrorMacro(<<"Error: first column doesn't contain component " << this->ComponentsToProcess[0] << ".");
     return 0;
-    }
+  }
 
   if (col2->GetNumberOfComponents() <= this->ComponentsToProcess[1])
-    {
+  {
     vtkErrorMacro(<<"Error: second column doesn't contain component " << this->ComponentsToProcess[1] << ".");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -314,14 +314,14 @@ double* vtkExtractHistogram2D::GetHistogramExtents()
 int vtkExtractHistogram2D::FillOutputPortInformation( int port, vtkInformation* info )
 {
   if ( port == vtkExtractHistogram2D::HISTOGRAM_IMAGE )
-    {
+  {
     info->Set( vtkDataObject::DATA_TYPE_NAME(), "vtkImageData" );
     return 1;
-    }
+  }
   else
-    {
+  {
     return this->Superclass::FillOutputPortInformation(port,info);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -335,9 +335,9 @@ int vtkExtractHistogram2D::RequestInformation(vtkInformation *vtkNotUsed(request
 
   vtkDataArray* col1=NULL, *col2=NULL;
   if (! this->GetInputArrays(col1,col2))
-    {
+  {
     return 0;
-    }
+  }
 
   this->ComputeBinExtents(col1,col2);
 
@@ -363,10 +363,10 @@ int vtkExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* c
 
   // update histogram extents, if necessary
   if (!this->UseCustomHistogramExtents)
-    {
+  {
     col1->GetRange(this->HistogramExtents,this->ComponentsToProcess[0]);
     col2->GetRange(this->HistogramExtents+2,this->ComponentsToProcess[1]);
-    }
+  }
 
   return 1;
 }

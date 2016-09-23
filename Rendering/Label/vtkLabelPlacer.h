@@ -63,7 +63,7 @@ public:
 
   /// Specifications for the placement of the label relative to an anchor point.
   enum LabelGravity
-    {
+  {
     VerticalBottomBit   = 1,
     VerticalBaselineBit = 2,
     VerticalCenterBit   = 4,
@@ -89,14 +89,14 @@ public:
     UpperLeft=24,      //!< The anchor is at the upper left corner of the label's bounding box.
     UpperCenter=40,    //!< The anchor is centered left-to-right at the top edge of the bounding box.
     UpperRight=72      //!< The anchor is at the upper right corner of the label's bounding box.
-    };
+  };
 
   /// Coordinate systems that output dataset may use.
   enum OutputCoordinates
-    {
+  {
     WORLD=0,           //!< Output 3-D world-space coordinates for each label anchor.
     DISPLAY=1          //!< Output 2-D display coordinates for each label anchor (3 components but only 2 are significant).
-    };
+  };
 
   //@{
   /**

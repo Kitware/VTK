@@ -30,17 +30,17 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkArray> array;
 
     // Test to see that we can create every supported combination of storage- and value-type.
@@ -77,9 +77,9 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     sample_values.push_back(vtkVariant(12.0));
 
     for(std::vector<int>::const_iterator storage_type = storage_types.begin(); storage_type != storage_types.end(); ++storage_type)
-      {
+    {
       for(size_t value_type = 0; value_type != value_types.size(); ++value_type)
-        {
+      {
         cerr << "creating array with storage type " << *storage_type << " and value type " << vtkImageScalarTypeNameMacro(value_types[value_type]) << endl;
 
         array.TakeReference(vtkArray::CreateArray(*storage_type, value_types[value_type]));
@@ -93,8 +93,8 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         array->SetVariantValue(5, sample_values[value_type]);
         test_expression(array->GetVariantValue(5).IsValid());
         test_expression(array->GetVariantValue(5) == sample_values[value_type]);
-        }
       }
+    }
 
     // Do some spot-checking to see that the actual type matches what we expect ...
     array.TakeReference(vtkArray::CreateArray(vtkArray::DENSE, VTK_DOUBLE));
@@ -104,10 +104,10 @@ int TestArrayAPI(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(vtkSparseArray<vtkStdString>::SafeDownCast(array));
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

@@ -149,8 +149,8 @@ int TestGaussianBlurPass(int argc, char* argv[])
 
   retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return !retVal;
 }

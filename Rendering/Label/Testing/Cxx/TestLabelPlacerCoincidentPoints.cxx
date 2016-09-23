@@ -113,10 +113,10 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
   vtkMath::RandomSeed(5678);
 
   for(i = 0; i < 29; i++)
-    {
+  {
     //points->InsertPoint( i, vtkMath::Random(-1.0, 1.0), vtkMath::Random(-1.0, 1.0), 0. );
     points->InsertPoint( i, 0.0, 0.0, 0.0 );
-    }
+  }
   points->InsertPoint( 29, 2.2, 2.2, 0.0 );
 
   vtkSmartPointer<vtkCellArray> cells =
@@ -124,9 +124,9 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 
   cells->InsertNextCell(30);
   for(i = 0; i < 30; i++)
-    {
+  {
     cells->InsertCellPoint(i);
-    }
+  }
 
   vtkSmartPointer<vtkPolyData> polyData =
     vtkSmartPointer<vtkPolyData>::New();
@@ -233,9 +233,9 @@ int TestLabelPlacerCoincidentPoints(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

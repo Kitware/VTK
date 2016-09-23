@@ -74,37 +74,37 @@ int vtkSelectVisiblePoints::RequestData(
 
   // Nothing to extract if there are no points in the data set.
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   if ( this->Renderer == NULL )
-    {
+  {
     vtkErrorMacro(<<"Renderer must be set");
     return 0;
-    }
+  }
 
   if ( ! this->Renderer->GetRenderWindow() )
-    {
+  {
     vtkErrorMacro( "No render window -- can't get window size to query z buffer." );
     return 0;
-    }
+  }
 
   // This will trigger if you do something like ResetCamera before the Renderer or
   // RenderWindow have allocated their appropriate system resources (like creating
   // an OpenGL context)." Resource allocation must occur before we can use the Z
   // buffer.
   if ( this->Renderer->GetRenderWindow()->GetNeverRendered() )
-    {
+  {
     vtkDebugMacro( "RenderWindow not initialized -- aborting update." );
     return 1;
-    }
+  }
 
   vtkCamera* cam = this->Renderer->GetActiveCamera();
   if ( ! cam )
-    {
+  {
     return 1;
-    }
+  }
 
   vtkPoints *outPts = vtkPoints::New();
   outPts->Allocate(numPts/2+1);
@@ -123,26 +123,26 @@ int vtkSelectVisiblePoints::RequestData(
   vtkIdType progressInterval=numPts/20+1;
   x[3] = 1.0;
   for (cellId=(-1), ptId=0; ptId < numPts && !abort; ptId++)
-    {
+  {
     // perform conversion
     input->GetPoint(ptId,x);
 
     if ( ! (ptId % progressInterval) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(ptId)/numPts);
       abort = this->GetAbortExecute();
-      }
+    }
 
     visible = IsPointOccluded(x, zPtr);
 
     if ( (visible && !this->SelectInvisible) ||
          (!visible && this->SelectInvisible) )
-      {
+    {
       cellId = outPts->InsertNextPoint(x);
       output->InsertNextCell(VTK_VERTEX, 1, &cellId);
       outPD->CopyData(inPD,ptId,cellId);
-      }
-    }//for all points
+    }
+  }//for all points
 
   output->SetPoints(outPts);
   outPts->Delete();
@@ -162,10 +162,10 @@ vtkMTimeType vtkSelectVisiblePoints::GetMTime()
   vtkMTimeType time;
 
   if ( this->Renderer != NULL )
-    {
+  {
     time = this->Renderer->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -202,18 +202,18 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
 
   // specify a selection window to avoid querying
   if ( this->SelectionWindow )
-    {
+  {
     for (int i=0; i<4; i++)
-      {
-      this->InternalSelection[i] = this->Selection[i];
-      }
-    }
-  else
     {
+      this->InternalSelection[i] = this->Selection[i];
+    }
+  }
+  else
+  {
     this->InternalSelection[0] = this->InternalSelection[2] = 0;
     this->InternalSelection[1] = size[0] - 1;
     this->InternalSelection[3] = size[1] - 1;
-    }
+  }
 
   // Grab the composite perspective transform.  This matrix is used to convert
   // each point to view coordinates.  vtkRenderer provides a WorldToView()
@@ -228,13 +228,13 @@ float * vtkSelectVisiblePoints::Initialize(bool getZbuff)
   // selection region all at once and probe the resulting array.  When we
   // have just a few points, we perform individual z-buffer queries.
   if (getZbuff)
-    {
+  {
     return this->Renderer->GetRenderWindow()->GetZbufferData(
       this->InternalSelection[0],
       this->InternalSelection[2],
       this->InternalSelection[1],
       this->InternalSelection[3]);
-    }
+  }
   return NULL;
 }
 
@@ -249,9 +249,9 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
 
   this->CompositePerspectiveTransform->MultiplyPoint(xx, view);
   if (view[3] == 0.0)
-    {
+  {
     return false;
-    }
+  }
   this->Renderer->SetViewPoint(view[0]/view[3], view[1]/view[3], view[2]/view[3]);
   this->Renderer->ViewToDisplay();
   this->Renderer->GetDisplayPoint(dx);
@@ -259,27 +259,27 @@ bool vtkSelectVisiblePoints::IsPointOccluded(
   // check whether visible and in selection window
   if ( dx[0] >= this->InternalSelection[0] && dx[0] <= this->InternalSelection[1] &&
     dx[1] >= this->InternalSelection[2] && dx[1] <= this->InternalSelection[3] )
-    {
+  {
     if (zPtr != NULL)
-      {
+    {
       // Access the value from the captured zbuffer.  Note, we only
       // captured a portion of the zbuffer, so we need to offset dx by
       // the selection window.
       z = zPtr[static_cast<int>(dx[0]) - this->InternalSelection[0]
       + (static_cast<int>(dx[1]) - this->InternalSelection[2])
         *(this->InternalSelection[1] - this->InternalSelection[0] + 1)];
-      }
+    }
     else
-      {
+    {
       z = this->Renderer->GetZ(static_cast<int>(dx[0]),
         static_cast<int>(dx[1]));
-      }
+    }
 
     if( dx[2] < (z + this->Tolerance) )
-      {
+    {
       return true;
-      }
     }
+  }
 
   return false;
 }

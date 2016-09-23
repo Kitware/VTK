@@ -31,10 +31,10 @@ vtkQuadraticEdge::vtkQuadraticEdge()
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Line = vtkLine::New();
 }
 
@@ -61,51 +61,51 @@ int vtkQuadraticEdge::EvaluatePosition(double* x, double* closestPoint,
   returnStatus = -1;
   weights[0] = 0.0;
   for (minDist2=VTK_DOUBLE_MAX,i=0; i < 2; i++)
-    {
+  {
     if ( i == 0)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
-      }
+    }
     else
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
-      }
+    }
 
     status = this->Line->EvaluatePosition(x,closest,ignoreId,pc,
                                           dist2,lineWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
-      }
     }
+  }
 
   // adjust parametric coordinate
   if ( returnStatus != -1 )
-    {
+  {
     if ( subId == 0 ) //first part
-      {
+    {
       pcoords[0] = pcoords[0]/2.0;
-      }
+    }
     else
-      {
+    {
       pcoords[0] = 0.5 + pcoords[0]/2.0;
-      }
+    }
     if(closestPoint!=0)
-      {
+    {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
-      }
+    }
     else
-      {
+    {
       // Compute weights only
       this->InterpolationFunctions(pcoords,weights);
-      }
     }
+  }
 
   return returnStatus;
 }
@@ -124,9 +124,9 @@ void vtkQuadraticEdge::EvaluateLocation(int& vtkNotUsed(subId),
   this->InterpolationFunctions(pcoords,weights);
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -148,16 +148,16 @@ void vtkQuadraticEdge::Contour(double value, vtkDataArray *cellScalars,
                                vtkCellData *outCd)
 {
   for (int i=0; i < 2; i++) //for each subdivided line
-    {
+  {
     for ( int j=0; j<2; j++) //for each of the four vertices of the line
-      {
+    {
       this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
       this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
-      }
+    }
     this->Line->Contour(value, this->Scalars, locator, verts,
                        lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -175,23 +175,23 @@ int vtkQuadraticEdge::IntersectWithLine(double p1[3], double p2[3],
   int subTest, numLines=2;
 
   for (subId=0; subId < numLines; subId++)
-    {
+  {
     if ( subId == 0)
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(0));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(2));
-      }
+    }
     else
-      {
+    {
       this->Line->Points->SetPoint(0,this->Points->GetPoint(2));
       this->Line->Points->SetPoint(1,this->Points->GetPoint(1));
-      }
+    }
 
     if ( this->Line->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -242,16 +242,16 @@ void vtkQuadraticEdge::Clip(double value, vtkDataArray *cellScalars,
                             vtkCellData *outCd, int insideOut)
 {
   for (int i=0; i < 2; i++) //for each subdivided line
-    {
+  {
     for ( int j=0; j<2; j++) //for each of the four vertices of the line
-      {
+    {
       this->Line->Points->SetPoint(j,this->Points->GetPoint(LinearLines[i][j]));
       this->Line->PointIds->SetId(j,this->PointIds->GetId(LinearLines[i][j]));
       this->Scalars->SetValue(j,cellScalars->GetTuple1(LinearLines[i][j]));
-      }
+    }
     this->Line->Clip(value, this->Scalars, locator, lines, inPd, outPd,
                      inCd, cellId, outCd, insideOut);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

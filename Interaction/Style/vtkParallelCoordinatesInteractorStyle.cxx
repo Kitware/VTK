@@ -64,7 +64,7 @@ void vtkParallelCoordinatesInteractorStyle::OnMouseMove()
   this->CursorCurrentPosition[1] = y;
 
   switch (this->State)
-    {
+  {
     case INTERACT_HOVER:
       this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
       break;
@@ -83,7 +83,7 @@ void vtkParallelCoordinatesInteractorStyle::OnMouseMove()
       // interaction events to get invoked.
       this->Superclass::OnMouseMove();
       break;
-    }
+  }
 
 
 }
@@ -96,16 +96,16 @@ void vtkParallelCoordinatesInteractorStyle::OnLeftButtonDown()
 
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   // Redefine this button to handle window/level
   this->GrabFocus(this->EventCallbackCommand);
 
   if (!this->Interactor->GetShiftKey() &&
       !this->Interactor->GetControlKey())
-    {
+  {
     this->CursorStartPosition[0] = x;
     this->CursorStartPosition[1] = y;
     this->CursorLastPosition[0] = x;
@@ -113,7 +113,7 @@ void vtkParallelCoordinatesInteractorStyle::OnLeftButtonDown()
     this->CursorCurrentPosition[0] = x;
     this->CursorCurrentPosition[1] = y;
     this->StartInspect(x,y);//ManipulateAxes(x,y);
-    }
+  }
 /*  else if (!this->Interactor->GetControlKey())
     {
     this->CursorStartPosition[0] = x;
@@ -125,23 +125,23 @@ void vtkParallelCoordinatesInteractorStyle::OnLeftButtonDown()
     this->StartSelectData(x,y);
     }*/
   else // The rest of the button + key combinations remain the same
-    {
+  {
     this->Superclass::OnLeftButtonDown();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkParallelCoordinatesInteractorStyle::OnLeftButtonUp()
 {
   if (this->State == INTERACT_INSPECT)
-    {
+  {
     this->EndInspect();//ManipulateAxes();
 
     if ( this->Interactor )
-      {
+    {
       this->ReleaseFocus();
-      }
     }
+  }
 /*  else if (this->State == INTERACT_SELECT_DATA)
     {
     this->EndSelectData();
@@ -164,16 +164,16 @@ void vtkParallelCoordinatesInteractorStyle::OnMiddleButtonDown()
 
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   // Redefine this button + shift to handle pick
   this->GrabFocus(this->EventCallbackCommand);
 
   if (!this->Interactor->GetShiftKey() &&
       !this->Interactor->GetControlKey())
-    {
+  {
     this->CursorStartPosition[0] = x;
     this->CursorStartPosition[1] = y;
     this->CursorLastPosition[0] = x;
@@ -181,25 +181,25 @@ void vtkParallelCoordinatesInteractorStyle::OnMiddleButtonDown()
     this->CursorCurrentPosition[0] = x;
     this->CursorCurrentPosition[1] = y;
     this->StartPan();
-    }
+  }
   // The rest of the button + key combinations remain the same
   else
-    {
+  {
     this->Superclass::OnMiddleButtonDown();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkParallelCoordinatesInteractorStyle::OnMiddleButtonUp()
 {
   if (this->State == INTERACT_PAN)
-    {
+  {
     this->EndPan();
     if ( this->Interactor )
-      {
+    {
       this->ReleaseFocus();
-      }
     }
+  }
 
   // Call parent to handle all other states and perform additional work
 
@@ -214,16 +214,16 @@ void vtkParallelCoordinatesInteractorStyle::OnRightButtonDown()
 
   this->FindPokedRenderer(x, y);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   // Redefine this button + shift to handle pick
   this->GrabFocus(this->EventCallbackCommand);
 
   if (!this->Interactor->GetShiftKey() &&
       !this->Interactor->GetControlKey())
-    {
+  {
     this->CursorStartPosition[0] = x;
     this->CursorStartPosition[1] = y;
     this->CursorLastPosition[0] = x;
@@ -231,25 +231,25 @@ void vtkParallelCoordinatesInteractorStyle::OnRightButtonDown()
     this->CursorCurrentPosition[0] = x;
     this->CursorCurrentPosition[1] = y;
     this->StartZoom();
-    }
+  }
   // The rest of the button + key combinations remain the same
   else
-    {
+  {
     this->Superclass::OnRightButtonDown();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkParallelCoordinatesInteractorStyle::OnRightButtonUp()
 {
   if (this->State == INTERACT_ZOOM)
-    {
+  {
     this->EndZoom();
     if ( this->Interactor )
-      {
+    {
       this->ReleaseFocus();
-      }
     }
+  }
 
   // Call parent to handle all other states and perform additional work
 
@@ -270,7 +270,7 @@ void vtkParallelCoordinatesInteractorStyle::OnLeave()
   this->CursorCurrentPosition[1] = y;
 
   switch (this->State)
-    {
+  {
     case INTERACT_HOVER:
       this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
       break;
@@ -289,7 +289,7 @@ void vtkParallelCoordinatesInteractorStyle::OnLeave()
       // interaction events to get invoked.
       this->Superclass::OnLeave();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -298,7 +298,7 @@ void vtkParallelCoordinatesInteractorStyle::OnChar()
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
   switch (rwi->GetKeyCode())
-    {
+  {
     case 'f' :
     case 'F' :
       break;
@@ -311,7 +311,7 @@ void vtkParallelCoordinatesInteractorStyle::OnChar()
     default:
       this->Superclass::OnChar();
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

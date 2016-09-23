@@ -535,28 +535,28 @@ public:
    * Outer product of two 2-vectors (float version).
    */
   static void Outer2D(const float x[2], const float y[2], float A[2][2])
-    {
+  {
     for (int i=0; i < 2; i++)
-      {
+    {
       for (int j=0; j < 2; j++)
-        {
+      {
         A[i][j] = x[i] * y[j];
-        }
       }
     }
+  }
   /**
    * Outer product of two 2-vectors (float version).
    */
   static void Outer2D(const double x[2], const double y[2], double A[2][2])
-    {
+  {
     for (int i=0; i < 2; i++)
-      {
+    {
       for (int j=0; j < 2; j++)
-        {
+      {
         A[i][j] = x[i] * y[j];
-        }
       }
     }
+  }
 
   /**
    * Compute the norm of a 2-vector.
@@ -1059,9 +1059,9 @@ public:
    */
   static vtkTypeBool AreBoundsInitialized(double bounds[6]){
     if ( bounds[1]-bounds[0]<0.0 )
-      {
+    {
       return 0;
-      }
+    }
     return 1;
   }
   //@}
@@ -1269,12 +1269,12 @@ inline float vtkMath::Normalize(float v[3])
 {
   float den = vtkMath::Norm( v );
   if ( den != 0.0 )
-    {
+  {
     for (int i=0; i < 3; i++)
-      {
+    {
       v[i] /= den;
-      }
     }
+  }
   return den;
 }
 
@@ -1283,12 +1283,12 @@ inline double vtkMath::Normalize(double v[3])
 {
   double den = vtkMath::Norm( v );
   if ( den != 0.0 )
-    {
+  {
     for (int i=0; i < 3; i++)
-      {
+    {
       v[i] /= den;
-      }
     }
+  }
   return den;
 }
 
@@ -1297,12 +1297,12 @@ inline float vtkMath::Normalize2D(float v[3])
 {
   float den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
-    {
+  {
     for (int i=0; i < 2; i++)
-      {
+    {
       v[i] /= den;
-      }
     }
+  }
   return den;
 }
 
@@ -1311,12 +1311,12 @@ inline double vtkMath::Normalize2D(double v[3])
 {
   double den = vtkMath::Norm2D( v );
   if ( den != 0.0 )
-    {
+  {
     for (int i=0; i < 2; i++)
-      {
+    {
       v[i] /= den;
-      }
     }
+  }
   return den;
 }
 
@@ -1414,14 +1414,14 @@ inline T vtkMath::ClampValue(const T & value, const T & min, const T & max)
   assert("pre: valid_range" && min<=max);
 
   if (value < min)
-    {
+  {
     return min;
-    }
+  }
 
   if (value > max)
-    {
+  {
     return max;
-    }
+  }
 
   return value;
 }
@@ -1430,18 +1430,18 @@ inline T vtkMath::ClampValue(const T & value, const T & min, const T & max)
 inline void vtkMath::ClampValue(double *value, const double range[2])
 {
   if (value && range)
-    {
+  {
     assert("pre: valid_range" && range[0]<=range[1]);
 
     if (*value < range[0])
-      {
+    {
       *value = range[0];
-      }
-    else if (*value > range[1])
-      {
-      *value = range[1];
-      }
     }
+    else if (*value > range[1])
+    {
+      *value = range[1];
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1449,22 +1449,22 @@ inline void vtkMath::ClampValue(
   double value, const double range[2], double *clamped_value)
 {
   if (range && clamped_value)
-    {
+  {
     assert("pre: valid_range" && range[0]<=range[1]);
 
     if (value < range[0])
-      {
+    {
       *clamped_value = range[0];
-      }
-    else if (value > range[1])
-      {
-      *clamped_value = range[1];
-      }
-    else
-      {
-      *clamped_value = value;
-      }
     }
+    else if (value > range[1])
+    {
+      *clamped_value = range[1];
+    }
+    else
+    {
+      *clamped_value = value;
+    }
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -1475,31 +1475,31 @@ inline double vtkMath::ClampAndNormalizeValue(double value,
 
   double result;
   if(range[0]==range[1])
-    {
+  {
       result=0.0;
-    }
+  }
   else
-    {
+  {
       // clamp
       if(value<range[0])
-        {
+      {
           result=range[0];
-        }
+      }
       else
-        {
+      {
           if(value>range[1])
-            {
+          {
               result=range[1];
-            }
+          }
           else
-            {
+          {
               result=value;
-            }
-        }
+          }
+      }
 
       // normalize
       result=( result - range[0] ) / ( range[1] - range[0] );
-    }
+  }
 
   assert("post: valid_result" && result>=0.0 && result<=1.0);
 

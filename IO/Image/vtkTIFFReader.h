@@ -46,18 +46,18 @@ public:
    * the format .extension
    */
   virtual const char* GetFileExtensions()
-    {
+  {
     return ".tif .tiff";
-    }
+  }
 
   /**
    * Return a descriptive name for the file format that might be useful
    * in a GUI.
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
     return "TIFF";
-    }
+  }
 
   /**
    * Set orientation type

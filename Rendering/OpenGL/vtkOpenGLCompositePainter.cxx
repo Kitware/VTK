@@ -42,16 +42,16 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
       state.AmbientColor.top() == state.RenderedAmbientColor &&
       state.DiffuseColor.top() == state.RenderedDiffuseColor &&
       state.SpecularColor.top() == state.RenderedSpecularColor)
-    {
+  {
     bool something_overridden = (
       state.Opacity.size() > 1 || state.AmbientColor.size() > 1 ||
       state.DiffuseColor.size() > 1 || state.SpecularColor.size() > 1);
     if (something_overridden == this->PushedOpenGLAttribs)
-      {
+    {
       // nothing to do.
       return;
-      }
     }
+  }
 
   state.RenderedOpacity = state.Opacity.top();
   state.RenderedAmbientColor = state.AmbientColor.top();
@@ -62,24 +62,24 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
     state.AmbientColor.size() == 1 &&
     state.DiffuseColor.size() == 1 &&
     state.SpecularColor.size() == 1)
-    {
+  {
     // We are returning to root state.
     if (this->PushedOpenGLAttribs)
-      {
+    {
       glPopAttrib();
       this->PushedOpenGLAttribs = false;
       this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
-      }
+    }
     else
-      {
+    {
       vtkWarningMacro("State mismatch. UpdateRenderingState() isn't being called "
         "correctly.");
-      }
     }
+  }
   else
-    {
+  {
     if (!this->PushedOpenGLAttribs)
-      {
+    {
       this->PushedOpenGLAttribs = true;
       glPushAttrib(GL_COLOR_BUFFER_BIT|GL_LIGHTING_BIT|GL_CURRENT_BIT|GL_ENABLE_BIT|
         GL_TEXTURE_BIT);
@@ -95,15 +95,15 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
       // glBindTexture(GL_TEXTURE_2D, 0);
 
       if (state.AmbientColor.size() > 1 || state.DiffuseColor.size() > 1 || state.SpecularColor.size() > 1)
-        {
+      {
         glDisable(GL_TEXTURE_2D);
         this->Information->Set(vtkPolyDataPainter::DISABLE_SCALAR_COLOR(), 1);
-        }
-      else
-        {
-        this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
-        }
       }
+      else
+      {
+        this->Information->Remove(vtkPolyDataPainter::DISABLE_SCALAR_COLOR());
+      }
+    }
 
     vtkOpenGLRenderWindow* windowGL = vtkOpenGLRenderWindow::SafeDownCast(window);
     vtkOpenGLProperty::SetMaterialProperties(
@@ -114,7 +114,7 @@ void vtkOpenGLCompositePainter::UpdateRenderingState(
       property->GetSpecularPower(),
       state.RenderedOpacity,
       windowGL);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

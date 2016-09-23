@@ -71,11 +71,11 @@ public:
    * DEFAULT_PRECISION - Output precision should match the input precision.
    */
   enum DesiredOutputPrecision
-    {
+  {
     SINGLE_PRECISION,
     DOUBLE_PRECISION,
     DEFAULT_PRECISION
-    };
+  };
 
   /**
    * Check whether this algorithm has an assigned executive.  This

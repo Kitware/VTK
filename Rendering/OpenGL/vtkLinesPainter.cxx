@@ -45,28 +45,28 @@ vtkLinesPainter::~vtkLinesPainter()
   vtkIdType nPts; unsigned short count = 0; \
   glInitFuncs \
   while (ptIds < endPtIds) \
-    { \
+  { \
     nPts = *ptIds; \
     ++ptIds; \
     device->BeginPrimitive(prim);\
     while (nPts > 0) \
-      { \
+    { \
       glVertFuncs \
       ++ptIds; \
       --nPts; \
-      } \
+    } \
     device->EndPrimitive();\
     if (++count == 10000) \
-      { \
+    { \
       cellNum += 10000; \
       count = 0; \
       this->UpdateProgress(static_cast<double>(cellNum-cellNumStart)/totalCells); \
       if (ren->GetRenderWindow()->CheckAbortStatus()) \
-        { \
+      { \
         break; \
-        } \
       } \
     } \
+  } \
   cellNum += count; \
 }
 //-----------------------------------------------------------------------------
@@ -75,13 +75,13 @@ void vtkLinesPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
                                      bool forceCompileOnly)
 {
   if (typeflags == vtkPainter::POLYS)
-    {
+  {
     this->RenderPolys = 1;
-    }
+  }
   else
-    {
+  {
     this->RenderPolys = 0;
-    }
+  }
   this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 }
 
@@ -103,21 +103,21 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
   void *tcoords = 0;
   unsigned char *colors = 0;
   if (ca->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (n)
-    {
+  {
     normals = n->GetVoidPointer(0);
-    }
+  }
   if (t)
-    {
+  {
     tcoords = t->GetVoidPointer(0);
-    }
+  }
   if (c)
-    {
+  {
     colors = c->GetPointer(0);
-    }
+  }
   vtkIdType *ptIds = ca->GetPointer();
   vtkIdType *endPtIds = ptIds + ca->GetNumberOfConnectivityEntries();
   int ptype = p->GetDataType();
@@ -135,7 +135,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
   // draw all the elements, use fast path if available
   switch (idx)
-    {
+  {
     case 0:
       vtkDrawPrimsMacro(primitive,
         device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
@@ -206,7 +206,7 @@ int vtkLinesPainter::RenderPrimitive(unsigned long idx, vtkDataArray* n,
 
     default:
       return 0; // let the delegate painter handle this call.
-    }
+  }
   return 1;
 }
 

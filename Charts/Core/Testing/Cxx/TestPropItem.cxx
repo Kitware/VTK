@@ -135,13 +135,13 @@ int TestPropItem(int argc, char *argv[])
   area->GetAxis(vtkAxis::RIGHT)->SetTitle("Right Axis");
 
   for (int i = 0; i < 4; ++i)
-    {
+  {
     vtkAxis *axis = area->GetAxis(static_cast<vtkAxis::Location>(i));
     axis->GetLabelProperties()->SetColor(.6, .6, .9);
     axis->GetTitleProperties()->SetColor(.6, .6, .9);
     axis->GetPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 255);
     axis->GetGridPen()->SetColor(.6 * 255, .6 * 255, .9 * 255, 128);
-    }
+  }
 
   area->GetDrawAreaItem()->AddItem(imageItem.GetPointer());
   area->GetDrawAreaItem()->AddItem(contourItem.GetPointer());

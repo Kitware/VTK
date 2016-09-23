@@ -68,7 +68,7 @@ int TestOggTheoraWriter(int argc, char* argv[])
   std::cout << "Writing file " << fileName << "..." << std::endl;
   w->Start();
   for ( cc = 2; cc < 10; cc ++ )
-    {
+  {
     std::cout << ".";
     Fractal0->SetMaximumNumberOfIterations(cc);
     table->SetTableRange(0, cc);
@@ -76,7 +76,7 @@ int TestOggTheoraWriter(int argc, char* argv[])
     table->ForceBuild();
     table->SetTableValue(cc-1, 0, 0, 0);
     w->Write();
-    }
+  }
   w->End();
   std::cout << std::endl;
   std::cout << "Done writing file TestOggTheoraWriter.ogv..." << std::endl;
@@ -87,19 +87,19 @@ int TestOggTheoraWriter(int argc, char* argv[])
   std::cout << "TestOggTheoraWriter.ogv file exists: " << exists << std::endl;
   std::cout << "TestOggTheoraWriter.ogv file length: " << length << std::endl;
   if (!exists)
-    {
+  {
     err = 1;
     std::cerr << "ERROR: 1 - Test failing because TestOggTheoraWriter.ogv file doesn't exist..." << std::endl;
-    }
+  }
   else
-    {
+  {
     vtksys::SystemTools::RemoveFile("TestOggTheoraWriter.ogv");
-    }
+  }
   if (0==length)
-    {
+  {
     err = 2;
     std::cerr << "ERROR: 2 - Test failing because TestOggTheoraWriter.ogv file has zero length..." << std::endl;
-    }
+  }
 
   colorize->Delete();
   table->Delete();

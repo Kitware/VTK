@@ -108,10 +108,10 @@ int TestDendrogramItem(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindow->Render();
     interactor->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

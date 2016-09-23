@@ -123,13 +123,13 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   mapper->SetInputConnection( geom->GetOutputPort() );
 
   if(geom->GetOutput()->GetPointData()!=0)
-    {
+  {
     if(geom->GetOutput()->GetPointData()->GetScalars()!=0)
-      {
+    {
       mapper->SetScalarRange( geom->GetOutput()->GetPointData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor = vtkActor::New();
   actor->SetMapper(mapper);
@@ -141,9 +141,9 @@ int TestGenericGlyph3DFilter(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

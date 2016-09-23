@@ -100,10 +100,10 @@ public:
   }
 
   vtkExampleCallback()
-    {
+  {
     this->Camera = 0;
     this->Text = 0;
-    }
+  }
 
   vtkCamera *Camera;
   vtkTextActor* Text;
@@ -203,20 +203,20 @@ JNIEXPORT void JNICALL Java_com_kitware_JavaVTK_JavaVTKLib_onMotionEvent(JNIEnv 
 
   // only allow VTKI_MAX_POINTERS touches right now
   if (numPtrs > VTKI_MAX_POINTERS)
-    {
+  {
     numPtrs = VTKI_MAX_POINTERS;
-    }
+  }
 
   // fill in the arrays
   jfloat *xJPtr = env->GetFloatArrayElements(xPos, 0);
   jfloat *yJPtr = env->GetFloatArrayElements(yPos, 0);
   jint *idJPtr = env->GetIntArrayElements(ids, 0);
   for (int i = 0; i < numPtrs; ++i)
-    {
+  {
     xPtr[i] = (int)xJPtr[i];
     yPtr[i] = (int)yJPtr[i];
     idPtr[i] = idJPtr[i];
-    }
+  }
   env->ReleaseIntArrayElements(ids, idJPtr, 0);
   env->ReleaseFloatArrayElements(xPos, xJPtr, 0);
   env->ReleaseFloatArrayElements(yPos, yJPtr, 0);

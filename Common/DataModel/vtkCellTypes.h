@@ -168,12 +168,12 @@ inline int vtkCellTypes::IsType(unsigned char type)
   vtkIdType numTypes=this->GetNumberOfTypes();
 
   for (vtkIdType i=0; i<numTypes; i++)
-    {
+  {
     if ( type == this->GetCellType(i))
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 

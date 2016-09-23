@@ -62,11 +62,11 @@ public:
   //@}
 
   enum State
-    {
+  {
     Inactive = 0, //! No export active
     Background, //! Rendering rasterized props for the background.
     Capture //! Capturing vectorized objects.
-    };
+  };
 
   //@{
   /**

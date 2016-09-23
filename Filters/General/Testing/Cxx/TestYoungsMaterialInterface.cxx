@@ -74,9 +74,9 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   norm->SetNumberOfTuples( n );
   norm->SetName( "norme" );
   for ( int i = 0; i < n; ++ i )
-    {
+  {
     norm->SetTuple3( i, normX->GetTuple1( i ), normY->GetTuple1( i ), 0. );
-    }
+  }
   cellData->SetVectors( norm.GetPointer() );
 
   // Extract submesh corresponding with cells containing material 2
@@ -147,7 +147,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
   interfaceIterator->InitTraversal();
   interfaceIterator->GoToFirstItem();
   while ( interfaceIterator->IsDoneWithTraversal() == 0 )
-    {
+  {
     // Select blue component of leaf mesh
     double bComp = interfaceIterator->GetCurrentFlatIndex() == 2 ? 0 : 1;
 
@@ -169,7 +169,7 @@ int TestYoungsMaterialInterface( int argc, char * argv [] )
     interfaceActor->GetProperty()->SetColor( 0., 1 - bComp, bComp );
     interfaceActor->GetProperty()->SetRepresentationToSurface();
     renderer->AddViewProp( interfaceActor.GetPointer() );
-    }
+  }
 
   // Render and test;
   window->Render();

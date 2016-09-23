@@ -46,11 +46,11 @@ void vtkImageSeedConnectivity::RemoveAllSeeds()
 {
   vtkImageConnectorSeed *temp;
   while (this->Seeds)
-    {
+  {
     temp = this->Seeds;
     this->Seeds = temp->Next;
     delete temp;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -60,17 +60,17 @@ void vtkImageSeedConnectivity::AddSeed(int num, int *index)
   vtkImageConnectorSeed *seed;
 
   if (num > 3)
-    {
+  {
     num = 3;
-    }
+  }
   for (idx = 0; idx < num; ++idx)
-    {
+  {
     newIndex[idx] = index[idx];
-    }
+  }
   for (idx = num; idx < 3; ++idx)
-    {
+  {
     newIndex[idx] = 0;
-    }
+  }
   seed = this->Connector->NewSeed(newIndex, NULL);
   seed->Next = this->Seeds;
   this->Seeds = seed;
@@ -142,26 +142,26 @@ int vtkImageSeedConnectivity::RequestData(
 
   if (inData->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     vtkErrorMacro("Execute: Both input and output must have scalar type UnsignedChar");
     return 1;
-    }
+  }
 
   // Pick an intermediate value (In some cases, we could eliminate the last threshold.)
   temp1 = 1;
   while (temp1 == this->InputConnectValue ||
          temp1 == this->OutputUnconnectedValue ||
          temp1 == this->OutputConnectedValue)
-    {
+  {
     ++temp1;
-    }
+  }
   temp2 = temp1 + 1;
   while (temp2 == this->InputConnectValue ||
          temp2 == this->OutputUnconnectedValue ||
          temp2 == this->OutputConnectedValue)
-    {
+  {
     ++temp2;
-    }
+  }
 
   //-------
   // threshold to eliminate unknown values ( only intermediate and 0)
@@ -173,76 +173,76 @@ int vtkImageSeedConnectivity::RequestData(
   outPtr2 = static_cast<unsigned char *>(
     outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = min1; idx1 <= max1; ++idx1)
-      {
+    {
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         if (*inPtr0 == this->InputConnectValue)
-          {
+        {
           *outPtr0 = temp1;
-          }
+        }
         else
-          {
+        {
           *outPtr0 = 0;
-          }
+        }
         inPtr0 += inInc0;
         outPtr0 += outInc0;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   this->UpdateProgress(0.2);
   if (this->AbortExecute)
-    {
+  {
     return 1;
-    }
+  }
 
   //-------
   // find actual seeds in this image. (only scan along the first axis for now)
   this->Connector->RemoveAllSeeds();
   seed = this->Seeds;
   while (seed)
-    {
+  {
     temp = seed->Index[0];
     // make sure z value of seed is acceptable
     if (seed->Index[2] < min2)
-      {
+    {
       seed->Index[2] = min2;
-      }
+    }
     if (seed->Index[2] > max2)
-      {
+    {
       seed->Index[2] = max2;
-      }
+    }
     outPtr0 = static_cast<unsigned char *>(
       outData->GetScalarPointer(seed->Index));
     for (idx0 = temp; idx0 <= max0; ++idx0)
-      {
+    {
       if (*outPtr0 == temp1)
-        { // we found our seed
+      { // we found our seed
         seed->Index[0] = idx0;
         this->Connector->AddSeed(this->Connector->NewSeed(seed->Index, outPtr0));
         seed->Index[0] = temp;
         break;
-        }
-      outPtr0 += outInc0;
       }
-    seed = seed->Next;
+      outPtr0 += outInc0;
     }
+    seed = seed->Next;
+  }
 
   this->UpdateProgress(0.5);
   if (this->AbortExecute)
-    {
+  {
     return 1;
-    }
+  }
 
   //-------
   // connect
@@ -253,36 +253,36 @@ int vtkImageSeedConnectivity::RequestData(
 
   this->UpdateProgress(0.9);
   if (this->AbortExecute)
-    {
+  {
     return 1;
-    }
+  }
 
   //-------
   // Threshold to convert intermediate values into OutputUnconnectedValues
   outPtr2 = static_cast<unsigned char *>(
     outData->GetScalarPointer(min0,min1,min2));
   for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
+  {
     outPtr1 = outPtr2;
     for (idx1 = min1; idx1 <= max1; ++idx1)
-      {
+    {
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         if (*outPtr0 == temp2)
-          {
+        {
           *outPtr0 = this->OutputConnectedValue;
-          }
-        else
-          {
-          *outPtr0 = this->OutputUnconnectedValue;
-          }
-        outPtr0 += outInc0;
         }
-      outPtr1 += outInc1;
+        else
+        {
+          *outPtr0 = this->OutputUnconnectedValue;
+        }
+        outPtr0 += outInc0;
       }
-     outPtr2 += outInc2;
+      outPtr1 += outInc1;
     }
+     outPtr2 += outInc2;
+  }
 
   return 1;
 }
@@ -292,13 +292,13 @@ void vtkImageSeedConnectivity::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Connector )
-    {
+  {
     os << indent << "Connector: " << this->Connector << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Connector: (none)\n";
-    }
+  }
 
   os << indent << "Dimensionality: " << this->Dimensionality << "\n";
   os << indent << "InputConnectValue: " << this->InputConnectValue << "\n";

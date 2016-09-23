@@ -38,9 +38,9 @@ vtkGenericOpenGLRenderWindow::~vtkGenericOpenGLRenderWindow()
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
+  }
 }
 
 void vtkGenericOpenGLRenderWindow::PrintSelf(ostream& os, vtkIndent indent)

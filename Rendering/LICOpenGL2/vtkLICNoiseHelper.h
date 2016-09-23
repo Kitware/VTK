@@ -36,22 +36,22 @@ class vtkLICRandomNumberGeneratorInterface
 {
 public:
   vtkLICRandomNumberGeneratorInterface()
-    {
+  {
     this->RNG = vtkMinimalStandardRandomSequence::New();
-    }
+  }
 
   ~vtkLICRandomNumberGeneratorInterface()
-    {
+  {
     this->RNG->Delete();
-    }
+  }
 
   /**
   Seed the random number generator
   */
   void SetSeed(int seedVal)
-    {
+  {
     this->RNG->SetSeed(seedVal);
-    }
+  }
 
   /**
   Get a random number in the range of 0 to 1.
@@ -104,7 +104,7 @@ public:
     UNIFORM = 0,
     GAUSSIAN = 1,
     PERLIN = 2
-    };
+  };
   float *Generate(
         int type,
         int &sideLen,

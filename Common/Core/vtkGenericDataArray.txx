@@ -36,9 +36,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
 ::GetTuple(vtkIdType tupleIdx, double *tuple)
 {
   for (int c = 0; c < this->NumberOfComponents; ++c)
-    {
+  {
     tuple[c] = static_cast<double>(this->GetTypedComponent(tupleIdx, c));
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -52,37 +52,37 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
   // can avoid doing a dispatch for the most common usage of this method.
   DerivedT *other = vtkArrayDownCast<DerivedT>(source);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::InterpolateTuple(dstTupleIdx, ptIndices, source, weights);
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << other->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   vtkIdType numIds = ptIndices->GetNumberOfIds();
   vtkIdType *ids = ptIndices->GetPointer(0);
 
   for (int c = 0; c < numComps; ++c)
-    {
+  {
     double val = 0.;
     for (vtkIdType tupleId = 0; tupleId < numIds; ++tupleId)
-      {
+    {
       vtkIdType t = ids[tupleId];
       double weight = weights[tupleId];
       val += weight * static_cast<double>(other->GetTypedComponent(t, c));
-      }
+    }
     ValueType valT;
     vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
     this->InsertTypedComponent(dstTupleIdx, c, valT);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -97,57 +97,57 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InterpolateTuple(
   DerivedT *other1 = vtkArrayDownCast<DerivedT>(source1);
   DerivedT *other2 = other1 ? vtkArrayDownCast<DerivedT>(source2) : NULL;
   if (!other1 || !other2)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::InterpolateTuple(dstTupleIdx,
                                        srcTupleIdx1, source1,
                                        srcTupleIdx2, source2, t);
     return;
-    }
+  }
 
   if (srcTupleIdx1 >= source1->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Tuple 1 out of range for provided array. "
                   "Requested tuple: " << srcTupleIdx1 << " "
                   "Tuples: " << source1->GetNumberOfTuples());
     return;
-    }
+  }
 
   if (srcTupleIdx2 >= source2->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Tuple 2 out of range for provided array. "
                   "Requested tuple: " << srcTupleIdx2 << " "
                   "Tuples: " << source2->GetNumberOfTuples());
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other1->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << other1->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
   if (other2->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << other2->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   const double oneMinusT = 1. - t;
   double val;
   ValueType valT;
 
   for (int c = 0; c < numComps; ++c)
-    {
+  {
     val = other1->GetTypedComponent(srcTupleIdx1, c) * oneMinusT +
           other2->GetTypedComponent(srcTupleIdx2, c) * t;
     vtkMath::RoundDoubleToIntegralIfNecessary(val, &valT);
     this->InsertTypedComponent(dstTupleIdx, c, valT);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -173,16 +173,16 @@ template <class DerivedT, class ValueTypeT>
 void vtkGenericDataArray<DerivedT, ValueTypeT>::RemoveTuple(vtkIdType id)
 {
   if (id < 0 || id >= this->GetNumberOfTuples())
-    {
+  {
     // Nothing to be done
     return;
-    }
+  }
   if (id == (this->GetNumberOfTuples() - 1))
-    {
+  {
     // To remove last item, just decrease the size by one
     this->RemoveLastTuple();
     return;
-    }
+  }
 
   // This is a very slow implementation since it uses generic API. Subclasses
   // are encouraged to provide a faster implementation.
@@ -193,13 +193,13 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::RemoveTuple(vtkIdType id)
   vtkIdType toTuple = id;
   vtkIdType endTuple = this->GetNumberOfTuples();
   for (; fromTuple != endTuple; ++toTuple, ++fromTuple)
-    {
+  {
     for (int comp=0; comp < numComps; ++comp)
-      {
+    {
       this->SetTypedComponent(toTuple, comp,
                               this->GetTypedComponent(fromTuple, comp));
-      }
     }
+  }
   this->SetNumberOfTuples(this->GetNumberOfTuples() - 1);
   this->DataChanged();
 }
@@ -284,9 +284,9 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>
   bool valid = true;
   ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
-    {
+  {
     return this->LookupTypedValue(value);
-    }
+  }
   return -1;
 }
 
@@ -307,9 +307,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   bool valid = true;
   ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
-    {
+  {
     this->LookupTypedValue(value, ids);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -343,9 +343,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   bool valid = true;
   ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
-    {
+  {
     this->SetValue(valueIdx, value);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -364,9 +364,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   bool valid = true;
   ValueType value = vtkVariantCast<ValueType>(valueVariant, &valid);
   if (valid)
-    {
+  {
     this->InsertValue(valueIdx, value);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -377,7 +377,7 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>
   // Allocator must updated this->Size and this->MaxId properly.
   this->MaxId = -1;
   if (size > this->Size || size == 0)
-    {
+  {
     this->Size = 0;
 
     // let's keep the size an integral multiple of the number of components.
@@ -388,7 +388,7 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>
     // NOTE: if numTuples is 0, AllocateTuples is expected to release the
     // memory.
     if (this->AllocateTuples(numTuples) == false)
-      {
+    {
       vtkErrorMacro("Unable to allocate " << size
                     << " elements of size " << sizeof(ValueType)
                     << " bytes. ");
@@ -402,9 +402,9 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>
       // We indicate that alloc failed by return
       return 0;
 #endif
-      }
-    this->Size = numTuples * numComps;
     }
+    this->Size = numTuples * numComps;
+  }
   this->DataChanged();
   return 1;
 }
@@ -416,27 +416,27 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuples)
   int numComps = this->GetNumberOfComponents();
   vtkIdType curNumTuples = this->Size / (numComps> 0? numComps : 1);
   if (numTuples > curNumTuples)
-    {
+  {
     // Requested size is bigger than current size.  Allocate enough
     // memory to fit the requested size and be more than double the
     // currently allocated memory.
     numTuples = curNumTuples + numTuples;
-    }
+  }
   else if (numTuples == curNumTuples)
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     // Requested size is smaller than current size.  Squeeze the
     // memory.
     this->DataChanged();
-    }
+  }
 
   assert(numTuples >= 0);
 
   if (!this->ReallocateTuples(numTuples))
-    {
+  {
     vtkErrorMacro("Unable to allocate " << numTuples * numComps
                   << " elements of size " << sizeof(ValueType)
                   << " bytes. ");
@@ -450,16 +450,16 @@ int vtkGenericDataArray<DerivedT, ValueTypeT>::Resize(vtkIdType numTuples)
     // We indicate that malloc failed by return
     return 0;
 #endif
-    }
+  }
 
   // Allocation was successful. Save it.
   this->Size = numTuples * numComps;
 
   // Update MaxId if we truncated:
   if ((this->Size - 1) < this->MaxId)
-    {
+  {
     this->MaxId = (this->Size - 1);
-    }
+  }
 
   return 1;
 }
@@ -479,9 +479,9 @@ SetNumberOfTuples(vtkIdType number)
 {
   vtkIdType newSize = number * this->NumberOfComponents;
   if (this->Allocate(newSize, 0))
-    {
+  {
     this->MaxId = newSize - 1;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -509,26 +509,26 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::SetTuple(
   // can avoid doing a dispatch for the most common usage of this method.
   DerivedT *other = vtkArrayDownCast<DerivedT>(source);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::SetTuple(dstTupleIdx, srcTupleIdx, source);
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (source->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << source->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   for (int c = 0; c < numComps; ++c)
-    {
+  {
     this->SetTypedComponent(dstTupleIdx, c,
                             other->GetTypedComponent(srcTupleIdx, c));
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -541,61 +541,61 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
   // can avoid doing a dispatch for the most common usage of this method.
   DerivedT *other = vtkArrayDownCast<DerivedT>(source);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::InsertTuples(dstIds, srcIds, source);
     return;
-    }
+  }
 
   if (dstIds->GetNumberOfIds() == 0)
-    {
+  {
     return;
-    }
+  }
 
   if (dstIds->GetNumberOfIds() != srcIds->GetNumberOfIds())
-    {
+  {
     vtkErrorMacro("Mismatched number of tuples ids. Source: "
                   << srcIds->GetNumberOfIds() << " Dest: "
                   << dstIds->GetNumberOfIds());
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << other->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   vtkIdType maxSrcTupleId = srcIds->GetId(0);
   vtkIdType maxDstTupleId = dstIds->GetId(0);
   for (int i = 0; i < dstIds->GetNumberOfIds(); ++i)
-    {
+  {
     // parenthesis around std::max prevent MSVC macro replacement when
     // inlined:
     maxSrcTupleId = (std::max)(maxSrcTupleId, srcIds->GetId(i));
     maxDstTupleId = (std::max)(maxDstTupleId, dstIds->GetId(i));
-    }
+  }
 
   if (maxSrcTupleId >= other->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Source array too small, requested tuple at index "
                   << maxSrcTupleId << ", but there are only "
                   << other->GetNumberOfTuples() << " tuples in the array.");
     return;
-    }
+  }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Size < newSize)
-    {
+  {
     if (!this->Resize(maxDstTupleId + 1))
-      {
+    {
       vtkErrorMacro("Resize failed.");
       return;
-      }
     }
+  }
 
   // parenthesis around std::max prevent MSVC macro replacement when
   // inlined:
@@ -603,14 +603,14 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::InsertTuples(
 
   vtkIdType numTuples = srcIds->GetNumberOfIds();
   for (vtkIdType t = 0; t < numTuples; ++t)
-    {
+  {
     vtkIdType srcT = srcIds->GetId(t);
     vtkIdType dstT = dstIds->GetId(t);
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       this->SetTypedComponent(dstT, c, other->GetTypedComponent(srcT, c));
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -649,9 +649,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   // compatibility with InsertNextValue.
   vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
   if (newMaxId < this->MaxId)
-    {
+  {
     newMaxId = this->MaxId;
-    }
+  }
   this->EnsureAccessToTuple(tupleIdx);
   assert("Sufficient space allocated." && this->MaxId >= newMaxId);
   this->MaxId = newMaxId;
@@ -698,35 +698,35 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
   // can avoid doing a dispatch for the most common usage of this method.
   DerivedT *other = vtkArrayDownCast<DerivedT>(output);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::GetTuples(tupleIds, output);
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components for input and output do not match.\n"
                   "Source: " << this->GetNumberOfComponents() << "\n"
                   "Destination: " << other->GetNumberOfComponents());
     return;
-    }
+  }
 
   vtkIdType *srcTuple = tupleIds->GetPointer(0);
   vtkIdType *srcTupleEnd = tupleIds->GetPointer(tupleIds->GetNumberOfIds());
   vtkIdType dstTuple = 0;
 
   while (srcTuple != srcTupleEnd)
-    {
+  {
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       other->SetTypedComponent(dstTuple, c,
                                this->GetTypedComponent(*srcTuple, c));
-      }
+    }
     ++srcTuple;
     ++dstTuple;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -739,30 +739,30 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>::GetTuples(
   // can avoid doing a dispatch for the most common usage of this method.
   DerivedT *other = vtkArrayDownCast<DerivedT>(output);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::GetTuples(p1, p2, output);
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components for input and output do not match.\n"
                   "Source: " << this->GetNumberOfComponents() << "\n"
                   "Destination: " << other->GetNumberOfComponents());
     return;
-    }
+  }
 
   // p1-p2 are inclusive
   for (vtkIdType srcT = p1, dstT = 0; srcT <= p2; ++srcT, ++dstT)
-    {
+  {
     for (int c = 0; c < numComps; ++c)
-      {
+    {
       other->SetTypedComponent(dstT, c,
                                this->GetTypedComponent(srcT, c));
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -781,20 +781,20 @@ vtkIdType vtkGenericDataArray<DerivedT, ValueTypeT>
 {
   vtkIdType nextValueIdx = this->MaxId + 1;
   if (nextValueIdx >= this->Size)
-    {
+  {
     vtkIdType tuple = nextValueIdx / this->NumberOfComponents;
     this->EnsureAccessToTuple(tuple);
     // Since EnsureAccessToTuple will update the MaxId to point to the last
     // component in the last tuple, we move it back to support this method on
     // multi-component arrays.
     this->MaxId = nextValueIdx;
-    }
+  }
 
   // Extending array without needing to reallocate:
   if (this->MaxId < nextValueIdx)
-    {
+  {
     this->MaxId = nextValueIdx;
-    }
+  }
 
   this->SetValue(nextValueIdx, value);
   return nextValueIdx;
@@ -810,11 +810,11 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   // compatibility with InsertNextValue.
   vtkIdType newMaxId = valueIdx > this->MaxId ? valueIdx : this->MaxId;
   if (this->EnsureAccessToTuple(tuple))
-    {
+  {
     assert("Sufficient space allocated." && this->MaxId >= newMaxId);
     this->MaxId = newMaxId;
     this->SetValue(valueIdx, value);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -823,9 +823,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
 ::InsertTypedTuple(vtkIdType tupleIdx, const ValueType *t)
 {
   if (this->EnsureAccessToTuple(tupleIdx))
-    {
+  {
     this->SetTypedTuple(tupleIdx, t);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -847,9 +847,9 @@ void vtkGenericDataArray<DerivedT, ValueTypeT>
   // compatibility with InsertNextValue.
   vtkIdType newMaxId = tupleIdx * this->NumberOfComponents + compIdx;
   if (this->MaxId > newMaxId)
-    {
+  {
     newMaxId = this->MaxId;
-    }
+  }
   this->EnsureAccessToTuple(tupleIdx);
   assert("Sufficient space allocated." && this->MaxId >= newMaxId);
   this->MaxId = newMaxId;
@@ -900,22 +900,22 @@ bool vtkGenericDataArray<DerivedT, ValueTypeT>
 ::EnsureAccessToTuple(vtkIdType tupleIdx)
 {
   if (tupleIdx < 0)
-    {
+  {
     return false;
-    }
+  }
   vtkIdType minSize = (1 + tupleIdx) * this->NumberOfComponents;
   vtkIdType expectedMaxId = minSize - 1;
   if (this->MaxId < expectedMaxId)
-    {
+  {
     if (this->Size < minSize)
-      {
+    {
       if (!this->Resize(tupleIdx + 1))
-        {
+      {
         return false;
-        }
       }
-    this->MaxId = expectedMaxId;
     }
+    this->MaxId = expectedMaxId;
+  }
   return true;
 }
 

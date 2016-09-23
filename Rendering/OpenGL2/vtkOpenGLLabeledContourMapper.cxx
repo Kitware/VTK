@@ -60,19 +60,19 @@ vtkOpenGLLabeledContourMapper::~vtkOpenGLLabeledContourMapper()
 bool vtkOpenGLLabeledContourMapper::CreateLabels(vtkActor *actor)
 {
   if (!this->Superclass::CreateLabels(actor))
-    {
+  {
     return false;
-    }
+  }
 
   if (vtkMatrix4x4 *actorMatrix = actor->GetMatrix())
-    {
+  {
     for (vtkIdType i = 0; i < this->NumberOfUsedTextActors; ++i)
-      {
+    {
       vtkMatrix4x4 *labelMatrix = this->TextActors[i]->GetUserMatrix();
       vtkMatrix4x4::Multiply4x4(actorMatrix, labelMatrix, labelMatrix);
       this->TextActors[i]->SetUserMatrix(labelMatrix);
-      }
     }
+  }
 
   return true;
 }
@@ -110,7 +110,7 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
     vtkOpenGLRenderWindow::SafeDownCast(ren->GetVTKWindow());
 
   if (!this->StencilBO->Program)
-    {
+  {
     this->StencilBO->Program  =
         renWin->GetShaderCache()->ReadyShaderProgram(
         // vertex shader
@@ -124,11 +124,11 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
         "void main() { gl_FragData[0] = vec4(1.0,1.0,1.0,1.0); }",
         // geometry shader
         "");
-    }
+  }
   else
-    {
+  {
     renWin->GetShaderCache()->ReadyShaderProgram(this->StencilBO->Program);
-    }
+  }
 
   vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
   vtkMatrix4x4 *wcdc;
@@ -137,17 +137,17 @@ bool vtkOpenGLLabeledContourMapper::ApplyStencil(vtkRenderer *ren,
   vtkMatrix4x4 *vcdc;
   cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
   if (!act->GetIsIdentity())
-    {
+  {
     vtkMatrix4x4 *mcwc;
     vtkMatrix3x3 *anorms;
     ((vtkOpenGLActor *)act)->GetKeyMatrices(mcwc,anorms);
     vtkMatrix4x4::Multiply4x4(mcwc, wcdc, this->TempMatrix4);
     this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", this->TempMatrix4);
-    }
+  }
   else
-    {
+  {
     this->StencilBO->Program->SetUniformMatrix("MCDCMatrix", wcdc);
-    }
+  }
 
   vtkOpenGLRenderUtilities::RenderTriangles(
     this->StencilQuads,

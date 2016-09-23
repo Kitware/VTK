@@ -61,9 +61,9 @@ public:
    */
   static int EvaluateValue(vtkDataArray *scalars,
     vtkIdType id, vtkDataArray *lims)
-    {
+  {
     return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0, id, lims);
-    }
+  }
 
   /**
    * Same as the other EvaluateValue except that the component to be compared
@@ -84,10 +84,10 @@ public:
    */
   static int EvaluateValue(vtkDataArray *scalars, vtkIdType id,
     vtkDataArray *lims, int *AboveCount, int *BelowCount, int *InsideCount)
-    {
+  {
     return vtkExtractSelectedThresholds::EvaluateValue(scalars, 0,
       id, lims, AboveCount, BelowCount, InsideCount);
-    }
+  }
 
   /**
    * Same as the other EvaluateValue except that the component to be compared

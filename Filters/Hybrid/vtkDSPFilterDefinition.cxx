@@ -112,34 +112,34 @@ void vtkDSPFilterDefinition::Clear()
 bool vtkDSPFilterDefinition::IsThisInputVariableInstanceNeeded( int a_timestep, int a_outputTimestep )
 {
   if(a_outputTimestep<a_timestep)
-    {
+  {
     int l_index = a_timestep-a_outputTimestep;
     if( (int)(this->ForwardNumeratorWeights->m_vector.size())>=l_index )
-      {
+    {
       //the filter does use this future input
       //printf("FILTER USES FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
       return(true);
-      }
+    }
     else
-      {
+    {
       //future inputs not used for 1d filter
       //printf("FILTER doesn't use FUTURE INPUT %d for output %d\n",a_timestep,a_outputTimestep);
       return(false);
-      }
     }
+  }
   if( this->DenominatorWeights->m_vector.size() > 1 )
-    {
+  {
     //with an iir filter, all prev outputs since the beginning of time are used,
     //therefore all prev inputs are used as well
     return(true);
-    }
+  }
 
   //For an fir filter, only a certain number of past inputs are needed
   if( a_timestep < a_outputTimestep-((int)(this->NumeratorWeights->m_vector.size())-1) )
-    {
+  {
     //this input is too far in the past
     return(false);
-    }
+  }
   return(true);
 }
 

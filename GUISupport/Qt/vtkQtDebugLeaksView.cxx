@@ -145,28 +145,28 @@ void vtkQtDebugLeaksView::onCurrentRowChanged(const QModelIndex& current)
 
   QModelIndex index = this->Internal->ProxyModel->mapToSource(current);
   if (index.isValid())
-    {
+  {
     QModelIndex classNameIndex = this->Internal->Model->index(index.row(), 0);
     QString className = this->Internal->Model->data(classNameIndex).toString();
     newModel = this->Internal->Model->referenceCountModel(className);
-    }
+  }
 
   if (newModel != previousModel)
-    {
+  {
     this->Internal->ReferenceTableView->setModel(newModel);
     this->Internal->ReferenceTableView->resizeColumnsToContents();
     this->Internal->ReferenceTableView->horizontalHeader()->setStretchLastSection(true);
     delete previousModel;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkQtDebugLeaksView::onFilterTextChanged(const QString& text)
 {
   if (this->filterEnabled())
-    {
+  {
     this->Internal->ProxyModel->setFilterRegExp(text);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -174,9 +174,9 @@ void vtkQtDebugLeaksView::onFilterToggled()
 {
   QString text = this->filterText();
   if (!this->filterEnabled())
-    {
+  {
     text = "";
-    }
+  }
 
   this->Internal->ProxyModel->setFilterRegExp(text);
 }
@@ -212,22 +212,22 @@ Q_DECLARE_METATYPE(vtkObjectBase*);
 void vtkQtDebugLeaksView::onRowDoubleClicked(const QModelIndex& index)
 {
   if (index.model() == this->Internal->ReferenceTableView->model())
-    {
+  {
     QModelIndex objectIndex = this->Internal->ReferenceTableView->model()->index(index.row(), 0);
     QVariant objectVariant = this->Internal->ReferenceTableView->model()->data(objectIndex, Qt::UserRole);
     vtkObjectBase* object = objectVariant.value<vtkObjectBase*>();
     this->onObjectDoubleClicked(object);
-    }
+  }
   else
-    {
+  {
     QModelIndex sourceIndex = this->Internal->ProxyModel->mapToSource(index);
     if (sourceIndex.isValid())
-      {
+    {
       QString className = this->Internal->Model->data(
         this->Internal->Model->index(sourceIndex.row(), 0)).toString();
       this->onClassNameDoubleClicked(className);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------

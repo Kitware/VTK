@@ -151,7 +151,7 @@ template<class BaseLhs,typename ReturnType,
          template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
 void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(const Functor& fun, long)
-  {
+{
   typedef vtkDispatcherPrivate::FunctorDispatcherHelper<
       BaseLhs,
       SomeLhs,
@@ -161,7 +161,7 @@ void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(const Functor&
   Adapter ada(fun);
   MappedType mt(ada);
   DoAddFunctor(typeid(SomeLhs),mt);
-  }
+}
 
 
 //----------------------------------------------------------------------------
@@ -169,7 +169,7 @@ template<class BaseLhs,typename ReturnType,
          template <class, class> class CastingPolicy>
 template <class SomeLhs, class Functor>
 void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(Functor* fun, int)
-  {
+{
   typedef vtkDispatcherPrivate::FunctorRefDispatcherHelper<
       BaseLhs,
       SomeLhs,
@@ -179,41 +179,41 @@ void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>::AddInternal(Functor* fun, 
   Adapter ada(*fun);
   MappedType mt(ada);
   DoAddFunctor(typeid(SomeLhs),mt);
-  }
+}
 
 //----------------------------------------------------------------------------
 template<class BaseLhs,typename ReturnType,
          template <class, class> class CastingPolicy>
 void vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
 ::DoAddFunctor(TypeInfo lhs, MappedType fun)
-  {
+{
   FunctorMap[TypeInfo(lhs)] = fun;
-  }
+}
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, typename ReturnType,
           template <class, class> class CastingPolicy>
 bool vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
 ::DoRemove(TypeInfo lhs)
-  {
+{
   return FunctorMap.erase(TypeInfo(lhs)) == 1;
-  }
+}
 
 //----------------------------------------------------------------------------
 template <class BaseLhs,typename ReturnType,
           template <class, class> class CastingPolicy>
 ReturnType vtkDispatcher<BaseLhs,ReturnType,CastingPolicy>
 ::Go(BaseLhs* lhs)
-  {
+{
   typename MapType::key_type k(typeid(*lhs));
   typename MapType::iterator i = FunctorMap.find(k);
   if (i == FunctorMap.end())
-    {
+  {
     //we return a default type, currently i don't want exceptions thrown
     return ReturnType();
-    }
-  return (i->second)(*lhs);
   }
+  return (i->second)(*lhs);
+}
 
 #endif // vtkDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDispatcher.h

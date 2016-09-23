@@ -121,13 +121,13 @@ public:
    * this class keeps a reference to the array and will not delete it
    */
   virtual void SetBlockIDs(int* val)
-    {
+  {
     BlockIDs=val;
-    }
+  }
   virtual int* GetBlockIDs()
-    {
+  {
     return BlockIDs;
-    }
+  }
   //@}
 
   //@{

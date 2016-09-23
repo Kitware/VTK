@@ -56,13 +56,13 @@ int TestLinePlot( int, char * [] )
   float inc = 7.5 / (numPoints-1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + 0.0);
     table->SetValue(i, 2, sin(i * inc) + 0.0);
     table->SetValue(i, 3, sin(i * inc) + 0.5);
     table->SetValue(i, 4, 1.0);
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);
@@ -87,11 +87,11 @@ int TestLinePlot( int, char * [] )
   double bds[4];
   line->GetUnscaledInputBounds(bds);
   if (bds[0] * bds[1] > 0. || bds[2] * bds[3] > 0.)
-    {
+  {
     cerr
       << "ERROR: Data on both X and Y axes expected to cross origin.\n";
     status = EXIT_FAILURE;
-    }
+  }
 
   // Verify that log-scaling is proper for arr1 y axis (which
   // is not plotted so as to avoid changing baseline images).
@@ -100,11 +100,11 @@ int TestLinePlot( int, char * [] )
   line->Update();
   line->GetUnscaledInputBounds(bds);
   if (bds[0] * bds[1] > 0. || bds[2] * bds[3] <= 0.)
-    {
+  {
     cerr
       << "ERROR: Data on X axis expected to cross origin.\n";
     status = EXIT_FAILURE;
-    }
+  }
 
   return status;
 }

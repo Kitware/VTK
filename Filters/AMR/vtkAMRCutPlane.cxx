@@ -52,10 +52,10 @@ vtkAMRCutPlane::vtkAMRCutPlane()
   this->LevelOfResolution = 0;
   this->initialRequest    = true;
   for( int i=0; i < 3; ++i )
-    {
+  {
     this->Center[i] = 0.0;
     this->Normal[i] = 0.0;
-    }
+  }
   this->Controller       = vtkMultiProcessController::GetGlobalController();
   this->UseNativeCutter  = 1;
 }
@@ -78,15 +78,15 @@ void vtkAMRCutPlane::PrintSelf( std::ostream &oss, vtkIndent indent )
       << this->Controller << endl;
   oss << indent << "Center: ";
   for( int i=0; i < 3; ++i )
-    {
+  {
     oss << this->Center[i ] << " ";
-    }
+  }
   oss << endl;
   oss << indent << "Normal: ";
   for( int i=0; i < 3; ++i )
-    {
+  {
     oss << this->Normal[i] << " ";
-    }
+  }
   oss << endl;
 }
 
@@ -119,7 +119,7 @@ int vtkAMRCutPlane::RequestInformation(
   assert( "pre: input information object is NULL" && (input != NULL) );
 
   if( input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA() ) )
-    {
+  {
     vtkOverlappingAMR *metadata =
         vtkOverlappingAMR::SafeDownCast(
           input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()));
@@ -129,7 +129,7 @@ int vtkAMRCutPlane::RequestInformation(
 
     this->ComputeAMRBlocksToLoad(cutPlane, metadata);
     cutPlane->Delete();
-    }
+  }
 
   this->Modified();
   return 1;
@@ -171,10 +171,10 @@ int vtkAMRCutPlane::RequestData(
   assert( "pre: output multi-block dataset is NULL" && (mbds != NULL) );
 
   if( this->IsAMRData2D( inputAMR ) )
-    {
+  {
     // Return an empty multi-block, we cannot cut a 2-D dataset
     return 1;
-    }
+  }
 
   vtkPlane *cutPlane = this->GetCutPlane( inputAMR );
   assert("pre: cutPlane should not be NULL!" && (cutPlane != NULL) );
@@ -182,15 +182,15 @@ int vtkAMRCutPlane::RequestData(
   unsigned int blockIdx = 0;
   unsigned int level    = 0;
   for( ; level < inputAMR->GetNumberOfLevels(); ++level )
-    {
+  {
     unsigned int dataIdx = 0;
     for( ; dataIdx < inputAMR->GetNumberOfDataSets( level ); ++dataIdx )
-      {
+    {
       vtkUniformGrid *grid = inputAMR->GetDataSet( level, dataIdx );
       if( this->UseNativeCutter == 1 )
-        {
+      {
         if( grid != NULL )
-          {
+        {
           vtkCutter *myCutter = vtkCutter::New();
           myCutter->SetInputData( grid );
           myCutter->SetCutFunction( cutPlane );
@@ -198,28 +198,28 @@ int vtkAMRCutPlane::RequestData(
           mbds->SetBlock( blockIdx, myCutter->GetOutput( ) );
           ++blockIdx;
           myCutter->Delete();
-          }
+        }
         else
-          {
+        {
           mbds->SetBlock(blockIdx,NULL);
           ++blockIdx;
-          }
         }
+      }
       else
-        {
+      {
         if( grid != NULL )
-          {
+        {
           this->CutAMRBlock( cutPlane, blockIdx, grid, mbds );
           ++blockIdx;
-          }
+        }
         else
-          {
+        {
           mbds->SetBlock(blockIdx,NULL);
           ++blockIdx;
-          }
         }
-      } // END for all data
-    } // END for all levels
+      }
+    } // END for all data
+  } // END for all levels
 
   cutPlane->Delete();
   return 1;
@@ -244,15 +244,15 @@ void vtkAMRCutPlane::CutAMRBlock(
 
   vtkIdType cellIdx = 0;
   for( ; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
-    {
+  {
     if( grid->IsCellVisible( cellIdx ) &&
         this->PlaneIntersectsCell( cutPlane, grid->GetCell(cellIdx) ) )
-      {
+    {
       extractedCells.push_back( cellIdx );
       this->ExtractCellFromGrid(
           grid,grid->GetCell(cellIdx),grdPntMapping,meshPts,cells );
-      } // END if
-    } // END for all cells
+    } // END if
+  } // END for all cells
 
   // Sanity checks
   assert("post: Number of mesh points should match map size!" &&
@@ -266,15 +266,15 @@ void vtkAMRCutPlane::CutAMRBlock(
 
   std::vector<int> types;
   if( grid->GetDataDimension() == 3 )
-    {
+  {
     types.resize( cells->GetNumberOfCells(), VTK_VOXEL );
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Cannot cut a grid of dimension=" << grid->GetDataDimension());
     output->SetBlock( blockIdx, NULL );
     return;
-    }
+  }
 
   // Insert the cells
   mesh->SetCells( &types[0], cells );
@@ -306,19 +306,19 @@ void vtkAMRCutPlane::ExtractCellFromGrid(
   cells->InsertNextCell( cell->GetNumberOfPoints() );
   vtkIdType nodeIdx = 0;
   for( ; nodeIdx < cell->GetNumberOfPoints(); ++nodeIdx )
-    {
+  {
     // Get the point ID w.r.t. the grid
     vtkIdType meshPntIdx = cell->GetPointId( nodeIdx );
     assert( "pre: mesh point ID should within grid range point ID" &&
             (meshPntIdx < grid->GetNumberOfPoints()));
 
     if( grdPntMapping.find( meshPntIdx ) != grdPntMapping.end() )
-      {
+    {
       // Point already exists in nodes
       cells->InsertCellPoint( grdPntMapping[meshPntIdx] );
-      }
+    }
     else
-      {
+    {
       // Push point to the end of the list
       vtkIdType nidx = nodes->GetNumberOfPoints();
       double *pnt    = grid->GetPoint(meshPntIdx);
@@ -327,8 +327,8 @@ void vtkAMRCutPlane::ExtractCellFromGrid(
              (nodes->GetNumberOfPoints()==(nidx+1)));
       grdPntMapping[ meshPntIdx ] = nidx;
       cells->InsertCellPoint( nidx );
-      }
-    } // END for all nodes
+    }
+  } // END for all nodes
 
 }
 
@@ -344,14 +344,14 @@ void vtkAMRCutPlane::ExtractPointDataFromGrid(
 
   if( (grid->GetPointData()->GetNumberOfArrays()==0) ||
       (gridPntMapping.size() == 0))
-    {
+  {
     // Nothing to extract short-circuit here
     return;
-    }
+  }
 
   vtkPointData *GPD = grid->GetPointData();
   for( int fieldArray=0; fieldArray < GPD->GetNumberOfArrays(); ++fieldArray)
-    {
+  {
     vtkDataArray *sourceArray = GPD->GetArray(fieldArray);
     int dataType = sourceArray->GetDataType();
     vtkDataArray *array = vtkDataArray::CreateDataArray( dataType );
@@ -364,7 +364,7 @@ void vtkAMRCutPlane::ExtractPointDataFromGrid(
     // Copy tuples from source array
     std::map<vtkIdType,vtkIdType>::iterator iter = gridPntMapping.begin();
     for( ; iter != gridPntMapping.end(); ++iter )
-      {
+    {
       vtkIdType srcIdx    = iter->first;
       vtkIdType targetIdx = iter->second;
       assert( "pre: source node index is out-of-bounds" &&
@@ -372,11 +372,11 @@ void vtkAMRCutPlane::ExtractPointDataFromGrid(
       assert( "pre: target node index is out-of-bounds" &&
               (targetIdx >=0) && (targetIdx < NumNodes)  );
       array->SetTuple( targetIdx, srcIdx, sourceArray );
-      } // END for all extracted nodes
+    } // END for all extracted nodes
 
     PD->AddArray( array );
     array->Delete();
-    } // END for all arrays
+  } // END for all arrays
 }
 
 //------------------------------------------------------------------------------
@@ -390,10 +390,10 @@ void vtkAMRCutPlane::ExtractCellDataFromGrid(
 
   if( (grid->GetCellData()->GetNumberOfArrays()==0) ||
       (cellIdxList.size()==0) )
-    {
+  {
     // Nothing to extract short-circuit here
     return;
-    }
+  }
 
   int NumCells = static_cast<int>(cellIdxList.size());
   vtkCellData *GCD = grid->GetCellData();
@@ -410,12 +410,12 @@ void vtkAMRCutPlane::ExtractCellDataFromGrid(
 
   // Copy tuples from source array
   for( int i=0; i < NumCells; ++i )
-    {
+  {
     vtkIdType cellIdx = cellIdxList[ i ];
     assert( "pre: cell index is out-of-bounds!" &&
           (cellIdx >= 0) && (cellIdx < grid->GetNumberOfCells()) );
     array->SetTuple(i,cellIdx,sourceArray);
-    } // END for all extracted cells
+  } // END for all extracted cells
 
   CD->AddArray( array );
   array->Delete();
@@ -469,18 +469,18 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
 
   unsigned int level = 0;
   for( ; level <= static_cast<unsigned int>(maxLevelToLoad); ++level )
-    {
+  {
     unsigned int dataIdx = 0;
     for( ; dataIdx < m->GetNumberOfDataSets( level ); ++dataIdx )
-      {
+    {
       m->GetBounds( level, dataIdx, bounds);
       if( this->PlaneIntersectsAMRBox( plane, bounds ) )
-        {
+      {
         unsigned int amrGridIdx = m->GetCompositeIndex(level,dataIdx);
         this->BlocksToLoad.push_back( amrGridIdx );
-        }
-      } // END for all data
-    } // END for all levels
+      }
+    } // END for all data
+  } // END for all levels
 
   std::sort( this->BlocksToLoad.begin(), this->BlocksToLoad.end() );
 }
@@ -489,9 +489,9 @@ void vtkAMRCutPlane::ComputeAMRBlocksToLoad(
 void vtkAMRCutPlane::InitializeCenter( double min[3], double max[3] )
 {
   if( !this->initialRequest )
-    {
+  {
     return;
-    }
+  }
 
   this->Center[0] = 0.5*( max[0]-min[0] );
   this->Center[1] = 0.5*( max[1]-min[1] );
@@ -530,7 +530,7 @@ bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double plane[4], double bounds[6] )
   bool highPnt = false;
 
   for( int i=0; i < 8; ++i )
-    {
+  {
     // Get box coordinates
     double x = ( i&1 ) ? bounds[1] : bounds[0];
     double y = ( i&2 ) ? bounds[3] : bounds[2];
@@ -540,24 +540,24 @@ bool vtkAMRCutPlane::PlaneIntersectsAMRBox( double plane[4], double bounds[6] )
     double v = plane[3] - plane[0]*x - plane[1]*y - plane[2]*z;
 
     if( v == 0.0 ) // Point is on a plane
-      {
+    {
       return true;
-      }
+    }
 
     if( v < 0.0 )
-      {
+    {
       lowPnt = true;
-      }
+    }
     else
-      {
+    {
       highPnt = true;
-      }
+    }
 
     if( lowPnt && highPnt )
-      {
+    {
       return true;
-      }
     }
+  }
 
   return false;
 }
@@ -568,9 +568,9 @@ bool vtkAMRCutPlane::IsAMRData2D( vtkOverlappingAMR *input )
   assert( "pre: Input AMR dataset is NULL" && (input != NULL)  );
 
   if( input->GetGridDescription() != VTK_XYZ_GRID )
-    {
+  {
     return true;
-    }
+  }
 
  return false;
 }

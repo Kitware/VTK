@@ -123,13 +123,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[13]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticPyramid::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[39]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticPyramid::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
   //@{
   /**

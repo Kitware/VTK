@@ -130,21 +130,21 @@ private:
 inline const char *vtkImplicitBoolean::GetOperationTypeAsString(void)
 {
   if ( this->OperationType == VTK_UNION )
-    {
+  {
     return "Union";
-    }
+  }
   else if ( this->OperationType == VTK_INTERSECTION )
-    {
+  {
     return "Intersection";
-    }
+  }
   else if ( this->OperationType == VTK_DIFFERENCE )
-    {
+  {
     return "Difference";
-    }
+  }
   else
-    {
+  {
     return "UnionOfMagnitudes";
-    }
+  }
 }
 //@}
 

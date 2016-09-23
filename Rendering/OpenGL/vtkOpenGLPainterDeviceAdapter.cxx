@@ -82,7 +82,7 @@ static const GLenum VTK2OpenGLPrimitive[] = {
 static inline GLenum VTK2OpenGLType(int type)
 {
   switch (type)
-    {
+  {
 #if VTK_SIZEOF_CHAR == 1
     case VTK_CHAR:              return GL_BYTE;
     case VTK_UNSIGNED_CHAR:     return GL_UNSIGNED_BYTE;
@@ -132,13 +132,13 @@ static inline GLenum VTK2OpenGLType(int type)
 #endif
 
     default:                    return GL_FALSE;
-    }
+  }
 }
 
 static inline GLenum VTK2SignedOpenGLType(int type)
 {
   switch (type)
-    {
+  {
 #if VTK_SIZEOF_CHAR == 1
     case VTK_CHAR:              return GL_BYTE;
     case VTK_UNSIGNED_CHAR:     return GL_BYTE;
@@ -188,13 +188,13 @@ static inline GLenum VTK2SignedOpenGLType(int type)
 #endif
 
     default:                    return GL_FALSE;
-    }
+  }
 }
 
 static inline GLenum VTK2UnsignedOpenGLType(int type)
 {
   switch (type)
-    {
+  {
 #if VTK_SIZEOF_CHAR == 1
     case VTK_CHAR:              return GL_UNSIGNED_BYTE;
     case VTK_UNSIGNED_CHAR:     return GL_UNSIGNED_BYTE;
@@ -232,7 +232,7 @@ static inline GLenum VTK2UnsignedOpenGLType(int type)
 #endif
 
     default:                    return GL_FALSE;
-    }
+  }
 }
 
 
@@ -252,14 +252,14 @@ void vtkOpenGLPainterDeviceAdapter::EndPrimitive()
 int vtkOpenGLPainterDeviceAdapter::IsAttributesSupported(int attribute)
 {
   switch(attribute)
-    {
+  {
   case vtkDataSetAttributes::NUM_ATTRIBUTES:
   case vtkDataSetAttributes::NORMALS:
   case vtkDataSetAttributes::SCALARS:
   case vtkDataSetAttributes::TCOORDS:
   case vtkDataSetAttributes::EDGEFLAG:
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -268,18 +268,18 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
   int type, const void *attribute, vtkIdType offset/*=0*/)
 {
   switch (index)
-    {
+  {
   case vtkDataSetAttributes::NUM_ATTRIBUTES:     // Vertex
       if ((numcomp < 2) || (numcomp > 4))
-        {
+      {
         vtkErrorMacro("Bad number of components.");
         return;
-        }
+      }
       switch (VTK2SignedOpenGLType(type))
-        {
+      {
         case GL_SHORT:
           switch (numcomp)
-            {
+          {
             case 2:
               glVertex2sv(static_cast<const GLshort *>(attribute) + offset);
               break;
@@ -289,11 +289,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glVertex4sv(static_cast<const GLshort *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_INT:
           switch (numcomp)
-            {
+          {
             case 2:
               glVertex2iv(static_cast<const GLint *>(attribute) + offset);
               break;
@@ -303,11 +303,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glVertex4iv(static_cast<const GLint *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_FLOAT:
           switch (numcomp)
-            {
+          {
             case 2:
               glVertex2fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
@@ -317,11 +317,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glVertex4fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_DOUBLE:
           switch (numcomp)
-            {
+          {
             case 2:
               glVertex2dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
@@ -331,21 +331,21 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glVertex4dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
-            }
+          }
           break;
         default:
           vtkErrorMacro("Unsupported type for vertices: " << type);
           return;
-        }
+      }
       break;
   case vtkDataSetAttributes::NORMALS:     // Normal
       if (numcomp != 3)
-        {
+      {
         vtkErrorMacro("Bad number of components.");
         return;
-        }
+      }
       switch (VTK2SignedOpenGLType(type))
-        {
+      {
         case GL_BYTE:
           glNormal3bv(static_cast<const GLbyte *>(attribute) + offset);
           break;
@@ -364,105 +364,105 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
         default:
           vtkErrorMacro("Unsupported type for normals: " << type);
           return;
-        }
+      }
       break;
   case vtkDataSetAttributes::SCALARS:     // Color
       if ((numcomp != 3) && (numcomp != 4))
-        {
+      {
         vtkErrorMacro("Bad number of components.");
         return;
-        }
+      }
       switch (VTK2OpenGLType(type))
-        {
+      {
         case GL_BYTE:
           switch (numcomp)
-            {
+          {
             case 3: glColor3bv(static_cast<const GLbyte *>(attribute) + offset);
               break;
             case 4: glColor4bv(static_cast<const GLbyte *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_UNSIGNED_BYTE:
           switch (numcomp)
-            {
+          {
             case 3: glColor3ubv(static_cast<const GLubyte *>(attribute) + offset);
               break;
             case 4: glColor4ubv(static_cast<const GLubyte *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_SHORT:
           switch (numcomp)
-            {
+          {
             case 3: glColor3sv(static_cast<const GLshort *>(attribute) + offset);
               break;
             case 4: glColor4sv(static_cast<const GLshort *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_UNSIGNED_SHORT:
           switch (numcomp)
-            {
+          {
             case 3: glColor3usv(static_cast<const GLushort *>(attribute) + offset);
               break;
             case 4: glColor4usv(static_cast<const GLushort *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_INT:
           switch (numcomp)
-            {
+          {
             case 3: glColor3iv(static_cast<const GLint *>(attribute) + offset);
               break;
             case 4: glColor4iv(static_cast<const GLint *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_UNSIGNED_INT:
           switch (numcomp)
-            {
+          {
             case 3: glColor3uiv(static_cast<const GLuint *>(attribute) + offset);
               break;
             case 4: glColor4uiv(static_cast<const GLuint *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_FLOAT:
           switch (numcomp)
-            {
+          {
             case 3: glColor3fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
             case 4: glColor4fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_DOUBLE:
           switch (numcomp)
-            {
+          {
             case 3: glColor3dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
             case 4: glColor4dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
-            }
+          }
           break;
         default:
           vtkErrorMacro("Unsupported type for colors: " << type);
           return;
-        }
+      }
       break;
 
   case vtkDataSetAttributes::TCOORDS:     // Texture Coordinate
       if ((numcomp < 1) || (numcomp > 4))
-        {
+      {
         vtkErrorMacro("Bad number of components.");
         return;
-        }
+      }
       switch (VTK2SignedOpenGLType(type))
-        {
+      {
         case GL_SHORT:
           switch (numcomp)
-            {
+          {
             case 1:
               glTexCoord1sv(static_cast<const GLshort *>(attribute) + offset);
               break;
@@ -475,11 +475,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glTexCoord4sv(static_cast<const GLshort *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_INT:
           switch (numcomp)
-            {
+          {
             case 1:
               glTexCoord1iv(static_cast<const GLint *>(attribute) + offset);
               break;
@@ -492,11 +492,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glTexCoord4iv(static_cast<const GLint *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_FLOAT:
           switch (numcomp)
-            {
+          {
             case 1:
               glTexCoord1fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
@@ -509,11 +509,11 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glTexCoord4fv(static_cast<const GLfloat *>(attribute) + offset);
               break;
-            }
+          }
           break;
         case GL_DOUBLE:
           switch (numcomp)
-            {
+          {
             case 1:
               glTexCoord1dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
@@ -526,29 +526,29 @@ void vtkOpenGLPainterDeviceAdapter::SendAttribute(int index, int numcomp,
             case 4:
               glTexCoord4dv(static_cast<const GLdouble *>(attribute) + offset);
               break;
-            }
+          }
           break;
         default:
           vtkErrorMacro("Unsupported type for texture coordinates: " << type);
           return;
-        }
+      }
       break;
     case vtkDataSetAttributes::EDGEFLAG:        // Edge Flag
       if (numcomp != 1)
-        {
+      {
         vtkErrorMacro("Bad number of components.");
         return;
-        }
+      }
        switch (type)
-        {
+       {
         vtkTemplateMacro(glEdgeFlag(static_cast<GLboolean>(
                           reinterpret_cast<const VTK_TT*>(attribute)[offset])));
-        }
+       }
       break;
     default:
       vtkErrorMacro("Unsupported attribute index: " << index);
       return;
-    };
+  };
 }
 
 //-----------------------------------------------------------------------------
@@ -556,23 +556,23 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
   int type, const void *attribute, int idx, vtkIdType offset)
 {
   if(! vtkgl::MultiTexCoord2d)
-    {
+  {
     vtkErrorMacro("MultiTexturing not supported.");
     return;
-    }
+  }
 
   if ((numcomp < 1) || (numcomp > 4))
-    {
+  {
     vtkErrorMacro("Bad number of components.");
     return;
-    }
+  }
 
   int textureIndex = vtkgl::TEXTURE0 + idx;
   switch (VTK2SignedOpenGLType(type))
-    {
+  {
     case GL_SHORT:
       switch (numcomp)
-        {
+      {
         case 1:
           vtkgl::MultiTexCoord1sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
           break;
@@ -585,11 +585,11 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
         case 4:
           vtkgl::MultiTexCoord4sv(textureIndex, static_cast<const GLshort *>(attribute) + offset);
           break;
-        }
+      }
       break;
     case GL_INT:
       switch (numcomp)
-        {
+      {
         case 1:
           vtkgl::MultiTexCoord1iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
           break;
@@ -602,11 +602,11 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
         case 4:
           vtkgl::MultiTexCoord4iv(textureIndex, static_cast<const GLint *>(attribute) + offset);
           break;
-        }
+      }
       break;
     case GL_FLOAT:
       switch (numcomp)
-        {
+      {
         case 1:
           vtkgl::MultiTexCoord1fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
           break;
@@ -619,11 +619,11 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
         case 4:
           vtkgl::MultiTexCoord4fv(textureIndex, static_cast<const GLfloat *>(attribute) + offset);
           break;
-        }
+      }
       break;
     case GL_DOUBLE:
       switch (numcomp)
-        {
+      {
         case 1:
           vtkgl::MultiTexCoord1dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
           break;
@@ -636,12 +636,12 @@ void vtkOpenGLPainterDeviceAdapter::SendMultiTextureCoords(int numcomp,
         case 4:
           vtkgl::MultiTexCoord4dv(textureIndex, static_cast<const GLdouble *>(attribute) + offset);
           break;
-        }
+      }
       break;
     default:
       vtkErrorMacro("Unsupported type for texture coordinates: " << type);
       return;
-    }
+  }
 
 }
 
@@ -655,11 +655,11 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
   GLenum gltype;
 
   switch (index)
-    {
+  {
   case vtkDataSetAttributes::NUM_ATTRIBUTES:     // Vertex
       gltype = VTK2SignedOpenGLType(type);
       switch (gltype)
-        {
+      {
         case GL_SHORT:
         case GL_INT:
         case GL_FLOAT:
@@ -668,13 +668,13 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
         default:
           vtkErrorMacro("Unsupported type for vertices: " << type);
           return;
-        }
+      }
       glVertexPointer(numcomponents, gltype, stride, pointer);
       break;
   case vtkDataSetAttributes::NORMALS:     // Normal
       gltype = VTK2SignedOpenGLType(type);
       switch (gltype)
-        {
+      {
         case GL_BYTE:
         case GL_SHORT:
         case GL_INT:
@@ -684,18 +684,18 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
         default:
           vtkErrorMacro("Unsupported type for normals: " << type);
           return;
-        }
+      }
       if (numcomponents != 3)
-        {
+      {
         vtkErrorMacro("Unsupported number of components for normals.");
         return;
-        }
+      }
       glNormalPointer(gltype, stride, pointer);
       break;
   case vtkDataSetAttributes::SCALARS:     // Color
       gltype = VTK2OpenGLType(type);
       switch (gltype)
-        {
+      {
         case GL_BYTE:
         case GL_UNSIGNED_BYTE:
         case GL_SHORT:
@@ -708,13 +708,13 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
         default:
           vtkErrorMacro("Unsupported type for colors: " << type);
           return;
-        }
+      }
       glColorPointer(numcomponents, gltype, stride, pointer);
       break;
   case vtkDataSetAttributes::TCOORDS:     // Texture Coordinate
       gltype = VTK2SignedOpenGLType(type);
       switch (gltype)
-        {
+      {
         case GL_SHORT:
         case GL_INT:
         case GL_FLOAT:
@@ -723,40 +723,40 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
         default:
           vtkErrorMacro("Unsupported type for texture coordinates: " << type);
           return;
-        }
+      }
       glTexCoordPointer(numcomponents, gltype, stride, pointer);
       break;
     case vtkDataSetAttributes::EDGEFLAG:        // Edge flag
       if (numcomponents != 1)
-        {
+      {
         vtkErrorMacro("Edge flag must have one component.");
         return;
-        }
+      }
       // Flag must be conformant to GLboolean
       if ((type == VTK_FLOAT) || (type == GL_DOUBLE))
-        {
+      {
         vtkErrorMacro("Unsupported type for edge flag: " << type);
         return;
-        }
+      }
       // Thus is an unfriendly way to force the array to be conformant to
       // a GLboolean array.  At the very least there should be some indication
       // in VTK outside of OpenGL to determine which VTK type to use.
       switch (type)
-        {
+      {
         vtkTemplateMacro(if (sizeof(VTK_TT) != sizeof(GLboolean))
-                           {
+        {
                            vtkErrorMacro(<< "Unsupported tyep for edge flag: "
                                          << type);
                            return;
-                           }
-                         );
         }
+                         );
+      }
       glEdgeFlagPointer(stride, pointer);
       break;
     default:
       vtkErrorMacro("Unsupported attribute index: " << index);
       return;
-    };
+  };
 }
 
 //-----------------------------------------------------------------------------
@@ -764,7 +764,7 @@ void vtkOpenGLPainterDeviceAdapter::SetAttributePointer(int index,
 void vtkOpenGLPainterDeviceAdapter::EnableAttributeArray(int index)
 {
   switch (index)
-    {
+  {
   case vtkDataSetAttributes::NUM_ATTRIBUTES:
       glEnableClientState(GL_VERTEX_ARRAY);  break;
   case vtkDataSetAttributes::NORMALS:
@@ -778,13 +778,13 @@ void vtkOpenGLPainterDeviceAdapter::EnableAttributeArray(int index)
     default:
       vtkErrorMacro("Unsupported attribute index: " << index);
       return;
-    };
+  };
 }
 
 void vtkOpenGLPainterDeviceAdapter::DisableAttributeArray(int index)
 {
   switch (index)
-    {
+  {
   case vtkDataSetAttributes::NUM_ATTRIBUTES:
       glDisableClientState(GL_VERTEX_ARRAY);  break;
   case vtkDataSetAttributes::NORMALS:
@@ -798,7 +798,7 @@ void vtkOpenGLPainterDeviceAdapter::DisableAttributeArray(int index)
     default:
       vtkErrorMacro("Unsupported attribute index: " << index);
       return;
-    };
+  };
 }
 
 //-----------------------------------------------------------------------------
@@ -815,14 +815,14 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
 {
   GLenum gltype = VTK2UnsignedOpenGLType(type);
   switch (gltype)
-    {
+  {
     case GL_UNSIGNED_BYTE:
     case GL_UNSIGNED_SHORT:
     case GL_UNSIGNED_INT:
       break;
     default:
       if (type == VTK_ID_TYPE)
-        {
+      {
         // This seems really inefficient for handling vtkIdType when they
         // are 64 bit, but OpenGL does not handle 64 bit indices.  What
         // else can I do?
@@ -833,13 +833,13 @@ void vtkOpenGLPainterDeviceAdapter::DrawElements(int mode, vtkIdType count,
                        GL_UNSIGNED_INT, newarray);
         delete[] newarray;
         return;
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro("Invalid type for indices.");
         return;
-        }
-    }
+      }
+  }
   glDrawElements(VTK2OpenGLPrimitive[mode],static_cast<GLsizei>(count), gltype,
                  indices);
 }
@@ -850,9 +850,9 @@ int vtkOpenGLPainterDeviceAdapter::Compatible(vtkRenderer *renderer)
   vtkOpenGLRenderWindow *context
     = vtkOpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
   if (!context)
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -860,7 +860,7 @@ int vtkOpenGLPainterDeviceAdapter::Compatible(vtkRenderer *renderer)
 void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
 {
   if (mode)
-    {
+  {
     float s;
     glGetFloatv(GL_POINT_SIZE, &s);
     this->PointSize = s;
@@ -873,14 +873,14 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
     this->RangeFar = nf[1];
     glDepthRange(0.0, nf[1]*0.999999);
     glDepthMask(GL_FALSE); //prevent verts from interfering with each other
-    }
+  }
   else
-    {
+  {
     glPointSize(static_cast<GLfloat>(this->PointSize));
     vtkOpenGLGL2PSHelper::SetPointSize(static_cast<GLfloat>(this->PointSize));
     glDepthRange(this->RangeNear, this->RangeFar);
     glDepthMask(GL_TRUE);
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after MakeVertexEmphasis");
 }
 
@@ -888,44 +888,44 @@ void vtkOpenGLPainterDeviceAdapter::MakeVertexEmphasis(bool mode)
 void vtkOpenGLPainterDeviceAdapter::WriteStencil(vtkIdType value)
 {
   if (this->MaxStencil)
-    {
+  {
     value = value % this->MaxStencil + 1;
     if (value == 1)
-      {
+    {
       glClearStencil(0); //start over so don't write into some previous area
-      }
+    }
     glStencilFunc(GL_ALWAYS, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     vtkOpenGLCheckErrorMacro("failed after WriteStencil");
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::TestStencil(vtkIdType value)
 {
   if (this->MaxStencil)
-    {
+  {
     value = value % this->MaxStencil + 1;
     glStencilFunc(GL_EQUAL, static_cast<GLint>(value), this->MaxStencil);
     glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     vtkOpenGLCheckErrorMacro("failed after TestStencil");
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkOpenGLPainterDeviceAdapter::Stencil(int on)
 {
   if (on)
-    {
+  {
     glEnable(GL_STENCIL_TEST);
     GLint stencilbits;
     glGetIntegerv(GL_STENCIL_BITS, &stencilbits);
     this->MaxStencil = (1<<stencilbits)-1;
-    }
+  }
   else
-    {
+  {
     glDisable(GL_STENCIL_TEST);
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after Stencil");
 }
 

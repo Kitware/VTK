@@ -163,31 +163,31 @@ public:
     // This code is written like this to ensure that adding a point gives
     // exactly the same result as AddRect(vtkRect(x,y,0,0)
     if (point[0] < this->GetX())
-      {
+    {
       T dx = this->GetX() - point[0];
       this->SetX(point[0]);
       this->SetWidth(dx + this->GetWidth());
-      }
+    }
     else if (point[0] > this->GetX())
-      {
+    {
       // this->GetX() is already correct
       T dx = point[0] - this->GetX();
       this->SetWidth(vtkMath::Max(dx, this->GetWidth()));
-      }
+    }
   //@}
 
     if (point[1] < this->GetY())
-      {
+    {
       T dy = this->GetY() - point[1];
       this->SetY(point[1]);
       this->SetHeight(dy + this->GetHeight());
-      }
+    }
     else if (point[1] > this->GetY())
-      {
+    {
       // this->GetY() is already correct
       T dy = point[1] - this->GetY();
       this->SetHeight(vtkMath::Max(dy, this->GetHeight()));
-      }
+    }
   }
 
   //@{
@@ -208,41 +208,41 @@ public:
   void AddRect(const vtkRect<T> & rect)
   {
     if (rect.GetX() < this->GetX())
-      {
+    {
       T dx = this->GetX() - rect.GetX();
       this->SetX(rect.GetX());
       this->SetWidth(vtkMath::Max(dx + this->GetWidth(), rect.GetWidth()));
-      }
+    }
     else if (rect.GetX() > this->GetX())
-      {
+    {
       T dx = rect.GetX() - this->GetX();
       // this->GetX() is already correct
       this->SetWidth(vtkMath::Max(dx + rect.GetWidth(), this->GetWidth()));
-      }
+    }
     else
-      {
+    {
       // this->GetX() is already correct
       this->SetWidth(vtkMath::Max(rect.GetWidth(), this->GetWidth()));
-      }
+    }
   //@}
 
     if (rect.GetY() < this->GetY())
-      {
+    {
       T dy = this->GetY() - rect.GetY();
       this->SetY(rect.GetY());
       this->SetHeight(vtkMath::Max(dy + this->GetHeight(), rect.GetHeight()));
-      }
+    }
     else if (rect.GetY() > this->GetY())
-      {
+    {
       T dy = rect.GetY() - this->GetY();
       // this->GetY() is already correct
       this->SetHeight(vtkMath::Max(dy + rect.GetHeight(), this->GetHeight()));
-      }
+    }
     else
-      {
+    {
       // this->GetY() is already correct
       this->SetHeight(vtkMath::Max(rect.GetHeight(), this->GetHeight()));
-      }
+    }
   }
 
   /**
@@ -256,26 +256,26 @@ public:
     bool intersects = true;
 
     if (rect.GetX() < this->GetX())
-      {
+    {
       T dx = this->GetX() - rect.GetX();
       intersects &= (dx < rect.GetWidth());
-      }
+    }
     else if (rect.GetX() > this->GetX())
-      {
+    {
       T dx = rect.GetX() - this->GetX();
       intersects &= (dx < this->GetWidth());
-      }
+    }
 
     if (rect.GetY() < this->GetY())
-      {
+    {
       T dy = this->GetY() - rect.GetY();
       intersects &= (dy < rect.GetHeight());
-      }
+    }
     else if (rect.GetY() > this->GetY())
-      {
+    {
       T dy = rect.GetY() - this->GetY();
       intersects &= (dy < this->GetHeight());
-      }
+    }
 
     return intersects;
   }

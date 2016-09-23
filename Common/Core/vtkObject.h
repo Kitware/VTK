@@ -187,24 +187,24 @@ public:
   template <class U, class T>
   unsigned long AddObserver(unsigned long event,
     U observer, void (T::*callback)(), float priority=0.0f)
-    {
+  {
     vtkClassMemberCallback<T> *callable =
       new vtkClassMemberCallback<T>(observer, callback);
     // callable is deleted when the observer is cleaned up (look at
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
-    }
+  }
   template <class U, class T>
   unsigned long AddObserver(unsigned long event,
     U observer, void (T::*callback)(vtkObject*, unsigned long, void*),
     float priority=0.0f)
-    {
+  {
     vtkClassMemberCallback<T> *callable =
       new vtkClassMemberCallback<T>(observer, callback);
     // callable is deleted when the observer is cleaned up (look at
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
-    }
+  }
   //@}
 
   //@{
@@ -216,13 +216,13 @@ public:
   unsigned long AddObserver(unsigned long event,
     U observer, bool (T::*callback)(vtkObject*, unsigned long, void*),
     float priority=0.0f)
-    {
+  {
     vtkClassMemberCallback<T> *callable =
       new vtkClassMemberCallback<T>(observer, callback);
     // callable is deleted when the observer is cleaned up (look at
     // vtkObjectCommandInternal)
     return this->AddTemplatedObserver(event, callable, priority);
-    }
+  }
   //@}
 
   //@{
@@ -275,7 +275,7 @@ private:
    * to add event callbacks that are class member functions.
    */
   class vtkClassMemberCallbackBase
-    {
+  {
   public:
     //@{
     /**
@@ -283,7 +283,7 @@ private:
      */
     virtual bool operator()(vtkObject*, unsigned long, void*) = 0;
     virtual ~vtkClassMemberCallbackBase(){}
-    };
+  };
     //@}
 
   //@{
@@ -293,39 +293,39 @@ private:
    */
   template<class T>
     class vtkClassMemberHandlerPointer
-      {
+  {
     public:
       void operator=(vtkObjectBase *o)
-        {
+      {
         // The cast is needed in case "o" has multi-inheritance,
         // to offset the pointer to get the vtkObjectBase.
         if ((this->VoidPointer = dynamic_cast<T*>(o)) == 0)
-          {
+        {
           // fallback to just using its vtkObjectBase as-is.
           this->VoidPointer = o;
-          }
+        }
         this->WeakPointer = o;
         this->UseWeakPointer = true;
-        }
+      }
       void operator=(void *o)
-        {
+      {
         this->VoidPointer = o;
         this->WeakPointer = 0;
         this->UseWeakPointer = false;
-        }
+      }
       T *GetPointer()
-        {
+      {
         if (this->UseWeakPointer && !this->WeakPointer.GetPointer())
-          {
+        {
           return 0;
-          }
-        return static_cast<T*>(this->VoidPointer);
         }
+        return static_cast<T*>(this->VoidPointer);
+      }
     private:
       vtkWeakPointerBase WeakPointer;
       void *VoidPointer;
       bool UseWeakPointer;
-      };
+  };
   //@}
 
   //@{
@@ -334,7 +334,7 @@ private:
    */
   template <class T>
     class vtkClassMemberCallback : public vtkClassMemberCallbackBase
-      {
+  {
       vtkClassMemberHandlerPointer<T> Handler;
       void (T::*Method1)();
       void (T::*Method2)(vtkObject*, unsigned long, void*);
@@ -343,55 +343,55 @@ private:
 
     public:
       vtkClassMemberCallback(T* handler, void (T::*method)())
-        {
+      {
         this->Handler = handler;
         this->Method1 = method;
         this->Method2 = NULL;
         this->Method3 = NULL;
-        }
+      }
 
       vtkClassMemberCallback(
         T* handler, void (T::*method)(vtkObject*, unsigned long, void*))
-        {
+      {
         this->Handler = handler;
         this->Method1 = NULL;
         this->Method2 = method;
         this->Method3 = NULL;
-        }
+      }
 
       vtkClassMemberCallback(
         T* handler, bool (T::*method)(vtkObject*, unsigned long, void*))
-        {
+      {
         this->Handler = handler;
         this->Method1 = NULL;
         this->Method2 = NULL;
         this->Method3 = method;
-        }
+      }
       ~vtkClassMemberCallback() VTK_OVERRIDE { }
 
       // Called when the event is invoked
       bool operator()(
         vtkObject* caller, unsigned long event, void* calldata) VTK_OVERRIDE
-        {
+      {
         T *handler = this->Handler.GetPointer();
         if (handler)
-          {
+        {
           if (this->Method1)
-            {
+          {
             (handler->*this->Method1)();
-            }
-          else if (this->Method2)
-            {
-            (handler->*this->Method2)(caller, event, calldata);
-            }
-          else if (this->Method3)
-            {
-            return (handler->*this->Method3)(caller, event, calldata);
-            }
           }
-        return false;
+          else if (this->Method2)
+          {
+            (handler->*this->Method2)(caller, event, calldata);
+          }
+          else if (this->Method3)
+          {
+            return (handler->*this->Method3)(caller, event, calldata);
+          }
         }
-      };
+        return false;
+      }
+  };
 
   //@{
   /**

@@ -180,27 +180,27 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   compManager->InitializePieces();
 
   if (myId)
-    {
+  {
     compManager->InitializeRMIs();
     controller->ProcessRMIs();
     controller->Receive(args->retVal, 1, 0, 33);
-    }
+  }
   else
-    {
+  {
     renWin->Render();
     *(args->retVal) =
       vtkRegressionTester::Test(args->argc, args->argv, renWin, 10);
     for (int i = 1; i < numProcs; i++)
-      {
+    {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
       controller->Send(args->retVal, 1, i, 33);
-      }
     }
+  }
 
   if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     compManager->StartInteractor();
-    }
+  }
   renWin->Delete();
   ren->Delete();
   iren->Delete();
@@ -228,10 +228,10 @@ int TestPStream( int argc, char* argv[] )
   // by the external program which launches this application.
   // However, when using threads, we need to set it ourselves.
   if (contr->IsA("vtkThreadedController"))
-    {
+  {
     // Set the number of processes to 2 for this example.
     contr->SetNumberOfProcesses(2);
-    }
+  }
 
   // Added for regression test.
   // ----------------------------------------------

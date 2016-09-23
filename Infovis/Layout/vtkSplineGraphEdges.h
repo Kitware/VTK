@@ -52,10 +52,10 @@ public:
   //@}
 
   enum
-    {
+  {
     BSPLINE = 0,
     CUSTOM
-    };
+  };
 
   //@{
   /**

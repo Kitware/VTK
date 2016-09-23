@@ -47,10 +47,10 @@ public:
    * The role a captured varying fills. Useful for parsing later.
    */
   enum VaryingRole
-    {
+  {
     Vertex_ClipCoordinate_F, // Projected XYZW
     Color_RGBA_F
-    };
+  };
 
   struct VaryingMetaData
   {
@@ -202,12 +202,12 @@ inline size_t vtkTransformFeedback::GetBytesPerVertex(
     vtkTransformFeedback::VaryingRole role)
 {
   switch (role)
-    {
+  {
     case Vertex_ClipCoordinate_F:
       return 4 * sizeof(float);
     case Color_RGBA_F:
       return 4 * sizeof(float);
-    }
+  }
 
   vtkGenericWarningMacro("Unknown role enum value: " << role);
   return 0;

@@ -43,35 +43,35 @@ int TestStringToCategory(int argc, char* argv[])
   VTK_CREATE(vtkStringArray, vertString);
   vertString->SetName("vertex string");
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     graph->AddVertex();
     if (i % 2)
-      {
+    {
       vertString->InsertNextValue("vertex type 1");
-      }
-    else
-      {
-      vertString->InsertNextValue("vertex type 2");
-      }
     }
+    else
+    {
+      vertString->InsertNextValue("vertex type 2");
+    }
+  }
   graph->GetVertexData()->AddArray(vertString);
   VTK_CREATE(vtkStringArray, edgeString);
   edgeString->SetName("edge string");
   for (vtkIdType i = 0; i < 10; ++i)
-    {
+  {
     graph->AddEdge(i, (i+1)%10);
     graph->AddEdge(i, (i+3)%10);
     if (i % 2)
-      {
+    {
       edgeString->InsertNextValue("edge type 1");
       edgeString->InsertNextValue("edge type 3");
-      }
+    }
     else
-      {
+    {
       edgeString->InsertNextValue("edge type 2");
       edgeString->InsertNextValue("edge type 4");
-      }
     }
+  }
   graph->GetEdgeData()->AddArray(edgeString);
 
   VTK_CREATE(vtkStringToCategory, vertexCategory);
@@ -106,12 +106,12 @@ int TestStringToCategory(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Initialize();
     iren->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

@@ -117,29 +117,29 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
   outPtr2 = outPtr;
   inPtr2 = inPtr;
   for (outIdx2 = min2; outIdx2 <= max2; ++outIdx2)
-    {
+  {
     inInc2L = (outIdx2 == inWholeMin2) ? 0 : -inInc2;
     inInc2R = (outIdx2 == inWholeMax2) ? 0 : inInc2;
 
     outPtr1 = outPtr2;
     inPtr1 = inPtr2;
     for (outIdx1 = min1; !self->AbortExecute && outIdx1 <= max1; ++outIdx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       inInc1L = (outIdx1 == inWholeMin1) ? 0 : -inInc1;
       inInc1R = (outIdx1 == inWholeMax1) ? 0 : inInc1;
 
       outPtr0 = outPtr1;
       inPtr0 = inPtr1;
       for (outIdx0 = min0; outIdx0 <= max0; ++outIdx0)
-        {
+      {
         inInc0L = (outIdx0 == inWholeMin0) ? 0 : -inInc0;
         inInc0R = (outIdx0 == inWholeMax0) ? 0 : inInc0;
 
@@ -190,13 +190,13 @@ void vtkImageSobel3DExecute(vtkImageSobel3D *self,
 
         outPtr0 += outInc0;
         inPtr0 += inInc0;
-        }
+      }
       outPtr1 += outInc1;
       inPtr1 += inInc1;
-      }
+    }
     outPtr2 += outInc2;
     inPtr2 += inInc2;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -224,21 +224,21 @@ void vtkImageSobel3D::ThreadedRequestData(
 
   // this filter cannot handle multi component input.
   if (inData[0][0]->GetNumberOfScalarComponents() != 1)
-    {
+  {
     vtkWarningMacro("Expecting input with only one compenent.\n");
-    }
+  }
 
   // this filter expects that output is type double.
   if (outData[0]->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: output ScalarType, "
                   << vtkImageScalarTypeNameMacro(outData[0]->GetScalarType())
                   << ", must be double");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageSobel3DExecute(this, inData[0][0],
                              static_cast<VTK_TT *>(inPtr), outData[0], outExt,
@@ -246,5 +246,5 @@ void vtkImageSobel3D::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }

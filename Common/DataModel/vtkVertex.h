@@ -122,13 +122,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[1]) VTK_OVERRIDE
-    {
+  {
     vtkVertex::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[3]) VTK_OVERRIDE
-    {
+  {
     vtkVertex::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
 protected:

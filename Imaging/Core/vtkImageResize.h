@@ -44,11 +44,11 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
-    {
+  {
     OUTPUT_DIMENSIONS,
     OUTPUT_SPACING,
     MAGNIFICATION_FACTORS
-    };
+  };
 
   //@{
   /**

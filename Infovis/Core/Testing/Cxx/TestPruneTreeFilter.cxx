@@ -42,9 +42,9 @@ int TestPruneTreeFilter(int, char*[])
   filter->Update();
 
   if (prunedTree->GetNumberOfVertices() == 3)
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 
   return EXIT_FAILURE;
 }

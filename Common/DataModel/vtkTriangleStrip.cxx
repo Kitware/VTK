@@ -56,21 +56,21 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
 
   return_status = 0;
   for (minDist2=VTK_DOUBLE_MAX,i=0; i<this->Points->GetNumberOfPoints()-2; i++)
-    {
+  {
     weights[i] = 0.0;
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(i));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(i+1));
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(i+2));
     status = this->Triangle->EvaluatePosition(x,closest,ignoreId,pc,dist2,tempWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       return_status = status;
       if (closestPoint)
-        {
+      {
         closestPoint[0] = closest[0];
         closestPoint[1] = closest[1];
         closestPoint[2] = closest[2];
-        }
+      }
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
@@ -78,8 +78,8 @@ int vtkTriangleStrip::EvaluatePosition(double x[3], double* closestPoint,
       activeWeights[0] = tempWeights[0];
       activeWeights[1] = tempWeights[1];
       activeWeights[2] = tempWeights[2];
-      }
     }
+  }
 
   weights[i] = 0.0;
   weights[i+1] = 0.0;
@@ -110,9 +110,9 @@ void vtkTriangleStrip::EvaluateLocation(int& subId, double pcoords[3],
   weights[2] = pcoords[1];
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = pt1[i]*weights[0] + pt2[i]*weights[1] + pt3[i]*weights[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -143,17 +143,17 @@ void vtkTriangleStrip::Contour(double value, vtkDataArray *cellScalars,
   triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)
-    {
+  {
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(i));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(i+1));
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(i+2));
 
     if ( outPd )
-      {
+    {
       this->Triangle->PointIds->SetId(0,this->PointIds->GetId(i));
       this->Triangle->PointIds->SetId(1,this->PointIds->GetId(i+1));
       this->Triangle->PointIds->SetId(2,this->PointIds->GetId(i+2));
-      }
+    }
 
     triScalars->SetTuple(0,cellScalars->GetTuple(i));
     triScalars->SetTuple(1,cellScalars->GetTuple(i+1));
@@ -161,7 +161,7 @@ void vtkTriangleStrip::Contour(double value, vtkDataArray *cellScalars,
 
     this->Triangle->Contour(value, triScalars, locator, verts,
                            lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
+  }
   triScalars->Delete();
 }
 
@@ -172,20 +172,20 @@ vtkCell *vtkTriangleStrip::GetEdge(int edgeId)
   int id1, id2;
 
   if ( edgeId == 0 )
-    {
+  {
     id1 = 0;
     id2 = 1;
-    }
+  }
   else if ( edgeId == (this->GetNumberOfPoints()-1) )
-    {
+  {
     id1 = edgeId - 1;
     id2 = edgeId;
-    }
+  }
   else
-    {
+  {
     id1 = edgeId - 1;
     id2 = edgeId + 1;
-    }
+  }
 
   this->Line->PointIds->SetId(0,this->PointIds->GetId(id1));
   this->Line->PointIds->SetId(1,this->PointIds->GetId(id2));
@@ -206,16 +206,16 @@ int vtkTriangleStrip::IntersectWithLine(double p1[3], double p2[3], double tol,
   int subTest, numTris=this->Points->GetNumberOfPoints()-2;
 
   for (subId=0; subId < numTris; subId++)
-    {
+  {
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(subId));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(subId+1));
     this->Triangle->Points->SetPoint(2,this->Points->GetPoint(subId+2));
 
     if (this->Triangle->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -232,15 +232,15 @@ int vtkTriangleStrip::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   ptIds->Reset();
 
   for (int subId=0; subId < numTris; subId++)
-    {
+  {
     order = subId % 2;
 
     for ( i=0; i < 3; i++ )
-      {
+    {
       ptIds->InsertNextId(this->PointIds->GetId(subId+idx[order][i]));
       pts->InsertNextPoint(this->Points->GetPoint(subId+idx[order][i]));
-      }
     }
+  }
 
   return 1;
 }
@@ -267,24 +267,24 @@ void vtkTriangleStrip::DecomposeStrip(int npts, vtkIdType *pts,
   p1 = pts[0];
   p2 = pts[1];
   for (i=0; i<(npts-2); i++)
-    {
+  {
     p3 = pts[i+2];
     polys->InsertNextCell(3);
     if ( (i % 2) ) // flip ordering to preserve consistency
-      {
+    {
       polys->InsertCellPoint(p2);
       polys->InsertCellPoint(p1);
       polys->InsertCellPoint(p3);
-      }
+    }
     else
-      {
+    {
       polys->InsertCellPoint(p1);
       polys->InsertCellPoint(p2);
       polys->InsertCellPoint(p3);
-      }
+    }
     p1 = p2;
     p2 = p3;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -301,15 +301,15 @@ void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars,
   triScalars->SetNumberOfTuples(3);
 
   for ( i=0; i < numTris; i++)
-    {
+  {
     if (i % 2)
-      {
+    {
       id1 = i + 2; id2 = i + 1; id3 = i;
-      }
+    }
     else
-      {
+    {
       id1 = i; id2 = i + 1; id3 = i + 2;
-      }
+    }
 
     this->Triangle->Points->SetPoint(0,this->Points->GetPoint(id1));
     this->Triangle->Points->SetPoint(1,this->Points->GetPoint(id2));
@@ -325,7 +325,7 @@ void vtkTriangleStrip::Clip(double value, vtkDataArray *cellScalars,
 
     this->Triangle->Clip(value, triScalars, locator, tris, inPd, outPd,
                         inCd, cellId, outCd, insideOut);
-    }
+  }
 
   triScalars->Delete();
 }

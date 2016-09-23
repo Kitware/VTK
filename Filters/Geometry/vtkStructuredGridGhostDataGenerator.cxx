@@ -57,7 +57,7 @@ void vtkStructuredGridGhostDataGenerator::RegisterGrids(
    in->GetInformation()->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
 
   for( unsigned int i=0; i < in->GetNumberOfBlocks(); ++i )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast( in->GetBlock(i));
     assert("pre: grid block is NULL" && (grid != NULL) );
 
@@ -73,7 +73,7 @@ void vtkStructuredGridGhostDataGenerator::RegisterGrids(
         grid->GetPointData(),
         grid->GetCellData(),
         grid->GetPoints() );
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +94,7 @@ void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
   int ghostedExtent[6];
   for( unsigned int i=0; i < out->GetNumberOfBlocks(); ++i )
-    {
+  {
     // STEP 0: Get the computed ghosted grid extent
     this->GridConnectivity->GetGhostedGridExtent( i, ghostedExtent );
 
@@ -116,7 +116,7 @@ void vtkStructuredGridGhostDataGenerator::CreateGhostedDataSet(
 
     out->SetBlock(i,ghostedGrid);
     ghostedGrid->Delete();
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------

@@ -67,9 +67,9 @@ public:
   vtkGetMacro(OutputStringLength, int);
   vtkGetStringMacro(OutputString);
   unsigned char *GetBinaryOutputString()
-    {
+  {
       return reinterpret_cast<unsigned char *>(this->OutputString);
-    }
+  }
   //@}
 
   /**

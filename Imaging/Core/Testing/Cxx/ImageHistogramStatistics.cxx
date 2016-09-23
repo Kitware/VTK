@@ -75,35 +75,35 @@ int ImageHistogramStatistics(int argc, char *argv[])
   bool retVal = true;
 
   if (fabs((minVal - minValTest)/maxValTest) > tol)
-    {
+  {
     cout.precision(16);
     cout << "minVal " << minVal << " should be " << minValTest << endl;
     retVal = false;
-    }
+  }
   if (fabs((maxVal - maxValTest)/maxValTest) > tol)
-    {
+  {
     cout.precision(16);
     cout << "maxVal " << maxVal << " should be " << maxValTest << endl;
     retVal = false;
-    }
+  }
   if (fabs((meanVal - meanValTest)/maxValTest) > tol)
-    {
+  {
     cout.precision(16);
     cout << "meanVal " << meanVal << " should be " << meanValTest << endl;
     retVal = false;
-    }
+  }
   if (fabs((median - medianTest)/maxValTest) > tol)
-    {
+  {
     cout.precision(16);
     cout << "median " << median << " should be " << medianTest << endl;
     retVal = false;
-    }
+  }
   if (fabs((stdev - stdevTest)/maxValTest) > tol)
-    {
+  {
     cout.precision(16);
     cout << "stdev " << stdev << " should be " << stdevTest << endl;
     retVal = false;
-    }
+  }
 
   reader->Delete();
   imageCast->Delete();

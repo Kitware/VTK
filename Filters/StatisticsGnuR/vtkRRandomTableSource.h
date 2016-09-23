@@ -96,7 +96,7 @@ public:
    * parameters (param1, param2, param3) must be specified when using SetStatisticalDistributionForColumn().
    */
   typedef enum
-    {
+  {
 
     WILCOXONRANKSUM = 0,    // Wilcoxon rank sum
                             // param1 - number of observations in the first sample

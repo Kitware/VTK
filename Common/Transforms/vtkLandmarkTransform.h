@@ -123,7 +123,7 @@ private:
 inline const char *vtkLandmarkTransform::GetModeAsString()
 {
   switch (this->Mode)
-    {
+  {
     case VTK_LANDMARK_RIGIDBODY:
       return "RigidBody";
     case VTK_LANDMARK_SIMILARITY:
@@ -132,7 +132,7 @@ inline const char *vtkLandmarkTransform::GetModeAsString()
       return "Affine";
     default:
       return "Unrecognized";
-    }
+  }
 }
 
 #endif

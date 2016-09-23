@@ -28,15 +28,15 @@ static unsigned char VoxelValue(int i, int j, int k)
   static bool seeded = false;
   static int randseq[127];
   if (!seeded)
-    {
+  {
     int seed = 230981;
     for (int c = 0; c < 127; c++)
-      {
+    {
       randseq[c] = 1664525*seed + 1013904223;
       seed = randseq[c];
-      }
-    seeded = true;
     }
+    seeded = true;
+  }
 
   int l = (k*127*127 + j*127 + i) % (4*127);
   int m = l / 4;
@@ -56,15 +56,15 @@ static void GenerateImage(vtkImageData *image, int extent[6])
     static_cast<unsigned char *>(image->GetScalarPointer());
 
   for (int k = extent[4]; k <= extent[5]; k++)
-    {
+  {
     for (int j = extent[2]; j <= extent[3]; j++)
-      {
+    {
       for (int i = extent[0]; i <= extent[1]; i++)
-        {
+      {
         *ptr++ = VoxelValue(i, j, k);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -76,19 +76,19 @@ static void GenerateStencil(vtkImageStencilData *stencil, int extent[6])
   stencil->AllocateExtents();
 
   for (int k = extent[4]; k <= extent[5]; k++)
-    {
+  {
     for (int j = extent[2]; j <= extent[3]; j++)
-      {
+    {
       for (int i = extent[0]; i <= extent[1]; i++)
-        {
+      {
         if (VoxelValue(i, j, k) > 127)
-          {
+        {
           // adjacent extents will be joined
           stencil->InsertNextExtent(i, i, j, k);
-          }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -111,35 +111,35 @@ static bool CheckStencilExtents(
   int k = extent[4];
 
   for (; !iter.IsAtEnd(); iter.NextSpan())
-    {
+  {
     bool inside = iter.IsInStencil();
     for (unsigned char *p = iter.BeginSpan(); p != iter.EndSpan(); p++)
-      {
+    {
       match &= (*p == VoxelValue(i,j,k));
 
       if (i >= stencilExt[0] && i <= stencilExt[1] &&
           j >= stencilExt[2] && j <= stencilExt[3] &&
           k >= stencilExt[4] && k <= stencilExt[5])
-        {
-        match &= (!inside) ^ (*p > 127);
-        }
-      else
-        {
-        match &= !inside;
-        }
-      i++;
-      }
-    if (i == extent[1] + 1)
       {
+        match &= (!inside) ^ (*p > 127);
+      }
+      else
+      {
+        match &= !inside;
+      }
+      i++;
+    }
+    if (i == extent[1] + 1)
+    {
       i = extent[0];
       j++;
       if (j == extent[3] + 1)
-        {
+      {
         j = extent[2];
         k++;
-        }
       }
     }
+  }
 
   return match;
 }
@@ -149,9 +149,9 @@ int TestImageStencilIterator(int argc, char *argv[])
 {
   vtkNew<vtkTesting> testing;
   for (int cc = 1; cc < argc; cc ++ )
-    {
+  {
     testing->AddArgument(argv[cc]);
-    }
+  }
 
   int extents[57][6] = {
     // all extents the same, all start at 0,0,0
@@ -242,9 +242,9 @@ int TestImageStencilIterator(int argc, char *argv[])
 
   int rval = EXIT_SUCCESS;
   for (int i = 0; i < 57; i += 3)
-    {
+  {
     if (!CheckStencilExtents(extents[i], extents[i+1], extents[i+2]))
-      {
+    {
       std::cerr << "Failed with these extents:\n";
       std::cerr << "Image:   "
                 << extents[i][0] << " " << extents[i][1] << " "
@@ -259,8 +259,8 @@ int TestImageStencilIterator(int argc, char *argv[])
                 << extents[i+2][2] << " " << extents[i+2][3] << " "
                 << extents[i+2][4] << " " << extents[i+2][5] << "\n";
       rval = EXIT_FAILURE;
-      }
     }
+  }
 
   return rval;
 }

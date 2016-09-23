@@ -49,23 +49,23 @@ int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,
   // Generate new points for subdivisions surface
   for (cellId=0, inputPolys->InitTraversal();
        inputPolys->GetNextCell(npts, pts); cellId++)
-    {
+  {
     if ( inputDS->GetCellType(cellId) != VTK_TRIANGLE )
-      {
+    {
       continue;
-      }
+    }
 
     p1 = pts[2];
     p2 = pts[0];
 
     for (edgeId=0; edgeId < 3; edgeId++)
-      {
+    {
       outputPD->CopyData (inputPD, p1, p1);
       outputPD->CopyData (inputPD, p2, p2);
 
       // Do we need to  create a point on this edge?
       if (edgeTable->IsEdge (p1, p2) == -1)
-        {
+      {
         edgeTable->InsertEdge (p1, p2);
         // Compute Position andnew PointData using the same subdivision scheme
         pointIds->SetId(0,p1);
@@ -73,21 +73,21 @@ int vtkLinearSubdivisionFilter::GenerateSubdivisionPoints (vtkPolyData *inputDS,
         newId =
           this->InterpolatePosition (inputPts, outputPts, pointIds, weights);
         outputPD->InterpolatePoint (inputPD, newId, pointIds, weights);
-        }
+      }
       else // we have already created a point on this edge. find it
-        {
+      {
         newId = this->FindEdge (inputDS, cellId, p1, p2, edgeData, cellIds);
-        }
+      }
       edgeData->InsertComponent(cellId,edgeId,newId);
       p1 = p2;
       if (edgeId < 2)
-        {
+      {
         p2 = pts[edgeId + 1];
-        }
-      } // each edge
+      }
+    } // each edge
     this->UpdateProgress(curr / total);
     curr += 1;
-    } // each cell
+  } // each cell
 
   edgeTable->Delete();
   cellIds->Delete();

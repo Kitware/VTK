@@ -53,10 +53,10 @@ void vtkPolyDataPainter::Render(vtkRenderer* renderer, vtkActor* actor,
                                 unsigned long typeflags,bool forceCompileOnly)
 {
   if (!this->GetInputAsPolyData())
-    {
+  {
     vtkErrorMacro("No polydata input!");
     return;
-    }
+  }
 
   this->Superclass::Render(renderer, actor, typeflags,forceCompileOnly);
 }
@@ -77,9 +77,9 @@ vtkPolyData* vtkPolyDataPainter::GetOutputAsPolyData()
 void vtkPolyDataPainter::ProcessInformation(vtkInformation* info)
 {
   if (info->Has(vtkPolyDataPainter::BUILD_NORMALS()))
-    {
+  {
     this->SetBuildNormals(info->Get(vtkPolyDataPainter::BUILD_NORMALS()));
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

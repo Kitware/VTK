@@ -54,7 +54,7 @@ public:
     Linear = 0,
     Log = 1,
     Sqrt = 2
-    };
+  };
 
   //@{
   /**

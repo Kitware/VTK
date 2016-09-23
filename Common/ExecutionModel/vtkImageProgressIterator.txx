@@ -41,34 +41,34 @@ void vtkImageProgressIterator<DType>::NextSpan()
   this->Pointer += this->Increments[1];
   this->SpanEndPointer += this->Increments[1];
   if (this->Pointer >= this->SliceEndPointer)
-    {
+  {
     this->Pointer += this->ContinuousIncrements[2];
     this->SpanEndPointer += this->ContinuousIncrements[2];
     this->SliceEndPointer += this->Increments[2];
-    }
+  }
   if (!this->ID)
-    {
+  {
     if (this->Count2 == this->Target)
-      {
+    {
       this->Count += this->Count2;
       this->Algorithm->UpdateProgress(this->Count/(50.0*this->Target));
       this->Count2 = 0;
-      }
-    this->Count2++;
     }
+    this->Count2++;
+  }
 }
 
 template <class DType>
 int vtkImageProgressIterator<DType>::IsAtEnd()
 {
   if(this->Algorithm->GetAbortExecute())
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return this->Superclass::IsAtEnd();
-    }
+  }
 }
 
 #endif

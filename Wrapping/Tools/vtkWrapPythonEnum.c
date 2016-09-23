@@ -31,13 +31,13 @@ int vtkWrapPython_IsEnumWrapped(
   HierarchyEntry *entry;
 
   if (hinfo && enumname)
-    {
+  {
     entry = vtkParseHierarchy_FindEntry(hinfo, enumname);
     if (entry && entry->IsEnum)
-      {
+    {
       rval = 1;
-      }
     }
+  }
 
   return rval;
 }
@@ -54,35 +54,35 @@ void vtkWrapPython_MarkAllEnums(
 
   nn = contents->NumberOfClasses;
   for (ii = 0; ii < nn; ii++)
-    {
+  {
     data = contents->Classes[ii];
     n = data->NumberOfFunctions;
     for (i = 0; i < n; i++)
-      {
+    {
       currentFunction = data->Functions[i];
       if (currentFunction->Access == VTK_ACCESS_PUBLIC)
-        {
+      {
         /* we start with the return value */
         val = currentFunction->ReturnValue;
         m = vtkWrap_CountWrappedParameters(currentFunction);
 
         /* the -1 is for the return value */
         for (j = (val ? -1 : 0); j < m; j++)
-          {
+        {
           if (j >= 0)
-            {
+          {
             val = currentFunction->Parameters[j];
-            }
+          }
 
           if (vtkWrap_IsEnumMember(data, val) ||
               vtkWrapPython_IsEnumWrapped(hinfo, val->Class))
-            {
+          {
             val->IsEnum = 1;
-            }
           }
         }
       }
     }
+  }
 }
 
 /* -------------------------------------------------------------------- */
@@ -123,16 +123,16 @@ void vtkWrapPython_GenerateEnumType(
   char tpname[512];
 
   if (classname)
-    {
+  {
     /* join with "_" for identifier, and with "." for type name */
     sprintf(enumname, "%.200s_%.200s", classname, data->Name);
     sprintf(tpname, "%.200s.%.200s", classname, data->Name);
-    }
+  }
   else
-    {
+  {
     sprintf(enumname, "%.200s", data->Name);
     sprintf(tpname, "%.200s", data->Name);
-    }
+  }
 
   /* generate all functions and protocols needed for the type */
 
@@ -228,12 +228,12 @@ void vtkWrapPython_AddPublicEnumTypes(
   int i;
 
   for (i = 0; i < data->NumberOfEnums; i++)
-    {
+  {
     if (data->Enums[i]->Access == VTK_ACCESS_PUBLIC)
-      {
+    {
       vtkWrapPython_AddEnumType(
         fp, indent, dictvar, objvar, data->Name, data->Enums[i]);
       fprintf(fp, "\n");
-      }
     }
+  }
 }

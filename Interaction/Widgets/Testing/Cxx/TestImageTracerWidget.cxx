@@ -269,9 +269,9 @@ public:
     SplineWidget->SetClosed(closed);
 
     if (!closed)
-      {
+    {
       Actor->GetMapper()->SetInputConnection(Extract->GetOutputPort());
-      }
+    }
 
     int npts = tracerWidget->GetNumberOfHandles();
     if (npts < 2) { return; }
@@ -283,11 +283,11 @@ public:
     SplineWidget->InitializeHandles(points);
 
     if (closed)
-      {
+    {
       SplineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
       Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
-      }
+    }
   }
 
   vtkITWCallback():SplineWidget(0),Actor(0),Stencil(0),Extract(0),
@@ -320,20 +320,20 @@ public:
 
     Points->Reset();
     for (int i = 0; i < npts; ++i)
-      {
+    {
       Points->InsertNextPoint(splineWidget->GetHandlePosition(i));
-      }
+    }
 
     if (closed)
-      {
+    {
       if (TracerWidget->GetAutoClose())
-        {
+      {
         Points->InsertNextPoint(splineWidget->GetHandlePosition(0));
-        }
+      }
       splineWidget->GetPolyData(SplinePoly);
       Stencil->Update();
       Actor->GetMapper()->SetInputConnection(Stencil->GetOutputPort());
-      }
+    }
 
     TracerWidget->InitializeHandles(Points);
   }

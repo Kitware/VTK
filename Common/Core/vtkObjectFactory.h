@@ -324,9 +324,9 @@ vtkObjectFactory* vtkLoad()                     \
 #define VTK_OBJECT_FACTORY_NEW_BODY(thisClass) \
   vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, false); \
   if(ret) \
-    { \
+  { \
     return static_cast<thisClass*>(ret); \
-    } \
+  } \
   return new thisClass;
 
 // Macro to implement the body of the abstract object factory form of the New()
@@ -335,9 +335,9 @@ vtkObjectFactory* vtkLoad()                     \
 #define VTK_ABSTRACT_OBJECT_FACTORY_NEW_BODY(thisClass) \
   vtkObject* ret = vtkObjectFactory::CreateInstance(#thisClass, true); \
   if(ret) \
-    { \
+  { \
     return static_cast<thisClass*>(ret); \
-    } \
+  } \
   vtkGenericWarningMacro("Error: no override found for '" #thisClass "'."); \
   return NULL;
 

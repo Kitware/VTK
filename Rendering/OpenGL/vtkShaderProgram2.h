@@ -477,9 +477,9 @@ void vtkShaderProgram2::SetUniform##num##toLetter##t(const char *name, fromType 
 { \
   toType tvalues[num]; \
   for (int i=0; i<num; ++i) \
-    { \
+  { \
     tvalues[i] = static_cast<toType>(fvalues[i]); \
-    } \
+  } \
   this->SetUniform##num##toLetter(name, tvalues); \
 } \
 template<typename fromType> \
@@ -488,9 +488,9 @@ void vtkShaderProgram2::SetUniform##num##toLetter##t(int location, fromType *fva
   assert(location!=-1); \
   toType tvalues[num]; \
   for (int i=0; i<num; ++i) \
-    { \
+  { \
     tvalues[i] = static_cast<toType>(fvalues[i]); \
-    } \
+  } \
   this->SetUniform##num##toLetter(location, tvalues); \
 }
 vtkShaderProgram2SetUniformCopyCastMacro(f, float, 1)

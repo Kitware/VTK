@@ -91,22 +91,22 @@ int vtkWarpLens::RequestDataObject(vtkInformation *request,
   vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
   if (inImage || inRect)
-    {
+  {
     vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
     if (!output)
-      {
+    {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     return this->Superclass::RequestDataObject(request,
                                                inputVector,
                                                outputVector);
-    }
+  }
 }
 
 int vtkWarpLens::RequestData(
@@ -118,36 +118,36 @@ int vtkWarpLens::RequestData(
   vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
   if (!input)
-    {
+  {
     // Try converting image data.
     vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
-      {
+    {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     // Try converting rectilinear grid.
     vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
-      {
+    {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Invalid or missing input");
     return 0;
-    }
+  }
 
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -166,10 +166,10 @@ int vtkWarpLens::RequestData(
 
   inPts = input->GetPoints();
   if (!inPts )
-    {
+  {
     vtkErrorMacro(<<"No input data");
     return 1;
-    }
+  }
 
   numPts = inPts->GetNumberOfPoints();
   newPts = vtkPoints::New();
@@ -179,7 +179,7 @@ int vtkWarpLens::RequestData(
   // Loop over all pixels, adjusting locations
   //
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     inPts->GetPoint(ptId, pixel);
 
     //
@@ -216,7 +216,7 @@ int vtkWarpLens::RequestData(
 
     newPixel[2] = pixel[2];             // pixel color
     newPts->SetPoint(ptId, newPixel);
-    }
+  }
 
   //
   // Update ourselves and release memory

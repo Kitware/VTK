@@ -46,13 +46,13 @@ vtkTransform::~vtkTransform()
   this->SetInput(NULL);
 
   if (this->Concatenation)
-    {
+  {
     this->Concatenation->Delete();
-    }
+  }
   if (this->Stack)
-    {
+  {
     this->Stack->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -66,15 +66,15 @@ void vtkTransform::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "NumberOfConcatenatedTransforms: " <<
     this->GetNumberOfConcatenatedTransforms() << "\n";
   if (this->GetNumberOfConcatenatedTransforms() != 0)
-    {
+  {
     int n = this->GetNumberOfConcatenatedTransforms();
     for (int i = 0; i < n; i++)
-      {
+    {
       vtkLinearTransform *t = this->GetConcatenatedTransform(i);
       os << indent << "    " << i << ": " << t->GetClassName() << " at " <<
          t << "\n";
-      }
     }
+  }
 
   os << indent << "DoublePoint: " << "( " <<
      this->DoublePoint[0] << ", " << this->DoublePoint[1] << ", " <<
@@ -93,9 +93,9 @@ void vtkTransform::Identity()
 
   // support for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
-    {
+  {
     this->Matrix->Identity();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -106,9 +106,9 @@ void vtkTransform::Inverse()
 
   // for the legacy hack in InternalUpdate
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
-    {
+  {
     this->Matrix->Invert();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -124,28 +124,28 @@ void vtkTransform::InternalDeepCopy(vtkAbstractTransform *gtrans)
 
   // copy the stack
   if (transform->Stack)
-    {
+  {
     if (this->Stack == NULL)
-      {
-      this->Stack = vtkTransformConcatenationStack::New();
-      }
-    this->Stack->DeepCopy(transform->Stack);
-    }
-  else
     {
+      this->Stack = vtkTransformConcatenationStack::New();
+    }
+    this->Stack->DeepCopy(transform->Stack);
+  }
+  else
+  {
     if (this->Stack)
-      {
+    {
       this->Stack->Delete();
       this->Stack = NULL;
-      }
     }
+  }
 
   // legacy stuff: copy Point and DoublePoint
   for (int j = 0; j < 3; j++)
-    {
+  {
     this->Point[j] = transform->Point[j];
     this->DoublePoint[j] = transform->DoublePoint[j];
-    }
+  }
 
   // to support the legacy hack in InternalUpdate
   this->Matrix->DeepCopy(transform->Matrix);
@@ -162,33 +162,33 @@ void vtkTransform::InternalUpdate()
   // check to see whether someone has been fooling around with our matrix
   int doTheLegacyHack = 0;
   if (this->Matrix->GetMTime() > this->MatrixUpdateMTime)
-    {
+  {
     vtkDebugMacro(<<"InternalUpdate: this->Matrix was modified by something other than 'this'");
 
     // check to see if we have any inputs or concatenated transforms
     int isPipelined = (this->Input != 0);
     for (i = 0; i < nTransforms && !isPipelined; i++)
-      { // the vtkSimpleTransform is just a matrix placeholder,
+    { // the vtkSimpleTransform is just a matrix placeholder,
         // it is not a real transform
       isPipelined =
         !this->Concatenation->GetTransform(i)->IsA("vtkSimpleTransform");
-      }
+    }
     // do the legacy hack only if we have no input transforms
     doTheLegacyHack = !isPipelined;
-    }
+  }
 
   // copy matrix from input
   if (this->Input)
-    {
+  {
     this->Matrix->DeepCopy(this->Input->GetMatrix());
     // if inverse flag is set, invert the matrix
     if (this->Concatenation->GetInverseFlag())
-      {
-      this->Matrix->Invert();
-      }
-    }
-  else if (doTheLegacyHack)
     {
+      this->Matrix->Invert();
+    }
+  }
+  else if (doTheLegacyHack)
+  {
     vtkWarningMacro("InternalUpdate: doing hack to support legacy code.  "
                     "This is deprecated in VTK 4.2.  May be removed in a "
                     "future version.");
@@ -196,52 +196,52 @@ void vtkTransform::InternalUpdate()
     // was called immediately prior to the matrix modifications
     // (fortunately, this is almost always the case)
     if (this->Matrix->GetMTime() > this->Concatenation->GetMaxMTime())
-      { // don't apply operations that occurred after matrix modification
+    { // don't apply operations that occurred after matrix modification
       nPreTransforms = nTransforms = 0;
-      }
     }
+  }
   else
-    {  // otherwise, we start with the identity transform as our base
+  {  // otherwise, we start with the identity transform as our base
     this->Matrix->Identity();
-    }
+  }
 
   // concatenate PreTransforms
   for (i = nPreTransforms-1; i >= 0; i--)
-    {
+  {
     vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(this->Matrix,transform->GetMatrix(),
                               this->Matrix);
-    }
+  }
 
   // concatenate PostTransforms
   for (i = nPreTransforms; i < nTransforms; i++)
-    {
+  {
     vtkHomogeneousTransform *transform =
       static_cast<vtkHomogeneousTransform *>(this->Concatenation->GetTransform(i));
     vtkMatrix4x4::Multiply4x4(transform->GetMatrix(),this->Matrix,
                               this->Matrix);
-    }
+  }
 
   if (doTheLegacyHack)
-    { // the transform operations have been incorporated into the matrix,
+  { // the transform operations have been incorporated into the matrix,
       // so delete them
     this->Concatenation->Identity();
-    }
+  }
   else
-    { // having this in the 'else' forces the legacy flag to be sticky
+  { // having this in the 'else' forces the legacy flag to be sticky
     this->MatrixUpdateMTime = this->Matrix->GetMTime();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkTransform::Concatenate(vtkLinearTransform *transform)
 {
   if (transform->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("Concatenate: this would create a circular reference.");
     return;
-    }
+  }
   this->Concatenation->Concatenate(transform);
   this->Modified();
 }
@@ -250,23 +250,23 @@ void vtkTransform::Concatenate(vtkLinearTransform *transform)
 void vtkTransform::SetInput(vtkLinearTransform *input)
 {
   if (this->Input == input)
-    {
+  {
     return;
-    }
+  }
   if (input && input->CircuitCheck(this))
-    {
+  {
     vtkErrorMacro("SetInput: this would create a circular reference.");
     return;
-    }
+  }
   if (this->Input)
-    {
+  {
     this->Input->Delete();
-    }
+  }
   this->Input = input;
   if (this->Input)
-    {
+  {
     this->Input->Register(this);
-    }
+  }
   this->Modified();
 }
 
@@ -275,18 +275,18 @@ int vtkTransform::CircuitCheck(vtkAbstractTransform *transform)
 {
   if (this->vtkLinearTransform::CircuitCheck(transform) ||
       (this->Input && this->Input->CircuitCheck(transform)))
-    {
+  {
     return 1;
-    }
+  }
 
   int n = this->Concatenation->GetNumberOfTransforms();
   for (int i = 0; i < n; i++)
-    {
+  {
     if (this->Concatenation->GetTransform(i)->CircuitCheck(transform))
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -305,26 +305,26 @@ vtkMTimeType vtkTransform::GetMTime()
 
   // checking the matrix MTime is part of the legacy hack in InternalUpdate
   if ((mtime2 = this->Matrix->GetMTime()) > this->MatrixUpdateMTime)
-    {
+  {
     if (mtime2 > mtime)
-      {
+    {
       mtime = mtime2;
-      }
     }
+  }
 
   if (this->Input)
-    {
+  {
     mtime2 = this->Input->GetMTime();
     if (mtime2 > mtime)
-      {
+    {
       mtime = mtime2;
-      }
     }
+  }
   mtime2 = this->Concatenation->GetMaxMTime();
   if (mtime2 > mtime)
-    {
+  {
     return mtime2;
-    }
+  }
   return mtime;
 }
 
@@ -343,17 +343,17 @@ void vtkTransform::GetOrientation(double orientation[3],
   double ortho[3][3];
 
   for (i = 0; i < 3; i++)
-    {
+  {
     ortho[0][i] = matrix[0][i];
     ortho[1][i] = matrix[1][i];
     ortho[2][i] = matrix[2][i];
-    }
+  }
   if (vtkMath::Determinant3x3(ortho) < 0)
-    {
+  {
     ortho[0][2] = -ortho[0][2];
     ortho[1][2] = -ortho[1][2];
     ortho[2][2] = -ortho[2][2];
-    }
+  }
 
   // Check whether matrix is orthogonal
   double r1 = vtkMath::Dot(ortho[0],ortho[1]);
@@ -362,9 +362,9 @@ void vtkTransform::GetOrientation(double orientation[3],
 
   // Orthogonalize the matrix if it isn't already orthogonal
   if ((r1*r1) + (r2*r2) + (r3*r3) > (VTK_ORTHO_EPSILON*VTK_ORTHO_EPSILON))
-    {
+  {
     vtkMath::Orthogonalize3x3(ortho, ortho);
-    }
+  }
 
   // first rotate about y axis
   double x2 = ortho[2][0];
@@ -379,15 +379,15 @@ void vtkTransform::GetOrientation(double orientation[3],
 
   double cosTheta, sinTheta;
   if (d1 < VTK_AXIS_EPSILON)
-    {
+  {
     cosTheta = 1.0;
     sinTheta = 0.0;
-    }
+  }
   else
-    {
+  {
     cosTheta = z2/d1;
     sinTheta = x2/d1;
-    }
+  }
 
   double theta = atan2(sinTheta, cosTheta);
   orientation[1] = - vtkMath::DegreesFromRadians( theta );
@@ -397,20 +397,20 @@ void vtkTransform::GetOrientation(double orientation[3],
 
   double sinPhi, cosPhi;
   if (d < VTK_AXIS_EPSILON)
-    {
+  {
     sinPhi = 0.0;
     cosPhi = 1.0;
-    }
+  }
   else if (d1 < VTK_AXIS_EPSILON)
-    {
+  {
     sinPhi = y2/d;
     cosPhi = z2/d;
-    }
+  }
   else
-    {
+  {
     sinPhi = y2/d;
     cosPhi = (x2*x2 + z2*z2)/(d1*d);
-    }
+  }
 
   double phi = atan2(sinPhi, cosPhi);
   orientation[0] = vtkMath::DegreesFromRadians( phi );
@@ -422,15 +422,15 @@ void vtkTransform::GetOrientation(double orientation[3],
 
   double cosAlpha, sinAlpha;
   if (d2 < VTK_AXIS_EPSILON)
-    {
+  {
     cosAlpha = 1.0;
     sinAlpha = 0.0;
-    }
+  }
   else
-    {
+  {
     cosAlpha = y3p/d2;
     sinAlpha = x3p/d2;
-    }
+  }
 
   double alpha = atan2(sinAlpha, cosAlpha);
   orientation[2] = vtkMath::DegreesFromRadians( alpha );
@@ -457,17 +457,17 @@ void vtkTransform::GetOrientationWXYZ(double wxyz[4])
   double ortho[3][3];
 
   for (i = 0; i < 3; i++)
-    {
+  {
     ortho[0][i] = matrix[0][i];
     ortho[1][i] = matrix[1][i];
     ortho[2][i] = matrix[2][i];
-    }
+  }
   if (vtkMath::Determinant3x3(ortho) < 0)
-    {
+  {
     ortho[0][2] = -ortho[0][2];
     ortho[1][2] = -ortho[1][2];
     ortho[2][2] = -ortho[2][2];
-    }
+  }
 
   vtkMath::Matrix3x3ToQuaternion(ortho, wxyz);
 
@@ -475,19 +475,19 @@ void vtkTransform::GetOrientationWXYZ(double wxyz[4])
  double mag = sqrt( wxyz[1] * wxyz[1] + wxyz[2] * wxyz[2] + wxyz[3] * wxyz[3] );
 
   if ( mag != 0.0 )
-    {
+  {
     wxyz[0] = 2.0 * vtkMath::DegreesFromRadians( atan2( mag, wxyz[0] ) );
     wxyz[1] /= mag;
     wxyz[2] /= mag;
     wxyz[3] /= mag;
-    }
+  }
   else
-    {
+  {
     wxyz[0] = 0.0;
     wxyz[1] = 0.0;
     wxyz[2] = 0.0;
     wxyz[3] = 1.0;
-    }
+  }
 }
 
 
@@ -516,11 +516,11 @@ void vtkTransform::GetScale(double scale[3])
   double U[3][3], VT[3][3];
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     U[0][i] = matrix[0][i];
     U[1][i] = matrix[1][i];
     U[2][i] = matrix[2][i];
-    }
+  }
 
   vtkMath::SingularValueDecomposition3x3(U, U, scale, VT);
 }

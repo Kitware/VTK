@@ -37,17 +37,17 @@ GetIdType(vtkIdType maxPtId, vtkIdType maxCellId, vtkCellArray *ca)
   max = (numEntries > max ? numEntries : max);
 
   if ( max >= VTK_INT_MAX )
-    {
+  {
     return VTK_ID_TYPE;
-    }
+  }
   else if ( max >= VTK_SHORT_MAX )
-    {
+  {
     return VTK_INT;
-    }
+  }
   else
-    {
+  {
     return VTK_SHORT;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

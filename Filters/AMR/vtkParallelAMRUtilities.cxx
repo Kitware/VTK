@@ -41,14 +41,14 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(vtkOverlappingAMR* am
   iter->SkipEmptyNodesOn();
 
   if(!controller || controller->GetNumberOfProcesses()==1)
-    {
+  {
     for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       unsigned int index = iter->GetCurrentFlatIndex();
       processMap[index] = 0;
-      }
-    return;
     }
+    return;
+  }
   vtkAMRInformation* amrInfo = amr->GetAMRInfo();
   int myRank = controller->GetLocalProcessId();
   int numProcs   = controller->GetNumberOfProcesses();
@@ -56,9 +56,9 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(vtkOverlappingAMR* am
   //get the active process ids
   std::vector<int> myBlocks;
   for(iter->GoToFirstItem(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     myBlocks.push_back(iter->GetCurrentFlatIndex());
-    }
+  }
 
   vtkIdType myNumBlocks = myBlocks.size();
   std::vector<vtkIdType> numBlocks(numProcs,0);
@@ -71,41 +71,41 @@ void vtkParallelAMRUtilities::DistributeProcessInformation(vtkOverlappingAMR* am
   std::vector<vtkIdType> offsets(numProcs,0);
   vtkIdType currentOffset(0);
   for(int i=0; i<numProcs;i++)
-    {
+  {
     offsets[i] = currentOffset;
     currentOffset+=numBlocks[i];
-    }
+  }
   cout<<"("<<myRank<<")"<<"total # of active blocks: "<<currentOffset<<" out of total "<<amrInfo->GetTotalNumberOfBlocks()<<endl;
   std::vector<int> allBlocks(currentOffset,-1);
   controller->AllGatherV(&myBlocks[0], &allBlocks[0], (vtkIdType)myBlocks.size(), &numBlocks[0], &offsets[0] );
 
 #ifdef DEBUG
   if(myRank==0)
-    {
+  {
     for(int i=0; i<numProcs; i++)
-      {
+    {
       vtkIdType offset= offsets[i];
       int n = numBlocks[i];
       cout<<"Rank "<<i<<" has: ";
       for(vtkIdType j=offset; j<offset+n; j++)
-        {
+      {
         cout<<allBlocks[j]<<" ";
-        }
-      cout<<endl;
       }
+      cout<<endl;
     }
+  }
 #endif
   for(int rank=0; rank<numProcs; rank++)
-    {
+  {
     int offset= offsets[rank];
     int n = numBlocks[rank];
     for(int j=offset; j<offset+n; j++)
-      {
+    {
       int index = allBlocks[j];
       assert(index>=0);
       processMap[index] =rank;
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -117,9 +117,9 @@ void vtkParallelAMRUtilities::StripGhostLayers(
   vtkAMRUtilities::StripGhostLayers(ghostedAMRData, strippedAMRData);
 
   if( controller != NULL )
-    {
+  {
     controller->Barrier();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -127,19 +127,19 @@ void vtkParallelAMRUtilities::BlankCells(vtkOverlappingAMR* amr,  vtkMultiProces
 {
   vtkAMRInformation* info = amr->GetAMRInfo();
   if(!info->HasRefinementRatio())
-    {
+  {
     info->GenerateRefinementRatio();
-    }
+  }
   if(!info->HasChildrenInformation())
-    {
+  {
     info->GenerateParentChildInformation();
-    }
+  }
 
   std::vector<int> processorMap;
   vtkParallelAMRUtilities::DistributeProcessInformation(amr,myController,processorMap);
   unsigned int numLevels =info->GetNumberOfLevels();
   for(unsigned int i=0; i<numLevels; i++)
-    {
+  {
     vtkAMRUtilities::BlankGridsAtLevel(amr, i, info->GetChildrenAtLevel(i),processorMap);
-    }
+  }
 }

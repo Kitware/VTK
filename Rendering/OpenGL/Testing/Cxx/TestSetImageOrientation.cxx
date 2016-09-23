@@ -72,7 +72,7 @@ int TestSetImageOrientation(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0, 0.0, 0.0);
@@ -100,37 +100,37 @@ int TestSetImageOrientation(int argc, char* argv[])
 
     style->SetCurrentRenderer(renderer);
     if (i == 0)
-      {
+    {
       style->SetImageOrientation(
         style->GetXViewRightVector(),
         style->GetXViewUpVector());
-      }
+    }
     else if (i == 1)
-      {
+    {
       style->SetImageOrientation(
         obliqueViewRightVector,
         obliqueViewUpVector);
-      }
+    }
     else if (i == 2)
-      {
+    {
       style->SetImageOrientation(
         style->GetYViewRightVector(),
         style->GetYViewUpVector());
-      }
+    }
     else // if (i == 3)
-      {
+    {
       style->SetImageOrientation(
         style->GetZViewRightVector(),
         style->GetZViewUpVector());
-      }
     }
+  }
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

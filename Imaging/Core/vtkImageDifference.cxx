@@ -72,7 +72,7 @@ if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
 if (this->Averaging && \
     (idx0 > inMinX + 1) && (idx0 < inMaxX - 1) && \
     (idx1 > inMinY + 1) && (idx1 < inMaxY - 1)) \
-  {\
+{\
     ar1 = static_cast<int>((c1)[0]);            \
     ag1 = static_cast<int>((c1)[1]);            \
     ab1 = static_cast<int>((c1)[2]);                                    \
@@ -111,7 +111,7 @@ if (this->Averaging && \
   g1 = abs(ag1/9 - ag2); \
   b1 = abs(ab1/9 - ab2); \
   if ((r1+g1+b1) < (tr+tg+tb)) { tr = r1; tg = g1; tb = b1; } \
-  }
+}
 
 //----------------------------------------------------------------------------
 // This functor is used with vtkSMPTools to execute the algorithm in pieces
@@ -161,15 +161,15 @@ void vtkImageDifferenceSMPFunctor::Reduce()
        iter = this->Algorithm->SMPThreadData->begin();
        iter != this->Algorithm->SMPThreadData->end();
        ++iter)
-    {
+  {
     errorMessage = iter->ErrorMessage;
     if (errorMessage)
-      {
+    {
       break;
-      }
+    }
     error += iter->Error;
     thresholdedError += iter->ThresholdedError;
-    }
+  }
 
   this->Algorithm->ErrorMessage = errorMessage;
   this->Algorithm->Error = error;
@@ -197,20 +197,20 @@ int vtkImageDifference::RequestUpdateExtent(
 
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
-    {
+  {
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
 
     // we must clip extent with whole extent is we hanlde boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
-      {
+    {
       uExt[idx*2] = wholeExtent[idx*2];
-      }
-    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-      {
-      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-      }
     }
+    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    {
+      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+    }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
 
   // now do the second input
@@ -221,20 +221,20 @@ int vtkImageDifference::RequestUpdateExtent(
 
   // grow input whole extent.
   for (idx = 0; idx < 2; ++idx)
-    {
+  {
     uExt[idx*2] -= 2;
     uExt[idx*2+1] += 2;
 
     // we must clip extent with whole extent is we hanlde boundaries.
     if (uExt[idx*2] < wholeExtent[idx*2])
-      {
+    {
       uExt[idx*2] = wholeExtent[idx*2];
-      }
-    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
-      {
-      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
-      }
     }
+    if (uExt[idx*2 + 1] > wholeExtent[idx*2 + 1])
+    {
+      uExt[idx*2 + 1] = wholeExtent[idx*2 + 1];
+    }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),uExt,6);
 
   return 1;
@@ -269,42 +269,42 @@ void vtkImageDifference::ThreadedRequestData(
   vtkImageDifferenceThreadData *threadData = NULL;
 
   if (this->EnableSMP)
-    {
+  {
     threadData = &this->SMPThreadData->Local();
-    }
+  }
   else
-    {
+  {
     threadData = &this->ThreadData[id];
-    }
+  }
 
   // If an error has occurred, then do not continue.
   if (threadData->ErrorMessage)
-    {
+  {
     return;
-    }
+  }
 
   if (inData[0] == NULL || inData[1] == NULL || outData == NULL)
-    {
+  {
     threadData->ErrorMessage = "Missing data";
     return;
-    }
+  }
 
   if (inData[0][0]->GetNumberOfScalarComponents() != 3 ||
       inData[1][0]->GetNumberOfScalarComponents() != 3 ||
       outData[0]->GetNumberOfScalarComponents() != 3)
-    {
+  {
     threadData->ErrorMessage = "Expecting 3 components (RGB)";
     return;
-    }
+  }
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
       inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR ||
       outData[0]->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     threadData->ErrorMessage = "All ScalarTypes must be unsigned char";
     return;
-    }
+  }
 
   in1Ptr2 = static_cast<unsigned char *>(
     inData[0][0]->GetScalarPointerForExtent(outExt));
@@ -331,25 +331,25 @@ void vtkImageDifference::ThreadedRequestData(
   target++;
 
   for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
+  {
     in1Ptr1 = in1Ptr2;
     in2Ptr1 = in2Ptr2;
     outPtr1 = outPtr2;
     for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           this->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       in1Ptr0 = in1Ptr1;
       in2Ptr0 = in2Ptr1;
       outPtr0 = outPtr1;
       for (idx0 = min0; idx0 <= max0; ++idx0)
-        {
+      {
         tr = 1000;
         tg = 1000;
         tb = 1000;
@@ -362,69 +362,69 @@ void vtkImageDifference::ThreadedRequestData(
         // connected neighbors
         matched = 0;
         if ((tr <= 0)&&(tg <= 0)&&(tb <= 0))
-          {
+        {
           matched = 1;
-          }
+        }
 
         /* If AllowShift, then we examine neighboring pixels to
            find the least difference.  This feature is used to
            allow images to shift slightly between different graphics
            systems, like between opengl and starbase. */
         if (!matched && this->AllowShift)
-          {
+        {
           /* lower row */
           if (idx1 > inMinY)
-            {
+          {
             vtkImageDifferenceComputeError(in1Ptr0-in1Inc1,in2Ptr0);
             if (idx0 > inMinX)
-              {
+            {
               vtkImageDifferenceComputeError(in1Ptr0-in1Inc0-in1Inc1,in2Ptr0);
-              }
+            }
             if (idx0 < inMaxX)
-              {
+            {
               vtkImageDifferenceComputeError(in1Ptr0+in1Inc0-in1Inc1,in2Ptr0);
-              }
-            }
-          /* middle row (center already considered) */
-          if (idx0 > inMinX)
-            {
-            vtkImageDifferenceComputeError(in1Ptr0-in1Inc0,in2Ptr0);
-            }
-          if (idx0 < inMaxX)
-            {
-            vtkImageDifferenceComputeError(in1Ptr0+in1Inc0,in2Ptr0);
-            }
-          /* upper row */
-          if (idx1 < inMaxY)
-            {
-            vtkImageDifferenceComputeError(in1Ptr0+in1Inc1,in2Ptr0);
-            if (idx0 > inMinX)
-              {
-              vtkImageDifferenceComputeError(in1Ptr0-in1Inc0+in1Inc1,in2Ptr0);
-              }
-            if (idx0 < inMaxX)
-              {
-              vtkImageDifferenceComputeError(in1Ptr0+in1Inc0+in1Inc1,in2Ptr0);
-              }
             }
           }
+          /* middle row (center already considered) */
+          if (idx0 > inMinX)
+          {
+            vtkImageDifferenceComputeError(in1Ptr0-in1Inc0,in2Ptr0);
+          }
+          if (idx0 < inMaxX)
+          {
+            vtkImageDifferenceComputeError(in1Ptr0+in1Inc0,in2Ptr0);
+          }
+          /* upper row */
+          if (idx1 < inMaxY)
+          {
+            vtkImageDifferenceComputeError(in1Ptr0+in1Inc1,in2Ptr0);
+            if (idx0 > inMinX)
+            {
+              vtkImageDifferenceComputeError(in1Ptr0-in1Inc0+in1Inc1,in2Ptr0);
+            }
+            if (idx0 < inMaxX)
+            {
+              vtkImageDifferenceComputeError(in1Ptr0+in1Inc0+in1Inc1,in2Ptr0);
+            }
+          }
+        }
 
         error += (tr + tg + tb)/(3.0*255);
         tr -= this->Threshold;
         if (tr < 0)
-          {
+        {
           tr = 0;
-          }
+        }
         tg -= this->Threshold;
         if (tg < 0)
-          {
+        {
           tg = 0;
-          }
+        }
         tb -= this->Threshold;
         if (tb < 0)
-          {
+        {
           tb = 0;
-          }
+        }
         *outPtr0++ = static_cast<unsigned char>(tr);
         *outPtr0++ = static_cast<unsigned char>(tg);
         *outPtr0++ = static_cast<unsigned char>(tb);
@@ -432,15 +432,15 @@ void vtkImageDifference::ThreadedRequestData(
 
         in1Ptr0 += in1Inc0;
         in2Ptr0 += in2Inc0;
-        }
+      }
       outPtr1 += outInc1;
       in1Ptr1 += in1Inc1;
       in2Ptr1 += in2Inc1;
-      }
+    }
     outPtr2 += outInc2;
     in1Ptr2 += in1Inc2;
     in2Ptr2 += in2Inc2;
-    }
+  }
 
   // Add the results to the thread-local total.
   threadData->Error += error;
@@ -457,7 +457,7 @@ int vtkImageDifference::RequestData(
   int r = 1;
 
   if (this->EnableSMP) // For vtkSMPTools implementation.
-    {
+  {
     // Get the input and output data objects
     vtkImageData *inDataPointer[2];
     vtkImageData **inData[2] = { &inDataPointer[0], &inDataPointer[1] };
@@ -481,9 +481,9 @@ int vtkImageDifference::RequestData(
     vtkSMPTools::For(0, pieces, functor);
     this->Debug = debug;
     this->SMPThreadData = NULL;
-    }
+  }
   else
-    {
+  {
     // For vtkMultiThreader implementation.
     int n = this->NumberOfThreads;
     this->ThreadData = new vtkImageDifferenceThreadData[n];
@@ -495,29 +495,29 @@ int vtkImageDifference::RequestData(
     this->Error = 0.0;
     this->ThresholdedError = 0.0;
     for (int i = 0; i < n; i++)
-      {
+    {
       this->Error += this->ThreadData[i].Error;
       this->ThresholdedError += this->ThreadData[i].ThresholdedError;
       this->ErrorMessage = this->ThreadData[i].ErrorMessage;
       if (this->ErrorMessage)
-        {
+      {
         break;
-        }
       }
+    }
 
     delete [] this->ThreadData;
     this->ThreadData = NULL;
-    }
+  }
 
   if (this->ErrorMessage)
-    {
+  {
     // Report errors here, do not report errors while multithreading!
     vtkErrorMacro("RequestData: " << this->ErrorMessage);
     this->ErrorMessage = NULL;
     this->Error = 1000.0;
     this->ThresholdedError = 1000.0;
     r = 0;
-    }
+  }
 
   return r;
 }
@@ -542,7 +542,7 @@ int vtkImageDifference::RequestInformation (
   if (in1Ext[0] != in2Ext[0] || in1Ext[1] != in2Ext[1] ||
       in1Ext[2] != in2Ext[2] || in1Ext[3] != in2Ext[3] ||
       in1Ext[4] != in2Ext[4] || in1Ext[5] != in2Ext[5])
-    {
+  {
     this->Error = 1000.0;
     this->ThresholdedError = 1000.0;
 
@@ -553,24 +553,24 @@ int vtkImageDifference::RequestInformation (
       << " Input2 is: " << in2Ext[0] << "," << in2Ext[1] << ","
                         << in2Ext[2] << "," << in2Ext[3] << ","
                         << in2Ext[4] << "," << in2Ext[5] );
-    }
+  }
 
   // We still need to set the whole extent to be the intersection.
   // Otherwise the execute may crash.
   int ext[6];
   for (i = 0; i < 3; ++i)
-    {
+  {
     ext[i*2] = in1Ext[i*2];
     if (ext[i*2] < in2Ext[i*2])
-      {
+    {
       ext[i*2] = in2Ext[i*2];
-      }
+    }
     ext[i*2+1] = in1Ext[i*2+1];
     if (ext[i*2+1] > in2Ext[i*2+1])
-      {
+    {
       ext[i*2+1] = in2Ext[i*2+1];
-      }
     }
+  }
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
 
   return 1;
@@ -580,9 +580,9 @@ int vtkImageDifference::RequestInformation (
 vtkImageData *vtkImageDifference::GetImage()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
 }

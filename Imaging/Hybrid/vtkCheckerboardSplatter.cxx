@@ -106,12 +106,12 @@ public:
   // distance value (depending on eccentricity). Eccentric splats are available
   // when normals are available, and NormalWarping is enabled.
   double Gaussian (vtkIdType, double x[3], double p[3])
-    {
+  {
       return ((x[0]-p[0])*(x[0]-p[0]) + (x[1]-p[1])*(x[1]-p[1]) +
             (x[2]-p[2])*(x[2]-p[2]) );
-    }
+  }
   double EccentricGaussian (vtkIdType ptId, double x[3], double p[3])
-    {
+  {
       double   v[3], r2, z2, rxy2, mag, n[3];
       this->InNormals->GetTuple(ptId,n);
 
@@ -121,23 +121,23 @@ public:
       r2 = v[0]*v[0] + v[1]*v[1] + v[2]*v[2];
 
       if ( (mag=n[0]*n[0] + n[1]*n[1] + n[2]*n[2]) != 1.0  )
-        {
+      {
         mag = (mag == 0.0 ? 1.0 : sqrt(mag));
-        }
+      }
 
       z2 = (v[0]*n[0] + v[1]*n[1] + v[2]*n[2])/mag;
       z2 = z2*z2;
       rxy2 = r2 - z2;
 
       return (rxy2/this->E2 + z2);
-    }
+  }
 
   // Different ways of affecting scale from scalar value. The scalar value is
   // used when scalars are available and ScalarWarping is enabled.
   double ScalarSampling(vtkIdType ptId)
-    {
+  {
       return this->ScaleFactor * this->InScalars->GetComponent(ptId,0);
-    }
+  }
   double PositionSampling(vtkIdType)
     {return this->ScaleFactor;}
 
@@ -149,12 +149,12 @@ public:
     AssignSquares(vtkCheckerboardSplatterAlgorithm *algo)
       {this->Algo = algo;}
     void  operator()(vtkIdType ptId, vtkIdType end)
-      {
+    {
         vtkIdType addr;
         unsigned char i, j, k, oct;
         TPoints *x;
         for ( ; ptId < end; ++ptId )
-          {
+        {
           // First, map the point prior to sorting
           this->Algo->SPts[ptId].PtId = ptId;
 
@@ -172,8 +172,8 @@ public:
           addr = this->Algo->Offsets[oct] + (i/2) +
             (j/2)*this->Algo->BDims[0] + (k/2)*this->Algo->BSliceSize;
           this->Algo->SPts[ptId].Addr = addr;
-          }//over all points in given range
-      }
+        }//over all points in given range
+    }
   };
 
   // Process all points in given range of checkerboard squares
@@ -184,21 +184,21 @@ public:
     SplatSquares(vtkCheckerboardSplatterAlgorithm *algo)
       {this->Algo = algo;}
     void  operator()(vtkIdType sqNum, vtkIdType end)
-      {
+    {
         vtkIdType npts, pts;
         for ( ; sqNum < end; ++sqNum )
-          {
+        {
           if (this->Algo->CBoard[sqNum].NPts > 0)
-            {
+          {
             npts = this->Algo->CBoard[sqNum].NPts;
             pts = this->Algo->CBoard[sqNum].Pts;
             for (int i=0; i<npts; ++i)
-              {
+            {
               this->Algo->SplatPoint(this->Algo->SPts[pts+i].PtId);
-              }
             }
           }
-      }
+        }
+    }
   };
 
   // Do the actual work of splatting the point
@@ -212,41 +212,41 @@ public:
     Splat(vtkCheckerboardSplatterAlgorithm *algo)
       {this->Algo = algo;}
     void SetSliceBounds(vtkIdType min[3], vtkIdType max[3])
-      {
+    {
         this->XMin = min[0]; this->XMax = max[0];
         this->YMin = min[1]; this->YMax = max[1];
-      }
+    }
     void SetSplatPoint(vtkIdType ptId, TTPoints p[3])
-      {
+    {
         this->PtId = ptId;
         this->PD[0] = static_cast<double>(p[0]);
         this->PD[1] = static_cast<double>(p[1]);
         this->PD[2] = static_cast<double>(p[2]);
-      }
+    }
     void  operator()(vtkIdType slice, vtkIdType end)
-      {
+    {
       vtkIdType i, j, jOffset, kOffset, idx;
       double x[3];
       for ( ; slice < end; ++slice )
-        {
+      {
         // Loop over all sample points in volume within footprint and
         // evaluate the splat
         x[2] = this->Algo->Origin[2] + this->Algo->Spacing[2]*slice;
         kOffset = slice*this->Algo->SliceSize;
         for (j=YMin; j<=YMax; ++j)
-          {
+        {
           x[1] = this->Algo->Origin[1] + this->Algo->Spacing[1]*j;
           jOffset = j*this->Algo->Dims[0];
           for (i=XMin; i<=XMax; ++i)
-            {
+          {
             x[0] = this->Algo->Origin[0] + this->Algo->Spacing[0]*i;
             idx = i + jOffset + kOffset;
             this->Algo->SetScalar(this->PtId, this->PD, x,
                                   this->Algo->Scalars+idx);
-            }//i
-          }//j
-        }//k within splat footprint
-      }
+          }//i
+        }//j
+      }//k within splat footprint
+    }
   };
 
   // Accumlate scalar values as appropriate
@@ -258,23 +258,23 @@ public:
 
     TScalars Tv = static_cast<TScalars>(v);
     switch (this->AccumulationMode)
-      {
+    {
       case VTK_ACCUMULATION_MODE_MIN:
         if ( Tv < *sPtr )
-          {
+        {
           *sPtr = Tv;
-          }
+        }
         break;
       case VTK_ACCUMULATION_MODE_MAX:
         if ( Tv > *sPtr )
-          {
+        {
           *sPtr = Tv;
-          }
+        }
         break;
       case VTK_ACCUMULATION_MODE_SUM:
         *sPtr += Tv;
         break;
-      }
+    }
   }
 
   // Cap the boundary if requested.
@@ -303,20 +303,20 @@ SplatPoint(vtkIdType ptId)
   // Determine the splat footprint
   vtkIdType i;
   for (i=0; i<3; i++)
-    {
+  {
     min[i] = static_cast<vtkIdType>(floor(static_cast<double>(loc[i]) -
                                           this->Footprint));
     max[i] = static_cast<vtkIdType>(ceil(static_cast<double>(loc[i]) +
                                          this->Footprint));
     if ( min[i] < 0 )
-      {
+    {
       min[i] = 0;
-      }
-    if ( max[i] >= this->Dims[i] )
-      {
-      max[i] = this->Dims[i] - 1;
-      }
     }
+    if ( max[i] >= this->Dims[i] )
+    {
+      max[i] = this->Dims[i] - 1;
+    }
+  }
 
   // The parallel splat across the splat footprint. If the footprint is too
   // small then use serial processing to avoid thread inefficiency. Note that
@@ -324,13 +324,13 @@ SplatPoint(vtkIdType ptId)
   // splat footprint and smaller is processed in serial).
   splat.SetSliceBounds(min,max);
   if ( this->Footprint < this->ParallelSplatCrossover )
-    {
+  {
     splat(min[2],max[2]+1);
-    }
+  }
   else
-    {//parallelize splat
+  {//parallelize splat
     vtkSMPTools::For(min[2],max[2]+1, splat);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -344,62 +344,62 @@ Cap(TScalars *s, TScalars capValue)
   // i-j planes
   //k = 0;
   for (j=0; j<this->Dims[1]; j++)
-    {
+  {
     jOffset = j*this->Dims[0];
     for (i=0; i<this->Dims[0]; i++)
-      {
+    {
       s[i+jOffset] = capValue;
-      }
     }
+  }
   kOffset = (this->Dims[2] - 1) * this->SliceSize;
   for (j=0; j<this->Dims[1]; j++)
-    {
+  {
     jOffset = j*this->Dims[0];
     for (i=0; i<this->Dims[0]; i++)
-      {
+    {
       s[i+jOffset+kOffset] = capValue;
-      }
     }
+  }
 
   // j-k planes
   //i = 0;
   for (k=0; k<this->Dims[2]; k++)
-    {
+  {
     kOffset = k*this->SliceSize;
     for (j=0; j<this->Dims[1]; j++)
-      {
+    {
       s[j*this->Dims[0]+kOffset] = capValue;
-      }
     }
+  }
   i = this->Dims[0] - 1;
   for (k=0; k<this->Dims[2]; k++)
-    {
+  {
     kOffset = k*this->SliceSize;
     for (j=0; j<this->Dims[1]; j++)
-      {
+    {
       s[i+j*this->Dims[0]+kOffset] = capValue;
-      }
     }
+  }
 
   // i-k planes
   //j = 0;
   for (k=0; k<this->Dims[2]; k++)
-    {
+  {
     kOffset = k*this->SliceSize;
     for (i=0; i<this->Dims[0]; i++)
-      {
+    {
       s[i+kOffset] = capValue;
-      }
     }
+  }
   jOffset = (this->Dims[1] - 1) * this->Dims[0];
   for (k=0; k<this->Dims[2]; k++)
-    {
+  {
     kOffset = k*this->SliceSize;
     for (i=0; i<this->Dims[0]; i++)
-      {
+    {
       s[i+jOffset+kOffset] = capValue;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -423,21 +423,21 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   algo.Origin = output->GetOrigin();
   algo.Spacing = output->GetSpacing();
   for (i=0; i<3; ++i) //dimensions expressed in voxel cells
-    {
+  {
     algo.Dims[i] = extent[2*i+1] - extent[2*i] + 1;
-    }
+  }
   algo.SliceSize = algo.Dims[0]*algo.Dims[1];
 
   if ( self->GetRadius() <= 0.0 )
-    {
+  {
     algo.R2 = algo.Spacing[0]*algo.Spacing[0] +
       algo.Spacing[1]*algo.Spacing[1] +
       algo.Spacing[2]*algo.Spacing[2];
-    }
+  }
   else
-    {
+  {
     algo.R2 = self->GetRadius()*self->GetRadius();
-    }
+  }
   algo.E2 = self->GetEccentricity()*self->GetEccentricity();
   algo.ScaleFactor = self->GetScaleFactor();
   algo.ExponentFactor = self->GetExponentFactor();
@@ -447,22 +447,22 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
 
   //  Set up function pointers to sample functions
   if ( self->GetNormalWarping() && (algo.InNormals != NULL) )
-    {
+  {
     algo.Sample = &vtkCheckerboardSplatterAlgorithm::EccentricGaussian;
-    }
+  }
   else
-    {
+  {
     algo.Sample = &vtkCheckerboardSplatterAlgorithm::Gaussian;
-    }
+  }
 
   if ( self->GetScalarWarping() && algo.InScalars != NULL )
-    {
+  {
     algo.SampleFactor = &vtkCheckerboardSplatterAlgorithm::ScalarSampling;
-    }
+  }
   else
-    {
+  {
     algo.SampleFactor = &vtkCheckerboardSplatterAlgorithm::PositionSampling;
-    }
+  }
 
   // Okay now setup the checkerboard. It overlays the volume (note that some
   // of the checkerboard squares will be empty, and/or partially cover the
@@ -480,7 +480,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // structure. Ensure that the checkerboard dimensions are evenly divisible
   // by two.
   for (i=0; i<3; ++i)
-    {
+  {
     algo.CBDims[i] = static_cast<vtkIdType>( ceil(
       static_cast<double>(algo.Dims[i]-1) / static_cast<double>(algo.CBWidth) ));
     algo.CBDims[i] = (algo.CBDims[i] > algo.MaxDim ?
@@ -489,7 +489,7 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
     algo.CBOrigin[i] = algo.Origin[i];
     algo.CBSpacing[i] = algo.CBWidth * algo.Spacing[i];
     algo.BDims[i] = algo.CBDims[i] / 2;
-    }
+  }
   algo.BSliceSize = algo.BDims[0] * algo.BDims[1];
 
   // The NSquares is the number of squares of a given color (there are eight
@@ -499,9 +499,9 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // determing addresses and later processing.
   algo.NSquares = algo.BDims[0]*algo.BDims[1]*algo.BDims[2];
   for (i=0; i<9; ++i)
-    {
+  {
     algo.Offsets[i] = i*algo.NSquares;
-    }
+  }
 
   // The checkerboard tracks (npts,pts) for each square, where npts is the
   // number of points in each square, and pts is a location into the sorted
@@ -530,16 +530,16 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   // parallelized but it may not be worth it.
   vtkIdType currentAddr, pStart, pEnd=0;
   while ( pEnd < npts )
-    {
+  {
     currentAddr = algo.SPts[pEnd].Addr;
     pStart = pEnd;
     while ( pEnd < npts && currentAddr == algo.SPts[pEnd].Addr )
-      {
+    {
       pEnd++;
-      }
+    }
     algo.CBoard[currentAddr].NPts = pEnd - pStart;
     algo.CBoard[currentAddr].Pts = pStart;
-    }
+  }
 
   // Finally we can process the 8-way checkerboard, where we process in
   // parallel all squares in a particular color/group. Need to initialize the
@@ -547,15 +547,15 @@ SplatPoints(vtkCheckerboardSplatter *self, vtkIdType npts, TPoints *pts,
   std::fill_n(scalars, algo.Dims[0]*algo.Dims[1]*algo.Dims[2], algo.InitialValue);
   SplatSquares<TPoints> splatSquares(&algo);
   for (i=0; i < 8; ++i) //loop over all eight checkerboard colors
-    {
+  {
     vtkSMPTools::For(algo.Offsets[i], algo.Offsets[i+1], splatSquares);
-    }
+  }
 
   // Cap the boundary if requested
   if ( self->GetCapping() )
-    {
+  {
     algo.Cap(algo.Scalars,static_cast<TScalars>(self->GetCapValue()));
-    }
+  }
 
   // Free up memory
   delete [] algo.CBoard;
@@ -632,24 +632,24 @@ int vtkCheckerboardSplatter::RequestInformation (
   if ( this->ModelBounds[0] < this->ModelBounds[1] &&
        this->ModelBounds[2] < this->ModelBounds[3] &&
        this->ModelBounds[4] < this->ModelBounds[5] )
-    {
+  {
     this->Origin[0] = this->ModelBounds[0];
     this->Origin[1] = this->ModelBounds[2];
     this->Origin[2] = this->ModelBounds[4];
-    }
+  }
 
   outInfo->Set(vtkDataObject::ORIGIN(), this->Origin, 3);
 
   int i;
   for (i=0; i<3; i++)
-    {
+  {
     this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     if ( this->Spacing[i] <= 0.0 )
-      {
+    {
       this->Spacing[i] = 1.0;
-      }
     }
+  }
   outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
@@ -690,15 +690,15 @@ int vtkCheckerboardSplatter::RequestData(
   //  Make sure points are available
   vtkIdType npts = input->GetNumberOfPoints();
   if ( npts == 0 )
-    {
+  {
     vtkDebugMacro(<<"No points to splat!");
     vtkWarningMacro(<<"No POINTS to splat!!");
     return 1;
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro(<< "Splatting data, total of: " << npts << " points.");
-    }
+  }
 
   // Grab relevant attribute data
   vtkDataArray *inScalars = this->GetInputArrayToProcess(0, inputVector);
@@ -712,9 +712,9 @@ int vtkCheckerboardSplatter::RequestData(
   void *scalarPtr = output->GetArrayPointerForExtent(outScalars, extent);
 
   if ( this->OutputScalarType == VTK_FLOAT )
-    {
+  {
     switch (points->GetDataType())
-      {
+    {
       case VTK_DOUBLE:
         vtkCheckerboardSplatterAlgorithm<double,float>::
           SplatPoints(this, npts, static_cast<double*>(ptsPtr), inScalars, inNormals,
@@ -727,12 +727,12 @@ int vtkCheckerboardSplatter::RequestData(
         break;
       default:
         vtkWarningMacro(<<"Undefined input point type");
-      }
     }
+  }
   else if ( this->OutputScalarType == VTK_DOUBLE )
-    {
+  {
     switch (points->GetDataType())
-      {
+    {
       case VTK_DOUBLE:
         vtkCheckerboardSplatterAlgorithm<double,double>::
           SplatPoints(this, npts, static_cast<double*>(ptsPtr), inScalars, inNormals,
@@ -745,12 +745,12 @@ int vtkCheckerboardSplatter::RequestData(
         break;
       default:
         vtkWarningMacro(<<"Undefined input point type");
-      }
     }
+  }
   else //warning output type not supported
-    {
+  {
     vtkWarningMacro(<<"Only FLOAT or DOUBLE output scalar type is supported");
-    }
+  }
 
   return 1;
 }
@@ -769,24 +769,24 @@ void vtkCheckerboardSplatter::ComputeModelBounds(vtkDataSet *input,
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
-    {
+  {
     adjustBounds = 1;
     bounds = input->GetBounds();
-    }
+  }
   else
-    {
+  {
     bounds = this->ModelBounds;
-    }
+  }
 
   // Adjust bounds so model fits strictly inside (only if not set previously)
   if ( adjustBounds )
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       this->ModelBounds[2*i] = bounds[2*i];
       this->ModelBounds[2*i+1] = bounds[2*i+1];
-      }
     }
+  }
 
   // Set volume origin and data spacing
   outInfo->Set(vtkDataObject::ORIGIN(),
@@ -796,14 +796,14 @@ void vtkCheckerboardSplatter::ComputeModelBounds(vtkDataSet *input,
   output->SetOrigin(this->Origin);
 
   for (i=0; i<3; i++)
-    {
+  {
     this->Spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
       / (this->SampleDimensions[i] - 1);
     if ( this->Spacing[i] <= 0.0 )
-      {
+    {
       this->Spacing[i] = 1.0;
-      }
     }
+  }
   outInfo->Set(vtkDataObject::SPACING(),this->Spacing,3);
   output->SetSpacing(this->Spacing);
 }
@@ -832,51 +832,51 @@ void vtkCheckerboardSplatter::SetSampleDimensions(int dim[3])
   if (dim[0] != this->SampleDimensions[0] ||
       dim[1] != this->SampleDimensions[1] ||
       dim[2] != this->SampleDimensions[2] )
-    {
+  {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
-      {
+    {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
-      }
+    }
 
     for (dataDim=0, i=0; i<3 ; i++)
-      {
+    {
       if (dim[i] > 1)
-        {
+      {
         dataDim++;
-        }
       }
+    }
 
     if ( dataDim  < 3 )
-      {
+    {
       vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
-      }
+    }
 
     for ( i=0; i<3; i++)
-      {
+    {
       this->SampleDimensions[i] = dim[i];
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 const char *vtkCheckerboardSplatter::GetAccumulationModeAsString()
 {
   if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_MIN )
-    {
+  {
     return "Minimum";
-    }
+  }
   else if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_MAX )
-    {
+  {
     return "Maximum";
-    }
+  }
   else //if ( this->AccumulationMode == VTK_ACCUMULATION_MODE_SUM )
-    {
+  {
     return "Sum";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

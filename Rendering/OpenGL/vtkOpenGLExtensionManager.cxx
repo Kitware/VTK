@@ -67,13 +67,13 @@ bool FindToken(const string &str, string token)
   string tmp;
   istringstream iss(str);
   while (iss.good())
-    {
+  {
     iss >> tmp;
     if (tmp==token)
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 // convert a string in the forms of "#.#.#","#.#", or "#" to
@@ -86,17 +86,17 @@ int StringToVersion(string ver, int &major, int &minor, int &patch)
   minor=0;
   patch=0;
   if (!(iss >> major))
-    {
+  {
     return 0;
-    }
+  }
   if (!((iss >> dot) && (iss >> minor)))
-    {
+  {
     return 1;
-    }
+  }
   if (!((iss >> dot) && (iss >> patch)))
-    {
+  {
     return 2;
-    }
+  }
   return 3;
 }
 }
@@ -173,15 +173,15 @@ vtkRenderWindow* vtkOpenGLExtensionManager::GetRenderWindow()
 void vtkOpenGLExtensionManager::SetRenderWindow(vtkRenderWindow *renwin)
 {
   if (renwin == this->RenderWindow)
-    {
+  {
     return;
-    }
+  }
 
   if (this->OwnRenderWindow && this->RenderWindow)
-    {
+  {
     this->RenderWindow->UnRegister(this);
     this->RenderWindow = 0;
-    }
+  }
 
   vtkDebugMacro("Setting RenderWindow to " << renwin);
   this->OwnRenderWindow = 0;
@@ -283,7 +283,7 @@ void vtkOpenGLExtensionManager::InitializeDriverInformation()
   // for use in fine-grained feature
   // validation see examples below.
   if (this->RenderWindow)
-    {
+  {
     this->DriverGLVendor = safes(glGetString(GL_VENDOR));
     this->DriverGLVersion = safes(glGetString(GL_VERSION));
     this->DriverGLRenderer = safes(glGetString(GL_RENDERER));
@@ -293,11 +293,11 @@ void vtkOpenGLExtensionManager::InitializeDriverInformation()
     size_t glVerStart = this->DriverGLVersion.find_first_of(numbers);
     size_t glVerEnd = this->DriverGLVersion.find_first_not_of(numbers, glVerStart);
     if (glVerEnd==string::npos)
-      {
+    {
       glVerEnd = this->DriverGLVersion.size();
-      }
+    }
     if (glVerStart!=string::npos)
-      {
+    {
       // driver gl version found
       StringToVersion(
             this->DriverGLVersion.substr(glVerStart,glVerEnd-glVerStart),
@@ -309,49 +309,49 @@ void vtkOpenGLExtensionManager::InitializeDriverInformation()
       size_t driverVerStart = this->DriverGLVersion.find_first_of(numbers, glVerEnd+1);
       size_t driverVerEnd = this->DriverGLVersion.find_first_not_of(numbers, driverVerStart);
       if (driverVerEnd==string::npos)
-        {
+      {
         driverVerEnd = this->DriverGLVersion.size();
-        }
+      }
       if (driverVerStart!=string::npos)
-        {
+      {
         // driver version found
         StringToVersion(
               this->DriverGLVersion.substr(driverVerStart,driverVerEnd-driverVerStart),
               this->DriverVersionMajor,
               this->DriverVersionMinor,
               this->DriverVersionPatch);
-        }
       }
+    }
 
     // attempt to identify driver vendor
     if ( FindToken(this->DriverGLVendor, "ATI")
       || FindToken(this->DriverGLVendor, "AMD") )
-      {
+    {
       this->DriverGLVendorId = DRIVER_VENDOR_ATI;
-      }
+    }
     else if (FindToken(this->DriverGLVendor, "NVIDIA"))
-      {
+    {
       this->DriverGLVendorId = DRIVER_VENDOR_NVIDIA;
-      }
+    }
     else if (FindToken(this->DriverGLVendor, "Intel"))
-      {
+    {
       this->DriverGLVendorId = DRIVER_VENDOR_INTEL;
-      }
+    }
     // Mesa's use of the vendor field is all over the map
     // but they consistently use version field.
     else if (FindToken(this->DriverGLVersion, "Mesa"))
-      {
+    {
       this->DriverGLVendorId = DRIVER_VENDOR_MESA;
-      }
-    else if (FindToken(this->DriverGLVendor, "Microsoft"))
-      {
-      this->DriverGLVendorId = DRIVER_VENDOR_MICROSOFT;
-      }
-    else
-      {
-      this->DriverGLVendorId = DRIVER_VENDOR_UNKNOWN;
-      }
     }
+    else if (FindToken(this->DriverGLVendor, "Microsoft"))
+    {
+      this->DriverGLVendorId = DRIVER_VENDOR_MICROSOFT;
+    }
+    else
+    {
+      this->DriverGLVendorId = DRIVER_VENDOR_UNKNOWN;
+    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -486,11 +486,11 @@ bool vtkOpenGLExtensionManager::DriverGLRendererIsOSMesa()
 bool vtkOpenGLExtensionManager::GetIgnoreDriverBugs(const char *description)
 {
   if (this->IgnoreDriverBugs)
-    {
+  {
     vtkWarningMacro(
       << "Ignoring OpenGL driver bug: " << description);
     return true;
-    }
+  }
   return false;
 }
 
@@ -498,9 +498,9 @@ bool vtkOpenGLExtensionManager::GetIgnoreDriverBugs(const char *description)
 void vtkOpenGLExtensionManager::Update()
 {
   if (this->BuildTime > this->MTime)
-    {
+  {
     return;
-    }
+  }
 
   vtkDebugMacro("Update");
 
@@ -523,28 +523,28 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   int result = 0;
 
   while (true)
-    {
+  {
     size_t n;
     while (*p == ' ') p++;
     if (*p == '\0')
-      {
+    {
       result = 0;
       break;
-      }
+    }
     n = strcspn(p, " ");
     if ((NameLen == n) && (strncmp(name, p, n) == 0))
-      {
+    {
       result = 1;
       break;
-      }
-    p += n;
     }
+    p += n;
+  }
 
   if (result == 0)
-    {
+  {
     // the requested feature is not supported
     return 0;
-    }
+  }
 
   // Workaround for a nVidia bug in indirect/remote rendering mode (ssh -X)
   // The version returns is not the one actually supported.
@@ -555,14 +555,14 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // See ParaView bug
   if ( (strncmp(name,"GL_VERSION_",11) == 0)
      && !this->RenderWindow->IsDirect() && !this->DriverGLRendererIsOSMesa() )
-    {
+  {
     // whatever is the OpenGL version, return false.
     // (nobody asks for GL_VERSION_1_1)
     return 0;
-    }
+  }
 
   if (strcmp(name, "GL_VERSION_1_4") == 0)
-    {
+  {
     // Workaround for a bug on renderer string="Quadro4 900 XGL/AGP/SSE2"
     // version string="1.5.8 NVIDIA 96.43.01" or "1.5.6 NVIDIA 87.56"
     // The driver reports it supports 1.5 but the 1.4 core promoted extension
@@ -573,10 +573,10 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     // with "GL_VERSION_1_5".
     if ( result && (this->DriverGLRendererHasToken("Quadro4")
       || this->DriverGLRendererHasToken("GeForce4")) )
-      {
+    {
       return 0;
-      }
     }
+  }
 
   // Workaround for a bug on renderer string="ATI Radeon X1600 OpenGL Engine"
   // version string="2.0 ATI-1.4.58" vendor string="ATI Technologies Inc."
@@ -597,9 +597,9 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
     && this->DriverGLRendererIs("ATI Radeon X1600 OpenGL Engine")
     && ((strcmp(name,"GL_VERSION_2_0") == 0)
     || (strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)))
-    {
+  {
     return 0;
-    }
+  }
 
   // Workaround for a bug in Mesa 7.7 with separate specular color. The
   // GL_EXT_separate_specular_color extension does not work properly with
@@ -608,16 +608,16 @@ int vtkOpenGLExtensionManager::ExtensionSupported(const char *name)
   // is less than 7.10 we report that the platform does not support it.
   if ( (strcmp(name,"GL_EXT_separate_specular_color") == 0)
      && this->DriverIsMesa() && !this->DriverVersionAtLeast(7,10) )
-    {
+  {
     return 0;
-    }
+  }
 
   // Workaround for a bug in OS Mesa's pre 8.0 FBO implementation.
   if ( (strcmp(name,"GL_EXT_framebuffer_object")==0)
     && this->DriverGLRendererIsOSMesa() && !this->DriverVersionAtLeast(8) )
-    {
+  {
     return 0;
-    }
+  }
 
   // feature is suppported
   return 1;
@@ -636,20 +636,20 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 
   void* globalsymbolobject = dlopen(NULL, RTLD_GLOBAL);
   if (globalsymbolobject)
-    {
+  {
     void* dlsymbol = dlsym(globalsymbolobject, fname);
     dlclose(globalsymbolobject);
     if (!dlsymbol)
-      {
-      vtkDebugMacro("Could not load " << fname);
-      }
-    return (vtkOpenGLExtensionManagerFunctionPointer)(dlsymbol);
-    }
-  else
     {
+      vtkDebugMacro("Could not load " << fname);
+    }
+    return (vtkOpenGLExtensionManagerFunctionPointer)(dlsymbol);
+  }
+  else
+  {
     vtkDebugMacro("Could not load " << fname);
     return NULL;
-    }
+  }
 #endif //VTK_USE_APPLE_LOADER
 
 #ifdef VTK_USE_OSMESA_GET_PROC_ADDRESS
@@ -677,7 +677,7 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
   static std::list<std::string> ogl_libraries;
 
   if (ogl_libraries.empty())
-    {
+  {
     const char *ext = vtkDynamicLoader::LibExtension();
     std::string::size_type ext_size = strlen(ext);
     // Must be the first function we tried to load.  Fill this list with
@@ -685,12 +685,12 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
     std::string l(OPENGL_LIBRARIES);
     std::string::size_type filename_start = 0;
     while (1)
-      {
+    {
       std::string::size_type filename_end = l.find(';', filename_start);
       if (filename_end == std::string::npos)
-        {
+      {
         break;
-        }
+      }
       std::string possible_file = l.substr(filename_start,
                                               filename_end-filename_start);
       // Make sure this is actually a library.  Do this by making sure it
@@ -698,23 +698,23 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
       // it1 should do.
       if ((possible_file.length() > ext_size)
           && (possible_file.substr(possible_file.length()-ext_size) == ext))
-        {
+      {
         ogl_libraries.push_back(possible_file);
-        }
+      }
 
       filename_start = filename_end + 1;
-      }
     }
+  }
 
   // Look for the function in each library.
   for (std::list<std::string>::iterator i = ogl_libraries.begin();
        i != ogl_libraries.end(); i++)
-    {
+  {
     vtkLibHandle lh = vtkDynamicLoader::OpenLibrary((*i).c_str());
     void *f = vtkDynamicLoader::GetSymbolAddress(lh, fname);
     vtkDynamicLoader::CloseLibrary(lh);
     if (f) return (vtkOpenGLExtensionManagerFunctionPointer)f;
-    }
+  }
 
   // Could not find the function.
   return NULL;
@@ -733,17 +733,17 @@ vtkOpenGLExtensionManager::GetProcAddress(const char *fname)
 void vtkOpenGLExtensionManager::LoadExtension(const char *name)
 {
   if (!this->ExtensionSupported(name))
-    {
+  {
     vtkWarningMacro("Attempting to load " << name
                     << ", which is not supported.");
-    }
+  }
 
   int success = this->SafeLoadExtension(name);
 
   if (!success)
-    {
+  {
     vtkErrorMacro("Extension " << name << " could not be loaded.");
-    }
+  }
 }
 
 int vtkOpenGLExtensionManager::LoadSupportedExtension(const char *name)
@@ -764,31 +764,31 @@ int vtkOpenGLExtensionManager::LoadSupportedExtension(const char *name)
 void vtkOpenGLExtensionManager::LoadCorePromotedExtension(const char *name)
 {
   if (!this->ExtensionSupported(name))
-    {
+  {
     vtkWarningMacro("Attempting to load " << name
                     << ", which is not supported.");
-    }
+  }
   int success = vtkgl::LoadCorePromotedExtension(name, this);
 
   if (!success)
-    {
+  {
     vtkErrorMacro("Extension " << name << " could not be loaded.");
-    }
+  }
 }
 
 void vtkOpenGLExtensionManager::LoadAsARBExtension(const char *name)
 {
   if (!this->ExtensionSupported(name))
-    {
+  {
     vtkWarningMacro("Attempting to load " << name
                     << ", which is not supported.");
-    }
+  }
   int success = vtkgl::LoadAsARBExtension(name, this);
 
   if (!success)
-    {
+  {
     vtkErrorMacro("Extension " << name << " could not be loaded.");
-    }
+  }
 }
 
 void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
@@ -804,25 +804,25 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 #else //!VTK_NO_EXTENSION_LOADING
 
   if (this->RenderWindow)
-    {
+  {
     if (!this->RenderWindow->IsA("vtkOpenGLRenderWindow"))
-      {
+    {
       // If the render window is not OpenGL, then it obviously has no
       // extensions.
       delete [] this->ExtensionsString;
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
-      }
+    }
     this->RenderWindow->MakeCurrent();
     if (!this->RenderWindow->IsCurrent())
-      {
+    {
       // Really should create a method in the render window to create
       // the graphics context instead of forcing a full render.
       this->RenderWindow->Render();
-      }
+    }
     if (!this->RenderWindow->IsCurrent())
-      {
+    {
       // this case happens with a headless Mac: a mac with a graphics card
       // with no monitor attached to it, connected to it with "Screen Sharing"
       // (VNC-like feature added in Mac OS 10.5)
@@ -831,8 +831,8 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       this->ExtensionsString = new char[1];
       this->ExtensionsString[0] = '\0';
       return;
-      }
     }
+  }
 
   const char *gl_extensions;
   const char *glu_extensions = "";
@@ -841,12 +841,12 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   gl_extensions = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 
   if (gl_extensions == NULL)
-    {
+  {
     gl_extensions = "";
-    }
+  }
 
   if (!this->RenderWindow && (gl_extensions[0] == '\0'))
-    {
+  {
     vtkDebugMacro("No window active?  Attaching default render window.");
     vtkRenderWindow *renwin = vtkRenderWindow::New();
     renwin->SetSize(1, 1);
@@ -856,7 +856,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     renwin->Delete();
     this->ReadOpenGLExtensions();
     return;
-    }
+  }
 
   std::string extensions_string = gl_extensions;
 
@@ -865,23 +865,23 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     reinterpret_cast<const char *>(gluGetString(GLU_EXTENSIONS));
 #endif
   if (glu_extensions)
-    {
+  {
     extensions_string += " ";
     extensions_string += glu_extensions;
-    }
+  }
 
 #if defined(_WIN32)
   // Don't use this->LoadExtension or we will go into an infinite loop.
   vtkgl::LoadExtension("WGL_ARB_extensions_string", this);
   if (vtkwgl::GetExtensionsStringARB)
-    {
+  {
     win_extensions = vtkwgl::GetExtensionsStringARB(wglGetCurrentDC());
-    }
+  }
   else
-    {
+  {
     //vtkWarningMacro("Could not query WGL extensions.");
     win_extensions = "";
-    }
+  }
 #elif defined(__APPLE__)
 //   vtkWarningMacro("Does APPLE have a windows extension string?");
   win_extensions = "";
@@ -891,10 +891,10 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 #endif
 
   if (win_extensions && win_extensions[0] != '\0')
-    {
+  {
     extensions_string += " ";
     extensions_string += win_extensions;
-    }
+  }
 
   // We build special extension identifiers for OpenGL versions.  Check to
   // see which are supported.
@@ -910,7 +910,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
   version_extensions = vtkgl::GLVersionExtensionsString();
   endpos = 0;
   while (endpos != std::string::npos)
-    {
+  {
     beginpos = version_extensions.find_first_not_of(' ', endpos);
     if (beginpos == std::string::npos) break;
     endpos = version_extensions.find_first_of(' ', beginpos);
@@ -920,44 +920,44 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
     sscanf(ve.c_str(), "GL_VERSION_%d_%d", &tryMajor, &tryMinor);
     if (   (driverMajor > tryMajor)
         || ((driverMajor == tryMajor) && (driverMinor >= tryMinor)) )
-      {
+    {
       // OpenGL version supported.
       extensions_string += " ";
       extensions_string += ve;
-      }
     }
+  }
 
 #ifdef VTK_USE_X
   Display *display = NULL;
   int closeDisplay = 0;
   if (this->RenderWindow)
-    {
+  {
     // Try getting the display of the window we are doing the queries on.
     display =
       static_cast<Display *>(this->RenderWindow->GetGenericDisplayId());
-    }
+  }
   if (!display)
-    {
+  {
     // Try opening my own display.
     display = XOpenDisplay(NULL);
     closeDisplay = 1;
-    }
+  }
 
   if (!display)
-    {
+  {
     // If we could not find a display, silently fail to query the glX
     // extensions.  It could be that there is no glX (for example if using Mesa
     // offscreen).
     vtkDebugMacro(<< "Could not get a Display to query GLX extensions.");
-    }
+  }
   else
-    {
+  {
     glXQueryExtension(display, &driverMajor, &driverMinor);
 
     version_extensions = vtkgl::GLXVersionExtensionsString();
     endpos = 0;
     while (endpos != std::string::npos)
-      {
+    {
       beginpos = version_extensions.find_first_not_of(' ', endpos);
       if (beginpos == std::string::npos) break;
       endpos = version_extensions.find_first_of(' ', beginpos);
@@ -967,17 +967,17 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
       sscanf(ve.c_str(), "GLX_VERSION_%d_%d", &tryMajor, &tryMinor);
       if (   (driverMajor > tryMajor)
           || ((driverMajor == tryMajor) && (driverMinor >= tryMinor)) )
-        {
+      {
         extensions_string += " ";
         extensions_string += ve;
-        }
-      }
-
-    if (closeDisplay)
-      {
-      XCloseDisplay(display);
       }
     }
+
+    if (closeDisplay)
+    {
+      XCloseDisplay(display);
+    }
+  }
 #endif //VTK_USE_X
 
   // Store extensions string.
@@ -997,7 +997,7 @@ void vtkOpenGLExtensionManager::ReadOpenGLExtensions()
 int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
 {
   if (strcmp(name, "GL_VERSION_1_2") == 0)
-    {
+  {
     vtkgl::DrawRangeElements = reinterpret_cast<vtkgl::PFNGLDRAWRANGEELEMENTSPROC>(this->GetProcAddress("glDrawRangeElements"));
     vtkgl::TexImage3D = reinterpret_cast<vtkgl::PFNGLTEXIMAGE3DPROC>(this->GetProcAddress("glTexImage3D"));
     vtkgl::TexSubImage3D = reinterpret_cast<vtkgl::PFNGLTEXSUBIMAGE3DPROC>(this->GetProcAddress("glTexSubImage3D"));
@@ -1008,9 +1008,9 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     success = success && vtkgl::LoadExtension("GL_VERSION_1_2_DEPRECATED", this);
 
     return success && (vtkgl::DrawRangeElements != NULL) && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL) && (vtkgl::CopyTexSubImage3D != NULL);
-    }
+  }
   if (strcmp(name, "GL_ARB_imaging") == 0)
-    {
+  {
     vtkgl::BlendColor = reinterpret_cast<vtkgl::PFNGLBLENDCOLORPROC>(this->GetProcAddress("glBlendColor"));
     vtkgl::BlendEquation = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONPROC>(this->GetProcAddress("glBlendEquation"));
     vtkgl::ColorTable = reinterpret_cast<vtkgl::PFNGLCOLORTABLEPROC>(this->GetProcAddress("glColorTable"));
@@ -1046,23 +1046,23 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     vtkgl::ResetHistogram = reinterpret_cast<vtkgl::PFNGLRESETHISTOGRAMPROC>(this->GetProcAddress("glResetHistogram"));
     vtkgl::ResetMinmax = reinterpret_cast<vtkgl::PFNGLRESETMINMAXPROC>(this->GetProcAddress("glResetMinmax"));
     return (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL) && (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL) && (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL) && (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL) && (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_VERSION_1_3") == 0)
-    {
+  {
     int success = vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_1_3_DEPRECATED", this);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_fragment_program") == 0)
-    {
+  {
     // fragment_program is loaded as part of vertex_program
     int success = vtkgl::LoadExtension("GL_ARB_vertex_program", this);
     return success && vtkgl::LoadExtension(name, this);
-    }
+  }
 
   if (strcmp(name, "GL_VERSION_1_4") == 0)
-    {
+  {
     // rely on the generated function for most of the OpenGL 1.4 functions.
     int success = vtkgl::LoadExtension(name, this);
     success = success && vtkgl::LoadExtension("GL_VERSION_1_4_DEPRECATED", this);
@@ -1074,33 +1074,33 @@ int vtkOpenGLExtensionManager::SafeLoadExtension(const char *name)
     vtkgl::BlendColor = reinterpret_cast<vtkgl::PFNGLBLENDCOLORPROC>(this->GetProcAddress("glBlendColor"));
     vtkgl::BlendEquation = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONPROC>(this->GetProcAddress("glBlendEquation"));
     return success && (vtkgl::BlendColor != NULL) && (vtkgl::BlendEquation != NULL);
-    }
+  }
   if (strcmp(name, "GL_VERSION_1_5") == 0)
-    {
+  {
     int success = vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_1_5_DEPRECATED", this);
-    }
+  }
   if (strcmp(name, "GL_VERSION_2_0") == 0)
-    {
+  {
     int success = vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_2_0_DEPRECATED", this);
-    }
+  }
   if (strcmp(name, "GL_VERSION_2_1") == 0)
-    {
+  {
     int success = vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_2_1_DEPRECATED", this);
-    }
+  }
   if (strcmp(name, "GL_VERSION_3_0") == 0)
-    {
+  {
     int success = vtkgl::LoadExtension(name, this);
     return success && vtkgl::LoadExtension("GL_VERSION_3_0_DEPRECATED", this);
-    }
+  }
    if (strcmp(name, "GL_ARB_framebuffer_object") == 0)
-    {
+   {
     int success = vtkgl::LoadExtension(name, this);
     return success &&
       vtkgl::LoadExtension("GL_ARB_framebuffer_object_DEPRECATED", this);
-    }
+   }
 
   // For all other cases, rely on the generated function.
   int result = vtkgl::LoadExtension(name, this);
@@ -1164,12 +1164,12 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
   // Just silently returns 1.
 
   if (strcmp(name, "GL_EXT_subtexture") == 0)
-    {
+  {
     // GL_EXT_subtexture defines glTexSubImage1D and glTexSubImage2D()
     return 1;
-    }
+  }
   if (strcmp(name, "GL_EXT_copy_texture") == 0)
-    {
+  {
     // GL_EXT_copy_texture defines glCopyTexImage1D(), glCopyTexImage2D(),
     // glCopyTexSubImage1D()
     // and glCopyTexSubImage2D().
@@ -1177,46 +1177,46 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     // it also defines vtkgl::CopyTexSubImage3D but we postpone that
     // in the GL_EXT_texture3D section.
     return 1;
-    }
+  }
 
   // OpenGL 1.2
   if (strcmp(name, "GL_EXT_texture3D") == 0)
-    {
+  {
     vtkgl::TexImage3D = reinterpret_cast<vtkgl::PFNGLTEXIMAGE3DPROC>(manager->GetProcAddress("glTexImage3DEXT"));
     vtkgl::TexSubImage3D = reinterpret_cast<vtkgl::PFNGLTEXSUBIMAGE3DPROC>(manager->GetProcAddress("glTexSubImage3DEXT"));
     vtkgl::CopyTexSubImage3D = reinterpret_cast<vtkgl::PFNGLCOPYTEXSUBIMAGE3DPROC>(manager->GetProcAddress("glCopyTexSubImage3DEXT"));
     return 1 && (vtkgl::TexImage3D != NULL) && (vtkgl::TexSubImage3D != NULL)
       && (vtkgl::CopyTexSubImage3D != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_bgra") == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (strcmp(name, "GL_EXT_packed_pixels") == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (strcmp(name, "GL_EXT_rescale_normal") == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (strcmp(name, "GL_EXT_separate_specular_color") == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (strcmp(name, "GL_SGIS_texture_edge_clamp") == 0)
-    {
+  {
     return 1;
-    }
+  }
   if (strcmp(name, "GL_EXT_draw_range_elements") == 0)
-    {
+  {
     vtkgl::DrawRangeElements = reinterpret_cast<vtkgl::PFNGLDRAWRANGEELEMENTSPROC>(manager->GetProcAddress("glDrawRangeElementsEXT"));
     return 1 && (vtkgl::DrawRangeElements != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_SGI_color_table") == 0)
-    {
+  {
     // OpenGL Spec talks about GL_EXT_color_table but reality is
     // GL_SGI_color_table is used. Also GL_EXT_color_table is not listed
     // on the registry website.
@@ -1228,17 +1228,17 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetColorTableParameterfv = reinterpret_cast<vtkgl::PFNGLGETCOLORTABLEPARAMETERFVSGIPROC>(manager->GetProcAddress("glGetColorTableParameterfvSGI"));
     vtkgl::GetColorTableParameteriv = reinterpret_cast<vtkgl::PFNGLGETCOLORTABLEPARAMETERIVSGIPROC>(manager->GetProcAddress("glGetColorTableParameterivSGI"));
     return 1 && (vtkgl::ColorTable != NULL) && (vtkgl::ColorTableParameterfv != NULL) && (vtkgl::ColorTableParameteriv != NULL) && (vtkgl::CopyColorTable != NULL) && (vtkgl::GetColorTable != NULL) && (vtkgl::GetColorTableParameterfv != NULL) && (vtkgl::GetColorTableParameteriv != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_color_subtable") == 0)
-    {
+  {
     vtkgl::ColorSubTable = reinterpret_cast<vtkgl::PFNGLCOLORSUBTABLEPROC>(manager->GetProcAddress("glColorSubTableEXT"));
     vtkgl::CopyColorSubTable = reinterpret_cast<vtkgl::PFNGLCOPYCOLORSUBTABLEPROC>(manager->GetProcAddress("glCopyColorSubTableEXT"));
     return 1 && (vtkgl::ColorSubTable != NULL) && (vtkgl::CopyColorSubTable != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_convolution") == 0)
-    {
+  {
     vtkgl::ConvolutionFilter1D = reinterpret_cast<vtkgl::PFNGLCONVOLUTIONFILTER1DPROC>(manager->GetProcAddress("glConvolutionFilter1DEXT"));
     vtkgl::ConvolutionFilter2D = reinterpret_cast<vtkgl::PFNGLCONVOLUTIONFILTER2DPROC>(manager->GetProcAddress("glConvolutionFilter2DEXT"));
     vtkgl::ConvolutionParameterf = reinterpret_cast<vtkgl::PFNGLCONVOLUTIONPARAMETERFPROC>(manager->GetProcAddress("glConvolutionParameterfEXT"));
@@ -1253,20 +1253,20 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetSeparableFilter = reinterpret_cast<vtkgl::PFNGLGETSEPARABLEFILTERPROC>(manager->GetProcAddress("glGetSeparableFilterEXT"));
     vtkgl::SeparableFilter2D = reinterpret_cast<vtkgl::PFNGLSEPARABLEFILTER2DPROC>(manager->GetProcAddress("glSeparableFilter2DEXT"));
     return 1 && (vtkgl::ConvolutionFilter1D != NULL) && (vtkgl::ConvolutionFilter2D != NULL) && (vtkgl::ConvolutionParameterf != NULL) && (vtkgl::ConvolutionParameterfv != NULL) && (vtkgl::ConvolutionParameteri != NULL) && (vtkgl::ConvolutionParameteriv != NULL) && (vtkgl::CopyConvolutionFilter1D != NULL) && (vtkgl::CopyConvolutionFilter2D != NULL) && (vtkgl::GetConvolutionFilter != NULL) && (vtkgl::GetConvolutionParameterfv != NULL) && (vtkgl::GetConvolutionParameteriv != NULL) && (vtkgl::GetSeparableFilter != NULL) && (vtkgl::SeparableFilter2D != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_HP_convolution_border_modes") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_SGI_color_matrix") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_EXT_histogram") == 0)
-    {
+  {
     vtkgl::GetHistogram = reinterpret_cast<vtkgl::PFNGLGETHISTOGRAMPROC>(manager->GetProcAddress("glGetHistogramEXT"));
     vtkgl::GetHistogramParameterfv = reinterpret_cast<vtkgl::PFNGLGETHISTOGRAMPARAMETERFVPROC>(manager->GetProcAddress("glGetHistogramParameterfvEXT"));
     vtkgl::GetHistogramParameteriv = reinterpret_cast<vtkgl::PFNGLGETHISTOGRAMPARAMETERIVPROC>(manager->GetProcAddress("glGetHistogramParameterivEXT"));
@@ -1278,28 +1278,28 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::ResetHistogram = reinterpret_cast<vtkgl::PFNGLRESETHISTOGRAMPROC>(manager->GetProcAddress("glResetHistogramEXT"));
     vtkgl::ResetMinmax = reinterpret_cast<vtkgl::PFNGLRESETMINMAXPROC>(manager->GetProcAddress("glResetMinmaxEXT"));
     return 1 && (vtkgl::GetHistogram != NULL) && (vtkgl::GetHistogramParameterfv != NULL) && (vtkgl::GetHistogramParameteriv != NULL) && (vtkgl::GetMinmax != NULL) && (vtkgl::GetMinmaxParameterfv != NULL) && (vtkgl::GetMinmaxParameteriv != NULL) && (vtkgl::Histogram != NULL) && (vtkgl::Minmax != NULL) && (vtkgl::ResetHistogram != NULL) && (vtkgl::ResetMinmax != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_blend_color") == 0)
-    {
+  {
     vtkgl::BlendColor = reinterpret_cast<vtkgl::PFNGLBLENDCOLORPROC>(manager->GetProcAddress("glBlendColorEXT"));
     return 1 && (vtkgl::BlendColor != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_blend_minmax") == 0)
-    {
+  {
     vtkgl::BlendEquation = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONPROC>(manager->GetProcAddress("glBlendEquationEXT"));
     return 1 && (vtkgl::BlendEquation != NULL);
-    }
+  }
   if (strcmp(name, "GL_EXT_blend_subtract") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   // OpenGL 1.3
 
   if (strcmp(name, "GL_ARB_texture_compression") == 0)
-    {
+  {
     vtkgl::CompressedTexImage3D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXIMAGE3DPROC>(manager->GetProcAddress("glCompressedTexImage3DARB"));
     vtkgl::CompressedTexImage2D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXIMAGE2DPROC>(manager->GetProcAddress("glCompressedTexImage2DARB"));
     vtkgl::CompressedTexImage1D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXIMAGE1DPROC>(manager->GetProcAddress("glCompressedTexImage1DARB"));
@@ -1308,21 +1308,21 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::CompressedTexSubImage1D = reinterpret_cast<vtkgl::PFNGLCOMPRESSEDTEXSUBIMAGE1DPROC>(manager->GetProcAddress("glCompressedTexSubImage1DARB"));
     vtkgl::GetCompressedTexImage = reinterpret_cast<vtkgl::PFNGLGETCOMPRESSEDTEXIMAGEPROC>(manager->GetProcAddress("glGetCompressedTexImageARB"));
     return 1 && (vtkgl::CompressedTexImage3D != NULL) && (vtkgl::CompressedTexImage2D != NULL) && (vtkgl::CompressedTexImage1D != NULL) && (vtkgl::CompressedTexSubImage3D != NULL) && (vtkgl::CompressedTexSubImage2D != NULL) && (vtkgl::CompressedTexSubImage1D != NULL) && (vtkgl::GetCompressedTexImage != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_cube_map") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_multisample") == 0)
-    {
+  {
     vtkgl::SampleCoverage = reinterpret_cast<vtkgl::PFNGLSAMPLECOVERAGEPROC>(manager->GetProcAddress("glSampleCoverageARB"));
     return 1 && (vtkgl::SampleCoverage != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_multitexture") == 0)
-    {
+  {
     vtkgl::ActiveTexture = reinterpret_cast<vtkgl::PFNGLACTIVETEXTUREPROC>(manager->GetProcAddress("glActiveTextureARB"));
     vtkgl::ClientActiveTexture = reinterpret_cast<vtkgl::PFNGLCLIENTACTIVETEXTUREPROC>(manager->GetProcAddress("glClientActiveTextureARB"));
     vtkgl::MultiTexCoord1d = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD1DPROC>(manager->GetProcAddress("glMultiTexCoord1dARB"));
@@ -1358,86 +1358,86 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::MultiTexCoord4s = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD4SPROC>(manager->GetProcAddress("glMultiTexCoord4sARB"));
     vtkgl::MultiTexCoord4sv = reinterpret_cast<vtkgl::PFNGLMULTITEXCOORD4SVPROC>(manager->GetProcAddress("glMultiTexCoord4svARB"));
     return 1 && (vtkgl::ActiveTexture != NULL) && (vtkgl::ClientActiveTexture != NULL) && (vtkgl::MultiTexCoord1d != NULL) && (vtkgl::MultiTexCoord1dv != NULL) && (vtkgl::MultiTexCoord1f != NULL) && (vtkgl::MultiTexCoord1fv != NULL) && (vtkgl::MultiTexCoord1i != NULL) && (vtkgl::MultiTexCoord1iv != NULL) && (vtkgl::MultiTexCoord1s != NULL) && (vtkgl::MultiTexCoord1sv != NULL) && (vtkgl::MultiTexCoord2d != NULL) && (vtkgl::MultiTexCoord2dv != NULL) && (vtkgl::MultiTexCoord2f != NULL) && (vtkgl::MultiTexCoord2fv != NULL) && (vtkgl::MultiTexCoord2i != NULL) && (vtkgl::MultiTexCoord2iv != NULL) && (vtkgl::MultiTexCoord2s != NULL) && (vtkgl::MultiTexCoord2sv != NULL) && (vtkgl::MultiTexCoord3d != NULL) && (vtkgl::MultiTexCoord3dv != NULL) && (vtkgl::MultiTexCoord3f != NULL) && (vtkgl::MultiTexCoord3fv != NULL) && (vtkgl::MultiTexCoord3i != NULL) && (vtkgl::MultiTexCoord3iv != NULL) && (vtkgl::MultiTexCoord3s != NULL) && (vtkgl::MultiTexCoord3sv != NULL) && (vtkgl::MultiTexCoord4d != NULL) && (vtkgl::MultiTexCoord4dv != NULL) && (vtkgl::MultiTexCoord4f != NULL) && (vtkgl::MultiTexCoord4fv != NULL) && (vtkgl::MultiTexCoord4i != NULL) && (vtkgl::MultiTexCoord4iv != NULL) && (vtkgl::MultiTexCoord4s != NULL) && (vtkgl::MultiTexCoord4sv !=NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_env_add") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_env_combine") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_env_dot3") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_border_clamp") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_transpose_matrix") == 0)
-    {
+  {
     vtkgl::LoadTransposeMatrixf = reinterpret_cast<vtkgl::PFNGLLOADTRANSPOSEMATRIXFPROC>(manager->GetProcAddress("glLoadTransposeMatrixfARB"));
     vtkgl::LoadTransposeMatrixd = reinterpret_cast<vtkgl::PFNGLLOADTRANSPOSEMATRIXDPROC>(manager->GetProcAddress("glLoadTransposeMatrixdARB"));
     vtkgl::MultTransposeMatrixf = reinterpret_cast<vtkgl::PFNGLMULTTRANSPOSEMATRIXFPROC>(manager->GetProcAddress("glMultTransposeMatrixfARB"));
     vtkgl::MultTransposeMatrixd = reinterpret_cast<vtkgl::PFNGLMULTTRANSPOSEMATRIXDPROC>(manager->GetProcAddress("glMultTransposeMatrixdARB"));
     return 1 && (vtkgl::LoadTransposeMatrixf != NULL) && (vtkgl::LoadTransposeMatrixd != NULL) && (vtkgl::MultTransposeMatrixf != NULL) && (vtkgl::MultTransposeMatrixd != NULL);
-    }
+  }
 
   // OpenGL 1.4
 
   if (strcmp(name, "GL_SGIS_generate_mipmap") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_NV_blend_square") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_depth_texture") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_shadow") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_EXT_fog_coord") == 0)
-    {
+  {
     vtkgl::FogCoordf = reinterpret_cast<vtkgl::PFNGLFOGCOORDFPROC>(manager->GetProcAddress("glFogCoordfEXT"));
     vtkgl::FogCoordfv = reinterpret_cast<vtkgl::PFNGLFOGCOORDFVPROC>(manager->GetProcAddress("glFogCoordfvEXT"));
     vtkgl::FogCoordd = reinterpret_cast<vtkgl::PFNGLFOGCOORDDPROC>(manager->GetProcAddress("glFogCoorddEXT"));
     vtkgl::FogCoorddv = reinterpret_cast<vtkgl::PFNGLFOGCOORDDVPROC>(manager->GetProcAddress("glFogCoorddvEXT"));
     vtkgl::FogCoordPointer = reinterpret_cast<vtkgl::PFNGLFOGCOORDPOINTERPROC>(manager->GetProcAddress("glFogCoordPointerEXT"));
     return 1 && (vtkgl::FogCoordf != NULL) && (vtkgl::FogCoordfv != NULL) && (vtkgl::FogCoordd != NULL) && (vtkgl::FogCoorddv != NULL) && (vtkgl::FogCoordPointer != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_multi_draw_arrays") == 0)
-    {
+  {
     vtkgl::MultiDrawArrays = reinterpret_cast<vtkgl::PFNGLMULTIDRAWARRAYSPROC>(manager->GetProcAddress("glMultiDrawArraysEXT"));
     vtkgl::MultiDrawElements = reinterpret_cast<vtkgl::PFNGLMULTIDRAWELEMENTSPROC>(manager->GetProcAddress("glMultiDrawElementsEXT"));
     return 1 && (vtkgl::MultiDrawArrays != NULL) && (vtkgl::MultiDrawElements != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_point_parameters") == 0)
-    {
+  {
     vtkgl::PointParameterf = reinterpret_cast<vtkgl::PFNGLPOINTPARAMETERFPROC>(manager->GetProcAddress("glPointParameterfARB"));
     vtkgl::PointParameterfv = reinterpret_cast<vtkgl::PFNGLPOINTPARAMETERFVPROC>(manager->GetProcAddress("glPointParameterfvARB"));
     return 1 && (vtkgl::PointParameterf != NULL) && (vtkgl::PointParameterfv != NULL);
-    }
+  }
 
 
   if (strcmp(name, "GL_EXT_secondary_color") == 0)
-    {
+  {
     vtkgl::SecondaryColor3b = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3BPROC>(manager->GetProcAddress("glSecondaryColor3bEXT"));
     vtkgl::SecondaryColor3bv = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3BVPROC>(manager->GetProcAddress("glSecondaryColor3bvEXT"));
     vtkgl::SecondaryColor3d = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3DPROC>(manager->GetProcAddress("glSecondaryColor3dEXT"));
@@ -1456,36 +1456,36 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::SecondaryColor3usv = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLOR3USVPROC>(manager->GetProcAddress("glSecondaryColor3usvEXT"));
     vtkgl::SecondaryColorPointer = reinterpret_cast<vtkgl::PFNGLSECONDARYCOLORPOINTERPROC>(manager->GetProcAddress("glSecondaryColorPointerEXT"));
     return 1 && (vtkgl::SecondaryColor3b != NULL) && (vtkgl::SecondaryColor3bv != NULL) && (vtkgl::SecondaryColor3d != NULL) && (vtkgl::SecondaryColor3dv != NULL) && (vtkgl::SecondaryColor3f != NULL) && (vtkgl::SecondaryColor3fv != NULL) && (vtkgl::SecondaryColor3i != NULL) && (vtkgl::SecondaryColor3iv != NULL) && (vtkgl::SecondaryColor3s != NULL) && (vtkgl::SecondaryColor3sv != NULL) && (vtkgl::SecondaryColor3ub!= NULL) && (vtkgl::SecondaryColor3ubv != NULL) && (vtkgl::SecondaryColor3ui != NULL) && (vtkgl::SecondaryColor3uiv != NULL) && (vtkgl::SecondaryColor3us != NULL) && (vtkgl::SecondaryColor3usv != NULL) && (vtkgl::SecondaryColorPointer != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_blend_func_separate") == 0)
-    {
+  {
     vtkgl::BlendFuncSeparate = reinterpret_cast<vtkgl::PFNGLBLENDFUNCSEPARATEPROC>(manager->GetProcAddress("glBlendFuncSeparateEXT"));
     return 1 && (vtkgl::BlendFuncSeparate != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_stencil_wrap") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_env_crossbar") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_EXT_texture_lod_bias") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_mirrored_repeat") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_window_pos") == 0)
-    {
+  {
     vtkgl::WindowPos2d = reinterpret_cast<vtkgl::PFNGLWINDOWPOS2DPROC>(manager->GetProcAddress("glWindowPos2dARB"));
     vtkgl::WindowPos2dv = reinterpret_cast<vtkgl::PFNGLWINDOWPOS2DVPROC>(manager->GetProcAddress("glWindowPos2dvARB"));
     vtkgl::WindowPos2f = reinterpret_cast<vtkgl::PFNGLWINDOWPOS2FPROC>(manager->GetProcAddress("glWindowPos2fARB"));
@@ -1503,12 +1503,12 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::WindowPos3s = reinterpret_cast<vtkgl::PFNGLWINDOWPOS3SPROC>(manager->GetProcAddress("glWindowPos3sARB"));
     vtkgl::WindowPos3sv = reinterpret_cast<vtkgl::PFNGLWINDOWPOS3SVPROC>(manager->GetProcAddress("glWindowPos3svARB"));
     return 1 && (vtkgl::WindowPos2d != NULL) && (vtkgl::WindowPos2dv != NULL) && (vtkgl::WindowPos2f != NULL) && (vtkgl::WindowPos2fv != NULL) && (vtkgl::WindowPos2i != NULL) && (vtkgl::WindowPos2iv != NULL) && (vtkgl::WindowPos2s != NULL) && (vtkgl::WindowPos2sv != NULL) && (vtkgl::WindowPos3d != NULL) && (vtkgl::WindowPos3dv != NULL) && (vtkgl::WindowPos3f != NULL) && (vtkgl::WindowPos3fv != NULL) && (vtkgl::WindowPos3i != NULL) && (vtkgl::WindowPos3iv != NULL) && (vtkgl::WindowPos3s != NULL) && (vtkgl::WindowPos3sv != NULL);
-    }
+  }
 
   // OpenGL 1.5
 
   if (strcmp(name, "GL_ARB_vertex_buffer_object") == 0)
-    {
+  {
     vtkgl::BindBuffer = reinterpret_cast<vtkgl::PFNGLBINDBUFFERPROC>(manager->GetProcAddress("glBindBufferARB"));
     vtkgl::DeleteBuffers = reinterpret_cast<vtkgl::PFNGLDELETEBUFFERSPROC>(manager->GetProcAddress("glDeleteBuffersARB"));
     vtkgl::GenBuffers = reinterpret_cast<vtkgl::PFNGLGENBUFFERSPROC>(manager->GetProcAddress("glGenBuffersARB"));
@@ -1521,10 +1521,10 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetBufferParameteriv = reinterpret_cast<vtkgl::PFNGLGETBUFFERPARAMETERIVPROC>(manager->GetProcAddress("glGetBufferParameterivARB"));
     vtkgl::GetBufferPointerv = reinterpret_cast<vtkgl::PFNGLGETBUFFERPOINTERVPROC>(manager->GetProcAddress("glGetBufferPointervARB"));
     return 1 && (vtkgl::BindBuffer != NULL) && (vtkgl::DeleteBuffers != NULL) && (vtkgl::GenBuffers != NULL) && (vtkgl::IsBuffer != NULL) && (vtkgl::BufferData != NULL) && (vtkgl::BufferSubData != NULL) && (vtkgl::GetBufferSubData != NULL) && (vtkgl::MapBuffer != NULL) && (vtkgl::UnmapBuffer != NULL) && (vtkgl::GetBufferParameteriv != NULL) && (vtkgl::GetBufferPointerv != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_occlusion_query") == 0)
-    {
+  {
     vtkgl::GenQueries = reinterpret_cast<vtkgl::PFNGLGENQUERIESPROC>(manager->GetProcAddress("glGenQueriesARB"));
     vtkgl::DeleteQueries = reinterpret_cast<vtkgl::PFNGLDELETEQUERIESPROC>(manager->GetProcAddress("glDeleteQueriesARB"));
     vtkgl::IsQuery = reinterpret_cast<vtkgl::PFNGLISQUERYPROC>(manager->GetProcAddress("glIsQueryARB"));
@@ -1534,17 +1534,17 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetQueryObjectiv = reinterpret_cast<vtkgl::PFNGLGETQUERYOBJECTIVPROC>(manager->GetProcAddress("glGetQueryObjectivARB"));
     vtkgl::GetQueryObjectuiv = reinterpret_cast<vtkgl::PFNGLGETQUERYOBJECTUIVPROC>(manager->GetProcAddress("glGetQueryObjectuivARB"));
     return 1 && (vtkgl::GenQueries != NULL) && (vtkgl::DeleteQueries != NULL) && (vtkgl::IsQuery != NULL) && (vtkgl::BeginQuery != NULL) && (vtkgl::EndQuery != NULL) && (vtkgl::GetQueryiv != NULL) && (vtkgl::GetQueryObjectiv != NULL) && (vtkgl::GetQueryObjectuiv != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_shadow_funcs") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   // OpenGL 2.0
 
   if (strcmp(name, "GL_ARB_shader_objects") == 0)
-    {
+  {
     // glDeleteObjectARB translates both to DeleteProgram and DeleteShader.
 
     vtkgl::DeleteProgram = reinterpret_cast<vtkgl::PFNGLDELETEPROGRAMPROC>(manager->GetProcAddress("glDeleteObjectARB"));
@@ -1605,10 +1605,10 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     vtkgl::GetUniformiv = reinterpret_cast<vtkgl::PFNGLGETUNIFORMIVPROC>(manager->GetProcAddress("glGetUniformivARB"));
     vtkgl::GetShaderSource = reinterpret_cast<vtkgl::PFNGLGETSHADERSOURCEPROC>(manager->GetProcAddress("glGetShaderSourceARB"));
     return 1 && (vtkgl::DeleteProgram != NULL) && (vtkgl::DeleteShader != NULL) && (vtkgl::IsProgram != NULL) && (vtkgl::IsShader != NULL) && (vtkgl::DetachShader != NULL) && (vtkgl::CreateShader != NULL) && (vtkgl::ShaderSource != NULL) && (vtkgl::CompileShader != NULL) && (vtkgl::CreateProgram != NULL) && (vtkgl::AttachShader != NULL) && (vtkgl::LinkProgram != NULL) && (vtkgl::UseProgram != NULL) && (vtkgl::ValidateProgram != NULL) && (vtkgl::Uniform1f != NULL) && (vtkgl::Uniform2f != NULL) && (vtkgl::Uniform3f != NULL) && (vtkgl::Uniform4f != NULL) && (vtkgl::Uniform1i != NULL) && (vtkgl::Uniform2i != NULL) && (vtkgl::Uniform3i != NULL) && (vtkgl::Uniform4i != NULL) && (vtkgl::Uniform1fv != NULL) && (vtkgl::Uniform2fv != NULL) && (vtkgl::Uniform3fv != NULL) && (vtkgl::Uniform4fv != NULL) && (vtkgl::Uniform1iv != NULL) && (vtkgl::Uniform2iv != NULL) && (vtkgl::Uniform3iv != NULL) && (vtkgl::Uniform4iv != NULL) && (vtkgl::UniformMatrix2fv != NULL) && (vtkgl::UniformMatrix3fv != NULL) && (vtkgl::UniformMatrix4fv != NULL) && (vtkgl::GetProgramiv != NULL) && (vtkgl::GetShaderiv != NULL) && (vtkgl::GetProgramInfoLog != NULL) && (vtkgl::GetShaderInfoLog != NULL) && (vtkgl::GetAttachedShaders != NULL) && (vtkgl::GetUniformLocation != NULL) && (vtkgl::GetActiveUniform != NULL) && (vtkgl::GetUniformfv != NULL) && (vtkgl::GetUniformiv != NULL) && (vtkgl::GetShaderSource != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_vertex_shader") == 0)
-    {
+  {
     vtkgl::BindAttribLocation = reinterpret_cast<vtkgl::PFNGLBINDATTRIBLOCATIONPROC>(manager->GetProcAddress("glBindAttribLocationARB"));
     vtkgl::GetActiveAttrib = reinterpret_cast<vtkgl::PFNGLGETACTIVEATTRIBPROC>(manager->GetProcAddress("glGetActiveAttribARB"));
     vtkgl::GetAttribLocation = reinterpret_cast<vtkgl::PFNGLGETATTRIBLOCATIONPROC>(manager->GetProcAddress("glGetAttribLocationARB"));
@@ -1667,68 +1667,68 @@ int vtkgl::LoadCorePromotedExtension(const char *name,
     // GL_ARB_vertex_shader
 //    vtkgl::PFNGLENABLEVERTEXATTRIBARRAYARBPROC vtkgl::EnableVertexAttribArrayARB = NULL;
 //vtkgl::PFNGLDISABLEVERTEXATTRIBARRAYARBPROC vtkgl::DisableVertexAttribArrayARB = NULL;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_fragment_shader") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_shading_language_100") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_draw_buffers") == 0)
-    {
+  {
     vtkgl::DrawBuffers = reinterpret_cast<vtkgl::PFNGLDRAWBUFFERSPROC>(manager->GetProcAddress("glDrawBuffersARB"));
     return 1 && (vtkgl::DrawBuffers != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_ARB_texture_non_power_of_two") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_point_sprite") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_EXT_blend_equation_separate") == 0)
-    {
+  {
     vtkgl::BlendEquationSeparate = reinterpret_cast<vtkgl::PFNGLBLENDEQUATIONSEPARATEPROC>(manager->GetProcAddress("glBlendEquationSeparateEXT"));
     return 1 && (vtkgl::BlendEquationSeparate != NULL);
-    }
+  }
 
   if (strcmp(name, "GL_EXT_blend_logic_op") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   // Separate stencil was "based on" API of extension GL_ATI_separate_stencil
   // but this extension was not promoted to OpenGL2.0...
 
   if (strcmp(name, "GL_ATI_separate_stencil") == 0)
-    {
+  {
     vtkgl::StencilOpSeparate = reinterpret_cast<vtkgl::PFNGLSTENCILOPSEPARATEPROC>(manager->GetProcAddress("glStencilOpSeparateATI"));
     vtkgl::StencilFuncSeparate = reinterpret_cast<vtkgl::PFNGLSTENCILFUNCSEPARATEPROC>(manager->GetProcAddress("glStencilFuncSeparateATI"));
     return 1 && (vtkgl::StencilOpSeparate != NULL) && (vtkgl::StencilFuncSeparate != NULL);
     // StencilMaskSeparate?
-    }
+  }
 
   // No GL_EXT_stencil_two_side ? No ActiveStencilFace?
 
   // OpenGL 2.1
   if (strcmp(name, "GL_EXT_texture_sRGB") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   if (strcmp(name, "GL_ARB_pixel_buffer_object") == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -1741,7 +1741,7 @@ int vtkgl::LoadAsARBExtension(const char *name,
   assert("pre: manager_exists" && manager!=NULL);
 
   if (strcmp(name, "GL_EXT_geometry_shader4") == 0)
-    {
+  {
     vtkgl::ProgramParameteriARB = reinterpret_cast<vtkgl::PFNGLPROGRAMPARAMETERIARBPROC>(manager->GetProcAddress("glProgramParameteriEXT"));
 
     // FramebufferTextureEXT(), FramebufferTextureLayerEXT() and
@@ -1755,6 +1755,6 @@ int vtkgl::LoadAsARBExtension(const char *name,
     vtkgl::FramebufferTextureFaceARB = reinterpret_cast<vtkgl::PFNGLFRAMEBUFFERTEXTUREFACEARBPROC>(manager->GetProcAddress("glFramebufferTextureFaceEXT"));
 
     return 1;
-    }
+  }
   return 0;
 }

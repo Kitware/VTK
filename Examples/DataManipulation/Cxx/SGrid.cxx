@@ -57,15 +57,15 @@ int main()
   deltaRad = (rMax-rMin) / (dims[1]-1);
   v[2]=0.0;
   for ( k=0; k<dims[2]; k++)
-    {
+  {
     x[2] = -1.0 + k*deltaZ;
     kOffset = k * dims[0] * dims[1];
     for (j=0; j<dims[1]; j++)
-      {
+    {
       radius = rMin + j*deltaRad;
       jOffset = j * dims[0];
       for (i=0; i<dims[0]; i++)
-        {
+      {
         theta = i * vtkMath::RadiansFromDegrees(15.0);
         x[0] = radius * cos(theta);
         x[1] = radius * sin(theta);
@@ -74,9 +74,9 @@ int main()
         offset = i + jOffset + kOffset;
         points->InsertPoint(offset,x);
         vectors->InsertTuple(offset,v);
-        }
       }
     }
+  }
   sgrid->SetPoints(points);
   points->Delete();
   sgrid->GetPointData()->SetVectors(vectors);

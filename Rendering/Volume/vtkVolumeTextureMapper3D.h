@@ -268,9 +268,9 @@ protected:
 
   virtual int IsTextureSizeSupported(int vtkNotUsed(size)[3],
                                      int vtkNotUsed(components))
-    {
+  {
       return 0;
-    }
+  }
 
 private:
   vtkVolumeTextureMapper3D(const vtkVolumeTextureMapper3D&) VTK_DELETE_FUNCTION;

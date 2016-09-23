@@ -36,14 +36,14 @@ struct Reader::InitContext
   : Comm(GlobalComm)
   {
     if(this->RefCount == 0)
-      {
+    {
       int init = 0;
       MPI_Initialized(&init);
       ReadError::TestEq(1, init, "InitContext: MPI is not yet initialized");
 
       int err = adios_read_init_method(Method, this->Comm, MethodArgs.c_str());
       ReadError::TestEq(0, err);
-      }
+    }
     ++this->RefCount;
 
     MPI_Comm_size(this->Comm, &this->CommSize);
@@ -54,12 +54,12 @@ struct Reader::InitContext
   {
     --this->RefCount;
     if(this->RefCount == 0)
-      {
+    {
       // If we've gotten this far then we know that MPI has been initialized
       //already
       MPI_Barrier(this->Comm);
       adios_read_finalize_method(Method);
-      }
+    }
   }
 };
 
@@ -82,21 +82,21 @@ struct Reader::ReaderImpl
     for(std::vector<const Attribute*>::iterator a = this->Attributes.begin();
         a != this->Attributes.end();
         ++a)
-      {
+    {
       delete *a;
-      }
+    }
     for(std::vector<const Scalar*>::iterator s = this->Scalars.begin();
         s != this->Scalars.end();
         ++s)
-      {
+    {
       delete *s;
-      }
+    }
     for(std::vector<const VarInfo*>::iterator v = this->Arrays.begin();
         v != this->Arrays.end();
         ++v)
-      {
+    {
       delete *v;
-      }
+    }
   }
 
   ADIOS_FILE *File;
@@ -112,10 +112,10 @@ bool Reader::SetCommunicator(MPI_Comm comm)
 {
   // The communicator can only be set if ADIOS has not yet been initialized
   if(Reader::InitContext::RefCount == 0)
-    {
+  {
     Reader::InitContext::GlobalComm = comm;
     return true;
-    }
+  }
   return false;
 }
 
@@ -124,11 +124,11 @@ bool Reader::SetReadMethod(ReadMethod method, const std::string& methodArgs)
 {
   // The communicator can only be set if ADIOS has not yet been initialized
   if(Reader::InitContext::RefCount == 0)
-    {
+  {
     Reader::InitContext::Method = static_cast<ADIOS_READ_METHOD>(method);
     Reader::InitContext::MethodArgs = methodArgs;
     return true;
-    }
+  }
   return false;
 }
 
@@ -188,36 +188,36 @@ void Reader::Open(const std::string &fileName)
 
   // Polulate attributes
   for(int i = 0; i < this->Impl->File->nattrs; ++i)
-    {
+  {
     this->Impl->Attributes.push_back(new Attribute(this->Impl->File, i));
-    }
+  }
 
   // Preload the scalar data and cache the array metadata
   for(int i = 0; i < this->Impl->File->nvars; ++i)
-    {
+  {
       ADIOS_VARINFO *v = adios_inq_var_byid(this->Impl->File, i);
       ReadError::TestNe<ADIOS_VARINFO*>(NULL, v);
 
       if(v->ndim == 0)
-        {
+      {
         this->Impl->Scalars.push_back(new Scalar(this->Impl->File, v));
-        }
+      }
       else
-        {
+      {
         this->Impl->Arrays.push_back(new VarInfo(this->Impl->File, v));
-        }
+      }
       adios_free_varinfo(v);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void Reader::Close()
 {
   if(this->Impl->File)
-    {
+  {
     adios_read_close(this->Impl->File);
     this->Impl->File = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

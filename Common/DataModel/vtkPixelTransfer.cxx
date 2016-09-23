@@ -15,7 +15,7 @@ int vtkPixelTransfer::Blit(
 {
   // first layer of dispatch
   switch(srcType)
-    {
+  {
     vtkTemplateMacro(
         return vtkPixelTransfer::Blit(
             srcWholeExt,
@@ -27,6 +27,6 @@ int vtkPixelTransfer::Blit(
             nDestComps,
             destType,
             destData));
-    }
+  }
   return 0;
 }

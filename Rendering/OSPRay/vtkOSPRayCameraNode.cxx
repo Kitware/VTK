@@ -46,7 +46,7 @@ void vtkOSPRayCameraNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayCameraNode::Render(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
         this->GetFirstAncestorOfType("vtkOSPRayRendererNode"));
@@ -61,15 +61,15 @@ void vtkOSPRayCameraNode::Render(bool prepass)
 
     OSPCamera ospCamera;
     if (cam->GetParallelProjection())
-      {
+    {
       ospCamera = ospNewCamera("orthographic");
       ospSetf(ospCamera, "height", cam->GetParallelScale() * 2);
-      }
+    }
     else
-      {
+    {
       ospCamera = ospNewCamera("perspective");
       ospSetf(ospCamera, "fovy", cam->GetViewAngle());
-      }
+    }
 
     ospSetObject(orn->GetORenderer(), "camera", ospCamera);
     ospSetf(ospCamera, "aspect", float(tiledSize[0]) / float(tiledSize[1]));
@@ -81,5 +81,5 @@ void vtkOSPRayCameraNode::Render(bool prepass)
     ospSet3f(ospCamera, "dir", dop[0], dop[1], dop[2]);
     ospCommit(ospCamera);
     ospRelease(ospCamera);
-    }
+  }
 }

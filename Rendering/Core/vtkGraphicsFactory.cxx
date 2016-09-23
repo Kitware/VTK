@@ -44,26 +44,26 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
 
   // Backward compatibility
   if ( temp )
-    {
+  {
     if (!strcmp("oglr",temp))
-      {
+    {
       temp = "OpenGL";
-      }
+    }
     else if (!strcmp("woglr",temp))
-      {
+    {
       temp = "Win32OpenGL";
-      }
+    }
     else if (strcmp("OpenGL",temp) &&
              strcmp("Win32OpenGL",temp))
-      {
+    {
       vtkGenericWarningMacro(<<"VTK_RENDERER set to unsupported type:" << temp);
       temp = NULL;
-      }
     }
+  }
 
   // if nothing is set then work down the list of possible renderers
   if ( !temp )
-    {
+  {
 #if defined(VTK_DISPLAY_X11_OGL) || defined(VTK_USE_OSMESA)
     temp = "OpenGL";
 #endif
@@ -73,7 +73,7 @@ const char *vtkGraphicsFactory::GetRenderLibrary()
 #ifdef VTK_DISPLAY_COCOA
     temp = "CocoaOpenGL";
 #endif
-    }
+  }
 
   return temp;
 }
@@ -83,9 +83,9 @@ vtkObject* vtkGraphicsFactory::CreateInstance(const char* vtkclassname )
   // first check the object factory
   vtkObject *ret = vtkObjectFactory::CreateInstance(vtkclassname);
   if (ret)
-    {
+  {
     return ret;
-    }
+  }
   // if the factory failed to create the object,
   // then destroy it now, as vtkDebugLeaks::ConstructClass was called
   // with vtkclassname, and not the real name of the class

@@ -46,10 +46,10 @@ vtkContourHelper::vtkContourHelper(vtkIncrementalPointLocator *locator,
   this->Tris = vtkCellArray::New();
   this->TriOutCd = vtkCellData::New();
   if(this->GenerateTriangles)
-    {
+  {
     this->Tris->Allocate(estimatedSize,estimatedSize/2);
     this->TriOutCd->Initialize();
-    }
+  }
   this->PolyCollection = vtkIdListCollection::New();
 }
 
@@ -66,48 +66,48 @@ void vtkContourHelper::Contour(vtkCell* cell, double value, vtkDataArray *cellSc
   vtkCellData* outCD;
   vtkCellArray* outPoly;
   if(mergeTriangles)
-    {
+  {
     outPoly = this->Tris;
     outCD = this->TriOutCd;
-    }
+  }
   else
-    {
+  {
     outPoly = this->Polys;
     outCD = this->OutCd;
-    }
+  }
   cell->Contour(value,cellScalars,this->Locator,  this->Verts, this->Lines,
                 outPoly, this->InPd,this->OutPd,this->InCd,cellId, outCD);
   if(mergeTriangles)
-    {
+  {
     this->PolyBuilder.Reset();
 
     vtkIdType cellSize;
     vtkIdType* cellVerts;
     while(this->Tris->GetNextCell(cellSize,cellVerts))
-      {
+    {
       if(cellSize==3)
-        {
+      {
         this->PolyBuilder.InsertTriangle(cellVerts);
-        }
+      }
       else //for whatever reason, the cell contouring is already outputing polys
-        {
+      {
         vtkIdType outCellId = this->Polys->InsertNextCell(cellSize, cellVerts);
         this->OutCd->CopyData(this->InCd, cellId, outCellId);
-        }
       }
+    }
 
     this->PolyBuilder.GetPolygons(this->PolyCollection);
     int nPolys = this->PolyCollection->GetNumberOfItems();
     for (int polyId = 0; polyId < nPolys; ++polyId)
-      {
+    {
       vtkIdList* poly = this->PolyCollection->GetItem(polyId);
       if(poly->GetNumberOfIds()!=0)
-        {
+      {
         vtkIdType outCellId = this->Polys->InsertNextCell(poly);
         this->OutCd->CopyData(this->InCd, cellId, outCellId);
-        }
-      poly->Delete();
       }
-    this->PolyCollection->RemoveAllItems();
+      poly->Delete();
     }
+    this->PolyCollection->RemoveAllItems();
+  }
 }

@@ -67,71 +67,71 @@ void vtkImageConstantPadExecute(vtkImageConstantPad *self,
 
   // Loop through output pixels
   for (idxZ = outExt[4]; idxZ <= outExt[5]; idxZ++)
-    {
+  {
     state3 = (idxZ < inExt[4] || idxZ > inExt[5]);
     for (idxY = outExt[2]; !self->AbortExecute && idxY <= outExt[3]; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
       state2 = (state3 || idxY < inExt[2] || idxY > inExt[3]);
       if ((maxC == inMaxC) && (maxC == 1))
-        {
+      {
         for (idxX = 0; idxX <= maxX; idxX++)
-          {
+        {
           state1 = (state2 || idxX < inMinX || idxX > inMaxX);
           if (state1)
-            {
+          {
             *outPtr = constant;
-            }
+          }
           else
-            {
+          {
             *outPtr = *inPtr;
             inPtr++;
-            }
-          outPtr++;
           }
+          outPtr++;
         }
+      }
       else
-        {
+      {
         for (idxX = 0; idxX <= maxX; idxX++)
-          {
+        {
           state1 = (state2 || idxX < inMinX || idxX > inMaxX);
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             // Copy Pixel
             state0 = (state1 || idxC >= inMaxC);
             if (state0)
-              {
+            {
               *outPtr = constant;
-              }
+            }
             else
-              {
+            {
               *outPtr = *inPtr;
               inPtr++;
-              }
-            outPtr++;
             }
+            outPtr++;
           }
         }
+      }
       outPtr += outIncY;
       if (!state2)
-        {
-        inPtr += inIncY;
-        }
-      }
-    outPtr += outIncZ;
-    if (!state3)
       {
-      inPtr += inIncZ;
+        inPtr += inIncY;
       }
     }
+    outPtr += outIncZ;
+    if (!state3)
+    {
+      inPtr += inIncZ;
+    }
+  }
 }
 
 
@@ -152,13 +152,13 @@ void vtkImageConstantPad::ThreadedRequestData(
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   // get the whole extent
   int wExt[6];
@@ -171,7 +171,7 @@ void vtkImageConstantPad::ThreadedRequestData(
   void *inPtr = inData[0][0]->GetScalarPointerForExtent(inExt);
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageConstantPadExecute(this,
                                  inData[0][0], static_cast<VTK_TT *>(inPtr),
@@ -180,7 +180,7 @@ void vtkImageConstantPad::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageConstantPad::PrintSelf(ostream& os, vtkIndent indent)

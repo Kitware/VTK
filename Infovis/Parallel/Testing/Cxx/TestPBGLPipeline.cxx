@@ -109,78 +109,78 @@ int TestPBGLPipeline(int argc, char* argv[])
   vtkStdString collapseField = "color";
   bool debugWait = false;
   for (int i = 1; i < argc; ++ i)
-    {
+  {
     if (vtkStdString(argv[i]) == "-replicate")
-      {
+    {
       DoReplicate = true;
-      }
+    }
     else if (vtkStdString(argv[i]) == "-debug")
-      {
+    {
       debugWait = true;
-      }
+    }
     else if (vtkStdString(argv[i]) == "-db")
-      {
+    {
       ++i;
       url = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-password")
-      {
+    {
       ++i;
       password = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-vertextable")
-      {
+    {
       ++i;
       vertexTable = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-edgetable")
-      {
+    {
       ++i;
       edgeTable = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-id")
-      {
+    {
       ++i;
       vertexId = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-source")
-      {
+    {
       ++i;
       source = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-target")
-      {
+    {
       ++i;
       target = vtkStdString(argv[i]);
-      }
+    }
     else if (vtkStdString(argv[i]) == "-collapse")
-      {
+    {
       ++i;
       collapseField = vtkStdString(argv[i]);
-      }
     }
+  }
 
   while (debugWait) ;
 
   vtkSmartPointer<vtkSQLDatabase> db;
   if (url.length() > 0)
-    {
+  {
     db.TakeReference(vtkSQLDatabase::CreateFromURL(url));
     if (!db.GetPointer())
-      {
+    {
       cerr << "Could not create database instance for URL." << endl;
       MPI_Finalize();
       return 1;
-      }
+    }
     if (!db->Open(password))
-      {
+    {
       cerr << "Could not open database." << endl;
       MPI_Finalize();
       return 1;
-      }
     }
+  }
   else
-    {
+  {
     // Create an in-memory database containing a cycle graph.
     std::ostringstream oss;
     int vertices = 10000;
@@ -188,36 +188,36 @@ int TestPBGLPipeline(int argc, char* argv[])
     vtkSQLiteDatabase::SafeDownCast(db)->SetDatabaseFileName(":memory:");
     bool ok = db->Open("");
     if (!ok)
-      {
+    {
       cerr << "Could not open database!" << endl;
       cerr << db->GetLastErrorText() << endl;
       MPI_Finalize();
       return 1;
-      }
+    }
     vtkSmartPointer<vtkSQLQuery> query;
     query.TakeReference(db->GetQueryInstance());
     query->SetQuery("create table vertices (id INTEGER, name VARCHAR(10), color INTEGER)");
     query->Execute();
     for (int i = 0; i < vertices; ++i)
-      {
+    {
       oss.str("");
       oss << "insert into vertices values(" << i << ","
         << vtkVariant(i).ToString() << "," << i % 2 << ")" << endl;
       query->SetQuery(oss.str().c_str());
       query->Execute();
-      }
+    }
     query->SetQuery("create table edges (source INTEGER, target INTEGER, name VARCHAR(10))");
     query->Execute();
     for (int i = 0; i < vertices; ++i)
-      {
+    {
       oss.str("");
       oss << "insert into edges values(" << i << ", "
         << (i+1)%vertices << ", "
         << vtkVariant(i).ToString() << ")" << endl;
       query->SetQuery(oss.str().c_str());
       query->Execute();
-      }
     }
+  }
 
   // Create the reader
   vtkSmartPointer<vtkPBGLGraphSQLReader> reader =
@@ -279,7 +279,7 @@ int TestPBGLPipeline(int argc, char* argv[])
 
   int retVal = vtkRegressionTester::PASSED;
   if (rank == 0)
-    {
+  {
     // Display the output
     VTK_CREATE(vtkGraphLayoutView, view);
 //    VTK_CREATE(vtkRenderWindow, win);
@@ -318,7 +318,7 @@ int TestPBGLPipeline(int argc, char* argv[])
       retVal = vtkRegressionTester::PASSED;
       }
     */
-    }
+  }
 
   MPI_Finalize();
   return !retVal;

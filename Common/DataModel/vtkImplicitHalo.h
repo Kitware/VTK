@@ -52,9 +52,9 @@ public:
    */
   double EvaluateFunction(double x[3]) VTK_OVERRIDE;
   virtual double EvaluateFunction(double x, double y, double z)
-    {
+  {
       return this->vtkImplicitFunction::EvaluateFunction(x, y, z);
-    }
+  }
   //@}
 
   /**

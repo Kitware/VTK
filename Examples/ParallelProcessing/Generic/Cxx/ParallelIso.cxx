@@ -126,7 +126,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
   elev->SetScalarRange(val, val+0.001);
 
   if (myid != 0)
-    {
+  {
     // If I am not the root process
     ParallelIsoRMIArgs_tmp args2;
     args2.ContourFilter = iso;
@@ -138,9 +138,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     // know that it wants the contour value to change.
     controller->AddRMI(SetIsoValueRMI, (void *)&args2, ISO_VALUE_RMI_TAG);
     controller->ProcessRMIs();
-    }
+  }
   else
-    {
+  {
     // Create the rendering part of the pipeline
     vtkAppendPolyData *app = vtkAppendPolyData::New();
     vtkRenderer *ren = vtkRenderer::New();
@@ -165,33 +165,33 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
 
     // loop through some iso surface values.
     for (int j = 0; j < ISO_NUM; ++j)
-      {
+    {
       // set the local value
       iso->SetValue(0, iso->GetValue(0) + ISO_STEP);
       elev->UpdatePiece(myid, numProcs, 0);
 
       for (int i = 1; i < numProcs; ++i)
-        {
+      {
         // trigger the RMI to change the iso surface value.
         controller->TriggerRMI(i, ISO_VALUE_RMI_TAG);
-        }
+      }
       for (int i = 1; i < numProcs; ++i)
-        {
+      {
         vtkPolyData* pd = vtkPolyData::New();
         controller->Receive(pd, i, ISO_OUTPUT_TAG);
         if (j == ISO_NUM - 1)
-          {
+        {
           app->AddInputData(pd);
-          }
-        pd->Delete();
         }
+        pd->Delete();
       }
+    }
 
     // Tell the other processors to stop processing RMIs.
     for (int i = 1; i < numProcs; ++i)
-      {
+    {
       controller->TriggerRMI(i, vtkMultiProcessController::BREAK_RMI_TAG);
-      }
+    }
 
     vtkPolyData* outputCopy = vtkPolyData::New();
     outputCopy->ShallowCopy(elev->GetOutput());
@@ -204,9 +204,9 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
       vtkRegressionTester::Test(args->argc, args->argv, renWindow, 10);
 
     if ( *(args->retVal) == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
+    }
 
     // Clean up
     app->Delete();
@@ -216,7 +216,7 @@ void MyMain( vtkMultiProcessController *controller, void *arg )
     mapper->Delete();
     actor->Delete();
     cam->Delete();
-    }
+  }
 
   // clean up objects in all processes.
   reader->Delete();

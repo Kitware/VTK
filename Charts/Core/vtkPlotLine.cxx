@@ -45,101 +45,101 @@ bool vtkPlotLine::Paint(vtkContext2D *painter)
   vtkDebugMacro(<< "Paint event called in vtkPlotLine.");
 
   if (!this->Visible || !this->Points)
-    {
+  {
     return false;
-    }
+  }
 
   // Draw the line between the points
   painter->ApplyPen(this->Pen);
 
   if (this->BadPoints && this->BadPoints->GetNumberOfTuples() > 0)
-    {
+  {
     // draw lines skipping bad points
     float *points = static_cast<float *>(this->Points->GetVoidPointer(0));
     const int pointSize = 2;
     vtkIdType lastGood = 0;
 
     for (vtkIdType i = 0; i < this->BadPoints->GetNumberOfTuples(); i++)
-      {
+    {
       vtkIdType id = this->BadPoints->GetValue(i);
 
       // render from last good point to one before this bad point
       if (id - lastGood > 2)
-        {
+      {
         int start = lastGood + 1;
         int numberOfPoints = id - start;
         if (!this->PolyLine)
-          {
+        {
           // Start at the next point if the last bad point was the first point
           // of a line segment.
           if (start % 2 == 0)
-            {
+          {
             ++start;
             --numberOfPoints;
-            }
+          }
           // Stops at the previous point if the next bad point is the second point
           // of a line segment.
           if (numberOfPoints % 2 == 1)
-            {
+          {
             --numberOfPoints;
-            }
-          }
-        if (this->PolyLine)
-          {
-          painter->DrawPoly(points + pointSize * start, numberOfPoints);
-          }
-        else if (start < this->Points->GetNumberOfPoints() && numberOfPoints > 0)
-          {
-          painter->DrawLines(points + pointSize * start, numberOfPoints);
           }
         }
+        if (this->PolyLine)
+        {
+          painter->DrawPoly(points + pointSize * start, numberOfPoints);
+        }
+        else if (start < this->Points->GetNumberOfPoints() && numberOfPoints > 0)
+        {
+          painter->DrawLines(points + pointSize * start, numberOfPoints);
+        }
+      }
 
       lastGood = id;
-      }
+    }
 
     // render any trailing good points
     if (this->Points->GetNumberOfPoints() - lastGood > 2)
-      {
+    {
       int start = lastGood + 1;
       int numberOfPoints = this->Points->GetNumberOfPoints() - start;
       if (!this->PolyLine)
-        {
+      {
         // Start at the next point if the last bad point was the first point
         // of a line segment.
         if (start % 2 == 0)
-          {
+        {
           ++start;
           --numberOfPoints;
-          }
+        }
         // Stops at the previous point if the next bad point is the second point
         // of a line segment.
         if (numberOfPoints % 2 == 1)
-          {
+        {
           --numberOfPoints;
-          }
-        }
-      if (this->PolyLine)
-        {
-        painter->DrawPoly(points + pointSize * start, numberOfPoints);
-        }
-      else if (start < this->Points->GetNumberOfPoints() && numberOfPoints > 0)
-        {
-        painter->DrawLines(points + pointSize * start, numberOfPoints);
         }
       }
+      if (this->PolyLine)
+      {
+        painter->DrawPoly(points + pointSize * start, numberOfPoints);
+      }
+      else if (start < this->Points->GetNumberOfPoints() && numberOfPoints > 0)
+      {
+        painter->DrawLines(points + pointSize * start, numberOfPoints);
+      }
     }
+  }
   else
-    {
+  {
     // draw lines between all points
     if (this->PolyLine)
-      {
+    {
       painter->DrawPoly(this->Points);
-      }
-    else
-      {
-      painter->DrawLines(this->Points);
-      }
     }
+    else
+    {
+      painter->DrawLines(this->Points);
+    }
+  }
 
   return this->vtkPlotPoints::Paint(painter);
 }

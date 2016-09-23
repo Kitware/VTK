@@ -645,13 +645,13 @@ public:
   static vtkAngleCallback *New()
     { return new vtkAngleCallback; }
   void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
-    {
+  {
       if ( eid == vtkCommand::PlacePointEvent )
-        {
+      {
         std::cout << "point placed\n";
-        }
+      }
       else if ( eid == vtkCommand::InteractionEvent )
-        {
+      {
         double point1[3], center[3], point2[3];
         this->Rep->GetPoint1WorldPosition(point1);
         this->Rep->GetCenterWorldPosition(center);
@@ -667,8 +667,8 @@ public:
              << point2[1] << ","
              << point2[2] << ") is "
              << this->Rep->GetAngle() << " radians." << std::endl;
-        }
-    }
+      }
+  }
   vtkAngleRepresentation3D *Rep;
   vtkAngleCallback():Rep(0) {}
 };

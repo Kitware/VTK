@@ -404,13 +404,13 @@ public:
                   << "): setting EventPosition to (" << x << "," << y << ")");
     if (this->EventPosition[0] != x || this->EventPosition[1] != y ||
         this->LastEventPosition[0] != x || this->LastEventPosition[1] != y)
-      {
+    {
       this->LastEventPosition[0] = this->EventPosition[0];
       this->LastEventPosition[1] = this->EventPosition[1];
       this->EventPosition[0] = x;
       this->EventPosition[1] = y;
       this->Modified();
-      }
+    }
   }
   virtual void SetEventPosition(int pos[2])
   {
@@ -427,45 +427,45 @@ public:
   //@}
 
   virtual int *GetEventPositions(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
+    }
     return this->EventPositions[pointerIndex];
-    }
+  }
   virtual int *GetLastEventPositions(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
-    return this->LastEventPositions[pointerIndex];
     }
+    return this->LastEventPositions[pointerIndex];
+  }
   virtual void SetEventPosition(int x, int y, int pointerIndex)
   {
     if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return;
-      }
+    }
     if (pointerIndex == 0)
-      {
+    {
       this->LastEventPosition[0] = this->EventPosition[0];
       this->LastEventPosition[1] = this->EventPosition[1];
       this->EventPosition[0] = x;
       this->EventPosition[1] = y;
-      }
+    }
     vtkDebugMacro(<< this->GetClassName() << " (" << this
                   << "): setting EventPosition to (" << x << "," << y << ") for pointerIndex number " << pointerIndex);
     if (this->EventPositions[pointerIndex][0] != x || this->EventPositions[pointerIndex][1] != y ||
         this->LastEventPositions[pointerIndex][0] != x || this->LastEventPositions[pointerIndex][1] != y)
-      {
+    {
       this->LastEventPositions[pointerIndex][0] = this->EventPositions[pointerIndex][0];
       this->LastEventPositions[pointerIndex][1] = this->EventPositions[pointerIndex][1];
       this->EventPositions[pointerIndex][0] = x;
       this->EventPositions[pointerIndex][1] = y;
       this->Modified();
-      }
+    }
   }
   virtual void SetEventPosition(int pos[2], int pointerIndex)
   {
@@ -579,7 +579,7 @@ public:
                            int repeatcount,
                            const char* keysym,
                            int pointerIndex)
-    {
+  {
       this->SetEventPosition(x,y,pointerIndex);
       this->ControlKey = ctrl;
       this->ShiftKey = shift;
@@ -587,19 +587,19 @@ public:
       this->RepeatCount = repeatcount;
       this->PointerIndex = pointerIndex;
       if(keysym)
-        {
+      {
         this->SetKeySym(keysym);
-        }
+      }
       this->Modified();
-    }
+  }
   void SetEventInformation(int x, int y,
                            int ctrl=0, int shift=0,
                            char keycode=0,
                            int repeatcount=0,
                            const char* keysym=0)
-    {
+  {
       this->SetEventInformation(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
-    }
+  }
   //@}
 
   //@{
@@ -613,7 +613,7 @@ public:
                                 int repeatcount,
                                 const char* keysym,
                                 int pointerIndex)
-    {
+  {
       this->SetEventInformation(x,
                                 this->Size[1] - y - 1,
                                 ctrl,
@@ -622,15 +622,15 @@ public:
                                 repeatcount,
                                 keysym,
                                 pointerIndex);
-    }
+  }
   void SetEventInformationFlipY(int x, int y,
                            int ctrl=0, int shift=0,
                            char keycode=0,
                            int repeatcount=0,
                            const char* keysym=0)
-    {
+  {
       this->SetEventInformationFlipY(x,y,ctrl,shift,keycode,repeatcount,keysym,0);
-    }
+  }
   //@}
 
   //@{
@@ -642,17 +642,17 @@ public:
                               char keycode=0,
                               int repeatcount=0,
                               const char* keysym=0)
-    {
+  {
       this->ControlKey = ctrl;
       this->ShiftKey = shift;
       this->KeyCode = keycode;
       this->RepeatCount = repeatcount;
       if(keysym)
-        {
+      {
         this->SetKeySym(keysym);
-        }
+      }
       this->Modified();
-    }
+  }
   //@}
 
   //@{

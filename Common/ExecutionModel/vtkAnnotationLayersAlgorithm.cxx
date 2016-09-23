@@ -50,20 +50,20 @@ int vtkAnnotationLayersAlgorithm::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -115,14 +115,14 @@ int vtkAnnotationLayersAlgorithm::RequestUpdateExtent(
 {
   int numInputPorts = this->GetNumberOfInputPorts();
   for (int i=0; i<numInputPorts; i++)
-    {
+  {
     int numInputConnections = this->GetNumberOfInputConnections(i);
     for (int j=0; j<numInputConnections; j++)
-      {
+    {
       vtkInformation* inputInfo = inputVector[i]->GetInformationObject(j);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 1);
-      }
     }
+  }
   return 1;
 }
 

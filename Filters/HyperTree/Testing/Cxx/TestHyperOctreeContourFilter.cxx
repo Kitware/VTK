@@ -103,13 +103,13 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   mapper3d->SetLookupTable(lut3d);
 
   if(contour3d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(contour3d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper3d->SetScalarRange( contour3d->GetOutput()->GetCellData()->
                                 GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor3d = vtkActor::New();
   actor3d->SetMapper(mapper3d);
@@ -174,13 +174,13 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   mapper2d->SetScalarModeToUseCellData();
 
   if(contour2d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(contour2d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper2d->SetScalarRange( contour2d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor2d = vtkActor::New();
   actor2d->SetPosition(5,0,0);
@@ -246,13 +246,13 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
   mapper1d->SetScalarModeToUseCellData();
 
   if(contour1d->GetOutput()->GetCellData()!=0)
-    {
+  {
     if(contour1d->GetOutput()->GetCellData()->GetScalars()!=0)
-      {
+    {
       mapper1d->SetScalarRange( contour1d->GetOutput()->GetCellData()->
                               GetScalars()->GetRange());
-      }
     }
+  }
 
   vtkActor *actor1d = vtkActor::New();
   actor1d->SetPosition(10,0,0);
@@ -279,9 +279,9 @@ int TestHyperOctreeContourFilter(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

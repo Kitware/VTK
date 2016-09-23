@@ -57,10 +57,10 @@ int SLACParticleReader(int argc, char *argv[])
 
   char *modeFileName = new char[strlen(modeFileNamePattern) + 10];
   for (int i = 0; i < 9; i++)
-    {
+  {
     sprintf(modeFileName, modeFileNamePattern, i);
     meshReader->AddModeFileName(modeFileName);
-    }
+  }
   delete[] modeFileName;
   delete[] modeFileNamePattern;
 
@@ -132,10 +132,10 @@ int SLACParticleReader(int argc, char *argv[])
   // Do the test comparison.
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal == vtkRegressionTester::PASSED) ? 0 : 1;
 }

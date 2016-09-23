@@ -70,10 +70,10 @@ vtkOpenGLContextDevice2D::vtkOpenGLContextDevice2D()
 vtkOpenGLContextDevice2D::~vtkOpenGLContextDevice2D()
 {
   while (!this->MarkerCache.empty())
-    {
+  {
     this->MarkerCache.back().Value->Delete();
     this->MarkerCache.pop_back();
-    }
+  }
 
   this->TextRenderer->Delete();
   delete this->Storage;
@@ -115,26 +115,26 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
-    {
+  {
     this->RenderWindow = vtkOpenGLRenderWindow::SafeDownCast(
         gl->GetRenderWindow());
-    }
+  }
 
   if (!this->Storage->GLExtensionsLoaded)
-    {
+  {
     if (this->RenderWindow)
-      {
+    {
       this->LoadExtensions(this->RenderWindow->GetExtensionManager());
-      }
     }
+  }
 
   // Enable simple line, point and polygon antialiasing if multisampling is on.
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
-    {
+  {
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_POINT_SMOOTH);
     glEnable(GL_POLYGON_SMOOTH);
-    }
+  }
 
   // Make sure we are on the default texture setting
   glBindTexture(GL_TEXTURE_2D, 0);
@@ -147,9 +147,9 @@ void vtkOpenGLContextDevice2D::Begin(vtkViewport* viewport)
 void vtkOpenGLContextDevice2D::End()
 {
   if (!this->InRender)
-    {
+  {
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -164,11 +164,11 @@ void vtkOpenGLContextDevice2D::End()
 
   // Disable simple line, point and polygon antialiasing if multisampling is on.
   if (this->Renderer->GetRenderWindow()->GetMultiSamples())
-    {
+  {
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_POINT_SMOOTH);
     glDisable(GL_POLYGON_SMOOTH);
-    }
+  }
 
   this->RenderWindow = NULL;
   this->InRender = false;
@@ -260,22 +260,22 @@ void vtkOpenGLContextDevice2D::DrawPoly(float *f, int n, unsigned char *colors,
   this->SetLineWidth(this->Pen->GetWidth());
 
   if (colors)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, f);
   glDrawArrays(GL_LINE_STRIP, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   // Restore line type and width.
   this->SetLineType(vtkPen::SOLID_LINE);
@@ -297,22 +297,22 @@ void vtkOpenGLContextDevice2D::DrawLines(float *f, int n, unsigned char *colors,
   this->SetLineWidth(this->Pen->GetWidth());
 
   if (colors)
-    {
+  {
     glEnableClientState(GL_COLOR_ARRAY);
     glColorPointer(nc, GL_UNSIGNED_BYTE, 0, colors);
-    }
+  }
   else
-    {
+  {
     glColor4ubv(this->Pen->GetColor());
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, f);
   glDrawArrays(GL_LINES, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (colors)
-    {
+  {
     glDisableClientState(GL_COLOR_ARRAY);
-    }
+  }
 
   // Restore line type and width.
   this->SetLineType(vtkPen::SOLID_LINE);
@@ -328,30 +328,30 @@ void vtkOpenGLContextDevice2D::DrawPoints(float *f, int n, unsigned char *c,
   vtkOpenGLClearErrorMacro();
 
   if (f && n > 0)
-    {
+  {
     this->SetPointSize(this->Pen->GetWidth());
     glEnableClientState(GL_VERTEX_ARRAY);
     if (c && nc)
-      {
+    {
       glEnableClientState(GL_COLOR_ARRAY);
       glColorPointer(nc, GL_UNSIGNED_BYTE, 0, c);
-      }
+    }
     else
-      {
+    {
       glColor4ubv(this->Pen->GetColor());
-      }
+    }
     glVertexPointer(2, GL_FLOAT, 0, f);
     glDrawArrays(GL_POINTS, 0, n);
     glDisableClientState(GL_VERTEX_ARRAY);
     if (c && nc)
-      {
-      glDisableClientState(GL_COLOR_ARRAY);
-      }
-    }
-  else
     {
-    vtkWarningMacro(<< "Points supplied that were not of type float.");
+      glDisableClientState(GL_COLOR_ARRAY);
     }
+  }
+  else
+  {
+    vtkWarningMacro(<< "Points supplied that were not of type float.");
+  }
 
   vtkOpenGLCheckErrorMacro("failed after DrawPoints");
 }
@@ -364,21 +364,21 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   vtkOpenGLClearErrorMacro();
   if (points && n > 0)
-    {
+  {
     this->SetPointSize(this->Pen->GetWidth());
     if (sprite)
-      {
+    {
       if (!this->Storage->SpriteTexture)
-        {
+      {
         this->Storage->SpriteTexture = vtkTexture::New();
-        }
+      }
       int properties = this->Brush->GetTextureProperties();
       this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->SetRepeat(properties & vtkContextDevice2D::Repeat);
       this->Storage->SpriteTexture->SetInterpolate(properties & vtkContextDevice2D::Linear);
       glEnable(GL_TEXTURE_2D);
       this->Storage->SpriteTexture->Render(this->Renderer);
-      }
+    }
 
     // Must emulate the point sprites - slower but at least they see something.
     GLfloat width = 1.0;
@@ -401,15 +401,15 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
                          0.0, 1.0 };
 
     if (!colors || !nc_comps)
-      {
+    {
       glColor4ubv(this->Pen->GetColor());
-      }
+    }
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glTexCoordPointer(2, GL_FLOAT, 0, texCoord);
 
     for (int i = 0; i < n; ++i)
-      {
+    {
       p[0] = points[2*i] - xWidth;
       p[1] = points[2*i+1] - yWidth;
       p[2] = points[2*i] + xWidth;
@@ -421,33 +421,33 @@ void vtkOpenGLContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 
       // If we have a color array, set the color for each quad.
       if (colors && nc_comps)
-        {
+      {
         if (nc_comps == 3)
-          {
+        {
           glColor3ubv(&colors[3 * i]);
-          }
-        else if (nc_comps == 4)
-          {
-          glColor4ubv(&colors[4 * i]);
-          }
         }
+        else if (nc_comps == 4)
+        {
+          glColor4ubv(&colors[4 * i]);
+        }
+      }
 
       glVertexPointer(2, GL_FLOAT, 0, p);
       glDrawArrays(GL_QUADS, 0, 4);
-      }
+    }
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
 
     if (sprite)
-      {
+    {
       this->Storage->SpriteTexture->PostRender(this->Renderer);
       glDisable(GL_TEXTURE_2D);
-      }
     }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after DrawPointSprites");
 }
 
@@ -467,14 +467,14 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
 {
   vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
-    {
+  {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
     return;
-    }
+  }
   glColor4ubv(this->Brush->GetColor());
   float* texCoord = 0;
   if (this->Brush->GetTexture())
-    {
+  {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
     glEnable(GL_TEXTURE_2D);
@@ -482,18 +482,18 @@ void vtkOpenGLContextDevice2D::DrawQuad(float *f, int n)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
     glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, f);
   glDrawArrays(GL_QUADS, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (this->Storage->Texture)
-    {
+  {
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after DrawQuad");
 }
 
@@ -502,14 +502,14 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
 {
   vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
-    {
+  {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
     return;
-    }
+  }
   glColor4ubv(this->Brush->GetColor());
   float* texCoord = 0;
   if (this->Brush->GetTexture())
-    {
+  {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
     glEnable(GL_TEXTURE_2D);
@@ -517,18 +517,18 @@ void vtkOpenGLContextDevice2D::DrawQuadStrip(float *f, int n)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
     glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, f);
   glDrawArrays(GL_QUAD_STRIP, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (this->Storage->Texture)
-    {
+  {
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after DrawQuadStrip");
 }
 //-----------------------------------------------------------------------------
@@ -536,14 +536,14 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
 {
   vtkOpenGLClearErrorMacro();
   if (!f || n <= 0)
-    {
+  {
     vtkWarningMacro(<< "Points supplied that were not of type float.");
     return;
-    }
+  }
   glColor4ubv(this->Brush->GetColor());
   float* texCoord = 0;
   if (this->Brush->GetTexture())
-    {
+  {
     this->SetTexture(this->Brush->GetTexture(),
                      this->Brush->GetTextureProperties());
     glEnable(GL_TEXTURE_2D);
@@ -551,18 +551,18 @@ void vtkOpenGLContextDevice2D::DrawPolygon(float *f, int n)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     texCoord = this->Storage->TexCoords(f, n);
     glTexCoordPointer(2, GL_FLOAT, 0, &texCoord[0]);
-    }
+  }
   glEnableClientState(GL_VERTEX_ARRAY);
   glVertexPointer(2, GL_FLOAT, 0, f);
   glDrawArrays(GL_POLYGON, 0, n);
   glDisableClientState(GL_VERTEX_ARRAY);
   if (this->Storage->Texture)
-    {
+  {
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     this->Storage->Texture->PostRender(this->Renderer);
     glDisable(GL_TEXTURE_2D);
     delete [] texCoord;
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after DrawPolygon");
 }
 
@@ -581,10 +581,10 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
   assert("pre: ordered_ry" && inRy<=outRy);
 
   if(outRy==0.0f && outRx==0.0f)
-    {
+  {
     // we make sure maxRadius will never be null.
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -610,7 +610,7 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
 
   int i=0;
   while(i<=iterations)
-    {
+  {
     // A vertex (inner side)
     double a=rstart+i*step;
     p[4*i  ] = inRx * cos(a) + x;
@@ -621,7 +621,7 @@ void vtkOpenGLContextDevice2D::DrawEllipseWedge(float x, float y, float outRx,
     p[4*i+3] = outRy * sin(a) + y;
 
     ++i;
-    }
+  }
 
   glColor4ubv(this->Brush->GetColor());
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -643,10 +643,10 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
   assert("pre: positive_rY" && rY>=0);
 
   if(rX==0.0f && rY==0.0f)
-    {
+  {
     // we make sure maxRadius will never be null.
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -664,11 +664,11 @@ void vtkOpenGLContextDevice2D::DrawEllipticArc(float x, float y, float rX,
 
   // we are iterating counterclockwise
   for(int i = 0; i <= iterations; ++i)
-    {
+  {
     double a=rstart+i*step;
     p[2*i  ] = rX * cos(a) + x;
     p[2*i+1] = rY * sin(a) + y;
-    }
+  }
 
   this->SetLineType(this->Pen->GetLineType());
   this->SetLineWidth(this->Pen->GetWidth());
@@ -704,19 +704,19 @@ int vtkOpenGLContextDevice2D::GetNumberOfArcIterations(float rX,
   // The tessellation is the most visible on the biggest radius.
   double maxRadius;
   if(rX >= rY)
-    {
+  {
     maxRadius = rX;
-    }
+  }
   else
-    {
+  {
     maxRadius = rY;
-    }
+  }
 
   if(error > maxRadius)
-    {
+  {
     // to make sure the argument of asin() is in a valid range.
     error = maxRadius;
-    }
+  }
 
   // Angle of a sector so that its chord is `error' pixels.
   // This is will be our maximum angle step.
@@ -734,9 +734,9 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
 {
   // Special case multiples of 90 as no transformation is required...
   if (orientation > -0.0001 && orientation < 0.0001)
-    {
+  {
     switch (this->TextProp->GetJustification())
-      {
+    {
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
@@ -745,9 +745,9 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_RIGHT:
         p[0] -= width;
         break;
-      }
+    }
     switch (this->TextProp->GetVerticalJustification())
-      {
+    {
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
@@ -756,12 +756,12 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_TOP:
         p[1] -= height;
         break;
-      }
     }
+  }
   else if (orientation > 89.9999 && orientation < 90.0001)
-    {
+  {
     switch (this->TextProp->GetJustification())
-      {
+    {
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
@@ -770,9 +770,9 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_RIGHT:
         p[1] -= height;
         break;
-      }
+    }
     switch (this->TextProp->GetVerticalJustification())
-      {
+    {
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
@@ -781,12 +781,12 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_BOTTOM:
         p[0] -= width;
         break;
-      }
     }
+  }
   else if (orientation > 179.9999 && orientation < 180.0001)
-    {
+  {
     switch (this->TextProp->GetJustification())
-      {
+    {
       case VTK_TEXT_RIGHT:
         break;
       case VTK_TEXT_CENTERED:
@@ -795,9 +795,9 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_LEFT:
         p[0] -= width;
         break;
-      }
+    }
     switch (this->TextProp->GetVerticalJustification())
-      {
+    {
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
@@ -806,12 +806,12 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_BOTTOM:
         p[1] -= height;
         break;
-      }
     }
+  }
   else if (orientation > 269.9999 && orientation < 270.0001)
-    {
+  {
     switch (this->TextProp->GetJustification())
-      {
+    {
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
@@ -820,9 +820,9 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_RIGHT:
         p[1] -= height;
         break;
-      }
+    }
     switch (this->TextProp->GetVerticalJustification())
-      {
+    {
       case VTK_TEXT_BOTTOM:
         break;
       case VTK_TEXT_CENTERED:
@@ -831,8 +831,8 @@ void vtkOpenGLContextDevice2D::AlignText(double orientation, float width,
       case VTK_TEXT_TOP:
         p[0] -= width;
         break;
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -878,16 +878,16 @@ void vtkOpenGLContextDevice2D::DrawString(float *point,
         UTF16TextPropertyKey(this->TextProp, string, dpi));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
-    {
+  {
     int textDims[2];
     if (!this->TextRenderer->RenderString(this->TextProp, string, dpi, image,
                                           textDims))
-      {
+    {
       return;
-      }
+    }
     cache.TextWidth = textDims[0];
     cache.TextHeight = textDims[1];
-    }
+  }
   vtkTexture* texture = cache.Texture;
   glEnable(GL_TEXTURE_2D);
   texture->Render(this->Renderer);
@@ -945,13 +945,13 @@ void vtkOpenGLContextDevice2D::ComputeStringBounds(const vtkUnicodeString &strin
   // Check for invalid bounding box
   if (box[0] == VTK_INT_MIN || box[0] == VTK_INT_MAX ||
       box[1] == VTK_INT_MIN || box[1] == VTK_INT_MAX)
-    {
+  {
     bounds[0] = static_cast<float>(0);
     bounds[1] = static_cast<float>(0);
     bounds[2] = static_cast<float>(0);
     bounds[3] = static_cast<float>(0);
     return;
-    }
+  }
 
   GLfloat mv[16];
   glGetFloatv(GL_MODELVIEW_MATRIX, mv);
@@ -978,12 +978,12 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
 {
   vtkMathTextUtilities *mathText = vtkMathTextUtilities::GetInstance();
   if (!mathText || !mathText->IsAvailable())
-    {
+  {
     vtkWarningMacro(<<"MathText is not available to parse string "
                     << string.c_str() << ". Install matplotlib and enable "
                     "python to use MathText.");
     return;
-    }
+  }
 
   vtkOpenGLClearErrorMacro();
 
@@ -1004,16 +1004,16 @@ void vtkOpenGLContextDevice2D::DrawMathTextString(float point[2],
       UTF8TextPropertyKey(this->TextProp, string, dpi));
   vtkImageData* image = cache.ImageData;
   if (image->GetNumberOfPoints() == 0 && image->GetNumberOfCells() == 0)
-    {
+  {
     int textDims[2];
     if (!mathText->RenderString(string.c_str(), image, this->TextProp, dpi,
                                 textDims))
-      {
+    {
       return;
-      }
+    }
     cache.TextWidth = textDims[0];
     cache.TextHeight = textDims[1];
-    }
+  }
 
   vtkTexture* texture = cache.Texture;
   glEnable(GL_TEXTURE_2D);
@@ -1105,13 +1105,13 @@ void vtkOpenGLContextDevice2D::DrawImage(const vtkRectf& pos,
   glEnable(GL_TEXTURE_2D);
   GLuint index = 0;
   if (this->Storage->PowerOfTwoTextures)
-    {
+  {
     index = this->Storage->TextureFromImage(image, tex);
-    }
+  }
   else
-    {
+  {
     index = this->Storage->TextureFromImage(image, tex);
-    }
+  }
 //  this->SetTexture(image);
 //  this->Storage->Texture->Render(this->Renderer);
   float points[] = { pos.GetX()              , pos.GetY(),
@@ -1156,18 +1156,18 @@ void vtkOpenGLContextDevice2D::SetColor(unsigned char *color)
 void vtkOpenGLContextDevice2D::SetTexture(vtkImageData* image, int properties)
 {
   if (image == NULL)
-    {
+  {
     if (this->Storage->Texture)
-      {
+    {
       this->Storage->Texture->Delete();
       this->Storage->Texture = 0;
-      }
+    }
     return;
-    }
+  }
   if (this->Storage->Texture == NULL)
-    {
+  {
     this->Storage->Texture = vtkTexture::New();
-    }
+  }
   this->Storage->Texture->SetInputData(image);
   this->Storage->TextureProperties = properties;
   this->Storage->Texture->SetRepeat(properties & vtkContextDevice2D::Repeat);
@@ -1191,16 +1191,16 @@ void vtkOpenGLContextDevice2D::SetLineWidth(float width)
 void vtkOpenGLContextDevice2D::SetLineType(int type)
 {
   if (type == vtkPen::SOLID_LINE)
-    {
+  {
     glDisable(GL_LINE_STIPPLE);
-    }
+  }
   else
-    {
+  {
     glEnable(GL_LINE_STIPPLE);
-    }
+  }
   GLushort pattern = 0x0000;
   switch (type)
-    {
+  {
     case vtkPen::NO_PEN:
       pattern = 0x0000;
       break;
@@ -1218,7 +1218,7 @@ void vtkOpenGLContextDevice2D::SetLineType(int type)
       break;
     default:
       pattern = 0x0000;
-    }
+  }
   glLineStipple(1, pattern);
 }
 
@@ -1333,21 +1333,21 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
     this->Storage->Dim.GetX(),this->Storage->Dim.GetY()};
 
   if (dim[0] > 0 && dim[0] < vp[2] )
-    {
+  {
     vp[0] += dim[0];
-    }
+  }
   if (dim[1] > 0 && dim[1] < vp[3])
-    {
+  {
     vp[1] += dim[1];
-    }
+  }
   if (dim[2] > 0 && dim[2] < vp[2])
-    {
+  {
     vp[2] = dim[2];
-    }
+  }
   if (dim[3] > 0 && dim[3] < vp[3])
-    {
+  {
     vp[3] = dim[3];
-    }
+  }
 
   glScissor(vp[0], vp[1], vp[2], vp[3]);
 }
@@ -1356,13 +1356,13 @@ void vtkOpenGLContextDevice2D::SetClipping(int *dim)
 void vtkOpenGLContextDevice2D::EnableClipping(bool enable)
 {
   if (enable)
-    {
+  {
     glEnable(GL_SCISSOR_TEST);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_SCISSOR_TEST);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1383,13 +1383,13 @@ bool vtkOpenGLContextDevice2D::SetStringRendererToQt()
 void vtkOpenGLContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
 {
   if (this->Storage->Texture)
-    {
+  {
     this->Storage->Texture->ReleaseGraphicsResources(window);
-    }
+  }
   if (this->Storage->SpriteTexture)
-    {
+  {
     this->Storage->SpriteTexture->ReleaseGraphicsResources(window);
-    }
+  }
   this->Storage->TextTextureCache.ReleaseGraphicsResources(window);
   this->Storage->MathTextTextureCache.ReleaseGraphicsResources(window);
 }
@@ -1404,43 +1404,43 @@ bool vtkOpenGLContextDevice2D::HasGLSL()
 bool vtkOpenGLContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
   if(m->ExtensionSupported("GL_ARB_texture_non_power_of_two"))
-    {
+  {
     m->LoadExtension("GL_ARB_texture_non_power_of_two");
     this->Storage->PowerOfTwoTextures = false;
     this->TextRenderer->SetScaleToPowerOfTwo(false);
-    }
+  }
   else
-    {
+  {
     this->Storage->PowerOfTwoTextures = true;
     this->TextRenderer->SetScaleToPowerOfTwo(true);
-    }
+  }
   if(m->ExtensionSupported("GL_VERSION_1_5"))
-    {
+  {
     m->LoadExtension("GL_VERSION_1_5");
     this->Storage->OpenGL15 = true;
-    }
+  }
   else
-    {
+  {
     this->Storage->OpenGL15 = false;
-    }
+  }
   if(vtkShaderProgram2::IsSupported(
       static_cast<vtkOpenGLRenderWindow *>(m->GetRenderWindow())))
-    {
+  {
     this->Storage->GLSL = true;
-    }
+  }
   else
-    {
+  {
     this->Storage->GLSL = false;
-    }
+  }
 
   // disable NPOT textures for Mesa
   // NPOT textures work in OS Mesa >= 8.0.0
   if ( m->DriverIsMesa()
      && !(m->DriverGLRendererIsOSMesa() && m->DriverVersionAtLeast(8)))
-    {
+  {
     this->Storage->PowerOfTwoTextures = true;
     this->TextRenderer->SetScaleToPowerOfTwo(true);
-    }
+  }
 
   this->Storage->GLExtensionsLoaded = true;
   return true;
@@ -1462,20 +1462,20 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
 
   // Was it in the cache?
   if (match != this->MarkerCache.end())
-    {
+  {
     // Yep -- move it to the front and return the data.
     if (match == this->MarkerCache.begin())
-      {
+    {
       return match->Value;
-      }
+    }
     else
-      {
+    {
       vtkMarkerCacheObject result = *match;
       this->MarkerCache.erase(match);
       this->MarkerCache.push_front(result);
       return result.Value;
-      }
     }
+  }
 
   // Nope -- we'll need to generate it. Create the image data:
   vtkMarkerCacheObject result;
@@ -1484,20 +1484,20 @@ vtkImageData *vtkOpenGLContextDevice2D::GetMarker(int shape, int size,
 
   // If there was an issue generating the marker, just return NULL.
   if (!result.Value)
-    {
+  {
     vtkErrorMacro(<<"Error generating marker: shape,size: "
                   << shape << "," << size)
     return NULL;
-    }
+  }
 
   // Check the current cache size.
   while (this->MarkerCache.size() >
          static_cast<size_t>(this->MaximumMarkerCacheSize - 1) &&
          !this->MarkerCache.empty())
-    {
+  {
     this->MarkerCache.back().Value->Delete();
     this->MarkerCache.pop_back();
-    }
+  }
 
    // Add to the cache
    this->MarkerCache.push_front(result);
@@ -1520,19 +1520,19 @@ vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
 
   // Generate the marker image at the required size
   switch (shape)
-    {
+  {
     case VTK_MARKER_CROSS:
-      {
+    {
       int center = (width + 1) / 2;
       for (int i = 0; i < center; ++i)
-        {
+      {
         int j = width - i - 1;
         memset(image + (4 * (width * i + i)), 255, 4);
         memset(image + (4 * (width * i + j)), 255, 4);
         memset(image + (4 * (width * j + i)), 255, 4);
         memset(image + (4 * (width * j + j)), 255, 4);
         if (highlight)
-          {
+        {
           memset(image + (4 * (width * (j-1) + (i))), 255, 4);
           memset(image + (4 * (width * (i+1) + (i))), 255, 4);
           memset(image + (4 * (width * (i) + (i+1))), 255, 4);
@@ -1541,18 +1541,18 @@ vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
           memset(image + (4 * (width * (j-1) + (j))), 255, 4);
           memset(image + (4 * (width * (j) + (j-1))), 255, 4);
           memset(image + (4 * (width * (j) + (i+1))), 255, 4);
-          }
         }
-      break;
       }
+      break;
+    }
     default: // Maintaining old behavior, which produces plus for unknown shape
       vtkWarningMacro(<<"Invalid marker shape: " << shape);
       VTK_FALLTHROUGH;
     case VTK_MARKER_PLUS:
-      {
+    {
       int center = (width + 1) / 2;
       for (int i = 0; i < center; ++i)
-        {
+      {
         int j = width - i - 1;
         int c = center - 1;
         memset(image + (4 * (width * c + i)), 255, 4);
@@ -1560,7 +1560,7 @@ vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
         memset(image + (4 * (width * i + c)), 255, 4);
         memset(image + (4 * (width * j + c)), 255, 4);
         if (highlight)
-          {
+        {
           memset(image + (4 * (width * (c - 1) + i)), 255, 4);
           memset(image + (4 * (width * (c + 1) + i)), 255, 4);
           memset(image + (4 * (width * (c - 1) + j)), 255, 4);
@@ -1569,51 +1569,51 @@ vtkImageData *vtkOpenGLContextDevice2D::GenerateMarker(int shape, int width,
           memset(image + (4 * (width * i + (c + 1))), 255, 4);
           memset(image + (4 * (width * j + (c - 1))), 255, 4);
           memset(image + (4 * (width * j + (c + 1))), 255, 4);
-          }
         }
-      break;
       }
+      break;
+    }
     case VTK_MARKER_SQUARE:
-      {
+    {
       memset(image, 255, width * width * 4);
       break;
-      }
+    }
     case VTK_MARKER_CIRCLE:
-      {
+    {
       double r = width/2.0;
       double r2 = r * r;
       for (int i = 0; i < width; ++i)
-        {
+      {
         double dx2 = (i - r) * (i - r);
         for (int j = 0; j < width; ++j)
-          {
+        {
           double dy2 = (j - r) * (j - r);
           if ((dx2 + dy2) < r2)
-            {
+          {
             memset(image + (4 * width * i) + (4 * j), 255, 4);
-            }
           }
         }
-      break;
       }
+      break;
+    }
     case VTK_MARKER_DIAMOND:
-      {
+    {
       int r = width/2;
       for (int i = 0; i < width; ++i)
-        {
+      {
         int dx = abs(i - r);
         for (int j = 0; j < width; ++j)
-          {
+        {
           int dy = abs(j - r);
           if (r - dx >= dy)
-            {
+          {
             memset(image + (4 * width * i) + (4 * j), 255, 4);
-            }
           }
         }
-      break;
       }
+      break;
     }
+  }
   return result;
 }
 
@@ -1623,24 +1623,24 @@ void vtkOpenGLContextDevice2D::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "Renderer: ";
   if (this->Renderer)
-    {
+  {
     os << endl;
     this->Renderer->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   os << indent << "Text Renderer: ";
   if (this->TextRenderer)
-    {
+  {
     os << endl;
     this->TextRenderer->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   os << indent << "MaximumMarkerCacheSize: "
      << this->MaximumMarkerCacheSize << endl;
   os << indent << "MarkerCache: " << this->MarkerCache.size()

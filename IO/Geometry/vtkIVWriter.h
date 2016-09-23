@@ -56,14 +56,14 @@ public:
 
 protected:
   vtkIVWriter()
-    {
+  {
     this->FileName = NULL;
-    }
+  }
 
   ~vtkIVWriter()
-    {
+  {
     delete[] this->FileName;
-    }
+  }
 
   void WriteData();
   void WritePolyData(vtkPolyData *polyData, FILE *fp);

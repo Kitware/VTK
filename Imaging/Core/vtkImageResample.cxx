@@ -41,37 +41,37 @@ vtkImageResample::vtkImageResample()
 void vtkImageResample::SetAxisOutputSpacing(int axis, double spacing)
 {
   if (axis < 0 || axis > 2)
-    {
+  {
     vtkErrorMacro("Bad axis: " << axis);
     return;
-    }
+  }
 
   if (this->OutputSpacing[axis] != spacing)
-    {
+  {
     this->OutputSpacing[axis] = spacing;
     this->Modified();
     if (spacing != 0.0)
-      {
+    {
       // Delay computing the magnification factor.
       // Input might not be set yet.
       this->MagnificationFactors[axis] = 0.0; // Not computed yet.
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageResample::SetAxisMagnificationFactor(int axis, double factor)
 {
   if (axis < 0 || axis > 2)
-    {
+  {
     vtkErrorMacro("Bad axis: " << axis);
     return;
-    }
+  }
 
   if (this->MagnificationFactors[axis] == factor)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->MagnificationFactors[axis] = factor;
   // Spacing is no longer valid.
@@ -83,29 +83,29 @@ double vtkImageResample::GetAxisMagnificationFactor(int axis,
                                                     vtkInformation *inInfo)
 {
   if (axis < 0 || axis > 2)
-    {
+  {
     vtkErrorMacro("Bad axis: " << axis);
     return 0.0;
-    }
+  }
 
   if (this->MagnificationFactors[axis] == 0.0)
-    {
+  {
     double *inputSpacing;
     if ( ! this->GetInput())
-      {
+    {
       vtkErrorMacro("GetMagnificationFactor: Input not set.");
       return 0.0;
-      }
+    }
     this->GetInputConnection(0, 0)->GetProducer()->UpdateInformation();
     if (!inInfo)
-      {
+    {
       inInfo = this->GetExecutive()->GetInputInformation(0, 0);
-      }
+    }
     inputSpacing = inInfo->Get(vtkDataObject::SPACING());
     this->MagnificationFactors[axis] =
       inputSpacing[axis] / this->OutputSpacing[axis];
 
-    }
+  }
 
   vtkDebugMacro("Returning magnification factor "
                 <<  this->MagnificationFactors[axis] << " for axis "
@@ -132,16 +132,16 @@ int vtkImageResample::RequestInformation(
   inInfo->Get(vtkDataObject::SPACING(), spacing);
 
   for (axis = 0; axis < 3; axis++)
-    {
+  {
     wholeMin = ext[axis*2];
     wholeMax = ext[axis*2+1];
 
     // Scale the output extent
     factor = 1.0;
     if (axis < this->Dimensionality)
-      {
+    {
       factor = this->GetAxisMagnificationFactor(axis, inInfo);
-      }
+    }
 
     wholeMin = static_cast<int>(ceil(static_cast<double>(wholeMin) * factor));
     wholeMax = static_cast<int>(floor(static_cast<double>(wholeMax) * factor));
@@ -154,11 +154,11 @@ int vtkImageResample::RequestInformation(
 
     // just in case  the input spacing has changed.
     if (this->OutputSpacing[axis] != 0.0)
-      {
+    {
       // Cause MagnificationFactor to recompute.
       this->MagnificationFactors[axis] = 0.0;
-      }
     }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext, 6);
   outInfo->Set(vtkDataObject::SPACING(), spacing, 3);

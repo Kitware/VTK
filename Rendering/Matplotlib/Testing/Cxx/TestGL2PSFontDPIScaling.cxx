@@ -32,10 +32,10 @@
 int TestGL2PSFontDPIScaling(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cerr << "Missing font filename." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string uncodeFontFile(argv[1]);
 

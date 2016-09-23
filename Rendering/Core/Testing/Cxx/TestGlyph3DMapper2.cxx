@@ -47,8 +47,8 @@ int TestGlyph3DMapper2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   // uninitializeBounds
   boundsResult = glyph3Dmapper->GetBounds();
   for (int i = 0; i < 6; ++i)
-    {
+  {
     if (boundsResult[i] != boundsAnswer[i]) return -1;
-    }
+  }
   return 0;
 }

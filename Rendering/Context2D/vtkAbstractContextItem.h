@@ -220,9 +220,9 @@ public:
    * Get the vtkContextScene for the item, always set for an item in a scene.
    */
   vtkContextScene* GetScene()
-    {
+  {
     return this->Scene;
-    }
+  }
 
   /**
    * Set the parent item. The parent will be set for all items except top
@@ -235,9 +235,9 @@ public:
    * level items in a tree.
    */
   vtkAbstractContextItem* GetParent()
-    {
+  {
     return this->Parent;
-    }
+  }
 
   /**
    * Maps the point to the parent coordinate system.

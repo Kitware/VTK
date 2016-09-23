@@ -53,10 +53,10 @@ void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg,
   vertexMapper->SetInputConnection(vertexGlyph->GetOutputPort());
   vertexMapper->SetScalarModeToUsePointFieldData();
   if (vertColorArray)
-    {
+  {
     vertexMapper->SelectColorArray(vertColorArray);
     vertexMapper->SetScalarRange(vertMin, vertMax);
-    }
+  }
   VTK_CREATE(vtkActor, vertexActor);
   vertexActor->SetMapper(vertexMapper);
   vertexActor->GetProperty()->SetPointSize(10.0);
@@ -66,10 +66,10 @@ void PerformAlgorithm(vtkRenderer* ren, vtkAlgorithm* alg,
   edgeMapper->SetInputConnection(graphToPoly->GetOutputPort());
   edgeMapper->SetScalarModeToUseCellFieldData();
   if (edgeColorArray)
-    {
+  {
     edgeMapper->SelectColorArray(edgeColorArray);
     edgeMapper->SetScalarRange(edgeMin, edgeMax);
-    }
+  }
   VTK_CREATE(vtkActor, edgeActor);
   edgeActor->SetMapper(edgeMapper);
   edgeActor->SetPosition(xoffset, yoffset, 0);
@@ -121,11 +121,11 @@ int TestGraphAlgorithms(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     win->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

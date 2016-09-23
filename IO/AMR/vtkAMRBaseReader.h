@@ -59,9 +59,9 @@ public:
   vtkGetMacro( EnableCaching, int );
   vtkBooleanMacro( EnableCaching, int );
   bool IsCachingEnabled() const
-     {
+  {
      return( (this->EnableCaching)?true:false);
-     };
+  };
   //@}
 
   //@{

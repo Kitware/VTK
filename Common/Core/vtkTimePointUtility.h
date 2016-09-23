@@ -121,7 +121,7 @@ public:
     ISO8601_DATE = 2,
     ISO8601_TIME_MILLIS = 3,
     ISO8601_TIME = 4
-    };
+  };
 
   static const int MILLIS_PER_SECOND;
   static const int MILLIS_PER_MINUTE;

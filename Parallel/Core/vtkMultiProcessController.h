@@ -289,14 +289,14 @@ public:
    */
   void TriggerRMIOnAllChildren(void *arg, int argLength, int tag);
   void TriggerRMIOnAllChildren(const char *arg, int tag)
-    {
+  {
     this->TriggerRMIOnAllChildren(
       (void*)arg, static_cast<int>(strlen(arg))+1, tag);
-    }
+  }
   void TriggerRMIOnAllChildren(int tag)
-    {
+  {
     this->TriggerRMIOnAllChildren(NULL, 0, tag);
-    }
+  }
   void BroadcastTriggerRMIOnAllChildren(void* arg, int argLength, int tag);
   //@}
 
@@ -620,9 +620,9 @@ public:
   int Gather(vtkDataObject* sendBuffer,
     std::vector<vtkSmartPointer<vtkDataObject> >& recvBuffer,
     int destProcessId)
-    {
+  {
     return this->Communicator->Gather(sendBuffer, recvBuffer, destProcessId);
-    }
+  }
 
   //@{
   /**
@@ -1489,78 +1489,78 @@ inline int vtkMultiProcessController::Send(vtkDataObject *data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(vtkDataArray *data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const int* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const short* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const unsigned short* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const unsigned int* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const unsigned long* data,
@@ -1569,13 +1569,13 @@ inline int vtkMultiProcessController::Send(const unsigned long* data,
                                            int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const long* data,
@@ -1584,39 +1584,39 @@ inline int vtkMultiProcessController::Send(const long* data,
                                            int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const signed char* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const char* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const unsigned char* data,
@@ -1624,39 +1624,39 @@ inline int vtkMultiProcessController::Send(const unsigned char* data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const float* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const double* data, vtkIdType length,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const long long* data,
@@ -1664,13 +1664,13 @@ inline int vtkMultiProcessController::Send(const long long* data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const unsigned long long* data,
@@ -1678,22 +1678,22 @@ inline int vtkMultiProcessController::Send(const unsigned long long* data,
                                            int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Send(const vtkMultiProcessStream& stream,
   int remoteId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Send(stream, remoteId, tag);
-    }
+  }
   return 0;
 }
 
@@ -1701,104 +1701,104 @@ inline int vtkMultiProcessController::Receive(vtkDataObject* data,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline vtkDataObject* vtkMultiProcessController::ReceiveDataObject(
   int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->ReceiveDataObject(remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(vtkDataArray* data,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(int* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(unsigned int* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(short* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(unsigned short* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 
@@ -1808,26 +1808,26 @@ inline int vtkMultiProcessController::Receive(unsigned long* data,
                                               int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(char* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(unsigned char* data,
@@ -1835,26 +1835,26 @@ inline int vtkMultiProcessController::Receive(unsigned char* data,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(signed char* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 
@@ -1862,78 +1862,78 @@ inline int vtkMultiProcessController::Receive(float* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(double* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(unsigned long long* data, vtkIdType length,
                                               int remoteProcessId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(data, length, remoteProcessId, tag);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 inline int vtkMultiProcessController::Receive(vtkMultiProcessStream& stream,
   int remoteId, int tag)
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->Receive(stream, remoteId, tag);
-    }
+  }
   return 0;
 }
 
 inline void vtkMultiProcessController::Barrier()
 {
   if (this->Communicator)
-    {
+  {
     this->Communicator->Barrier();
-    }
+  }
 }
 
 inline vtkIdType vtkMultiProcessController::GetCount()
 {
   if (this->Communicator)
-    {
+  {
     return this->Communicator->GetCount();
-    }
+  }
   return 0;
 }
 

@@ -46,15 +46,15 @@ vtkOpenGLImageAlgorithmHelper::~vtkOpenGLImageAlgorithmHelper()
 void vtkOpenGLImageAlgorithmHelper::SetRenderWindow(vtkRenderWindow *renWin)
 {
   if (renWin == this->RenderWindow.Get())
-    {
+  {
     return;
-    }
+  }
 
   vtkOpenGLRenderWindow *orw  = NULL;
   if (renWin)
-    {
+  {
     orw = vtkOpenGLRenderWindow::SafeDownCast(renWin);
-    }
+  }
 
   this->RenderWindow = orw;
   this->Modified();
@@ -71,11 +71,11 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
 {
   // make sure it is initialized
   if (!this->RenderWindow)
-    {
+  {
     this->SetRenderWindow(vtkRenderWindow::New());
     this->RenderWindow->SetOffScreenRendering(true);
     this->RenderWindow->UnRegister(this);
-    }
+  }
   this->RenderWindow->Initialize();
 
   // Is it a 2D or 3D image
@@ -83,19 +83,19 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   inImage->GetDimensions(dims);
   int dimensions = 0;
   for (int i = 0; i < 3; i ++)
-    {
+  {
     if (dims[i] > 1)
-      {
+    {
       dimensions++;
-      }
     }
+  }
 
   // no 1d or 2D supprt yet
   if (dimensions < 3)
-    {
+  {
     vtkErrorMacro("no 1D or 2D processing support yet");
     return;
-    }
+  }
 
   // send vector data to a texture
   int inputExt[6];
@@ -151,10 +151,10 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
     this->RenderWindow->GetShaderCache()->ReadyShaderProgram(
       vertexCode, fragmentCode, geometryCode);
   if (prog != this->Quad.Program)
-    {
+  {
     this->Quad.Program = prog;
     this->Quad.VAO->ShaderProgramChanged();
-    }
+  }
   cb->InitializeShaderUniforms(prog);
 
   inputTex->Activate();
@@ -169,7 +169,7 @@ void vtkOpenGLImageAlgorithmHelper::Execute(
   // for each zslice in the output
   vtkPixelExtent outputPixelExt(outExt);
   for (int i = outExt[4]; i <= outExt[5]; i++)
-    {
+  {
     cb->UpdateShaderUniforms(prog, i);
     this->Quad.Program->SetUniformf("zPos", (i - outExt[4] + 0.5) / (outDims[2]));
 
@@ -202,11 +202,11 @@ void vtkOpenGLImageAlgorithmHelper::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RenderWindow:";
   if(this->RenderWindow != 0)
-    {
+  {
     this->RenderWindow->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }

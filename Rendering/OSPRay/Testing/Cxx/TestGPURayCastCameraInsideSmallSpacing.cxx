@@ -1560,13 +1560,13 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char *argv[])
 
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
 
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                        argc, argv, "Data/ironProt.vtk");
@@ -1581,9 +1581,9 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char *argv[])
   double desiredBounds = 0.0005;
   double desiredSpacing[3];
   for (int i = 0; i < 3; ++i)
-    {
+  {
     desiredSpacing[i] = desiredBounds / static_cast<double> (dims[i]);
-    }
+  }
 
   vtkNew<vtkImageChangeInformation> imageChangeInfo;
   imageChangeInfo->SetInputConnection(reader->GetOutputPort());
@@ -1633,9 +1633,9 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char *argv[])
   vtkSmartPointer<vtkOSPRayPass> osprayPass =
     vtkSmartPointer<vtkOSPRayPass>::New();
   if (useOSP)
-    {
+  {
     ren->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   ren->AddVolume(volume.GetPointer());
   ren->ResetCamera();

@@ -62,7 +62,7 @@ void vtkFinitePlaneWidget::PrintSelf(ostream& os, vtkIndent indent)
 void vtkFinitePlaneWidget::SetRepresentation(vtkFinitePlaneRepresentation *r)
 {
   this->Superclass::SetWidgetRepresentation(r);
-  }
+}
 
 //----------------------------------------------------------------------
 void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget *w)
@@ -81,9 +81,9 @@ void vtkFinitePlaneWidget::SelectAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -116,7 +116,7 @@ void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkFinitePlaneRepresentation*>(self->WidgetRep);
 
   if (self->ManagesCursor && self->WidgetState != vtkFinitePlaneWidget::Active)
-    {
+  {
     int oldInteractionState = repr->GetInteractionState();
 
     repr->SetInteractionState(vtkFinitePlaneRepresentation::Moving);
@@ -124,17 +124,17 @@ void vtkFinitePlaneWidget::MoveAction(vtkAbstractWidget *w)
     changed = self->UpdateCursorShape(state);
     repr->SetInteractionState(oldInteractionState);
     changed = (changed || state != oldInteractionState) ? 1 : 0;
-    }
+  }
 
   // See whether we're active
   if (self->WidgetState == vtkFinitePlaneWidget::Start)
-    {
+  {
     if (changed && self->ManagesCursor)
-      {
+    {
       self->Render();
-      }
-    return;
     }
+    return;
+  }
 
   // Adjust the representation
   double e[2];
@@ -155,9 +155,9 @@ void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget *w)
 
   if (self->WidgetState != vtkFinitePlaneWidget::Active ||
       self->WidgetRep->GetInteractionState() == vtkFinitePlaneRepresentation::Outside)
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not selected
   double e[2];
@@ -179,9 +179,9 @@ void vtkFinitePlaneWidget::EndSelectAction(vtkAbstractWidget *w)
 void vtkFinitePlaneWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
-    {
+  {
     this->WidgetRep = vtkFinitePlaneRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -190,16 +190,16 @@ int vtkFinitePlaneWidget::UpdateCursorShape(int state)
   // So as to change the cursor shape when the mouse is poised over
   // the widget.
   if (this->ManagesCursor)
-    {
+  {
     if (state == vtkFinitePlaneRepresentation::Outside)
-      {
+    {
       return this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
-    else
-      {
-      return this->RequestCursorShape(VTK_CURSOR_HAND);
-      }
     }
+    else
+    {
+      return this->RequestCursorShape(VTK_CURSOR_HAND);
+    }
+  }
 
   return 0;
 }

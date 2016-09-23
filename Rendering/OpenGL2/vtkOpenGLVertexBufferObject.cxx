@@ -34,10 +34,10 @@ vtkOpenGLVertexBufferObject::vtkOpenGLVertexBufferObject()
   this->CoordShiftAndScaleMethod = AUTO_SHIFT_SCALE;
   this->CoordShiftAndScaleEnabled = false;
   for (int i = 0; i < 3; ++i)
-    {
+  {
     this->CoordShift[i] = 0.;
     this->CoordScale[i] = 1.;
-    }
+  }
 }
 
 vtkOpenGLVertexBufferObject::~vtkOpenGLVertexBufferObject()
@@ -67,22 +67,22 @@ void TemplatedAppendVBO3(vtkOpenGLVertexBufferObject *self,
   self->ColorComponents = 0;
   self->ColorOffset = 0;
   if (normals)
-    {
+  {
     self->NormalOffset = sizeof(float) * blockSize;
     blockSize += 3;
-    }
+  }
   if (tcoords)
-    {
+  {
     self->TCoordOffset = sizeof(float) * blockSize;
     self->TCoordComponents = textureComponents;
     blockSize += textureComponents;
-    }
+  }
   if (colors)
-    {
+  {
     self->ColorComponents = colorComponents;
     self->ColorOffset = sizeof(float) * blockSize;
     ++blockSize;
-    }
+  }
   self->Stride = sizeof(float) * blockSize;
 
   // Create a buffer, and copy the data over.
@@ -97,7 +97,7 @@ void TemplatedAppendVBO3(vtkOpenGLVertexBufferObject *self,
 
   // TODO: optimize this somehow, lots of if statements in here
   for (vtkIdType i = 0; i < numPts; ++i)
-    {
+  {
     pointPtr = points + i*3;
     normalPtr = normals + i*3;
     tcoordPtr = tcoords + i*textureComponents;
@@ -108,35 +108,35 @@ void TemplatedAppendVBO3(vtkOpenGLVertexBufferObject *self,
     *(it++) = *(pointPtr++);
     *(it++) = *(pointPtr++);
     if (normals)
-      {
+    {
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
-      }
+    }
     if (tcoords)
-      {
+    {
       for (int j = 0; j < textureComponents; ++j)
-        {
-        *(it++) = *(tcoordPtr++);
-        }
-      }
-    if (colors)
       {
+        *(it++) = *(tcoordPtr++);
+      }
+    }
+    if (colors)
+    {
       if (colorComponents == 4)
-        {
+      {
         *(it++) = *reinterpret_cast<float *>(colorPtr);
-        }
+      }
       else
-        {
+      {
         vtkucfloat c;
         c.c[0] = *(colorPtr++);
         c.c[1] = *(colorPtr++);
         c.c[2] = *(colorPtr);
         c.c[3] =  255;
         *(it++) = c.f;
-        }
       }
     }
+  }
   self->VertexCount += numPts;
 }
 
@@ -157,22 +157,22 @@ void TemplatedAppendVBOShiftScale3(vtkOpenGLVertexBufferObject *self,
   self->ColorComponents = 0;
   self->ColorOffset = 0;
   if (normals)
-    {
+  {
     self->NormalOffset = sizeof(float) * blockSize;
     blockSize += 3;
-    }
+  }
   if (tcoords)
-    {
+  {
     self->TCoordOffset = sizeof(float) * blockSize;
     self->TCoordComponents = textureComponents;
     blockSize += textureComponents;
-    }
+  }
   if (colors)
-    {
+  {
     self->ColorComponents = colorComponents;
     self->ColorOffset = sizeof(float) * blockSize;
     ++blockSize;
-    }
+  }
   self->Stride = sizeof(float) * blockSize;
 
   // Create a buffer, and copy the data over.
@@ -187,7 +187,7 @@ void TemplatedAppendVBOShiftScale3(vtkOpenGLVertexBufferObject *self,
 
   // TODO: optimize this somehow, lots of if statements in here
   for (vtkIdType i = 0; i < numPts; ++i)
-    {
+  {
     pointPtr = points + i*3;
     normalPtr = normals + i*3;
     tcoordPtr = tcoords + i*textureComponents;
@@ -198,35 +198,35 @@ void TemplatedAppendVBOShiftScale3(vtkOpenGLVertexBufferObject *self,
     *(it++) = (*(pointPtr++) - shift[1]) * scale[1];
     *(it++) = (*(pointPtr++) - shift[2]) * scale[2];
     if (normals)
-      {
+    {
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
       *(it++) = *(normalPtr++);
-      }
+    }
     if (tcoords)
-      {
+    {
       for (int j = 0; j < textureComponents; ++j)
-        {
-        *(it++) = *(tcoordPtr++);
-        }
-      }
-    if (colors)
       {
+        *(it++) = *(tcoordPtr++);
+      }
+    }
+    if (colors)
+    {
       if (colorComponents == 4)
-        {
+      {
         *(it++) = *reinterpret_cast<float *>(colorPtr);
-        }
+      }
       else
-        {
+      {
         vtkucfloat c;
         c.c[0] = *(colorPtr++);
         c.c[1] = *(colorPtr++);
         c.c[2] = *(colorPtr);
         c.c[3] =  255;
         *(it++) = c.f;
-        }
       }
     }
+  }
   self->VertexCount += numPts;
 }
 
@@ -238,23 +238,23 @@ void TemplatedAppendVBO2(vtkOpenGLVertexBufferObject *self,
   unsigned char *colors, int colorComponents)
 {
   if (tcoords)
-    {
+  {
     switch(tcoords->GetDataType())
-      {
+    {
       vtkFloatDoubleTemplateMacro(
         TemplatedAppendVBO3(self, points, normals,
                   numPts,
                   static_cast<VTK_TT*>(tcoords->GetVoidPointer(0)),
                   tcoords->GetNumberOfComponents(),
                   colors, colorComponents));
-      }
     }
+  }
   else
-    {
+  {
     TemplatedAppendVBO3(self, points, normals,
                         numPts, (float *)NULL, 0,
                         colors, colorComponents);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -266,9 +266,9 @@ void TemplatedAppendVBOShiftScale2(vtkOpenGLVertexBufferObject* self,
   const double* shift, const double* scale)
 {
   if (tcoords)
-    {
+  {
     switch(tcoords->GetDataType())
-      {
+    {
       vtkFloatDoubleTemplateMacro(
         TemplatedAppendVBOShiftScale3(self, points, normals,
                   numPts,
@@ -276,15 +276,15 @@ void TemplatedAppendVBOShiftScale2(vtkOpenGLVertexBufferObject* self,
                   tcoords->GetNumberOfComponents(),
                   colors, colorComponents,
                   shift, scale));
-      }
     }
+  }
   else
-    {
+  {
     TemplatedAppendVBOShiftScale3(self, points, normals,
                         numPts, (float *)NULL, 0,
                         colors, colorComponents,
                         shift, scale);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -295,21 +295,21 @@ void TemplatedAppendVBO(vtkOpenGLVertexBufferObject* self,
   unsigned char *colors, int colorComponents)
 {
   if (normals)
-    {
+  {
     switch(normals->GetDataType())
-      {
+    {
       vtkFloatDoubleTemplateMacro(
         TemplatedAppendVBO2(self, points,
                   static_cast<VTK_TT*>(normals->GetVoidPointer(0)),
                   numPts, tcoords, colors, colorComponents));
-      }
     }
+  }
   else
-    {
+  {
     TemplatedAppendVBO2(self, points,
                         (float *)NULL,
                         numPts, tcoords, colors, colorComponents);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -321,21 +321,21 @@ void TemplatedAppendVBOShiftScale(vtkOpenGLVertexBufferObject* self,
   const double* shift, const double* scale)
 {
   if (normals)
-    {
+  {
     switch(normals->GetDataType())
-      {
+    {
       vtkFloatDoubleTemplateMacro(
         TemplatedAppendVBOShiftScale2(self, points,
                   static_cast<VTK_TT*>(normals->GetVoidPointer(0)),
                   numPts, tcoords, colors, colorComponents, shift, scale));
-      }
     }
+  }
   else
-    {
+  {
     TemplatedAppendVBOShiftScale2(self, points,
                         (float *)NULL,
                         numPts, tcoords, colors, colorComponents, shift, scale);
-    }
+  }
 }
 
 } // end anonymous namespace
@@ -346,16 +346,16 @@ void vtkOpenGLVertexBufferObject::SetCoordShiftAndScaleMethod(ShiftScaleMethod m
     << this->GetClassName() << " (" << this
     << "): setting CoordShiftAndScaleMethod to " << meth);
   if (this->CoordShiftAndScaleMethod != meth)
-    {
+  {
     if (!this->PackedVBO.empty())
-      {
+    {
       vtkErrorMacro("SetCoordShiftAndScaleMethod() called with non-empty VBO! Ignoring.");
       return;
-      }
+    }
 
     this->CoordShiftAndScaleMethod = meth;
     this->Modified();
-    }
+  }
 }
 
 void vtkOpenGLVertexBufferObject::SetCoordShift(double sx, double sy, double sz)
@@ -364,12 +364,12 @@ void vtkOpenGLVertexBufferObject::SetCoordShift(double sx, double sy, double sz)
     << this->GetClassName() << " (" << this
     << "): setting CoordShift to (" << sx << "," << sy << "," << sz << ")");
   if ((this->CoordShift[0] != sx) || (this->CoordShift[1] != sy) || (this->CoordShift[2] != sz))
-    {
+  {
     if (!this->PackedVBO.empty())
-      {
+    {
       vtkErrorMacro("SetCoordShift() called with non-empty VBO! Ignoring.");
       return;
-      }
+    }
     this->CoordShift[0] = sx;
     this->CoordShift[1] = sy;
     this->CoordShift[2] = sz;
@@ -377,7 +377,7 @@ void vtkOpenGLVertexBufferObject::SetCoordShift(double sx, double sy, double sz)
       this->CoordShift[0] != 0.0 || this->CoordShift[1] != 0.0 || this->CoordShift[2] != 0.0 ||
       this->CoordScale[0] != 1.0 || this->CoordScale[1] != 1.0 || this->CoordScale[2] != 1.0;
     this->Modified();
-    }
+  }
 }
 
 void vtkOpenGLVertexBufferObject::SetCoordShift(const double s[3])
@@ -391,12 +391,12 @@ void vtkOpenGLVertexBufferObject::SetCoordScale(double sx, double sy, double sz)
     << this->GetClassName() << " (" << this
     << "): setting CoordScale to (" << sx << "," << sy << "," << sz << ")");
   if ((this->CoordScale[0] != sx) || (this->CoordScale[1] != sy) || (this->CoordScale[2] != sz))
-    {
+  {
     if (!this->PackedVBO.empty())
-      {
+    {
       vtkErrorMacro("SetCoordScale() called with non-empty VBO! Ignoring.");
       return;
-      }
+    }
 
     this->CoordScale[0] = sx;
     this->CoordScale[1] = sy;
@@ -405,7 +405,7 @@ void vtkOpenGLVertexBufferObject::SetCoordScale(double sx, double sy, double sz)
       this->CoordShift[0] != 0.0 || this->CoordShift[1] != 0.0 || this->CoordShift[2] != 0.0 ||
       this->CoordScale[0] != 1.0 || this->CoordScale[1] != 1.0 || this->CoordScale[2] != 1.0;
     this->Modified();
-    }
+  }
 }
 
 void vtkOpenGLVertexBufferObject::SetCoordScale(const double s[3])
@@ -424,26 +424,26 @@ void vtkOpenGLVertexBufferObject::AppendVBO(
   unsigned char *colors, int colorComponents)
 {
   if (this->CoordShiftAndScaleEnabled)
-    {
+  {
     switch(points->GetDataType())
-      {
+    {
       vtkTemplateMacro(
         TemplatedAppendVBOShiftScale(
           this, static_cast<VTK_TT*>(points->GetVoidPointer(0)),
           normals, numPts, tcoords, colors, colorComponents,
           this->CoordShift, this->CoordScale));
-      }
     }
+  }
   else
-    {
+  {
     switch(points->GetDataType())
-      {
+    {
       vtkTemplateMacro(
         TemplatedAppendVBO(
           this, static_cast<VTK_TT*>(points->GetVoidPointer(0)),
           normals, numPts, tcoords, colors, colorComponents));
-      }
     }
+  }
 }
 
 // create a VBO, append the data to it, then upload it
@@ -454,37 +454,37 @@ void vtkOpenGLVertexBufferObject::CreateVBO(
   unsigned char *colors, int colorComponents)
 {
   if (this->CoordShiftAndScaleMethod == AUTO_SHIFT_SCALE)
-    {
+  {
     double bds[6];
     double shift[3];
     double scale[3];
     points->GetBounds(bds);
     bool needed = false;
     for (int i = 0; i < 3; ++i)
-      {
+    {
       shift[i] = bds[2 * i]; //-0.5 * (bds[2 * i + 1] + bds[2 * i]);
       double delta = bds[2 * i + 1] - bds[2 * i];
       if (delta > 0.0 && fabs(shift[i]) / delta > 1.0e4)
-        {
+      {
         needed = true;
         scale[i] = 1.0 / delta;
-        }
-      else
-        {
-        scale[i] = 1.0;
-        }
       }
-    if (needed)
+      else
       {
-      this->SetCoordShift(shift);
-      this->SetCoordScale(scale);
+        scale[i] = 1.0;
       }
     }
+    if (needed)
+    {
+      this->SetCoordShift(shift);
+      this->SetCoordScale(scale);
+    }
+  }
   // fast path
   if (
     !this->CoordShiftAndScaleEnabled && !tcoords && !normals &&
     !colors && points->GetDataType() == VTK_FLOAT)
-    {
+  {
     int blockSize = 3;
     this->VertexOffset = 0;
     this->NormalOffset = 0;
@@ -497,7 +497,7 @@ void vtkOpenGLVertexBufferObject::CreateVBO(
     this->Upload((float *)(points->GetVoidPointer(0)), numPts*3,
       vtkOpenGLBufferObject::ArrayBuffer);
     return;
-    }
+  }
 
   // slower path
   this->VertexCount = 0;

@@ -65,13 +65,13 @@ int vtkDiskSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   newPolys = vtkCellArray::New();
@@ -83,38 +83,38 @@ int vtkDiskSource::RequestData(
   deltaRadius = (this->OuterRadius - this->InnerRadius)/this->RadialResolution;
 
   for (i=0; i < this->CircumferentialResolution; i++)
-    {
+  {
     cosTheta = cos(i*theta);
     sinTheta = sin(i*theta);
     for (j=0; j <= this->RadialResolution; j++)
-      {
+    {
       x[0] = (this->InnerRadius + j*deltaRadius) * cosTheta;
       x[1] = (this->InnerRadius + j*deltaRadius) * sinTheta;
       x[2] = 0.0;
       newPoints->InsertNextPoint(x);
-      }
     }
+  }
 
   //  Create connectivity
   //
   for (i=0; i < this->CircumferentialResolution; i++)
-    {
+  {
     for (j=0; j < this->RadialResolution; j++)
-      {
+    {
       pts[0] = i*(this->RadialResolution+1) + j;
       pts[1] = pts[0] + 1;
       if ( i < (this->CircumferentialResolution-1) )
-        {
+      {
         pts[2] = pts[1] + this->RadialResolution + 1;
-        }
+      }
       else
-        {
+      {
         pts[2] = j + 1;
-        }
+      }
       pts[3] = pts[2] - 1;
       newPolys->InsertNextCell(4,pts);
-      }
     }
+  }
 
   // Update ourselves and release memory
   //

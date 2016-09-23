@@ -96,61 +96,61 @@ int vtkExtractTensorComponents::RequestData(
   numPts = input->GetNumberOfPoints();
 
   if ( !inTensors || numPts < 1 )
-    {
+  {
     vtkErrorMacro(<<"No data to extract!");
     return 1;
-    }
+  }
 
   if ( !this->ExtractScalars && !this->ExtractVectors &&
   !this->ExtractNormals && !this->ExtractTCoords )
-    {
+  {
     vtkWarningMacro(<<"No data is being extracted");
-    }
+  }
 
   outPD->CopyAllOn();
   if ( !this->PassTensorsToOutput )
-    {
+  {
     outPD->CopyTensorsOff();
-    }
+  }
   if ( this->ExtractScalars )
-    {
+  {
     outPD->CopyScalarsOff();
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numPts);
-    }
+  }
   if ( this->ExtractVectors )
-    {
+  {
     outPD->CopyVectorsOff();
     newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(numPts);
-    }
+  }
   if ( this->ExtractNormals )
-    {
+  {
     outPD->CopyNormalsOff();
     newNormals = vtkFloatArray::New();
     newNormals->SetNumberOfComponents(3);
     newNormals->SetNumberOfTuples(numPts);
-    }
+  }
   if ( this->ExtractTCoords )
-    {
+  {
     outPD->CopyTCoordsOff();
     newTCoords = vtkFloatArray::New();
     newTCoords->SetNumberOfComponents(2);
     newTCoords->SetNumberOfTuples(numPts);
-    }
+  }
   outPD->PassData(pd);
 
   // Loop over all points extracting components of tensor
   //
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     inTensors->GetTuple(ptId, tensor);
 
     if ( this->ExtractScalars )
-      {
+    {
       if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
-        {
+      {
         sx = tensor[0];
         sy = tensor[4];
         sz = tensor[8];
@@ -161,76 +161,76 @@ int vtkExtractTensorComponents::RequestData(
         s = sqrt (0.16666667 * ((sx-sy)*(sx-sy) + (sy-sz)*(sy-sz) +
                                 (sz-sx)*(sz-sx) +
                                 6.0*(txy*txy + tyz*tyz + txz*txz)));
-        }
+      }
 
       else if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
-        {
+      {
         s = tensor[this->ScalarComponents[0]+3*this->ScalarComponents[1]];
-        }
+      }
 
       else //VTK_EXTRACT_EFFECTIVE_DETERMINANT
-        {
+      {
         s = tensor[0]*tensor[4]*tensor[8]-
             tensor[0]*tensor[5]*tensor[7]-
             tensor[1]*tensor[3]*tensor[8]+
             tensor[1]*tensor[5]*tensor[6]+
             tensor[2]*tensor[3]*tensor[7]-
             tensor[2]*tensor[4]*tensor[6];
-        }
+      }
       newScalars->SetTuple(ptId, &s);
-      }//if extract scalars
+    }//if extract scalars
 
     if ( this->ExtractVectors )
-      {
+    {
       v[0] = tensor[this->VectorComponents[0]+3*this->VectorComponents[1]];
       v[1] = tensor[this->VectorComponents[2]+3*this->VectorComponents[3]];
       v[2] = tensor[this->VectorComponents[4]+3*this->VectorComponents[5]];
       newVectors->SetTuple(ptId, v);
-      }
+    }
 
     if ( this->ExtractNormals )
-      {
+    {
       v[0] = tensor[this->NormalComponents[0]+3*this->NormalComponents[1]];
       v[1] = tensor[this->NormalComponents[2]+3*this->NormalComponents[3]];
       v[2] = tensor[this->NormalComponents[4]+3*this->NormalComponents[5]];
       newNormals->SetTuple(ptId, v);
-      }
+    }
 
     if ( this->ExtractTCoords )
-      {
+    {
       for ( int i=0; i < this->NumberOfTCoords; i++ )
-        {
+      {
         v[i] = tensor[this->TCoordComponents[2*i]+3*
                      this->TCoordComponents[2*i+1]];
-        }
-      newTCoords->SetTuple(ptId, v);
       }
+      newTCoords->SetTuple(ptId, v);
+    }
 
-    }//for all points
+  }//for all points
 
   // Send data to output
   //
   if ( this->ExtractScalars )
-    {
+  {
     int idx = outPD->AddArray(newScalars);
     outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
   if ( this->ExtractVectors )
-    {
+  {
     outPD->SetVectors(newVectors);
     newVectors->Delete();
-    }
+  }
   if ( this->ExtractNormals )
-    {
+  {
     outPD->SetNormals(newNormals);
     newNormals->Delete();
-    }
+  }
   if ( this->ExtractTCoords )
-    {
+  {
     outPD->SetTCoords(newTCoords);
     newTCoords->Delete();
-    }
+  }
 
   return 1;
 }
@@ -247,17 +247,17 @@ void vtkExtractTensorComponents::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Scalar Extraction Mode: ";
 
   if ( this->ScalarMode == VTK_EXTRACT_COMPONENT )
-    {
+  {
     os << "VTK_EXTRACT_COMPONENT\n";
-    }
+  }
   else if ( this->ScalarMode == VTK_EXTRACT_EFFECTIVE_STRESS )
-    {
+  {
     os << "VTK_EXTRACT_EFFECTIVE_STRESS\n";
-    }
+  }
   else
-    {
+  {
     os << "VTK_EXTRACT_DETERMINANT\n";
-    }
+  }
 
   os << indent << "Scalar Components: \n";
   os << indent << "  (row,column): ("

@@ -141,21 +141,21 @@ public:
    * Xwindow get set functions
    */
   virtual void *GetGenericDisplayId()
-    {
+  {
       return this->GetDisplayId();
-    }
+  }
 
   virtual void *GetGenericWindowId();
   virtual void *GetGenericParentId()
-    {
+  {
       return reinterpret_cast<void *>(this->ParentId);
-    }
+  }
 
   virtual void *GetGenericContext();
   virtual void *GetGenericDrawable()
-    {
+  {
       return reinterpret_cast<void *>(this->WindowId);
-    }
+  }
 
   /**
    * Get the current size of the screen in pixels.

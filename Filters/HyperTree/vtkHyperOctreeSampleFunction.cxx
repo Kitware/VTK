@@ -37,11 +37,11 @@ vtkHyperOctreeSampleFunction::vtkHyperOctreeSampleFunction()
   this->Dimension=3;
   int i=0;
   while(i<3)
-    {
+  {
     this->Size[i]=1;
     this->Origin[i]=0;
     ++i;
-    }
+  }
   this->Levels=5;
   this->MinLevels=1;
   this->ImplicitFunction=0;
@@ -77,9 +77,9 @@ void vtkHyperOctreeSampleFunction::SetLevels(int levels)
   assert("pre: positive_levels" && levels>=1);
   this->Levels=levels;
   if(this->MinLevels>=levels)
-    {
+  {
     this->MinLevels=levels-1;
-    }
+  }
 
   assert("post: is_set" && this->GetLevels()==levels);
   assert("post: min_is_valid" && this->GetMinLevels()<this->GetLevels());
@@ -149,10 +149,10 @@ void vtkHyperOctreeSampleFunction::SetDimension(int dim)
 {
   assert("pre: valid_dim" && dim>=1 && dim<=3);
   if(this->Dimension!=dim)
-    {
+  {
     this->Dimension=dim;
     this->Modified();
-    }
+  }
   assert("post: dimension_is_set" && this->GetDimension()==dim);
 }
 
@@ -175,10 +175,10 @@ void vtkHyperOctreeSampleFunction::SetWidth(double width)
 {
   assert("pre: positive_width" && width>0);
   if(this->Size[0]!=width)
-    {
+  {
     this->Size[0]=width;
     this->Modified();
-    }
+  }
   assert("post: width_is_set" && this->GetWidth()==width);
 }
 
@@ -203,10 +203,10 @@ void vtkHyperOctreeSampleFunction::SetHeight(double height)
 {
   assert("pre: positive_height" && height>0);
   if(this->Size[1]!=height)
-    {
+  {
     this->Size[1]=height;
     this->Modified();
-    }
+  }
   assert("post: height_is_set" && this->GetHeight()==height);
 }
 
@@ -232,10 +232,10 @@ void vtkHyperOctreeSampleFunction::SetDepth(double depth)
 {
    assert("pre: positive_depth" && depth>0);
   if(this->Size[2]!=depth)
-    {
+  {
     this->Size[2]=depth;
     this->Modified();
-    }
+  }
   assert("post: depth_is_set" && this->GetDepth()==depth);
 }
 
@@ -274,10 +274,10 @@ int vtkHyperOctreeSampleFunction::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if(this->ImplicitFunction==0)
-    {
+  {
     vtkErrorMacro(<<"No implicit function specified");
     return 0;
-    }
+  }
 
   output->SetDimension(this->Dimension);
   output->SetSize(this->Size);
@@ -289,13 +289,13 @@ int vtkHyperOctreeSampleFunction::RequestData(
   vtkIdType fact=(1<<(this->Levels-1));
   vtkIdType maxNumberOfCells=fact;
   if(this->GetDimension()>=2)
-    {
+  {
     maxNumberOfCells*=fact;
     if(this->GetDimension()==3)
-      {
+    {
       maxNumberOfCells*=fact;
-      }
     }
+  }
   scalars->Allocate(maxNumberOfCells);
   scalars->SetNumberOfTuples(1); // the root
   scalars->SetName("ImplicitFunction");
@@ -330,31 +330,31 @@ void vtkHyperOctreeSampleFunction::Subdivide(vtkHyperOctreeCursor *cursor,
   indices[2]=0;
   p[0]=(indices[0]+0.5)*ratio*this->Size[0]+this->Origin[0];
   if(this->Dimension>1)
-    {
+  {
     indices[1]=cursor->GetIndex(1);
     p[1]=(indices[1]+0.5)*ratio*this->Size[1]+this->Origin[1];
-    }
+  }
   else
-    {
+  {
     p[1]=this->Origin[1];
-    }
+  }
   if(this->Dimension==3)
-    {
+  {
     indices[2]=cursor->GetIndex(2);
     p[2]=(indices[2]+0.5)*ratio*this->Size[2]+this->Origin[2];
-    }
+  }
   else
-    {
+  {
     p[2]=this->Origin[2];
-    }
+  }
 
   double value=this->ImplicitFunction->FunctionValue(p);
 
   if(!subdivide)
-    {
+  {
     subdivide=level<this->Levels;
     if(subdivide)
-      {
+    {
       subdivide=0;
       ratio=1.0/(1<<level);
       indices[0]<<=1; // children level
@@ -364,70 +364,70 @@ void vtkHyperOctreeSampleFunction::Subdivide(vtkHyperOctreeCursor *cursor,
       int kc;
       int jc;
       if(this->Dimension==3)
-        {
+      {
         kc=2;
-        }
+      }
       else
-        {
+      {
         kc=1;
-        }
+      }
       if(this->Dimension>=2)
-        {
+      {
         jc=2;
-        }
+      }
       else
-        {
+      {
         jc=1;
-        }
+      }
       int k=0;
       while(!subdivide && k<kc)
-        {
+      {
         target[2]=indices[2]+k;
         if(this->Dimension==3)
-          {
+        {
           p[2]=(target[2]+0.5)*ratio*this->Size[2]+this->Origin[2];
-          }
+        }
         int j=0;
         while(!subdivide && j<jc)
-          {
+        {
           if(this->Dimension>1)
-            {
+          {
             target[1]=indices[1]+j;
             p[1]=(target[1]+0.5)*ratio*this->Size[1]+this->Origin[1];
-            }
+          }
           int i=0;
           while(!subdivide && i<2)
-            {
+          {
             target[0]=indices[0]+i;
             p[0]=(target[0]+0.5)*ratio*this->Size[0]+this->Origin[0];
             double childValue=this->ImplicitFunction->FunctionValue(p);
             subdivide=fabs(value-childValue)>=this->Threshold;
             ++i;
-            }
-          ++j;
           }
-        ++k;
+          ++j;
         }
+        ++k;
       }
     }
+  }
   if(subdivide)
-    {
+  {
     output->SubdivideLeaf(cursor);
     int c=cursor->GetNumberOfChildren();
     int i=0;
     while(i<c)
-      {
+    {
       cursor->ToChild(i);
       this->Subdivide(cursor,level+1,output);
       cursor->ToParent();
       ++i;
-      }
     }
+  }
   else
-    {
+  {
     vtkIdType id=cursor->GetLeafId();
     output->GetLeafData()->GetScalars()->InsertTuple1(id,value);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -437,10 +437,10 @@ vtkMTimeType vtkHyperOctreeSampleFunction::GetMTime()
   vtkMTimeType impFuncMTime;
 
   if ( this->ImplicitFunction != NULL )
-    {
+  {
     impFuncMTime = this->ImplicitFunction->GetMTime();
     mTime = ( impFuncMTime > mTime ? impFuncMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -465,11 +465,11 @@ void vtkHyperOctreeSampleFunction::PrintSelf(ostream& os, vtkIndent indent)
   os<<indent<<"OutputScalarType: "<<this->OutputScalarType<<endl;
 
   if(this->ImplicitFunction!=0)
-    {
+  {
     os<<indent<<"Implicit Function: "<<this->ImplicitFunction<<endl;
-    }
+  }
   else
-    {
+  {
     os<<indent<<"No Implicit function defined"<<endl;
-    }
+  }
 }

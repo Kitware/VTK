@@ -46,10 +46,10 @@ vtkSpatialRepresentationFilter::vtkSpatialRepresentationFilter()
 vtkSpatialRepresentationFilter::~vtkSpatialRepresentationFilter()
 {
   if ( this->SpatialRepresentation )
-    {
+  {
     this->SpatialRepresentation->UnRegister(this);
     this->SpatialRepresentation = NULL;
-    }
+  }
   delete this->Internal;
 }
 
@@ -72,10 +72,10 @@ int vtkSpatialRepresentationFilter::RequestData(
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::GetData(outputVector);
 
   if (this->SpatialRepresentation == NULL)
-    {
+  {
     vtkErrorMacro(<< "SpatialRepresentation is NULL.");
     return 0;
-    }
+  }
 
   this->SpatialRepresentation->SetDataSet(input);
   this->SpatialRepresentation->Update();
@@ -88,22 +88,22 @@ int vtkSpatialRepresentationFilter::RequestData(
   for ( it = this->Internal->Levels.begin();
         it != this->Internal->Levels.end();
         it++ )
-    {
+  {
     if ( *it <= this->MaximumLevel )
-      {
+    {
       vtkNew<vtkPolyData> level_representation;
       output->SetBlock(*it, level_representation.GetPointer());
       this->SpatialRepresentation->GenerateRepresentation(
         *it, level_representation.GetPointer());
-      }
     }
+  }
   if (this->GenerateLeaves)
-    {
+  {
     vtkNew<vtkPolyData> leaf_representation;
     output->SetBlock(this->MaximumLevel + 1, leaf_representation.GetPointer());
     this->SpatialRepresentation->GenerateRepresentation(
       -1, leaf_representation.GetPointer());
-    }
+  }
 
   return 1;
 }
@@ -116,14 +116,14 @@ void vtkSpatialRepresentationFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "GenerateLeaves: " << this->GenerateLeaves << "\n";
 
   if ( this->SpatialRepresentation )
-    {
+  {
     os << indent << "Spatial Representation: " << this->SpatialRepresentation
        << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Spatial Representation: (none)\n";
-    }
+  }
 }
 
 
@@ -141,9 +141,9 @@ void vtkSpatialRepresentationFilter::ReportReferences(vtkGarbageCollector* colle
 int vtkSpatialRepresentationFilter::FillInputPortInformation(int port, vtkInformation* info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
   return 1;
 }

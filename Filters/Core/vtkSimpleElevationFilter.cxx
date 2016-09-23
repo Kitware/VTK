@@ -46,24 +46,24 @@ public:
 
   // Interface implicit function computation to SMP tools.
   template <class T> class ElevationOp
-    {
+  {
     public:
       ElevationOp(vtkSimpleElevationAlgorithm<T> *algo)
         { this->Algo = algo;}
       vtkSimpleElevationAlgorithm *Algo;
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         const double *v = this->Algo->Vector;
         const TP *p = this->Algo->Points + 3*k;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           *s = v[0]*p[0] + v[1]*p[1] + v[2]*p[2];
           p+=3;
           ++s;
-          }
         }
-    };
+      }
+  };
 };
 
 //----------------------------------------------------------------------------
@@ -134,10 +134,10 @@ int vtkSimpleElevationFilter::RequestData(
   output->CopyStructure( input );
 
   if ( ((numPts=input->GetNumberOfPoints()) < 1) )
-    {
+  {
     vtkDebugMacro(<< "No input!");
     return 1;
-    }
+  }
 
   // Allocate
   //
@@ -147,47 +147,47 @@ int vtkSimpleElevationFilter::RequestData(
   // Ensure that there is a valid vector
   //
   if ( vtkMath::Dot(this->Vector,this->Vector) == 0.0)
-    {
+  {
     vtkErrorMacro(<< "Bad vector, using (0,0,1)");
     this->Vector[0] = this->Vector[1] = 0.0; this->Vector[2] = 1.0;
-    }
+  }
 
   // Create a fast path for point set input
   //
   vtkPointSet *ps = vtkPointSet::SafeDownCast(input);
   if ( ps )
-    {
+  {
     float *scalars =
       static_cast<float*>(newScalars->GetVoidPointer(0));
     vtkPoints *points = ps->GetPoints();
     void *pts = points->GetData()->GetVoidPointer(0);
     switch ( points->GetDataType() )
-      {
+    {
       vtkTemplateMacro(vtkSimpleElevationAlgorithm<VTK_TT>::
                        Elevate(this,numPts,(VTK_TT *)pts,scalars));
-      }
-    }//fast path
+    }
+  }//fast path
 
   else
-    {
+  {
     // Too bad, got to take the scenic route.
     // Compute dot product.
     //
     int abort=0;
     vtkIdType progressInterval=numPts/20 + 1;
     for (i=0; i<numPts && !abort; i++)
-      {
+    {
       if ( ! (i % progressInterval) )
-        {
+      {
         this->UpdateProgress ((double)i/numPts);
         abort = this->GetAbortExecute();
-        }
+      }
 
       input->GetPoint(i,x);
       s = vtkMath::Dot(this->Vector,x);
       newScalars->SetComponent(i,0,s);
-      }
     }
+  }
 
   // Update self
   //

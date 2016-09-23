@@ -397,14 +397,14 @@ protected:
   int DriverVersionMinor;
   int DriverVersionPatch;
   enum DriverGLVendorIdType
-    {
+  {
     DRIVER_VENDOR_UNKNOWN=0,
     DRIVER_VENDOR_ATI,
     DRIVER_VENDOR_NVIDIA,
     DRIVER_VENDOR_INTEL,
     DRIVER_VENDOR_MESA,
     DRIVER_VENDOR_MICROSOFT
-    };
+  };
   DriverGLVendorIdType DriverGLVendorId;
   bool IgnoreDriverBugs;
 

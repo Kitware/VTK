@@ -233,10 +233,10 @@ int TestHoudiniPolyDataWriter(int argc, char* argv[])
   delete [] temp_dir_c;
 
   if (temp_dir.empty())
-    {
+  {
     std::cerr << "Could not determine temporary directory." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string filename = temp_dir + "/testHoudiniPolyDataWriter.geo";
 

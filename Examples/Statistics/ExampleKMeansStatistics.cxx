@@ -40,7 +40,7 @@ int main( int, char *[] )
 
   int numComponents = 1;
   for ( int c = 0; c < nDim; ++ c )
-    {
+  {
     std::ostringstream colName;
     colName << "coord " << c;
     doubleArray = vtkDoubleArray::New();
@@ -50,15 +50,15 @@ int main( int, char *[] )
 
     double x;
     for ( int r = 0; r < nVals; ++ r )
-      {
+    {
       //x = vtkMath::Gaussian();
       x = vtkMath::Random();
       doubleArray->SetValue( r, x );
-      }
+    }
 
     inputData->AddColumn( doubleArray );
     doubleArray->Delete();
-    }
+  }
 
   vtkTable* paramData = vtkTable::New();
   vtkIdTypeArray* paramCluster;
@@ -69,17 +69,17 @@ int main( int, char *[] )
   paramCluster->SetName( "K" );
 
   for( int curRun = 0; curRun < numRuns; curRun++ )
-    {
+  {
     for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
-      {
+    {
       paramCluster->InsertNextValue( numClustersInRun[curRun] );
-      }
     }
+  }
   paramData->AddColumn( paramCluster );
   paramCluster->Delete();
 
   for ( int c = 0; c < 5; ++ c )
-    {
+  {
     std::ostringstream colName;
     colName << "coord " << c;
     paramArray = vtkDoubleArray::New();
@@ -88,17 +88,17 @@ int main( int, char *[] )
 
     double x;
     for( int curRun = 0; curRun < numRuns; curRun++ )
-      {
+    {
       for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
-        {
+      {
         //x = vtkMath::Gaussian();
         x = vtkMath::Random();
         paramArray->InsertNextValue( x );
-        }
       }
+    }
     paramData->AddColumn( paramArray );
     paramArray->Delete();
-    }
+  }
 
   // Set k-means statistics algorithm and its input data port
   vtkKMeansStatistics* haruspex = vtkKMeansStatistics::New();
@@ -128,40 +128,40 @@ int main( int, char *[] )
   vtkMultiBlockDataSet* outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
                         haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
-      {
+    {
 
       vtkIdType testIntValue = 0;
       for( vtkIdType r = 0; r < outputMeta->GetNumberOfRows(); r++ )
-        {
+      {
         testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
-        }
+      }
 
       cout << "## Computed clusters (cardinality: "
            << testIntValue
            << " / run):\n";
 
       if ( testIntValue != nVals )
-        {
+      {
         vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
                                << testIntValue
                                << " != "
                                << nVals
                                << ".");
         testStatus = 1;
-        }
       }
+    }
     else
-      {
+    {
       cout << "## Ranked cluster: "
            << "\n";
-      }
+    }
 
     outputMeta->Dump();
     cout << "\n";
-    }
+  }
 
 
   haruspex->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramData );
@@ -181,55 +181,55 @@ int main( int, char *[] )
   outputMetaDS = vtkMultiBlockDataSet::SafeDownCast(
                  haruspex->GetOutputDataObject( vtkStatisticsAlgorithm::OUTPUT_MODEL ) );
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
     if ( b == 0 )
-      {
+    {
       vtkIdType r = 0;
       vtkIdType testIntValue = 0;
       for( int curRun = 0; curRun < numRuns; curRun++ )
-        {
+      {
         testIntValue = 0;
         for( int nInRun = 0; nInRun < numClustersInRun[curRun]; nInRun++ )
-          {
+        {
           testIntValue += outputMeta->GetValueByName( r, "Cardinality" ).ToInt();
           r++;
-          }
         }
+      }
 
       if ( r != outputMeta->GetNumberOfRows() )
-        {
+      {
         vtkGenericWarningMacro("Inconsistency in number of rows: "
                                << r
                                << " != "
                                << outputMeta->GetNumberOfRows()
                                << ".");
         testStatus = 1;
-        }
+      }
 
       cout << "## Computed clusters (cardinality: "
            << testIntValue
            << " / run):\n";
 
       if ( testIntValue != nVals )
-        {
+      {
         vtkGenericWarningMacro("Sum of cluster cardinalities is incorrect: "
                                << testIntValue
                                << " != "
                                << nVals
                                << ".");
         testStatus = 1;
-        }
       }
+    }
     else
-      {
+    {
       cout << "## Ranked cluster: "
            << "\n";
-      }
+    }
 
     outputMeta->Dump();
     cout << "\n";
-    }
+  }
 
   cout << "=================== ASSESS ==================== " << endl;
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();

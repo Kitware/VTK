@@ -54,9 +54,9 @@ int TestTextActorAlphaBlending(int argc, char* argv[])
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   return !retVal;

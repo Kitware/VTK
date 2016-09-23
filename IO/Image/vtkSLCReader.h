@@ -58,17 +58,17 @@ public:
    * .slc
    */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".slc";
-    }
+  }
 
   /**
    * SLC
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "SLC";
-    }
+  }
 
 protected:
   vtkSLCReader();

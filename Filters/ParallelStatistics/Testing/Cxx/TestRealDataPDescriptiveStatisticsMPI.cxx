@@ -104,16 +104,16 @@ int ReadFloatDataBlockFromFile( ifstream& ifs,
 
   // Iterate over 'z'
   for ( int z = low[2]; z <= high[2]; z++ )
-    {
+  {
     if ( z >= bounds[0][2] && z <= bounds[1][2] )
-      {
+    {
       vtkIdType offsetZ = z * dimXY;
 
       // Iterate over 'y'.
       for (int y = low[1]; y <= high[1]; y++)
-        {
+      {
         if (y >= bounds[0][1] && y <= bounds[1][1] )
-          {
+        {
           vtkIdType offsetY = y * dimX;
           long long offset = offsetZ + offsetY + bounds[0][0];
 
@@ -128,23 +128,23 @@ int ReadFloatDataBlockFromFile( ifstream& ifs,
           pbuffer += sizeX;
 
           if ( ifs.fail() || ifs.eof() )
-            {
-            return 1;
-            }
-          }
-        else
           {
-          // Skip one line
-          pbuffer += sizeX;
+            return 1;
           }
         }
-      }
-    else
-      {
-      // Skip one plane
-      pbuffer += sizeXY;
+        else
+        {
+          // Skip one line
+          pbuffer += sizeX;
+        }
       }
     }
+    else
+    {
+      // Skip one plane
+      pbuffer += sizeXY;
+    }
+  }
   return 0;
 }
 
@@ -215,7 +215,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
                           args->fileName,
                           ifs,
                           myBlockBounds ) )
-    {
+  {
     // If failed to open file with given name, exit in error
     vtkGenericWarningMacro("Process "
                            << myRank
@@ -227,7 +227,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
     timer->Delete();
     *(args->retVal) = 1;
     return;
-    }
+  }
 
   vtkIdType myDataDim[3];
   myDataDim[0] = myBlockBounds[1][0] - myBlockBounds[0][0] + 1;
@@ -241,7 +241,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
                                      myBlockBounds[0],
                                      myBlockBounds[1],
                                      buffer ) )
-    {
+  {
     // If failed to read data block from file, exit in error
     vtkGenericWarningMacro("Process "
                            << myRank
@@ -253,7 +253,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
     timer->Delete();
     *(args->retVal) = 1;
     return;
-    }
+  }
 
   // ************************** Create input data table *************************
   vtkStdString varName( "Chi" );
@@ -262,9 +262,9 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   floatArr->SetName( varName );
 
   for ( vtkIdType i = 0; i < card_l; ++ i )
-    {
+  {
     floatArr->InsertNextValue( buffer[i] );
-    }
+  }
 
   vtkTable* inputData = vtkTable::New();
   inputData->AddColumn( floatArr );
@@ -298,7 +298,7 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
   timer->StopTimer();
 
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Completed parallel calculation of descriptive statistics (without assessment):\n"
          << "   Wall time: "
          << timer->GetElapsedTime()
@@ -306,38 +306,38 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
     cout << "   Calculated the following primary statistics:\n";
     for ( vtkIdType r = 0; r < outputPrimary->GetNumberOfRows(); ++ r )
-      {
+    {
       cout << "   ";
       for ( int i = 0; i < outputPrimary->GetNumberOfColumns(); ++ i )
-        {
+      {
         cout << outputPrimary->GetColumnName( i )
              << "="
              << outputPrimary->GetValue( r, i ).ToString()
              << "  ";
-        }
-      cout << "\n";
       }
+      cout << "\n";
+    }
 
     cout << "   Calculated the following derived statistics:\n";
     for ( vtkIdType r = 0; r < outputDerived->GetNumberOfRows(); ++ r )
-      {
+    {
       cout << "   ";
       for ( int i = 0; i < outputDerived->GetNumberOfColumns(); ++ i )
-        {
+      {
         cout << outputDerived->GetColumnName( i )
              << "="
              << outputDerived->GetValue( r, i ).ToString()
              << "  ";
-        }
-      cout << "\n";
       }
+      cout << "\n";
     }
+  }
 
   // Verify that sizes of read data sets sums up to the calculated global cardinality
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     cout << "\n## Verifying that sizes of read data sets sums up to the calculated global cardinality.\n";
-    }
+  }
 
   // Gather all cardinalities
   int numProcs = controller->GetNumberOfProcesses();
@@ -351,10 +351,10 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
 
   // Print and verify some results
   if ( com->GetLocalProcessId() == args->ioRank )
-    {
+  {
     vtkIdType sumCards = 0;
     for ( int i = 0; i < numProcs; ++ i )
-      {
+    {
       cout << "   Cardinality of data set read on process "
            << i
            << ": "
@@ -362,22 +362,22 @@ void RealDataDescriptiveStatistics( vtkMultiProcessController* controller, void*
            << "\n";
 
       sumCards += card_g[i];
-      }
+    }
 
     cout << "   Cardinality of global data set: "
          << sumCards
          << " \n";
 
     if ( sumCards != testIntValue )
-      {
+    {
       vtkGenericWarningMacro("Incorrect calculated global cardinality:"
                              << testIntValue
                              << " <> "
                              << sumCards
                              << ")");
       *(args->retVal) = 1;
-      }
     }
+  }
 
   // Clean up
   pcs->Delete();
@@ -397,11 +397,11 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
 
   // If an MPI controller was not created, terminate in error.
   if ( ! controller->IsA( "vtkMPIController" ) )
-    {
+  {
     vtkGenericWarningMacro("Failed to initialize a MPI controller.");
     controller->Delete();
     return 1;
-    }
+  }
 
   vtkMPICommunicator* com = vtkMPICommunicator::SafeDownCast( controller->GetCommunicator() );
 
@@ -419,7 +419,7 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
                 &flag );
 
   if ( ( ! flag ) || ( *ioPtr == MPI_PROC_NULL ) )
-    {
+  {
     // Getting MPI attributes did not return any I/O node found.
     ioRank = MPI_PROC_NULL;
     vtkGenericWarningMacro("No MPI I/O nodes found.");
@@ -430,48 +430,48 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
     controller->Delete();
 
     return -1;
-    }
+  }
   else
-    {
+  {
     if ( *ioPtr == MPI_ANY_SOURCE )
-      {
+    {
       // Anyone can do the I/O trick--just pick node 0.
       ioRank = 0;
-      }
+    }
     else
-      {
+    {
       // Only some nodes can do I/O. Make sure everyone agrees on the choice (min).
       com->AllReduce( ioPtr,
                       &ioRank,
                       1,
                       vtkCommunicator::MIN_OP );
-      }
     }
+  }
 
   if ( myRank == ioRank )
-    {
+  {
     cout << "\n# Process "
          << ioRank
          << " will be the I/O node.\n";
-    }
+  }
 
   // Check how many processes have been made available
   int numProcs = controller->GetNumberOfProcesses();
   if ( myRank == ioRank )
-    {
+  {
     cout << "\n# Running test with "
          << numProcs
          << " processes...\n";
-    }
+  }
 
   // **************************** Parse command line ***************************
   // If no arguments were provided, terminate in error.
   if ( argc < 2 )
-    {
+  {
     vtkGenericWarningMacro("No input data arguments were provided.");
     controller->Delete();
     return 1;
-    }
+  }
 
   // Set default argument values (some of which are invalid, for mandatory parameters)
   vtkStdString fileName= "";
@@ -500,62 +500,62 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
 
   // If incorrect arguments were provided, provide some help and terminate in error.
   if ( ! clArgs.Parse() )
-    {
+  {
     if ( com->GetLocalProcessId() == ioRank )
-      {
+    {
       cerr << "Usage: "
            << clArgs.GetHelp()
            << "\n";
-      }
+    }
 
     controller->Finalize();
     controller->Delete();
 
     return 1;
-    }
+  }
 
   // If no file name was provided, terminate in error.
   if ( ! strcmp( fileName.c_str(), "" ) )
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       vtkGenericWarningMacro("No input data file name was provided.");
-      }
+    }
 
     // Terminate cleanly
     controller->Finalize();
     controller->Delete();
     return 1;
-    }
+  }
   else
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       cout << "\n# Input data file name: "
            << fileName
            << "\n";
-      }
     }
+  }
 
   // If no or insufficient data dimensionality information, terminate in error.
   if ( dataDim.size() < 3 )
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       vtkGenericWarningMacro("Only "
                              << dataDim.size()
                              << "data dimension(s) provided (3 needed).");
-      }
+    }
 
     // Terminate cleanly
     controller->Finalize();
     controller->Delete();
     return 1;
-    }
+  }
   else
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       cout << "\n# Data dimensionality: "
            << dataDim.at( 0 )
            << " "
@@ -563,21 +563,21 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
            << " "
            << dataDim.at( 2 )
            << "\n";
-      }
     }
+  }
 
   // Fill process dimensionality with ones if not provided or incomplete
   int missingDim = 3 - static_cast<int>( procDim.size() );
   for ( int d = 0; d < missingDim; ++ d )
-    {
+  {
     procDim.push_back( 1 );
-    }
+  }
 
   // If process dimensionality is inconsistent with total number of processes, terminate in error.
   if ( procDim.at( 0 ) * procDim.at( 1 ) * procDim.at( 2 ) != numProcs )
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       vtkGenericWarningMacro("Number of processes: "
                              << numProcs
                              << " <> "
@@ -587,17 +587,17 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
                              << " * "
                              << procDim.at( 2 )
                              << ".");
-      }
+    }
 
     // Terminate cleanly
     controller->Finalize();
     controller->Delete();
     return 1;
-    }
+  }
   else
-    {
+  {
     if ( myRank == ioRank )
-      {
+    {
       cout << "\n# Process dimensionality: "
            << procDim.at( 0 )
            << " "
@@ -605,8 +605,8 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
            << " "
            << procDim.at( 2 )
            << "\n";
-      }
     }
+  }
 
   // ************************** Initialize test *********************************
 
@@ -635,9 +635,9 @@ int TestRealDataPDescriptiveStatisticsMPI( int argc, char* argv[] )
 
   // Clean up and exit
   if ( myRank == ioRank )
-    {
+  {
     cout << "\n# Test completed.\n\n";
-    }
+  }
 
   controller->Finalize();
   controller->Delete();

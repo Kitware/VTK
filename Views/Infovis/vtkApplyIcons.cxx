@@ -79,17 +79,17 @@ void vtkApplyIcons::ClearAllIconTypes()
 int vtkApplyIcons::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }
 
@@ -104,19 +104,19 @@ int vtkApplyIcons::RequestData(
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
   if (!this->IconOutputArrayName)
-    {
+  {
     vtkErrorMacro("Output array name must be valid");
     return 0;
-    }
+  }
 
   // Get the input and output.
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkAnnotationLayers* layers = 0;
   if (layersInfo)
-    {
+  {
     layers = vtkAnnotationLayers::SafeDownCast(
       layersInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   output->ShallowCopy(input);
@@ -131,16 +131,16 @@ int vtkApplyIcons::RequestData(
   // AttributeType ivar.
   int attribType = this->AttributeType;
   if (arr)
-    {
+  {
     attribType = output->GetAttributeTypeForArray(arr);
-    }
+  }
 
   // Error if the attribute type is not defined on the data.
   if (!output->GetAttributes(attribType))
-    {
+  {
     vtkErrorMacro("The input array is not found, and the AttributeType parameter is not valid for this data object.");
     return 1;
-    }
+  }
 
   // Size the array and add it to the correct attributes.
   vtkIdType numTuples = input->GetNumberOfElements(attribType);
@@ -149,41 +149,41 @@ int vtkApplyIcons::RequestData(
 
   // Process the icon array.
   if (this->UseLookupTable && arr)
-    {
+  {
     // Map the data values through the lookup table.
     std::map<vtkVariant, int>::iterator itEnd = this->Implementation->LookupTable.end();
     for (vtkIdType i = 0; i < iconArr->GetNumberOfTuples(); ++i)
-      {
+    {
       vtkVariant val = arr->GetVariantValue(i);
       int mappedIcon = this->DefaultIcon;
       if (this->Implementation->LookupTable.find(val) != itEnd)
-        {
+      {
         mappedIcon = this->Implementation->LookupTable[val];
-        }
-      iconArr->SetValue(i, mappedIcon);
       }
+      iconArr->SetValue(i, mappedIcon);
     }
+  }
   else if (arr)
-    {
+  {
     // If no lookup table, pass the input array values.
     for (vtkIdType i = 0; i < iconArr->GetNumberOfTuples(); ++i)
-      {
-      iconArr->SetValue(i, arr->GetVariantValue(i).ToInt());
-      }
-    }
-  else
     {
+      iconArr->SetValue(i, arr->GetVariantValue(i).ToInt());
+    }
+  }
+  else
+  {
     // If no lookup table or array, use default icon.
     for (vtkIdType i = 0; i < iconArr->GetNumberOfTuples(); ++i)
-      {
+    {
       iconArr->SetValue(i, this->DefaultIcon);
-      }
     }
+  }
 
   // Convert to a selection attribute type.
   int attribTypeSel = -1;
   switch (attribType)
-    {
+  {
     case vtkDataObject::POINT:
       attribTypeSel = vtkSelectionNode::POINT;
       break;
@@ -202,54 +202,54 @@ int vtkApplyIcons::RequestData(
     case vtkDataObject::FIELD:
       attribTypeSel = vtkSelectionNode::FIELD;
       break;
-    }
+  }
 
   if (layers)
-    {
+  {
     // Set annotated icons.
     vtkSmartPointer<vtkIdTypeArray> list1 =
       vtkSmartPointer<vtkIdTypeArray>::New();
     unsigned int numAnnotations = layers->GetNumberOfAnnotations();
     for (unsigned int a = 0; a < numAnnotations; ++a)
-      {
+    {
       vtkAnnotation* ann = layers->GetAnnotation(a);
       if (ann->GetInformation()->Has(vtkAnnotation::ENABLE()) &&
           ann->GetInformation()->Get(vtkAnnotation::ENABLE())==0)
-        {
+      {
         continue;
-        }
+      }
       list1->Initialize();
       vtkSelection* sel = ann->GetSelection();
       int curIcon = -1;
       if (ann->GetInformation()->Has(vtkAnnotation::ICON_INDEX()))
-        {
+      {
         curIcon = ann->GetInformation()->Get(vtkAnnotation::ICON_INDEX());
-        }
+      }
       else
-        {
+      {
         continue;
-        }
+      }
       vtkConvertSelection::GetSelectedItems(sel, input, attribTypeSel, list1);
       vtkIdType numIds = list1->GetNumberOfTuples();
       for (vtkIdType i = 0; i < numIds; ++i)
-        {
+      {
         if (list1->GetValue(i) >= iconArr->GetNumberOfTuples())
-          {
+        {
           continue;
-          }
-        iconArr->SetValue(list1->GetValue(i), curIcon);
         }
+        iconArr->SetValue(list1->GetValue(i), curIcon);
       }
+    }
 
     // Set selected icons.
     if (vtkAnnotation* ann = layers->GetCurrentAnnotation())
-      {
+    {
       vtkSelection* selection = ann->GetSelection();
       list1 = vtkSmartPointer<vtkIdTypeArray>::New();
       int selectedIcon = -1;
       bool changeSelected = false;
       switch (this->SelectionMode)
-        {
+      {
         case SELECTED_ICON:
         case SELECTED_OFFSET:
           selectedIcon = this->SelectedIcon;
@@ -257,32 +257,32 @@ int vtkApplyIcons::RequestData(
           break;
         case ANNOTATION_ICON:
           if (ann->GetInformation()->Has(vtkAnnotation::ICON_INDEX()))
-            {
+          {
             selectedIcon = ann->GetInformation()->Get(vtkAnnotation::ICON_INDEX());
             changeSelected = true;
-            }
+          }
           break;
-        }
+      }
       if (changeSelected)
-        {
+      {
         vtkConvertSelection::GetSelectedItems(selection, input, attribTypeSel, list1);
         vtkIdType numIds = list1->GetNumberOfTuples();
         for (vtkIdType i = 0; i < numIds; ++i)
-          {
+        {
           if (list1->GetValue(i) >= iconArr->GetNumberOfTuples())
-            {
+          {
             continue;
-            }
+          }
           if (this->SelectionMode == SELECTED_OFFSET)
-            {
+          {
             // Use selected icon as an offset into the icon sheet.
             selectedIcon = iconArr->GetValue(list1->GetValue(i)) + this->SelectedIcon;
-            }
-          iconArr->SetValue(list1->GetValue(i), selectedIcon);
           }
+          iconArr->SetValue(list1->GetValue(i), selectedIcon);
         }
-      } // if changeSelected
-    } // if current ann not NULL
+      }
+    } // if changeSelected
+  } // if current ann not NULL
 
   return 1;
 }

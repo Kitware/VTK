@@ -47,12 +47,12 @@ inline int DoTest(
   double tol = 1e-4;
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     x[0] = 0.5*(bounds[0] + bounds[1]);
     x[1] = 0.5*(bounds[2] + bounds[3]);
     x[2] = 0.5*(bounds[4] + bounds[5]);
     for (int j = 0; j < 2; j++)
-      {
+    {
       // test point right on the boundary with zero tolerance
       x[i] = bounds[2*i+j];
 
@@ -60,13 +60,13 @@ inline int DoTest(
         x, 0, 0, 0.0, subId, pcoords, weights);
 
       if (cellId < 0)
-        {
+      {
         cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
              << " should be in bounds (" << bounds[0] << ", " << bounds[1]
              << ", " << bounds[2] << ", " << bounds[3] << ", "
              << bounds[4] << ", " << bounds[5] << ") with tol 0.0\n";
         return 1;
-        }
+      }
 
       // test point just outside boundary with zero tolerance
       double offset = ((j == 0) ? (-tol*0.5) : (tol*0.5));
@@ -76,13 +76,13 @@ inline int DoTest(
         x, 0, 0, 0.0, subId, pcoords, weights);
 
       if (cellId >= 0)
-        {
+      {
         cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
              << " should be out of bounds (" << bounds[0] << ", " << bounds[1]
              << ", " << bounds[2] << ", " << bounds[3] << ", "
              << bounds[4] << ", " << bounds[5] << ") with tol 0.0\n";
         return 1;
-        }
+      }
 
       // test point just outside boundary with nonzero tolerance
       x[i] = bounds[2*i+j] + ((j == 0) ? (-tol*0.5) : (tol*0.5));
@@ -91,67 +91,67 @@ inline int DoTest(
         x, 0, 0, tol*tol, subId, pcoords, weights);
 
       if (cellId < 0)
-        {
+      {
         cerr << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
              << " should be inside bounds (" << bounds[0] << ", " << bounds[1]
              << ", " << bounds[2] << ", " << bounds[3] << ", "
              << bounds[4] << ", " << bounds[5] << ") with tol " << tol << "\n";
         return 1;
-        }
+      }
 
       // check pcoords at boundaries
       int isUpperBound = ((j == 1) ^ (spacing[i] < 0));
       int isOnePixelThick = (extent[2*i] == extent[2*i+1]);
       if (isUpperBound && !isOnePixelThick)
-        {
+      {
         if (pcoords[i] != 1.0)
-          {
+        {
           cerr << "at upper bounds, pcoord should be 1, but is "
                << pcoords[i] << "\n";
           return 1;
-          }
         }
+      }
       else
-        {
+      {
         if (pcoords[i] != 0.0)
-          {
+        {
           cerr << "at lower bounds and for 0,1,2D cells, pcoord should be 0, "
                << "but is " << pcoords[i] << " " << extent[2*i] << ", " << extent[2*i+1] << ", " << j << "\n";
           return 1;
-          }
         }
+      }
 
       // validate the cellId
       x[i] = bounds[2*i+j];
       double pcoords2[3];
       int idx[3];
       if (image->ComputeStructuredCoordinates(x, idx, pcoords2) == 0)
-        {
+      {
         cerr << "ComputeStructuredCoordinates failed for "
              << "point (" << x[0] << ", " << x[1] << ", " << x[2] << ")"
              << " and bounds (" << bounds[0] << ", " << bounds[1]
              << ", " << bounds[2] << ", " << bounds[3] << ", "
              << bounds[4] << ", " << bounds[5] << ")\n";
         return 1;
-        }
+      }
 
       if (image->ComputeCellId(idx) != cellId)
-        {
+      {
         cerr << "cellId = " << cellId << ", should be "
              << image->ComputeCellId(idx) << "\n";
         return 1;
-        }
+      }
 
       // validate the pcoords, allow a tolerance
       double diff = (pcoords[i] - pcoords2[i]);
       if (diff*diff > (1e-15)*(1e-15))
-        {
+      {
         cerr << "pcoords[" << i << "] = " << pcoords[i] << ", should be "
              << pcoords2[i] << "\n";
         return 1;
-        }
       }
     }
+  }
 
   return 0;
 }
@@ -176,29 +176,29 @@ int TestImageDataFindCell(int,char *[])
   int failed = 0;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       for (int k = 0; k < 4; k++)
-        {
+      {
         for (int l = 0; l < 4; l++)
-          {
+        {
           for (int ii = 0; ii < 3; ii++)
-            {
+          {
             extent[2*ii] = starts[i][ii];
             extent[2*ii+1] = starts[i][ii] + dims[j][ii] - 1;
-            }
+          }
           spacing = spacings[k];
           origin = origins[l];
 
           if (DoTest(extent, origin, spacing))
-            {
+          {
             failed = 1;
-            }
           }
         }
       }
     }
+  }
 
   return failed;
 }

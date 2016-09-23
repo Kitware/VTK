@@ -103,14 +103,14 @@ int TestGLSL( int, char * [] )
   view->Render();
 
   if (test->IsCompiled)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
   else
-    {
+  {
     cout << "GLSL 1.20 required, shader failed to compile." << endl;
-    }
+  }
   return EXIT_SUCCESS;
 }
 
@@ -123,55 +123,55 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
   vtkOpenGL2ContextDevice2D *device =
     vtkOpenGL2ContextDevice2D::SafeDownCast(painter->GetDevice());
   if (device)
-    {
+  {
     this->BuildShader(device->GetRenderWindow());
     if (!this->IsCompiled)
-      {
-      return false;
-      }
-    }
-  else
     {
+      return false;
+    }
+  }
+  else
+  {
     this->IsCompiled = false;
     return false;
-    }
+  }
 
   // Draw points without our shader code
   for (int i = 0; i < 8; ++i)
-    {
+  {
     float pos[] = { 50.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(255,
                                 static_cast<unsigned char>(float(i)*35.0),
                                 0);
     painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
-    }
+  }
 
 
   // Draw the points using the first shader program
   this->program->Use();
   for (int i = 0; i < 8; ++i)
-    {
+  {
     float pos[] = { 100.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(255,
                                 0,
                                 static_cast<unsigned char>(float(i)*35.0));
     painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
-    }
+  }
   this->program->Restore();
 
   // Draw the points using the second shader program
   this->program2->Use();
   for (int i = 0; i < 8; ++i)
-    {
+  {
     float pos[] = { 150.0f, static_cast<float>(i)*25.0f+5.0f };
     painter->GetPen()->SetColor(static_cast<unsigned char>(float(i)*35.0),
                                 255,
                                 0);
     painter->GetPen()->SetWidth(static_cast<float>(i)*5.0f+1.0f);
     painter->DrawPointSprites(0, pos, 1);
-    }
+  }
   this->program2->Restore();
 
   return true;
@@ -180,29 +180,29 @@ bool GLSLTestItem::Paint(vtkContext2D *painter)
 void GLSLTestItem::ReleaseGraphicsResources()
 {
   if (this->program)
-    {
+  {
     this->program->ReleaseGraphicsResources();
-    }
+  }
   if (this->program2)
-    {
+  {
     this->program2->ReleaseGraphicsResources();
-    }
+  }
 }
 
 void GLSLTestItem::BuildShader(vtkOpenGLRenderWindow* glContext)
 {
   if (this->program)
-    {
+  {
     return;
-    }
+  }
 
   // Check if GLSL is supported
   if (!vtkShaderProgram2::IsSupported(glContext))
-    {
+  {
     vtkErrorMacro("GLSL is not supported on this system.");
     this->IsCompiled = false;
     return;
-    }
+  }
 
   this->program = vtkSmartPointer<vtkShaderProgram2>::New();
   this->program->SetContext(glContext);
@@ -237,18 +237,18 @@ void GLSLTestItem::BuildShader(vtkOpenGLRenderWindow* glContext)
   // Build the shader programs
   this->program->Build();
   if(this->program->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-    {
+  {
     vtkErrorMacro("Couldn't build the shader program. It could be an error in a shader, or a driver bug.");
     this->IsCompiled = false;
     return;
-    }
+  }
 
   this->program2->Build();
   if(this->program2->GetLastBuildStatus() != VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-    {
+  {
     vtkErrorMacro("Couldn't build the shader program. It could be an error in a shader, or a driver bug.");
     this->IsCompiled = false;
     return;
-    }
+  }
   this->IsCompiled = true;
 }

@@ -49,11 +49,11 @@ vtkAdaptiveSubdivisionFilter::~vtkAdaptiveSubdivisionFilter()
 void vtkAdaptiveSubdivisionFilter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -64,10 +64,10 @@ vtkMTimeType vtkAdaptiveSubdivisionFilter::GetMTime()
   vtkMTimeType time;
 
   if (this->Locator)
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -110,9 +110,9 @@ namespace {
   {
     // If no choice in triangulation return the table entry
     if ( tessCases[subCase][0] != 3 )
-      {
+    {
       return tessCases[subCase];
-      }
+    }
 
     // Else select best triangulation based on diagonal length
     vtkIdType *subTess = tessCases[subCase];
@@ -124,13 +124,13 @@ namespace {
 
     if ( vtkMath::Distance2BetweenPoints(x0,x1) <=
          vtkMath::Distance2BetweenPoints(x2,x3) )
-      {
+    {
       return tessCases[subCase];
-      }
+    }
     else
-      {
+    {
       return tessCases[subCase + 8]; //alternate triangulation
-      }
+    }
   }
 
 }//anonymous namespace
@@ -158,10 +158,10 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   vtkCellArray *inTris = input->GetPolys();
   vtkIdType numTris = inTris->GetNumberOfCells();
   if (numPts < 1 || numTris < 1)
-    {
+  {
     vtkDebugMacro(<<"No data to subdivide!");
     return 1;
-    }
+  }
   vtkPointData *inPointData = input->GetPointData();
   vtkCellData *inCellData = input->GetCellData();
 
@@ -169,16 +169,16 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   // however.... it may be necessary to tighten this up at some point.
   vtkIdType connLen = inTris->GetNumberOfConnectivityEntries();
   if ( (connLen / 4) != numTris )
-    {
+  {
     vtkDebugMacro(<<"Filter operates only on triangles!");
     return 1;
-    }
+  }
 
   // Need a locator
   if ( ! this->Locator )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
 
   // The first thing is to take the existing points and push them into the
   // incremental point locator. We know that we are going to use the original
@@ -191,27 +191,27 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
 
   // set precision for the points in the output
   if ( this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION )
-    {
+  {
     newPts->SetDataType(inPts->GetDataType());
-    }
+  }
   else if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
   this->Locator->InitPointInsertion (newPts,
                                      input->GetBounds(),
                                      input->GetNumberOfPoints());
   // Load in the already existing points. Also load in the point data
   // associated with the existing points.
   for (vtkIdType ptId=0; ptId < numPts; ++ptId)
-    {
+  {
     this->Locator->InsertNextPoint(inPts->GetPoint(ptId));
     newPointData->CopyData(inPointData, ptId, ptId);
-    }
+  }
 
   // This is a multipass algorithm. From a list of triangles, check each
   // against the edge length and area criteria. If necessary, break the
@@ -242,10 +242,10 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
   for ( passNum=0, changesMade=true;
         passNum < this->MaximumNumberOfPasses && totalTriangles < this->MaximumNumberOfTriangles && changesMade;
         ++passNum )
-    {
+  {
     changesMade = false;
     for (triId=0; triId < numTris; ++triId)
-      {
+    {
       tri = currTris + 4*triId + 1; //get point ids defining triangle
       newPts->GetPoint(tri[0],x[0]);
       newPts->GetPoint(tri[1],x[1]);
@@ -258,44 +258,44 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
       // Various subdivision cases are possible
       unsigned char subCase=0;
       if ( area > maxArea )
-        {
+      {
         subCase = 7;
-        }
+      }
       else
-        {
+      {
         for (i=0; i<3; ++i)
-          {
+        {
           if ( eLengths[i] > maxLen2 )
-            {
+          {
             subCase |= CASE_MASK[i];
-            }
           }
-        }//determine edges to divide
+        }
+      }//determine edges to divide
 
       // If not just outputting original triangle then changes are made
       if (subCase > 0 )
-        {
+      {
         changesMade = true;
-        }
+      }
 
       // Now create new points and triangles dividing edges as appropriate.
       double xNew[3];
       vtkIdType ptIds[6];
       ptIds[0] = tri[0]; ptIds[1] = tri[1]; ptIds[2] = tri[2];
       for (i=0; i<3; ++i)
-        {
+      {
         if ( subCase & CASE_MASK[i] ) //ith edge needs subdivision
-          {
+        {
           xNew[0] = 0.5*(x[i][0] + x[(i+1)%3][0]);
           xNew[1] = 0.5*(x[i][1] + x[(i+1)%3][1]);
           xNew[2] = 0.5*(x[i][2] + x[(i+1)%3][2]);
           if ( (ptIds[3+i] = this->Locator->IsInsertedPoint(xNew)) < 0 )
-            {
+          {
             ptIds[3+i] = this->Locator->InsertNextPoint(xNew);
             newPointData->InterpolateEdge(inPointData, ptIds[3+i], tri[i], tri[(i+1)%3], 0.5);
-            }
           }
         }
+      }
 
       // The tessellation may vary based on geometric concerns (selecting best
       // diagonal during triangulation of quadrilateral)
@@ -304,32 +304,32 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
       vtkIdType numTessTris = *subTess++;
 
       for (i=0; i<numTessTris; ++i, subTess+=3)
-        {
+      {
         newTIds[0] = ptIds[subTess[0]];
         newTIds[1] = ptIds[subTess[1]];
         newTIds[2] = ptIds[subTess[2]];
         newId = newTris->InsertNextCell(3,newTIds);
         newCellData->CopyData(inCellData, triId, newId);
         if ( ++totalTriangles >= this->MaximumNumberOfTriangles )
-          {
+        {
           break;
-          }
         }
-      }//for all triangles in this pass
+      }
+    }//for all triangles in this pass
 
     // Prepare for the next pass, which means swapping input and output.
     // Remember that the initial pass uses the filter input; subsequent passes
     // cannot modify the input to a new cell array must be created to support
     // the swapping.
     if ( passNum == 0 )
-      {
+    {
       inTris = vtkCellArray::New();
       inCellData = vtkCellData::New();
       inCellData->CopyAllocate(newCellData);
 
       inPointData = vtkPointData::New();
       inPointData->CopyAllocate(newPointData);
-      }
+    }
 
     // Prepare for new triangles
     swapTris = newTris;
@@ -353,10 +353,10 @@ int vtkAdaptiveSubdivisionFilter::RequestData(
     newPointData = inPointData;
     inPointData = swapPointData;
     for (vtkIdType ptId=0; ptId < numPts; ++ptId)
-      {
+    {
       newPointData->CopyData(inPointData, ptId, ptId);
-      }
-    }//for another pass
+    }
+  }//for another pass
 
   // Configure output and clean up
   output->SetPoints(newPts);
@@ -383,13 +383,13 @@ void vtkAdaptiveSubdivisionFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Maximum Number Of Passes: " << this->MaximumNumberOfPasses << "\n";
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 
   os << indent << "Precision of the output points: "
      << this->OutputPointsPrecision << "\n";

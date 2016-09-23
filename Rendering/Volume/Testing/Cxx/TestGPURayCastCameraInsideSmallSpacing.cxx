@@ -1569,9 +1569,9 @@ int TestGPURayCastCameraInsideSmallSpacing(int argc, char *argv[])
   double desiredBounds = 0.0005;
   double desiredSpacing[3];
   for (int i = 0; i < 3; ++i)
-    {
+  {
     desiredSpacing[i] = desiredBounds / static_cast<double> (dims[i]);
-    }
+  }
 
   vtkNew<vtkImageChangeInformation> imageChangeInfo;
   imageChangeInfo->SetInputConnection(reader->GetOutputPort());

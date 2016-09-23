@@ -65,8 +65,8 @@ public:
                                         VertOffsets(vertOffsets),
                                         LineOffsets(lineOffsets),
                                         PolyOffsets(polyOffsets)
-      {
-      }
+    {
+    }
   };
 
   /**

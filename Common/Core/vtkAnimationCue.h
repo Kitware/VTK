@@ -56,14 +56,14 @@ public:
   // directly for it within the handler. Thus, this information can
   // be accessed in wrapped languages.
   class AnimationCueInfo
-    {
+  {
   public:
     double StartTime;
     double EndTime;
     double AnimationTime;// valid only in AnimationCueTickEvent handler
     double DeltaTime;   // valid only in AnimationCueTickEvent handler
     double ClockTime;   // valid only in AnimationCueTickEvent handler
-    };
+  };
 
   //@{
   /**

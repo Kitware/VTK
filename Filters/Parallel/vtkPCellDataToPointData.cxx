@@ -40,9 +40,9 @@ int vtkPCellDataToPointData::RequestData(
   if (!output) {return 0;}
 
   if ( !this->Superclass::RequestData(request, inputVector, outputVector) )
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -54,11 +54,11 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
   vtkInformationVector* outputVector)
 {
   if (this->PieceInvariant == 0)
-    {
+  {
     // I believe the default input update extent
     // is set to the input update extent.
     return 1;
-    }
+  }
 
   int extentType = VTK_PIECES_EXTENT;
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
@@ -72,16 +72,16 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
   int isInputPiecesExtent = 1;
   vtkDataObject* dataObject = inInfo->Get(vtkDataObject::DATA_OBJECT());
   if (dataObject)
-    {
+  {
     extentType = dataObject->GetInformation()->Get(vtkDataObject::DATA_EXTENT_TYPE());
-    }
+  }
   if (extentType == VTK_3D_EXTENT &&
       inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-    {
+  {
     isInputPiecesExtent = 0;
-    }
+  }
   if (isInputPiecesExtent)
-    {
+  {
     piece = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     numPieces = outInfo->Get(
@@ -95,30 +95,30 @@ int vtkPCellDataToPointData::RequestUpdateExtent(
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_GHOST_LEVELS(),
       ghostLevel);
-    }
+  }
   else
-    {
+  {
     wholeExt = inInfo->Get(
       vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT());
     upExt = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
     memcpy(ext, upExt, 6*sizeof(int));
     for (int i = 0; i < 3; ++i)
-      {
+    {
       --ext[i*2];
       if (ext[i*2] < wholeExt[i*2])
-        {
+      {
         ext[i*2] = wholeExt[i*2];
-        }
+      }
       ++ext[i*2+1];
       if (ext[i*2+1] > wholeExt[i*2+1])
-        {
+      {
         ext[i*2+1] = wholeExt[i*2+1];
-        }
       }
+    }
     inInfo->Set(
       vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-    }
+  }
   return 1;
 }
 

@@ -290,11 +290,11 @@ public:
    * Simplified API to set an homogeneous unit across Min/Max/Init IntegrationStepUnit
    */
   void SetIntegrationStepUnit(int unit)
-    {
+  {
     this->SetInitialIntegrationStepUnit(unit);
     this->SetMinimumIntegrationStepUnit(unit);
     this->SetMaximumIntegrationStepUnit(unit);
-    }
+  }
   //@}
 
   enum

@@ -82,9 +82,9 @@ void vtkProjectedTerrainPath::SetSourceData(vtkImageData *source)
 vtkImageData *vtkProjectedTerrainPath::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkImageData::SafeDownCast(this->GetExecutive()->GetInputData(1, 0));
 }
 
@@ -93,15 +93,15 @@ int vtkProjectedTerrainPath::FillInputPortInformation(int port,
                                                       vtkInformation *info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
     return 1;
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -139,16 +139,16 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   vtkCellArray *inLines = lines->GetLines();
   vtkIdType numLines;
   if ( ! inLines || (numLines=inLines->GetNumberOfCells()) <= 0 )
-    {
+  {
     vtkErrorMacro("This filter requires lines as input");
     return 1;
-    }
+  }
 
   if ( ! image )
-    {
+  {
     vtkErrorMacro("This filter requires an image as input");
     return 1;
-    }
+  }
   image->GetDimensions(this->Dimensions);
   image->GetOrigin(this->Origin);
   image->GetSpacing(this->Spacing);
@@ -173,20 +173,20 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   vtkIdType i;
   double x[3], z, loc[2];
   for (i=0; i<numPts; i++)
-    {
+  {
     inPoints->GetPoint(i,x);
     this->GetImageIndex(x,loc,ij);
     z = this->GetHeight(loc,ij);
     this->Points->InsertPoint(i, x[0], x[1], z);
     outPD->CopyData(inPD,i,i);
-    }
+  }
 
   // If mode is simple, then just spit out the original polylines
   if ( this->ProjectionMode == SIMPLE_PROJECTION )
-    {
+  {
     output->SetLines(inLines);
     return 1;
-    }
+  }
 
   // If here, we've got to get fancy and start the subdivision process.
   // This means creating some fancy data structures: a dynamic list
@@ -200,23 +200,23 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   this->NegativeLineError = vtkPriorityQueue::New();
   this->NumLines = 0;
   for ( inLines->InitTraversal(); inLines->GetNextCell(npts,pts); )
-    {
+  {
     for (j=0; j<(npts-1); j++)
-      {
+    {
       this->EdgeList->push_back(vtkEdge(pts[j],pts[j+1]));
       this->ComputeError(this->EdgeList->size()-1); //puts edges in queues
       this->NumLines++;
-      }
     }
+  }
 
   if ( this->ProjectionMode == NONOCCLUDED_PROJECTION )
-    {
+  {
     this->RemoveOcclusions();
-    }
+  }
   else //if ( this->ProjectionMode == HUG_PROJECTION )
-    {
+  {
     this->HugTerrain();
-    }
+  }
 
   //Okay now dump out the edges from the edge list into the output polydata
   vtkCellArray *outLines = vtkCellArray::New();
@@ -224,11 +224,11 @@ int vtkProjectedTerrainPath::RequestData(vtkInformation *,
   for (EdgeListIterator iter=this->EdgeList->begin();
        iter != this->EdgeList->end();
        ++iter)
-    {
+  {
     outLines->InsertNextCell(2);
     outLines->InsertCellPoint(iter->V1);
     outLines->InsertCellPoint(iter->V2);
-    }
+  }
   output->SetLines(outLines);
   outLines->Delete();
   vtkDebugMacro("Produced " << outLines->GetNumberOfCells() << " lines from "
@@ -249,21 +249,21 @@ void vtkProjectedTerrainPath::RemoveOcclusions()
   double error;
   vtkIdType eId;
   if ( this->HeightOffset > 0.0 ) //want path above terrain, eliminate negative errors
-    {
+  {
     while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 &&
       this->NumLines < this->MaximumNumberOfLines )
-      {
-      this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
-      }
-    }
-  else //want path below terrain, eliminate positive errors
     {
+      this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
+    }
+  }
+  else //want path below terrain, eliminate positive errors
+  {
     while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 &&
       this->NumLines < this->MaximumNumberOfLines )
-      {
+    {
       this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -278,41 +278,41 @@ void vtkProjectedTerrainPath::HugTerrain()
   vtkIdType eId, stillPopping=1;
 
   while ( stillPopping )
-    {
+  {
     stillPopping = 0;
     while ( (eId=this->PositiveLineError->Pop(0,error)) >= 0 &&
       this->NumLines < this->MaximumNumberOfLines )
-      {
+    {
       // Have to remove edge (if it exists) from other queue since
       // it will be reprocessed
       this->NegativeLineError->DeleteId(eId);
       if ( (-error) > this->HeightTolerance )
-        {
+      {
         this->SplitEdge(eId,(*this->EdgeList)[eId].tPos);
         stillPopping = 1;
-        }
-      else
-        {
-        break;
-        }
       }
+      else
+      {
+        break;
+      }
+    }
     while ( (eId=this->NegativeLineError->Pop(0,error)) >= 0 &&
       this->NumLines < this->MaximumNumberOfLines )
-      {
+    {
       // Have to remove edge (if it exists) from other queue since
       // it will be reprocessed
       this->PositiveLineError->DeleteId(eId);
       if ( (-error) > this->HeightTolerance )
-        {
+      {
         this->SplitEdge(eId,(*this->EdgeList)[eId].tNeg);
         stillPopping = 1;
-        }
-      else
-        {
-        break;
-        }
       }
-    } //while still popping
+      else
+      {
+        break;
+      }
+    }
+  } //while still popping
 }
 
 
@@ -357,30 +357,30 @@ double vtkProjectedTerrainPath::GetHeight(double loc[2], int ij[2])
   int i;
   double pcoords[2];
   for (i=0; i<2; i++)
-    {
+  {
     if ( ij[i] >= this->Extent[i*2] && ij[i] < this->Extent[i*2 + 1] )
-      {
+    {
       pcoords[i] = loc[i] - (double)ij[i];
-      }
+    }
 
     else if ( ij[i] < this->Extent[i*2] || ij[i] > this->Extent[i*2+1] )
-      {
+    {
       return this->HeightOffset;
-      }
+    }
 
     else //if ( ij[i] == this->Extent[i*2+1] )
-      {
+    {
       if (this->Dimensions[i] == 1)
-        {
+      {
         pcoords[i] = 0.0;
-        }
+      }
       else
-        {
+      {
         ij[i] -= 1;
         pcoords[i] = 1.0;
-        }
       }
     }
+  }
 
   // Interpolate the height
   double weights[4], s0, s1, s2, s3;
@@ -414,26 +414,26 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
 
   // Process the x intersections
   if ( p2[0] >= p1[0] ) //sort along x-axis
-    {
+  {
     x1 = p1;
     x2 = p2;
     flip = 0;
-    }
+  }
   else
-    {
+  {
     x1 = p2;
     x2 = p1;
     flip = 1;
-    }
+  }
   this->GetImageIndex(x1,loc1,ij1);
   this->GetImageIndex(x2,loc2,ij2);
 
   if ( (numInt=ij2[0]-ij1[0]) > 0 ) //if there are any x-intersections
-    {
+  {
     for (i=1; i<=numInt; i++)
-      {
+    {
       if ( (ij1[0]+i) >= this->Extent[0] )
-        {
+      {
         x[0] = this->Origin[0] + (ij1[0]+i)*this->Spacing[0];
         t = (x[0] - x1[0]) / (x2[0] - x1[0]);
         x[1] = x1[1] + t*(x2[1]-x1[1]);
@@ -442,47 +442,47 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         zMap = this->GetHeight(loc,ij);
         error = x[2] - zMap;
         if ( error >= 0.0 )
-          {
+        {
           if (error > posError)
-            {
+          {
             posError = error;
             e.tPos = (flip ? (1-t) : t);
-            }
           }
+        }
         else
-          {
+        {
           if (error < negError)
-            {
+          {
             negError = error;
             e.tNeg = (flip ? (1-t) : t);
-            }
           }
-        } //if laying on image
-      } //for all x-intersection points
-    } //if x-intersections
+        }
+      } //if laying on image
+    } //for all x-intersection points
+  } //if x-intersections
 
   // Process the y intersections
   if ( p2[1] >= p1[1] ) //sort along y-axis
-    {
+  {
     x1 = p1;
     x2 = p2;
     flip = 0;
-    }
+  }
   else
-    {
+  {
     x1 = p2;
     x2 = p1;
     flip = 1;
-    }
+  }
   this->GetImageIndex(x1,loc1,ij1);
   this->GetImageIndex(x2,loc2,ij2);
 
   if ( (numInt=ij2[1]-ij1[1]) > 0 ) //if there are any x-intersections
-    {
+  {
     for (i=1; i<=numInt; i++)
-      {
+    {
       if ( (ij1[1]+i) >= this->Extent[2] )
-        {
+      {
         x[1] = this->Origin[1] + (ij1[1]+i)*this->Spacing[1];
         t = (x[1] - x1[1]) / (x2[1] - x1[1]);
         x[0] = x1[0] + t*(x2[0]-x1[0]);
@@ -491,34 +491,34 @@ void vtkProjectedTerrainPath::ComputeError(vtkIdType edgeId)
         zMap = this->GetHeight(loc,ij);
         error = x[2] - zMap;
         if ( error >= 0.0 )
-          {
+        {
           if (error > posError)
-            {
+          {
             posError = error;
             e.tPos = (flip ? (1-t) : t);
-            }
           }
+        }
         else
-          {
+        {
           if (error < negError)
-            {
+          {
             negError = error;
             e.tNeg = (flip ? (1-t) : t);
-            }
           }
-        } //if laying on image
-      } //for all x-intersection points
-    } //if x-intersections
+        }
+      } //if laying on image
+    } //for all x-intersection points
+  } //if x-intersections
 
   // Okay, insert the maximum errors for this edge in the queues
   if ( posError > 0.0 )
-    {
+  {
     this->PositiveLineError->Insert(-posError,edgeId);
-    }
+  }
   if ( negError < 0.0 )
-    {
+  {
     this->NegativeLineError->Insert(negError,edgeId);
-    }
+  }
 }
 
 
@@ -529,17 +529,17 @@ void vtkProjectedTerrainPath::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Projection Mode: ";
   if ( this->ProjectionMode == SIMPLE_PROJECTION )
-    {
+  {
     os << "Simple Projection\n";
-    }
+  }
   else if ( this->ProjectionMode == NONOCCLUDED_PROJECTION )
-    {
+  {
     os << "Non-occluded Projection\n";
-    }
+  }
   else //if ( this->ProjectionMode == HUG_PROJECTION )
-    {
+  {
     os << "Hug Projection\n";
-    }
+  }
 
   os << indent << "Height Offset: " << this->HeightOffset << "\n";
   os << indent << "Height Tolerance: " << this->HeightTolerance << "\n";

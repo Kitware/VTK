@@ -118,12 +118,12 @@ int TestSMPContour(int, char *[])
 #endif
 
   if (cg2->GetOutput()->GetNumberOfCells() != baseNumCells)
-    {
+  {
     cout << "Error in vtkSMPContourGrid (MergePieces = true) output." << endl;
     cout << "Number of cells does not match expected, "
          << cg2->GetOutput()->GetNumberOfCells() << " vs. " << baseNumCells << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   cout << "SMP Contour grid: " << endl;
   cg2->MergePiecesOff();
@@ -138,29 +138,29 @@ int TestSMPContour(int, char *[])
   vtkCompositeDataSet* cds = vtkCompositeDataSet::SafeDownCast(
     cg2->GetOutputDataObject(0));
   if (cds)
-    {
+  {
     vtkCompositeDataIterator* iter = cds->NewIterator();
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
-      {
+    {
       vtkPolyData* pd = vtkPolyData::SafeDownCast(
         iter->GetCurrentDataObject());
       if (pd)
-        {
+      {
         numCells += pd->GetNumberOfCells();
-        }
-      iter->GoToNextItem();
       }
-    iter->Delete();
+      iter->GoToNextItem();
     }
+    iter->Delete();
+  }
 
   if (numCells != baseNumCells)
-    {
+  {
     cout << "Error in vtkSMPContourGrid (MergePieces = false) output." << endl;
     cout << "Number of cells does not match expected, "
          << numCells << " vs. " << baseNumCells << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkNew<vtkSMPContourGridManyPieces> cg3;
   cg3->SetInputData(tetraFilter->GetOutput());
@@ -178,29 +178,29 @@ int TestSMPContour(int, char *[])
   cds = vtkCompositeDataSet::SafeDownCast(
     cg2->GetOutputDataObject(0));
   if (cds)
-    {
+  {
     vtkCompositeDataIterator* iter = cds->NewIterator();
     iter->InitTraversal();
     while (!iter->IsDoneWithTraversal())
-      {
+    {
       vtkPolyData* pd = vtkPolyData::SafeDownCast(
         iter->GetCurrentDataObject());
       if (pd)
-        {
+      {
         numCells += pd->GetNumberOfCells();
-        }
-      iter->GoToNextItem();
       }
-    iter->Delete();
+      iter->GoToNextItem();
     }
+    iter->Delete();
+  }
 
   if (numCells != baseNumCells)
-    {
+  {
     cout << "Error in vtkSMPContourGridManyPieces output." << endl;
     cout << "Number of cells does not match expected, "
          << numCells << " vs. " << baseNumCells << endl;
     return EXIT_FAILURE;
-    }
+  }
 
 #if WRITE_DEBUG
   vtkNew<vtkXMLMultiBlockDataWriter> writer;

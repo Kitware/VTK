@@ -66,9 +66,9 @@ void WriteDistributedDataSet(
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
-    {
+  {
     writer->SetWriteMetaFile(1);
-    }
+  }
   writer->Update();
   writer->Delete();
 #else
@@ -82,10 +82,10 @@ void WriteDistributedDataSet(
 void LogMessage( const std::string &msg)
 {
   if( Controller->GetLocalProcessId() == 0 )
-    {
+  {
     std::cout << msg << std::endl;
     std::cout.flush();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -97,23 +97,23 @@ int GetTotalNumberOfNodes( vtkMultiBlockDataSet *multiblock )
   // STEP 0: Count local number of nodes
   int numNodes = 0;
   for(unsigned int block=0; block < multiblock->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkUniformGrid *grid =
         vtkUniformGrid::SafeDownCast( multiblock->GetBlock( block ) );
 
     if( grid != NULL )
-      {
+    {
       vtkIdType pntIdx = 0;
       for( ; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
-        {
+      {
         if(grid->IsPointVisible(pntIdx))
-          {
+        {
           ++numNodes;
-          }
-        } // END for all nodes
-      } // END if grid != NULL
+        }
+      } // END for all nodes
+    } // END if grid != NULL
 
-    } // END for all blocks
+  } // END for all blocks
 
   // STEP 2: Synchronize processes
   Controller->Barrier();
@@ -175,9 +175,9 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
   // Populate blocks for this process
   unsigned int block=0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-    {
+  {
     if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-      {
+    {
       // Copy the uniform grid
       vtkUniformGrid *grid = vtkUniformGrid::New();
       grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -197,12 +197,12 @@ vtkMultiBlockDataSet* GetDataSet( const int numPartitions )
         vtkDataObject::PIECE_EXTENT(),
         info->Get( vtkDataObject::PIECE_EXTENT() ),
         6 );
-      } // END if we own the block
+    } // END if we own the block
     else
-      {
+    {
       mbds->SetBlock( block, NULL );
-      } // END else we don't own the block
-    } // END for all blocks
+    } // END else we don't own the block
+  } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
@@ -219,10 +219,10 @@ void RegisterGrids(
   assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkUniformGrid *grid = vtkUniformGrid::SafeDownCast(mbds->GetBlock(block));
     if( grid != NULL )
-      {
+    {
       vtkInformation *info = mbds->GetMetaData( block );
       assert( "pre: metadata should not be NULL" && (info != NULL) );
       assert( "pre: must have piece extent!" &&
@@ -234,8 +234,8 @@ void RegisterGrids(
           grid->GetPointData(),
           grid->GetCellData(),
           NULL );
-      } // END if block belongs to this process
-    } // END for all blocks
+    } // END if block belongs to this process
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -320,12 +320,12 @@ double CalculateExpectedAverage()
   double pnt[3];
   double sum = 0.0;
   for( vtkIdType pntIdx=0; pntIdx < wholeGrid->GetNumberOfPoints(); ++pntIdx )
-    {
+  {
     wholeGrid->GetPoint( pntIdx, pnt );
     sum += pnt[0];
     sum += pnt[1];
     sum += pnt[2];
-    } // END for all points
+  } // END for all points
 
   double N = static_cast< double >( wholeGrid->GetNumberOfPoints() );
   wholeGrid->Delete();
@@ -340,15 +340,15 @@ double GetXYZSumForGrid( vtkUniformGrid *grid )
   double pnt[3];
   double sum = 0.0;
   for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
-    {
+  {
     if(grid->IsPointVisible(pntIdx))
-      {
+    {
       grid->GetPoint( pntIdx, pnt );
       sum += pnt[0];
       sum += pnt[1];
       sum += pnt[2];
-      }
-     } // END for all points
+    }
+  } // END for all points
   return( sum );
 }
 
@@ -401,14 +401,14 @@ int TestAverage( const int factor )
   double partialSum     = 0.0;
   unsigned int blockIdx = 0;
   for( ; blockIdx < mbds->GetNumberOfBlocks(); ++blockIdx )
-    {
+  {
     vtkUniformGrid *blockPtr =
         vtkUniformGrid::SafeDownCast( mbds->GetBlock( blockIdx ) );
     if( blockPtr != NULL )
-      {
+    {
       partialSum += GetXYZSumForGrid( blockPtr );
-      } // END if
-    } // END for all blocks
+    } // END if
+  } // END for all blocks
 
   // STEP 8: All reduce to the global sum
   double globalSum = 0.0;
@@ -423,22 +423,22 @@ int TestAverage( const int factor )
 
   // STEP 8: return success or failure
   if( vtkMathUtilities::FuzzyCompare(average,expected) )
-    {
+  {
     if( Rank == 0 )
-      {
+    {
       std::cout << "Computed: " << average << " Expected: " << expected << "\n";
       std::cout.flush();
-      }
-    return 0;
     }
+    return 0;
+  }
 
   if( Rank == 0 )
-    {
+  {
     std::cout << "Global sum: "      << globalSum << std::endl;
     std::cout << "Number of Nodes: " << count     << std::endl;
     std::cout << "Computed: " << average << " Expected: " << expected << "\n";
     std::cout.flush();
-    }
+  }
 
   return 1;
 }
@@ -541,9 +541,9 @@ int TestPStructuredGridConnectivity( int argc, char *argv[] )
   Controller->Delete();
 
   if( rc != 0 )
-    {
+  {
     std::cout << "Test Failed!\n";
     rc = 0;
-    }
+  }
   return( rc );
 }

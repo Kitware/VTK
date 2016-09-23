@@ -32,22 +32,22 @@ int TestOutlineCornerSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double bounds[6];
   for(unsigned int i = 0; i < 6; ++i)
-    {
+  {
     randomSequence->Next();
     bounds[i] = randomSequence->GetValue();
-    }
+  }
   if(bounds[0] > bounds[3])
-    {
+  {
     std::swap(bounds[0], bounds[3]);
-    }
+  }
   if(bounds[1] > bounds[4])
-    {
+  {
     std::swap(bounds[1], bounds[4]);
-    }
+  }
   if(bounds[2] > bounds[5])
-    {
+  {
     std::swap(bounds[2], bounds[5]);
-    }
+  }
   outlineCornerSource->SetBounds(bounds);
 
   randomSequence->Next();
@@ -60,29 +60,29 @@ int TestOutlineCornerSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   outlineCornerSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for(unsigned int i = 0; i < 6; ++i)
-    {
+  {
     randomSequence->Next();
     bounds[i] = randomSequence->GetValue();
-    }
+  }
   if(bounds[0] > bounds[3])
-    {
+  {
     std::swap(bounds[0], bounds[3]);
-    }
+  }
   if(bounds[1] > bounds[4])
-    {
+  {
     std::swap(bounds[1], bounds[4]);
-    }
+  }
   if(bounds[2] > bounds[5])
-    {
+  {
     std::swap(bounds[2], bounds[5]);
-    }
+  }
   outlineCornerSource->SetBounds(bounds);
 
   randomSequence->Next();
@@ -95,9 +95,9 @@ int TestOutlineCornerSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -121,9 +121,9 @@ public:
     this->CurrentArray = this->ThreadSpecificStorage->Root;
     this->CurrentSlot = 0;
     if (!this->CurrentArray->Slots->Storage)
-      {
+    {
       this->Forward();
-      }
+    }
   }
 
   void SetToEnd()
@@ -145,22 +145,22 @@ public:
   void Forward()
   {
     for (;;)
-      {
+    {
       if (++this->CurrentSlot >= this->CurrentArray->Size)
-        {
+      {
         this->CurrentArray = this->CurrentArray->Prev;
         this->CurrentSlot = 0;
         if (!this->CurrentArray)
-          {
-          break;
-          }
-        }
-      Slot *slot = this->CurrentArray->Slots + this->CurrentSlot;
-      if (slot->Storage)
         {
-        break;
+          break;
         }
       }
+      Slot *slot = this->CurrentArray->Slots + this->CurrentSlot;
+      if (slot->Storage)
+      {
+        break;
+      }
+    }
   }
 
   StoragePointerType& GetStorage() const

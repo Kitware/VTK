@@ -37,10 +37,10 @@ int TestXMLWriterWithDataArrayFallback(int argc, char *argv[])
   delete [] temp_dir_c;
 
   if (temp_dir.empty())
-    {
+  {
     cerr << "Could not determine temporary directory." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string filename = temp_dir + "/testXMLWriterWithDataArrayFallback.vti";
 
@@ -52,9 +52,9 @@ int TestXMLWriterWithDataArrayFallback(int argc, char *argv[])
     data->SetName("test_data");
     data->SetNumberOfTuples(6);
     for (vtkIdType i = 0; i < 6; i++)
-      {
+    {
       data->SetValue(i,static_cast<int>(i));
-      }
+    }
 
     imageData->GetPointData()->AddArray(data.GetPointer());
 
@@ -74,19 +74,19 @@ int TestXMLWriterWithDataArrayFallback(int argc, char *argv[])
       imageData->GetPointData()->GetArray("test_data"));
 
     if (!data || data->GetNumberOfTuples() != 6)
-      {
+    {
       cerr << "Could not read data array." << endl;
       return EXIT_FAILURE;
-      }
+    }
 
     for (vtkIdType i = 0; i < data->GetNumberOfTuples(); i++)
-      {
+    {
       if (data->GetValue(i) != i)
-        {
+      {
         cerr << "Incorrect value from data array." << endl;
         return EXIT_FAILURE;
-        }
       }
+    }
   }
 
   return EXIT_SUCCESS;

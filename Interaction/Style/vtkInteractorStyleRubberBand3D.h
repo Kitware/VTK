@@ -73,10 +73,10 @@ public:
    * Selection types
    */
   enum
-    {
+  {
     SELECT_NORMAL = 0,
     SELECT_UNION = 1
-    };
+  };
 
   //@{
   /**
@@ -86,13 +86,13 @@ public:
   //@}
 
   enum
-    {
+  {
     NONE,
     PANNING,
     ZOOMING,
     ROTATING,
     SELECTING
-    };
+  };
 
   //@{
   /**

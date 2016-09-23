@@ -32,9 +32,9 @@ void vtkImageCursor3D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Cursor Value: " << this->CursorValue << "\n";
   os << indent << "Cursor Position: (" << this->CursorPosition[0];
   for (idx = 1; idx < 3; ++idx)
-    {
+  {
     os << ", " << this->CursorPosition[idx];
-    }
+  }
   os << ")\n";
 }
 
@@ -69,42 +69,42 @@ void vtkImageCursor3DExecute(vtkImageCursor3D *self,
   outData->GetExtent(min0, max0, min1, max1, min2, max2);
 
   if (c1 >= min1 && c1 <= max1 && c2 >= min2 && c2 <= max2)
-    {
+  {
     for (idx = c0 - rad; idx <= c0 + rad; ++idx)
-      {
+    {
       if (idx >= min0 && idx <= max0)
-        {
+      {
         ptr = static_cast<T *>(outData->GetScalarPointer(idx, c1, c2));
         *ptr = static_cast<T>(value);
-        }
       }
     }
+  }
 
 
   if (c0 >= min0 && c0 <= max0 && c2 >= min2 && c2 <= max2)
-    {
+  {
     for (idx = c1 - rad; idx <= c1 + rad; ++idx)
-      {
+    {
       if (idx >= min1 && idx <= max1)
-        {
+      {
         ptr = static_cast<T *>(outData->GetScalarPointer(c0, idx, c2));
         *ptr = static_cast<T>(value);
-        }
       }
     }
+  }
 
 
   if (c0 >= min0 && c0 <= max0 && c1 >= min1 && c1 <= max1)
-    {
+  {
     for (idx = c2 - rad; idx <= c2 + rad; ++idx)
-      {
+    {
       if (idx >= min2 && idx <= max2)
-        {
+      {
         ptr = static_cast<T *>(outData->GetScalarPointer(c0, c1, idx));
         *ptr = static_cast<T>(value);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -125,13 +125,13 @@ int vtkImageCursor3D::RequestData(
     vtkImageData::SafeDownCast(outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   switch (outData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCursor3DExecute(this,outData, static_cast<VTK_TT *>(ptr)));
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return 1;
-    }
+  }
 
   return 1;
 }

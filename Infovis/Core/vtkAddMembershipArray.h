@@ -44,14 +44,14 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
-    {
+  {
     FIELD_DATA = 0,
     POINT_DATA = 1,
     CELL_DATA = 2,
     VERTEX_DATA = 3,
     EDGE_DATA = 4,
     ROW_DATA = 5
-    };
+  };
 
   //@{
   /**

@@ -30,10 +30,10 @@
 int main (int argc, char *argv[])
 {
   if (argc < 4)
-    {
+  {
     cout << "Usage: " << argv[0] << " InputVolume StartLabel EndLabel" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Create all of the classes we will need
   vtkSmartPointer<vtkMetaImageReader> reader =
@@ -58,16 +58,16 @@ int main (int argc, char *argv[])
   // Define all of the variables
   unsigned int startLabel = atoi(argv[2]);
   if (startLabel > VTK_SHORT_MAX)
-    {
+  {
     std::cout << "ERROR: startLabel is larger than " << VTK_SHORT_MAX << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   unsigned int endLabel = atoi(argv[3]);
   if (endLabel > VTK_SHORT_MAX)
-    {
+  {
     std::cout << "ERROR: endLabel is larger than " << VTK_SHORT_MAX << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   std::string filePrefix = "Cubes";
 
   // Generate cubes from labels
@@ -120,14 +120,14 @@ int main (int argc, char *argv[])
   writer->SetInputConnection(geometry->GetOutputPort());
 
   for (unsigned int i = startLabel; i <= endLabel; i++)
-    {
+  {
     // see if the label exists, if not skip it
     double frequency =
       histogram->GetOutput()->GetPointData()->GetScalars()->GetTuple1(i);
     if (frequency == 0.0)
-      {
+    {
       continue;
-      }
+    }
 
     // select the cells for a given label
     selector->ThresholdBetween(i, i);
@@ -140,6 +140,6 @@ int main (int argc, char *argv[])
     writer->SetFileName(ss.str().c_str());
     writer->Write();
 
-    }
+  }
   return EXIT_SUCCESS;
 }

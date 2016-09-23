@@ -37,10 +37,10 @@ vtkSQLQuery::~vtkSQLQuery()
 {
   this->SetQuery(0);
   if (this->Database)
-    {
+  {
     this->Database->Delete();
     this->Database = NULL;
-    }
+  }
 }
 
 vtkCxxSetObjectMacro(vtkSQLQuery, Database, vtkSQLDatabase);
@@ -51,30 +51,30 @@ void vtkSQLQuery::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Query: " << (this->Query ? this->Query : "NULL") << endl;
   os << indent << "Database: " << (this->Database ? "" : "NULL") << endl;
   if (this->Database)
-    {
+  {
     this->Database->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 vtkStdString vtkSQLQuery::EscapeString( vtkStdString s, bool addSurroundingQuotes )
 {
   vtkStdString d;
   if ( addSurroundingQuotes )
-    {
+  {
     d += '\'';
-    }
+  }
 
   for ( vtkStdString::iterator it = s.begin(); it != s.end(); ++ it )
-    {
+  {
     if ( *it == '\'' )
       d += '\''; // Single quotes are escaped by repeating them
     d += *it;
-    }
+  }
 
   if ( addSurroundingQuotes )
-    {
+  {
     d += '\'';
-    }
+  }
   return d;
 }
 
@@ -192,15 +192,15 @@ bool vtkSQLQuery::ClearParameterBindings()
 bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
 {
   if (!data.IsValid())
-    {
+  {
     return true; // binding nulls is a no-op
-    }
+  }
 
 #define VTK_VARIANT_BIND_PARAMETER(Type,Function) \
   case Type: return this->BindParameter(index, data.Function())
 
   switch (data.GetType())
-    {
+  {
     VTK_VARIANT_BIND_PARAMETER(VTK_STRING,ToString);
     VTK_VARIANT_BIND_PARAMETER(VTK_FLOAT,ToFloat);
     VTK_VARIANT_BIND_PARAMETER(VTK_DOUBLE,ToDouble);
@@ -222,7 +222,7 @@ bool vtkSQLQuery::BindParameter(int index, vtkVariant data)
       vtkErrorMacro(<<"Variants of type "
                     << data.GetType() << " are not currently supported by BindParameter.");
       return false;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -236,26 +236,26 @@ bool vtkSQLQuery::SetQuery(const char *queryString)
                 << (queryString?queryString:"(null)") );
 
   if ( this->Query == NULL && queryString == NULL)
-    {
+  {
     return true;
-    }
+  }
   if ( this->Query && queryString && (!strcmp(this->Query,queryString)))
-    {
+  {
     return true; // query string isn't changing
-    }
+  }
   delete [] this->Query;
   if (queryString)
-    {
+  {
     size_t n = strlen(queryString) + 1;
     char *cp1 =  new char[n];
     const char *cp2 = (queryString);
     this->Query = cp1;
     do { *cp1++ = *cp2++; } while ( --n ); \
-    }
+  }
    else
-    {
+   {
     this->Query = NULL;
-    }
+   }
   this->Modified();
   return true;
 }

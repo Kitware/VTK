@@ -181,10 +181,10 @@ public:
    * interpolation process.
    */
   void AddExcludedArray(const vtkStdString &excludedArray)
-    {
+  {
     this->ExcludedArrays.push_back(excludedArray);
     this->Modified();
-    }
+  }
   //@}
 
   //@{
@@ -192,10 +192,10 @@ public:
    * Clears the contents of excluded array list.
    */
   void ClearExcludedArrays()
-    {
+  {
     this->ExcludedArrays.clear();
     this->Modified();
-    }
+  }
   //@}
 
   /**
@@ -209,13 +209,13 @@ public:
    * Return the name of the ith excluded array.
    */
   const char* GetExcludedArray(int i)
-    {
+  {
       if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
-        {
+      {
         return NULL;
-        }
+      }
       return this->ExcludedArrays[i].c_str();
-    }
+  }
   //@}
 
   //@{
@@ -225,10 +225,10 @@ public:
    * with the name "derivArray_deriv" (after filter execution).
    */
   void AddDerivativeArray(const vtkStdString &derivArray)
-    {
+  {
     this->DerivArrays.push_back(derivArray);
     this->Modified();
-    }
+  }
   //@}
 
   //@{
@@ -236,10 +236,10 @@ public:
    * Clears the contents of derivative array list.
    */
   void ClearDerivativeArrays()
-    {
+  {
     this->DerivArrays.clear();
     this->Modified();
-    }
+  }
   //@}
 
   /**
@@ -253,13 +253,13 @@ public:
    * Return the name of the ith derivative array.
    */
   const char* GetDerivativeArray(int i)
-    {
+  {
       if ( i < 0 || i >= static_cast<int>(this->DerivArrays.size()) )
-        {
+      {
         return NULL;
-        }
+      }
       return this->DerivArrays[i].c_str();
-    }
+  }
   //@}
 
   // How to handle NULL points

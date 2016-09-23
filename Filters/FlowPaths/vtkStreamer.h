@@ -276,19 +276,19 @@ protected:
   public:
     StreamArray();
     ~StreamArray()
-      {
+    {
         delete [] this->Array;
-      };
+    };
     vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
     StreamPoint *GetStreamPoint(vtkIdType i) {return this->Array + i;};
     vtkIdType InsertNextStreamPoint()
-      {
+    {
         if ( ++this->MaxId >= this->Size )
-          {
+        {
           this->Resize(this->MaxId);
-          }
+        }
         return this->MaxId; //return offset from array
-      }
+    }
     StreamPoint *Resize(vtkIdType sz); //reallocates data
     void Reset() {this->MaxId = -1;};
 
@@ -367,17 +367,17 @@ private:
 inline const char *vtkStreamer::GetIntegrationDirectionAsString()
 {
   if ( this->IntegrationDirection == VTK_INTEGRATE_FORWARD )
-    {
+  {
     return "IntegrateForward";
-    }
+  }
   else if ( this->IntegrationDirection == VTK_INTEGRATE_BACKWARD )
-    {
+  {
     return "IntegrateBackward";
-    }
+  }
   else
-    {
+  {
     return "IntegrateBothDirections";
-    }
+  }
 }
 //@}
 

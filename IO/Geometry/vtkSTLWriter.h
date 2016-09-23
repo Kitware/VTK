@@ -80,10 +80,10 @@ public:
 protected:
   vtkSTLWriter();
   ~vtkSTLWriter()
-    {
+  {
     delete[] this->FileName;
     delete[] this->Header;
-    }
+  }
 
   void WriteData();
 

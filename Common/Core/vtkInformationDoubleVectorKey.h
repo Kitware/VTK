@@ -45,9 +45,9 @@ public:
    */
   static vtkInformationDoubleVectorKey* MakeKey(const char* name, const char* location,
     int length=-1)
-    {
+  {
     return new vtkInformationDoubleVectorKey(name, location, length);
-    }
+  }
 
   //@{
   /**

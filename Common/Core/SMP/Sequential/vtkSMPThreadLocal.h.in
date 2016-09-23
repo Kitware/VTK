@@ -49,9 +49,9 @@ public:
   // Description:
   // Default constructor. Creates a default exemplar.
   vtkSMPThreadLocal() : NumInitialized(0)
-    {
+  {
       this->Initialize();
-    }
+  }
 
   // Description:
   // Constructor that allows the specification of an exemplar object
@@ -59,9 +59,9 @@ public:
   // Note that a copy of the exemplar is created using its copy constructor.
   explicit vtkSMPThreadLocal(const T& exemplar)
     : NumInitialized(0), Exemplar(exemplar)
-    {
+  {
       this->Initialize();
-    }
+  }
 
   // Description:
   // Returns an object of type T that is local to the current thread.
@@ -72,23 +72,23 @@ public:
   // the first time it is called. After the first time, it will return
   // the same object.
   T& Local()
-    {
+  {
       int tid = this->GetThreadID();
       if (!this->Initialized[tid])
-        {
+      {
         this->Internal[tid] = this->Exemplar;
         this->Initialized[tid] = true;
         ++this->NumInitialized;
-        }
+      }
       return this->Internal[tid];
-    }
+  }
 
   // Description:
   // Return the number of thread local objects that have been initialized
   size_t size() const
-    {
+  {
       return this->NumInitialized;
-    }
+  }
 
   // Description:
   // Subset of the standard iterator API.
@@ -102,50 +102,50 @@ public:
   {
   public:
     iterator& operator++()
-      {
+    {
         this->InitIter++;
         this->Iter++;
 
         // Make sure to skip uninitialized
         // entries.
         while(this->InitIter != this->EndIter)
-          {
+        {
           if (*this->InitIter)
-            {
+          {
             break;
-            }
+          }
           this->InitIter++;
           this->Iter++;
-          }
+        }
         return *this;
-      }
+    }
 
     iterator operator++(int)
-      {
+    {
       iterator copy = *this;
       ++(*this);
       return copy;
-      }
+    }
 
     bool operator==(const iterator& other)
-      {
+    {
         return this->Iter == other.Iter;
-      }
+    }
 
     bool operator!=(const iterator& other)
-      {
+    {
         return this->Iter != other.Iter;
-      }
+    }
 
     T& operator*()
-      {
+    {
         return *this->Iter;
-      }
+    }
 
     T* operator->()
-      {
+    {
         return &*this->Iter;
-      }
+    }
 
   private:
     friend class vtkSMPThreadLocal<T>;
@@ -158,7 +158,7 @@ public:
   // Returns a new iterator pointing to the beginning of
   // the local storage container. Thread safe.
   iterator begin()
-    {
+  {
       TLSIter iter = this->Internal.begin();
       std::vector<bool>::iterator iter2 =
         this->Initialized.begin();
@@ -167,32 +167,32 @@ public:
       // fast forward to first initialized
       // value
       while(iter2 != enditer)
-        {
+      {
         if (*iter2)
-          {
+        {
           break;
-          }
+        }
         iter2++;
         iter++;
-        }
+      }
       iterator retVal;
       retVal.InitIter = iter2;
       retVal.EndIter = enditer;
       retVal.Iter = iter;
       return retVal;
-    };
+  };
 
   // Description:
   // Returns a new iterator pointing to past the end of
   // the local storage container. Thread safe.
   iterator end()
-    {
+  {
       iterator retVal;
       retVal.InitIter = this->Initialized.end();
       retVal.EndIter = this->Initialized.end();
       retVal.Iter = this->Internal.end();
       return retVal;
-    }
+  }
 
 private:
   TLS Internal;
@@ -201,23 +201,23 @@ private:
   T Exemplar;
 
   void Initialize()
-    {
+  {
       this->Internal.resize(this->GetNumberOfThreads());
       this->Initialized.resize(this->GetNumberOfThreads());
       std::fill(this->Initialized.begin(),
                 this->Initialized.end(),
                 false);
-    }
+  }
 
   inline int GetNumberOfThreads()
-    {
+  {
       return 1;
-    }
+  }
 
   inline int GetThreadID()
-    {
+  {
       return 0;
-    }
+  }
 
   // disable copying
   vtkSMPThreadLocal(const vtkSMPThreadLocal&);

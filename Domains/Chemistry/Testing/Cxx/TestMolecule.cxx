@@ -28,39 +28,39 @@ bool MoleculeExampleCode1()
   int errors(0);
 
   if (fabs(b.GetLength() - 1.0) > 1e-8)
-    {
+  {
     cout << "Error bond length incorrect. Expected 1.0, but got "
          << b.GetLength() << endl;
     ++errors;
-    }
+  }
 
   if (!h1.GetPosition().Compare(vtkVector3f(0.0, 0.0, -0.5), 1e-8))
-    {
+  {
     cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got "
          << h1.GetPosition() << endl;
     ++errors;
-    }
+  }
 
   if (!h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8))
-    {
+  {
     cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got "
          << h2.GetPosition() << endl;
     ++errors;
-    }
+  }
 
   if (h1.GetAtomicNumber() != 1)
-    {
+  {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h1.GetAtomicNumber() << endl;
     ++errors;
-    }
+  }
 
   if (h2.GetAtomicNumber() != 1)
-    {
+  {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h2.GetAtomicNumber() << endl;
     ++errors;
-    }
+  }
 
   return errors == 0;
 }
@@ -85,39 +85,39 @@ bool MoleculeExampleCode2()
   int errors(0);
 
   if (fabs(b.GetLength() - 1.0) > 1e-8)
-    {
+  {
     cout << "Error bond length incorrect. Expected 1.0, but got "
          << b.GetLength() << endl;
     ++errors;
-    }
+  }
 
   if (!h1.GetPosition().Compare(vtkVector3f(0.0, 0.0, -0.5), 1e-8))
-    {
+  {
     cout << "Error atom position incorrect. Expected 0.0, 0.0, -0.5 but got "
          << h1.GetPosition() << endl;
     ++errors;
-    }
+  }
 
   if (!h2.GetPosition().Compare(vtkVector3f(0.0, 0.0, 0.5), 1e-8))
-    {
+  {
     cout << "Error atom position incorrect. Expected 0.0, 0.0, 0.5 but got "
          << h2.GetPosition() << endl;
     ++errors;
-    }
+  }
 
   if (h1.GetAtomicNumber() != 1)
-    {
+  {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h1.GetAtomicNumber() << endl;
     ++errors;
-    }
+  }
 
   if (h2.GetAtomicNumber() != 1)
-    {
+  {
     cout << "Error atomic number incorrect. Expected 1 but got "
          << h2.GetAtomicNumber() << endl;
     ++errors;
-    }
+  }
 
   return errors == 0;
 }

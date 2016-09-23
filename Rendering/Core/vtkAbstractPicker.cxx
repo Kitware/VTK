@@ -81,13 +81,13 @@ void vtkAbstractPicker::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->PickFromList )
-    {
+  {
     os << indent << "Picking from list\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Picking from renderer's prop list\n";
-    }
+  }
 
   os << indent << "Renderer: " << this->Renderer << "\n";
 

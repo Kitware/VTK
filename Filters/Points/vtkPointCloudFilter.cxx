@@ -47,38 +47,38 @@ struct MapPoints
   MapPoints(vtkIdType, T *inPts, vtkIdType numOutPts, T *outPts,
             vtkIdType *map, vtkPointData *inPD, vtkPointData *outPD) :
     InPoints(inPts), OutPoints(outPts), PointMap(map)
-    {
+  {
       this->Arrays.AddArrays(numOutPts, inPD, outPD);
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       T *inP, *outP;
       const vtkIdType *map=this->PointMap;
       vtkIdType outPtId;
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         outPtId = map[ptId];
         if ( outPtId != -1 )
-          {
+        {
           inP = this->InPoints + 3*ptId;
           outP = this->OutPoints + 3*outPtId;
           *outP++ = *inP++;
           *outP++ = *inP++;
           *outP = *inP;
           this->Arrays.Copy(ptId,outPtId);
-          }
         }
-    }
+      }
+  }
 
   static void Execute(vtkIdType numInPts, T *inPts,
                       vtkIdType numOutPts, T *outPts, vtkIdType *map,
                       vtkPointData *inPD, vtkPointData *outPD)
-    {
+  {
       MapPoints copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD);
       vtkSMPTools::For(0, numInPts, copy);
-    }
+  }
 
 }; //MapPoints
 
@@ -96,21 +96,21 @@ struct MapOutliers
   MapOutliers(vtkIdType, T *inPts, vtkIdType numOutPts, T *outPts,
               vtkIdType *map, vtkPointData *inPD, vtkPointData *outPD2) :
     InPoints(inPts), OutPoints(outPts), PointMap(map)
-    {
+  {
       this->Arrays.AddArrays(numOutPts, inPD, outPD2);
-    }
+  }
 
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       T *inP, *outP;
       const vtkIdType *map=this->PointMap;
       vtkIdType outPtId;
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         outPtId = map[ptId];
         if ( outPtId < 0 )
-          {
+        {
           outPtId = (-outPtId) - 1;
           inP = this->InPoints + 3*ptId;
           outP = this->OutPoints + 3*outPtId;
@@ -118,17 +118,17 @@ struct MapOutliers
           *outP++ = *inP++;
           *outP = *inP;
           this->Arrays.Copy(ptId,outPtId);
-          }
         }
-    }
+      }
+  }
 
   static void Execute(vtkIdType numInPts, T *inPts,
                       vtkIdType numOutPts, T *outPts, vtkIdType *map,
                       vtkPointData *inPD, vtkPointData *outPD2)
-    {
+  {
       MapOutliers copy(numInPts, inPts, numOutPts, outPts, map, inPD, outPD2);
       vtkSMPTools::For(0, numInPts, copy);
-    }
+  }
 
 }; //MapOutliers
 
@@ -151,9 +151,9 @@ vtkPointCloudFilter::vtkPointCloudFilter()
 vtkPointCloudFilter::~vtkPointCloudFilter()
 {
   if ( this->PointMap )
-    {
+  {
     delete [] this->PointMap;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -193,27 +193,27 @@ int vtkPointCloudFilter::RequestData(
   // Reset the filter
   this->NumberOfPointsRemoved = 0;
   if ( this->PointMap )
-    {
+  {
     delete [] this->PointMap; //might have executed previously
-    }
+  }
 
   // Check input
   if ( !input || !output )
-    {
+  {
     return 1;
-    }
+  }
   vtkIdType numPts = input->GetNumberOfPoints();
   if ( numPts < 1 )
-    {
+  {
     return 1;
-    }
+  }
 
   // Okay invoke filtering operation. This is always the initial pass.
   this->PointMap = new vtkIdType[numPts];
   if ( ! this->FilterPoints(input) )
-    {
+  {
     return 1;
-    }
+  }
 
   // Count the resulting points (prefix sum). The second pass of the algorithm; it
   // could be threaded but prefix sum does not benefit very much from threading.
@@ -221,13 +221,13 @@ int vtkPointCloudFilter::RequestData(
   vtkIdType count=0;
   vtkIdType *map = this->PointMap;
   for (ptId=0; ptId < numPts; ++ptId)
-    {
+  {
     if ( map[ptId] != -1 )
-      {
+    {
       map[ptId] = count;
       count++;
-      }
     }
+  }
   this->NumberOfPointsRemoved = numPts - count;
 
   // If the number of input and output points is the same we short circuit
@@ -235,11 +235,11 @@ int vtkPointCloudFilter::RequestData(
   vtkPointData *inPD = input->GetPointData();
   vtkPointData *outPD = output->GetPointData();
   if ( this->NumberOfPointsRemoved == 0 )
-    {
+  {
     output->SetPoints(input->GetPoints());
     outPD->PassData(inPD);
     return 1;
-    }
+  }
 
   // Okay copy the points from the input to the output. We use a threaded
   // operation that provides a minor benefit (since it's mostly data
@@ -253,10 +253,10 @@ int vtkPointCloudFilter::RequestData(
   void *inPtr = input->GetPoints()->GetVoidPointer(0);
   void *outPtr = output->GetPoints()->GetVoidPointer(0);
   switch (output->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(MapPoints<VTK_TT>::Execute(numPts, (VTK_TT *)inPtr, count,
                               (VTK_TT *)outPtr, this->PointMap, inPD, outPD));
-    }
+  }
 
   // Clean up. We leave the map in case the user wants to use it.
   points->Delete();
@@ -265,7 +265,7 @@ int vtkPointCloudFilter::RequestData(
   // count in the map (offset by -1) which indicates the final position of
   // the output point in the second output.
   if ( this->GenerateOutliers && this->NumberOfPointsRemoved > 0 )
-    {
+  {
     vtkInformation *outInfo2 = outputVector->GetInformationObject(1);
     // get the second output
     vtkPolyData *output2 = vtkPolyData::SafeDownCast(
@@ -277,12 +277,12 @@ int vtkPointCloudFilter::RequestData(
     count = 1; //offset by one
     map = this->PointMap;
     for (ptId=0; ptId < numPts; ++ptId)
-      {
+    {
       if ( map[ptId] == -1 )
-        {
+      {
         map[ptId] = (-count);
         count++;
-        }
+      }
     }
 
     // Copy to second output
@@ -292,12 +292,12 @@ int vtkPointCloudFilter::RequestData(
     output2->SetPoints(points2);
     void *outPtr2 = output2->GetPoints()->GetVoidPointer(0);
     switch (output->GetPoints()->GetDataType())
-      {
+    {
       vtkTemplateMacro(MapOutliers<VTK_TT>::Execute(numPts, (VTK_TT *)inPtr, (count-1),
                                   (VTK_TT *)outPtr2, this->PointMap, inPD, outPD2));
-      }
-    points2->Delete();
     }
+    points2->Delete();
+  }
 
   return 1;
 }

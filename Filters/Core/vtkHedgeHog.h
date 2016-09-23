@@ -89,17 +89,17 @@ private:
 inline const char *vtkHedgeHog::GetVectorModeAsString(void)
 {
   if ( this->VectorMode == VTK_USE_VECTOR)
-    {
+  {
     return "UseVector";
-    }
+  }
   else if ( this->VectorMode == VTK_USE_NORMAL)
-    {
+  {
     return "UseNormal";
-    }
+  }
   else
-    {
+  {
     return "Unknown";
-    }
+  }
 }
 #endif
 //@}

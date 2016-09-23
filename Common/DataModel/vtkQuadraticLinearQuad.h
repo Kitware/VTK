@@ -115,13 +115,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions (double pcoords[3], double weights[6]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticLinearQuad::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs (double pcoords[3], double derivs[12]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticLinearQuad::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
   /**
    * Return the ids of the vertices defining edge (`edgeId`).

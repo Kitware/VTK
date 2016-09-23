@@ -63,20 +63,20 @@ static vtkActor* GetBooleanOperationActor( double x, int operation )
   thresh2->SetInputConnection( distance->GetOutputPort( 1 ) );
 
   if ( operation == vtkBooleanOperationPolyDataFilter::VTK_UNION )
-    {
+  {
     thresh1->ThresholdByUpper( 0.0 );
     thresh2->ThresholdByUpper( 0.0 );
-    }
+  }
   else if ( operation == vtkBooleanOperationPolyDataFilter::VTK_INTERSECTION )
-    {
+  {
     thresh1->ThresholdByLower( 0.0 );
     thresh2->ThresholdByLower( 0.0 );
-    }
+  }
   else // Difference
-    {
+  {
     thresh1->ThresholdByUpper( 0.0 );
     thresh2->ThresholdByLower( 0.0 );
-    }
+  }
 
   vtkSmartPointer<vtkDataSetSurfaceFilter> surface1 =
     vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
@@ -90,22 +90,22 @@ static vtkActor* GetBooleanOperationActor( double x, int operation )
     vtkSmartPointer<vtkReverseSense>::New();
   reverseSense->SetInputConnection( surface2->GetOutputPort() );
   if ( operation == 2 ) // difference
-    {
+  {
     reverseSense->ReverseCellsOn();
     reverseSense->ReverseNormalsOn();
-    }
+  }
 
   vtkSmartPointer<vtkAppendPolyData> appender =
     vtkSmartPointer<vtkAppendPolyData>::New();
   appender->SetInputConnection( surface1->GetOutputPort() );
   if ( operation == 2)
-    {
+  {
     appender->AddInputConnection( reverseSense->GetOutputPort() );
-    }
+  }
   else
-    {
+  {
     appender->AddInputConnection( surface2->GetOutputPort() );
-    }
+  }
 
   vtkSmartPointer<vtkPolyDataMapper> mapper =
     vtkSmartPointer<vtkPolyDataMapper>::New();

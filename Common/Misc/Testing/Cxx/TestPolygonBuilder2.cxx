@@ -47,36 +47,36 @@ int TestPolygonBuilder2(int, char* [])
 
   vtkIdType p[3];
   for (size_t i=0;i<NTRIANGLES;i++)
-    {
+  {
     for (size_t j=0;j<3;j++)
-      {
+    {
       p[j] = triangles[i][j];
-      }
-    builder.InsertTriangle(p);
     }
+    builder.InsertTriangle(p);
+  }
 
   builder.GetPolygons(polys.GetPointer());
 
   if (polys->GetNumberOfItems()!=2) // expect abcd and efgh
-    {
+  {
     cout << "number of items is " << polys->GetNumberOfItems() << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   vtkIdList* poly = polys->GetItem(0);
   vtkIdType expected(4);
   if(poly->GetNumberOfIds()!= expected)
-    {
+  {
     vtkGenericWarningMacro(<< "number of ids is " << poly->GetNumberOfIds() << " but expected " << expected << endl);
     return EXIT_FAILURE;
-    }
+  }
   poly->Delete();
   poly = polys->GetItem(1);
   if(poly->GetNumberOfIds()!= expected)
-    {
+  {
     vtkGenericWarningMacro(<< "number of ids is " << poly->GetNumberOfIds() << " but expected " << expected << endl);
     return EXIT_FAILURE;
-    }
+  }
   poly->Delete();
   polys->RemoveAllItems();
 

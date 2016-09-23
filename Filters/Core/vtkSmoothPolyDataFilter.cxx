@@ -44,23 +44,23 @@ class vtkSmoothPoints { //;prevent man page generation
 public:
   vtkSmoothPoints();
   ~vtkSmoothPoints()
-    {
+  {
     delete [] this->Array;
-    };
+  };
   vtkIdType GetNumberOfPoints() {return this->MaxId + 1;};
   vtkSmoothPoint *GetSmoothPoint(vtkIdType i) {return this->Array + i;};
   vtkSmoothPoint *InsertSmoothPoint(vtkIdType ptId)
-    {
+  {
     if ( ptId >= this->Size )
-      {
+    {
       this->Resize(ptId+1);
-      }
-    if ( ptId > this->MaxId )
-      {
-      this->MaxId = ptId;
-      }
-    return this->Array + ptId;
     }
+    if ( ptId > this->MaxId )
+    {
+      this->MaxId = ptId;
+    }
+    return this->Array + ptId;
+  }
   vtkSmoothPoint *Resize(vtkIdType sz); //reallocates data
   void Reset() {this->MaxId = -1;};
 
@@ -84,14 +84,14 @@ vtkSmoothPoint *vtkSmoothPoints::Resize(vtkIdType sz)
   vtkIdType newSize;
 
   if (sz >= this->Size)
-    {
+  {
     newSize = this->Size +
       this->Extend*(((sz-this->Size)/this->Extend)+1);
-    }
+  }
   else
-    {
+  {
     newSize = sz;
-    }
+  }
 
   newArray = new vtkSmoothPoint[newSize];
 
@@ -144,9 +144,9 @@ void vtkSmoothPolyDataFilter::SetSourceData(vtkPolyData *source)
 vtkPolyData *vtkSmoothPolyDataFilter::GetSource()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
 }
@@ -160,14 +160,14 @@ namespace {
 
 // Special structure for marking vertices
 typedef struct _vtkMeshVertex
-  {
+{
   char      type;
   vtkIdList *edges; // connected edges (list of connected point ids)
   _vtkMeshVertex()
-    {
+  {
     type = VTK_SIMPLE_VERTEX; //can smooth
     edges = NULL;
-    }
+  }
 } vtkMeshVertex, *vtkMeshVertexPtr;
 
 template<typename T> struct vtkSPDF_InternalParams
@@ -191,15 +191,15 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
   for (T maxDist = std::numeric_limits<T>::max();
        maxDist > params.conv && iterationNumber < params.numberOfIterations;
        ++iterationNumber)
-    {
+  {
     if (iterationNumber && !(iterationNumber % 5))
-      {
+    {
       params.spdf->UpdateProgress(0.5 + 0.5*iterationNumber / params.numberOfIterations);
       if (params.spdf->GetAbortExecute())
-        {
+      {
         break;
-        }
       }
+    }
 
     maxDist = 0.0;
     T* newPtsCoords = static_cast<T*>(params.newPts->GetVoidPointer(0));
@@ -212,21 +212,21 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
     // For each non-fixed vertex of the mesh, move the point toward the mean
     // position of its connected neighbors using the relaxation factor.
     for (vtkIdType i = 0; i < params.numPts; ++i)
-      {
+    {
       if (vertsPtr->type != VTK_FIXED_VERTEX && vertsPtr->edges != NULL &&
          (npts = vertsPtr->edges->GetNumberOfIds()) > 0)
-        {
+      {
         deltaX[0] = deltaX[1] = deltaX[2] = 0.0;
         edgeIdPtr = vertsPtr->edges->GetPointer(0);
         // Compute the mean (cumulated) direction vector
         for (vtkIdType j = 0; j < npts; ++j)
-          {
+        {
           for (unsigned short k = 0; k < 3; ++k)
-            {
+          {
             deltaX[k] += *(start + 3 * (*edgeIdPtr) + k);
-            }
+          }
           ++edgeIdPtr;
-          }//for all connected points
+        }//for all connected points
 
         // Move the point
         *newPtsCoords += params.factor * (deltaX[0] / npts - (*newPtsCoords));
@@ -241,40 +241,40 @@ template<typename T> void vtkSPDF_MovePoints(vtkSPDF_InternalParams<T>& params)
 
         // Constrain point to surface
         if (params.source)
-          {
+        {
           vtkSmoothPoint *sPtr = params.SmoothPoints->GetSmoothPoint(i);
           vtkCell *cell = NULL;
 
           if (sPtr->cellId >= 0) //in cell
-            {
+          {
             cell = params.source->GetCell(sPtr->cellId);
-            }
+          }
 
           if (!cell || cell->EvaluatePosition(xNew, closestPt,
               sPtr->subId, sPtr->p, dist2, params.w) == 0)
-            { // not in cell anymore
+          { // not in cell anymore
             params.cellLocator->FindClosestPoint(xNew, closestPt, sPtr->cellId,
                                                  sPtr->subId, dist2);
-            }
-          for (int k = 0; k < 3; ++k)
-            {
-            xNew[k] = closestPt[k];
-            }
-          params.newPts->SetPoint(i, xNew);
           }
+          for (int k = 0; k < 3; ++k)
+          {
+            xNew[k] = closestPt[k];
+          }
+          params.newPts->SetPoint(i, xNew);
+        }
 
         if ((dist = vtkMath::Norm(deltaX)) > maxDist)
-          {
+        {
           maxDist = dist;
-          }
-        }//if can move point
+        }
+      }//if can move point
         else
-          {
+        {
           newPtsCoords += 3;
-          }
+        }
         ++vertsPtr;
-      }//for all points
-    }//for not converged or within iteration count
+    }//for all points
+  }//for not converged or within iteration count
 
   vtkDebugWithObjectMacro(params.spdf, << "Performed " << iterationNumber << " smoothing passes");
 }
@@ -296,10 +296,10 @@ int vtkSmoothPolyDataFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkPolyData *source = 0;
   if (sourceInfo)
-    {
+  {
     source = vtkPolyData::SafeDownCast(
       sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
   vtkPolyData *output = vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -327,10 +327,10 @@ int vtkSmoothPolyDataFilter::RequestData(
   numPts=input->GetNumberOfPoints();
   numCells=input->GetNumberOfCells();
   if (numPts < 1 || numCells < 1)
-    {
+  {
     vtkErrorMacro(<<"No data to smooth!");
     return 1;
-    }
+  }
 
   CosFeatureAngle = cos( vtkMath::RadiansFromDegrees( this->FeatureAngle) );
   CosEdgeAngle =    cos( vtkMath::RadiansFromDegrees( this->EdgeAngle) );
@@ -347,12 +347,12 @@ int vtkSmoothPolyDataFilter::RequestData(
                << "\tError Vectors " << (this->GenerateErrorVectors ? "On\n" : "Off\n"));
 
   if ( this->NumberOfIterations <= 0 || this->RelaxationFactor == 0.0)
-    { //don't do anything! pass data through
+  { //don't do anything! pass data through
     output->CopyStructure(input);
     output->GetPointData()->PassData(input->GetPointData());
     output->GetCellData()->PassData(input->GetCellData());
     return 1;
-    }
+  }
 
   // Peform topological analysis. What we're gonna do is build a connectivity
   // array of connected vertices. The outcome will be one of three
@@ -370,51 +370,51 @@ int vtkSmoothPolyDataFilter::RequestData(
   // check vertices first. Vertices are never smoothed_--------------
   for (inVerts=input->GetVerts(), inVerts->InitTraversal();
   inVerts->GetNextCell(npts,pts); )
-    {
+  {
     for (j=0; j<npts; j++)
-      {
+    {
       Verts[pts[j]].type = VTK_FIXED_VERTEX;
-      }
     }
+  }
   this->UpdateProgress(0.10);
 
   // now check lines. Only manifold lines can be smoothed------------
   for (inLines=input->GetLines(), inLines->InitTraversal();
   inLines->GetNextCell(npts,pts); )
-    {
+  {
     for (j=0; j<npts; j++)
-      {
+    {
       if ( Verts[pts[j]].type == VTK_SIMPLE_VERTEX )
-        {
+      {
         if ( j == (npts-1) ) //end-of-line marked FIXED
-          {
+        {
           Verts[pts[j]].type = VTK_FIXED_VERTEX;
-          }
+        }
         else if ( j == 0 ) //beginning-of-line marked FIXED
-          {
+        {
           Verts[pts[0]].type = VTK_FIXED_VERTEX;
           inPts->GetPoint(pts[0],x2);
           inPts->GetPoint(pts[1],x3);
-          }
+        }
         else //is edge vertex (unless already edge vertex!)
-          {
+        {
           Verts[pts[j]].type = VTK_FEATURE_EDGE_VERTEX;
           Verts[pts[j]].edges = vtkIdList::New();
           Verts[pts[j]].edges->SetNumberOfIds(2);
           Verts[pts[j]].edges->SetId(0,pts[j-1]);
           Verts[pts[j]].edges->SetId(1,pts[j+1]);
-          }
-        } //if simple vertex
+        }
+      } //if simple vertex
 
       else if ( Verts[pts[j]].type == VTK_FEATURE_EDGE_VERTEX )
-        { //multiply connected, becomes fixed!
+      { //multiply connected, becomes fixed!
         Verts[pts[j]].type = VTK_FIXED_VERTEX;
         Verts[pts[j]].edges->Delete();
         Verts[pts[j]].edges = NULL;
-        }
+      }
 
-      } //for all points in this line
-    } //for all lines
+    } //for all points in this line
+  } //for all lines
   this->UpdateProgress(0.25);
 
   // now polygons and triangle strips-------------------------------
@@ -424,7 +424,7 @@ int vtkSmoothPolyDataFilter::RequestData(
   numStrips = inStrips->GetNumberOfCells();
 
   if ( numPolys > 0 || numStrips > 0 )
-    { //build cell structure
+  { //build cell structure
     vtkCellArray *polys;
     vtkIdType cellId;
     int numNei, nei, edge;
@@ -442,13 +442,13 @@ int vtkSmoothPolyDataFilter::RequestData(
     Mesh = inMesh;
 
     if ( (numStrips = inStrips->GetNumberOfCells()) > 0 )
-      { // convert data to triangles
+    { // convert data to triangles
       inMesh->SetStrips(inStrips);
       toTris = vtkTriangleFilter::New();
       toTris->SetInputData(inMesh);
       toTris->Update();
       Mesh = toTris->GetOutput();
-      }
+    }
 
     Mesh->BuildLinks(); //to do neighborhood searching
     polys = Mesh->GetPolys();
@@ -456,173 +456,173 @@ int vtkSmoothPolyDataFilter::RequestData(
 
     for (cellId=0, polys->InitTraversal(); polys->GetNextCell(npts,pts);
     cellId++)
-      {
+    {
       for (i=0; i < npts; i++)
-        {
+      {
         p1 = pts[i];
         p2 = pts[(i+1)%npts];
 
         if ( Verts[p1].edges == NULL )
-          {
+        {
           Verts[p1].edges = vtkIdList::New();
           Verts[p1].edges->Allocate(16,6);
-          }
+        }
         if ( Verts[p2].edges == NULL )
-          {
+        {
           Verts[p2].edges = vtkIdList::New();
           Verts[p2].edges->Allocate(16,6);
-          }
+        }
 
         Mesh->GetCellEdgeNeighbors(cellId,p1,p2,neighbors);
         numNei = neighbors->GetNumberOfIds();
 
         edge = VTK_SIMPLE_VERTEX;
         if ( numNei == 0 )
-          {
+        {
           edge = VTK_BOUNDARY_EDGE_VERTEX;
-          }
+        }
 
         else if ( numNei >= 2 )
-          {
+        {
           // check to make sure that this edge hasn't been marked already
           for (j=0; j < numNei; j++)
-            {
+          {
             if ( neighbors->GetId(j) < cellId )
-              {
-              break;
-              }
-            }
-          if ( j >= numNei )
             {
-            edge = VTK_FEATURE_EDGE_VERTEX;
+              break;
             }
           }
+          if ( j >= numNei )
+          {
+            edge = VTK_FEATURE_EDGE_VERTEX;
+          }
+        }
 
         else if ( numNei == 1 && (nei=neighbors->GetId(0)) > cellId )
-          {
+        {
           if (this->FeatureEdgeSmoothing)
-            {
+          {
             vtkPolygon::ComputeNormal(inPts,npts,pts,normal);
             Mesh->GetCellPoints(nei,numNeiPts,neiPts);
             vtkPolygon::ComputeNormal(inPts,numNeiPts,neiPts,neiNormal);
 
             if (vtkMath::Dot(normal,neiNormal) <= CosFeatureAngle)
-              {
+            {
               edge = VTK_FEATURE_EDGE_VERTEX;
-              }
-            }
-          }
-        else // a visited edge; skip rest of analysis
-          {
-          continue;
-          }
-
-        if ( edge && Verts[p1].type == VTK_SIMPLE_VERTEX )
-          {
-          Verts[p1].edges->Reset();
-          Verts[p1].edges->InsertNextId(p2);
-          Verts[p1].type = edge;
-          }
-        else if ( (edge && Verts[p1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
-        (edge && Verts[p1].type == VTK_FEATURE_EDGE_VERTEX) ||
-        (!edge && Verts[p1].type == VTK_SIMPLE_VERTEX ) )
-          {
-          Verts[p1].edges->InsertNextId(p2);
-          if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-            {
-            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
-            }
-          }
-
-        if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
-          {
-          Verts[p2].edges->Reset();
-          Verts[p2].edges->InsertNextId(p1);
-          Verts[p2].type = edge;
-          }
-        else if ( (edge && Verts[p2].type == VTK_BOUNDARY_EDGE_VERTEX ) ||
-        (edge && Verts[p2].type == VTK_FEATURE_EDGE_VERTEX) ||
-        (!edge && Verts[p2].type == VTK_SIMPLE_VERTEX ) )
-          {
-          Verts[p2].edges->InsertNextId(p1);
-          if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
-            {
-            Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
             }
           }
         }
+        else // a visited edge; skip rest of analysis
+        {
+          continue;
+        }
+
+        if ( edge && Verts[p1].type == VTK_SIMPLE_VERTEX )
+        {
+          Verts[p1].edges->Reset();
+          Verts[p1].edges->InsertNextId(p2);
+          Verts[p1].type = edge;
+        }
+        else if ( (edge && Verts[p1].type == VTK_BOUNDARY_EDGE_VERTEX) ||
+        (edge && Verts[p1].type == VTK_FEATURE_EDGE_VERTEX) ||
+        (!edge && Verts[p1].type == VTK_SIMPLE_VERTEX ) )
+        {
+          Verts[p1].edges->InsertNextId(p2);
+          if ( Verts[p1].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          {
+            Verts[p1].type = VTK_BOUNDARY_EDGE_VERTEX;
+          }
+        }
+
+        if ( edge && Verts[p2].type == VTK_SIMPLE_VERTEX )
+        {
+          Verts[p2].edges->Reset();
+          Verts[p2].edges->InsertNextId(p1);
+          Verts[p2].type = edge;
+        }
+        else if ( (edge && Verts[p2].type == VTK_BOUNDARY_EDGE_VERTEX ) ||
+        (edge && Verts[p2].type == VTK_FEATURE_EDGE_VERTEX) ||
+        (!edge && Verts[p2].type == VTK_SIMPLE_VERTEX ) )
+        {
+          Verts[p2].edges->InsertNextId(p1);
+          if ( Verts[p2].type && edge == VTK_BOUNDARY_EDGE_VERTEX )
+          {
+            Verts[p2].type = VTK_BOUNDARY_EDGE_VERTEX;
+          }
+        }
       }
+    }
 
     inMesh->Delete();
     if (toTris) {toTris->Delete();}
 
     neighbors->Delete();
-    }//if strips or polys
+  }//if strips or polys
 
   this->UpdateProgress(0.50);
 
   //post-process edge vertices to make sure we can smooth them
   for (i=0; i<numPts; i++)
-    {
+  {
     if ( Verts[i].type == VTK_SIMPLE_VERTEX )
-      {
+    {
       numSimple++;
-      }
+    }
 
     else if ( Verts[i].type == VTK_FIXED_VERTEX )
-      {
+    {
       numFixed++;
-      }
+    }
 
     else if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX ||
     Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
-      { //see how many edges; if two, what the angle is
+    { //see how many edges; if two, what the angle is
 
       if ( !this->BoundarySmoothing &&
       Verts[i].type == VTK_BOUNDARY_EDGE_VERTEX )
-        {
+      {
         Verts[i].type = VTK_FIXED_VERTEX;
         numBEdges++;
-        }
+      }
 
       else if ( (npts = Verts[i].edges->GetNumberOfIds()) != 2 )
-        {
+      {
         Verts[i].type = VTK_FIXED_VERTEX;
         numFixed++;
-        }
+      }
 
       else //check angle between edges
-        {
+      {
         inPts->GetPoint(Verts[i].edges->GetId(0),x1);
         inPts->GetPoint(i,x2);
         inPts->GetPoint(Verts[i].edges->GetId(1),x3);
 
         for (k=0; k<3; k++)
-          {
+        {
           l1[k] = x2[k] - x1[k];
           l2[k] = x3[k] - x2[k];
-          }
+        }
         if ( vtkMath::Normalize(l1) >= 0.0 &&
              vtkMath::Normalize(l2) >= 0.0 &&
              vtkMath::Dot(l1,l2) < CosEdgeAngle)
-          {
+        {
           numFixed++;
           Verts[i].type = VTK_FIXED_VERTEX;
-          }
+        }
         else
-          {
+        {
           if ( Verts[i].type == VTK_FEATURE_EDGE_VERTEX )
-            {
+          {
             numFEdges++;
-            }
-          else
-            {
-            numBEdges++;
-            }
           }
-        }//if along edge
-      }//if edge vertex
-    }//for all points
+          else
+          {
+            numBEdges++;
+          }
+        }
+      }//if along edge
+    }//if edge vertex
+  }//for all points
 
   vtkDebugMacro(<<"Found\n\t" << numSimple << " simple vertices\n\t"
                 << numFEdges << " feature edge vertices\n\t"
@@ -637,24 +637,24 @@ int vtkSmoothPolyDataFilter::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     newPts->SetDataType(inPts->GetDataType());
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   newPts->SetNumberOfPoints(numPts);
 
   // If Source defined, we do constrained smoothing (that is, points are
   // constrained to the surface of the mesh object).
   if ( source )
-    {
+  {
     this->SmoothPoints = new vtkSmoothPoints;
     vtkSmoothPoint *sPtr;
     cellLocator = vtkCellLocator::New();
@@ -664,46 +664,46 @@ int vtkSmoothPolyDataFilter::RequestData(
     cellLocator->BuildLocator();
 
     for (i=0; i < numPts; i++)
-      {
+    {
       sPtr = this->SmoothPoints->InsertSmoothPoint(i);
       cellLocator->FindClosestPoint(inPts->GetPoint(i), closestPt,
                                     sPtr->cellId, sPtr->subId, dist2);
       newPts->SetPoint(i, closestPt);
-      }
     }
+  }
   else //smooth normally
-    {
+  {
     for (i=0; i<numPts; i++) //initialize to old coordinates
-      {
+    {
       newPts->SetPoint(i,inPts->GetPoint(i));
-      }
     }
+  }
 
   if (newPts->GetDataType() == VTK_DOUBLE)
-    {
+  {
     vtkSPDF_InternalParams<double> params = { this, this->NumberOfIterations, newPts,
                                               this->RelaxationFactor, conv, numPts,
                                               Verts, source, this->SmoothPoints,
                                               w, cellLocator };
 
     vtkSPDF_MovePoints(params);
-    }
+  }
   else
-    {
+  {
     vtkSPDF_InternalParams<float> params = { this, this->NumberOfIterations, newPts,
                                              static_cast<float>(this->RelaxationFactor),
                                              static_cast<float>(conv), numPts, Verts,
                                              source, this->SmoothPoints, w, cellLocator };
 
     vtkSPDF_MovePoints(params);
-    }
+  }
 
   if ( source )
-    {
+  {
     cellLocator->Delete();
     delete this->SmoothPoints;
     delete [] w;
-    }
+  }
 
   // Update output. Only point coordinates have changed.
   //
@@ -711,39 +711,39 @@ int vtkSmoothPolyDataFilter::RequestData(
   output->GetCellData()->PassData(input->GetCellData());
 
   if ( this->GenerateErrorScalars )
-    {
+  {
     vtkFloatArray *newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numPts);
     for (i=0; i<numPts; i++)
-      {
+    {
       inPts->GetPoint(i,x1);
       newPts->GetPoint(i,x2);
       newScalars->SetComponent(i,0,
                                sqrt(vtkMath::Distance2BetweenPoints(x1,x2)));
-      }
+    }
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
 
   if ( this->GenerateErrorVectors )
-    {
+  {
     vtkFloatArray *newVectors = vtkFloatArray::New();
     newVectors->SetNumberOfComponents(3);
     newVectors->SetNumberOfTuples(numPts);
     for (i=0; i<numPts; i++)
-      {
+    {
       inPts->GetPoint(i,x1);
       newPts->GetPoint(i,x2);
       for (j=0; j<3; j++)
-        {
+      {
         x3[j] = x2[j] - x1[j];
-        }
-      newVectors->SetTuple(i,x3);
       }
+      newVectors->SetTuple(i,x3);
+    }
     output->GetPointData()->SetVectors(newVectors);
     newVectors->Delete();
-    }
+  }
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -755,13 +755,13 @@ int vtkSmoothPolyDataFilter::RequestData(
 
   //free up connectivity storage
   for (i=0; i<numPts; i++)
-    {
+  {
     if ( Verts[i].edges != NULL )
-      {
+    {
       Verts[i].edges->Delete();
       Verts[i].edges = NULL;
-      }
     }
+  }
   delete [] Verts;
 
   return 1;
@@ -771,14 +771,14 @@ int vtkSmoothPolyDataFilter::FillInputPortInformation(int port,
                                                       vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }
 
@@ -796,13 +796,13 @@ void vtkSmoothPolyDataFilter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Generate Error Scalars: " << (this->GenerateErrorScalars ? "On\n" : "Off\n");
   os << indent << "Generate Error Vectors: " << (this->GenerateErrorVectors ? "On\n" : "Off\n");
   if ( this->GetSource() )
-    {
+  {
       os << indent << "Source: " << static_cast<void *>(this->GetSource()) << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Source (none)\n";
-    }
+  }
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision << "\n";
 }

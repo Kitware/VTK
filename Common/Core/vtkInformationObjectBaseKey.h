@@ -48,9 +48,9 @@ public:
    */
   static vtkInformationObjectBaseKey* MakeKey(const char* name, const char* location,
                                              const char* requiredClass=0)
-    {
+  {
     return new vtkInformationObjectBaseKey(name, location, requiredClass);
-    }
+  }
 
   //@{
   /**

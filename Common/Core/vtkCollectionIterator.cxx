@@ -36,13 +36,13 @@ void vtkCollectionIterator::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   if(this->Collection)
-    {
+  {
     os << indent << "Collection: " << this->Collection << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Collection: (none)\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -56,22 +56,22 @@ void vtkCollectionIterator::SetCollection(vtkCollection* collection)
 void vtkCollectionIterator::GoToFirstItem()
 {
   if(this->Collection)
-    {
+  {
     this->Element = this->Collection->Top;
-    }
+  }
   else
-    {
+  {
     this->Element = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCollectionIterator::GoToNextItem()
 {
   if(this->Element)
-    {
+  {
     this->Element = this->Element->Next;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,8 +84,8 @@ int vtkCollectionIterator::IsDoneWithTraversal()
 vtkObject* vtkCollectionIterator::GetCurrentObject()
 {
   if(this->Element)
-    {
+  {
     return this->Element->Item;
-    }
+  }
   return 0;
 }

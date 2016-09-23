@@ -262,18 +262,18 @@ private:
   vtkPolyData *Mesh; //the created mesh
   double *Points;    //the raw points in double precision
   void SetPoint(vtkIdType id, double *x)
-    {vtkIdType idx=3*id;
+  {vtkIdType idx=3*id;
     this->Points[idx] = x[0];
     this->Points[idx+1] = x[1];
     this->Points[idx+2] = x[2];
-    }
+  }
 
   void GetPoint(vtkIdType id, double x[3])
-    {double *ptr = this->Points + 3*id;
+  {double *ptr = this->Points + 3*id;
     x[0] = *ptr++;
     x[1] = *ptr++;
     x[2] = *ptr;
-    }
+  }
 
   int NumberOfDuplicatePoints;
   int NumberOfDegeneracies;

@@ -42,20 +42,20 @@ void vtkTableToPostgreSQLWriter::WriteData()
 {
   //Make sure we have all the information we need to create a PostgreSQL table
   if(!this->Database)
-    {
+  {
     vtkErrorMacro(<<"No open database connection");
     return;
-    }
+  }
   if(!this->Database->IsA("vtkPostgreSQLDatabase"))
-    {
+  {
     vtkErrorMacro(<<"Wrong type of database for this writer");
     return;
-    }
+  }
   if(this->TableName == "")
-    {
+  {
     vtkErrorMacro(<<"No table name specified!");
     return;
-    }
+  }
 
   //converting this table to PostgreSQL will require two queries: one to create
   //the table, and another to populate its rows with data.
@@ -70,7 +70,7 @@ void vtkTableToPostgreSQLWriter::WriteData()
   //get the columns from the vtkTable to finish the query
   int numColumns = this->GetInput()->GetNumberOfColumns();
   for(int i = 0; i < numColumns; i++)
-    {
+  {
     //get this column's name
     std::string columnName = this->GetInput()->GetColumn(i)->GetName();
     createTableQuery += columnName;
@@ -82,29 +82,29 @@ void vtkTableToPostgreSQLWriter::WriteData()
     if( (columnType.find("String") != std::string::npos) ||
         (columnType.find("Data") != std::string::npos) ||
         (columnType.find("Variant") != std::string::npos) )
-      {
+    {
       createTableQuery += " TEXT";
-      }
+    }
     else if( (columnType.find("Double") != std::string::npos) ||
              (columnType.find("Float") != std::string::npos) )
-      {
+    {
       createTableQuery += " DOUBLE";
-      }
+    }
     else
-      {
+    {
       createTableQuery += " INTEGER";
-      }
+    }
     if(i == numColumns - 1)
-      {
+    {
       createTableQuery += ");";
       insertPreamble += ") VALUES (";
-      }
+    }
     else
-      {
+    {
       createTableQuery += ", ";
       insertPreamble += ", ";
-      }
     }
+  }
 
   //perform the create table query
   vtkPostgreSQLQuery *query =
@@ -113,31 +113,31 @@ void vtkTableToPostgreSQLWriter::WriteData()
   query->SetQuery(createTableQuery.c_str());
   cout << createTableQuery << endl;
   if(!query->Execute())
-    {
+  {
     vtkErrorMacro(<<"Error performing 'create table' query");
-    }
+  }
 
   //iterate over the rows of the vtkTable to complete the insert query
   int numRows = this->GetInput()->GetNumberOfRows();
   for(int i = 0; i < numRows; i++)
-    {
+  {
     std::string insertQuery = insertPreamble;
     for (int j = 0; j < numColumns; j++)
-      {
+    {
       insertQuery += "'" + this->GetInput()->GetValue(i, j).ToString() + "'";
       if(j < numColumns - 1)
-        {
+      {
         insertQuery += ", ";
-        }
       }
+    }
     insertQuery += ");";
     //perform the insert query for this row
     query->SetQuery(insertQuery.c_str());
     if(!query->Execute())
-      {
+    {
       vtkErrorMacro(<<"Error performing 'insert' query");
-      }
     }
+  }
 
   //cleanup and return
   query->Delete();

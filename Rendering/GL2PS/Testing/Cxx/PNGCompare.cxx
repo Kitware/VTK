@@ -25,20 +25,20 @@ int PNGCompare(int argc, char *argv[])
   // Grab the test image
   std::string testImageFileName;
   for (int i = 0; i < argc; ++i)
-    {
+  {
     if ( strcmp(argv[i],"--test-file") == 0 && i < argc-1)
-      {
+    {
       testImageFileName = std::string(argv[i+1]);
       break;
-      }
     }
+  }
 
   if (testImageFileName.empty())
-    {
+  {
     cout << "Error: No reference image specified (use --test-file <png file>)"
          << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Set up testing object (modeled after vtkTestingInteractor::Start())
   vtkNew<vtkTesting> testing;
@@ -62,12 +62,12 @@ int PNGCompare(int argc, char *argv[])
   vtkTestingInteractor::TestReturnStatus = result;
 
   if (result == vtkTesting::PASSED)
-    {
+  {
     remove(testImageFileName.c_str());
     return EXIT_SUCCESS;
-    }
+  }
   else
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 }

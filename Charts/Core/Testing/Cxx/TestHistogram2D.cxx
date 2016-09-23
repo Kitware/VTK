@@ -45,13 +45,13 @@ int TestHistogram2D(int, char * [])
 
   double *dPtr = static_cast<double *>(data->GetScalarPointer(0, 0, 0));
   for (int i = 0; i < size; ++i)
-    {
+  {
     for (int j = 0; j < size; ++j)
-      {
+    {
       dPtr[i * size + j] = sin(vtkMath::RadiansFromDegrees(double(2*i))) *
           cos(vtkMath::RadiansFromDegrees(double(j)));
-      }
     }
+  }
   chart->SetInputData(data.GetPointer());
 
   vtkNew<vtkColorTransferFunction> transferFunction;

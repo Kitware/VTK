@@ -19,7 +19,7 @@
 vtkStandardNewMacro(vtkParametricKuen);
 //----------------------------------------------------------------------------//
 vtkParametricKuen::vtkParametricKuen()
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = -3.*vtkMath::Pi();
   this->MinimumV = 0.;
@@ -32,16 +32,16 @@ vtkParametricKuen::vtkParametricKuen()
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricKuen::~vtkParametricKuen()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -71,30 +71,30 @@ void vtkParametricKuen::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
 
   // Avoid division by 0
   if (denom_2 == 0.0 || sinv == 0.0)
-    {
+  {
     Du[1] = 0.0;
     Du[2] = 0.0;
-    }
+  }
   else
-    {
+  {
     Du[1] = (2.*u/sinv*(2.*u*cosu + (u*u - 2. + 1/(sinv*sinv))*sinu))/(denom_2*denom_2);
     Du[2] = -4.*u*cosv/(denom_2*denom_2*sinv*sinv);
-    }
+  }
 
   // The derivative with respect to v:
   Dv[0] = 2.*cosv*(1. - u*u*sinv*sinv)*(cosu + u*sinu)/(denom_1*denom_1);
   Dv[1] = 2.*cosv*(u*u*sinv*sinv - 1.)*(u*cosu - sinu)/(denom_1*denom_1);
   Dv[2] = 1./sinv - (2. + u*u*(3. + cos(2*u)))*sinv/(denom_1*denom_1);
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricKuen::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricKuen::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

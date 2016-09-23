@@ -84,21 +84,21 @@ int vtkResampleToImage::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   // execute information
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   // propagate update extent
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -128,11 +128,11 @@ int vtkResampleToImage::RequestUpdateExtent(vtkInformation *,
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
   inInfo->Remove(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-    {
+  {
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                 inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
                 6);
-    }
+  }
 
   return 1;
 }
@@ -168,19 +168,19 @@ inline void ComputeBoundingExtent(const double origin[3], const double spacing[3
                                   const double bounds[6], int extent[6])
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     if (spacing[i] != 0.0)
-      {
+    {
       extent[2*i] =
         static_cast<int>(vtkMath::Floor((bounds[2*i] - origin[i])/spacing[i]));
       extent[2*i + 1] =
         static_cast<int>(vtkMath::Ceil((bounds[2*i + 1] - origin[i])/spacing[i]));
-      }
-    else
-      {
-      extent[2*i] = extent[2*i + 1] = 0;
-      }
     }
+    else
+    {
+      extent[2*i] = extent[2*i + 1] = 0;
+    }
+  }
 }
 
 } // anonymous namespace
@@ -194,41 +194,41 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
   if (this->SamplingDimensions[0] <= 0 ||
       this->SamplingDimensions[1] <= 0 ||
       this->SamplingDimensions[2] <= 0)
-    {
+  {
     return;
-    }
+  }
 
   // compute bounds and extent where probing should be performed
   double origin[3] = { samplingBounds[0], samplingBounds[2], samplingBounds[4] };
   double spacing[3];
   for (int i = 0; i < 3; ++i)
-    {
+  {
     spacing[i] = (this->SamplingDimensions[i] == 1) ? 0 :
                  ((samplingBounds[i*2 + 1] - samplingBounds[i*2]) /
                   static_cast<double>(this->SamplingDimensions[i] - 1));
-    }
+  }
 
   int *updateExtent = this->GetUpdateExtent();
   int probingExtent[6];
   if (computeProbingExtent)
-    {
+  {
     ComputeBoundingExtent(origin, spacing, inputBounds, probingExtent);
     for (int i = 0; i < 3; ++i)
-      {
+    {
       probingExtent[2*i] = vtkMath::Max(probingExtent[2*i], updateExtent[2*i]);
       probingExtent[2*i + 1] = vtkMath::Min(probingExtent[2*i + 1], updateExtent[2*i + 1]);
       if (probingExtent[2*i] > probingExtent[2*i + 1]) // no overlap
-        {
+      {
         probingExtent[0] = probingExtent[2] = probingExtent[4] = 0;
         probingExtent[1] = probingExtent[3] = probingExtent[5] = -1;
         break;
-        }
       }
     }
+  }
   else
-    {
+  {
     std::copy(updateExtent, updateExtent + 6, probingExtent);
-    }
+  }
 
   // perform probing
   vtkNew<vtkImageData> structure;
@@ -247,9 +247,9 @@ void vtkResampleToImage::PerformResampling(vtkDataObject *input,
 void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data)
 {
   if (data->GetNumberOfPoints() <= 0)
-    {
+  {
     return;
-    }
+  }
 
   vtkPointData *pd = data->GetPointData();
   vtkCharArray *maskArray = vtkArrayDownCast<vtkCharArray>(
@@ -267,22 +267,22 @@ void vtkResampleToImage::SetBlankPointsAndCells(vtkImageData *data)
 
   vtkIdType numPoints = data->GetNumberOfPoints();
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     if (!mask[i])
-      {
+    {
       pointGhostArray->SetValue(i, pointGhostArray->GetValue(i) |
                                    vtkDataSetAttributes::HIDDENPOINT);
 
       data->GetPointCells(i, pointCells.GetPointer());
       vtkIdType numCells = pointCells->GetNumberOfIds();
       for (vtkIdType j = 0; j < numCells; ++j)
-        {
+      {
         vtkIdType cellId = pointCells->GetId(j);
         cellGhostArray->SetValue(cellId, cellGhostArray->GetValue(cellId) |
                                          vtkDataSetAttributes::HIDDENPOINT);
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -301,13 +301,13 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
 
   double samplingBounds[6];
   if (this->UseInputBounds)
-    {
+  {
     ComputeDataBounds(input, samplingBounds);
-    }
+  }
   else
-    {
+  {
     std::copy(this->SamplingBounds, this->SamplingBounds + 6, samplingBounds);
-    }
+  }
 
   this->PerformResampling(input, samplingBounds, false, NULL, output);
   this->SetBlankPointsAndCells(output);
@@ -320,32 +320,32 @@ int vtkResampleToImage::RequestData(vtkInformation *vtkNotUsed(request),
 void vtkResampleToImage::ComputeDataBounds(vtkDataObject* data, double bounds[6])
 {
   if (vtkDataSet::SafeDownCast(data))
-    {
+  {
     vtkDataSet::SafeDownCast(data)->GetBounds(bounds);
-    }
+  }
   else
-    {
+  {
     vtkCompositeDataSet *cdata = vtkCompositeDataSet::SafeDownCast(data);
     bounds[0] = bounds[2] = bounds[4] = VTK_DOUBLE_MAX;
     bounds[1] = bounds[3] = bounds[5] = -VTK_DOUBLE_MAX;
 
     vtkCompositeDataIterator *iter = cdata->NewIterator();
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       vtkDataSet *ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
       if (!ds)
-        {
+      {
         vtkGenericWarningMacro("vtkCompositeDataSet leaf not vtkDataSet. Skipping.");
         continue;
-        }
+      }
       double b[6];
       ds->GetBounds(b);
       for (int i = 0; i < 3; ++i)
-        {
+      {
         bounds[2*i] = vtkMath::Min(bounds[2*i], b[2*i]);
         bounds[2*i + 1] = vtkMath::Max(bounds[2*i + 1], b[2*i + 1]);
-        }
       }
-    iter->Delete();
     }
+    iter->Delete();
+  }
 }

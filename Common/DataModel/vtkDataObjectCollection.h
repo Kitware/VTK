@@ -38,34 +38,34 @@ public:
    * Add a data object to the list.
    */
   void AddItem(vtkDataObject *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
   /**
    * Get the next data object in the list.
    */
   vtkDataObject *GetNextItem()
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject());
-    }
+  }
 
   /**
    * Get the ith data object in the list.
    */
   vtkDataObject *GetItem(int i)
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetItemAsObject(i));
-    }
+  }
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
   vtkDataObject *GetNextDataObject(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkDataObject *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkDataObjectCollection() {}

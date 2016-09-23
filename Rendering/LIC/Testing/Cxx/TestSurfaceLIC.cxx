@@ -142,25 +142,25 @@ int TestSurfaceLIC(int argc, char* argv[])
     "(optional: default 1) use a preset camera configuration");
 
   if (!arg.Parse() || filename == "")
-    {
+  {
     cerr << "Usage: " << endl;
     cerr << arg.GetHelp() << endl;
     return 1;
-    }
+  }
 
   if (mask_color_rgb.size() == 0)
-    {
+  {
     // something bright for the default.
     mask_color_rgb.resize(3);
     mask_color_rgb[0] = 1.0;
     mask_color_rgb[1] = 0.0;
     mask_color_rgb[2] = 0.84705;
-    }
+  }
 
   vtkSmartPointer<vtkDataObject> dataObj;
   std::string ext = vtksys::SystemTools::GetFilenameExtension(filename);
   if (ext == ".vtk")
-    {
+  {
     vtkGenericDataObjectReader* reader = vtkGenericDataObjectReader::New();
     reader->SetFileName(filename.c_str());
 
@@ -172,19 +172,19 @@ int TestSurfaceLIC(int argc, char* argv[])
 
     reader->Delete();
     surface->Delete();
-    }
+  }
   else
   if (ext == ".vtp")
-    {
+  {
     vtkXMLPolyDataReader* reader = vtkXMLPolyDataReader::New();
     reader->SetFileName(filename.c_str());
     reader->Update();
     dataObj = reader->GetOutputDataObject(0);
     reader->Delete();
-    }
+  }
   else
   if (ext == ".vtm")
-    {
+  {
     vtkXMLMultiBlockDataReader* reader = vtkXMLMultiBlockDataReader::New();
     reader->SetFileName(filename.c_str());
 
@@ -196,20 +196,20 @@ int TestSurfaceLIC(int argc, char* argv[])
 
     reader->Delete();
     surface->Delete();
-    }
+  }
   else
-    {
+  {
     cerr << "Error: Unknown extension: '" << ext << "'"<< endl;
     vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
     return 1;
-    }
+  }
 
   if (!dataObj) // || dataObj->GetNumberOfElements(vtkDataObject::POINT) == 0)
-    {
+  {
     cerr << "Error reading file: '" << filename.c_str() << "'" << endl;
     vtkAlgorithm::SetDefaultExecutivePrototype(NULL);
     return 1;
-    }
+  }
 
   int status = vtkSurfaceLICTestDriver(
         argc,

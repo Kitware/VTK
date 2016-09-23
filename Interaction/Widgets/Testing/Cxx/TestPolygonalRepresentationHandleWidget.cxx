@@ -45,7 +45,7 @@
 int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr
       << "Demonstrates interaction of a handle, represented be a user \n"
       << "specified polygonal shape, so that it is constrained \n"
@@ -53,7 +53,7 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
       << "Usage args: [-DistanceOffset height_offset]."
       << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // Read height field.
   char* fname =
@@ -109,15 +109,15 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   bool   distanceOffsetSpecified = false;
   double distanceOffset = 0.0;
   for (int i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-DistanceOffset", argv[i]) == 0)
-      {
+    {
       distanceOffset = atof(argv[i+1]);
-      }
     }
+  }
 
   if (distanceOffsetSpecified)
-    {
+  {
     normals->SetInputConnection(warp->GetOutputPort());
     normals->SetFeatureAngle(60);
     normals->SplittingOff();
@@ -125,7 +125,7 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
     // vtkPolygonalSurfacePointPlacer needs cell normals
     normals->ComputeCellNormalsOn();
     normals->Update();
-    }
+  }
 
   vtkPolyData *pd = (distanceOffsetSpecified) ? normals->GetOutput()
     : warp->GetPolyDataOutput();
@@ -197,9 +197,9 @@ int TestPolygonalRepresentationHandleWidget(int argc, char*argv[])
   rep->GetSelectedProperty()->SetColor( 0.2, 0.0, 1.0 );
 
   if (distanceOffsetSpecified)
-    {
+  {
     pointPlacer->SetDistanceOffset( distanceOffset );
-    }
+  }
 
   renWin->Render();
   iren->Initialize();

@@ -64,7 +64,7 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
   // this loop traverses each point on the outer sphere (sphere1)
   // and  looks for an intersection on the inner sphere (sphere2)
   for ( int i = 0; i < sphere1->GetOutput()->GetNumberOfPoints(); i ++ )
-    {
+  {
     sphere1->GetOutput()->GetPoint(i, sourcePnt);
     sphereNormals->GetTuple(i, normalVec);
 
@@ -75,23 +75,23 @@ int TestWithCachedCellBoundsParameter(int cachedCellBounds)
 
     if ( locator->IntersectWithLine(sourcePnt, destinPnt, 0.0010, param_t,
                                     intersect, paraCoord, sub_id, cell_id, cell.GetPointer()) )
-      {
+    {
       numIntersected ++;
-      }
     }
+  }
 
   if ( numIntersected != 9802 )
-    {
+  {
     int numMissed = 9802 - numIntersected;
     vtkGenericWarningMacro("ERROR: " << numMissed << " ray-sphere intersections missed! "
                            << "If on a non-WinTel32 platform, try rayLen = 0.200001"
                            << " or 0.20001 for a new test.");
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     std::cout << "Passed: a total of 9802 ray-sphere intersections detected." << std::endl;
-    }
+  }
 
   sphereNormals = NULL;
 

@@ -215,7 +215,7 @@ public:
     ENHANCE_CONTRAST_LIC=1,
     ENHANCE_CONTRAST_COLOR=3,
     ENHANCE_CONTRAST_BOTH=4
-    };
+  };
   void SetEnhanceContrast(int val);
   vtkGetMacro(EnhanceContrast, int);
   //@}
@@ -348,7 +348,7 @@ public:
     NOISE_TYPE_UNIFORM=0,
     NOISE_TYPE_GAUSSIAN=1,
     NOISE_TYPE_PERLIN=2
-    };
+  };
   void SetNoiseType(int type);
   vtkGetMacro(NoiseType, int);
   //@}
@@ -426,7 +426,7 @@ public:
     COMPOSITE_INPLACE_DISJOINT=1,
     COMPOSITE_BALANCED=2,
     COMPOSITE_AUTO=3
-    };
+  };
   void SetCompositeStrategy(int val);
   vtkGetMacro(CompositeStrategy, int);
   //@}

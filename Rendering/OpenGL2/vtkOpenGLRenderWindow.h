@@ -355,18 +355,18 @@ public:
     std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
      = this->Resources.find(cb);
     if (it == this->Resources.end())
-      {
+    {
       this->Resources.insert(cb);
-      }
+    }
   }
 
   void UnregisterGraphicsResources(vtkGenericOpenGLResourceFreeCallback *cb) {
     std::set<vtkGenericOpenGLResourceFreeCallback *>::iterator it
      = this->Resources.find(cb);
     if (it != this->Resources.end())
-      {
+    {
       this->Resources.erase(it);
-      }
+    }
   }
 
   /**

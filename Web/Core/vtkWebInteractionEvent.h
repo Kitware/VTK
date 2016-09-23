@@ -32,19 +32,19 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum MouseButton
-    {
+  {
     LEFT_BUTTON = 0x01,
     MIDDLE_BUTTON = 0x02,
     RIGHT_BUTTON = 0x04
-    };
+  };
 
   enum ModifierKeys
-    {
+  {
     SHIFT_KEY = 0x01,
     CTRL_KEY = 0x02,
     ALT_KEY = 0x04,
     META_KEY = 0x08
-    };
+  };
 
   //@{
   /**

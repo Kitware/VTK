@@ -73,10 +73,10 @@ public:
    * the point Id and the X index changes.
    */
   void NextSpan()
-    {
+  {
     this->vtkImagePointDataIterator::NextSpan();
     this->UpdatePosition();
-    }
+  }
   //@}
 
   //@{
@@ -86,45 +86,45 @@ public:
    * current span is reached.
    */
   void Next()
-    {
+  {
     if (++(this->Id) == this->SpanEnd)
-      {
+    {
       this->NextSpan();
-      }
+    }
     else
-      {
+    {
       this->Index[0]++;
       this->Position[0] = this->Origin[0] + this->Index[0]*this->Spacing[0];
-      }
     }
+  }
   //@}
 
   /**
    * Test if the iterator has completed iterating over the entire extent.
    */
   bool IsAtEnd()
-    {
+  {
     return this->vtkImagePointDataIterator::IsAtEnd();
-    }
+  }
 
   /**
    * Get the current position.
    */
   double *GetPosition()
-    {
+  {
     return this->Position;
-    }
+  }
 
   //@{
   /**
    * Get the current position and place it in the provided array.
    */
   void GetPosition(double x[3])
-    {
+  {
     x[0] = this->Position[0];
     x[1] = this->Position[1];
     x[2] = this->Position[2];
-    }
+  }
   //@}
 
   //@{
@@ -132,11 +132,11 @@ public:
    * Get the current position and place it in the provided array.
    */
   void GetPosition(float x[3])
-    {
+  {
     x[0] = this->Position[0];
     x[1] = this->Position[1];
     x[2] = this->Position[2];
-    }
+  }
   //@}
 
 protected:
@@ -146,11 +146,11 @@ protected:
    * Helper method to update the position coordinate from the index.
    */
   void UpdatePosition()
-    {
+  {
     this->Position[0] = this->Origin[0] + this->Index[0]*this->Spacing[0];
     this->Position[1] = this->Origin[1] + this->Index[1]*this->Spacing[1];
     this->Position[2] = this->Origin[2] + this->Index[2]*this->Spacing[2];
-    }
+  }
   //@}
 
   double Origin[3];

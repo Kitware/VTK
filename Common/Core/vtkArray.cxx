@@ -66,11 +66,11 @@ void vtkArray::PrintSelf(ostream &os, vtkIndent indent)
 vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
 {
   switch(StorageType)
-    {
+  {
     case DENSE:
-      {
+    {
       switch(ValueType)
-        {
+      {
         case VTK_CHAR:
           return vtkDenseArray<char>::New();
         case VTK_SIGNED_CHAR:
@@ -105,14 +105,14 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkDenseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkDenseArray<vtkVariant>::New();
-        }
+      }
       vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
       return 0;
-      }
+    }
     case SPARSE:
-      {
+    {
       switch(ValueType)
-        {
+      {
         case VTK_CHAR:
           return vtkSparseArray<char>::New();
         case VTK_SIGNED_CHAR:
@@ -147,11 +147,11 @@ vtkArray* vtkArray::CreateArray(int StorageType, int ValueType)
           return vtkSparseArray<vtkUnicodeString>::New();
         case VTK_VARIANT:
           return vtkSparseArray<vtkVariant>::New();
-        }
+      }
       vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown value type: " << vtkImageScalarTypeNameMacro(ValueType));
       return 0;
-      }
     }
+  }
 
     vtkGenericWarningMacro(<< "vtkArrary::CreateArray() cannot create array with unknown storage type: " << StorageType);
     return 0;
@@ -225,10 +225,10 @@ vtkStdString vtkArray::GetName()
 void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 {
   if(i < 0 || i >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro("Cannot set label for dimension " << i << " of a " << this->GetDimensions() << "-way array");
     return;
-    }
+  }
 
   // Don't allow newlines in dimension labels ...
   vtkStdString label(raw_label);
@@ -241,10 +241,10 @@ void vtkArray::SetDimensionLabel(DimensionT i, const vtkStdString& raw_label)
 vtkStdString vtkArray::GetDimensionLabel(DimensionT i)
 {
   if(i < 0 || i >= this->GetDimensions())
-    {
+  {
     vtkErrorMacro("Cannot get label for dimension " << i << " of a " << this->GetDimensions() << "-way array");
     return "";
-    }
+  }
 
   return this->InternalGetDimensionLabel(i);
 }

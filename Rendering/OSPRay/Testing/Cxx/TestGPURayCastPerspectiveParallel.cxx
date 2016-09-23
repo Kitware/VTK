@@ -43,13 +43,13 @@ int TestGPURayCastPerspectiveParallel(int argc,
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
 
   // Create a spherical implicit function.
   vtkSphere *shape=vtkSphere::New();
@@ -78,9 +78,9 @@ int TestGPURayCastPerspectiveParallel(int argc,
   t->SetShift(-range[0]);
   double magnitude=range[1]-range[0];
   if(magnitude==0.0)
-    {
+  {
     magnitude=1.0;
-    }
+  }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
 
@@ -135,15 +135,15 @@ int TestGPURayCastPerspectiveParallel(int argc,
 // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     ren1->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   int valid=volumeMapper->IsRenderSupported(renWin,volumeProperty);
 
   int retVal;
   if(valid)
-    {
+  {
     ren1->ResetCamera();
 
     // Render composite. Default camera is perpective.
@@ -156,15 +156,15 @@ int TestGPURayCastPerspectiveParallel(int argc,
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   volumeMapper->Delete();
   volumeProperty->Delete();

@@ -93,13 +93,13 @@ public:
   //@}
 
   virtual void SetCompression( bool compress )
-    {
+  {
     this->Compress = compress;
-    }
+  }
   virtual bool GetCompression( void )
-    {
+  {
     return this->Compress;
-    }
+  }
 
   // This is called by the superclass.
   // This is the method you should override.

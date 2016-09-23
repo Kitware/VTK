@@ -22,7 +22,7 @@ vtkParametricBohemianDome::vtkParametricBohemianDome() :
   A(0.5)
   , B(1.5)
   , C(1.0)
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = -vtkMath::Pi();
   this->MinimumV = -vtkMath::Pi();
@@ -35,16 +35,16 @@ vtkParametricBohemianDome::vtkParametricBohemianDome() :
   this->TwistV = 1;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricBohemianDome::~vtkParametricBohemianDome()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -76,16 +76,16 @@ void vtkParametricBohemianDome::Evaluate(double uvw[3], double Pt[3], double Duv
   Dv[0] = 0.;
   Dv[1] = -this->B*sinv;
   Dv[2] = this->C*cosv;
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricBohemianDome::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricBohemianDome::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

@@ -564,17 +564,17 @@ public:
   static vtkHandleCallback *New()
     { return new vtkHandleCallback; }
   void Execute(vtkObject*, unsigned long eid, void*) VTK_OVERRIDE
-    {
+  {
     if ( eid == vtkCommand::InteractionEvent )
-      {
+    {
       double point1[3];
       this->Rep->GetWorldPosition(point1);
       std::cout << "Handle position: " << "("
            << point1[0] << ","
            << point1[1] << ","
            << point1[2] << ")" << std::endl;
-      }
     }
+  }
   vtkFixedSizeHandleRepresentation3D *Rep;
   vtkHandleCallback():Rep(0) {}
 };

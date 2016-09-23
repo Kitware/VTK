@@ -161,12 +161,12 @@ public:
    * Enum for Orientation.
    */
   enum
-    {
+  {
     LEFT_TO_RIGHT,
     UP_TO_DOWN,
     RIGHT_TO_LEFT,
     DOWN_TO_UP
-    };
+  };
 
   /**
    * Returns true if the transform is interactive, false otherwise.

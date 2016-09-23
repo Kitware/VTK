@@ -59,16 +59,16 @@ A SafeDivision(A a, A b)
 {
   // Avoid overflow
   if( (b < static_cast<A>(1)) && (a > b*std::numeric_limits<A>::max()) )
-    {
+  {
     return std::numeric_limits<A>::max();
-    }
+  }
 
   // Avoid underflow
   if( (a == static_cast<A>(0)) ||
       ((b > static_cast<A>(1)) && (a < b*std::numeric_limits<A>::min())) )
-    {
+  {
     return static_cast<A>(0);
-    }
+  }
 
   // safe to do the division
   return( a/b );
@@ -88,9 +88,9 @@ bool NearlyEqual(A a, A b, A tol=std::numeric_limits<A>::epsilon())
 //@}
 
   if( (d1 <= tol) || (d2 <= tol) )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 

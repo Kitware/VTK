@@ -101,11 +101,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset2Arr->SetName( "Metric 1" );
 
   for ( int i = 0; i < nVals1; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
-    }
+  }
 
   // Create input data table
   vtkTable* datasetTable1 = vtkTable::New();
@@ -152,12 +152,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Select columns of interest
   for ( int i = 0; i < nMetrics1; ++ i )
-    {
+  {
     as1->AddColumn( columns1[i] );
-    }
+  }
 
   // Set spatial cardinality
-  as1->SetSliceCardinality( nVals1 ); 
+  as1->SetSliceCardinality( nVals1 );
 
   // Set parameters for autocorrelation of whole data set with respect to itself
   as1->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
@@ -174,19 +174,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following statistics for first data set:\n";
   for ( unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
-      {
+    {
       if ( modelTab->GetNumberOfRows() )
-        {
+      {
         cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
-        }
       }
+    }
 
     cout << "   Variable="
          << varName
@@ -194,34 +194,34 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << modelTab->GetColumnName( i )
            << "="
            << modelTab->GetValue( 0, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated statistics
     if ( fabs ( modelTab->GetValueByName( 0, "Mean Xs" ).ToDouble() - meansXs1[b] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for Xs");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - varsXs1[b] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for Xs");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( modelTab->GetValueByName( 0, "Autocorrelation" ).ToDouble() - 1. ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect autocorrelation");
       testStatus = 1;
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Test with a slight variation of initial data set (to test model aggregation)
   int nVals2 = 32;
@@ -235,11 +235,11 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   dataset5Arr->SetName( "Metric 1" );
 
   for ( int i = 0; i < nVals2; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset4Arr->InsertNextValue( mingledData[ti] + 1. );
     dataset5Arr->InsertNextValue( mingledData[ti + 1] );
-    }
+  }
 
   vtkTable* datasetTable2 = vtkTable::New();
   datasetTable2->AddColumn( dataset4Arr );
@@ -253,12 +253,12 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Select columns of interest
   for ( int i = 0; i < nMetrics1; ++ i )
-    {
+  {
     as2->AddColumn( columns1[i] );
-    }
+  }
 
   // Set spatial cardinality
-  as2->SetSliceCardinality( nVals2 ); 
+  as2->SetSliceCardinality( nVals2 );
 
   // Set parameters for autocorrelation of whole data set with respect to itself
   as2->SetInputData( vtkStatisticsAlgorithm::LEARN_PARAMETERS, paramTable );
@@ -275,19 +275,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following statistics for second data set:\n";
   for ( unsigned b = 0; b < outputModelAS2->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkStdString varName = outputModelAS2->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS2->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
-      {
+    {
       if ( modelTab->GetNumberOfRows() )
-        {
+      {
         cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
-        }
       }
+    }
 
     cout << "\n   Variable="
          << varName
@@ -295,15 +295,15 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << modelTab->GetColumnName( i )
            << "="
            << modelTab->GetValue( 0, i ).ToString()
            << "  ";
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Test model aggregation by adding new data to engine which already has a model
   as1->SetInputData( vtkStatisticsAlgorithm::INPUT_DATA, datasetTable2 );
@@ -333,19 +333,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following statistics for aggregated (first + second) data set:\n";
   for ( unsigned b = 0; b < outputModelAS1->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkStdString varName = outputModelAS1->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS1->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
-      {
+    {
       if ( modelTab->GetNumberOfRows() )
-        {
+      {
         cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
-        }
       }
+    }
 
     cout << "\n   Variable="
          << varName
@@ -353,28 +353,28 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
     cout << "   ";
     for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
-      {
+    {
       cout << modelTab->GetColumnName( i )
            << "="
            << modelTab->GetValue( 0, i ).ToString()
            << "  ";
-      }
+    }
 
     // Verify some of the calculated statistics
     if ( fabs ( modelTab->GetValueByName( 0, "Mean Xs" ).ToDouble() - meansXs0[b] ) > 1.e-6 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect mean for Xs");
       testStatus = 1;
-      }
+    }
 
     if ( fabs ( modelTab->GetValueByName( 0, "Variance Xs" ).ToDouble() - varsXs0[b] ) > 1.e-5 )
-      {
+    {
       vtkGenericWarningMacro("Incorrect variance for Xs");
       testStatus = 1;
-      }
+    }
 
     cout << "\n";
-    }
+  }
 
   // Clean up
   as1->Delete();
@@ -390,10 +390,10 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   vtkVariantArray* row = vtkVariantArray::New();
   row->SetNumberOfValues( 1 );
   for ( vtkIdType p = 1; p < nSteps; ++ p )
-    {
+  {
     row->SetValue( 0, p );
     paramTable->InsertNextRow( row );
-    }
+  }
   row->Delete();
 
   vtkDoubleArray* lineArr = vtkDoubleArray::New();
@@ -412,19 +412,19 @@ int TestAutoCorrelativeStatistics( int, char *[] )
   vtkIdType midPoint = cardTotal >> 1;
   double dAlpha = ( 2.0 * vtkMath::Pi() ) / cardSlice;
   for ( int i = 0; i < cardTotal; ++ i )
-    {
+  {
     lineArr->InsertNextValue( i );
     if ( i < midPoint )
-      {
+    {
       vArr->InsertNextValue( cardTotal - i );
       circleArr->InsertNextValue( cos( i * dAlpha ) );
-      }
+    }
     else
-      {
+    {
       vArr->InsertNextValue( i );
       circleArr->InsertNextValue( sin( i * dAlpha ) );
-      }
     }
+  }
 
 
   // Create input data table
@@ -465,9 +465,9 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   // Select Columns of Interest
   for ( int i = 0; i < nMetrics2; ++ i )
-    {
+  {
     as3->AddColumn( columns2[i] );
-    }
+  }
 
   // Set spatial cardinality
   as3->SetSliceCardinality( cardSlice );
@@ -487,52 +487,52 @@ int TestAutoCorrelativeStatistics( int, char *[] )
 
   cout << "\n## Calculated the following statistics for third data set:\n";
   for ( unsigned b = 0; b < outputModelAS3->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkStdString varName = outputModelAS3->GetMetaData( b )->Get( vtkCompositeDataSet::NAME() );
 
     vtkTable* modelTab = vtkTable::SafeDownCast( outputModelAS3->GetBlock( b ) );
     if ( varName == "Autocorrelation FFT" )
-      {
+    {
       if ( modelTab->GetNumberOfRows() )
-        {
+      {
         cout << "\n   Autocorrelation FFT:\n";
         modelTab->Dump();
         continue;
-        }
       }
+    }
 
     cout << "\n   Variable="
          << varName
          << "\n";
 
     for ( int r = 0; r < modelTab->GetNumberOfRows(); ++ r )
-      {
+    {
       cout << "   ";
       for ( int i = 0; i < modelTab->GetNumberOfColumns(); ++ i )
-        {
+      {
         cout << modelTab->GetColumnName( i )
              << "="
              << modelTab->GetValue( r, i ).ToString()
              << "  ";
-        }
+      }
 
       // Verify some of the calculated statistics
-      int idx = nSteps * b + r; 
+      int idx = nSteps * b + r;
       if ( fabs ( modelTab->GetValueByName( r, "Mean Xt" ).ToDouble() - meansXt3[idx] ) > 1.e-6 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect mean for Xt");
         testStatus = 1;
-        }
-      
+      }
+
       if ( fabs ( modelTab->GetValueByName( r, "Autocorrelation" ).ToDouble() - autocorr3[idx] ) > 1.e-6 )
-        {
+      {
         vtkGenericWarningMacro("Incorrect autocorrelation "<<autocorr3[idx]);
         testStatus = 1;
-        }
+      }
 
       cout << "\n";
-      } // i
-    } // r
+    } // i
+  } // r
 
   // Clean up
   as3->Delete();

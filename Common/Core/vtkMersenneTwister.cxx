@@ -38,42 +38,42 @@ public:
  typedef mt_parameter_map::iterator mt_parameter_it;
 
   ~MersenneTwister()
-   {
+  {
      // Free the initialized MT states.
     for (mt_parameter_it it = this->Parameters.begin();
          it != this->Parameters.end(); ++it)
-      {
+    {
       free_mt_struct(it->second);
-      }
-   }
+    }
+  }
 
   void InitializeSequence(uint32_t key, uint32_t seed, int periodExp=521)
   {
    mt_parameter_it it = this->Parameters.find(key);
    if (it != this->Parameters.end())
-     {
+   {
      // If a sequence already exists with this id, free its contents...
      free_mt_struct(it->second);
-     }
+   }
    else
-     {
+   {
      //...otherwise, add a key/value pair for this sequence id
      mt_parameter parameter(key, static_cast<mt_struct*>(0));
      it = this->Parameters.insert(parameter).first;
-     }
+   }
    // Instantiate the sequence.
    it->second = get_mt_parameter_id_st(32, periodExp, key, seed);
    sgenrand_mt(seed, it->second);
- }
+  }
 
  uint32_t InitializeNewSequence(uint32_t seed, int periodExp=521)
  {
    // Identify an id that has not yet been used...
    uint32_t key = static_cast<uint32_t>(this->Parameters.size());
    while (this->Parameters.find(key) != this->Parameters.end())
-     {
+   {
      ++key;
-     }
+   }
 
     //...and use it to instantiate a sequence.
     mt_parameter parameter(key, get_mt_parameter_id_st(32,periodExp,key,seed));
@@ -85,18 +85,18 @@ public:
       (this->Parameters.begin() == this->Parameters.end() ?
        this->Parameters.begin() : --this->Parameters.end()), parameter);
     return key;
-  }
+ }
 
   uint32_t Random32(uint32_t sequenceId)
   {
     mt_parameter_it it = this->Parameters.find(sequenceId);
     if (it == this->Parameters.end())
-      {
+    {
       mt_parameter parameter(sequenceId,
                              get_mt_parameter_id_st(32, 521, sequenceId, 0));
       sgenrand_mt(0, parameter.second);
       it = this->Parameters.insert(--it, parameter);
-      }
+    }
     return genrand_mt(it->second);
   }
 
@@ -154,16 +154,16 @@ void vtkMersenneTwister::InitializeSequence(vtkMersenneTwister::SequenceId id,
 {
   if (std::find(MersenneExponents, MersenneExponentsEnd, periodExp) ==
       MersenneExponentsEnd)
-    {
+  {
     periodExp = MersenneExponents[periodExp%15];
-    }
+  }
 
   if (this->Internal->Values.insert(
         vtkMersenneTwisterInternals::Value(id, 0.)).second == false)
-    {
+  {
     vtkWarningMacro(<< "Initializing process "<<id<<" which is already "
                     << "initialized. This may break sequence encapsulation.");
-    }
+  }
   this->Internal->InitializeSequence(id, seed, periodExp);
 }
 
@@ -173,9 +173,9 @@ vtkMersenneTwister::InitializeNewSequence(vtkTypeUInt32 seed, int periodExp)
 {
   if (std::find(MersenneExponents, MersenneExponentsEnd, periodExp) ==
       MersenneExponentsEnd)
-    {
+  {
     periodExp = MersenneExponents[periodExp%15];
-    }
+  }
 
   SequenceId id = this->Internal->InitializeNewSequence(seed, periodExp);
   this->Internal->Values.insert(
@@ -190,9 +190,9 @@ double vtkMersenneTwister::GetValue(vtkMersenneTwister::SequenceId id)
 {
   vtkMersenneTwisterInternals::ValueIt it = this->Internal->Values.find(id);
   if (it == this->Internal->Values.end())
-    {
+  {
     this->Next(id);
-    }
+  }
 
   return this->Internal->Values.find(id)->second;
 }
@@ -205,7 +205,7 @@ void vtkMersenneTwister::Next(vtkMersenneTwister::SequenceId id)
 
   vtkMersenneTwisterInternals::ValueIt it = this->Internal->Values.find(id);
   if (it == this->Internal->Values.end())
-    {
+  {
     vtkWarningMacro(<< "Using an ininitialized vtkMersenneTwister process. "
                     << "Initializing process "<<id<<" with default values.");
     vtkMersenneTwisterInternals::Value value(id, 0.);
@@ -214,7 +214,7 @@ void vtkMersenneTwister::Next(vtkMersenneTwister::SequenceId id)
        this->Internal->Values.begin() : --this->Internal->Values.end()),
       value);
     this->Internal->InitializeSequence(id, 0);
-    }
+  }
   it->second = this->Internal->Random64(id)*norm;
 }
 

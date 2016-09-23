@@ -65,7 +65,7 @@ public:
     vtkIdType nend = begin + size;
 
     for (vtkIdType index = begin; index < nend; index++)
-      {
+    {
       *outPts = *inPts + sf * (T1)(*inVec);
       inPts++; outPts++; inVec++;
       /*
@@ -74,7 +74,7 @@ public:
       *outPts = *inPts + sf * (T1)(*inVec);
       inPts++; outPts++; inVec++;
       */
-      }
+    }
   }
 };
 
@@ -107,13 +107,13 @@ void vtkSMPWarpVectorExecute(vtkSMPWarpVector *self,
 
   // call templated function
   switch (vectors->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkSMPWarpVectorExecute2(self, inIter, outIter,
                                (VTK_TT *)(inVecIter), size));
     default:
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -130,10 +130,10 @@ int vtkSMPWarpVector::RequestData(
   vtkPointSet *input = vtkPointSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
-    {
+  {
     // Let the superclass handle vtkImageData and vtkRectilinearGrid
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
   vtkPointSet *output = vtkPointSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
@@ -144,18 +144,18 @@ int vtkSMPWarpVector::RequestData(
   output->CopyStructure( input );
 
   if (input == NULL || input->GetPoints() == NULL)
-    {
+  {
     return 1;
-    }
+  }
   numPts = input->GetPoints()->GetNumberOfPoints();
 
   vtkDataArray *vectors = this->GetInputArrayToProcess(0,inputVector);
 
   if ( !vectors || !numPts)
-    {
+  {
     vtkDebugMacro(<<"No input data");
     return 1;
-    }
+  }
 
   // SETUP AND ALLOCATE THE OUTPUT
   numPts = input->GetNumberOfPoints();
@@ -174,7 +174,7 @@ int vtkSMPWarpVector::RequestData(
 
   // call templated function
   switch (input->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkSMPWarpVectorExecute(this,
                               (VTK_TT *)(inIter),
@@ -183,7 +183,7 @@ int vtkSMPWarpVector::RequestData(
                               vectors));
     default:
       break;
-    }
+  }
 
 
   // now pass the data.

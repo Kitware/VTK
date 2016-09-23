@@ -46,9 +46,9 @@ public:
    * constructor directly from C++ instead.
    */
   static vtkInformationExecutivePortKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationExecutivePortKey(name, location);
-    }
+  }
 
   //@{
   /**

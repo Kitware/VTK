@@ -168,7 +168,7 @@ private:
 inline const char *vtkGridTransform::GetInterpolationModeAsString()
 {
   switch (this->InterpolationMode)
-    {
+  {
     case VTK_GRID_NEAREST:
       return "NearestNeighbor";
     case VTK_GRID_LINEAR:
@@ -177,7 +177,7 @@ inline const char *vtkGridTransform::GetInterpolationModeAsString()
       return "Cubic";
     default:
       return "";
-    }
+  }
 }
 
 #endif

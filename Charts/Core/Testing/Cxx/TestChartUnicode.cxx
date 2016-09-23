@@ -32,10 +32,10 @@
 int TestChartUnicode(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     cout << "Missing font filename." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string fontFile(argv[1]);
 
@@ -72,10 +72,10 @@ int TestChartUnicode(int argc, char *argv[])
   float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     table->SetValue(i, 0, i * inc);
     table->SetValue(i, 1, cos(i * inc) + sin(i * (inc - 3.14)));
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::LINE);

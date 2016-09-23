@@ -50,9 +50,9 @@ void vtkBlankStructuredGridWithImage::SetBlankingInputData(vtkImageData *input)
 vtkImageData *vtkBlankStructuredGridWithImage::GetBlankingInput()
 {
   if (this->GetNumberOfInputConnections(1) < 1)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkImageData::SafeDownCast(
     this->GetExecutive()->GetInputData(1, 0));
@@ -86,21 +86,21 @@ int vtkBlankStructuredGridWithImage::RequestData(
   image->GetDimensions(imageDims);
   if ( gridDims[0] != imageDims[0] || gridDims[1] != imageDims[1] ||
        gridDims[2] != imageDims[2] )
-    {
+  {
     vtkErrorMacro("Blanking dimensions must be identical with grid dimensions. "
                   "Blanking dimensions are " << imageDims[0] << " "
                   << imageDims[1] << " " << imageDims[2]
                   << ". Grid dimensions are " << gridDims[0] << " "
                   << gridDims[1] << " " << gridDims[2] << ".");
     return 1;
-    }
+  }
 
   if ( image->GetScalarType() != VTK_UNSIGNED_CHAR ||
        image->GetNumberOfScalarComponents() != 1 )
-    {
+  {
     vtkErrorMacro(<<"This filter requires unsigned char images with one component");
     return 1;
-    }
+  }
 
   // Get the image, set it as the blanking array.
   unsigned char *data = static_cast<unsigned char *>(image->GetScalarPointer());
@@ -111,14 +111,14 @@ int vtkBlankStructuredGridWithImage::RequestData(
   ghosts->SetNumberOfValues(numberOfValues);
   ghosts->SetName(vtkDataSetAttributes::GhostArrayName());
   for(vtkIdType ptId = 0; ptId < numberOfValues; ++ptId)
-    {
+  {
     unsigned char value = 0;
     if(visibility->GetValue(ptId) == 0)
-      {
+    {
       value |= vtkDataSetAttributes::HIDDENPOINT;
-      }
-    ghosts->SetValue(ptId, value);
     }
+    ghosts->SetValue(ptId, value);
+  }
   output->CopyStructure(grid);
   output->GetPointData()->PassData(grid->GetPointData());
   output->GetCellData()->PassData(grid->GetCellData());
@@ -134,9 +134,9 @@ int vtkBlankStructuredGridWithImage::FillInputPortInformation(
   int port, vtkInformation *info)
 {
   if (port == 0)
-    {
+  {
     return this->Superclass::FillInputPortInformation(port, info);
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }

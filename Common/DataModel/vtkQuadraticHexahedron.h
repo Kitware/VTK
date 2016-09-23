@@ -111,13 +111,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[20]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticHexahedron::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[60]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticHexahedron::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
   //@{
   /**

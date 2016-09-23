@@ -53,14 +53,14 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
   double pnt[3];
   double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
   for(vtkIdType nodeIdx=0; nodeIdx < ghostGrid->GetNumberOfPoints(); ++nodeIdx)
-    {
+  {
     ghostGrid->GetPoint(nodeIdx,pnt);
     for(int dim=0; dim < 3; ++dim)
-      {
+    {
       double actual   = ptr[nodeIdx*3+dim];
       double expected = pnt[dim]+static_cast<double>(iteration);
       if( ! vtkMathUtilities::NearlyEqual<double>(actual,expected) )
-        {
+      {
         ++numOfErrors;
         ++rc;
         err << std::setprecision(5)
@@ -69,9 +69,9 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
             << " actual=" << actual
             << " delta=" << std::fabs(actual-expected)
             << std::endl;
-        } // END if
-      } // END for all dimensions
-    } // END for all nodes
+      } // END if
+    } // END for all dimensions
+  } // END for all nodes
 
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfPoints()
       << " nodes appear wrong: " << std::endl;
@@ -94,7 +94,7 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
   double* cptr = static_cast<double*>(cellXYZ->GetVoidPointer(0));
   vtkIdList* ptIds = vtkIdList::New();
   for(vtkIdType cellIdx=0; cellIdx < ghostGrid->GetNumberOfCells(); ++cellIdx)
-    {
+  {
     ghostGrid->GetCellPoints(cellIdx,ptIds);
     assert("pre: numpoints per cell must be 8!" &&
             ptIds->GetNumberOfIds()==8);
@@ -102,24 +102,24 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
     centroid[1] = 0.0;
     centroid[2] = 0.0;
     for(vtkIdType n=0; n < ptIds->GetNumberOfIds(); ++n)
-      {
+    {
       vtkIdType idx = ptIds->GetId(n);
       ghostGrid->GetPoint(idx,pnt);
       centroid[0] += pnt[0];
       centroid[1] += pnt[1];
       centroid[2] += pnt[2];
-      } // END for all cell nodes
+    } // END for all cell nodes
 
     centroid[0] /= static_cast<double>(ptIds->GetNumberOfIds());
     centroid[1] /= static_cast<double>(ptIds->GetNumberOfIds());
     centroid[2] /= static_cast<double>(ptIds->GetNumberOfIds());
 
     for(int dim=0; dim < 3; ++dim)
-      {
+    {
       double actual   = cptr[cellIdx*3+dim];
       double expected = centroid[dim]+static_cast<double>(iteration);
       if( ! vtkMathUtilities::NearlyEqual<double>(actual,expected) )
-        {
+      {
         ++numOfErrors;
         ++rc;
         err << std::setprecision(5)
@@ -129,9 +129,9 @@ int CheckGrid(vtkUnstructuredGrid* ghostGrid, const int iteration)
             << " actual=" << actual
             << " delta= " << std::fabs(actual-expected)
             << std::endl;
-        } // END if
-      } // END for all dimensions
-    } // END for all cells
+      } // END if
+    } // END for all dimensions
+  } // END for all cells
 
   out << "[INFO]: " << numOfErrors << "/" << ghostGrid->GetNumberOfCells()
       << " cells appear wrong: " << std::endl;
@@ -156,11 +156,11 @@ void UpdateGrid(const int iteration)
 
   double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
   for(vtkIdType nodeIdx=0; nodeIdx < global::Grid->GetNumberOfPoints(); ++nodeIdx)
-    {
+  {
     ptr[ nodeIdx*3   ] += static_cast<double>(iteration);
     ptr[ nodeIdx*3+1 ] += static_cast<double>(iteration);
     ptr[ nodeIdx*3+2 ] += static_cast<double>(iteration);
-    } // END for all nodes
+  } // END for all nodes
 
   // increment cell fields by the iteration number
   vtkDoubleArray* cellXYZ =
@@ -173,11 +173,11 @@ void UpdateGrid(const int iteration)
 
   double* cptr = static_cast<double*>(cellXYZ->GetVoidPointer(0));
   for(vtkIdType cellIdx=0; cellIdx < global::Grid->GetNumberOfCells(); ++cellIdx)
-    {
+  {
     cptr[ cellIdx*3   ] += static_cast<double>(iteration);
     cptr[ cellIdx*3+1 ] += static_cast<double>(iteration);
     cptr[ cellIdx*3+2 ] += static_cast<double>(iteration);
-    } // END for all cells
+  } // END for all cells
 }
 
 //------------------------------------------------------------------------------
@@ -192,22 +192,22 @@ void SetXYZCellField()
   double centroid[3];
   vtkIdList* ptIds = vtkIdList::New();
   for(vtkIdType cell=0; cell < global::Grid->GetNumberOfCells(); ++cell)
-    {
+  {
     centroid[0] = centroid[1] = centroid[2] = 0.0;
     global::Grid->GetCellPoints(cell,ptIds);
     for(vtkIdType n=0; n < ptIds->GetNumberOfIds(); ++n)
-      {
+    {
       centroid[0] += global::Grid->GetPoint(ptIds->GetId(n))[0];
       centroid[1] += global::Grid->GetPoint(ptIds->GetId(n))[1];
       centroid[2] += global::Grid->GetPoint(ptIds->GetId(n))[2];
-      } // END for all cell nodes
+    } // END for all cell nodes
 
     centroid[0] /= static_cast<double>(ptIds->GetNumberOfIds());
     centroid[1] /= static_cast<double>(ptIds->GetNumberOfIds());
     centroid[2] /= static_cast<double>(ptIds->GetNumberOfIds());
 
     memcpy(&ptr[cell*3],centroid,3*sizeof(double));
-    } // END for all cells
+  } // END for all cells
 
   global::Grid->GetCellData()->AddArray( centerXYZ );
   centerXYZ->Delete();
@@ -224,10 +224,10 @@ void SetXYZNodeField()
   double* ptr = static_cast<double*>(nodeXYZ->GetVoidPointer(0));
 
   for(vtkIdType node=0; node < global::Grid->GetNumberOfPoints(); ++node)
-    {
+  {
     // copy the point coordinates in to the array
     memcpy(&ptr[node*3],global::Grid->GetPoint(node),3*sizeof(double));
-    } // END for all cells
+  } // END for all cells
 
   global::Grid->GetPointData()->AddArray(nodeXYZ);
   nodeXYZ->Delete();
@@ -323,11 +323,11 @@ void GenerateDataSet()
   vtkIdType localNodeIdx;
   vtkIdType cell[8];
   for(int i=IMIN(ext); i < IMAX(ext); ++i)
-    {
+  {
     for(int j=JMIN(ext); j < JMAX(ext); ++j)
-      {
+    {
       for(int k=KMIN(ext); k < KMAX(ext); ++k)
-        {
+      {
 
         // local ijk of the grid cell
         int lijk[3];
@@ -336,7 +336,7 @@ void GenerateDataSet()
         K(lijk) = k-KMIN(ext);
 
         for(int node=0; node < 8; ++node)
-          {
+        {
           // local ijk of the node
           int ijk[3];
           I(ijk) = I(lijk)+hexNodeOffSet[node*3];
@@ -357,12 +357,12 @@ void GenerateDataSet()
 
           globalIdxPtr[localNodeIdx] = globalNodeIdx;
           GetPoint(I(IJK),J(IJK),K(IJK),&nodesPtr[localNodeIdx*3]);
-          } // END for all nodes
+        } // END for all nodes
 
         global::Grid->InsertNextCell(VTK_HEXAHEDRON,8,cell);
-        } // END for all k
-      } // END for all j
-    } // END for all i
+      } // END for all k
+    } // END for all j
+  } // END for all i
 
   global::Grid->SetPoints(nodes);
   nodes->Delete();

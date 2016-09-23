@@ -69,10 +69,10 @@ public:
    * Assign object to reference.
    */
   vtkWeakPointer& operator=(T* r)
-    {
+  {
     this->vtkWeakPointerBase::operator=(r);
     return *this;
-    }
+  }
   //@}
 
   //@{
@@ -80,10 +80,10 @@ public:
    * Assign object to reference.
    */
   vtkWeakPointer& operator=(const vtkWeakPointerBase& r)
-    {
+  {
     this->vtkWeakPointerBase::operator=(r);
     return *this;
-    }
+  }
   //@}
 
   //@{
@@ -91,39 +91,39 @@ public:
    * Get the contained pointer.
    */
   T* GetPointer() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
   T* Get() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
   //@}
 
   /**
    * Get the contained pointer.
    */
   operator T* () const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
   /**
    * Dereference the pointer and return a reference to the contained
    * object.
    */
   T& operator*() const
-    {
+  {
     return *static_cast<T*>(this->Object);
-    }
+  }
 
   /**
    * Provides normal pointer target member access using operator ->.
    */
   T* operator->() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
   // Work-around for HP and IBM overload resolution bug.  Since
   // NullPointerOnly is a private type the only pointer value that can
@@ -133,9 +133,9 @@ public:
 #if defined(__HP_aCC) || defined(__IBMCPP__)
 # define VTK_WEAK_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
   bool operator op (NullPointerOnly*) const              \
-    {                                                     \
+  {                                                     \
     return ::operator op (*this, 0);                      \
-    }
+  }
 private:
   class NullPointerOnly {};
 public:
@@ -160,19 +160,19 @@ private:
   template <class T> \
   inline bool \
   operator op (const vtkWeakPointer<T>& l, const vtkWeakPointer<T>& r) \
-    { \
+  { \
     return (l.GetPointer() op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (T* l, const vtkWeakPointer<T>& r) \
-    { \
+  { \
     return (l op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (const vtkWeakPointer<T>& l, T* r) \
-    { \
+  { \
     return (l.GetPointer() op r); \
-    }
+  }
 /**
  * Compare smart pointer values.
  */

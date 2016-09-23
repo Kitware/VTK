@@ -37,9 +37,9 @@ void vtkStringOutputWindow::Initialize()
 void vtkStringOutputWindow::DisplayText(const char* text)
 {
   if(!text)
-    {
+  {
     return;
-    }
+  }
 
   this->OStream << text << endl;
 }

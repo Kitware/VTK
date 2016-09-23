@@ -50,19 +50,19 @@ void vtkImageClip::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputWholeExtent: (" << this->OutputWholeExtent[0]
      << "," << this->OutputWholeExtent[1];
   for (idx = 1; idx < 3; ++idx)
-    {
+  {
     os << indent << ", " << this->OutputWholeExtent[idx * 2]
        << "," << this->OutputWholeExtent[idx*2 + 1];
-    }
+  }
   os << ")\n";
   if (this->ClipData)
-    {
+  {
     os << indent << "ClipDataOn\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ClipDataOff\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -72,23 +72,23 @@ void vtkImageClip::SetOutputWholeExtent(int extent[6], vtkInformation *outInfo)
   int modified = 0;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     if (this->OutputWholeExtent[idx] != extent[idx])
-      {
+    {
       this->OutputWholeExtent[idx] = extent[idx];
       modified = 1;
-      }
     }
+  }
   this->Initialized = 1;
   if (modified)
-    {
+  {
     this->Modified();
     if (!outInfo)
-      {
+    {
       outInfo = this->GetExecutive()->GetOutputInformation(0);
-      }
-    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
     }
+    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -110,9 +110,9 @@ void vtkImageClip::GetOutputWholeExtent(int extent[6])
   int idx;
 
   for (idx = 0; idx < 6; ++idx)
-    {
+  {
     extent[idx] = this->OutputWholeExtent[idx];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -130,29 +130,29 @@ int vtkImageClip::RequestInformation (
 
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent);
   if ( ! this->Initialized)
-    {
+  {
     this->SetOutputWholeExtent(extent, outInfo);
-    }
+  }
 
   // Clip the OutputWholeExtent with the input WholeExtent
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     if (this->OutputWholeExtent[idx*2] >= extent[idx*2] &&
         this->OutputWholeExtent[idx*2] <= extent[idx*2+1])
-      {
+    {
       extent[idx*2] = this->OutputWholeExtent[idx*2];
-      }
+    }
     if (this->OutputWholeExtent[idx*2+1] >= extent[idx*2] &&
         this->OutputWholeExtent[idx*2+1] <= extent[idx*2+1])
-      {
+    {
       extent[idx*2+1] = this->OutputWholeExtent[idx*2+1];
-      }
+    }
     // make usre the order is correct
     if (extent[idx*2] > extent[idx*2+1])
-      {
+    {
       extent[idx*2] = extent[idx*2+1];
-      }
     }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
 
@@ -164,10 +164,10 @@ int vtkImageClip::RequestInformation (
 void vtkImageClip::ResetOutputWholeExtent()
 {
   if ( ! this->GetInput())
-    {
+  {
     vtkWarningMacro("ResetOutputWholeExtent: No input");
     return;
-    }
+  }
 
   this->GetInputConnection(0, 0)->GetProducer()->UpdateInformation();
   vtkInformation *inInfo = this->GetExecutive()->GetInputInformation(0, 0);
@@ -196,10 +196,10 @@ int vtkImageClip::RequestData(vtkInformation *vtkNotUsed(request),
   outData->GetCellData()->PassData(inData->GetCellData());
 
   if (this->ClipData)
-    {
+  {
     outData->Crop(
       outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT()));
-    }
+  }
 
   return 1;
 }

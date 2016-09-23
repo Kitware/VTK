@@ -34,10 +34,10 @@ struct vtkDataObjectTreeItem
   vtkSmartPointer<vtkInformation> MetaData;
 
   vtkDataObjectTreeItem(vtkDataObject* dobj =0, vtkInformation* info=0)
-    {
+  {
     this->DataObject = dobj;
     this->MetaData = info;
-    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -56,9 +56,9 @@ public:
 class vtkDataObjectTreeIndex : public std::vector<unsigned int>
 {
   int IsValid()
-    {
+  {
     return (this->size()> 0);
-    }
+  }
 };
 
 #endif

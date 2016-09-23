@@ -64,10 +64,10 @@ namespace Logger {
   void Println(const std::string &msg )
   {
     if( Controller->GetLocalProcessId() == 0 )
-      {
+    {
       std::cout << msg << std::endl;
       std::cout.flush();
-      }
+    }
     Controller->Barrier();
   }
 }
@@ -83,9 +83,9 @@ void WriteDistributedDataSet(
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
-    {
+  {
     writer->SetWriteMetaFile(1);
-    }
+  }
   writer->Update();
   writer->Delete();
 #else
@@ -101,12 +101,12 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
   assert("pre: Multi-block is NULL!" && (mbds != NULL) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(mbds->GetBlock(block));
     if( grid == NULL )
-      {
+    {
       continue;
-      }
+    }
 
     vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
     nodeXYZArray->SetName( "NODE-XYZ" );
@@ -115,16 +115,16 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 
     double xyz[3];
     for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
-      {
+    {
       grid->GetPoint( pntIdx, xyz );
       nodeXYZArray->SetComponent( pntIdx, 0, xyz[0] );
       nodeXYZArray->SetComponent( pntIdx, 1, xyz[1] );
       nodeXYZArray->SetComponent( pntIdx, 2, xyz[2] );
-      } // END for all points
+    } // END for all points
 
     grid->GetPointData()->AddArray( nodeXYZArray );
     nodeXYZArray->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
 }
 
@@ -134,12 +134,12 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
   assert("pre: Multi-block is NULL!" && (mbds != NULL) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(mbds->GetBlock(block));
     if( grid == NULL )
-      {
+    {
       continue;
-      }
+    }
 
     vtkDoubleArray *cellXYZArray = vtkDoubleArray::New();
     cellXYZArray->SetName( "CELL-XYZ" );
@@ -149,7 +149,7 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
     double centroid[3];
     double xyz[3];
     for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
-      {
+    {
       vtkCell *c = grid->GetCell( cellIdx );
       assert( "pre: cell is not NULL" && (c != NULL) );
 
@@ -157,13 +157,13 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
       double ysum = 0.0;
       double zsum = 0.0;
       for( vtkIdType node=0; node < c->GetNumberOfPoints(); ++node )
-        {
+      {
         vtkIdType meshPntIdx = c->GetPointId( node );
         grid->GetPoint( meshPntIdx, xyz );
         xsum += xyz[0];
         ysum += xyz[1];
         zsum += xyz[2];
-        } // END for all nodes
+      } // END for all nodes
 
       centroid[0] = xsum / c->GetNumberOfPoints();
       centroid[1] = ysum / c->GetNumberOfPoints();
@@ -172,11 +172,11 @@ void AddCellCenteredXYZField( vtkMultiBlockDataSet *mbds )
       cellXYZArray->SetComponent( cellIdx, 0, centroid[0] );
       cellXYZArray->SetComponent( cellIdx, 1, centroid[1] );
       cellXYZArray->SetComponent( cellIdx, 2, centroid[2] );
-      } // END for all cells
+    } // END for all cells
 
     grid->GetCellData()->AddArray( cellXYZArray );
     cellXYZArray->Delete();
-    } // END for all blocks
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -195,17 +195,17 @@ bool CheckNodeFieldsForGrid( vtkStructuredGrid *grid )
          (array->GetNumberOfComponents()==3));
 
   for( vtkIdType idx=0; idx < grid->GetNumberOfPoints(); ++idx )
-    {
+  {
     grid->GetPoint( idx, xyz );
 
     for( int i=0; i < 3; ++i )
-      {
+    {
       if( !vtkMathUtilities::FuzzyCompare(xyz[i],array->GetComponent(idx,i) ) )
-        {
+      {
         return false;
-        } // END if fuzzy-compare
-      } // END for all components
-    } // END for all nodes
+      } // END if fuzzy-compare
+    } // END for all components
+  } // END for all nodes
   return true;
 }
 
@@ -227,7 +227,7 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
 
   vtkIdList *nodeIds = vtkIdList::New();
   for( vtkIdType cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
-    {
+  {
     nodeIds->Initialize();
     grid->GetCellPoints(cellIdx,nodeIds);
 
@@ -235,13 +235,13 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
     double ysum = 0.0;
     double zsum = 0.0;
     for( vtkIdType node=0; node < nodeIds->GetNumberOfIds(); ++node )
-      {
+    {
       vtkIdType meshPntIdx = nodeIds->GetId( node );
       grid->GetPoint( meshPntIdx, xyz );
       xsum += xyz[0];
       ysum += xyz[1];
       zsum += xyz[2];
-      } // END for all nodes
+    } // END for all nodes
 
     centroid[0] = centroid[1] = centroid[2] = 0.0;
     centroid[0] = xsum / static_cast<double>( nodeIds->GetNumberOfIds() );
@@ -249,19 +249,19 @@ bool CheckCellFieldsForGrid( vtkStructuredGrid *grid )
     centroid[2] = zsum / static_cast<double>( nodeIds->GetNumberOfIds() );
 
     for( int i=0; i < 3; ++i )
-      {
+    {
       if( !vtkMathUtilities::FuzzyCompare(
           centroid[i],array->GetComponent(cellIdx,i)) )
-        {
+      {
         std::cout << "Cell Data mismatch: " << centroid[i] << " ";
         std::cout <<  array->GetComponent(cellIdx,i);
         std::cout << std::endl;
         std::cout.flush();
         nodeIds->Delete();
         return false;
-        } // END if fuzz-compare
-      } // END for all components
-    } // END for all cells
+      } // END if fuzz-compare
+    } // END for all components
+  } // END for all cells
   nodeIds->Delete();
   return true;
 }
@@ -272,35 +272,35 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
   assert("pre: input multi-block is NULL" && (mbds != NULL) );
 
   if( !hasNodeData && !hasCellData )
-    {
+  {
     return 0;
-    }
+  }
 
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkStructuredGrid *grid = vtkStructuredGrid::SafeDownCast(mbds->GetBlock(block));
     if( grid == NULL )
-      {
+    {
       continue;
-      }
+    }
 
     if( hasNodeData )
-      {
+    {
       if( !CheckNodeFieldsForGrid( grid ) )
-        {
+      {
         return 1;
-        }
       }
+    }
 
     if( hasCellData )
-      {
+    {
       if( !CheckCellFieldsForGrid( grid ) )
-        {
+      {
         return 1;
-        }
       }
+    }
 
-    } // END for all blocks
+  } // END for all blocks
 
   return 0;
 }
@@ -309,9 +309,9 @@ int CheckFields( vtkMultiBlockDataSet *mbds,bool hasNodeData,bool hasCellData )
 bool ProcessOwnsBlock( const int block )
 {
   if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -364,9 +364,9 @@ vtkMultiBlockDataSet* GetDataSet(
 
   unsigned int block =0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-    {
+  {
     if( ProcessOwnsBlock( block ) )
-      {
+    {
       // Copy the structured grid
       vtkStructuredGrid *grid = vtkStructuredGrid::New();
       grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -386,12 +386,12 @@ vtkMultiBlockDataSet* GetDataSet(
         vtkDataObject::PIECE_EXTENT(),
         info->Get( vtkDataObject::PIECE_EXTENT() ),
         6 );
-      } // END if we own the block
+    } // END if we own the block
     else
-      {
+    {
       mbds->SetBlock( block, NULL );
-      } // END else we don't own the block
-    } // END for all blocks
+    } // END else we don't own the block
+  } // END for all blocks
 
   wholeStructuredGrid->Delete();
   gridPartitioner->Delete();
@@ -411,22 +411,22 @@ int Test2D(
   oss << "Number of ghost layers: " << NG << std::endl;
   oss << "Node-centered data: ";
   if( hasNodeData )
-    {
+  {
     oss << "Yes\n";
-    }
+  }
   else
-    {
+  {
     oss << "No\n";
-    }
+  }
   oss << "Cell-centered data: ";
   if( hasCellData )
-    {
+  {
     oss << "Yes\n";
-    }
+  }
   else
-    {
+  {
     oss << "No\n";
-    }
+  }
   Logger::Println( oss.str() );
 
   int rc = 0;
@@ -439,13 +439,13 @@ int Test2D(
   vtkMultiBlockDataSet *mbds = GetDataSet(WholeExtent,p,h,NumberOfPartitions);
   assert("pre: multi-block dataset is NULL!" && (mbds != NULL) );
   if( hasNodeData )
-    {
+  {
     AddNodeCenteredXYZField( mbds );
-    }
+  }
   if( hasCellData )
-    {
+  {
     AddCellCenteredXYZField( mbds );
-    }
+  }
   WriteDistributedDataSet( "P2DInitial", mbds );
 
   vtkPStructuredGridGhostDataGenerator *ghostGenerator =
@@ -479,22 +479,22 @@ int Test3D(
   oss << "Number of ghost layers: " << NG << std::endl;
   oss << "Node-centered data: ";
   if( hasNodeData )
-    {
+  {
     oss << "Yes\n";
-    }
+  }
   else
-    {
+  {
     oss << "No\n";
-    }
+  }
   oss << "Cell-centered data: ";
   if( hasCellData )
-    {
+  {
     oss << "Yes\n";
-    }
+  }
   else
-    {
+  {
     oss << "No\n";
-    }
+  }
   Logger::Println( oss.str() );
 
   int rc = 0;
@@ -507,13 +507,13 @@ int Test3D(
   vtkMultiBlockDataSet *mbds = GetDataSet(WholeExtent,p,h,NumberOfPartitions);
   assert("pre: multi-block dataset is NULL!" && (mbds != NULL) );
   if( hasNodeData )
-    {
+  {
     AddNodeCenteredXYZField( mbds );
-    }
+  }
   if( hasCellData )
-    {
+  {
     AddCellCenteredXYZField( mbds );
-    }
+  }
   WriteDistributedDataSet("P3DInitial", mbds );
 
   vtkPStructuredGridGhostDataGenerator *ghostGenerator =

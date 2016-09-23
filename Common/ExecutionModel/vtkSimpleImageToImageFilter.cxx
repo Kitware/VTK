@@ -67,9 +67,9 @@ int vtkSimpleImageToImageFilter::RequestData(
   if (inExt[1] < inExt[0] ||
       inExt[3] < inExt[2] ||
       inExt[5] < inExt[4])
-    {
+  {
     return 1;
-    }
+  }
 
   // Set the extent of the output and allocate memory.
   output->SetExtent(

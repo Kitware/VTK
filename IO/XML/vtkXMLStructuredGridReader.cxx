@@ -73,9 +73,9 @@ void vtkXMLStructuredGridReader::SetupPieces(int numPieces)
   this->PointElements = new vtkXMLDataElement*[numPieces];
   int i;
   for(i=0;i < numPieces; ++i)
-    {
+  {
     this->PointElements[i] = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -94,14 +94,14 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
   int i;
   this->PointElements[this->Piece] = 0;
   for(i=0; i < ePiece->GetNumberOfNestedElements(); ++i)
-    {
+  {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
     if((strcmp(eNested->GetName(), "Points") == 0)
        && (eNested->GetNumberOfNestedElements() == 1))
-      {
+    {
       this->PointElements[this->Piece] = eNested;
-      }
     }
+  }
 
   // If there is any volume, we require a Points element.
   int* piecePointDimensions = this->PiecePointDimensions + this->Piece*3;
@@ -109,11 +109,11 @@ int vtkXMLStructuredGridReader::ReadPiece(vtkXMLDataElement* ePiece)
      (piecePointDimensions[0] > 0) &&
      (piecePointDimensions[1] > 0) &&
      (piecePointDimensions[2] > 0))
-    {
+  {
     vtkErrorMacro("A piece is missing its Points element "
                   "or element does not have exactly 1 array.");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -130,26 +130,26 @@ void vtkXMLStructuredGridReader::SetupOutputData()
   // Use the configuration of the first piece since all are the same.
   vtkXMLDataElement* ePoints = this->PointElements[0];
   if (ePoints)
-    {
+  {
     // Non-zero volume.
     vtkAbstractArray* aa = this->CreateArray(ePoints->GetNestedElement(0));
     vtkDataArray* a = vtkArrayDownCast<vtkDataArray>(aa);
     if (a)
-      {
+    {
       // Allocate the points array.
       a->SetNumberOfTuples( this->GetNumberOfPoints() );
       points->SetData(a);
       a->Delete();
-      }
-    else
-      {
-      if (aa)
-        {
-        aa->Delete();
-        }
-      this->DataError = 1;
-      }
     }
+    else
+    {
+      if (aa)
+      {
+        aa->Delete();
+      }
+      this->DataError = 1;
+    }
+  }
 
   vtkStructuredGrid::SafeDownCast(this->GetCurrentOutput())->SetPoints(points);
   points->Delete();
@@ -171,9 +171,9 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0]*dims[1]*dims[2];
   if(totalPieceSize == 0)
-    {
+  {
     totalPieceSize = 1;
-    }
+  }
 
   // Split the progress range based on the approximate fraction of
   // data that will be read by each step in this method.
@@ -193,10 +193,10 @@ int vtkXMLStructuredGridReader::ReadPieceData()
   if(!this->Superclass::ReadPieceData()) { return 0; }
 
   if(!this->PointElements[this->Piece])
-    {
+  {
     // Empty volume.
     return 1;
-    }
+  }
 
   // Set the range of progress for the points array.
   this->SetProgressRange(progressRange, 1, fractions);
@@ -211,8 +211,8 @@ int vtkXMLStructuredGridReader::ReadPieceData()
 
 
 int vtkXMLStructuredGridReader::FillOutputPortInformation(int, vtkInformation *info)
-  {
+{
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkStructuredGrid");
 
   return 1;
-  }
+}

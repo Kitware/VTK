@@ -90,9 +90,9 @@ public:
    * Returns the model HandleRepresentation.
    */
   vtkHandleRepresentation *GetHandleRepresentation()
-    {
+  {
     return this->HandleRepresentation;
-    };
+  };
   //@}
 
   //@{
@@ -107,10 +107,10 @@ public:
 
   // Used to communicate about the state of the representation
   enum
-    {
+  {
     Outside = 0,
     NearSeed
-    };
+  };
 
   //@{
   /**

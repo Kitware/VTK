@@ -55,36 +55,36 @@ public:
   // Mathematically, if a diametric corner is represented by a 3 bit value:
   // abc, its diametric opposite = a'b'c.
   static int GetDiametricOppositeOfCorner( int i )
-    {
+  {
     return ((~i) & 0x6) | (i & 0x1);
-    }
+  }
 
   // Get the corners connected to corner 'i'. There will be three such corners
   void GetNeighbors( int c, vtkIdType neighborPtIds[3], int configuration = 0 ) const
-    {
+  {
     std::set< vtkIdType > neighbors;
     const CliqueType & clique = m_Topology[configuration];
     for (CliqueType::const_iterator clit = clique.begin();
          clit != clique.end(); ++clit)
-      {
+    {
       if (std::find(clit->begin(), clit->end(), c) != clit->end())
-        {
+      {
         const CellType cell = RotateCell( *clit, c );
         neighbors.insert(cell[0]);
         neighbors.insert(cell[cell.size()-2]);
-        }
       }
+    }
     int i = 0;
     for (std::set< vtkIdType >::const_iterator it = neighbors.begin();
          it != neighbors.end(); neighborPtIds[i++] = *it, ++it)
-      {
+    {
       ;
-      }
     }
+  }
 
   void GetNeighbors( vtkIdType node, vtkIdType neighborPtIds[3],
       vtkCellArray *neighborCells, std::vector< LineType > & lines )
-    {
+  {
     GetNeighbors( 8 + GetDiametricOppositeOfCorner(node), neighborPtIds, node+1 );
     vtkIdType opposingNeighborPtIds[3],
               opposite = GetDiametricOppositeOfCorner(node);
@@ -92,35 +92,35 @@ public:
 
     std::vector< vtkIdType > nodes(2);
     for (int i = 0; i < 3; i++)
-      {
+    {
       nodes[0] = neighborPtIds[i];
       for (int j = 0; j < 3; j++)
-        {
+      {
         nodes[1] = opposingNeighborPtIds[j];
         const CliqueType cells =
           FindCellsContainingNodes( m_Topology[node+1], nodes );
         if (cells.size())
-          {
+        {
           PopulateTopology( cells, neighborCells );
           lines.push_back( LineType(opposite, nodes[1]) );
-          }
         }
       }
     }
+  }
 
   void FindCellsContainingNodes( int configuration, vtkCellArray *cellArray,
                         const std::vector< vtkIdType > & nodes ) const
-    {
+  {
     vtkParallelopipedTopology::PopulateTopology(
       FindCellsContainingNodes( m_Topology[configuration], nodes), cellArray );
-    }
+  }
 
   std::vector< CellType > FindCellsContainingNodes(
        int configuration, const std::vector< vtkIdType > & nodes )
     { return FindCellsContainingNodes( m_Topology[configuration], nodes); }
 
   vtkParallelopipedTopology()
-    {
+  {
 
     // The topology of a parallelopiped.
     CliqueType clique;
@@ -134,13 +134,13 @@ public:
 
     for ( vtkIdType i = 0; i < 8;
           m_Topology.push_back( GetChairClique( i++, clique ) ) )
-      {
+    {
       ;
-      }
+    }
 
     // README : The goal of the class is succintly described by the line below
     // PrintTopology( cout );
-    }
+  }
 
   // Populate topoplogy into a vtkCellArray.
   // If configuration is 0, the topoology populated is that of a parallelopiped.
@@ -151,61 +151,61 @@ public:
                           m_Topology[configuration], cellArray ); }
 
   void PrintTopology(ostream &os) const
-    {
+  {
     os << "Connectivity of Point Ids in a parallelopiped: " << endl;
     PrintClique(m_Topology[0], os);
     for (int i = 0; i < 8; i++)
-      {
+    {
       os << "Connectivity of Point Ids in a parallelopiped "
          << "with chair carved out at node: " << i << endl;
       PrintClique(m_Topology[i+1], os);
-      }
     }
+  }
 
 private:
 
   void AddCellToClique( CliqueType & clique,
       vtkIdType a, vtkIdType b, vtkIdType c, vtkIdType d)
-    {
+  {
     CellType v(4);
     v[0] = a; v[1] = b; v[2] = c; v[3] = d;
     clique.push_back(v);
-    }
+  }
 
   static CellType RotateCell( const CellType & cell, vtkIdType endval )
-    {
+  {
     CellType outputCell;
     for (CellType::const_iterator cit = cell.begin(); cit != cell.end(); ++cit)
-      {
+    {
       outputCell.push_back(*cit);
       if (*cit == endval) break;
-      }
+    }
     for (CellType::const_reverse_iterator cit = cell.rbegin(); cit != cell.rend(); ++cit)
-      {
+    {
       if (*cit == endval) break;
       outputCell.insert(outputCell.begin(), *cit);
-      }
-    return outputCell;
     }
+    return outputCell;
+  }
 
   static CellType ReverseCell( const CellType & cell )
-    {
+  {
     CellType outputCell;
     for (CellType::const_reverse_iterator cit = cell.rbegin(); cit != cell.rend(); ++cit)
       outputCell.push_back(*cit);
     return outputCell;
-    }
+  }
 
   static CellType ChairCell( const CellType & cell )
-    {
+  {
     CellType outputCell = ReverseCell(cell);
     for (CellType::iterator cit = outputCell.begin(); cit != outputCell.end(); ++cit)
       *cit += 8;
     return outputCell;
-    }
+  }
 
   static CellType ChairCell( vtkIdType c, const CellType & cell )
-    {
+  {
     CellType tmpCell = RotateCell(cell, c);
     CellType::iterator it = tmpCell.end();
     tmpCell.erase(--it);
@@ -213,83 +213,83 @@ private:
     for (CellType::reverse_iterator cit = tmpCell.rbegin(); cit != tmpCell.rend(); ++cit)
       outputCell.push_back(*cit + 8);
     return outputCell;
-    }
+  }
 
   static CliqueType GetChairClique( vtkIdType c, const CliqueType & clique )
-    {
+  {
     CliqueType outputClique;
     for (CliqueType::const_iterator clit = clique.begin();
          clit != clique.end(); ++clit)
-      {
+    {
       if (std::find(clit->begin(), clit->end(), c) == clit->end())
-        {
+      {
         outputClique.insert( outputClique.begin(), *clit );
         outputClique.push_back( ChairCell(*clit) );
-        }
-      else
-        {
-        outputClique.insert( outputClique.begin(), ChairCell(c, *clit) );
-        }
       }
-    return outputClique;
+      else
+      {
+        outputClique.insert( outputClique.begin(), ChairCell(c, *clit) );
+      }
     }
+    return outputClique;
+  }
 
   static void PopulateTopology( const CliqueType & clique, vtkCellArray * cellArray )
-    {
+  {
     for (CliqueType::const_iterator clit = clique.begin();
          clit != clique.end(); ++clit)
-      {
+    {
       vtkIdType *ids = new vtkIdType[clit->size()];
       int i = 0;
       for (CellType::const_iterator cit = clit->begin();
            cit != clit->end(); ids[i++] = *cit, ++cit )
-        {
+      {
         ;
-        }
+      }
       cellArray->InsertNextCell( clit->size(), ids );
       delete [] ids;
-      }
     }
+  }
 
   // Find all the cells in a given a configuration (specified by the clique)
   // that contain the nodes. (specified by nodes). Each cell returned must
   // contain all the nodes specified.
   static std::vector< CellType > FindCellsContainingNodes(
        const CliqueType & clique, const std::vector< vtkIdType > & nodes )
-    {
+  {
     std::vector< CellType > cells;
     for (CliqueType::const_iterator clit = clique.begin();
          clit != clique.end(); ++clit)
-      {
+    {
       bool found = true;
       for (std::vector< vtkIdType >::const_iterator nit = nodes.begin();
             nit != nodes.end(); ++nit)
         found &= (std::find(clit->begin(), clit->end(), *nit) != clit->end());
       if (found) cells.push_back(*clit);
-      }
-    return cells;
     }
+    return cells;
+  }
 
   static void PrintCell( const CellType & cell, ostream &os )
-    {
+  {
     for (CellType::const_iterator cit = cell.begin();
          cit != cell.end(); os << *cit << " ", ++cit )
-      {
+    {
       ;
-      }
     }
+  }
 
   static void PrintClique( const CliqueType & clique, ostream &os )
-    {
+  {
     os << "  Clique has " << clique.size() << " cells." << endl;
     for (CliqueType::const_iterator clit = clique.begin();
          clit != clique.end(); ++clit)
-      {
+    {
       os << "  Cell PtIds: ";
       PrintCell( *clit, os );
       os << endl;
-      }
     }
+  }
 
   std::vector< CliqueType > m_Topology;
 };
@@ -439,57 +439,57 @@ void vtkParallelopipedRepresentation
 ::SetHandleRepresentation(vtkHandleRepresentation *handle)
 {
   if ( handle == this->HandleRepresentation )
-    {
+  {
     return;
-    }
+  }
 
   vtkSetObjectBodyMacro( HandleRepresentation,
                       vtkHandleRepresentation, handle );
 
   if (this->HandleRepresentation)
-    {
+  {
     // Allocate the 8 handles if they haven't been allocated.
     if (!this->HandleRepresentations)
-      {
+    {
       this->HandleRepresentations = new vtkHandleRepresentation* [8];
       for (int i=0; i<8; this->HandleRepresentations[i++] = NULL)
-        {
+      {
         ;
-        }
       }
     }
+  }
   else
-    {
+  {
     // Free the 8 handles if they haven't been freed.
     if (this->HandleRepresentations)
-      {
+    {
       for (int i=0; i<8; this->HandleRepresentations[i++]->Delete())
-        {
+      {
         ;
-        }
+      }
       delete [] this->HandleRepresentations;
       this->HandleRepresentations = NULL;
-      }
     }
+  }
 
   for (int i=0; i<8; i++)
-    {
+  {
 
     // We will remove the old handle, in anticipation of the new user-
     // provided handle type that we are going to set a few lines later.
     if (this->HandleRepresentations && this->HandleRepresentations[i])
-      {
+    {
       this->HandleRepresentations[i]->Delete();
       this->HandleRepresentations[i] = NULL;
-      }
+    }
 
     // Copy the new user-provided handle.
     if (this->HandleRepresentation)
-      {
+    {
       this->HandleRepresentations[i] = this->HandleRepresentation->NewInstance();
       this->HandleRepresentations[i]->ShallowCopy(this->HandleRepresentation);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -499,7 +499,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
   // If we have a chair. A chair has 9 faces as opposed to a parallelopiped
   // which has 6 faces.
   if (this->HexPolyData->GetPolys()->GetNumberOfCells() == 9)
-    {
+  {
 
     // Go back to the topology of a parallelopiped.
     vtkCellArray *parallelopipedcells = vtkCellArray::New();
@@ -550,7 +550,7 @@ void vtkParallelopipedRepresentation::RemoveExistingChairs()
     this->Points->SetPoint( nodes[0], p[3] );
 
     this->ChairHandleIdx = -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -565,16 +565,16 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
   // chair at a time.
   if (this->CurrentHandleIdx != this->ChairHandleIdx &&
       this->HexPolyData->GetPolys()->GetNumberOfCells() == 9)
-    {
+  {
     this->RemoveExistingChairs();
-    }
+  }
 
   this->ChairHandleIdx = node;
 
   // If we already don't have a chair, create one. (a chair has 6 faces,
   // unlike a parallelopiped).
   if (this->HexPolyData->GetPolys()->GetNumberOfCells() != 9)
-    {
+  {
     // chair has 14 points, but we will model this with 2 parallelopipeds.
     // Hence 16 points. Look at vtkParallelopipedTopology for details.
 
@@ -583,13 +583,13 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     this->Points->GetPoint( node, origin );
 
     for (int i = 0; i < 8 ; i++)
-      {
+    {
       this->Points->GetPoint(i, d);
       d[0] = (d[0] - origin[0]) * this->InitialChairDepth + origin[0];
       d[1] = (d[1] - origin[1]) * this->InitialChairDepth + origin[1];
       d[2] = (d[2] - origin[2]) * this->InitialChairDepth + origin[2];
       this->Points->SetPoint(i+8, d);
-      }
+    }
 
     this->Points->SetPoint( node, this->Points->GetPoint(
         vtkParallelopipedTopology::GetDiametricOppositeOfCorner(node) + 8));
@@ -602,9 +602,9 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     // Synchronize the handle representations with our recently updated
     // "Points" data-structure.
     this->PositionHandles();
-    }
+  }
   else
-    {
+  {
     // We do have a chair. Update the points in the chair by taking the
     // projection of the chaired node onto the axes of the parallelopiped.
 
@@ -633,7 +633,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     neighborCells->InitTraversal();
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       double lineEndPt[2][3];
       this->Points->GetPoint( lines[i].Id[0], lineEndPt[0] );
       this->Points->GetPoint( lines[i].Id[1], lineEndPt[1] );
@@ -646,14 +646,14 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
 
       // For each point in the cell
       for (int j = 0, idx = 0; j < npts && idx < 3; j++)
-        {
+      {
         // Avoid the points that are on the chair as these are the ones we seek
         // to find.
         if ( cellPtIds[j] < 8 )
-          {
+        {
           planePtIds[idx++] = cellPtIds[j];
-          }
         }
+      }
 
       // Construct a plane from the cell.
       vtkPlane *plane = vtkPlane::New();
@@ -676,7 +676,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
         << "," << neighborPt[2] << ")" );
 
       this->Points->SetPoint( neighborPtIds[i], neighborPt );
-      }
+    }
 
     // Now that we have found the 3 neighbors, we need to compute the other
     // points in the chair. Note that we have 4 so far (3 neighbors + the
@@ -685,7 +685,7 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
     // vector addition to evaluate them.
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       std::vector< vtkIdType > nodes(3);
       vtkSmartPointer< vtkCellArray > cells
           = vtkSmartPointer<vtkCellArray>::New();
@@ -730,12 +730,12 @@ void vtkParallelopipedRepresentation::UpdateChairAtNode( int node )
        << "(" << cellPtIds[j] << ") = [" << p[3][0] << "," << p[3][1] << "," << p[3][2] << "]\n");
 
       this->Points->SetPoint( nodes[3], p[3] );
-      }
+    }
 
     this->Points->SetPoint( 8 + vtkParallelopipedTopology::
         GetDiametricOppositeOfCorner(this->CurrentHandleIdx),
         this->Points->GetPoint(this->CurrentHandleIdx));
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -754,7 +754,7 @@ int vtkParallelopipedRepresentation
   if ( this->InteractionState == vtkParallelopipedRepresentation::RequestResizeParallelopiped
     || this->InteractionState == vtkParallelopipedRepresentation::RequestResizeParallelopipedAlongAnAxis
     || this->InteractionState == vtkParallelopipedRepresentation::RequestChairMode )
-    {
+  {
     this->CurrentHandleIdx = -1;
 
     // We are trying to perform user interaction that might potentially
@@ -763,19 +763,19 @@ int vtkParallelopipedRepresentation
 
     // Loop over all the handles and check if one of them is selected
     for(int i = 0; i< 8; i++)
-      {
+    {
       this->HandleRepresentations[i]->ComputeInteractionState(X, Y, 0);
 
        if (this->HandleRepresentations[i]->GetInteractionState() ==
                                  vtkHandleRepresentation::Selecting)
-        {
+       {
         // The selected handle.
         this->CurrentHandleIdx = i;
 
         // The shift modifier determines if the handles are going to be
         // translated along an axes of the parallelopiped.
         switch (this->InteractionState)
-          {
+        {
           case vtkParallelopipedRepresentation::RequestResizeParallelopiped:
             this->InteractionState = (this->CurrentHandleIdx == this->ChairHandleIdx)
                ? ChairMode : ResizingParallelopiped;
@@ -785,13 +785,13 @@ int vtkParallelopipedRepresentation
                ? ChairMode : ResizingParallelopipedAlongAnAxis;
             break;
           case vtkParallelopipedRepresentation::RequestChairMode:
-            {
+          {
 
             // Toggle chair mode if we already have a chair here.. We are
             // trying to toggle of course.. In this case remove all chairs,
             if (this->CurrentHandleIdx == this->ChairHandleIdx &&
                 this->HexPolyData->GetPolys()->GetNumberOfCells() == 9)
-              {
+            {
               this->RemoveExistingChairs();
               this->LastEventPosition[0] = X;
               this->LastEventPosition[1] = Y;
@@ -801,7 +801,7 @@ int vtkParallelopipedRepresentation
               // "Points" data-structure.
               this->PositionHandles();
               return this->InteractionState;
-              }
+            }
 
             // We aren't trying to toggle. Create one
             // Create a chair with a default cavity depth of 0.1
@@ -818,8 +818,8 @@ int vtkParallelopipedRepresentation
 
             this->InteractionState = ChairMode;
             break;
-            }
           }
+        }
 
         // Highlight the selected handle and unhighlight all others.
         this->SetHandleHighlight(-1, this->HandleProperty);
@@ -827,11 +827,11 @@ int vtkParallelopipedRepresentation
             this->CurrentHandleIdx, this->SelectedHandleProperty);
 
         break;
-        }
-      }
+       }
+    }
 
     if (this->CurrentHandleIdx == -1)
-      {
+    {
       // We are near none of the handles.
 
       // Now check if we are within the parallelopiped or outside the
@@ -852,23 +852,23 @@ int vtkParallelopipedRepresentation
         this->Renderer, eventDisplayPos, handleWorldPos, dummy, worldOrient )
             ? vtkParallelopipedRepresentation::Inside
             : vtkParallelopipedRepresentation::Outside);
-      }
+    }
 
     if (this->InteractionState == vtkParallelopipedRepresentation::Inside &&
         oldInteractionState == vtkParallelopipedRepresentation::
                                 RequestResizeParallelopipedAlongAnAxis)
-      {
+    {
       this->HighlightAllFaces();
-      }
+    }
     else
-      {
+    {
       // UnHighlight all faces
       this->UnHighlightAllFaces();
-      }
+    }
 
     // Reset any cached "resize along that axis" stuff.
     this->LastResizeAxisIdx = -1;
-    }
+  }
 
 
   // (B) -----------------------------------------------------------
@@ -878,10 +878,10 @@ int vtkParallelopipedRepresentation
         vtkParallelopipedRepresentation::ResizingParallelopipedAlongAnAxis ||
       this->InteractionState ==
         vtkParallelopipedRepresentation::ResizingParallelopiped)
-    {
+  {
     // Ensure that a handle has been picked.
     if (this->CurrentHandleIdx != -1)
-      {
+    {
       // Compute world positions corresponding to the current event position
       // (X,Y) and the last event positions such that they lie at the same
       // depth that the handle lies on.
@@ -918,7 +918,7 @@ int vtkParallelopipedRepresentation
 
       // loop over the 3 neighbors of the current handle
       for (int i = 0; i < 3; i++)
-        {
+      {
 
         // Compute display position of this neighbor
         this->Points->GetPoint(neighborIndices[i], neighborWorldPos[i]);
@@ -941,16 +941,16 @@ int vtkParallelopipedRepresentation
         if (this->LastResizeAxisIdx == -1 ||
             this->InteractionState ==
                 vtkParallelopipedRepresentation::ResizingParallelopiped)
-          {
+        {
           const double confidence
             = fabs(vtkMath::Dot2D( axis[i], motionVector ));
           if (confidence > maxConfidence)
-            {
+          {
             axisIdx = i;
             maxConfidence = confidence;
-            }
           }
         }
+      }
 
 
       // Now that we know the axis to translate along, find the amount we should
@@ -1004,12 +1004,12 @@ int vtkParallelopipedRepresentation
       nodes[0] = this->CurrentHandleIdx;
 
       for (int i = 0, j = 1; i < 3; i++)
-        {
+      {
         if (i != axisIdx)
-          {
+        {
           nodes[j++] = neighborIndices[i];
-          }
         }
+      }
 
       // "cells" below contains the face to be translated.
       vtkSmartPointer< vtkCellArray > cells = vtkSmartPointer<vtkCellArray>::New();
@@ -1035,7 +1035,7 @@ int vtkParallelopipedRepresentation
           && (vtkMath::Distance2BetweenPoints(
               neighborWorldPos[axisIdx], newHandleWorldPos)) < (
               this->AbsoluteMinimumThickness * this->AbsoluteMinimumThickness))
-        {
+      {
         // Too close. We don't want the parallelopiped collapsing, do we ?
         vtkDebugMacro( << "AbsoluteMaximumThickness = "
           << this->AbsoluteMinimumThickness << " This move will bring us "
@@ -1061,24 +1061,24 @@ int vtkParallelopipedRepresentation
         newHandleWorldPos[2] = handleWorldPos[2] + handleTranslation[2];
 
         if (t < 0.0)
-          {
+        {
           // Sanity check. We should never get here in the first place.
           this->LastEventPosition[0] = X;
           this->LastEventPosition[1] = Y;
           return this->InteractionState;
-          }
+        }
 
         vtkDebugMacro( "So we are revising the value of t to " << t
           << " and newHandleWorldPos to (" << newHandleWorldPos[0] << ","
           << newHandleWorldPos[1] << "," << newHandleWorldPos[2] << ")" );
-        }
+      }
 
       // If we have a chair, prevent the handle from being translated beyond
       // the plane of the chair, otherwise it will cause the chair to turn
       // inside out. So we will do some dot-product stuff and revise the
       // "neighborWorldPos", if we have a chair.
       if (this->ChairHandleIdx != -1)
-        {
+      {
         std::vector< vtkIdType > nodes2(1);
         nodes2[0] = vtkParallelopipedTopology::GetDiametricOppositeOfCorner(this->ChairHandleIdx)+8;
         const vtkParallelopipedTopology::CliqueType cells2 = this->
@@ -1086,7 +1086,7 @@ int vtkParallelopipedRepresentation
 
         for (vtkParallelopipedTopology::CliqueType::const_iterator clit = cells2.begin();
              clit != cells2.end(); ++clit)
-          {
+        {
           vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
           this->DefinePlane(plane, (*clit)[0], (*clit)[1], (*clit)[2] );
           double distance = plane->EvaluateFunction(newHandleWorldPos);
@@ -1097,13 +1097,13 @@ int vtkParallelopipedRepresentation
           if (fabs(distance) < this->MinimumThickness ||
                (distance * (std::find(clit->begin(), clit->end(),
                   this->CurrentHandleIdx+8) != clit->end() ? -1 : 1) > 0))
-            {
+          {
             this->LastEventPosition[0] = X;
             this->LastEventPosition[1] = Y;
             return this->InteractionState;
-            }
           }
         }
+      }
 
       // Highlight this face...
       this->SetFaceHighlight( cells, this->SelectedFaceProperty );
@@ -1111,9 +1111,9 @@ int vtkParallelopipedRepresentation
       // Translate this face...
       for (vtkIdType i = 0; i < npts;
            this->TranslatePoint( cellPtIds[i++], handleTranslation ))
-        {
+      {
         ;
-        }
+      }
 
       // Cache the axis along which we resized the previous time, so we don't
       // have to recompute it.
@@ -1125,23 +1125,23 @@ int vtkParallelopipedRepresentation
       this->ChairPointPlacer->SetBoundingPlanes( pc );
       pc->Delete();
 
-      }
+    }
     else
-      {
+    {
       // In theory, we should never get there.
       this->InteractionState = vtkParallelopipedRepresentation::Outside;
-      }
     }
+  }
 
 
   // (C) -----------------------------------------------------------
   // Default method for all other states.
 
   else if (this->InteractionState == vtkParallelopipedRepresentation::ChairMode)
-    {
+  {
     // Ensure that a handle has been picked.
     if (this->CurrentHandleIdx != -1)
-      {
+    {
       double handleWorldPos[4];
 
       this->HandleRepresentations[this->CurrentHandleIdx]
@@ -1161,52 +1161,52 @@ int vtkParallelopipedRepresentation
       if (this->ChairPointPlacer->ComputeWorldPosition(
             this->Renderer, eventDisplayPos, handleWorldPos,
             newHandlePos, worldOrient ))
-        {
+      {
         const double handleTranslation[3] =
               { newHandlePos[0] - handleWorldPos[0],
                 newHandlePos[1] - handleWorldPos[1],
                 newHandlePos[2] - handleWorldPos[2] };
         this->TranslatePoint( this->CurrentHandleIdx, handleTranslation);
-        }
+      }
 
       this->UpdateChairAtNode( this->CurrentHandleIdx );
 
-      }
+    }
     else
-      {
+    {
       // In theory, we should never get there.
       this->InteractionState = vtkParallelopipedRepresentation::Outside;
-      }
     }
+  }
 
 
   // (D) -----------------------------------------------------------
   // Default method for all other states.
 
   else
-    {
+  {
     this->InteractionState = vtkParallelopipedRepresentation::Outside;
 
     // Loop over all the handles and check if we are near one of them.
     for(int i = 0; i< 8; i++)
-      {
+    {
       this->HandleRepresentations[i]->ComputeInteractionState(X, Y, 0);
       if (this->HandleRepresentations[i]->GetInteractionState() ==
                                     vtkHandleRepresentation::Selecting)
-        {
+      {
         this->SetHandleHighlight( i, this->HoveredHandleProperty );
         this->InteractionState = vtkParallelopipedRepresentation::Inside;
         break;
-        }
       }
+    }
 
     if (this->InteractionState == vtkParallelopipedRepresentation::Outside)
-      {
+    {
       // Unhighlight all handles and faces.
       this->SetHandleHighlight( -1, this->HandleProperty );
       this->UnHighlightAllFaces();
-      }
     }
+  }
 
   // Cache the last event position.
   this->LastEventPosition[0] = X;
@@ -1225,9 +1225,9 @@ void vtkParallelopipedRepresentation
   p[2] += translation[2];
   this->Points->SetPoint(id, p);
   if (id < 8)
-    {
+  {
     this->HandleRepresentations[id]->SetWorldPosition(p);
-    }
+  }
 
   // Update our records.
   this->PositionHandles();
@@ -1248,24 +1248,24 @@ void vtkParallelopipedRepresentation::GetBoundingPlanes( vtkPlaneCollection *pc 
 
   // For each planar cell in our object, we need to find the plane it lies on
   for (cellArray->InitTraversal(); cellArray->GetNextCell(npts, ptIds); )
-    {
+  {
     vtkIdType planePtIds[3];
 
     // For each cell, get the point ids that comprise the planar cell.
     for (int i = 0, idx = 0; i < npts && idx < 3; i++)
-      {
+    {
       if (this->CurrentHandleIdx != ptIds[i])
-        {
+      {
         planePtIds[idx++] = ptIds[i];
-        }
       }
+    }
 
     // Construct a plane from the cell.
     vtkPlane *plane = vtkPlane::New();
     this->DefinePlane(plane, planePtIds[0], planePtIds[1], planePtIds[2]);
     pc->AddItem(plane);
     plane->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1283,9 +1283,9 @@ void vtkParallelopipedRepresentation
   vtkPlane *p;
   int i = 0;
   for (pc2->InitTraversal(); ((p = pc2->GetNextItem()) && i < 6); ++i )
-    {
+  {
     pc->AddItem(p);
-    }
+  }
   pc2->Delete();
 }
 
@@ -1318,9 +1318,9 @@ void vtkParallelopipedRepresentation::DefinePlane( vtkPlane *plane, double p[3][
 void vtkParallelopipedRepresentation::GetActors(vtkPropCollection *pc)
 {
   for (int i=0; i<8; i++)
-    {
+  {
     this->HandleRepresentations[i]->GetActors(pc);
-    }
+  }
   this->HexActor->GetActors(pc);
   this->HexFaceActor->GetActors(pc);
 }
@@ -1331,9 +1331,9 @@ void vtkParallelopipedRepresentation::ReleaseGraphicsResources(vtkWindow *w)
   this->HexActor->ReleaseGraphicsResources(w);
   this->HexFaceActor->ReleaseGraphicsResources(w);
   for (int i=0; i<8; i++)
-    {
+  {
     this->HandleRepresentations[i]->ReleaseGraphicsResources(w);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -1343,9 +1343,9 @@ int vtkParallelopipedRepresentation::RenderOverlay(vtkViewport *v)
   count+=this->HexActor->RenderOverlay(v);
   count+=this->HexFaceActor->RenderOverlay(v);
   for (int i=0; i<8; i++)
-    {
+  {
     count+=this->HandleRepresentations[i]->RenderOverlay(v);
-    }
+  }
   return count;
 }
 
@@ -1357,9 +1357,9 @@ int vtkParallelopipedRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
   count+=this->HexActor->RenderOpaqueGeometry(viewport);
   count+=this->HexFaceActor->RenderOpaqueGeometry(viewport);
   for (int i=0; i<8; i++)
-    {
+  {
     count += this->HandleRepresentations[i]->RenderOpaqueGeometry(viewport);
-    }
+  }
   return count;
 }
 
@@ -1367,9 +1367,9 @@ int vtkParallelopipedRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
 void vtkParallelopipedRepresentation::PositionHandles()
 {
   for (int i = 0; i < 8; ++i)
-    {
+  {
     this->HandleRepresentations[i]->SetWorldPosition(this->Points->GetPoint(i));
-    }
+  }
 
   this->Points->GetData()->Modified();
   this->HexFacePolyData->Modified();
@@ -1380,18 +1380,18 @@ void vtkParallelopipedRepresentation::PositionHandles()
 void vtkParallelopipedRepresentation::HandlesOn()
 {
   for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(1))
-    {
+  {
     ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkParallelopipedRepresentation::HandlesOff()
 {
   for (int i=0; i<8; this->HandleRepresentations[i++]->SetVisibility(0))
-    {
+  {
     ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1399,23 +1399,23 @@ void vtkParallelopipedRepresentation::SetHandleHighlight(
                       int handleIdx, vtkProperty *property )
 {
   if ( handleIdx == -1)
-    {
+  {
     // Do for all handles
     for (int i = 0; i < 8; i++)
-      {
+    {
       static_cast< vtkSphereHandleRepresentation * >(
           this->HandleRepresentations[i])->SetProperty(property);
       static_cast< vtkSphereHandleRepresentation * >(
           this->HandleRepresentations[i])->SetSelectedProperty(property);
-      }
     }
+  }
   else
-    {
+  {
     static_cast< vtkSphereHandleRepresentation * >(
         this->HandleRepresentations[handleIdx])->SetProperty(property);
     static_cast< vtkSphereHandleRepresentation * >(
         this->HandleRepresentations[handleIdx])->SetSelectedProperty(property);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1423,9 +1423,9 @@ void vtkParallelopipedRepresentation
 ::SetFaceHighlight( vtkCellArray * face, vtkProperty *p )
 {
   if (face)
-    {
+  {
     this->HexFacePolyData->SetPolys(face);
-    }
+  }
   this->HexFaceActor->SetProperty( p );
 }
 
@@ -1459,11 +1459,11 @@ void vtkParallelopipedRepresentation::Translate( int X, int Y )
          static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   double center[3] = {0.0, 0.0, 0.0};
   for (int i=0; i<8; i++)
-    {
+  {
     center[0] += *pts++;
     center[1] += *pts++;
     center[2] += *pts++;
-    }
+  }
   center[0] /= 8.0;
   center[1] /= 8.0;
   center[2] /= 8.0;
@@ -1499,11 +1499,11 @@ void vtkParallelopipedRepresentation::Translate(double translation[3])
   double *pts =
          static_cast<vtkDoubleArray *>(this->Points->GetData())->GetPointer(0);
   for (int i=0; i<16; i++)
-    {
+  {
     *pts++ += translation[0];
     *pts++ += translation[1];
     *pts++ += translation[2];
-    }
+  }
 
   // Synchronize the handle representations with our recently updated
   // "Points" data-structure.
@@ -1520,11 +1520,11 @@ void vtkParallelopipedRepresentation::Scale( int vtkNotUsed(X), int Y )
   double sf = ( Y > this->LastEventPosition[1] ? 1.03 : 0.97 );
 
   for (int i=0; i<16; i++, pts+=3)
-    {
+  {
     pts[0] = sf * (pts[0] - center[0]) + center[0];
     pts[1] = sf * (pts[1] - center[1]) + center[1];
     pts[2] = sf * (pts[2] - center[2]) + center[2];
-    }
+  }
 
   // Synchronize the handle representations with our recently updated
   // "Points" data-structure.
@@ -1556,24 +1556,24 @@ void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
   //
   double center[3] = {0.0, 0.0, 0.0}, newCorners[8][3];
   for (int j = 0; j < 3; j++)
-    {
+  {
     for (int i = 0; i < 8; center[j] += corners[i][j], i++)
-      {
+    {
       ;
-      }
+    }
     center[j] /= 8.0;
 
     for (int i = 0; i < 8; i++)
-      {
+    {
       newCorners[i][j] = center[j] +
         this->PlaceFactor*(corners[i][j]-center[j]);
-      }
     }
+  }
 
   for (int i = 0; i < 8; i++)
-    {
+  {
     this->Points->SetPoint(i, newCorners[i]);
-    }
+  }
   this->AbsoluteMinimumThickness =
     this->HexPolyData->GetLength()*this->MinimumThickness;
 
@@ -1581,9 +1581,9 @@ void vtkParallelopipedRepresentation::PlaceWidget(double corners[8][3])
 
   // Initialize the chair points too
   for (int i = 8; i < 16; i++)
-    {
+  {
     this->Points->SetPoint(i, newCorners[0]);
-    }
+  }
 
   this->PositionHandles();
 }
@@ -1615,67 +1615,67 @@ void vtkParallelopipedRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Minimum Thickness: " << this->MinimumThickness << "\n";
 
   if ( this->HandleProperty )
-    {
+  {
     os << indent << "Handle Property: " << this->HandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Handle Property: (none)\n";
-    }
+  }
 
   if ( this->HoveredHandleProperty )
-    {
+  {
     os << indent << "Hovered Handle Property: " << this->HoveredHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Hovered Handle Property: (none)\n";
-    }
+  }
 
   if ( this->FaceProperty )
-    {
+  {
     os << indent << "Face Property: " << this->FaceProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Face Property: (none)\n";
-    }
+  }
 
   if ( this->OutlineProperty )
-    {
+  {
     os << indent << "Outline Property: " << this->OutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Outline Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedHandleProperty )
-    {
+  {
     os << indent << "Selected Handle Property: " << this->SelectedHandleProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Handle Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedFaceProperty )
-    {
+  {
     os << indent << "Selected Face Property: " << this->SelectedFaceProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Face Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedOutlineProperty )
-    {
+  {
     os << indent << "Selected Outline Property: " << this->SelectedOutlineProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selected Outline Property: (none)\n";
-    }
+  }
 
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors

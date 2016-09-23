@@ -65,27 +65,27 @@ void vtkHiddenLineRemovalPass::Render(const vtkRenderState *s)
   std::vector<vtkProp*> wireframeProps;
   std::vector<vtkProp*> otherProps;
   for (int i = 0; i < s->GetPropArrayCount(); ++i)
-    {
+  {
     bool isWireframe = false;
     vtkProp *prop = s->GetPropArray()[i];
     vtkActor *actor = vtkActor::SafeDownCast(prop);
     if (actor)
-      {
+    {
       vtkProperty *property = actor->GetProperty();
       if (property->GetRepresentation() == VTK_WIREFRAME)
-        {
+      {
         isWireframe = true;
-        }
-      }
-    if (isWireframe)
-      {
-      wireframeProps.push_back(actor);
-      }
-    else
-      {
-      otherProps.push_back(actor);
       }
     }
+    if (isWireframe)
+    {
+      wireframeProps.push_back(actor);
+    }
+    else
+    {
+      otherProps.push_back(actor);
+    }
+  }
 
   vtkViewport *vp = s->GetRenderer();
 
@@ -128,17 +128,17 @@ bool vtkHiddenLineRemovalPass::WireframePropsExist(vtkProp **propArray,
                                                    int nProps)
 {
   for (int i = 0; i < nProps; ++i)
-    {
+  {
     vtkActor *actor = vtkActor::SafeDownCast(propArray[i]);
     if (actor)
-      {
+    {
       vtkProperty *property = actor->GetProperty();
       if (property->GetRepresentation() == VTK_WIREFRAME)
-        {
+      {
         return true;
-        }
       }
     }
+  }
 
   return false;
 }
@@ -159,13 +159,13 @@ void vtkHiddenLineRemovalPass::SetRepresentation(std::vector<vtkProp *> &props,
 {
   for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end();
        it != itEnd; ++it)
-    {
+  {
     vtkActor *actor = vtkActor::SafeDownCast(*it);
     if (actor)
-      {
+    {
       actor->GetProperty()->SetRepresentation(repr);
-      }
     }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -175,8 +175,8 @@ int vtkHiddenLineRemovalPass::RenderProps(std::vector<vtkProp *> &props,
   int propsRendered = 0;
   for (std::vector<vtkProp*>::iterator it = props.begin(), itEnd = props.end();
        it != itEnd; ++it)
-    {
+  {
     propsRendered += (*it)->RenderOpaqueGeometry(vp);
-    }
+  }
   return propsRendered;
 }

@@ -65,29 +65,29 @@ void vtkImageRectilinearWipeExecute2(vtkImageRectilinearWipe *self,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     for (idxY = 0; idxY <= maxY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      for (idxR = 0; idxR < rowLength; idxR++)
         {
+          self->UpdateProgress(count/(50.0*target));
+        }
+        count++;
+      }
+      for (idxR = 0; idxR < rowLength; idxR++)
+      {
         *outPtr = *inPtr;
         outPtr++;
         inPtr++;
-        }
+      }
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 
@@ -99,29 +99,29 @@ static int vtkImageRectilinearWipeClampExtents(int wipeExt[6], int outExt[6])
   int status = 1;
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     // the lower and upper extents cannot be below the lower output extent
     if (wipeExt[2*i] < outExt[2*i])
-      {
+    {
       wipeExt[2*i] = outExt[2*i];
-      }
+    }
     if (wipeExt[2*i + 1] < outExt[2*i])
-      {
+    {
       wipeExt[2*i + 1] = outExt[2*i];
       status = 0;
-      }
+    }
 
     // the lower and upper extents cannot be above the upper output extent
     if (wipeExt[2*i] > outExt[2*i + 1])
-      {
+    {
       wipeExt[2*i] = outExt[2*i + 1];
       status = 0;
-      }
-    if (wipeExt[2*i + 1] > outExt[2*i + 1])
-      {
-      wipeExt[2*i + 1] = outExt[2*i + 1];
-      }
     }
+    if (wipeExt[2*i + 1] > outExt[2*i + 1])
+    {
+      wipeExt[2*i + 1] = outExt[2*i + 1];
+    }
+  }
   return status;
 }
 //----------------------------------------------------------------------------
@@ -143,37 +143,37 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
 
   // Make sure the inputs/output are valid
   if (inData[0][0] == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input " << 0 << " must be specified.");
     return;
-    }
+  }
 
   // this filter expects that input is the same type as output.
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData[0][0]->GetScalarType()
                   << ", must match out ScalarType "
                   << outData[0]->GetScalarType());
     return;
-    }
+  }
 
   if (inData[1][0] == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input " << 1 << " must be specified.");
     return;
-    }
+  }
 
   // this filter expects that inputs that have the same number of components
   if (inData[0][0]->GetNumberOfScalarComponents() !=
       inData[1][0]->GetNumberOfScalarComponents())
-    {
+  {
     vtkErrorMacro(<< "Execute: input1 NumberOfScalarComponents, "
                   << inData[0][0]->GetNumberOfScalarComponents()
                   << ", must match out input2 NumberOfScalarComponents "
                   << inData[1][0]->GetNumberOfScalarComponents());
     return;
-    }
+  }
 
   // Wipe pattern depends on the whole extent.
   outputVector->GetInformationObject(0)->Get(
@@ -187,12 +187,12 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   wipeExt[2*this->Axis[1]+1] += this->Position[1];
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
-    {
+  {
 
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
 
     switch (this->Wipe)
-      {
+    {
       case VTK_WIPE_QUAD:
         whichInput = 0;
         break;
@@ -214,10 +214,10 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       case VTK_WIPE_UPPER_RIGHT:
         whichInput = 1;
         break;
-      }
+    }
     inPtr = inData[whichInput][0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
                                         inData[whichInput][0],
@@ -228,8 +228,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
 
   // lower right
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
@@ -238,9 +238,9 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
     wipeExt[2*this->Axis[1]] + this->Position[1];
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
-    {
+  {
     switch (this->Wipe)
-      {
+    {
       case VTK_WIPE_QUAD:
         whichInput = 1;
         break;
@@ -262,11 +262,11 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       case VTK_WIPE_UPPER_RIGHT:
         whichInput = 1;
         break;
-      }
+    }
     inPtr = inData[whichInput][0]->GetScalarPointerForExtent(wipeExt);
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
                                         inData[whichInput][0],
@@ -277,8 +277,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
 
   // upper left
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
@@ -286,10 +286,10 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   wipeExt[2*this->Axis[1]] += (this->Position[1] + 1);
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
-    {
+  {
 
     switch (this->Wipe)
-      {
+    {
       case VTK_WIPE_QUAD:
         whichInput = 1;
         break;
@@ -311,11 +311,11 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       case VTK_WIPE_UPPER_RIGHT:
         whichInput = 1;
         break;
-      }
+    }
     inPtr = inData[whichInput][0]->GetScalarPointerForExtent(wipeExt);
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
                                         inData[whichInput][0],
@@ -326,8 +326,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
 
   // upper right
   memcpy (wipeExt, wholeExt, 6 * sizeof (int));
@@ -335,9 +335,9 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
   wipeExt[2*this->Axis[1]] += (this->Position[1] + 1);
 
   if (vtkImageRectilinearWipeClampExtents(wipeExt, outExt))
-    {
+  {
     switch (this->Wipe)
-      {
+    {
       case VTK_WIPE_QUAD:
         whichInput = 0;
         break;
@@ -359,11 +359,11 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       case VTK_WIPE_UPPER_RIGHT:
         whichInput = 0;
         break;
-      }
+    }
     inPtr = inData[whichInput][0]->GetScalarPointerForExtent(wipeExt);
     outPtr = outData[0]->GetScalarPointerForExtent(wipeExt);
     switch (inData[0][0]->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageRectilinearWipeExecute2(this,
                                         inData[whichInput][0],
@@ -374,8 +374,8 @@ void vtkImageRectilinearWipe::ThreadedRequestData(
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return;
-      }
     }
+  }
 }
 
 void vtkImageRectilinearWipe::PrintSelf(ostream& os, vtkIndent indent)
@@ -387,7 +387,7 @@ void vtkImageRectilinearWipe::PrintSelf(ostream& os, vtkIndent indent)
      << this->Axis[1] << ", " << this->Axis[1] << ")\n";
   os << indent << "Wipe: ";
   switch (this->Wipe)
-    {
+  {
     case VTK_WIPE_QUAD:
       os << "Quad" << endl;
       break;
@@ -409,6 +409,6 @@ void vtkImageRectilinearWipe::PrintSelf(ostream& os, vtkIndent indent)
     case VTK_WIPE_UPPER_RIGHT:
       os << "UpperRight" << endl;
       break;
-    }
+  }
 }
 

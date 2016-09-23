@@ -60,48 +60,48 @@ int vtkGL2PSExporter::GetGL2PSOptions()
 {
   GLint options = GL2PS_NONE;
   if (this->Compress == 1)
-    {
+  {
     options = options | GL2PS_COMPRESS;
-    }
+  }
   if (this->DrawBackground == 1)
-    {
+  {
     options = options | GL2PS_DRAW_BACKGROUND;
-    }
+  }
   if (this->SimpleLineOffset == 1)
-    {
+  {
     options = options | GL2PS_SIMPLE_LINE_OFFSET;
-    }
+  }
   if (this->Silent == 1)
-    {
+  {
     options = options | GL2PS_SILENT;
-    }
+  }
   if (this->BestRoot == 1)
-    {
+  {
     options = options | GL2PS_BEST_ROOT;
-    }
+  }
   if (this->Text == 0)
-    {
+  {
     options = options | GL2PS_NO_TEXT;
-    }
+  }
   if (this->Landscape == 1)
-    {
+  {
     options = options | GL2PS_LANDSCAPE;
-    }
+  }
   if (this->PS3Shading == 0)
-    {
+  {
     options = options | GL2PS_NO_PS3_SHADING;
-    }
+  }
   if (this->OcclusionCull == 1)
-    {
+  {
     options = options | GL2PS_OCCLUSION_CULL;
-    }
+  }
   return static_cast<int>(options);
 }
 
 int vtkGL2PSExporter::GetGL2PSSort()
 {
   switch (this->Sort)
-    {
+  {
     default:
       vtkDebugMacro(<<"Invalid sort settings, using NO_SORT.");
       VTK_FALLTHROUGH;
@@ -111,13 +111,13 @@ int vtkGL2PSExporter::GetGL2PSSort()
       return GL2PS_SIMPLE_SORT;
     case BSP_SORT:
       return GL2PS_BSP_SORT;
-    }
+  }
 }
 
 int vtkGL2PSExporter::GetGL2PSFormat()
 {
   switch (this->FileFormat)
-    {
+  {
     default:
       vtkDebugMacro(<<"Invalid output format. Using postscript.");
       VTK_FALLTHROUGH;
@@ -131,13 +131,13 @@ int vtkGL2PSExporter::GetGL2PSFormat()
       return GL2PS_TEX;
     case SVG_FILE:
       return GL2PS_SVG;
-    }
+  }
 }
 
 const char *vtkGL2PSExporter::GetFileExtension()
 {
   switch (this->FileFormat)
-    {
+  {
     default:
       vtkDebugMacro(<<"Invalid output format. Using postscript.");
       VTK_FALLTHROUGH;
@@ -151,7 +151,7 @@ const char *vtkGL2PSExporter::GetFileExtension()
       return "tex";
     case SVG_FILE:
       return "svg";
-    }
+  }
 }
 
 void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
@@ -159,13 +159,13 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->FilePrefix)
-    {
+  {
     os << indent << "FilePrefix: " << this->FilePrefix << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "FilePrefix: (null)\n";
-    }
+  }
 
   os << indent << "FileFormat: "
      << this->GetFileFormatAsString() << "\n";
@@ -192,12 +192,12 @@ void vtkGL2PSExporter::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Write3DPropsAsRasterImage: "
      << (this->Write3DPropsAsRasterImage ? "On\n" : "Off\n");
   if (this->RasterExclusions)
-    {
+  {
     os << indent << "RasterExclusions:\n";
     this->RasterExclusions->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "RasterExclusions: (null)\n";
-    }
+  }
 }

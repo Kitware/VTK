@@ -66,12 +66,12 @@ void vtkFrameBufferObject2::DestroyFBO()
   // we are(eg smart pointers), in which case we should
   // do nothing.
   if (this->Context && (this->FBOIndex!=0))
-    {
+  {
     GLuint fbo=static_cast<GLuint>(this->FBOIndex);
     vtkgl::DeleteFramebuffersEXT(1,&fbo);
     vtkOpenGLCheckErrorMacro("failed at glDeleteFramebuffers");
     this->FBOIndex=0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ bool vtkFrameBufferObject2::IsSupported(vtkRenderWindow *win)
 {
   vtkOpenGLRenderWindow *renWin=vtkOpenGLRenderWindow::SafeDownCast(win);
   if(renWin!=0)
-    {
+  {
     vtkOpenGLExtensionManager *mgr=renWin->GetExtensionManager();
 
     bool gl12 = mgr->ExtensionSupported("GL_VERSION_1_2")==1;
@@ -95,7 +95,7 @@ bool vtkFrameBufferObject2::IsSupported(vtkRenderWindow *win)
     bool fboBlit = mgr->ExtensionSupported("GL_EXT_framebuffer_blit")==1;
 
     return tex3D && depthTex && drawBufs && fbo && fboBlit;
-    }
+  }
   return false;
 }
 
@@ -122,37 +122,37 @@ bool vtkFrameBufferObject2::LoadRequiredExtensions(vtkRenderWindow *win)
   bool supported = tex3D && depthTex && drawBufs && fbo && fboBlit;
 
   if(supported)
-    {
+  {
     if(gl12)
-      {
+    {
       mgr->LoadSupportedExtension("GL_VERSION_1_2");
-      }
+    }
     else
-      {
+    {
       mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
-      }
+    }
 
     if(gl14)
-      {
+    {
       mgr->LoadSupportedExtension("GL_VERSION_1_4");
-      }
+    }
     else
-      {
+    {
       mgr->LoadCorePromotedExtension("GL_ARB_depth_texture");
-      }
+    }
 
     if(gl20)
-      {
+    {
       mgr->LoadSupportedExtension("GL_VERSION_2_0");
-      }
+    }
     else
-      {
+    {
       mgr->LoadCorePromotedExtension("GL_ARB_draw_buffers");
-      }
+    }
 
     mgr->LoadSupportedExtension("GL_EXT_framebuffer_object");
     mgr->LoadSupportedExtension("GL_EXT_framebuffer_blit");
-    }
+  }
 
   return supported;
 }
@@ -162,27 +162,27 @@ void vtkFrameBufferObject2::SetContext(vtkRenderWindow *renWin)
 {
   // avoid pointless re-assignment
   if (this->Context==renWin)
-    {
+  {
     return;
-    }
+  }
   // free previous resources
   this->DestroyFBO();
   this->Context = NULL;
   this->Modified();
   // all done if assigned null
   if (!renWin)
-    {
+  {
     return;
-    }
+  }
   // check for support
   vtkOpenGLRenderWindow *context
     = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin))
-    {
+  {
     vtkErrorMacro("Context does not support the required extensions");
     return;
-    }
+  }
   // intialize
   this->Context=renWin;
   this->Context->MakeCurrent();
@@ -213,7 +213,7 @@ void vtkFrameBufferObject2::SaveCurrentBuffers()
 void vtkFrameBufferObject2::RestorePreviousBuffers(unsigned int mode)
 {
   switch((GLenum)mode)
-    {
+  {
     case vtkgl::FRAMEBUFFER_EXT:
       glDrawBuffer((GLenum)this->PreviousDrawBuffer);
       vtkOpenGLCheckErrorMacro("failed at glDrawBuffer");
@@ -231,7 +231,7 @@ void vtkFrameBufferObject2::RestorePreviousBuffers(unsigned int mode)
       glReadBuffer((GLenum)this->PreviousReadBuffer);
       vtkOpenGLCheckErrorMacro("failed at glReadBuffer");
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -268,9 +268,9 @@ void vtkFrameBufferObject2::ActivateDrawBuffers(unsigned int *ids, int num)
   assert(num<17); // a practical limit, increase if needed
   GLenum colorAtts[16];
   for (int i=0; i<num; ++i)
-    {
+  {
     colorAtts[i] = vtkgl::COLOR_ATTACHMENT0 + ids[i];
-    }
+  }
   vtkgl::DrawBuffers(num, &colorAtts[0]);
   vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
 }
@@ -281,9 +281,9 @@ void vtkFrameBufferObject2::ActivateDrawBuffers(unsigned int num)
   assert(num<17); // a practical limit, increase if needed
   GLenum colorAtts[16];
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     colorAtts[i] = vtkgl::COLOR_ATTACHMENT0 + i;
-    }
+  }
   vtkgl::DrawBuffers(num, &colorAtts[0]);
   vtkOpenGLCheckErrorMacro("failed at glDrawBuffers");
 }
@@ -342,9 +342,9 @@ void vtkFrameBufferObject2::RemoveTexColorAttachments(
       unsigned int num)
 {
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     this->AddTexColorAttachment(mode, i, 0U);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -387,9 +387,9 @@ void vtkFrameBufferObject2::RemoveRenColorAttachments(
       unsigned int num)
 {
   for (unsigned int i=0; i<num; ++i)
-    {
+  {
     this->AddRenColorAttachment(mode, i, 0U);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -538,7 +538,7 @@ vtkPixelBufferObject *vtkFrameBufferObject2::DownloadColor1(
   assert(this->Context);
   GLenum oglChannel = 0;
   switch (channel)
-    {
+  {
     case 0:
       oglChannel = GL_RED;
       break;
@@ -551,7 +551,7 @@ vtkPixelBufferObject *vtkFrameBufferObject2::DownloadColor1(
     default:
       vtkErrorMacro("Inavlid channel");
       return NULL;
-    }
+  }
 
   return this->Download(
       extent,
@@ -627,7 +627,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
   // convert vtk type to open gl type
   int oglType = 0;
   switch (vtkType)
-    {
+  {
     case VTK_FLOAT:
       oglType = GL_FLOAT;
       break;
@@ -646,7 +646,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
     default:
       vtkErrorMacro("Unsupported type");
       return 0;
-    }
+  }
   return oglType;
 }
 
@@ -655,7 +655,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
 #define vtkFBOStrErrorMacro(status, str, ok) \
   ok = false; \
   switch(status) \
-    { \
+  { \
     case vtkgl::FRAMEBUFFER_COMPLETE_EXT: \
       str = "FBO complete"; \
       ok = true; \
@@ -683,7 +683,7 @@ int vtkFrameBufferObject2::GetOpenGLType(int vtkType)
       break; \
     default: \
       str = "Unknown status"; \
-    }
+  }
 
 // ----------------------------------------------------------------------------
 bool vtkFrameBufferObject2::GetFrameBufferStatus(
@@ -705,10 +705,10 @@ int vtkFrameBufferObject2::CheckFrameBufferStatus(unsigned int mode)
   vtkOpenGLCheckErrorMacro("failed at glCheckFramebufferStatus");
   vtkFBOStrErrorMacro(status, desc, ok);
   if (!ok)
-    {
+  {
     vtkErrorMacro("The framebuffer is incomplete : " << desc);
     return 0;
-    }
+  }
   return 1;
 }
 

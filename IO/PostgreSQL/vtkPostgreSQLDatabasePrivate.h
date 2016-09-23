@@ -47,29 +47,29 @@ class vtkPostgreSQLDatabasePrivate
 {
  public:
   vtkPostgreSQLDatabasePrivate()
-    {
+  {
       this->Connection = NULL;
-    }
+  }
 
   /**
    * Destroy the database connection. Any uncommitted transaction will be aborted.
    */
     virtual ~vtkPostgreSQLDatabasePrivate()
-      {
+    {
       if (this->Connection)
-        {
+      {
         PQfinish(this->Connection);
-        }
       }
+    }
 
     // Given a Postgres column type OID, return a VTK array type (see vtkType.h).
     int GetVTKTypeFromOID( Oid pgtype )
     {
       std::map<Oid,int>::const_iterator it = this->DataTypeMap.find( pgtype );
       if ( it == this->DataTypeMap.end() )
-        {
+      {
         return VTK_STRING;
-        }
+      }
       return it->second;
     }
 

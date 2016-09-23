@@ -50,16 +50,16 @@ class vtkIntArray;
 class vtkSimple3DCirclesStrategyInternal;
 
 class VTKINFOVISLAYOUT_EXPORT vtkSimple3DCirclesStrategy : public vtkGraphLayoutStrategy
-  {
+{
 public:
   static vtkSimple3DCirclesStrategy * New();
   vtkTypeMacro(vtkSimple3DCirclesStrategy,vtkGraphLayoutStrategy);
   void PrintSelf( ostream& os, vtkIndent indent );
 
   enum
-    {
+  {
     FixedRadiusMethod = 0, FixedDistanceMethod = 1
-    };
+  };
 
   //@{
   /**
@@ -214,6 +214,6 @@ private:
 
   vtkSimple3DCirclesStrategy(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
   void operator=(const vtkSimple3DCirclesStrategy&) VTK_DELETE_FUNCTION;
-  };
+};
 
 #endif

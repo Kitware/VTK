@@ -22,10 +22,10 @@
 #include "vtkUniformGrid.h"
 #define RETURNONFALSE(b)\
   if(!(b)) \
-    {\
+  {\
     vtkAlgorithm::SetDefaultExecutivePrototype(NULL);\
     return EXIT_FAILURE;\
-    }
+  }
 
 int TestAMRInterpolatedVelocityField(int, char*[])
 {
@@ -43,18 +43,18 @@ int TestAMRInterpolatedVelocityField(int, char*[])
   vtkOverlappingAMR* amrGrad = vtkOverlappingAMR::SafeDownCast(gradientFilter->GetOutputDataObject(0));
   amrGrad->GenerateParentChildInformation();
   for(unsigned int datasetLevel =0; datasetLevel<amrGrad->GetNumberOfLevels(); datasetLevel++)
-    {
+  {
     for(unsigned int id=0; id < amrGrad->GetNumberOfDataSets(datasetLevel); id++)
-      {
+    {
       vtkUniformGrid* grid = amrGrad->GetDataSet(datasetLevel,id);
       int numBlankedCells(0);
       for(int i=0; i<grid->GetNumberOfCells();i++)
-        {
+      {
         numBlankedCells += grid->IsCellVisible(i)? 0 : 1;
-        }
-      cout<<numBlankedCells<<" ";
       }
+      cout<<numBlankedCells<<" ";
     }
+  }
   cout<<endl;
 
   vtkNew<vtkAMRInterpolatedVelocityField> func;

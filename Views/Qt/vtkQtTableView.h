@@ -75,14 +75,14 @@ public:
   void SetShowHorizontalHeaders(bool);
 
   enum
-    {
+  {
     FIELD_DATA = 0,
     POINT_DATA = 1,
     CELL_DATA = 2,
     VERTEX_DATA = 3,
     EDGE_DATA = 4,
     ROW_DATA = 5,
-    };
+  };
 
   //@{
   /**
@@ -182,11 +182,11 @@ public:
   virtual void ApplyViewTheme(vtkViewTheme* theme);
 
   enum
-    {
+  {
     SELECT_ITEMS = 0,
     SELECT_ROWS,
     SELECT_COLUMNS
-    };
+  };
 
   //@{
   /**

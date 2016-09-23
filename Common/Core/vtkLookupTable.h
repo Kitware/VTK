@@ -407,9 +407,9 @@ public:
    * to colors. Returns 1 is scale == VTK_SCALE_LOG10.
    */
   int UsingLogScale() VTK_OVERRIDE
-    {
+  {
     return (this->GetScale() == VTK_SCALE_LOG10)? 1 : 0;
-    }
+  }
 
   /**
    * Get the number of available colors for mapping to.

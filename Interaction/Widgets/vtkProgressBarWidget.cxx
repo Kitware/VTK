@@ -34,9 +34,9 @@ vtkProgressBarWidget::~vtkProgressBarWidget()
 void vtkProgressBarWidget::CreateDefaultRepresentation()
 {
   if (!this->WidgetRep)
-    {
+  {
     this->WidgetRep = vtkProgressBarRepresentation::New();
-    }
+  }
 }
 
 //-------------------------------------------------------------------------

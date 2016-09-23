@@ -72,23 +72,23 @@ int vtkCirclePackToPolyData::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if( inputTree->GetNumberOfVertices() == 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   vtkDataArray* circlesArray = this->GetInputArrayToProcess(0, inputTree);
   if (!circlesArray)
-    {
+  {
     vtkErrorMacro("Circles array not found.");
     return 0;
-    }
+  }
 
   double progress = 0.0;
   this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
   VTK_CREATE(vtkAppendPolyData, appendFilter);
 
   for( int i = 0; i < inputTree->GetNumberOfVertices(); i++ )
-    {
+  {
     // Grab coords from the input
     double circle[3];
     circlesArray->GetTuple(i,circle);
@@ -102,11 +102,11 @@ int vtkCirclePackToPolyData::RequestData(
     appendFilter->AddInputData(circlePData);
 
     if ( i%1000 == 0 )
-      {
+    {
       progress = static_cast<double>(i) / inputTree->GetNumberOfVertices() * 0.8;
       this->InvokeEvent(vtkCommand::ProgressEvent, &progress);
-      }
     }
+  }
 
   appendFilter->Update();
   outputPoly->ShallowCopy(appendFilter->GetOutput());
@@ -140,13 +140,13 @@ void vtkCirclePackToPolyData::CreateCircle(const double& x,
   cells->InsertNextCell( resolution );
 
   for( int i = 0 ; i < resolution; ++i )
-    {
+  {
     double theta = vtkMath::RadiansFromDegrees(360.*i/double(resolution));
     double xp = x + radius*cos(theta);
     double yp = y + radius*sin(theta);
     points->SetPoint( i, xp, yp, z );
     cells->InsertCellPoint( i );
-    }
+  }
 
   polyData->Initialize();
   polyData->SetPolys( cells );

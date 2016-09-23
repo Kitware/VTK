@@ -74,10 +74,10 @@ int TestDataArrayIterators(int, char *[])
   array->SetNumberOfComponents(numComps);
   array->SetNumberOfTuples(numTuples);
   for (vtkIdType i = 0; i < numValues; ++i)
-    {
+  {
     // Just fill with consistent data
     array->SetValue(i, i % 97);
-    }
+  }
 
   // Create the vtkTypedDataArray testing implementation:
   vtkNew<MyArray> tdaContainer;
@@ -88,10 +88,10 @@ int TestDataArrayIterators(int, char *[])
   vtkFloatArray::Iterator datBegin = array->Begin();
   vtkFloatArray::Iterator datIter = array->Begin();
   if (typeid(datBegin) != typeid(float*))
-    {
+  {
     std::cerr << "Error: vtkFloatArray::Iterator is not a float*.";
     return EXIT_FAILURE;
-    }
+  }
 
   // should be vtkTypedDataArrayIterator<float>:
   vtkTypedDataArray<float>::Iterator tdaBegin =
@@ -99,20 +99,20 @@ int TestDataArrayIterators(int, char *[])
   vtkTypedDataArray<float>::Iterator tdaIter =
       vtkTypedDataArray<float>::FastDownCast(tda)->Begin();
   if (typeid(tdaBegin) != typeid(vtkTypedDataArrayIterator<float>))
-    {
+  {
     std::cerr << "Error: vtkTypedDataArray<float>::Iterator is not a "
                  "vtkTypedDataArrayIterator<float>.";
     return EXIT_FAILURE;
-    }
+  }
 
   // Validate that the iterators return the same values from operator[] and
   // operator* as GetValue;
   for (vtkIdType i = 0; i < numValues; ++i)
-    {
+  {
     float lookup = array->GetValue(i);
     if (lookup != datBegin[i] || lookup != tdaBegin[i] ||
         lookup != *datIter    || lookup != *tdaIter)
-      {
+    {
       std::cerr << "Mismatch at " << i << ":"
                 << " GetValue(i)=" << lookup
                 << " datBegin[i]=" << datBegin[i]
@@ -121,10 +121,10 @@ int TestDataArrayIterators(int, char *[])
                 << " *tdaIter=" << *tdaIter
                 << std::endl;
       return EXIT_FAILURE;
-      }
+    }
     ++datIter;
     ++tdaIter;
-    }
+  }
 
 #ifndef SILENT
   // Iterator timings.
@@ -134,9 +134,9 @@ int TestDataArrayIterators(int, char *[])
   float lookupSum = 0.f;
   timer->StartTimer();
   for (vtkIdType i = 0; i < numValues; ++i)
-    {
+  {
     lookupSum += *array->GetPointer(i);
-    }
+  }
   timer->StopTimer();
   double lookupTime = timer->GetElapsedTime();
 
@@ -145,9 +145,9 @@ int TestDataArrayIterators(int, char *[])
   timer->StartTimer();
   vtkFloatArray::Iterator datEnd = array->End();
   while (datBegin != datEnd)
-    {
+  {
     datSum += *datBegin++;
-    }
+  }
   timer->StopTimer();
   double datTime = timer->GetElapsedTime();
 
@@ -156,9 +156,9 @@ int TestDataArrayIterators(int, char *[])
   float tdaSum = 0.f;
   timer->StartTimer();
   while (tdaBegin != tdaEnd)
-    {
+  {
     tdaSum += *tdaBegin++;
-    }
+  }
   timer->StopTimer();
   double tdaTime = timer->GetElapsedTime();
 

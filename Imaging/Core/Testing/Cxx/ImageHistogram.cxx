@@ -62,7 +62,7 @@ int ImageHistogram(int argc, char *argv[])
   range[1] = range[0] + (nbins - 1)*histogram->GetBinSpacing();
 
   for (int i = 0; i < 2; i++)
-    {
+  {
     vtkNew<vtkRenderer> renderer;
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.0,0.0,0.0);
@@ -72,14 +72,14 @@ int ImageHistogram(int argc, char *argv[])
 
     vtkNew<vtkImageSliceMapper> imageMapper;
     if ((i & 1) == 0)
-      {
+    {
       imageMapper->SetInputConnection(reader->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       imageMapper->SetInputConnection(histogram->GetOutputPort());
       imageMapper->BorderOn();
-      }
+    }
 
     double *bounds = imageMapper->GetBounds();
     double point[3];
@@ -100,17 +100,17 @@ int ImageHistogram(int argc, char *argv[])
     renderer->AddViewProp(image.GetPointer());
 
     if ((i & 1) == 0)
-      {
+    {
       image->GetProperty()->SetColorWindow(range[1] - range[0]);
       image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
-      }
+    }
     else
-      {
+    {
       image->GetProperty()->SetInterpolationTypeToNearest();
       image->GetProperty()->SetColorWindow(255.0);
       image->GetProperty()->SetColorLevel(127.5);
-      }
     }
+  }
 
   renWin->SetSize(512,256);
 

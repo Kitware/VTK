@@ -212,7 +212,7 @@ protected:
   struct Block
   {
     Block ()
-      {
+    {
       this->Name = 0;
       this->Type = 0;
       this->NumElements = 0;
@@ -224,7 +224,7 @@ protected:
       this->OutputIndex = -1;
       this->NumAttributes = 0;
       this->BlockAttributes = 0;
-      };
+    };
     const char *Name;
     int Type;
     int NumElements;

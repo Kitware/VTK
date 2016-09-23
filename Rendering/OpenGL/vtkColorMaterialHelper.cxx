@@ -45,18 +45,18 @@ vtkColorMaterialHelper::~vtkColorMaterialHelper()
 void vtkColorMaterialHelper::Initialize(vtkShaderProgram2* pgm)
 {
   if (this->Shader != pgm)
-    {
+  {
     this->SetShader(pgm);
     if (pgm)
-      {
+    {
       vtkShader2 *s=vtkShader2::New();
       s->SetSourceCode(vtkColorMaterialHelper_vs);
       s->SetType(VTK_SHADER_TYPE_VERTEX);
       s->SetContext(pgm->GetContext());
       pgm->GetShaders()->AddItem(s);
       s->Delete();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -64,19 +64,19 @@ void vtkColorMaterialHelper::PrepareForRendering()
 {
   #ifndef NDEBUG
   if (!this->Shader)
-    {
+  {
     vtkErrorMacro("Please Initialize() before calling PrepareForRendering().");
     return ;
-    }
+  }
   #endif
 
   this->Mode = vtkColorMaterialHelper::DISABLED;
   if (glIsEnabled(GL_COLOR_MATERIAL))
-    {
+  {
     GLint colorMaterialParameter;
     glGetIntegerv(GL_COLOR_MATERIAL_PARAMETER, &colorMaterialParameter);
     switch (colorMaterialParameter)
-      {
+    {
     case GL_AMBIENT:
       this->Mode = vtkColorMaterialHelper::AMBIENT;
       break;
@@ -96,8 +96,8 @@ void vtkColorMaterialHelper::PrepareForRendering()
     case GL_EMISSION:
       this->Mode = vtkColorMaterialHelper::EMISSION;
       break;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -105,10 +105,10 @@ void vtkColorMaterialHelper::Render()
 {
   #ifndef NDEBUG
   if (!this->Shader)
-    {
+  {
     vtkErrorMacro("Please Initialize() before calling Render().");
     return;
-    }
+  }
   #endif
 
   int value=this->Mode;

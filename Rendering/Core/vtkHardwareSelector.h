@@ -78,7 +78,7 @@ public:
    * Struct used to return information about a pixel location.
    */
   struct PixelInformation
-    {
+  {
     bool Valid;
     int ProcessID;
     int PropID;
@@ -91,7 +91,7 @@ public:
       Prop(NULL),
       CompositeID(0),
       AttributeID(-1) {}
-    };
+  };
   //@}
 
 public:
@@ -259,7 +259,7 @@ public:
   vtkProp* GetPropFromID(int id);
 
   enum PassTypes
-    {
+  {
     PROCESS_PASS,
     ACTOR_PASS,
     COMPOSITE_INDEX_PASS,
@@ -268,14 +268,14 @@ public:
     ID_HIGH16,
     MAX_KNOWN_PASS = ID_HIGH16,
     MIN_KNOWN_PASS = PROCESS_PASS
-    };
+  };
 
   static void Convert(int id, float tcoord[3])
-    {
+  {
     tcoord[0] = static_cast<float>((id & 0xff)/255.0);
     tcoord[1] = static_cast<float>(((id & 0xff00) >> 8)/255.0);
     tcoord[2] = static_cast<float>(((id & 0xff0000) >> 16)/255.0);
-    }
+  }
 
 protected:
   vtkHardwareSelector();
@@ -287,11 +287,11 @@ protected:
   virtual void EndRenderProp(vtkRenderWindow *) = 0;
 
   int Convert(unsigned long offset, unsigned char* pb)
-    {
+  {
     if (!pb)
-      {
+    {
       return 0;
-      }
+    }
     offset = offset * 3;
     unsigned char rgb[3];
     rgb[0] = pb[offset];
@@ -304,7 +304,7 @@ protected:
     val = val << 8;
     val |= rgb[0];
     return val;
-    }
+  }
 
   //@{
   /**
@@ -313,11 +313,11 @@ protected:
   int Convert(unsigned int pos[2], unsigned char* pb)
     { return this->Convert(pos[0], pos[1], pb); }
   int Convert(int xx, int yy, unsigned char* pb)
-    {
+  {
     if (!pb)
-      {
+    {
       return 0;
-      }
+    }
     int offset = (yy * static_cast<int>(this->Area[2]-this->Area[0]+1) + xx) * 3;
     unsigned char rgb[3];
     rgb[0] = pb[offset];
@@ -330,11 +330,11 @@ protected:
     val = val << 8;
     val |= rgb[0];
     return val;
-    }
+  }
   //@}
 
   vtkIdType GetID(int low24, int mid24, int high16)
-    {
+  {
     vtkIdType val = 0;
     val |= high16;
     val = val << 24;
@@ -342,7 +342,7 @@ protected:
     val = val << 24;
     val |= low24;
     return val;
-    }
+  }
 
   /**
    * Returns is the pass indicated is needed.

@@ -804,13 +804,13 @@ public:
   void SetImageViewer(vtkImageViewer2 *viewer)
     { this->Viewer =  viewer; }
   void Execute(vtkObject *caller, unsigned long , void* ) VTK_OVERRIDE
-    {
+  {
       vtkSliderWidget *slider = static_cast<vtkSliderWidget *>(caller);
       vtkSliderRepresentation *sliderRepres = static_cast<vtkSliderRepresentation *>(slider->GetRepresentation());
       int pos = static_cast<int>(sliderRepres->GetValue());
 
     this->Viewer->SetSlice(pos);
-    }
+  }
 protected:
   vtkImageViewer2 *Viewer;
 };
@@ -819,10 +819,10 @@ int TestImageActorContourWidget(int argc, char *argv[])
 {
   bool disableReplay = false, followCursor = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     disableReplay |= (strcmp("--DisableReplay", argv[i]) == 0);
     followCursor  |= (strcmp("--FollowCursor", argv[i]) == 0);
-    }
+  }
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/headsq/quarter");
 
@@ -938,10 +938,10 @@ int TestImageActorContourWidget(int argc, char *argv[])
   imageViewer->Render();
 
   if (!disableReplay)
-    {
+  {
     recorder->EnabledOn();
     recorder->Play();
-    }
+  }
 
   // Remove the observers so we can go interactive. Without this the "-I"
   // testing option fails.

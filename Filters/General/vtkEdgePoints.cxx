@@ -81,25 +81,25 @@ int vtkEdgePoints::RequestData(
   // Initialize and check input
   //
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
-    {
+  {
     vtkErrorMacro(<<"No scalar data to contour");
     return 1;
-    }
+  }
 
   inScalars->GetRange(range,0);
   if ( this->Value < range[0] || this->Value > range[1] )
-    {
+  {
     vtkWarningMacro(<<"Value lies outside of scalar range");
     return 1;
-    }
+  }
 
   numCells = input->GetNumberOfCells();
   estimatedSize = static_cast<vtkIdType>(numCells * .75);
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
 
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize, estimatedSize/2);
@@ -124,43 +124,43 @@ int vtkEdgePoints::RequestData(
   vtkIdType progressInterval = numCells/20 + 1;
   vtkGenericCell *cell = vtkGenericCell::New();
   for (cellId=0; cellId < numCells && !abort; cellId++)
-    {
+  {
     if ( ! (cellId % progressInterval) )
-      {
+    {
       vtkDebugMacro(<<"Processing #" << cellId);
       this->UpdateProgress (static_cast<double>(cellId)/numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     input->GetCell(cellId,cell);
     inScalars->GetTuples(cell->PointIds, cellScalars);
 
     // loop over cell points to check if cell straddles isosurface value
     for ( above=below=0, ptId=0; ptId < cell->GetNumberOfPoints(); ptId++ )
-      {
+    {
       if ( cellScalars->GetComponent(ptId,0) >= this->Value )
-        {
+      {
         above = 1;
-        }
-      else
-        {
-        below = 1;
-        }
       }
+      else
+      {
+        below = 1;
+      }
+    }
 
     if ( above && below ) //contour passes through cell
-      {
+    {
       if ( cell->GetCellDimension() < 2 ) //only points can be generated
-        {
+      {
         cell->Contour(this->Value, cellScalars, this->Locator, newVerts,
                       NULL, NULL, inPd, outPd, inCd, cellId, outCd);
-        }
+      }
 
       else //
-        {
+      {
         numEdges = cell->GetNumberOfEdges();
         for (edgeId=0; edgeId < numEdges; edgeId++)
-          {
+        {
           edge = cell->GetEdge(edgeId);
           inScalars->GetTuples(edge->PointIds, cellScalars);
 
@@ -168,20 +168,20 @@ int vtkEdgePoints::RequestData(
           s1 = cellScalars->GetComponent(1,0);
           if ( (s0 < this->Value && s1 >= this->Value) ||
           (s0 >= this->Value && s1 < this->Value) )
-            {
+          {
             //ordering intersection direction avoids numerical problems
             deltaScalar = s1 - s0;
             if (deltaScalar > 0)
-              {
+            {
               e0 = 0; e1 = 1;
               e0Scalar = s0;
-              }
+            }
             else
-              {
+            {
               e0 = 1; e1 = 0;
               e0Scalar = s1;
               deltaScalar = -deltaScalar;
-              }
+            }
 
             t = (this->Value - e0Scalar) / deltaScalar;
 
@@ -189,22 +189,22 @@ int vtkEdgePoints::RequestData(
             edge->Points->GetPoint(e1,x1);
 
             for (i=0; i<3; i++)
-              {
+            {
               x[i] = x0[i] + t * (x1[i] - x0[i]);
-              }
+            }
             if ( this->Locator->InsertUniquePoint(x, pts[0]) )
-              {
+            {
               newCellId = newVerts->InsertNextCell(1,pts);
               outCd->CopyData(inCd,cellId,newCellId);
               p1 = edge->PointIds->GetId(e0);
               p2 = edge->PointIds->GetId(e1);
               outPd->InterpolateEdge(inPd,pts[0],p1,p2,t);
-              } //if point not created before
-            } //if edge straddles contour value
-          } //for each edge
-        } //dimension 2 and higher
-      } //above and below
-    } //for all cells
+            } //if point not created before
+          } //if edge straddles contour value
+        } //for each edge
+      } //dimension 2 and higher
+    } //above and below
+  } //for all cells
   cell->Delete();
 
   vtkDebugMacro(<<"Created: " << newPts->GetNumberOfPoints() << " points");

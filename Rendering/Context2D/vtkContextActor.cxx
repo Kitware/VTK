@@ -33,28 +33,28 @@ namespace
   // images and in ParaView for actual tiled display).
   template <class T>
     class vtkViewportSpecification
-      {
+  {
     public:
       vtkViewportSpecification(const T* input)
-        {
+      {
         this->Data[0] = input[0];
         this->Data[1] = input[1];
         this->Data[2] = input[2];
         this->Data[3] = input[3];
-        }
+      }
 
       vtkViewportSpecification(const vtkViewportSpecification<T> &other)
-        {
+      {
         this->Data[0] = other.Data[0];
         this->Data[1] = other.Data[1];
         this->Data[2] = other.Data[2];
         this->Data[3] = other.Data[3];
-        }
+      }
 
       // returns false is intersection results in an empty box, otherwise returns true.
       // here we assume that typename T handles signed values correctly.
       bool intersect(const vtkViewportSpecification<T> &other)
-        {
+      {
         vtkViewportSpecification<T> clone(*this);
 
         this->Data[0] = std::max(other.x(), clone.x());
@@ -72,7 +72,7 @@ namespace
         this->Data[2] = this->x() + _width;
         this->Data[3] = this->y() + _height;
         return (_width !=0 && _height != 0);
-        }
+      }
 
       const T* data() const { return this->Data; }
       const T& x() const { return this->Data[0]; }
@@ -82,24 +82,24 @@ namespace
 
     private:
       T Data[4];
-      };
+  };
 
   template <class T>
     ostream& operator << (ostream& str, const vtkViewportSpecification<T>& other)
-      {
+  {
       str << other.data()[0] << ", "
         << other.data()[1] << ", "
         << other.data()[2] << ", "
         << other.data()[3];
       return str;
-      }
+  }
 
   // use this method to convert from normalized-to-display space i.e. [0.0, 1.0]
   // to screen pixels.
   vtkViewportSpecification<int> convert(
     const vtkViewportSpecification<double>& other,
     int width, int height)
-    {
+  {
     int value[4];
     value[0] = static_cast<int>(other.data()[0] * width);
     value[1] = static_cast<int>(other.data()[1] * height);
@@ -107,7 +107,7 @@ namespace
     value[3] = static_cast<int>(other.data()[3] * height);
 
     return vtkViewportSpecification<int>(value);
-    }
+  }
 }
 
 vtkObjectFactoryNewMacro(vtkContextActor);
@@ -125,13 +125,13 @@ vtkContextActor::vtkContextActor()
 vtkContextActor::~vtkContextActor()
 {
   if (this->Context.GetPointer())
-    {
+  {
     this->Context->End();
-    }
+  }
   if (this->Context3D.GetPointer())
-    {
+  {
     this->Context3D->End();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -158,10 +158,10 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkContextActor::RenderOverlay");
 
   if (!this->Context.GetPointer())
-    {
+  {
     vtkErrorMacro(<< "vtkContextActor::Render - No painter set");
     return 0;
-    }
+  }
 
   // view_viewport is a normalized viewport specification for this view in a
   // large "single" window where 0.0 is min and 1.0 is max. For multi-tile
@@ -186,9 +186,9 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
   // interacted space.
   vtkViewportSpecification<int> actual_viewport_pixels(view_viewport_pixels);
   if (!actual_viewport_pixels.intersect(tile_viewport_pixels))
-    {
+  {
     return 1;
-    }
+  }
 
   vtkTransform2D* transform = this->Scene->GetTransform();
   transform->Identity();
@@ -197,9 +197,9 @@ int vtkContextActor::RenderOverlay(vtkViewport* viewport)
     view_viewport_pixels.y() - actual_viewport_pixels.y());
 
   if (!this->Initialized)
-    {
+  {
     this->Initialize(viewport);
-    }
+  }
 
   // Pass the viewport details onto the context device.
   int size[2];
@@ -236,7 +236,7 @@ void vtkContextActor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Context: " << this->Context << "\n";
   if (this->Context.GetPointer())
-    {
+  {
     this->Context->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }

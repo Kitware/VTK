@@ -37,7 +37,7 @@
 typedef struct{
     double Real;
     double Imag;
-  } vtkImageComplex;
+} vtkImageComplex;
 
 
 #define vtkImageComplexEuclidSet(C, R, I) \

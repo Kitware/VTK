@@ -44,33 +44,33 @@ vtkAbstractVolumeMapper::~vtkAbstractVolumeMapper()
 double *vtkAbstractVolumeMapper::GetBounds()
 {
   if ( ! this->GetDataSetInput() )
-    {
+  {
     vtkMath::UninitializeBounds(this->Bounds);
     return this->Bounds;
-    }
+  }
   else
-    {
+  {
     this->Update();
     this->GetDataSetInput()->GetBounds(this->Bounds);
     return this->Bounds;
-    }
+  }
 }
 
 vtkDataObject *vtkAbstractVolumeMapper::GetDataObjectInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return this->GetInputDataObject(0, 0);
 }
 
 vtkDataSet *vtkAbstractVolumeMapper::GetDataSetInput()
 {
   if (this->GetNumberOfInputConnections(0) < 1)
-    {
+  {
     return 0;
-    }
+  }
   return vtkDataSet::SafeDownCast(this->GetInputDataObject(0, 0));
 }
 
@@ -86,9 +86,9 @@ void vtkAbstractVolumeMapper::SelectScalarArray(int arrayNum)
 {
   if (   (this->ArrayId == arrayNum)
       && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID) )
-    {
+  {
     return;
-    }
+  }
   this->Modified();
 
   this->ArrayId = arrayNum;
@@ -100,9 +100,9 @@ void vtkAbstractVolumeMapper::SelectScalarArray(const char *arrayName)
   if (   !arrayName
       || (   (strcmp(this->ArrayName, arrayName) == 0)
           && (this->ArrayAccessMode == VTK_GET_ARRAY_BY_NAME) ) )
-    {
+  {
     return;
-    }
+  }
   this->Modified();
 
   delete[] this->ArrayName;
@@ -115,25 +115,25 @@ void vtkAbstractVolumeMapper::SelectScalarArray(const char *arrayName)
 const char *vtkAbstractVolumeMapper::GetScalarModeAsString(void)
 {
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_DATA )
-    {
+  {
     return "UseCellData";
-    }
+  }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_DATA )
-    {
+  {
     return "UsePointData";
-    }
+  }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA )
-    {
+  {
     return "UsePointFieldData";
-    }
+  }
   else if ( this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
+  {
     return "UseCellFieldData";
-    }
+  }
   else
-    {
+  {
     return "Default";
-    }
+  }
 }
 
 // Print the vtkAbstractVolumeMapper
@@ -144,15 +144,15 @@ void vtkAbstractVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
        this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
+  {
     if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
+    {
       os << indent << "ArrayId: " << this->ArrayId << endl;
-      }
-    else
-      {
-      os << indent << "ArrayName: " << this->ArrayName << endl;
-      }
     }
+    else
+    {
+      os << indent << "ArrayName: " << this->ArrayName << endl;
+    }
+  }
 }
 

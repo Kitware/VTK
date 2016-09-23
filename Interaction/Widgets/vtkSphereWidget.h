@@ -133,13 +133,13 @@ public:
    * Set/Get the radius of sphere. Default is .5.
    */
   void SetRadius(double r)
-    {
+  {
     if ( r <= 0 )
-      {
+    {
       r = .00001;
-      }
-    this->SphereSource->SetRadius(r);
     }
+    this->SphereSource->SetRadius(r);
+  }
   double GetRadius()
     { return this->SphereSource->GetRadius(); }
   //@}
@@ -149,13 +149,13 @@ public:
    * Set/Get the center of the sphere.
    */
   void SetCenter(double x, double y, double z)
-    {
+  {
     this->SphereSource->SetCenter(x,y,z);
-    }
+  }
   void SetCenter(double x[3])
-    {
+  {
     this->SetCenter(x[0], x[1], x[2]);
-    }
+  }
   double* GetCenter()
     {return this->SphereSource->GetCenter();}
   void GetCenter(double xyz[3])

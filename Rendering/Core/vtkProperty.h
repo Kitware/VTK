@@ -345,35 +345,35 @@ public:
   void AddShaderVariable(const char* name, double v)
     { this->AddShaderVariable(name, 1, &v); }
   void AddShaderVariable(const char* name, int v1, int v2)
-    {
+  {
     int v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
-    }
+  }
   void AddShaderVariable(const char* name, float v1, float v2)
-    {
+  {
     float v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
-    }
+  }
   void AddShaderVariable(const char* name, double v1, double v2)
-    {
+  {
     double v[2] = {v1, v2};
     this->AddShaderVariable(name, 2, v);
-    }
+  }
   void AddShaderVariable(const char* name, int v1, int v2, int v3)
-    {
+  {
     int v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
-    }
+  }
   void AddShaderVariable(const char* name, float v1, float v2, float v3)
-    {
+  {
     float v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
-    }
+  }
   void AddShaderVariable(const char* name, double v1, double v2, double v3)
-    {
+  {
     double v[3] = {v1, v2, v3};
     this->AddShaderVariable(name, 3, v);
-    }
+  }
   //@}
 
   //@{
@@ -497,17 +497,17 @@ private:
 inline const char *vtkProperty::GetInterpolationAsString(void)
 {
   if (this->Interpolation == VTK_FLAT)
-    {
+  {
     return "Flat";
-    }
+  }
   else if (this->Interpolation == VTK_GOURAUD)
-    {
+  {
     return "Gouraud";
-    }
+  }
   else
-    {
+  {
     return "Phong";
-    }
+  }
 }
 //@}
 
@@ -518,17 +518,17 @@ inline const char *vtkProperty::GetInterpolationAsString(void)
 inline const char *vtkProperty::GetRepresentationAsString(void)
 {
   if (this->Representation == VTK_POINTS)
-    {
+  {
     return "Points";
-    }
+  }
   else if (this->Representation == VTK_WIREFRAME)
-    {
+  {
     return "Wireframe";
-    }
+  }
   else
-    {
+  {
     return "Surface";
-    }
+  }
 }
 //@}
 

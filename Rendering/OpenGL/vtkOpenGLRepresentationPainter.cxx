@@ -53,16 +53,16 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
 
   // If both front & back culling is on, will fall into backface culling.
   if (prop->GetBackfaceCulling())
-    {
+  {
     face = GL_FRONT;
-    }
+  }
   else if (prop->GetFrontfaceCulling())
-    {
+  {
     face = GL_BACK;
-    }
+  }
 
   switch (rep)
-    {
+  {
   case VTK_POINTS:
     glPolygonMode(face, GL_POINT);
     reset_needed = 1;
@@ -71,32 +71,32 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     glPolygonMode(face, GL_LINE);
     reset_needed = 1;
     break;
-    }
+  }
 
   bool draw_surface_with_edges =
     (prop->GetEdgeVisibility() && prop->GetRepresentation() == VTK_SURFACE);
   if (draw_surface_with_edges)
-    {
+  {
     glPolygonOffset(0.7, 1.0);
     glEnable(GL_POLYGON_OFFSET_FILL);
-    }
+  }
 
   this->Superclass::RenderInternal(renderer, actor, typeflags,
                                    forceCompileOnly);
   if (draw_surface_with_edges)
-    {
+  {
     glDisable(GL_POLYGON_OFFSET_FILL);
-    }
+  }
   this->TimeToDraw += this->DelegatePainter?
     this->DelegatePainter->GetTimeToDraw() : 0;
   if (reset_needed)
-    {
+  {
     // reset the default.
     glPolygonMode(face, GL_FILL);
-    }
+  }
 
   if (draw_surface_with_edges)
-    {
+  {
     glPushAttrib(GL_CURRENT_BIT|GL_LIGHTING_BIT|GL_ENABLE_BIT);
     double color[4];
     prop->GetEdgeColor(color);
@@ -124,7 +124,7 @@ void vtkOpenGLRepresentationPainter::RenderInternal(vtkRenderer *renderer,
     glPolygonMode(face, GL_FILL);
 
     glPopAttrib(); //(GL_CURRENT_BIT|GL_LIGHTING|GL_ENABLE_BIT)
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after RenderInternal");
 }
 //-----------------------------------------------------------------------------

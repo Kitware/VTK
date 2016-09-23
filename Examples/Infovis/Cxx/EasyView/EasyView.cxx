@@ -125,10 +125,10 @@ void EasyView::slotOpenXMLFile()
     "XML Files (*.xml);;All Files (*.*)");
 
   if (fileName.isNull())
-    {
+  {
     cerr << "Could not open file" << endl;
     return;
-    }
+  }
 
   // Create XML reader
   this->XMLReader->SetFileName( fileName.toLatin1() );

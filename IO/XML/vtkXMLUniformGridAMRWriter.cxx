@@ -55,7 +55,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
 
   // For vtkOverlappingAMR, we need to add additional meta-data to the XML.
   if (oamr)
-    {
+  {
     const double *origin = oamr->GetOrigin();
     // I cannot decide what case to use. The other VTK-XML format used mixed
     // case for attributes, but the composite files are using all lower case
@@ -63,7 +63,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     parent->SetVectorAttribute("origin", 3, origin);
     const char* gridDescription = "";
     switch (oamr->GetGridDescription())
-      {
+    {
     case VTK_XY_PLANE:
       gridDescription = "XY";
       break;
@@ -80,20 +80,20 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
     default:
       gridDescription = "XYZ";
       break;
-      }
-    parent->SetAttribute("grid_description", gridDescription);
     }
+    parent->SetAttribute("grid_description", gridDescription);
+  }
 
   unsigned int numLevels = amr->GetNumberOfLevels();
 
   // Iterate over each level.
   for (unsigned int level=0; level < numLevels; level++)
-    {
+  {
     vtkSmartPointer<vtkXMLDataElement> block = vtkSmartPointer<vtkXMLDataElement>::New();
     block->SetName("Block");
     block->SetIntAttribute("level", level);
     if (oamr)
-      {
+    {
       // save spacing for each level.
       double spacing[3];
       oamr->GetSpacing(level, spacing);
@@ -101,11 +101,11 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
 
       // we no longer save the refinement ratios since those can be deduced from
       // the spacing very easily.
-      }
+    }
 
     unsigned int numDS = amr->GetNumberOfDataSets(level);
     for (unsigned int cc=0; cc < numDS; cc++)
-      {
+    {
       vtkUniformGrid* ug = amr->GetDataSet(level, cc);
 
       vtkSmartPointer<vtkXMLDataElement> datasetXML =
@@ -113,7 +113,7 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       datasetXML->SetName("DataSet");
       datasetXML->SetIntAttribute("index", cc);
       if (oamr)
-        {
+      {
         // AMRBox meta-data is available only for vtkOverlappingAMR. Also this
         // meta-data is expected to be consistent (and available) on all
         // processes so we don't have to worry about missing amr-box
@@ -131,15 +131,15 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
         // order than we wrote the box in traditionally. The expected order is
         // (xLo, xHi, yLo, yHi, zLo, zHi).
         datasetXML->SetVectorAttribute("amr_box", 6, box_buffer);
-        }
+      }
 
       vtkStdString fileName = this->CreatePieceFileName(writerIdx);
       if (fileName != "")
-        {
+      {
         // if fileName is empty, it implies that no file is written out for this
         // node, so don't add a filename attribute for it.
         datasetXML->SetAttribute("file", fileName);
-        }
+      }
       block->AddNestedElement(datasetXML);
 
       // if this->WriteNonCompositeData() returns 0, it doesn't meant it's an
@@ -147,12 +147,12 @@ int vtkXMLUniformGridAMRWriter::WriteComposite(vtkCompositeDataSet* compositeDat
       this->WriteNonCompositeData(ug, datasetXML, writerIdx, fileName.c_str());
 
       if (this->GetErrorCode() != vtkErrorCode::NoError)
-        {
+      {
         return 0;
-        }
       }
-    parent->AddNestedElement(block);
     }
+    parent->AddNestedElement(block);
+  }
 
   return 1;
 }

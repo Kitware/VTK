@@ -49,37 +49,37 @@ void vtkPStreaklineFilter::Finalize()
   int tag = 129;
 
   if(this->Controller->GetLocalProcessId()==leader) //process 0 do the actual work
-    {
+  {
     vtkNew<vtkAppendPolyData> append;
     int totalNumPts(0);
     for(int i=0; i<this->Controller->GetNumberOfProcesses(); i++)
-      {
+    {
       if(i!=this->Controller->GetLocalProcessId())
-        {
+      {
         vtkSmartPointer<vtkPolyData> output_i = vtkSmartPointer<vtkPolyData>::New();
         this->Controller->Receive(output_i, i, tag);
         append->AddInputData(output_i);
         totalNumPts+= output_i->GetNumberOfPoints();
-        }
+      }
       else
-        {
+      {
         append->AddInputData(this->Output);
         totalNumPts+= this->Output->GetNumberOfPoints();
-        }
       }
+    }
     append->Update();
     vtkPolyData* appoutput = append->GetOutput();
     this->Output->Initialize();
     this->Output->ShallowCopy(appoutput);
     assert(this->Output->GetNumberOfPoints()==totalNumPts);
     this->It.Finalize();
-    }
+  }
   else
-    {
+  {
     //send everything to rank 0
     this->Controller->Send(this->Output,leader, tag);
     this->Output->Initialize();
-    }
+  }
 
   return;
 }

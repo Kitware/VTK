@@ -505,7 +505,7 @@ public:
    * vtkPolyData::ERR_NO_SUCH_FIELD: the specified scalar field does not exist.
    */
   enum
-    {
+  {
     ERR_NO_SUCH_FIELD = -4,
     ERR_INCORRECT_FIELD = -3,
     ERR_NON_MANIFOLD_STAR = -2,
@@ -513,7 +513,7 @@ public:
     MINIMUM = 0,
     SADDLE = 1,
     MAXIMUM = 2
-    };
+  };
 
   int GetScalarFieldCriticalIndex (vtkIdType pointId,
                                    vtkDataArray *scalarField);
@@ -584,10 +584,10 @@ inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
   tVerts[2] = v3;
 
   for (i=0; i<3; i++)
-    {
+  {
     this->GetPointCells(tVerts[i], n1, cells);
     for (j=0; j<n1; j++)
-      {
+    {
       this->GetCellPoints(cells[j], n2, tVerts2);
       if ( (tVerts[0] == tVerts2[0] || tVerts[0] == tVerts2[1] ||
             tVerts[0] == tVerts2[2]) &&
@@ -595,11 +595,11 @@ inline int vtkPolyData::IsTriangle(int v1, int v2, int v3)
             tVerts[1] == tVerts2[2]) &&
            (tVerts[2] == tVerts2[0] || tVerts[2] == tVerts2[1] ||
             tVerts[2] == tVerts2[2]) )
-        {
+      {
         return 1;
-        }
       }
     }
+  }
   return 0;
 }
 
@@ -609,12 +609,12 @@ inline int vtkPolyData::IsPointUsedByCell(vtkIdType ptId, vtkIdType cellId)
 
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i < npts; i++)
-    {
+  {
     if ( pts[i] == ptId )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -635,9 +635,9 @@ inline void vtkPolyData::RemoveCellReference(vtkIdType cellId)
 
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i<npts; i++)
-    {
+  {
     this->Links->RemoveCellReference(cellId, pts[i]);
-    }
+  }
 }
 
 inline void vtkPolyData::AddCellReference(vtkIdType cellId)
@@ -646,9 +646,9 @@ inline void vtkPolyData::AddCellReference(vtkIdType cellId)
 
   this->GetCellPoints(cellId, npts, pts);
   for (vtkIdType i=0; i<npts; i++)
-    {
+  {
     this->Links->AddCellReference(cellId, pts[i]);
-    }
+  }
 }
 
 inline void vtkPolyData::ResizeCellList(vtkIdType ptId, int size)
@@ -664,13 +664,13 @@ inline void vtkPolyData::ReplaceCellPoint(vtkIdType cellId, vtkIdType oldPtId,
 
   this->GetCellPoints(cellId,nverts,verts);
   for ( i=0; i < nverts; i++ )
-    {
+  {
     if ( verts[i] == oldPtId )
-      {
+    {
       verts[i] = newPtId; // this is very nasty! direct write!
       return;
-      }
     }
+  }
 }
 
 inline unsigned char vtkPolyData::GetCellPoints(
@@ -679,7 +679,7 @@ inline unsigned char vtkPolyData::GetCellPoints(
   unsigned char type = this->Cells->GetCellType(cellId);
   vtkCellArray *cells;
   switch (type)
-    {
+  {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
       cells = this->Verts;
       break;
@@ -701,7 +701,7 @@ inline unsigned char vtkPolyData::GetCellPoints(
       npts = 0;
       pts = NULL;
       return 0;
-    }
+  }
   int loc = this->Cells->GetCellLocation(cellId);
   cells->GetCell(loc, npts, pts);
   return type;
@@ -713,7 +713,7 @@ inline unsigned char vtkPolyData::GetCell(
   unsigned char type = this->Cells->GetCellType(cellId);
   vtkCellArray *cells;
   switch (type)
-    {
+  {
     case VTK_VERTEX: case VTK_POLY_VERTEX:
       cells = this->Verts;
       break;
@@ -734,7 +734,7 @@ inline unsigned char vtkPolyData::GetCell(
       cells = NULL;
       cell = NULL;
       return 0;
-    }
+  }
   int loc = this->Cells->GetCellLocation(cellId);
   cell = cells->GetData()->GetPointer(loc);
   return type;

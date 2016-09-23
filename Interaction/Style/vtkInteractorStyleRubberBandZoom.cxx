@@ -39,29 +39,29 @@ vtkInteractorStyleRubberBandZoom::~vtkInteractorStyleRubberBandZoom()
 void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 {
   if (!this->Interactor || !this->Moving)
-    {
+  {
     return;
-    }
+  }
 
   this->EndPosition[0] = this->Interactor->GetEventPosition()[0];
   this->EndPosition[1] = this->Interactor->GetEventPosition()[1];
   int *size = this->Interactor->GetRenderWindow()->GetSize();
   if (this->EndPosition[0] > (size[0]-1))
-    {
+  {
     this->EndPosition[0] = size[0]-1;
-    }
+  }
   if (this->EndPosition[0] < 0)
-    {
+  {
     this->EndPosition[0] = 0;
-    }
+  }
   if (this->EndPosition[1] > (size[1]-1))
-    {
+  {
     this->EndPosition[1] = size[1]-1;
-    }
+  }
   if (this->EndPosition[1] < 0)
-    {
+  {
     this->EndPosition[1] = 0;
-    }
+  }
 
   vtkUnsignedCharArray *tmpPixelArray = vtkUnsignedCharArray::New();
   tmpPixelArray->DeepCopy(this->PixelArray);
@@ -80,23 +80,23 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 
   int i;
   for (i = min[0]; i <= max[0]; i++)
-    {
+  {
     pixels[3*(min[1]*size[0]+i)] = 255 ^ pixels[3*(min[1]*size[0]+i)];
     pixels[3*(min[1]*size[0]+i)+1] = 255 ^ pixels[3*(min[1]*size[0]+i)+1];
     pixels[3*(min[1]*size[0]+i)+2] = 255 ^ pixels[3*(min[1]*size[0]+i)+2];
     pixels[3*(max[1]*size[0]+i)] = 255 ^ pixels[3*(max[1]*size[0]+i)];
     pixels[3*(max[1]*size[0]+i)+1] = 255 ^ pixels[3*(max[1]*size[0]+i)+1];
     pixels[3*(max[1]*size[0]+i)+2] = 255 ^ pixels[3*(max[1]*size[0]+i)+2];
-    }
+  }
   for (i = min[1]+1; i < max[1]; i++)
-    {
+  {
     pixels[3*(i*size[0]+min[0])] = 255 ^ pixels[3*(i*size[0]+min[0])];
     pixels[3*(i*size[0]+min[0])+1] = 255 ^ pixels[3*(i*size[0]+min[0])+1];
     pixels[3*(i*size[0]+min[0])+2] = 255 ^ pixels[3*(i*size[0]+min[0])+2];
     pixels[3*(i*size[0]+max[0])] = 255 ^ pixels[3*(i*size[0]+max[0])];
     pixels[3*(i*size[0]+max[0])+1] = 255 ^ pixels[3*(i*size[0]+max[0])+1];
     pixels[3*(i*size[0]+max[0])+2] = 255 ^ pixels[3*(i*size[0]+max[0])+2];
-    }
+  }
 
   this->Interactor->GetRenderWindow()->SetPixelData(0, 0, size[0]-1, size[1]-1, pixels, 1);
   this->Interactor->GetRenderWindow()->Frame();
@@ -107,9 +107,9 @@ void vtkInteractorStyleRubberBandZoom::OnMouseMove()
 void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
 {
   if (!this->Interactor)
-    {
+  {
     return;
-    }
+  }
   this->Moving = 1;
 
   vtkRenderWindow *renWin = this->Interactor->GetRenderWindow();
@@ -132,15 +132,15 @@ void vtkInteractorStyleRubberBandZoom::OnLeftButtonDown()
 void vtkInteractorStyleRubberBandZoom::OnLeftButtonUp()
 {
   if (!this->Interactor || !this->Moving)
-    {
+  {
     return;
-    }
+  }
 
   if (   (this->StartPosition[0] != this->EndPosition[0])
       || (this->StartPosition[1] != this->EndPosition[1]) )
-    {
+  {
     this->Zoom();
-    }
+  }
   this->Moving = 0;
 }
 
@@ -209,19 +209,19 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
 
   double zoomFactor;
   if (width > height)
-    {
+  {
     zoomFactor = size[0] / static_cast<double>(width);
-    }
+  }
   else
-    {
+  {
     zoomFactor = size[1] / static_cast<double>(height);
-    }
+  }
   if (cam->GetParallelProjection())
-    {
+  {
     cam->Zoom(zoomFactor);
-    }
+  }
   else
-    {
+  {
     // In perspective mode, zoom in by moving the camera closer.  Because we are
     // moving the camera closer, we have to be careful to try to adjust the
     // clipping planes to best match the actual position they were in before.
@@ -235,16 +235,16 @@ void vtkInteractorStyleRubberBandZoom::Zoom()
     clippingRange[1] -= deltaDistance;
     // Correct bringing clipping planes too close or behind camera.
     if (clippingRange[1] <= 0.0)
-      {
+    {
       clippingRange[1] = 0.001;
-      }
+    }
     // This near plane check comes from vtkRenderer::ResetCameraClippingRange()
     if (clippingRange[0] < 0.001*clippingRange[1])
-      {
+    {
       clippingRange[0] = 0.001*clippingRange[1];
-      }
-    cam->SetClippingRange(clippingRange);
     }
+    cam->SetClippingRange(clippingRange);
+  }
 
   this->Interactor->Render();
 }

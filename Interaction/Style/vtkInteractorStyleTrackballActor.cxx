@@ -49,7 +49,7 @@ void vtkInteractorStyleTrackballActor::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
 
   switch (this->State)
-    {
+  {
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
@@ -79,7 +79,7 @@ void vtkInteractorStyleTrackballActor::OnMouseMove()
       this->UniformScale();
       this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -91,30 +91,30 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
-    {
+  {
     this->StartPan();
-    }
+  }
   else if (this->Interactor->GetControlKey())
-    {
+  {
     this->StartSpin();
-    }
+  }
   else
-    {
+  {
     this->StartRotate();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnLeftButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_PAN:
       this->EndPan();
       break;
@@ -126,12 +126,12 @@ void vtkInteractorStyleTrackballActor::OnLeftButtonUp()
     case VTKIS_ROTATE:
       this->EndRotate();
       break;
-    }
+  }
 
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -143,26 +143,26 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetControlKey())
-    {
+  {
     this->StartDolly();
-    }
+  }
   else
-    {
+  {
     this->StartPan();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::OnMiddleButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_DOLLY:
       this->EndDolly();
       break;
@@ -170,12 +170,12 @@ void vtkInteractorStyleTrackballActor::OnMiddleButtonUp()
     case VTKIS_PAN:
       this->EndPan();
       break;
-    }
+  }
 
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -187,9 +187,9 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown()
   this->FindPokedRenderer(x, y);
   this->FindPickedActor(x, y);
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartUniformScale();
@@ -199,25 +199,25 @@ void vtkInteractorStyleTrackballActor::OnRightButtonDown()
 void vtkInteractorStyleTrackballActor::OnRightButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_USCALE:
       this->EndUniformScale();
       break;
-    }
+  }
 
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Rotate()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -267,7 +267,7 @@ void vtkInteractorStyleTrackballActor::Rotate()
 
   if (((nxf * nxf + nyf * nyf) <= 1.0) &&
       ((oxf * oxf + oyf * oyf) <= 1.0))
-    {
+  {
     double newXAngle = vtkMath::DegreesFromRadians( asin( nxf ) );
     double newYAngle = vtkMath::DegreesFromRadians( asin( nyf ) );
     double oldXAngle = vtkMath::DegreesFromRadians( asin( oxf ) );
@@ -303,21 +303,21 @@ void vtkInteractorStyleTrackballActor::Rotate()
     delete [] rotate;
 
     if (this->AutoAdjustCameraClippingRange)
-      {
+    {
       this->CurrentRenderer->ResetCameraClippingRange();
-      }
+    }
 
     rwi->Render();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballActor::Spin()
 {
   if ( this->CurrentRenderer == NULL || this->InteractionProp == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -330,20 +330,20 @@ void vtkInteractorStyleTrackballActor::Spin()
   double view_point[3];
 
   if (cam->GetParallelProjection())
-    {
+  {
     // If parallel projection, want to get the view plane normal...
     cam->ComputeViewPlaneNormal();
     cam->GetViewPlaneNormal( motion_vector );
-    }
+  }
   else
-    {
+  {
     // Perspective projection, get vector from eye to center of actor
     cam->GetPosition( view_point );
     motion_vector[0] = view_point[0] - obj_center[0];
     motion_vector[1] = view_point[1] - obj_center[1];
     motion_vector[2] = view_point[2] - obj_center[2];
     vtkMath::Normalize(motion_vector);
-    }
+  }
 
   double disp_obj_center[3];
 
@@ -379,9 +379,9 @@ void vtkInteractorStyleTrackballActor::Spin()
   delete [] rotate;
 
   if ( this->AutoAdjustCameraClippingRange )
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -390,9 +390,9 @@ void vtkInteractorStyleTrackballActor::Spin()
 void vtkInteractorStyleTrackballActor::Pan()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -421,25 +421,25 @@ void vtkInteractorStyleTrackballActor::Pan()
   motion_vector[2] = new_pick_point[2] - old_pick_point[2];
 
   if (this->InteractionProp->GetUserMatrix() != NULL)
-    {
+  {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
     t->Translate(motion_vector[0], motion_vector[1], motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
-    }
+  }
   else
-    {
+  {
     this->InteractionProp->AddPosition(motion_vector[0],
                                        motion_vector[1],
                                        motion_vector[2]);
-    }
+  }
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -448,9 +448,9 @@ void vtkInteractorStyleTrackballActor::Pan()
 void vtkInteractorStyleTrackballActor::Dolly()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
@@ -473,7 +473,7 @@ void vtkInteractorStyleTrackballActor::Dolly()
   motion_vector[2] = (view_point[2] - view_focus[2]) * dollyFactor;
 
   if (this->InteractionProp->GetUserMatrix() != NULL)
-    {
+  {
     vtkTransform *t = vtkTransform::New();
     t->PostMultiply();
     t->SetMatrix(this->InteractionProp->GetUserMatrix());
@@ -481,16 +481,16 @@ void vtkInteractorStyleTrackballActor::Dolly()
                  motion_vector[2]);
     this->InteractionProp->GetUserMatrix()->DeepCopy(t->GetMatrix());
     t->Delete();
-    }
+  }
   else
-    {
+  {
     this->InteractionProp->AddPosition(motion_vector);
-    }
+  }
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -499,9 +499,9 @@ void vtkInteractorStyleTrackballActor::Dolly()
 void vtkInteractorStyleTrackballActor::UniformScale()
 {
   if (this->CurrentRenderer == NULL || this->InteractionProp == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -525,9 +525,9 @@ void vtkInteractorStyleTrackballActor::UniformScale()
                         scale);
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   rwi->Render();
 }
@@ -544,13 +544,13 @@ void vtkInteractorStyleTrackballActor::FindPickedActor(int x, int y)
   this->InteractionPicker->Pick(x, y, 0.0, this->CurrentRenderer);
   vtkProp *prop = this->InteractionPicker->GetViewProp();
   if (prop != NULL)
-    {
+  {
     this->InteractionProp = vtkProp3D::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     this->InteractionProp = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -569,26 +569,26 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
   vtkTransform *newTransform = vtkTransform::New();
   newTransform->PostMultiply();
   if (prop3D->GetUserMatrix() != NULL)
-    {
+  {
     newTransform->SetMatrix(prop3D->GetUserMatrix());
-    }
+  }
   else
-    {
+  {
     newTransform->SetMatrix(oldMatrix);
-    }
+  }
 
   newTransform->Translate(-(boxCenter[0]), -(boxCenter[1]), -(boxCenter[2]));
 
   for (int i = 0; i < numRotation; i++)
-    {
+  {
     newTransform->RotateWXYZ(rotate[i][0], rotate[i][1],
                              rotate[i][2], rotate[i][3]);
-    }
+  }
 
   if ((scale[0] * scale[1] * scale[2]) != 0.0)
-    {
+  {
     newTransform->Scale(scale[0], scale[1], scale[2]);
-    }
+  }
 
   newTransform->Translate(boxCenter[0], boxCenter[1], boxCenter[2]);
 
@@ -598,15 +598,15 @@ void vtkInteractorStyleTrackballActor::Prop3DTransform(vtkProp3D *prop3D,
   newTransform->Translate(orig[0], orig[1], orig[2]);
 
   if (prop3D->GetUserMatrix() != NULL)
-    {
+  {
     newTransform->GetMatrix(prop3D->GetUserMatrix());
-    }
+  }
   else
-    {
+  {
     prop3D->SetPosition(newTransform->GetPosition());
     prop3D->SetScale(newTransform->GetScale());
     prop3D->SetOrientation(newTransform->GetOrientation());
-    }
+  }
   oldMatrix->Delete();
   newTransform->Delete();
 }

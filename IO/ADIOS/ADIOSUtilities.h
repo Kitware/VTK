@@ -44,9 +44,9 @@ public:
     const std::string& msg = "")
   {
     if(actual != expected)
-      {
+    {
       throw WriteError(msg);
-      }
+    }
   }
 
   // Description:
@@ -57,9 +57,9 @@ public:
     const std::string& msg = "")
   {
     if(actual == notExpected)
-      {
+    {
       throw WriteError(msg);
-      }
+    }
   }
 };
 
@@ -79,9 +79,9 @@ public:
     const std::string& msg = "")
   {
     if(actual != expected)
-      {
+    {
       throw ReadError(msg);
-      }
+    }
   }
 
   // Description:
@@ -92,9 +92,9 @@ public:
     const std::string& msg = "")
   {
     if(actual == notExpected)
-      {
+    {
       throw ReadError(msg);
-      }
+    }
   }
 };
 

@@ -48,11 +48,11 @@ vtkPlotGrid::~vtkPlotGrid()
 bool vtkPlotGrid::Paint(vtkContext2D *painter)
 {
   if (!this->XAxis || !this->YAxis)
-    {
+  {
     // Need axes to define where our grid lines should be drawn
     vtkDebugMacro(<<"No axes set and so grid lines cannot be drawn.");
     return false;
-    }
+  }
 
   vtkVector2f x1, x2, y1, y2;
   this->XAxis->GetPoint1(x1.GetData());
@@ -62,27 +62,27 @@ bool vtkPlotGrid::Paint(vtkContext2D *painter)
 
   // in x
   if (this->XAxis->GetVisible() && this->XAxis->GetGridVisible())
-    {
+  {
     vtkFloatArray *xLines = this->XAxis->GetTickScenePositions();
     painter->ApplyPen(this->XAxis->GetGridPen());
     float *xPositions = xLines->GetPointer(0);
     for (int i = 0; i < xLines->GetNumberOfTuples(); ++i)
-      {
+    {
       painter->DrawLine(xPositions[i], y1.GetY(), xPositions[i], y2.GetY());
-      }
     }
+  }
 
   // in y
   if (this->YAxis->GetVisible() && this->YAxis->GetGridVisible())
-    {
+  {
     vtkFloatArray *yLines = this->YAxis->GetTickScenePositions();
     painter->ApplyPen(this->YAxis->GetGridPen());
     float *yPositions = yLines->GetPointer(0);
     for (int i = 0; i < yLines->GetNumberOfTuples(); ++i)
-      {
+    {
       painter->DrawLine(x1.GetX(), yPositions[i], x2.GetX(), yPositions[i]);
-      }
     }
+  }
 
   return true;
 }

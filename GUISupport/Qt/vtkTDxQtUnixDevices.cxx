@@ -25,9 +25,9 @@ class vtkLessThanWindowId
 public:
   bool operator()(const vtkTDxUnixDeviceWindow &w1,
                   const vtkTDxUnixDeviceWindow &w2) const
-    {
+  {
       return w1<w2;
-    }
+  }
 };
 
 typedef std::map<vtkTDxUnixDeviceWindow, vtkSmartPointer<vtkTDxUnixDevice>,
@@ -62,22 +62,22 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent *e)
     ->topLevelWidgets();
   int winIdLast=0;
   foreach(QWidget *w,l)
-    {
+  {
     if(!w->isHidden())
-      {
+    {
       winIdLast=w->winId();
-      }
     }
+  }
 
   vtkTDxUnixDeviceWindow winId=static_cast<vtkTDxUnixDeviceWindow>(winIdLast);
     // ;event->xany.window;
 
   if(winId!=0)
-    {
+  {
     vtkWindowIdToDevice::iterator it=this->Private->Map.find(winId);
     vtkSmartPointer<vtkTDxUnixDevice> device=0;
     if(it==this->Private->Map.end())
-      {
+    {
       // not yet created.
       device=vtkSmartPointer<vtkTDxUnixDevice>::New();
       this->Private->Map.insert(
@@ -90,27 +90,27 @@ void vtkTDxQtUnixDevices::ProcessEvent(vtkTDxUnixDeviceXEvent *e)
       device->Initialize();
 
       if(!device->GetInitialized())
-        {
+      {
         vtkGenericWarningMacro("failed to initialize device.");
-        }
+      }
       else
-        {
+      {
         cout << "device initialized on window" << winId << hex << winId << dec;
         emit CreateDevice(device);
-        }
-      }
-    else
-      {
-      device=(*it).second;
-      }
-
-    if(event->type==ClientMessage) // 33
-      {
-      bool caught=false;
-      if(device->GetInitialized())
-        {
-        caught=device->ProcessEvent(e);
-        }
       }
     }
+    else
+    {
+      device=(*it).second;
+    }
+
+    if(event->type==ClientMessage) // 33
+    {
+      bool caught=false;
+      if(device->GetInitialized())
+      {
+        caught=device->ProcessEvent(e);
+      }
+    }
+  }
 }

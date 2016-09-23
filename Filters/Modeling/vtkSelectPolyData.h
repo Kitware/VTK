@@ -210,17 +210,17 @@ private:
 inline const char *vtkSelectPolyData::GetSelectionModeAsString(void)
 {
   if ( this->SelectionMode == VTK_INSIDE_SMALLEST_REGION )
-    {
+  {
     return "InsideSmallestRegion";
-    }
+  }
   else if ( this->SelectionMode == VTK_INSIDE_LARGEST_REGION )
-    {
+  {
     return "InsideLargestRegion";
-    }
+  }
   else
-    {
+  {
     return "InsideClosestPointRegion";
-    }
+  }
 }
 //@}
 

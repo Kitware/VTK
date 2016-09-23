@@ -80,9 +80,9 @@ public:
   virtual void GetBorders(int borders[4])
   {
     for(int i=0;i<4;i++)
-      {
+    {
       borders[i]=this->Borders[i];
-      }
+    }
   }
   //@}
 

@@ -137,8 +137,8 @@ protected:
    * Destructor.
    */
   ~vtkRTAnalyticSource()
-    {
-    }
+  {
+  }
 
   double XFreq;
   double YFreq;

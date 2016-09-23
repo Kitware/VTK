@@ -50,9 +50,9 @@ protected:
   ~vtkPProbeFilter();
 
   enum
-    {
+  {
     PROBE_COMMUNICATION_TAG=1970
-    };
+  };
 
   // Usual data generation method
   virtual int RequestData(vtkInformation *, vtkInformationVector **, vtkInformationVector *);

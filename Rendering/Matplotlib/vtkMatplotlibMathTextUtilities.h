@@ -143,11 +143,11 @@ private:
    * @sa IsAvailable
    */
   enum Availability
-    {
+  {
     NOT_TESTED = 0,
     AVAILABLE,
     UNAVAILABLE
-    };
+  };
 
   /**
    * Function used to check MPL availability and update MPLMathTextAvailable.

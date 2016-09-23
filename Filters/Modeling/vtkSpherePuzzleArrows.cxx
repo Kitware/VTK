@@ -33,9 +33,9 @@ vtkSpherePuzzleArrows::vtkSpherePuzzleArrows()
   int idx;
 
   for (idx = 0; idx < 32; ++idx)
-    {
+  {
     this->Permutation[idx] = idx;
-    }
+  }
 
   this->Radius = 0.51;
 
@@ -52,9 +52,9 @@ vtkSpherePuzzleArrows::~vtkSpherePuzzleArrows()
 void vtkSpherePuzzleArrows::SetPermutationComponent(int comp, int val)
 {
   if (this->Permutation[comp] == val)
-    {
+  {
     return;
-    }
+  }
 
   this->Permutation[comp] = val;
   this->Modified();
@@ -78,13 +78,13 @@ int vtkSpherePuzzleArrows::RequestData(
   int idx;
 
   for (idx = 0; idx < 32; ++idx)
-    {
+  {
     if (this->Permutation[idx] != idx)
-      {
+    {
       //this->AppendArrow(idx, this->Permutation[idx], pts, polys);
       this->AppendArrow(this->Permutation[idx], idx, pts, polys);
-      }
     }
+  }
   output->SetPoints(pts);
   output->SetPolys(polys);
   pts->Delete();
@@ -115,21 +115,21 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
   dTheta = theta2 - theta1;
   // Take the short way around.
   while (dPhi > vtkMath::Pi())
-    {
+  {
     dPhi -= 2*vtkMath::Pi();
-    }
+  }
   while (dPhi < -vtkMath::Pi())
-    {
+  {
     dPhi += 2*vtkMath::Pi();
-    }
+  }
   while (dTheta > vtkMath::Pi())
-    {
+  {
     dTheta -= 2*vtkMath::Pi();
-    }
+  }
   while (dTheta < -vtkMath::Pi())
-    {
+  {
     dTheta += 2*vtkMath::Pi();
-    }
+  }
   theta2 = theta1 + dTheta;
   phi2 = phi1 + dPhi;
 
@@ -157,7 +157,7 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
   z = cos(phi1+2*phiOff);
   ptId2 = pts->InsertNextPoint(this->Radius*x, this->Radius*y, this->Radius*z);
   for (idx = 1; idx < num; ++idx)
-    {
+  {
     // Interpolate angles.
     theta = theta1 + ((double)(idx)/(double)(num)) * dTheta;
     phi = phi1 + ((double)(idx)/(double)(num)) * (phi2-phi1);
@@ -180,7 +180,7 @@ void vtkSpherePuzzleArrows::AppendArrow(int id1, int id2,
     // Initialize the next step.
     ptId1 = ptId3;
     ptId2 = ptId4;
-    }
+  }
   // Now create the arrow.
   x = cos(theta)*sin(phi);
   y = sin(theta)*sin(phi);
@@ -216,8 +216,8 @@ void vtkSpherePuzzleArrows::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Permutation: ";
   for (i = 0; i < 32; ++i)
-    {
+  {
     os << this->Permutation[i] << " ";
-    }
+  }
   os << endl;
 }

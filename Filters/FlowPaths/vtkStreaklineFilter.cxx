@@ -76,9 +76,9 @@ void StreaklineFilterInternal::Finalize()
 {
   vtkPoints* points = this->Filter->Output->GetPoints();
   if(!points)
-    {
+  {
     return;
-    }
+  }
 
   vtkPointData* pd = this->Filter->Output->GetPointData();
   Assert(pd);
@@ -88,26 +88,26 @@ void StreaklineFilterInternal::Finalize()
   Assert(seedIds);
 
   if(seedIds)
-    {
+  {
     std::vector<Streak> streaks; //the streak lines in the current time step
     for(vtkIdType i=0; i<points->GetNumberOfPoints(); i++)
-      {
+    {
       int streakId = seedIds->GetValue(i);
       for(int j=static_cast<int>(streaks.size()); j<=streakId; j++)
-        {
+      {
         streaks.push_back(Streak());
-        }
+      }
       Streak& streak = streaks[streakId];
       float age = particleAge->GetValue(i);
       streak.push_back(StreakParticle(i,age));
-      }
+    }
 
     //sort streaks based on age
     for(unsigned int i=0; i<streaks.size();i++)
-      {
+    {
       Streak& streak(streaks[i]);
       std::sort(streak.begin(),streak.end());
-      }
+    }
 
     this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
     this->Filter->Output->SetVerts(0);
@@ -115,24 +115,24 @@ void StreaklineFilterInternal::Finalize()
     Assert(outLines->GetNumberOfCells()==0);
     Assert(outLines);
     for(unsigned int i=0; i<streaks.size();i++)
-      {
+    {
       const Streak& streak(streaks[i]);
       vtkNew<vtkIdList> ids;
 
       for(unsigned int j=0; j<streak.size();j++)
-        {
+      {
         Assert(j==0 || streak[j].Age <= streak[j-1].Age);
         if(j==0 || streak[j].Age < streak[j-1].Age)
-          {
-          ids->InsertNextId(streak[j].Id);
-          }
-        }
-      if(ids->GetNumberOfIds()>1)
         {
-        outLines->InsertNextCell(ids.GetPointer());
+          ids->InsertNextId(streak[j].Id);
         }
       }
+      if(ids->GetNumberOfIds()>1)
+      {
+        outLines->InsertNextCell(ids.GetPointer());
+      }
     }
+  }
 }
 
 

@@ -42,10 +42,10 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
 {
   vtkNew<vtkNIFTIImageReader> reader;
   if (!reader->CanReadFile(infile))
-    {
+  {
     cerr << "CanReadFile failed for " << infile << "\n";
     exit(1);
-    }
+  }
   reader->SetFileName(infile);
   reader->Update();
 
@@ -57,13 +57,13 @@ static void TestDisplay(vtkRenderWindow *renwin, const char *infile)
   double center1[3] = { center[0], center[1], center[2] };
   double center2[3] = { center[0], center[1], center[2] };
   if (size[2] % 2 == 1)
-    {
+  {
     center1[2] += 0.5*spacing[2];
-    }
+  }
   if (size[0] % 2 == 1)
-    {
+  {
     center2[0] += 0.5*spacing[0];
-    }
+  }
   double vrange[2];
   reader->GetOutput()->GetScalarRange(vrange);
 
@@ -121,10 +121,10 @@ int TestNIFTIReaderAnalyze(int argc, char *argv[])
   char *infile =
     vtkTestUtilities::ExpandDataFileName(argc, argv, dispfile);
   if (!infile)
-    {
+  {
     cerr << "Could not locate input file " << dispfile << "\n";
     return 1;
-    }
+  }
   std::string inpath = infile;
   delete [] infile;
 
@@ -136,11 +136,11 @@ int TestNIFTIReaderAnalyze(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renwin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renwin->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return (retVal != vtkRegressionTester::PASSED);
 }

@@ -70,24 +70,24 @@ public:
    * Methods by which the covariance matrix may be normalized.
    */
   enum NormalizationType
-    {
+  {
     NONE,               //!< The covariance matrix should be used as computed.
     TRIANGLE_SPECIFIED, //!< Normalize cov(i,j) by V(i,j) where V is supplied by the user.
     DIAGONAL_SPECIFIED, //!< Normalize cov(i,j) by sqrt(V(i)*V(j)) where V is supplied by the user.
     DIAGONAL_VARIANCE,  //!< Normalize cov(i,j) by sqrt(cov(i,i)*cov(j,j)).
     NUM_NORMALIZATION_SCHEMES //!< The number of normalization schemes.
-    };
+  };
 
   /**
    * These are the enumeration values that SetBasisScheme() accepts and GetBasisScheme returns.
    */
   enum ProjectionType
-    {
+  {
     FULL_BASIS,         //!< Use all entries in the basis matrix
     FIXED_BASIS_SIZE,   //!< Use the first N entries in the basis matrix
     FIXED_BASIS_ENERGY, //!< Use consecutive basis matrix entries whose energies sum to at least T
     NUM_BASIS_SCHEMES   //!< The number of schemes (not a valid scheme).
-    };
+  };
 
   //@{
   /**

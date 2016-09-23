@@ -102,14 +102,14 @@ public:
   void ClearNodes()
   {
     for(unsigned int i=0;i<this->Nodes.size();i++)
-      {
+    {
       for (unsigned int j=0;j<this->Nodes[i]->Points.size();j++)
-        {
+      {
         delete this->Nodes[i]->Points[j];
-        }
+      }
       this->Nodes[i]->Points.clear();
       delete this->Nodes[i];
-      }
+    }
     this->Nodes.clear();
   }
 };
@@ -517,11 +517,11 @@ protected:
   vtkTimeStamp ContourBuildTime;
 
   void ComputeMidpoint( double p1[3], double p2[3], double mid[3] )
-    {
+  {
       mid[0] = (p1[0] + p2[0])/2;
       mid[1] = (p1[1] + p2[1])/2;
       mid[2] = (p1[2] + p2[2])/2;
-    }
+  }
 
   /**
    * Build a contour representation from externally supplied PolyData. This

@@ -99,17 +99,17 @@ int vtkBoostRandomSparseArraySource::RequestData(
 
   vtkArrayCoordinates coordinates;
   for(vtkArray::SizeT n = 0; n != this->Extents.GetSize(); ++n)
-    {
+  {
     this->Extents.GetRightToLeftCoordinatesN(n, coordinates);
 
     // Although it seems wasteful, we calculate a value for every element in the array
     // so the results stay consistent as the ElementProbability varies
     const double value = values();
     if(pattern())
-      {
+    {
       array->AddValue(coordinates, value);
-      }
     }
+  }
 
   vtkArrayData* const output = vtkArrayData::GetData(outputVector);
   output->ClearArrays();

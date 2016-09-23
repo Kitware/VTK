@@ -54,9 +54,9 @@ public:
   {
     if(o &&
        o->IsA(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName()))
-      {
+    {
       return static_cast<ThisT*>(o);
-      }
+    }
 
     return 0;
   }
@@ -74,9 +74,9 @@ protected:
   {
     if (strcmp(vtkTypeTemplate<ThisT, BaseT>::GetClassNameInternalCachedName(),
                type) == 0)
-      {
+    {
       return 1;
-      }
+    }
     return BaseT::IsTypeOf(type);
   }
 

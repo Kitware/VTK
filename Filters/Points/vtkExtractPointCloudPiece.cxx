@@ -76,17 +76,17 @@ int vtkExtractPointCloudPiece::RequestData(
 
   vtkIdType startIndex, endIndex;
   if (vtkIntArray::SafeDownCast(offsets))
-    {
+  {
     vtkIntArray *ioffs = vtkIntArray::SafeDownCast(offsets);
     startIndex = ioffs->GetValue(piece);
     endIndex = ioffs->GetValue(piece+1);
-    }
+  }
   else
-    {
+  {
     vtkIdTypeArray *ioffs = vtkIdTypeArray::SafeDownCast(offsets);
     startIndex = ioffs->GetValue(piece);
     endIndex = ioffs->GetValue(piece+1);
-    }
+  }
 
   vtkIdType numPts = endIndex - startIndex;
   vtkPointData *pd = input->GetPointData();
@@ -99,30 +99,30 @@ int vtkExtractPointCloudPiece::RequestData(
   newPoints->SetNumberOfPoints(numPts);
 
   if (this->ModuloOrdering)
-    {
+  {
     // loop over points copying them to the output
     // we do it in an mod 11 approach to add some randomization to the order
     vtkIdType inIdx = 0;
     vtkIdType nextStart = 1;
     for (vtkIdType i = 0; i < numPts; i++)
-      {
+    {
       newPoints->SetPoint(i,input->GetPoint(inIdx+startIndex));
       outPD->CopyData(pd, inIdx + startIndex, i);
       inIdx += 11;
       if (inIdx >= numPts)
-        {
+      {
         inIdx = nextStart;
         nextStart++;
-        }
       }
     }
+  }
   else // otherwise no reordering
-    {
+  {
     // copy the points
     newPoints->InsertPoints(0, numPts, startIndex, input->GetPoints());
     // copy point data
     outPD->CopyData(pd, 0, numPts, startIndex);
-    }
+  }
 
   output->SetPoints(newPoints.Get());
 

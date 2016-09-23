@@ -60,8 +60,8 @@ public:
    */
   vtkStaticCellLinksTemplate() :
     LinksSize(0), NumPts(0), NumCells(0), Links(NULL), Offsets(NULL)
-    {
-    }
+  {
+  }
 
   /**
    * Virtual destructor, anticipating future subclassing.
@@ -93,17 +93,17 @@ public:
    * Get the number of cells using the point specified by ptId.
    */
   TIds GetNumberOfCells(vtkIdType ptId)
-    {
+  {
       return (this->Offsets[ptId+1] - this->Offsets[ptId]);
-    }
+  }
 
   /**
    * Return a list of cell ids using the point.
    */
   const TIds *GetCells(vtkIdType ptId)
-    {
+  {
       return this->Links + this->Offsets[ptId];
-    }
+  }
 
 protected:
   // The various templated data members

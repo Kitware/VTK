@@ -376,13 +376,13 @@ public:
    * properties for example)
    */
   vtkAxisActor2D *GetXAxisActor2D()
-    {
+  {
     return this->XAxis;
-    }
+  }
   vtkAxisActor2D *GetYAxisActor2D()
-    {
+  {
     return this->YAxis;
-    }
+  }
   //@}
 
   //@{
@@ -555,9 +555,9 @@ enum Alignment {
    */
   virtual void SetLabelFormat ( const char* );
   const char* GetLabelFormat()
-    {
+  {
     return this->GetXLabelFormat();
-    }
+  }
   //@}
 
   //@{

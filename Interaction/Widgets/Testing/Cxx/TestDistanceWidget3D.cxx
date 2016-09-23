@@ -831,7 +831,7 @@ void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* c
 {
   if ( eid == vtkCommand::InteractionEvent ||
        eid == vtkCommand::EndInteractionEvent )
-    {
+  {
         double pos1[3], pos2[3];
     // Modify the measure axis
     this->Distance->GetPoint1WorldPosition(pos1);
@@ -842,9 +842,9 @@ void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* c
 //    this->Distance->GetAxis()->SetRange(0.0,dist);
     sprintf(title,"%-#6.3g",dist);
 //    this->Distance->GetAxis()->SetTitle(title);
-    }
+  }
   else
-    {
+  {
     int pid = *(reinterpret_cast<int*>(callData));
 
     //From the point id, get the display coordinates
@@ -852,20 +852,20 @@ void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* c
     this->Distance->GetPoint1DisplayPosition(pos1);
     this->Distance->GetPoint2DisplayPosition(pos2);
     if ( pid == 0 )
-      {
+    {
       pos = pos1;
-      }
+    }
     else
-      {
+    {
       pos = pos2;
-      }
+    }
 
     // Okay, render without the widget, and get the color buffer
     int enabled = this->DistanceWidget->GetEnabled();
     if ( enabled )
-      {
+    {
       this->DistanceWidget->SetEnabled(0); //does a Render() as a side effect
-      }
+    }
 
     // Pretend we are doing something serious....just randomly bump the
     // location of the point.
@@ -876,20 +876,20 @@ void vtkDistanceWidget3DCallback::Execute(vtkObject*, unsigned long eid, void* c
 
     // Set the new position
     if ( pid == 0 )
-      {
+    {
       this->Distance->SetPoint1DisplayPosition(p);
-      }
+    }
     else
-      {
+    {
       this->Distance->SetPoint2DisplayPosition(p);
-      }
+    }
 
     // Side effect of a render here
     if ( enabled )
-      {
+    {
       this->DistanceWidget->SetEnabled(1);
-      }
     }
+  }
 }
 
 // The actual test function
@@ -923,58 +923,58 @@ int TestDistanceWidget3D( int argc, char *argv[] )
   double glyphScale = rep->GetGlyphScale();
   rep->SetGlyphScale(2.0);
   if (rep->GetGlyphScale() != 2.0)
-    {
+  {
     std::cerr << "Error setting glyph scale to 2.0, returned " << rep->GetGlyphScale() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   rep->SetGlyphScale(glyphScale);
   if (rep->GetGlyphScale() != glyphScale)
-    {
+  {
     std::cerr << "Error setting glyph scale to " << glyphScale << ", returned " << rep->GetGlyphScale() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   rep->SetGlyphScale(0.1);
   if (rep->GetGlyphScale() != 0.1)
-    {
+  {
     cerr << "Error setting glyph scale to 0.1, returned " << rep->GetGlyphScale() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   if (!rep->GetLineProperty())
-    {
+  {
     std::cerr << "Error getting representation line property" << endl;
     return EXIT_FAILURE;
-    }
+  }
   rep->GetLineProperty()->SetColor(1.0, 0.0, 1.0);
   rep->SetLabelPosition(0.45);
   if (rep->GetLabelPosition() != 0.45)
-    {
+  {
     std::cerr << "Error setting label position to 0.45, returned : " << rep->GetLabelPosition() << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   for (int maxTicks = 1; maxTicks < 100; maxTicks += 10)
-    {
+  {
     rep->SetMaximumNumberOfRulerTicks(maxTicks);
     if (rep->GetMaximumNumberOfRulerTicks() != maxTicks)
-      {
+    {
       std::cerr << "Error setting maximum number of ruler ticks to " << maxTicks << ", get returned " << rep->GetMaximumNumberOfRulerTicks() << std::endl;
       return EXIT_FAILURE;
-      }
     }
+  }
   vtkActor *glyphActor = rep->GetGlyphActor();
   if (!glyphActor)
-    {
+  {
     std::cerr << "Error getting glyph actor" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   glyphActor->GetProperty()->SetColor(1.0, 0.0, 0.0);
   vtkFollower *labelActor = rep->GetLabelActor();
   if (!labelActor)
-    {
+  {
     std::cerr << "Error getting label actor" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   labelActor->GetProperty()->SetColor(0.0, 1.0, 0.0);
 
   VTK_CREATE(vtkDistanceWidget, widget);
@@ -1015,9 +1015,9 @@ int TestDistanceWidget3D( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   recorder->Off();
   widget->Off();

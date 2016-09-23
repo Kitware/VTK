@@ -45,16 +45,16 @@ public:
    */
   vtkContextScenePrivate(vtkAbstractContextItem* item)
     : std::vector<vtkAbstractContextItem*>(), Scene(0), Item(item)
-    {
-    }
+  {
+  }
 
   /**
    * Destructor.
    */
   ~vtkContextScenePrivate()
-    {
+  {
     this->Clear();
-    }
+  }
 
   //@{
   /**
@@ -81,22 +81,22 @@ public:
    * Paint all items in the list.
    */
   void PaintItems(vtkContext2D* context)
-    {
+  {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
-      {
+    {
       if ((*it)->GetVisible())
-        {
+      {
         (*it)->Paint(context);
-        }
       }
     }
+  }
 
   //@{
   /**
    * Add an item to the list - ensure it is not already in the list.
    */
   unsigned int AddItem(vtkAbstractContextItem* item)
-    {
+  {
     item->Register(this->Scene);
     item->SetScene(this->Scene);
     item->SetParent(this->Item);
@@ -104,27 +104,27 @@ public:
 
     this->push_back(item);
     return static_cast<unsigned int>(this->size()-1);
-    }
+  }
 
   //@{
   /**
    * Remove an item from the list.
    */
   bool RemoveItem(vtkAbstractContextItem* item)
-    {
+  {
     for(iterator it = this->begin(); it != this->end(); ++it)
-      {
+    {
       if (item == *it)
-        {
+      {
         item->SetParent(NULL);
         item->SetScene(NULL);
         (*it)->Delete();
         this->erase(it);
         return true;
-        }
       }
-    return false;
     }
+    return false;
+  }
   //@}
 
   //@{
@@ -132,13 +132,13 @@ public:
    * Remove an item from the list.
    */
   bool RemoveItem(unsigned int index)
-    {
+  {
     if (index < this->size())
-      {
+    {
       return this->RemoveItem(this->at(index));
-      }
-    return false;
     }
+    return false;
+  }
   //@}
 
   //@{
@@ -146,15 +146,15 @@ public:
    * Clear all items from the list - unregister.
    */
   void Clear()
-    {
+  {
     for(const_iterator it = this->begin(); it != this->end(); ++it)
-      {
+    {
       (*it)->SetParent(NULL);
       (*it)->SetScene(NULL);
       (*it)->Delete();
-      }
-    this->clear();
     }
+    this->clear();
+  }
   //@}
 
   //@{
@@ -162,17 +162,17 @@ public:
    * Set the scene for the instance (and its items).
    */
   void SetScene(vtkContextScene* scene)
-    {
+  {
     if (this->Scene == scene)
-      {
+    {
       return;
-      }
+    }
     this->Scene = scene;
     for(const_iterator it = this->begin(); it != this->end(); ++it)
-      {
+    {
         (*it)->SetScene(scene);
-      }
     }
+  }
   //@}
 
   /**

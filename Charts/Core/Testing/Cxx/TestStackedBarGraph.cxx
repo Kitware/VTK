@@ -53,9 +53,9 @@ static void build_array(const char *name, vtkIntArray *array, const int c_array[
 {
   array->SetName(name);
   for (int i = 0; i < num_months; ++i)
-    {
+  {
     array->InsertNextValue(c_array[i]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

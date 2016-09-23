@@ -98,12 +98,12 @@ int TestNetworkViews(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(view1->GetRenderWindow());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view1->GetInteractor()->Initialize();
     view1->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   return !retVal;
 }

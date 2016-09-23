@@ -24,8 +24,8 @@ int vtkPropCollection::GetNumberOfPaths()
 
   vtkCollectionSimpleIterator pit;
   for ( this->InitTraversal(pit); (aProp=this->GetNextProp(pit)); )
-    {
+  {
     numPaths += aProp->GetNumberOfPaths();
-    }
+  }
   return numPaths;
 }

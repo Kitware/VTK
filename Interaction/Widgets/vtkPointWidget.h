@@ -185,19 +185,19 @@ public:
    * Convenience methods to turn outline and shadows on and off.
    */
   void AllOn()
-    {
+  {
       this->OutlineOn();
       this->XShadowsOn();
       this->YShadowsOn();
       this->ZShadowsOn();
-    }
+  }
   void AllOff()
-    {
+  {
       this->OutlineOff();
       this->XShadowsOff();
       this->YShadowsOff();
       this->ZShadowsOff();
-    }
+  }
   //@}
 
   //@{

@@ -84,12 +84,12 @@ int main()
   //
   int i;
   for (i = 0; i < 360; ++i)
-    {
+  {
     // render the image
     renWin->Render();
     // rotate the active camera by one degree
     ren1->GetActiveCamera()->Azimuth( 1 );
-    }
+  }
 
   //
   // Free up any objects we created. All instances in VTK are deleted by

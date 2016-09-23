@@ -27,9 +27,9 @@ vtkRIBLight::vtkRIBLight ()
 vtkRIBLight::~vtkRIBLight()
 {
   if (this->Light)
-    {
+  {
     this->Light->Delete();
-    }
+  }
 }
 
 void vtkRIBLight::Render(vtkRenderer *ren, int index)

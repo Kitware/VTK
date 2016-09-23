@@ -48,48 +48,48 @@ public:
   };
 
   int GetClassType() const
-    {
+  {
       return this->ClassType;
-    }
+  }
 
   vtkUniform()
-    {
+  {
       this->ClassType=-1;
       this->Name=0;
-    }
+  }
 
   const char *GetName() const
-    {
+  {
       return this->Name;
-    }
+  }
 
   void SetName(const char *n)
-    {
+  {
       if(this->Name==0 && n==0)
-        {
+      {
         return;
-        }
+      }
       if(this->Name!=0 && n!=0 && strcmp(this->Name,n)==0)
-        {
+      {
         return;
-        }
+      }
       delete[] this->Name;
       if(n!=0) // copy
-        {
+      {
          size_t l=strlen(n)+1;
          this->Name=new char[l];
          strncpy(this->Name,n,l);
-        }
+      }
       else
-        {
+      {
         this->Name=0;
-        }
-    }
+      }
+  }
 
   virtual ~vtkUniform()
-    {
+  {
       delete[] Name;
-    }
+  }
 
   virtual void Send(int location)=0;
 
@@ -108,46 +108,46 @@ class vtkUniformVectorInt : public vtkUniform
 public:
   vtkUniformVectorInt(int size,
                       int *values)
-    {
+  {
       this->ClassType=ClassTypeVectorInt;
       this->Size=size;
       this->Values=new int[size];
       int i=0;
       while(i<size)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
   virtual ~vtkUniformVectorInt()
-    {
+  {
       delete[] this->Values;
-    }
+  }
 
   int GetSize()
-    {
+  {
       return this->Size;
-    }
+  }
 
   void SetValues(int *values)
-    {
+  {
       int i=0;
       while(i<this->Size)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   const int *GetValues()
-    {
+  {
      return this->Values;
-    }
+  }
 
    virtual void Send(int location)
-    {
+   {
       switch(this->Size)
-        {
+      {
         case 1:
           vtkgl::Uniform1i(location,this->Values[0]);
           break;
@@ -162,33 +162,33 @@ public:
           vtkgl::Uniform4i(location,this->Values[0],this->Values[1],
                            this->Values[2],this->Values[3]);
           break;
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*i");
-    }
+   }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
-    {
+  {
       os << indent << this->Name << " (uniform" << this->Size << "i): ";
       int i=0;
       while(i<this->Size)
-        {
+      {
         os << this->Values[i];
         if(i<(this->Size-1))
-          {
+        {
           os <<",";
-          }
-        ++i;
         }
+        ++i;
+      }
       os << endl;
-    }
+  }
 
   virtual vtkUniform *Clone() const
-    {
+  {
       vtkUniformVectorInt *result=new vtkUniformVectorInt(this->Size,
                                                           this->Values);
       result->SetName(this->Name);
       return result;
-    }
+  }
 
 protected:
   int Size;
@@ -200,47 +200,47 @@ class vtkUniformVectorFloat : public vtkUniform
 public:
   vtkUniformVectorFloat(int size,
                         float *values)
-    {
+  {
       this->ClassType=ClassTypeVectorFloat;
       this->Size=size;
       this->Values=new float[size];
       int i=0;
       while(i<size)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   virtual ~vtkUniformVectorFloat()
-    {
+  {
       delete[] this->Values;
-    }
+  }
 
   int GetSize()
-    {
+  {
       return this->Size;
-    }
+  }
 
   void SetValues(float *values)
-    {
+  {
       int i=0;
       while(i<this->Size)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   const float *GetValues()
-    {
+  {
       return this->Values;
-    }
+  }
 
   virtual void Send(int location)
-    {
+  {
       switch(this->Size)
-        {
+      {
         case 1:
           vtkgl::Uniform1f(location,this->Values[0]);
           break;
@@ -255,33 +255,33 @@ public:
           vtkgl::Uniform4f(location,this->Values[0],this->Values[1],
                            this->Values[2],this->Values[3]);
           break;
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*f");
-    }
+  }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
-    {
+  {
       os << indent << this->Name << " (uniform" << this->Size << "f): ";
       int i=0;
       while(i<this->Size)
-        {
+      {
         os << this->Values[i];
         if(i<(this->Size-1))
-          {
+        {
           os <<",";
-          }
-        ++i;
         }
+        ++i;
+      }
       os << endl;
-    }
+  }
 
   virtual vtkUniform *Clone() const
-    {
+  {
       vtkUniformVectorFloat *result=new vtkUniformVectorFloat(this->Size,
                                                               this->Values);
       result->SetName(this->Name);
       return result;
-    }
+  }
 
 protected:
   int Size;
@@ -294,71 +294,71 @@ public:
   vtkUniformArrayInt(int size,
                      int arraySize,
                      int *values)
-    {
+  {
       this->ClassType=ClassTypeArrayInt;
       this->Size=size;
       this->ArraySize=arraySize;
       this->Values=new GLint[size*arraySize];
       int i=0;
       while(i<this->Size*this->ArraySize)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   // this constructor is used inside Clone()
   // It is required because GLint is long on Mac, not int.
   vtkUniformArrayInt(int size,
                      int arraySize,
                      const GLint *values)
-    {
+  {
       this->ClassType=ClassTypeArrayInt;
       this->Size=size;
       this->ArraySize=arraySize;
       this->Values=new GLint[size*arraySize];
       int i=0;
       while(i<this->Size*this->ArraySize)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   virtual ~vtkUniformArrayInt()
-    {
+  {
       delete[] this->Values;
-    }
+  }
 
   int GetSize()
-    {
+  {
       return this->Size;
-    }
+  }
 
   int GetArraySize()
-    {
+  {
       return this->ArraySize;
-    }
+  }
 
   void SetValues(int *values)
-    {
+  {
       int i=0;
       while(i<this->Size*this->ArraySize)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   const GLint *GetValues()
-    {
+  {
       return this->Values;
-    }
+  }
 
   virtual void Send(int location)
-    {
+  {
       switch(this->Size)
-        {
+      {
         case 1:
           vtkgl::Uniform1iv(location,this->ArraySize,this->Values);
           break;
@@ -371,40 +371,40 @@ public:
         case 4:
           vtkgl::Uniform4iv(location,this->ArraySize,this->Values);
           break;
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*iv");
-    }
+  }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
-    {
+  {
       os << indent << this->Name << " (uniform" << this->Size << "iv[" << this->ArraySize << "]): ";
       int j=0;
       while(j<this->ArraySize)
-        {
+      {
         os << "(";
         int i=0;
         while(i<this->Size)
-          {
+        {
           os << this->Values[i];
           if(i<(this->Size-1))
-            {
+          {
             os <<",";
-            }
-          ++i;
           }
+          ++i;
+        }
         os << endl;
         ++j;
-        }
-    }
+      }
+  }
 
   virtual vtkUniform *Clone() const
-    {
+  {
       vtkUniformArrayInt *result=new vtkUniformArrayInt(this->Size,
                                                         this->ArraySize,
                                                         this->Values);
       result->SetName(this->Name);
       return result;
-    }
+  }
 
 protected:
   int Size;  // size of element (eq. to float, vec2, vec2, vec4)
@@ -418,53 +418,53 @@ public:
   vtkUniformArrayFloat(int size,
                        int arraySize,
                        float *values)
-    {
+  {
       this->ClassType=ClassTypeArrayFloat;
       this->Size=size;
       this->ArraySize=arraySize;
       this->Values=new float[size*arraySize];
       int i=0;
       while(i<this->Size*this->ArraySize)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   virtual ~vtkUniformArrayFloat()
-    {
+  {
       delete[] this->Values;
-    }
+  }
 
   int GetSize()
-    {
+  {
       return this->Size;
-    }
+  }
 
   int GetArraySize()
-    {
+  {
       return this->ArraySize;
-    }
+  }
 
   void SetValues(float *values)
-    {
+  {
       int i=0;
       while(i<this->Size*this->ArraySize)
-        {
+      {
         this->Values[i]=values[i];
         ++i;
-        }
-    }
+      }
+  }
 
   const float *GetValues()
-    {
+  {
       return this->Values;
-    }
+  }
 
   virtual void Send(int location)
-    {
+  {
       switch(this->Size)
-        {
+      {
         case 1:
           vtkgl::Uniform1fv(location,this->ArraySize,this->Values);
           break;
@@ -477,40 +477,40 @@ public:
         case 4:
           vtkgl::Uniform4fv(location,this->ArraySize,this->Values);
           break;
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed at glUniform*fv");
-    }
+  }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
-    {
+  {
       os << indent << this->Name << " (uniform" << this->Size << "fv[" << this->ArraySize << "]): ";
       int j=0;
       while(j<this->ArraySize)
-        {
+      {
         os << "(";
         int i=0;
         while(i<this->Size)
-          {
+        {
           os << this->Values[i];
           if(i<(this->Size-1))
-            {
+          {
             os <<",";
-            }
-          ++i;
           }
+          ++i;
+        }
         os << endl;
         ++j;
-        }
-    }
+      }
+  }
 
   virtual vtkUniform *Clone() const
-    {
+  {
       vtkUniformArrayFloat *result=new vtkUniformArrayFloat(this->Size,
                                                             this->ArraySize,
                                                             this->Values);
       result->SetName(this->Name);
       return result;
-    }
+  }
 
 protected:
   int Size;  // size of element (eq. to float, vec2, vec2, vec4)
@@ -525,68 +525,68 @@ public:
   vtkUniformMatrix(int rows,
                    int columns,
                    float *values)
-    {
+  {
       this->ClassType=ClassTypeMatrix;
       this->Rows=rows;
       this->Columns=columns;
       this->Values=new float[rows*columns];
       int i=0;
       while(i<rows)
-        {
+      {
         int j=0;
         while(j<columns)
-          {
+        {
           int index=i*columns+j;
           this->Values[index]=values[index];
           ++j;
-          }
-        ++i;
         }
-    }
+        ++i;
+      }
+  }
 
   ~vtkUniformMatrix()
-    {
+  {
       delete[] this->Values;
-    }
+  }
 
   int GetRows()
-    {
+  {
       return this->Rows;
-    }
+  }
 
   int GetColumns()
-    {
+  {
       return this->Columns;
-    }
+  }
 
   void SetValues(float *values)
-    {
+  {
       int i=0;
       while(i<this->Rows)
-        {
+      {
         int j=0;
         while(j<this->Columns)
-          {
+        {
           int index=i*this->Columns+j;
           this->Values[index]=values[index];
           ++j;
-          }
-        ++i;
         }
-    }
+        ++i;
+      }
+  }
 
   const float* GetValues()
-    {
+  {
       return this->Values;
-    }
+  }
 
   virtual void Send(int location)
-    {
+  {
       switch(this->Rows)
-        {
+      {
         case 2:
           switch(this->Columns)
-            {
+          {
             case 2:
               vtkgl::UniformMatrix2fv(location,1,GL_FALSE,this->Values);
               break;
@@ -596,11 +596,11 @@ public:
             case 4:
               vtkgl::UniformMatrix2x4fv(location,1,GL_FALSE,this->Values);
               break;
-            }
+          }
           break;
         case 3:
            switch(this->Columns)
-            {
+           {
             case 2:
               vtkgl::UniformMatrix3x2fv(location,1,GL_FALSE,this->Values);
               break;
@@ -610,11 +610,11 @@ public:
             case 4:
               vtkgl::UniformMatrix3x4fv(location,1,GL_FALSE,this->Values);
               break;
-            }
+           }
            break;
         case 4:
           switch(this->Columns)
-            {
+          {
             case 2:
               vtkgl::UniformMatrix4x2fv(location,1,GL_FALSE,this->Values);
               break;
@@ -624,41 +624,41 @@ public:
             case 4:
               vtkgl::UniformMatrix4fv(location,1,GL_FALSE,this->Values);
               break;
-            }
+          }
           break;
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed at glUniformMatrix*fv");
-    }
+  }
 
   virtual void PrintSelf(ostream &os, vtkIndent indent)
-    {
+  {
       os << indent << this->Name << " (matrix " << this->Rows << "x"
          << this->Columns << "): ";
 
       int i=0;
       while(i<this->Rows)
-        {
+      {
         int j=0;
         while(j<this->Columns)
-          {
+        {
           int index=i*this->Columns+j;
           os << this->Values[index];
           if(j<(this->Columns-1))
             os << ",";
           ++j;
-          }
+        }
         os << endl;
         ++i;
-        }
-    }
+      }
+  }
 
   virtual vtkUniform *Clone() const
-    {
+  {
       vtkUniformMatrix *result=new vtkUniformMatrix(this->Rows,this->Columns,
                                                     this->Values);
       result->SetName(this->Name);
       return result;
-    }
+  }
 
 protected:
   float *Values;
@@ -676,16 +676,16 @@ public:
   UniformMapIt It; // used for external iteration.
 
   ~vtkUniformVariablesMap()
-    {
+  {
       UniformMapIt i=this->Map.begin();
       UniformMapIt e=this->Map.end();
       while(i!=e)
-        {
+      {
         vtkUniform *u=(*i).second;
         delete u;
         ++i;
-        }
-    }
+      }
+  }
 };
 
 // ----------------------------------------------------------------------------
@@ -712,42 +712,42 @@ void vtkUniformVariables::SetUniformi(const char *name,
   UniformMapIt cur=this->Map->Map.find(name);
 
   if(cur!=this->Map->Map.end())
-    {
+  {
     vtkUniform *u=(*cur).second;
     vtkUniformVectorInt *ui=0;
     if(u->GetClassType()==vtkUniform::ClassTypeVectorInt)
-      {
+    {
       ui=static_cast<vtkUniformVectorInt *>(u);
-      }
+    }
     if(ui==0)
-      {
+    {
       vtkErrorMacro(<<"try to overwrite a value with different type.");
-      }
+    }
     else
-      {
+    {
       if(ui->GetSize()!=numberOfComponents)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
-        }
+      }
       else
-        {
+      {
         bool changed=false;
         int i=0;
         while(!changed && i<numberOfComponents)
-          {
+        {
           changed=value[i]!=ui->GetValues()[i];
           ++i;
-          }
+        }
         if(changed)
-          {
+        {
           ui->SetValues(value);
           this->Modified();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUniform *u=0;
     u=new vtkUniformVectorInt(numberOfComponents,value);
     u->SetName(name);
@@ -759,7 +759,7 @@ void vtkUniformVariables::SetUniformi(const char *name,
 
     this->Map->Map.insert(p);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -774,42 +774,42 @@ void vtkUniformVariables::SetUniformf(const char *name,
   UniformMapIt cur=this->Map->Map.find(name);
 
   if(cur!=this->Map->Map.end())
-    {
+  {
     vtkUniform *u=(*cur).second;
     vtkUniformVectorFloat *uf=0;
     if(u->GetClassType()==vtkUniform::ClassTypeVectorFloat)
-      {
+    {
       uf=static_cast<vtkUniformVectorFloat *>(u);
-      }
+    }
     if(uf==0)
-      {
+    {
       vtkErrorMacro(<<"try to overwrite a value with different type.");
-      }
+    }
     else
-      {
+    {
       if(uf->GetSize()!=numberOfComponents)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
-        }
+      }
       else
-        {
+      {
         bool changed=false;
         int i=0;
         while(!changed && i<numberOfComponents)
-          {
+        {
           changed=value[i]!=uf->GetValues()[i];
           ++i;
-          }
+        }
         if(changed)
-          {
+        {
           uf->SetValues(value);
           this->Modified();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUniform *u=0;
     u=new vtkUniformVectorFloat(numberOfComponents,value);
     u->SetName(name);
@@ -821,7 +821,7 @@ void vtkUniformVariables::SetUniformf(const char *name,
 
     this->Map->Map.insert(p);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -838,46 +838,46 @@ void vtkUniformVariables::SetUniformiv(const char *name,
   UniformMapIt cur=this->Map->Map.find(name);
 
   if(cur!=this->Map->Map.end())
-    {
+  {
     vtkUniform *u=(*cur).second;
     vtkUniformArrayInt *ui=0;
     if(u->GetClassType()==vtkUniform::ClassTypeArrayInt)
-      {
+    {
       ui=static_cast<vtkUniformArrayInt *>(u);
-      }
+    }
     if(ui==0)
-      {
+    {
       vtkErrorMacro(<<"try to overwrite a value with different type.");
-      }
+    }
     else
-      {
+    {
       if(ui->GetSize()!=numberOfComponents)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
-        }
+      }
       if(ui->GetArraySize()!=numberOfElements)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of elements.");
-        }
+      }
       else
-        {
+      {
         bool changed=false;
         int i=0;
         while(!changed && i<numberOfComponents*numberOfElements)
-          {
+        {
           changed=value[i]!=ui->GetValues()[i];
           ++i;
-          }
+        }
         if(changed)
-          {
+        {
           ui->SetValues(value);
           this->Modified();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUniform *u=0;
     u=new vtkUniformArrayInt(numberOfComponents,numberOfElements,value);
     u->SetName(name);
@@ -889,7 +889,7 @@ void vtkUniformVariables::SetUniformiv(const char *name,
 
     this->Map->Map.insert(p);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -906,46 +906,46 @@ void vtkUniformVariables::SetUniformfv(const char *name,
   UniformMapIt cur=this->Map->Map.find(name);
 
   if(cur!=this->Map->Map.end())
-    {
+  {
     vtkUniform *u=(*cur).second;
     vtkUniformArrayFloat *uf=0;
     if(u->GetClassType()==vtkUniform::ClassTypeArrayFloat)
-      {
+    {
       uf=static_cast<vtkUniformArrayFloat *>(u);
-      }
+    }
     if(uf==0)
-      {
+    {
       vtkErrorMacro(<<"try to overwrite a value with different type.");
-      }
+    }
     else
-      {
+    {
       if(uf->GetSize()!=numberOfComponents)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
-        }
+      }
       if(uf->GetArraySize()!=numberOfElements)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of elements.");
-        }
+      }
       else
-        {
+      {
         bool changed=false;
         int i=0;
         while(!changed && i<numberOfComponents*numberOfElements)
-          {
+        {
           changed=value[i]!=uf->GetValues()[i];
           ++i;
-          }
+        }
         if(changed)
-          {
+        {
           uf->SetValues(value);
           this->Modified();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUniform *u=0;
     u=new vtkUniformArrayFloat(numberOfComponents,numberOfElements,value);
     u->SetName(name);
@@ -957,7 +957,7 @@ void vtkUniformVariables::SetUniformfv(const char *name,
 
     this->Map->Map.insert(p);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -974,42 +974,42 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
   UniformMapIt cur=this->Map->Map.find(name);
 
   if(cur!=this->Map->Map.end())
-    {
+  {
     vtkUniform *u=(*cur).second;
     vtkUniformMatrix *um=0;
     if(u->GetClassType()==vtkUniform::ClassTypeMatrix)
-      {
+    {
       um=static_cast<vtkUniformMatrix *>(u);
-      }
+    }
     if(um==0)
-      {
+    {
       vtkErrorMacro(<<"try to overwrite a value with different type.");
-      }
+    }
     else
-      {
+    {
       if(um->GetRows()!=rows || um->GetColumns()!=columns)
-        {
+      {
         vtkErrorMacro(<<"try to overwrite a value of same type but different number of components.");
-        }
+      }
       else
-        {
+      {
         bool changed=false;
         int i=0;
         while(!changed && i<rows*columns)
-          {
+        {
           changed=value[i]!=um->GetValues()[i];
           ++i;
-          }
+        }
         if(changed)
-          {
+        {
           um->SetValues(value);
           this->Modified();
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     vtkUniform *u=new vtkUniformMatrix(rows,columns,value);
     u->SetName(name);
     std::pair<const char *, vtkUniform *> p;
@@ -1018,7 +1018,7 @@ void vtkUniformVariables::SetUniformMatrix(const char *name,
     p.second=u;
     this->Map->Map.insert(p);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1028,10 +1028,10 @@ void vtkUniformVariables::RemoveUniform(const char *name)
 {
   UniformMapIt cur=this->Map->Map.find(name);
   if(cur!=this->Map->Map.end())
-    {
+  {
     this->Map->Map.erase(cur);
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1103,23 +1103,23 @@ void vtkUniformVariables::Merge(vtkUniformVariables *other)
 
   other->Start();
   while (!other->IsAtEnd())
-    {
+  {
     const char *name = other->GetCurrentName();
     UniformMapIt prev = this->Map->Map.find(name);
     if (prev != this->Map->Map.end())
-      {
+    {
       delete prev->second;
       this->Map->Map.erase(prev);
-      }
+    }
     vtkUniform* clone = other->Map->It->second->Clone();
     this->Map->Map[clone->GetName()] = clone;
 
     other->Next();
-    }
+  }
   if (other->Map->Map.size() > 0)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1134,11 +1134,11 @@ void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
   assert("pre: not_self" && other!=this);
 
   if(this->Map->Map.size()>0)
-    {
+  {
     delete this->Map;
     this->Map=new vtkUniformVariablesMap;
     this->Modified();
-    }
+  }
   this->Merge(other);
 }
 
@@ -1146,11 +1146,11 @@ void vtkUniformVariables::DeepCopy(vtkUniformVariables *other)
 void vtkUniformVariables::RemoveAllUniforms()
 {
   if(this->Map->Map.size()>0)
-    {
+  {
     delete this->Map;
     this->Map=new vtkUniformVariablesMap;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1160,10 +1160,10 @@ void vtkUniformVariables::PrintSelf(ostream& os, vtkIndent indent)
 
   this->Start();
   while(!this->IsAtEnd())
-    {
+  {
     const char *name=this->GetCurrentName();
     UniformMapIt cur=this->Map->Map.find(name);
     (*cur).second->PrintSelf(os,indent);
     this->Next();
-    }
+  }
 }

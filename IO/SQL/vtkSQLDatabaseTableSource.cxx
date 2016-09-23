@@ -109,16 +109,16 @@ void vtkSQLDatabaseTableSource::SetURL(const vtkStdString& url)
     return;
 
   if(this->Implementation->Query)
-    {
+  {
     this->Implementation->Query->Delete();
     this->Implementation->Query = 0;
-    }
+  }
 
   if(this->Implementation->Database)
-    {
+  {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
-    }
+  }
 
   this->Implementation->URL = url;
 
@@ -131,16 +131,16 @@ void vtkSQLDatabaseTableSource::SetPassword(const vtkStdString& password)
     return;
 
   if(this->Implementation->Query)
-    {
+  {
     this->Implementation->Query->Delete();
     this->Implementation->Query = 0;
-    }
+  }
 
   if(this->Implementation->Database)
-    {
+  {
     this->Implementation->Database->Delete();
     this->Implementation->Database = 0;
-    }
+  }
 
   this->Implementation->Password = password;
 
@@ -174,39 +174,39 @@ int vtkSQLDatabaseTableSource::RequestData(
     return 1;
 
   if(!this->PedigreeIdArrayName)
-    {
+  {
     vtkErrorMacro(<< "You must specify a pedigree id array name.");
     return 0;
-    }
+  }
 
   if(!this->Implementation->Database)
-    {
+  {
     this->Implementation->Database = vtkSQLDatabase::CreateFromURL(this->Implementation->URL);
     if(!this->Implementation->Database)
-      {
+    {
       vtkErrorMacro(<< "Error creating database using URL: " << this->Implementation->URL.c_str());
       return 0;
-      }
+    }
 
     if(!this->Implementation->Database->Open(this->Implementation->Password))
-      {
+    {
       this->Implementation->Database->Delete();
       this->Implementation->Database = 0;
 
       vtkErrorMacro(<< "Error opening database: " << this->Implementation->URL.c_str());
       return 0;
-      }
     }
+  }
 
   if(!this->Implementation->Query)
-    {
+  {
     this->Implementation->Query = this->Implementation->Database->GetQueryInstance();
     if(!this->Implementation->Query)
-      {
+    {
       vtkErrorMacro(<< "Internal error creating query instance.");
       return 0;
-      }
     }
+  }
 
   // Set Progress Text
   this->SetProgressText("DatabaseTableSource");
@@ -216,10 +216,10 @@ int vtkSQLDatabaseTableSource::RequestData(
 
   this->Implementation->Query->SetQuery(this->Implementation->QueryString.c_str());
   if(!this->Implementation->Query->Execute())
-    {
+  {
     vtkErrorMacro(<< "Error executing query: " << this->Implementation->QueryString.c_str());
     return 0;
-    }
+  }
 
   // Executed query: 33% progress
   this->UpdateProgress(.33);
@@ -228,13 +228,13 @@ int vtkSQLDatabaseTableSource::RequestData(
   this->SetProgressText("DatabaseTableSource: RowQueryToTable");
 
   if(!this->Implementation->Table)
-    {
+  {
     this->Implementation->Table = vtkRowQueryToTable::New();
 
     // Now forward progress events from the graph layout
     this->Implementation->Table->AddObserver(vtkCommand::ProgressEvent,
                                  this->EventForwarder);
-    }
+  }
   this->Implementation->Table->SetQuery(this->Implementation->Query);
   this->Implementation->Table->Update();
 
@@ -248,33 +248,33 @@ int vtkSQLDatabaseTableSource::RequestData(
   output->ShallowCopy(this->Implementation->Table->GetOutput());
 
   if (this->GeneratePedigreeIds)
-    {
+  {
     vtkSmartPointer<vtkIdTypeArray> pedigreeIds =
       vtkSmartPointer<vtkIdTypeArray>::New();
     vtkIdType numRows = output->GetNumberOfRows();
     pedigreeIds->SetNumberOfTuples(numRows);
     pedigreeIds->SetName(this->PedigreeIdArrayName);
     for (vtkIdType i = 0; i < numRows; ++i)
-      {
-      pedigreeIds->InsertValue(i, i);
-      }
-    output->GetRowData()->SetPedigreeIds(pedigreeIds);
-    }
-  else
     {
+      pedigreeIds->InsertValue(i, i);
+    }
+    output->GetRowData()->SetPedigreeIds(pedigreeIds);
+  }
+  else
+  {
     vtkAbstractArray* arr =
       output->GetColumnByName(this->PedigreeIdArrayName);
     if (arr)
-      {
+    {
       output->GetRowData()->SetPedigreeIds(arr);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro(<< "Could find pedigree id array: "
         << this->PedigreeIdArrayName);
       return 0;
-      }
     }
+  }
 
   // Done: 100% progress
   this->UpdateProgress(1);

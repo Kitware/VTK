@@ -74,9 +74,9 @@ int vtkCountVertices::RequestData(vtkInformation *,
 
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-    {
+  {
     vertCount->InsertNextValue(it->GetNumberOfPoints());
-    }
+  }
   it->Delete();
 
   return 1;

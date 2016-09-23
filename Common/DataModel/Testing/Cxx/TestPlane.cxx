@@ -52,11 +52,11 @@ int TestPlane(int,char *[])
   double correct[3] = {1., 2., 0};
   plane->ProjectVector(v, projection);
   if(!fuzzyCompare3D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (1., 2., 0) but it is ("
                   << projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Test ProjectVector where vector is already in plane
@@ -72,11 +72,11 @@ int TestPlane(int,char *[])
   double correct[3] = {1., 2., 0};
   plane->ProjectVector(v, projection);
   if(!fuzzyCompare3D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (1., 2., 0) but it is ("
                   << projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   // Test ProjectVector where vector is orthogonal to plane
@@ -92,11 +92,11 @@ int TestPlane(int,char *[])
   double correct[3] = {0., 0., 0.};
   plane->ProjectVector(v, projection);
   if(!fuzzyCompare3D(projection,correct))
-    {
+  {
     std::cerr << "ProjectVector failed! Should be (0., 0., 0) but it is ("
                   << projection[0] << " " << projection[1] << " " << projection[2] << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   }
 
   return EXIT_SUCCESS;

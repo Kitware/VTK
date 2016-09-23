@@ -41,13 +41,13 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum ArrayIndexes
-    {
+  {
     SCALE = 0,
     SOURCE_INDEX = 1,
     MASK = 2,
     ORIENTATION = 3,
     SELECTIONID = 4
-    };
+  };
 
   /**
    * Specify a source object at a specified table location. New style.
@@ -115,11 +115,11 @@ public:
   //@}
 
   enum ScaleModes
-    {
+  {
     NO_DATA_SCALING = 0,
     SCALE_BY_MAGNITUDE = 1,
     SCALE_BY_COMPONENTS = 2
-    };
+  };
 
   void SetScaleModeToScaleByMagnitude()
     { this->SetScaleMode(SCALE_BY_MAGNITUDE); }
@@ -164,10 +164,10 @@ public:
   //@}
 
   enum OrientationModes
-    {
+  {
     DIRECTION=0,
     ROTATION=1
-    };
+  };
 
   //@{
   /**

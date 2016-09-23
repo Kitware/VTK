@@ -105,9 +105,9 @@ public:
    * this->SetTimeStep(val-1);
    */
   void SetModeShape(int val)
-    {
+  {
     this->SetTimeStep(val-1);
-    }
+  }
 
   //@{
   /**

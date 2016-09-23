@@ -374,7 +374,7 @@ int vtkPPixelTransfer::Execute(
 {
   // second layer of dispatch
   switch(destType)
-    {
+  {
     vtkTemplateMacro(
         return this->Execute(
             comm,
@@ -385,7 +385,7 @@ int vtkPPixelTransfer::Execute(
             reqs,
             types,
             tag));
-    }
+  }
   return 0;
 }
 
@@ -403,7 +403,7 @@ int vtkPPixelTransfer::Execute(
 {
   int iErr = 0;
   if ((comm == MPI_COMM_NULL) || (this->Local(rank)))
-    {
+  {
     // transaction is local, bypass mpi in favor of memcpy
     return vtkPixelTransfer::Blit(
             this->SrcWholeExt,
@@ -414,15 +414,15 @@ int vtkPPixelTransfer::Execute(
             srcData,
             nComps,
             destData);
-    }
+  }
 
   if (rank == this->DestRank)
-    {
+  {
     // use mpi to receive the data
     if (destData == NULL)
-      {
+    {
       return -1;
-      }
+    }
 
     MPI_Datatype subarray;
     iErr = vtkMPIPixelViewNew<DEST_TYPE>(
@@ -431,12 +431,12 @@ int vtkPPixelTransfer::Execute(
           nComps,
           subarray);
     if (iErr)
-      {
+    {
       return -4;
-      }
+    }
 
     if (this->UseBlockingRecv)
-      {
+    {
       MPI_Status stat;
       iErr = MPI_Recv(
             destData,
@@ -446,9 +446,9 @@ int vtkPPixelTransfer::Execute(
             tag,
             comm,
             &stat);
-      }
+    }
     else
-      {
+    {
       reqs.push_back(MPI_REQUEST_NULL);
       iErr = MPI_Irecv(
             destData,
@@ -458,7 +458,7 @@ int vtkPPixelTransfer::Execute(
             tag,
             comm,
             &reqs.back());
-      }
+    }
 
     #define HOLD_RECV_TYPES
     #ifdef HOLD_RECV_YPES
@@ -468,18 +468,18 @@ int vtkPPixelTransfer::Execute(
     #endif
 
     if (iErr)
-      {
+    {
       return -5;
-      }
     }
+  }
 
   if (rank == this->SrcRank)
-    {
+  {
     // use mpi to send the data
     if (srcData == NULL)
-      {
+    {
       return -1;
-      }
+    }
 
     MPI_Datatype subarray;
     iErr = vtkMPIPixelViewNew<SOURCE_TYPE>(
@@ -488,12 +488,12 @@ int vtkPPixelTransfer::Execute(
           nComps,
           subarray);
     if (iErr)
-      {
+    {
       return -2;
-      }
+    }
 
     if (this->UseBlockingSend)
-      {
+    {
       iErr = MPI_Ssend(
             srcData,
             1,
@@ -501,9 +501,9 @@ int vtkPPixelTransfer::Execute(
             this->DestRank,
             tag,
             comm);
-      }
+    }
     else
-      {
+    {
       MPI_Request req;
       iErr = MPI_Isend(
             srcData,
@@ -519,7 +519,7 @@ int vtkPPixelTransfer::Execute(
       #else
       MPI_Request_free(&req);
       #endif
-      }
+    }
 
     #define HOLD_SEND_TYPES
     #ifdef HOLD_SEND_TYPES
@@ -529,10 +529,10 @@ int vtkPPixelTransfer::Execute(
     #endif
 
     if (iErr)
-      {
+    {
       return -3;
-      }
     }
+  }
 
   return iErr;
 }

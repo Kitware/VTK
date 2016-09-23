@@ -58,10 +58,10 @@ static void interpolate(double f[4], int i, int n,
   double f0[4], f1[4];
 
   if (n == 0)
-    {
+  {
     rand3abcd(xlim[0][i&1], xlim[1][(i>>1) & 1], xlim[2][i>>2], f);
     return;
-    }
+  }
   n--;
   assert((n>=0)&&(n<=2));
   interpolate(f0, i, n, xlim, xarg);

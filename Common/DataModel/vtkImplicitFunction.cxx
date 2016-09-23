@@ -37,15 +37,15 @@ vtkImplicitFunction::~vtkImplicitFunction()
 double vtkImplicitFunction::FunctionValue(const double x[3])
 {
   if ( ! this->Transform )
-    {
+  {
     return this->EvaluateFunction(const_cast<double *>(x));
-    }
+  }
   else //pass point through transform
-    {
+  {
     double pt[3];
     this->Transform->TransformPoint(x,pt);
     return this->EvaluateFunction(pt);
-    }
+  }
 
   /* Return negative if determinant of Jacobian matrix is negative,
      i.e. if the transformation has a flip.  This is more 'correct'
@@ -77,11 +77,11 @@ double vtkImplicitFunction::FunctionValue(const double x[3])
 void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
 {
   if ( ! this->Transform )
-    {
+  {
     this->EvaluateGradient(const_cast<double *>(x),g);
-    }
+  }
   else //pass point through transform
-    {
+  {
     double pt[3];
     double A[3][3];
     this->Transform->Update();
@@ -104,12 +104,12 @@ void vtkImplicitFunction::FunctionGradient(const double x[3], double g[3])
        will never converge to a result */
 
     if (vtkMath::Determinant3x3(A) < 0)
-      {
+    {
       g[0] = -g[0];
       g[1] = -g[1];
       g[2] = -g[2];
-      }
     }
+  }
 }
 
 // Overload standard modified time function. If Transform is modified,
@@ -120,10 +120,10 @@ vtkMTimeType vtkImplicitFunction::GetMTime()
   vtkMTimeType TransformMTime;
 
   if ( this->Transform != NULL )
-    {
+  {
     TransformMTime = this->Transform->GetMTime();
     mTime = ( TransformMTime > mTime ? TransformMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -133,14 +133,14 @@ void vtkImplicitFunction::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Transform )
-    {
+  {
     os << indent << "Transform:\n";
     this->Transform->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Transform: (None)\n";
-    }
+  }
 }
 
 void vtkImplicitFunction::SetTransform(const double elements[16])

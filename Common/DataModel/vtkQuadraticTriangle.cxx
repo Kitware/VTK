@@ -36,10 +36,10 @@ vtkQuadraticTriangle::vtkQuadraticTriangle()
   this->Points->SetNumberOfPoints(6);
   this->PointIds->SetNumberOfIds(6);
   for (int i = 0; i < 6; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
 
   //four linear triangles are used
   for (minDist2=VTK_DOUBLE_MAX, i=0; i < 4; i++)
-    {
+  {
     this->Face->Points->SetPoint(
       0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(
@@ -95,50 +95,50 @@ int vtkQuadraticTriangle::EvaluatePosition(double* x, double* closestPoint,
     status = this->Face->EvaluatePosition(x,closest,ignoreId,pc,dist2,
                                           tempWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
-      }
     }
+  }
 
   // adjust parametric coordinates
   if ( returnStatus != -1 )
-    {
+  {
     if ( subId == 0 )
-      {
+    {
       pcoords[0] /= 2.0;
       pcoords[1] /= 2.0;
-      }
+    }
     else if ( subId == 1 )
-      {
+    {
       pcoords[0] = 0.5 + (pcoords[0]/2.0);
       pcoords[1] /= 2.0;
-      }
+    }
     else if ( subId == 2 )
-      {
+    {
       pcoords[0] /= 2.0;
       pcoords[1] = 0.5 + (pcoords[1]/2.0);
-      }
+    }
     else
-      {
+    {
       pcoords[0] = 0.5 - pcoords[0]/2.0;
       pcoords[1] = 0.5 - pcoords[1]/2.0;
-      }
+    }
     pcoords[2] = 0.0;
     if(closestPoint!=0)
-      {
+    {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
-      }
+    }
     else
-      {
+    {
       // Compute weights only
       this->InterpolationFunctions(pcoords,weights);
-      }
     }
+  }
 
   return returnStatus;
 }
@@ -160,10 +160,10 @@ void vtkQuadraticTriangle::EvaluateLocation(int& vtkNotUsed(subId),
   this->InterpolationFunctions(pcoords,weights);
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = a0[i]*weights[0] + a1[i]*weights[1] + a2[i]*weights[2] +
       a3[i]*weights[3] + a4[i]*weights[4] + a5[i]*weights[5];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -187,17 +187,17 @@ void vtkQuadraticTriangle::Contour(double value,
                                    vtkCellData* outCd)
 {
   for ( int i=0; i < 4; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if ( outPd )
-      {
+    {
       this->Face->PointIds->SetId(0,this->PointIds->GetId(LinearTris[i][0]));
       this->Face->PointIds->SetId(1,this->PointIds->GetId(LinearTris[i][1]));
       this->Face->PointIds->SetId(2,this->PointIds->GetId(LinearTris[i][2]));
-      }
+    }
 
     this->Scalars->SetTuple(0,cellScalars->GetTuple(LinearTris[i][0]));
     this->Scalars->SetTuple(1,cellScalars->GetTuple(LinearTris[i][1]));
@@ -205,7 +205,7 @@ void vtkQuadraticTriangle::Contour(double value,
 
     this->Face->Contour(value, this->Scalars, locator, verts,
                         lines, polys, inPd, outPd, inCd, cellId, outCd);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -223,16 +223,16 @@ int vtkQuadraticTriangle::IntersectWithLine(double* p1,
   subId = 0;
 
   for (i=0; i < 4; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
 
     if (this->Face->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -246,14 +246,14 @@ int vtkQuadraticTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   // Create four linear triangles
   for ( int i=0; i < 4; i++)
-    {
+  {
     ptIds->InsertId(3*i,this->PointIds->GetId(LinearTris[i][0]));
     pts->InsertPoint(3*i,this->Points->GetPoint(LinearTris[i][0]));
     ptIds->InsertId(3*i+1,this->PointIds->GetId(LinearTris[i][1]));
     pts->InsertPoint(3*i+1,this->Points->GetPoint(LinearTris[i][1]));
     ptIds->InsertId(3*i+2,this->PointIds->GetId(LinearTris[i][2]));
     pts->InsertPoint(3*i+2,this->Points->GetPoint(LinearTris[i][2]));
-    }
+  }
 
   return 1;
 }
@@ -284,7 +284,7 @@ void vtkQuadraticTriangle::Clip(double value,
                                 int insideOut)
 {
   for ( int i=0; i < 4; i++)
-    {
+  {
     this->Face->Points->SetPoint(0,this->Points->GetPoint(LinearTris[i][0]));
     this->Face->Points->SetPoint(1,this->Points->GetPoint(LinearTris[i][1]));
     this->Face->Points->SetPoint(2,this->Points->GetPoint(LinearTris[i][2]));
@@ -299,7 +299,7 @@ void vtkQuadraticTriangle::Clip(double value,
 
     this->Face->Clip(value, this->Scalars, locator, polys, inPd, outPd,
                      inCd, cellId, outCd, insideOut);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -315,24 +315,24 @@ double vtkQuadraticTriangle::GetParametricDistance(double pcoords[3])
   pc[2] = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)
-    {
+  {
     if ( pc[i] < 0.0 )
-      {
+    {
       pDist = -pc[i];
-      }
-    else if ( pc[i] > 1.0 )
-      {
-      pDist = pc[i] - 1.0;
-      }
-    else //inside the cell in the parametric direction
-      {
-      pDist = 0.0;
-      }
-    if ( pDist > pDistMax )
-      {
-      pDistMax = pDist;
-      }
     }
+    else if ( pc[i] > 1.0 )
+    {
+      pDist = pc[i] - 1.0;
+    }
+    else //inside the cell in the parametric direction
+    {
+      pDist = 0.0;
+    }
+    if ( pDist > pDistMax )
+    {
+      pDistMax = pDist;
+    }
+  }
 
   return pDistMax;
 }

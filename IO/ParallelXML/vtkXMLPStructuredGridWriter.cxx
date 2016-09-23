@@ -71,9 +71,9 @@ void vtkXMLPStructuredGridWriter::WritePData(vtkIndent indent)
 {
   this->Superclass::WritePData(indent);
   if (this->ErrorCode == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     return;
-    }
+  }
   vtkStructuredGrid* input = this->GetInput();
   this->WritePPoints(input->GetPoints(), indent);
 }

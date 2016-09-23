@@ -57,12 +57,12 @@ public:
    * and (4,0), using (0,1) and (1,2) as control (off) points.
    */
   enum ControlPointType
-    {
+  {
     MOVE_TO = 0,
     LINE_TO,
     CONIC_CURVE,
     CUBIC_CURVE
-    };
+  };
 
   //@{
   /**

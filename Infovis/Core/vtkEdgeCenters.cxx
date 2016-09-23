@@ -61,10 +61,10 @@ int vtkEdgeCenters::RequestData(
   outPD=output->GetPointData();
 
   if ( (numEdges = input->GetNumberOfEdges()) < 1 )
-    {
+  {
     vtkDebugMacro(<<"No cells to generate center points for");
     return 1;
-    }
+  }
 
   newPts = vtkPoints::New();
   newPts->SetNumberOfPoints(numEdges);
@@ -75,14 +75,14 @@ int vtkEdgeCenters::RequestData(
   input->GetEdges(edges);
   vtkIdType processed = 0;
   while (edges->HasNext() && !abort)
-    {
+  {
     vtkEdgeType e = edges->Next();
     if ( ! (processed % progressInterval) )
-      {
+    {
       vtkDebugMacro(<<"Processing #" << processed);
       this->UpdateProgress (0.5*processed/numEdges);
       abort = this->GetAbortExecute();
-      }
+    }
     double p1[3];
     double p2[3];
     input->GetPoint(e.Source, p1);
@@ -92,14 +92,14 @@ int vtkEdgeCenters::RequestData(
     input->GetEdgePoints(e.Id, npts, pts);
     // Find the length of the edge
     if (npts == 0)
-      {
+    {
       for (int c = 0; c < 3; ++c)
-        {
-        x[c] = (p1[c] + p2[c]) / 2.0;
-        }
-      }
-    else
       {
+        x[c] = (p1[c] + p2[c]) / 2.0;
+      }
+    }
+    else
+    {
       vtkIdType nptsFull = npts + 2;
       double* ptsFull = new double[3*(nptsFull)];
       ptsFull[0] = p1[0];
@@ -113,35 +113,35 @@ int vtkEdgeCenters::RequestData(
       double len = 0.0;
       double* curPt = ptsFull;
       for (vtkIdType i = 0; i < nptsFull-1; ++i, curPt += 3)
-        {
+      {
         len += sqrt(vtkMath::Distance2BetweenPoints(curPt, curPt+3));
-        }
+      }
       double half = len / 2;
       len = 0.0;
       curPt = ptsFull;
       for (vtkIdType i = 0; i < nptsFull-1; ++i, curPt += 3)
-        {
+      {
         double curDist = sqrt(vtkMath::Distance2BetweenPoints(curPt, curPt+3));
         if (len + curDist > half)
-          {
+        {
           double alpha = (half - len)/curDist;
           for (int c = 0; c < 3; ++c)
-            {
+          {
             x[c] = (1.0 - alpha)*curPt[c] + alpha*curPt[c+3];
-            }
-          break;
           }
-        len += curDist;
+          break;
         }
-      delete [] ptsFull;
+        len += curDist;
       }
+      delete [] ptsFull;
+    }
     newPts->SetPoint(e.Id, x);
     ++processed;
-    }
+  }
   edges->Delete();
 
   if ( this->VertexCells )
-    {
+  {
     vtkIdType pts[1];
     vtkCellData *outCD = output->GetCellData();
     vtkCellArray *verts = vtkCellArray::New();
@@ -151,25 +151,25 @@ int vtkEdgeCenters::RequestData(
     edges = vtkEdgeListIterator::New();
     input->GetEdges(edges);
     while (edges->HasNext() && !abort)
-      {
+    {
       vtkEdgeType e = edges->Next();
       if ( ! (processed % progressInterval) )
-        {
+      {
         vtkDebugMacro(<<"Processing #" << processed);
         this->UpdateProgress (0.5+0.5*processed/numEdges);
         abort = this->GetAbortExecute();
-        }
+      }
 
       pts[0] = e.Id;
       verts->InsertNextCell(1, pts);
       ++processed;
-      }
+    }
     edges->Delete();
 
     output->SetVerts(verts);
     verts->Delete();
     outCD->PassData(inED); //only if verts are generated
-    }
+  }
 
   // clean up and update output
   output->SetPoints(newPts);

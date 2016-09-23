@@ -76,7 +76,7 @@ int TestMultipleScalarsToColors(int , char * [])
   opacityFunction->AddPoint(0.,0.);
   opacityFunction->AddPoint(1.,1.);
   for ( int i=0; i < 4; ++i)
-    {
+  {
     VTK_CREATE(vtkRenderer, ren);
     ren->SetBackground(1.0,1.0,1.0);
     ren->SetViewport(&viewports[i*4]);
@@ -95,9 +95,9 @@ int TestMultipleScalarsToColors(int , char * [])
     chartScene->SetRenderer(ren);
 
     switch (i)
-      {
+    {
       case 0:
-        {
+      {
         vtkSmartPointer<vtkLookupTableItem> item =
           vtkSmartPointer<vtkLookupTableItem>::New();
         item->SetLookupTable(lookupTable);
@@ -107,9 +107,9 @@ int TestMultipleScalarsToColors(int , char * [])
         chart->GetAxis(1)->SetVisible(false);
         chart->SetTitle("vtkLookupTable");
         break;
-        }
+      }
       case 1:
-        {
+      {
         vtkSmartPointer<vtkColorTransferFunctionItem> item =
           vtkSmartPointer<vtkColorTransferFunctionItem>::New();
         item->SetColorTransferFunction(colorTransferFunction);
@@ -118,9 +118,9 @@ int TestMultipleScalarsToColors(int , char * [])
         chart->AddPlot(item);
         chart->SetTitle("vtkColorTransferFunction");
         break;
-        }
+      }
       case 2:
-        {
+      {
         vtkSmartPointer<vtkCompositeTransferFunctionItem> item =
           vtkSmartPointer<vtkCompositeTransferFunctionItem>::New();
         item->SetColorTransferFunction(colorTransferFunction);
@@ -129,9 +129,9 @@ int TestMultipleScalarsToColors(int , char * [])
         chart->AddPlot(item);
         chart->SetTitle("vtkColorTransferFunction + vtkPiecewiseFunction");
         break;
-        }
+      }
       case 3:
-        {
+      {
         vtkSmartPointer<vtkPiecewiseFunctionItem> item =
           vtkSmartPointer<vtkPiecewiseFunctionItem>::New();
         item->SetPiecewiseFunction(opacityFunction);
@@ -143,11 +143,11 @@ int TestMultipleScalarsToColors(int , char * [])
         chart->AddPlot(controlPointsItem);
         chart->SetTitle("vtkPiecewiseFunction");
         break;
-        }
+      }
       default:
         break;
-      }
     }
+  }
 
   // Needed to ensure there has been a render. This test supports as low as
   // OpenGL 1.2, but further granularity must be added to the device to detect
@@ -161,14 +161,14 @@ int TestMultipleScalarsToColors(int , char * [])
 #endif
 
   if (openGL2Backend || actor->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
-    {
+  {
     iren->Initialize();
     iren->Start();
-    }
+  }
   else
-    {
+  {
     cout << "GL version 2 or higher is required." << endl;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

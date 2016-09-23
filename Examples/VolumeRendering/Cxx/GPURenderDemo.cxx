@@ -42,16 +42,16 @@ public:
   static vtkBoxWidgetCallback *New()
     { return new vtkBoxWidgetCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       vtkBoxWidget *widget = reinterpret_cast<vtkBoxWidget*>(caller);
       if (this->Mapper)
-        {
+      {
         vtkPlanes *planes = vtkPlanes::New();
         widget->GetPlanes(planes);
         this->Mapper->SetClippingPlanes(planes);
         planes->Delete();
-        }
-    }
+      }
+  }
   void SetMapper(vtkSmartVolumeMapper* m)
     { this->Mapper = m; }
 
@@ -127,121 +127,121 @@ int main(int argc, char *argv[])
   bool independentComponents=true;
 
   while ( count < argc )
-    {
+  {
     if ( !strcmp( argv[count], "?" ) )
-      {
+    {
       PrintUsage();
       exit(EXIT_SUCCESS);
-      }
+    }
     else if ( !strcmp( argv[count], "-DICOM" ) )
-      {
+    {
       dirname = new char[strlen(argv[count+1])+1];
       sprintf( dirname, "%s", argv[count+1] );
       count += 2;
-      }
+    }
     else if ( !strcmp( argv[count], "-VTI" ) )
-      {
+    {
       fileName = new char[strlen(argv[count+1])+1];
       fileType = VTI_FILETYPE;
       sprintf( fileName, "%s", argv[count+1] );
       count += 2;
-      }
+    }
     else if ( !strcmp( argv[count], "-MHA" ) )
-      {
+    {
       fileName = new char[strlen(argv[count+1])+1];
       fileType = MHA_FILETYPE;
       sprintf( fileName, "%s", argv[count+1] );
       count += 2;
-      }
+    }
     else if ( !strcmp( argv[count], "-Clip") )
-      {
+    {
       clip = 1;
       count++;
-      }
+    }
     else if ( !strcmp( argv[count], "-MIP" ) )
-      {
+    {
       opacityWindow = atof( argv[count+1] );
       opacityLevel  = atof( argv[count+2] );
       blendType = 0;
       count += 3;
-      }
+    }
     else if ( !strcmp( argv[count], "-CompositeRamp" ) )
-      {
+    {
       opacityWindow = atof( argv[count+1] );
       opacityLevel  = atof( argv[count+2] );
       blendType = 1;
       count += 3;
-      }
+    }
     else if ( !strcmp( argv[count], "-CompositeShadeRamp" ) )
-      {
+    {
       opacityWindow = atof( argv[count+1] );
       opacityLevel  = atof( argv[count+2] );
       blendType = 2;
       count += 3;
-      }
+    }
     else if ( !strcmp( argv[count], "-CT_Skin" ) )
-      {
+    {
       blendType = 3;
       count += 1;
-      }
+    }
     else if ( !strcmp( argv[count], "-CT_Bone" ) )
-      {
+    {
       blendType = 4;
       count += 1;
-      }
+    }
     else if ( !strcmp( argv[count], "-CT_Muscle" ) )
-      {
+    {
       blendType = 5;
       count += 1;
-      }
+    }
     else if ( !strcmp( argv[count], "-RGB_Composite" ) )
-      {
+    {
       blendType = 6;
       count += 1;
-      }
+    }
     else if ( !strcmp( argv[count], "-FrameRate") )
-      {
+    {
       frameRate = atof( argv[count+1] );
       if ( frameRate < 0.01 || frameRate > 60.0 )
-        {
+      {
         cout << "Invalid frame rate - use a number between 0.01 and 60.0" << endl;
         cout << "Using default frame rate of 10 frames per second." << endl;
         frameRate = 10.0;
-        }
-      count += 2;
       }
+      count += 2;
+    }
     else if ( !strcmp( argv[count], "-ReductionFactor") )
-      {
+    {
       reductionFactor = atof( argv[count+1] );
       if ( reductionFactor <= 0.0 || reductionFactor >= 1.0 )
-        {
+      {
         cout << "Invalid reduction factor - use a number between 0 and 1 (exclusive)" << endl;
         cout << "Using the default of no reduction." << endl;
         reductionFactor = 1.0;
-        }
-      count += 2;
       }
+      count += 2;
+    }
      else if ( !strcmp( argv[count], "-DependentComponents") )
-      {
+     {
       independentComponents=false;
       count += 1;
-      }
+     }
     else
-      {
+    {
       cout << "Unrecognized option: " << argv[count] << endl;
       cout << endl;
       PrintUsage();
       exit(EXIT_FAILURE);
-      }
     }
+  }
 
   if ( !dirname && !fileName)
-    {
+  {
     cout << "Error: you must specify a directory of DICOM data or a .vti file or a .mha!" << endl;
     cout << endl;
     PrintUsage();
     exit(EXIT_FAILURE);
-    }
+  }
 
   // Create the renderer, render window and interactor
   vtkRenderer *renderer = vtkRenderer::New();
@@ -263,34 +263,34 @@ int main(int argc, char *argv[])
   vtkAlgorithm *reader=0;
   vtkImageData *input=0;
   if(dirname)
-    {
+  {
     vtkDICOMImageReader *dicomReader = vtkDICOMImageReader::New();
     dicomReader->SetDirectoryName(dirname);
     dicomReader->Update();
     input=dicomReader->GetOutput();
     reader=dicomReader;
-    }
+  }
   else if ( fileType == VTI_FILETYPE )
-    {
+  {
     vtkXMLImageDataReader *xmlReader = vtkXMLImageDataReader::New();
     xmlReader->SetFileName(fileName);
     xmlReader->Update();
     input=xmlReader->GetOutput();
     reader=xmlReader;
-    }
+  }
   else if ( fileType == MHA_FILETYPE )
-    {
+  {
     vtkMetaImageReader *metaReader = vtkMetaImageReader::New();
     metaReader->SetFileName(fileName);
     metaReader->Update();
     input=metaReader->GetOutput();
     reader=metaReader;
-    }
+  }
   else
-    {
+  {
     cout << "Error! Not VTI or MHA!" << endl;
     exit(EXIT_FAILURE);
-    }
+  }
 
   // Verify that we actually have a volume
   int dim[3];
@@ -298,19 +298,19 @@ int main(int argc, char *argv[])
   if ( dim[0] < 2 ||
        dim[1] < 2 ||
        dim[2] < 2 )
-    {
+  {
     cout << "Error loading data!" << endl;
     exit(EXIT_FAILURE);
-    }
+  }
 
   vtkImageResample *resample = vtkImageResample::New();
   if ( reductionFactor < 1.0 )
-    {
+  {
     resample->SetInputConnection( reader->GetOutputPort() );
     resample->SetAxisMagnificationFactor(0, reductionFactor);
     resample->SetAxisMagnificationFactor(1, reductionFactor);
     resample->SetAxisMagnificationFactor(2, reductionFactor);
-    }
+  }
 
   // Create our volume and mapper
   vtkVolume *volume = vtkVolume::New();
@@ -319,17 +319,17 @@ int main(int argc, char *argv[])
   // Add a box widget if the clip option was selected
   vtkBoxWidget *box = vtkBoxWidget::New();
   if (clip)
-    {
+  {
     box->SetInteractor(iren);
     box->SetPlaceFactor(1.01);
     if ( reductionFactor < 1.0 )
-      {
+    {
       box->SetInputConnection(resample->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       box->SetInputData(input);
-      }
+    }
 
     box->SetDefaultRenderer(renderer);
     box->InsideOutOn();
@@ -340,28 +340,28 @@ int main(int argc, char *argv[])
     callback->Delete();
     box->EnabledOn();
     box->GetSelectedFaceProperty()->SetOpacity(0.0);
-    }
+  }
 
   if ( reductionFactor < 1.0 )
-    {
+  {
     mapper->SetInputConnection( resample->GetOutputPort() );
-    }
+  }
   else
-    {
+  {
     mapper->SetInputConnection( reader->GetOutputPort() );
-    }
+  }
 
 
   // Set the sample distance on the ray to be 1/2 the average spacing
   double spacing[3];
   if ( reductionFactor < 1.0 )
-    {
+  {
     resample->GetOutput()->GetSpacing(spacing);
-    }
+  }
   else
-    {
+  {
     input->GetSpacing(spacing);
-    }
+  }
 
 //  mapper->SetSampleDistance( (spacing[0]+spacing[1]+spacing[2])/6.0 );
 //  mapper->SetMaximumImageSampleDistance(10.0);
@@ -385,7 +385,7 @@ int main(int argc, char *argv[])
   // Depending on the blend type selected as a command line option,
   // adjust the transfer function
   switch ( blendType )
-    {
+  {
     // MIP
     // Create an opacity ramp from the window and level values.
     // Color is white. Blending is MIP.
@@ -514,7 +514,7 @@ int main(int argc, char *argv[])
     default:
        vtkGenericWarningMacro("Unknown blend type.");
        break;
-    }
+  }
 
   // Set the default window size
   renWin->SetSize(600,600);

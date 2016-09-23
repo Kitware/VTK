@@ -57,12 +57,12 @@ int TestOSPRayImplicits(int argc, char* argv[])
 {
   bool useGL = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       useGL = true;
-      }
     }
+  }
 
   vtkSmartPointer<vtkRenderWindowInteractor> iren =
     vtkSmartPointer<vtkRenderWindowInteractor>::New();
@@ -77,9 +77,9 @@ int TestOSPRayImplicits(int argc, char* argv[])
 
   vtkSmartPointer<vtkOSPRayPass> ospray = vtkSmartPointer<vtkOSPRayPass>::New();
   if (!useGL)
-    {
+  {
     renderer->SetPass(ospray);
-    }
+  }
 
   vtkSmartPointer<vtkRTAnalyticSource> wavelet = vtkSmartPointer<vtkRTAnalyticSource>::New();
   wavelet->SetWholeExtent(-10,10,-10,10,-10,10);
@@ -93,9 +93,9 @@ int TestOSPRayImplicits(int argc, char* argv[])
   ds->GetPointData()->AddArray(da);
   int np = ds->GetNumberOfPoints();
   for (int i = 0; i < np; i++)
-    {
+  {
     da->InsertNextValue((double)i/(double)np);
-    }
+  }
 
   vtkSmartPointer<vtkDataSetSurfaceFilter> surfacer = vtkSmartPointer<vtkDataSetSurfaceFilter>::New();
   surfacer->SetInputData(ds);

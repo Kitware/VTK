@@ -48,45 +48,45 @@ public:
 
   // Interface dot product computation to SMP tools.
   template <class T> class NormOp
-    {
+  {
     public:
       vtkVectorNormAlgorithm *Algo;
       vtkSMPThreadLocal<double> Max;
       NormOp(vtkVectorNormAlgorithm<T> *algo) :
         Algo(algo), Max(VTK_DOUBLE_MIN) {}
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         double &max = this->Max.Local();
         const T *v = this->Algo->Vectors + 3*k;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           *s = static_cast<float>(
             sqrt( static_cast<double>(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]) ) );
           max = ( *s > max ? *s : max );
           s++;
           v += 3;
-          }
         }
-    };
+      }
+  };
 
   // Interface normalize computation to SMP tools.
   template <class T> class MapOp
-    {
+  {
     public:
       vtkVectorNormAlgorithm *Algo;
       MapOp(vtkVectorNormAlgorithm<T> *algo)
         { this->Algo = algo; }
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         const double max = this->Algo->Max;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           *s++ /= max;
-          }
         }
-    };
+      }
+  };
 };
 
 //----------------------------------------------------------------------------
@@ -118,19 +118,19 @@ Norm(vtkVectorNorm *self, vtkIdType num, TV *vectors, float *scalars)
   double max = VTK_DOUBLE_MIN;
   vtkSMPThreadLocal<double>::iterator itr;
   for ( itr=norm.Max.begin(); itr != norm.Max.end(); ++itr )
-    {
+  {
     if ( *itr > max )
-      {
+    {
       *itr = max;
-      }
     }
+  }
   algo.Max = max;
 
   if ( max > 0.0 && self->GetNormalize() )
-    {
+  {
     MapOp<TV> mapValues(&algo);
     vtkSMPTools::For(0,algo.Num, mapValues);
-    }
+  }
 }
 
 
@@ -175,24 +175,24 @@ int vtkVectorNorm::RequestData(
   ptVectors = pd->GetVectors();
   cellVectors = cd->GetVectors();
   if (!ptVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_CELL_DATA)
-    {
+  {
     computePtScalars = 0;
-    }
+  }
 
   if (!cellVectors || this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA)
-    {
+  {
     computeCellScalars = 0;
-    }
+  }
 
   if ( !computeCellScalars && !computePtScalars )
-    {
+  {
     vtkErrorMacro(<< "No vector norm to compute!");
     return 1;
-    }
+  }
 
   // Allocate / operate on point data
   if ( computePtScalars )
-    {
+  {
     numVectors = ptVectors->GetNumberOfTuples();
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
@@ -203,13 +203,13 @@ int vtkVectorNorm::RequestData(
     outPD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     outPD->CopyScalarsOff();
-    }//if computing point scalars
+  }//if computing point scalars
 
   this->UpdateProgress (0.50);
 
   // Allocate / operate on cell data
   if ( computeCellScalars )
-    {
+  {
     numVectors = cellVectors->GetNumberOfTuples();
     newScalars = vtkFloatArray::New();
     newScalars->SetNumberOfTuples(numVectors);
@@ -220,7 +220,7 @@ int vtkVectorNorm::RequestData(
     outCD->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
     outCD->CopyScalarsOff();
-    }//if computing cell scalars
+  }//if computing cell scalars
 
   // Pass appropriate data through to output
   outPD->PassData(pd);
@@ -238,13 +238,13 @@ GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s)
   float *scalars = static_cast<float*>(s->GetVoidPointer(0));
   void *vectors = v->GetVoidPointer(0);
   switch ( v->GetDataType() )
-    {
+  {
     vtkTemplateMacro(vtkVectorNormAlgorithm<VTK_TT>::
                      Norm(this,num,(VTK_TT*)vectors,scalars));
 
     default:
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -252,17 +252,17 @@ GenerateScalars(vtkIdType num, vtkDataArray *v, vtkFloatArray *s)
 const char *vtkVectorNorm::GetAttributeModeAsString(void)
 {
   if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_DEFAULT )
-    {
+  {
     return "Default";
-    }
+  }
   else if ( this->AttributeMode == VTK_ATTRIBUTE_MODE_USE_POINT_DATA )
-    {
+  {
     return "UsePointData";
-    }
+  }
   else
-    {
+  {
     return "UseCellData";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

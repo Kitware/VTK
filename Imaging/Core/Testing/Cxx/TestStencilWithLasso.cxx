@@ -82,7 +82,7 @@ int TestStencilWithLasso(int argc, char *argv[])
   iren->SetInteractorStyle(style);
 
   for (int j = 0; j < 4; j++)
-    {
+  {
     int orientation = 2 - (j%3);
 
     vtkSmartPointer<vtkPoints> points =
@@ -91,12 +91,12 @@ int TestStencilWithLasso(int argc, char *argv[])
     vtkIdType npoints = (j < 2 ? 7 : 6);
     points->SetNumberOfPoints(npoints);
     for (vtkIdType i = 0; i < npoints; i++)
-      {
+    {
       double point[3] = { 0.0, 0.0, 0.0 };
       point[(orientation + 1)%3] = lassoPoints[i][0];
       point[(orientation + 2)%3] = lassoPoints[i][1];
       points->SetPoint(i, point);
-      }
+    }
 
     vtkSmartPointer<vtkLassoStencilSource> stencilSource =
       vtkSmartPointer<vtkLassoStencilSource>::New();
@@ -107,10 +107,10 @@ int TestStencilWithLasso(int argc, char *argv[])
     stencilSource->SetShapeToSpline();
     stencilSource->SetSliceOrientation(orientation);
     if (j == 3)
-      {
+    {
       // excercise the polygon code, too
       stencilSource->SetShapeToPolygon();
-      }
+    }
 
     vtkSmartPointer<vtkImageStencil> stencil =
       vtkSmartPointer<vtkImageStencil>::New();
@@ -147,13 +147,13 @@ int TestStencilWithLasso(int argc, char *argv[])
     position[orientation] += 10.0;
     camera->SetPosition(position);
     if (orientation == 2)
-      {
+    {
       camera->SetViewUp(0.0, 1.0, 0.0);
-      }
+    }
     else
-      {
+    {
       camera->SetViewUp(0.0, 0.0, -1.0);
-      }
+    }
     camera->SetClippingRange(5.0, 15.0);
   }
 

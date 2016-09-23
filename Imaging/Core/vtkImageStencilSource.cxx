@@ -90,21 +90,21 @@ int vtkImageStencilSource::RequestInformation(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     wholeExtent[2*i] = this->OutputWholeExtent[2*i];
     wholeExtent[2*i+1] = this->OutputWholeExtent[2*i+1];
     spacing[i] = this->OutputSpacing[i];
     origin[i] = this->OutputOrigin[i];
-    }
+  }
 
   // If InformationInput is set, then get the spacing,
   // origin, and whole extent from it.
   if (this->InformationInput)
-    {
+  {
     this->InformationInput->GetExtent(wholeExtent);
     this->InformationInput->GetSpacing(spacing);
     this->InformationInput->GetOrigin(origin);
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                wholeExtent, 6);

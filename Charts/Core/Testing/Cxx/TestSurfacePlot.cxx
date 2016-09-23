@@ -43,20 +43,20 @@ int TestSurfacePlot(int , char * [])
   vtkIdType numPoints = 70;
   float inc = 9.424778 / (numPoints - 1);
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     vtkNew<vtkFloatArray> arr;
     table->AddColumn(arr.GetPointer());
-    }
+  }
   table->SetNumberOfRows(static_cast<vtkIdType>(numPoints));
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     float x = i * inc;
     for (vtkIdType j = 0; j < numPoints; ++j)
-      {
+    {
       float y  = j * inc;
       table->SetValue(i, j, sin(sqrt(x*x + y*y)));
-      }
     }
+  }
 
   // Set up the surface plot we wish to visualize and add it to the chart.
   plot->SetXRange(0, 9.424778);

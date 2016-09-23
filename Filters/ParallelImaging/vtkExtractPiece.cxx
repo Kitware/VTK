@@ -58,9 +58,9 @@ int vtkExtractPiece::RequestDataObject(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
 
@@ -68,15 +68,15 @@ int vtkExtractPiece::RequestDataObject(
   vtkDataObject *output = outInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
-    {
+  {
     if (!output || !output->IsA(input->GetClassName()))
-      {
+    {
       vtkDataObject* outData = input->NewInstance();
       outInfo->Set(vtkDataObject::DATA_OBJECT(), outData);
       outData->Delete();
-      }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 
@@ -94,15 +94,15 @@ int vtkExtractPiece::RequestData(
   vtkCompositeDataSet *input = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!input)
-    {
+  {
     return 0;
-    }
+  }
   vtkCompositeDataSet *output = vtkCompositeDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
-    {
+  {
     return 0;
-    }
+  }
 
   // Copy structure and meta-data.
   output->CopyStructure(input);
@@ -118,10 +118,10 @@ int vtkExtractPiece::RequestData(
   vtkCompositeDataIterator* iter = input->NewIterator();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal();
      iter->GoToNextItem())
-    {
+  {
     vtkDataObject *tmpDS  = iter->GetCurrentDataObject();
     switch (tmpDS->GetDataObjectType())
-      {
+    {
       case VTK_IMAGE_DATA:
         this->ExtractImageData(
           (vtkImageData*)(tmpDS), output,
@@ -151,8 +151,8 @@ int vtkExtractPiece::RequestData(
         vtkErrorMacro("Cannot extract data of type "
                       << tmpDS->GetClassName());
         break;
-      }
     }
+  }
   iter->Delete();
 
   return 1;

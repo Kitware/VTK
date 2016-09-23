@@ -74,9 +74,9 @@ int vtkTerrainDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
 {
   if ( this->PropPicker->Pick(displayPos[0],
                               displayPos[1], 0.0, ren) )
-    {
+  {
     if (vtkAssemblyPath *path = this->PropPicker->GetPath())
-      {
+    {
 
       // We are checking if the prop present in the path is present
       // in the list supplied to us.. If it is, that prop will be picked.
@@ -88,25 +88,25 @@ int vtkTerrainDataPointPlacer::ComputeWorldPosition( vtkRenderer *ren,
       this->TerrainProps->InitTraversal(sit);
 
       while (vtkProp *p = this->TerrainProps->GetNextProp(sit))
-        {
+      {
         vtkCollectionSimpleIterator psit;
         path->InitTraversal(psit);
 
         for ( int i = 0; i < path->GetNumberOfItems() && !found ; ++i )
-          {
+        {
           node = path->GetNextNode(psit);
           found = ( node->GetViewProp() == p );
-          }
+        }
 
         if (found)
-          {
+        {
           this->PropPicker->GetPickPosition(worldPos);
           worldPos[2] += this->HeightOffset;
           return 1;
-          }
         }
       }
     }
+  }
 
   return 0;
 }
@@ -148,15 +148,15 @@ void vtkTerrainDataPointPlacer::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PropPicker: " << this->PropPicker << endl;
   if (this->PropPicker)
-    {
+  {
     this->PropPicker->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 
   os << indent << "TerrainProps: " << this->TerrainProps << endl;
   if (this->TerrainProps)
-    {
+  {
     this->TerrainProps->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "HeightOffset: " << this->HeightOffset << endl;
 }
 

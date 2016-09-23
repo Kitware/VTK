@@ -61,34 +61,34 @@ int vtkExtractSelectedLocations::RequestData(
   vtkDataSet *input = vtkDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if ( ! input )
-    {
+  {
     vtkErrorMacro(<<"No input specified");
     return 0;
-    }
+  }
 
   if ( ! selInfo )
-    {
+  {
     //When not given a selection, quietly select nothing.
     return 1;
-    }
+  }
 
   vtkSelection *sel = vtkSelection::SafeDownCast(
     selInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkSelectionNode *node = 0;
   if (sel->GetNumberOfNodes() == 1)
-    {
+  {
     node = sel->GetNode(0);
-    }
+  }
   if (!node)
-    {
+  {
     vtkErrorMacro("Selection must have a single node.");
     return 0;
-    }
+  }
   if (node->GetContentType() != vtkSelectionNode::LOCATIONS)
-    {
+  {
     vtkErrorMacro("Incompatible CONTENT_TYPE.");
     return 0;
-    }
+  }
 
   vtkDataSet *output = vtkDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -97,16 +97,16 @@ int vtkExtractSelectedLocations::RequestData(
 
   int fieldType = vtkSelectionNode::CELL;
   if (node->GetProperties()->Has(vtkSelectionNode::FIELD_TYPE()))
-    {
+  {
     fieldType = node->GetProperties()->Get(vtkSelectionNode::FIELD_TYPE());
-    }
+  }
   switch (fieldType)
-    {
+  {
     case vtkSelectionNode::CELL:
       return this->ExtractCells(node, input, output);
     case vtkSelectionNode::POINT:
       return this->ExtractPoints(node, input, output);
-    }
+  }
   return 1;
 }
 
@@ -127,18 +127,18 @@ static void vtkExtractSelectedLocationsCopyPoints(vtkDataSet* input, vtkDataSet*
   originalPtIds->SetNumberOfComponents(1);
 
   for (i = 0; i < numPts; i++)
-    {
+  {
     if (inArray[i] > 0)
-      {
+    {
       pointMap[i] = newPts->InsertNextPoint(input->GetPoint(i));
       outPD->CopyData(inPD, i, pointMap[i]);
       originalPtIds->InsertNextValue(i);
-      }
-    else
-      {
-      pointMap[i] = -1;
-      }
     }
+    else
+    {
+      pointMap[i] = -1;
+    }
+  }
 
   // outputDS must be either vtkPolyData or vtkUnstructuredGrid
   vtkPointSet::SafeDownCast(output)->SetPoints(newPts);
@@ -167,31 +167,31 @@ void vtkExtractSelectedLocationsCopyCells(vtkDataSet* input, T* output, signed c
   vtkIdType i, j, newId = 0;
   vtkIdList* ptIds = vtkIdList::New();
   for (i = 0; i < numCells; i++)
-    {
+  {
     if (inArray[i] > 0)
-      {
+    {
       // special handling for polyhedron cells
       if (vtkUnstructuredGrid::SafeDownCast(input) &&
           vtkUnstructuredGrid::SafeDownCast(output) &&
           input->GetCellType(i) == VTK_POLYHEDRON)
-        {
+      {
         ptIds->Reset();
         vtkUnstructuredGrid::SafeDownCast(input)->GetFaceStream(i, ptIds);
         vtkUnstructuredGrid::ConvertFaceStreamPointIds(ptIds, pointMap);
-        }
+      }
       else
-        {
+      {
         input->GetCellPoints(i, ptIds);
         for (j = 0; j < ptIds->GetNumberOfIds(); j++)
-          {
+        {
           ptIds->SetId(j, pointMap[ptIds->GetId(j)]);
-          }
         }
+      }
       output->InsertNextCell(input->GetCellType(i), ptIds);
       outCD->CopyData(inCD, i, newId++);
       originalIds->InsertNextValue(i);
-      }
     }
+  }
 
   outCD->AddArray(originalIds);
   originalIds->Delete();
@@ -209,21 +209,21 @@ int vtkExtractSelectedLocations::ExtractCells(
     vtkArrayDownCast<vtkDoubleArray>(sel->GetSelectionList());
 
   if (!locArray)
-    {
+  {
     return 1;
-    }
+  }
 
   int passThrough = 0;
   if (this->PreserveTopology)
-    {
+  {
     passThrough = 1;
-    }
+  }
 
   int invert = 0;
   if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
-    {
+  {
     invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
-    }
+  }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
   vtkSmartPointer<vtkSignedCharArray> pointInArray = vtkSmartPointer<vtkSignedCharArray>::New();
@@ -231,21 +231,21 @@ int vtkExtractSelectedLocations::ExtractCells(
   pointInArray->SetNumberOfTuples(numPts);
   signed char flag = invert ? 1 : -1;
   for (i=0; i < numPts; i++)
-    {
+  {
     pointInArray->SetValue(i, flag);
-    }
+  }
 
   vtkIdType numCells = input->GetNumberOfCells();
   vtkSmartPointer<vtkSignedCharArray> cellInArray = vtkSmartPointer<vtkSignedCharArray>::New();
   cellInArray->SetNumberOfComponents(1);
   cellInArray->SetNumberOfTuples(numCells);
   for (i=0; i < numCells; i++)
-    {
+  {
     cellInArray->SetValue(i, flag);
-    }
+  }
 
   if (passThrough)
-    {
+  {
     output->ShallowCopy(input);
     pointInArray->SetName("vtkInsidedness");
     vtkPointData *outPD = output->GetPointData();
@@ -255,7 +255,7 @@ int vtkExtractSelectedLocations::ExtractCells(
     vtkCellData *outCD = output->GetCellData();
     outCD->AddArray(cellInArray);
     outCD->SetScalars(cellInArray);
-    }
+  }
 
   // Reverse the "in" flag
   flag = -flag;
@@ -263,14 +263,14 @@ int vtkExtractSelectedLocations::ExtractCells(
   vtkIdList *ptIds = NULL;
   char* cellCounter = NULL;
   if (invert)
-    {
+  {
     ptIds = vtkIdList::New();
     cellCounter = new char[numPts];
     for (i = 0; i < numPts; ++i)
-      {
+    {
       cellCounter[i] = 0;
-      }
     }
+  }
 
   vtkGenericCell* cell = vtkGenericCell::New();
   vtkIdList *idList = vtkIdList::New();
@@ -282,69 +282,69 @@ int vtkExtractSelectedLocations::ExtractCells(
 
   vtkIdType ptId, cellId, locArrayIndex;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
-    {
+  {
     cellId = input->FindCell(locArray->GetTuple(locArrayIndex), NULL, cell,
                              0, 0.0, subId, pcoords, weights);
     if ((cellId >= 0) && (cellInArray->GetValue(cellId) != flag))
-      {
+    {
       cellInArray->SetValue(cellId, flag);
       input->GetCellPoints(cellId, idList);
       if (!invert)
-        {
+      {
         for (i = 0; i < idList->GetNumberOfIds(); ++i)
-          {
+        {
           pointInArray->SetValue(idList->GetId(i), flag);
-          }
         }
+      }
       else
-        {
+      {
         for (i = 0; i < idList->GetNumberOfIds(); ++i)
-          {
+        {
           ptId = idList->GetId(i);
           ptIds->InsertUniqueId(ptId);
           cellCounter[ptId]++;
-          }
         }
       }
     }
+  }
 
   delete [] weights;
   cell->Delete();
 
   if (invert)
-    {
+  {
     for (i = 0; i < ptIds->GetNumberOfIds(); ++i)
-      {
+    {
       ptId = ptIds->GetId(i);
       input->GetPointCells(ptId, idList);
       if (cellCounter[ptId] == idList->GetNumberOfIds())
-        {
+      {
         pointInArray->SetValue(ptId, flag);
-        }
       }
+    }
     ptIds->Delete();
     delete [] cellCounter;
-    }
+  }
 
   idList->Delete();
 
 
   if (!passThrough)
-    {
+  {
     vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedLocationsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
     this->UpdateProgress(0.75);
     if (output->GetDataObjectType() == VTK_POLY_DATA)
-      {
+    {
       vtkExtractSelectedLocationsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
-      }
+    }
     else
-      {
+    {
       vtkExtractSelectedLocationsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
-      }
+    }
     delete [] pointMap;
     this->UpdateProgress(1.0);
-    }
+  }
 
   output->Squeeze();
   return 1;
@@ -360,33 +360,33 @@ int vtkExtractSelectedLocations::ExtractPoints(
   vtkDoubleArray *locArray =
     vtkArrayDownCast<vtkDoubleArray>(sel->GetSelectionList());
   if (!locArray)
-    {
+  {
     return 1;
-    }
+  }
 
   int passThrough = 0;
   if (this->PreserveTopology)
-    {
+  {
     passThrough = 1;
-    }
+  }
 
   int invert = 0;
   if (sel->GetProperties()->Has(vtkSelectionNode::INVERSE()))
-    {
+  {
     invert = sel->GetProperties()->Get(vtkSelectionNode::INVERSE());
-    }
+  }
 
   int containingCells = 0;
   if (sel->GetProperties()->Has(vtkSelectionNode::CONTAINING_CELLS()))
-    {
+  {
     containingCells = sel->GetProperties()->Get(vtkSelectionNode::CONTAINING_CELLS());
-    }
+  }
 
   double epsilon = 0.1;
   if (sel->GetProperties()->Has(vtkSelectionNode::EPSILON()))
-    {
+  {
     epsilon = sel->GetProperties()->Get(vtkSelectionNode::EPSILON());
-    }
+  }
 
   vtkIdType i, numPts = input->GetNumberOfPoints();
   vtkSmartPointer<vtkSignedCharArray> pointInArray = vtkSmartPointer<vtkSignedCharArray>::New();
@@ -394,38 +394,38 @@ int vtkExtractSelectedLocations::ExtractPoints(
   pointInArray->SetNumberOfTuples(numPts);
   signed char flag = invert ? 1 : -1;
   for (i=0; i < numPts; i++)
-    {
+  {
     pointInArray->SetValue(i, flag);
-    }
+  }
 
   vtkIdType numCells = input->GetNumberOfCells();
   vtkSmartPointer<vtkSignedCharArray> cellInArray;
   if (containingCells)
-    {
+  {
     cellInArray = vtkSmartPointer<vtkSignedCharArray>::New();
     cellInArray->SetNumberOfComponents(1);
     cellInArray->SetNumberOfTuples(numCells);
     for (i=0; i < numCells; i++)
-      {
+    {
       cellInArray->SetValue(i, flag);
-      }
     }
+  }
 
   if (passThrough)
-    {
+  {
     output->ShallowCopy(input);
     pointInArray->SetName("vtkInsidedness");
     vtkPointData *outPD = output->GetPointData();
     outPD->AddArray(pointInArray);
     outPD->SetScalars(pointInArray);
     if (containingCells)
-      {
+    {
       cellInArray->SetName("vtkInsidedness");
       vtkCellData *outCD = output->GetCellData();
       outCD->AddArray(cellInArray);
       outCD->SetScalars(cellInArray);
-      }
     }
+  }
 
   // Reverse the "in" flag
   flag = -flag;
@@ -433,10 +433,10 @@ int vtkExtractSelectedLocations::ExtractPoints(
   vtkPointLocator* locator = NULL;
 
   if (input->IsA("vtkPointSet"))
-    {
+  {
     locator = vtkPointLocator::New();
     locator->SetDataSet(input);
-    }
+  }
 
   vtkIdList *ptCells = vtkIdList::New();
   vtkIdList *cellPts = vtkIdList::New();
@@ -445,17 +445,17 @@ int vtkExtractSelectedLocations::ExtractPoints(
   vtkIdType j, ptId, cellId, locArrayIndex;
   double epsSquared = epsilon*epsilon;
   for (locArrayIndex = 0; locArrayIndex < numLocs; locArrayIndex++)
-    {
+  {
     if (locator != NULL)
-      {
+    {
       ptId = locator->FindClosestPointWithinRadius(epsilon, locArray->GetTuple(locArrayIndex), dist2);
-      }
+    }
     else
-      {
+    {
       double *L = locArray->GetTuple(locArrayIndex);
       ptId = input->FindPoint(locArray->GetTuple(locArrayIndex));
       if (ptId >=0)
-        {
+      {
         double *X = input->GetPoint(ptId);
         double dx = X[0]-L[0];
         dx = dx * dx;
@@ -464,72 +464,72 @@ int vtkExtractSelectedLocations::ExtractPoints(
         double dz = X[2]-L[2];
         dz = dz * dz;
         if (dx+dy+dz > epsSquared)
-          {
-          ptId = -1;
-          }
-        }
-      }
-
-    if ((ptId >= 0) && (pointInArray->GetValue(ptId) != flag))
-     {
-      pointInArray->SetValue(ptId, flag);
-      if (containingCells)
         {
-        input->GetPointCells(ptId, ptCells);
-        for (i = 0; i < ptCells->GetNumberOfIds(); ++i)
-          {
-          cellId = ptCells->GetId(i);
-          if (!passThrough && !invert && cellInArray->GetValue(cellId) != flag)
-            {
-            input->GetCellPoints(cellId, cellPts);
-            for (j = 0; j < cellPts->GetNumberOfIds(); ++j)
-              {
-              pointInArray->SetValue(cellPts->GetId(j), flag);
-              }
-            }
-          cellInArray->SetValue(cellId, flag);
-          }
+          ptId = -1;
         }
       }
     }
+
+    if ((ptId >= 0) && (pointInArray->GetValue(ptId) != flag))
+    {
+      pointInArray->SetValue(ptId, flag);
+      if (containingCells)
+      {
+        input->GetPointCells(ptId, ptCells);
+        for (i = 0; i < ptCells->GetNumberOfIds(); ++i)
+        {
+          cellId = ptCells->GetId(i);
+          if (!passThrough && !invert && cellInArray->GetValue(cellId) != flag)
+          {
+            input->GetCellPoints(cellId, cellPts);
+            for (j = 0; j < cellPts->GetNumberOfIds(); ++j)
+            {
+              pointInArray->SetValue(cellPts->GetId(j), flag);
+            }
+          }
+          cellInArray->SetValue(cellId, flag);
+        }
+      }
+    }
+  }
 
   ptCells->Delete();
   cellPts->Delete();
   if (locator)
-    {
+  {
     locator->SetDataSet(NULL);
     locator->Delete();
-    }
+  }
 
   if (!passThrough)
-    {
+  {
     vtkIdType *pointMap = new vtkIdType[numPts]; // maps old point ids into new
     vtkExtractSelectedLocationsCopyPoints(input, output, pointInArray->GetPointer(0), pointMap);
     this->UpdateProgress(0.75);
     if (containingCells)
-      {
+    {
       if (output->GetDataObjectType() == VTK_POLY_DATA)
-        {
-        vtkExtractSelectedLocationsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
-        }
-      else
-        {
-        vtkExtractSelectedLocationsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
-        }
-      }
-    else
       {
+        vtkExtractSelectedLocationsCopyCells<vtkPolyData>(input, vtkPolyData::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+      }
+      else
+      {
+        vtkExtractSelectedLocationsCopyCells<vtkUnstructuredGrid>(input, vtkUnstructuredGrid::SafeDownCast(output), cellInArray->GetPointer(0), pointMap);
+      }
+    }
+    else
+    {
       numPts = output->GetNumberOfPoints();
       vtkUnstructuredGrid* outputUG = vtkUnstructuredGrid::SafeDownCast(output);
       outputUG->Allocate(numPts);
       for (i = 0; i < numPts; ++i)
-        {
+      {
         outputUG->InsertNextCell(VTK_VERTEX, 1, &i);
-        }
       }
+    }
     delete [] pointMap;
     this->UpdateProgress(1.0);
-    }
+  }
 
   output->Squeeze();
 

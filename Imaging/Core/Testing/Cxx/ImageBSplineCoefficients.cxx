@@ -102,9 +102,9 @@ int ImageBSplineCoefficients(int argc, char *argv[])
   int m = VTK_IMAGE_BSPLINE_DEGREE_MAX;
 
   for (int j = 0; j <= m; j++)
-    {
+  {
     for (int jj = 0; jj < 3; jj++)
-      {
+    {
       int mode = modes[jj];
 
       coeffs->SetSplineDegree(j);
@@ -117,7 +117,7 @@ int ImageBSplineCoefficients(int argc, char *argv[])
       interp->Initialize(coeffs->GetOutput());
 
       for (int k = 0; k < 20; k++)
-        {
+      {
         double x = points[k][0];
         double y = points[k][1];
         double z = points[k][2];
@@ -127,35 +127,35 @@ int ImageBSplineCoefficients(int argc, char *argv[])
 
         // fiddle with points to test border modes
         if (mode == VTK_IMAGE_BORDER_REPEAT)
-          {
+        {
           x += 256*spacing[0];
           y -= 256*spacing[1];
-          }
+        }
         else if (mode == VTK_IMAGE_BORDER_MIRROR)
-          {
+        {
           x = origin[0] - x;
           y = 2*(origin[1] + 255*spacing[1]) - y;
-          }
+        }
         // use interpolator
         double v1 = interp->Interpolate(x, y, z, 0);
 
         double tol = 1e-6;
         double e = (v0 - v1)/(range[1] - range[0]);
         if (fabs(e) > tol)
-          {
+        {
           cerr << "Bad interpolation, error is " << e << " k = " << k
                << " degree = " << j << " mode = " << mode << "\n";
           cerr << v0 << " " << v1 << "\n";
           retVal = EXIT_FAILURE;
-          }
         }
       }
-
-    interp->ReleaseData();
     }
 
+    interp->ReleaseData();
+  }
+
   for (int i = 0; i < 2; i++)
-    {
+  {
     vtkSmartPointer<vtkRenderer> renderer =
       vtkSmartPointer<vtkRenderer>::New();
     vtkCamera *camera = renderer->GetActiveCamera();
@@ -167,14 +167,14 @@ int ImageBSplineCoefficients(int argc, char *argv[])
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();
     if (i == 0)
-      {
+    {
       imageMapper->SetInputConnection(reader->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       coeffs->SetSplineDegree(3);
       imageMapper->SetInputConnection(coeffs->GetOutputPort());
-      }
+    }
 
     double *bounds = imageMapper->GetBounds();
     double point[3];
@@ -197,7 +197,7 @@ int ImageBSplineCoefficients(int argc, char *argv[])
     image->GetProperty()->SetColorWindow(range[1] - range[0]);
     image->GetProperty()->SetColorLevel(0.5*(range[0] + range[1]));
 
-    }
+  }
 
   renWin->SetSize(512,256);
 

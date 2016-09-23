@@ -287,21 +287,21 @@ private:
 inline const char *vtkTextProperty::GetFontFamilyAsString( int f )
 {
   if ( f == VTK_ARIAL )
-    {
+  {
     return "Arial";
-    }
+  }
   else if ( f == VTK_COURIER )
-    {
+  {
     return "Courier";
-    }
+  }
   else if ( f == VTK_TIMES )
-    {
+  {
     return "Times";
-    }
+  }
   else if ( f == VTK_FONT_FILE )
-    {
+  {
     return "File";
-    }
+  }
   return "Unknown";
 }
 
@@ -328,21 +328,21 @@ inline void vtkTextProperty::SetFontFamilyToTimes()
 inline int vtkTextProperty::GetFontFamilyFromString( const char *f )
 {
   if ( strcmp( f, GetFontFamilyAsString( VTK_ARIAL ) ) == 0 )
-    {
+  {
     return VTK_ARIAL;
-    }
+  }
   else if ( strcmp( f, GetFontFamilyAsString( VTK_COURIER ) ) == 0 )
-    {
+  {
     return VTK_COURIER;
-    }
+  }
   else if ( strcmp( f, GetFontFamilyAsString( VTK_TIMES ) ) == 0 )
-    {
+  {
     return VTK_TIMES;
-    }
+  }
   else if ( strcmp( f, GetFontFamilyAsString( VTK_FONT_FILE) ) == 0 )
-    {
+  {
     return VTK_FONT_FILE;
-    }
+  }
   return VTK_UNKNOWN_FONT;
 }
 
@@ -354,34 +354,34 @@ inline int vtkTextProperty::GetFontFamily()
 inline const char *vtkTextProperty::GetJustificationAsString(void)
 {
   if (this->Justification == VTK_TEXT_LEFT)
-    {
+  {
     return "Left";
-    }
+  }
   else if (this->Justification == VTK_TEXT_CENTERED)
-    {
+  {
     return "Centered";
-    }
+  }
   else if (this->Justification == VTK_TEXT_RIGHT)
-    {
+  {
     return "Right";
-    }
+  }
   return "Unknown";
 }
 
 inline const char *vtkTextProperty::GetVerticalJustificationAsString(void)
 {
   if (this->VerticalJustification == VTK_TEXT_BOTTOM)
-    {
+  {
     return "Bottom";
-    }
+  }
   else if (this->VerticalJustification == VTK_TEXT_CENTERED)
-    {
+  {
     return "Centered";
-    }
+  }
   else if (this->VerticalJustification == VTK_TEXT_TOP)
-    {
+  {
     return "Top";
-    }
+  }
   return "Unknown";
 }
 

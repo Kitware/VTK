@@ -46,10 +46,10 @@ vtkTransformCoordinateSystems::~vtkTransformCoordinateSystems()
 void vtkTransformCoordinateSystems::SetViewport(vtkViewport *viewport)
 {
   if(this->Viewport!=viewport)
-    {
+  {
     this->Viewport=viewport;
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -83,9 +83,9 @@ int vtkTransformCoordinateSystems::RequestData(
   inPts = input->GetPoints();
 
   if ( !inPts )
-    {
+  {
     return 1;
-    }
+  }
 
   numPts = inPts->GetNumberOfPoints();
 
@@ -96,7 +96,7 @@ int vtkTransformCoordinateSystems::RequestData(
   // Configure the input
   this->TransformCoordinate->SetViewport(this->Viewport);
   switch ( this->InputCoordinateSystem )
-    {
+  {
     case VTK_DISPLAY:
       this->TransformCoordinate->SetCoordinateSystemToDisplay();
       break;
@@ -106,41 +106,41 @@ int vtkTransformCoordinateSystems::RequestData(
     case VTK_WORLD:
       this->TransformCoordinate->SetCoordinateSystemToWorld();
       break;
-    }
+  }
 
   // Loop over all points, updating position
   vtkIdType ptId;
   double *itmp;
   if ( this->OutputCoordinateSystem == VTK_DISPLAY )
-    {
+  {
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       this->TransformCoordinate->SetValue(inPts->GetPoint(ptId));
       itmp = this->TransformCoordinate->
         GetComputedDoubleDisplayValue(this->Viewport);
       newPts->SetPoint(ptId, itmp[0],itmp[1],0.0);
-      }
     }
+  }
   else if ( this->OutputCoordinateSystem == VTK_VIEWPORT )
-    {
+  {
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       this->TransformCoordinate->SetValue(inPts->GetPoint(ptId));
       itmp = this->TransformCoordinate->
         GetComputedDoubleViewportValue(this->Viewport);
       newPts->SetPoint(ptId, itmp[0],itmp[1],0.0);
-      }
     }
+  }
   else if ( this->OutputCoordinateSystem == VTK_WORLD )
-    {
+  {
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       this->TransformCoordinate->SetValue(inPts->GetPoint(ptId));
       itmp = this->TransformCoordinate->
         GetComputedWorldValue(this->Viewport);
       newPts->SetPoint(ptId, itmp[0],itmp[1],itmp[2]);
-      }
     }
+  }
   this->UpdateProgress (.9);
 
   // Update ourselves and release memory
@@ -158,10 +158,10 @@ vtkMTimeType vtkTransformCoordinateSystems::GetMTime()
   vtkMTimeType viewMTime;
 
   if ( this->Viewport )
-    {
+  {
     viewMTime = this->Viewport->GetMTime();
     mTime = ( viewMTime > mTime ? viewMTime : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -173,39 +173,39 @@ void vtkTransformCoordinateSystems::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Input Coordinate System: ";
   if ( this->InputCoordinateSystem == VTK_DISPLAY )
-    {
+  {
     os << " DISPLAY\n";
-    }
+  }
   else if ( this->InputCoordinateSystem == VTK_WORLD )
-    {
+  {
     os << " WORLD\n";
-    }
+  }
   else //if ( this->InputCoordinateSystem == VTK_VIEWPORT )
-    {
+  {
     os << " VIEWPORT\n";
-    }
+  }
 
   os << indent << "Output Coordinate System: ";
   if ( this->OutputCoordinateSystem == VTK_DISPLAY )
-    {
+  {
     os << " DISPLAY\n";
-    }
+  }
   else if ( this->OutputCoordinateSystem == VTK_WORLD )
-    {
+  {
     os << " WORLD\n";
-    }
+  }
   else //if ( this->OutputCoordinateSystem == VTK_VIEWPORT )
-    {
+  {
     os << " VIEWPORT\n";
-    }
+  }
 
   os << indent << "Viewport: ";
   if (this->Viewport)
-    {
+  {
     os << this->Viewport << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

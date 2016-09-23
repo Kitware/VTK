@@ -67,9 +67,9 @@ public:
   void GetCell(vtkIdType cellId, vtkGenericCell *cell) VTK_OVERRIDE;
   void GetCellBounds(vtkIdType cellId, double bounds[6]) VTK_OVERRIDE;
   virtual vtkIdType FindPoint(double x, double y, double z)
-    {
+  {
     return this->vtkDataSet::FindPoint(x, y, z);
-    }
+  }
   vtkIdType FindPoint(double x[3]) VTK_OVERRIDE;
   vtkIdType FindCell(
     double x[3], vtkCell *cell, vtkIdType cellId, double tol2,

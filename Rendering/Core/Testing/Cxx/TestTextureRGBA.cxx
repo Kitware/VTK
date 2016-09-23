@@ -78,9 +78,9 @@ int TestTextureRGBA(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   renderer->Delete();
   renWin->Delete();

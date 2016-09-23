@@ -47,17 +47,17 @@ vtkGeoView2D::~vtkGeoView2D()
 {
   this->SetSurface(0);
   if (this->Assembly)
-    {
+  {
     this->Assembly->Delete();
-    }
+  }
 }
 
 vtkAbstractTransform* vtkGeoView2D::GetTransform()
 {
   if (this->Surface)
-    {
+  {
     return this->Surface->GetTransform();
-    }
+  }
   return 0;
 }
 
@@ -82,24 +82,24 @@ void vtkGeoView2D::PrepareForRendering()
   this->Superclass::PrepareForRendering();
 
   if (!this->Surface)
-    {
+  {
     return;
-    }
+  }
   vtkSmartPointer<vtkCollection> collection =
     vtkSmartPointer<vtkCollection>::New();
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
-    {
+  {
     vtkDataRepresentation* r = this->GetRepresentation(i);
     vtkGeoAlignedImageRepresentation* img = vtkGeoAlignedImageRepresentation::SafeDownCast(r);
     if (img)
-      {
-      collection->AddItem(img);
-      }
-    }
-  if (collection->GetNumberOfItems() > 0)
     {
-    this->Surface->AddActors(this->Renderer, this->Assembly, collection);
+      collection->AddItem(img);
     }
+  }
+  if (collection->GetNumberOfItems() > 0)
+  {
+    this->Surface->AddActors(this->Renderer, this->Assembly, collection);
+  }
 }
 
 void vtkGeoView2D::Render()
@@ -108,10 +108,10 @@ void vtkGeoView2D::Render()
   // initialized for the first PrepareForRendering pass.
   this->RenderWindow->MakeCurrent();
   if (!this->RenderWindow->IsCurrent())
-    {
+  {
     this->Update();
     this->PrepareForRendering();
     this->RenderWindow->Render();
-    }
+  }
   this->Superclass::Render();
 }

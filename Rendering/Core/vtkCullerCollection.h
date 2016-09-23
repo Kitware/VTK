@@ -42,17 +42,17 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
    * Add an Culler to the list.
    */
   void AddItem(vtkCuller *a)
-    {
+  {
       this->vtkCollection::AddItem(a);
-    }
+  }
 
   /**
    * Get the next Culler in the list.
    */
   vtkCuller *GetNextItem()
-    {
+  {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject());
-    }
+  }
 
   /**
    * Get the last Culler in the list.
@@ -64,9 +64,9 @@ class VTKRENDERINGCORE_EXPORT vtkCullerCollection : public vtkCollection
    * same cookie back and forth.
    */
   vtkCuller *GetNextCuller(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkCuller *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkCullerCollection() {}
@@ -75,9 +75,9 @@ protected:
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
 
 private:
   vtkCullerCollection(const vtkCullerCollection&) VTK_DELETE_FUNCTION;
@@ -88,13 +88,13 @@ private:
 inline vtkCuller *vtkCullerCollection::GetLastItem()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkCuller *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

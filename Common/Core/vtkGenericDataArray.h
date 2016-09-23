@@ -344,9 +344,9 @@ private:
   { \
     if (vtkDataArray *da = \
         vtkDataArray::CreateDataArray(thisClass::VTK_DATA_TYPE)) \
-      { \
+    { \
       return da; \
-      } \
+    } \
     return thisClass::New(); \
   } \
   public:

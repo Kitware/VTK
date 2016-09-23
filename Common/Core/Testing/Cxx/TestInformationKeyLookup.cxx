@@ -34,10 +34,10 @@ bool VerifyKey(const std::string &name,
 
 #define VERIFY_KEY(name, location) \
   if (!VerifyKey(#name, #location, location::name())) \
-    { \
+  { \
     std::cerr << "Error finding key: " << #location << "::" << #name << "\n"; \
     return EXIT_FAILURE; \
-    }
+  }
 
 int TestInformationKeyLookup(int, char *[])
 {

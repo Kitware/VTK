@@ -41,10 +41,10 @@ vtkPOutlineFilter::~vtkPOutlineFilter ()
 {
   this->SetController(0);
   if (this->OutlineSource != NULL)
-    {
+  {
     this->OutlineSource->Delete ();
     this->OutlineSource = NULL;
-    }
+  }
 }
 
 int vtkPOutlineFilter::RequestData(

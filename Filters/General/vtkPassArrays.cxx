@@ -44,17 +44,17 @@ namespace
     bool retVal = false;
     ArraysType::iterator iter = arrays.begin();
     while (iter != arrays.end())
-      {
+    {
       if (iter->first == type)
-        {
+      {
         iter = arrays.erase(iter);
         retVal = true;
-        }
-      else
-        {
-        ++iter;
-        }
       }
+      else
+      {
+        ++iter;
+      }
+    }
     return retVal;
   }
 }
@@ -81,10 +81,10 @@ vtkPassArrays::~vtkPassArrays()
 void vtkPassArrays::AddArray(int fieldType, const char* name)
 {
   if(!name)
-    {
+  {
     vtkErrorMacro("name cannont be null.");
     return;
-    }
+  }
   std::string n=name;
   this->Implementation->Arrays.push_back(std::make_pair(fieldType,n));
   this->Modified();
@@ -108,23 +108,23 @@ void vtkPassArrays::AddFieldDataArray(const char* name)
 void vtkPassArrays::RemoveArray(int fieldType, const char* name)
 {
   if(!name)
-    {
+  {
     vtkErrorMacro("name cannot be null.");
     return;
-    }
+  }
   ArraysType::iterator iter = this->Implementation->Arrays.begin();
   while (iter != this->Implementation->Arrays.end())
-    {
+  {
     if (iter->first == fieldType && iter->second == name)
-      {
+    {
       iter = this->Implementation->Arrays.erase(iter);
       this->Modified();
-      }
-    else
-      {
-      ++iter;
-      }
     }
+    else
+    {
+      ++iter;
+    }
+  }
 }
 
 void vtkPassArrays::RemovePointDataArray(const char* name)
@@ -145,34 +145,34 @@ void vtkPassArrays::RemoveFieldDataArray(const char* name)
 void vtkPassArrays::ClearArrays()
 {
   if(this->Implementation->Arrays.empty() == false)
-    {
+  {
     this->Modified();
-    }
+  }
   this->Implementation->Arrays.clear();
 }
 
 void vtkPassArrays::ClearPointDataArrays()
 {
   if(ClearArraysOfType(vtkDataObject::POINT, this->Implementation->Arrays) == true)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 void vtkPassArrays::ClearCellDataArrays()
 {
   if(ClearArraysOfType(vtkDataObject::CELL, this->Implementation->Arrays) == true)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 void vtkPassArrays::ClearFieldDataArrays()
 {
   if(ClearArraysOfType(vtkDataObject::FIELD, this->Implementation->Arrays) == true)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 void vtkPassArrays::AddFieldType(int fieldType)
@@ -203,83 +203,83 @@ int vtkPassArrays::RequestData(
 
   // If we are specifying arrays to add, start with no arrays in output
   if (!this->RemoveArrays)
-    {
+  {
     if (this->UseFieldTypes)
-      {
+    {
       for (std::vector<int>::size_type i = 0; i < this->Implementation->FieldTypes.size(); ++i)
-        {
+      {
         vtkFieldData* outData = output->GetAttributesAsFieldData(
           this->Implementation->FieldTypes[i]);
         if (outData)
-          {
-          outData->Initialize();
-          }
-        }
-      }
-    else
-      {
-      for (ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
         {
-        vtkFieldData* outData = output->GetAttributesAsFieldData(
-          this->Implementation->Arrays[i].first);
-        if (outData)
-          {
           outData->Initialize();
-          }
         }
       }
     }
+    else
+    {
+      for (ArraysType::size_type i = 0; i < this->Implementation->Arrays.size(); ++i)
+      {
+        vtkFieldData* outData = output->GetAttributesAsFieldData(
+          this->Implementation->Arrays[i].first);
+        if (outData)
+        {
+          outData->Initialize();
+        }
+      }
+    }
+  }
 
   ArraysType::iterator it, itEnd;
   itEnd = this->Implementation->Arrays.end();
   for (it = this->Implementation->Arrays.begin(); it != itEnd; ++it)
-    {
+  {
     if (this->UseFieldTypes)
-      {
+    {
       // Make sure this is a field type we are interested in
       if (std::find(
           this->Implementation->FieldTypes.begin(),
           this->Implementation->FieldTypes.end(), it->first) ==
           this->Implementation->FieldTypes.end())
-        {
+      {
         continue;
-        }
       }
+    }
 
     vtkFieldData* data = input->GetAttributesAsFieldData(it->first);
     vtkFieldData* outData = output->GetAttributesAsFieldData(it->first);
     if (!data)
-      {
+    {
       continue;
-      }
+    }
     vtkAbstractArray* arr = data->GetAbstractArray(it->second.c_str());
     if (!arr)
-      {
+    {
       continue;
-      }
+    }
     if (this->RemoveArrays)
-      {
+    {
       outData->RemoveArray(it->second.c_str());
-      }
+    }
     else
-      {
+    {
       outData->AddArray(arr);
 
       // Preserve attribute type if applicable
       vtkDataSetAttributes* attrib = vtkDataSetAttributes::SafeDownCast(data);
       vtkDataSetAttributes* outAttrib = vtkDataSetAttributes::SafeDownCast(outData);
       if (attrib)
-        {
+      {
         for (int a = 0; a < vtkDataSetAttributes::NUM_ATTRIBUTES; ++a)
-          {
+        {
           if (attrib->GetAbstractAttribute(a) == arr)
-            {
+          {
             outAttrib->SetActiveAttribute(it->second.c_str(), a);
-            }
           }
         }
       }
     }
+  }
 
   return 1;
 }
@@ -292,9 +292,9 @@ int vtkPassArrays::ProcessRequest(
 {
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
@@ -302,7 +302,7 @@ int vtkPassArrays::ProcessRequest(
 int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     // Skip composite data sets so that executives will treat this as a simple filter
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkDataSet");
@@ -311,7 +311,7 @@ int vtkPassArrays::FillInputPortInformation(int port, vtkInformation* info)
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPistonDataObject");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
 
   return 1;
 }
@@ -324,28 +324,28 @@ int vtkPassArrays::RequestDataObject(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
-    {
+  {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
-        {
+      {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 

@@ -139,39 +139,39 @@ template<class DefaultFunctorType,typename ReturnType>
 vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::vtkDataArrayDispatcher(DefaultFunctorType& fun):
   DefaultFunctor(&fun),
   OwnsFunctor(false)
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------
 template<class DefaultFunctorType,typename ReturnType>
 vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::vtkDataArrayDispatcher():
   DefaultFunctor(new DefaultFunctorType()),
   OwnsFunctor(true)
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------
 template<class DefaultFunctorType,typename ReturnType>
 vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>::~vtkDataArrayDispatcher()
-  {
+{
   if(OwnsFunctor)
-    {
+  {
     delete this->DefaultFunctor;
-    }
   }
+}
 
 //----------------------------------------------------------------------------
 template <class DefaultFunctorType,typename ReturnType>
 ReturnType vtkDataArrayDispatcher<DefaultFunctorType,ReturnType>
 ::Go(vtkDataArray* lhs)
-  {
+{
   switch(lhs->GetDataType())
-      {
+  {
       vtkTemplateMacro(return (*this->DefaultFunctor) (
                       vtkDataArrayDispatcherPointer<VTK_TT>(lhs) ));
-      }
-  return ReturnType();
   }
+  return ReturnType();
+}
 
 #endif // vtkDataArrayDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDataArrayDispatcher.h

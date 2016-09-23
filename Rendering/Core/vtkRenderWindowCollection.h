@@ -42,27 +42,27 @@ class VTKRENDERINGCORE_EXPORT vtkRenderWindowCollection : public vtkCollection
    * Add a RenderWindow to the list.
    */
   void AddItem(vtkRenderWindow *a)
-    {
+  {
       this->vtkCollection::AddItem(a);
-    }
+  }
 
   /**
    * Get the next RenderWindow in the list. Return NULL when at the end of the
    * list.
    */
   vtkRenderWindow *GetNextItem()
-    {
+  {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject());
-    }
+  }
 
   /**
    * Reentrant safe way to get an object in a collection. Just pass the
    * same cookie back and forth.
    */
   vtkRenderWindow *GetNextRenderWindow(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkRenderWindow *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkRenderWindowCollection() {}
@@ -71,9 +71,9 @@ protected:
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
 
 private:
   vtkRenderWindowCollection(const vtkRenderWindowCollection&) VTK_DELETE_FUNCTION;

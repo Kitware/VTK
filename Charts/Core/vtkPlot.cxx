@@ -62,10 +62,10 @@ vtkPlot::vtkPlot() : ShiftScale(0.0, 0.0, 1.0, 1.0)
 vtkPlot::~vtkPlot()
 {
   if (this->Selection)
-    {
+  {
     this->Selection->Delete();
     this->Selection = NULL;
-    }
+  }
   this->SetLabels(NULL);
   this->SetXAxis(NULL);
   this->SetYAxis(NULL);
@@ -95,11 +95,11 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
   for (size_t i = 0; i < format.length(); ++i)
-    {
+  {
     if (escapeNext)
-      {
+    {
       switch (format[i])
-        {
+      {
         case 'x':
           tooltipLabel += this->GetNumber(plotPos.GetX(), this->XAxis);
           break;
@@ -110,9 +110,9 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
           if (this->IndexedLabels &&
               seriesIndex >= 0 &&
               seriesIndex < this->IndexedLabels->GetNumberOfTuples())
-            {
+          {
             tooltipLabel += this->IndexedLabels->GetValue(seriesIndex);
-            }
+          }
           break;
         case 'l':
           // GetLabel() is GetLabel(0) in this implementation
@@ -122,21 +122,21 @@ vtkStdString vtkPlot::GetTooltipLabel(const vtkVector2d &plotPos,
           tooltipLabel += "%";
           tooltipLabel += format[i];
           break;
-        }
-      escapeNext = false;
       }
+      escapeNext = false;
+    }
     else
-      {
+    {
       if (format[i] == '%')
-        {
+      {
         escapeNext = true;
-        }
+      }
       else
-        {
+      {
         tooltipLabel += format[i];
-        }
       }
     }
+  }
   return tooltipLabel;
 }
 
@@ -149,24 +149,24 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
   ostr.precision(this->GetTooltipPrecision());
 
   if(this->GetTooltipNotation() == vtkAxis::SCIENTIFIC_NOTATION)
-    {
+  {
     ostr.setf(ios::scientific, ios::floatfield);
-    }
+  }
   else if(this->GetTooltipNotation() == vtkAxis::FIXED_NOTATION)
-    {
+  {
     ostr.setf(ios::fixed, ios::floatfield);
-    }
+  }
 
   if (axis && axis->GetLogScaleActive())
-    {
+  {
     // If axes are set to logarithmic scale we need to convert the
     // axis value using 10^(axis value)
     ostr << pow(double(10.0), double(position));
-    }
+  }
   else
-    {
+  {
     ostr << position;
-    }
+  }
   return ostr.str();
 }
 
@@ -174,9 +174,9 @@ vtkStdString vtkPlot::GetNumber(double position, vtkAxis *axis)
 bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 {
   if (this->Selection)
-    {
+  {
     this->Selection->SetNumberOfTuples(0);
-    }
+  }
   return false;
 }
 
@@ -184,9 +184,9 @@ bool vtkPlot::SelectPoints(const vtkVector2f&, const vtkVector2f&)
 bool vtkPlot::SelectPointsInPolygon(const vtkContextPolygon &)
 {
   if (this->Selection)
-    {
+  {
     this->Selection->SetNumberOfTuples(0);
-    }
+  }
   return false;
 }
 
@@ -235,10 +235,10 @@ float vtkPlot::GetWidth()
 void vtkPlot::SetPen(vtkPen *pen)
 {
   if (this->Pen != pen)
-    {
+  {
     this->Pen = pen;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -251,10 +251,10 @@ vtkPen* vtkPlot::GetPen()
 void vtkPlot::SetBrush(vtkBrush *brush)
 {
   if (this->Brush != brush)
-    {
+  {
     this->Brush = brush;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -267,10 +267,10 @@ vtkBrush* vtkPlot::GetBrush()
 void vtkPlot::SetSelectionPen(vtkPen *pen)
 {
   if (this->SelectionPen != pen)
-    {
+  {
     this->SelectionPen = pen;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -283,10 +283,10 @@ vtkPen* vtkPlot::GetSelectionPen()
 void vtkPlot::SetSelectionBrush(vtkBrush *brush)
 {
   if (this->SelectionBrush != brush)
-    {
+  {
     this->SelectionBrush = brush;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -313,9 +313,9 @@ vtkStdString vtkPlot::GetLabel()
 void vtkPlot::SetLabels(vtkStringArray *labels)
 {
   if (this->Labels == labels)
-    {
+  {
     return;
-    }
+  }
 
   this->Labels = labels;
   this->Modified();
@@ -326,55 +326,55 @@ vtkStringArray * vtkPlot::GetLabels()
 {
   // If the label string is empty, return the y column name
   if (this->Labels)
-    {
+  {
     return this->Labels;
-    }
+  }
   else if (this->AutoLabels)
-    {
+  {
     return this->AutoLabels;
-    }
+  }
   else if (this->Data->GetInput() &&
            this->Data->GetInputArrayToProcess(1, this->Data->GetInput()))
-    {
+  {
     this->AutoLabels = vtkSmartPointer<vtkStringArray>::New();
     this->AutoLabels->InsertNextValue(this->Data->GetInputArrayToProcess(1, this->Data->GetInput())->GetName());
     return this->AutoLabels;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 //-----------------------------------------------------------------------------
 int vtkPlot::GetNumberOfLabels()
 {
   vtkStringArray *labels = this->GetLabels();
   if (labels)
-    {
+  {
     return labels->GetNumberOfValues();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkPlot::SetIndexedLabels(vtkStringArray *labels)
 {
   if (this->IndexedLabels == labels)
-    {
+  {
     return;
-    }
+  }
 
   if (labels)
-    {
+  {
     this->TooltipDefaultLabelFormat = "%i: %x,  %y";
-    }
+  }
   else
-    {
+  {
     this->TooltipDefaultLabelFormat = "%l: %x,  %y";
-    }
+  }
 
   this->IndexedLabels = labels;
   this->Modified();
@@ -396,9 +396,9 @@ vtkContextMapper2D * vtkPlot::GetData()
 void vtkPlot::SetTooltipLabelFormat(const vtkStdString &labelFormat)
 {
   if (this->TooltipLabelFormat == labelFormat)
-    {
+  {
     return;
-    }
+  }
 
   this->TooltipLabelFormat = labelFormat;
   this->Modified();
@@ -441,13 +441,13 @@ vtkStdString vtkPlot::GetLabel(vtkIdType index)
 {
   vtkStringArray *labels = this->GetLabels();
   if (labels && index >= 0 && index < labels->GetNumberOfValues())
-    {
+  {
     return labels->GetValue(index);
-    }
+  }
   else
-    {
+  {
     return vtkStdString();
-    }
+  }
 }
 //-----------------------------------------------------------------------------
 void vtkPlot::SetInputData(vtkTable *table)
@@ -501,9 +501,9 @@ void vtkPlot::SetInputArray(int index, const vtkStdString &name)
 void vtkPlot::SetSelection(vtkIdTypeArray *id)
 {
   if (!this->GetSelectable())
-    {
+  {
     return;
-    }
+  }
   vtkSetObjectBodyMacro(Selection,vtkIdTypeArray,id);
 }
 
@@ -511,10 +511,10 @@ void vtkPlot::SetSelection(vtkIdTypeArray *id)
 void vtkPlot::SetShiftScale(const vtkRectd &shiftScale)
 {
   if (shiftScale != this->ShiftScale)
-    {
+  {
     this->Modified();
     this->ShiftScale = shiftScale;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

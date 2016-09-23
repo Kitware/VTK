@@ -251,9 +251,9 @@ public:
     bool operator()(WeightedVertex& v1, WeightedVertex& v2)
     {
     if (v1.weight < v2.weight)
-      {
+    {
       return false;
-      }
+    }
      return true;
     }
   };
@@ -262,12 +262,12 @@ public:
    * Enum for Orientation.
    */
   enum
-    {
+  {
     LEFT_TO_RIGHT,
     UP_TO_DOWN,
     RIGHT_TO_LEFT,
     DOWN_TO_UP
-    };
+  };
 
   /**
    * Returns true if the transform is interactive, false otherwise.

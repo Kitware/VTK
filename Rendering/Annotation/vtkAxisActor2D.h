@@ -169,25 +169,25 @@ public:
   vtkGetMacro(AdjustLabels, int);
   vtkBooleanMacro(AdjustLabels, int);
   virtual double *GetAdjustedRange()
-    {
+  {
       this->UpdateAdjustedRange();
       return this->AdjustedRange;
-    }
+  }
   virtual void GetAdjustedRange(double &_arg1, double &_arg2)
-    {
+  {
       this->UpdateAdjustedRange();
       _arg1 = this->AdjustedRange[0];
       _arg2 = this->AdjustedRange[1];
-    };
+  };
   virtual void GetAdjustedRange(double _arg[2])
-    {
+  {
       this->GetAdjustedRange(_arg[0], _arg[1]);
-    }
+  }
   virtual int GetAdjustedNumberOfLabels()
-    {
+  {
       this->UpdateAdjustedRange();
       return this->AdjustedNumberOfLabels;
-    }
+  }
   //@}
 
   //@{

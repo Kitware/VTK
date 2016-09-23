@@ -48,29 +48,29 @@ void vtkWrapPython_AddConstantHelper(
   valname = val->Name;
   valstring = attribval;
   if (valstring == 0)
-    {
+  {
     valstring = val->Value;
-    }
+  }
 
   if (valtype == 0 && (valstring == NULL || valstring[0] == '\0'))
-    {
+  {
     valtype = VTK_PARSE_VOID;
-    }
+  }
   else if (strcmp(valstring, "NULL") == 0)
-    {
+  {
     valtype = VTK_PARSE_VOID;
-    }
+  }
 
   if (valtype == 0 || val->Name == NULL)
-    {
+  {
     return;
-    }
+  }
 
   if (val->IsEnum)
-    {
+  {
     if (val->Class && val->Class[0] != '\0' &&
         strcmp(val->Class, "int") != 0)
-      {
+    {
       fprintf(fp,
               "%s%s = Py%s%s%s_FromEnum(%s%s%s);\n",
               indent, objvar,
@@ -79,9 +79,9 @@ void vtkWrapPython_AddConstantHelper(
               ((scope && !attribval) ? "::" : ""),
               (!attribval ? valname : attribval));
       objcreated = 1;
-      }
+    }
     else
-      {
+    {
       fprintf(fp,
               "%s%s = PyInt_FromLong(%s%s%s);\n",
               indent, objvar,
@@ -89,10 +89,10 @@ void vtkWrapPython_AddConstantHelper(
               ((scope && !attribval) ? "::" : ""),
               (!attribval ? valname : attribval));
       objcreated = 1;
-      }
     }
+  }
   else switch (valtype)
-    {
+  {
     case VTK_PARSE_VOID:
       fprintf(fp,
               "%sPy_INCREF(Py_None);\n"
@@ -167,10 +167,10 @@ void vtkWrapPython_AddConstantHelper(
               indent, objvar, valstring);
       objcreated = 1;
       break;
-    }
+  }
 
   if (objcreated)
-    {
+  {
     fprintf(fp,
             "%sif (%s)\n"
             "%s  {\n"
@@ -181,7 +181,7 @@ void vtkWrapPython_AddConstantHelper(
             (attrib ? "" : "\""), (attrib ? attrib : valname),
             (attrib ? "" : "\""), objvar,
             indent, objvar, indent);
-    }
+  }
 }
 
 /* -------------------------------------------------------------------- */
@@ -207,38 +207,38 @@ void vtkWrapPython_AddPublicConstants(
   l = strlen(indent);
   m = strlen(nextindent);
   if (m > l + 2)
-    {
+  {
     nextindent += m - l - 2;
-    }
+  }
 
   /* get the name of the namespace, or NULL if global */
   scope = data->Name;
   if (scope && scope[0] == '\0')
-    {
+  {
     scope = 0;
-    }
+  }
 
   /* go through the constants, collecting them by type */
   while (j < data->NumberOfConstants)
-    {
+  {
     val = data->Constants[j];
     if (val->Access != VTK_ACCESS_PUBLIC)
-      {
+    {
       j++;
       continue;
-      }
+    }
 
     /* write a single constant if not numerical */
     if (j+1 == data->NumberOfConstants ||
         val->Type != data->Constants[j+1]->Type ||
         !vtkWrap_IsScalar(val) ||
         (!val->IsEnum && !vtkWrap_IsNumeric(val)))
-      {
+    {
       vtkWrapPython_AddConstant(
         fp, indent, dictvar, objvar, scope, val);
       j++;
       continue;
-      }
+    }
 
     /* get important information about the value */
     valtype = val->Type;
@@ -250,44 +250,44 @@ void vtkWrapPython_AddPublicConstants(
     firstval = val;
     count = 0;
     for (k = j; k < data->NumberOfConstants; k++)
-      {
+    {
       val = data->Constants[k];
       if (val->Access == VTK_ACCESS_PUBLIC)
-        {
+      {
         tname = (val->IsEnum ? val->Class : vtkWrap_GetTypeName(val));
         if (val->Type != valtype || strcmp(tname, typeName) != 0)
-          {
+        {
           break;
-          }
-        count++;
         }
+        count++;
       }
+    }
 
     /* if no constants to generate, then continue */
     if (count == 0)
-      {
+    {
       j = k;
       continue;
-      }
+    }
 
     /* check to make sure there won't be a name conflict between an
        enum type and some other class member, it happens specifically
        for vtkImplicitBoolean which has a variable and enum type both
        with the name OperationType */
     if (scopeType)
-      {
+    {
       int conflict = 0;
       for (i = 0; i < data->NumberOfVariables && !conflict; i++)
-        {
+      {
         conflict = (strcmp(data->Variables[i]->Name, typeName) == 0);
-        }
+      }
       if (conflict)
-        {
+      {
         valtype = VTK_PARSE_INT;
         typeName = "int";
         scopeType = 0;
-        }
       }
+    }
 
     /* generate the code */
     fprintf(fp,
@@ -296,11 +296,11 @@ void vtkWrapPython_AddPublicConstants(
       indent, count, indent);
 
     if (scopeType)
-      {
+    {
       fprintf(fp,
         "%s  typedef %s::%s cxx_enum_type;\n\n",
         indent, scope, typeName);
-      }
+    }
 
     fprintf(fp,
       "%s  static const struct { const char *name; %s value; }\n"
@@ -309,17 +309,17 @@ void vtkWrapPython_AddPublicConstants(
       indent, count);
 
     while (j < k)
-      {
+    {
       val = data->Constants[j++];
       if (val->Access == VTK_ACCESS_PUBLIC)
-        {
+      {
         fprintf(fp,
           "%s      { \"%s\", %s%s%s },\n",
           indent, val->Name,
           (scopeValue ? scope : ""), (scopeValue ? "::" : ""),
           (val->IsEnum ? val->Name : val->Value));
-        }
       }
+    }
 
     fprintf(fp,
       "%s    };\n"
@@ -333,7 +333,7 @@ void vtkWrapPython_AddPublicConstants(
     fprintf(fp,
       "%s  }\n\n",
       indent);
-    }
+  }
 }
 
 /* -------------------------------------------------------------------- */

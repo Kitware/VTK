@@ -63,10 +63,10 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
   // the LowPoint ([0, 1] in this case. This is different from having the actual
   // coordinates of a given point.
   for (int c = 0; c < 3; c++)
-    {
+  {
     std::string name;
     switch (c)
-      {
+    {
       case 0:
         name = "delta_x";
         elevation->SetLowPoint(bounds[0], 0.0, 0.0);
@@ -82,7 +82,7 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
         elevation->SetLowPoint(0.0, 0.0, bounds[4]);
         elevation->SetHighPoint(0.0, 0.0, bounds[5]);
         break;
-      }
+    }
     elevation->Update();
 
     vtkPolyData* result = vtkPolyData::SafeDownCast(elevation->GetOutput());
@@ -92,14 +92,14 @@ void GenerateElevationArray(vtkSmartPointer<vtkPolyDataAlgorithm> source)
       VTK_SCALAR_MODE_USE_POINT_FIELD_DATA, VTK_GET_ARRAY_BY_NAME/*acc mode*/,
       0/*arr id*/, "Elevation"/*arr name*/, outCellFlag);
     if (!elevArray)
-      {
+    {
       std::cout << "->> Error: could not find array!" << std::endl;
       return;
-      }
+    }
 
     elevArray->SetName(name.c_str());
     data->GetPointData()->AddArray(elevArray);
-    }
+  }
 
   // Generate a 3-component vector array using the single components
   // form elevation
@@ -144,7 +144,7 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImO
 
   // Render each component in a separate image
   for(int c = 0; c < 3; c++)
-    {
+  {
     valuePass->SetInputComponentToProcess(c);
     window->Render();
 
@@ -162,7 +162,7 @@ void RenderComponentImages(std::vector<vtkSmartPointer<vtkImageData> >& colorImO
     colorIm->GetPointData()->SetScalars(colored);
     colorImOut.push_back(colorIm);
     colored->Delete();
-    }
+  }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -245,7 +245,7 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
   // Check whether the RenderingMode change (this could happen due to a lack of
   // extension/context support
   if (valuePass->GetRenderingMode() == vtkValuePass::FLOATING_POINT)
-    {
+  {
     // Render point data images
     std::vector<vtkSmartPointer<vtkImageData> > colorImagesPoint;
     RenderComponentImages(colorImagesPoint, window, renderer, valuePass,
@@ -301,14 +301,14 @@ int TestValuePassFloatingPoint(int argc, char *argv[])
     // Use the default pass to render the colored image.
     glRenderer->SetPass(NULL);
     window->Render();
-    }
+  }
 
   // initialize render loop
   int retVal = vtkRegressionTestImage(window.GetPointer());
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
 
   return !retVal;
 }

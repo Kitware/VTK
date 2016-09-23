@@ -60,19 +60,19 @@ void vtkOSPRayVolumeMapperNode::PrintSelf(ostream& os, vtkIndent indent)
 void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkVolumeNode* volNode = vtkVolumeNode::SafeDownCast(this->Parent);
     vtkVolume* vol = vtkVolume::SafeDownCast(volNode->GetRenderable());
     if (vol->GetVisibility() == false)
-      {
+    {
       return;
-      }
+    }
     vtkAbstractVolumeMapper* mapper = vtkAbstractVolumeMapper::SafeDownCast(this->GetRenderable());
     if (!vol->GetProperty())
-      {
+    {
       // this is OK, happens in paraview client side for instance
       return;
-      }
+    }
 
     vtkOSPRayRendererNode *orn =
       static_cast<vtkOSPRayRendererNode *>(
@@ -82,69 +82,69 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
     // make sure that we have scalar input and update the scalar input
     if ( mapper->GetDataSetInput() == NULL )
-      {
+    {
       vtkErrorMacro("VolumeMapper had no input!");
       return;
-      }
+    }
     mapper->GetInputAlgorithm()->UpdateInformation();
     mapper->GetInputAlgorithm()->Update();
 
     vtkImageData *data = vtkImageData::SafeDownCast(mapper->GetDataSetInput());
     if (!data)
-      {
+    {
       vtkErrorMacro("VolumeMapper's Input has no data!");
       return;
-      }
+    }
     vtkDataArray *sa = mapper->GetDataSetInput()->GetPointData()->GetScalars();
     bool onPoints = true;
     if (!sa)
-      {
+    {
       onPoints = false;
       sa = mapper->GetDataSetInput()->GetCellData()->GetScalars();
-      }
+    }
     if (!sa)
-      {
+    {
       vtkErrorMacro("VolumeMapper's Input has no scalar array!");
       return;
-      }
+    }
     int ScalarDataType = sa->GetDataType();
     void* ScalarDataPointer = sa->GetVoidPointer(0);
     int dim[3];
     data->GetDimensions(dim);
     if (!onPoints)
-      {
+    {
       dim[0] = dim[0]-1;
       dim[1] = dim[1]-1;
       dim[2] = dim[2]-1;
-      }
+    }
 
     std::string voxelType;
     if (ScalarDataType == VTK_FLOAT)
-      {
+    {
       voxelType = "float";
-      }
+    }
     else if (ScalarDataType == VTK_UNSIGNED_CHAR)
-      {
+    {
       voxelType = "uchar";
-      }
+    }
     else if (ScalarDataType == VTK_DOUBLE)
-      {
+    {
       voxelType = "double";
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro("ERROR: Unsupported data type for ospray volumes, current supported data types are: float, uchar, and double.");
       return;
-      }
+    }
 
     if (!this->TransferFunction)
-      {
+    {
       this->TransferFunction = ospNewTransferFunction("piecewise_linear");
-      }
+    }
 
     // when input data is modified
     if (mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
-      {
+    {
       delete this->OSPRayVolume;
       this->OSPRayVolume = ospNewVolume("block_bricked_volume");
 
@@ -178,13 +178,13 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
 
       ospSet2f(this->TransferFunction, "valueRange",
                data->GetScalarRange()[0], data->GetScalarRange()[1]);
-      }
+    }
 
     // test for modifications to volume properties
     vtkVolumeProperty* volProperty = vol->GetProperty();
     if (vol->GetProperty()->GetMTime() > this->PropertyTime
         || mapper->GetDataSetInput()->GetMTime() > this->BuildTime)
-      {
+    {
       vtkColorTransferFunction* colorTF =
         volProperty->GetRGBTransferFunction(0);
       vtkPiecewiseFunction *scalarTF = volProperty->GetScalarOpacity(0);
@@ -216,28 +216,28 @@ void vtkOSPRayVolumeMapperNode::Render(bool prepass)
       PropertyTime.Modified();
       ospRelease(colorData);
       ospRelease(tfAlphaData);
-      }
+    }
 
     if (this->SamplingRate == 0.0f)  // 0 means automatic sampling rate
-      {
+    {
       //automatically determine sampling rate
       int maxBound = std::max(dim[0],dim[1]);
       maxBound = std::max(maxBound,dim[2]);
       if (maxBound < 1000)
-        {
+      {
         float s = 1000.0f - maxBound;
         s = (s/1000.0f*4.0f + 0.25f);
         ospSet1f(this->OSPRayVolume, "samplingRate", s);
-        }
+      }
       else
-        {
-        ospSet1f(this->OSPRayVolume, "samplingRate", 0.25f);
-        }
-      }
-    else
       {
-      ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
+        ospSet1f(this->OSPRayVolume, "samplingRate", 0.25f);
       }
+    }
+    else
+    {
+      ospSet1f(this->OSPRayVolume, "samplingRate", this->SamplingRate);
+    }
 
     this->RenderTime = volNode->GetMTime();
     this->BuildTime.Modified();

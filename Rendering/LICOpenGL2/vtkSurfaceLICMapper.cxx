@@ -142,16 +142,16 @@ void vtkSurfaceLICMapper::SetMapperShaderParameters(
 {
   if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
-    {
+  {
     cellBO.VAO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VectorVBO,
         "vecsMC", this->VectorVBO->TCoordOffset,
          this->VectorVBO->Stride, VTK_FLOAT, this->VectorVBO->TCoordComponents,
          false))
-      {
+    {
       vtkErrorMacro(<< "Error setting 'vecsMC' in shader VAO.");
-      }
     }
+  }
 
   this->Superclass::SetMapperShaderParameters(cellBO, ren, actor);
   cellBO.Program->SetUniformi("uMaskOnSurface",
@@ -179,11 +179,11 @@ void vtkSurfaceLICMapper::RenderPiece(
   vtkPainterCommunicator *comm = this->LICInterface->GetCommunicator();
 
   if (comm->GetIsNull())
-    {
+  {
     // other rank's may have some visible data but we
     // have none and should not participate further
     return;
-    }
+  }
 
   this->CurrentInput = this->GetInput();
   vtkDataArray *vectors = NULL;
@@ -191,7 +191,7 @@ void vtkSurfaceLICMapper::RenderPiece(
   this->LICInterface->SetHasVectors(vectors != NULL ? true : false);
 
   if (!this->LICInterface->CanRenderSurfaceLIC(actor))
-    {
+  {
     // we've determined that there's no work for us, or that the
     // requisite opengl extensions are not available. pass control on
     // to delegate renderer and return.
@@ -200,7 +200,7 @@ void vtkSurfaceLICMapper::RenderPiece(
     this->EndTimerEvent("vtkSurfaceLICMapper::RenderInternal");
     #endif
     return;
-    }
+  }
 
   // allocate rendering resources, initialize or update
   // textures and shaders.
@@ -242,9 +242,9 @@ void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
   this->Superclass::BuildBufferObjects(ren,act);
 
   if (!this->LICInterface->GetHasVectors())
-    {
+  {
     return;
-    }
+  }
 
   vtkDataArray *vectors = NULL;
   vectors = this->GetInputArrayToProcess(0, this->CurrentInput);
@@ -256,30 +256,30 @@ void vtkSurfaceLICMapper::BuildBufferObjects(vtkRenderer *ren, vtkActor *act)
   this->VectorVBO->Stride = this->VectorVBO->TCoordComponents*sizeof(float);
 
   if (vectors->GetDataType() != VTK_FLOAT)
-    {
+  {
     float *data = new float[vectors->GetNumberOfTuples()*numComp];
     double *tuple = new double [numComp];
     for (int i = 0; i < vectors->GetNumberOfTuples(); i++)
-      {
+    {
       vectors->GetTuple(i,tuple);
       for (int j = 0; j < numComp; j++)
-        {
+      {
         data[i*numComp+j] = tuple[j];
-        }
       }
+    }
     this->VectorVBO->Upload(data,
       vectors->GetNumberOfTuples()*numComp,
       vtkOpenGLBufferObject::ArrayBuffer);
     delete [] data;
     delete [] tuple;
-    }
+  }
   else
-    {
+  {
     // and add our vector VBO
     this->VectorVBO->Upload(static_cast<float *>(vectors->GetVoidPointer(0)),
       vectors->GetNumberOfTuples()*numComp,
       vtkOpenGLBufferObject::ArrayBuffer);
-    }
+  }
 }
 
 

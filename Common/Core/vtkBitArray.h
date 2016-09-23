@@ -219,14 +219,14 @@ public:
   unsigned char *WritePointer(vtkIdType id, vtkIdType number);
 
   void* WriteVoidPointer(vtkIdType id, vtkIdType number) VTK_OVERRIDE
-    {
+  {
     return this->WritePointer(id, number);
-    }
+  }
 
   void *GetVoidPointer(vtkIdType id) VTK_OVERRIDE
-    {
+  {
       return static_cast<void *>(this->GetPointer(id));
-    }
+  }
 
   /**
    * Deep copy of another bit array.
@@ -249,14 +249,14 @@ public:
   void SetArray(unsigned char* array, vtkIdType size, int save);
 #endif
   void SetVoidArray(void *array, vtkIdType size, int save) VTK_OVERRIDE
-    {
+  {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
-    }
+  }
   void SetVoidArray(void *array, vtkIdType size, int save,
                     int vtkNotUsed(deleteMethod)) VTK_OVERRIDE
-    {
+  {
       this->SetArray(static_cast<unsigned char *>(array), size, save);
-    }
+  }
   //@}
 
   /**
@@ -327,41 +327,41 @@ inline void vtkBitArray::SetNumberOfValues(vtkIdType number)
 inline void vtkBitArray::SetValue(vtkIdType id, int value)
 {
   if (value)
-    {
+  {
     this->Array[id/8] = static_cast<unsigned char>(
       this->Array[id/8] | (0x80 >> id%8));
-    }
+  }
   else
-    {
+  {
     this->Array[id/8] = static_cast<unsigned char>(
       this->Array[id/8] & (~(0x80 >> id%8)));
-    }
+  }
   this->DataChanged();
 }
 
 inline void vtkBitArray::InsertValue(vtkIdType id, int i)
 {
   if ( id >= this->Size )
-    {
+  {
     if (!this->ResizeAndExtend(id+1))
-      {
-      return;
-      }
-    }
-  if (i)
     {
+      return;
+    }
+  }
+  if (i)
+  {
     this->Array[id/8] = static_cast<unsigned char>(
       this->Array[id/8] | (0x80 >> id%8));
-    }
+  }
   else
-    {
+  {
     this->Array[id/8] = static_cast<unsigned char>(
       this->Array[id/8] & (~(0x80 >> id%8)));
-    }
+  }
   if ( id > this->MaxId )
-    {
+  {
     this->MaxId = id;
-    }
+  }
   this->DataChanged();
 }
 

@@ -67,40 +67,40 @@ int TestGeoView(int argc, char* argv[])
   vtkStdString terrainReadPath = ".";
   vtkStdString terrainSavePath = ".";
   for (int i = 1; i < argc; ++i)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-D") ||
         !strcmp(argv[i], "-T") ||
         !strcmp(argv[i], "-V"))
-      {
+    {
       ++i;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-IS"))
-      {
+    {
       imageSavePath = argv[++i];
-      }
+    }
     else if (!strcmp(argv[i], "-TS"))
-      {
+    {
       terrainSavePath = argv[++i];
-      }
+    }
     else if (!strcmp(argv[i], "-IF"))
-      {
+    {
       imageFile = argv[++i];
-      }
+    }
     else if (!strcmp(argv[i], "-IR"))
-      {
+    {
       imageReadPath = argv[++i];
-      }
+    }
     else if (!strcmp(argv[i], "-TR"))
-      {
+    {
       terrainReadPath = argv[++i];
-      }
+    }
     else
-      {
+    {
       cerr << "Usage:" << endl;
       cerr << "  -I       - Interactive." << endl;
       cerr << "  -D  path - Path to VTKData." << endl;
@@ -112,8 +112,8 @@ int TestGeoView(int argc, char* argv[])
       cerr << "  -TR path - Path to read terrain database from." << endl;
       cerr << "  -IF file - Load JPEG image file." << endl;
       return 1;
-      }
     }
+  }
   // Create the geo view.
   VTK_CREATE(vtkGeoView, view);
   view->DisplayHoverTextOff();
@@ -158,32 +158,32 @@ int TestGeoView(int argc, char* argv[])
 
   // Serialize databases
   if (terrainSavePath.length() > 0)
-    {
+  {
     terrain->SaveDatabase(terrainSavePath.c_str(), 4);
-    }
+  }
   if (imageSavePath.length() > 0)
-    {
+  {
     imageRep->SaveDatabase(imageSavePath.c_str());
-    }
+  }
 
   // Load databases
   if (terrainReadPath.length() > 0)
-    {
+  {
     terrainSource->ShutDown();
     vtkGeoFileTerrainSource* source = vtkGeoFileTerrainSource::New();
     source->SetPath(terrainReadPath.c_str());
     terrainSource.TakeReference(source);
     terrainSource->Initialize();
-    }
+  }
   terrain->SetSource(terrainSource);
   if (imageReadPath.length() > 0)
-    {
+  {
     imageSource->ShutDown();
     vtkGeoFileImageSource* source = vtkGeoFileImageSource::New();
     source->SetPath(imageReadPath.c_str());
     imageSource.TakeReference(source);
     imageSource->Initialize();
-    }
+  }
   imageRep->SetSource(imageSource);
 
   view->ResetCamera();
@@ -216,13 +216,13 @@ int TestGeoView(int argc, char* argv[])
   vtksys::SystemTools::Delay(2000);
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 11);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     // Interact with data.
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   // Shut down sources
   terrainSource->ShutDown();

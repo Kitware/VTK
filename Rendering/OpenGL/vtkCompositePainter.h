@@ -88,7 +88,7 @@ protected:
     unsigned long typeflags, bool forceCompileOnly);
 
   class RenderBlockState
-    {
+  {
   public:
     std::stack<bool> Visibility;
     std::stack<double> Opacity;
@@ -100,7 +100,7 @@ protected:
     vtkColor3d RenderedAmbientColor;
     vtkColor3d RenderedDiffuseColor;
     vtkColor3d RenderedSpecularColor;
-    };
+  };
 
   void RenderBlock(vtkRenderer *renderer,
                    vtkActor *actor,

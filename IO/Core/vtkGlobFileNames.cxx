@@ -63,9 +63,9 @@ void vtkGlobFileNames::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "FileNames:  (" << this->GetFileNames() << ")\n";
   indent = indent.GetNextIndent();
   for(int i = 0; i < this->FileNames->GetNumberOfValues(); i++)
-    {
+  {
     os << indent << this->FileNames->GetValue(i) << "\n";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -82,42 +82,42 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
   vtksys::Glob glob;
 
   if (this->Recurse)
-    {
+  {
     glob.RecurseOn();
-    }
+  }
   else
-    {
+  {
     glob.RecurseOff();
-    }
+  }
 
   if (!this->Pattern)
-    {
+  {
     vtkErrorMacro(<< "FindFileNames: pattern string is null.");
 
     return 0;
-    }
+  }
 
   std::string fullPattern = this->Pattern;
 
   if (this->Directory && this->Directory[0] != '\0')
-    {
+  {
     std::vector<std::string> components;
     vtksys::SystemTools::SplitPath(fullPattern.c_str(), components);
     // If Pattern is a relative path, prepend with Directory
     if (components[0] == "")
-      {
+    {
       components.insert(components.begin(), this->Directory);
       fullPattern = vtksys::SystemTools::JoinPath(components);
-      }
     }
+  }
 
   if (!glob.FindFiles(fullPattern))
-    {
+  {
     vtkErrorMacro(<< "FindFileNames: Glob action failed for \"" <<
                   fullPattern << "\"");
 
     return 0;
-    }
+  }
 
   // copy the filenames from glob
   std::vector<std::string> files = glob.GetFiles();
@@ -129,9 +129,9 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
   for ( std::vector<std::string>::const_iterator iter = files.begin();
         iter != files.end();
         iter++)
-    {
+  {
     this->FileNames->InsertNextValue(iter->c_str());
-    }
+  }
 
   return 1;
 }
@@ -141,10 +141,10 @@ int vtkGlobFileNames::AddFileNames(const char* pattern)
 const char* vtkGlobFileNames::GetNthFileName(int index)
 {
   if(index >= this->FileNames->GetNumberOfValues() || index < 0)
-    {
+  {
     vtkErrorMacro( << "Bad index for GetFileName on vtkGlobFileNames\n");
     return 0;
-    }
+  }
 
   return this->FileNames->GetValue(index).c_str();
 }

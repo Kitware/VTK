@@ -59,10 +59,10 @@ public:
    * so it can be added to the renderer independent of the widget.
    */
   void SetRepresentation(vtkTensorProbeRepresentation *r)
-    {
+  {
     this->Superclass::SetWidgetRepresentation(
         reinterpret_cast<vtkWidgetRepresentation*>(r));
-    }
+  }
 
   /**
    * Return the representation as a vtkTensorProbeRepresentation.

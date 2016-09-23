@@ -156,10 +156,10 @@ public:
     { return this->Parent; }
 
   enum NodeStatus
-    {
+  {
     NONE,
     PROCESSING
-    };
+  };
 
   NodeStatus GetStatus();
   void SetStatus(NodeStatus status);

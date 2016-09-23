@@ -54,33 +54,33 @@ int vtkRowQuery::GetFieldIndex(char* name)
   int index;
   bool found = false;
   for (index = 0; index < this->GetNumberOfFields(); index++)
-    {
+  {
     if (this->CaseSensitiveFieldNames)
-      {
+    {
       if (!strcmp(name, this->GetFieldName(index)))
-        {
+      {
         found = true;
         break;
-        }
       }
+    }
     else
-      {
+    {
       vtkStdString fieldName(this->GetFieldName(index));
       std::transform(fieldName.begin(),
                         fieldName.end(),
                         fieldName.begin(),
                         (int(*)(int))tolower);
       if (lcSearchName == fieldName)
-        {
+      {
         found = true;
         break;
-        }
       }
     }
+  }
   if (found)
-    {
+  {
     return index;
-    }
+  }
   return -1;
 }
 
@@ -88,14 +88,14 @@ int vtkRowQuery::GetFieldIndex(char* name)
 bool vtkRowQuery::NextRow(vtkVariantArray* rowArray)
 {
   if (!this->NextRow())
-    {
+  {
     return false;
-    }
+  }
   rowArray->Reset();
   for (int col = 0; col < this->GetNumberOfFields(); col++)
-    {
+  {
     rowArray->InsertNextValue(this->DataValue(col));
-    }
+  }
   return true;
 }
 

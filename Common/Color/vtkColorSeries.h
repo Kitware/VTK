@@ -189,7 +189,7 @@ public:
     BREWER_QUALITATIVE_SET3,
     /// User specified color scheme.
     CUSTOM
-    };
+  };
 
 /**
  * An enum defining how lookup tables should be used: either as a

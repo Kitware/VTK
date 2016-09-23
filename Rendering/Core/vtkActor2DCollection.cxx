@@ -35,20 +35,20 @@ vtkActor2DCollection::~vtkActor2DCollection()
 void vtkActor2DCollection::RenderOverlay(vtkViewport* viewport)
 {
   if (this->NumberOfItems != 0)
-    {
+  {
     this->Sort();
     vtkActor2D* tempActor;
     vtkCollectionSimpleIterator adit;
     for ( this->InitTraversal(adit);
           (tempActor = this->GetNextActor2D(adit));)
-      {
+    {
       // Make sure that the actor is visible before rendering
       if (tempActor->GetVisibility() == 1)
-        {
+      {
         tempActor->RenderOverlay(viewport);
-        }
       }
     }
+  }
 }
 
 // Add an actor to the list.  The new actor is
@@ -61,7 +61,7 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
 
   // Check if the top item is NULL
   if (this->Top == NULL)
-    {
+  {
     vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to top of the list");
 
     this->Top = elem;
@@ -71,16 +71,16 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
     this->NumberOfItems++;
     a->Register(this);
     return;
-    }
+  }
 
   for (indexElem = this->Top;
          indexElem != NULL;
            indexElem = indexElem->Next)
-    {
+  {
 
     vtkActor2D* tempActor = static_cast<vtkActor2D*>(indexElem->Item);
     if (a->GetLayerNumber() < tempActor->GetLayerNumber())
-      {
+    {
       // The indexElem item's layer number is larger, so swap
       // the new item and the indexElem item.
       vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Inserting item");
@@ -91,9 +91,9 @@ void vtkActor2DCollection::AddItem(vtkActor2D *a)
       this->NumberOfItems++;
       a->Register(this);
       return;
-      }
-
     }
+
+  }
 
   //End of list found before a larger layer number
   vtkDebugMacro(<<"vtkActor2DCollection::AddItem - Adding item to end of the list");
@@ -128,9 +128,9 @@ void vtkActor2DCollection::Sort()
 
    // Fill the actor array with the items in the collection
    for (index = 0; index < numElems; index++)
-     {
+   {
      actorPtrArr[index] = this->GetNextActor2D(ait);
-     }
+   }
 
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Starting selection sort");
    // Start the sorting - selection sort
@@ -138,27 +138,27 @@ void vtkActor2DCollection::Sort()
   vtkActor2D* t;
 
   for (i = 0; i < numElems - 1; i++)
-    {
+  {
     min = i;
     for (j = i + 1; j < numElems ; j++)
-      {
+    {
       if(actorPtrArr[j]->GetLayerNumber() < actorPtrArr[min]->GetLayerNumber())
-        {
+      {
         min = j;
-        }
       }
+    }
     t = actorPtrArr[min];
     actorPtrArr[min] = actorPtrArr[i];
     actorPtrArr[i] = t;
-    }
+  }
 
    vtkDebugMacro(<<"vtkActor2DCollection::Sort - Selection sort done.");
 
    for (index = 0; index < numElems; index++)
-     {
+   {
      vtkDebugMacro(<<"vtkActor2DCollection::Sort - actorPtrArr["<<index<<"] layer: " <<
      actorPtrArr[index]->GetLayerNumber());
-     }
+   }
 
   vtkDebugMacro(<<"vtkActor2DCollection::Sort - Rearraging the linked list.");
   // Now move the items around in the linked list -
@@ -168,10 +168,10 @@ void vtkActor2DCollection::Sort()
   elem->Item = actorPtrArr[0];
 
   for (i = 1; i < numElems; i++)
-    {
+  {
     elem = elem->Next;
     elem->Item = actorPtrArr[i];
-    }
+  }
 
   delete[] actorPtrArr;
 }

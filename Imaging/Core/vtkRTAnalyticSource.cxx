@@ -59,39 +59,39 @@ void vtkRTAnalyticSource::SetWholeExtent(int xMin, int xMax,
   int modified = 0;
 
   if (this->WholeExtent[0] != xMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[0] = xMin ;
-    }
+  }
   if (this->WholeExtent[1] != xMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[1] = xMax ;
-    }
+  }
   if (this->WholeExtent[2] != yMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[2] = yMin ;
-    }
+  }
   if (this->WholeExtent[3] != yMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[3] = yMax ;
-    }
+  }
   if (this->WholeExtent[4] != zMin)
-    {
+  {
     modified = 1;
     this->WholeExtent[4] = zMin ;
-    }
+  }
   if (this->WholeExtent[5] != zMax)
-    {
+  {
     modified = 1;
     this->WholeExtent[5] = zMax ;
-    }
+  }
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -105,20 +105,20 @@ int vtkRTAnalyticSource::RequestInformation(
   if (this->WholeExtent[0] > this->WholeExtent[1] ||
     this->WholeExtent[2] > this->WholeExtent[3] ||
     this->WholeExtent[4] > this->WholeExtent[5])
-    {
+  {
     vtkErrorMacro("Invalid WholeExtent: "
       << this->WholeExtent[0] << ", " << this->WholeExtent[1] << ", "
       << this->WholeExtent[2] << ", " << this->WholeExtent[3] << ", "
       << this->WholeExtent[4] << ", " << this->WholeExtent[5]);
     return 0;
-    }
+  }
 
   int tmpExt[6], i;
   for (i = 0; i < 3; i++)
-    {
+  {
     tmpExt[2*i] = this->WholeExtent[2*i] / this->SubsampleRate;
     tmpExt[2*i+1] = this->WholeExtent[2*i+1] / this->SubsampleRate;
-    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                tmpExt,6);
@@ -176,14 +176,14 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
   vtkImageData *data = vtkImageData::GetData(outInfo);
   this->AllocateOutputData(data, outInfo, execExt);
   if (data->GetScalarType() != VTK_FLOAT)
-    {
+  {
     vtkErrorMacro("Execute: This source only outputs floats");
     return;
-    }
+  }
   if (data->GetNumberOfPoints() <= 0)
-    {
+  {
     return;
-    }
+  }
 
   data->SetSpacing(this->SubsampleRate, this->SubsampleRate,
                    this->SubsampleRate);
@@ -191,10 +191,10 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
   outExt = data->GetExtent();
   int i;
   for (i = 0; i < 3; i++)
-    {
+  {
     newOutExt[2*i] = outExt[2*i] * this->SubsampleRate;
     newOutExt[2*i+1] = outExt[2*i+1] * this->SubsampleRate;
-    }
+  }
   whlExt = this->GetWholeExtent();
   data->GetPointData()->GetScalars()->SetName("RTData");
 
@@ -218,36 +218,36 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
   const double yscale = (whlExt[3] > whlExt[2])? (1.0/(whlExt[3] - whlExt[2])) : 1.0;
   const double zscale = (whlExt[5] > whlExt[4])? (1.0/(whlExt[5] - whlExt[4])) : 1.0;
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     if ((this->SubsampleRate > 1) && (idxZ % this->SubsampleRate))
-      {
+    {
       continue;
-      }
+    }
     z = this->Center[2] - (idxZ + newOutExt[4]);
     z *= zscale;
     zContrib = z * z;
     const float zfactor = static_cast<float>(this->ZMag*cos(this->ZFreq*z));
     for (idxY = 0; !this->AbortExecute && idxY <= maxY; idxY++)
-      {
+    {
       if ((this->SubsampleRate > 1) && (idxY % this->SubsampleRate))
-        {
+      {
         continue;
-        }
+      }
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       y = this->Center[1] - (idxY + newOutExt[2]);
       y *= yscale;
       yContrib = y * y;
       const float yfactor = static_cast<float>(this->YMag*sin(this->YFreq*y));
       for (idxX = 0; idxX <= maxX; idxX++)
-        {
+      {
         if ((this->SubsampleRate > 1) && (idxX % this->SubsampleRate))
-          {
+        {
           continue;
-          }
+        }
         // Pixel operation
         sum = zContrib + yContrib;
         x = this->Center[0] - (idxX + newOutExt[0]);
@@ -259,11 +259,11 @@ void vtkRTAnalyticSource::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(o
           + yfactor /*this->YMag*sin(this->YFreq*y)*/
           + zfactor /*this->ZMag*cos(this->ZFreq*z)*/;
         outPtr++;
-        }
-      outPtr += outIncY;
       }
-    outPtr += outIncZ;
+      outPtr += outIncY;
     }
+    outPtr += outIncZ;
+  }
 }
 
 void vtkRTAnalyticSource::PrintSelf(ostream& os, vtkIndent indent)
@@ -295,9 +295,9 @@ int vtkRTAnalyticSource::FillOutputPortInformation(
   int port, vtkInformation* info)
 {
   if (!this->Superclass::FillOutputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   return 1;
 }

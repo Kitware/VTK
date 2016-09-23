@@ -45,30 +45,30 @@ public:
   int ProcessRequest(vtkInformation* request, vtkInformationVector** inputVector, vtkInformationVector* outputVector) VTK_OVERRIDE
   {
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->NumRequestInformation++;
     return this->RequestInformation(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     this->NumRequestUpdateExtent++;
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     this->NumRequestData++;
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_TIME()))
-    {
+  {
     this->NumRequestUpdateTime++;
     return this->RequestUpdateTime(request, inputVector, outputVector);
-    }
+  }
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_TIME_DEPENDENT_INFORMATION()))
-    {
+  {
     this->NumRequestTimeDependentInformation++;
     return this->RequestTimeDependentInformation(request, inputVector, outputVector);
-    }
+  }
   return 1;
   }
 protected:
@@ -106,9 +106,9 @@ public:
     this->SetNumberOfInputPorts(0);
     this->SetNumberOfOutputPorts(1);
     for(int i=0; i<10 ;i++)
-      {
+    {
       this->TimeSteps.push_back(i);
-      }
+    }
     this->HasTimeDependentData=false;
   }
 
@@ -133,9 +133,9 @@ public:
     outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_STEPS(),
                  &TimeSteps[0], static_cast<int>(TimeSteps.size()));
     if(this->HasTimeDependentData)
-      {
+    {
       outInfo->Set(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION(),1);
-      }
+    }
     return 1;
   }
 
@@ -182,14 +182,14 @@ public:
       in[0]->GetInformationObject(0)->Get(vtkStreamingDemandDrivenPipeline::TIME_DEPENDENT_INFORMATION())<<endl;
     this->TimeIndex++;
     if(this->TimeIndex<this->TimeIterations)
-      {
+    {
       request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-      }
+    }
     else
-      {
+    {
       this->TimeIndex=0;
       request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-      }
+    }
     return 1;
   }
 
@@ -223,7 +223,7 @@ int TestTimeDependentInformationExecution()
 {
   int numErrors(0);
   for(int i=1; i<2; i++)
-    {
+  {
     bool hasTemporalMeta = i==0? false : true;
     vtkNew<TestTimeSource> imageSource;
     imageSource->SetHasTimeDependentData(hasTemporalMeta);
@@ -239,21 +239,21 @@ int TestTimeDependentInformationExecution()
     CHECK(imageSource->GetNumRequestInformation()==1, numErrors);
     CHECK(imageSource->GetNumRequestUpdateExtent()==1, numErrors);
     if(hasTemporalMeta)
-      {
+    {
       CHECK(imageSource->GetNumRequestTimeDependentInformation()==1, numErrors);
       CHECK(filter->GetNumRequestUpdateTime()==1, numErrors);
-      }
+    }
     else
-      {
+    {
       CHECK(imageSource->GetNumRequestTimeDependentInformation()==0, numErrors);
       CHECK(filter->GetNumRequestUpdateTime()==0, numErrors);
-      }
+    }
 
     filter->SetStartTime(3.0);
     filter->Update(0);
     double dataTime = imageSource->GetOutputDataObject(0)->GetInformation()->Get(vtkDataObject::DATA_TIME_STEP());
     CHECK(dataTime==3.0, numErrors);
-    }
+  }
 
    return numErrors;
 }
@@ -267,10 +267,10 @@ int TestContinueExecution()
 
   int numSteps=3;
   for(int t = 0; t<numSteps; t++ )
-    {
+  {
     filter->SetStartTime(t);
     filter->Update();
-    }
+  }
   CHECK(imageSource->GetNumRequestData()==numSteps+1,numErrors);
   return numErrors;
 }
@@ -280,14 +280,14 @@ int TestTemporalSupport(int, char*[])
   int totalErrors(0);
   int errors(0);
   if((errors=TestTimeDependentInformationExecution())!=0)
-    {
+  {
     totalErrors+=errors;
     cerr<<errors<<" errors in TestTimeDependentInformationExecution"<<endl;
-    }
+  }
   if((errors=TestContinueExecution())!=0)
-    {
+  {
     totalErrors+=errors;
     cerr<<errors<<" errors in TestContinueExecution"<<endl;
-    }
+  }
   return totalErrors;
 }

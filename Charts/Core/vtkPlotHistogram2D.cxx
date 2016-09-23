@@ -48,16 +48,16 @@ void vtkPlotHistogram2D::Update()
 bool vtkPlotHistogram2D::Paint(vtkContext2D *painter)
 {
   if (this->Output)
-    {
+  {
     if (this->Input)
-      {
+    {
       double bounds[4];
       this->GetBounds(bounds);
       this->Position = vtkRectf(bounds[0], bounds[2],
                                 bounds[1] - bounds[0], bounds[3] - bounds[2]);
-      }
-    painter->DrawImage(this->Position, this->Output);
     }
+    painter->DrawImage(this->Position, this->Output);
+  }
   return true;
 }
 
@@ -90,7 +90,7 @@ vtkScalarsToColors * vtkPlotHistogram2D::GetTransferFunction()
 void vtkPlotHistogram2D::GetBounds(double bounds[4])
 {
   if (this->Input)
-    {
+  {
     int *extent = this->Input->GetExtent();
     bounds[0] = this->Input->GetOrigin()[0];
     bounds[1] = bounds[0] +
@@ -99,11 +99,11 @@ void vtkPlotHistogram2D::GetBounds(double bounds[4])
     bounds[2] = this->Input->GetOrigin()[1];
     bounds[3] = bounds[2] +
         (extent[3] - extent[2] + 1) * this->Input->GetSpacing()[1];
-    }
+  }
   else
-    {
+  {
     bounds[0] = bounds[1] = bounds[2] = bounds[3] = 0.0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -133,9 +133,9 @@ vtkIdType vtkPlotHistogram2D::GetNearestPoint(const vtkVector2f& point,
       point.GetX() > bounds[1]+spacing[0] ||
       point.GetY() < bounds[2] ||
       point.GetY() > bounds[3]+spacing[1])
-    {
+  {
     return -1;
-    }
+  }
 
   // Can't use vtkImageData::FindPoint() / GetPoint(), as ImageData points are
   // rendered as the bottom left corner of a histogram cell, not the center
@@ -171,11 +171,11 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
   // Parse TooltipLabelFormat and build tooltipLabel
   bool escapeNext = false;
   for (size_t i = 0; i < format.length(); ++i)
-    {
+  {
     if (escapeNext)
-      {
+    {
       switch (format[i])
-        {
+      {
         case 'x':
           tooltipLabel += this->GetNumber(plotPos.GetX(), this->XAxis);
           break;
@@ -186,45 +186,45 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
           if (this->XAxis->GetTickLabels() &&
               pointX >= 0 &&
               pointX < this->XAxis->GetTickLabels()->GetNumberOfTuples())
-            {
+          {
             tooltipLabel += this->XAxis->GetTickLabels()->GetValue(pointX);
-            }
+          }
           break;
         case 'j':
           if (this->YAxis->GetTickLabels() &&
               pointY >= 0 &&
               pointY < this->YAxis->GetTickLabels()->GetNumberOfTuples())
-            {
+          {
             tooltipLabel += this->YAxis->GetTickLabels()->GetValue(pointY);
-            }
+          }
           break;
         case 'v':
           if (pointX >= 0 && pointX < width && pointY >= 0 && pointY < height)
-            {
+          {
             tooltipLabel +=
               this->GetNumber(this->Input->GetScalarComponentAsDouble(
                 pointX, pointY, 0, 0), NULL);
-            }
+          }
           break;
         default: // If no match, insert the entire format tag
           tooltipLabel += "%";
           tooltipLabel += format[i];
           break;
-        }
-      escapeNext = false;
       }
+      escapeNext = false;
+    }
     else
-      {
+    {
       if (format[i] == '%')
-        {
+      {
         escapeNext = true;
-        }
+      }
       else
-        {
+      {
         tooltipLabel += format[i];
-        }
       }
     }
+  }
   return tooltipLabel;
 }
 
@@ -232,13 +232,13 @@ vtkStdString vtkPlotHistogram2D::GetTooltipLabel(const vtkVector2d &plotPos,
 void vtkPlotHistogram2D::GenerateHistogram()
 {
   if (!this->Input)
-    {
+  {
     return;
-    }
+  }
   if (!this->Output)
-    {
+  {
     this->Output = vtkSmartPointer<vtkImageData>::New();
-    }
+  }
   this->Output->SetExtent(this->Input->GetExtent());
   this->Output->AllocateScalars(VTK_UNSIGNED_CHAR, 4);
 
@@ -248,10 +248,10 @@ void vtkPlotHistogram2D::GenerateHistogram()
     reinterpret_cast<unsigned char*>(this->Output->GetScalarPointer(0,0,0));
 
   if (this->TransferFunction)
-    {
+  {
     this->TransferFunction->MapScalarsThroughTable2(input, output, VTK_DOUBLE,
                                                     dimension, 1, 4);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

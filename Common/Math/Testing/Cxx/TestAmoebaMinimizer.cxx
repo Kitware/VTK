@@ -67,9 +67,9 @@ int TestAmoebaMinimizer(int argc, char*[])
       r > 1e-4 ||
       iterations >= maxiterations ||
       noconvergence)
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }

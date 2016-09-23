@@ -85,10 +85,10 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   // get orthonal vector between user-defined major radius and this->Normal
   vtkMath::Cross(this->Normal, this->MajorRadiusVector, orthogonalVect);
   if (vtkMathUtilities::FuzzyCompare(vtkMath::Norm(orthogonalVect), 0.0))
-    {
+  {
     vtkErrorMacro(<< "Ellipse normal vector and major radius axis are collinear");
     return 0;
-    }
+  }
 
   vtkMath::Normalize(orthogonalVect);
 
@@ -104,9 +104,9 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   // user-defined angles (positive only)
   startAngleRad = vtkMath::RadiansFromDegrees(this->StartAngle);
   if (startAngleRad < 0)
-    {
+  {
     startAngleRad += 2.0 * vtkMath::Pi();
-    }
+  }
 
   segmentAngleRad = vtkMath::RadiansFromDegrees(this->SegmentAngle);
 
@@ -118,13 +118,13 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
 
   // Set the desired precision for the points in the output.
   if (this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate(numPts);
   vtkNew<vtkFloatArray> newTCoords;
@@ -138,7 +138,7 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
   double thetaEllipse;
   // Iterate over angle increments
   for (int i = 0; i <= this->Resolution; ++i, theta += angleIncRad)
-    {
+  {
     // convert section angle to an angle applied to ellipse equation.
     // the result point with the ellipse angle, will be located on section angle
     int quotient = (int)(theta / (2.0 * vtkMath::Pi()));
@@ -149,13 +149,13 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
 
     //theta range: 0, 2 * pi
     if (theta > vtkMath::Pi() / 2 && theta <= vtkMath::Pi())
-      {
+    {
       thetaEllipse += vtkMath::Pi();
-      }
+    }
     else if (theta > vtkMath::Pi() && theta <= 1.5 * vtkMath::Pi())
-      {
+    {
       thetaEllipse -= vtkMath::Pi();
-      }
+    }
 
     const double cosTheta = cos(thetaEllipse);
     const double sinTheta = sin(thetaEllipse);
@@ -169,13 +169,13 @@ int vtkEllipseArcSource::RequestData(vtkInformation* vtkNotUsed(request),
     tc[0] = static_cast<double>(i) / this->Resolution;
     newPoints->InsertPoint(i , p);
     newTCoords->InsertTuple(i, tc);
-    }
+  }
 
   newLines->InsertNextCell(numPts);
   for (int k = 0; k < numPts; ++ k)
-    {
+  {
     newLines->InsertCellPoint(k);
-    }
+  }
 
   output->SetPoints(newPoints.Get());
   output->GetPointData()->SetTCoords(newTCoords.Get());

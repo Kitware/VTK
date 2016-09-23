@@ -39,9 +39,9 @@ int TestBiQuadraticQuad(int, char*[])
 
   vtkNew<vtkBiQuadraticQuad> quad;
   for (int i = 0; i < 9; ++i)
-    {
+  {
     quad->GetPointIds()->SetId(i, i);
-    }
+  }
 
   vtkNew<vtkCellArray> cellArray;
   cellArray->InsertNextCell(quad.Get());
@@ -52,9 +52,9 @@ int TestBiQuadraticQuad(int, char*[])
   uArray->SetNumberOfTuples(9);
   // set u(x, y) = x
   for (int i=0; i<9; i++)
-    {
+  {
     uArray->SetValue(i, points->GetPoint(i)[0]);
-    }
+  }
 
   vtkNew<vtkUnstructuredGrid> grid;
   grid->SetPoints(points.Get());
@@ -78,18 +78,18 @@ int TestBiQuadraticQuad(int, char*[])
 
   double interpolated(0.0);
   if (doubleData)
-    {
+  {
     interpolated = doubleData->GetComponent(0, 0);
-    }
+  }
   else
-    {
+  {
     cout << "Failed to downcast prober scalars." << endl;
-    }
+  }
   if (!vtkMathUtilities::FuzzyCompare(interpolated, probeX, 1.0e-6))
-    {
+  {
     cout << "Interpolated value of " << interpolated << " with probe value "
          << probeX << " difference of " << (interpolated - probeX) <<  endl;
     return EXIT_FAILURE;
-    }
+  }
   return EXIT_SUCCESS;
 }

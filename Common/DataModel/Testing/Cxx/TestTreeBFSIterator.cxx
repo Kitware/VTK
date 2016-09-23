@@ -40,35 +40,35 @@ int TestTreeBFSIterator(int, char *[])
 
   std::vector<int> correctSequence;
   for(int i = 0; i <= 8; i++)
-    {
+  {
     correctSequence.push_back(i);
-    }
+  }
 
   vtkNew<vtkTreeBFSIterator> bfsIterator;
   bfsIterator->SetTree(tree.GetPointer());
 
   if(bfsIterator->GetStartVertex() != tree->GetRoot())
-    {
+  {
     cout << "StartVertex is not defaulting to root" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //traverse the tree in a depth first fashion
   for(size_t i = 0; i < correctSequence.size(); i++)
-    {
+  {
     if(!bfsIterator->HasNext())
-      {
+    {
       cout << "HasNext() returned false before the end of the tree" << endl;
       return EXIT_FAILURE;
-      }
+    }
 
     vtkIdType nextVertex = bfsIterator->Next();
     if(nextVertex != correctSequence[i])
-      {
+    {
       cout << "Next vertex should be " << correctSequence[i] << " but it is " << nextVertex << endl;
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

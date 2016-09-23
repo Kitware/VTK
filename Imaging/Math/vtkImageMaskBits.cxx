@@ -58,66 +58,66 @@ void vtkImageMaskBitsExecute(vtkImageMaskBits *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     T* inSI = inIt.BeginSpan();
     T* outSI = outIt.BeginSpan();
     T* outSIEnd = outIt.EndSpan();
     switch (operation)
-      {
+    {
       case VTK_AND:
         while (outSI != outSIEnd)
-          {
+        {
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             *outSI++ = *inSI++ & static_cast<T>(masks[idxC]);
-            }
           }
+        }
         break;
       case VTK_OR:
         while (outSI != outSIEnd)
-          {
+        {
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             *outSI++ = *inSI++ | static_cast<T>(masks[idxC]);
-            }
           }
+        }
         break;
       case VTK_XOR:
         while (outSI != outSIEnd)
-          {
+        {
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             *outSI++ = *inSI++ ^ static_cast<T>(masks[idxC]);
-            }
           }
+        }
         break;
       case VTK_NAND:
         while (outSI != outSIEnd)
-          {
+        {
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             *outSI++ = ~(*inSI++ & static_cast<T>(masks[idxC]));
-            }
           }
+        }
         break;
       case VTK_NOR:
         while (outSI != outSIEnd)
-          {
+        {
           for (idxC = 0; idxC < maxC; idxC++)
-            {
+          {
             // Pixel operation
             *outSI++ = ~(*inSI++ | static_cast<T>(masks[idxC]));
-            }
           }
+        }
         break;
-      }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -131,16 +131,16 @@ void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData,
 {
   // this filter expects that input is the same type as output.
   if (inData->GetScalarType() != outData->GetScalarType())
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, "
                   << inData->GetScalarType()
                   << ", must match out ScalarType "
                   << outData->GetScalarType());
     return;
-    }
+  }
 
   switch (inData->GetScalarType())
-    {
+  {
     case VTK_INT:
       vtkImageMaskBitsExecute(this, inData, outData, outExt, id,
                               static_cast<int *>(0));
@@ -177,7 +177,7 @@ void vtkImageMaskBits::ThreadedExecute (vtkImageData *inData,
       vtkErrorMacro(<< "Execute: ScalarType can only be [unsigned] char, [unsigned] short, "
       << "[unsigned] int, or [unsigned] long.");
       return;
-    }
+  }
 }
 
 

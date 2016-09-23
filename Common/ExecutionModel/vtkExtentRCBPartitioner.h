@@ -41,11 +41,11 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      * Set/Get the number of requested partitions
      */
     void SetNumberOfPartitions( const int N )
-      {
+    {
       assert( "pre: Number of partitions requested must be > 0" && (N >= 0) );
       this->Reset();
       this->NumberOfPartitions = N;
-      }
+    }
     //@}
 
     //@{
@@ -55,7 +55,7 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      * [imin,imax,jmin,jmax,kmin,kmax]
      */
     void SetGlobalExtent(int imin,int imax,int jmin,int jmax,int kmin,int kmax)
-      {
+    {
       this->Reset();
       this->GlobalExtent[0] = imin;
       this->GlobalExtent[1] = imax;
@@ -63,11 +63,11 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
       this->GlobalExtent[3] = jmax;
       this->GlobalExtent[4] = kmin;
       this->GlobalExtent[5] = kmax;
-      }
+    }
     void SetGlobalExtent( int ext[6] )
-      {
+    {
       this->SetGlobalExtent( ext[0], ext[1], ext[2], ext[3], ext[4], ext[5] );
-      }
+    }
     //@}
 
     //@{
@@ -114,11 +114,11 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      * extents are cleared.
      */
     void Reset()
-     {
+    {
      this->PartitionExtents.clear();
      this->NumExtents          = 0;
      this->ExtentIsPartitioned = false;
-     }
+    }
     //@}
 
     /**
@@ -136,14 +136,14 @@ class VTKCOMMONEXECUTIONMODEL_EXPORT vtkExtentRCBPartitioner : public vtkObject
      */
     void GetGhostedExtent(
         int ext[6], const int minIdx, const int maxIdx )
-      {
+    {
       ext[minIdx]-=this->NumberOfGhostLayers;
       ext[maxIdx]+=this->NumberOfGhostLayers;
       ext[minIdx] = (ext[minIdx] < this->GlobalExtent[minIdx])?
           this->GlobalExtent[minIdx] : ext[minIdx];
       ext[maxIdx] = (ext[maxIdx] > this->GlobalExtent[maxIdx])?
           this->GlobalExtent[maxIdx] : ext[maxIdx];
-      }
+    }
     //@}
 
     /**

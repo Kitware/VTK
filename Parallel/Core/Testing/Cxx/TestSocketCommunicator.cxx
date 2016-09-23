@@ -33,15 +33,15 @@ int main(int argc, char *argv[])
 
   bool is_server = false;
   for (int cc=1; cc < argc; cc++)
-    {
+  {
     if (argv[cc] &&
         (strcmp(argv[cc], "--server") == 0||
          strcmp(argv[cc], "\"--server\"") == 0))
-      {
+    {
       is_server = true;
       break;
-      }
     }
+  }
 
   std::ostringstream stream;
   stream << testing->GetTempDirectory() << "/TestSocketCommunicator."
@@ -55,19 +55,19 @@ int main(int argc, char *argv[])
   comm->SetReportErrors(1);
   comm->LogToFile(stream.str().c_str());
   if (is_server)
-    {
+  {
     MESSAGE("Waiting on 10240");
     controller->WaitForConnection(10240);
-    }
+  }
   else
-    {
+  {
     MESSAGE("Connecting to 10240");
     controller->ConnectTo("localhost", 10240);
-    }
+  }
   if (!comm->Handshake())
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   MESSAGE("Connected.");
 
   int idata = 0;
@@ -76,10 +76,10 @@ int main(int argc, char *argv[])
   vtkNew<vtkPolyData> pData;
 
   for (int cc=0; cc < 2; cc++)
-    {
+  {
     MESSAGE("---- Test stage " << cc << "----");
     if (is_server)
-      {
+    {
       idata = 10;
       ddata = 10.0;
       dArray->SetNumberOfTuples(10);
@@ -90,9 +90,9 @@ int main(int argc, char *argv[])
       controller->Send(&ddata, 1, 1, 101012);
       controller->Send(dArray.GetPointer(), 1, 101013);
       controller->Send(pData.GetPointer(), 1, 101014);
-      }
+    }
     else
-      {
+    {
       controller->Receive(&idata, 1, 1, 101011);
       controller->Receive(&ddata, 1, 1, 101012);
       controller->Receive(dArray.GetPointer(), 1, 101013);
@@ -101,16 +101,16 @@ int main(int argc, char *argv[])
         ddata != 10.0 ||
         dArray->GetNumberOfTuples() != 10 ||
         dArray->GetValue(9) != 10.0)
-        {
+      {
         MESSAGE("ERROR: Communication failed!!!");
         return EXIT_FAILURE;
-        }
       }
+    }
     MESSAGE("   .... PASSED!");
     // switch the flags so server becomes client and client becomes server and
     // ship messages around.
     is_server = !is_server;
-    }
+  }
   MESSAGE("All's well!");
   return EXIT_SUCCESS;
 }

@@ -34,14 +34,14 @@ vtkOSPRayVolumeMapper::vtkOSPRayVolumeMapper()
 vtkOSPRayVolumeMapper::~vtkOSPRayVolumeMapper()
 {
   if (this->InternalRenderer)
-    {
+  {
     this->InternalRenderer->SetPass(NULL);
     this->InternalRenderer->Delete();
-    }
+  }
   if (this->InternalOSPRayPass)
-    {
+  {
     this->InternalOSPRayPass->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -65,21 +65,21 @@ void vtkOSPRayVolumeMapper::Init()
 void vtkOSPRayVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
 {
   if (!ren)
-    {
+  {
     return;
-    }
+  }
   if (!this->Initialized)
-    {
+  {
     this->Init();
-    }
+  }
   this->InternalRenderer->SetRenderWindow(ren->GetRenderWindow());
   this->InternalRenderer->SetActiveCamera(ren->GetActiveCamera());
   this->InternalRenderer->SetBackground(ren->GetBackground());
   if (!this->InternalRenderer->HasViewProp(vol))
-    {
+  {
     this->InternalRenderer->RemoveAllViewProps();
     this->InternalRenderer->AddVolume(vol);
-    }
+  }
   this->InternalRenderer->SetPass(this->InternalOSPRayPass);
   this->InternalRenderer->Render();
   this->InternalRenderer->SetPass(0);

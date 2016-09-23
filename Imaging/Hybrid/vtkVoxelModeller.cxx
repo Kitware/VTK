@@ -65,7 +65,7 @@ void vtkVoxelModeller::SetModelBounds(double xmin, double xmax, double ymin,
   if (this->ModelBounds[0] != xmin || this->ModelBounds[1] != xmax ||
       this->ModelBounds[2] != ymin || this->ModelBounds[3] != ymax ||
       this->ModelBounds[4] != zmin || this->ModelBounds[5] != zmax )
-    {
+  {
     this->Modified();
     this->ModelBounds[0] = xmin;
     this->ModelBounds[1] = xmax;
@@ -73,7 +73,7 @@ void vtkVoxelModeller::SetModelBounds(double xmin, double xmax, double ymin,
     this->ModelBounds[3] = ymax;
     this->ModelBounds[4] = zmin;
     this->ModelBounds[5] = zmax;
-    }
+  }
 }
 
 int vtkVoxelModeller::RequestInformation (
@@ -93,18 +93,18 @@ int vtkVoxelModeller::RequestInformation (
                0, this->SampleDimensions[2]-1);
 
   for (i=0; i < 3; i++)
-    {
+  {
     origin[i] = this->ModelBounds[2*i];
     if ( this->SampleDimensions[i] <= 1 )
-      {
+    {
       ar[i] = 1;
-      }
+    }
     else
-      {
+    {
       ar[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])
               / (this->SampleDimensions[i] - 1);
-      }
     }
+  }
   outInfo->Set(vtkDataObject::ORIGIN(),origin,3);
   outInfo->Set(vtkDataObject::SPACING(),ar,3);
 
@@ -156,9 +156,9 @@ int vtkVoxelModeller::RequestData(
   numPts = this->SampleDimensions[0] * this->SampleDimensions[1] *
     this->SampleDimensions[2];
   for (i=0; i<numPts; i++)
-    {
+  {
     newScalars->SetComponent(i,0,this->BackgroundValue);
-    }
+  }
 
   maxDistance = this->ComputeModelBounds(origin,spacing);
   outInfo->Set(vtkDataObject::SPACING(),spacing,3);
@@ -167,52 +167,52 @@ int vtkVoxelModeller::RequestData(
   // Voxel widths are 1/2 the height, width, length of a voxel
   //
   for (i=0; i < 3; i++)
-    {
+  {
     voxelHalfWidth[i] = spacing[i] / 2.0;
-    }
+  }
   //
   // Traverse all cells; computing distance function on volume points.
   //
   numCells = input->GetNumberOfCells();
   for (cellNum=0; cellNum < numCells; cellNum++)
-    {
+  {
     cell = input->GetCell(cellNum);
     bounds = cell->GetBounds();
     for (i=0; i<3; i++)
-      {
+    {
       adjBounds[2*i] = bounds[2*i] - maxDistance;
       adjBounds[2*i+1] = bounds[2*i+1] + maxDistance;
-      }
+    }
 
     // compute dimensional bounds in data set
     for (i=0; i<3; i++)
-      {
+    {
       min[i] = static_cast<int>(
         static_cast<double>(adjBounds[2*i] - origin[i]) / spacing[i]);
       max[i] = static_cast<int>(
         static_cast<double>(adjBounds[2*i+1] - origin[i]) / spacing[i]);
       if (min[i] < 0)
-        {
+      {
         min[i] = 0;
-        }
-      if (max[i] >= this->SampleDimensions[i])
-        {
-        max[i] = this->SampleDimensions[i] - 1;
-        }
       }
+      if (max[i] >= this->SampleDimensions[i])
+      {
+        max[i] = this->SampleDimensions[i] - 1;
+      }
+    }
 
     jkFactor = this->SampleDimensions[0]*this->SampleDimensions[1];
     for (k = min[2]; k <= max[2]; k++)
-      {
+    {
       x[2] = spacing[2] * k + origin[2];
       for (j = min[1]; j <= max[1]; j++)
-        {
+      {
         x[1] = spacing[1] * j + origin[1];
         for (i = min[0]; i <= max[0]; i++)
-          {
+        {
           idx = jkFactor*k + this->SampleDimensions[0]*j + i;
           if (!(newScalars->GetComponent(idx,0)))
-            {
+          {
             x[0] = spacing[0] * i + origin[0];
 
             if ( cell->EvaluatePosition(x, closestPoint, subId, pcoords,
@@ -220,14 +220,14 @@ int vtkVoxelModeller::RequestData(
                  ((fabs(closestPoint[0] - x[0]) <= voxelHalfWidth[0]) &&
                   (fabs(closestPoint[1] - x[1]) <= voxelHalfWidth[1]) &&
                   (fabs(closestPoint[2] - x[2]) <= voxelHalfWidth[2])) )
-              {
+            {
               newScalars->SetComponent(idx,0,this->ForegroundValue);
-              }
             }
           }
         }
       }
     }
+  }
   delete [] weights;
 
   return 1;
@@ -244,43 +244,43 @@ double vtkVoxelModeller::ComputeModelBounds(double origin[3],
   if ( this->ModelBounds[0] >= this->ModelBounds[1] ||
        this->ModelBounds[2] >= this->ModelBounds[3] ||
        this->ModelBounds[4] >= this->ModelBounds[5] )
-    {
+  {
     adjustBounds = 1;
     vtkDataSet *ds = vtkDataSet::SafeDownCast(this->GetInput());
     // ds better be non null otherwise something is very wrong here
     bounds = ds->GetBounds();
-    }
+  }
   else
-    {
+  {
     bounds = this->ModelBounds;
-    }
+  }
 
   for (maxDist=0.0, i=0; i<3; i++)
-    {
+  {
     if ( (bounds[2*i+1] - bounds[2*i]) > maxDist )
-      {
+    {
       maxDist = bounds[2*i+1] - bounds[2*i];
-      }
     }
+  }
   maxDist *= this->MaximumDistance;
 
   // adjust bounds so model fits strictly inside (only if not set previously)
   if ( adjustBounds )
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       this->ModelBounds[2*i] = bounds[2*i] - maxDist;
       this->ModelBounds[2*i+1] = bounds[2*i+1] + maxDist;
-      }
     }
+  }
 
   // Set volume origin and data spacing
   for (i=0; i<3; i++)
-    {
+  {
     origin[i] = this->ModelBounds[2*i];
     spacing[i] = (this->ModelBounds[2*i+1] - this->ModelBounds[2*i])/
       (this->SampleDimensions[i] - 1);
-    }
+  }
 
   return maxDist;
 }
@@ -307,31 +307,31 @@ void vtkVoxelModeller::SetSampleDimensions(int dim[3])
   if ( dim[0] != this->SampleDimensions[0] ||
        dim[1] != this->SampleDimensions[1] ||
        dim[2] != this->SampleDimensions[2] )
-    {
+  {
     if ( dim[0]<1 || dim[1]<1 || dim[2]<1 )
-      {
+    {
       vtkErrorMacro (<< "Bad Sample Dimensions, retaining previous values");
       return;
-      }
+    }
     for (dataDim=0, i=0; i<3 ; i++)
-      {
+    {
       if (dim[i] > 1)
-        {
-        dataDim++;
-        }
-      }
-    if ( dataDim  < 3 )
       {
+        dataDim++;
+      }
+    }
+    if ( dataDim  < 3 )
+    {
       vtkErrorMacro(<<"Sample dimensions must define a volume!");
       return;
-      }
+    }
 
     for ( i=0; i<3; i++)
-      {
+    {
       this->SampleDimensions[i] = dim[i];
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 int vtkVoxelModeller::FillInputPortInformation(

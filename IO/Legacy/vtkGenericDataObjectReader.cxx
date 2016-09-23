@@ -78,7 +78,7 @@ void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* 
 
   // Can we use the old output?
   if(!(Output && strcmp(Output->GetClassName(), DataClass) == 0))
-    {
+  {
     // Hack to make sure that the object is not modified
     // with SetNthOutput. Otherwise, extra executions occur.
     const vtkTimeStamp mtime = this->MTime;
@@ -86,7 +86,7 @@ void vtkGenericDataObjectReader::ReadData(const char* DataClass, vtkDataObject* 
     this->GetExecutive()->SetOutputData(0, Output);
     Output->Delete();
     this->MTime = mtime;
-    }
+  }
   Output->ShallowCopy(reader->GetOutput());
   reader->Delete();
 }
@@ -107,10 +107,10 @@ int vtkGenericDataObjectReader::RequestDataObject(
   if(this->GetFileName() == NULL &&
       (this->GetReadFromInputString() == 0 ||
        (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
-    {
+  {
     vtkWarningMacro(<< "FileName must be set");
     return 0;
-    }
+  }
 
   int outputType = this->ReadOutputType();
 
@@ -118,14 +118,14 @@ int vtkGenericDataObjectReader::RequestDataObject(
   vtkDataObject* output = info->Get(vtkDataObject::DATA_OBJECT());
 
   if(output && (output->GetDataObjectType() == outputType))
-    {
+  {
     return 1;
-    }
+  }
 
   if(!output || output->GetDataObjectType() != outputType)
-    {
+  {
     switch (outputType)
-      {
+    {
       case VTK_DIRECTED_GRAPH:
         output = vtkDirectedGraph::New();
         break;
@@ -174,11 +174,11 @@ int vtkGenericDataObjectReader::RequestDataObject(
         break;
       default:
         return 0;
-      }
+    }
 
     info->Set(vtkDataObject::DATA_OBJECT(), output);
     output->Delete();
-    }
+  }
 
   return 1;
 }
@@ -192,15 +192,15 @@ int vtkGenericDataObjectReader::RequestInformation(
   if(this->GetFileName() == NULL &&
       (this->GetReadFromInputString() == 0 ||
        (this->GetInputArray() == NULL && this->GetInputString() == NULL)))
-    {
+  {
     vtkWarningMacro(<< "FileName must be set");
     return 0;
-    }
+  }
 
   vtkDataReader *reader = 0;
   int retVal;
   switch (this->ReadOutputType())
-    {
+  {
     case VTK_MOLECULE:
     case VTK_UNDIRECTED_GRAPH:
     case VTK_DIRECTED_GRAPH:
@@ -239,10 +239,10 @@ int vtkGenericDataObjectReader::RequestInformation(
       break;
     default:
       reader = NULL;
-    }
+  }
 
   if(reader)
-    {
+  {
     reader->SetFileName(this->GetFileName());
     reader->SetReadFromInputString(this->GetReadFromInputString());
     reader->SetInputArray(this->GetInputArray());
@@ -250,7 +250,7 @@ int vtkGenericDataObjectReader::RequestInformation(
     retVal = reader->ReadMetaData(outInfo);
     reader->Delete();
     return retVal;
-    }
+  }
   return 1;
 }
 
@@ -265,95 +265,95 @@ int vtkGenericDataObjectReader::RequestData(
   vtkDebugMacro(<<"Reading vtk dataset...");
 
   switch (this->ReadOutputType())
-    {
+  {
     case VTK_MOLECULE:
-      {
+    {
       this->ReadData<vtkGraphReader, vtkMolecule>("vtkMolecule", output);
       return 1;
-      }
+    }
     case VTK_DIRECTED_GRAPH:
-      {
+    {
       this->ReadData<vtkGraphReader, vtkDirectedGraph>("vtkDirectedGraph", output);
       return 1;
-      }
+    }
     case VTK_UNDIRECTED_GRAPH:
-      {
+    {
       this->ReadData<vtkGraphReader, vtkUndirectedGraph>("vtkUndirectedGraph", output);
       return 1;
-      }
+    }
     case VTK_IMAGE_DATA:
-      {
+    {
       this->ReadData<vtkStructuredPointsReader, vtkImageData>("vtkImageData", output);
       return 1;
-      }
+    }
     case VTK_POLY_DATA:
-      {
+    {
       this->ReadData<vtkPolyDataReader, vtkPolyData>("vtkPolyData", output);
       return 1;
-      }
+    }
     case VTK_RECTILINEAR_GRID:
-      {
+    {
       this->ReadData<vtkRectilinearGridReader, vtkRectilinearGrid>("vtkRectilinearGrid", output);
       return 1;
-      }
+    }
     case VTK_STRUCTURED_GRID:
-      {
+    {
       this->ReadData<vtkStructuredGridReader, vtkStructuredGrid>("vtkStructuredGrid", output);
       return 1;
-      }
+    }
     case VTK_STRUCTURED_POINTS:
-      {
+    {
       this->ReadData<vtkStructuredPointsReader, vtkStructuredPoints>("vtkStructuredPoints", output);
       return 1;
-      }
+    }
     case VTK_TABLE:
-      {
+    {
       this->ReadData<vtkTableReader, vtkTable>("vtkTable", output);
       return 1;
-      }
+    }
     case VTK_TREE:
-      {
+    {
       this->ReadData<vtkTreeReader, vtkTree>("vtkTree", output);
       return 1;
-      }
+    }
     case VTK_UNSTRUCTURED_GRID:
-      {
+    {
       this->ReadData<vtkUnstructuredGridReader, vtkUnstructuredGrid>("vtkUnstructuredGrid", output);
       return 1;
-      }
+    }
     case VTK_MULTIBLOCK_DATA_SET:
-      {
+    {
       this->ReadData<vtkCompositeDataReader, vtkMultiBlockDataSet>(
         "vtkMultiBlockDataSet", output);
       return 1;
-      }
+    }
     case VTK_MULTIPIECE_DATA_SET:
-      {
+    {
       this->ReadData<vtkCompositeDataReader, vtkMultiPieceDataSet>(
         "vtkMultiPieceDataSet", output);
       return 1;
-      }
+    }
     case VTK_HIERARCHICAL_BOX_DATA_SET:
-      {
+    {
       this->ReadData<vtkCompositeDataReader, vtkHierarchicalBoxDataSet>(
         "vtkHierarchicalBoxDataSet", output);
       return 1;
-      }
+    }
     case VTK_OVERLAPPING_AMR:
-      {
+    {
       this->ReadData<vtkCompositeDataReader, vtkOverlappingAMR>(
         "vtkHierarchicalBoxDataSet", output);
       return 1;
-      }
+    }
     case VTK_NON_OVERLAPPING_AMR:
-      {
+    {
       this->ReadData<vtkCompositeDataReader, vtkNonOverlappingAMR>(
         "vtkHierarchicalBoxDataSet", output);
       return 1;
-      }
+    }
     default:
         vtkErrorMacro("Could not read file " << this->FileName);
-    }
+  }
   return 0;
 }
 
@@ -364,104 +364,104 @@ int vtkGenericDataObjectReader::ReadOutputType()
   vtkDebugMacro(<<"Reading vtk data object...");
 
   if(!this->OpenVTKFile() || !this->ReadHeader())
-    {
+  {
     return -1;
-    }
+  }
 
   // Determine dataset type
   //
   if(!this->ReadString(line))
-    {
+  {
     vtkDebugMacro(<< "Premature EOF reading dataset keyword");
     return -1;
-    }
+  }
 
   if(!strncmp(this->LowerCase(line),"dataset",static_cast<unsigned long>(7)))
-    {
+  {
     // See iftype is recognized.
     //
     if(!this->ReadString(line))
-      {
+    {
       vtkDebugMacro(<< "Premature EOF reading type");
       this->CloseVTKFile ();
       return -1;
-      }
+    }
 
     this->CloseVTKFile();
 
     if(!strncmp(this->LowerCase(line), "molecule", 8))
-      {
+    {
       return VTK_MOLECULE;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "directed_graph", 14))
-      {
+    {
       return VTK_DIRECTED_GRAPH;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "undirected_graph", 16))
-      {
+    {
       return VTK_UNDIRECTED_GRAPH;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "polydata",8))
-      {
+    {
       return VTK_POLY_DATA;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "rectilinear_grid",16))
-      {
+    {
       return VTK_RECTILINEAR_GRID;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "structured_grid",15))
-      {
+    {
       return VTK_STRUCTURED_GRID;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "structured_points",17))
-      {
+    {
       return VTK_STRUCTURED_POINTS;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "table", 5))
-      {
+    {
       return VTK_TABLE;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "tree", 4))
-      {
+    {
       return VTK_TREE;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "unstructured_grid",17))
-      {
+    {
       return VTK_UNSTRUCTURED_GRID;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "multiblock", strlen("multiblock")))
-      {
+    {
       return VTK_MULTIBLOCK_DATA_SET;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "multipiece", strlen("multipiece")))
-      {
+    {
       return VTK_MULTIPIECE_DATA_SET;
-      }
+    }
     if(!strncmp(this->LowerCase(line), "hierarchical_box",
         strlen("hierarchical_box")))
-      {
+    {
       return VTK_HIERARCHICAL_BOX_DATA_SET;
-      }
+    }
     if (strncmp(this->LowerCase(line), "overlapping_amr", strlen("overlapping_amr")) == 0)
-      {
+    {
       return VTK_OVERLAPPING_AMR;
-      }
+    }
     if (strncmp(this->LowerCase(line), "non_overlapping_amr", strlen("non_overlapping_amr")) == 0)
-      {
+    {
       return VTK_NON_OVERLAPPING_AMR;
-      }
+    }
 
     vtkDebugMacro(<< "Cannot read dataset type: " << line);
     return -1;
-    }
+  }
   else if(!strncmp(this->LowerCase(line),"field",static_cast<unsigned long>(5)))
-    {
+  {
     vtkDebugMacro(<<"This object can only read data objects, not fields");
-    }
+  }
   else
-    {
+  {
     vtkDebugMacro(<<"Expecting DATASET keyword, got " << line << " instead");
-    }
+  }
 
   return -1;
 }
@@ -538,8 +538,8 @@ int vtkGenericDataObjectReader::ProcessRequest(vtkInformation* request,
 {
   // generate the data
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

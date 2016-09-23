@@ -44,9 +44,9 @@ struct vtkVRMLAllocator
   static void Initialize()
   {
     if (Heap == NULL)
-      {
+    {
       Heap = vtkHeap::New();
-      }
+    }
   }
 
   static void* AllocateMemory(size_t n)
@@ -57,10 +57,10 @@ struct vtkVRMLAllocator
   static void CleanUp()
   {
     if (Heap)
-      {
+    {
       Heap->Delete();
       Heap = NULL;
-      }
+    }
   }
 
   static char* StrDup(const char *str)
@@ -83,53 +83,53 @@ public:
   ~vtkVRMLVectorType(void)
   {
     if (this->UseNew)
-      {
+    {
       delete[] this->Data;
-      }
+    }
   }
 
   void Init()
-    {
+  {
     this->Allocated = DEFAULTINCREMENT;
     if (!this->UseNew)
-      {
+    {
       vtkVRMLAllocator::Initialize();
       void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
       this->Data = new(mem) T[this->Allocated];
-      }
-    else
-      {
-      this->Data = new T[this->Allocated];
-      }
-    Used = 0;
     }
+    else
+    {
+      this->Data = new T[this->Allocated];
+    }
+    Used = 0;
+  }
 
   void Reserve(int newSize)
   {
     if (newSize >= this->Allocated)
-      {
+    {
       int oldSize = this->Allocated;
       this->Allocated = newSize + DEFAULTINCREMENT;
       T* temp = this->Data;
       if (!this->UseNew)
-        {
+      {
         void* mem = vtkVRMLAllocator::AllocateMemory(this->Allocated * sizeof(T));
         this->Data = new(mem) T[this->Allocated];
-        }
+      }
       else
-        {
+      {
         this->Data = new T[this->Allocated];
-        }
+      }
       if (this->Data == (T*)'\0')
-        {
+      {
         return;
-        }
+      }
       memcpy((void*)this->Data, (void*)temp, oldSize * sizeof(T));
       if (this->UseNew)
-        {
+      {
         delete[] temp;
-        }
       }
+    }
   }
 
   void Demand(int newSize)
@@ -144,10 +144,10 @@ public:
   }
 
   T& Get(int index) const
-    {
+  {
     return (index > this->Used) ?
       this->Data[this->Used - 1] : this->Data[index];
-    }
+  }
 
   T& operator[](int index)
   {

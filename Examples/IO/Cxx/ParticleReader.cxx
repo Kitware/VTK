@@ -6,10 +6,10 @@
 int main ( int argc, char* argv[] )
 {
   if ( argc != 3 )
-    {
+  {
     cerr << "Usage: " << argv[0] << " InputFile(csv) OutputFile(vtp)." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string inputFileName = argv[1];
   std::string outputFileName = argv[2];

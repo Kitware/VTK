@@ -34,7 +34,7 @@ typedef struct{
   void *outPtr;
   int idx0;
   int idx1;
-  } vtkImage2DIslandPixel;
+} vtkImage2DIslandPixel;
 
 class VTKIMAGINGMORPHOLOGICAL_EXPORT vtkImageIslandRemoval2D : public vtkImageAlgorithm
 {

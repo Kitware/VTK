@@ -69,13 +69,13 @@ int TestContingencyStatistics( int, char *[] )
   dataset3Arr->SetName( "Protocol" );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     int ti = i << 2;
     dataset0Arr->InsertNextValue( mingledData[ti] );
     dataset1Arr->InsertNextValue( mingledData[ti + 1] );
     dataset2Arr->InsertNextValue( mingledData[ti + 2] );
     dataset3Arr->InsertNextValue( mingledData[ti + 3] );
-    }
+  }
 
   vtkTable* datasetTable = vtkTable::New();
   datasetTable->AddColumn( dataset0Arr );
@@ -146,19 +146,19 @@ int TestContingencyStatistics( int, char *[] )
   testIntValue = outputSummary->GetNumberOfColumns();
 
   if ( testIntValue != nEntropies + 2 )
-    {
+  {
     vtkGenericWarningMacro("Reported an incorrect number of columns in the summary table: "
                            << testIntValue
                            << " != "
                            << nEntropies + 2
                            << ".");
     testStatus = 1;
-    }
+  }
   else
-    {
+  {
     // For each row in the summary table, fetch variable names and information entropies
     for ( vtkIdType r = 0; r < outputSummary->GetNumberOfRows(); ++ r )
-      {
+    {
       // Variable names
       cout << "   (X,Y) = ("
            << outputSummary->GetValue( r, 0 ).ToString()
@@ -168,30 +168,30 @@ int TestContingencyStatistics( int, char *[] )
 
       // Information entropies
       for ( vtkIdType c = 0; c < nEntropies; ++ c )
-        {
+      {
         H[c] = outputSummary->GetValue( r, iEntropies[c] ).ToDouble();
 
         cout << ", "
              << outputSummary->GetColumnName( iEntropies[c] )
              << "="
              << H[c];
-        }
+      }
       cout << "\n";
 
       // Make sure that H(X,Y) > H(Y|X)+ H(X|Y)
       testDoubleValue = H[1] + H[2]; // H(Y|X)+ H(X|Y)
 
       if ( testDoubleValue > H[0] )
-        {
+      {
         vtkGenericWarningMacro("Reported inconsistent information entropies: H(X,Y) = "
                                << H[0]
                                << " < "
                                << testDoubleValue
                                << " = H(Y|X)+ H(X|Y).");
         testStatus = 1;
-        }
       }
     }
+  }
   cout << "   where H(X,Y) = - Sum_{x,y} p(x,y) log p(x,y) and H(X|Y) = - Sum_{x,y} p(x,y) log p(x|y).\n";
 
   cout << "\n";
@@ -202,7 +202,7 @@ int TestContingencyStatistics( int, char *[] )
   // Skip first row which contains data set cardinality
   vtkIdType key;
   for ( vtkIdType r = 1; r < outputContingency->GetNumberOfRows(); ++ r )
-    {
+  {
     key = outputContingency->GetValue( r, 0 ).ToInt();
     cout << "   ("
          << outputSummary->GetValue( key, 0 ).ToString()
@@ -215,39 +215,39 @@ int TestContingencyStatistics( int, char *[] )
          << ")";
 
     for ( vtkIdType c = 3; c < outputContingency->GetNumberOfColumns(); ++ c )
-      {
+    {
       cout << ", "
            << outputContingency->GetColumnName( c )
            << "="
            << outputContingency->GetValue( r, c ).ToDouble();
-      }
+    }
 
     cout << "\n";
 
     // Update total cardinality
     testIntValue += outputContingency->GetValueByName( r, "Cardinality" ).ToInt();
-    }
+  }
 
   if ( testIntValue != nVals * nMetricPairs )
-    {
+  {
     vtkGenericWarningMacro("Reported an incorrect total cardinality: "
                            << testIntValue
                            << " != "
                            << nVals * nMetricPairs
                            << ".");
     testStatus = 1;
-    }
+  }
   cout << "\n";
 
   cout << "## Calculated the following marginal probabilities:\n";
   testIntValue = 0;
 
   for ( unsigned int b = 2; b < outputModelDS->GetNumberOfBlocks(); ++ b )
-    {
+  {
     outputContingency = vtkTable::SafeDownCast( outputModelDS->GetBlock( b ) );
 
     for ( vtkIdType r = 0; r < outputContingency->GetNumberOfRows(); ++ r )
-      {
+    {
       cout << "   "
            << outputContingency->GetColumnName( 0 )
            << " = "
@@ -261,12 +261,12 @@ int TestContingencyStatistics( int, char *[] )
            << "="
            << outputContingency->GetValue( r, 2 ).ToDouble()
            << "\n";
-        }
+    }
     cout << "\n";
 
     // Update total cardinality
     testIntValue += 0;//outputContingency->GetValueByName( r, "Cardinality" ).ToInt();
-    }
+  }
 
   // Now inspect results of the Assess option by looking for outliers
   key = 0;
@@ -289,7 +289,7 @@ int TestContingencyStatistics( int, char *[] )
 
   int nOutlierTypes = 3;
   for ( int i = 0; i < nOutlierTypes; ++ i )
-    {
+  {
     vtkStdString colName = outlierColumn[i] + "(" + varX + "," + varY + ")";
 
     cout << "## Found the following outliers such that "
@@ -301,12 +301,12 @@ int TestContingencyStatistics( int, char *[] )
     double val;
     testIntValue = 0;
     for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
-      {
+    {
       val = outputData->GetValueByName( r, colName ).ToDouble();
       if ( val >= threshold[i] )
-        {
+      {
         continue;
-        }
+      }
 
       ++ testIntValue;
 
@@ -319,19 +319,19 @@ int TestContingencyStatistics( int, char *[] )
            << ") = "
            << val
            << "\n";
-      }
+    }
 
     if ( testIntValue != nOutliers[i] )
-      {
+    {
       vtkGenericWarningMacro("Reported an incorrect number of outliers: "
                              << testIntValue
                              << " != "
                              << nOutliers[i]
                              << ".");
       testStatus = 1;
-      }
-    cout << "\n";
     }
+    cout << "\n";
+  }
 
   // Last, check some results of the Test option
   cout << "## Chi square statistics:\n";
@@ -365,7 +365,7 @@ int TestContingencyStatistics( int, char *[] )
 
   // Loop over Test table
   for ( vtkIdType r = 0; r < outputTest->GetNumberOfRows(); ++ r )
-    {
+  {
     cout << "   ("
          << outputSummary->GetValue( r, 0 ).ToString()
          << ","
@@ -373,7 +373,7 @@ int TestContingencyStatistics( int, char *[] )
          << ")";
 
     for ( vtkIdType c = 0; c < nv; ++ c )
-      {
+    {
       double x =  outputTest->GetValue( r, c ).ToDouble();
       cout << ", "
            << outputTest->GetColumnName( c )
@@ -382,7 +382,7 @@ int TestContingencyStatistics( int, char *[] )
 
       // Verify calculated results
       if ( fabs ( x - testValues[r * nv + c] ) > 1.e-4 * x )
-        {
+      {
         vtkGenericWarningMacro("Incorrect "
                                << outputTest->GetColumnName( c )
                                << ": "
@@ -390,23 +390,23 @@ int TestContingencyStatistics( int, char *[] )
                                << " != "
                                << testValues[r * nv + c]);
         testStatus = 1;
-        }
       }
+    }
 
 #ifdef USE_GNU_R
     // Check if null hypothesis is rejected at specified significance level
     double p = outputTest->GetValueByName( r, "P Yates" ).ToDouble();
     // Must verify that p value is valid (it is set to -1 if R has failed)
     if ( p > -1 && p < alpha )
-      {
+    {
       cout << ", Null hypothesis (independence) rejected at "
            << alpha
            << " significance level";
-      }
+    }
 #endif // USE_GNU_R
 
     cout << "\n";
-    }
+  }
 
   // Clean up
   delete [] H;

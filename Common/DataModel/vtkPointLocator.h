@@ -154,11 +154,11 @@ public:
    * -1. This method is thread safe.
    */
   vtkIdType IsInsertedPoint(double x, double  y, double z) VTK_OVERRIDE
-    {
+  {
     double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->IsInsertedPoint (xyz);
-    };
+  };
   vtkIdType IsInsertedPoint(const double x[3]) VTK_OVERRIDE;
   //@}
 
@@ -277,7 +277,7 @@ protected:
   vtkIdType XD, YD, ZD, SliceSize;
 
   void GetBucketIndices(const double *x, int ijk[3]) const
-    {
+  {
     // Compute point index. Make sure it lies within range of locator.
     ijk[0] = static_cast<int>(((x[0] - this->BX) * this->FX));
     ijk[1] = static_cast<int>(((x[1] - this->BY) * this->FY));
@@ -286,14 +286,14 @@ protected:
     ijk[0] = (ijk[0] < 0 ? 0 : (ijk[0] >= XD ? XD-1 : ijk[0]));
     ijk[1] = (ijk[1] < 0 ? 0 : (ijk[1] >= YD ? YD-1 : ijk[1]));
     ijk[2] = (ijk[2] < 0 ? 0 : (ijk[2] >= ZD ? ZD-1 : ijk[2]));
-    }
+  }
 
   vtkIdType GetBucketIndex(const double *x) const
-    {
+  {
     int ijk[3];
     this->GetBucketIndices(x, ijk);
     return ijk[0] + ijk[1]*this->XD + ijk[2]*this->SliceSize;
-    }
+  }
 
   void ComputePerformanceFactors();
 

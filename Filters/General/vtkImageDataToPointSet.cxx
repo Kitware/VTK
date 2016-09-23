@@ -49,9 +49,9 @@ int vtkImageDataToPointSet::FillInputPortInformation(int port,
                                                      vtkInformation *info)
 {
   if (!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
   return 1;
 }
@@ -78,29 +78,29 @@ int vtkImageDataToPointSet::CopyStructure(vtkStructuredGrid *outData,
   vtkIdType pointId = 0;
   int ijk[3];
   for (ijk[2] = extent[4]; ijk[2] <= extent[5]; ijk[2]++)
-    {
+  {
     for (ijk[1] = extent[2]; ijk[1] <= extent[3]; ijk[1]++)
-      {
+    {
       for (ijk[0] = extent[0]; ijk[0] <= extent[1]; ijk[0]++)
-        {
+      {
         double coord[3];
 
         for (int axis = 0; axis < 3; axis++)
-          {
+        {
           coord[axis] = origin[axis] + spacing[axis]*ijk[axis];
-          }
+        }
 
         points->SetPoint(pointId, coord);
         pointId++;
-        }
       }
     }
+  }
 
   if (pointId != points->GetNumberOfPoints())
-    {
+  {
     vtkErrorMacro(<< "Somehow misscounted points");
     return 0;
-    }
+  }
 
   outData->SetPoints(points.GetPointer());
 
@@ -116,21 +116,21 @@ int vtkImageDataToPointSet::RequestData(vtkInformation *vtkNotUsed(request),
   vtkStructuredGrid *outData = vtkStructuredGrid::GetData(outputVector);
 
   if (inData == NULL)
-    {
+  {
     vtkErrorMacro(<< "Input data is NULL.");
     return 0;
-    }
+  }
   if (outData == NULL)
-    {
+  {
     vtkErrorMacro(<< "Output data is NULL.");
     return 0;
-    }
+  }
 
   int result = vtkImageDataToPointSet::CopyStructure(outData, inData);
   if (!result)
-    {
+  {
     return 0;
-    }
+  }
 
   outData->GetPointData()->PassData(inData->GetPointData());
   outData->GetCellData()->PassData(inData->GetCellData());

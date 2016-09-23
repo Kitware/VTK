@@ -43,10 +43,10 @@ vtkQuadraticQuad::vtkQuadraticQuad()
   this->Points->SetNumberOfPoints(9);
   this->PointIds->SetNumberOfIds(9);
   for (int i = 0; i < 9; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Points->SetNumberOfPoints(8);
   this->PointIds->SetNumberOfIds(8);
 }
@@ -97,13 +97,13 @@ void vtkQuadraticQuad::Subdivide(double *weights)
   double p[3];
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
-    {
+  {
     this->Points->GetPoint(i, p);
     for (j=0; j<3; j++)
-      {
+    {
       x[j] += p[j] * weights[i];
-      }
     }
+  }
   this->Points->SetPoint(8,x);
 }
 
@@ -123,7 +123,7 @@ int vtkQuadraticQuad::EvaluatePosition(double* x,
 
   //four linear quads are used
   for (minDist2=VTK_DOUBLE_MAX, i=0; i < 4; i++)
-    {
+  {
     this->Quad->Points->SetPoint(
       0,this->Points->GetPoint(LinearQuads[i][0]));
     this->Quad->Points->SetPoint(
@@ -136,50 +136,50 @@ int vtkQuadraticQuad::EvaluatePosition(double* x,
     status = this->Quad->EvaluatePosition(x,closest,ignoreId,pc,dist2,
                                           tempWeights);
     if ( status != -1 && dist2 < minDist2 )
-      {
+    {
       returnStatus = status;
       minDist2 = dist2;
       subId = i;
       pcoords[0] = pc[0];
       pcoords[1] = pc[1];
-      }
     }
+  }
 
   // adjust parametric coordinates
   if ( returnStatus != -1 )
-    {
+  {
     if ( subId == 0 )
-      {
+    {
       pcoords[0] /= 2.0;
       pcoords[1] /= 2.0;
-      }
+    }
     else if ( subId == 1 )
-      {
+    {
       pcoords[0] = 0.5 + (pcoords[0]/2.0);
       pcoords[1] /= 2.0;
-      }
+    }
     else if ( subId == 2 )
-      {
+    {
       pcoords[0] = 0.5 + (pcoords[0]/2.0);
       pcoords[1] = 0.5 + (pcoords[1]/2.0);
-      }
+    }
     else
-      {
+    {
       pcoords[0] /= 2.0;
       pcoords[1] = 0.5 + (pcoords[1]/2.0);
-      }
+    }
     pcoords[2] = 0.0;
     if(closestPoint!=0)
-      {
+    {
       // Compute both closestPoint and weights
       this->EvaluateLocation(subId,pcoords,closestPoint,weights);
-      }
+    }
     else
-      {
+    {
       // Compute weigths only
       this->InterpolationFunctions(pcoords,weights);
-      }
     }
+  }
 
   return returnStatus;
 }
@@ -195,13 +195,13 @@ void vtkQuadraticQuad::EvaluateLocation(int& vtkNotUsed(subId),
 
   x[0] = x[1] = x[2] = 0.0;
   for (i=0; i<8; i++)
-    {
+  {
     this->Points->GetPoint(i, pt);
     for (j=0; j<3; j++)
-      {
+    {
       x[j] += pt[j] * weights[i];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -236,10 +236,10 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
 
   // copy the point data over into point ids 0->7
   for (i=0; i<8; i++)
-    {
+  {
     this->PointData->CopyData(inPd,this->PointIds->GetId(i),i);
     this->CellScalars->SetValue( i, cellScalars->GetTuple1(i));
-    }
+  }
   // copy the cell data over to the linear cell
   this->CellData->CopyData(inCd,cellId,0);
 
@@ -248,25 +248,25 @@ void vtkQuadraticQuad::InterpolateAttributes(vtkPointData *inPd, vtkCellData *in
   this->Points->Resize(9);
   this->CellScalars->Resize(9);
   for ( numMidPts=0; numMidPts < 1; numMidPts++ )
-    {
+  {
     this->InterpolationFunctions(MidPoints[numMidPts], weights);
 
     x[0] = x[1] = x[2] = 0.0;
     s = 0.0;
     for (i=0; i<8; i++)
-      {
+    {
       this->Points->GetPoint(i, p);
       for (j=0; j<3; j++)
-        {
+      {
         x[j] += p[j] * weights[i];
-        }
-      s += cellScalars->GetTuple1(i) * weights[i];
       }
+      s += cellScalars->GetTuple1(i) * weights[i];
+    }
     this->Points->SetPoint(8+numMidPts,x);
     this->CellScalars->SetValue(8+numMidPts,s);
     this->PointData->InterpolatePoint(inPd, 8+numMidPts,
                                       this->PointIds, weights);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -287,17 +287,17 @@ void vtkQuadraticQuad::Contour(double value,
 
   //contour each linear quad separately
   for (int i=0; i<4; i++)
-    {
+  {
     for (int j=0; j<4; j++) //for each of the four vertices of the linear quad
-      {
+    {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
       this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearQuads[i][j]));
-      }
+    }
 
     this->Quad->Contour(value,this->Scalars,locator,verts,lines,polys,
                         this->PointData,outPd,this->CellData,i,outCd);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 // Clip this quadratic quad using scalar value provided. Like contouring,
@@ -313,17 +313,17 @@ void vtkQuadraticQuad::Clip(double value, vtkDataArray* cellScalars,
 
   //contour each linear quad separately
   for (int i=0; i<4; i++)
-    {
+  {
     for ( int j=0; j<4; j++) //for each of the four vertices of the linear quad
-      {
+    {
       this->Quad->Points->SetPoint(j,this->Points->GetPoint(LinearQuads[i][j]));
       this->Quad->PointIds->SetId(j,LinearQuads[i][j]);
       this->Scalars->SetValue(j,this->CellScalars->GetValue(LinearQuads[i][j]));
-      }
+    }
 
     this->Quad->Clip(value,this->Scalars,locator,polys,this->PointData,
                      outPd,this->CellData,cellId,outCd,insideOut);
-    }
+  }
 }
 
 
@@ -347,17 +347,17 @@ int vtkQuadraticQuad::IntersectWithLine(double* p1,
 
   //intersect the four linear quads
   for (i=0; i < 4; i++)
-    {
+  {
     this->Quad->Points->SetPoint(0,this->Points->GetPoint(LinearQuads[i][0]));
     this->Quad->Points->SetPoint(1,this->Points->GetPoint(LinearQuads[i][1]));
     this->Quad->Points->SetPoint(2,this->Points->GetPoint(LinearQuads[i][2]));
     this->Quad->Points->SetPoint(3,this->Points->GetPoint(LinearQuads[i][3]));
 
     if (this->Quad->IntersectWithLine(p1, p2, tol, t, x, pcoords, subTest) )
-      {
+    {
       return 1;
-      }
     }
+  }
 
   return 0;
 }
@@ -412,7 +412,7 @@ int vtkQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
 
   if ( vtkMath::Distance2BetweenPoints(x4,x6) <=
        vtkMath::Distance2BetweenPoints(x5,x7) )
-    {
+  {
     ptIds->InsertId(12,this->PointIds->GetId(4));
     ptIds->InsertId(13,this->PointIds->GetId(6));
     ptIds->InsertId(14,this->PointIds->GetId(7));
@@ -426,9 +426,9 @@ int vtkQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertPoint(15,this->Points->GetPoint(4));
     pts->InsertPoint(16,this->Points->GetPoint(5));
     pts->InsertPoint(17,this->Points->GetPoint(6));
-    }
+  }
   else
-    {
+  {
     ptIds->InsertId(12,this->PointIds->GetId(5));
     ptIds->InsertId(13,this->PointIds->GetId(6));
     ptIds->InsertId(14,this->PointIds->GetId(7));
@@ -442,7 +442,7 @@ int vtkQuadraticQuad::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
     pts->InsertPoint(15,this->Points->GetPoint(5));
     pts->InsertPoint(16,this->Points->GetPoint(7));
     pts->InsertPoint(17,this->Points->GetPoint(4));
-    }
+  }
 
   return 1;
 }
@@ -459,9 +459,9 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
   double *JI[3], JI0[3], JI1[3], JI2[3];
 
   for(int i = 0; i<8; i++)
-    {
+  {
     this->Points->GetPoint(i, elemNodes[i]);
-    }
+  }
 
   this->InterpolationFunctions(pcoords,weights);
   this->InterpolationDerivs(pcoords,functionDerivs);
@@ -470,34 +470,34 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
   J[0] = J0; J[1] = J1; J[2] = J2;
   JI[0] = JI0; JI[1] = JI1; JI[2] = JI2;
   for(int k = 0; k<3; k++)
-    {
+  {
     J0[k] = J1[k] = 0.0;
-    }
+  }
 
   for(int i = 0; i<8; i++)
-    {
+  {
     for(int j = 0; j<2; j++)
-      {
+    {
       for(int k = 0; k<3; k++)
-        {
+      {
         J[j][k] += elemNodes[i][k] * functionDerivs[j*8+i];
-        }
       }
     }
+  }
 
   // Compute third row vector in transposed Jacobian and normalize it, so that Jacobian determinant stays the same.
   vtkMath::Cross(J0,J1,J2);
   if ( vtkMath::Normalize(J2) == 0.0 || !vtkMath::InvertMatrix(J,JI,3)) //degenerate
-    {
+  {
     for (int j=0; j < dim; j++ )
-      {
+    {
       for (int i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
 
   // Loop over "dim" derivative values. For each set of values,
@@ -505,13 +505,13 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
   // in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for (int j=0; j < dim; j++ )
-    {
+  {
     sum[0] = sum[1] = sum[2] = 0.0;
     for (int i=0; i < 8; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += functionDerivs[i] * values[dim*i + j];
       sum[1] += functionDerivs[8 + i] * values[dim*i + j];
-      }
+    }
 //    dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
 //    dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
 
@@ -519,7 +519,7 @@ void vtkQuadraticQuad::Derivatives(int vtkNotUsed(subId),
     derivs[3*j] = sum[0]*JI[0][0] + sum[1]*JI[0][1];
     derivs[3*j + 1] = sum[0]*JI[1][0] + sum[1]*JI[1][1];
     derivs[3*j + 2] = sum[0]*JI[2][0] + sum[1]*JI[2][1];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

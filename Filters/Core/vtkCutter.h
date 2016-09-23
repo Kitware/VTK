@@ -262,13 +262,13 @@ private:
 inline const char *vtkCutter::GetSortByAsString(void)
 {
   if ( this->SortBy == VTK_SORT_BY_VALUE )
-    {
+  {
     return "SortByValue";
-    }
+  }
   else
-    {
+  {
     return "SortByCell";
-    }
+  }
 }
 //@}
 

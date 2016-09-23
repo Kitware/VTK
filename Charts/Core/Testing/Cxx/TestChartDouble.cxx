@@ -54,13 +54,13 @@ int TestChartDouble(int, char *[])
   float inc = 7.5 / (numPoints - 1);
   table->SetNumberOfRows(numPoints);
   for (int i = 0; i < numPoints; ++i)
-    {
+  {
     double x(i * inc + 0.2);
     table->SetValue(i, 0, x);
     table->SetValue(i, 1, 1.0e-80 * (cos(x - 1.0) + sin(x - 3.14 / 4.0)));
     table->SetValue(i, 2, 1.0e-80 * sin(x) * 1e-12);
     table->SetValue(i, 3, 1.0e-80 * sin(x - 1.0));
-    }
+  }
 
   // Add multiple line plots, setting the colors etc
   vtkPlot *line = chart->AddPlot(vtkChart::POINTS);

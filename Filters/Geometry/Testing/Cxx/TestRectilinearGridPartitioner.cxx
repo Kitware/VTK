@@ -67,11 +67,11 @@ vtkRectilinearGrid* GetGridFromFile( std::string &file )
 int TestRectilinearGridPartitioner( int argc, char *argv[] )
 {
   if( argc != 3 )
-    {
+  {
     std::cout << "Usage: ./TestRectilinearGridPartitioner <vtsfile> <N>\n";
     std::cout.flush();
     return -1;
-    }
+  }
 
   std::string fileName = std::string( argv[1] );
   int NumPartitions    = atoi( argv[2] );

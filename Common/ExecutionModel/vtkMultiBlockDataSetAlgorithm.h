@@ -97,9 +97,9 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
-    {
+  {
       return 1;
-    };
+  };
   //@}
 
   // Create a default executive.

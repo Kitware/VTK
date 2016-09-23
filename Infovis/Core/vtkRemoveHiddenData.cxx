@@ -60,16 +60,16 @@ vtkRemoveHiddenData::~vtkRemoveHiddenData()
 int vtkRemoveHiddenData::FillInputPortInformation(int port, vtkInformation* info)
 {
   if (port == 0)
-    {
+  {
     info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
     info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkTable");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkAnnotationLayers");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
   return 1;
 }
 
@@ -89,17 +89,17 @@ int vtkRemoveHiddenData::RequestData(
 
   vtkAnnotationLayers* annotations = 0;
   if (annotationsInfo)
-    {
+  {
     annotations = vtkAnnotationLayers::SafeDownCast(
       annotationsInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
 
   // Nothing to do if no input annotations
   if (!annotations)
-    {
+  {
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   vtkGraph* graph = vtkGraph::SafeDownCast(output);
   vtkTable* table = vtkTable::SafeDownCast(output);
@@ -108,7 +108,7 @@ int vtkRemoveHiddenData::RequestData(
   unsigned int numAnnotations = annotations->GetNumberOfAnnotations();
   int numHiddenAnnotations = 0;
   for (unsigned int a = 0; a < numAnnotations; ++a)
-    {
+  {
     vtkAnnotation* ann = annotations->GetAnnotation(a);
 
     // Only if the annotation is both enabled AND hidden will
@@ -117,46 +117,46 @@ int vtkRemoveHiddenData::RequestData(
         ann->GetInformation()->Get(vtkAnnotation::ENABLE())==1 &&
         ann->GetInformation()->Has(vtkAnnotation::HIDE()) &&
         ann->GetInformation()->Get(vtkAnnotation::HIDE())==1 )
-      {
+    {
       selection->Union(ann->GetSelection());
       numHiddenAnnotations++;
-      }
     }
+  }
 
   // Nothing to do if no hidden annotations
   if(numHiddenAnnotations == 0)
-    {
+  {
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   // We want to output the visible data, so the hidden annotation
   // selections need to be inverted before sent to the extraction filter:
   for (unsigned int i = 0; i < selection->GetNumberOfNodes(); ++i)
-    {
+  {
     vtkSelectionNode* node = selection->GetNode(i);
     node->GetProperties()->Set(vtkSelectionNode::INVERSE(),1);
-    }
+  }
 
   if (graph)
-    {
+  {
     this->ExtractGraph->SetInputData(input);
     this->ExtractGraph->SetInputData(1, selection);
     this->ExtractGraph->Update();
     output->ShallowCopy(this->ExtractGraph->GetOutput());
-    }
+  }
   else if (table)
-    {
+  {
     this->ExtractTable->SetInputData(input);
     this->ExtractTable->SetInputData(1, selection);
     this->ExtractTable->Update();
     output->ShallowCopy(this->ExtractTable->GetOutput());
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Unsupported input data type.");
     return 0;
-    }
+  }
 
   return 1;
 }

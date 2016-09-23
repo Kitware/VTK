@@ -67,43 +67,43 @@ void vtkImageCastExecute(vtkImageCast *self,
 
   // Loop through output pixels
   while (!outIt.IsAtEnd())
-    {
+  {
     IT* inSI = inIt.BeginSpan();
     OT* outSI = outIt.BeginSpan();
     OT* outSIEnd = outIt.EndSpan();
     if (clamp)
-      {
+    {
       while (outSI != outSIEnd)
-        {
+      {
         // Pixel operation
         val = static_cast<double>(*inSI);
         if (val > typeMax)
-          {
+        {
           val = typeMax;
-          }
+        }
         if (val < typeMin)
-          {
+        {
           val = typeMin;
-          }
+        }
         *outSI = static_cast<OT>(val);
         ++outSI;
         ++inSI;
-        }
       }
+    }
     else
-      {
+    {
       while (outSI != outSIEnd)
-        {
+      {
         // now process the components
         // NB: without clamping, this cast may result in undefined behavior!
         *outSI = static_cast<OT>(*inSI);
         ++outSI;
         ++inSI;
-        }
       }
+    }
     inIt.NextSpan();
     outIt.NextSpan();
-    }
+  }
 }
 
 
@@ -116,7 +116,7 @@ void vtkImageCastExecute(vtkImageCast *self,
                          T *)
 {
   switch (outData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageCastExecute(self,
                                          inData, outData, outExt, id,
                                          static_cast<T *>(0),
@@ -124,7 +124,7 @@ void vtkImageCastExecute(vtkImageCast *self,
     default:
       vtkGenericWarningMacro("Execute: Unknown output ScalarType");
       return;
-    }
+  }
 }
 
 
@@ -140,7 +140,7 @@ void vtkImageCast::ThreadedExecute (vtkImageData *inData,
                                    int outExt[6], int id)
 {
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageCastExecute(this, inData,
                           outData, outExt, id,
@@ -148,7 +148,7 @@ void vtkImageCast::ThreadedExecute (vtkImageData *inData,
     default:
       vtkErrorMacro(<< "Execute: Unknown input ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -159,12 +159,12 @@ void vtkImageCast::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "OutputScalarType: " << this->OutputScalarType << "\n";
   os << indent << "ClampOverflow: ";
   if (this->ClampOverflow)
-    {
+  {
     os << "On\n";
-    }
+  }
   else
-    {
+  {
     os << "Off\n";
-    }
+  }
 }
 

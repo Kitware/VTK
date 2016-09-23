@@ -278,29 +278,29 @@ private:
 inline const char *vtkPolyDataConnectivityFilter::GetExtractionModeAsString(void)
 {
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_REGIONS )
-    {
+  {
     return "ExtractPointSeededRegions";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_CELL_SEEDED_REGIONS )
-    {
+  {
     return "ExtractCellSeededRegions";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_REGIONS )
-    {
+  {
     return "ExtractSpecifiedRegions";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_ALL_REGIONS )
-    {
+  {
     return "ExtractAllRegions";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_REGION )
-    {
+  {
     return "ExtractClosestPointRegion";
-    }
+  }
   else
-    {
+  {
     return "ExtractLargestRegion";
-    }
+  }
 }
 //@}
 

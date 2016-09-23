@@ -69,14 +69,14 @@
   vtkTemplateAliasMacroCase_##value(typeN, call)
 #define vtkTemplateAliasMacroCase_0(typeN, call)                              \
   case VTK_##typeN:                                                           \
-    {                                                                         \
+  {                                                                         \
     vtkGenericWarningMacro("Support for VTK_" #typeN " not compiled.");       \
-    }; break
+  }; break
 #define vtkTemplateAliasMacroCase_1(typeN, call)                              \
   case VTK_##typeN:                                                           \
-    {                                                                         \
+  {                                                                         \
     typedef vtkTypeTraits<VTK_TYPE_NAME_##typeN>::SizedType VTK_TT; call;     \
-    }; break
+  }; break
 
 // Define a macro to dispatch calls to a template instantiated over
 // the aliased scalar types.

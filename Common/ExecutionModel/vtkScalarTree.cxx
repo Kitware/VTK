@@ -44,22 +44,22 @@ void vtkScalarTree::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->DataSet )
-    {
+  {
     os << indent << "DataSet: " << this->DataSet << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "DataSet: (none)\n";
-    }
+  }
 
   if ( this->Scalars )
-    {
+  {
     os << indent << "Scalars: " << this->Scalars << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Scalars: (none)\n";
-    }
+  }
 
   os << indent << "Build Time: " << this->BuildTime.GetMTime() << "\n";
 }

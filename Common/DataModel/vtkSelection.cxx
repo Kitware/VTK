@@ -77,9 +77,9 @@ unsigned int vtkSelection::GetNumberOfNodes()
 vtkSelectionNode* vtkSelection::GetNode(unsigned int idx)
 {
   if (idx >= this->GetNumberOfNodes())
-    {
+  {
     return 0;
-    }
+  }
   return this->Internal->Nodes[idx];
 }
 
@@ -87,18 +87,18 @@ vtkSelectionNode* vtkSelection::GetNode(unsigned int idx)
 void vtkSelection::AddNode(vtkSelectionNode* node)
 {
   if (!node)
-    {
+  {
     return;
-    }
+  }
   // Make sure that node is not already added
   unsigned int numNodes = this->GetNumberOfNodes();
   for (unsigned int i = 0; i < numNodes; i++)
-    {
+  {
     if (this->GetNode(i) == node)
-      {
+    {
       return;
-      }
     }
+  }
   this->Internal->Nodes.push_back(node);
   this->Modified();
 }
@@ -107,9 +107,9 @@ void vtkSelection::AddNode(vtkSelectionNode* node)
 void vtkSelection::RemoveNode(unsigned int idx)
 {
   if (idx >= this->GetNumberOfNodes())
-    {
+  {
     return;
-    }
+  }
   std::vector<vtkSmartPointer<vtkSelectionNode> >::iterator iter =
     this->Internal->Nodes.begin();
   this->Internal->Nodes.erase(iter+idx);
@@ -120,18 +120,18 @@ void vtkSelection::RemoveNode(unsigned int idx)
 void vtkSelection::RemoveNode(vtkSelectionNode* node)
 {
   if (!node)
-    {
+  {
     return;
-    }
+  }
   unsigned int numNodes = this->GetNumberOfNodes();
   for (unsigned int i = 0; i < numNodes; i++)
-    {
+  {
     if (this->GetNode(i) == node)
-      {
+    {
       this->RemoveNode(i);
       return;
-      }
     }
+  }
   this->Modified();
 }
 
@@ -150,10 +150,10 @@ void vtkSelection::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Number of nodes: " << numNodes << endl;
   os << indent << "Nodes: " << endl;
   for (unsigned int i = 0; i < numNodes; i++)
-    {
+  {
     os << indent << "Node #" << i << endl;
     this->GetNode(i)->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -161,19 +161,19 @@ void vtkSelection::ShallowCopy(vtkDataObject* src)
 {
   vtkSelection *input = vtkSelection::SafeDownCast(src);
   if (!input)
-    {
+  {
     return;
-    }
+  }
   this->Initialize();
   this->Superclass::ShallowCopy(src);
   unsigned int numNodes = input->GetNumberOfNodes();
   for (unsigned int i=0; i<numNodes; i++)
-    {
+  {
     vtkSmartPointer<vtkSelectionNode> newNode =
       vtkSmartPointer<vtkSelectionNode>::New();
     newNode->ShallowCopy(input->GetNode(i));
     this->AddNode(newNode);
-    }
+  }
   this->Modified();
 }
 
@@ -182,19 +182,19 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
 {
   vtkSelection *input = vtkSelection::SafeDownCast(src);
   if (!input)
-    {
+  {
     return;
-    }
+  }
   this->Initialize();
   this->Superclass::DeepCopy(src);
   unsigned int numNodes = input->GetNumberOfNodes();
   for (unsigned int i=0; i<numNodes; i++)
-    {
+  {
     vtkSmartPointer<vtkSelectionNode> newNode =
       vtkSmartPointer<vtkSelectionNode>::New();
     newNode->DeepCopy(input->GetNode(i));
     this->AddNode(newNode);
-    }
+  }
   this->Modified();
 }
 
@@ -202,9 +202,9 @@ void vtkSelection::DeepCopy(vtkDataObject* src)
 void vtkSelection::Union(vtkSelection* s)
 {
   for (unsigned int n = 0; n < s->GetNumberOfNodes(); ++n)
-    {
+  {
     this->Union(s->GetNode(n));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -212,31 +212,31 @@ void vtkSelection::Union(vtkSelectionNode* node)
 {
   bool merged = false;
   for (unsigned int tn = 0; tn < this->GetNumberOfNodes(); ++tn)
-    {
+  {
     vtkSelectionNode* tnode = this->GetNode(tn);
     if (tnode->EqualProperties(node))
-      {
+    {
       tnode->UnionSelectionList(node);
       merged = true;
       break;
-      }
     }
+  }
   if (!merged)
-    {
+  {
     vtkSmartPointer<vtkSelectionNode> clone =
       vtkSmartPointer<vtkSelectionNode>::New();
     clone->DeepCopy(node);
     this->AddNode(clone);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkSelection::Subtract(vtkSelection* s)
 {
   for(unsigned int n=0; n<s->GetNumberOfNodes(); ++n)
-    {
+  {
     this->Subtract(s->GetNode(n));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -244,19 +244,19 @@ void vtkSelection::Subtract(vtkSelectionNode* node)
 {
   bool subtracted = false;
   for( unsigned int tn = 0; tn<this->GetNumberOfNodes(); ++tn)
-    {
+  {
     vtkSelectionNode* tnode = this->GetNode(tn);
 
     if(tnode->EqualProperties(node))
-      {
+    {
       tnode->SubtractSelectionList(node);
       subtracted = true;
-      }
     }
+  }
   if( !subtracted )
-    {
+  {
     vtkErrorMacro("Could not subtract selections");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -265,11 +265,11 @@ vtkMTimeType vtkSelection::GetMTime()
   vtkMTimeType mTime = this->MTime.GetMTime();
   vtkMTimeType nodeMTime;
   for (unsigned int n = 0; n < this->GetNumberOfNodes(); ++n)
-    {
+  {
     vtkSelectionNode* node = this->GetNode(n);
     nodeMTime = node->GetMTime();
     mTime = ( nodeMTime > mTime ? nodeMTime : mTime );
-    }
+  }
   return mTime;
 }
 
@@ -297,12 +297,12 @@ void vtkSelection::Dump(ostream& os)
   vtkSmartPointer<vtkTable> tmpTable = vtkSmartPointer<vtkTable>::New();
   cerr << "==Selection==" << endl;
   for (unsigned int i = 0; i < this->GetNumberOfNodes(); ++i)
-    {
+  {
     os << "===Node " << i << "===" << endl;
     vtkSelectionNode* node = this->GetNode(i);
     os << "ContentType: ";
     switch (node->GetContentType())
-      {
+    {
       case vtkSelectionNode::GLOBALIDS:
         os << "GLOBALIDS";
         break;
@@ -330,11 +330,11 @@ void vtkSelection::Dump(ostream& os)
       default:
         os << "UNKNOWN";
         break;
-      }
+    }
     os << endl;
     os << "FieldType: ";
     switch (node->GetFieldType())
-      {
+    {
       case vtkSelectionNode::CELL:
         os << "CELL";
         break;
@@ -356,12 +356,12 @@ void vtkSelection::Dump(ostream& os)
       default:
         os << "UNKNOWN";
         break;
-      }
+    }
     os << endl;
     if (node->GetSelectionData())
-      {
+    {
       tmpTable->SetRowData(node->GetSelectionData());
       tmpTable->Dump(10);
-      }
     }
+  }
 }

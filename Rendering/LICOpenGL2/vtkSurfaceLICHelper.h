@@ -101,10 +101,10 @@ public:
    * Convert viewport to texture coordinates
    */
   void ViewportQuadTextureCoords(GLfloat *tcoords)
-    {
+  {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
-    }
+  }
   //@}
 
   /**
@@ -112,9 +112,9 @@ public:
    * screen size texture.
    */
   void ViewportQuadPoints(const vtkPixelExtent &viewportExt, GLfloat *quadpts)
-    {
+  {
     viewportExt.GetData(quadpts);
-    }
+  }
 
   /**
    * Convert a viewport to a bounding box and it's texture coordinates for a
@@ -131,10 +131,10 @@ public:
    * a screen size texture.
    */
   void ViewQuadPoints(GLfloat *quadpts)
-    {
+  {
     quadpts[0] = quadpts[2] = 0.0f;
     quadpts[1] = quadpts[3] = 1.0f;
-    }
+  }
   //@}
 
   //@{
@@ -143,10 +143,10 @@ public:
    * a screen size texture.
    */
   void ViewQuadTextureCoords(GLfloat *tcoords)
-    {
+  {
     tcoords[0] = tcoords[2] = 0.0f;
     tcoords[1] = tcoords[3] = 1.0f;
-    }
+  }
   //@}
 
   /**

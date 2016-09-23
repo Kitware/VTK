@@ -294,9 +294,9 @@ inline vtkIdType vtkCellArray::InsertNextCell(vtkIdType npts,
   vtkIdType *ptr = this->Ia->WritePointer(i, npts+1);
 
   for ( *ptr++ = npts, i = 0; i < npts; i++)
-    {
+  {
     *ptr++ = *pts++;
-    }
+  }
 
   this->NumberOfCells++;
   this->InsertLocation += npts + 1;
@@ -352,12 +352,12 @@ inline int vtkCellArray::GetNextCell(vtkIdType& npts, vtkIdType* &pts)
 {
   if ( this->Ia->GetMaxId() >= 0 &&
        this->TraversalLocation <= this->Ia->GetMaxId() )
-    {
+  {
     npts = this->Ia->GetValue(this->TraversalLocation++);
     pts = this->Ia->GetPointer(this->TraversalLocation);
     this->TraversalLocation += npts;
     return 1;
-    }
+  }
   npts=0;
   pts=0;
   return 0;
@@ -379,11 +379,11 @@ inline void vtkCellArray::ReverseCell(vtkIdType loc)
   vtkIdType npts=this->Ia->GetValue(loc);
   vtkIdType *pts=this->Ia->GetPointer(loc+1);
   for (i=0; i < (npts/2); i++)
-    {
+  {
     tmp = pts[i];
     pts[i] = pts[npts-i-1];
     pts[npts-i-1] = tmp;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -392,9 +392,9 @@ inline void vtkCellArray::ReplaceCell(vtkIdType loc, int npts,
 {
   vtkIdType *oldPts=this->Ia->GetPointer(loc+1);
   for (int i=0; i < npts; i++)
-    {
+  {
     oldPts[i] = pts[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

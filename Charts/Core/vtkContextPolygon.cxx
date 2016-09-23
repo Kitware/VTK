@@ -87,25 +87,25 @@ bool vtkContextPolygon::Contains(const vtkVector2f &point) const
   bool inside = false;
   float xintersection;
   for(size_t i = 0; i < d->points.size(); i++)
-    {
+  {
     const vtkVector2f &p1 = d->points[i];
     const vtkVector2f &p2 = d->points[(i+1) % d->points.size()];
 
     if (y > std::min(p1.GetY(), p2.GetY()) &&
         y <= std::max(p1.GetY(),p2.GetY()) &&
         p1.GetY() != p2.GetY())
-      {
+    {
       if (x <= std::max(p1.GetX(), p2.GetX()) )
-        {
+      {
         xintersection = (y - p1.GetY())*(p2.GetX() - p1.GetX())/(p2.GetY() - p1.GetY()) + p1.GetX();
         if ( p1.GetX() == p2.GetX() || x <= xintersection)
-          {
+        {
           // each time we intersect we switch if we are in side or not
           inside = !inside;
-          }
         }
       }
     }
+  }
 
   return inside;
 }
@@ -125,9 +125,9 @@ vtkContextPolygon vtkContextPolygon::Transformed(vtkTransform2D *transform) cons
 vtkContextPolygon& vtkContextPolygon::operator=(const vtkContextPolygon &other)
 {
   if(this != &other)
-    {
+  {
     d->points = other.d->points;
-    }
+  }
 
   return *this;
 }

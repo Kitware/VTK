@@ -446,11 +446,11 @@ public:
   virtual int SetZbufferData(int x, int y, int x2, int y2,
                              vtkFloatArray *z) = 0;
   float GetZbufferDataAtPoint(int x, int y)
-    {
+  {
     float value;
     this->GetZbufferData(x, y, x, y, &value);
     return value;
-    }
+  }
   //@}
 
   //@{

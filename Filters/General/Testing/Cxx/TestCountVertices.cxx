@@ -31,9 +31,9 @@ int TestCountVertices(int, char*[])
 
   // Need 12 points to test all cell types:
   for (int i = 0; i < 12; ++i)
-    {
+  {
     points->InsertNextPoint(0., 0., 0.);
-    }
+  }
   data->SetPoints(points.Get());
 
   // Insert the following cell types and verify the number of verts computed
@@ -86,44 +86,44 @@ int TestCountVertices(int, char*[])
   vtkUnstructuredGrid *output =
       vtkUnstructuredGrid::SafeDownCast(filter->GetOutput());
   if (!output)
-    {
+  {
     std::cerr << "No output data!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   vtkIdTypeArray *verts =
       vtkIdTypeArray::SafeDownCast(
         output->GetCellData()->GetArray(
           filter->GetOutputArrayName()));
   if (!verts)
-    {
+  {
     std::cerr << "No output array!\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (verts->GetNumberOfComponents() != 1)
-    {
+  {
     std::cerr << "Invalid number of components in output array: "
               << verts->GetNumberOfComponents() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
   if (verts->GetNumberOfTuples() != 10)
-    {
+  {
     std::cerr << "Invalid number of components in output array: "
               << verts->GetNumberOfTuples() << "\n";
     return EXIT_FAILURE;
-    }
+  }
 
 #define TEST_VERTICES(idx, expected) \
   { \
   vtkIdType numVerts = verts->GetTypedComponent(idx, 0); \
   if (numVerts != expected) \
-    { \
+  { \
     std::cerr << "Expected cell @idx=" << idx << " to have " << expected \
               << " vertices, but found " << numVerts<< "\n"; \
     return EXIT_FAILURE; \
-    } \
+  } \
   }
 
   int idx = 0;

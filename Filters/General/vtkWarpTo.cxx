@@ -57,22 +57,22 @@ int vtkWarpTo::RequestDataObject(vtkInformation *request,
   vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
 
   if (inImage || inRect)
-    {
+  {
     vtkStructuredGrid *output = vtkStructuredGrid::GetData(outputVector);
     if (!output)
-      {
+    {
       vtkNew<vtkStructuredGrid> newOutput;
       outputVector->GetInformationObject(0)->Set(
         vtkDataObject::DATA_OBJECT(), newOutput.GetPointer());
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     return this->Superclass::RequestDataObject(request,
                                                inputVector,
                                                outputVector);
-    }
+  }
 }
 
 int vtkWarpTo::RequestData(
@@ -84,36 +84,36 @@ int vtkWarpTo::RequestData(
   vtkPointSet *output = vtkPointSet::GetData(outputVector);
 
   if (!input)
-    {
+  {
     // Try converting image data.
     vtkImageData *inImage = vtkImageData::GetData(inputVector[0]);
     if (inImage)
-      {
+    {
       vtkNew<vtkImageDataToPointSet> image2points;
       image2points->SetInputData(inImage);
       image2points->Update();
       input = image2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     // Try converting rectilinear grid.
     vtkRectilinearGrid *inRect = vtkRectilinearGrid::GetData(inputVector[0]);
     if (inRect)
-      {
+    {
       vtkNew<vtkRectilinearGridToPointSet> rect2points;
       rect2points->SetInputData(inRect);
       rect2points->Update();
       input = rect2points->GetOutput();
-      }
     }
+  }
 
   if (!input)
-    {
+  {
     vtkErrorMacro(<< "Invalid or missing input");
     return 0;
-    }
+  }
 
   vtkPoints *inPts;
   vtkPoints *newPts;
@@ -131,54 +131,54 @@ int vtkWarpTo::RequestData(
   inPts = input->GetPoints();
 
   if (!inPts )
-    {
+  {
     vtkErrorMacro(<<"No input data");
     return 1;
-    }
+  }
 
   numPts = inPts->GetNumberOfPoints();
   newPts = vtkPoints::New(); newPts->SetNumberOfPoints(numPts);
 
   if (this->Absolute)
-    {
+  {
     minMag = 1.0e10;
     for (ptId=0; ptId < numPts; ptId++)
-      {
+    {
       inPts->GetPoint(ptId, x);
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       if (mag < minMag)
-        {
+      {
         minMag = mag;
-        }
       }
     }
+  }
 
   //
   // Loop over all points, adjusting locations
   //
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     inPts->GetPoint(ptId, x);
     if (this->Absolute)
-      {
+    {
       mag = sqrt(vtkMath::Distance2BetweenPoints(this->Position,x));
       for (i=0; i<3; i++)
-        {
+      {
         newX[i] = this->ScaleFactor*
           (this->Position[i] + minMag*(x[i] - this->Position[i])/mag) +
           (1.0 - this->ScaleFactor)*x[i];
-        }
       }
+    }
     else
-      {
+    {
       for (i=0; i<3; i++)
-        {
+      {
         newX[i] = (1.0 - this->ScaleFactor)*x[i] +
           this->ScaleFactor*this->Position[i];
-        }
       }
-    newPts->SetPoint(ptId, newX);
     }
+    newPts->SetPoint(ptId, newX);
+  }
   //
   // Update ourselves and release memory
   //

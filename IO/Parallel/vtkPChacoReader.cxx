@@ -56,28 +56,28 @@ vtkPChacoReader::~vtkPChacoReader()
 void vtkPChacoReader::SetController(vtkMultiProcessController *c)
 {
   if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
-    {
+  {
     this->NumProcesses = 1;
     this->MyId = 0;
-    }
+  }
 
   if (this->Controller == c)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
 
   if (this->Controller != NULL)
-    {
+  {
     this->Controller->UnRegister(this);
     this->Controller = NULL;
-    }
+  }
 
   if (c == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->Controller = c;
 
@@ -93,10 +93,10 @@ int vtkPChacoReader::RequestInformation(
   vtkInformationVector *outputVector)
 {
   if (!this->BaseName)
-    {
+  {
     vtkErrorMacro(<< "No BaseName specified");
     return 0;
-    }
+  }
 
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
   outInfo->Set(CAN_HANDLE_PIECE_REQUEST(), 1);
@@ -104,47 +104,47 @@ int vtkPChacoReader::RequestInformation(
   int retVal = 1;
 
   if (this->MyId == 0)
-    {
+  {
     retVal =
       this->Superclass::RequestInformation(request, inputVector, outputVector);
-    }
+  }
 
   if (this->NumProcesses == 1)
-    {
+  {
     return retVal;
-    }
+  }
 
   unsigned long metadata[8];
 
   if (this->MyId == 0)
-    {
+  {
     metadata[0] = static_cast<unsigned long>(retVal);
 
     if (retVal)
-      {
+    {
       metadata[1] = static_cast<unsigned long>(this->RemakeDataCacheFlag);
       if (this->RemakeDataCacheFlag)
-        {
+      {
         metadata[2] = static_cast<unsigned long>(this->Dimensionality);
         metadata[3] = static_cast<unsigned long>(this->NumberOfVertices);
         metadata[4] = static_cast<unsigned long>(this->NumberOfEdges);
         metadata[5] = static_cast<unsigned long>(this->NumberOfVertexWeights);
         metadata[6] = static_cast<unsigned long>(this->NumberOfEdgeWeights);
         metadata[7] = static_cast<unsigned long>(this->GraphFileHasVertexNumbers);
-        }
       }
     }
+  }
 
   this->Controller->Broadcast(metadata, 8, 0);
 
   if (this->MyId > 0)
-    {
+  {
     retVal = metadata[0];
     if (retVal)
-      {
+    {
       this->RemakeDataCacheFlag       = static_cast<int>(metadata[1]);
       if (this->RemakeDataCacheFlag)
-        {
+      {
         this->Dimensionality            = static_cast<int>(metadata[2]);
         this->NumberOfVertices          = static_cast<vtkIdType>(metadata[3]);
         this->NumberOfEdges             = static_cast<vtkIdType>(metadata[4]);
@@ -156,9 +156,9 @@ int vtkPChacoReader::RequestInformation(
                                    this->NumberOfEdgeWeights);
 
         this->SetCurrentBaseName(this->BaseName);
-        }
       }
     }
+  }
   return retVal;
 }
 
@@ -170,10 +170,10 @@ int vtkPChacoReader::RequestData(
   vtkInformationVector *outputVector)
 {
   if (!this->BaseName)
-    {
+  {
     vtkErrorMacro(<< "No BaseName specified");
     return 0;
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkUnstructuredGrid *output = vtkUnstructuredGrid::SafeDownCast(
@@ -197,7 +197,7 @@ int vtkPChacoReader::RequestData(
   contr->Broadcast(&sum, 1, 0);
 
   if (sum > 0)
-    {
+  {
     // I don't know if this situation can occur, but we'll try to handle it.
 
     int *myPiece = new int [this->NumProcesses];
@@ -212,72 +212,72 @@ int vtkPChacoReader::RequestData(
     int nparticipants = 0;
 
     for (i=0; i<this->NumProcesses; i++)
-      {
+    {
       if ((myPiece[i] >= 0) && (myPiece[i] < numPieces))
-        {
+      {
         group->AddProcessId(i);
         if (myPiece[i] == 0)
-          {
+        {
           pieceZeroProc = nparticipants;
-          }
-        nparticipants++;
         }
+        nparticipants++;
       }
+    }
 
     delete [] myPiece;
 
     if (nparticipants < numPieces) // Can this happen?
-      {
+    {
       group->Delete();
       output->Initialize();
       vtkErrorMacro("<<vtkPChacoReader can't produce less than entire file");
       return 0;
-      }
+    }
 
     subController = contr->CreateSubController(group);
     group->Delete();
 
     if (subController)
-      {
+    {
       contr = subController;
-      }
-    else
-      {
-      contr = NULL;
-      }
     }
+    else
+    {
+      contr = NULL;
+    }
+  }
 
   if ( !contr)
-    {
+  {
     // This process doesn't participate (can this happen?)
 
     this->SetUpEmptyGrid(output);
     return 1;
-    }
+  }
 
   int retVal = 1;
 
   if (piece == 0)
-    {
+  {
     // "piece" 0 reads in the entire mesh
 
     retVal = this->BuildOutputGrid(output);
-    }
+  }
 
   if (numPieces > 1)
-    {
+  {
     contr->Broadcast(&retVal, 1, pieceZeroProc);
 
     if (retVal == 1)
-      {
+    {
       retVal = this->DivideCells(contr, output, pieceZeroProc);
-      }
     }
+  }
 
   if (contr != this->Controller)
-    {
+  {
     contr->Delete();
-    }
+  }
 
   return retVal;
 }
@@ -292,52 +292,52 @@ void vtkPChacoReader::SetUpEmptyGrid(vtkUnstructuredGrid *output)
   output->Initialize();
 
   if (this->GetGenerateVertexWeightArrays())
-    {
+  {
     for (i=0; i < this->NumberOfVertexWeights; i++)
-      {
+    {
       vtkDoubleArray *da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
       da->SetNumberOfComponents(1);
       da->SetName(this->GetVertexWeightArrayName(i+1));
       output->GetPointData()->AddArray(da);
       da->Delete();
-      }
-
-    this->NumberOfPointWeightArrays = this->NumberOfVertexWeights;
     }
 
+    this->NumberOfPointWeightArrays = this->NumberOfVertexWeights;
+  }
+
   if (this->GetGenerateEdgeWeightArrays())
-    {
+  {
     for (i=0; i < this->NumberOfEdgeWeights; i++)
-      {
+    {
       vtkDoubleArray *da = vtkDoubleArray::New();
       da->SetNumberOfTuples(0);
       da->SetNumberOfComponents(1);
       da->SetName(this->GetEdgeWeightArrayName(i+1));
       output->GetCellData()->AddArray(da);
       da->Delete();
-      }
-
-    this->NumberOfCellWeightArrays = this->NumberOfEdgeWeights;
     }
 
+    this->NumberOfCellWeightArrays = this->NumberOfEdgeWeights;
+  }
+
   if (this->GetGenerateGlobalElementIdArray())
-    {
+  {
     vtkIntArray *ia = vtkIntArray::New();
     ia->SetNumberOfTuples(0);
     ia->SetNumberOfComponents(1);
     ia->SetName(this->GetGlobalElementIdArrayName());
     output->GetCellData()->AddArray(ia);
-    }
+  }
 
   if (this->GetGenerateGlobalNodeIdArray())
-    {
+  {
     vtkIntArray *ia = vtkIntArray::New();
     ia->SetNumberOfTuples(0);
     ia->SetNumberOfComponents(1);
     ia->SetName(this->GetGlobalNodeIdArrayName());
     output->GetPointData()->AddArray(ia);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
@@ -353,7 +353,7 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
   vtkUnstructuredGrid *mygrid = NULL;
 
   if (source == myrank)
-    {
+  {
     vtkIdType ntotalcells = output->GetNumberOfCells();
     vtkIdType nshare = ntotalcells / nprocs;
     vtkIdType leftover = ntotalcells - (nprocs * nshare);
@@ -361,12 +361,12 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
     vtkIdType startId = 0;
 
     for (i=0; i < nprocs; i++)
-      {
+    {
       if (!retVal && (i != myrank))
-        {
+      {
         this->SendGrid(contr, i, NULL);  // we failed
         continue;
-        }
+      }
 
       vtkIdType ncells = ((i < leftover) ? nshare + 1 : nshare);
 
@@ -375,45 +375,45 @@ int vtkPChacoReader::DivideCells(vtkMultiProcessController *contr,
       vtkUnstructuredGrid *ug = this->SubGrid(output, startId, endId);
 
       if (i != myrank)
-        {
+      {
         retVal = this->SendGrid(contr, i, ug);
         ug->Delete();
-        }
-      else
-        {
-        mygrid = ug;
-        }
-      startId += ncells;
       }
+      else
+      {
+        mygrid = ug;
+      }
+      startId += ncells;
     }
+  }
   else
-    {
+  {
     mygrid = this->GetGrid(contr, source);
     if (mygrid == NULL)
-      {
+    {
       retVal = 0;
-      }
     }
+  }
 
   int vote = 0;
   contr->Reduce(&retVal, &vote, 1, vtkCommunicator::SUM_OP, 0);
   contr->Broadcast(&vote, 1, 0);
 
   if (vote < nprocs)
-    {
+  {
     retVal = 0;
-    }
+  }
 
   output->Initialize();
 
   if (retVal)
-    {
+  {
     output->ShallowCopy(mygrid);
-    }
+  }
   else if (mygrid)
-    {
+  {
     mygrid->Delete();
-    }
+  }
 
   return retVal;
 }
@@ -425,12 +425,12 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
   int bufsize=0, ack = 0;
 
   if (!grid)
-    {
+  {
     // sending notice of a failure
 
     contr->Send(&bufsize, 1, to, 0x11);
     return retVal;
-    }
+  }
 
   char *buf = this->MarshallDataSet(grid, bufsize);
 
@@ -439,13 +439,13 @@ int vtkPChacoReader::SendGrid(vtkMultiProcessController *contr,
   contr->Receive(&ack, 1, to, 0x12);
 
   if (!ack)
-    {
+  {
     retVal = 0;
-    }
+  }
   else
-    {
+  {
     contr->Send(buf, bufsize, to, 0x13);
-    }
+  }
 
   delete [] buf;
   return retVal;
@@ -460,25 +460,25 @@ vtkUnstructuredGrid *vtkPChacoReader::GetGrid(vtkMultiProcessController *contr,
   contr->Receive(&bufsize, 1, from, 0x11);
 
   if (bufsize == 0)
-    {
+  {
     // Node zero is reporting an error
     return NULL;
-    }
+  }
 
   char *buf = new char [bufsize];
 
   if (buf)
-    {
+  {
     contr->Send(&ack, 1, from, 0x12);
     contr->Receive(buf, bufsize, from, 0x13);
     grid = this->UnMarshallDataSet(buf, bufsize);
     delete [] buf;
-    }
+  }
   else
-    {
+  {
     ack = 0;
     contr->Send(&ack, 1, 0, 0x12);
-    }
+  }
   return grid;
 }
 
@@ -488,11 +488,11 @@ vtkUnstructuredGrid  *
   vtkUnstructuredGrid *tmp = vtkUnstructuredGrid::New();
 
   if (from > to)
-    {
+  {
     this->SetUpEmptyGrid(tmp);
-    }
+  }
   else
-    {
+  {
     tmp->ShallowCopy(ug);
 
     vtkExtractCells *ec = vtkExtractCells::New();
@@ -503,7 +503,7 @@ vtkUnstructuredGrid  *
     tmp->Initialize();
     tmp->ShallowCopy(ec->GetOutput());
     ec->Delete();
-    }
+  }
 
   return tmp;
 }
@@ -519,9 +519,9 @@ char *vtkPChacoReader::MarshallDataSet(vtkUnstructuredGrid *extractedGrid, int &
 
   // There is a problem with binary files with no data.
   if (copy->GetNumberOfCells() > 0)
-    {
+  {
     writer->SetFileTypeToBinary();
-    }
+  }
   writer->WriteToOutputStringOn();
   writer->SetInputData(copy);
 

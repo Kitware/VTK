@@ -194,9 +194,9 @@ void vtkUniformVariables::SetUniformit(const char *name,
 {
   int ivalues[4];
   for (int i=0; i<numberOfComponents; ++i)
-    {
+  {
     ivalues[i] = static_cast<int>(value[i]);
-    }
+  }
   this->SetUniformi(name, numberOfComponents, ivalues);
 }
 
@@ -208,9 +208,9 @@ void vtkUniformVariables::SetUniformft(const char *name,
 {
   float fvalues[4];
   for (int i=0; i<numberOfComponents; ++i)
-    {
+  {
     fvalues[i] = static_cast<float>(value[i]);
-    }
+  }
   this->SetUniformf(name, numberOfComponents, fvalues);
 }
 

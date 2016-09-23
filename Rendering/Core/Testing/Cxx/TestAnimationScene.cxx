@@ -33,20 +33,20 @@ class CueAnimator
 {
 public:
   CueAnimator()
-    {
+  {
       this->SphereSource=0;
       this->Mapper=0;
       this->Actor=0;
-    }
+  }
 
   ~CueAnimator()
-    {
+  {
       this->Cleanup();
-    }
+  }
 
   void StartCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
                 vtkRenderer *ren)
-    {
+  {
       cout << "*** IN StartCue " << endl;
       this->SphereSource=vtkSphereSource::New();
       this->SphereSource->SetRadius(0.5);
@@ -60,11 +60,11 @@ public:
       ren->AddActor(this->Actor);
       ren->ResetCamera();
       ren->Render();
-    }
+  }
 
   void Tick(vtkAnimationCue::AnimationCueInfo *info,
             vtkRenderer *ren)
-    {
+  {
       double newradius=0.1 +
         (static_cast<double>(info->AnimationTime -
                              info->StartTime)/
@@ -72,16 +72,16 @@ public:
       this->SphereSource->SetRadius(newradius);
       this->SphereSource->Update();
       ren->Render();
-    }
+  }
 
   void EndCue(vtkAnimationCue::AnimationCueInfo *vtkNotUsed(info),
               vtkRenderer *ren)
-    {
+  {
       (void)ren;
       // don't remove the actor for the regression image.
 //      ren->RemoveActor(this->Actor);
       this->Cleanup();
-    }
+  }
 
 protected:
   vtkSphereSource *SphereSource;
@@ -89,44 +89,44 @@ protected:
   vtkActor *Actor;
 
   void Cleanup()
-    {
+  {
       if(this->SphereSource!=0)
-        {
+      {
         this->SphereSource->Delete();
         this->SphereSource=0;
-        }
+      }
 
       if(this->Mapper!=0)
-        {
+      {
         this->Mapper->Delete();
         this->Mapper=0;
-        }
+      }
       if(this->Actor!=0)
-        {
+      {
         this->Actor->Delete();
         this->Actor=0;
-        }
-    }
+      }
+  }
 };
 
 class vtkAnimationCueObserver : public vtkCommand
 {
 public:
   static vtkAnimationCueObserver *New()
-    {
+  {
       return new vtkAnimationCueObserver;
-    }
+  }
 
   void Execute(vtkObject *vtkNotUsed(caller),
                        unsigned long event,
                        void *calldata) VTK_OVERRIDE
-    {
+  {
       if(this->Animator!=0 && this->Renderer!=0)
-        {
+      {
         vtkAnimationCue::AnimationCueInfo *info=
           static_cast<vtkAnimationCue::AnimationCueInfo *>(calldata);
         switch(event)
-          {
+        {
           case vtkCommand::StartAnimationCueEvent:
             this->Animator->StartCue(info,this->Renderer);
             break;
@@ -136,24 +136,24 @@ public:
           case vtkCommand::AnimationCueTickEvent:
             this->Animator->Tick(info,this->Renderer);
             break;
-          }
         }
+      }
       if(this->RenWin!=0)
-        {
+      {
         this->RenWin->Render();
-        }
-    }
+      }
+  }
 
   vtkRenderer *Renderer;
   vtkRenderWindow *RenWin;
   CueAnimator *Animator;
 protected:
   vtkAnimationCueObserver()
-    {
+  {
       this->Renderer=0;
       this->Animator=0;
       this->RenWin=0;
-    }
+  }
 };
 
 int TestAnimationScene(int argc, char *argv[])
@@ -171,15 +171,15 @@ int TestAnimationScene(int argc, char *argv[])
   // Create an Animation Scene
   vtkAnimationScene *scene=vtkAnimationScene::New();
   if(argc>=2 && strcmp(argv[1],"-real")==0)
-    {
+  {
     cout << "real-time mode" << endl;
     scene->SetModeToRealTime();
-    }
+  }
   else
-    {
+  {
     cout << "sequence mode" << endl;
     scene->SetModeToSequence();
-    }
+  }
   scene->SetLoop(0);
   scene->SetFrameRate(5);
   scene->SetStartTime(3);
@@ -208,9 +208,9 @@ int TestAnimationScene(int argc, char *argv[])
 
   int retVal=vtkRegressionTestImage(renWin);
   if(retVal==vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   ren1->Delete();

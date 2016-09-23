@@ -42,7 +42,7 @@ typedef enum {
   VTK_ONLYCAMERA = 0,
   VTK_ONLYWIDGET = 1,
   VTK_PARSEALL   = 2
-  } VTKParseType;
+} VTKParseType;
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLExporter : public vtkObject
 {

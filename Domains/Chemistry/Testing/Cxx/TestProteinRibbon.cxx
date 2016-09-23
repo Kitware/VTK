@@ -60,9 +60,9 @@ int TestProteinRibbon(int argc, char *argv[])
   iren->SetRenderWindow(win.GetPointer());
   vtkInteractorStyleSwitch* is = vtkInteractorStyleSwitch::SafeDownCast(iren->GetInteractorStyle());
   if (is)
-    {
+  {
     is->SetCurrentStyleToTrackballCamera();
-    }
+  }
   ren->AddActor(actor.GetPointer());
   ren->SetBackground(0,0,0);
   win->SetSize(450, 450);

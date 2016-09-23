@@ -93,10 +93,10 @@ public:
    */
   void SetBlockColor(unsigned int index, double color[3]);
   void SetBlockColor(unsigned int index, double r, double g, double b)
-    {
+  {
     double color[3] = {r, g, b};
     this->SetBlockColor(index, color);
-    }
+  }
   double* GetBlockColor(unsigned int index);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();
@@ -150,14 +150,14 @@ protected:
   int CurrentFlatIndex;
 
  class RenderBlockState
-    {
+ {
     public:
       std::stack<bool> Visibility;
       std::stack<double> Opacity;
       std::stack<vtkColor3d> AmbientColor;
       std::stack<vtkColor3d> DiffuseColor;
       std::stack<vtkColor3d> SpecularColor;
-    };
+ };
 
   RenderBlockState BlockState;
   void RenderBlock(vtkRenderer *renderer,

@@ -62,17 +62,17 @@ int TestPolyhedron3(int argc, char *argv[])
   vtkUnstructuredGrid* result = clip->GetOutput(0);
   if (!result) return 1;
   if (result->GetNumberOfCells() != 1)
-    {
+  {
     std::cout << "Expected 1 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
     return 1;
-    }
+  }
   vtkCell* clipped = result->GetCell(0);
   if (!clipped) return 1;
   if (clipped->GetNumberOfFaces() != 7)
-    {
+  {
     std::cout << "Expected 7 but found " << result->GetNumberOfCells() << " cells in intersected polyhedron" << std::endl;
     return 1;
-    }
+  }
 
   return 0; // success
 }

@@ -65,10 +65,10 @@ public:
    * is a buffer used only by the root rank.
    */
   class LogHeaderType
-    {
+  {
     public:
       template<typename T> LogHeaderType &operator<<(const T& s);
-    };
+  };
   //@}
 
   //@{
@@ -77,10 +77,10 @@ public:
    * buffer that all ranks write to.
    */
   class LogBodyType
-    {
+  {
     public:
       template<typename T> LogBodyType &operator<<(const T& s);
-    };
+  };
   //@}
 
   //@{
@@ -203,7 +203,7 @@ private:
    * A class responsible for delete'ing the global instance of the log.
    */
   class VTKRENDERINGPARALLELLIC_EXPORT vtkParallelTimerDestructor
-    {
+  {
     public:
       vtkParallelTimerDestructor() : Log(0) {}
       ~vtkParallelTimerDestructor();
@@ -212,7 +212,7 @@ private:
 
     private:
       vtkParallelTimer *Log;
-    };
+  };
 
 private:
   int GlobalLevel;
@@ -242,12 +242,12 @@ template<typename T>
 vtkParallelTimer &vtkParallelTimer::operator<<(const T& s)
 {
   if (this->WorldRank == this->WriterRank)
-    {
+  {
     this->HeaderBuffer << s;
     #if vtkParallelTimerDEBUG > 0
     std::cerr << s;
     #endif
-    }
+  }
   return *this;
 }
 
@@ -258,12 +258,12 @@ vtkParallelTimer::LogHeaderType &vtkParallelTimer::LogHeaderType::operator<<(con
   vtkParallelTimer *log = vtkParallelTimer::GetGlobalInstance();
 
   if (log->WorldRank == log->WriterRank)
-    {
+  {
     log->HeaderBuffer << s;
     #if vtkParallelTimerDEBUG > 0
     std::cerr << s;
     #endif
-    }
+  }
 
   return *this;
 }

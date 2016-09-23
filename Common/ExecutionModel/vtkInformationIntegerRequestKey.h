@@ -53,9 +53,9 @@ public:
    * the constructor directly from C++ instead.
    */
   static vtkInformationIntegerRequestKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationIntegerRequestKey(name, location);
-    }
+  }
 
   /**
    * Returns true if a value of type DataKey does not exist in dobjInfo

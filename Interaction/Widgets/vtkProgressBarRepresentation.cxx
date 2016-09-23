@@ -156,11 +156,11 @@ void vtkProgressBarRepresentation::BuildRepresentation()
   double progressBarColor[3] = {this->ProgressBarColor[0] * 255,
     this->ProgressBarColor[1] * 255, this->ProgressBarColor[2] * 255};
   for (int i = 0; i < 4; i++)
-    {
+  {
     this->ProgressBarData->SetTuple(i, backgroundColor);
     this->BackgroundData->SetTuple(i, backgroundColor);
     this->ProgressBarData->SetTuple(i+4, progressBarColor);
-    }
+  }
 
   // Note that the transform is updated by the superclass
   this->Superclass::BuildRepresentation();
@@ -177,9 +177,9 @@ void vtkProgressBarRepresentation::GetSize(double size[2])
 void vtkProgressBarRepresentation::GetActors2D(vtkPropCollection *pc)
 {
   if (this->DrawBackground)
-    {
+  {
     pc->AddItem(this->BackgroundActor);
-    }
+  }
   pc->AddItem(this->Actor);
   this->Superclass::GetActors2D(pc);
 }
@@ -188,9 +188,9 @@ void vtkProgressBarRepresentation::GetActors2D(vtkPropCollection *pc)
 void vtkProgressBarRepresentation::ReleaseGraphicsResources(vtkWindow *w)
 {
   if (this->DrawBackground)
-    {
+  {
     this->BackgroundActor->ReleaseGraphicsResources(w);
-    }
+  }
   this->Actor->ReleaseGraphicsResources(w);
   this->Superclass::ReleaseGraphicsResources(w);
 }
@@ -200,9 +200,9 @@ int vtkProgressBarRepresentation::RenderOverlay(vtkViewport *w)
 {
   int count = this->Superclass::RenderOverlay(w);
   if (this->DrawBackground)
-    {
+  {
     count += this->BackgroundActor->RenderOverlay(w);
-    }
+  }
   count += this->Actor->RenderOverlay(w);
   return count;
 }
@@ -212,9 +212,9 @@ int vtkProgressBarRepresentation::RenderOpaqueGeometry(vtkViewport *w)
 {
   int count = this->Superclass::RenderOpaqueGeometry(w);
   if (this->DrawBackground)
-    {
+  {
     count += this->BackgroundActor->RenderOpaqueGeometry(w);
-    }
+  }
   count += this->Actor->RenderOpaqueGeometry(w);
   return count;
 }
@@ -225,9 +225,9 @@ int vtkProgressBarRepresentation::RenderTranslucentPolygonalGeometry(
 {
   int count = this->Superclass::RenderTranslucentPolygonalGeometry(w);
   if (this->DrawBackground)
-    {
+  {
     count += this->BackgroundActor->RenderTranslucentPolygonalGeometry(w);
-    }
+  }
   count += this->Actor->RenderTranslucentPolygonalGeometry(w);
   return count;
 }
@@ -237,9 +237,9 @@ int vtkProgressBarRepresentation::HasTranslucentPolygonalGeometry()
 {
   int result = this->Superclass::HasTranslucentPolygonalGeometry();
   if (this->DrawBackground)
-    {
+  {
     result |= this->BackgroundActor->HasTranslucentPolygonalGeometry();
-    }
+  }
   result |= this->Actor->HasTranslucentPolygonalGeometry();
   return result;
 }
@@ -250,14 +250,14 @@ void vtkProgressBarRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if (this->Property)
-    {
+  {
     os << indent << "Property:\n";
     this->Property->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
   os << indent << "ProgressRate: " << this->ProgressRate << "\n";
   os << indent << "ProgressBarColor: " << this->ProgressBarColor[0] << " "
     << this->ProgressBarColor[1] << " " <<this->ProgressBarColor[2] << "\n";

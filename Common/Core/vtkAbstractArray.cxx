@@ -79,15 +79,15 @@ vtkAbstractArray::vtkAbstractArray()
 vtkAbstractArray::~vtkAbstractArray()
 {
   if ( this->ComponentNames )
-    {
+  {
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
-      {
+    {
       delete this->ComponentNames->at(i);
-      }
+    }
     this->ComponentNames->clear();
     delete this->ComponentNames;
     this->ComponentNames = NULL;
-    }
+  }
 
   this->SetName(NULL);
   this->SetInformation(NULL);
@@ -95,41 +95,41 @@ vtkAbstractArray::~vtkAbstractArray()
 
 //----------------------------------------------------------------------------
 void vtkAbstractArray::SetComponentName( vtkIdType component, const char *name )
-  {
+{
   if ( component < 0 || name == NULL )
-    {
+  {
     return;
-    }
+  }
   unsigned int index = static_cast<unsigned int>( component );
   if ( this->ComponentNames == NULL )
-    {
+  {
     //delayed allocate
     this->ComponentNames = new vtkAbstractArray::vtkInternalComponentNames();
-    }
+  }
 
   if ( index == this->ComponentNames->size() )
-    {
+  {
     //the array isn't large enough, so we will resize
     this->ComponentNames->push_back( new vtkStdString(name) );
     return;
-    }
+  }
   else if ( index > this->ComponentNames->size() )
-    {
+  {
     this->ComponentNames->resize( index+1, NULL );
-    }
+  }
 
   //replace an exisiting element
   vtkStdString *compName = this->ComponentNames->at(index);
   if ( !compName )
-    {
+  {
     compName = new vtkStdString(name);
     this->ComponentNames->at(index) = compName;
-    }
-  else
-    {
-    compName->assign( name );
-    }
   }
+  else
+  {
+    compName->assign( name );
+  }
+}
 
 //----------------------------------------------------------------------------
 const char* vtkAbstractArray::GetComponentName( vtkIdType component )
@@ -137,14 +137,14 @@ const char* vtkAbstractArray::GetComponentName( vtkIdType component )
   unsigned int index = static_cast<unsigned int>( component );
   if ( !this->ComponentNames || component < 0 ||
     index >= this->ComponentNames->size() )
-    {
+  {
     //make sure we have valid vector
     return NULL;
-    }
+  }
 
   vtkStdString *compName = this->ComponentNames->at( index );
   return ( compName ) ? compName->c_str() : NULL;
-  }
+}
 
 //----------------------------------------------------------------------------
 bool vtkAbstractArray::HasAComponentName()
@@ -156,31 +156,31 @@ bool vtkAbstractArray::HasAComponentName()
 int vtkAbstractArray::CopyComponentNames( vtkAbstractArray *da )
 {
   if (  da && da != this && da->ComponentNames )
-    {
+  {
     //clear the vector of the all data
     if ( !this->ComponentNames )
-      {
+    {
       this->ComponentNames = new vtkAbstractArray::vtkInternalComponentNames();
-      }
+    }
 
     //copy the passed in components
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i)
-      {
+    {
       delete this->ComponentNames->at(i);
-      }
+    }
     this->ComponentNames->clear();
     this->ComponentNames->reserve( da->ComponentNames->size() );
     const char *name;
     for ( unsigned int i = 0; i < da->ComponentNames->size(); ++i )
-      {
+    {
       name = da->GetComponentName(i);
       if ( name )
-        {
+      {
         this->SetComponentName(i, name);
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 
@@ -189,9 +189,9 @@ void vtkAbstractArray::SetNumberOfValues(vtkIdType numValues)
 {
   if (this->Resize(std::ceil(numValues /
                              static_cast<float>(this->NumberOfComponents))))
-    {
+  {
     this->MaxId = numValues - 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -202,32 +202,32 @@ void vtkAbstractArray::SetInformation(vtkInformation *args)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
       << "): setting Information to " << args );
   if (this->Information != args)
-    {
+  {
     vtkInformation* tempSGMacroVar = this->Information;
     this->Information = args;
     if (this->Information != NULL) { this->Information->Register(this); }
     if (tempSGMacroVar != NULL)
-      {
+    {
       tempSGMacroVar->UnRegister(this);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkAbstractArray::GetTuples(vtkIdList* tupleIds, vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkWarningMacro("Number of components for input and output do not match.");
     return;
-    }
+  }
   // Here we give the slowest implementation. Subclasses can override
   // to use the knowledge about the data.
   vtkIdType num = tupleIds->GetNumberOfIds();
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     aa->SetTuple(i, tupleIds->GetId(i), this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -235,18 +235,18 @@ void vtkAbstractArray::GetTuples(vtkIdType p1, vtkIdType p2,
   vtkAbstractArray* aa)
 {
   if (aa->GetNumberOfComponents() != this->GetNumberOfComponents())
-    {
+  {
     vtkWarningMacro("Number of components for input and output do not match.");
     return;
-    }
+  }
 
   // Here we give the slowest implementation. Subclasses can override
   // to use the knowledge about the data.
   vtkIdType num = p2 - p1 + 1;
   for (vtkIdType i = 0; i < num; i++)
-    {
+  {
     aa->SetTuple(i, (p1+i), this);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -259,18 +259,18 @@ bool vtkAbstractArray::HasStandardMemoryLayout()
 void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 {
   if (!da || da == this)
-    {
+  {
     return;
-    }
+  }
 
   if (da->HasInformation())
-    {
+  {
     this->CopyInformation(da->GetInformation(),/*deep=*/1);
-    }
+  }
   else
-    {
+  {
     this->SetInformation(NULL);
-    }
+  }
 
   this->SetName(da->Name);
 
@@ -281,10 +281,10 @@ void vtkAbstractArray::DeepCopy( vtkAbstractArray* da )
 void vtkAbstractArray::ExportToVoidPointer(void *dest)
 {
   if (this->MaxId > 0 && this->GetDataTypeSize() > 0)
-    {
+  {
     void *src = this->GetVoidPointer(0);
     memcpy(dest, src, ((this->MaxId + 1) * this->GetDataTypeSize()));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -297,13 +297,13 @@ int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
   // Remove any keys we own that are not to be copied here.
   // For now, remove per-component metadata.
   if (myInfo->Has(PER_COMPONENT()))
-    {
+  {
     myInfo->Remove(PER_COMPONENT());
-    }
+  }
   if (myInfo->Has(DISCRETE_VALUES()))
-    {
+  {
     myInfo->Remove(DISCRETE_VALUES());
-    }
+  }
 
   return 1;
 }
@@ -312,11 +312,11 @@ int vtkAbstractArray::CopyInformation(vtkInformation* infoFrom, int deep)
 vtkInformation* vtkAbstractArray::GetInformation()
 {
   if ( ! this->Information )
-    {
+  {
     vtkInformation* info = vtkInformation::New();
     this->SetInformation( info );
     info->FastDelete();
-    }
+  }
   return this->Information;
 }
 
@@ -330,7 +330,7 @@ int vtkAbstractArrayGetDataTypeSize(T*)
 int vtkAbstractArray::GetDataTypeSize(int type)
 {
   switch (type)
-    {
+  {
     vtkTemplateMacro(
       return vtkAbstractArrayGetDataTypeSize(static_cast<VTK_TT*>(0))
       );
@@ -342,7 +342,7 @@ int vtkAbstractArray::GetDataTypeSize(int type)
 
     default:
       vtkGenericWarningMacro(<<"Unsupported data type!");
-    }
+  }
 
   return 1;
 }
@@ -351,7 +351,7 @@ int vtkAbstractArray::GetDataTypeSize(int type)
 vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 {
   switch (dataType)
-    {
+  {
     case VTK_BIT:
       return vtkBitArray::New();
 
@@ -408,7 +408,7 @@ vtkAbstractArray* vtkAbstractArray::CreateArray(int dataType)
 
     default:
       break;
-    }
+  }
 
   vtkGenericWarningMacro("Unsupported data type: " << dataType
                          << "! Setting to VTK_DOUBLE");
@@ -427,10 +427,10 @@ vtkVariant vtkAbstractArray::GetVariantValue(vtkIdType valueIdx)
 {
   vtkVariant val;
   switch(this->GetDataType())
-    {
+  {
     vtkExtraExtendedTemplateMacro(val = vtkAbstractArrayGetVariantValue(
       static_cast<VTK_TT*>(this->GetVoidPointer(0)), valueIdx));
-    }
+  }
   return val;
 }
 
@@ -441,31 +441,31 @@ void vtkAbstractArray::PrintSelf(ostream& os, vtkIndent indent)
 
   const char* name = this->GetName();
   if (name)
-    {
+  {
     os << indent << "Name: " << name << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Name: (none)\n";
-    }
+  }
   os << indent << "Data type: " << this->GetDataTypeAsString() << "\n";
   os << indent << "Size: " << this->Size << "\n";
   os << indent << "MaxId: " << this->MaxId << "\n";
   os << indent << "NumberOfComponents: " << this->NumberOfComponents << endl;
   if ( this->ComponentNames )
-    {
+  {
     os << indent << "ComponentNames: " << endl;
     vtkIndent nextIndent = indent.GetNextIndent();
     for ( unsigned int i=0; i < this->ComponentNames->size(); ++i )
-      {
+    {
       os << nextIndent << i << " : " << this->ComponentNames->at(i) << endl;
-      }
     }
+  }
   os << indent << "Information: " << this->Information << endl;
   if ( this->Information )
-    {
+  {
     this->Information->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -474,9 +474,9 @@ void vtkAbstractArray::GetProminentComponentValues(
   double uncertainty, double minimumProminence)
 {
   if (!values || comp < -1 || comp >= this->NumberOfComponents)
-    {
+  {
     return;
-    }
+  }
 
   values->Initialize();
   values->SetNumberOfComponents(comp < 0 ? this->NumberOfComponents : 1);
@@ -487,32 +487,32 @@ void vtkAbstractArray::GetProminentComponentValues(
     (info->Has(DISCRETE_VALUE_SAMPLE_PARAMETERS()) ?
      info->Get(DISCRETE_VALUE_SAMPLE_PARAMETERS()) : 0) : 0;
   if (comp >= 0 && info)
-    {
+  {
     vtkInformationVector* infoVec = info->Get(PER_COMPONENT());
     if (!infoVec ||
       infoVec->GetNumberOfInformationObjects() < this->NumberOfComponents)
-      {
+    {
       infoVec = vtkInformationVector::New();
       infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
       info->Set(PER_COMPONENT(), infoVec);
       infoVec->FastDelete();
       justCreated = true;
-      }
-    info = infoVec->GetInformationObject(comp);
     }
+    info = infoVec->GetInformationObject(comp);
+  }
   if (info)
-    {
+  {
     // Any insane parameter values map to
     // deterministic, exhaustive enumeration of all
     // distinct values:
     if (uncertainty < 0. || uncertainty > 1.)
-      {
+    {
       uncertainty = 0.;
-      }
+    }
     if (minimumProminence < 0. || minimumProminence > 1.)
-      {
+    {
       minimumProminence = 0.;
-      }
+    }
     // Are parameter values requesting more certainty in reporting or
     // that less-prominent values be reported? If so, recompute.
     bool tighterParams = lastParams ?
@@ -526,26 +526,26 @@ void vtkAbstractArray::GetProminentComponentValues(
     if (
       !info->Has(DISCRETE_VALUES()) || tighterParams ||
       this->GetMTime() > info->GetMTime() || justCreated)
-      {
-      this->UpdateDiscreteValueSet(uncertainty, minimumProminence);
-      }
-    }
-  else
     {
-    return;
+      this->UpdateDiscreteValueSet(uncertainty, minimumProminence);
     }
+  }
+  else
+  {
+    return;
+  }
 
   vtkIdType len;
   const vtkVariant* vals = info->Get(DISCRETE_VALUES());
   if (vals != NULL)
-    {
+  {
     len = info->Length(DISCRETE_VALUES());
     values->SetNumberOfTuples(len / values->GetNumberOfComponents());
     for (vtkIdType i = 0; i < len; ++i)
-      {
+    {
       values->SetVariantValue(i, vals[i]);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -569,31 +569,31 @@ bool AccumulateSampleValues(
   // into a vtkVariantArray named tuple, which is added to the list of
   // unique vectors -- again assuming it is not already too long.
   for (vtkIdType i = begin; i < end && ndc; ++i)
-    {
+  {
     // First, attempt a per-component insert.
     for (int j = 0; j < nc; ++ j)
-      {
+    {
       if (uniques[j].size() > maxDiscreteValues)
         continue;
       T& val(array[i * nc + j]);
       tuple[j] = val;
       result = uniques[j].insert(val);
       if (result.second)
-        {
+      {
         if (uniques[j].size() == maxDiscreteValues + 1)
-          {
+        {
           -- ndc;
-          }
         }
       }
+    }
     // Now, as long as no component has exceeded maxDiscreteValues unique
     // values, it is worth seeing whether the tuple as a whole is unique:
     if ( nc > 1 && ndc == nc )
-      {
+    {
       tresult = tupleUniques.insert(tuple);
       (void)tresult; // nice to have when debugging.
-      }
     }
+  }
   return ndc == 0;
 }
 
@@ -610,13 +610,13 @@ void SampleProminentValues(
   // I. Accumulate samples for all components plus the tuple,
   //    either for the full array or a random subset.
   if (numberOfBlocks * blockSize > maxId / 2)
-    { // Awwww, just do the whole array already!
+  { // Awwww, just do the whole array already!
     AccumulateSampleValues(
       ptr, nc, 0, nt,
       typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
-    }
+  }
   else
-    { // Choose random blocks
+  { // Choose random blocks
     vtkNew<vtkMinimalStandardRandomSequence> seq;
     // test different blocks each time we're called:
     seq->SetSeed(static_cast<int>(seq->GetMTime()) ^ 0xdeadbeef);
@@ -626,15 +626,15 @@ void SampleProminentValues(
     std::set<vtkIdType> startTuples;
     // Sort the list of blocks we'll search to maintain cache coherence.
     for (int i = 0; i < numberOfBlocks; ++ i, seq->Next())
-      {
+    {
       vtkIdType startTuple =
         static_cast<vtkIdType>(seq->GetValue() * totalBlockCount) * blockSize;
       startTuples.insert(startTuple);
-      }
+    }
     // Now iterate over the blocks, accumulating unique values and tuples.
     std::set<vtkIdType>::iterator blkIt;
     for (blkIt = startTuples.begin(); blkIt != startTuples.end(); ++blkIt)
-      {
+    {
       vtkIdType startTuple = *blkIt;
       vtkIdType endTuple = startTuple + blockSize;
       endTuple = endTuple < nt ? endTuple : nt;
@@ -643,18 +643,18 @@ void SampleProminentValues(
         typeSpecificUniques, typeSpecificUniqueTuples, maxDiscreteValues);
       if (endEarly)
         break;
-      }
     }
+  }
 
   // II. Convert type-specific sets of unique values into non-type-specific
   //     vectors of vtkVariants for storage in array information.
 
   // Handle per-component uniques first
   for (int i = 0; i < nc; ++i)
-    {
+  {
     std::back_insert_iterator<std::vector<vtkVariant> > bi(uniques[i]);
     std::copy(typeSpecificUniques[i].begin(), typeSpecificUniques[i].end(), bi);
-    }
+  }
 
   // Now squash any tuple-wide uniques into
   // the final entry of the outer vector.
@@ -663,10 +663,10 @@ void SampleProminentValues(
     si = typeSpecificUniqueTuples.begin();
     si != typeSpecificUniqueTuples.end();
     ++si)
-    {
+  {
     std::back_insert_iterator<std::vector<vtkVariant> > bi(uniques[nc]);
     std::copy(si->begin(), si->end(), bi);
-    }
+  }
 }
 } // End anonymous namespace.
 
@@ -695,22 +695,22 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   double logfac = 1.;
   vtkIdType nt = this->GetNumberOfTuples();
   if (this->MaxId > 0)
-    {
+  {
     logfac = -log(uncertainty * minimumProminence) / minimumProminence;
     if (logfac < 0)
-      {
+    {
       logfac = -logfac;
-      }
     }
+  }
   vtkIdType numberOfSampleTuples;
   if (vtkMath::IsInf(logfac))
-    {
+  {
     numberOfSampleTuples = nt;
-    }
+  }
   else
-    {
+  {
     numberOfSampleTuples = static_cast<vtkIdType>(VTK_SAMPLE_FACTOR * logfac);
-    }
+  }
   /*
   // Theoretically, we should discard values or tuples that recur fewer
   // than minFreq times in our sample, but in practice this involves
@@ -723,15 +723,15 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
     (numberOfSampleTuples % blockSize ? 1 : 0);
   if (static_cast<unsigned int>(numberOfBlocks * blockSize) <
       2 * this->MaxDiscreteValues)
-    {
+  {
     numberOfBlocks =
       2 * this->MaxDiscreteValues / blockSize +
       (2 * this->MaxDiscreteValues % blockSize ? 1 : 0);
-    }
+  }
   // II. Sample the array.
   std::vector<std::vector<vtkVariant> > uniques(nc > 1 ? nc + 1 : nc);
   switch(this->GetDataType())
-    {
+  {
     vtkSuperExtraExtendedTemplateMacro(
       SampleProminentValues(
         uniques, this->MaxId, nc, nt, blockSize, numberOfBlocks,
@@ -740,50 +740,50 @@ void vtkAbstractArray::UpdateDiscreteValueSet(
   default:
     vtkErrorMacro("Array type " << this->GetClassName() << " not supported.");
     break;
-    }
+  }
 
   // III. Store the results in the array's vtkInformation.
   int c;
   vtkInformationVector* iv;
   for (c = 0; c < nc; ++c)
-    {
+  {
     if (uniques[c].size() <= this->MaxDiscreteValues)
-      {
+    {
       ++ numberOfComponentsWithProminentValues;
       iv = this->GetInformation()->Get(PER_COMPONENT());
       if (!iv)
-        {
+      {
         vtkNew<vtkInformationVector> infoVec;
         infoVec->SetNumberOfInformationObjects(this->NumberOfComponents);
         this->GetInformation()->Set(PER_COMPONENT(), infoVec.GetPointer());
         iv = this->GetInformation()->Get(PER_COMPONENT());
-        }
+      }
       iv->GetInformationObject(c)->Set(
         DISCRETE_VALUES(), &uniques[c][0],
         static_cast<int>(uniques[c].size()));
-      }
+    }
     else
-      {
+    {
       iv = this->GetInformation()->Get(PER_COMPONENT());
       if (iv)
-        {
+      {
         iv->GetInformationObject(c)->Remove(
           DISCRETE_VALUES());
-        }
       }
     }
+  }
   if (nc > 1 &&
     uniques[nc].size() <= this->MaxDiscreteValues * nc)
-    {
+  {
     ++ numberOfComponentsWithProminentValues;
     this->GetInformation()->Set(
       DISCRETE_VALUES(), &uniques[nc][0],
       static_cast<int>(uniques[nc].size()));
-    }
+  }
   else
-    { // Remove the key
+  { // Remove the key
     this->GetInformation()->Remove(DISCRETE_VALUES());
-    }
+  }
 
   // Always store the sample parameters; this lets us know not to
   // re-run the sampling algorithm.

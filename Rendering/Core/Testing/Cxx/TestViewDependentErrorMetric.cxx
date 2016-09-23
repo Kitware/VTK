@@ -76,26 +76,26 @@ public:
     { return new SwitchLabelsCallback; }
 
   void SetLabeledDataMapper(vtkLabeledDataMapper *aLabeledDataMapper)
-    {
+  {
       this->LabeledDataMapper=aLabeledDataMapper;
-    }
+  }
   void SetRenderWindow(vtkRenderWindow *aRenWin)
-    {
+  {
       this->RenWin=aRenWin;
-    }
+  }
 
   virtual void Execute(vtkObject *vtkNotUsed(caller), unsigned long, void*)
-    {
+  {
       if(this->LabeledDataMapper->GetLabelMode()==VTK_LABEL_SCALARS)
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_IDS);
-        }
+      }
       else
-        {
+      {
         this->LabeledDataMapper->SetLabelMode(VTK_LABEL_SCALARS);
-        }
+      }
       this->RenWin->Render();
-    }
+  }
 protected:
   vtkLabeledDataMapper *LabeledDataMapper;
   vtkRenderWindow *RenWin;
@@ -198,16 +198,16 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
   int found=0;
   vtkGenericAttribute *attribute=0;
   while(i<n&&!found)
-    {
+  {
     attribute=ds->GetAttributes()->GetAttribute(i);
     found=(attribute->GetCentering()==vtkPointCentered
            && attribute->GetNumberOfComponents()==1);
     ++i;
-    }
+  }
   if(found)
-    {
+  {
     mapper->SetScalarRange( attribute->GetRange(0));
-    }
+  }
   mapper->ScalarVisibilityOff();
 
   vtkActor *actor = vtkActor::New();
@@ -291,14 +291,14 @@ int TestViewDependentErrorMetric(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     SwitchLabelsCallback *switchLabels=SwitchLabelsCallback::New();
     switchLabels->SetRenderWindow(renWin);
     switchLabels->SetLabeledDataMapper(labeledDataMapper);
     iren->AddObserver(vtkCommand::UserEvent,switchLabels);
     switchLabels->Delete();
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer2->Delete();

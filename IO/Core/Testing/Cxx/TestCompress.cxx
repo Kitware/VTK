@@ -34,9 +34,9 @@ int TestCompress(int argc, char *argv[])
 
   vtkZLibDataCompressor* compressor = vtkZLibDataCompressor::New();
   for ( cc = 0; cc < start_size; cc ++ )
-    {
+  {
     buffer[cc] = static_cast<unsigned char>(cc % sizeof(unsigned char));
-    }
+  }
   buffer[0] = 'v';
   buffer[1] = 't';
   buffer[2] = 'k';
@@ -45,17 +45,17 @@ int TestCompress(int argc, char *argv[])
   cbuffer = new unsigned char[ nlen ];
   rlen = compressor->Compress(buffer, start_size, cbuffer, nlen);
   if ( rlen > 0 )
-    {
+  {
     ucbuffer = new unsigned char[ start_size ];
     rlen = compressor->Uncompress(cbuffer, rlen, ucbuffer, start_size);
     if ( rlen == start_size )
-      {
+    {
       cout << argv[0] << " Works " << argc << endl;
       cout << ucbuffer[0] << ucbuffer[1] << ucbuffer[2] << endl;
       res = 0;
-      }
-    delete [] ucbuffer;
     }
+    delete [] ucbuffer;
+  }
   delete [] cbuffer;
 
   compressor->Delete();

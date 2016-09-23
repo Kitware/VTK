@@ -43,9 +43,9 @@ public:
     this->AdvanceIndex();
     //advanc the level either when we are at the right level of out of levels
     while(this->Level < this->NumLevels && static_cast<unsigned int>(this->Index)>= this->GetNumberOfBlocks(this->Level+1))
-      {
+    {
       this->Level++;
-      }
+    }
   }
   virtual bool IsDone() {   return this->Level>=this->NumLevels;}
   unsigned int GetLevel() { return this->Level;  }
@@ -174,27 +174,27 @@ void vtkUniformGridAMRDataIterator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkUniformGridAMRDataIterator::GoToFirstItem()
 {
   if(!this->DataSet)
-    {
+  {
     return;
-    }
+  }
   this->AMR = vtkUniformGridAMR::SafeDownCast(this->DataSet);
   this->AMRInfo = this->AMR->GetAMRInfo();
   this->AMRData = this->AMR->GetAMRData();
 
   if(this->AMRInfo)
-    {
+  {
     if(this->GetSkipEmptyNodes())
-      {
+    {
       vtkSmartPointer<AMRLoadedDataIndexIterator> itr = vtkSmartPointer<AMRLoadedDataIndexIterator>::New();
       itr->Initialize(&this->AMRInfo->GetNumBlocks(), &this->AMR->GetAMRData()->GetAllBlocks());
       this->Iter = itr;
-      }
+    }
     else
-      {
+    {
       this->Iter = vtkSmartPointer<AMRIndexIterator>::New();
       this->Iter->Initialize(&this->AMRInfo->GetNumBlocks());
-      }
     }
+  }
 }
 
 

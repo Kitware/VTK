@@ -130,57 +130,57 @@ public:
   vtkSetMacro(TriangleQualityMeasure,int);
   vtkGetMacro(TriangleQualityMeasure,int);
   void SetTriangleQualityMeasureToArea()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_AREA );
-    }
+  }
   void SetTriangleQualityMeasureToEdgeRatio()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-    }
+  }
   void SetTriangleQualityMeasureToAspectRatio()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
-    }
+  }
   void SetTriangleQualityMeasureToRadiusRatio()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
-    }
+  }
   void SetTriangleQualityMeasureToAspectFrobenius()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_ASPECT_FROBENIUS );
-    }
+  }
   void SetTriangleQualityMeasureToMinAngle()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-    }
+  }
   void SetTriangleQualityMeasureToMaxAngle()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_MAX_ANGLE );
-    }
+  }
   void SetTriangleQualityMeasureToCondition()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_CONDITION );
-    }
+  }
   void SetTriangleQualityMeasureToScaledJacobian()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
-    }
+  }
   void SetTriangleQualityMeasureToRelativeSizeSquared()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
-    }
+  }
   void SetTriangleQualityMeasureToShape()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_SHAPE );
-    }
+  }
   void SetTriangleQualityMeasureToShapeAndSize()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
-    }
+  }
   void SetTriangleQualityMeasureToDistortion()
-    {
+  {
     this->SetTriangleQualityMeasure( VTK_QUALITY_DISTORTION );
-    }
+  }
   //@}
 
   //@{
@@ -202,97 +202,97 @@ public:
   vtkSetMacro(QuadQualityMeasure,int);
   vtkGetMacro(QuadQualityMeasure,int);
   void SetQuadQualityMeasureToEdgeRatio()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-    }
+  }
   void SetQuadQualityMeasureToAspectRatio()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
-    }
+  }
   void SetQuadQualityMeasureToRadiusRatio()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
-    }
+  }
   void SetQuadQualityMeasureToMedAspectFrobenius()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_MED_ASPECT_FROBENIUS );
-    }
+  }
   void SetQuadQualityMeasureToMaxAspectFrobenius()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ASPECT_FROBENIUS );
-    }
+  }
   void SetQuadQualityMeasureToMaxEdgeRatios()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
-    }
+  }
   void SetQuadQualityMeasureToSkew()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SKEW );
-    }
+  }
   void SetQuadQualityMeasureToTaper()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_TAPER );
-    }
+  }
   void SetQuadQualityMeasureToWarpage()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_WARPAGE );
-    }
+  }
   void SetQuadQualityMeasureToArea()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_AREA );
-    }
+  }
   void SetQuadQualityMeasureToStretch()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_STRETCH );
-    }
+  }
   void SetQuadQualityMeasureToMinAngle()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-    }
+  }
   void SetQuadQualityMeasureToMaxAngle()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_MAX_ANGLE );
-    }
+  }
   void SetQuadQualityMeasureToOddy()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_ODDY );
-    }
+  }
   void SetQuadQualityMeasureToCondition()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_CONDITION );
-    }
+  }
   void SetQuadQualityMeasureToJacobian()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_JACOBIAN );
-    }
+  }
   void SetQuadQualityMeasureToScaledJacobian()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
-    }
+  }
   void SetQuadQualityMeasureToShear()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SHEAR );
-    }
+  }
   void SetQuadQualityMeasureToShape()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SHAPE );
-    }
+  }
   void SetQuadQualityMeasureToRelativeSizeSquared()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
-    }
+  }
   void SetQuadQualityMeasureToShapeAndSize()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
-    }
+  }
   void SetQuadQualityMeasureToShearAndSize()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_SHEAR_AND_SIZE );
-    }
+  }
   void SetQuadQualityMeasureToDistortion()
-    {
+  {
     this->SetQuadQualityMeasure( VTK_QUALITY_DISTORTION );
-    }
+  }
   //@}
 
   //@{
@@ -309,69 +309,69 @@ public:
   vtkSetMacro(TetQualityMeasure,int);
   vtkGetMacro(TetQualityMeasure,int);
   void SetTetQualityMeasureToEdgeRatio()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-    }
+  }
   void SetTetQualityMeasureToAspectRatio()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_RATIO );
-    }
+  }
   void SetTetQualityMeasureToRadiusRatio()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_RADIUS_RATIO );
-    }
+  }
   void SetTetQualityMeasureToAspectFrobenius()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_FROBENIUS );
-    }
+  }
   void SetTetQualityMeasureToMinAngle()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_MIN_ANGLE );
-    }
+  }
   void SetTetQualityMeasureToCollapseRatio()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_COLLAPSE_RATIO );
-    }
+  }
   void SetTetQualityMeasureToAspectBeta()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_BETA );
-    }
+  }
   void SetTetQualityMeasureToAspectGamma()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_ASPECT_GAMMA );
-    }
+  }
   void SetTetQualityMeasureToVolume()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_VOLUME );
-    }
+  }
   void SetTetQualityMeasureToCondition()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_CONDITION );
-    }
+  }
   void SetTetQualityMeasureToJacobian()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_JACOBIAN );
-    }
+  }
   void SetTetQualityMeasureToScaledJacobian()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
-    }
+  }
   void SetTetQualityMeasureToShape()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_SHAPE );
-    }
+  }
   void SetTetQualityMeasureToRelativeSizeSquared()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
-    }
+  }
   void SetTetQualityMeasureToShapeAndSize()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
-    }
+  }
   void SetTetQualityMeasureToDistortion()
-    {
+  {
     this->SetTetQualityMeasure( VTK_QUALITY_DISTORTION );
-    }
+  }
   //@}
 
   //@{
@@ -389,85 +389,85 @@ public:
   vtkSetMacro(HexQualityMeasure,int);
   vtkGetMacro(HexQualityMeasure,int);
   void SetHexQualityMeasureToEdgeRatio()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_EDGE_RATIO );
-    }
+  }
   void SetHexQualityMeasureToMedAspectFrobenius()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_MED_ASPECT_FROBENIUS );
-    }
+  }
   void SetHexQualityMeasureToMaxAspectFrobenius()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_MAX_ASPECT_FROBENIUS );
-    }
+  }
   void SetHexQualityMeasureToMaxEdgeRatios()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_MAX_EDGE_RATIO );
-    }
+  }
   void SetHexQualityMeasureToSkew()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SKEW );
-    }
+  }
   void SetHexQualityMeasureToTaper()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_TAPER );
-    }
+  }
   void SetHexQualityMeasureToVolume()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_VOLUME );
-    }
+  }
   void SetHexQualityMeasureToStretch()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_STRETCH );
-    }
+  }
   void SetHexQualityMeasureToDiagonal()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_DIAGONAL );
-    }
+  }
   void SetHexQualityMeasureToDimension()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_DIMENSION );
-    }
+  }
   void SetHexQualityMeasureToOddy()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_ODDY );
-    }
+  }
   void SetHexQualityMeasureToCondition()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_CONDITION );
-    }
+  }
   void SetHexQualityMeasureToJacobian()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_JACOBIAN );
-    }
+  }
   void SetHexQualityMeasureToScaledJacobian()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SCALED_JACOBIAN );
-    }
+  }
   void SetHexQualityMeasureToShear()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SHEAR );
-    }
+  }
   void SetHexQualityMeasureToShape()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SHAPE );
-    }
+  }
   void SetHexQualityMeasureToRelativeSizeSquared()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_RELATIVE_SIZE_SQUARED );
-    }
+  }
   void SetHexQualityMeasureToShapeAndSize()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SHAPE_AND_SIZE );
-    }
+  }
   void SetHexQualityMeasureToShearAndSize()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_SHEAR_AND_SIZE );
-    }
+  }
   void SetHexQualityMeasureToDistortion()
-    {
+  {
     this->SetHexQualityMeasure( VTK_QUALITY_DISTORTION );
-    }
+  }
   //@}
 
   /**
@@ -860,22 +860,22 @@ public:
    * meshes with non-tetrahedral cells.
    */
   virtual void SetVolume( int cv )
-    {
+  {
     if ( ! ((cv != 0) ^ (this->Volume != 0)) )
-      {
+    {
       return;
-      }
+    }
     this->Modified();
     this->Volume = cv;
     if ( this->Volume )
-      {
-      this->CompatibilityModeOn();
-      }
-    }
-  int GetVolume()
     {
-    return this->Volume;
+      this->CompatibilityModeOn();
     }
+  }
+  int GetVolume()
+  {
+    return this->Volume;
+  }
   vtkBooleanMacro(Volume,int);
   //@}
 
@@ -908,19 +908,19 @@ public:
    * Certain Insanity.
    */
   virtual void SetCompatibilityMode( int cm )
-    {
+  {
     if ( !((cm != 0) ^ (this->CompatibilityMode != 0)) )
-      {
+    {
       return;
-      }
+    }
     this->CompatibilityMode = cm;
     this->Modified();
     if ( this->CompatibilityMode )
-      {
+    {
       this->Volume = 1;
       this->TetQualityMeasure = VTK_QUALITY_RADIUS_RATIO;
-      }
     }
+  }
   vtkGetMacro(CompatibilityMode,int);
   vtkBooleanMacro(CompatibilityMode,int);
   //@}

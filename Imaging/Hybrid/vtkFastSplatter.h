@@ -167,10 +167,10 @@ void vtkFastSplatterClamp(T *array, vtkIdType arraySize,
                           T minValue, T maxValue)
 {
   for (vtkIdType i = 0; i < arraySize; i++)
-    {
+  {
     if (array[i] < minValue) array[i] = minValue;
     if (array[i] > maxValue) array[i] = maxValue;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -186,49 +186,49 @@ void vtkFastSplatterScale(T *array, int numComponents, vtkIdType numTuples,
   *dataMaxValue = 0;
   vtkIdType t;
   for (int c = 0; c < numComponents; c++)
-    {
+  {
     // Find the min and max values in the array.
     a = array+c;
     min = max = *a;
     a += numComponents;
     for (t = 1; t < numTuples; t++, a += numComponents)
-      {
+    {
       if (min > *a) min = *a;
       if (max < *a) max = *a;
-      }
+    }
 
     // Bias everything so that 0 is really the minimum.
     if (min != 0)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
+      {
         *a -= min;
-        }
       }
+    }
 
     // Scale the values.
     if (max != min)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
+      {
         *a = ((maxValue-minValue)*(*a))/(max-min);
-        }
       }
+    }
 
     // Bias everything again so that it lies in the correct range.
     if (minValue != 0)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
-        *a += minValue;
-        }
-      }
-    if (c == 0)
       {
-      *dataMinValue = min;
-      *dataMaxValue = max;
+        *a += minValue;
       }
     }
+    if (c == 0)
+    {
+      *dataMinValue = min;
+      *dataMaxValue = max;
+    }
+  }
 }
 
 
@@ -244,34 +244,34 @@ void vtkFastSplatterFrozenScale(T *array,
 
   vtkIdType t;
   for (int c = 0; c < numComponents; c++)
-    {
+  {
     // Bias everything so that 0 is really the minimum.
     if (min != 0)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
+      {
         *a -= static_cast<T>(min);
-        }
       }
+    }
 
     // Scale the values.
     if (max != min)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
+      {
         *a = static_cast<T>(((maxValue-minValue)*(*a))/(max-min));
-        }
       }
+    }
 
     // Bias everything again so that it lies in the correct range.
     if (minValue != 0)
-      {
+    {
       for (t = 0, a = array+c; t < numTuples; t++, a += numComponents)
-        {
+      {
         *a += minValue;
-        }
       }
     }
+  }
 }
 
 #endif //vtkFastSplatter_h

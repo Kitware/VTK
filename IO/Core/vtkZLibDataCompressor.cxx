@@ -51,10 +51,10 @@ vtkZLibDataCompressor::CompressBuffer(unsigned char const* uncompressedData,
 
   // Call zlib's compress function.
   if(compress2(cd, &cs, ud, us, this->CompressionLevel) != Z_OK)
-    {
+  {
     vtkErrorMacro("Zlib error while compressing data.");
     return 0;
-    }
+  }
 
   return static_cast<size_t>(cs);
 }
@@ -73,18 +73,18 @@ vtkZLibDataCompressor::UncompressBuffer(unsigned char const* compressedData,
 
   // Call zlib's uncompress function.
   if(uncompress(ud, &us, cd, cs) != Z_OK)
-    {
+  {
     vtkErrorMacro("Zlib error while uncompressing data.");
     return 0;
-    }
+  }
 
   // Make sure the output size matched that expected.
   if(us != static_cast<uLongf>(uncompressedSize))
-    {
+  {
     vtkErrorMacro("Decompression produced incorrect size.\n"
                   "Expected " << uncompressedSize << " and got " << us);
     return 0;
-    }
+  }
 
   return static_cast<size_t>(us);
 }

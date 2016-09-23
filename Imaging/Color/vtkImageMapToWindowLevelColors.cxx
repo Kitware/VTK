@@ -55,7 +55,7 @@ int vtkImageMapToWindowLevelColors::RequestData(
   if (this->LookupTable == NULL &&
       (inData->GetScalarType() == VTK_UNSIGNED_CHAR &&
        this->Window == 255 && this->Level == 127.5))
-    {
+  {
     vtkDebugMacro("ExecuteData: LookupTable not set, "\
                   "Window / Level at default, "\
                   "passing input to output.");
@@ -63,22 +63,22 @@ int vtkImageMapToWindowLevelColors::RequestData(
     outData->SetExtent(inData->GetExtent());
     outData->GetPointData()->PassData(inData->GetPointData());
     this->DataWasPassed = 1;
-    }
+  }
   else
     // normal behaviour - skip up a level since we don't want to
     // call the superclasses ExecuteData - it would pass the data if there
     // is no lookup table even if there is a window / level - wrong
     // behavior.
-    {
+  {
     if (this->DataWasPassed)
-      {
+    {
       outData->GetPointData()->SetScalars(NULL);
       this->DataWasPassed = 0;
-      }
+    }
 
     return this->vtkThreadedImageAlgorithm::RequestData(request, inputVector,
                                                         outputVector);
-    }
+  }
 
   return 1;
 }
@@ -96,10 +96,10 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
     vtkDataObject::GetActiveFieldInformation(inInfo,
     vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
   if (!inScalarInfo)
-    {
+  {
     vtkErrorMacro("Missing scalar field on input information!");
     return 0;
-    }
+  }
 
   // If LookupTable is null and window / level produces no change,
   // then the data will be passed
@@ -107,25 +107,25 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
        (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) ==
         VTK_UNSIGNED_CHAR &&
         this->Window == 255 && this->Level == 127.5) )
-    {
+  {
     if (inScalarInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE()) !=
         VTK_UNSIGNED_CHAR)
-      {
+    {
       vtkErrorMacro("ExecuteInformation: No LookupTable was set and input data is not VTK_UNSIGNED_CHAR!");
-      }
+    }
     else
-      {
+    {
       // no lookup table, pass the input if it was VTK_UNSIGNED_CHAR
       vtkDataObject::SetPointDataActiveScalarInfo
         (outInfo, VTK_UNSIGNED_CHAR,
          inScalarInfo->Get(vtkDataObject::FIELD_NUMBER_OF_COMPONENTS()));
-      }
     }
+  }
   else  // the lookup table was set or window / level produces a change
-    {
+  {
     int numComponents = 4;
     switch (this->OutputFormat)
-      {
+    {
       case VTK_RGBA:
         numComponents = 4;
         break;
@@ -141,9 +141,9 @@ int vtkImageMapToWindowLevelColors::RequestInformation (
       default:
         vtkErrorMacro("ExecuteInformation: Unrecognized color format.");
         break;
-      }
-    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
     }
+    vtkDataObject::SetPointDataActiveScalarInfo(outInfo, VTK_UNSIGNED_CHAR, numComponents);
+  }
 
   return 1;
 }
@@ -169,86 +169,86 @@ void vtkImageMapToWindowLevelClamps ( vtkImageData *data, double w,
 
   // Set the correct lower value
   if ( f_lower <= range[1])
-    {
+  {
     if (f_lower >= range[0])
-      {
+    {
       lower = static_cast<T>(f_lower);
       adjustedLower = f_lower;
-      }
+    }
     else
-      {
+    {
       lower = static_cast<T>(range[0]);
       adjustedLower = range[0];
-      }
     }
+  }
   else
-    {
+  {
     lower = static_cast<T>(range[1]);
     adjustedLower = range[1];
-    }
+  }
 
   // Set the correct upper value
   if ( f_upper >= range[0])
-    {
+  {
     if (f_upper <= range[1])
-      {
+    {
       upper = static_cast<T>(f_upper);
       adjustedUpper = f_upper;
-      }
+    }
     else
-      {
+    {
       upper = static_cast<T>(range[1]);
       adjustedUpper = range[1];
-      }
     }
+  }
   else
-    {
+  {
     upper = static_cast<T>(range[0]);
     adjustedUpper = range [0];
-    }
+  }
 
   // now compute the lower and upper values
   if (w > 0.0)
-    {
+  {
     f_lower_val = 255.0*(adjustedLower - f_lower)/w;
     f_upper_val = 255.0*(adjustedUpper - f_lower)/w;
-    }
+  }
   else if (w < 0.0)
-    {
+  {
     f_lower_val = 255.0 + 255.0*(adjustedLower - f_lower)/w;
     f_upper_val = 255.0 + 255.0*(adjustedUpper - f_lower)/w;
-    }
+  }
   else
-    {
+  {
     f_lower_val = 0.0;
     f_upper_val = 255.0;
-    }
+  }
 
   if (f_upper_val > 255)
-    {
+  {
     upper_val = 255;
-    }
+  }
   else if (f_upper_val < 0)
-    {
+  {
     upper_val = 0;
-    }
+  }
   else
-    {
+  {
     upper_val = static_cast<unsigned char>(f_upper_val);
-    }
+  }
 
   if (f_lower_val > 255)
-    {
+  {
     lower_val = 255;
-    }
+  }
   else if (f_lower_val < 0)
-    {
+  {
     lower_val = 0;
-    }
+  }
   else
-    {
+  {
     lower_val = static_cast<unsigned char>(f_lower_val);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -307,23 +307,23 @@ void vtkImageMapToWindowLevelColorsExecute(
   outPtr1 = outPtr;
   inPtr1 = inPtr;
   for (idxZ = 0; idxZ < extZ; idxZ++)
-    {
+  {
     for (idxY = 0; !self->AbortExecute && idxY < extY; idxY++)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
         }
+        count++;
+      }
 
       iptr = inPtr1;
       optr = outPtr1;
 
       if ( lookupTable )
-        {
+      {
         lookupTable->MapScalarsThroughTable2(
           inPtr1,
           static_cast<unsigned char *>(outPtr1),
@@ -331,22 +331,22 @@ void vtkImageMapToWindowLevelColorsExecute(
           outputFormat);
 
         for (idxX = 0; idxX < extX; idxX++)
-          {
+        {
           if (*iptr <= lower)
-            {
+          {
             ushort_val = lower_val;
-            }
+          }
           else if (*iptr >= upper)
-            {
+          {
             ushort_val = upper_val;
-            }
+          }
           else
-            {
+          {
             ushort_val = static_cast<unsigned char>((*iptr + shift)*scale);
-            }
+          }
           *optr = static_cast<unsigned char>((*optr * ushort_val) >> 8);
           switch (outputFormat)
-            {
+          {
             case VTK_RGBA:
               *(optr+1) = static_cast<unsigned char>(
                 (*(optr+1) * ushort_val) >> 8);
@@ -363,30 +363,30 @@ void vtkImageMapToWindowLevelColorsExecute(
             case VTK_LUMINANCE_ALPHA:
               *(optr+1) = 255;
               break;
-            }
+          }
           iptr += numberOfComponents;
           optr += numberOfOutputComponents;
-          }
         }
+      }
       else
-        {
+      {
         for (idxX = 0; idxX < extX; idxX++)
-          {
+        {
           if (*iptr <= lower)
-            {
+          {
             result_val = lower_val;
-            }
+          }
           else if (*iptr >= upper)
-            {
+          {
             result_val = upper_val;
-            }
+          }
           else
-            {
+          {
             result_val = static_cast<unsigned char>((*iptr + shift)*scale);
-            }
+          }
           *optr = result_val;
           switch (outputFormat)
-            {
+          {
             case VTK_RGBA:
               *(optr+1) = result_val;
               *(optr+2) = result_val;
@@ -399,17 +399,17 @@ void vtkImageMapToWindowLevelColorsExecute(
             case VTK_LUMINANCE_ALPHA:
               *(optr+1) = 255;
               break;
-            }
+          }
           iptr += numberOfComponents;
           optr += numberOfOutputComponents;
-          }
         }
+      }
       outPtr1 += outIncY + extX*numberOfOutputComponents;
       inPtr1 += inIncY + rowLength;
-      }
+    }
     outPtr1 += outIncZ;
     inPtr1 += inIncZ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -428,7 +428,7 @@ void vtkImageMapToWindowLevelColors::ThreadedRequestData(
   void *outPtr = outData[0]->GetScalarPointerForExtent(outExt);
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageMapToWindowLevelColorsExecute(this,
                                             inData[0][0],
@@ -440,7 +440,7 @@ void vtkImageMapToWindowLevelColors::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 void vtkImageMapToWindowLevelColors::PrintSelf(ostream& os, vtkIndent indent)

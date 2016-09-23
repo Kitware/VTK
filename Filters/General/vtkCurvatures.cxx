@@ -44,10 +44,10 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
 
     // Empty array check
     if (mesh->GetNumberOfPolys()==0 || mesh->GetNumberOfPoints()==0)
-      {
+    {
       vtkErrorMacro("No points/cells to operate on");
       return;
-      }
+    }
 
     int numPts = mesh->GetNumberOfPoints();
 
@@ -92,22 +92,22 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
     // init, preallocate the mean curvature
     int* num_neighb = new int[numPts];
     for (v = 0; v < numPts; v++)
-      {
+    {
       meanCurvatureData[v] = 0.0;
       num_neighb[v] = 0;
-      }
+    }
 
     //     main loop
     vtkDebugMacro(<<"Main loop: loop over facets such that id > id of neighb");
     vtkDebugMacro(<<"so that every edge comes only once");
     //
     for (f = 0; f < F; f++)
-      {
+    {
       mesh->GetCellPoints(f,vertices);
       nv = vertices->GetNumberOfIds();
 
       for (v = 0; v < nv; v++)
-        {
+      {
         // get neighbour
         v_l = vertices->GetId(v);
         v_r = vertices->GetId((v+1) % nv);
@@ -118,7 +118,7 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
         // AND meanCurvature has not been computed yet!
         // (ensured by n > f)
         if (neighbours->GetNumberOfIds() == 1 && (n = neighbours->GetId(0)) > f)
-          {
+        {
           // find 3 corners of f: in order!
           mesh->GetPoint(v_l,ore);
           mesh->GetPoint(v_r,end);
@@ -145,47 +145,47 @@ void vtkCurvatures::GetMeanCurvature(vtkPolyData *mesh)
           sn = double(vtkMath::Dot(t,e));
           // signed angle in [-pi,pi]
           if (sn!=0.0 || cs!=0.0)
-            {
+          {
             angle = atan2(sn,cs);
             Hf    = length*angle;
-            }
+          }
           else
-            {
+          {
             Hf = 0.0;
-            }
+          }
           // add weighted Hf to scalar at v_l and v_r
           if (Af!=0.0)
-            {
+          {
             (Hf /= Af) *=3.0;
-            }
+          }
           meanCurvatureData[v_l] += Hf;
           meanCurvatureData[v_r] += Hf;
           num_neighb[v_l] += 1;
           num_neighb[v_r] += 1;
-          }
         }
       }
+    }
 
     // put curvature in vtkArray
     for (v = 0; v < numPts; v++)
-      {
+    {
         if (num_neighb[v]>0)
-          {
+        {
           Hf = 0.5*meanCurvatureData[v]/num_neighb[v];
           if (this->InvertMeanCurvature)
-            {
-            meanCurvatureData[v] = -Hf;
-            }
-          else
-            {
-            meanCurvatureData[v] = Hf;
-            }
-          }
-        else
           {
-          meanCurvatureData[v] = 0.0;
+            meanCurvatureData[v] = -Hf;
           }
-      }
+          else
+          {
+            meanCurvatureData[v] = Hf;
+          }
+        }
+        else
+        {
+          meanCurvatureData[v] = 0.0;
+        }
+    }
 
     mesh->GetPointData()->AddArray(meanCurvature);
     mesh->GetPointData()->SetActiveScalars("Mean_Curvature");
@@ -211,10 +211,10 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
 
     // Empty array check
     if (output->GetNumberOfPolys()==0 || output->GetNumberOfPoints()==0)
-      {
+    {
       vtkErrorMacro("No points/cells to operate on");
       return;
-      }
+    }
 
     vtkTriangle* facet = vtkTriangle::New();
 
@@ -225,10 +225,10 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     double* dA = new double[Nv];
     double pi2 = 2.0*vtkMath::Pi();
     for (int k = 0; k < Nv; k++)
-      {
+    {
       K[k]  = pi2;
       dA[k] = 0.0;
-      }
+    }
 
     double v0[3], v1[3], v2[3], e0[3], e1[3], e2[3];
 
@@ -237,7 +237,7 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     vtkIdType f, *vert=0;
     facets->InitTraversal();
     while (facets->GetNextCell(f,vert))
-      {
+    {
       output->GetPoint(vert[0],v0);
       output->GetPoint(vert[1],v1);
       output->GetPoint(vert[2],v2);
@@ -272,7 +272,7 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
       K[vert[0]] -= alpha1;
       K[vert[1]] -= alpha2;
       K[vert[2]] -= alpha0;
-      }
+    }
 
     int numPts = output->GetNumberOfPoints();
     // put curvature in vtkArray
@@ -283,16 +283,16 @@ void vtkCurvatures::GetGaussCurvature(vtkPolyData *output)
     double *gaussCurvatureData = gaussCurvature->GetPointer(0);
 
     for (int v = 0; v < Nv; v++)
-      {
+    {
       if (dA[v]>0.0)
-        {
+      {
         gaussCurvatureData[v] = 3.0*K[v]/dA[v];
-        }
-      else
-        {
-        gaussCurvatureData[v] = 0.0;
-        }
       }
+      else
+      {
+        gaussCurvatureData[v] = 0.0;
+      }
+    }
 
     output->GetPointData()->AddArray(gaussCurvature);
     output->GetPointData()->SetActiveScalars("Gauss_Curvature");
@@ -328,23 +328,23 @@ void vtkCurvatures::GetMaximumCurvature(vtkPolyData *input,vtkPolyData *output)
   double k, h, k_max,tmp;
 
   for (vtkIdType i = 0; i<numPts; i++)
-    {
+  {
     k = gauss->GetComponent(i,0);
     h = mean->GetComponent(i,0);
     tmp = h*h - k;
     if (tmp >= 0)
-      {
+    {
       k_max = h + sqrt(tmp);
-      }
+    }
     else
-      {
+    {
       vtkDebugMacro(<< "Maximum Curvature undefined at point: " << i);
       // k_max can be any real number. Undefined points will be indistinguishable
       // from points that actually have a k_max == 0
       k_max = 0;
-      }
-    maximumCurvature->SetComponent(i, 0, k_max);
     }
+    maximumCurvature->SetComponent(i, 0, k_max);
+  }
 }
 
 void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
@@ -369,23 +369,23 @@ void vtkCurvatures::GetMinimumCurvature(vtkPolyData *input,vtkPolyData *output)
   double k, h, k_min,tmp;
 
   for (vtkIdType i = 0; i<numPts; i++)
-    {
+  {
     k = gauss->GetComponent(i,0);
     h = mean->GetComponent(i,0);
     tmp = h*h - k;
     if (tmp >= 0)
-      {
+    {
       k_min = h - sqrt(tmp);
-      }
+    }
     else
-      {
+    {
       vtkDebugMacro(<< "Minimum Curvature undefined at point: " << i);
       // k_min can be any real number. Undefined points will be indistinguishable
       // from points that actually have a k_min == 0
       k_min = 0;
-      }
-    minimumCurvature->SetComponent(i, 0, k_min);
     }
+    minimumCurvature->SetComponent(i, 0, k_min);
+  }
 }
 
 //-------------------------------------------------------
@@ -406,9 +406,9 @@ int vtkCurvatures::RequestData(
 
   // Null input check
   if (!input)
-    {
+  {
     return 0;
-    }
+  }
 
   output->CopyStructure(input);
   output->GetPointData()->PassData(input->GetPointData());
@@ -420,26 +420,26 @@ int vtkCurvatures::RequestData(
   //-------------------------------------------------------//
 
   if ( this->CurvatureType == VTK_CURVATURE_GAUSS )
-    {
+  {
     this->GetGaussCurvature(output);
-    }
+  }
   else if ( this->CurvatureType == VTK_CURVATURE_MEAN )
-    {
+  {
     this->GetMeanCurvature(output);
-    }
+  }
   else if ( this->CurvatureType ==  VTK_CURVATURE_MAXIMUM )
-    {
+  {
     this->GetMaximumCurvature(input, output);
-    }
+  }
   else if ( this->CurvatureType ==  VTK_CURVATURE_MINIMUM )
-    {
+  {
     this->GetMinimumCurvature(input, output);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Only Gauss, Mean, Max, and Min Curvature type available");
     return 1;
-    }
+  }
 
   return 1;
 }

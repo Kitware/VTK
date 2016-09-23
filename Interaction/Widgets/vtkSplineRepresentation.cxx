@@ -59,14 +59,14 @@ vtkSplineRepresentation::vtkSplineRepresentation()
   points->SetNumberOfPoints(this->NumberOfHandles);
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     double u = i / (this->NumberOfHandles - 1.0);
     double x = (1.0 - u)*x0 + u*x1;
     double y = (1.0 - u)*y0 + u*y1;
     double z = (1.0 - u)*z0 + u*z1;
     points->SetPoint(i, x, y, z);
     this->HandleGeometry[i]->SetCenter(x,y,z);
-    }
+  }
 
   // vtkParametric spline acts as the interpolating engine
   this->ParametricSpline = vtkParametricSpline::New();
@@ -99,9 +99,9 @@ vtkSplineRepresentation::vtkSplineRepresentation()
 vtkSplineRepresentation::~vtkSplineRepresentation()
 {
   if ( this->ParametricSpline )
-    {
+  {
     this->ParametricSpline->UnRegister(this);
-    }
+  }
 
   this->ParametricFunctionSource->Delete();
 }
@@ -110,20 +110,20 @@ vtkSplineRepresentation::~vtkSplineRepresentation()
 void vtkSplineRepresentation::SetParametricSpline(vtkParametricSpline* spline)
 {
   if ( this->ParametricSpline != spline )
-    {
+  {
     // to avoid destructor recursion
     vtkParametricSpline *temp = this->ParametricSpline;
     this->ParametricSpline = spline;
     if (temp != NULL)
-      {
+    {
       temp->UnRegister(this);
-      }
+    }
     if (this->ParametricSpline != NULL)
-      {
+    {
       this->ParametricSpline->Register(this);
       this->ParametricFunctionSource->SetParametricFunction(this->ParametricSpline);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -141,18 +141,18 @@ void vtkSplineRepresentation::BuildRepresentation()
   // Handles have changed position, re-compute the spline coeffs
   vtkPoints* points = this->ParametricSpline->GetPoints();
   if ( points->GetNumberOfPoints() != this->NumberOfHandles )
-    {
+  {
     points->SetNumberOfPoints( this->NumberOfHandles );
-    }
+  }
 
   vtkBoundingBox bbox;
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     double pt[3];
     this->HandleGeometry[i]->GetCenter(pt);
     points->SetPoint(i, pt);
     bbox.AddPoint(pt);
-    }
+  }
   this->ParametricSpline->SetClosed(this->Closed);
   this->ParametricSpline->Modified();
 
@@ -168,14 +168,14 @@ void vtkSplineRepresentation::BuildRepresentation()
 void vtkSplineRepresentation::SetNumberOfHandles(int npts)
 {
   if ( this->NumberOfHandles == npts )
-    {
+  {
     return;
-    }
+  }
   if (npts < 1)
-    {
+  {
     vtkGenericWarningMacro(<<"vtkSplineRepresentation: minimum of 1 points required.");
     return;
-    }
+  }
 
   // Ensure that no handle is current
   this->HighlightHandle(NULL);
@@ -190,7 +190,7 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
   this->HandleGeometry = new vtkSphereSource* [this->NumberOfHandles];
 
   for ( int i = 0; i < this->NumberOfHandles; ++i )
-    {
+  {
     this->HandleGeometry[i] = vtkSphereSource::New();
     this->HandleGeometry[i]->SetThetaResolution(16);
     this->HandleGeometry[i]->SetPhiResolution(8);
@@ -207,18 +207,18 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
     this->HandleGeometry[i]->SetCenter(pt);
     this->HandleGeometry[i]->SetRadius(radius);
     this->HandlePicker->AddPickList(this->Handle[i]);
-    }
+  }
 
   if (this->CurrentHandleIndex >= 0 &&
     this->CurrentHandleIndex < this->NumberOfHandles)
-    {
+  {
     this->CurrentHandleIndex =
       this->HighlightHandle(this->Handle[this->CurrentHandleIndex]);
-    }
+  }
   else
-    {
+  {
     this->CurrentHandleIndex = this->HighlightHandle(NULL);
-    }
+  }
 
   this->BuildRepresentation();
 }
@@ -227,9 +227,9 @@ void vtkSplineRepresentation::SetNumberOfHandles(int npts)
 void vtkSplineRepresentation::SetResolution(int resolution)
 {
   if ( this->Resolution == resolution || resolution < (this->NumberOfHandles-1) )
-    {
+  {
     return;
-    }
+  }
 
   this->Resolution = resolution;
   this->ParametricFunctionSource->SetUResolution( this->Resolution );
@@ -258,19 +258,19 @@ double vtkSplineRepresentation::GetSummedLength()
   int imax = (npts % 2 == 0) ? npts-2 : npts-1;
 
   while ( i < imax )
-    {
+  {
     points->GetPoint(i+1, b);
     sum += sqrt(vtkMath::Distance2BetweenPoints(a, b));
     i = i + 2;
     points->GetPoint(i, a);
     sum = sum + sqrt(vtkMath::Distance2BetweenPoints(a, b));
-    }
+  }
 
   if ( npts % 2 == 0 )
-    {
+  {
     points->GetPoint(i+1, b);
     sum += sqrt(vtkMath::Distance2BetweenPoints(a, b));
-    }
+  }
 
   return sum;
 }
@@ -293,16 +293,16 @@ void vtkSplineRepresentation::InsertHandleOnLine(double* pos)
   int istop = istart + 1;
   int count = 0;
   for ( int i = 0; i <= istart; ++i )
-    {
+  {
     newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
-    }
+  }
 
   newpoints->SetPoint(count++,pos);
 
   for ( int i = istop; i < this->NumberOfHandles; ++i )
-    {
+  {
     newpoints->SetPoint(count++,this->HandleGeometry[i]->GetCenter());
-    }
+  }
 
   this->InitializeHandles(newpoints);
   newpoints->Delete();
@@ -323,17 +323,17 @@ void vtkSplineRepresentation::InitializeHandles(vtkPoints* points)
   points->GetPoint(npts-1,p1);
 
   if ( vtkMath::Distance2BetweenPoints(p0,p1) == 0.0 )
-    {
+  {
     --npts;
     this->Closed = 1;
     this->ParametricSpline->ClosedOn();
-    }
+  }
 
   this->SetNumberOfHandles(npts);
   for ( int i = 0; i < npts; ++i )
-    {
+  {
     this->SetHandlePosition(i,points->GetPoint(i));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -341,12 +341,12 @@ void vtkSplineRepresentation::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os,indent);
   if ( this->ParametricSpline )
-    {
+  {
     os << indent << "ParametricSpline: "
        << this->ParametricSpline << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ParametricSpline: (none)\n";
-    }
+  }
 }

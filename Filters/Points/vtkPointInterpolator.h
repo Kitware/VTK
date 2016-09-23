@@ -186,10 +186,10 @@ public:
    * interpolation process.
    */
   void AddExcludedArray(const vtkStdString &excludedArray)
-    {
+  {
     this->ExcludedArrays.push_back(excludedArray);
     this->Modified();
-    }
+  }
   //@}
 
   //@{
@@ -197,10 +197,10 @@ public:
    * Clears the contents of excluded array list.
    */
   void ClearExcludedArrays()
-    {
+  {
     this->ExcludedArrays.clear();
     this->Modified();
-    }
+  }
   //@}
 
   /**
@@ -214,13 +214,13 @@ public:
    * Return the name of the ith excluded array.
    */
   const char* GetExcludedArray(int i)
-    {
+  {
       if ( i < 0 || i >= static_cast<int>(this->ExcludedArrays.size()) )
-        {
+      {
         return NULL;
-        }
+      }
       return this->ExcludedArrays[i].c_str();
-    }
+  }
   //@}
 
   //@{

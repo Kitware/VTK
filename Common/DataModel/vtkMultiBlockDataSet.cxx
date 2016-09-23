@@ -68,10 +68,10 @@ void vtkMultiBlockDataSet::SetBlock(unsigned int blockno, vtkDataObject* block)
 {
   if (block && block->IsA("vtkCompositeDataSet") &&
     !block->IsA("vtkMultiBlockDataSet") && !block->IsA("vtkMultiPieceDataSet"))
-    {
+  {
     vtkErrorMacro(<< block->GetClassName() << " cannot be added as a block.");
     return;
-    }
+  }
   this->Superclass::SetChild(blockno, block);
 }
 

@@ -64,26 +64,26 @@ vtkAnnotationLayers::~vtkAnnotationLayers()
 {
   delete this->Implementation;
   if (this->CurrentAnnotation)
-    {
+  {
     this->CurrentAnnotation->Delete();
-    }
+  }
 }
 
 void vtkAnnotationLayers::SetCurrentSelection(vtkSelection* sel)
 {
   if (this->CurrentAnnotation)
-    {
+  {
     this->CurrentAnnotation->SetSelection(sel);
     this->Modified();
-    }
+  }
 }
 
 vtkSelection* vtkAnnotationLayers::GetCurrentSelection()
 {
   if (this->CurrentAnnotation)
-    {
+  {
     return this->CurrentAnnotation->GetSelection();
-    }
+  }
   return 0;
 }
 
@@ -95,9 +95,9 @@ unsigned int vtkAnnotationLayers::GetNumberOfAnnotations()
 vtkAnnotation* vtkAnnotationLayers::GetAnnotation(unsigned int idx)
 {
   if (idx >= this->Implementation->Annotations.size())
-    {
+  {
     return 0;
-    }
+  }
   return this->Implementation->Annotations[idx];
 }
 
@@ -129,15 +129,15 @@ void vtkAnnotationLayers::ShallowCopy(vtkDataObject* other)
   this->Superclass::ShallowCopy(other);
   vtkAnnotationLayers* obj = vtkAnnotationLayers::SafeDownCast(other);
   if (!obj)
-    {
+  {
     return;
-    }
+  }
   this->Implementation->Annotations.clear();
   for (unsigned int a = 0; a < obj->GetNumberOfAnnotations(); ++a)
-    {
+  {
     vtkAnnotation* ann = obj->GetAnnotation(a);
     this->AddAnnotation(ann);
-    }
+  }
   this->SetCurrentAnnotation(obj->GetCurrentAnnotation());
 }
 
@@ -146,43 +146,43 @@ void vtkAnnotationLayers::DeepCopy(vtkDataObject* other)
   this->Superclass::DeepCopy(other);
   vtkAnnotationLayers* obj = vtkAnnotationLayers::SafeDownCast(other);
   if (!obj)
-    {
+  {
     return;
-    }
+  }
   this->Implementation->Annotations.clear();
   for (unsigned int a = 0; a < obj->GetNumberOfAnnotations(); ++a)
-    {
+  {
     vtkSmartPointer<vtkAnnotation> ann =
       vtkSmartPointer<vtkAnnotation>::New();
     ann->DeepCopy(obj->GetAnnotation(a));
     this->AddAnnotation(ann);
-    }
+  }
 }
 
 vtkMTimeType vtkAnnotationLayers::GetMTime()
 {
   vtkMTimeType mtime = this->Superclass::GetMTime();
   for (unsigned int a = 0; a < this->GetNumberOfAnnotations(); ++a)
-    {
+  {
     vtkAnnotation* ann = this->GetAnnotation(a);
     if (ann)
-      {
+    {
       vtkMTimeType atime = ann->GetMTime();
       if (atime > mtime)
-        {
+      {
         mtime = atime;
-        }
       }
     }
+  }
   vtkAnnotation* s = this->GetCurrentAnnotation();
   if (s)
-    {
+  {
     vtkMTimeType stime = this->GetCurrentAnnotation()->GetMTime();
     if (stime > mtime)
-      {
+    {
       mtime = stime;
-      }
     }
+  }
   return mtime;
 }
 
@@ -192,29 +192,29 @@ void vtkAnnotationLayers::PrintSelf(ostream& os, vtkIndent indent)
 
   vtkIndent next = indent.GetNextIndent();
   for (unsigned int a = 0; a < this->GetNumberOfAnnotations(); ++a)
-    {
+  {
     os << next << "Annotation " << a << ":";
     vtkAnnotation* ann = this->GetAnnotation(a);
     if (ann)
-      {
+    {
       os << "\n";
       ann->PrintSelf(os, next.GetNextIndent());
-      }
-    else
-      {
-      os << "(none)\n";
-      }
     }
+    else
+    {
+      os << "(none)\n";
+    }
+  }
   os << indent << "CurrentAnnotation: ";
   if (this->CurrentAnnotation)
-    {
+  {
     os << "\n";
     this->CurrentAnnotation->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }
 
 vtkAnnotationLayers* vtkAnnotationLayers::GetData(vtkInformation* info)

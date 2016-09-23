@@ -35,17 +35,17 @@ class vtkImageToImageMapper3DFriendship
 {
 public:
   static void SetCurrentProp(vtkImageMapper3D *mapper, vtkImageSlice *prop)
-    {
+  {
     mapper->CurrentProp = prop;
-    }
+  }
   static void SetCurrentRenderer(vtkImageMapper3D *mapper, vtkRenderer *ren)
-    {
+  {
     mapper->CurrentRenderer = ren;
-    }
+  }
   static void SetStackedImagePass(vtkImageMapper3D *mapper, int pass)
-    {
+  {
     switch (pass)
-      {
+    {
       case 0:
         mapper->MatteEnable = true;
         mapper->ColorEnable = false;
@@ -66,8 +66,8 @@ public:
         mapper->ColorEnable = true;
         mapper->DepthEnable = true;
         break;
-      }
     }
+  }
 
 };
 
@@ -84,9 +84,9 @@ vtkImageSlice::vtkImageSlice()
 vtkImageSlice::~vtkImageSlice()
 {
   if (this->Property)
-    {
+  {
     this->Property->UnRegister(this);
-    }
+  }
 
   this->SetMapper(NULL);
 }
@@ -103,10 +103,10 @@ void vtkImageSlice::ShallowCopy(vtkProp *prop)
   vtkImageSlice *v = vtkImageSlice::SafeDownCast(prop);
 
   if (v != NULL)
-    {
+  {
     this->SetMapper(v->GetMapper());
     this->SetProperty(v->GetProperty());
-    }
+  }
 
   // Now do superclass
   this->vtkProp3D::ShallowCopy(prop);
@@ -116,20 +116,20 @@ void vtkImageSlice::ShallowCopy(vtkProp *prop)
 void vtkImageSlice::SetMapper(vtkImageMapper3D *mapper)
 {
   if (this->Mapper != mapper)
-    {
+  {
     if (this->Mapper != NULL)
-      {
+    {
       vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, NULL);
       this->Mapper->UnRegister(this);
-      }
+    }
     this->Mapper = mapper;
     if (this->Mapper != NULL)
-      {
+    {
       this->Mapper->Register(this);
       vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -141,16 +141,16 @@ double *vtkImageSlice::GetBounds()
 
   // get the bounds of the Mapper if we have one
   if (!this->Mapper)
-    {
+  {
     return this->Bounds;
-    }
+  }
 
   bounds = this->Mapper->GetBounds();
   // Check for the special case when the mapper's bounds are unknown
   if (!bounds)
-    {
+  {
     return bounds;
-    }
+  }
 
   // fill out vertices of a bounding box
   bbox[ 0] = bounds[1]; bbox[ 1] = bounds[3]; bbox[ 2] = bounds[5];
@@ -168,32 +168,32 @@ double *vtkImageSlice::GetBounds()
   // and transform into actors coordinates
   fptr = bbox;
   for (n = 0; n < 8; n++)
-    {
+  {
     double homogeneousPt[4] = {fptr[0], fptr[1], fptr[2], 1.0};
     this->Matrix->MultiplyPoint(homogeneousPt, homogeneousPt);
     fptr[0] = homogeneousPt[0] / homogeneousPt[3];
     fptr[1] = homogeneousPt[1] / homogeneousPt[3];
     fptr[2] = homogeneousPt[2] / homogeneousPt[3];
     fptr += 3;
-    }
+  }
 
   // now calc the new bounds
   this->Bounds[0] = this->Bounds[2] = this->Bounds[4] = VTK_DOUBLE_MAX;
   this->Bounds[1] = this->Bounds[3] = this->Bounds[5] = -VTK_DOUBLE_MAX;
   for (i = 0; i < 8; i++)
-    {
+  {
     for (n = 0; n < 3; n++)
-      {
+    {
       if (bbox[i*3+n] < this->Bounds[n*2])
-        {
+      {
         this->Bounds[n*2] = bbox[i*3+n];
-        }
+      }
       if (bbox[i*3+n] > this->Bounds[n*2+1])
-        {
+      {
         this->Bounds[n*2+1] = bbox[i*3+n];
-        }
       }
     }
+  }
 
   return this->Bounds;
 }
@@ -246,9 +246,9 @@ double vtkImageSlice::GetMaxZBound()
 int vtkImageSlice::HasTranslucentPolygonalGeometry()
 {
   if (this->ForceTranslucent)
-    {
+  {
     return 1;
-    }
+  }
 
   // Unless forced to translucent, always render during opaque pass,
   // to keep the behavior predictable and because depth-peeling kills
@@ -262,10 +262,10 @@ int vtkImageSlice::RenderTranslucentPolygonalGeometry(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkImageSlice::RenderTranslucentPolygonalGeometry");
 
   if (this->HasTranslucentPolygonalGeometry())
-    {
+  {
     this->Render(vtkRenderer::SafeDownCast(viewport));
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -276,10 +276,10 @@ int vtkImageSlice::RenderOpaqueGeometry(vtkViewport* viewport)
   vtkDebugMacro(<< "vtkImageSlice::RenderOpaqueGeometry");
 
   if (!this->HasTranslucentPolygonalGeometry())
-    {
+  {
     this->Render(vtkRenderer::SafeDownCast(viewport));
     return 1;
-    }
+  }
 
   return 0;
 }
@@ -299,21 +299,21 @@ void vtkImageSlice::Render(vtkRenderer *ren)
 {
   // Force the creation of a property
   if (!this->Property)
-    {
+  {
     this->GetProperty();
-    }
+  }
 
   if (!this->Property)
-    {
+  {
     vtkErrorMacro( << "Error generating a property!\n" );
     return;
-    }
+  }
 
   if (!this->Mapper)
-    {
+  {
     vtkErrorMacro( << "You must specify a mapper!\n" );
     return;
-    }
+  }
 
   vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, ren);
 
@@ -326,10 +326,10 @@ void vtkImageSlice::Render(vtkRenderer *ren)
       extent[0] <= extent[1] &&
       extent[2] <= extent[3] &&
       extent[4] <= extent[5])
-    {
+  {
     this->Mapper->Render(ren, this);
     this->EstimatedRenderTime += this->Mapper->GetTimeToDraw();
-    }
+  }
 
   vtkImageToImageMapper3DFriendship::SetCurrentRenderer(this->Mapper, NULL);
 }
@@ -339,48 +339,48 @@ void vtkImageSlice::ReleaseGraphicsResources(vtkWindow *win)
 {
   // pass this information onto the mapper
   if (this->Mapper)
-    {
+  {
     this->Mapper->ReleaseGraphicsResources(win);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageSlice::Update()
 {
   if (this->Mapper)
-    {
+  {
     vtkImageToImageMapper3DFriendship::SetCurrentProp(this->Mapper, this);
     this->Mapper->Update();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkImageSlice::SetProperty(vtkImageProperty *property)
 {
   if (this->Property != property)
-    {
+  {
     if (this->Property != NULL)
-      {
+    {
       this->Property->UnRegister(this);
-      }
+    }
     this->Property = property;
     if (this->Property != NULL)
-      {
+    {
       this->Property->Register(this);
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkImageProperty *vtkImageSlice::GetProperty()
 {
   if (this->Property == NULL)
-    {
+  {
     this->Property = vtkImageProperty::New();
     this->Property->Register(this);
     this->Property->Delete();
-    }
+  }
   return this->Property;
 }
 
@@ -391,22 +391,22 @@ vtkMTimeType vtkImageSlice::GetMTime()
   vtkMTimeType time;
 
   if ( this->Property != NULL )
-    {
+  {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   if ( this->UserMatrix != NULL )
-    {
+  {
     time = this->UserMatrix->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   if ( this->UserTransform != NULL )
-    {
+  {
     time = this->UserTransform->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -418,29 +418,29 @@ vtkMTimeType vtkImageSlice::GetRedrawMTime()
   vtkMTimeType time;
 
   if ( this->Mapper != NULL )
-    {
+  {
     time = this->Mapper->GetMTime();
     mTime = ( time > mTime ? time : mTime );
     if (this->GetMapper()->GetInputAlgorithm() != NULL)
-      {
+    {
       this->GetMapper()->GetInputAlgorithm()->Update();
       time = this->Mapper->GetInput()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
-      }
     }
+  }
 
   if ( this->Property != NULL )
-    {
+  {
     time = this->Property->GetMTime();
     mTime = ( time > mTime ? time : mTime );
 
     if ( this->Property->GetLookupTable() != NULL )
-      {
+    {
       // check the lookup table mtime
       time = this->Property->GetLookupTable()->GetMTime();
       mTime = ( time > mTime ? time : mTime );
-      }
     }
+  }
 
   return mTime;
 }
@@ -449,10 +449,10 @@ vtkMTimeType vtkImageSlice::GetRedrawMTime()
 void vtkImageSlice::SetStackedImagePass(int pass)
 {
   if (this->Mapper)
-    {
+  {
     vtkImageToImageMapper3DFriendship::SetStackedImagePass(
       this->Mapper, pass);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -461,38 +461,38 @@ void vtkImageSlice::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if( this->Property )
-    {
+  {
     os << indent << "Property:\n";
     this->Property->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (not defined)\n";
-    }
+  }
 
   if( this->Mapper )
-    {
+  {
     os << indent << "Mapper:\n";
     this->Mapper->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Mapper: (not defined)\n";
-    }
+  }
 
   // make sure our bounds are up to date
   if ( this->Mapper )
-    {
+  {
     this->GetBounds();
     os << indent << "Bounds: (" << this->Bounds[0] << ", "
        << this->Bounds[1] << ") (" << this->Bounds[2] << ") ("
        << this->Bounds[3] << ") (" << this->Bounds[4] << ") ("
        << this->Bounds[5] << ")\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Bounds: (not defined)\n";
-    }
+  }
 
   os << indent << "ForceTranslucent: "
      << (this->ForceTranslucent ? "On\n" : "Off\n");

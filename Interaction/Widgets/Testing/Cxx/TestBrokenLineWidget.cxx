@@ -191,9 +191,9 @@ int TestBrokenLineWidget( int argc, char *argv[] )
   win->Render();
   int retVal = vtkRegressionTestImage( win );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

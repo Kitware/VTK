@@ -46,7 +46,7 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   cout << setprecision(17);
 
   try
-    {
+  {
     vtkSmartPointer<vtkDiagonalMatrixSource> source = vtkSmartPointer<vtkDiagonalMatrixSource>::New();
     source->SetExtents(3);
     source->SetArrayType(vtkDiagonalMatrixSource::SPARSE);
@@ -119,11 +119,11 @@ int TestArrayNorm(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(close_enough(window_l1_norm->GetValueN(1), 1.5));
     test_expression(close_enough(window_l1_norm->GetValueN(2), 0.5));
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

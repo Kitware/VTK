@@ -101,27 +101,27 @@ int vtkImageMarchingCubes::RequestData(
   // Determine the number of slices per request from input memory limit.
   int minSlicesPerChunk, chunkOverlap;
   if (this->NeedGradients)
-    {
+  {
     minSlicesPerChunk = 4;
     chunkOverlap = 3;
-    }
+  }
   else
-    {
+  {
     minSlicesPerChunk = 2;
     chunkOverlap = 1;
-    }
+  }
   inputExec->UpdateInformation();
   // Each data type requires a different amount of memory.
   vtkIdType temp;
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       temp = vtkImageMarchingCubesGetTypeSize(static_cast<VTK_TT*>(0))
       );
     default:
       vtkErrorMacro(<< "Could not determine input scalar type.");
       return 1;
-    }
+  }
 
   int extent[6];
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
@@ -132,12 +132,12 @@ int vtkImageMarchingCubes::RequestData(
   this->NumberOfSlicesPerChunk =
     static_cast<int>(this->InputMemoryLimit * 1024 / (temp + 1));
   if (this->NumberOfSlicesPerChunk < minSlicesPerChunk)
-    {
+  {
     vtkWarningMacro("Execute: Need "
       <<  minSlicesPerChunk*(temp/1024) << " KB to load "
       << minSlicesPerChunk << " slices.\n");
     this->NumberOfSlicesPerChunk = minSlicesPerChunk;
-    }
+  }
   vtkDebugMacro("Execute: NumberOfSlicesPerChunk = "
                 << this->NumberOfSlicesPerChunk);
   this->NumberOfSlicesPerChunk -= chunkOverlap;
@@ -150,31 +150,31 @@ int vtkImageMarchingCubes::RequestData(
   estimatedSize = static_cast<vtkIdType>(pow(1.0*estimatedSize, 0.75));
   estimatedSize = (estimatedSize / 1024) * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
   vtkDebugMacro(<< "Estimated number of points/triangles: " << estimatedSize);
   this->Points = vtkPoints::New();
   this->Points->Allocate(estimatedSize,estimatedSize/2);
   this->Triangles = vtkCellArray::New();
   this->Triangles->Allocate(estimatedSize,estimatedSize/2);
   if (this->ComputeScalars)
-    {
+  {
     this->Scalars = vtkFloatArray::New();
     this->Scalars->Allocate(estimatedSize,estimatedSize/2);
-    }
+  }
   if (this->ComputeNormals)
-    {
+  {
     this->Normals = vtkFloatArray::New();
     this->Normals->SetNumberOfComponents(3);
     this->Normals->Allocate(3*estimatedSize,3*estimatedSize/2);
-    }
+  }
   if (this->ComputeGradients)
-    {
+  {
     this->Gradients = vtkFloatArray::New();
     this->Gradients->SetNumberOfComponents(3);
     this->Gradients->Allocate(3*estimatedSize,3*estimatedSize/2);
-    }
+  }
 
   // Initialize the internal point locator (edge table for oen image of cubes).
   this->InitializeLocator(extent[0], extent[1], extent[2], extent[3]);
@@ -183,30 +183,30 @@ int vtkImageMarchingCubes::RequestData(
   int zMin = extent[4];
   int zMax = extent[5];
   for(int chunkMin = zMin, chunkMax; chunkMin < zMax; chunkMin = chunkMax)
-    {
+  {
     // Get the chunk from the input
     chunkMax = chunkMin + this->NumberOfSlicesPerChunk;
     if (chunkMax > zMax)
-      {
+    {
       chunkMax = zMax;
-      }
+    }
     extent[4] = chunkMin;
     extent[5] = chunkMax;
     // Expand if computing gradients with central differences
     if (this->NeedGradients)
-      {
+    {
       --extent[4];
       ++extent[5];
-      }
+    }
     // Don't go over boundary of data.
     if (extent[4] < zMin)
-      {
+    {
       extent[4] = zMin;
-      }
+    }
     if (extent[5] > zMax)
-      {
+    {
       extent[5] = zMax;
-      }
+    }
     // Get the chunk from the input
     inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
                 extent, 6);
@@ -214,16 +214,16 @@ int vtkImageMarchingCubes::RequestData(
 
     this->March(inData, chunkMin, chunkMax, numContours, values);
     if ( !this->AbortExecute )
-      {
+    {
       this->UpdateProgress(static_cast<double>(chunkMax-zMin)/(zMax-zMin));
-      }
+    }
 
     if (vtkDataObject::GetGlobalReleaseDataFlag() ||
         inInfo->Has(vtkStreamingDemandDrivenPipeline::RELEASE_DATA()))
-      {
+    {
       inData->ReleaseData();
-      }
     }
+  }
 
   // Put results in our output
   vtkDebugMacro(<<"Created: "
@@ -236,18 +236,18 @@ int vtkImageMarchingCubes::RequestData(
   this->Triangles->Delete();
   this->Triangles = NULL;
   if (this->ComputeScalars)
-    {
+  {
     int idx = output->GetPointData()->AddArray(this->Scalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     this->Scalars->Delete();
     this->Scalars = NULL;
-    }
+  }
   if (this->ComputeNormals)
-    {
+  {
     output->GetPointData()->SetNormals(this->Normals);
     this->Normals->Delete();
     this->Normals = NULL;
-    }
+  }
 
   // Recover extra space.
   output->Squeeze();
@@ -272,43 +272,43 @@ void vtkImageMarchingCubesComputePointGradient(T *ptr, double *g,
                                                short b0, short b1, short b2)
 {
   if (b0 < 0)
-    {
+  {
     g[0] = (double)(ptr[inc0]) - (double)(*ptr);
-    }
+  }
   else if (b0 > 0)
-    {
+  {
     g[0] = (double)(*ptr) - (double)(ptr[-inc0]);
-    }
+  }
   else
-    {
+  {
     g[0] = (double)(ptr[inc0]) - (double)(ptr[-inc0]);
-    }
+  }
 
   if (b1 < 0)
-    {
+  {
     g[1] = (double)(ptr[inc1]) - (double)(*ptr);
-    }
+  }
   else if (b1 > 0)
-    {
+  {
     g[1] = (double)(*ptr) - (double)(ptr[-inc1]);
-    }
+  }
   else
-    {
+  {
     g[1] = (double)(ptr[inc1]) - (double)(ptr[-inc1]);
-    }
+  }
 
   if (b2 < 0)
-    {
+  {
     g[2] = (double)(ptr[inc2]) - (double)(*ptr);
-    }
+  }
   else if (b2 > 0)
-    {
+  {
     g[2] = (double)(*ptr) - (double)(ptr[-inc2]);
-    }
+  }
   else
-    {
+  {
     g[2] = (double)(ptr[inc2]) - (double)(ptr[-inc2]);
-    }
+  }
 }
 
 
@@ -329,7 +329,7 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
 
   // decode the edge into starting point and axis direction
   switch (edge)
-    {
+  {
     case 0:  // 0,1
       ptrB = ptr + inc0;
       edgeAxis = 0;
@@ -396,14 +396,14 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
       ptrB = ptr + inc2;
       edgeAxis = 2;
       break;
-    }
+  }
 
   // interpolation factor
   temp = (value - *ptr) / (*ptrB - *ptr);
 
   // interpolate the point position
   switch (edgeAxis)
-    {
+  {
     case 0:
       pt[0] = origin[0] + spacing[0] * ((double)idx0 + temp);
       pt[1] = origin[1] + spacing[1] * ((double)idx1);
@@ -419,40 +419,40 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
       pt[1] = origin[1] + spacing[1] * ((double)idx1);
       pt[2] = origin[2] + spacing[2] * ((double)idx2 + temp);
       break;
-    }
+  }
 
   // Save the scale if we are generating scalars
   if (self->ComputeScalars)
-    {
+  {
     self->Scalars->InsertNextValue(value);
-    }
+  }
 
   // Interpolate to find normal from vectors.
   if (self->NeedGradients)
-    {
+  {
     short b0, b1, b2;
     double g[3], gB[3];
     // Find boundary conditions and compute gradient (first point)
     b0 = (idx0 == imageExtent[1]);
     if (idx0 == imageExtent[0])
-      {
+    {
       b0 = -1;
-      }
+    }
     b1 = (idx1 == imageExtent[3]);
     if (idx1 == imageExtent[2])
-      {
+    {
       b1 = -1;
-      }
+    }
     b2 = (idx2 == imageExtent[5]);
     if (idx2 == imageExtent[4])
-      {
+    {
       b2 = -1;
-      }
+    }
     vtkImageMarchingCubesComputePointGradient(ptr, g, inc0, inc1, inc2,
                                              b0, b1, b2);
     // Find boundary conditions and compute gradient (second point)
     switch (edgeAxis)
-      {
+    {
       case 0:
         ++idx0;
         b0 = (idx0 == imageExtent[1]);
@@ -465,7 +465,7 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
         ++idx2;
         b2 = (idx2 == imageExtent[5]);
         break;
-      }
+    }
     vtkImageMarchingCubesComputePointGradient(ptrB, gB, inc0, inc1, inc2,
                                              b0, b1, b2);
     // Interpolate Gradient
@@ -473,18 +473,18 @@ int vtkImageMarchingCubesMakeNewPoint(vtkImageMarchingCubes *self,
     g[1] = (g[1] + temp * (gB[1] - g[1])) / spacing[1];
     g[2] = (g[2] + temp * (gB[2] - g[2])) / spacing[2];
     if (self->ComputeGradients)
-      {
+    {
       self->Gradients->InsertNextTuple(g);
-      }
+    }
     if (self->ComputeNormals)
-      {
+    {
       temp = -1.0 / sqrt(g[0]*g[0] + g[1]*g[1] + g[2]*g[2]);
       g[0] *= temp;
       g[1] *= temp;
       g[2] *= temp;
       self->Normals->InsertNextTuple(g);
-      }
     }
+  }
 
   return self->Points->InsertNextPoint(pt);
 }
@@ -510,58 +510,58 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
 
   inData->GetIncrements(inc0, inc1, inc2);
   for (valueIdx = 0; valueIdx < numContours; ++valueIdx)
-    {
+  {
     value = values[valueIdx];
     // compute the case index
     cubeIndex = 0;
     if ((double)(ptr[0]) > value)
-      {
+    {
       cubeIndex += 1;
-      }
+    }
     if ((double)(ptr[inc0]) > value)
-      {
+    {
       cubeIndex += 2;
-      }
+    }
     if ((double)(ptr[inc0 + inc1]) > value)
-      {
+    {
       cubeIndex += 4;
-      }
+    }
     if ((double)(ptr[inc1]) > value)
-      {
+    {
       cubeIndex += 8;
-      }
+    }
     if ((double)(ptr[inc2]) > value)
-      {
+    {
       cubeIndex += 16;
-      }
+    }
     if ((double)(ptr[inc0 + inc2]) > value)
-      {
+    {
       cubeIndex += 32;
-      }
+    }
     if ((double)(ptr[inc0 + inc1 + inc2]) > value)
-      {
+    {
       cubeIndex += 64;
-      }
+    }
     if ((double)(ptr[inc1 + inc2]) > value)
-      {
+    {
       cubeIndex += 128;
-      }
+    }
     // Make sure we have trianlges
     if (cubeIndex != 0 && cubeIndex != 255)
-      {
+    {
       // Get edges.
       triCase = triCases + cubeIndex;
       EDGE_LIST *edge = triCase->edges;
       // loop over triangles
       while(*edge > -1)
-        {
+      {
         for (ii=0; ii<3; ++ii, ++edge) //insert triangle
-          {
+        {
           // Get the index of the point
           pointIds[ii] = self->GetLocatorPoint(cellX, cellY, *edge);
           // If the point has not been created yet
           if (pointIds[ii] == -1)
-            {
+          {
             double *spacing = inData->GetSpacing();
             double *origin = inData->GetOrigin();
             int *extent =
@@ -573,12 +573,12 @@ void vtkImageMarchingCubesHandleCube(vtkImageMarchingCubes *self,
                                               ptr, *edge, extent,
                                               spacing, origin, value);
             self->AddLocatorPoint(cellX, cellY, *edge, pointIds[ii]);
-            }
           }
+        }
         self->Triangles->InsertNextCell(3,pointIds);
-        }//for each triangle
-      }
+      }//for each triangle
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -609,33 +609,33 @@ void vtkImageMarchingCubesMarch(vtkImageMarchingCubes *self,
 
   // Loop over all the cubes
   for (idx2 = chunkMin; idx2 < chunkMax; ++idx2)
-    {
+  {
     ptr1 = ptr2;
     for (idx1 = min1; idx1 < max1; ++idx1)
-      {
+    {
       if (!(count%target))
-        {
+      {
         if (self->GetAbortExecute())
-          {
+        {
           return;
-          }
         }
+      }
       count++;
       // continue with last loop
       ptr0 = ptr1;
       for (idx0 = min0; idx0 < max0; ++idx0)
-        {
+      {
         // put magnitudes into the cube structure.
         vtkImageMarchingCubesHandleCube(self, idx0, idx1, idx2, inData, ptr0,
                                        numContours, values);
 
         ptr0 += inc0;
-        }
-      ptr1 += inc1;
       }
+      ptr1 += inc1;
+    }
     ptr2 += inc2;
     self->IncrementLocatorZ();
-    }
+  }
 }
 
 
@@ -649,7 +649,7 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
   void *ptr = inData->GetScalarPointer();
 
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageMarchingCubesMarch(this, inData, static_cast<VTK_TT*>(ptr),
                                  chunkMin, chunkMax, numContours, values)
@@ -657,7 +657,7 @@ void vtkImageMarchingCubes::March(vtkImageData *inData,
     default:
       vtkErrorMacro(<< "Unknown output ScalarType");
       return;
-    }
+  }
 }
 
 
@@ -691,9 +691,9 @@ void vtkImageMarchingCubes::InitializeLocator(int min0, int max0,
   this->LocatorPointIds = new vtkIdType[size];
   // Initialize the array
   for (vtkIdType idx = 0; idx < size; ++idx)
-    {
+  {
     this->LocatorPointIds[idx] = -1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -711,15 +711,15 @@ void vtkImageMarchingCubes::IncrementLocatorZ()
 {
   vtkIdType *ptr = this->LocatorPointIds;
   for (int y = 0; y < this->LocatorDimY; ++y)
-    {
+  {
     for (int x = 0; x < this->LocatorDimX; ++x)
-      {
+    {
       ptr[0] = ptr[4];
       ptr[3] = ptr[1];
       ptr[1] = ptr[2] = ptr[4] = -1;
       ptr += 5;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -756,7 +756,7 @@ vtkIdType *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge
   // Remove redundant edges (shared by more than one cube).
   // Take care of shared edges
   switch (edge)
-    {
+  {
     case 9:  ++cellX;          edge = 8; break;
     case 10: ++cellY;          edge = 8; break;
     case 11: ++cellX; ++cellY; edge = 8; break;
@@ -764,7 +764,7 @@ vtkIdType *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge
     case 6:  ++cellY;          edge = 4; break;
     case 1:  ++cellX;          edge = 3; break;
     case 2:  ++cellY;          edge = 0; break;
-    }
+  }
 
   // relative to min and max.
   cellX -= this->LocatorMinX;
@@ -773,13 +773,13 @@ vtkIdType *vtkImageMarchingCubes::GetLocatorPointer(int cellX,int cellY,int edge
   // compute new indexes for edges (0 to 4)
   // must be compatible with LocatorIncrementZ.
   if (edge == 7)
-    {
+  {
     edge = 1;
-    }
+  }
   if (edge == 8)
-    {
+  {
     edge = 2;
-    }
+  }
 
   // return correct pointer
   return this->LocatorPointIds + edge

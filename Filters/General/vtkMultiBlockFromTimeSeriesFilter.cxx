@@ -57,11 +57,11 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestUpdateExtent(vtkInformation *vtkNo
     vtkInformationVector** inInfo, vtkInformationVector* vtkNotUsed(outInfo))
 {
   if (this->TimeSteps.size() > static_cast<size_t>(this->UpdateTimeIndex))
-    {
+  {
     vtkInformation *info = inInfo[0]->GetInformationObject(0);
     info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_TIME_STEP(),
         this->TimeSteps[this->UpdateTimeIndex]);
-    }
+  }
   return 1;
 }
 
@@ -75,12 +75,12 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestData(vtkInformation *request,
   clone->ShallowCopy(data);
   this->TempDataset->SetBlock(this->UpdateTimeIndex, clone);
   if (this->UpdateTimeIndex < static_cast<vtkTypeInt64>(this->TimeSteps.size()) - 1)
-    {
+  {
     this->UpdateTimeIndex++;
     request->Set(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING(), 1);
-    }
+  }
   else
-    {
+  {
     vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outInfo);
     output->ShallowCopy(this->TempDataset);
     for (unsigned i = 0; i < this->TempDataset->GetNumberOfBlocks(); ++i)
@@ -88,7 +88,7 @@ int vtkMultiBlockFromTimeSeriesFilter::RequestData(vtkInformation *request,
       this->TempDataset->SetBlock(i, NULL);
     }
     request->Remove(vtkStreamingDemandDrivenPipeline::CONTINUE_EXECUTING());
-    }
+  }
   return 1;
 }
 

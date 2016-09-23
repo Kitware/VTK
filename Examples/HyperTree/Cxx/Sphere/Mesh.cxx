@@ -77,10 +77,10 @@ vtkDataSet * Mesh::getDataSet()
   vtkPoints * points = vtkPoints::New();
   points->SetNumberOfPoints (_nodes.size());
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     int id = (*it)->getId();
     if (id != -1) points->SetPoint (id, (*it)->getX(),(*it)->getY(),(*it)->getZ());
-    }
+  }
 
   // affectation des points
   ug->SetPoints(points);
@@ -89,14 +89,14 @@ vtkDataSet * Mesh::getDataSet()
   int count = 0;
   // ajout des mailles
   for (vector<Cell*>::iterator it = _cells.begin(); it != _cells.end(); it++)
-    {
+  {
     if (!(*it)->isRefined())
-      {
+    {
       vtkIdType * ids = (*it)->getNodeIds();
       ug->InsertNextCell (VTK_HEXAHEDRON, 8, ids);
       count++;
-      }
     }
+  }
 
   cout << "Completed dataset creation" << endl;
   return _dataSet;
@@ -135,11 +135,11 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
 
   // creation des noeuds
   for (int i = 0; i <= xm; i++)
-    {
+  {
     for (int j = 0; j <= ym; j++)
-      {
+    {
       for (int k = 0; k <= zm; k++)
-        {
+      {
         if      (i == 0  && j == 0  && k == 0)  chekNode(n1)
         else if (i == xm && j == 0  && k == 0)  chekNode(n2)
         else if (i == xm && j == 0  && k == zm) chekNode(n3)
@@ -149,7 +149,7 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
         else if (i == xm && j == ym && k == zm) chekNode(n7)
         else if (i == 0  && j == ym && k == zm) chekNode(n8)
         else
-          {
+        {
           // on calcule les coordonnees : pour l'instant on suppose qu'on a des parallelepipedes
           double x, y, z;
           x = n1->getX() + (double) i / (double) xm * (n2->getX() - n1->getX());
@@ -159,18 +159,18 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
           Node * n = new Node(_lastNodeId++, x, y, z);
           tempNodes.push_back(n);
           this->addNode (n);
-          }
         }
       }
     }
+  }
 
   // creation des mailles
   for (int i = 0; i < xnode-1; i++)
-    {
+  {
     for (int j = 0; j < ynode-1; j++)
-      {
+    {
       for (int k = 0; k < znode-1; k++)
-        {
+      {
         int id = i*ynode*znode + j*znode + k;
         vector<Node*> nodes;
         nodes.push_back (tempNodes[id]);
@@ -198,9 +198,9 @@ vector<Cell*> & Mesh::createCells (int xnode, int ynode, int znode,
         _lastCreatedCells.push_back(c);
         this->addCell (c);
 
-        }
       }
     }
+  }
 
   return _lastCreatedCells;
 }
@@ -224,9 +224,9 @@ void Mesh::refine()
 
   // on itere sur toutes les mailles
   for (vector<Cell*>::iterator it = tempCells.begin(); it != tempCells.end(); it++)
-    {
+  {
     (*it)->refineIfNeeded();
-    }
+  }
 }
 
 /*-------------------------------------------------------------------------
@@ -238,7 +238,7 @@ void Mesh::mergePoints ()
   map<double, map<double , map<double, Node * > > > nodesMap;
 
   for (vector<Node*>::iterator it = _nodes.begin(); it != _nodes.end(); it++)
-    {
+  {
     Node * n = (*it);
     double x = n->getX();
     double y = n->getY();
@@ -248,34 +248,34 @@ void Mesh::mergePoints ()
 
     map<double, map<double , map<double, Node *> > >::iterator itx = nodesMap.find (x);
     if (itx != nodesMap.end())
-      {
+    {
       map<double , map<double, Node *> > xmap = itx->second;
       map<double , map<double, Node *> >::iterator ity = xmap.find (y);
 
       if (ity != xmap.end())
-        {
+      {
         map<double, Node *> ymap = ity->second;
         map<double, Node *>::iterator itz = ymap.find (z);
 
         if (itz != ymap.end())
-          {
+        {
           // on a trouve un meme noeud
           Node * nodeInMap = itz->second;
 
           if (nodeInMap != n)
-            {
+          {
             // remplacement de n par nodeInMap
             n->replaceBy (nodeInMap);
             n->setId (-1);
             nodeExist = true;
-            }
           }
         }
       }
+    }
 
     if (!nodeExist)
-      {
+    {
       nodesMap[x][y][z] = n;
-      }
     }
+  }
 }

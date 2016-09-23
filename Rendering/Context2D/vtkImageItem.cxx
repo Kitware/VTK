@@ -42,10 +42,10 @@ vtkImageItem::~vtkImageItem()
 bool vtkImageItem::Paint(vtkContext2D *painter)
 {
   if (this->Image)
-    {
+  {
     // Draw our image in the bottom left corner of the item
     painter->DrawImage(this->Position[0], this->Position[1], this->Image);
-    }
+  }
   return true;
 }
 

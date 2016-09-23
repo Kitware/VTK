@@ -94,13 +94,13 @@ inline vtkTextProperty *vtkTextPropertyCollection::GetItem(int idx)
 inline vtkTextProperty *vtkTextPropertyCollection::GetLastItem()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkTextProperty *>(this->Bottom->Item);
-    }
+  }
 }
 
 inline vtkTextProperty *

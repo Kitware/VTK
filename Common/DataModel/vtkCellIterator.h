@@ -197,13 +197,13 @@ private:
   void operator=(const vtkCellIterator &) VTK_DELETE_FUNCTION;
 
   enum
-    {
+  {
     UninitializedFlag = 0x0,
     CellTypeFlag = 0x1,
     PointIdsFlag = 0x2,
     PointsFlag = 0x4,
     FacesFlag = 0x8
-    };
+  };
 
   void ResetCache()
   {
@@ -245,10 +245,10 @@ inline void vtkCellIterator::GoToNextCell()
 inline int vtkCellIterator::GetCellType()
 {
   if (!this->CheckCache(CellTypeFlag))
-    {
+  {
     this->FetchCellType();
     this->SetCache(CellTypeFlag);
-    }
+  }
   return this->CellType;
 }
 
@@ -256,10 +256,10 @@ inline int vtkCellIterator::GetCellType()
 inline vtkIdList* vtkCellIterator::GetPointIds()
 {
   if (!this->CheckCache(PointIdsFlag))
-    {
+  {
     this->FetchPointIds();
     this->SetCache(PointIdsFlag);
-    }
+  }
   return this->PointIds;
 }
 
@@ -267,10 +267,10 @@ inline vtkIdList* vtkCellIterator::GetPointIds()
 inline vtkPoints* vtkCellIterator::GetPoints()
 {
   if (!this->CheckCache(PointsFlag))
-    {
+  {
     this->FetchPoints();
     this->SetCache(PointsFlag);
-    }
+  }
   return this->Points;
 }
 
@@ -278,10 +278,10 @@ inline vtkPoints* vtkCellIterator::GetPoints()
 inline vtkIdList *vtkCellIterator::GetFaces()
 {
   if (!this->CheckCache(FacesFlag))
-    {
+  {
     this->FetchFaces();
     this->SetCache(FacesFlag);
-    }
+  }
   return this->Faces;
 }
 
@@ -289,10 +289,10 @@ inline vtkIdList *vtkCellIterator::GetFaces()
 inline vtkIdType vtkCellIterator::GetNumberOfPoints()
 {
   if (!this->CheckCache(PointIdsFlag))
-    {
+  {
     this->FetchPointIds();
     this->SetCache(PointIdsFlag);
-    }
+  }
   return this->PointIds->GetNumberOfIds();
 }
 
@@ -300,7 +300,7 @@ inline vtkIdType vtkCellIterator::GetNumberOfPoints()
 inline vtkIdType vtkCellIterator::GetNumberOfFaces()
 {
   switch (this->GetCellType())
-    {
+  {
     case VTK_EMPTY_CELL:
     case VTK_VERTEX:
     case VTK_POLY_VERTEX:
@@ -363,16 +363,16 @@ inline vtkIdType vtkCellIterator::GetNumberOfFaces()
 
     case VTK_POLYHEDRON: // Need to look these up
       if (!this->CheckCache(FacesFlag))
-        {
+      {
         this->FetchFaces();
         this->SetCache(FacesFlag);
-        }
+      }
       return this->Faces->GetNumberOfIds() != 0 ? this->Faces->GetId(0) : 0;
 
     default:
       vtkGenericWarningMacro("Unknown cell type: " << this->CellType);
       break;
-    }
+  }
 
   return 0;
 }

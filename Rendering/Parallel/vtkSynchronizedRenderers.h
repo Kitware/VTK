@@ -158,29 +158,29 @@ public:
   //@}
 
   enum
-    {
+  {
     SYNC_RENDERER_TAG = 15101,
     RESET_CAMERA_TAG  = 15102,
     COMPUTE_BOUNDS_TAG = 15103
-    };
+  };
 
   /// vtkRawImage can be used to make it easier to deal with images for
   /// compositing/communicating over client-server etc.
   struct VTKRENDERINGPARALLEL_EXPORT vtkRawImage
-    {
+  {
   public:
     vtkRawImage()
-      {
+    {
       this->Valid = false;
       this->Size[0] = this->Size[1] = 0;
       this->Data = vtkSmartPointer<vtkUnsignedCharArray>::New();
-      }
+    }
 
     void Resize(int dx, int dy, int numcomps)
-      {
+    {
       this->Valid = false;
       this->Allocate(dx, dy, numcomps);
-      }
+    }
 
     /**
      * Create the buffer from an image data.
@@ -218,14 +218,14 @@ public:
     vtkSmartPointer<vtkUnsignedCharArray> Data;
 
     void Allocate(int dx, int dy, int numcomps);
-    };
+  };
 
 protected:
   vtkSynchronizedRenderers();
   ~vtkSynchronizedRenderers();
 
   struct RendererInfo
-    {
+  {
     int ImageReductionFactor;
     int Draw;
     int CameraParallelProjection;
@@ -246,7 +246,7 @@ protected:
 
     void CopyFrom(vtkRenderer*);
     void CopyTo(vtkRenderer*);
-    };
+  };
 
   bool UseFXAA;
   vtkFXAAOptions *FXAAOptions;

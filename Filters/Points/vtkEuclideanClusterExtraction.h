@@ -243,25 +243,25 @@ private:
 inline const char *vtkEuclideanClusterExtraction::GetExtractionModeAsString(void)
 {
   if ( this->ExtractionMode == VTK_EXTRACT_POINT_SEEDED_CLUSTERS )
-    {
+  {
     return "ExtractPointSeededClusters";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_SPECIFIED_CLUSTERS )
-    {
+  {
     return "ExtractSpecifiedClusters";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_ALL_CLUSTERS )
-    {
+  {
     return "ExtractAllClusters";
-    }
+  }
   else if ( this->ExtractionMode == VTK_EXTRACT_CLOSEST_POINT_CLUSTER )
-    {
+  {
     return "ExtractClosestPointCluster";
-    }
+  }
   else
-    {
+  {
     return "ExtractLargestCluster";
-    }
+  }
 }
 //@}
 

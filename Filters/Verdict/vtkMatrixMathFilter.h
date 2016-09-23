@@ -63,21 +63,21 @@ public:
   vtkSetMacro(Operation, int)
   vtkGetMacro(Operation, int)
   void SetOperationToDeterminant ()
-    {
+  {
      this->SetOperation(DETERMINANT);
-    }
+  }
   void SetOperationToEigenvalue ()
-    {
+  {
      this->SetOperation(EIGENVALUE);
-    }
+  }
   void SetOperationToEigenvector ()
-    {
+  {
      this->SetOperation(EIGENVECTOR);
-    }
+  }
   void SetOperationToInverse ()
-    {
+  {
      this->SetOperation(INVERSE);
-    }
+  }
   //@}
 
 protected:

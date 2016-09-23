@@ -44,17 +44,17 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>
 {
   this->Initialize();
   if (!data)
-    {
+  {
     vtkErrorMacro(<< "No original data provided.");
     return;
-    }
+  }
 
   if (data->GetNumberOfComponents() != 3 && data->GetNumberOfComponents() != 9)
-    {
+  {
     vtkWarningMacro(<< "Original data has " << data->GetNumberOfComponents() <<
                     " components, Expecting 3 or 9.");
     return;
-    }
+  }
 
   this->Superclass::InitializeArray(data);
 }
@@ -64,13 +64,13 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
 SetAngle(double angle)
 {
   if (this->Angle != angle)
-    {
+  {
     this->Angle = angle;
     this->AngleInRadians = vtkMath::RadiansFromDegrees(angle);
     this->InvalidateRange();
     this->UpdateRotationMatrix();
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -78,12 +78,12 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
 SetAxis(int axis)
 {
   if (this->Axis != axis)
-    {
+  {
     this->Axis = axis;
     this->InvalidateRange();
     this->UpdateRotationMatrix();
     this->Modified();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -91,22 +91,22 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
 SetCenter(double* center)
 {
   if (center)
-    {
+  {
     bool diff = false;
     for (int i = 0; i < 3; i++)
-      {
+    {
       if (this->Center[i] != center[i])
-        {
+      {
         this->Center[i] = center[i];
         diff = true;
-        }
-      }
-    if (diff)
-      {
-      this->InvalidateRange();
-      this->Modified();
       }
     }
+    if (diff)
+    {
+      this->InvalidateRange();
+      this->Modified();
+    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -114,7 +114,7 @@ template <class Scalar> void vtkAngularPeriodicDataArray<Scalar>::
 Transform(Scalar* pos) const
 {
   if (this->NumberOfComponents == 3)
-    {
+  {
     // Axis rotation
     int axis0 = (this->Axis + 1) % this->NumberOfComponents;
     int axis1 = (this->Axis + 2) % this->NumberOfComponents;
@@ -126,12 +126,12 @@ Transform(Scalar* pos) const
     pos[axis1] = this->Center[axis1] +
       static_cast<Scalar>(sin(this->AngleInRadians) * posx + cos(this->AngleInRadians) * posy);
     if (this->Normalize)
-      {
-      vtkMath::Normalize(pos);
-      }
-    }
-  else if (this->NumberOfComponents == 9)
     {
+      vtkMath::Normalize(pos);
+    }
+  }
+  else if (this->NumberOfComponents == 9)
+  {
     // Template type force a copy to a double array for tensor
     double localPos [9];
     double tmpMat [9];
@@ -141,7 +141,7 @@ Transform(Scalar* pos) const
     vtkMatrix3x3::Multiply3x3(this->RotationMatrix->GetData(), localPos, tmpMat2);
     vtkMatrix3x3::Multiply3x3(tmpMat2, tmpMat, localPos);
     std::copy(localPos, localPos + 9, pos);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

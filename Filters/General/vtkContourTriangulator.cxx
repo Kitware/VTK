@@ -79,9 +79,9 @@ int vtkContourTriangulator::RequestData(
 
   vtkCellArray *lines = input->GetLines();
   if (lines == 0 || lines->GetNumberOfCells() == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   input->BuildCells();
 
@@ -94,9 +94,9 @@ int vtkContourTriangulator::RequestData(
     input, input->GetNumberOfVerts(), lines->GetNumberOfCells(), polys, 0);
 
   if (this->TriangulationError && this->TriangulationErrorDisplay)
-    {
+  {
     vtkErrorMacro("Triangulation failed, output might have holes.");
-    }
+  }
 
   return 1;
 }
@@ -299,7 +299,7 @@ double vtkCCSPolygonNormal(
   points->GetPoint(poly[1], p1);
 
   for (size_t j = 2; j < n; j++)
-    {
+  {
     double v1[3], v2[3];
 
     points->GetPoint(poly[j], p2);
@@ -319,16 +319,16 @@ double vtkCCSPolygonNormal(
     p1[0] = p2[0];
     p1[1] = p2[1];
     p1[2] = p2[2];
-    }
+  }
 
   double norm2 = nn[0]*nn[0] + nn[1]*nn[1] + nn[2]*nn[2];
   if (norm2 > 0)
-    {
+  {
     double norm = sqrt(norm2);
     normal[0] = nn[0]/norm;
     normal[1] = nn[1]/norm;
     normal[2] = nn[2]/norm;
-    }
+  }
 
   return norm2;
 }
@@ -385,31 +385,31 @@ int vtkCCSTriangulate(
 
   // If the poly is a line, then skip it
   if (n < 3)
-    {
+  {
     return 1;
-    }
+  }
   // If the poly is a triangle, then pass it
   else if (n == 3)
-    {
+  {
     size_t trids[3];
     trids[0] = 0;
     trids[1] = 1;
     trids[2] = 2;
 
     vtkCCSInsertTriangle(polys, poly, trids, polyEdges, originalEdges);
-    }
+  }
   // If the poly has 4 or more points, triangulate it
   else
-    {
+  {
     double ppoint[3], point[3], npoint[3];
     size_t i, j, k;
     std::vector<std::pair<size_t, double> > verts(n);
 
     for (i = 0; i < n; i++)
-      {
+    {
       verts[i].first = i;
       verts[i].second = 0;
-      }
+    }
 
     // compute the triangle quality for each vert
     k = n - 2;
@@ -421,45 +421,45 @@ int vtkCCSTriangulate(
     double maxq = 0;
     size_t maxi = 0;
     for (j = 0; j < n; j++)
-      {
+    {
       ppoint[0] = point[0]; ppoint[1] = point[1]; ppoint[2] = point[2];
       point[0] = npoint[0]; point[1] = npoint[1]; point[2] = npoint[2];
       points->GetPoint(poly[verts[j].first], npoint);
 
       double q = vtkCCSTriangleQuality(ppoint, point, npoint, normal);
       if (q > maxq)
-        {
+      {
         maxi = i;
         maxq = q;
-        }
+      }
       concave += (q < 0);
       verts[i].second = q;
       i = j;
-      }
+    }
 
     // perform the ear-cut triangulation
     for (;;)
-      {
+    {
       // if no potential ears were found, then fail
       if (maxq <= VTK_DBL_MIN)
-        {
+      {
         triangulationFailure = true;
         break;
-        }
+      }
 
       i = maxi;
       j = (i+1 != n ? i+1 : 0);
       k = (i != 0 ? i-1 : n-1);
 
       if (verts[i].second > 0)
-        {
+      {
         bool foundEar = true;
         points->GetPoint(poly[verts[j].first], npoint);
         points->GetPoint(poly[verts[k].first], ppoint);
 
         // only do ear check if there are concave vertices
         if (concave)
-          {
+        {
           // get the normal of the split plane
           double v[3], u[3];
 
@@ -479,29 +479,29 @@ int vtkCCSTriangulate(
           // check for crossings of the split plane
           jj = (jj+1 != n ? jj+1 : 0);
           for (; foundEar && jj != k; jj = (jj+1 != n ? jj+1 : 0))
-            {
+          {
             double y[3];
             y[0] = x[0]; y[1] = x[1]; y[2] = x[2];
             points->GetPoint(poly[verts[jj].first], x);
             if (side ^ (vtkMath::Dot(x, u) < d))
-              {
+            {
               side = !side;
               foundNegative = true;
               double s, t;
               foundEar = (vtkLine::Intersection(ppoint,npoint,x,y,s,t) == 0);
-              }
             }
+          }
 
           foundEar &= foundNegative;
-          }
+        }
 
         if (!foundEar)
-          {
+        {
           // don't try again until it is split
           verts[i].second = VTK_DBL_MIN;
-          }
+        }
         else
-          {
+        {
           // create a triangle from vertex and neighbors
           size_t trids[3];
           trids[0] = verts[i].first;
@@ -516,9 +516,9 @@ int vtkCCSTriangulate(
 
           // break if this was final triangle
           if (--n < 3)
-            {
+          {
             break;
-            }
+          }
 
           // re-compute quality of previous point
           size_t kk = (k != 0 ? k-1 : n-1);
@@ -533,23 +533,23 @@ int vtkCCSTriangulate(
           double jq = vtkCCSTriangleQuality(ppoint, npoint, point, normal);
           concave -= ((verts[j].second < 0) & (jq >= 0));
           verts[j].second = jq;
-          }
         }
+      }
 
       // find the highest-quality ear candidate
       maxi = 0;
       maxq = verts[0].second;
       for (i = 1; i < n; i++)
-        {
+      {
         double q = verts[i].second;
         if (q > maxq)
-          {
+        {
           maxi = i;
           maxq = q;
-          }
         }
       }
     }
+  }
 
   return !triangulationFailure;
 }
@@ -575,7 +575,7 @@ void vtkCCSMakePolysFromLines(
   vtkIdType remainingLines = endLine - firstLine;
 
   while (remainingLines > 0)
-    {
+  {
     // Create a new poly
     size_t polyId = numNewPolys++;
     newPolys.push_back(vtkCCSPoly());
@@ -586,25 +586,25 @@ void vtkCCSMakePolysFromLines(
 
     // start the poly
     for (lineId = firstLine; lineId < endLine; lineId++)
-      {
+    {
       if (!usedLines.get(lineId-firstLine))
-        {
+      {
         data->GetCellPoints(lineId, npts, pts);
 
         vtkIdType n = npts;
         if (npts > 2 && pts[0] == pts[npts-1])
-          {
+        {
           n = npts - 1;
           completePoly = 1;
-          }
+        }
         poly.resize(static_cast<size_t>(n));
         for (vtkIdType i = 0; i < n; i++)
-          {
+        {
           poly[i] = pts[i];
-          }
-        break;
         }
+        break;
       }
+    }
 
     usedLines.set(lineId-firstLine, 1);
     remainingLines--;
@@ -612,7 +612,7 @@ void vtkCCSMakePolysFromLines(
     int noLinesMatch = (remainingLines == 0 && !completePoly);
 
     while (!completePoly && !noLinesMatch && remainingLines > 0)
-      {
+    {
       // This is cleared if a match is found
       noLinesMatch = 1;
 
@@ -626,7 +626,7 @@ void vtkCCSMakePolysFromLines(
 
       // For both open ends of the polygon
       for (int endIdx = 0; endIdx < 2; endIdx++)
-        {
+      {
         std::vector<vtkIdType> matches;
         unsigned short ncells;
         vtkIdType *cells;
@@ -634,11 +634,11 @@ void vtkCCSMakePolysFromLines(
 
         // Go through all lines that contain this endpoint
         for (vtkIdType icell = 0; icell < ncells; icell++)
-          {
+        {
           lineId = cells[icell];
           if (lineId >= firstLine && lineId < endLine &&
               !usedLines.get(lineId-firstLine))
-            {
+          {
             data->GetCellPoints(lineId, npts, pts);
             lineEndPts[0] = pts[0];
             lineEndPts[1] = pts[npts-1];
@@ -646,21 +646,21 @@ void vtkCCSMakePolysFromLines(
             // Check that poly end matches line end
             if (endPts[endIdx] == lineEndPts[endIdx] ||
                 (!oriented && endPts[endIdx] == lineEndPts[1-endIdx]))
-              {
+            {
               matches.push_back(lineId);
-              }
             }
           }
+        }
 
         if (matches.size() > 0)
-          {
+        {
           // Multiple matches mean we need to decide which path to take
           if (matches.size() > 1)
-            {
+          {
             // Remove double-backs
             size_t k = matches.size();
             do
-              {
+            {
               lineId = matches[--k];
               data->GetCellPoints(lineId, npts, pts);
               lineEndPts[0] = pts[0];
@@ -672,15 +672,15 @@ void vtkCCSMakePolysFromLines(
                               (endIdx == 1 && poly[1] == pts[npts-2]))) ||
                   (r != 0 && ((endIdx == 0 && poly[npoly-2] == pts[npts-2]) ||
                               (endIdx == 1 && poly[1] == pts[1]))))
-                {
+              {
                 matches.erase(matches.begin()+k);
-                }
               }
+            }
             while (k > 0 && matches.size() > 1);
 
             // If there are multiple matches due to intersections,
             // they should be dealt with here.
-            }
+          }
 
           lineId = matches[0];
           data->GetCellPoints(lineId, npts, pts);
@@ -689,54 +689,54 @@ void vtkCCSMakePolysFromLines(
 
           // Do both ends match?
           if (endPts[endIdx] == lineEndPts[endIdx])
-            {
+          {
             completePoly = (endPts[1-endIdx] == lineEndPts[1-endIdx]);
-            }
+          }
           else
-            {
+          {
             completePoly = (endPts[1-endIdx] == lineEndPts[endIdx]);
-            }
+          }
 
           if (endIdx == 0)
-            {
+          {
             poly.insert(poly.end(), &pts[1], &pts[npts-completePoly]);
-            }
+          }
           else
-            {
+          {
             poly.insert(poly.begin(), &pts[completePoly], &pts[npts-1]);
-            }
+          }
 
           if (endPts[endIdx] != lineEndPts[endIdx])
-            {
+          {
             // reverse the ids in the added line
             vtkCCSPoly::iterator pit = poly.end();
             vtkIdType *ptsIt = pts + completePoly;
             vtkIdType *ptsEnd = pts + npts-1;
             if (endIdx == 1)
-              {
+            {
               pit = poly.begin() + npts-1 - completePoly;
               ptsIt = pts + 1;
               ptsEnd = pts + npts - completePoly;
-              }
-            while (ptsIt != ptsEnd)
-              {
-              *(--pit) = *(ptsIt++);
-              }
             }
+            while (ptsIt != ptsEnd)
+            {
+              *(--pit) = *(ptsIt++);
+            }
+          }
 
           usedLines.set(lineId-firstLine, 1);
           remainingLines--;
           noLinesMatch = 0;
-          }
         }
       }
+    }
 
     // Check for incomplete polygons
     if (noLinesMatch)
-      {
+    {
       incompletePolys.push_back(polyId);
-      }
     }
+  }
 }
 
 // ---------------------------------------------------
@@ -757,7 +757,7 @@ void vtkCCSJoinLooseEnds(
 
   size_t n;
   while ( (n = incompletePolys.size()) )
-    {
+  {
     vtkCCSPoly &poly1 = polys[incompletePolys[n-1]];
     vtkIdType pt1 = poly1[poly1.size()-1];
     double p1[3], p2[3];
@@ -767,7 +767,7 @@ void vtkCCSJoinLooseEnds(
     size_t iMin = 0;
 
     for (size_t i = 0; i < n; i++)
-      {
+    {
       vtkCCSPoly &poly2 = polys[incompletePolys[i]];
       vtkIdType pt2 = poly2[0];
       points->GetPoint(pt2, p2);
@@ -777,9 +777,9 @@ void vtkCCSJoinLooseEnds(
       v[0] = p2[0] - p1[0]; v[1] = p2[1] - p1[1]; v[2] = p2[2] - p1[2];
       double d = vtkMath::Norm(v);
       if (d != 0)
-        {
+      {
         v[0] /= d; v[1] /= d; v[2] /= d;
-        }
+      }
 
       // Compute the midpoint of the edge
       double pm[3];
@@ -797,14 +797,14 @@ void vtkCCSJoinLooseEnds(
       int badPoint = 0;
       size_t m = polys.size();
       for (size_t j = 0; j < m && !badPoint; j++)
-        {
+      {
         vtkCCSPoly &poly = polys[j];
         size_t npts = poly.size();
         for (size_t k = 0; k < npts; k++)
-          {
+        {
           vtkIdType ptId = poly[k];
           if (ptId != pt1 && ptId != pt2)
-            {
+          {
             double p[3];
             points->GetPoint(ptId, p);
             double val = p[0]*pc[0] + p[1]*pc[1] + p[2]*pc[2] + pc[3];
@@ -812,33 +812,33 @@ void vtkCCSJoinLooseEnds(
 
             // Check distance from plane against the tolerance
             if (val < 0 && val*val > tol*tol*r2)
-              {
+            {
               badPoint = 1;
               break;
-              }
             }
           }
+        }
 
         // If no bad points, then this edge is a candidate
         if (!badPoint && d < dMin)
-          {
+        {
           dMin = d;
           iMin = i;
-          }
         }
       }
+    }
 
     // If a match was found, append the polys
     if (dMin < VTK_DOUBLE_MAX)
-      {
+    {
       // Did the poly match with itself?
       if (iMin == n-1)
-        {
+      {
         // Mark the poly as closed
         incompletePolys.pop_back();
-        }
+      }
       else
-        {
+      {
         size_t id2 = incompletePolys[iMin];
 
         // Combine the polys
@@ -847,24 +847,24 @@ void vtkCCSJoinLooseEnds(
         // Erase the second poly
         removePolys.push_back(id2);
         incompletePolys.erase(incompletePolys.begin() + iMin);
-        }
       }
+    }
     else
-      {
+    {
       // If no match, erase this poly from consideration
       removePolys.push_back(incompletePolys[n-1]);
       incompletePolys.pop_back();
-      }
     }
+  }
 
   // Remove polys that couldn't be completed
   std::sort(removePolys.begin(), removePolys.end());
   size_t i = removePolys.size();
   while (i > 0)
-    {
+  {
     // Remove items in reverse order
     polys.erase(polys.begin() + removePolys[--i]);
-    }
+  }
 
   // Clear the incompletePolys vector, it's indices are no longer valid
   incompletePolys.clear();
@@ -891,7 +891,7 @@ int vtkCCSSplitAtPinchPoints(
   int splitCount = 0;
 
   for (size_t i = 0; i < polys.size(); i++)
-    {
+  {
     vtkCCSPoly &poly = polys[i];
     size_t n = poly.size();
 
@@ -900,9 +900,9 @@ int vtkCCSSplitAtPinchPoints(
     tol *= sqrt(vtkCCSPolygonBounds(poly, points, bounds));
 
     if (tol == 0)
-      {
+    {
       continue;
-      }
+    }
 
     tryPoints->Initialize();
     locator->SetTolerance(tol);
@@ -914,14 +914,14 @@ int vtkCCSSplitAtPinchPoints(
     int unique = 0;
 
     for (idx2 = 0; idx2 < n; idx2++)
-      {
+    {
       double point[3];
       vtkIdType firstId = poly[idx2];
       points->GetPoint(firstId, point);
 
       vtkIdType vertIdx = 0;
       if (!locator->InsertUniquePoint(point, vertIdx))
-        {
+      {
         // Need vertIdx to match poly indices, so force point insertion
         locator->InsertNextPoint(point);
 
@@ -930,9 +930,9 @@ int vtkCCSSplitAtPinchPoints(
         unique = (poly[idx2] != poly[idx1]);
 
         if ((idx2 > idx1 + 2 - unique) && (n + idx1 > idx2 + 2 - unique))
-          {
+        {
           if (oriented)
-            {
+          {
             // Make sure that splitting this poly won't create a hole poly
             double p1[3], p2[3], p3[3];
             size_t prevIdx = n + idx1 - 1;
@@ -947,22 +947,22 @@ int vtkCCSSplitAtPinchPoints(
             points->GetPoint(poly[nextIdx], p3);
 
             if (vtkCCSVectorProgression(point, p1, p2, p3, normal) > 0)
-              {
+            {
               foundMatch = 1;
               break;
-              }
             }
+          }
           else
-            {
+          {
             foundMatch = 1;
             break;
-            }
           }
         }
       }
+    }
 
     if (foundMatch)
-      {
+    {
       splitCount++;
 
       // Split off a new poly
@@ -977,30 +977,30 @@ int vtkCCSSplitAtPinchPoints(
 
       // The current poly, which is now intersection-free
       for (size_t l = 0; l < m+unique; l++)
-        {
+      {
         newPoly1[l] = oldPoly[l+idx1];
         newEdges1[l] = oldEdges[l+idx1];
-        }
+      }
       if (unique)
-        {
+      {
         newEdges1[m] = -1;
-        }
+      }
 
       // The poly that is split off, which might have more intersections
       for (size_t j = 0; j < idx1+unique; j++)
-        {
+      {
         newPoly2[j] = oldPoly[j];
         newEdges2[j] = oldEdges[j];
-        }
+      }
       if (unique)
-        {
+      {
         newEdges2[idx1] = -1;
-        }
+      }
       for (size_t k = idx2; k < n; k++)
-        {
+      {
         newPoly2[k - m + unique] = oldPoly[k];
         newEdges2[k - m + unique] = oldEdges[k];
-        }
+      }
 
       polys[i] = newPoly1;
       polyEdges[i] = newEdges1;
@@ -1011,11 +1011,11 @@ int vtkCCSSplitAtPinchPoints(
       // make a group with one entry for the new poly
       polyGroups.resize(polys.size());
       if (polyGroups[i].size())
-        {
+      {
         polyGroups[polys.size()-1].push_back(polys.size()-1);
-        }
       }
     }
+  }
 
   tryPoints->Delete();
   locator->Delete();
@@ -1047,16 +1047,16 @@ int vtkCCSVectorProgression(
   double s2 = vtkMath::Dot(w2, normal);
 
   if (s1 != 0 && s2 != 0)
-    {
+  {
     int sb1 = (s1 < 0);
     int sb2 = (s2 < 0);
 
     // if sines have different signs
     if ( (sb1 ^ sb2) )
-      {
+    {
       // return -1 if s2 is -ve
       return (1 - 2*sb2);
-      }
+    }
 
     double c1 = vtkMath::Dot(v2, v1);
     double l1 = vtkMath::Norm(v1);
@@ -1067,11 +1067,11 @@ int vtkCCSVectorProgression(
     double ck = (c2*l2 - c1*l1)*(1 - sb1*2);
 
     if (ck != 0)
-      {
+    {
       // return the sign of ck
       return (1 - 2*(ck < 0));
-      }
     }
+  }
 
   return 0;
 }
@@ -1092,7 +1092,7 @@ double vtkCCSPolygonBounds(
   bounds[4] = bounds[5] = p[2];
 
   for (size_t j = 1; j < n; j++)
-    {
+  {
     points->GetPoint(poly[j], p);
     if (p[0] < bounds[0]) { bounds[0] = p[0]; };
     if (p[0] > bounds[1]) { bounds[1] = p[0]; };
@@ -1100,7 +1100,7 @@ double vtkCCSPolygonBounds(
     if (p[1] > bounds[3]) { bounds[3] = p[1]; };
     if (p[2] < bounds[4]) { bounds[4] = p[2]; };
     if (p[2] > bounds[5]) { bounds[5] = p[2]; };
-    }
+  }
 
   double bx = (bounds[1] - bounds[0]);
   double by = (bounds[3] - bounds[2]);
@@ -1123,20 +1123,20 @@ void vtkCCSFindTrueEdges(
   const double atol2 = (VTK_CCS_POLYGON_TOLERANCE*VTK_CCS_POLYGON_TOLERANCE);
 
   for (size_t polyId = 0; polyId < polys.size(); polyId++)
-    {
+  {
     vtkCCSPoly &oldPoly = polys[polyId];
     size_t n = oldPoly.size();
     polyEdges.push_back(vtkCCSPolyEdges());
 
     // Only useful if poly has more than three sides
     if (n < 4)
-      {
+    {
       polyEdges[polyId].resize(3);
       polyEdges[polyId][0] = -1;
       polyEdges[polyId][1] = -1;
       polyEdges[polyId][2] = -1;
       continue;
-      }
+    }
 
     // While we remove points, m keeps track of how many points are left
     size_t m = n;
@@ -1169,7 +1169,7 @@ void vtkCCSFindTrueEdges(
     l1 = vtkMath::Dot(v1, v1);
 
     for (size_t j = 0; j < n; j++)
-      {
+    {
       size_t k = j+1;
       if (k >= n) { k -= n; }
 
@@ -1196,29 +1196,29 @@ void vtkCCSFindTrueEdges(
       if (m <= 3 ||
           (l1 > tol2 &&
            (c < 0 || l1 < tol2 || l2 < tol2 || s2 > l1*l2*atol2)))
-        {
+      {
         // Complete the previous edge only if the final point count
         // will be greater than two
         if (cellCount > 1)
-          {
+        {
           if (pointId != oldOriginalId)
-            {
+          {
             originalEdges.push_back(pointId);
             cellCount++;
-            }
+          }
           // Update the number of segments in the edge
           size_t countLocation = originalEdges.size() - cellCount - 1;
           originalEdges[countLocation] = cellCount;
           newEdges.push_back(static_cast<vtkIdType>(countLocation));
-          }
+        }
         else if (cellCount == 0)
-          {
+        {
           partialEdge.push_back(pointId);
-          }
+        }
         else
-          {
+        {
           newEdges.push_back(-1);
-          }
+        }
 
         newPoly.push_back(pointId);
 
@@ -1232,27 +1232,27 @@ void vtkCCSFindTrueEdges(
         p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
         v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
         l1 = l2;
-        }
+      }
       else
-        {
+      {
         if (cellCount > 0 && pointId != oldOriginalId)
-          {
+        {
           // First check to see if we have to add cornerPointId
           if (cellCount == 1)
-            {
+          {
             originalEdges.push_back(1); // new edge
             originalEdges.push_back(cornerPointId);
-            }
+          }
           // Then add the new point
           originalEdges.push_back(pointId);
           oldOriginalId = pointId;
           cellCount++;
-          }
+        }
         else
-          {
+        {
           // No corner yet, so save the point
           partialEdge.push_back(pointId);
-          }
+        }
 
         // Reduce the count
         m--;
@@ -1261,38 +1261,38 @@ void vtkCCSFindTrueEdges(
         p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
         v1[0] = p2[0] - p0[0];  v1[1] = p2[1] - p0[1];  v1[2] = p2[2] - p0[2];
         l1 = vtkMath::Dot(v1, v1);
-        }
       }
+    }
 
     // Add the partial edge to the end
     size_t partialSize = partialEdge.size();
     for (size_t ii = 0; ii < partialSize; ii++)
-      {
+    {
       vtkIdType pointId = partialEdge[ii];
       if (pointId != oldOriginalId)
-        {
+      {
         if (cellCount == 1)
-          {
+        {
           originalEdges.push_back(1); // new edge
           originalEdges.push_back(cornerPointId);
-          }
+        }
         originalEdges.push_back(pointId);
         oldOriginalId = pointId;
         cellCount++;
-        }
       }
+    }
 
     // Finalize
     if (cellCount > 1)
-      {
+    {
       // Update the number of segments in the edge
       size_t countLocation = originalEdges.size() - cellCount - 1;
       originalEdges[countLocation] = cellCount;
       newEdges.push_back(static_cast<vtkIdType>(countLocation));
-      }
+    }
 
     polys[polyId] = newPoly;
-    }
+  }
 }
 
 // ---------------------------------------------------
@@ -1305,14 +1305,14 @@ void vtkCCSReversePoly(
   std::reverse(poly.begin()+1, poly.end());
   std::reverse(edges.begin(), edges.end());
   for (size_t i = 0; i < edges.size(); i++)
-    {
+  {
     if (edges[i] >= 0)
-      {
+    {
       vtkIdType *pts = &originalEdges[edges[i]];
       vtkIdType npts = *pts++;
       std::reverse(pts, pts+npts);
-      }
     }
+  }
 }
 
 // ---------------------------------------------------
@@ -1335,34 +1335,34 @@ void vtkCCSInsertTriangle(
 
   // Check for original edge matches
   for (int vert = 0; vert < 3; vert++)
-    {
+  {
     size_t currId = trids[vert];
     vtkIdType edgeLoc = polyEdges[currId];
     if (edgeLoc >= 0)
-      {
+    {
       size_t nextId = currId+1;
       if (nextId == poly.size()) { nextId = 0; }
 
       // Is the triangle edge a polygon edge?
       if (nextId == trids[nextVert[vert]])
-        {
+      {
         edgeLocs[vert] = edgeLoc;
         edgeCount++;
-        }
       }
     }
+  }
 
   if (edgeCount == 0)
-    {
+  {
     // No special edge handling, so just do one triangle
 
     polys->InsertNextCell(3);
     polys->InsertCellPoint(poly[trids[0]]);
     polys->InsertCellPoint(poly[trids[1]]);
     polys->InsertCellPoint(poly[trids[2]]);
-    }
+  }
   else
-    {
+  {
     // Make triangle fans for edges with extra points
 
     vtkIdType edgePtIds[4];
@@ -1385,22 +1385,22 @@ void vtkCCSInsertTriangle(
     vtkIdType maxPoints = 0;
     int currSide = 0;
     for (int i = 0; i < 3; i++)
-      {
+    {
       if (edgeLocs[i] >= 0)
-        {
+      {
         const vtkIdType *pts = &originalEdges[edgeLocs[i]];
         vtkIdType npts = *pts++;
         assert(edgePts[i][0] == pts[0]);
         assert(edgePts[i][1] == pts[npts-1]);
         if (npts > maxPoints)
-          {
+        {
           maxPoints = npts;
           currSide = i;
-          }
+        }
         edgeNPts[i] = npts;
         edgePts[i] = pts;
-        }
       }
+    }
 
     // Find the edges before/after the edge with most points
     int prevSide = (currSide+2)%3;
@@ -1418,29 +1418,29 @@ void vtkCCSInsertTriangle(
 
     // Go through the sides and make the fans
     for (int side = 0; side < 3; side++)
-      {
+    {
       if ((side != prevSide || prevNeeded) &&
           (side != nextSide || nextNeeded))
-        {
+      {
         vtkIdType m = 0;
         vtkIdType n = edgeNPts[side]-1;
 
         if (side == currSide)
-          {
+        {
           m += prevNeeded;
           n -= nextNeeded;
-          }
+        }
 
         for (int k = m; k < n; k++)
-          {
+        {
           polys->InsertNextCell(3);
           polys->InsertCellPoint(edgePts[side][k]);
           polys->InsertCellPoint(edgePts[side][k+1]);
           polys->InsertCellPoint(tailPtIds[side]);
-          }
         }
       }
     }
+  }
 }
 
 // ---------------------------------------------------
@@ -1461,14 +1461,14 @@ int vtkCCSCheckPolygonSense(
 
   size_t n = poly.size();
   for (size_t jj = 2; jj < n; jj++)
-    {
+  {
     points->GetPoint(poly[jj], p2);
     v2[0] = p2[0] - p0[0];  v2[1] = p2[1] - p0[1];  v2[2] = p2[2] - p0[2];
     vtkMath::Cross(v1, v2, v);
     pnormal[0] += v[0]; pnormal[1] += v[1]; pnormal[2] += v[2];
     p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
     v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
-    }
+  }
 
   // Check the normal
   double d = vtkMath::Dot(pnormal, normal);
@@ -1498,7 +1498,7 @@ int vtkCCSPolyInPoly(
   size_t m = innerPoly.size();
 
   for (size_t jj = 0; jj < m; jj++)
-    {
+  {
     // Semi-randomize the point order
     size_t kk = (jj>>1) + (jj&1)*((m+1)>>1);
     double p[3];
@@ -1507,31 +1507,31 @@ int vtkCCSPolyInPoly(
     if (vtkPolygon::PointInPolygon(
         p, static_cast<int>(n), const_cast<double *>(pp),
         const_cast<double *>(bounds), const_cast<double *>(normal)))
-      {
+    {
       int pointOnEdge = 0;
       double q1[3], q2[3];
       points->GetPoint(outerPoly[n-1], q1);
 
       for (size_t ii = 0; ii < n; ii++)
-        {
+      {
         points->GetPoint(outerPoly[ii], q2);
         double t, dummy[3];
         // This method returns distance squared
         if (vtkLine::DistanceToLine(p, q1, q2, t, dummy) < tol2)
-          {
+        {
           pointOnEdge = 1;
           break;
-          }
-        q1[0] = q2[0]; q1[1] = q2[1]; q1[2] = q2[2];
         }
+        q1[0] = q2[0]; q1[1] = q2[1]; q1[2] = q2[2];
+      }
 
       if (!pointOnEdge)
-        {
+      {
         // Good result, point is in polygon
         return 1;
-        }
       }
     }
+  }
 
   // No matches found
   return 0;
@@ -1552,17 +1552,17 @@ void vtkCCSPrepareForPolyInPoly(
   size_t n = outerPoly.size();
 
   if (n == 0)
-    {
+  {
     tol2=0.0; // to avoid false positive warning about uninitialized value.
     return;
-    }
+  }
 
   // Pull out the points
   for (size_t k = 0; k < n; k++)
-    {
+  {
     double *p = &pp[3*k];
     points->GetPoint(outerPoly[k], p);
-    }
+  }
 
   // Find the bounding box and tolerance for the polygon
   tol2 = (vtkCCSPolygonBounds(outerPoly, points, bounds)*
@@ -1584,9 +1584,9 @@ void vtkCCSMakeHoleyPolys(
 {
   size_t numNewPolys = newPolys.size();
   if (numNewPolys <= 1)
-    {
+  {
     return;
-    }
+  }
 
   // Use bit arrays to keep track of inner polys
   vtkCCSBitArray polyReversed;
@@ -1595,18 +1595,18 @@ void vtkCCSMakeHoleyPolys(
   // GroupCount is an array only needed for unoriented polys
   size_t *groupCount = 0;
   if (!oriented)
-    {
+  {
     groupCount = new size_t[numNewPolys];
     std::fill(groupCount, groupCount+numNewPolys, 0);
-    }
+  }
 
   // Find the maximum poly size
   size_t nmax = 1;
   for (size_t kk = 0; kk < numNewPolys; kk++)
-    {
+  {
     size_t n = newPolys[kk].size();
     if (n > nmax) { nmax = n; }
-    }
+  }
 
   // These are some values needed for poly-in-poly checks
   double *pp = new double[3*nmax];
@@ -1615,7 +1615,7 @@ void vtkCCSMakeHoleyPolys(
 
   // Go through all polys
   for (size_t i = 0; i < numNewPolys; i++)
-    {
+  {
     size_t n = newPolys[i].size();
 
     if (n < 3) { continue; }
@@ -1623,144 +1623,144 @@ void vtkCCSMakeHoleyPolys(
     // Check if poly is reversed
     bool sense = 0;
     if (vtkCCSCheckPolygonSense(newPolys[i], points, normal, sense))
-      {
+    {
       polyReversed.set(i, !sense);
-      }
+    }
 
     // Precompute some values needed for poly-in-poly checks
     vtkCCSPrepareForPolyInPoly(newPolys[i], points, pp, bounds, tol2);
 
     // Look for polygons inside of this one
     for (size_t j = 0; j < numNewPolys; j++)
-      {
+    {
       if (j != i && newPolys[j].size() >= 3)
-        {
+      {
         // Make sure polygon i is not in polygon j
         vtkCCSPolyGroup &pg = polyGroups[j];
         if (std::find(pg.begin(), pg.end(), i) == pg.end())
-          {
+        {
           if (vtkCCSPolyInPoly(newPolys[i], newPolys[j], points,
                                normal, pp, bounds, tol2))
-            {
+          {
             // Add to group
             polyGroups[i].push_back(j);
             if (groupCount) { groupCount[j] += 1; }
-            }
           }
         }
       }
     }
+  }
 
   delete [] pp;
 
   if (!oriented)
-    {
+  {
     // build a stack of polys that aren't inside other polys
     std::vector<size_t> outerPolyStack;
     for (size_t ll = 0; ll < numNewPolys; ll++)
-      {
+    {
       if (groupCount[ll] == 0) { outerPolyStack.push_back(ll); }
-      }
+    }
 
     while (outerPolyStack.size())
-      {
+    {
       size_t j = outerPolyStack.back();
       outerPolyStack.pop_back();
 
       if (polyReversed.get(j))
-        {
+      {
         vtkCCSReversePoly(newPolys[j], polyEdges[j], originalEdges);
         polyReversed.set(j, 0);
-        }
+      }
 
       if (polyGroups[j].size() > 1)
-        {
+      {
         // Convert the group into a bit array, to make manipulation easier
         innerPolys.clear();
         for (size_t k = 1; k < polyGroups[j].size(); k++)
-          {
+        {
           size_t jj = polyGroups[j][k];
           if (groupCount[jj] > 1)
-            {
+          {
             if ((groupCount[jj] -= 2) == 0)
-              {
-              outerPolyStack.push_back(jj);
-              }
-            }
-          else
             {
+              outerPolyStack.push_back(jj);
+            }
+          }
+          else
+          {
             innerPolys.set(jj, 1);
             polyGroups[jj].clear();
             if (!polyReversed.get(jj))
-              {
+            {
               vtkCCSReversePoly(newPolys[jj], polyEdges[jj], originalEdges);
               polyReversed.set(jj, 0);
-              }
             }
           }
+        }
 
         // Use the bit array to recreate the polyGroup
         polyGroups[j].clear();
         polyGroups[j].push_back(j);
         for (size_t jj = 0; jj < numNewPolys; jj++)
-          {
+        {
           if (innerPolys.get(jj) != 0)
-            {
+          {
             polyGroups[j].push_back(jj);
-            }
           }
         }
       }
     }
+  }
   else // oriented
-    {
+  {
     for (size_t j = 0; j < numNewPolys; j++)
-      {
+    {
       // Remove the groups for reversed polys
       if (polyReversed.get(j))
-        {
+      {
         polyGroups[j].clear();
-        }
+      }
       // Polys inside the interior polys have their own groups, so remove
       // them from this group
       else if (polyGroups[j].size() > 1)
-        {
+      {
         // Convert the group into a bit array, to make manipulation easier
         innerPolys.clear();
         for (size_t k = 1; k < polyGroups[j].size(); k++)
-          {
+        {
           innerPolys.set(polyGroups[j][k], 1);
-          }
+        }
 
         // Look for non-reversed polys inside this one
         for (size_t kk = 1; kk < polyGroups[j].size(); kk++)
-          {
+        {
           // jj is the index of the inner poly
           size_t jj = polyGroups[j][kk];
           // If inner poly is not reversed then
           if (!polyReversed.get(jj))
-            {
+          {
             // Remove that poly and all polys inside of it from the group
             for (size_t ii = 0; ii < polyGroups[jj].size(); ii++)
-              {
+            {
               innerPolys.set(polyGroups[jj][ii], 0);
-              }
             }
           }
+        }
 
         // Use the bit array to recreate the polyGroup
         polyGroups[j].clear();
         polyGroups[j].push_back(j);
         for (size_t jj = 0; jj < numNewPolys; jj++)
-          {
+        {
           if (innerPolys.get(jj) != 0)
-            {
+          {
             polyGroups[j].push_back(jj);
-            }
           }
         }
       }
     }
+  }
 
   delete [] groupCount;
 }
@@ -1792,9 +1792,9 @@ int vtkCCSCheckCut(
 
   // Cuts between coincident points are good
   if (l == 0)
-    {
+  {
     return 1;
-    }
+  }
 
   // Define a tolerance with units of distance squared
   double tol2 = l*l*tol*tol;
@@ -1806,7 +1806,7 @@ int vtkCCSCheckCut(
   double *r2 = p2;
 
   for (int ii= 0; ii < 2; ii++)
-    {
+  {
     const vtkCCSPoly &poly = polys[polyId];
     size_t n = poly.size();
     size_t prevIdx = n - polyIdx - 1;
@@ -1820,15 +1820,15 @@ int vtkCCSCheckCut(
     points->GetPoint(poly[nextIdx], r3);
 
     if (vtkCCSVectorProgression(r, r1, r2, r3, normal) > 0)
-      {
+    {
       return 0;
-      }
+    }
 
     polyId = innerPolyId;
     polyIdx = innerIdx;
     r = p2;
     r2 = p1;
-    }
+  }
 
   // Check for intersections of the cut with polygon edges.
   // First, create a cut plane that divides space at the cut line.
@@ -1837,7 +1837,7 @@ int vtkCCSCheckCut(
   pc[3] = -vtkMath::Dot(pc, p1);
 
   for (size_t i = 0; i < polyGroup.size(); i++)
-    {
+  {
     const vtkCCSPoly &poly = polys[polyGroup[i]];
     size_t n = poly.size();
 
@@ -1848,7 +1848,7 @@ int vtkCCSCheckCut(
     int c1 = (v1 > 0);
 
     for (size_t j = 0; j < n; j++)
-      {
+    {
       double q2[3];
       vtkIdType qtId2 = poly[j];
       points->GetPoint(qtId2, q2);
@@ -1859,13 +1859,13 @@ int vtkCCSCheckCut(
       // so don't bother with the check.
       if (ptId1 != qtId1 && ptId1 != qtId2 &&
           ptId2 != qtId1 && ptId2 != qtId2)
-        {
+      {
         // Check for intersection
         if ( (c1 ^ c2) || v1*v1 < tol2 || v2*v2 < tol2)
-          {
+        {
           w[0] = q2[0] - q1[0]; w[1] = q2[1] - q1[1]; w[2] = q2[2] - q1[2];
           if (vtkMath::Dot(w, w) > 0)
-            {
+          {
             double qc[4];
             vtkMath::Cross(w, normal, qc);
             qc[3] = -vtkMath::Dot(qc, q1);
@@ -1876,27 +1876,27 @@ int vtkCCSCheckCut(
             int d2 = (u2 > 0);
 
             if ( (d1 ^ d2) )
-              {
+            {
               // One final check to make sure endpoints aren't coincident
               double *p = p1;
               double *q = q1;
               if (v2*v2 < v1*v1) { p = p2; }
               if (u2*u2 < u1*u1) { q = q2; }
               if (vtkMath::Distance2BetweenPoints(p, q) > tol2)
-                {
+              {
                 return 0;
-                }
               }
             }
           }
         }
+      }
 
       qtId1 = qtId2;
       q1[0] = q2[0]; q1[1] = q2[1]; q1[2] = q2[2];
       v1 = v2;
       c1 = c2;
-      }
     }
+  }
 
   return 1;
 }
@@ -1936,46 +1936,46 @@ double vtkCCSCutQuality(
   v2[0] = p0[0] - p1[0]; v2[1] = p0[1] - p1[1]; v2[2] = p0[2] - p1[2];
   l2 = vtkMath::Dot(v2, v2);
   if (l2 > 0)
-    {
+  {
     q = vtkMath::Dot(v1, v2);
     q *= q/l2;
     if (q > qmax) { qmax = q; }
-    }
+  }
 
   points->GetPoint(outerPoly[b], p0);
   v2[0] = p0[0] - p1[0]; v2[1] = p0[1] - p1[1]; v2[2] = p0[2] - p1[2];
   l2 = vtkMath::Dot(v2, v2);
   if (l2 > 0)
-    {
+  {
     q = vtkMath::Dot(v1, v2);
     q *= q/l2;
     if (q > qmax) { qmax = q; }
-    }
+  }
 
   points->GetPoint(innerPoly[c], p0);
   v2[0] = p2[0] - p0[0]; v2[1] = p2[1] - p0[1]; v2[2] = p2[2] - p0[2];
   l2 = vtkMath::Dot(v2, v2);
   if (l2 > 0)
-    {
+  {
     q = vtkMath::Dot(v1, v2);
     q *= q/l2;
     if (q > qmax) { qmax = q; }
-    }
+  }
 
   points->GetPoint(innerPoly[d], p0);
   v2[0] = p2[0] - p0[0]; v2[1] = p2[1] - p0[1]; v2[2] = p2[2] - p0[2];
   l2 = vtkMath::Dot(v2, v2);
   if (l2 > 0)
-    {
+  {
     q = vtkMath::Dot(v1, v2);
     q *= q/l2;
     if (q > qmax) { qmax = q; }
-    }
+  }
 
   if (l1 > 0)
-    {
+  {
     return qmax/l1; // also l1 + qmax, incorporates distance;
-    }
+  }
 
   return VTK_DOUBLE_MAX;
 }
@@ -2006,7 +2006,7 @@ void vtkCCSFindSharpestVerts(
   l1 = sqrt(vtkMath::Dot(v1, v1));
 
   for (size_t j = 0; j < n; j++)
-    {
+  {
     size_t k = j+1;
     if (k == n) { k = 0; }
 
@@ -2018,23 +2018,23 @@ void vtkCCSFindSharpestVerts(
     double b = vtkMath::Dot(v, normal);
 
     if (b < 0 && l1*l2 > 0)
-      {
+    {
       // Dot product is |v1||v2|cos(theta), range [-1, +1]
       double val = vtkMath::Dot(v1, v2)/(l1*l2);
       if (val < minVal[0])
-        {
+      {
         minVal[1] = minVal[0];
         minVal[0] = val;
         verts[1] = verts[0];
         verts[0] = j;
-        }
       }
+    }
 
     // Rotate to the next point
     p1[0] = p2[0]; p1[1] = p2[1]; p1[2] = p2[2];
     v1[0] = v2[0]; v1[1] = v2[1]; v1[2] = v2[2];
     l1 = l2;
-    }
+  }
 }
 
 // ---------------------------------------------------
@@ -2064,39 +2064,39 @@ int vtkCCSFindCuts(
   cuts[1][0] = cuts[1][1] = 0;
 
   for (cutId = 0; cutId < 2; cutId++)
-    {
+  {
     int foundCut = 0;
 
     size_t count = (exhaustive ? innerSize : 3);
 
     for (size_t i = 0; i < count && !foundCut; i++)
-      {
+    {
       // Semi-randomize the search order
       size_t j = (i>>1) + (i&1)*((innerSize+1)>>1);
       // Start at the best first point
       j = (j + verts[cutId])%innerSize;
 
       for (size_t kk = 0; kk < outerPoly.size(); kk++)
-        {
+      {
         double q = vtkCCSCutQuality(outerPoly, innerPoly, kk, j, points);
         cutlist[kk].first = q;
         cutlist[kk].second = kk;
-        }
+      }
 
       std::sort(cutlist.begin(), cutlist.end());
 
       for (size_t lid = 0; lid < cutlist.size(); lid++)
-        {
+      {
         size_t k = cutlist[lid].second;
 
         // If this is the second cut, do extra checks
         if (cutId > 0)
-          {
+        {
           // Make sure cuts don't share an endpoint
           if (j == cuts[0][1] || k == cuts[0][0])
-            {
+          {
             continue;
-            }
+          }
 
           // Make sure cuts don't intersect
           double p1[3], p2[3];
@@ -2109,28 +2109,28 @@ int vtkCCSFindCuts(
 
           double u, v;
           if (vtkLine::Intersection(p1, p2, q1, q2, u, v) == 2)
-            {
+          {
             continue;
-            }
           }
+        }
 
         // This check is done for both cuts
         if (vtkCCSCheckCut(polys, points, normal, polyGroup,
                            outerPolyId, innerPolyId, k, j))
-          {
+        {
           cuts[cutId][0] = k;
           cuts[cutId][1] = j;
           foundCut = 1;
           break;
-          }
         }
       }
+    }
 
     if (!foundCut)
-      {
+    {
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -2147,12 +2147,12 @@ void vtkCCSMakeCuts(
 {
   double q[3], r[3];
   for (size_t bb = 0; bb < 2; bb++)
-    {
+  {
     vtkIdType ptId1 = polys[outerPolyId][cuts[bb][0]];
     vtkIdType ptId2 = polys[innerPolyId][cuts[bb][1]];
     points->GetPoint(ptId1, q);
     points->GetPoint(ptId2, r);
-    }
+  }
 
   vtkCCSPoly &outerPoly = polys[outerPolyId];
   vtkCCSPoly &innerPoly = polys[innerPolyId];
@@ -2174,22 +2174,22 @@ void vtkCCSMakeCuts(
 
   idx = cuts[0][0];
   for (size_t i1 = 0; i1 < n1; i1++)
-    {
+  {
     size_t k = idx++;
     poly1[i1] = outerPoly[k];
     edges1[i1] = outerEdges[k];
     idx *= (idx != n);
-    }
+  }
   edges1[n1-1] = -1;
 
   idx = cuts[1][1];
   for (size_t i2 = n1; i2 < n2; i2++)
-    {
+  {
     size_t k = idx++;
     poly1[i2] = innerPoly[k];
     edges1[i2] = innerEdges[k];
     idx *= (idx != m);
-    }
+  }
   edges1[n2-1] = -1;
 
   // Generate poly2
@@ -2201,22 +2201,22 @@ void vtkCCSMakeCuts(
 
   idx = cuts[1][0];
   for (size_t j1 = 0; j1 < m1; j1++)
-    {
+  {
     size_t k = idx++;
     poly2[j1] = outerPoly[k];
     edges2[j1] = outerEdges[k];
     idx *= (idx != n);
-    }
+  }
   edges2[m1-1] = -1;
 
   idx = cuts[0][1];
   for (size_t j2 = m1; j2 < m2; j2++)
-    {
+  {
     size_t k = idx++;
     poly2[j2] = innerPoly[k];
     edges2[j2] = innerEdges[k];
     idx *= (idx != m);
-    }
+  }
   edges2[m2-1] = -1;
 
   // Replace outerPoly and innerPoly with these new polys
@@ -2246,12 +2246,12 @@ int vtkCCSCutHoleyPolys(
   // is reset because a cutting a poly creates a new group.
   size_t groupId = 0;
   while (groupId < polyGroups.size())
-    {
+  {
     vtkCCSPolyGroup &polyGroup = polyGroups[groupId];
 
     // Only need to make a cut if the group size is greater than 1
     if (polyGroup.size() > 1)
-      {
+    {
       // The first member of the group is the outer poly
       size_t outerPolyId = polyGroup[0];
 
@@ -2263,10 +2263,10 @@ int vtkCCSCutHoleyPolys(
         innerBySize(polyGroup.size());
 
       for (size_t i = 1; i < polyGroup.size(); i++)
-        {
+      {
         innerBySize[i].first = polys[polyGroup[i]].size();
         innerBySize[i].second = i;
-        }
+      }
 
       std::sort(innerBySize.begin()+1, innerBySize.end());
       std::reverse(innerBySize.begin()+1, innerBySize.end());
@@ -2276,46 +2276,46 @@ int vtkCCSCutHoleyPolys(
       int madeCut = 0;
       size_t inner = 0;
       for (int exhaustive = 0; exhaustive < 2 && !madeCut; exhaustive++)
-        {
+      {
         for (size_t j = 1; j < polyGroup.size(); j++)
-          {
+        {
           inner = innerBySize[j].second;
           innerPolyId = polyGroup[inner];
 
           size_t cuts[2][2];
           if (vtkCCSFindCuts(polys, polyGroup, outerPolyId, innerPolyId,
                              points, normal, cuts, exhaustive))
-            {
+          {
             vtkCCSMakeCuts(polys, polyEdges, outerPolyId, innerPolyId,
                            points, cuts);
             madeCut = 1;
             break;
-            }
           }
         }
+      }
 
       if (madeCut)
-        {
+      {
         // Move successfuly cut innerPolyId into its own group
         polyGroup.erase(polyGroup.begin() + inner);
         polyGroups[innerPolyId].push_back(innerPolyId);
-        }
+      }
       else
-        {
+      {
         // Remove all failed inner polys from the group
         for (size_t k = 1; k < polyGroup.size(); k++)
-          {
+        {
           innerPolyId = polyGroup[k];
           polyGroups[innerPolyId].push_back(innerPolyId);
-          }
+        }
         polyGroup.resize(1);
         cutFailure = 1;
-        }
+      }
 
       // If there are other interior polys in the group, find out whether
       // they are in poly1 or poly2
       if (polyGroup.size() > 1)
-        {
+      {
         vtkCCSPoly &poly1 = polys[outerPolyId];
         double *pp = new double[3*poly1.size()];
         double bounds[6];
@@ -2324,15 +2324,15 @@ int vtkCCSCutHoleyPolys(
 
         size_t ii = 1;
         while (ii < polyGroup.size())
-          {
+        {
           if (vtkCCSPolyInPoly(poly1, polys[polyGroup[ii]],
                                points, normal, pp, bounds, tol2))
-            {
+          {
             // Keep this poly in polyGroup
             ii++;
-            }
+          }
           else
-            {
+          {
             // Move this poly to poly2 group
             polyGroups[innerPolyId].push_back(polyGroup[ii]);
             polyGroup.erase(polyGroup.begin()+ii);
@@ -2340,21 +2340,21 @@ int vtkCCSCutHoleyPolys(
             // Reduce the groupId to ensure that this new group
             // will get cut
             if (innerPolyId < groupId)
-              {
+            {
               groupId = innerPolyId;
-              }
             }
           }
+        }
         delete [] pp;
 
         // Continue without incrementing groupId
         continue;
-        }
       }
+    }
 
     // Increment to the next group
     groupId++;
-    }
+  }
 
   return !cutFailure;
 }
@@ -2384,9 +2384,9 @@ int vtkContourTriangulator::TriangulateContours(
 
   // If no cut lines were generated, there's nothing to do
   if (numLines <= 0)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPoints *points = data->GetPoints();
 
@@ -2406,23 +2406,23 @@ int vtkContourTriangulator::TriangulateContours(
   // if no normal specified, then compute one from largest contour
   double computedNormal[3] = { 0.0, 0.0, 1.0 };
   if (normal == 0)
-    {
+  {
     double maxnorm2 = 0;
     size_t numNewPolys = newPolys.size();
     for (size_t i = 0; i < numNewPolys; i++)
-      {
+    {
       double n[3];
       double norm2 = vtkCCSPolygonNormal(newPolys[i], points, n);
       if (norm2 > maxnorm2)
-        {
+      {
         maxnorm2 = norm2;
         computedNormal[0] = n[0];
         computedNormal[1] = n[1];
         computedNormal[2] = n[2];
-        }
       }
-    normal = computedNormal;
     }
+    normal = computedNormal;
+  }
 
   // Join any loose ends.  If the input was a closed surface then there
   // will not be any loose ends, so this is provided as a service to users
@@ -2450,9 +2450,9 @@ int vtkContourTriangulator::TriangulateContours(
   size_t numNewPolys = newPolys.size();
   std::vector<vtkCCSPolyGroup> polyGroups(numNewPolys);
   for (size_t i = 0; i < numNewPolys; i++)
-    {
+  {
     polyGroups[i].push_back(i);
-    }
+  }
 
   // Find out which polys are holes in larger polys.  Create a group
   // for each poly where the first member of the group is the larger
@@ -2470,9 +2470,9 @@ int vtkContourTriangulator::TriangulateContours(
   // expensive part of the process.
 
   if (!vtkCCSCutHoleyPolys(newPolys, points, polyGroups, polyEdges, normal))
-    {
+  {
     triangulationFailure = 1;
-    }
+  }
 
   // Some polys might be self-intersecting.  Split the polys at each
   // intersection point.
@@ -2484,16 +2484,16 @@ int vtkContourTriangulator::TriangulateContours(
 
   // Go through all polys and triangulate them
   for (size_t polyId = 0; polyId < polyGroups.size(); polyId++)
-    {
+  {
     // If group is empty, then poly was a hole without a containing poly
     if (polyGroups[polyId].size() == 0)
-      {
+    {
       continue;
-      }
+    }
 
     if (!vtkCCSTriangulate(newPolys[polyId], points, polyEdges[polyId],
                            originalEdges, polys, normal))
-      {
+    {
       triangulationFailure = 1;
 #ifdef VTK_CCS_SHOW_FAILED_POLYS
       // Diagnostic code: show the polys as outlines
@@ -2501,13 +2501,13 @@ int vtkContourTriangulator::TriangulateContours(
       vtkCCSPoly &poly = newPolys[polyId];
       lines->InsertNextCell(poly.size()+1);
       for (size_t jjj = 0; jjj < poly.size(); jjj++)
-        {
+      {
         lines->InsertCellPoint(poly[jjj]);
-        }
+      }
       lines->InsertCellPoint(poly[0]);
 #endif
-      }
     }
+  }
 
   return !triangulationFailure;
 }
@@ -2522,9 +2522,9 @@ int vtkContourTriangulator::TriangulatePolygon(
   poly.resize(n);
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     poly[i] = polygon->GetId(i);
-    }
+  }
 
   vtkCCSCellArray originalEdges;
   std::vector<vtkCCSPolyEdges> polyEdges;
@@ -2534,9 +2534,9 @@ int vtkContourTriangulator::TriangulatePolygon(
   int success = 1;
   double normal[3];
   if (vtkCCSPolygonNormal(poly, points, normal))
-    {
+  {
     success = vtkCCSTriangulate(poly, points, edges, originalEdges,
                                 triangles, normal);
-    }
+  }
   return success;
 }

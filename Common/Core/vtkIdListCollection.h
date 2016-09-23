@@ -38,9 +38,9 @@ public:
    * Add a dataset to the list.
    */
   void AddItem(vtkIdList *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
   /**
    * Get the next dataset in the list.

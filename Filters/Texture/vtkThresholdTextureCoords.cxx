@@ -47,34 +47,34 @@ vtkThresholdTextureCoords::vtkThresholdTextureCoords()
 void vtkThresholdTextureCoords::ThresholdByLower(double lower)
 {
   if ( this->LowerThreshold != lower )
-    {
+  {
     this->LowerThreshold = lower;
     this->ThresholdFunction = &vtkThresholdTextureCoords::Lower;
     this->Modified();
-    }
+  }
 }
 
 // Criterion is cells whose scalars are less than upper threshold.
 void vtkThresholdTextureCoords::ThresholdByUpper(double upper)
 {
   if ( this->UpperThreshold != upper )
-    {
+  {
     this->UpperThreshold = upper;
     this->ThresholdFunction = &vtkThresholdTextureCoords::Upper;
     this->Modified();
-    }
+  }
 }
 
 // Criterion is cells whose scalars are between lower and upper thresholds.
 void vtkThresholdTextureCoords::ThresholdBetween(double lower, double upper)
 {
   if ( this->LowerThreshold != lower || this->UpperThreshold != upper )
-    {
+  {
     this->LowerThreshold = lower;
     this->UpperThreshold = upper;
     this->ThresholdFunction = &vtkThresholdTextureCoords::Between;
     this->Modified();
-    }
+  }
 }
 
 int vtkThresholdTextureCoords::RequestData(
@@ -103,10 +103,10 @@ int vtkThresholdTextureCoords::RequestData(
   output->CopyStructure( input );
 
   if ( ! (inScalars = input->GetPointData()->GetScalars()) )
-    {
+  {
     vtkErrorMacro(<<"No scalar data to texture threshold");
     return 1;
-    }
+  }
 
   numPts = input->GetNumberOfPoints();
   newTCoords = vtkFloatArray::New();
@@ -115,17 +115,17 @@ int vtkThresholdTextureCoords::RequestData(
 
   // Check that the scalars of each point satisfy the threshold criterion
   for (ptId=0; ptId < numPts; ptId++)
-    {
+  {
     if ( (this->*(this->ThresholdFunction))(inScalars->GetComponent(ptId,0)) )
-      {
+    {
       newTCoords->InsertTuple(ptId,this->InTextureCoord);
-      }
+    }
     else //doesn't satisfy criterion
-      {
+    {
       newTCoords->InsertTuple(ptId,this->OutTextureCoord);
-      }
+    }
 
-    } //for all points
+  } //for all points
 
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());
@@ -141,19 +141,19 @@ void vtkThresholdTextureCoords::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Upper )
-    {
+  {
     os << indent << "Threshold By Upper\n";
-    }
+  }
 
   else if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Lower )
-    {
+  {
     os << indent << "Threshold By Lower\n";
-    }
+  }
 
   else if ( this->ThresholdFunction == &vtkThresholdTextureCoords::Between )
-    {
+  {
     os << indent << "Threshold Between\n";
-    }
+  }
 
   os << indent << "Lower Threshold: " << this->LowerThreshold << "\n";;
   os << indent << "Upper Threshold: " << this->UpperThreshold << "\n";;

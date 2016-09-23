@@ -41,20 +41,20 @@ bool QFilterTreeProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
   int level = 0;
   QModelIndex pidx = sourceParent;
   while(pidx != QModelIndex())
-    {
+  {
     pidx = pidx.parent();
     level++;
-    }
+  }
 
   if(level < this->TreeLevel)
-    {
+  {
     return true;
-    }
+  }
 
   if(level > this->TreeLevel)
-    {
+  {
     return filterAcceptsRow(sourceRow, sourceParent.parent());
-    }
+  }
 
  QModelIndex idx = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
 

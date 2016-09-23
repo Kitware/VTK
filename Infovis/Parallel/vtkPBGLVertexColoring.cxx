@@ -93,30 +93,30 @@ int vtkPBGLVertexColoring::RequestData(
   // Create the color array
   vtkIdTypeArray* colorArray = vtkIdTypeArray::New();
   if (this->ColorArrayName)
-    {
+  {
     colorArray->SetName(this->ColorArrayName);
-    }
+  }
   else
-    {
+  {
     colorArray->SetName("Color");
-    }
+  }
   colorArray->SetNumberOfTuples(output->GetNumberOfVertices());
 
   vtkDistributedGraphHelper *helper = output->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorMacro("Distributed vtkGraph is required.");
     return 1;
-    }
+  }
 
   // We can only deal with Parallel BGL-distributed graphs.
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorMacro("Can only perform parallel shortest-paths on a Parallel BGL distributed graph");
     return 1;
-    }
+  }
 
   int myRank = outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
 
@@ -128,16 +128,16 @@ int vtkPBGLVertexColoring::RequestData(
 
   // Execute the algorithm itself
   if (vtkUndirectedGraph::SafeDownCast(output))
-    {
+  {
     vtkUndirectedGraph *g = vtkUndirectedGraph::SafeDownCast(output);
     boost::graph::distributed::boman_et_al_graph_coloring(g, colorMap,
                                                           this->BlockSize);
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Vertex coloring requires an undirected, distributed vtkGraph.");
     return 1;
-    }
+  }
 
   // Add color array to the output
   output->GetVertexData()->AddArray(colorArray);
@@ -163,9 +163,9 @@ int vtkPBGLVertexColoring::FillInputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkGraph");
-    }
+  }
   return 1;
 }
 
@@ -175,9 +175,9 @@ int vtkPBGLVertexColoring::FillOutputPortInformation(
 {
   // now add our info
   if (port == 0)
-    {
+  {
     info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkGraph");
-    }
+  }
   return 1;
 }
 

@@ -34,9 +34,9 @@ Attribute::Attribute(ADIOS_FILE *f, int id)
 Attribute::~Attribute()
 {
   if(this->Value)
-    {
+  {
     std::free(this->Value);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

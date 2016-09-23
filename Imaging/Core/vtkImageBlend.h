@@ -215,14 +215,14 @@ private:
 inline const char *vtkImageBlend::GetBlendModeAsString()
 {
   switch (this->BlendMode)
-    {
+  {
     case VTK_IMAGE_BLEND_MODE_NORMAL:
       return "Normal";
     case VTK_IMAGE_BLEND_MODE_COMPOUND:
       return "Compound";
     default:
       return "Unknown Blend Mode";
-    }
+  }
 }
 //@}
 

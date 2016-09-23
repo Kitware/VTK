@@ -98,14 +98,14 @@ void vtkChooserPainter::PrepareForRendering(vtkRenderer* ren, vtkActor* actor)
     this->PaintersChoiceTime < this->Information->GetMTime() ||
     this->LastRenderer != ren ||
     this->PaintersChoiceTime < this->GetInput()->GetMTime())
-    {
+  {
     this->LastRenderer = ren;
     // Choose the painters.
     this->ChoosePainters(ren, actor);
     // Pass them the information and poly data we have.
     this->UpdateChoosenPainters();
     this->PaintersChoiceTime.Modified();
-    }
+  }
   this->Superclass::PrepareForRendering(ren, actor);
 }
 
@@ -113,21 +113,21 @@ void vtkChooserPainter::PrepareForRendering(vtkRenderer* ren, vtkActor* actor)
 void vtkChooserPainter::UpdateChoosenPainters()
 {
   if (this->VertPainter)
-    {
+  {
     this->PassInformation(this->VertPainter);
-    }
+  }
   if (this->LinePainter)
-    {
+  {
     this->PassInformation(this->LinePainter);
-    }
+  }
   if (this->PolyPainter)
-    {
+  {
     this->PassInformation(this->PolyPainter);
-    }
+  }
   if (this->StripPainter)
-    {
+  {
     this->PassInformation(this->StripPainter);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -147,89 +147,89 @@ void vtkChooserPainter::ChoosePainters(vtkRenderer *renderer, vtkActor* actor)
                 << strippaintertype);
 
   if (!this->VertPainter || !this->VertPainter->IsA(vertpaintertype))
-    {
+  {
     painter = this->CreatePainter(vertpaintertype);
     if (painter)
-      {
+    {
       this->SetVertPainter(painter);
       painter->Delete();
       vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
       painter->SetDelegatePainter(sp);
       sp->Delete();
-      }
     }
+  }
 
   if (!this->LinePainter || !this->LinePainter->IsA(linepaintertype))
-    {
+  {
     if (strcmp(vertpaintertype, linepaintertype) == 0)
-      {
+    {
       this->SetLinePainter(this->VertPainter);
-      }
+    }
     else
-      {
+    {
       painter = this->CreatePainter(linepaintertype);
       if (painter)
-        {
+      {
         this->SetLinePainter(painter);
         painter->Delete();
         vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
         painter->SetDelegatePainter(sp);
         sp->Delete();
-        }
       }
     }
+  }
 
   if (!this->PolyPainter || !this->PolyPainter->IsA(polypaintertype))
-    {
+  {
     if (strcmp(vertpaintertype, polypaintertype) == 0)
-      {
+    {
       this->SetPolyPainter(this->VertPainter);
-      }
+    }
     else if (strcmp(linepaintertype, polypaintertype) == 0)
-      {
+    {
       this->SetPolyPainter(this->LinePainter);
-      }
+    }
     else
-      {
+    {
       painter = this->CreatePainter(polypaintertype);
       if (painter)
-        {
+      {
         this->SetPolyPainter(painter);
         painter->Delete();
         vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
         painter->SetDelegatePainter(sp);
         sp->Delete();
-        }
       }
     }
+  }
 
   if (!this->StripPainter || !this->StripPainter->IsA(strippaintertype))
-    {
+  {
     if (strcmp(vertpaintertype, strippaintertype) == 0)
-      {
+    {
       this->SetStripPainter(this->VertPainter);
-      }
+    }
     else if (strcmp(linepaintertype, strippaintertype) == 0)
-      {
+    {
       this->SetStripPainter(this->LinePainter);
-      }
+    }
     else if (strcmp(polypaintertype, strippaintertype) == 0)
-      {
+    {
       this->SetStripPainter(this->PolyPainter);
-      }
+    }
     else
-      {
+    {
       painter = this->CreatePainter(strippaintertype);
       if (painter)
-        {
+      {
         this->SetStripPainter(painter);
         painter->Delete();
         vtkStandardPolyDataPainter* sp = vtkStandardPolyDataPainter::New();
         painter->SetDelegatePainter(sp);
         sp->Delete();
-        }
       }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -248,26 +248,26 @@ vtkPolyDataPainter* vtkChooserPainter::CreatePainter(const char *paintertype)
 {
   vtkPolyDataPainter* p = 0;
   if (strcmp(paintertype, "vtkPointsPainter") == 0)
-    {
+  {
     p = vtkPointsPainter::New();
-    }
+  }
   else if (strcmp(paintertype, "vtkLinesPainter") == 0)
-    {
+  {
     p = vtkLinesPainter::New();
-    }
+  }
   else if (strcmp(paintertype, "vtkPolygonsPainter") == 0)
-    {
+  {
     p = vtkPolygonsPainter::New();
-    }
+  }
   else if (strcmp(paintertype, "vtkTStripsPainter") == 0)
-    {
+  {
     p = vtkTStripsPainter::New();
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("Cannot create painter " << paintertype);
     return 0;
-    }
+  }
   this->ObserverPainterProgress(p);
   return p;
 }
@@ -293,52 +293,52 @@ void vtkChooserPainter::RenderInternal(vtkRenderer* renderer, vtkActor* actor,
     pdInput->GetNumberOfStrips() : 0;
 
   if (total_cells == 0)
-    {
+  {
     // nothing to render.
     return;
-    }
+  }
 
   this->ProgressOffset = 0.0;
   this->TimeToDraw = 0.0;
   if ((typeflags & vtkPainter::VERTS) && numVerts>0 )
-    {
+  {
     //cout << this << "Verts" << endl;
     this->ProgressScaleFactor = static_cast<double>(numVerts)/total_cells;
     this->VertPainter->Render(renderer, actor, vtkPainter::VERTS,
                               forceCompileOnly);
     this->TimeToDraw += this->VertPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
-    }
+  }
 
   if ((typeflags & vtkPainter::LINES) && numLines>0 )
-    {
+  {
     //cout << this << "Lines" << endl;
     this->ProgressScaleFactor = static_cast<double>(numLines)/total_cells;
     this->LinePainter->Render(renderer, actor, vtkPainter::LINES,
                               forceCompileOnly);
     this->TimeToDraw += this->LinePainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
-    }
+  }
 
 
   if ((typeflags & vtkPainter::POLYS) && numPolys>0 )
-    {
+  {
     //cout << this << "Polys" << endl;
     this->ProgressScaleFactor = static_cast<double>(numPolys)/total_cells;
     this->PolyPainter->Render(renderer, actor, vtkPainter::POLYS,
       forceCompileOnly);
     this->TimeToDraw += this->PolyPainter->GetTimeToDraw();
     this->ProgressOffset += this->ProgressScaleFactor;
-    }
+  }
 
   if ((typeflags & vtkPainter::STRIPS) && numStrips>0 )
-    {
+  {
     //cout << this << "Strips" << endl;
     this->ProgressScaleFactor = static_cast<double>(numStrips)/total_cells;
     this->StripPainter->Render(renderer, actor, vtkPainter::STRIPS,
                                forceCompileOnly);
     this->TimeToDraw += this->StripPainter->GetTimeToDraw();
-    }
+  }
   this->Superclass::RenderInternal(renderer, actor, typeflags,forceCompileOnly);
 }
 

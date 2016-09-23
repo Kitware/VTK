@@ -58,11 +58,11 @@ inline void vtkSMPTransformDerivative(T1 matrix[4][4],
   vtkSMPTransformPoint(matrix,in,out);
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     derivative[0][i] = static_cast<T4>(matrix[0][i]);
     derivative[1][i] = static_cast<T4>(matrix[1][i]);
     derivative[2][i] = static_cast<T4>(matrix[2][i]);
-    }
+  }
 }
 
 //------------------------------------------------------------------------
@@ -119,25 +119,25 @@ public:
   void operator()( vtkIdType begin, vtkIdType end ) const
   {
     for (vtkIdType id=begin; id<end; id++)
-      {
+    {
       double point[3];
       inPts->GetPoint(id, point);
       vtkSMPTransformPoint(matrix, point, point);
       outPts->SetPoint(id, point);
       if (inVcs)
-        {
+      {
         inVcs->GetTuple(id, point);
         vtkSMPTransformVector(matrix, point, point);
         outVcs->SetTuple(id, point);
-        }
+      }
       if (inNms)
-        {
+      {
         inNms->GetTuple(id, point);
         vtkSMPTransformVector(matrixInvTr, point, point);
         vtkMath::Normalize( point );
         outNms->SetTuple(id, point);
-        }
       }
+    }
   }
 };
 
@@ -161,12 +161,12 @@ void vtkSMPTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
   functor.outVcs = outVrs;
   functor.matrix = this->Matrix->Element;
   if (inNms)
-    {
+  {
     vtkMatrix4x4::DeepCopy(*matrix,this->Matrix);
     vtkMatrix4x4::Invert(*matrix,*matrix);
     vtkMatrix4x4::Transpose(*matrix,*matrix);
     functor.matrixInvTr = matrix;
-    }
+  }
 
   vtkSMPTools::For( 0, n, functor );
 }
@@ -181,12 +181,12 @@ public:
   void operator () ( vtkIdType begin, vtkIdType end ) const
   {
     for (vtkIdType id=begin; id<end; id++)
-      {
+    {
       double point[3];
       inPts->GetPoint( id, point );
       vtkSMPTransformPoint( matrix, point, point );
       outPts->SetPoint( id, point );
-      }
+    }
   }
 };
 
@@ -214,13 +214,13 @@ public:
   void operator () ( vtkIdType begin, vtkIdType end ) const
   {
     for(vtkIdType id=begin; id<end; id++)
-      {
+    {
       double norm[3];
       inNms->GetTuple( id, norm );
       vtkSMPTransformVector( matrix, norm, norm );
       vtkMath::Normalize( norm );
       outNms->SetTuple( id, norm );
-      }
+    }
   }
 };
 
@@ -255,12 +255,12 @@ public:
   void operator () ( vtkIdType begin, vtkIdType end) const
   {
     for(vtkIdType id=begin; id<end; id++)
-      {
+    {
       double vec[3];
       inVcs->GetTuple( id, vec );
       vtkSMPTransformVector( matrix, vec, vec );
       outVcs->SetTuple( id, vec );
-      }
+    }
   }
 };
 

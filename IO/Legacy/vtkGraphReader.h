@@ -57,12 +57,12 @@ protected:
   ~vtkGraphReader();
 
   enum GraphType
-    {
+  {
     UnknownGraph,
     DirectedGraph,
     UndirectedGraph,
     Molecule
-    };
+  };
 
   virtual int RequestData(vtkInformation *, vtkInformationVector **,
                           vtkInformationVector *);

@@ -38,10 +38,10 @@ void vtkImageCityBlockDistance::AllocateOutputScalars(vtkImageData *outData,
 
   memcpy(updateExtent, uExt, 6*sizeof(int));
   for (idx = 0; idx < this->Dimensionality; ++idx)
-    {
+  {
     updateExtent[idx*2] = wholeExtent[idx*2];
     updateExtent[idx*2+1] = wholeExtent[idx*2+1];
-    }
+  }
   outData->SetExtent(updateExtent);
   outData->AllocateScalars(outInfo);
 }
@@ -101,12 +101,12 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   // this filter expects that inputand output are short
   if (inData->GetScalarType() != VTK_SHORT ||
       outData->GetScalarType() != VTK_SHORT)
-    {
+  {
     vtkErrorMacro(<< "Execute: input ScalarType, " << inData->GetScalarType()
                   << ", and out ScalarType " << outData->GetScalarType()
                   << " must be short.");
     return 1;
-    }
+  }
 
 
   // Reorder axes (the in and out extents are assumed to be the same)
@@ -123,58 +123,58 @@ int vtkImageCityBlockDistance::IterativeRequestData(
   inPtr2 = static_cast<short *>(inData->GetScalarPointerForExtent(outExt));
   outPtr2 = static_cast<short *>(outData->GetScalarPointerForExtent(outExt));
   for (idx2 = min2; idx2 <= max2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = min1; !this->AbortExecute && idx1 <= max1; ++idx1)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(count/(50.0*target));
-        }
+      }
       count++;
       inPtrC = inPtr1;
       outPtrC = outPtr1;
       for (idxC = 0; idxC < numberOfComponents; ++idxC)
-        {
+      {
         // execute forward pass
         distP = big;
         distN = -big;
         inPtr0 = inPtrC;
         outPtr0 = outPtrC;
         for (idx0 = min0; idx0 <= max0; ++idx0)
-          { // preserve sign
+        { // preserve sign
           if (*inPtr0 >= 0)
-            {
+          {
             distN = 0;
             if (distP > *inPtr0)
-              {
-              distP = *inPtr0;
-              }
-            *outPtr0 = distP;
-            }
-          if (*inPtr0 <= 0)
             {
+              distP = *inPtr0;
+            }
+            *outPtr0 = distP;
+          }
+          if (*inPtr0 <= 0)
+          {
             distP = 0;
             if (distN < *inPtr0)
-              {
+            {
               distN = *inPtr0;
-              }
-            *outPtr0 = distN;
             }
+            *outPtr0 = distN;
+          }
 
           if (distP < big)
-            {
+          {
             ++distP;
-            }
+          }
           if (distN > -big)
-            {
+          {
             --distN;
-            }
+          }
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
-          }
+        }
 
         // backward pass
         distP = big;
@@ -183,45 +183,45 @@ int vtkImageCityBlockDistance::IterativeRequestData(
         // (input is no longer needed)
         outPtr0 -= outInc0;
         for (idx0 = max0; idx0 >= min0; --idx0)
-          {
+        {
           if (*outPtr0 >= 0)
-            {
+          {
             if (distP > *outPtr0)
-              {
-              distP = *outPtr0;
-              }
-            *outPtr0 = distP;
-            }
-          if (*outPtr0 <= 0)
             {
-            if (distN < *outPtr0)
-              {
-              distN = *outPtr0;
-              }
-            *outPtr0 = distN;
+              distP = *outPtr0;
             }
+            *outPtr0 = distP;
+          }
+          if (*outPtr0 <= 0)
+          {
+            if (distN < *outPtr0)
+            {
+              distN = *outPtr0;
+            }
+            *outPtr0 = distN;
+          }
 
           if (distP < big)
-            {
+          {
             ++distP;
-            }
+          }
           if (distN > -big)
-            {
+          {
             --distN;
-            }
+          }
 
           outPtr0 -= outInc0;
-          }
+        }
 
         inPtrC += 1;
         outPtrC += 1;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   return 1;
 }

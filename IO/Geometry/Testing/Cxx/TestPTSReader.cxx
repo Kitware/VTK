@@ -11,10 +11,10 @@
 int TestPTSReader(int argc, char *argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr << "Required parameters: <filename> maxNumberOfPoints(optional)" << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string inputFilename = argv[1];
 
@@ -46,9 +46,9 @@ int TestPTSReader(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

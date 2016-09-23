@@ -60,9 +60,9 @@ public:
   // Returns if the parser has some information about the block with given "id".
   // This is valid only after Go().
   bool HasInformationAboutBlock(int id)
-    {
+  {
     return (this->BlockID_To_VertexID.find(id) != this->BlockID_To_VertexID.end());
-    }
+  }
 
   /**
    * Given a block "id" return the name as determined from the xml.
@@ -76,15 +76,15 @@ public:
    * This is valid only after Go().
    */
   void GetBlockIds(std::set<int>& blockIdsSet)
-    {
+  {
     std::map<int, vtkIdType>::iterator iter;
     for (iter = this->BlockID_To_VertexID.begin();
       iter != this->BlockID_To_VertexID.end();
       ++iter)
-      {
+    {
       blockIdsSet.insert(iter->first);
-      }
     }
+  }
   //@}
 
 protected:
@@ -96,26 +96,26 @@ protected:
   void FinishedParsing();
 
   const char* GetValue(const char* attr,const char** attrs)
-    {
+  {
     int i;
     for (i=0;attrs[i];i+=2)
-      {
+    {
       const char* name=strrchr(attrs[i],':');
       if (!name)
-        {
+      {
         name=attrs[i];
-        }
-      else
-        {
-        name++;
-        }
-      if (strcmp(attr,name)==0)
-        {
-        return attrs[i+1];
-        }
       }
-    return NULL;
+      else
+      {
+        name++;
+      }
+      if (strcmp(attr,name)==0)
+      {
+        return attrs[i+1];
+      }
     }
+    return NULL;
+  }
 
   // Convenience methods to add vertices/edges to the SIL.
   vtkIdType AddVertexToSIL(const char* name);

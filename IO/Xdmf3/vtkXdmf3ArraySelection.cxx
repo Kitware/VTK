@@ -21,9 +21,9 @@ void vtkXdmf3ArraySelection::Merge(const vtkXdmf3ArraySelection& other)
 {
   vtkXdmf3ArraySelection::const_iterator iter = other.begin();
   for (; iter != other.end(); ++iter)
-    {
+  {
     (*this)[iter->first] = iter->second;
-    }
+  }
 }
 
 //--------------------------------------------------------------------------
@@ -37,9 +37,9 @@ bool vtkXdmf3ArraySelection::ArrayIsEnabled(const char* name)
 {
   vtkXdmf3ArraySelection::iterator iter = this->find(name);
   if (iter != this->end())
-    {
+  {
     return iter->second;
-    }
+  }
 
   // don't know anything about this array, enable it by default.
   return true;
@@ -72,9 +72,9 @@ const char* vtkXdmf3ArraySelection::GetArrayName(int index)
       iter != this->end(); ++iter)
   {
     if (cc==index)
-      {
+    {
       return iter->first.c_str();
-      }
+    }
     cc++;
   }
   return NULL;

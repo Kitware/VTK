@@ -36,7 +36,7 @@ public:
 
   // An enum that defines the neighbor relationship between the 2 grids.
   enum NeighborRelationship
-    {
+  {
     PARENT,                       // Neighbor fully contains this grid
     PARTIALLY_OVERLAPPING_PARENT, // Neighbor partially contains this grid
     CHILD,                        // This grid fully contains the neighbor
@@ -45,7 +45,7 @@ public:
     COARSE_TO_FINE_SIBLING,       // Grid is adjacent with a finer neighbor
     FINE_TO_COARSE_SIBLING,       // Grid is adjacent with a coarser neighbor
     UNDEFINED
-    };
+  };
 
   // NOTE: The OverlapExtent stores the overlap w.r.t. the neighboring grid
   // Consequently, GridOverlapExtent stores the overlap extent w.r.t. this grid.

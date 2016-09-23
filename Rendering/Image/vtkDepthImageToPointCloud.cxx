@@ -48,17 +48,17 @@ namespace {
     numOutPts = 0;
     float d;
     for (vtkIdType ptId=0; ptId < numPts; ++depths, ++map, ++ptId)
-      {
+    {
       d = static_cast<float>(*depths);
       if ( (cullNear && d <= 0.0) || (cullFar && d >= 1.0) )
-        {
+      {
         *map = (-1);
-        }
-      else
-        {
-        *map = numOutPts++;
-        }
       }
+      else
+      {
+        *map = numOutPts++;
+      }
+    }
   }
 
   // This class performs point by point transformation. The view matrix is
@@ -83,26 +83,26 @@ namespace {
 
     MapDepthImage(TD *depths, TP *pts, int dims[2], double *m, vtkIdType *ptMap) :
       Depths(depths), Pts(pts), Dims(dims), Matrix(m), PtMap(ptMap)
-      {
-      }
+    {
+    }
 
     void  operator()(vtkIdType row, vtkIdType end)
-      {
+    {
         double drow, result[4];
         vtkIdType offset = row*this->Dims[0];
         const TD *dptr = this->Depths + offset;
         const vtkIdType *mptr = this->PtMap + offset;
         TP *pptr;
         for ( ; row < end; ++row )
-          {
+        {
           drow = -1.0 + (2.0*static_cast<double>(row) / static_cast<double>(this->Dims[1]-1));
           // if pixel origin is pixel center use the two lines below
           // drow = -1.0 + 2.0*((static_cast<double>(row)+0.5) /
           //                    static_cast<double>(this->Dims[1]));
           for ( vtkIdType i=0; i < this->Dims[0]; ++dptr, ++mptr, ++i )
-            {
+          {
             if ( *mptr > (-1) ) //if not masked
-              {
+            {
               pptr = this->Pts + *mptr * 3;
               result[0] = -1.0 + 2.0*static_cast<double>(i) /
                 static_cast<double>(this->Dims[0]-1);
@@ -116,10 +116,10 @@ namespace {
               *pptr++ = result[0] / result[3]; //x
               *pptr++ = result[1] / result[3]; //y
               *pptr   = result[2] / result[3]; //z
-              }//transform this point
-            }
+            }//transform this point
           }
-      }
+        }
+    }
   };
 
   // Interface to vtkSMPTools. Threading over image rows. Also perform
@@ -148,23 +148,23 @@ namespace {
 
     MapScalars(vtkIdType num, vtkDataArray *colors, vtkIdType *ptMap) :
       NumColors(num), InColors(colors), PtMap(ptMap), OutColors(NULL)
-      {
+    {
         vtkStdString outName = "DepthColors";
         this->OutColors = Colors.AddArrayPair(this->NumColors, this->InColors,
                                               outName, 0.0, false);
-      }
+    }
 
     void  operator()(vtkIdType id, vtkIdType end)
-      {
+    {
         vtkIdType outId;
         for ( ; id < end; ++id)
-          {
+        {
           if ( (outId=this->PtMap[id]) > (-1) )
-            {
+          {
             this->Colors.Copy(id,outId);
-            }
           }
-      }
+        }
+    }
   };
 
 } //anonymous namespace
@@ -189,10 +189,10 @@ vtkDepthImageToPointCloud::vtkDepthImageToPointCloud()
 vtkDepthImageToPointCloud::~vtkDepthImageToPointCloud()
 {
   if (this->Camera)
-    {
+  {
     this->Camera->UnRegister(this);
     this->Camera = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -203,16 +203,16 @@ vtkMTimeType vtkDepthImageToPointCloud::GetMTime()
   vtkMTimeType t2;
 
   if (!cam)
-    {
+  {
     return t1;
-    }
+  }
 
   // Check the camera
   t2 = cam->GetMTime();
   if (t2 > t1)
-    {
+  {
     t1 = t2;
-    }
+  }
 
   return t1;
 }
@@ -222,14 +222,14 @@ int vtkDepthImageToPointCloud::
 FillInputPortInformation(int port, vtkInformation *info)
 {
   if (port == 0)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
-    }
+  }
   else if (port == 1)
-    {
+  {
     info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkImageData");
     info->Set(vtkAlgorithm::INPUT_IS_OPTIONAL(), 1);
-    }
+  }
 
   return 1;
 }
@@ -267,10 +267,10 @@ int vtkDepthImageToPointCloud::RequestUpdateExtent(
 
   // need to set the stencil update extent to the input extent
   if (this->GetNumberOfInputConnections(1) > 0)
-    {
+  {
     vtkInformation *in2Info = inputVector[1]->GetInformationObject(0);
     in2Info->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), inExt, 6);
-    }
+  }
 
   return 1;
 }
@@ -287,30 +287,30 @@ RequestData(vtkInformation*,
   vtkImageData *inData = vtkImageData::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if ( inData == NULL )
-    {
+  {
     vtkErrorMacro("At least one input image is required");
     return 0;
-    }
+  }
   ++numInputs;
 
   vtkInformation* info2 = inputVector[1]->GetInformationObject(0);
   vtkImageData *inData2=NULL;
   if ( info2 )
-    {
+  {
     inData2 = vtkImageData::SafeDownCast(
       info2->Get(vtkDataObject::DATA_OBJECT()));
     if ( inData2 != NULL )
-      {
+    {
       ++numInputs;
-      }
     }
+  }
 
   vtkCamera *cam = this->Camera;
   if ( cam == NULL )
-    {
+  {
     vtkErrorMacro("Input camera required");
     return 0;
-    }
+  }
 
   // At this point we have at least one input, possibly two. If one input, we
   // assume we either have 1) depth values or 2) color scalars + depth values
@@ -319,26 +319,26 @@ RequestData(vtkInformation*,
   vtkDataArray *depths=NULL;
   vtkDataArray *colors=NULL;
   if ( numInputs == 2 )
-    {
+  {
     depths = inData->GetPointData()->GetScalars();
     colors = inData2->GetPointData()->GetScalars();
-    }
+  }
   else if (numInputs == 1)
-    {
+  {
     if ( (depths = inData->GetPointData()->GetArray("ZBuffer")) != NULL )
-      {
-      colors = inData->GetPointData()->GetScalars();
-      }
-    else
-      {
-      depths = inData->GetPointData()->GetScalars();
-      }
-    }
-  else
     {
+      colors = inData->GetPointData()->GetScalars();
+    }
+    else
+    {
+      depths = inData->GetPointData()->GetScalars();
+    }
+  }
+  else
+  {
     vtkErrorMacro("Wrong number of inputs");
     return 0;
-    }
+  }
 
   // Extract relevant information to generate output
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -359,17 +359,17 @@ RequestData(vtkInformation*,
   vtkIdType *ptMap = new vtkIdType[numPts];
   void *depthPtr = depths->GetVoidPointer(0);
   switch (depths->GetDataType())
-    {
+  {
     vtkTemplateMacro(MapPoints(numPts,(VTK_TT*)depthPtr,this->CullNearPoints,
                                this->CullFarPoints,ptMap,numOutPts));
-    }
+  }
 
   // Manage the requested output point precision
   int pointsType = VTK_DOUBLE;
   if (this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     pointsType = VTK_FLOAT;
-    }
+  }
 
   // Create the points array which represents the point cloud
   vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
@@ -381,48 +381,48 @@ RequestData(vtkInformation*,
   // world point. Below there is a double allocation based on the depth type
   // and output point type.
   if ( pointsType == VTK_FLOAT )
-    {
+  {
     float *ptsPtr = static_cast<float*>(points->GetVoidPointer(0));
     switch (depths->GetDataType())
-      {
+    {
       vtkTemplateMacro(XFormPoints((VTK_TT*)depthPtr, ptMap,
                                    static_cast<float*>(ptsPtr), dims, cam));
-      }
     }
+  }
   else
-    {
+  {
     double *ptsPtr = static_cast<double*>(points->GetVoidPointer(0));
     switch (depths->GetDataType())
-      {
+    {
       vtkTemplateMacro(XFormPoints((VTK_TT*)depthPtr, ptMap,
                                    static_cast<double*>(ptsPtr), dims, cam));
-      }
     }
+  }
 
   // Produce the output colors if requested. Another templated, threaded loop.
   if ( colors && this->ProduceColorScalars )
-    {
+  {
     vtkPointData *outPD = outData->GetPointData();
     MapScalars mapScalars(numOutPts,colors,ptMap);
     vtkSMPTools::For(0,numPts, mapScalars);
     outPD->SetScalars(mapScalars.OutColors);
-    }
+  }
 
   // Clean up
   delete [] ptMap;
 
   // If requested, create an output vertex array
   if ( this->ProduceVertexCellArray )
-    {
+  {
     vtkSmartPointer<vtkCellArray> verts = vtkSmartPointer<vtkCellArray>::New();
     vtkIdType npts = points->GetNumberOfPoints();
     verts->InsertNextCell(npts);
     for (vtkIdType i=0; i < npts; ++i)
-      {
+    {
       verts->InsertCellPoint(i);
-      }
-    outData->SetVerts(verts);
     }
+    outData->SetVerts(verts);
+  }
 
   return 1;
 }
@@ -433,14 +433,14 @@ void vtkDepthImageToPointCloud::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->Camera )
-    {
+  {
     os << indent << "Camera:\n";
     this->Camera->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Camera: (none)\n";
-    }
+  }
 
   os << indent << "Cull Near Points: "
      << (this->CullNearPoints ? "On\n" : "Off\n");

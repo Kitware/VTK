@@ -71,76 +71,76 @@ void vtkHardwareSelectionPolyDataPainter::RenderInternal(
   bool vtkNotUsed(forceCompileOnly))
 {
   if (typeflags == 0)
-    {
+  {
     // No primitive to render.
     return;
-    }
+  }
 
   vtkPainterDeviceAdapter* device =
     renderer->GetRenderWindow()->GetPainterDeviceAdapter();
   if (device == NULL)
-    {
+  {
     vtkErrorMacro("Painter Device Adapter missing!");
     return;
-    }
+  }
 
   vtkPolyData* pd = this->GetInputAsPolyData();
   this->TotalCells = vtkHardwareSelectionPolyDataPainterGetTotalCells(pd, typeflags);
 
   if (this->TotalCells == 0)
-    {
+  {
     // skip empty polydatas.
     this->TimeToDraw = 0;
     return;
-    }
+  }
 
   vtkHardwareSelector* selector = renderer->GetSelector();
   if (this->EnableSelection)
-    {
+  {
     selector->BeginRenderProp();
     // We emphasis the vertex size to make sure they will be properly detected.
     if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
-      {
+    {
       device->MakeVertexEmphasis(true);
-      }
     }
+  }
 
   this->Timer->StartTimer();
   vtkIdType startCell = 0;
 
   if (typeflags & vtkPainter::VERTS)
-    {
+  {
     this->DrawCells(VTK_POLY_VERTEX, pd->GetVerts(), startCell, renderer);
-    }
+  }
 
   startCell += pd->GetNumberOfVerts();
   if (typeflags & vtkPainter::LINES)
-    {
+  {
     this->DrawCells(VTK_POLY_LINE, pd->GetLines(), startCell, renderer);
-    }
+  }
 
   startCell += pd->GetNumberOfLines();
   if (typeflags & vtkPainter::POLYS)
-    {
+  {
     this->DrawCells(VTK_POLYGON, pd->GetPolys(), startCell, renderer);
-    }
+  }
 
   startCell += pd->GetNumberOfPolys();
   if (typeflags & vtkPainter::STRIPS)
-    {
+  {
     this->DrawCells(VTK_TRIANGLE_STRIP, pd->GetStrips(), startCell, renderer);
-    }
+  }
   if (this->EnableSelection)
-    {
+  {
     selector->EndRenderProp();
     // We revert back our Vertex emphasis
     if (selector->GetFieldAssociation() == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
       selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS)
-      {
+    {
       device->MakeVertexEmphasis(false);
-      }
     }
+  }
 
 
   this->Timer->StopTimer();
@@ -166,9 +166,9 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
   if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
     selector->GetCurrentPass() > vtkHardwareSelector::ACTOR_PASS &&
     this->EnableSelection)
-    {
+  {
     mode = VTK_POLY_VERTEX;
-    }
+  }
 
   vtkPoints* p = pd->GetPoints();
   vtkIdType npts, *pts;
@@ -193,49 +193,49 @@ void vtkHardwareSelectionPolyDataPainter::DrawCells(
 
   // Note that cell attributes are overridden by point attributes.
   for (connectivity->InitTraversal(); connectivity->GetNextCell(npts, pts); count++)
-    {
+  {
     device->BeginPrimitive(mode);
     if (this->EnableSelection && compositeIdArray)
-      {
+    {
       selector->RenderCompositeIndex(compositeIdArray->GetValue(cellId));
-      }
+    }
     if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_CELLS &&
       this->EnableSelection)
-      {
+    {
       selector->RenderAttributeId(
         cidArray? cidArray->GetValue(cellId) : cellId);
-      }
+    }
     for (vtkIdType cellpointi = 0; cellpointi < npts; cellpointi++)
-      {
+    {
       vtkIdType pointId = pts[cellpointi];
       if (attributeMode == vtkDataObject::FIELD_ASSOCIATION_POINTS &&
         this->EnableSelection)
-        {
+      {
         selector->RenderAttributeId(
           pidArray? pidArray->GetValue(pointId) : pointId);
-        }
+      }
       if (this->EnableSelection && procIdsArray &&
         selector->GetUseProcessIdFromData())
-        {
+      {
         selector->RenderProcessId(procIdsArray->GetPointer(0)[pointId]);
-        }
+      }
       device->SendAttribute(vtkPointData::NUM_ATTRIBUTES, 3,
         pointtype, voidpoints, 3*pointId);
-      }
+    }
     device->EndPrimitive();
     cellId++;
     if (count == 10000)
-      {
+    {
       count = 0;
       // report progress
       this->UpdateProgress(static_cast<double>(cellId - startCellId)/this->TotalCells);
       // Abort render.
       if (renderer->GetRenderWindow()->CheckAbortStatus())
-        {
+      {
         return;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

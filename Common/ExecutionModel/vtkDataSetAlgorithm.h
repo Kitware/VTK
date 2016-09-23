@@ -152,9 +152,9 @@ protected:
   virtual int RequestUpdateExtent(vtkInformation*,
                                   vtkInformationVector**,
                                   vtkInformationVector*)
-    {
+  {
       return 1;
-    };
+  };
   //@}
 
 

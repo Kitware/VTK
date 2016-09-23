@@ -54,48 +54,48 @@ void vtkRandomLayoutStrategy::Layout() {};
 void vtkRandomLayoutStrategy::SetGraph(vtkGraph *graph)
 {
   if (graph == NULL)
-    {
+  {
     return;
-    }
+  }
 
   // Generate bounds automatically if necessary. It's the same
   // as the graph bounds.
   if ( this->AutomaticBoundsComputation )
-    {
+  {
     vtkPoints *pts = graph->GetPoints();
     pts->GetBounds(this->GraphBounds);
-    }
+  }
 
   for (int i=0; i<3; i++)
-    {
+  {
     if ( this->GraphBounds[2*i+1] <= this->GraphBounds[2*i] )
-      {
+    {
       this->GraphBounds[2*i+1] = this->GraphBounds[2*i] + 1;
-      }
     }
+  }
 
   // Generate the points, either x,y,0 or x,y,z
   vtkMath::RandomSeed(this->RandomSeed);
 
   vtkPoints *newPoints = vtkPoints::New();
   for (int i=0; i< graph->GetNumberOfVertices(); i++)
-    {
+  {
     double x, y, z, r;
     r = vtkMath::Random();
     x = (this->GraphBounds[1] - this->GraphBounds[0])*r + this->GraphBounds[0];
     r = vtkMath::Random();
     y = (this->GraphBounds[3] - this->GraphBounds[2])*r + this->GraphBounds[2];
     if (this->ThreeDimensionalLayout)
-      {
+    {
       r = vtkMath::Random();
       z = (this->GraphBounds[5] - this->GraphBounds[4])*r + this->GraphBounds[4];
-      }
-    else
-      {
-      z = 0;
-      }
-    newPoints->InsertNextPoint(x, y, z);
     }
+    else
+    {
+      z = 0;
+    }
+    newPoints->InsertNextPoint(x, y, z);
+  }
 
   // Set the graph points.
   graph->SetPoints(newPoints);

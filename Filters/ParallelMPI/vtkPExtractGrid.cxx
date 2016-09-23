@@ -41,31 +41,31 @@
 #ifdef DEBUG
 #define DEBUG_EXTENT(label, extent) \
   if (this->Controller) \
-    { \
+  { \
     vtkMPIUtilities::SynchronizedPrintf( \
         this->Controller, #label "=[%d,%d,%d,%d,%d,%d]\n", \
         extent[0], extent[1], extent[2], extent[3], extent[4], extent[5]); \
-    } \
+  } \
   else \
-    { \
+  { \
     std::cout << label << "=[" \
               << extent[0] << "," << extent[1] << "," \
               << extent[2] << "," << extent[3] << "," \
               << extent[4] << "," << extent[5] << "]\n"; \
-    }
+  }
 
 #define DEBUG_OUT(out) \
   if (this->Controller) \
-    { \
+  { \
     std::ostringstream tmpStreamOut; \
     tmpStreamOut << out; \
     vtkMPIUtilities::SynchronizedPrintf(this->Controller, \
                                         tmpStreamOut.str().c_str()); \
-    } \
+  } \
   else \
-    { \
+  { \
     std::cout << out; \
-    }
+  }
 #else // DEBUG
 #define DEBUG_EXTENT(label, extent)
 #define DEBUG_OUT(out)
@@ -106,14 +106,14 @@ int vtkPExtractGrid::RequestData(
 
   // No MPI, or no subsampling? Just run the serial implementation.
   if (!this->Controller || !isSubSampling)
-    {
+  {
     return this->Superclass::RequestData(request, inputVector, outputVector);
-    }
+  }
 
   if (!this->Internal->IsValid())
-    {
+  {
     return 0;
-    }
+  }
 
   // Collect information:
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -174,10 +174,10 @@ int vtkPExtractGrid::RequestData(
 
   bool partitionContainsVOI = true;
   for (int dim = 0; partitionContainsVOI && dim < 3; ++dim)
-    {
+  {
     partitionContainsVOI = EMAX(inputExtent, dim) >= EMIN(globalVOI, dim) &&
         EMIN(inputExtent, dim) <= EMAX(globalVOI, dim);
-    }
+  }
 
   DEBUG_EXTENT("InputWholeExtent", inputWholeExtent);
   DEBUG_EXTENT("OutputWholeExtent", outputWholeExtent);
@@ -188,18 +188,18 @@ int vtkPExtractGrid::RequestData(
   int partitionedOutputExtent[6] = {0, -1, 0, -1, 0, -1};
 
   if (partitionContainsVOI)
-    {
+  {
     ////////////////////////////////////////////////////////////////
     // 1) Compute actual VOI for aligning the partitions outputs: //
     ////////////////////////////////////////////////////////////////
     vtkExtractStructuredGridHelper::GetPartitionedVOI(
           globalVOI, inputExtent, this->SampleRate, this->IncludeBoundary != 0,
           partitionedVOI);
-    }
+  }
   DEBUG_EXTENT("PartitionedVOI", partitionedVOI);
 
   if (partitionContainsVOI)
-    {
+  {
     ////////////////////////////////////////////////////////////////
     // 2) Compute and update the output dataset's actual extents. //
     ////////////////////////////////////////////////////////////////
@@ -207,19 +207,19 @@ int vtkPExtractGrid::RequestData(
           globalVOI, partitionedVOI, outputWholeExtent, this->SampleRate,
           this->IncludeBoundary != 0, partitionedOutputExtent);
     output->SetExtent(partitionedOutputExtent);
-    }
+  }
   DEBUG_EXTENT("PartitionedOutputExtent", partitionedOutputExtent);
 
   if (partitionContainsVOI)
-    {
+  {
     ////////////////////////////////////////////////////////////
     // 3) Extract actual VOI using superclass implementation: //
     ////////////////////////////////////////////////////////////
     if (!this->Superclass::RequestDataImpl(inputVector, outputVector))
-      {
+    {
       return 0;
-      }
     }
+  }
 
   //////////////////////////////
   // 4: Detect & resolve gaps //
@@ -241,14 +241,14 @@ int vtkPExtractGrid::RequestData(
 
   // Check if there are any gaps, if any close them now
   if( gridConnectivity->HasImplicitConnectivity() )
-    {
+  {
     DEBUG_OUT("Closing gaps...\n");
     // there are gaps, grow the grid to the right
     gridConnectivity->ExchangeData();
 
     gridConnectivity->GetOutputStructuredGrid(
           this->Controller->GetLocalProcessId(),output);
-    }
+  }
 
   gridConnectivity->Delete();
 

@@ -38,11 +38,11 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
     vtkVolumeRayCastMapper::SafeDownCast( vol->GetMapper() );
 
   if ( !mapper )
-    {
+  {
     vtkErrorMacro(
     "Function initialized called with a volume that does not use ray casting");
     return;
-    }
+  }
 
   // Is shading on?
   staticInfo->Shading = vol->GetProperty()->GetShade();
@@ -75,7 +75,7 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
   // calculate the magnitude we might as well just keep the
   // direction as well.
   if ( staticInfo->Shading )
-    {
+  {
     staticInfo->EncodedNormals =
       mapper->GetGradientEstimator()->GetEncodedNormals();
 
@@ -96,9 +96,9 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
       mapper->GetGradientShader()->GetGreenSpecularShadingTable(vol);
     staticInfo->BlueSpecularShadingTable =
       mapper->GetGradientShader()->GetBlueSpecularShadingTable(vol);
-    }
+  }
   else
-    {
+  {
     staticInfo->EncodedNormals            = NULL;
     staticInfo->RedDiffuseShadingTable    = NULL;
     staticInfo->GreenDiffuseShadingTable  = NULL;
@@ -106,20 +106,20 @@ void vtkVolumeRayCastFunction::FunctionInitialize(
     staticInfo->RedSpecularShadingTable   = NULL;
     staticInfo->GreenSpecularShadingTable = NULL;
     staticInfo->BlueSpecularShadingTable  = NULL;
-    }
+  }
 
   // We need the gradient magnitudes only if we are classifying opacity
   // based on them. Otherwise we can just leave them NULL
   if ( vol->GetGradientOpacityArray() &&
        vol->GetGradientOpacityConstant() == -1.0 )
-    {
+  {
     staticInfo->GradientMagnitudes =
       mapper->GetGradientEstimator()->GetGradientMagnitudes();
-    }
+  }
   else
-    {
+  {
     staticInfo->GradientMagnitudes = NULL;
-    }
+  }
 
   // By default the blending is not MIP - the MIP function will turn this
   // on

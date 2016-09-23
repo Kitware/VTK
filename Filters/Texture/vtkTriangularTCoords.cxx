@@ -78,16 +78,16 @@ int vtkTriangularTCoords::RequestData(
   polyAllocSize = 0;
 
   for (inPolys->InitTraversal(); inPolys->GetNextCell(npts,pts); )
-    {
+  {
     numNewPts += npts;
     numNewPolys++;
     polyAllocSize += npts + 1;
-    }
+  }
   for (inStrips->InitTraversal(); inStrips->GetNextCell(npts,pts); )
-    {
+  {
     numNewPts += (npts-2) * 3;
     polyAllocSize += (npts - 2) * 4;
-    }
+  }
   numCells = inPolys->GetNumberOfCells() + inStrips->GetNumberOfCells();
 
   //  Allocate texture data
@@ -120,44 +120,44 @@ int vtkTriangularTCoords::RequestData(
   vtkIdType progressInterval=numCells/20 + 1;
   for (cellId=0, inPolys->InitTraversal();
        inPolys->GetNextCell(npts,pts) && !abort; cellId++)
-    {
+  {
     if ( !(cellId % progressInterval) )
-      {
+    {
       this->UpdateProgress((double)cellId/numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     if (npts != 3)
-      {
+    {
       if (errorLogging) vtkWarningMacro(
         << "No texture coordinates for this cell, it is not a triangle");
       errorLogging = 0;
       continue;
-      }
+    }
     newPolys->InsertNextCell(npts);
     for (j=0; j<npts; j++)
-      {
+    {
       inPts->GetPoint(pts[j], p1);
       newId = newPoints->InsertNextPoint(p1);
       newPolys->InsertCellPoint(newId);
       pointData->CopyData(pd,pts[j],newId);
       newTCoords->InsertNextTuple (&tCoords[2*j]);
-      }
     }
+  }
 
   // Triangle strips
   //
   for (inStrips->InitTraversal();
        inStrips->GetNextCell(npts,pts) && !abort; cellId++)
-    {
+  {
     if ( !(cellId % progressInterval) )
-      {
+    {
       this->UpdateProgress((double)cellId/numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     for (j=0; j<(npts-2); j++)
-      {
+    {
       inPts->GetPoint(pts[j], p1);
       inPts->GetPoint(pts[j+1], p2);
       inPts->GetPoint(pts[j+2], p3);
@@ -176,14 +176,14 @@ int vtkTriangularTCoords::RequestData(
 
       // flip orientation for odd tris
       if (j%2)
-        {
+      {
         tmp = newIds[0];
         newIds[0] = newIds[2];
         newIds[2] = tmp;
-        }
-      newPolys->InsertNextCell(3,newIds);
       }
+      newPolys->InsertNextCell(3,newIds);
     }
+  }
 
   // Update self and release memory
   //

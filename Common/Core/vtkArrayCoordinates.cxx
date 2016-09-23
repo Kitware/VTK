@@ -89,11 +89,11 @@ bool vtkArrayCoordinates::operator!=(const vtkArrayCoordinates& rhs) const
 ostream& operator<<(ostream& stream, const vtkArrayCoordinates& rhs)
 {
   for(vtkArrayCoordinates::DimensionT i = 0; i != rhs.GetDimensions(); ++i)
-    {
+  {
     if(i)
       stream << ",";
     stream << rhs[i];
-    }
+  }
 
   return stream;
 }

@@ -62,39 +62,39 @@ public:
     int modified = 0;
 
     if (this->Extent[0] != xMin)
-      {
+    {
       modified = 1;
       this->Extent[0] = xMin ;
-      }
+    }
     if (this->Extent[1] != xMax)
-      {
+    {
       modified = 1;
       this->Extent[1] = xMax ;
-      }
+    }
     if (this->Extent[2] != yMin)
-      {
+    {
       modified = 1;
       this->Extent[2] = yMin ;
-      }
+    }
     if (this->Extent[3] != yMax)
-      {
+    {
       modified = 1;
       this->Extent[3] = yMax ;
-      }
+    }
     if (this->Extent[4] != zMin)
-      {
+    {
       modified = 1;
       this->Extent[4] = zMin ;
-      }
+    }
     if (this->Extent[5] != zMax)
-      {
+    {
       modified = 1;
       this->Extent[5] = zMax ;
-      }
+    }
     if (modified)
-      {
+    {
       this->Modified();
-      }
+    }
   }
 
   int GetNumberOfTimeSteps()
@@ -108,9 +108,9 @@ protected:
     this->SetNumberOfInputPorts(0);
     this->SetNumberOfOutputPorts(1);
     for(int i=0; i<20 ;i++)
-      {
+    {
       this->TimeSteps.push_back(i);
-      }
+    }
 
     this->Extent[0] = 0;
     this->Extent[1] = 1;
@@ -130,9 +130,9 @@ protected:
   void GetSpacing(double dx[3])
   {
     for(int i=0; i<3; i++)
-      {
+    {
       dx[i] = (this->BoundingBox[2*i+1]- this->BoundingBox[2*i]) / (this->Extent[2*i+1] - this->Extent[2*i]);
-      }
+    }
   }
 
   ~TestTimeSource() { }
@@ -143,15 +143,15 @@ protected:
   {
     // generate the data
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-      {
+    {
       return this->RequestData(request, inputVector, outputVector);
-      }
+    }
 
     // execute information
     if(request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-      {
+    {
       return this->RequestInformation(request, inputVector, outputVector);
-      }
+    }
     return this->Superclass::ProcessRequest(request, inputVector, outputVector);
   }
 
@@ -205,7 +205,7 @@ protected:
     // set the extent to be the update extent
     vtkImageData *outImage = vtkImageData::SafeDownCast(output);
     if (outImage)
-      {
+    {
       int* uExtent = outInfo->Get(
         vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
       outImage->SetExtent(uExtent);
@@ -215,16 +215,16 @@ protected:
       outArray1->SetNumberOfComponents(1);
       outArray1->SetNumberOfTuples(outImage->GetNumberOfPoints());
       for(int i=0; i<outImage->GetNumberOfPoints(); i++)
-        {
+      {
         outArray1->SetTuple(i, &timeStep);
-        }
+      }
       outImage->GetPointData()->SetScalars(outArray1);
       outArray1->Delete();
-      }
+    }
     else
-      {
+    {
       return 0 ;
-      }
+    }
 
     vtkFloatArray* outArray = vtkFloatArray::New();
     outArray->SetName("Gradients");
@@ -248,27 +248,27 @@ protected:
 
     double size[3];
     for(int i=0; i<3; i++)
-      {
+    {
       size[i] = this->BoundingBox[2*i+1]- this->BoundingBox[2*i];
-      }
+    }
 
     double speed = 0.5+0.5/(1.0+ 0.5*timeStep);
     for (int iz = extent[4]; iz<=extent[5]; iz++)
-      {
+    {
       for (int iy = extent[2]; iy<=extent[3]; iy++)
-        {
+      {
         for (int ix = extent[0]; ix<=extent[1]; ix++)
-          {
+        {
           double x = size[0]*((double)ix)/gridSize[0] + origin[0];
           double z = size[2]*((double)iz)/gridSize[2] + origin[2];
           *(outPtr++) = -z *speed;
           *(outPtr++) = 0;
           *(outPtr++) = x *speed;
-          }
-        outPtr += stepY;
         }
+        outPtr += stepY;
+      }
       outPtr += stepZ;
-     }
+    }
 
     return 1;
   }
@@ -321,7 +321,7 @@ int TestPParticleTracer(vtkMPIController* c, int staticOption)
 
   int numTraced(0);
   for(unsigned int ti = 0; ti<times.size();ti++)
-    {
+  {
     filter->SetTerminationTime(times[ti]);
 
     vtkSmartPointer<vtkPolyDataMapper> traceMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -334,16 +334,16 @@ int TestPParticleTracer(vtkMPIController* c, int staticOption)
     vtkPoints* pts = out->GetPoints();
 
     numTraced+= pts->GetNumberOfPoints();
-    }
+  }
 
   if(c->GetLocalProcessId()==0)
-    {
+  {
     EXPECT(5, numTraced, "PParticleTracer: wrong number of points.", staticOption);
-    }
+  }
   else
-    {
+  {
     EXPECT(6, numTraced,"PParticleTracer: wrong number of points.", staticOption);
-    }
+  }
   return EXIT_SUCCESS;
 }
 
@@ -380,13 +380,13 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
   vtkPolyData* out = filter->GetOutput();
   vtkPointData* pd = out->GetPointData();
   for(int i=0; i<pd->GetNumberOfArrays();i++)
-    {
+  {
     assert(pd->GetArray(i)->GetNumberOfTuples()==out->GetPoints()->GetNumberOfPoints());
-    }
+  }
 
   vtkCellArray* lines = out->GetLines();
   if(c->GetLocalProcessId() == 1)
-    {
+  {
     EXPECT(2, lines->GetNumberOfCells(),"PParticlePath: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
@@ -394,9 +394,9 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
     int tail;
     tail = trace->GetId(trace->GetNumberOfIds()-1);
     EXPECT(4, pd->GetArray("Test")->GetTuple1(tail), "PParticlePath: wrong tuple value.", staticOption);
-    }
+  }
   else
-    {
+  {
     EXPECT(1, lines->GetNumberOfCells(), "PParticlePath: wrong number of cells.", staticOption);
 
     vtkNew<vtkIdList> trace;
@@ -407,7 +407,7 @@ int TestPParticlePathFilter(vtkMPIController* c, int staticOption)
     tail = trace->GetId(trace->GetNumberOfIds()-1);
     EXPECT(4, pd->GetArray("Test")->GetTuple1(head), "PParticlePath: head", staticOption);
     EXPECT(9, pd->GetArray("Test")->GetTuple1(tail), "PParticlePath: tail", staticOption);
-    }
+  }
 
   return EXIT_SUCCESS;
 }
@@ -447,7 +447,7 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
   vtkCellArray* lines = out->GetLines();
 
   if(c->GetLocalProcessId() == 0) //all the streaks go to 0 because of implementation
-    {
+  {
     EXPECT(2, lines->GetNumberOfCells(),"PStreakline: wrong number of cells.", staticOption);
     vtkNew<vtkIdList> trace;
     lines->InitTraversal();
@@ -455,11 +455,11 @@ int TestPStreaklineFilter(vtkMPIController* c, int staticOption)
     EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
     lines->GetNextCell(trace.GetPointer());
     EXPECT(13, trace->GetNumberOfIds(),"PStreakline: wrong number of points.", staticOption);
-    }
+  }
   else
-    {
+  {
     EXPECT(0, out->GetNumberOfPoints(),"PStreakline: No other process should have streaks.", staticOption);
-    }
+  }
 
   return EXIT_SUCCESS;
 }

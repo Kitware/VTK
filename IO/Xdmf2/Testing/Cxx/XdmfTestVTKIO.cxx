@@ -73,10 +73,10 @@ bool DoFilesExist(const char*xdmffile, const char*hdf5file, bool deleteIfSo)
 
   bool theyDo = xexists && xlenOK && hexists && hlenOK;
   if (theyDo && deleteIfSo && CleanUpGood)
-    {
+  {
     unlink(xdmffile);
     unlink(hdf5file);
-    }
+  }
 
   return theyDo;
 }
@@ -155,13 +155,13 @@ bool TestXDMFConversion(vtkDataObject*input, char *prefix)
   xwriter->Delete();
   vtkDataSet *ds = vtkDataSet::SafeDownCast(input);
   if (ds)
-    {
+  {
     vtkDataSetWriter *dsw = vtkDataSetWriter::New();
     dsw->SetFileName(vtkfile);
     dsw->SetInputData(ds);
     dsw->Write();
     dsw->Delete();
-    }
+  }
 
   if (!DoFilesExist(xdmffile, NULL, false))
   {
@@ -192,12 +192,12 @@ int XdmfTestVTKIO (int ac, char *av[])
 {
 
   for (int i = 1; i < ac; i++)
-    {
+  {
     if (!strcmp(av[i], "--dont-clean"))
-      {
+    {
       CleanUpGood = false;
-      }
     }
+  }
 
   bool fail = false;
 

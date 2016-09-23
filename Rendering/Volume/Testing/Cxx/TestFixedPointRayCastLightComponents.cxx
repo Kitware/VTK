@@ -72,9 +72,9 @@ int TestFixedPointRayCastLightComponents(int argc,
   t->SetShift(-range[0]);
   double magnitude=range[1]-range[0];
   if(magnitude==0.0)
-    {
+  {
     magnitude=1.0;
-    }
+  }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
 
@@ -147,9 +147,9 @@ int TestFixedPointRayCastLightComponents(int argc,
 
   retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   volumeMapper->Delete();
   volumeProperty->Delete();

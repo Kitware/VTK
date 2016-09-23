@@ -118,9 +118,9 @@ QVTKInteractor* QVTKGraphicsItem::GetInteractor() const
 void QVTKGraphicsItem::Update()
 {
   if(this->mWin && this->mFBO)
-    {
+  {
     this->update(boundingRect());
-    }
+  }
 };
 
 void QVTKGraphicsItem::MakeCurrent()
@@ -228,14 +228,14 @@ void QVTKGraphicsItem::paint(QPainter*, const QStyleOptionGraphicsItem*, QWidget
   glColor4ub(c.red(),c.green(),c.blue(),c.alpha());
 
   if(c.alpha() < 255)
-    {
+  {
     glEnable(GL_BLEND);
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
+  }
   else
-    {
+  {
     glDisable(GL_BLEND);
-    }
+  }
 
   glBegin(GL_QUADS);
   glTexCoord2i(0,1);

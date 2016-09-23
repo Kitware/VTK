@@ -28,19 +28,19 @@ static vtkSmartPointer<vtkImageData> MakeVolume(int, int, int);
   { \
   std::string expectedMsg(msg); \
   if (!errorObserver->GetError()) \
-    { \
+  { \
     std::cout << "Failed to catch any error. Expected the error message to contain \"" << expectedMsg << std::endl; \
     status++; \
-    } \
+  } \
   else \
-    { \
+  { \
     std::string gotMsg(errorObserver->GetErrorMessage()); \
     if (gotMsg.find(expectedMsg) == std::string::npos) \
-      { \
+    { \
       std::cout << "Error message does not contain \"" << expectedMsg << "\" got \n\"" << gotMsg << std::endl; \
       status++; \
-      } \
     } \
+  } \
   } \
   errorObserver->Clear()
 
@@ -75,14 +75,14 @@ int UnitTestImplicitDataSet (int, char*[])
   impVol->EvaluateGradient(zero, zg);
   CHECK_ERROR_MSG(errorObserver, "Can't evaluate gradient: either data set is missing or data set has no point data", status1);
   if (status1)
-    {
+  {
     std::cout << "Failed" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "Passed" << std::endl;
-    }
+  }
 
   // Test EvaluateFunction
   std::cout << "Testing EvaluateFunction...";
@@ -90,42 +90,42 @@ int UnitTestImplicitDataSet (int, char*[])
   impVol->SetDataSet(aVolume);
   impVol->SetOutValue(-1000.0);
   for(int k = 0; k < dim; k++)
-    {
+  {
     for(int j = 0; j < dim; j++)
-      {
+    {
       for(int i = 0; i < dim; i++)
-        {
+      {
         double x = i + .5;
         double y = j + .5;
         double z = k;
         double val = impVol->EvaluateFunction( x + .5, y, z);
         if (x > (dim - 1) || y > (dim - 1) || z > (dim - 1))
-          {
+        {
           if (val != impVol->GetOutValue())
-            {
+          {
             std::cout << "For " << x << ", " << y << ", " << z
                       << " expected " << impVol->GetOutValue()
                       << " but got " << val <<std::endl;
             ++status2;
-            }
           }
+        }
         else if (val != z)
-          {
+        {
           std::cout << "For " << x << ", " << y << ", " << z << " expected " << z << " but got " << val <<std::endl;
           ++status2;
-          }
         }
       }
     }
+  }
   if (status2)
-    {
+  {
     std::cout << "Failed" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "Passed" << std::endl;
-    }
+  }
 
   // Test EvaluateGradient
   std::cout << "Testing EvaluateGradient...";
@@ -135,11 +135,11 @@ int UnitTestImplicitDataSet (int, char*[])
   og[0] = og[1] = og[2] = -1000.0;
   impVol->SetOutGradient(og);
   for(int k = 0; k < dim; k++)
-    {
+  {
     for(int j = 0; j < dim; j++)
-      {
+    {
       for(int i = 0; i < dim; i++)
-        {
+      {
         double xyz[3];
         xyz[0] = i + .5;
         xyz[1] = j + .5;
@@ -147,11 +147,11 @@ int UnitTestImplicitDataSet (int, char*[])
         double n[3];
         impVol->EvaluateGradient(xyz, n);
         if (xyz[0] > (dim - 1) || xyz[1] > (dim - 1) || xyz[2] > (dim - 1))
-          {
+        {
           if (n[0] != impVol->GetOutGradient()[0] ||
               n[1] != impVol->GetOutGradient()[1] ||
               n[2] != impVol->GetOutGradient()[2])
-            {
+          {
             std::cout << "For " << xyz[0] << ", " << xyz[1] << ", " << xyz[2]
                       << " expected "
                       << impVol->GetOutGradient()[0] << ", "
@@ -160,32 +160,32 @@ int UnitTestImplicitDataSet (int, char*[])
                       << " but got " << n[0] << ", " << n[1] << ", " << n[2]
                       << std::endl;
             ++status3;
-            }
           }
+        }
         else if (
           !vtkMathUtilities::FuzzyCompare(0.0, n[0], tol) ||
           !vtkMathUtilities::FuzzyCompare(0.0, n[1], tol) ||
           !vtkMathUtilities::FuzzyCompare(1.0, n[2], tol))
-          {
+        {
           std::cout << "For " << xyz[0] << ", " << xyz[1] << ", " << xyz[2]
                     << " expected "
                     << "0, 0, 1"
                     << " but got " << n[0] << ", " << n[1] << ", " << n[2]
                     << std::endl;
           ++status3;
-          }
         }
       }
     }
+  }
   if (status3)
-    {
+  {
     std::cout << "Failed" << std::endl;
     ++status;
-    }
+  }
   else
-    {
+  {
     std::cout << "Passed" << std::endl;
-    }
+  }
 
   // Test non-empty print
   std::cout << "Testing non-empty Print...";
@@ -194,13 +194,13 @@ int UnitTestImplicitDataSet (int, char*[])
   std::cout << "Passed" << std::endl;
 
   if (status)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   else
-    {
+  {
     return EXIT_SUCCESS;
-    }
+  }
 }
 
 vtkSmartPointer<vtkImageData> MakeVolume(int dimx, int dimy, int dimz)
@@ -213,15 +213,15 @@ vtkSmartPointer<vtkImageData> MakeVolume(int dimx, int dimy, int dimz)
   float value = 0.0;
 
   for(int z = 0; z < dimz; z++)
-    {
+  {
     for(int y = 0; y < dimy; y++)
-      {
+    {
       for(int x = 0; x < dimx; x++)
-        {
+      {
         *pixel++ = value;
-        }
       }
-    value += 1.0;
     }
+    value += 1.0;
+  }
   return aVolume;
 }

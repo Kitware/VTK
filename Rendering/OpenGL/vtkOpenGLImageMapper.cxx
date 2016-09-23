@@ -48,13 +48,13 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 { \
   val = (y); \
   if (val < 0) \
-    { \
+  { \
     val = 0; \
-    } \
+  } \
   if (val > 255) \
-    { \
+  { \
     val = 255; \
-    } \
+  } \
   (x) = static_cast<unsigned char>(val); \
 }
 /* should do proper rounding, as follows:
@@ -67,14 +67,14 @@ vtkOpenGLImageMapper::~vtkOpenGLImageMapper()
 { \
   val = (y); \
   if (val < 0) \
-    { \
+  { \
     val = 0; \
-    } \
+  } \
   val >>= shift; \
   if (val > 255) \
-    { \
+  { \
     val = 255; \
-    } \
+  } \
   (x) = static_cast<unsigned char>(val); \
 }
 
@@ -129,84 +129,84 @@ void vtkOpenGLImageMapperRenderDouble(vtkOpenGLImageMapper *self, vtkImageData *
 
   unsigned char *newPtr;
   if (bpp < 4)
-    {
+  {
     newPtr = new unsigned char[vtkPadToFour(3*width*height)];
-    }
+  }
   else
-    {
+  {
     newPtr = new unsigned char[4*width*height];
-    }
+  }
 
   unsigned char *ptr = newPtr;
   double val;
   unsigned char tmp;
 
   while (--j >= 0)
-    {
+  {
     inPtr = inPtr1;
     i = width;
     switch (bpp)
-      {
+    {
       case 1:
         while (--i >= 0)
-          {
+        {
           vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
           *ptr++ = tmp;
           *ptr++ = tmp;
           *ptr++ = tmp;
-          }
+        }
         break;
 
       case 2:
         while (--i >= 0)
-          {
+        {
           vtkClampToUnsignedChar(tmp,((*inPtr++ + shift)*scale));
           *ptr++ = tmp;
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           *ptr++ = tmp;
-          }
+        }
         break;
 
       case 3:
         while (--i >= 0)
-          {
+        {
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
-          }
+        }
         break;
 
       default:
         while (--i >= 0)
-          {
+        {
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           vtkClampToUnsignedChar(*ptr++,((*inPtr++ + shift)*scale));
           inPtr += bpp-4;
-          }
+        }
         break;
-      }
-    inPtr1 += inInc1;
     }
+    inPtr1 += inInc1;
+  }
 
   if (self->GetRenderToRectangle())
-    {
+  {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
     float xscale = static_cast<float>(rectwidth)/width;
     float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
-    }
+  }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
                GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
 
   if (self->GetRenderToRectangle())
-    {
+  {
     // restore zoom to 1,1 otherwise other glDrawPixels cals may be affected
     glPixelZoom(1.0, 1.0);
-    }
+  }
   delete [] newPtr;
 
  vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderDouble");
@@ -258,9 +258,9 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
   double absScale = ((scale < 0) ? -scale : scale);
 
   while ((1UL << bitShift)*absScale*2.0*USHRT_MAX < INT_MAX*1.0)
-    {
+  {
     bitShift++;
-    }
+  }
   bitShift--;
   assert(bitShift >= 0);
   assert(bitShift <= 30);
@@ -282,83 +282,83 @@ void vtkOpenGLImageMapperRenderShort(vtkOpenGLImageMapper *self, vtkImageData *d
 
   unsigned char *newPtr;
   if (bpp < 4)
-    {
+  {
     newPtr = new unsigned char[vtkPadToFour(3*width*height)];
-    }
+  }
   else
-    {
+  {
     newPtr = new unsigned char[4*width*height];
-    }
+  }
 
   unsigned char *ptr = newPtr;
 
   while (--j >= 0)
-    {
+  {
     inPtr = inPtr1;
     i = width;
 
     switch (bpp)
-      {
+    {
       case 1:
         while (--i >= 0)
-          {
+        {
           vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
           *ptr++ = tmp;
           *ptr++ = tmp;
           *ptr++ = tmp;
-          }
+        }
         break;
 
       case 2:
         while (--i >= 0)
-          {
+        {
           vtkClampIntToUnsignedChar(tmp,(*inPtr++*sscale+sshift),bitShift);
           *ptr++ = tmp;
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           *ptr++ = tmp;
-          }
+        }
         break;
 
       case 3:
         while (--i >= 0)
-          {
+        {
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
-          }
+        }
         break;
 
       default:
         while (--i >= 0)
-          {
+        {
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           vtkClampIntToUnsignedChar(*ptr++,(*inPtr++*sscale+sshift),bitShift);
           inPtr += bpp-4;
-          }
+        }
         break;
-      }
-    inPtr1 += inInc1;
     }
+    inPtr1 += inInc1;
+  }
 
   if (self->GetRenderToRectangle())
-    {
+  {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
     float xscale = static_cast<float>(rectwidth)/width;
     float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
-    }
+  }
 
   glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
                GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
 
   if (self->GetRenderToRectangle())
-    {
+  {
     // restore zoom to 1,1 otherwise other glDrawPixels cals may be affected
     glPixelZoom(1.0, 1.0);
-    }
+  }
   delete [] newPtr;
 
   vtkOpenGLStaticCheckErrorMacro("failed after ImageMapperRenderShort");
@@ -399,34 +399,34 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
   glPixelStorei( GL_UNPACK_ALIGNMENT, 1);
 
   if (self->GetRenderToRectangle())
-    {
+  {
     int rectwidth  = (actorPos2[0] - actorPos[0]) + 1;
     int rectheight = (actorPos2[1] - actorPos[1]) + 1;
     float xscale = static_cast<float>(rectwidth)/width;
     float yscale = static_cast<float>(rectheight)/height;
     glPixelZoom(xscale, yscale);
-    }
+  }
   //
   if (bpp == 3)
-    { // feed through RGB bytes without reformatting
+  { // feed through RGB bytes without reformatting
     if (inInc1 != width*bpp)
-      {
+    {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
-      }
+    }
     glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE,
                  static_cast<void *>(dataPtr));
-    }
+  }
   else if (bpp == 4)
-    { // feed through RGBA bytes without reformatting
+  { // feed through RGBA bytes without reformatting
     if (inInc1 != width*bpp)
-      {
+    {
       glPixelStorei( GL_UNPACK_ROW_LENGTH, inInc1/bpp );
-      }
+    }
     glDrawPixels(width, height, GL_RGBA, GL_UNSIGNED_BYTE,
                  static_cast<void *>(dataPtr));
-    }
+  }
   else
-    { // feed through other bytes without reformatting
+  { // feed through other bytes without reformatting
     T *inPtr = dataPtr;
     T *inPtr1 = inPtr;
     unsigned char tmp;
@@ -436,75 +436,75 @@ void vtkOpenGLImageMapperRenderChar(vtkOpenGLImageMapper *self, vtkImageData *da
 
     unsigned char *newPtr;
     if (bpp < 4)
-      {
+    {
       newPtr = new unsigned char[vtkPadToFour(3*width*height)];
-      }
+    }
     else
-      {
+    {
       newPtr = new unsigned char[4*width*height];
-      }
+    }
 
     unsigned char *ptr = newPtr;
 
     while (--j >= 0)
-      {
+    {
       inPtr = inPtr1;
       i = width;
 
       switch (bpp)
-        {
+      {
         case 1:
           while (--i >= 0)
-            {
+          {
             *ptr++ = tmp = *inPtr++;
             *ptr++ = tmp;
             *ptr++ = tmp;
-            }
+          }
           break;
 
         case 2:
           while (--i >= 0)
-            {
+          {
             *ptr++ = tmp = *inPtr++;
             *ptr++ = *inPtr++;
             *ptr++ = tmp;
-            }
+          }
           break;
 
         case 3:
           while (--i >= 0)
-            {
+          {
             *ptr++ = *inPtr++;
             *ptr++ = *inPtr++;
             *ptr++ = *inPtr++;
-            }
+          }
           break;
 
         default:
           while (--i >= 0)
-            {
+          {
             *ptr++ = *inPtr++;
             *ptr++ = *inPtr++;
             *ptr++ = *inPtr++;
             *ptr++ = *inPtr++;
             inPtr += bpp-4;
-            }
+          }
           break;
-        }
-      inPtr1 += inInc1;
       }
+      inPtr1 += inInc1;
+    }
 
     glDrawPixels(width, height, ((bpp < 4) ? GL_RGB : GL_RGBA),
                  GL_UNSIGNED_BYTE, static_cast<void *>(newPtr));
 
     delete [] newPtr;
-    }
+  }
 
   if (self->GetRenderToRectangle())
-    {
+  {
     // restore zoom to 1,1 otherwise other glDrawPixels cals may be affected
     glPixelZoom(1.0, 1.0);
-    }
+  }
 
   glPixelStorei( GL_UNPACK_ROW_LENGTH, 0);
 
@@ -536,15 +536,15 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData 
                                        int)
 {
   if(shift == 0.0 && scale == 1.0)
-    {
+  {
     vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize);
-    }
+  }
   else
-    {
+  {
     vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize);
-    }
+  }
 }
 
 static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
@@ -553,15 +553,15 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData 
                                        int)
 {
   if(shift == 0.0 && scale == 1.0)
-    {
+  {
     vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize);
-    }
+  }
   else
-    {
+  {
     vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize);
-    }
+  }
 }
 
 static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
@@ -570,15 +570,15 @@ static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData 
                                        int)
 {
   if(shift == 0.0 && scale == 1.0)
-    {
+  {
     vtkOpenGLImageMapperRenderChar(self, data, dataPtr,
                                    actorPos, actorPos2, front, vsize);
-    }
+  }
   else
-    {
+  {
     vtkOpenGLImageMapperRenderShort(self, data, dataPtr, shift, scale,
                                     actorPos, actorPos2, front, vsize);
-    }
+  }
 }
 
 static void vtkOpenGLImageMapperRender(vtkOpenGLImageMapper *self, vtkImageData *data,
@@ -610,10 +610,10 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
 
   vtkWindow* window = static_cast<vtkWindow *>(viewport->GetVTKWindow());
   if (!window)
-    {
+  {
     vtkErrorMacro (<<"vtkOpenGLImageMapper::RenderData - no window set for viewport");
     return;
-    }
+  }
 
   // Make this window current. May have become not current due to
   // data updates since the render started.
@@ -634,20 +634,20 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glPushMatrix();
   glLoadIdentity();
   if(viewport->GetIsPicking())
-    {
+  {
     vtkgluPickMatrix(viewport->GetPickX(), viewport->GetPickY(),
                      viewport->GetPickWidth(),
                      viewport->GetPickHeight(),
                      viewport->GetOrigin(), vsize);
-    }
+  }
   glMatrixMode( GL_MODELVIEW );
   glPushMatrix();
   glLoadIdentity();
   // If picking then set up a model view matrix
   if(viewport->GetIsPicking())
-    {
+  {
     glOrtho(0,vsize[0] -1, 0, vsize[1] -1, 0, 1);
-    }
+  }
 
   glDisable( GL_LIGHTING);
 
@@ -661,7 +661,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   actorPos[1] += this->PositionAdjustment[1];
   // if picking then only draw a polygon, since an image can not be picked
   if(viewport->GetIsPicking())
-    {
+  {
     int inMin0 = this->DisplayExtent[0];
     int inMax0 = this->DisplayExtent[1];
     int inMin1 = this->DisplayExtent[2];
@@ -680,7 +680,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
     glEnable( GL_LIGHTING);
     vtkOpenGLCheckErrorMacro("failed after RenderData");
     return;
-    }
+  }
 
   int front =
     (actor->GetProperty()->GetDisplayLocation() == VTK_FOREGROUND_LOCATION);
@@ -689,7 +689,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
   glDisable(GL_BLEND);
 #endif
   switch (data->GetPointData()->GetScalars()->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkOpenGLImageMapperRender(this, data, static_cast<VTK_TT*>(ptr0),
                                  shift, scale, actorPos, actorPos2, front, vsize,
@@ -697,7 +697,7 @@ void vtkOpenGLImageMapper::RenderData(vtkViewport* viewport,
       );
     default:
       vtkErrorMacro ( << "Unsupported image type: " << data->GetScalarType());
-    }
+  }
 
   glMatrixMode( GL_PROJECTION);
   glPopMatrix();

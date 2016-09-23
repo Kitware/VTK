@@ -74,10 +74,10 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
     vtkTransformFeedback *tfc, vtkRenderer *ren, float col[4])
 {
   if (tfc->GetNumberOfVertices() == 0)
-    {
+  {
     // Nothing to do.
     return;
-    }
+  }
 
   // Captured data:
   typedef std::vector<vtkTransformFeedback::VaryingMetaData> VarVector;
@@ -94,10 +94,10 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
   float lineWidth = this->LineWidth * this->LineWidthFactor;
 
   if (!data)
-    {
+  {
     vtkErrorMacro("TransformFeedback buffer is NULL.");
     return;
-    }
+  }
 
   // Info to transform clip --> display coords
   double renVp[4];
@@ -116,7 +116,7 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
 
   // Process all vertices:
   while (data < dataEnd)
-    {
+  {
     assert("Sanity" && data + vertexSize <= dataEnd);
     bool posSet = false;
     bool colorSet = false;
@@ -125,13 +125,13 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
     // Process all roles for this vertex:
     for (VarVector::const_iterator it = vars.begin(), itEnd = vars.end();
          it != itEnd; ++it)
-      {
+    {
       size_t varSize = tfc->GetBytesPerVertex(it->Role);
 
       switch (it->Role)
-        {
+      {
         case vtkTransformFeedback::Vertex_ClipCoordinate_F:
-          {
+        {
           posSet = true;
           float *fdata = reinterpret_cast<float*>(data);
 
@@ -146,41 +146,41 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
           vert.xyz[1] = halfH * vert.xyz[1] + (vp[1] + halfH);
 
           break;
-          }
+        }
 
         case vtkTransformFeedback::Color_RGBA_F:
-          {
+        {
           float *fdata = reinterpret_cast<float*>(data);
           std::copy(fdata, fdata + 4, vert.rgba);
           colorSet = true;
           break;
-          }
+        }
 
         default:
           vtkWarningMacro("Unhandled data role: " << it->Role);
-        }
+      }
 
       // Move to next var / vertex:
       assert("In bounds" && data + varSize <= dataEnd);
       data += varSize;
-      }
+    }
 
     // Sanity check:
     if (!posSet)
-      {
+    {
       std::fill(vert.xyz, vert.xyz + 3, 0.f);
       vtkErrorMacro("Position info missing from capture.");
-      }
+    }
 
     // Set color from actor if needed:
     if (!colorSet)
-      {
+    {
       std::copy(col, col + 4, vert.rgba);
-      }
+    }
 
     // Emit primitive / move to next vertex
     switch (primitiveMode)
-      {
+    {
       case GL_POINTS:
         gl2psAddPolyPrimitive(GL2PS_POINT, 1, verts, 0, 0.f, 0.f, 0xffff, 1,
                               pointSize, 0);
@@ -189,26 +189,26 @@ void vtkOpenGLGL2PSHelperImpl::ProcessTransformFeedback(
       case GL_LINES:
         curVert = (curVert + 1) % 2;
         if (curVert == 0)
-          {
+        {
           gl2psAddPolyPrimitive(GL2PS_LINE, 2, verts, 0, 0.f, 0.f,
                                 this->LineStipple, 1, lineWidth, 0);
-          }
+        }
         break;
 
       case GL_TRIANGLES:
         curVert = (curVert + 1) % 3;
         if (curVert == 0)
-          {
+        {
           gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, verts, 0, 0.f, 0.f, 0xffff,
                                 1, 1, 0);
-          }
+        }
         break;
 
       default:
         vtkWarningMacro("Unhandled primitive mode: " << primitiveMode);
         break;
-      }
     }
+  }
 
   assert("In bounds." && data == dataEnd);
 }
@@ -221,25 +221,25 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
                                           vtkRenderer *ren)
 {
   if (str.empty())
-    {
+  {
     return;
-    }
+  }
 
   vtkTextRenderer *tren(vtkTextRenderer::GetInstance());
   if (tren == NULL)
-    {
+  {
     vtkErrorMacro("vtkTextRenderer unavailable.");
     return;
-    }
+  }
 
   int dpi = this->RenderWindow->GetDPI();
 
   // Draw the background if needed:
   if (tprop->GetBackgroundOpacity() > 0.)
-    {
+  {
     vtkTextRenderer::Metrics metrics;
     if (tren->GetMetrics(tprop, str, metrics, dpi))
-      {
+    {
       double bgPos[3] = { pos[0], pos[1], backgroundDepth };
 
       GL2PSvertex bgVerts[5];
@@ -273,15 +273,15 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
                             0, 0);
       gl2psAddPolyPrimitive(GL2PS_TRIANGLE, 3, bgVerts + 2, 0, 0, 0, 0xffff, 0,
                             0, 0);
-      }
     }
+  }
 
   // Is this mathtext?
   bool isMath = tren->DetectBackend(str) == vtkTextRenderer::MathText;
 
   // Export text as either a path or a text object.
   if (!isMath && !this->TextAsPath)
-    {
+  {
     const char *fontname = this->TextPropertyToPSFontName(tprop);
 
     GLint align = static_cast<GLint>(this->TextPropertyToGL2PSAlignment(tprop));
@@ -309,9 +309,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
     gl2psRasterPos.rgba[3] = 0.f;
     gl2psForceRasterPos(&gl2psRasterPos);
     gl2psTextOptColor(str.c_str(), fontname, fontSize, align, angle, rgba);
-    }
+  }
   else
-    {
+  {
     // Render the string to a path and then draw it to GL2PS:
     vtkNew<vtkPath> path;
     tren->StringToPath(tprop, str, path.GetPointer(), dpi);
@@ -329,7 +329,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawString(const std::string &str,
 
     this->DrawPath(path.GetPointer(), pos, devicePos, rgba, NULL, 0.0, -1.f,
                    (std::string("Pathified string: ") + str).c_str());
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -343,12 +343,12 @@ void vtkOpenGLGL2PSHelperImpl::DrawPath(vtkPath *path, double rasterPos[3],
   std::string l(label ? label : "");
   size_t idx = 0;
   while ((idx = l.find('\n', idx)) != std::string::npos)
-    {
+  {
     l.replace(idx, 1, "\\n");
-    }
+  }
 
   switch (gl2psGetFileFormat())
-    {
+  {
     case GL2PS_PS:
     case GL2PS_EPS:
       this->DrawPathPS(path, rasterPos, windowPos, rgba, scale,
@@ -364,7 +364,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPath(vtkPath *path, double rasterPos[3],
       break;
     default:
       break;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -386,7 +386,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawImage(vtkImageData *input, double pos[3])
   // Must be RGB/RGBA:
   GLenum format = 0;
   switch (input->GetNumberOfScalarComponents())
-    {
+  {
     case 3:
       format = GL_RGB;
       break;
@@ -396,25 +396,25 @@ void vtkOpenGLGL2PSHelperImpl::DrawImage(vtkImageData *input, double pos[3])
     default:
       vtkErrorMacro("Invalid image format: Must be RGB or RGBA.");
       return;
-    }
+  }
 
   if (input->GetDimensions()[2] != 1)
-    {
+  {
     vtkErrorMacro("Invalid image format: 3D ImageData are not supported.");
     return;
-    }
+  }
 
   vtkDataArray *inScalars = input->GetPointData()->GetScalars();
   if (!inScalars || inScalars->GetNumberOfTuples() == 0)
-    {
+  {
     return;
-    }
+  }
 
   if (!vtkDataTypesCompare(inScalars->GetDataType(), VTK_FLOAT))
-    {
+  {
     vtkErrorMacro("Invalid image format: Expected float scalars.");
     return;
-    }
+  }
 
   GL2PSvertex gl2psRasterPos;
   gl2psRasterPos.xyz[0] = static_cast<float>(pos[0]);
@@ -451,68 +451,68 @@ vtkOpenGLGL2PSHelperImpl::TextPropertyToPSFontName(vtkTextProperty *tprop)
   bool italic = tprop->GetItalic() != 0;
 
   switch (tprop->GetFontFamily())
-    {
+  {
     case VTK_ARIAL:
-      {
+    {
       if (!bold && !italic)
-        {
+      {
         return "Helvetica";
-        }
+      }
       else if (bold && italic)
-        {
+      {
         return "Helvetica-BoldItalic";
-        }
+      }
       else if (bold)
-        {
+      {
         return "Helvetica-Bold";
-        }
+      }
       else // (italic)
-        {
+      {
         return "Helvetica-Italic";
-        }
       }
+    }
     case VTK_TIMES:
-      {
+    {
       if (!bold && !italic)
-        {
+      {
         return "Times-Roman";
-        }
-      else if (bold && italic)
-        {
-        return "Times-BoldOblique";
-        }
-      else if (bold)
-        {
-        return "Times-Bold";
-        }
-      else // (italic)
-        {
-        return "Times-Oblique";
-        }
       }
-    case VTK_COURIER:
+      else if (bold && italic)
       {
-      if (!bold && !italic)
-        {
-        return "Courier";
-        }
-      else if (bold && italic)
-        {
-        return "Courier-BoldOblique";
-        }
-      else if (bold)
-        {
-        return "Courier-Bold";
-        }
-      else // (italic)
-        {
-        return "Courier-Oblique";
-        }
+        return "Times-BoldOblique";
       }
+      else if (bold)
+      {
+        return "Times-Bold";
+      }
+      else // (italic)
+      {
+        return "Times-Oblique";
+      }
+    }
+    case VTK_COURIER:
+    {
+      if (!bold && !italic)
+      {
+        return "Courier";
+      }
+      else if (bold && italic)
+      {
+        return "Courier-BoldOblique";
+      }
+      else if (bold)
+      {
+        return "Courier-Bold";
+      }
+      else // (italic)
+      {
+        return "Courier-Oblique";
+      }
+    }
     case VTK_UNKNOWN_FONT:
     default:
       break;
-    }
+  }
 
   return "Helvetica";
 }
@@ -522,60 +522,60 @@ int
 vtkOpenGLGL2PSHelperImpl::TextPropertyToGL2PSAlignment(vtkTextProperty *tprop)
 {
   switch (tprop->GetJustification())
-    {
+  {
     case VTK_TEXT_LEFT:
       switch (tprop->GetVerticalJustification())
-        {
+      {
         case VTK_TEXT_TOP:
-          {
+        {
           return GL2PS_TEXT_TL;
-          }
-        case VTK_TEXT_CENTERED:
-          {
-          return GL2PS_TEXT_CL;
-          }
-        case VTK_TEXT_BOTTOM:
-          {
-          return GL2PS_TEXT_BL;
-          }
         }
+        case VTK_TEXT_CENTERED:
+        {
+          return GL2PS_TEXT_CL;
+        }
+        case VTK_TEXT_BOTTOM:
+        {
+          return GL2PS_TEXT_BL;
+        }
+      }
       break;
     case VTK_TEXT_CENTERED:
       switch (tprop->GetVerticalJustification())
-        {
+      {
         case VTK_TEXT_TOP:
-          {
+        {
           return GL2PS_TEXT_T;
-          }
-        case VTK_TEXT_CENTERED:
-          {
-          return GL2PS_TEXT_C;
-          }
-        case VTK_TEXT_BOTTOM:
-          {
-          return GL2PS_TEXT_B;
-          }
         }
+        case VTK_TEXT_CENTERED:
+        {
+          return GL2PS_TEXT_C;
+        }
+        case VTK_TEXT_BOTTOM:
+        {
+          return GL2PS_TEXT_B;
+        }
+      }
       break;
     case VTK_TEXT_RIGHT:
       switch (tprop->GetVerticalJustification())
-        {
+      {
         case VTK_TEXT_TOP:
-          {
+        {
           return GL2PS_TEXT_TR;
-          }
-        case VTK_TEXT_CENTERED:
-          {
-          return GL2PS_TEXT_CR;
-          }
-        case VTK_TEXT_BOTTOM:
-          {
-          return GL2PS_TEXT_BR;
-          }
         }
+        case VTK_TEXT_CENTERED:
+        {
+          return GL2PS_TEXT_CR;
+        }
+        case VTK_TEXT_BOTTOM:
+        {
+          return GL2PS_TEXT_BR;
+        }
+      }
     default:
       break;
-    }
+  }
 
   return GL2PS_TEXT_BL;
 }
@@ -604,9 +604,9 @@ void vtkOpenGLGL2PSHelperImpl::GetTransformParameters(
   xform->DeepCopy(cam->GetCompositeProjectionTransformMatrix(aspect, -1, 1));
 
   if (actorMatrix)
-    {
+  {
     vtkMatrix4x4::Multiply4x4(xform, actorMatrix, xform);
-    }
+  }
 
   vpOrigin[0] = static_cast<double>(lowerLeft[0]);
   vpOrigin[1] = static_cast<double>(lowerLeft[1]);
@@ -670,14 +670,14 @@ inline void vtkOpenGLGL2PSHelperImpl::ProjectPoints(vtkPoints *points,
 
   double point[4];
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); ++i)
-    {
+  {
     points->GetPoint(i, point);
     point[3] = 1.0;
     vtkOpenGLGL2PSHelperImpl::ProjectPoint(
           point, xform.GetPointer(), vpOrigin, halfSize[0], halfSize[1],
           zFact[0], zFact[1]);
     points->SetPoint(i, point);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -713,14 +713,14 @@ inline void vtkOpenGLGL2PSHelperImpl::UnprojectPoints(
 
   double point[4];
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     std::copy(points3D + (i * 3), points3D + ((i + 1) * 3), point);
     point[3] = 1.0;
     vtkOpenGLGL2PSHelperImpl::UnprojectPoint(
           point, xform.GetPointer(), vpOrigin, halfSize[0], halfSize[1],
           zFact[0], zFact[1]);
     std::copy(point, point + 3, points3D + (i * 3));
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -734,9 +734,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
-    {
+  {
     return;
-    }
+  }
 
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
@@ -760,24 +760,24 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
 #endif
   int *codeEnd = code + codes->GetNumberOfTuples();
   if (!label.empty())
-    {
+  {
     out << "% " << label << endl;
-    }
+  }
   out << "gsave" << endl;
   out << "initmatrix" << endl;
   out << windowPos[0] << " " << windowPos[1] << " translate" << endl;
   if (scale)
-    {
+  {
     out << scale[0] << " " << scale[1] << " scale" << endl;
-    }
+  }
   out << rotateAngle << " rotate" << endl;
   out << "newpath" << endl;
   while (code < codeEnd)
-    {
+  {
     assert(pt - ptBegin == (code - codeBegin) * 3);
 
     switch (static_cast<vtkPath::ControlPointType>(*code))
-      {
+    {
       case vtkPath::MOVE_TO:
         curX = *pt;
         curY = *(++pt);
@@ -792,7 +792,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
         break;
       case vtkPath::CONIC_CURVE:
         // Postscript doesn't support conic curves -- elevate order to cubic:
-        {
+      {
         // Next point should be a CONIC_CURVE as well
         code += 1;
         const float &conicX = *pt;
@@ -812,10 +812,10 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
         out << curveto[0][0] << " " << curveto[0][1] << endl
             << curveto[1][0] << " " << curveto[1][1] << endl
             << curveto[2][0] << " " << curveto[2][1] << " curveto" << endl;
-        }
+      }
         break;
       case vtkPath::CUBIC_CURVE:
-        {
+      {
         // Next two points should be CUBIC_CURVEs as well
         code += 2;
 
@@ -831,30 +831,30 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPS(
         out << curveto[0][0] << " " << curveto[0][1] << endl
             << curveto[1][0] << " " << curveto[1][1] << endl
             << curveto[2][0] << " " << curveto[2][1] << " curveto" << endl;
-        }
+      }
         break;
       default:
         out << "% Unrecognized control code: " << *code << endl;
         pt +=2;
         break;
-      }
+    }
 
     ++code;
     ++pt;
-    }
+  }
 
   out << static_cast<float>(rgba[0])/255.f << " " <<
          static_cast<float>(rgba[1])/255.f << " " <<
          static_cast<float>(rgba[2])/255.f << " setrgbcolor" << endl;
 
   if (strokeWidth > 1e-5)
-    {
+  {
     out << strokeWidth << " setlinewidth\nstroke" << endl;
-    }
+  }
   else
-    {
+  {
     out << "fill" << endl;
-    }
+  }
   out << "grestore" << endl;
 
   GL2PSvertex gl2psRasterPos;
@@ -880,9 +880,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
-    {
+  {
     return;
-    }
+  }
 
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
@@ -927,17 +927,17 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
       << " cm" << endl;
   // scale
   if (scale)
-    {
+  {
     out << scale[0] << " " << 0.f << " " << 0.f << " " << scale[1] << " " << 0.f
         << " " << 0.f << " cm" << endl;
-    }
+  }
 
   while (code < codeEnd)
-    {
+  {
     assert(pt - ptBegin == (code - codeBegin) * 3);
 
     switch (static_cast<vtkPath::ControlPointType>(*code))
-      {
+    {
       case vtkPath::MOVE_TO:
         curX = *pt;
         curY = *(++pt);
@@ -952,7 +952,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
         break;
       case vtkPath::CONIC_CURVE:
         // Postscript doesn't support conic curves -- elevate order to cubic:
-        {
+      {
         // Next point should be a CONIC_CURVE as well
         code += 1;
         const float &conicX = *pt;
@@ -972,10 +972,10 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
         out << curveto[0][0] << " " << curveto[0][1] << endl
             << curveto[1][0] << " " << curveto[1][1] << endl
             << curveto[2][0] << " " << curveto[2][1] << " c" << endl;
-        }
+      }
         break;
       case vtkPath::CUBIC_CURVE:
-        {
+      {
         // Next two points should be CUBIC_CURVEs as well
         code += 2;
 
@@ -991,27 +991,27 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathPDF(
         out << curveto[0][0] << " " << curveto[0][1] << endl
             << curveto[1][0] << " " << curveto[1][1] << endl
             << curveto[2][0] << " " << curveto[2][1] << " c" << endl;
-        }
+      }
         break;
       default:
         out << "% Unrecognized control code: " << *code << endl;
         pt +=2;
         break;
-      }
+    }
 
     ++code;
     ++pt;
-    }
+  }
 
   out << "h ";
   if (strokeWidth > 1e-5)
-    {
+  {
     out << strokeWidth << " w S" << endl;
-    }
+  }
   else
-    {
+  {
     out<< "f" << endl;
-    }
+  }
   out << "Q" << endl; // Pop state
 
   GL2PSvertex gl2psRasterPos;
@@ -1037,9 +1037,9 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
   vtkIntArray *codes = path->GetCodes();
 
   if (points->GetNumberOfTuples() != codes->GetNumberOfTuples())
-    {
+  {
     return;
-    }
+  }
 
   std::stringstream out;
   out.setf(std::ios_base::left | std::ios_base::fixed);
@@ -1066,25 +1066,25 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
 #endif
 
   if (!label.empty())
-    {
+  {
     out << "<!-- " << label << " -->" << endl;
-    }
+  }
 
   int *codeEnd = code + codes->GetNumberOfTuples();
   out << "<g transform=\"" << endl
       << "     translate(" << windowPos[0] << " "
       << windowHeight - windowPos[1] << ")" << endl;
   if (scale)
-    {
+  {
     out << "     scale(" << scale[0] << " " << -scale[1] << ")" << endl;
-    }
+  }
   else
-    {
+  {
     out << "     scale(1.0 -1.0)" << endl;
-    }
+  }
   out << "     rotate(" << rotateAngle << ")\"" << endl;
   if (strokeWidth > 1e-5)
-    {
+  {
     out << "   fill=\"none\"" << endl
         << "   stroke-width=\"" << strokeWidth << "\"" << endl
         << "   stroke=\"rgb(" << std::setprecision(0)
@@ -1092,26 +1092,26 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
         << static_cast<int>(rgba[1]) << ","
         << static_cast<int>(rgba[2])
         << std::setprecision(floatPrec) << ")\"" << endl;
-    }
+  }
   else
-    {
+  {
     out << "   stroke=\"none\"" << endl
         << "   fill=\"rgb(" << std::setprecision(0)
              << static_cast<int>(rgba[0]) << ","
              << static_cast<int>(rgba[1]) << ","
              << static_cast<int>(rgba[2])
              << std::setprecision(floatPrec) << ")\"" << endl;
-    }
+  }
     out << "   opacity=\"" << static_cast<float>(rgba[3])/255.f << "\"\n"
       << ">" << endl
       << "  <path d=\"" << std::right << endl;
 
   while (code < codeEnd)
-    {
+  {
     assert(pt - ptBegin == (code - codeBegin) * 3);
 
     switch (static_cast<vtkPath::ControlPointType>(*code))
-      {
+    {
       case vtkPath::MOVE_TO:
         curX = *pt;
         curY = *(++pt);
@@ -1125,7 +1125,7 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
         out << "    L " << curX << " " << curY << endl;
         break;
       case vtkPath::CONIC_CURVE:
-        {
+      {
         // Next point should be a CONIC_CURVE as well
         code += 1;
 
@@ -1139,10 +1139,10 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
 
         out << "    Q " << curveto[0][0] << " " << curveto[0][1] << endl
             << "      " << curveto[1][0] << " " << curveto[1][1] << endl;
-        }
+      }
         break;
       case vtkPath::CUBIC_CURVE:
-        {
+      {
         // Next two points should be CUBIC_CURVEs as well
         code += 2;
 
@@ -1159,17 +1159,17 @@ void vtkOpenGLGL2PSHelperImpl::DrawPathSVG(
         out << "    C " << curveto[0][0] << " " << curveto[0][1] << endl
             << "      " << curveto[1][0] << " " << curveto[1][1] << endl
             << "      " << curveto[2][0] << " " << curveto[2][1] << endl;
-        }
+      }
         break;
       default:
         out << "<!-- Unrecognized control code: " << *code << " -->" << endl;
         pt +=2;
         break;
-      }
+    }
 
     ++code;
     ++pt;
-    }
+  }
 
   out << "    \" />" << endl
       << "</g>" << endl;

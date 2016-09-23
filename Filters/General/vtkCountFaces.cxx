@@ -74,9 +74,9 @@ int vtkCountFaces::RequestData(vtkInformation *,
 
   vtkCellIterator *it = input->NewCellIterator();
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextCell())
-    {
+  {
     faceCount->InsertNextValue(it->GetNumberOfFaces());
-    }
+  }
   it->Delete();
 
   return 1;

@@ -40,7 +40,7 @@ vtkProperty2D::~vtkProperty2D()
 void vtkProperty2D::DeepCopy(vtkProperty2D *p)
 {
   if ( p != NULL )
-    {
+  {
     this->SetColor(p->GetColor());
     this->SetOpacity(p->GetOpacity());
     this->SetPointSize(p->GetPointSize());
@@ -48,7 +48,7 @@ void vtkProperty2D::DeepCopy(vtkProperty2D *p)
     this->SetLineStipplePattern(p->GetLineStipplePattern());
     this->SetLineStippleRepeatFactor(p->GetLineStippleRepeatFactor());
     this->SetDisplayLocation(p->GetDisplayLocation());
-    }
+  }
 }
 
 void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
@@ -64,7 +64,7 @@ void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Line stipple pattern: " << this->LineStipplePattern << "\n";
   os << indent << "Line stipple repeat factor: " << this->LineStippleRepeatFactor << "\n";
   switch ( this->DisplayLocation )
-    {
+  {
     case VTK_FOREGROUND_LOCATION:
       os << indent << "Display location: foreground\n";
       break;
@@ -74,7 +74,7 @@ void vtkProperty2D::PrintSelf(ostream& os, vtkIndent indent)
     default:
       os << indent << "Display location: invalid\n";
       break;
-    }
+  }
 
 }
 

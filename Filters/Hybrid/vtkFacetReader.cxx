@@ -50,14 +50,14 @@ static bool GetLineFromStream(istream& is,
   line = "";
   bool haveData = false;
   if ( has_newline )
-    {
+  {
     *has_newline = false;
-    }
+  }
 
   // If no characters are read from the stream, the end of file has
   // been reached.
   while(((void)(is.getline(buffer, bufferSize)), (is.gcount() > 0)))
-    {
+  {
     haveData = true;
     line.append(buffer);
 
@@ -65,17 +65,17 @@ static bool GetLineFromStream(istream& is,
     // character, but the buffer does not.  The end of line has been
     // reached.
     if(strlen(buffer) < static_cast<size_t>(is.gcount()))
-      {
+    {
       if ( has_newline )
-        {
+      {
         *has_newline = true;
-        }
-      break;
       }
+      break;
+    }
 
     // The fail bit may be set.  Clear it.
     is.clear(is.rdstate() & ~ios::failbit);
-    }
+  }
   return haveData;
 }
 
@@ -97,25 +97,25 @@ int vtkFacetReader::CanReadFile(const char *filename)
 {
   struct stat fs;
   if (stat(filename, &fs))
-    {
+  {
     // Specified filename not found
     return 0;
-    }
+  }
 
   ifstream ifs(filename, ios::in);
   if (!ifs)
-    {
+  {
     // Specified filename not found
     return 0;
-    }
+  }
 
   std::string line;
   // Read first row
   if (!GetLineFromStream(ifs, line))
-    {
+  {
     // Cannot read file comment
     return 0;
-    }
+  }
 
   // File starts with FACET FILE
   return (line.find("FACET FILE") == 0);
@@ -135,46 +135,46 @@ int vtkFacetReader::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if ( !this->FileName )
-    {
+  {
     vtkErrorMacro("No filename specified");
     return 1;
-    }
+  }
 
   struct stat fs;
   if ( stat(this->FileName, &fs) )
-    {
+  {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro("Specified filename not found");
     return 1;
-    }
+  }
 
   ifstream ifs(this->FileName, ios::in);
   if (!ifs)
-    {
+  {
     this->SetErrorCode(vtkErrorCode::FileNotFoundError);
     vtkErrorMacro("Specified filename not found");
     return 1;
-    }
+  }
 
   vtkDebugMacro( << "Reading Facet file");
   std::string line;
 
   // Read first row
   if ( !GetLineFromStream(ifs, line) )
-    {
+  {
     vtkErrorMacro("Cannot read file comment");
     return 1;
-    }
+  }
 
   // Read number of parts
   int num_parts = 0;
   if ( !GetLineFromStream(ifs, line) ||
     sscanf(line.c_str(), "%d", &num_parts) != 1 ||
     num_parts < 0 )
-    {
+  {
     vtkErrorMacro("Bad number of parts line");
     return 1;
-    }
+  }
 
   vtkDebugMacro("Number of parts is: " << num_parts);
 
@@ -194,17 +194,17 @@ int vtkFacetReader::RequestData(
 
   // Loop thrugh individual parts
   for ( part = 0; part < num_parts || error; part ++ )
-    {
+  {
     std::string partName;
     vtkDebugMacro("Reading part: " << part);
 
     // Read part name
     if ( !GetLineFromStream(ifs, partName) )
-      {
+    {
       vtkErrorMacro("Cannot read part name");
       error = 1;
       break;
-      }
+    }
     vtkDebugMacro("Part name: " << partName.c_str());
 
     // Read cell/point index and geometry information including the number of
@@ -217,11 +217,11 @@ int vtkFacetReader::RequestData(
       !GetLineFromStream(ifs, line) ||
       sscanf(line.c_str(), "%d %d %d", &numpts, &tmp, &tmp) != 3 ||
       numpts < 0 )
-      {
+    {
       vtkErrorMacro("Problem reading number of points");
       error = 1;
       break;
-      }
+    }
 
     vtkIdType num_points = numpts;
     vtkIdType point;
@@ -229,59 +229,59 @@ int vtkFacetReader::RequestData(
 
     // Read individual points
     for ( point = 0; point < num_points; point ++ )
-      {
+    {
       // Read point
       double x = 0, y = 0, z = 0;
       if ( !GetLineFromStream(ifs, line) ||
         sscanf(line.c_str(), "%lf %lf %lf", &x, &y, &z) != 3 )
-        {
+      {
         vtkErrorMacro("Problem reading point: " << point);
         error = 1;
         break;
-        }
+      }
       myPointsPtr->InsertNextPoint(x, y, z);
-      }
+    }
     if ( error )
-      {
+    {
       break;
-      }
+    }
 
     // Read cell point index
     if ( !GetLineFromStream(ifs, line) ||
       sscanf(line.c_str(), "%d", &cell_point_index) != 1 ||
       cell_point_index != 1 )
-      {
+    {
       vtkErrorMacro("Cannot read cell/point index or it is not 1");
         error = 1;
       break;
-      }
+    }
 
     // Read part name
     if ( !GetLineFromStream(ifs, line) ||
       partName != line )
-      {
+    {
       vtkErrorMacro("Cannot read part name or the part name does not match");
         error = 1;
       break;
-      }
+    }
 
     // Read topology information
     int numcells = -1, numpointpercell = -1;
     if ( !GetLineFromStream(ifs, line) ||
       sscanf(line.c_str(), "%d %d", &numcells, &numpointpercell) != 2 ||
       numcells < 0 || numpointpercell < 0 )
-      {
+    {
       vtkErrorMacro("Problem reading number of cells and points per cell");
         error = 1;
       break;
-      }
+    }
 
     vtkIdType num_cells = numcells;
     vtkIdType num_points_per_cell = numpointpercell;
     if ( pointList.size() < static_cast<size_t>(num_points_per_cell) )
-      {
+    {
       pointList.resize(num_points_per_cell);
-      }
+    }
 
     // We need arrays to store material and part number
     vtkSmartPointer<vtkUnsignedIntArray> materialArrayPtr = vtkSmartPointer<vtkUnsignedIntArray>::New();
@@ -299,20 +299,20 @@ int vtkFacetReader::RequestData(
     // Read cells
     vtkIdType cell;
     for ( cell = 0; cell < num_cells; cell ++ )
-      {
+    {
       // Read cell
       if ( !GetLineFromStream(ifs, line) )
-        {
+      {
         vtkErrorMacro("Cannot read cell: " << cell);
         error = 1;
         break;
-        }
+      }
 
       // Read specified number of points from cell information
       if ( stringBuffer.size() < line.size()+1 )
-        {
+      {
         stringBuffer.resize(line.size()+1);
-        }
+      }
       char* strPtr = &(*stringBuffer.begin());
       strcpy(strPtr, line.c_str());
       std::string str(strPtr, stringBuffer.size());
@@ -320,36 +320,36 @@ int vtkFacetReader::RequestData(
       vtkIdType kk;
       int material = -1, relativePartNumber = -1;
       for ( kk = 0; kk < num_points_per_cell; kk ++ )
-        {
+      {
         int val;
         if ( !(lineStream >> val) )
-          {
+        {
           vtkErrorMacro("Cannot extract cell points for cell: " << cell);
           error = 1;
           break;
-          }
+        }
         // point indices start with 0, while cell descriptions have point
         // indices starting with 1
         pointList[kk] = val -1;
-        }
+      }
 
       // Extract material and part number
       if ( !(lineStream >> material >> relativePartNumber) )
-        {
+      {
         vtkErrorMacro("Cannot extract cell material and part for cell: "
           << cell);
         error = 1;
         break;
-        }
+      }
       materialArrayPtr->SetTuple1(cell, material);
       relativePartArrayPtr->SetTuple1(cell, relativePartNumber);
 
       myCellsPtr->InsertNextCell(num_points_per_cell, &(*pointList.begin()));
-      }
+    }
     if ( error )
-      {
+    {
       break;
-      }
+    }
 
     vtkIdType cc;
 
@@ -359,14 +359,14 @@ int vtkFacetReader::RequestData(
     partNumberArray->SetNumberOfComponents(1);
     partNumberArray->SetNumberOfTuples(num_cells);
     for ( cc = 0; cc < partNumberArray->GetNumberOfTuples(); cc ++ )
-      {
+    {
       partNumberArray->SetTuple1(cc, part);
-      }
+    }
 
     // Create part and store it
     vtkPolyData* partGrid = vtkPolyData::New();
     switch ( num_points_per_cell )
-      {
+    {
     case 1:
       partGrid->SetVerts(myCellsPtr);
       break;
@@ -379,7 +379,7 @@ int vtkFacetReader::RequestData(
     default:
       partGrid->SetPolys(myCellsPtr);
       break;
-      }
+    }
     partGrid->SetPoints(myPointsPtr);
     partGrid->GetCellData()->AddArray(partNumberArray);
     partGrid->GetCellData()->AddArray(materialArrayPtr);
@@ -389,14 +389,14 @@ int vtkFacetReader::RequestData(
 
     partNumberArray->Delete();
     partGrid->Delete();
-    }
+  }
 
   if ( !error )
-    {
+  {
     // If everything ok, use append.
     appendPtr->Update();
     output->ShallowCopy(appendPtr->GetOutput());
-    }
+  }
 
   // Release garbage collection
   vtkGarbageCollector::DeferredCollectionPop();

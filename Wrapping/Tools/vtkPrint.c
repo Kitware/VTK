@@ -15,13 +15,13 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
   fprintf(fp,"Abstract: %s\n",data->HasDelete ? "Yes" : "No");
   fprintf(fp,"Number Of Super Classes: %i\n",data->NumberOfSuperClasses);
   for (i = 0; i < data->NumberOfSuperClasses; i++)
-    {
+  {
     fprintf(fp,"  %s\n",data->SuperClasses[i]);
-    }
+  }
 
   fprintf(fp,"Number Of Functions: %i\n",data->NumberOfFunctions);
   for (i = 0; i < data->NumberOfFunctions; i++)
-    {
+  {
     fprintf(fp,"  Function Name: %s\n",data->Functions[i].Name ?
             data->Functions[i].Name : "None");
     fprintf(fp,"  Function Signature: %s\n",data->Functions[i].Signature ?
@@ -48,5 +48,5 @@ void vtkParseOutput(FILE *fp, FileInfo *data)
     fprintf(fp,"    Comment: %s\n",
             data->Functions[i].Comment ?
             data->Functions[i].Comment : "None");
-    }
+  }
 }

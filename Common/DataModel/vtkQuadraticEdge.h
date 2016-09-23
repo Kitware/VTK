@@ -107,13 +107,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[3]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticEdge::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[3]) VTK_OVERRIDE
-    {
+  {
     vtkQuadraticEdge::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
 protected:

@@ -82,7 +82,7 @@ protected:
   // Name the textures used by this render pass. These are indexes into
   // this->Textures
   enum TextureName
-    {
+  {
     BackTemp = 0, // RGBA8 back-to-front peeling buffer
     Back, // RGBA8 back-to-front accumulation buffer
     FrontA, // RGBA8 front-to-back accumulation buffer
@@ -92,18 +92,18 @@ protected:
     OpaqueDepth, // Stores the depth map from the opaque passes
 
     NumberOfTextures
-    };
+  };
 
   // The stages of this multipass render pass:
   enum ShaderStage
-    {
+  {
     InitializingDepth,
     Peeling,
     AlphaBlending,
 
     NumberOfPasses,
     Inactive = -1,
-    };
+  };
 
   vtkDualDepthPeelingPass();
   ~vtkDualDepthPeelingPass();

@@ -56,21 +56,21 @@ public:
    * Set/Get/Add the position of the Prop3D in world coordinates.
    */
   virtual void SetPosition(double x, double y, double z)
-    {
+  {
       vtkDebugMacro(<< this->GetClassName() << " (" << this <<
       "): setting Position to (" << x << "," << y << "," <<
       z << ")");
       if ((this->Position[0] != x)||
           (this->Position[1] != y)||
           (this->Position[2] != z))
-        {
+      {
         this->Position[0] = x;
         this->Position[1] = y;
         this->Position[2] = z;
         this->Modified();
         this->IsIdentity = 0;
-        }
-    };
+      }
+  };
   //@}
 
   virtual void SetPosition(double pos[3])
@@ -85,21 +85,21 @@ public:
    * rotations take place.
    */
   virtual void SetOrigin(double x, double y, double z)
-    {
+  {
       vtkDebugMacro(<< this->GetClassName() << " (" << this <<
       "): setting Origin to (" << x << "," << y << "," <<
       z << ")");
       if ((this->Origin[0] != x)||
           (this->Origin[1] != y)||
           (this->Origin[2] != z))
-        {
+      {
         this->Origin[0] = x;
         this->Origin[1] = y;
         this->Origin[2] = z;
         this->Modified();
         this->IsIdentity = 0;
-        }
-    };
+      }
+  };
   virtual void SetOrigin(const double pos[3])
     { this->SetOrigin(pos[0], pos[1], pos[2]); }
   vtkGetVectorMacro(Origin, double, 3);
@@ -111,21 +111,21 @@ public:
    * X, Y and Z axis. A scale of zero is illegal and will be replaced with one.
    */
   virtual void SetScale(double x, double y, double z)
-    {
+  {
     vtkDebugMacro(<< this->GetClassName() << " (" << this <<
       "): setting Scale to (" << x << "," << y << "," <<
       z << ")");
     if (this->Scale[0] != x ||
         this->Scale[1] != y ||
         this->Scale[2] != z )
-      {
+    {
       this->Scale[0] = x;
       this->Scale[1] = y;
       this->Scale[2] = z;
       this->Modified();
       this->IsIdentity = 0;
-      }
-    };
+    }
+  };
   virtual void SetScale(double scale[3])
     { this->SetScale(scale[0], scale[1], scale[2]); }
   vtkGetVectorMacro(Scale, double, 3);
@@ -328,10 +328,10 @@ public:
    * Get a pointer to an internal vtkMatrix4x4. that represents
    */
   vtkMatrix4x4 *GetMatrix()
-    {
+  {
     this->ComputeMatrix();
     return this->Matrix;
-    }
+  }
   //@}
 
   //@{

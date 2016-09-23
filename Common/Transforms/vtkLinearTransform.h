@@ -175,9 +175,9 @@ public:
    * vtkLinearTransform.
    */
   vtkLinearTransform *GetLinearInverse()
-    {
+  {
       return static_cast<vtkLinearTransform *>(this->GetInverse());
-    }
+  }
 
   //@{
   /**

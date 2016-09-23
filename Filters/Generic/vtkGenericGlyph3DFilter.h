@@ -323,17 +323,17 @@ private:
 inline const char *vtkGenericGlyph3DFilter::GetScaleModeAsString()
 {
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
-    {
+  {
     return "ScaleByScalar";
-    }
+  }
   else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
-    {
+  {
     return "ScaleByVector";
-    }
+  }
   else
-    {
+  {
     return "DataScalingOff";
-    }
+  }
 }
 //@}
 
@@ -344,17 +344,17 @@ inline const char *vtkGenericGlyph3DFilter::GetScaleModeAsString()
 inline const char *vtkGenericGlyph3DFilter::GetColorModeAsString()
 {
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR )
-    {
+  {
     return "ColorByScalar";
-    }
+  }
   else if ( this->ColorMode == VTK_COLOR_BY_VECTOR )
-    {
+  {
     return "ColorByVector";
-    }
+  }
   else
-    {
+  {
     return "ColorByScale";
-    }
+  }
 }
 //@}
 
@@ -365,17 +365,17 @@ inline const char *vtkGenericGlyph3DFilter::GetColorModeAsString()
 inline const char *vtkGenericGlyph3DFilter::GetVectorModeAsString()
 {
   if ( this->VectorMode == VTK_USE_VECTOR)
-    {
+  {
     return "UseVector";
-    }
+  }
   else if ( this->VectorMode == VTK_USE_NORMAL)
-    {
+  {
     return "UseNormal";
-    }
+  }
   else
-    {
+  {
     return "VectorRotationOff";
-    }
+  }
 }
 //@}
 
@@ -386,17 +386,17 @@ inline const char *vtkGenericGlyph3DFilter::GetVectorModeAsString()
 inline const char *vtkGenericGlyph3DFilter::GetIndexModeAsString()
 {
   if ( this->IndexMode == VTK_INDEXING_OFF)
-    {
+  {
     return "IndexingOff";
-    }
+  }
   else if ( this->IndexMode == VTK_INDEXING_BY_SCALAR)
-    {
+  {
     return "IndexingByScalar";
-    }
+  }
   else
-    {
+  {
     return "IndexingByVector";
-    }
+  }
 }
 //@}
 

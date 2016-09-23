@@ -179,10 +179,10 @@ int TestTanglegramItem(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImageThreshold(renderWindow.GetPointer(), 100);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindow->Render();
     interactor->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }

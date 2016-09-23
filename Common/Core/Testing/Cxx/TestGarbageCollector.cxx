@@ -32,33 +32,33 @@ public:
 
 protected:
   vtkTestReferenceLoop()
-    {
+  {
     this->Other = new vtkTestReferenceLoop(this);
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
 #endif
-    }
+  }
   vtkTestReferenceLoop(vtkTestReferenceLoop* other)
-    {
+  {
     this->Other = other;
     this->Other->Register(this);
 #ifdef VTK_DEBUG_LEAKS
     vtkDebugLeaks::ConstructClass("vtkTestReferenceLoop");
 #endif
-    }
+  }
   ~vtkTestReferenceLoop() VTK_OVERRIDE
-    {
+  {
     if(this->Other)
-      {
+    {
       this->Other->UnRegister(this);
       this->Other = 0;
-      }
     }
+  }
 
   void ReportReferences(vtkGarbageCollector* collector) VTK_OVERRIDE
-    {
+  {
     vtkGarbageCollectorReport(collector, this->Other, "Other");
-    }
+  }
 
   vtkTestReferenceLoop* Other;
 
@@ -89,10 +89,10 @@ int TestGarbageCollector(int,char *[])
   called = 0;
   obj->Delete();
   if(!called)
-    {
+  {
     cerr << "Object not immediately collected." << endl;
     return 1;
-    }
+  }
 
   // Create an object, enable deferred collection, and delete it.  It
   // should not be collected yet.
@@ -102,18 +102,18 @@ int TestGarbageCollector(int,char *[])
   called = 0;
   obj->Delete();
   if(called)
-    {
+  {
     cerr << "Object collection not deferred." << endl;
     return 1;
-    }
+  }
 
   // Disable deferred collection.  The object should be deleted now.
   vtkGarbageCollector::DeferredCollectionPop();
   if(!called)
-    {
+  {
     cerr << "Deferred collection did not collect object." << endl;
     return 1;
-    }
+  }
 
   return 0;
 }

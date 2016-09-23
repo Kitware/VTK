@@ -34,41 +34,41 @@ vtkFileOutputWindow::~vtkFileOutputWindow()
 void vtkFileOutputWindow::Initialize()
 {
   if (!this->OStream)
-    {
+  {
     if (!this->FileName)
-      {
+    {
       const char fileName[] = "vtkMessageLog.log";
       this->FileName = new char[strlen(fileName)+1];
       strcpy(this->FileName, fileName);
-      }
-    if (this->Append)
-      {
-      this->OStream = new ofstream(this->FileName, ios::app);
-      }
-    else
-      {
-      this->OStream = new ofstream(this->FileName);
-      }
     }
+    if (this->Append)
+    {
+      this->OStream = new ofstream(this->FileName, ios::app);
+    }
+    else
+    {
+      this->OStream = new ofstream(this->FileName);
+    }
+  }
 }
 
 void vtkFileOutputWindow::DisplayText(const char* text)
 {
   if(!text)
-    {
+  {
     return;
-    }
+  }
 
   if (!this->OStream)
-    {
+  {
     this->Initialize();
-    }
+  }
   *this->OStream << text << endl;
 
   if (this->Flush)
-    {
+  {
     this->OStream->flush();
-    }
+  }
 }
 
 void vtkFileOutputWindow::PrintSelf(ostream& os, vtkIndent indent)

@@ -43,9 +43,9 @@ void AddColor(vtkDataSet* grid)
   vtkFloatArray* color = vtkFloatArray::New();
   color->SetNumberOfTuples(grid->GetNumberOfPoints());
   for(vtkIdType i=0;i<grid->GetNumberOfPoints();i++)
-    {
+  {
     color->SetValue(i, 1.);
-    }
+  }
   color->SetName("Density");
   grid->GetPointData()->AddArray(color);
   grid->GetPointData()->SetScalars(color);
@@ -64,10 +64,10 @@ int TestPWindBladeReader( int argc, char *argv[] )
   // Create the reader.
   vtkSmartPointer<vtkWindBladeReader> reader = vtkSmartPointer<vtkWindBladeReader>::New();
   if(reader->IsA("vtkPWindBladeReader") == false)
-    {
+  {
     vtkGenericWarningMacro("Tried to make a vtkPWindBladeReader but got a vtkWindBladeReader instead.");
     return 1;
-    }
+  }
   reader->SetFilename(fname);
   delete [] fname;
 
@@ -158,9 +158,9 @@ int TestPWindBladeReader( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   fieldActor->Delete();
   bladeActor->Delete();

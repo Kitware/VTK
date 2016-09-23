@@ -57,18 +57,18 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   // Need to get the data root.
   const char *data_root = NULL;
   for (i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-D", argv[i]) == 0)
-      {
+    {
       data_root = argv[i+1];
       break;
-      }
     }
+  }
   if (!data_root)
-    {
+  {
     cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
     return 1;
-    }
+  }
 
   // Create the standard renderer, render window, and interactor.
   VTK_CREATE(vtkRenderer, ren1);
@@ -82,10 +82,10 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
   renWin->Render();
   VTK_CREATE(vtkProjectedTetrahedraMapper, volumeMapper);
   if (!volumeMapper->IsSupported(renWin))
-    {
+  {
     vtkGenericWarningMacro("Projected tetrahedra is not supported. Skipping tests.");
     return 0;
-    }
+  }
 
   // Create the reader for the data.
   // This is the data that will be volume rendered.
@@ -178,21 +178,21 @@ int ProjectedTetrahedraZoomIn(int argc, char *argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // For now we are just checking to make sure that the mapper does not crash.
   // Maybe in the future we will do an image comparison.
 #if 0
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 #else
   vtkGenericWarningMacro("This test will always pass.");
   return 0;

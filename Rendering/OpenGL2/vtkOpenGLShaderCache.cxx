@@ -59,23 +59,23 @@ public:
 
     vtksysMD5_Initialize(this->md5);
     if (content)
-      {
+    {
       vtksysMD5_Append(this->md5,
         reinterpret_cast<const unsigned char *>(content),
         (int)strlen(content));
-      }
+    }
     if (content2)
-      {
+    {
       vtksysMD5_Append(this->md5,
         reinterpret_cast<const unsigned char *>(content2),
         (int)strlen(content2));
-      }
+    }
     if (content3)
-      {
+    {
       vtksysMD5_Append(this->md5,
         reinterpret_cast<const unsigned char *>(content3),
         (int)strlen(content3));
-      }
+    }
     vtksysMD5_Finalize(this->md5, digest);
     vtksysMD5_DigestToHex(digest, md5Hash);
 
@@ -100,9 +100,9 @@ vtkOpenGLShaderCache::~vtkOpenGLShaderCache()
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
   for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
-    {
+  {
     iter->second->Delete();
-    }
+  }
 
   delete this->Internal;
 }
@@ -119,9 +119,9 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   // have a Geometry shader we rename the frament shader inputs
   // to come from the geometry shader
   if (GSSource.size() > 0)
-    {
+  {
     vtkShaderProgram::Substitute(FSSource,"VSOut","GSOut");
-    }
+  }
 
   std::string version = "#version 120\n";
   bool needFragDecls = false;
@@ -131,17 +131,17 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
   glGetIntegerv(GL_MAJOR_VERSION, & glMajorVersion);
   glGetIntegerv(GL_MINOR_VERSION, & glMinorVersion);
   if (glMajorVersion >= 3)
-    {
+  {
     version = "#version 150\n";
     if (glMajorVersion == 3 && glMinorVersion == 1)
-      {
+    {
       version = "#version 140\n";
-      }
-    else
-      {
-      needFragDecls = true;
-      }
     }
+    else
+    {
+      needFragDecls = true;
+    }
+  }
 #else
 #if GL_ES_VERSION_3_0 == 1
   version = "#version 300 es\n";
@@ -234,12 +234,12 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
 
 
   if (needFragDecls)
-    {
+  {
     unsigned int count = 0;
     std::string fragDecls;
     bool done = false;
     while (!done)
-      {
+    {
       std::ostringstream src;
       std::ostringstream dst;
       src << "gl_FragData[" << count << "]";
@@ -248,14 +248,14 @@ unsigned int vtkOpenGLShaderCache::ReplaceShaderValues(
       dst << "fragOutput" << count;
       done = !vtkShaderProgram::Substitute(FSSource, src.str(),dst.str());
       if (!done)
-        {
+      {
         fragDecls += "out vec4 " + dst.str() + ";\n";
         count++;
-        }
       }
+    }
     vtkShaderProgram::Substitute(FSSource,"//VTK::Output::Dec",fragDecls);
     return count;
-    }
+  }
 
   return 0;
 }
@@ -306,28 +306,28 @@ vtkShaderProgram *vtkOpenGLShaderCache::ReadyShaderProgram(
     vtkShaderProgram *shader, vtkTransformFeedback *cap)
 {
   if (!shader)
-    {
+  {
     return NULL;
-    }
+  }
 
   if (shader->GetTransformFeedback() != cap)
-    {
+  {
     this->ReleaseCurrentShader();
     shader->ReleaseGraphicsResources(NULL);
     shader->SetTransformFeedback(cap);
-    }
+  }
 
   // compile if needed
   if (!shader->GetCompiled() && !shader->CompileShader())
-    {
+  {
     return NULL;
-    }
+  }
 
   // bind if needed
   if (!this->BindShader(shader))
-    {
+  {
     return NULL;
-    }
+  }
 
   return shader;
 }
@@ -346,7 +346,7 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
-    {
+  {
     // create one
     vtkShaderProgram *sps = vtkShaderProgram::New();
     sps->SetVertexShader(shaders[vtkShader::Vertex]);
@@ -355,11 +355,11 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
     sps->SetMD5Hash(result); // needed?
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
-    }
+  }
   else
-    {
+  {
     return found->second;
-    }
+  }
 }
 
 vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
@@ -375,23 +375,23 @@ vtkShaderProgram *vtkOpenGLShaderCache::GetShaderProgram(
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter found = this->Internal->ShaderPrograms.find(result);
   if (found == this->Internal->ShaderPrograms.end())
-    {
+  {
     // create one
     vtkShaderProgram *sps = vtkShaderProgram::New();
     sps->GetVertexShader()->SetSource(vertexCode);
     sps->GetFragmentShader()->SetSource(fragmentCode);
     if (geometryCode != NULL)
-      {
+    {
       sps->GetGeometryShader()->SetSource(geometryCode);
-      }
+    }
     sps->SetMD5Hash(result); // needed?
     this->Internal->ShaderPrograms.insert(std::make_pair(result, sps));
     return sps;
-    }
+  }
   else
-    {
+  {
     return found->second;
-    }
+  }
 }
 
 void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
@@ -409,33 +409,33 @@ void vtkOpenGLShaderCache::ReleaseGraphicsResources(vtkWindow *win)
   typedef std::map<std::string,vtkShaderProgram*>::const_iterator SMapIter;
   SMapIter iter = this->Internal->ShaderPrograms.begin();
   for ( ; iter != this->Internal->ShaderPrograms.end(); iter++)
-    {
+  {
     iter->second->ReleaseGraphicsResources(win);
-    }
+  }
 }
 
 void vtkOpenGLShaderCache::ReleaseCurrentShader()
 {
   // release prior shader
   if (this->LastShaderBound)
-    {
+  {
     this->LastShaderBound->Release();
     this->LastShaderBound = NULL;
-    }
+  }
 }
 
 int vtkOpenGLShaderCache::BindShader(vtkShaderProgram* shader)
 {
   if (this->LastShaderBound == shader)
-    {
+  {
     return 1;
-    }
+  }
 
   // release prior shader
   if (this->LastShaderBound)
-    {
+  {
     this->LastShaderBound->Release();
-    }
+  }
   shader->Bind();
   this->LastShaderBound = shader;
   return 1;

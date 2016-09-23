@@ -41,11 +41,11 @@ namespace
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 bool doubleEquals(double left, double right, double epsilon) {
@@ -57,7 +57,7 @@ bool doubleEquals(double left, double right, double epsilon) {
 int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     int i;
     vtkCylinderSource* cs = vtkCylinderSource::New();
     vtkMatlabEngineFilter* mef = vtkMatlabEngineFilter::New();
@@ -84,24 +84,24 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     rda = (vtkDoubleArray*) pd->GetArray("Normalsnew");
 
     for(i=0;i<da->GetNumberOfTuples();i++)
-      {
+    {
       double* itup = da->GetTuple3(i);
       double* rtup = rda->GetTuple3(i);
       test_expression(doubleEquals(rtup[0],pow(itup[0],2),0.0001));
       test_expression(doubleEquals(rtup[1],pow(itup[1],2),0.0001));
       test_expression(doubleEquals(rtup[2],pow(itup[2],2),0.0001));
-      }
+    }
 
     da = (vtkDoubleArray*) pd->GetArray("TCoords");
     rda = (vtkDoubleArray*) pd->GetArray("TCoordsnew");
 
     for(i=0;i<da->GetNumberOfTuples();i++)
-      {
+    {
       double* itup = da->GetTuple2(i);
       double* rtup = rda->GetTuple2(i);
       test_expression(doubleEquals(rtup[0],itup[0]+itup[0],0.0001));
       test_expression(doubleEquals(rtup[1],itup[1]+itup[1],0.0001));
-      }
+    }
 
     vtkTable* input_table = vtkTable::New();
     vtkDoubleArray* col1 = vtkDoubleArray::New();
@@ -113,12 +113,12 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     col3->SetName("Variable Three");
     col4->SetName("Variable Four");
     for(i=0;i<20;i++)
-      {
+    {
       col1->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
       col2->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
       col3->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
       col4->InsertNextValue(vtkMath::Gaussian(0.0,1.0));
-      }
+    }
     input_table->AddColumn(col1);
     input_table->AddColumn(col2);
     input_table->AddColumn(col3);
@@ -166,14 +166,14 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(dense_array);
 
     for(i=0;i<table->GetNumberOfColumns();i++)
-      {
+    {
       int ind0 = table->GetValue(i,0).ToInt();
       int ind1 = table->GetValue(i,1).ToInt();
       int ind2 = table->GetValue(i,2).ToInt();
       double table_val = input_table->GetValue(i,3).ToDouble();
       double dense_val = dense_array->GetValue(vtkArrayCoordinates(ind0,ind1,ind2));
       test_expression(doubleEquals(sqrt(table_val + 5.0),dense_val,0.0001));
-      }
+    }
 
     cs->Delete();
     mef->Delete();
@@ -181,11 +181,11 @@ int TestMatlabEngineFilter(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     input_table->Delete();
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

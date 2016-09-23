@@ -72,9 +72,9 @@ int TestTM3DLightComponents(int argc,
   t->SetShift(-range[0]);
   double magnitude=range[1]-range[0];
   if(magnitude==0.0)
-    {
+  {
     magnitude=1.0;
-    }
+  }
   t->SetScale(255.0/magnitude);
   t->SetOutputScalarTypeToUnsignedChar();
 
@@ -144,21 +144,21 @@ int TestTM3DLightComponents(int argc,
 
   int retVal;
   if(valid)
-    {
+  {
     ren1->ResetCamera();
     renWin->Render();
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   volumeMapper->Delete();
   volumeProperty->Delete();

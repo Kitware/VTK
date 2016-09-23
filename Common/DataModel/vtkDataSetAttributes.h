@@ -418,9 +418,9 @@ public:
    */
   void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
                     vtkIdType ext=1000)
-    {
+  {
       this->CopyAllocate(pd, sze, ext, 0);
-    }
+  }
   void CopyAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
                     vtkIdType ext, int shallowCopyArrays);
   //@}
@@ -485,9 +485,9 @@ public:
    */
   void InterpolateAllocate(vtkDataSetAttributes* pd, vtkIdType sze=0,
                            vtkIdType ext=1000)
-    {
+  {
       this->InterpolateAllocate(pd, sze, ext, 0);
-    }
+  }
   void InterpolateAllocate(vtkDataSetAttributes* pd, vtkIdType sze,
                            vtkIdType ext, int shallowCopyArrays);
   //@}

@@ -53,7 +53,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
   int size = 400;
 
   for (int i = 0; i < 100; ++i)
-    {
+  {
     randomSequence->Next();
     double x = randomSequence->GetValue()*size;
     randomSequence->Next();
@@ -70,7 +70,7 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
     vectors->InsertNextTuple3(ihat,
                               jhat,
                               0.0);
-    }
+  }
 
   vtkNew<vtkGlyphSource2D> gs;
   gs->SetGlyphTypeToCircle();
@@ -143,9 +143,9 @@ int TestGlyphSource2DResolution(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

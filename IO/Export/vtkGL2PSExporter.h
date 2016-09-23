@@ -384,41 +384,41 @@ private:
 inline const char *vtkGL2PSExporter::GetSortAsString(void)
 {
   if ( this->Sort == NO_SORT )
-    {
+  {
     return "Off";
-    }
+  }
   else if ( this->Sort == SIMPLE_SORT )
-    {
+  {
     return "Simple";
-    }
+  }
   else
-    {
+  {
     return "BSP";
-    }
+  }
 }
 
 inline const char *vtkGL2PSExporter::GetFileFormatAsString(void)
 {
   if ( this->FileFormat == PS_FILE )
-    {
+  {
     return "PS";
-    }
+  }
   else if ( this->FileFormat == EPS_FILE )
-    {
+  {
     return "EPS";
-    }
+  }
   else if ( this->FileFormat == PDF_FILE )
-    {
+  {
     return "PDF";
-    }
+  }
   else if ( this->FileFormat == TEX_FILE )
-    {
+  {
     return "TeX";
-    }
+  }
   else
-    {
+  {
     return "SVG";
-    }
+  }
 }
 
 #endif

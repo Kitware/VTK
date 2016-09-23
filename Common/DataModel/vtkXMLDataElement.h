@@ -356,14 +356,14 @@ void vtkXMLDataElement::AddCharacterData(const char* data, size_t length)
   // resize the character data buffer.
   this->EndOfCharacterData+=length;
   if (this->EndOfCharacterData>=this->CharacterDataBufferSize)
-    {
+  {
     while(this->EndOfCharacterData>=this->CharacterDataBufferSize)
-      {
+    {
       this->CharacterDataBufferSize+=this->CharacterDataBlockSize;
-      }
+    }
     this->CharacterData
       = static_cast<char *>(realloc(this->CharacterData,this->CharacterDataBufferSize));
-    }
+  }
   // put the new data at the end of the buffer, and null terminate.
   char *pCD=this->CharacterData+eod;
   memmove(pCD,data,length);

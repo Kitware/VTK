@@ -38,9 +38,9 @@ public:
    * port)
    */
   void SetSelectionConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
     this->SetInputConnection(1, algOutput);
-    }
+  }
 
   //@{
   /**

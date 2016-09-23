@@ -40,12 +40,12 @@ public:
   static vtkMyCallback *New()
     { return new vtkMyCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       vtkRenderer *renderer = reinterpret_cast<vtkRenderer*>(caller);
       cout << renderer->GetActiveCamera()->GetPosition()[0] << " "
            << renderer->GetActiveCamera()->GetPosition()[1] << " "
            << renderer->GetActiveCamera()->GetPosition()[2] << "\n";
-    }
+  }
 };
 
 int main()
@@ -83,12 +83,12 @@ int main()
   //
   int i;
   for (i = 0; i < 360; ++i)
-    {
+  {
     // render the image
     renWin->Render();
     // rotate the active camera by one degree
     ren1->GetActiveCamera()->Azimuth( 1 );
-    }
+  }
 
   //
   // Free up any objects we created

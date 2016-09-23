@@ -48,10 +48,10 @@ int TestExtractTimeSteps(int argc, char *argv[])
 
   int numSteps = extracter->GetNumberOfTimeSteps();
   if (numSteps != 10)
-    {
+  {
     std::cout << "vtkExtractTimeSteps add time-steps failed" << std::endl;
     return TEST_FAILED_RETVAL;
-    }
+  }
 
   int tsteps[10];
   extracter->GetTimeStepIndices(tsteps);
@@ -65,31 +65,31 @@ int TestExtractTimeSteps(int argc, char *argv[])
 
   vtkInformation *info = extracter->GetOutputInformation(0);
   if (info->Has(vtkStreamingDemandDrivenPipeline::TIME_STEPS()))
-    {
+  {
     if (info->Length(vtkStreamingDemandDrivenPipeline::TIME_STEPS()) != 10)
-      {
+    {
       std::cout << "got incorrect number of time steps" << std::endl;
       return TEST_FAILED_RETVAL;
-      }
-    result = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
     }
+    result = info->Get(vtkStreamingDemandDrivenPipeline::TIME_STEPS());
+  }
 
   if (!result)
-    {
+  {
     std::cout << "result has no time steps" << std::endl;
     return TEST_FAILED_RETVAL;
-    }
+  }
   else
-    {
+  {
     for (int i = 0; i < 10; ++i)
-      {
+    {
       if (std::abs(expected[i] - result[i]) > e)
-        {
+      {
         std::cout << "extracted time steps values do not match" << std::endl;
         return TEST_FAILED_RETVAL;
-        }
       }
     }
+  }
 
   return TEST_PASSED_RETVAL;
 }

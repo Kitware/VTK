@@ -95,9 +95,9 @@ public:
    * nArrays is not necessarily equal to n.
    */
   int GetNumberOfArrays()
-    {
+  {
       return this->NumberOfActiveArrays;
-    }
+  }
 
   /**
    * Add an array to the array list. If an array with the same name
@@ -135,10 +135,10 @@ public:
    * vtkDataArray.
    */
   vtkDataArray *GetArray(const char *arrayName)
-    {
+  {
       int i;
       return this->GetArray(arrayName, i);
-    }
+  }
   //@}
 
   /**
@@ -161,10 +161,10 @@ public:
    * Unlike GetArray(), this method returns a vtkAbstractArray.
    */
   vtkAbstractArray* GetAbstractArray(const char* arrayName)
-    {
+  {
     int i;
     return this->GetAbstractArray(arrayName, i);
-    }
+  }
   //@}
 
   //@{
@@ -172,12 +172,12 @@ public:
    * Return 1 if an array with the given name could be found. 0 otherwise.
    */
   int HasArray(const char *name)
-    {
+  {
       int i;
       vtkAbstractArray *array = this->GetAbstractArray(name, i);
       // assert( i == -1);
       return array ? 1 : 0;
-    }
+  }
   //@}
 
   //@{
@@ -187,10 +187,10 @@ public:
    * GetAbstractArray(i)->GetName() if ith array pointer is not NULL
    */
   const char* GetArrayName(int i)
-    {
+  {
     vtkAbstractArray* da = this->GetAbstractArray(i);
     return da ? da->GetName() : 0;
-    }
+  }
   //@}
 
   /**
@@ -393,27 +393,27 @@ public:
     void PrintSelf(ostream &os, vtkIndent indent);
 
     int GetListSize() const
-      {
+    {
         return this->ListSize;
-      }
+    }
     int GetCurrentIndex()
-      {
+    {
         return this->List[this->Position];
-      }
+    }
     int BeginIndex()
-      {
+    {
         this->Position = -1;
         return this->NextIndex();
-      }
+    }
     int End() const
-      {
+    {
         return (this->Position >= this->ListSize);
-      }
+    }
     int NextIndex()
-      {
+    {
         this->Position++;
         return (this->End() ? -1 : this->List[this->Position]);
-      }
+    }
 
   protected:
 
@@ -433,25 +433,25 @@ public:
              unsigned int listSize=0);
 
     vtkDataArray* Begin()
-      {
+    {
         this->Position = -1;
         return this->Next();
-      }
+    }
 
     vtkDataArray* Next()
-      {
+    {
         this->Position++;
         if (this->End())
-          {
+        {
           return 0;
-          }
+        }
 
         // vtkFieldData::GetArray() can return null, which implies that
         // a the array at the given index in not a vtkDataArray subclass.
         // This iterator skips such arrays.
         vtkDataArray* cur =  Fields->GetArray(this->List[this->Position]);
         return (cur? cur : this->Next());
-      }
+    }
 
     void DetachFieldData();
 

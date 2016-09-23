@@ -146,13 +146,13 @@ void vtkIdentityTransform::TransformPointsNormalsVectors(vtkPoints *inPts,
 {
   this->TransformPoints(inPts,outPts);
   if (inNms)
-    {
+  {
     this->TransformNormals(inNms,outNms);
-    }
+  }
   if (inVrs)
-    {
+  {
     this->TransformVectors(inVrs,outVrs);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -163,10 +163,10 @@ void vtkIdentityTransform::TransformPoints(vtkPoints *inPts,
   double point[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inPts->GetPoint(i,point);
     outPts->InsertNextPoint(point);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -177,10 +177,10 @@ void vtkIdentityTransform::TransformNormals(vtkDataArray *inNms,
   double normal[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inNms->GetTuple(i,normal);
     outNms->InsertNextTuple(normal);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -191,10 +191,10 @@ void vtkIdentityTransform::TransformVectors(vtkDataArray *inNms,
   double vect[3];
 
   for (vtkIdType i = 0; i < n; i++)
-    {
+  {
     inNms->GetTuple(i,vect);
     outNms->InsertNextTuple(vect);
-    }
+  }
 }
 
 

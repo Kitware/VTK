@@ -47,10 +47,10 @@ public:
 int TestContextUnicode(int argc, char * argv [])
 {
   if (argc < 2)
-    {
+  {
     cout << "Missing font filename." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string fontFile(argv[1]);
 
@@ -66,10 +66,10 @@ int TestContextUnicode(int argc, char * argv [])
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if(retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
   return !retVal;
 }
 

@@ -63,9 +63,9 @@ void vtkPlane::ProjectVector(
   double t = vtkMath::Dot(v, normal);
   double n2 = vtkMath::Dot(normal, normal);
   if (n2 == 0)
-    {
+  {
     n2 = 1.0;
-    }
+  }
   vproj[0] = v[0] - t * normal[0] / n2;
   vproj[1] = v[1] - t * normal[1] / n2;
   vproj[2] = v[2] - t * normal[2] / n2;
@@ -82,13 +82,13 @@ void vtkPlane::Push(double distance)
   int i;
 
   if ( distance == 0.0 )
-    {
+  {
     return;
-    }
+  }
   for (i=0; i < 3; i++ )
-    {
+  {
     this->Origin[i] += distance * this->Normal[i];
-    }
+  }
   this->Modified();
 }
 
@@ -108,17 +108,17 @@ void vtkPlane::GeneralizedProjectPoint(double x[3], double origin[3],
   n2 = vtkMath::Dot(normal, normal);
 
   if (n2 != 0)
-    {
+  {
     xproj[0] = x[0] - t * normal[0]/n2;
     xproj[1] = x[1] - t * normal[1]/n2;
     xproj[2] = x[2] - t * normal[2]/n2;
-    }
+  }
   else
-    {
+  {
     xproj[0] = x[0];
     xproj[1] = x[1];
     xproj[2] = x[2];
-    }
+  }
 }
 
 void vtkPlane::GeneralizedProjectPoint(double x[3], double xproj[3])
@@ -138,9 +138,9 @@ double vtkPlane::EvaluateFunction(double x[3])
 void vtkPlane::EvaluateGradient(double vtkNotUsed(x)[3], double n[3])
 {
   for (int i=0; i<3; i++)
-    {
+  {
     n[i] = this->Normal[i];
-    }
+  }
 }
 
 #define VTK_PLANE_TOL 1.0e-06
@@ -174,26 +174,26 @@ int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3],
 
   // trying to avoid an expensive call to fabs()
   if (den < 0.0)
-    {
+  {
     fabsden = -den;
-    }
+  }
   else
-    {
+  {
     fabsden = den;
-    }
+  }
   if (num < 0.0)
-    {
+  {
     fabstolerance = -num*VTK_PLANE_TOL;
-    }
+  }
   else
-    {
+  {
     fabstolerance = num*VTK_PLANE_TOL;
-    }
+  }
   if ( fabsden <= fabstolerance )
-    {
+  {
     t = VTK_DOUBLE_MAX;
     return 0;
-    }
+  }
 
   // valid intersection
   t = num / den;
@@ -203,13 +203,13 @@ int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double n[3],
   x[2] = p1[2] + t*p21[2];
 
   if ( t >= 0.0 && t <= 1.0 )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 int vtkPlane::IntersectWithLine(double p1[3], double p2[3], double& t, double x[3])

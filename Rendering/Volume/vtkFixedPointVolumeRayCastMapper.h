@@ -593,29 +593,29 @@ inline void vtkFixedPointVolumeRayCastMapper::ToFixedPointDirection( float in[3]
 inline void vtkFixedPointVolumeRayCastMapper::FixedPointIncrement( unsigned int position[3], unsigned int increment[3] )
 {
   if ( increment[0]&0x80000000 )
-    {
+  {
     position[0] += (increment[0]&0x7fffffff);
-    }
+  }
   else
-    {
+  {
     position[0] -= increment[0];
-    }
+  }
   if ( increment[1]&0x80000000 )
-    {
+  {
     position[1] += (increment[1]&0x7fffffff);
-    }
+  }
   else
-    {
+  {
     position[1] -= increment[1];
-    }
+  }
   if ( increment[2]&0x80000000 )
-    {
+  {
     position[2] += (increment[2]&0x7fffffff);
-    }
+  }
   else
-    {
+  {
     position[2] -= increment[2];
-    }
+  }
 }
 
 
@@ -664,20 +664,20 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckMIPMinMaxVolumeFlag( unsigned 
       mmpos[0] ) + static_cast<vtkIdType>(c);
 
   if ( (*(this->MinMaxVolume + 3*offset + 2)&0x00ff) )
-    {
+  {
     if (flip)
-      {
-      return ( *(this->MinMaxVolume + 3*offset) < maxIdx );
-      }
-    else
-      {
-      return ( *(this->MinMaxVolume + 3*offset + 1) > maxIdx );
-      }
-    }
-  else
     {
-    return 0;
+      return ( *(this->MinMaxVolume + 3*offset) < maxIdx );
     }
+    else
+    {
+      return ( *(this->MinMaxVolume + 3*offset + 1) > maxIdx );
+    }
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 inline void vtkFixedPointVolumeRayCastMapper::LookupColorUC( unsigned short *colorTable,
@@ -703,7 +703,7 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupDependentColorUC( unsigned s
 {
   unsigned short alpha;
   switch ( components )
-    {
+  {
     case 2:
       alpha = scalarOpacityTable[index[1]];
       color[0] = static_cast<unsigned char>
@@ -721,7 +721,7 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupDependentColorUC( unsigned s
       color[2] = static_cast<unsigned char>((index[2]*alpha + 0x7fff)>>VTKKW_FP_SHIFT );
       color[3] = static_cast<unsigned char>(alpha>>(VTKKW_FP_SHIFT - 8));
       break;
-    }
+  }
 }
 
 
@@ -735,13 +735,13 @@ inline void vtkFixedPointVolumeRayCastMapper::LookupAndCombineIndependentColorsU
   unsigned int tmp[4] = {0,0,0,0};
 
   for ( int i = 0; i < components; i++ )
-    {
+  {
     unsigned short alpha = static_cast<unsigned short>(static_cast<float>(scalarOpacityTable[i][index[i]])*weights[i]);
     tmp[0] += static_cast<unsigned char>(((colorTable[i][3*index[i]  ])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[1] += static_cast<unsigned char>(((colorTable[i][3*index[i]+1])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[2] += static_cast<unsigned char>(((colorTable[i][3*index[i]+2])*alpha + 0x7fff)>>(2*VTKKW_FP_SHIFT - 8));
     tmp[3] += static_cast<unsigned char>(alpha>>(VTKKW_FP_SHIFT - 8));
-    }
+  }
 
   color[0] = static_cast<unsigned char>((tmp[0]>255)?(255):(tmp[0]));
   color[1] = static_cast<unsigned char>((tmp[1]>255)?(255):(tmp[1]));
@@ -755,41 +755,41 @@ inline int vtkFixedPointVolumeRayCastMapper::CheckIfCropped( unsigned int pos[3]
   int idx;
 
   if ( pos[2] < this->FixedPointCroppingRegionPlanes[4] )
-    {
+  {
     idx = 0;
-    }
+  }
   else if ( pos[2] > this->FixedPointCroppingRegionPlanes[5] )
-    {
+  {
     idx = 18;
-    }
+  }
   else
-    {
+  {
     idx = 9;
-    }
+  }
 
   if ( pos[1] >= this->FixedPointCroppingRegionPlanes[2] )
-    {
+  {
     if ( pos[1] > this->FixedPointCroppingRegionPlanes[3] )
-      {
+    {
       idx += 6;
-      }
-    else
-      {
-      idx += 3;
-      }
     }
+    else
+    {
+      idx += 3;
+    }
+  }
 
   if ( pos[0] >= this->FixedPointCroppingRegionPlanes[0] )
-    {
+  {
     if ( pos[0] > this->FixedPointCroppingRegionPlanes[1] )
-      {
+    {
       idx += 2;
-      }
-    else
-      {
-      idx += 1;
-      }
     }
+    else
+    {
+      idx += 1;
+    }
+  }
 
   return !(static_cast<unsigned int>(this->CroppingRegionFlags)
            &this->CroppingRegionMask[idx]);

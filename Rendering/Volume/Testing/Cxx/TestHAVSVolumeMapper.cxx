@@ -52,18 +52,18 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
   // Need to get the data root.
   const char *data_root = NULL;
   for (i = 0; i < argc-1; i++)
-    {
+  {
     if (strcmp("-D", argv[i]) == 0)
-      {
+    {
       data_root = argv[i+1];
       break;
-      }
     }
+  }
   if (!data_root)
-    {
+  {
     cout << "Need to specify the directory to VTK_DATA_ROOT with -D <dir>." << endl;
     return 1;
-    }
+  }
 
   // Create the standard renderer, render window, and interactor.
   vtkRenderer *ren1 = vtkRenderer::New();
@@ -165,14 +165,14 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
 
 
   if ( !supported )
-    {
+  {
     ren1->AddViewProp(textActor);
-    }
+  }
   else
-    {
+  {
     ren1->AddViewProp(actor);
     ren1->AddViewProp(volume);
-    }
+  }
 
 
   ren1->ResetCamera();
@@ -207,9 +207,9 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renWin, 75);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up.
   ren1->Delete();
@@ -231,11 +231,11 @@ int TestHAVSVolumeMapper(int argc, char *argv[])
 
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

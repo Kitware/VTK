@@ -108,9 +108,9 @@ int TestCubeAxesWithYInnerPolys( int argc, char * argv [] )
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

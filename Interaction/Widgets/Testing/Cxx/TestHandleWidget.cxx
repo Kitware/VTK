@@ -56,14 +56,14 @@ public:
   static vtkTIPW3Callback *New()
     { return new vtkTIPW3Callback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       vtkImplicitPlaneWidget2 *planeWidget =
         reinterpret_cast<vtkImplicitPlaneWidget2*>(caller);
       vtkImplicitPlaneRepresentation *rep =
         reinterpret_cast<vtkImplicitPlaneRepresentation*>(planeWidget->GetRepresentation());
       rep->GetPlane(this->Plane);
       this->Actor->VisibilityOn();
-    }
+  }
 
   vtkTIPW3Callback() : Actor(0) { this->Plane = vtkPlane::New(); }
   ~vtkTIPW3Callback() VTK_OVERRIDE { this->Plane->Delete(); }
@@ -687,13 +687,13 @@ int TestHandleWidget( int argc, char *argv[] )
   // Should we constrain the handles to the oblique plane ?
   bool constrainHandlesToObliquePlane = false;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (strcmp("-ConstrainHandlesToPlane", argv[i]) == 0)
-      {
+    {
       constrainHandlesToObliquePlane = true;
       break;
-      }
     }
+  }
 
   // Set some defaults.
   //
@@ -703,7 +703,7 @@ int TestHandleWidget( int argc, char *argv[] )
   rep->GetPlane(myCallback->Plane);
 
   if (constrainHandlesToObliquePlane)
-    {
+  {
     vtkSmartPointer<vtkBoundedPlanePointPlacer> placer =
       vtkSmartPointer<vtkBoundedPlanePointPlacer>::New();
 
@@ -746,7 +746,7 @@ int TestHandleWidget( int argc, char *argv[] )
     placer->AddBoundingPlane( plane );
 
     handleRep->SetPointPlacer(placer);
-    }
+  }
 
   iren->Initialize();
   renWin->Render();

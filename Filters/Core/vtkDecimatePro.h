@@ -356,9 +356,9 @@ protected:
     VertexArray(const vtkIdType sz)
       {this->MaxId = -1; this->Array = new LocalVertex[sz];};
     ~VertexArray()
-      {
+    {
         delete [] this->Array;
-      };
+    };
     vtkIdType GetNumberOfVertices() {return this->MaxId + 1;};
     void InsertNextVertex(LocalVertex& v)
       {this->MaxId++; this->Array[this->MaxId] = v;};
@@ -376,9 +376,9 @@ protected:
     TriArray(const vtkIdType sz)
       {this->MaxId = -1; this->Array = new LocalTri[sz];};
     ~TriArray()
-      {
+    {
         delete [] this->Array;
-      };
+    };
     vtkIdType GetNumberOfTriangles() {return this->MaxId + 1;};
     void InsertNextTriangle(LocalTri& t)
       {this->MaxId++; this->Array[this->MaxId] = t;};

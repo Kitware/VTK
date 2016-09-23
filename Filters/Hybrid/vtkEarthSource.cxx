@@ -70,7 +70,7 @@ void vtkEarthSource::PrintSelf(ostream& os, vtkIndent indent)
 //
 // the curves are sampled at a (roughly) 20 mile resolution.
 
-// Special thanks to Tom Johnson at Johnson Scientific International who 
+// Special thanks to Tom Johnson at Johnson Scientific International who
 // developed and contributed this class based on the data of John B. Allison.
 
 static const short vtkEarthData[] = {
@@ -6859,13 +6859,13 @@ int vtkEarthSource::RequestData(
   //
   offset = 0;
   while (1)
-    {
+  {
     // read a polygon
     npts = vtkEarthData[offset++];
     if ((npts == 0) || (actualpolys > maxPolys))
-      {
+    {
       break;
-      }
+    }
 
     land  = vtkEarthData[offset++];
 
@@ -6874,7 +6874,7 @@ int vtkEarthSource::RequestData(
     base[2] = 0;
 
     for (i=1; i<=npts; i++)
-      {
+    {
       base[0] += vtkEarthData[offset++] * scale;
       base[1] += vtkEarthData[offset++] * scale;
       base[2] += vtkEarthData[offset++] * scale;
@@ -6884,42 +6884,42 @@ int vtkEarthSource::RequestData(
       x[2] = base[1] * this->Radius;
 
       if ((land == 1) && (npts > this->OnRatio * 3))
-        {
+      {
         // use only every OnRatioth point in the polygon
         if ((i % this->OnRatio) == 0)
-          {
+        {
           newPoints->InsertNextPoint(x);
           vtkMath::Normalize(x);
           newNormals->InsertNextTuple(x);
           actualpts++;
-          }
         }
       }
+    }
 
     if ((land == 1) && (npts > this->OnRatio * 3))
-      {
+    {
       //
       // Generate mesh connectivity for this polygon
       //
 
       for (i = 0; i < (npts/this->OnRatio); i++)
-        {
+      {
         Pts[i] = (actualpts - npts/this->OnRatio) + i;
-        }
+      }
 
       if ( this->Outline ) // close the loop in the line
-        {
+      {
         Pts[i] = (actualpts - npts/this->OnRatio);
         newPolys->InsertNextCell(i+1,Pts);
-        }
+      }
       else
-        {
+      {
         newPolys->InsertNextCell(i,Pts);
-        }
+      }
 
       actualpolys++;
-      }
     }
+  }
 
   //
   // Update ourselves and release memeory
@@ -6931,13 +6931,13 @@ int vtkEarthSource::RequestData(
   newNormals->Delete();
 
   if ( this->Outline ) //lines or polygons
-    {
+  {
     output->SetLines(newPolys);
-    }
+  }
   else
-    {
+  {
     output->SetPolys(newPolys);
-    }
+  }
   newPolys->Delete();
 
   output->Squeeze();

@@ -29,10 +29,10 @@
 int TestAVSucdReader(int argc, char* argv[])
 {
   if (argc < 2)
-    {
+  {
     std::cerr << "Required parameters: <filename>" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   std::string filename = argv[1];
 
@@ -68,12 +68,12 @@ int TestAVSucdReader(int argc, char* argv[])
   renWin->Render();
   int r = vtkRegressionTestImage(renWin.GetPointer());
   if (r == vtkRegressionTester::FAILED)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
   if (r == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   return EXIT_SUCCESS;
 }

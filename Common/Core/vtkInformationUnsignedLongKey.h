@@ -43,9 +43,9 @@ public:
    * constructor directly from C++ instead.
    */
   static vtkInformationUnsignedLongKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationUnsignedLongKey(name, location);
-    }
+  }
 
   //@{
   /**

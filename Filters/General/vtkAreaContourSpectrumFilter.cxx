@@ -48,7 +48,7 @@ int vtkAreaContourSpectrumFilter::FillInputPortInformation(
   int portNumber, vtkInformation *info)
 {
   switch(portNumber)
-    {
+  {
     case 0:
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
       info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
@@ -57,7 +57,7 @@ int vtkAreaContourSpectrumFilter::FillInputPortInformation(
       info->Remove(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE());
       info->Append(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkReebGraph");
       break;
-    }
+  }
   return 1;
 }
 
@@ -93,9 +93,9 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
                   *inInfoGraph = inputVector[1]->GetInformationObject(0);
 
   if ((!inInfoMesh)||(!inInfoGraph))
-    {
+  {
     return 0;
-    }
+  }
   vtkPolyData *inputMesh = vtkPolyData::SafeDownCast(
     inInfoMesh->Get(vtkPolyData::DATA_OBJECT()));
 
@@ -103,13 +103,13 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
     inInfoGraph->Get(vtkReebGraph::DATA_OBJECT()));
 
   if ((inputMesh)&&(inputGraph))
-    {
+  {
     vtkInformation  *outInfo = outputVector->GetInformationObject(0);
     vtkTable     *output = vtkTable::SafeDownCast(
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     if(output)
-      {
+    {
 
       // Retrieve the arc given by ArcId
       vtkVariantArray *edgeInfo = vtkArrayDownCast<vtkVariantArray>(
@@ -160,21 +160,21 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       do{
         vtkEdgeType e = eIt->Next();
         if(e.Id == ArcId)
-          {
+        {
           if((criticalPointIds->GetTuple(e.Source))
             &&(criticalPointIds->GetTuple(e.Target)))
-            {
+          {
             criticalPoints.first =
               (int) *(criticalPointIds->GetTuple(e.Source));
             criticalPoints.second =
               (int) *(criticalPointIds->GetTuple(e.Target));
-            }
+          }
           else
-            {
+          {
             // invalid Reeb graph
             return 0;
-            }
           }
+        }
       }while(eIt->HasNext());
 
       eIt->Delete();
@@ -194,17 +194,17 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
       double  min = scalarField->GetComponent(vertexIds[0], 0),
               max = scalarField->GetComponent(vertexIds[vertexIds.size()-1], 0);
       for(unsigned int i = 0; i < vertexIds.size(); i++)
-        {
+      {
         scalarValues[i] = scalarField->GetComponent(vertexIds[i], 0);
 
         vtkIdList *starTriangleList = vtkIdList::New();
         inputMesh->GetPointCells(vertexIds[i], starTriangleList);
 
         for(int j = 0; j < starTriangleList->GetNumberOfIds(); j++)
-          {
+        {
           vtkIdType tId = starTriangleList->GetId(j);
           if(!visitedTriangles[tId])
-            {
+          {
             vtkTriangle *t = vtkTriangle::SafeDownCast(inputMesh->GetCell(tId));
 
             if((scalarField->GetComponent(t->GetPointIds()->GetId(0), 0)
@@ -221,64 +221,64 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
               (scalarField->GetComponent(t->GetPointIds()->GetId(1), 0) >= min)
               &&
               (scalarField->GetComponent(t->GetPointIds()->GetId(2), 0) >= min))
-              {
+            {
               // make sure the triangle is strictly in the covered function
               // span.
               cumulativeArea += t->ComputeArea();
               visitedTriangles[tId] = true;
-              }
             }
           }
+        }
         areaSignature[i] = cumulativeArea;
         starTriangleList->Delete();
-        }
+      }
 
       // now adjust to the desired sampling
       std::vector<std::pair<int, double> > samples(NumberOfSamples);
       unsigned int pos = 0;
       for(int i = 0; i < NumberOfSamples; i++)
-        {
+      {
         samples[i].first = 0;
         samples[i].second = 0;
         while((scalarValues[pos] < min +
            (i+1.0)*((max - min)/((double)NumberOfSamples)))
            &&(pos < scalarValues.size()))
-          {
+        {
             samples[i].first++;
             samples[i].second += areaSignature[pos];
             pos++;
-          }
-        if(samples[i].first) samples[i].second /= samples[i].first;
         }
+        if(samples[i].first) samples[i].second /= samples[i].first;
+      }
 
       // no value at the start? put 0
       if(!samples[0].first)
-        {
+      {
         samples[0].first = 1;
         samples[0].second = 0;
-        }
+      }
       // no value at the end? put the cumulative area
       if(!samples[samples.size() - 1].first)
-        {
+      {
         samples[samples.size() - 1].first = 1;
         samples[samples.size() - 1].second = cumulativeArea;
-        }
+      }
 
       // fill out the blanks
       int lastSample = 0;
       for(int i = 0; i < NumberOfSamples; i++)
-        {
+      {
         if(!samples[i].first)
-          {
+        {
           // not enough vertices in the region for the number of desired
           // samples. we have to interpolate.
 
           // first, search for the next valid sample
           int nextSample = i;
           for(; nextSample < NumberOfSamples; nextSample++)
-            {
+          {
             if(samples[nextSample].first) break;
-            }
+          }
 
           // next interpolate
           samples[i].second = samples[lastSample].second +
@@ -286,23 +286,23 @@ int vtkAreaContourSpectrumFilter::RequestData(vtkInformation* vtkNotUsed(request
             *(samples[nextSample].second - samples[lastSample].second)
             /(nextSample - lastSample);
 
-          }
-        else lastSample = i;
         }
+        else lastSample = i;
+      }
 
       // now prepare the output
       vtkVariantArray *outputSignature = vtkVariantArray::New();
       outputSignature->SetNumberOfTuples(samples.size());
       for(unsigned int i = 0; i < samples.size(); i++)
-        {
+      {
         outputSignature->SetValue(i, samples[i].second);
-        }
+      }
       output->Initialize();
       output->AddColumn(outputSignature);
       outputSignature->Delete();
-      }
+    }
 
     return 1;
-    }
+  }
   return 0;
 }

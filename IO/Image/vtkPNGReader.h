@@ -47,17 +47,17 @@ public:
    * the format .extension
    */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".png";
-    }
+  }
 
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "PNG";
-    }
+  }
 
   /**
    * Given a 'key' for the text chunks, fills in 'beginEndIndex'

@@ -137,15 +137,15 @@ void vtkOpenGLPointGaussianMapperHelper::GetShaderTemplate(
   this->Superclass::GetShaderTemplate(shaders,ren,actor);
 
   if (this->Owner->GetScaleFactor() == 0.0)
-    {
+  {
     this->UsingPoints = true;
-    }
+  }
   else
-    {
+  {
     this->UsingPoints = false;
     // for splats use a special shader than handles the offsets
     shaders[vtkShader::Vertex]->SetSource(vtkPointGaussianVS);
-    }
+  }
 
 }
 
@@ -154,7 +154,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
   vtkRenderer *ren, vtkActor *actor)
 {
   if (!this->UsingPoints)
-    {
+  {
     std::string VSSource = shaders[vtkShader::Vertex]->GetSource();
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
@@ -169,7 +169,7 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderPositionVC(
 
     shaders[vtkShader::Vertex]->SetSource(VSSource);
     shaders[vtkShader::Fragment]->SetSource(FSSource);
-    }
+  }
 
   this->Superclass::ReplaceShaderPositionVC(shaders,ren,actor);
 }
@@ -179,16 +179,16 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
   vtkRenderer *ren, vtkActor *actor)
 {
   if (!this->UsingPoints)
-    {
+  {
     std::string FSSource = shaders[vtkShader::Fragment]->GetSource();
 
     if (this->Owner->GetSplatShaderCode() && strcmp(this->Owner->GetSplatShaderCode(), "") != 0)
-      {
+    {
       vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
         this->Owner->GetSplatShaderCode(), false);
-      }
+    }
     else
-      {
+    {
       vtkShaderProgram::Substitute(FSSource,"//VTK::Color::Impl",
         // compute the eye position and unit direction
         "//VTK::Color::Impl\n"
@@ -197,9 +197,9 @@ void vtkOpenGLPointGaussianMapperHelper::ReplaceShaderColor(
         "  opacity = opacity*gaussian;"
         //  "  opacity = opacity*0.5;"
         , false);
-      }
-    shaders[vtkShader::Fragment]->SetSource(FSSource);
     }
+    shaders[vtkShader::Fragment]->SetSource(FSSource);
+  }
 
   this->Superclass::ReplaceShaderColor(shaders,ren,actor);
   //cerr << shaders[vtkShader::Fragment]->GetSource() << endl;
@@ -214,10 +214,10 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
   vtkHardwareSelector* selector = ren->GetSelector();
   int picking = selector ? selector->GetCurrentPass() : -1;
   if (this->LastSelectionState != picking)
-    {
+  {
     this->SelectionStateChanged.Modified();
     this->LastSelectionState = picking;
-    }
+  }
 
   vtkMTimeType renderPassMTime = this->GetRenderPassStageMTime(actor);
 
@@ -232,9 +232,9 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
       cellBO.ShaderSourceTime < this->CurrentInput->GetMTime() ||
       cellBO.ShaderSourceTime < this->SelectionStateChanged ||
       cellBO.ShaderSourceTime < renderPassMTime)
-    {
+  {
     return true;
-    }
+  }
 
   return false;
 }
@@ -243,15 +243,15 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildShaders(
 vtkOpenGLPointGaussianMapperHelper::~vtkOpenGLPointGaussianMapperHelper()
 {
   if (this->OpacityTable)
-    {
+  {
     delete [] this->OpacityTable;
     this->OpacityTable = 0;
-    }
+  }
   if (this->ScaleTable)
-    {
+  {
     delete [] this->ScaleTable;
     this->ScaleTable = 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -259,11 +259,11 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkOpenGLHelp
                                                     vtkRenderer* ren, vtkActor *actor)
 {
   if (this->UsingPoints)
-    {
+  {
     this->Superclass::SetCameraShaderParameters(cellBO,ren,actor);
-    }
+  }
   else
-    {
+  {
     vtkShaderProgram *program = cellBO.Program;
 
     vtkOpenGLCamera *cam = (vtkOpenGLCamera *)(ren->GetActiveCamera());
@@ -276,21 +276,21 @@ void vtkOpenGLPointGaussianMapperHelper::SetCameraShaderParameters(vtkOpenGLHelp
     program->SetUniformMatrix("VCDCMatrix", vcdc);
 
     if (!actor->GetIsIdentity())
-      {
+    {
       vtkMatrix4x4 *mcwc;
       vtkMatrix3x3 *anorms;
       ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
       vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
       program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
-      }
+    }
     else
-      {
+    {
       program->SetUniformMatrix("MCVCMatrix", wcvc);
-      }
+    }
 
     // add in uniforms for parallel and distance
     cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -299,20 +299,20 @@ void vtkOpenGLPointGaussianMapperHelper::SetMapperShaderParameters(
   vtkRenderer *ren, vtkActor *actor)
 {
   if (!this->UsingPoints)
-    {
+  {
     cellBO.Program->SetUniformf("triangleScale",this->TriangleScale);
     if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
         cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime))
-      {
+    {
       cellBO.VAO->Bind();
       if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                       "offsetMC", this->VBO->ColorOffset+sizeof(float),
                                       this->VBO->Stride, VTK_FLOAT, 2, false))
-        {
+      {
         vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
-        }
       }
     }
+  }
 
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 }
@@ -349,60 +349,60 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
   rcolor.c[2] = *(colorPtr++);
 
   if (opacities)
-    {
+  {
     double opacity = opacities->GetComponent(index,0);
     if (self->OpacityTable)
-      {
+    {
       double tindex = (opacity - self->OpacityOffset)*self->OpacityScale;
       int itindex = static_cast<int>(tindex);
       if (itindex >= self->Owner->GetOpacityTableSize() - 1)
-        {
+      {
         opacity = self->OpacityTable[self->Owner->GetOpacityTableSize() - 1];
-        }
-      else if (itindex < 0)
-        {
-        opacity = self->OpacityTable[0];
-        }
-      else
-        {
-        opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] + (tindex - itindex)*self->OpacityTable[itindex+1];
-        }
       }
+      else if (itindex < 0)
+      {
+        opacity = self->OpacityTable[0];
+      }
+      else
+      {
+        opacity = (1.0 - tindex + itindex)*self->OpacityTable[itindex] + (tindex - itindex)*self->OpacityTable[itindex+1];
+      }
+    }
     rcolor.c[3] = static_cast<float>(opacity*255.0);
-    }
+  }
   else
-    {
+  {
     rcolor.c[3] = (colorComponents == 4 ? *colorPtr : 255);
-    }
+  }
 
   if (self->UsingPoints)
-    {
+  {
     // Vertices
     *(it++) = pointPtr[0];
     *(it++) = pointPtr[1];
     *(it++) = pointPtr[2];
     *(it++) = rcolor.f;
-    }
+  }
   else // otherwise splats
-    {
+  {
     double radius = sizes ? sizes[index] : 1.0;
     if (self->ScaleTable)
-      {
+    {
       double tindex = (radius - self->ScaleOffset)*self->ScaleScale;
       int itindex = static_cast<int>(tindex);
       if (itindex >= self->Owner->GetScaleTableSize() - 1)
-        {
+      {
         radius = self->ScaleTable[self->Owner->GetScaleTableSize() - 1];
-        }
-      else if (itindex < 0)
-        {
-        radius = self->ScaleTable[0];
-        }
-      else
-        {
-        radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] + (tindex - itindex)*self->ScaleTable[itindex+1];
-        }
       }
+      else if (itindex < 0)
+      {
+        radius = self->ScaleTable[0];
+      }
+      else
+      {
+        radius = (1.0 - tindex + itindex)*self->ScaleTable[itindex] + (tindex - itindex)*self->ScaleTable[itindex+1];
+      }
+    }
     radius *= defaultScale;
     radius *= self->TriangleScale;
 
@@ -430,7 +430,7 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
     *(it++) = rcolor.f;
     *(it++) = 0.0f;
     *(it++) = 2.0f*radiusFloat;
-    }
+  }
 }
 
 // internal function called by CreateVBO
@@ -449,28 +449,28 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
 
   // iterate over cells or not
   if (verts->GetNumberOfCells())
-    {
+  {
     vtkIdType* indices(NULL);
     vtkIdType npts(0);
     for (verts->InitTraversal(); verts->GetNextCell(npts, indices); )
-      {
+    {
       for (int i = 0; i < npts; ++i)
-        {
+      {
         vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
           it, points, sizes, indices[i], self,
           colors, colorComponents, opacities, defaultSize);
-        }
       }
     }
+  }
   else
-    {
+  {
     for (vtkIdType i = 0; i < numPts; ++i)
-      {
+    {
       vtkOpenGLPointGaussianMapperHelperPackVBOTemplate3(
         it, points, sizes, i, self,
         colors, colorComponents, opacities, defaultSize);
-      }
     }
+  }
 }
 
 template< typename PointDataType >
@@ -483,9 +483,9 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
     vtkDataArray* sizes, vtkDataArray *opacities)
 {
   if (sizes)
-    {
+  {
     switch (sizes->GetDataType())
-      {
+    {
       vtkTemplateMacro(
           vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
             it, points, numPts,
@@ -493,16 +493,16 @@ void vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
             colors, colorComponents,
             static_cast<VTK_TT*>(sizes->GetVoidPointer(0)), opacities)
           );
-      }
     }
+  }
   else
-    {
+  {
     vtkOpenGLPointGaussianMapperHelperPackVBOTemplate2(
           it, points, numPts,
           self, verts,
           colors, colorComponents,
           static_cast<float*>(NULL), opacities);
-    }
+  }
 }
 
 } // anonymous namespace
@@ -522,9 +522,9 @@ bool vtkOpenGLPointGaussianMapperHelper::GetNeedToRebuildBufferObjects(
       (this->Owner->GetScaleFunction() &&
         this->VBOBuildTime < this->Owner->GetScaleFunction()->GetMTime())
       )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -538,12 +538,12 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable()
   int tableSize = this->Owner->GetOpacityTableSize();
 
   if (this->OpacityTable)
-    {
+  {
     delete [] this->OpacityTable;
-    }
+  }
   this->OpacityTable = new float [tableSize+1];
   if (pwf)
-    {
+  {
     // build the interpolation table
     pwf->GetRange(range);
     pwf->GetTable(range[0],range[1],tableSize,this->OpacityTable);
@@ -551,7 +551,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildOpacityTable()
     this->OpacityTable[tableSize] = this->OpacityTable[tableSize-1];
     this->OpacityScale = (tableSize - 1.0)/(range[1] - range[0]);
     this->OpacityOffset = range[0];
-    }
+  }
 
 }
 
@@ -565,12 +565,12 @@ void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable()
   int tableSize = this->Owner->GetScaleTableSize();
 
   if (this->ScaleTable)
-    {
+  {
     delete [] this->ScaleTable;
-    }
+  }
   this->ScaleTable = new float [tableSize+1];
   if (pwf)
-    {
+  {
     // build the interpolation table
     pwf->GetRange(range);
     pwf->GetTable(range[0],range[1],tableSize,this->ScaleTable);
@@ -578,7 +578,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildScaleTable()
     this->ScaleTable[tableSize] = this->ScaleTable[tableSize-1];
     this->ScaleScale = (tableSize - 1.0)/(range[1] - range[0]);
     this->ScaleOffset = range[0];
-    }
+  }
 }
 
 //-------------------------------------------------------------------------
@@ -588,9 +588,9 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   vtkPolyData *poly = this->CurrentInput;
 
   if (poly == NULL)
-    {
+  {
     return;
-    }
+  }
 
   // set the triangle scale
   this->TriangleScale = this->Owner->GetTriangleScale();
@@ -598,43 +598,43 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   bool hasScaleArray = this->Owner->GetScaleArray() != NULL &&
     poly->GetPointData()->HasArray(this->Owner->GetScaleArray());
   if (hasScaleArray && this->Owner->GetScaleFunction())
-    {
+  {
     this->BuildScaleTable();
-    }
+  }
   else
-    {
+  {
     if (this->ScaleTable)
-      {
+    {
       delete [] this->ScaleTable;
       this->ScaleTable = 0;
-      }
     }
+  }
 
   if (this->Owner->GetScaleFactor() == 0.0)
-    {
+  {
     this->UsingPoints = true;
-    }
+  }
   else
-    {
+  {
     this->UsingPoints = false;
-    }
+  }
 
   // if we have an opacity array then get it and if we have
   // a ScalarOpacityFunction map the array through it
   bool hasOpacityArray = this->Owner->GetOpacityArray() != NULL &&
     poly->GetPointData()->HasArray(this->Owner->GetOpacityArray());
   if (hasOpacityArray && this->Owner->GetScalarOpacityFunction())
-    {
+  {
     this->BuildOpacityTable();
-    }
+  }
   else
-    {
+  {
     if (this->OpacityTable)
-      {
+    {
       delete [] this->OpacityTable;
       this->OpacityTable = 0;
-      }
     }
+  }
 
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
@@ -656,16 +656,16 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
 
   int splatCount = poly->GetPoints()->GetNumberOfPoints();
   if (poly->GetVerts()->GetNumberOfCells())
-    {
+  {
     splatCount = poly->GetVerts()->GetNumberOfConnectivityEntries() -
       poly->GetVerts()->GetNumberOfCells();
-    }
+  }
   if (!this->UsingPoints)
-    {
+  {
     // two more floats
     blockSize += 2;  // offset
     splatCount *= 3;
-    }
+  }
 
   this->VBO->PackedVBO.resize(blockSize * splatCount);
   this->VBO->Stride = sizeof(float) * blockSize;
@@ -674,7 +674,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
   float *it = &(this->VBO->PackedVBO.begin()[0]);
 
   switch(poly->GetPoints()->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkOpenGLPointGaussianMapperHelperPackVBOTemplate(
         it, static_cast<VTK_TT*>(poly->GetPoints()->GetVoidPointer(0)),
@@ -688,7 +688,7 @@ void vtkOpenGLPointGaussianMapperHelper::BuildBufferObjects(
         hasOpacityArray ? poly->GetPointData()->GetArray(
           this->Owner->GetOpacityArray()) : (vtkDataArray*)NULL
         ));
-    }
+  }
   this->VBO->Upload(this->VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   // free the memory using a swap because OO gone bad
   std::vector<float>().swap(this->VBO->PackedVBO);
@@ -708,38 +708,38 @@ void vtkOpenGLPointGaussianMapperHelper::RenderPieceDraw(vtkRenderer* ren, vtkAc
 {
   // draw polygons
   if (this->VBO->VertexCount)
-    {
+  {
     // save off current state of src / dst blend functions
     GLint blendSrcA = GL_SRC_ALPHA;
     GLint blendDstA = GL_ONE;
     GLint blendSrcC = GL_SRC_ALPHA;
     GLint blendDstC = GL_ONE;
     if (this->Owner->GetEmissive() != 0)
-      {
+    {
       glGetIntegerv(GL_BLEND_SRC_ALPHA, &blendSrcA);
       glGetIntegerv(GL_BLEND_DST_ALPHA, &blendDstA);
       glGetIntegerv(GL_BLEND_SRC_RGB, &blendSrcC);
       glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
       glBlendFunc( GL_SRC_ALPHA, GL_ONE);  // additive for emissive sources
-      }
+    }
     // First we do the triangles or points, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Tris, ren, actor);
     if (this->UsingPoints)
-      {
+    {
       glDrawArrays(GL_POINTS, 0,
         static_cast<GLuint>(this->VBO->VertexCount));
-      }
+    }
     else
-      {
+    {
       glDrawArrays(GL_TRIANGLES, 0,
         static_cast<GLuint>(this->VBO->VertexCount));
-      }
+    }
     if (this->Owner->GetEmissive() != 0)
-      {
+    {
       // restore blend func
       glBlendFuncSeparate(blendSrcC, blendDstC, blendSrcA, blendDstA);
-      }
     }
+  }
 }
 
 
@@ -762,11 +762,11 @@ vtkOpenGLPointGaussianMapper::~vtkOpenGLPointGaussianMapper()
 void vtkOpenGLPointGaussianMapper::RenderPiece(vtkRenderer *ren, vtkActor *act)
 {
   if (this->GetMTime() > this->HelperUpdateTime)
-    {
+  {
     this->Helper->vtkPolyDataMapper::ShallowCopy(this);
     this->Helper->Modified();
     this->HelperUpdateTime.Modified();
-    }
+  }
   this->Helper->RenderPiece(ren,act);
 }
 
@@ -782,9 +782,9 @@ void vtkOpenGLPointGaussianMapper::ReleaseGraphicsResources(vtkWindow* win)
 bool vtkOpenGLPointGaussianMapper::GetIsOpaque()
 {
   if (this->Emissive)
-    {
+  {
     return false;
-    }
+  }
   return this->Superclass::GetIsOpaque();
 }
 

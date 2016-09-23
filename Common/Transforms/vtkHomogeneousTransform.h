@@ -75,9 +75,9 @@ public:
    * Just like GetInverse(), but includes typecast to vtkHomogeneousTransform.
    */
   vtkHomogeneousTransform *GetHomogeneousInverse()
-    {
+  {
       return static_cast<vtkHomogeneousTransform *>(this->GetInverse());
-    }
+  }
 
   //@{
   /**

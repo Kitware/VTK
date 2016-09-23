@@ -54,23 +54,23 @@ int TestResampleToImage(int , char *[])
   vtkIdType numPoints = output->GetNumberOfPoints();
   vtkIdType numCells = output->GetNumberOfCells();
   if (numPoints != 13824 || numCells != 12167)
-    {
+  {
     std::cout << "Number of points: expecting 13824, got " << numPoints
               << std::endl;
     std::cout << "Number of cells: expecting 12167, got " << numCells
               << std::endl;
     return 1;
-    }
+  }
 
   vtkUnsignedCharArray *pointGhostArray = output->GetPointGhostArray();
   vtkIdType numHiddenPoints = 0;
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     if (pointGhostArray->GetValue(i) & vtkDataSetAttributes::HIDDENPOINT)
-      {
+    {
       ++numHiddenPoints;
-      }
     }
+  }
 
   if (numHiddenPoints != 1855)
   {
@@ -82,12 +82,12 @@ int TestResampleToImage(int , char *[])
   vtkUnsignedCharArray *cellGhostArray = output->GetCellGhostArray();
   vtkIdType numHiddenCells = 0;
   for (vtkIdType i = 0; i < numCells; ++i)
-    {
+  {
     if (cellGhostArray->GetValue(i) & vtkDataSetAttributes::HIDDENPOINT)
-      {
+    {
       ++numHiddenCells;
-      }
     }
+  }
 
   if (numHiddenCells != 2054)
   {

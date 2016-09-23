@@ -67,9 +67,9 @@ vtkBridgeCellIterator::~vtkBridgeCellIterator()
 void vtkBridgeCellIterator::Begin()
 {
   if(this->CurrentIterator!=0)
-    {
+  {
     this->CurrentIterator->Begin();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -80,9 +80,9 @@ int vtkBridgeCellIterator::IsAtEnd()
   int result=1;
 
   if(this->CurrentIterator!=0)
-    {
+  {
     result=this->CurrentIterator->IsAtEnd();
-    }
+  }
   return result;
 }
 

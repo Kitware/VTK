@@ -19,7 +19,7 @@
 vtkStandardNewMacro(vtkParametricHenneberg);
 //----------------------------------------------------------------------------//
 vtkParametricHenneberg::vtkParametricHenneberg()
-  {
+{
   // Preset triangulation parameters
   this->MinimumU = -1.0;
   this->MinimumV = -vtkMath::Pi()/2.;
@@ -32,16 +32,16 @@ vtkParametricHenneberg::vtkParametricHenneberg()
   this->TwistV = 0;
   this->ClockwiseOrdering = 1;
   this->DerivativesAvailable = 1;
-  }
+}
 
 //----------------------------------------------------------------------------//
 vtkParametricHenneberg::~vtkParametricHenneberg()
-  {
-  }
+{
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricHenneberg::Evaluate(double uvw[3], double Pt[3], double Duvw[9])
-  {
+{
   // Copy the parameters out of the vector, for the sake of convenience.
   double u = uvw[0];
   double v = uvw[1];
@@ -66,16 +66,16 @@ void vtkParametricHenneberg::Evaluate(double uvw[3], double Pt[3], double Duvw[9
   Dv[0] = -2.*sinh(u)*sin(v) + 2.*sinh(3.*u)*sin(3.*v);
   Dv[1] =  2.*sinh(u)*cos(v) + 2.*sinh(3.*u)*cos(3.*v);
   Dv[2] = -4.*cosh(2.*u)*sin(2.*v);
-  }
+}
 
 //----------------------------------------------------------------------------//
 double vtkParametricHenneberg::EvaluateScalar(double *, double *, double *)
-  {
+{
   return 0;
-  }
+}
 
 //----------------------------------------------------------------------------//
 void vtkParametricHenneberg::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os,indent);
-  }
+}

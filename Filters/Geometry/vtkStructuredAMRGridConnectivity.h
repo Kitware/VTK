@@ -348,9 +348,9 @@ protected:
           (blockDirection >= 0) && (blockDirection < 6) );
     bool status = false;
     if( this->BlockTopology[ gridID ] & (1 << blockDirection) )
-      {
+    {
       status = true;
-      }
+    }
     return( status );
   }
   //@}
@@ -615,13 +615,13 @@ vtkStructuredAMRGridConnectivity::Get1DOrientation(
     const int OnLo, const int OnHi, const int NotOnBoundary)
 {
   if( idx == ExtentLo )
-      {
+  {
       return OnLo;
-      }
+  }
     else if( idx == ExtentHi )
-      {
+    {
       return OnHi;
-      }
+    }
     return NotOnBoundary;
 }
 
@@ -638,12 +638,12 @@ int vtkStructuredAMRGridConnectivity::GetNumberOfConnectingBlockFaces(
 
   int count = 0;
   for( int i=0; i < 6; ++i )
-    {
+  {
     if( this->HasBlockConnection( gridID, i ) )
-      {
+    {
       ++count;
-      }
     }
+  }
   assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
   return( count );
 }
@@ -687,9 +687,9 @@ inline void vtkStructuredAMRGridConnectivity::ClearBlockConnections(
   assert("pre: BlockTopology has not been properly allocated" &&
         (this->NumberOfGrids == this->BlockTopology.size()));
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->RemoveBlockConnection( gridID, i );
-    } // END for all block directions
+  } // END for all block directions
 }
 
 //------------------------------------------------------------------------------
@@ -698,12 +698,12 @@ bool vtkStructuredAMRGridConnectivity::AreExtentsEqual(
         int ext1[6], int ext2[6])
 {
   for( int i=0; i < 6; ++i )
-    {
+  {
     if( ext1[i] != ext2[i] )
-      {
+    {
       return false;
-      }
-    } // END for
+    }
+  } // END for
   return true;
 }
 
@@ -713,11 +713,11 @@ void vtkStructuredAMRGridConnectivity::PrintExtent(
       std::ostream& os, int ext[6])
 {
   for( int i=0; i < 6; i+=2 )
-    {
+  {
     os << "[";
     os << ext[i]   << " ";
     os << ext[i+1] << "] ";
-    } // END for
+  } // END for
 }
 
 //------------------------------------------------------------------------------
@@ -767,9 +767,9 @@ inline
 bool vtkStructuredAMRGridConnectivity::HasConstantRefinementRatio()
 {
   if( this->RefinementRatio < 2 )
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -782,9 +782,9 @@ inline void vtkStructuredAMRGridConnectivity::GetGridExtent(
            (gridIdx < static_cast<int>(this->GridExtents.size()) ) ) );
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     ext[ i ] = this->GridExtents[ gridIdx*6+i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -792,9 +792,9 @@ inline bool vtkStructuredAMRGridConnectivity::LevelExists(
               const int level )
 {
   if( this->AMRHierarchy.find(level) != this->AMRHierarchy.end() )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -803,15 +803,15 @@ inline void vtkStructuredAMRGridConnectivity::InsertGridAtLevel(
       const int level, const int gridID )
 {
   if( this->LevelExists( level ) )
-    {
+  {
     this->AMRHierarchy[ level ].insert( gridID );
-    }
+  }
   else
-    {
+  {
     std::set<int> grids;
     grids.insert( gridID );
     this->AMRHierarchy[ level ] = grids;
-    }
+  }
 }
 
 #endif /* VTKSTRUCTUREDAMRGRIDCONNECTIVITY_H_ */

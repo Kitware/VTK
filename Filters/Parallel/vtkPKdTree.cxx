@@ -60,14 +60,14 @@ static char * makeEntry(const char *s)
 
 #define TIMER(s)                        \
   if (this->GetTiming())                \
-    {                                   \
+  {                                   \
     char *s2 = makeEntry(s);            \
     if (this->TimerLog == NULL)            \
-      {                                    \
+    {                                    \
       this->TimerLog = vtkTimerLog::New(); \
-      }                                    \
+    }                                    \
     this->TimerLog->MarkStartEvent(s2); \
-    }
+  }
 
 #define TIMERDONE(s) \
   if (this->GetTiming())\
@@ -138,38 +138,38 @@ vtkPKdTree::~vtkPKdTree()
 void vtkPKdTree::SetController(vtkMultiProcessController *c)
 {
   if (this->Controller == c)
-    {
+  {
     return;
-    }
+  }
 
   if ((c == NULL) || (c->GetNumberOfProcesses() == 0))
-    {
+  {
     this->NumProcesses = 1;
     this->MyId = 0;
-    }
+  }
 
   this->Modified();
 
   if (this->Controller != NULL)
-    {
+  {
     this->Controller->UnRegister(this);
     this->Controller = NULL;
-    }
+  }
 
   if (c == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkSocketController *sc = vtkSocketController::SafeDownCast(c);
 
   if (sc)
-    {
+  {
     vtkErrorMacro(<<
       "vtkPKdTree communication will fail with a socket controller");
 
     return;
-    }
+  }
 
   this->NumProcesses = c->GetNumberOfProcesses();
 
@@ -196,19 +196,19 @@ int vtkPKdTree::AllCheckForFailure(int rc, const char *where, const char *how)
   }
 
   if (vote)
-    {
+  {
     if (rc)
-      {
+    {
       sprintf(errmsg,"%s on my node (%s)",how, where);
-      }
+    }
     else
-      {
+    {
       sprintf(errmsg,"%s on a remote node (%s)",how, where);
-      }
+    }
     VTKWARNING(errmsg);
 
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -233,25 +233,25 @@ void vtkPKdTree::AllCheckParameters()
   param[9] = 0;
 
   if (this->MyId == 0)
-    {
+  {
     this->SubGroup->Broadcast(param, 10, 0);
     return;
-    }
+  }
 
   this->SubGroup->Broadcast(param0, 10, 0);
 
   int diff = 0;
 
   for (int i=0; i < 10; i++)
-    {
+  {
     if (param0[i] != param[i])
     {
       diff = 1;
       break;
-      }
     }
+  }
   if (diff)
-    {
+  {
     VTKWARNING("Changing my runtime parameters to match process 0");
 
     this->ValidDirections        = param0[0];
@@ -259,7 +259,7 @@ void vtkPKdTree::AllCheckParameters()
     this->SetNumberOfRegionsOrLess(param0[2]);
     this->SetNumberOfRegionsOrMore(param0[3]);
     this->RegionAssignment       = param0[4];
-    }
+  }
   return;
 }
 
@@ -292,41 +292,41 @@ bool vtkPKdTree::VolumeBounds(double* volBounds)
 
   int number_of_datasets = this->GetNumberOfDataSets();
   if (number_of_datasets == 0)
-    {
+  {
     VTKERROR("NumberOfDatasets = 0, cannot determine volume bounds.");
     return false;
-    }
+  }
 
   for (i=0; i < number_of_datasets; i++)
-    {
+  {
     this->GetDataSet(i)->GetBounds(volBounds);
 
     if (i==0)
-      {
+    {
       BoundsToMinMax(volBounds, localMin, localMax);
-      }
-    else
-      {
-      BoundsToMinMaxUpdate(volBounds, localMin, localMax);
-      }
     }
+    else
+    {
+      BoundsToMinMaxUpdate(volBounds, localMin, localMax);
+    }
+  }
 
   // trick to reduce the number of global communications for getting both
   // min and max
   double localReduce[6], globalReduce[6];
   for(i=0;i<3;i++)
-    {
+  {
     localReduce[i] = localMin[i];
     localReduce[i+3] = -localMax[i];
-    }
+  }
   this->SubGroup->ReduceMin(localReduce, globalReduce, 6, 0);
   this->SubGroup->Broadcast(globalReduce, 6, 0);
 
   for(i=0;i<3;i++)
-    {
+  {
     globalMin[i] = globalReduce[i];
     globalMax[i] = -globalReduce[i+3];
-    }
+  }
 
 
   MinMaxToBounds(volBounds, globalMin, globalMax);
@@ -336,31 +336,31 @@ bool vtkPKdTree::VolumeBounds(double* volBounds)
   double diff[3], aLittle = 0.0;
 
   for (i=0; i<3; i++)
-    {
+  {
      diff[i] = volBounds[2*i+1] - volBounds[2*i];
      aLittle = (diff[i] > aLittle) ? diff[i] : aLittle;
-    }
+  }
   if ((aLittle /= 100.0) <= 0.0)
-    {
+  {
      VTKERROR("VolumeBounds - degenerate volume");
      return false;
-    }
+  }
 
   this->FudgeFactor = aLittle * 10e-4;
 
   for (i=0; i<3; i++)
-    {
+  {
     if (diff[i] <= 0)
-      {
+    {
         volBounds[2*i]   -= aLittle;
         volBounds[2*i+1] += aLittle;
-      }
+    }
     else
-      {
+    {
       volBounds[2*i] -= this->GetFudgeFactor();
       volBounds[2*i+1] += this->GetFudgeFactor();
-      }
     }
+  }
   return true;
 }
 
@@ -374,21 +374,21 @@ void vtkPKdTree::BuildLocator()
   if ((this->Top == NULL) ||
       (this->BuildTime < this->GetMTime()) ||
       this->NewGeometry())
-    {
+  {
     // We don't have a k-d tree, or parameters that affect the
     // build of the tree have changed, or input geometry has changed.
 
     rebuildLocator = 1;
-    }
+  }
 
   if (this->NumProcesses == 1)
-    {
+  {
     if (rebuildLocator)
-      {
+    {
       this->SingleProcessBuildLocator();
-      }
-    return;
     }
+    return;
+  }
   this->UpdateProgress(0);
 
   TIMER("Determine if we need to rebuild");
@@ -406,7 +406,7 @@ void vtkPKdTree::BuildLocator()
   TIMERDONE("Determine if we need to rebuild");
 
   if (rebuildLocator)
-    {
+  {
     TIMER("Build k-d tree");
     this->InvokeEvent(vtkCommand::StartEvent);
 
@@ -417,19 +417,19 @@ void vtkPKdTree::BuildLocator()
 
     double volBounds[6];
     if(this->VolumeBounds(volBounds) == false)  // global operation to get bounds
-      {
+    {
       goto doneError;
-      }
+    }
     this->UpdateProgress(0.1);
 
     if (this->UserDefinedCuts)
-      {
+    {
       fail = this->ProcessUserDefinedCuts(volBounds);
-      }
+    }
     else
-      {
+    {
       fail = this->MultiProcessBuildLocator(volBounds);
-      }
+    }
 
     if (fail) goto doneError;
 
@@ -438,7 +438,7 @@ void vtkPKdTree::BuildLocator()
 
     TIMERDONE("Build k-d tree");
     this->InvokeEvent(vtkCommand::EndEvent);
-    }
+  }
 
   // Even if locator is not rebuilt, we should update
   // region assignments since they may have changed.
@@ -469,9 +469,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   vtkDebugMacro( << "Creating Kdtree in parallel" );
 
   if (this->GetTiming())
-    {
+  {
     if (this->TimerLog == NULL) this->TimerLog = vtkTimerLog::New();
-    }
+  }
 
   // Locally, create a single list of the coordinates of the centers of the
   //   cells of my data sets
@@ -492,9 +492,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
 
   if (this->AllCheckForFailure(fail,
           "MultiProcessBuildLocator", "memory allocation"))
-    {
+  {
     goto doneError6;
-    }
+  }
 
   TIMERDONE("Compute cell centers");
 
@@ -509,9 +509,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   TIMERDONE("Build index lists");
 
   if (fail)
-    {
+  {
     goto doneError6;
-    }
+  }
 
   // In parallel, build the k-d tree structure, partitioning all
   //   the points into spatial regions.  Sub-groups of processors
@@ -531,9 +531,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
              this->MyId, 0x00002000, this->Controller->GetCommunicator());
 
   if (this->AllCheckForFailure(fail, "BreadthFirstDivide", "memory allocation"))
-    {
+  {
     goto doneError6;
-    }
+  }
 
   FreeObject(this->SubGroup);
 
@@ -551,9 +551,9 @@ int vtkPKdTree::MultiProcessBuildLocator(double *volBounds)
   TIMERDONE("Complete tree");
 
   if (fail)
-    {
+  {
     goto doneError6;
-    }
+  }
 
   goto done6;
 
@@ -581,9 +581,9 @@ void vtkPKdTree::SingleProcessBuildLocator()
   this->TotalNumCells = this->GetNumberOfCells();
 
   if (this->RegionAssignment != vtkPKdTree::NoRegionAssignment)
-    {
+  {
     this->UpdateRegionAssignment();
-    }
+  }
 
   return;
 }
@@ -611,18 +611,18 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
   std::queue <vtkNodeInfo> Queue;
 
   if (this->AllocateDoubleBuffer())
-    {
+  {
     VTKERROR("memory allocation for double buffering");
     return 1;
-    }
+  }
 
   if (this->AllocateSelectBuffer())
-    {
+  {
     this->FreeDoubleBuffer();
 
     VTKERROR("memory allocation for select buffers");
     return 1;
-    }
+  }
 
   vtkKdNode *kd = this->Top = vtkKdNode::New();
 
@@ -639,20 +639,20 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
   int midpt = this->DivideRegion(kd, 0, 0, 0x00000001);
 
   if (midpt >= 0)
-    {
+  {
     ENQUEUE(kd->GetLeft(), 0, 1, 0x00000002);
     ENQUEUE(kd->GetRight(), midpt, 1, 0x00000003);
-    }
+  }
   else if (midpt < -1)
-    {
+  {
     this->FreeSelectBuffer();
     this->FreeDoubleBuffer();
 
     return 1;
-    }
+  }
 
   while (!Queue.empty())
-    {
+  {
     vtkNodeInfo info = Queue.front();
     Queue.pop();
 
@@ -664,24 +664,24 @@ int vtkPKdTree::BreadthFirstDivide(double *volBounds)
     midpt = this->DivideRegion(kd, L, level, tag);
 
     if (midpt >= 0)
-      {
+    {
       ENQUEUE(kd->GetLeft(), L, level+1, tag << 1);
 
       ENQUEUE(kd->GetRight(), midpt, level+1, (tag << 1) | 1);
-      }
-    else if (midpt < -1)
-      {
-      returnVal = 1;  // have to keep going, or remote ops may hang
-      }
-    delete info;
     }
+    else if (midpt < -1)
+    {
+      returnVal = 1;  // have to keep going, or remote ops may hang
+    }
+    delete info;
+  }
 
   this->FreeSelectBuffer();
 
   if (this->CurrentPtArray == this->PtArray2)
-    {
+  {
     memcpy(this->PtArray, this->PtArray2, this->PtArraySize * sizeof(float));
-    }
+  }
 
   this->FreeDoubleBuffer();
 
@@ -695,7 +695,7 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
   int R = L + numpoints - 1;
 
   if (numpoints < 2)
-    {
+  {
     // Special case: not enough points to go around.
     int p = this->WhoHas(L);
     if (this->MyId != p) return -1;
@@ -714,13 +714,13 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
 
     double coord;
     if (numpoints > 0)
-      {
+    {
       coord = val[maxdim];
-      }
+    }
     else
-      {
+    {
       coord = (bounds[maxdim*2] + bounds[maxdim*2+1])*0.5;
-      }
+    }
 
     left->SetBounds(bounds[0], ((maxdim == XDIM) ? coord : bounds[1]),
                     bounds[2], ((maxdim == YDIM) ? coord : bounds[3]),
@@ -744,15 +744,15 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
     // are "owned" by the same process as the parent.  This is important
     // because only one process has not culled this node in the tree.
     return L;
-    }
+  }
 
   int p1 = this->WhoHas(L);
   int p2 = this->WhoHas(R);
 
   if ((this->MyId < p1) || (this->MyId > p2))
-    {
+  {
     return -1;
-    }
+  }
 
   this->SubGroup = vtkSubGroup::New();
   this->SubGroup->Initialize(p1, p2, this->MyId, tag,
@@ -765,19 +765,19 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
   int midpt = this->Select(maxdim, L, R);
 
   if (midpt < L + 1)
-    {
+  {
     // Couldn't divide.  Try a different direction.
     int newdim = vtkKdTree::XDIM - 1;
     vtkDebugMacro(<< "Could not divide along maxdim"
                   << " maxdim " << maxdim
                   << " L " << L << " R " << R << " midpt " << midpt);
     while (midpt < L + 1)
-      {
+    {
       do
-        {
+      {
         newdim++;
         if (newdim > vtkKdTree::ZDIM)
-          {
+        {
           // Exhausted all possible divisions.  All points must be at same
           // location.  Just split in the middle and hope for the best.
           vtkDebugMacro(<< "Must have coincident points.");
@@ -786,18 +786,18 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
           // Add one to make sure there is always something to the left.
           midpt = (L+R)/2 + 1;
           goto FindMidptBreakout;
-          }
-        } while (   (newdim == maxdim)
+        }
+      } while (   (newdim == maxdim)
                  || ((this->ValidDirections & (1 << newdim)) == 0) );
       kd->SetDim(newdim);
       midpt = this->Select(newdim, L, R);
       vtkDebugMacro(<< " newdim " << newdim
                     << " L " << L << " R " << R << " midpt " << midpt);
-      }
+    }
   FindMidptBreakout:
     // Pretend the dimension we used was the minimum.
     maxdim = newdim;
-    }
+  }
 
   float *newDataBounds = this->DataBounds(L, midpt, R);
   vtkKdNode *left = vtkKdNode::New();
@@ -806,13 +806,13 @@ int vtkPKdTree::DivideRegion(vtkKdNode *kd, int L, int level, int tag)
   int fail = ( (newDataBounds == NULL) || (left == NULL) || (right == NULL) );
 
   if (this->AllCheckForFailure(fail, "Divide Region", "memory allocation"))
-    {
+  {
     FreeList(newDataBounds);
     left->Delete();
     right->Delete();
     FreeObject(this->SubGroup);
     return -3;
-    }
+  }
 
   double coord = (newDataBounds[maxdim*2 + 1] +   // max on left side
                  newDataBounds[6 + maxdim*2] )*   // min on right side
@@ -863,12 +863,12 @@ void vtkPKdTree::ExchangeVals(int pos1, int pos2)
   int player2 = this->WhoHas(pos2);
 
   if ((player1 == this->MyId) && (player2 == this->MyId))
-    {
+  {
     this->ExchangeLocalVals(pos1, pos2);
-    }
+  }
 
   else if (player1 == this->MyId)
-    {
+  {
     myval = this->GetLocalVal(pos1);
 
     comm->Send(myval, 3, player2, this->SubGroup->tag);
@@ -876,9 +876,9 @@ void vtkPKdTree::ExchangeVals(int pos1, int pos2)
     comm->Receive(otherval, 3, player2, this->SubGroup->tag);
 
     this->SetLocalVal(pos1, otherval);
-    }
+  }
   else if (player2 == this->MyId)
-    {
+  {
     myval = this->GetLocalVal(pos2);
 
     comm->Receive(otherval, 3, player1, this->SubGroup->tag);
@@ -886,7 +886,7 @@ void vtkPKdTree::ExchangeVals(int pos1, int pos2)
     comm->Send(myval, 3, player1, this->SubGroup->tag);
 
     this->SetLocalVal(pos2, otherval);
-    }
+  }
   return;
 }
 
@@ -904,9 +904,9 @@ void vtkPKdTree::_select(int L, int R, int K, int dim)
   float Z;
 
   while (R > L)
-    {
+  {
     if ( R - L > 600)
-      {
+    {
       // "Recurse on a sample of size S to get an estimate for the
       // (K-L+1)-th smallest element into X[K], biased slightly so
       // that the (K-L+1)-th element is expected to lie in the
@@ -920,7 +920,7 @@ void vtkPKdTree::_select(int L, int R, int K, int dim)
       LL = vtkMath::Max(L, K - static_cast<int>((I*((float)S/N))) + SD);
       RR = vtkMath::Min(R, K + static_cast<int>((N-I) * ((float)S/N)) + SD);
       this->_select(LL, RR, K, dim);
-      }
+    }
 
     int p1 = this->WhoHas(L);
     int p2 = this->WhoHas(R);
@@ -946,18 +946,18 @@ void vtkPKdTree::_select(int L, int R, int K, int dim)
     J = idx[1];
 
     if (K >= J)
-      {
+    {
       L = J;
-      }
-    else if (K >= I)
-      {
-      L = R;  // partitioning is done, K is in the interval of T's
-      }
-    else
-      {
-      R = I-1;
-      }
     }
+    else if (K >= I)
+    {
+      L = R;  // partitioning is done, K is in the interval of T's
+    }
+    else
+    {
+      R = I-1;
+    }
+  }
 }
 int vtkPKdTree::Select(int dim, int L, int R)
 {
@@ -988,18 +988,18 @@ int vtkPKdTree::Select(int dim, int L, int R)
   float *pt;
 
   if (hasK == this->MyId)
-    {
+  {
     pt = this->GetLocalVal(K) + dim;
     Kval = *pt;
-    }
+  }
 
   this->SubGroup->Broadcast(&Kval, 1, hasKrank);
 
   if (hasKleft == this->MyId)
-    {
+  {
     pt = this->GetLocalVal(K-1) + dim;
     Kleftval = *pt;
-    }
+  }
 
   this->SubGroup->Broadcast(&Kleftval, 1, hasKleftrank);
 
@@ -1008,27 +1008,27 @@ int vtkPKdTree::Select(int dim, int L, int R)
   int firstKval = this->TotalNumCells;  // greater than any valid index
 
   if ((this->MyId <= hasKleft) && (this->NumCells[this->MyId] > 0))
-    {
+  {
     int start = this->EndVal[this->MyId];
     if (start > K-1) start = K-1;
 
     pt = this->GetLocalVal(start) + dim;
 
     if (*pt == Kval)
-      {
+    {
       firstKval = start;
 
       int finish = this->StartVal[this->MyId];
 
       for (int idx=start-1; idx >= finish; idx--)
-        {
+      {
         pt -= 3;
         if (*pt < Kval) break;
 
         firstKval--;
-        }
       }
     }
+  }
 
   int newK;
 
@@ -1041,39 +1041,39 @@ int vtkPKdTree::Select(int dim, int L, int R)
 int vtkPKdTree::_whoHas(int L, int R, int pos)
 {
   if (L == R)
-    {
+  {
     return L;
-    }
+  }
 
   int M = (L + R) >> 1;
 
   if ( pos < this->StartVal[M])
-    {
+  {
     return _whoHas(L, M-1, pos);
-    }
+  }
   else if (pos < this->StartVal[M+1])
-    {
+  {
     return M;
-    }
+  }
   else
-    {
+  {
     return _whoHas(M+1, R, pos);
-    }
+  }
 }
 int vtkPKdTree::WhoHas(int pos)
 {
   if ( (pos < 0) || (pos >= this->TotalNumCells))
-    {
+  {
     return -1;
-    }
+  }
   return _whoHas(0, this->NumProcesses-1, pos);
 }
 float *vtkPKdTree::GetLocalVal(int pos)
 {
   if ( (pos < this->StartVal[this->MyId]) || (pos > this->EndVal[this->MyId]))
-    {
+  {
     return NULL;
-    }
+  }
   int localPos = pos - this->StartVal[this->MyId];
 
   return this->CurrentPtArray + (3*localPos);
@@ -1081,9 +1081,9 @@ float *vtkPKdTree::GetLocalVal(int pos)
 float *vtkPKdTree::GetLocalValNext(int pos)
 {
   if ( (pos < this->StartVal[this->MyId]) || (pos > this->EndVal[this->MyId]))
-    {
+  {
     return NULL;
-    }
+  }
   int localPos = pos - this->StartVal[this->MyId];
 
   return this->NextPtArray + (3*localPos);
@@ -1091,10 +1091,10 @@ float *vtkPKdTree::GetLocalValNext(int pos)
 void vtkPKdTree::SetLocalVal(int pos, float *val)
 {
   if ( (pos < this->StartVal[this->MyId]) || (pos > this->EndVal[this->MyId]))
-    {
+  {
     VTKERROR("SetLocalVal - bad index");
     return;
-    }
+  }
 
   int localOffset = (pos - this->StartVal[this->MyId]) * 3;
 
@@ -1112,10 +1112,10 @@ void vtkPKdTree::ExchangeLocalVals(int pos1, int pos2)
   float *pt2 = this->GetLocalVal(pos2);
 
   if (!pt1 || !pt2)
-    {
+  {
     VTKERROR("ExchangeLocalVal - bad index");
     return;
-    }
+  }
 
   temp[0] = pt1[0];
   temp[1] = pt1[1];
@@ -1145,24 +1145,24 @@ float *fromPt, *toPt;
   int tag = this->SubGroup->tag;
 
   if ( (from==me) && (to==me))
-    {
+  {
     fromPt = this->GetLocalVal(fromIndex);
     toPt = this->GetLocalValNext(toIndex);
 
     memcpy(toPt, fromPt, nitems * sizeof(float));
-    }
+  }
   else if (from == me)
-    {
+  {
     fromPt = this->GetLocalVal(fromIndex);
 
     comm->Send(fromPt, nitems, to, tag);
-    }
+  }
   else if (to == me)
-    {
+  {
     toPt = this->GetLocalValNext(toIndex);
 
     comm->Receive(toPt, nitems, from, tag);
-    }
+  }
 }
 
 // Partition global array into three intervals, the first all values < T,
@@ -1180,19 +1180,19 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   int me     = this->MyId;
 
   if ( (me < p1) || (me > p2))
-    {
+  {
     this->SubGroup->Broadcast(this->SelectBuffer, 2, rootrank);
     return this->SelectBuffer;
-    }
+  }
 
   if (p1 == p2)
-    {
+  {
     int *idx = this->PartitionAboutMyValue(L, R, K, dim);
 
     this->SubGroup->Broadcast(idx, 2, rootrank);
 
     return idx;
-    }
+  }
 
   // Each process will rearrange their subarray myL-myR into a left region
   // of values less than X[K], a center region of values equal to X[K], and
@@ -1221,22 +1221,22 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   float T;
 
   if (hasK == me)
-    {
+  {
     T = this->GetLocalVal(K)[dim];
-    }
+  }
 
   sg->Broadcast(&T, 1, Krank);
 
   int *idx;   // dividing points in rearranged sub array
 
   if (hasK == me)
-    {
+  {
     idx = this->PartitionAboutMyValue(myL, myR, K, dim);
-    }
+  }
   else
-    {
+  {
     idx = this->PartitionAboutOtherValue(myL, myR, T, dim);
-    }
+  }
 
   // Copy these right away.  Implementation uses SelectBuffer
   // which is about to be overwritten.
@@ -1289,7 +1289,7 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   int p, sndr, recvr;
 
   for (p = 0; p < nprocs; p++)
-    {
+  {
     leftArray[p]  = Ival[p] - left[p];
     centerArray[p]  = Jval[p] - Ival[p];
     rightArray[p] = right[p] - Jval[p] + 1;
@@ -1300,7 +1300,7 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
     leftUsed[p] = 0;
     centerUsed[p] = 0;
     rightUsed[p] = 0;
-    }
+  }
 
   int FirstCenter = left[0] + leftRemaining;
   int FirstRight = FirstCenter + centerRemaining;
@@ -1312,21 +1312,21 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
   int need, have, take;
 
   if ( (myL > this->StartVal[me]) || (myR < this->EndVal[me]))
-    {
+  {
     memcpy(this->NextPtArray,
            this->CurrentPtArray,
            this->PtArraySize * sizeof(float));
-    }
+  }
 
   for (recvr = 0; recvr < nprocs; recvr++)
-    {
+  {
     need = leftArray[recvr] + centerArray[recvr] + rightArray[recvr];
     have = 0;
 
     if (leftRemaining >= 0)
-      {
+    {
       for (sndr = nextLeftProc; sndr < nprocs; sndr++)
-        {
+      {
         take = leftArray[sndr] - leftUsed[sndr];
 
         if (take == 0) continue;
@@ -1343,24 +1343,24 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
         leftUsed[sndr] += take;
 
         if (need == 0) break;
-        }
+      }
 
       if (leftUsed[sndr] == leftArray[sndr])
-        {
+      {
         nextLeftProc = sndr+1;
-        }
-      else
-        {
-        nextLeftProc = sndr;
-        }
       }
+      else
+      {
+        nextLeftProc = sndr;
+      }
+    }
 
     if (need == 0) continue;
 
     if (centerRemaining >= 0)
-      {
+    {
       for (sndr = nextCenterProc; sndr < nprocs; sndr++)
-        {
+      {
         take = centerArray[sndr] - centerUsed[sndr];
 
         if (take == 0) continue;
@@ -1379,22 +1379,22 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
         centerUsed[sndr] += take;
 
         if (need == 0) break;
-        }
+      }
 
       if (centerUsed[sndr] == centerArray[sndr])
-        {
+      {
         nextCenterProc = sndr+1;
-        }
-      else
-        {
-        nextCenterProc = sndr;
-        }
       }
+      else
+      {
+        nextCenterProc = sndr;
+      }
+    }
 
     if (need == 0) continue;
 
     for (sndr = nextRightProc; sndr < nprocs; sndr++)
-      {
+    {
         take = rightArray[sndr] - rightUsed[sndr];
 
         if (take == 0) continue;
@@ -1412,17 +1412,17 @@ int *vtkPKdTree::PartitionSubArray(int L, int R, int K, int dim, int p1, int p2)
         rightUsed[sndr] += take;
 
         if (need == 0) break;
-      }
+    }
 
     if (rightUsed[sndr] == rightArray[sndr])
-      {
+    {
       nextRightProc = sndr+1;
-      }
-    else
-      {
-      nextRightProc = sndr;
-      }
     }
+    else
+    {
+      nextRightProc = sndr;
+    }
+  }
 
   this->SwitchDoubleBuffer();
 
@@ -1460,27 +1460,27 @@ int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
   int totalVals = R - L + 1;
 
   if (totalVals == 0)
-    {
+  {
     // Special case: no values.
     vals[0] = vals[1] = L;
     return vals;
-    }
+  }
 
   Ipt = this->GetLocalVal(L) + dim;
   Lval = *Ipt;
 
   if (Lval == T)
-    {
+  {
     numTValues++;
-    }
+  }
   else if (Lval > T)
-    {
+  {
     numGreater++;
-    }
+  }
   else
-    {
+  {
     numLess++;
-    }
+  }
 
   Jpt = this->GetLocalVal(R) + dim;
   Rval = *Jpt;
@@ -1493,111 +1493,111 @@ int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
   int J = R;
 
   if ((Lval >= T) && (Rval >= T))
-    {
+  {
     while (--J > I)
-      {
+    {
       Jpt -= 3;
       if (*Jpt < T)
-        {
+      {
         break;
-        }
+      }
       if (*Jpt == T)
-        {
+      {
         numTValues++;
-        }
+      }
       else
-        {
+      {
         numGreater++;
-        }
       }
     }
+  }
   else if ((Lval < T) && (Rval < T))
-    {
+  {
     Ipt = this->GetLocalVal(I) + dim;
 
     while (++I < J)
-      {
+    {
       Ipt += 3;
       if (*Ipt >= T)
-        {
+      {
         if (*Ipt == T)
-          {
+        {
           numTValues++;
-          }
-        break;
         }
-      numLess++;
+        break;
       }
+      numLess++;
     }
+  }
   else if ((Lval < T) && (Rval >= T))
-    {
+  {
     this->ExchangeLocalVals(I, J);
-    }
+  }
   else if ((Lval >= T) && (Rval < T))
-    {
+  {
     // first loop will fix this
-    }
+  }
 
   if (numLess == totalVals)
-    {
+  {
     vals[0] = vals[1] = R+1;  // special case - all less than T
     return vals;
-    }
+  }
   else if (numTValues == totalVals)
-    {
+  {
     vals[0] = L;             // special case - all equal to T
     vals[1] = R+1;
     return vals;
-    }
+  }
   else if (numGreater == totalVals)
-    {
+  {
     vals[0] = vals[1] = L;   // special case - all greater than T
     return vals;
-    }
+  }
 
   while (I < J)
-    {
+  {
     // By design, I < J and value at I is >= T, and value
     // at J is < T, hence the exchange.
 
     this->ExchangeLocalVals(I, J);
 
     while (++I < J)
-      {
+    {
       Ipt += 3;
       if (*Ipt >= T)
-        {
+      {
         if (*Ipt == T)
-          {
+        {
           numTValues++;
-          }
-        break;
         }
+        break;
       }
+    }
     if (I == J) break;
 
     while (--J > I)
-      {
+    {
       Jpt -= 3;
       if (*Jpt < T)
-        {
+      {
         break;
-        }
+      }
       if (*Jpt == T)
-        {
+      {
         numTValues++;
-        }
       }
     }
+  }
 
   // I and J are at the first value that is >= T.
 
   if (numTValues == 0)
-    {
+  {
     vals[0] = I;
     vals[1] = I;
     return vals;
-    }
+  }
 
   // Move all T's to the center interval
 
@@ -1612,34 +1612,34 @@ int *vtkPKdTree::PartitionAboutOtherValue(int L, int R, float T, int dim)
   Jpt += 3;
 
   while (I < J)
-    {
+  {
     while (++I < J)
-      {
+    {
       Ipt += 3;
       if (*Ipt != T)
-        {
+      {
         break;
-        }
-      }
-    if (I == J)
-      {
-      break;
-      }
-
-    while (--J > I)
-      {
-      Jpt -= 3;
-      if (*Jpt == T)
-        {
-        break;
-        }
-      }
-
-    if (I < J)
-      {
-      this->ExchangeLocalVals(I, J);
       }
     }
+    if (I == J)
+    {
+      break;
+    }
+
+    while (--J > I)
+    {
+      Jpt -= 3;
+      if (*Jpt == T)
+      {
+        break;
+      }
+    }
+
+    if (I < J)
+    {
+      this->ExchangeLocalVals(I, J);
+    }
+  }
 
   // Now I and J are at the first value that is > T, and the T's are
   // to the left.
@@ -1682,16 +1682,16 @@ int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   pt = this->GetLocalVal(R);
 
   if (pt[dim] >= T)
-    {
+  {
     if (pt[dim] == T)
-      {
+    {
       manyTValues = 1;
-      }
-    else
-      {
-      this->ExchangeLocalVals(R, L);
-      }
     }
+    else
+    {
+      this->ExchangeLocalVals(R, L);
+    }
+  }
 
   I = L;
   J = R;
@@ -1700,41 +1700,41 @@ int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   Jpt = this->GetLocalVal(J) + dim;
 
   while (I < J)
-    {
+  {
     this->ExchangeLocalVals(I, J);
 
     while (--J > I)
-      {
+    {
       Jpt -= 3;
       if (*Jpt < T)
-        {
+      {
         break;
-        }
-      if (!manyTValues && (J > L) && (*Jpt == T))
-        {
-        manyTValues = 1;
-        }
       }
+      if (!manyTValues && (J > L) && (*Jpt == T))
+      {
+        manyTValues = 1;
+      }
+    }
 
     if (I == J)
-      {
+    {
       break;
-      }
+    }
 
     while (++I < J)
-      {
+    {
       Ipt += 3;
 
       if (*Ipt >= T)
-        {
+      {
         if (!manyTValues && (*Ipt == T))
-          {
+        {
           manyTValues = 1;
-          }
-        break;
         }
+        break;
       }
     }
+  }
 
   // I and J are at the rightmost value < T ( or at L if all values
   // are >= T)
@@ -1744,13 +1744,13 @@ int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   float Lval = pt[dim];
 
   if (Lval == T)
-    {
+  {
     this->ExchangeLocalVals(L, J);
-    }
+  }
   else
-    {
+  {
     this->ExchangeLocalVals(++J, R);
-    }
+  }
 
   // Now J is at the leftmost value >= T.  (It is at a T value.)
 
@@ -1760,7 +1760,7 @@ int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
   // Arrange array so all values equal to T are together
 
   if (manyTValues)
-    {
+  {
     I = J;
     Ipt = this->GetLocalVal(I) + dim;
 
@@ -1769,38 +1769,38 @@ int *vtkPKdTree::PartitionAboutMyValue(int L, int R, int K, int dim)
     Jpt += 3;
 
     while (I < J)
-      {
+    {
       while (++I < J)
-        {
+      {
         Ipt += 3;
         if (*Ipt != T)
-          {
+        {
           break;
-          }
-        }
-      if (I == J)
-        {
-        break;
-        }
-
-      while (--J > I)
-        {
-        Jpt -= 3;
-        if (*Jpt == T)
-          {
-          break;
-          }
-        }
-
-      if (I < J)
-        {
-        this->ExchangeLocalVals(I, J);
         }
       }
+      if (I == J)
+      {
+        break;
+      }
+
+      while (--J > I)
+      {
+        Jpt -= 3;
+        if (*Jpt == T)
+        {
+          break;
+        }
+      }
+
+      if (I < J)
+      {
+        this->ExchangeLocalVals(I, J);
+      }
+    }
     // I and J are at the first value that is > T
 
     vals[1] = I;
-    }
+  }
 
   return vals;
 }
@@ -1817,45 +1817,45 @@ void vtkPKdTree::GetLocalMinMax(int L, int R, int me,
   int to   = this->EndVal[me];
 
   if (L > from)
-    {
+  {
     from = L;
-    }
+  }
   if (R < to)
-    {
+  {
     to = R;
-    }
+  }
 
   if (from <= to)
-    {
+  {
     from -= this->StartVal[me];
     to   -= this->StartVal[me];
 
     float *val = this->CurrentPtArray + from*3;
 
     for (d=0; d<3; d++)
-      {
+    {
       min[d] = max[d] = val[d];
-      }
+    }
 
     for (i= from+1; i<=to; i++)
-      {
+    {
       val += 3;
 
       for (d=0; d<3; d++)
-        {
+      {
         if (val[d] < min[d])
-          {
+        {
           min[d] = val[d];
-          }
+        }
         else if (val[d] > max[d])
-          {
+        {
           max[d] = val[d];
-          }
         }
       }
     }
+  }
   else
-    {
+  {
     // this guy has none of the data, but still must participate
     //   in ReduceMax and ReduceMin
 
@@ -1863,11 +1863,11 @@ void vtkPKdTree::GetLocalMinMax(int L, int R, int me,
     double *regionMax = this->Top->GetMaxBounds();
 
     for (d=0; d<3; d++)
-      {
+    {
       min[d] = (float)regionMax[d];
       max[d] = (float)regionMin[d];
-      }
     }
+  }
 }
 float *vtkPKdTree::DataBounds(int L, int K, int R)
 {
@@ -1885,10 +1885,10 @@ float *vtkPKdTree::DataBounds(int L, int K, int R)
   int fail = (globalBounds == NULL);
 
   if (this->AllCheckForFailure(fail, "DataBounds", "memory allocation"))
-    {
+  {
     delete [] globalBounds;
     return NULL;
-    }
+  }
 
   this->GetLocalMinMax(L, K-1, this->MyId, localMinLeft, localMaxLeft);
 
@@ -1936,9 +1936,9 @@ int vtkPKdTree::CompleteTree()
   int fail = vtkPKdTree::FillOutTree(this->Top, depth);
 
   if (this->AllCheckForFailure(fail, "CompleteTree", "memory allocation"))
-    {
+  {
     return 1;
-    }
+  }
 
   // Processor 0 collects all the nodes of the k-d tree, and then
   //   processes the tree to ensure region boundaries are
@@ -1949,10 +1949,10 @@ int vtkPKdTree::CompleteTree()
   fail = (buf == NULL);
 
   if (this->AllCheckForFailure(fail, "CompleteTree", "memory allocation"))
-    {
+  {
     delete [] buf;
     return 1;
-    }
+  }
 
 #ifdef YIELDS_INCONSISTENT_REGION_BOUNDARIES
 
@@ -1963,9 +1963,9 @@ int vtkPKdTree::CompleteTree()
   this->ReduceData(this->Top, buf);
 
   if (this->MyId == 0)
-    {
+  {
     CheckFixRegionBoundaries(this->Top);
-    }
+  }
 
   this->BroadcastData(this->Top);
 #endif
@@ -1994,7 +1994,7 @@ void vtkPKdTree::PackData(vtkKdNode *kd, double *data)
 
   v = 3;
   for (i=0; i<3; i++)
-    {
+  {
     data[v++]  = lmin[i];
     data[v++]  = lmax[i];
     data[v++]  = lminData[i];
@@ -2003,7 +2003,7 @@ void vtkPKdTree::PackData(vtkKdNode *kd, double *data)
     data[v++]  = rmax[i];
     data[v++]  = rminData[i];
     data[v++]  = rmaxData[i];
-    }
+  }
 }
 void vtkPKdTree::UnpackData(vtkKdNode *kd, double *data)
 {
@@ -2018,7 +2018,7 @@ void vtkPKdTree::UnpackData(vtkKdNode *kd, double *data)
 
   v = 3;
   for (i=0; i<3; i++)
-    {
+  {
     lmin[i] = data[v++];
     lmax[i]  = data[v++];
     lminData[i] = data[v++];
@@ -2027,7 +2027,7 @@ void vtkPKdTree::UnpackData(vtkKdNode *kd, double *data)
     rmax[i] = data[v++];
     rminData[i] = data[v++];
     rmaxData[i] = data[v++];
-    }
+  }
 
   kd->GetLeft()->SetBounds(lmin[0], lmax[0],
                            lmin[1], lmax[1],
@@ -2060,19 +2060,19 @@ void vtkPKdTree::ReduceData(vtkKdNode *kd, int *sources)
   // in the group sends it to node 0 if node 0 doesn't have it
 
   if (sources[0] == 0)
-    {
+  {
     int root = -1;
 
     for (i=1; i<this->NumProcesses; i++)
-      {
+    {
       if (sources[i])
-        {
+      {
         root = i;
         break;
-        }
       }
+    }
     if (root == -1)
-      {
+    {
 
       // Normally BuildLocator will create a complete tree, but
       // it may refuse to divide a region if all the data is at
@@ -2082,21 +2082,21 @@ void vtkPKdTree::ReduceData(vtkKdNode *kd, int *sources)
       vtkKdTree::DeleteAllDescendants(kd);
 
       return;
-      }
+    }
 
     if (root == this->MyId)
-      {
+    {
       vtkPKdTree::PackData(kd, data);
 
       comm->Send(data, 27, 0, 0x1111);
-      }
+    }
     else if (0 == this->MyId)
-      {
+    {
       comm->Receive(data, 27, root, 0x1111);
 
       vtkPKdTree::UnpackData(kd, data);
-      }
     }
+  }
 
   this->ReduceData(kd->GetLeft(), sources);
 
@@ -2111,16 +2111,16 @@ void vtkPKdTree::BroadcastData(vtkKdNode *kd)
   if (kd->GetLeft() == NULL) return;
 
   if (0 == this->MyId)
-    {
+  {
     vtkPKdTree::PackData(kd, data);
-    }
+  }
 
   this->SubGroup->Broadcast(data, 27, 0);
 
   if (this->MyId > 0)
-    {
+  {
     vtkPKdTree::UnpackData(kd, data);
-    }
+  }
 
   this->BroadcastData(kd->GetLeft());
 
@@ -2145,20 +2145,20 @@ void vtkPKdTree::CheckFixRegionBoundaries(vtkKdNode *tree)
   double *rmax = right->GetMaxBounds();
 
   for (int dim=0; dim<3; dim++)
-    {
+  {
     if ((lmin[dim] - min[dim]) != 0.0)  lmin[dim] = min[dim];
     if ((rmax[dim] - max[dim]) != 0.0) rmax[dim] = max[dim];
 
     if (dim != nextDim)  // the dimension I did *not* divide along
-      {
+    {
       if ((lmax[dim] - max[dim]) != 0.0)  lmax[dim] = max[dim];
       if ((rmin[dim] - min[dim]) != 0.0) rmin[dim] = min[dim];
-      }
-    else
-      {
-      if ((lmax[dim] - rmin[dim]) != 0.0) lmax[dim] = rmin[dim];
-      }
     }
+    else
+    {
+      if ((lmax[dim] - rmin[dim]) != 0.0) lmax[dim] = rmin[dim];
+    }
+  }
 
   CheckFixRegionBoundaries(left);
   CheckFixRegionBoundaries(right);
@@ -2183,15 +2183,15 @@ void vtkPKdTree::RetrieveData(vtkKdNode *kd, int *sources)
   int root = -1;
 
   for (i=0; i<this->NumProcesses; i++)
-    {
+  {
     if (sources[i])
-      {
+    {
       root = i;
       break;
-      }
     }
+  }
   if (root == -1)
-    {
+  {
     // Normally BuildLocator will create a complete tree, but
     // it may refuse to divide a region if all the data is at
     // the same point along the axis it wishes to divide.  In
@@ -2200,19 +2200,19 @@ void vtkPKdTree::RetrieveData(vtkKdNode *kd, int *sources)
     vtkKdTree::DeleteAllDescendants(kd);
 
     return;
-    }
+  }
 
   if (root == this->MyId)
-    {
+  {
     vtkPKdTree::PackData(kd, data);
-    }
+  }
 
   this->SubGroup->Broadcast(data, 27, root);
 
   if (!ihave)
-    {
+  {
     vtkPKdTree::UnpackData(kd, data);
-    }
+  }
 
   this->RetrieveData(kd->GetLeft(), sources);
 
@@ -2227,7 +2227,7 @@ int vtkPKdTree::FillOutTree(vtkKdNode *kd, int level)
   if (level == 0) return 0;
 
   if (kd->GetLeft() == NULL)
-    {
+  {
     vtkKdNode *left = vtkKdNode::New();
 
     if (!left) goto doneError2;
@@ -2245,7 +2245,7 @@ int vtkPKdTree::FillOutTree(vtkKdNode *kd, int level)
     right->SetNumberOfPoints(-1);
 
     kd->AddChildNodes(left, right);
-    }
+  }
 
   if (vtkPKdTree::FillOutTree(kd->GetLeft(), level-1)) goto doneError2;
 
@@ -2266,13 +2266,13 @@ int vtkPKdTree::ComputeDepth(vtkKdNode *kd)
   if ((kd->GetLeft() == NULL) && (kd->GetRight() == NULL)) return 0;
 
   if (kd->GetLeft())
-    {
+  {
     leftDepth = vtkPKdTree::ComputeDepth(kd->GetLeft());
-    }
+  }
   if (kd->GetRight())
-    {
+  {
     rightDepth = vtkPKdTree::ComputeDepth(kd->GetRight());
-    }
+  }
 
   if (leftDepth > rightDepth) return leftDepth + 1;
   else return rightDepth + 1;
@@ -2327,26 +2327,26 @@ void vtkPKdTree::FreeSelectBuffer()
 {                                  \
   int i;                           \
   if (list)                        \
-    {                              \
+  {                              \
     for (i=0; i<(len); i++)        \
-      {                            \
+    {                            \
       if (list[i]) delete [] list[i]; \
-      }                                 \
+    }                                 \
     delete [] list;                   \
     list = NULL;                      \
-    }                                   \
+  }                                   \
 }
 
 #define MakeList(field, type, len) \
   {                                \
    if ((len)>0)                    \
-    {                              \
+   {                              \
     field = new type [len];         \
     if (field)                      \
-      {                             \
+    {                             \
       memset(field, 0, (len) * sizeof(type));  \
-      }                              \
-    }                                \
+    }                              \
+   }                                \
   }
 
 // global index lists -----------------------------------------------
@@ -2386,10 +2386,10 @@ int vtkPKdTree::BuildGlobalIndexLists(vtkIdType numMyCells)
   if (this->AllCheckForFailure(fail,
                                "BuildGlobalIndexLists",
                                "memory allocation"))
-    {
+  {
     this->FreeGlobalIndexLists();
     return 1;
-    }
+  }
 
   this->SubGroup->Gather(&numMyCells, this->NumCells, 1, 0);
 
@@ -2401,12 +2401,12 @@ int vtkPKdTree::BuildGlobalIndexLists(vtkIdType numMyCells)
   this->TotalNumCells = this->NumCells[0];
 
   for (int i=1; i<this->NumProcesses; i++)
-    {
+  {
     this->StartVal[i] = this->EndVal[i-1] + 1;
     this->EndVal[i]   = this->EndVal[i-1] + this->NumCells[i];
 
     this->TotalNumCells += this->NumCells[i];
-    }
+  }
 
   return 0;
 }
@@ -2535,17 +2535,17 @@ int vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
   int iNumPointArrays = 0;
 
   for (int set=0; set < this->GetNumberOfDataSets(); set++)
-    {
+  {
     iNumCellArrays +=
       this->GetDataSet(set)->GetCellData()->GetNumberOfArrays();
     iNumPointArrays +=
       this->GetDataSet(set)->GetPointData()->GetNumberOfArrays();
-    }
+  }
 
   this->FreeFieldArrayMinMax();
 
   if (iNumCellArrays > 0)
-    {
+  {
     MakeList(this->CellDataMin, double, iNumCellArrays);
     if (this->CellDataMin == NULL) goto doneError5;
 
@@ -2554,12 +2554,12 @@ int vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
 
     MakeList(this->CellDataName, char *, iNumCellArrays);
     if (this->CellDataName == NULL) goto doneError5;
-    }
+  }
 
   this->NumCellArrays = iNumCellArrays;
 
   if (iNumPointArrays > 0)
-    {
+  {
     MakeList(this->PointDataMin, double, iNumPointArrays);
     if (this->PointDataMin == NULL) goto doneError5;
 
@@ -2568,7 +2568,7 @@ int vtkPKdTree::AllocateAndZeroFieldArrayMinMax()
 
     MakeList(this->PointDataName, char *, iNumPointArrays);
     if (this->PointDataName == NULL) goto doneError5;
-    }
+  }
 
   this->NumPointArrays = iNumPointArrays;
 
@@ -2594,9 +2594,9 @@ void vtkPKdTree::FreeFieldArrayMinMax()
 void vtkPKdTree::ReleaseTables()
 {
   if (this->RegionAssignment != UserDefinedAssignment)
-    {
+  {
     this->FreeRegionAssignmentLists();
-    }
+  }
   this->FreeProcessDataLists();
   this->FreeFieldArrayMinMax();
 }
@@ -2624,19 +2624,19 @@ int vtkPKdTree::CreateProcessCellCountData()
   int fail = this->AllocateAndZeroProcessDataLists();
 
   if (!fail && !this->Top)
-    {
+  {
     fail = 1;
-    }
+  }
 
   if (this->AllCheckForFailure(fail,
                                "BuildRegionProcessTables",
                                "memory allocation"))
-    {
+  {
     this->FreeProcessDataLists();
     this->SubGroup->Delete();
     this->SubGroup = NULL;
     return 1;
-    }
+  }
 
   // Build table indicating which processes have data for which regions
 
@@ -2645,24 +2645,24 @@ int vtkPKdTree::CreateProcessCellCountData()
   fail = (cellCounts == NULL);
 
   if (this->AllCheckForFailure(fail,"BuildRegionProcessTables","error"))
-    {
+  {
     goto doneError4;
-    }
+  }
 
   myData = this->DataLocationMap + (this->MyId * this->GetNumberOfRegions());
 
   for (reg=0; reg < this->GetNumberOfRegions(); reg++)
-    {
+  {
     if (cellCounts[reg] > 0) myData[reg] = 1;
-    }
+  }
 
   if (this->NumProcesses > 1)
-    {
+  {
     this->SubGroup->Gather(myData, this->DataLocationMap,
                          this->GetNumberOfRegions(), 0);
     this->SubGroup->Broadcast(this->DataLocationMap,
                     this->GetNumberOfRegions() * this->NumProcesses, 0);
-    }
+  }
 
   // Other helpful tables - not the fastest way to create this
   //   information, but it uses the least memory
@@ -2670,63 +2670,63 @@ int vtkPKdTree::CreateProcessCellCountData()
   procData = this->DataLocationMap;
 
   for (proc=0; proc<this->NumProcesses; proc++)
-    {
+  {
     for (reg=0; reg < this->GetNumberOfRegions(); reg++)
-      {
+    {
       if (*procData)
-        {
+      {
         this->NumProcessesInRegion[reg]++;
         this->NumRegionsInProcess[proc]++;
-        }
-      procData++;
       }
+      procData++;
     }
+  }
   for (reg=0; reg < this->GetNumberOfRegions(); reg++)
-    {
+  {
     int nprocs = this->NumProcessesInRegion[reg];
 
     if (nprocs > 0)
-      {
+    {
       this->ProcessList[reg] = new int [nprocs];
       this->ProcessList[reg][0] = -1;
       this->CellCountList[reg] = new vtkIdType [nprocs];
       this->CellCountList[reg][0] = -1;
-      }
     }
+  }
   for (proc=0; proc < this->NumProcesses; proc++)
-    {
+  {
     int nregs = this->NumRegionsInProcess[proc];
 
     if (nregs > 0)
-      {
+    {
       this->RegionList[proc] = new int [nregs];
       this->RegionList[proc][0] = -1;
-      }
     }
+  }
 
   procData = this->DataLocationMap;
 
   for (proc=0; proc<this->NumProcesses; proc++)
-    {
+  {
 
     for (reg=0; reg < this->GetNumberOfRegions(); reg++)
     {
       if (*procData)
-        {
+      {
         this->AddEntry(this->ProcessList[reg],
                        this->NumProcessesInRegion[reg], proc);
 
         this->AddEntry(this->RegionList[proc],
                        this->NumRegionsInProcess[proc], reg);
-        }
-      procData++;
       }
+      procData++;
     }
+  }
 
   // Cell counts per process per region
 
   if (this->NumProcesses > 1)
-    {
+  {
     tempbuf = new int [this->GetNumberOfRegions() * this->NumProcesses];
 
     fail = (tempbuf == NULL);
@@ -2734,34 +2734,34 @@ int vtkPKdTree::CreateProcessCellCountData()
     if (this->AllCheckForFailure(fail,
                                  "BuildRegionProcessTables",
                                  "memory allocation"))
-      {
+    {
       goto doneError4;
-      }
+    }
 
     this->SubGroup->Gather(cellCounts, tempbuf, this->GetNumberOfRegions(), 0);
     this->SubGroup->Broadcast(tempbuf,
                               this->NumProcesses*this->GetNumberOfRegions(),
                               0);
-    }
+  }
   else
-    {
+  {
     tempbuf = cellCounts;
-    }
+  }
 
   for (proc=0; proc<this->NumProcesses; proc++)
-    {
+  {
     int *procCount = tempbuf + (proc * this->GetNumberOfRegions());
 
     for (reg=0; reg < this->GetNumberOfRegions(); reg++)
-      {
+    {
       if (procCount[reg]> 0)
-        {
+      {
         this->AddEntry(this->CellCountList[reg],
                           this->NumProcessesInRegion[reg],
                           procCount[reg]);
-        }
       }
     }
+  }
 
   goto done4;
 
@@ -2773,9 +2773,9 @@ doneError4:
 done4:
 
   if (tempbuf != cellCounts)
-    {
+  {
     FreeList(tempbuf);
-    }
+  }
 
   FreeList(cellCounts);
   this->SubGroup->Delete();
@@ -2794,20 +2794,20 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
   this->SubGroup = NULL;
 
   if (this->NumProcesses > 1)
-    {
+  {
     this->SubGroup = vtkSubGroup::New();
     this->SubGroup->Initialize(0, this->NumProcesses-1,
                this->MyId, 0x0000f000, this->Controller->GetCommunicator());
-    }
+  }
 
   int fail = this->AllocateAndZeroFieldArrayMinMax();
 
   if (this->AllCheckForFailure(fail, "BuildFieldArrayMinMax", "memory allocation"))
-    {
+  {
     this->FreeFieldArrayMinMax();
     FreeObject(this->SubGroup);
     return 1;
-    }
+  }
 
   TIMER("Get global ranges");
 
@@ -2820,13 +2820,13 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
   // each process input the datasets in the same order.
 
   if (this->NumCellArrays > 0)
-    {
+  {
     for (set=0; set < this->GetNumberOfDataSets(); set++)
-      {
+    {
       int ncellarrays = this->GetDataSet(set)->GetCellData()->GetNumberOfArrays();
 
       for (ar=0; ar<ncellarrays; ar++)
-        {
+      {
         vtkDataArray *array = this->GetDataSet(set)->GetCellData()->GetArray(ar);
 
         array->GetRange(range);
@@ -2836,27 +2836,27 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
         this->CellDataName[nc] = vtkPKdTree::StrDupWithNew(array->GetName());
         nc++;
-        }
       }
+    }
 
     if (this->NumProcesses > 1)
-      {
+    {
       this->SubGroup->ReduceMin(this->CellDataMin, this->CellDataMin, nc, 0);
       this->SubGroup->Broadcast(this->CellDataMin, nc, 0);
 
       this->SubGroup->ReduceMax(this->CellDataMax, this->CellDataMax, nc, 0);
       this->SubGroup->Broadcast(this->CellDataMax, nc, 0);
-      }
     }
+  }
 
   if (this->NumPointArrays > 0)
-    {
+  {
     for (set=0; set < this->GetNumberOfDataSets(); set++)
-      {
+    {
       int npointarrays = this->GetDataSet(set)->GetPointData()->GetNumberOfArrays();
 
       for (ar=0; ar<npointarrays; ar++)
-        {
+      {
         vtkDataArray *array = this->GetDataSet(set)->GetPointData()->GetArray(ar);
 
         array->GetRange(range);
@@ -2866,18 +2866,18 @@ int vtkPKdTree::CreateGlobalDataArrayBounds()
 
         this->PointDataName[np] = StrDupWithNew(array->GetName());
         np++;
-        }
       }
+    }
 
     if (this->NumProcesses > 1)
-      {
+    {
       this->SubGroup->ReduceMin(this->PointDataMin, this->PointDataMin, np, 0);
       this->SubGroup->Broadcast(this->PointDataMin, np, 0);
 
       this->SubGroup->ReduceMax(this->PointDataMax, this->PointDataMax, np, 0);
       this->SubGroup->Broadcast(this->PointDataMax, np, 0);
-      }
     }
+  }
 
   TIMERDONE("Get global ranges");
 
@@ -2894,10 +2894,10 @@ int *vtkPKdTree::CollectLocalRegionProcessData()
   MakeList(cellCounts, int, numRegions);
 
   if (!cellCounts)
-    {
+  {
      VTKERROR("CollectLocalRegionProcessData - memory allocation");
      return NULL;
-    }
+  }
 
   TIMER("Get cell regions");
 
@@ -2906,28 +2906,28 @@ int *vtkPKdTree::CollectLocalRegionProcessData()
   TIMERDONE("Get cell regions");
 
   for (int set=0; set < this->GetNumberOfDataSets(); set++)
-    {
+  {
     int ncells = this->GetDataSet(set)->GetNumberOfCells();
 
     TIMER("Increment cell counts");
 
     for (int i=0; i<ncells; i++)
-      {
+    {
       int regionId = IDs[i];
 
       if ( (regionId < 0) || (regionId >= numRegions))
-        {
+      {
         VTKERROR("CollectLocalRegionProcessData - corrupt data");
         delete [] cellCounts;
         return NULL;
-        }
-      cellCounts[regionId]++;
       }
+      cellCounts[regionId]++;
+    }
 
     IDs += ncells;
 
     TIMERDONE("Increment cell counts");
-    }
+  }
 
   return cellCounts;
 }
@@ -2964,46 +2964,46 @@ int vtkPKdTree::BinarySearch(vtkIdType *list, int len, vtkIdType which)
   mid = -1;
 
   if (len <= 3)
-    {
+  {
     for (int i=0; i<len; i++)
-      {
+    {
       if (list[i] == which)
-        {
+      {
         mid=i;
         break;
-        }
       }
     }
+  }
   else
-    {
+  {
     mid = len >> 1;
     left = 0;
     right = len-1;
 
     while (list[mid] != which)
-      {
+    {
       if (list[mid] < which)
-        {
+      {
         left = mid+1;
-        }
+      }
       else
-        {
+      {
         right = mid-1;
-        }
+      }
 
       if (right > left+1)
-        {
+      {
         mid = (left + right) >> 1;
-        }
+      }
       else
-        {
+      {
         if (list[left] == which) mid = left;
         else if (list[right] == which) mid = right;
         else mid = -1;
         break;
-        }
       }
     }
+  }
   return mid;
 }
 //--------------------------------------------------------------------
@@ -3015,13 +3015,13 @@ int vtkPKdTree::UpdateRegionAssignment()
   int returnVal = 0;
 
   if (this->RegionAssignment== ContiguousAssignment)
-    {
+  {
     returnVal = this->AssignRegionsContiguous();
-    }
+  }
   else if (this->RegionAssignment== RoundRobinAssignment)
-    {
+  {
     returnVal = this->AssignRegionsRoundRobin();
-    }
+  }
 
   return returnVal;
 }
@@ -3030,9 +3030,9 @@ int vtkPKdTree::AssignRegionsRoundRobin()
   this->RegionAssignment = RoundRobinAssignment;
 
   if (this->Top == NULL)
-    {
+  {
     return 0;
-    }
+  }
 
   int nProcesses = this->NumProcesses;
   int nRegions = this->GetNumberOfRegions();
@@ -3040,17 +3040,17 @@ int vtkPKdTree::AssignRegionsRoundRobin()
   int fail = this->AllocateAndZeroRegionAssignmentLists();
 
   if (fail)
-    {
+  {
     return 1;
-    }
+  }
 
   for (int i=0, procID=0; i<nRegions; i++)
-    {
+  {
     this->RegionAssignmentMap[i] = procID;
     this->NumRegionsAssigned[procID]++;
 
     procID = ( (procID == nProcesses-1) ? 0 : procID+1);
-    }
+  }
   this->BuildRegionListsForProcesses();
 
   return 0;
@@ -3060,26 +3060,26 @@ int vtkPKdTree::AssignRegions(int *map, int len)
   int fail = this->AllocateAndZeroRegionAssignmentLists();
 
   if (fail)
-    {
+  {
     return 1;
-    }
+  }
 
   this->RegionAssignmentMapLength = len;
 
   this->RegionAssignment = UserDefinedAssignment;
 
   for (int i=0; i<len; i++)
-    {
+  {
     if ( (map[i] < 0) || (map[i] >= this->NumProcesses))
-      {
+    {
       this->FreeRegionAssignmentLists();
       VTKERROR("AssignRegions - invalid process id " << map[i]);
       return 1;
-      }
+    }
 
     this->RegionAssignmentMap[i] = map[i];
     this->NumRegionsAssigned[map[i]]++;
-    }
+  }
 
   this->BuildRegionListsForProcesses();
 
@@ -3094,10 +3094,10 @@ void vtkPKdTree::AddProcessRegions(int procId, vtkKdNode *kd)
   int nLeafNodes = leafNodeIds->GetNumberOfTuples();
 
   for (int n=0; n<nLeafNodes; n++)
-    {
+  {
     this->RegionAssignmentMap[leafNodeIds->GetValue(n)] = procId;
     this->NumRegionsAssigned[procId]++;
-    }
+  }
 
   leafNodeIds->Delete();
 }
@@ -3108,83 +3108,83 @@ int vtkPKdTree::AssignRegionsContiguous()
   this->RegionAssignment = ContiguousAssignment;
 
   if (this->Top == NULL)
-    {
+  {
     return 0;
-    }
+  }
 
   int nProcesses = this->NumProcesses;
   int nRegions = this->GetNumberOfRegions();
 
   if (nRegions <= nProcesses)
-    {
+  {
     this->AssignRegionsRoundRobin();
     this->RegionAssignment = ContiguousAssignment;
     return 0;
-    }
+  }
 
   int fail = this->AllocateAndZeroRegionAssignmentLists();
 
   if (fail)
-    {
+  {
     return 1;
-    }
+  }
 
   int floorLogP, ceilLogP;
 
   for (floorLogP = 0; (nProcesses >> floorLogP) > 0; floorLogP++)
-    {
+  {
     // empty loop.
-    }
+  }
   floorLogP--;
 
   int P = 1 << floorLogP;
 
   if (nProcesses == P)
-    {
+  {
     ceilLogP = floorLogP;
-    }
+  }
   else
-    {
+  {
     ceilLogP = floorLogP + 1;
-    }
+  }
 
   vtkKdNode **nodes = new vtkKdNode* [P];
 
   this->GetRegionsAtLevel(floorLogP, nodes);
 
   if (floorLogP == ceilLogP)
-    {
+  {
     for (p=0; p<nProcesses; p++)
-      {
-      this->AddProcessRegions(p, nodes[p]);
-      }
-    }
-  else
     {
+      this->AddProcessRegions(p, nodes[p]);
+    }
+  }
+  else
+  {
     int nodesLeft = 1 << ceilLogP;
     int procsLeft = nProcesses;
     int procId = 0;
 
     for (int i=0; i<P; i++)
-      {
+    {
       if (nodesLeft > procsLeft)
-        {
+      {
         this->AddProcessRegions(procId, nodes[i]);
 
         procsLeft -= 1;
         procId    += 1;
-        }
+      }
       else
-        {
+      {
         this->AddProcessRegions(procId, nodes[i]->GetLeft());
         this->AddProcessRegions(procId+1, nodes[i]->GetRight());
 
         procsLeft -= 2;
         procId    += 2;
-        }
-      nodesLeft -= 2;
       }
+      nodesLeft -= 2;
     }
+  }
 
   delete [] nodes;
 
@@ -3197,30 +3197,30 @@ void vtkPKdTree::BuildRegionListsForProcesses()
   int *count = new int [this->NumProcesses];
 
   for (int p=0; p<this->NumProcesses; p++)
-    {
+  {
     int nregions = this->NumRegionsAssigned[p];
 
     if (nregions > 0)
-      {
+    {
       this->ProcessAssignmentMap[p] = new int [nregions];
-      }
+    }
     else
-      {
+    {
       this->ProcessAssignmentMap[p] = NULL;
-      }
-
-    count[p] = 0;
     }
 
+    count[p] = 0;
+  }
+
   for (int r=0; r<this->RegionAssignmentMapLength; r++)
-    {
+  {
     int proc = this->RegionAssignmentMap[r];
     int next = count[proc];
 
     this->ProcessAssignmentMap[proc][next] = r;
 
     count[proc] = next + 1;
-    }
+  }
 
   delete [] count;
 }
@@ -3237,13 +3237,13 @@ int vtkPKdTree::FindNextLocalArrayIndex(const char *n,
   // normally a very small list, maybe 1 to 5 names
 
   for (int i=start; i<len; i++)
-    {
+  {
     if (!strncmp(n, names[i], nsize))
-      {
+    {
       index = i;
       break;
-      }
     }
+  }
   return index;
 }
 int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
@@ -3253,7 +3253,7 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
   int start = 0;
 
   while (1)
-    {
+  {
     // Cell array name may appear more than once if multiple datasets
     // were processed.
 
@@ -3261,25 +3261,25 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char *n, double range[2])
                   (const char **)this->CellDataName, this->NumCellArrays, start);
 
     if (index >= 0)
-      {
+    {
       if (first)
-        {
+      {
         this->GetCellArrayGlobalRange(index, range);
         first = 0;
-        }
+      }
       else
-        {
+      {
         this->GetCellArrayGlobalRange(index, tmp);
         range[0] = (tmp[0] < range[0]) ? tmp[0] : range[0];
         range[1] = (tmp[1] > range[1]) ? tmp[1] : range[1];
-        }
+      }
       start = index + 1;
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   int fail = (first != 0);
 
@@ -3292,10 +3292,10 @@ int vtkPKdTree::GetCellArrayGlobalRange(const char *n, float range[2])
   int fail = this->GetCellArrayGlobalRange(n, tmp);
 
   if (!fail)
-    {
+  {
     range[0] = (float)tmp[0];
     range[1] = (float)tmp[1];
-    }
+  }
 
   return fail;
 }
@@ -3306,7 +3306,7 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, double range[2])
   int start = 0;
 
   while (1)
-    {
+  {
     // Point array name may appear more than once if multiple datasets
     // were processed.
 
@@ -3314,25 +3314,25 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, double range[2])
                   (const char **)this->PointDataName, this->NumPointArrays, start);
 
     if (index >= 0)
-      {
+    {
       if (first)
-        {
+      {
         this->GetPointArrayGlobalRange(index, range);
         first = 0;
-        }
+      }
       else
-        {
+      {
         this->GetPointArrayGlobalRange(index, tmp);
         range[0] = (tmp[0] < range[0]) ? tmp[0] : range[0];
         range[1] = (tmp[1] > range[1]) ? tmp[1] : range[1];
-        }
+      }
       start = index + 1;
-      }
-    else
-      {
-      break;
-      }
     }
+    else
+    {
+      break;
+    }
+  }
 
   int fail = (first != 0);
 
@@ -3345,10 +3345,10 @@ int vtkPKdTree::GetPointArrayGlobalRange(const char *n, float range[2])
   int fail = this->GetPointArrayGlobalRange(n, tmp);
 
   if (!fail)
-    {
+  {
     range[0] = (float)tmp[0];
     range[1] = (float)tmp[1];
-    }
+  }
 
   return fail;
 }
@@ -3357,18 +3357,18 @@ int vtkPKdTree::GetCellArrayGlobalRange(int arrayIndex, float range[2])
   double tmp[2];
   int fail = this->GetCellArrayGlobalRange(arrayIndex, tmp);
   if (!fail)
-    {
+  {
     range[0] = (float)tmp[0];
     range[1] = (float)tmp[1];
-    }
+  }
   return fail;
 }
 int vtkPKdTree::GetCellArrayGlobalRange(int arrayIndex, double range[2])
 {
   if ((arrayIndex < 0) || (arrayIndex >= this->NumCellArrays))
-    {
+  {
     return 1;
-    }
+  }
   if (this->CellDataMin == NULL) return 1;
 
   range[0] = this->CellDataMin[arrayIndex];
@@ -3381,18 +3381,18 @@ int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, float range[2])
   double tmp[2];
   int fail = this->GetPointArrayGlobalRange(arrayIndex, tmp);
   if (!fail)
-    {
+  {
     range[0] = (float)tmp[0];
     range[1] = (float)tmp[1];
-    }
+  }
   return fail;
 }
 int vtkPKdTree::GetPointArrayGlobalRange(int arrayIndex, double range[2])
 {
   if ((arrayIndex < 0) || (arrayIndex >= this->NumPointArrays))
-    {
+  {
     return 1;
-    }
+  }
   if (this->PointDataMin == NULL) return 1;
 
   range[0] = this->PointDataMin[arrayIndex];
@@ -3418,7 +3418,7 @@ int vtkPKdTree::ViewOrderAllProcessesInDirection(const double dop[3],
   // produces the wrong result
 
   for (int r=0; r<this->GetNumberOfRegions(); )
-    {
+  {
     int procId = this->RegionAssignmentMap[regionList->GetValue(r)];
 
     orderedList->SetValue(nextId++, procId);
@@ -3426,7 +3426,7 @@ int vtkPKdTree::ViewOrderAllProcessesInDirection(const double dop[3],
     int nregions = this->NumRegionsAssigned[procId];
 
     r += nregions;
-    }
+  }
 
   regionList->Delete();
 
@@ -3450,7 +3450,7 @@ int vtkPKdTree::ViewOrderAllProcessesFromPosition(const double pos[3],
   // produces the wrong result
 
   for (int r=0; r<this->GetNumberOfRegions(); )
-    {
+  {
     int procId = this->RegionAssignmentMap[regionList->GetValue(r)];
 
     orderedList->SetValue(nextId++, procId);
@@ -3458,7 +3458,7 @@ int vtkPKdTree::ViewOrderAllProcessesFromPosition(const double pos[3],
     int nregions = this->NumRegionsAssigned[procId];
 
     r += nregions;
-    }
+  }
 
   regionList->Delete();
 
@@ -3468,20 +3468,20 @@ int vtkPKdTree::ViewOrderAllProcessesFromPosition(const double pos[3],
 int vtkPKdTree::GetRegionAssignmentList(int procId, vtkIntArray *list)
 {
   if ( (procId < 0) || (procId >= this->NumProcesses))
-    {
+  {
     VTKERROR("GetRegionAssignmentList - invalid process id");
     return 0;
-    }
+  }
 
   if (!this->RegionAssignmentMap)
-    {
+  {
     this->UpdateRegionAssignment();
 
     if (!this->RegionAssignmentMap)
-      {
+    {
       return 0;
-      }
     }
+  }
 
   int nregions = this->NumRegionsAssigned[procId];
   int *regionIds = this->ProcessAssignmentMap[procId];
@@ -3490,9 +3490,9 @@ int vtkPKdTree::GetRegionAssignmentList(int procId, vtkIntArray *list)
   list->SetNumberOfValues(nregions);
 
   for (int i=0; i<nregions; i++)
-    {
+  {
     list->SetValue(i, regionIds[i]);
-    }
+  }
 
   return nregions;
 }
@@ -3505,7 +3505,7 @@ void vtkPKdTree::GetAllProcessesBorderingOnPoint(float x, float y, float z,
   list->Initialize();
 
   for (int procId = 0; procId < this->NumProcesses; procId++)
-    {
+  {
     this->GetRegionAssignmentList(procId, regions);
 
     int nSubRegions = this->MinimalNumberOfConvexSubRegions(
@@ -3514,21 +3514,21 @@ void vtkPKdTree::GetAllProcessesBorderingOnPoint(float x, float y, float z,
     double *b = subRegionBounds;
 
     for (int r=0; r<nSubRegions; r++)
-      {
+    {
       if ((((x == b[0]) || (x == b[1])) &&
            ((y >= b[2]) && (y <= b[3]) && (z >= b[4]) && (z <= b[5]))) ||
           (((y == b[2]) || (y == b[3])) &&
            ((x >= b[0]) && (x <= b[1]) && (z >= b[4]) && (z <= b[5]))) ||
           (((z == b[4]) || (z == b[5])) &&
            ((x >= b[0]) && (x <= b[1]) && (y >= b[2]) && (y <= b[3]))) )
-        {
+      {
         list->InsertNextValue(procId);
         break;
-        }
+      }
 
       b += 6;
-      }
     }
+  }
 
   regions->Delete();
 }
@@ -3537,9 +3537,9 @@ int vtkPKdTree::GetProcessAssignedToRegion(int regionId)
 {
   if ( !this->RegionAssignmentMap ||
        (regionId < 0) || (regionId >= this->GetNumberOfRegions()))
-    {
+  {
     return -1;
-    }
+  }
 
   return this->RegionAssignmentMap[regionId];
 }
@@ -3548,10 +3548,10 @@ int vtkPKdTree::HasData(int processId, int regionId)
   if ((!this->DataLocationMap) ||
       (processId < 0) || (processId >= this->NumProcesses) ||
       (regionId < 0) || (regionId >= this->GetNumberOfRegions())   )
-    {
+  {
     VTKERROR("HasData - invalid request");
     return 0;
-    }
+  }
 
   int where = this->GetNumberOfRegions() * processId + regionId;
 
@@ -3562,10 +3562,10 @@ int vtkPKdTree::GetTotalProcessesInRegion(int regionId)
 {
   if (!this->NumProcessesInRegion ||
       (regionId < 0) || (regionId >= this->GetNumberOfRegions())   )
-    {
+  {
     VTKERROR("GetTotalProcessesInRegion - invalid request");
     return 0;
-    }
+  }
 
   return this->NumProcessesInRegion[regionId];
 }
@@ -3574,17 +3574,17 @@ int vtkPKdTree::GetProcessListForRegion(int regionId, vtkIntArray *processes)
 {
   if (!this->ProcessList ||
       (regionId < 0) || (regionId >= this->GetNumberOfRegions())   )
-    {
+  {
     VTKERROR("GetProcessListForRegion - invalid request");
     return 0;
-    }
+  }
 
   int nProcesses = this->NumProcessesInRegion[regionId];
 
   for (int i=0; i<nProcesses; i++)
-    {
+  {
     processes->InsertNextValue(this->ProcessList[regionId][i]);
-    }
+  }
 
   return nProcesses;
 }
@@ -3593,19 +3593,19 @@ int vtkPKdTree::GetProcessesCellCountForRegion(int regionId, int *count, int len
 {
   if (!this->CellCountList ||
       (regionId < 0) || (regionId >= this->GetNumberOfRegions())   )
-    {
+  {
     VTKERROR("GetProcessesCellCountForRegion - invalid request");
     return 0;
-    }
+  }
 
   int nProcesses = this->NumProcessesInRegion[regionId];
 
   nProcesses = (len < nProcesses) ? len : nProcesses;
 
   for (int i=0; i<nProcesses; i++)
-    {
+  {
     count[i] = this->CellCountList[regionId][i];
-    }
+  }
 
   return nProcesses;
 }
@@ -3617,23 +3617,23 @@ int vtkPKdTree::GetProcessCellCountForRegion(int processId, int regionId)
   if (!this->CellCountList ||
       (regionId < 0) || (regionId >= this->GetNumberOfRegions()) ||
       (processId < 0) || (processId >= this->NumProcesses))
-    {
+  {
     VTKERROR("GetProcessCellCountForRegion - invalid request");
     return 0;
-    }
+  }
 
   int nProcesses = this->NumProcessesInRegion[regionId];
 
   int which = -1;
 
   for (int i=0; i<nProcesses; i++)
-    {
+  {
     if (this->ProcessList[regionId][i] == processId)
-      {
+    {
       which = i;
       break;
-      }
     }
+  }
 
   if (which == -1) nCells = 0;
   else             nCells = this->CellCountList[regionId][which];
@@ -3645,10 +3645,10 @@ int vtkPKdTree::GetTotalRegionsForProcess(int processId)
 {
   if ((!this->NumRegionsInProcess) ||
       (processId < 0) || (processId >= this->NumProcesses))
-    {
+  {
     VTKERROR("GetTotalRegionsForProcess - invalid request");
     return 0;
-    }
+  }
 
   return this->NumRegionsInProcess[processId];
 }
@@ -3657,17 +3657,17 @@ int vtkPKdTree::GetRegionListForProcess(int processId, vtkIntArray *regions)
 {
   if (!this->RegionList ||
       (processId < 0) || (processId >= this->NumProcesses))
-    {
+  {
     VTKERROR("GetRegionListForProcess - invalid request");
     return 0;
-    }
+  }
 
   int nRegions = this->NumRegionsInProcess[processId];
 
   for (int i=0; i<nRegions; i++)
-    {
+  {
     regions->InsertNextValue(this->RegionList[processId][i]);
-    }
+  }
 
   return nRegions;
 }
@@ -3675,37 +3675,37 @@ int vtkPKdTree::GetRegionsCellCountForProcess(int processId, int *count, int len
 {
   if (!this->CellCountList ||
       (processId < 0) || (processId >= this->NumProcesses))
-    {
+  {
     VTKERROR("GetRegionsCellCountForProcess - invalid request");
     return 0;
-    }
+  }
 
   int nRegions = this->NumRegionsInProcess[processId];
 
   nRegions = (len < nRegions) ? len : nRegions;
 
   for (int i=0; i<nRegions; i++)
-    {
+  {
     int regionId = this->RegionList[processId][i];
     int iam;
 
     for (iam = 0; iam < this->NumProcessesInRegion[regionId]; iam++)
-      {
+    {
       if (this->ProcessList[regionId][iam] == processId) break;
-      }
+    }
 
     count[i] = this->CellCountList[regionId][iam];
-    }
+  }
   return nRegions;
 }
 vtkIdType vtkPKdTree::GetCellListsForProcessRegions(int processId,
           int set, vtkIdList *inRegionCells, vtkIdList *onBoundaryCells)
 {
   if ( (set < 0) || (set >= this->GetNumberOfDataSets()))
-    {
+  {
     vtkErrorMacro(<<"vtkPKdTree::GetCellListsForProcessRegions no such data set");
     return 0;
-    }
+  }
   return this->GetCellListsForProcessRegions(processId,
             this->GetDataSet(set), inRegionCells, onBoundaryCells);
 }
@@ -3722,9 +3722,9 @@ vtkIdType vtkPKdTree::GetCellListsForProcessRegions(int processId,
   vtkIdType totalCells = 0;
 
   if ( (inRegionCells == NULL) && (onBoundaryCells == NULL))
-    {
+  {
     return totalCells;
-    }
+  }
 
   // Get the list of regions owned by this process
 
@@ -3734,13 +3734,13 @@ vtkIdType vtkPKdTree::GetCellListsForProcessRegions(int processId,
 
   if (nregions == 0){
     if (inRegionCells)
-      {
+    {
       inRegionCells->Initialize();
-      }
+    }
     if (onBoundaryCells)
-      {
+    {
       onBoundaryCells->Initialize();
-      }
+    }
     regions->Delete();
     return totalCells;
   }
@@ -3756,10 +3756,10 @@ void vtkPKdTree::PrintTiming(ostream& os, vtkIndent indent)
   os << indent << "Total cells in distributed data: " << this->TotalNumCells << endl;
 
   if (this->NumProcesses)
-    {
+  {
     os << indent << "Average cells per processor: " ;
     os << this->TotalNumCells / this->NumProcesses << endl;
-    }
+  }
   vtkTimerLog::DumpLogWithIndents(&os, (float)0.0);
 }
 void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
@@ -3769,7 +3769,7 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
   int r,p,n;
 
   if (this->RegionAssignmentMap)
-    {
+  {
     int *map = this->RegionAssignmentMap;
     int *num = this->NumRegionsAssigned;
     int halfr = this->RegionAssignmentMapLength/2;
@@ -3777,75 +3777,75 @@ void vtkPKdTree::PrintTables(ostream & os, vtkIndent indent)
 
     os << indent << "Region assignments:" << endl;
     for (r=0; r < halfr; r++)
-      {
+    {
       os << indent << "  region " << r << " to process " << map[r] ;
       os << "    region " << r+halfr << " to process " << map[r+halfr] ;
       os << endl;
-      }
+    }
     for (p=0; p < halfp; p++)
-      {
+    {
       os << indent << "  " << num[p] << " regions to process " << p ;
       os << "    " << num[p+halfp] << " regions to process " << p+ halfp ;
       os << endl;
-      }
+    }
     if (nprocs > halfp*2)
-      {
+    {
       os << indent << "  " << num[nprocs-1];
       os << " regions to process " << nprocs-1 << endl ;
-      }
     }
+  }
 
   if (this->ProcessList)
-    {
+  {
     os << indent << "Processes holding data for each region:" << endl;
     for (r=0; r<nregions; r++)
-      {
+    {
       n = this->NumProcessesInRegion[r];
 
       os << indent << " region " << r << " (" << n << " processes): ";
 
       for (p=0; p<n; p++)
-        {
+      {
         if (p && (p%10==0)) os << endl << indent << "   ";
         os << this->ProcessList[r][p] << " " ;
-        }
-      os << endl;
       }
+      os << endl;
     }
+  }
   if (this->RegionList)
-    {
+  {
     os << indent << "Regions held by each process:" << endl;
     for (p=0; p<nprocs; p++)
-      {
+    {
       n = this->NumRegionsInProcess[p];
 
       os << indent << " process " << p << " (" << n << " regions): ";
 
       for (r=0; r<n; r++)
-        {
+      {
         if (r && (r%10==0)) os << endl << indent << "   ";
         os << this->RegionList[p][r] << " " ;
-        }
-      os << endl;
       }
+      os << endl;
     }
+  }
   if (this->CellCountList)
-    {
+  {
     os << indent << "Number of cells per process per region:" << endl;
     for (r=0; r<nregions; r++)
-      {
+    {
       n = this->NumProcessesInRegion[r];
 
       os << indent << " region: " << r << "  ";
       for (p=0; p<n; p++)
-        {
+      {
         if (p && (p%5==0)) os << endl << indent << "   ";
         os << this->ProcessList[r][p] << " - ";
         os << this->CellCountList[r][p] << " cells, ";
-        }
-      os << endl;
       }
+      os << endl;
     }
+  }
 }
 
 char *vtkPKdTree::StrDupWithNew(const char *s)
@@ -3853,19 +3853,19 @@ char *vtkPKdTree::StrDupWithNew(const char *s)
   char *newstr = NULL;
 
   if (s)
-    {
+  {
     size_t len = strlen(s);
     if (len == 0)
-      {
+    {
       newstr = new char [1];
       newstr[0] = '\0';
-      }
+    }
     else
-      {
+    {
       newstr = new char [len + 1];
       strcpy(newstr, s);
-      }
     }
+  }
 
   return newstr;
 }

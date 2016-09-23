@@ -88,7 +88,7 @@ public:
   {
     vtkProp3DCollection *props = this->Picker->GetProp3Ds();
     if (props->GetNumberOfItems() != 0)
-      {
+    {
       // If anything was picked during the fast area pick, do a more detailed
       // pick.
       vtkNew<vtkHardwareSelector> selector;
@@ -105,7 +105,7 @@ public:
       this->SetIdArrays(result);
       this->DumpMolSelection();
       result->Delete();
-      }
+    }
   }
 
   // Set the ids for the atom/bond selection
@@ -125,16 +125,16 @@ public:
     cerr << "\n### Selection ###\n";
     cerr << "Atoms: ";
     for (vtkIdType i = 0; i < this->AtomIds->GetNumberOfTuples(); i++)
-      {
+    {
       cerr << this->AtomIds->GetValue(i) << " ";
-      }
+    }
     cerr << "\nBonds: ";
     for (vtkIdType i = 0; i < this->BondIds->GetNumberOfTuples(); i++)
-      {
+    {
       vtkBond bond = mol->GetBond(this->BondIds->GetValue(i));
       cerr << bond.GetId() << " (" << bond.GetBeginAtomId() << "-"
            << bond.GetEndAtomId() << ") ";
-      }
+    }
     cerr << endl;
   }
 };
@@ -238,9 +238,9 @@ int TestMoleculeSelection(int argc, char *argv[])
   // Interact if desired
   int retVal = vtkRegressionTestImage(win.GetPointer());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Verify pick
   if (com->GetAtomIds()->GetNumberOfTuples() < 4 ||
@@ -257,11 +257,11 @@ int TestMoleculeSelection(int argc, char *argv[])
       com->GetBondIds()->GetValue(5) != 13 ||
       com->GetBondIds()->GetValue(6) != 16 ||
       com->GetBondIds()->GetValue(7) != 17 )
-    {
+  {
     cerr << "Incorrect atoms/bonds picked! (if any picks were performed inter"
             "actively this could be ignored).\n";
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -160,30 +160,30 @@ void vtkOpenGLSphereMapper::SetCameraShaderParameters(
   vtkMatrix4x4 *vcdc;
   cam->GetKeyMatrices(ren,wcvc,norms,vcdc,wcdc);
   if (program->IsUniformUsed("VCDCMatrix"))
-    {
+  {
     program->SetUniformMatrix("VCDCMatrix", vcdc);
-    }
+  }
 
   if (program->IsUniformUsed("MCVCMatrix"))
-    {
+  {
     if (!actor->GetIsIdentity())
-      {
+    {
       vtkMatrix4x4 *mcwc;
       vtkMatrix3x3 *anorms;
       ((vtkOpenGLActor *)actor)->GetKeyMatrices(mcwc,anorms);
       vtkMatrix4x4::Multiply4x4(mcwc, wcvc, this->TempMatrix4);
       program->SetUniformMatrix("MCVCMatrix", this->TempMatrix4);
-      }
-    else
-      {
-      program->SetUniformMatrix("MCVCMatrix", wcvc);
-      }
     }
+    else
+    {
+      program->SetUniformMatrix("MCVCMatrix", wcvc);
+    }
+  }
 
   if (program->IsUniformUsed("cameraParallel"))
-    {
+  {
     cellBO.Program->SetUniformi("cameraParallel", cam->GetParallelProjection());
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -194,20 +194,20 @@ void vtkOpenGLSphereMapper::SetMapperShaderParameters(
   if (cellBO.IBO->IndexCount && (this->VBOBuildTime > cellBO.AttributeUpdateTime ||
       cellBO.ShaderSourceTime > cellBO.AttributeUpdateTime) &&
       cellBO.Program->IsAttributeUsed("offsetMC"))
-    {
+  {
     cellBO.VAO->Bind();
     if (!cellBO.VAO->AddAttributeArray(cellBO.Program, this->VBO,
                                     "offsetMC", this->VBO->ColorOffset+sizeof(float),
                                     this->VBO->Stride, VTK_FLOAT, 2, false))
-      {
+    {
       vtkErrorMacro(<< "Error setting 'offsetMC' in shader VAO.");
-      }
     }
+  }
 
   if (cellBO.Program->IsUniformUsed("invertedDepth"))
-    {
+  {
     cellBO.Program->SetUniformf("invertedDepth", this->Invert ? -1.0 : 1.0);
-    }
+  }
 
   this->Superclass::SetMapperShaderParameters(cellBO,ren,actor);
 }
@@ -251,7 +251,7 @@ void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
   float cos30 = cos(vtkMath::RadiansFromDegrees(30.0));
 
   for (vtkIdType i = 0; i < numPts; ++i)
-    {
+  {
     pointPtr = points + i*3;
     colorPtr = colors + i*colorComponents;
     float radius = sizes[i];
@@ -277,7 +277,7 @@ void vtkOpenGLSphereMapperCreateVBO(float * points, vtkIdType numPts,
     *(it++) = *reinterpret_cast<float *>(colorPtr);
     *(it++) = 0.0f;
     *(it++) = 2.0f*radius;
-    }
+  }
   VBO->Upload(VBO->PackedVBO, vtkOpenGLBufferObject::ArrayBuffer);
   VBO->VertexCount = numPts*3;
   return;
@@ -293,9 +293,9 @@ bool vtkOpenGLSphereMapper::GetNeedToRebuildBufferObjects(
   if (this->VBOBuildTime < this->GetMTime() ||
       this->VBOBuildTime < act->GetMTime() ||
       this->VBOBuildTime < this->CurrentInput->GetMTime())
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -307,9 +307,9 @@ void vtkOpenGLSphereMapper::BuildBufferObjects(
   vtkPolyData *poly = this->CurrentInput;
 
   if (poly == NULL)// || !poly->GetPointData()->GetNormals())
-    {
+  {
     return;
-    }
+  }
 
   // For vertex coloring, this sets this->Colors as side effect.
   // For texture map coloring, this sets ColorCoordinates
@@ -346,11 +346,11 @@ void vtkOpenGLSphereMapper::Render(vtkRenderer *ren, vtkActor *act)
 
   // if we are transparent (and not backface culling) we have to draw twice
   if (!is_opaque && !prop->GetBackfaceCulling())
-    {
+  {
     this->Invert = true;
     this->Superclass::Render(ren,act);
     this->Invert = false;
-    }
+  }
   this->Superclass::Render(ren,act);
 }
 
@@ -359,10 +359,10 @@ void vtkOpenGLSphereMapper::RenderPieceDraw(vtkRenderer* ren, vtkActor *actor)
 {
   // draw polygons
   if (this->Tris.IBO->IndexCount)
-    {
+  {
     // First we do the triangles, update the shader, set uniforms, etc.
     this->UpdateShaders(this->Tris, ren, actor);
     glDrawArrays(GL_TRIANGLES, 0,
                 static_cast<GLuint>(this->VBO->VertexCount));
-    }
+  }
 }

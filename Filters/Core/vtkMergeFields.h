@@ -103,16 +103,16 @@ public:
     char* FieldName;
     Component* Next;   // linked list
     void SetName(const char* name)
-      {
+    {
         delete[] this->FieldName;
         this->FieldName = 0;
         if (name)
-          {
+        {
           size_t len = strlen(name)+1;
           this->FieldName = new char[len];
           strncpy(this->FieldName, name, len);
-          }
-      }
+        }
+    }
     Component() { FieldName = 0; }
     ~Component() { delete[] FieldName; }
   };

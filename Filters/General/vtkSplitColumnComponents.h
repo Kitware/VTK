@@ -59,12 +59,12 @@ public:
   //@}
 
   enum
-    {
+  {
     NUMBERS_WITH_PARENS = 0,    // e.g Points (0)
     NAMES_WITH_PARENS = 1,      // e.g. Points (X)
     NUMBERS_WITH_UNDERSCORES=2, // e.g. Points_0
     NAMES_WITH_UNDERSCORES=3    // e.g. Points_X
-    };
+  };
 
   //@{
   /**

@@ -68,33 +68,33 @@ int TestSmartPointer(int,char *[])
   testbits = (testbits << 1) | ((da1 > 0) ? 1 : 0);
   testbits = (testbits << 1) | ((da1 >= 0) ? 1 : 0);
   if (testbits != correctbits)
-    {
+  {
     unsigned int diffbits = (testbits ^ correctbits);
     int bitcount = 0;
     while (tests[bitcount] != NULL)
-      {
+    {
       bitcount++;
-      }
-    for (int ib = 0; ib < bitcount; ++ib)
-      {
-      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
-        {
-        cerr << "comparison (" << tests[ib] << ") failed!\n";
-        }
-      }
-    rval = 1;
     }
+    for (int ib = 0; ib < bitcount; ++ib)
+    {
+      if (((diffbits >> (bitcount - ib - 1)) & 1) != 0)
+      {
+        cerr << "comparison (" << tests[ib] << ") failed!\n";
+      }
+    }
+    rval = 1;
+  }
 
   (*da1).SetNumberOfComponents(1);
   if(da2)
-    {
+  {
     da2->SetNumberOfComponents(1);
-    }
+  }
   if(!da2)
-    {
+  {
     cerr << "da2 is NULL!" << "\n";
     rval = 1;
-    }
+  }
   cout << "IntArray: " << da2 << "\n";
   da1 = vtkSmartPointer<vtkDataArray>::NewInstance(ia);
   da1.TakeReference(vtkIntArray::New());

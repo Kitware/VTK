@@ -70,10 +70,10 @@ public:
    * Set the root spacing
    */
   void SetRootSpacing(double h0)
-    {
+  {
     this->RootSpacing[0]=this->RootSpacing[1]=this->RootSpacing[2]=h0;
     this->Modified();
-    }
+  }
   //@}
 
   //@{
@@ -130,24 +130,24 @@ protected:
    * supplied parameters for pulse width and origin.
    */
   double ComputePulseAt(const double x, const double y, const double z)
-    {
+  {
     double xyz[3]; xyz[0]=x; xyz[1]=y; xyz[2]=z;
     return( this->ComputePulseAt(xyz) );
-    }
+  }
   double ComputePulseAt( double pt[3] )
-    {
+  {
     double pulse = 0.0;
     double r  = 0.0;
     for( int i=0; i < this->Dimension; ++i )
-      {
+    {
       double d  = pt[i]-this->PulseOrigin[i];
       double d2 = d*d;
       double L2 = this->PulseWidth[i]*this->PulseWidth[i];
       r += d2/L2;
-      }
+    }
     pulse = this->PulseAmplitude*std::exp( -r );
     return( pulse );
-    }
+  }
   //@}
 
   /**

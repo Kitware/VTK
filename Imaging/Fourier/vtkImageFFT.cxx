@@ -97,10 +97,10 @@ void vtkImageFFTExecute(vtkImageFFT *self,
   // Input has to have real components at least.
   numberOfComponents = inData->GetNumberOfScalarComponents();
   if (numberOfComponents < 1)
-    {
+  {
     vtkGenericWarningMacro("No real components");
     return;
-    }
+  }
 
   // Allocate the arrays of complex numbers
   inComplex = new vtkImageComplex[inSize0];
@@ -114,33 +114,33 @@ void vtkImageFFTExecute(vtkImageFFT *self,
   inPtr2 = inPtr;
   outPtr2 = outPtr;
   for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = outMin1; !self->AbortExecute && idx1 <= outMax1; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
+        {
           self->UpdateProgress(count/(50.0*target) + startProgress);
-          }
-        count++;
         }
+        count++;
+      }
       // copy into complex numbers
       inPtr0 = inPtr1;
       pComplex = inComplex;
       for (idx0 = inMin0; idx0 <= inMax0; ++idx0)
-        {
+      {
         pComplex->Real = static_cast<double>(*inPtr0);
         pComplex->Imag = 0.0;
         if (numberOfComponents > 1)
-          { // yes we have an imaginary input
+        { // yes we have an imaginary input
           pComplex->Imag = static_cast<double>(inPtr0[1]);;
-          }
+        }
         inPtr0 += inInc0;
         ++pComplex;
-        }
+      }
 
       // Call the method that performs the fft
       self->ExecuteFft(inComplex, outComplex, inSize0);
@@ -149,18 +149,18 @@ void vtkImageFFTExecute(vtkImageFFT *self,
       outPtr0 = outPtr1;
       pComplex = outComplex + (outMin0 - inMin0);
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-        {
+      {
         *outPtr0 = static_cast<double>(pComplex->Real);
         outPtr0[1] = static_cast<double>(pComplex->Imag);
         outPtr0 += outInc0;
         ++pComplex;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 
   delete [] inComplex;
   delete [] outComplex;
@@ -193,22 +193,22 @@ void vtkImageFFT::ThreadedRequestData(
 
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: Output must be be type double.");
     return;
-    }
+  }
 
   // this filter expects input to have 1 or two components
   if (outData->GetNumberOfScalarComponents() != 1 &&
       outData->GetNumberOfScalarComponents() != 2)
-    {
+  {
     vtkErrorMacro(<< "Execute: Cannot handle more than 2 components");
     return;
-    }
+  }
 
   // choose which templated function to call.
   switch (inData->GetScalarType())
-    {
+  {
     vtkTemplateMacro(vtkImageFFTExecute(this, inData, inExt,
                                         static_cast<VTK_TT *>(inPtr), outData,
                                         outExt,
@@ -217,5 +217,5 @@ void vtkImageFFT::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }

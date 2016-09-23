@@ -277,9 +277,9 @@ public:
    * correct reader for this file
    */
   virtual int CanReadFile(const char* vtkNotUsed(fname))
-    {
+  {
       return 0;
-    }
+  }
 
   /**
    * Get the file extensions for this format.
@@ -287,18 +287,18 @@ public:
    * the format .extension
    */
   virtual const char* GetFileExtensions()
-    {
+  {
       return 0;
-    }
+  }
 
   //@{
   /**
    * Return a descriptive name for the file format that might be useful in a GUI.
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return 0;
-    }
+  }
 protected:
   vtkImageReader2();
   ~vtkImageReader2();

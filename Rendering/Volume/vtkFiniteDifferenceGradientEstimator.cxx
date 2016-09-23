@@ -99,7 +99,7 @@ void vtkComputeGradients(
   // this slab starts on, and the z limit of this slab (one past the
   // end of the slab)
   if ( useBounds )
-    {
+  {
     estimator->GetBounds( bounds );
     x_start = bounds[0];
     x_limit = bounds[1]+1;
@@ -111,9 +111,9 @@ void vtkComputeGradients(
     z_limit = static_cast<int>(
       ( (thread_id + 1) / static_cast<float>(thread_count) ) *
       (bounds[5]-bounds[4]+1) ) + bounds[4];
-    }
+  }
   else
-    {
+  {
     x_start = 0;
     x_limit = size[0];
     y_start = 0;
@@ -122,7 +122,7 @@ void vtkComputeGradients(
       ( thread_id /static_cast<float>(thread_count) ) * size[2] );
     z_limit = static_cast<int>(
       ( (thread_id + 1) / static_cast<float>(thread_count) ) * size[2] );
-    }
+  }
 
   // Do final error checking on limits - make sure they are all within bounds
   // of the scalar input
@@ -144,19 +144,19 @@ void vtkComputeGradients(
   // Loop through all the data and compute the encoded normal and
   // gradient magnitude for each scalar location
   for ( z = z_start; z < z_limit; z++ )
-    {
+  {
     for ( y = y_start; y < y_limit; y++ )
-      {
+    {
       if ( useClip )
-        {
+      {
         xlow = ((clip[2*y])>x_start)?(clip[2*y]):(x_start);
         xhigh = ((clip[2*y+1]+1)<x_limit)?(clip[2*y+1]+1):(x_limit);
-        }
+      }
       else
-        {
+      {
         xlow = x_start;
         xhigh = x_limit;
-        }
+      }
       offset = z * zstep + y * ystep + xlow;
 
       // Set some pointers
@@ -165,7 +165,7 @@ void vtkComputeGradients(
       gptr = estimator->GradientMagnitudes + offset;
 
       for ( x = xlow; x < xhigh; x++ )
-        {
+      {
 
         // Use a central difference method if possible,
         // otherwise use a forward or backward difference if
@@ -173,87 +173,87 @@ void vtkComputeGradients(
 
         // Compute the X component
         if ( x < estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
+          {
             n[0] = -(static_cast<float>(*(dptr+xstep)));
-            }
+          }
           else
-            {
+          {
             n[0] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+xstep)));
-            }
           }
+        }
         else if ( x >= size[0] - estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
-            n[0] =  static_cast<float>(*(dptr-xstep));
-            }
-          else
-            {
-            n[0] = 2.0*(static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr)));
-            }
-          }
-        else
           {
-          n[0] = static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr+xstep));
+            n[0] =  static_cast<float>(*(dptr-xstep));
           }
+          else
+          {
+            n[0] = 2.0*(static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr)));
+          }
+        }
+        else
+        {
+          n[0] = static_cast<float>(*(dptr-xstep)) - static_cast<float>(*(dptr+xstep));
+        }
 
         // Compute the Y component
         if ( y < estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
+          {
             n[1] = -static_cast<float>(*(dptr+ystep));
-            }
+          }
           else
-            {
+          {
             n[1] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+ystep)));
-            }
           }
+        }
         else if ( y >= size[1] - estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
-            n[1] =  static_cast<float>(*(dptr-ystep));
-            }
-          else
-            {
-            n[1] = 2.0*(static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr)));
-            }
-          }
-        else
           {
-          n[1] = static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr+ystep));
+            n[1] =  static_cast<float>(*(dptr-ystep));
           }
+          else
+          {
+            n[1] = 2.0*(static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr)));
+          }
+        }
+        else
+        {
+          n[1] = static_cast<float>(*(dptr-ystep)) - static_cast<float>(*(dptr+ystep));
+        }
 
         // Compute the Z component
         if ( z < estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
+          {
             n[2] = -static_cast<float>(*(dptr+zstep));
-            }
+          }
           else
-            {
+          {
             n[2] = 2.0*(static_cast<float>(*(dptr)) - static_cast<float>(*(dptr+zstep)));
-            }
           }
+        }
         else if ( z >= size[2] - estimator->SampleSpacingInVoxels )
-          {
+        {
           if ( zeroPad )
-            {
-            n[2] =  static_cast<float>(*(dptr-zstep));
-            }
-          else
-            {
-            n[2] = 2.0*(static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr)));
-            }
-          }
-        else
           {
-          n[2] = static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr+zstep));
+            n[2] =  static_cast<float>(*(dptr-zstep));
           }
+          else
+          {
+            n[2] = 2.0*(static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr)));
+          }
+        }
+        else
+        {
+          n[2] = static_cast<float>(*(dptr-zstep)) - static_cast<float>(*(dptr+zstep));
+        }
 
         // Take care of the aspect ratio of the data
         // Scaling in the vtkVolume is isotropic, so this is the
@@ -266,45 +266,45 @@ void vtkComputeGradients(
         t = sqrt( static_cast<double>( n[0]*n[0] + n[1]*n[1] + n[2]*n[2] ) );
 
         if ( computeGradientMagnitudes )
-          {
+        {
           // Encode this into an 8 bit value
           gvalue = (t + bias) * scale;
 
           if ( gvalue < 0.0 )
-            {
+          {
             *gptr = 0;
-            }
-          else if ( gvalue > 255.0 )
-            {
-            *gptr = 255;
-            }
-          else
-            {
-            *gptr = static_cast<unsigned char>(gvalue);
-            }
-          gptr++;
           }
+          else if ( gvalue > 255.0 )
+          {
+            *gptr = 255;
+          }
+          else
+          {
+            *gptr = static_cast<unsigned char>(gvalue);
+          }
+          gptr++;
+        }
 
         // Normalize the gradient direction
         if ( t > zeroNormalThreshold )
-          {
+        {
           n[0] /= t;
           n[1] /= t;
           n[2] /= t;
-          }
+        }
         else
-          {
+        {
           n[0] = n[1] = n[2] = 0.0;
-          }
+        }
 
         // Convert the gradient direction into an encoded index value
         *nptr = direction_encoder->GetEncodedDirection( n );
         nptr++;
         dptr++;
 
-        }
       }
     }
+  }
 }
 
 // Construct a vtkFiniteDifferenceGradientEstimator
@@ -332,15 +332,15 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
   scalars = estimator->InputData->GetPointData()->GetScalars();
 
   if (scalars == NULL)
-    {
+  {
     return VTK_THREAD_RETURN_VALUE;
-    }
+  }
 
   // Find the data type of the Input and call the correct
   // templated function to actually compute the normals and magnitudes
 
   switch ( scalars->GetDataType() )
-    {
+  {
     vtkTemplateMacro(
       vtkComputeGradients(estimator,
                           static_cast<VTK_TT*>(scalars->GetVoidPointer(0)),
@@ -348,7 +348,7 @@ static VTK_THREAD_RETURN_TYPE vtkSwitchOnDataType( void *arg )
       );
     default:
       vtkGenericWarningMacro("unable to encode scalar type!");
-    }
+  }
 
   return VTK_THREAD_RETURN_VALUE;
 }

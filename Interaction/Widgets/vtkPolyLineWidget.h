@@ -44,10 +44,10 @@ public:
    * vtkProp so it can be added to the renderer independent of the widget.
    */
   void SetRepresentation(vtkPolyLineRepresentation *r)
-    {
+  {
     this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(r));
-    }
+  }
 
   /**
    * Create the default widget representation if one is not set. By default,

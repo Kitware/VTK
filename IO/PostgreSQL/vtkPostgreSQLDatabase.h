@@ -147,13 +147,13 @@ public:
    */
   virtual void SetServerPort( int );
   virtual int GetServerPortMinValue()
-    {
+  {
     return 0;
-    }
+  }
   virtual int GetServerPortMaxValue()
-    {
+  {
     return VTK_INT_MAX;
-    }
+  }
   vtkGetMacro(ServerPort, int);
   //@}
 
@@ -267,21 +267,21 @@ private:
     if ( this->name && _arg && (!strcmp(this->name,_arg))) { return;} \
     delete [] this->name; \
     if (_arg) \
-      { \
+    { \
           size_t n = strlen(_arg) + 1; \
           char *cp1 =  new char[n]; \
           const char *cp2 = (_arg); \
           this->name = cp1; \
           do { *cp1++ = *cp2++; } while ( --n ); \
-      } \
+    } \
      else \
-      { \
+     { \
           this->name = NULL; \
-      } \
+     } \
     this->Modified(); \
     this->timeStamp.Modified(); \
     this->Close(); /* Force a re-open on next query */ \
-    }
+  }
 
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,HostName,URLMTime);
 vtkSetStringPlusMTimeMacro(vtkPostgreSQLDatabase,User,URLMTime);
@@ -293,12 +293,12 @@ inline void vtkPostgreSQLDatabase::SetServerPort( int _arg )
 {
   vtkDebugMacro(<< this->GetClassName() << " (" << this << "): setting ServerPort to " << _arg );
   if ( this->ServerPort != ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) ) )
-    {
+  {
     this->ServerPort = ( _arg < 0 ? 0 : ( _arg > VTK_INT_MAX ? VTK_INT_MAX : _arg ) );
     this->Modified();
     this->URLMTime.Modified();
     this->Close(); // Force a re-open on next query
-    }
+  }
 }
 
 #endif // vtkPostgreSQLDatabase_h

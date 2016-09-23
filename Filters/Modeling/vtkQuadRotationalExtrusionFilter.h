@@ -83,11 +83,11 @@ class VTKFILTERSMODELING_EXPORT vtkQuadRotationalExtrusionFilter : public vtkMul
   static vtkQuadRotationalExtrusionFilter *New();
 
   enum RotationAxis
-    {
+  {
       USE_X = 0,
       USE_Y = 1,
       USE_Z = 2
-    };
+  };
 
   //@{
   /**

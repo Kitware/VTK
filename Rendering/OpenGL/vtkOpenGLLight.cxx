@@ -38,14 +38,14 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
   float dz = this->FocalPoint[2] - this->Position[2];
 
   if (this->TransformMatrix)
-    {
+  {
     double mat[16];
     vtkMatrix4x4::Transpose(*this->TransformMatrix->Element, mat);
 
     // code assumes that we're already in GL_MODELVIEW matrix mode
     glPushMatrix();
     glMultMatrixd(mat);
-    }
+  }
 
   color[0] = this->Intensity * this->AmbientColor[0];
   color[1] = this->Intensity * this->AmbientColor[1];
@@ -65,7 +65,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
 
   // define the light source
   if (!this->Positional)
-    {
+  {
     info[0] = -dx;
     info[1] = -dy;
     info[2] = -dz;
@@ -75,9 +75,9 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
     glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180.f);
 
     glLightfv(static_cast<GLenum>(light_index), GL_POSITION, info);
-    }
+  }
   else
-    {
+  {
     // specify position and attenuation
     info[0] = this->Position[0];
     info[1] = this->Position[1];
@@ -94,7 +94,7 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
 
     // set up spot parameters if necessary
     if (this->ConeAngle < 180.0)
-      {
+    {
       info[0] = dx;
       info[1] = dy;
       info[2] = dz;
@@ -103,17 +103,17 @@ void vtkOpenGLLight::Render(vtkRenderer *vtkNotUsed(ren), int light_index)
                this->Exponent);
       glLightf(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF,
                this->ConeAngle);
-      }
-    else
-      {
-      glLighti(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180);
-      }
     }
+    else
+    {
+      glLighti(static_cast<GLenum>(light_index), GL_SPOT_CUTOFF, 180);
+    }
+  }
 
   if (this->TransformMatrix)
-    {
+  {
     glPopMatrix();
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }

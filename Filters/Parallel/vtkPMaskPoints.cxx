@@ -29,9 +29,9 @@ vtkPMaskPoints::vtkPMaskPoints()
   vtkSmartPointer<vtkMultiProcessController> controller =
     vtkMultiProcessController::GetGlobalController();
   if (!controller)
-    {
+  {
     controller = vtkSmartPointer<vtkDummyController>::New();
-    }
+  }
   this->SetController(controller.GetPointer());
 }
 
@@ -46,34 +46,34 @@ void vtkPMaskPoints::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->GetController())
-    {
+  {
     os << indent << "Controller: " << this->GetController() << std::endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Controller: (null)" << std::endl;;
-    }
+  }
 }
 
 void vtkPMaskPoints::SetController(vtkMultiProcessController *c)
 {
   if(this->Controller == c)
-    {
+  {
     return;
-    }
+  }
 
   this->Modified();
 
   if(this->Controller != 0)
-    {
+  {
     this->Controller->UnRegister(this);
     this->Controller = 0;
-    }
+  }
 
   if(c == 0)
-    {
+  {
     return;
-    }
+  }
 
   this->Controller = c;
   c->Register(this);

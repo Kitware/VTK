@@ -34,9 +34,9 @@ int TestScalarsToColorsPainterFieldData(int argc, char* argv[])
 {
   vtkIdType tupleId = -1;
   if (argc > 1)
-    {
+  {
     tupleId = atoi(argv[1]);
-    }
+  }
 
   // Set up sphere source
   vtkNew<vtkSphereSource> sphere;
@@ -53,10 +53,10 @@ int TestScalarsToColorsPainterFieldData(int argc, char* argv[])
   newArray->SetNumberOfComponents(1);
   newArray->SetNumberOfTuples(pd->GetNumberOfCells());
   for (vtkIdType i = 0; i < pd->GetNumberOfCells(); ++i)
-    {
+  {
     float value = static_cast<float>(i);
     newArray->SetTuple(i, &value);
-    }
+  }
 
   fd->AddArray(newArray.GetPointer());
 
@@ -91,9 +91,9 @@ int TestScalarsToColorsPainterFieldData(int argc, char* argv[])
   // Compare image
   int retVal = vtkRegressionTestImage(renWin.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

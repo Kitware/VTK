@@ -162,12 +162,12 @@ public:
   PointEntry(int size);
 
   ~PointEntry()
-    {
+  {
       delete[] this->Scalar;
-    }
+  }
 
   PointEntry(const PointEntry &other)
-    {
+  {
     this->PointId  = other.PointId;
 
     memcpy(this->Coord,other.Coord,sizeof(double)*3);
@@ -177,12 +177,12 @@ public:
     this->Scalar = new double[c];
     memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
     this->Reference = other.Reference;
-    }
+  }
 
   PointEntry& operator=(const PointEntry &other)
-    {
+  {
     if(this != &other)
-      {
+    {
       this->PointId  = other.PointId;
 
       memcpy(this->Coord, other.Coord, sizeof(double)*3);
@@ -190,16 +190,16 @@ public:
       int c = other.numberOfComponents;
 
       if(this->numberOfComponents!=c)
-        {
+      {
         delete[] this->Scalar;
         this->Scalar = new double[c];
         this->numberOfComponents = c;
-        }
+      }
       memcpy(this->Scalar, other.Scalar, sizeof(double)*c);
       this->Reference = other.Reference;
-      }
-    return *this;
     }
+    return *this;
+  }
 };
 
 class EdgeEntry
@@ -214,14 +214,14 @@ public:
   vtkIdType CellId; //CellId the edge refer to at a step in tesselation
 
   EdgeEntry()
-    {
+  {
     this->Reference = 0;
     this->CellId = -1;
-    }
+  }
   ~EdgeEntry() {}
 
   EdgeEntry(const EdgeEntry& copy)
-    {
+  {
     this->E1 = copy.E1;
     this->E2 = copy.E2;
 
@@ -229,14 +229,14 @@ public:
     this->ToSplit = copy.ToSplit;
     this->PtId = copy.PtId;
     this->CellId = copy.CellId;
-    }
+  }
 
   EdgeEntry& operator=(const EdgeEntry& entry)
-    {
+  {
     if(this == &entry)
-      {
+    {
       return *this;
-      }
+    }
     this->E1 = entry.E1;
     this->E2 = entry.E2;
     this->Reference = entry.Reference;
@@ -244,7 +244,7 @@ public:
     this->PtId = entry.PtId;
     this->CellId = entry.CellId;
     return *this;
-    }
+  }
 };
 
 protected:

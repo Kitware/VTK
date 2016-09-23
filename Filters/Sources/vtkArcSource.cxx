@@ -103,9 +103,9 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
   vtkInformation* outInfo = outputVector->GetInformationObject( 0 );
 
   if ( outInfo->Get( vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER() ) > 0 )
-    {
+  {
     return 1;
-    }
+  }
 
   // get the ouptut
   vtkPolyData* output
@@ -119,29 +119,29 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
   double perpendicular[3];
   double v1[3];
   if ( this->UseNormalAndAngle )
-    {
+  {
     // Retrieve angle, which is specified with this API
     angle = vtkMath::RadiansFromDegrees( this->Angle );
 
     // Retrieve polar vector, which is specified with this API
     for ( int i = 0; i < 3; ++ i )
-      {
+    {
       v1[i] = this->PolarVector[i];
-      }
+    }
 
     // Calculate perpendicular vector with normal which is specified with this API
     vtkMath::Cross( this->Normal, this->PolarVector, perpendicular );
 
     // Calculate radius
     radius = vtkMath::Normalize( v1 );
-    }
+  }
   else // if ( this->UseNormalAndAngle )
-    {
+  {
     // Compute the cross product of the two vectors.
     for ( int i = 0; i < 3; ++ i )
-      {
+    {
       v1[i] = this->Point1[i] - this->Center[i];
-      }
+    }
 
     double v2[3] = { this->Point2[0] - this->Center[0],
                      this->Point2[1] - this->Center[1],
@@ -154,13 +154,13 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
       vtkMath::Dot( v1, v2 ) / ( vtkMath::Norm( v1 ) * vtkMath::Norm( v2 ) );
     angle = acos( dotprod );
     if ( this->Negative )
-      {
+    {
       angle -= (2.0 * vtkMath::Pi());
-      }
+    }
 
     // Calcute radius
     radius = vtkMath::Normalize( v1 );
-    } // else
+  } // else
 
   // Calcute angle increment
   double angleInc = angle / this->Resolution;
@@ -173,13 +173,13 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPoints->Allocate( numPts );
   vtkFloatArray *newTCoords = vtkFloatArray::New();
@@ -192,7 +192,7 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
   double theta = 0.0;
   // Iterate over angle increments
   for ( int i = 0; i <= this->Resolution; ++ i, theta += angleInc )
-    {
+  {
     const double cosine = cos(theta);
     const double sine = sin(theta);
     double p[3] =
@@ -203,13 +203,13 @@ int vtkArcSource::RequestData( vtkInformation* vtkNotUsed(request),
     tc[0] = static_cast<double>( i ) / this->Resolution;
     newPoints->InsertPoint( i ,p );
     newTCoords->InsertTuple( i, tc );
-    }
+  }
 
   newLines->InsertNextCell( numPts );
   for ( int k = 0; k < numPts; ++ k )
-    {
+  {
     newLines->InsertCellPoint( k );
-    }
+  }
 
   output->SetPoints( newPoints );
   newPoints->Delete();

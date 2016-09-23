@@ -222,9 +222,9 @@ private:
   GetRootProcessGroup()
   {
     if (!root_process_group)
-      {
+    {
       root_process_group = new boost::graph::distributed::mpi_process_group();
-      }
+    }
     return *root_process_group;
   }
 
@@ -297,60 +297,60 @@ vtkPBGLDistributedGraphHelper::AddVertexInternal(vtkVariantArray *propertyArr,
   vtkIdType owner = -1;
 
   if (peds != NULL)
-    {
+  {
     vtkIdType pedIdx = this->Graph->GetVertexData()->SetPedigreeIds(peds);
     vtkVariant pedigreeId = propertyArr->GetValue(pedIdx);
     owner = this->GetVertexOwnerByPedigreeId(pedigreeId);
-    }
+  }
 
   if ((peds != NULL) && (owner == rank))
-    {
+  {
     // This little dance keeps us from having to make
     // vtkPBGLDistributedGraphHelper a friend of vtkGraph. It also
     // makes sure that users don't try to be sneaky about adding
     // vertices to non-mutable vtkGraphs.
     if (vtkMutableDirectedGraph *graph
           = vtkMutableDirectedGraph::SafeDownCast(this->Graph))
-      {
+    {
         if (vertex)
-          {
+        {
           *vertex = graph->AddVertex(propertyArr);
-          }
+        }
         else
-          {
+        {
           graph->LazyAddVertex(propertyArr);
-          }
-      }
+        }
+    }
     else if (vtkMutableUndirectedGraph *graph
                = vtkMutableUndirectedGraph::SafeDownCast(this->Graph))
-      {
+    {
         if (vertex)
-          {
+        {
           *vertex = graph->AddVertex(propertyArr);
-          }
+        }
         else
-          {
+        {
           graph->LazyAddVertex(propertyArr);
-          }
-      }
-    else
-      {
-      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
-      }
-    return;
+        }
     }
+    else
+    {
+      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
+    }
+    return;
+  }
 
   if (vertex)
-    {
+  {
     // Request immediate addition of the vertex, with a reply.
     send_oob_with_reply(this->Internals->process_group, owner,
                         ADD_VERTEX_PROPS_WITH_REPLY_TAG, propertyArr, *vertex);
-    }
+  }
   else
-    {
+  {
     // Request addition of the vertex, eventually.
     send(this->Internals->process_group, owner, ADD_VERTEX_PROPS_NO_REPLY_TAG, propertyArr);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -364,53 +364,53 @@ vtkPBGLDistributedGraphHelper::AddVertexInternal(const vtkVariant& pedigreeId,
   vtkIdType owner = this->GetVertexOwnerByPedigreeId(pedigreeId);
 
   if (owner == rank)
-    {
+  {
     // This little dance keeps us from having to make
     // vtkPBGLDistributedGraphHelper a friend of vtkGraph. It also
     // makes sure that users don't try to be sneaky about adding
     // vertices to non-mutable vtkGraphs.
     if (vtkMutableDirectedGraph *graph
           = vtkMutableDirectedGraph::SafeDownCast(this->Graph))
-      {
+    {
         if (vertex)
-          {
+        {
           *vertex = graph->AddVertex(pedigreeId);
-          }
+        }
         else
-          {
+        {
           graph->LazyAddVertex(pedigreeId);
-          }
-      }
+        }
+    }
     else if (vtkMutableUndirectedGraph *graph
                = vtkMutableUndirectedGraph::SafeDownCast(this->Graph))
-      {
+    {
         if (vertex)
-          {
+        {
           *vertex = graph->AddVertex(pedigreeId);
-          }
+        }
         else
-          {
+        {
           graph->LazyAddVertex(pedigreeId);
-          }
-      }
-    else
-      {
-      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
-      }
-    return;
+        }
     }
+    else
+    {
+      vtkErrorMacro("Cannot add vertices to a non-mutable, distributed graph");
+    }
+    return;
+  }
 
   if (vertex)
-    {
+  {
     // Request immediate addition of the vertex, with a reply.
     send_oob_with_reply(this->Internals->process_group, owner,
                         ADD_VERTEX_WITH_REPLY_TAG, pedigreeId, *vertex);
-    }
+  }
   else
-    {
+  {
     // Request addition of the vertex, eventually.
     send(this->Internals->process_group, owner, ADD_VERTEX_NO_REPLY_TAG, pedigreeId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -435,17 +435,17 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
        << "edge=" << edge
        << ")" << endl;
   if(propertyArr)
-    {
+  {
     cout << "[" << rank << "]\t-\tpropertyArr: NumberOfValues="
          << propertyArr->GetNumberOfValues() << endl;
     cout << "[" << rank << "]\t-\tpropertyArr: NumberOfArrays="
          << this->Graph->GetEdgeData()->GetNumberOfArrays() << endl;
-    }
+  }
   fflush(stdout);
 #endif
 
   if (uOwner == rank)
-    {
+  {
     // The source of the edge is local.
     vtkGraphInternals* GraphInternals = this->Graph->GetGraphInternals(true);
 
@@ -453,28 +453,28 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
     vtkIdType edgeId = this->MakeDistributedId(rank, GraphInternals->NumberOfEdges);
 
     if (propertyArr)      // Add edge properties
-      {
+    {
       vtkDataSetAttributes *edgeData = this->Graph->GetEdgeData();
       int numProps = propertyArr->GetNumberOfValues();   // # of properties = # of arrays
 
       assert(numProps == edgeData->GetNumberOfArrays());
       for (int iprop=0; iprop<numProps; iprop++)
-        {
+      {
         vtkAbstractArray* arr = edgeData->GetAbstractArray(iprop);
         if (vtkArrayDownCast<vtkDataArray>(arr))
-          {
+        {
           vtkArrayDownCast<vtkDataArray>(arr)->InsertNextTuple1(propertyArr->GetPointer(iprop)->ToDouble());
-          }
+        }
         else if (vtkArrayDownCast<vtkStringArray>(arr))
-          {
+        {
           vtkArrayDownCast<vtkStringArray>(arr)->InsertNextValue(propertyArr->GetPointer(iprop)->ToString());
-          }
+        }
         else
-          {
+        {
           vtkErrorMacro("Unsupported array type");
-          }
         }
       }
+    }
 
     // Add the forward edge.
     GraphInternals->Adjacency[this->GetVertexIndex(uDistributedId)]
@@ -485,22 +485,22 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
 
     int vOwner = this->GetVertexOwner(vDistributedId);
     if (vOwner == rank)
-      {
+    {
         // The target vertex is local. Add the appropriate back edge.
         if (directed)
-          {
+        {
           GraphInternals->Adjacency[this->GetVertexIndex(vDistributedId)]
             .InEdges.push_back(vtkInEdgeType(uDistributedId, edgeId));
-          }
+        }
         else if (uDistributedId != vDistributedId)
-          {
+        {
           // Avoid storing self-loops twice in undirected graphs
           GraphInternals->Adjacency[this->GetVertexIndex(vDistributedId)]
             .OutEdges.push_back(vtkOutEdgeType(uDistributedId, edgeId));
-          }
-      }
+        }
+    }
     else
-      {
+    {
       #if defined(DEBUG)      // WCMCLEN
       cout << "[" << rank << "]\tsend("
            << "{"<<this->GetVertexOwner(uDistributedId)<<":"<<this->GetVertexIndex(uDistributedId)<<"}, "
@@ -516,18 +516,18 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
            directed ? ADD_DIRECTED_BACK_EDGE_TAG
                     : ADD_UNDIRECTED_BACK_EDGE_TAG,
            vtkEdgeType(uDistributedId, vDistributedId, edgeId));
-      }
+    }
 
     if (edge)
-      {
-      *edge = vtkEdgeType(uDistributedId, vDistributedId, edgeId);
-      }
-    }
-  else  // uOwner != rank
     {
+      *edge = vtkEdgeType(uDistributedId, vDistributedId, edgeId);
+    }
+  }
+  else  // uOwner != rank
+  {
     // The source of the edge is non-local.
     if (edge)
-      {
+    {
       // Send an AddEdge request to the owner of "u", and wait
       // patiently for the reply.
       #if defined(DEBUG)      // WCMCLEN
@@ -544,9 +544,9 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
                          : ADD_UNDIRECTED_EDGE_WITH_REPLY_TAG,
                 EdgeIIMessageBundle(uDistributedId,vDistributedId,propertyArr),
                 *edge);
-      }
+    }
     else
-      {
+    {
       // We're adding a remote edge, but we don't need to wait
       // until the edge has been added. Just send a message to the
       // owner of the source; we don't need (or want) a reply.
@@ -563,8 +563,8 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
            directed? ADD_DIRECTED_EDGE_NO_REPLY_TAG
                    : ADD_UNDIRECTED_EDGE_NO_REPLY_TAG,
            EdgeIIMessageBundle(uDistributedId, vDistributedId, propertyArr));
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -589,18 +589,18 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 #endif
 
   if (uOwner == rank)
-    {
+  {
     // Resolve the pedigreeId for u immediately and add the edge locally.
     vtkIdType uDistributedId;
     this->AddVertexInternal(uPedigreeId, &uDistributedId);
     uDistributedId = this->MakeDistributedId(rank, uDistributedId);
     this->AddEdgeInternal(uDistributedId, vDistributedId, directed, propertyArr, edge);
     return;
-    }
+  }
 
   // Edge is remote: request its addition.
   if (edge)
-    {
+  {
     #if defined(DEBUG)      // WCMCLEN
     cout << "[" << rank << "]\tsend_oob_with_reply("
          << uPedigreeId.ToString()
@@ -615,9 +615,9 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
                                  : ADD_UNDIRECTED_EDGE_NI_WITH_REPLY_TAG,
                         EdgeNIMessageBundle(uPedigreeId,vDistributedId,propertyArr),
                         *edge);
-    }
+  }
   else
-    {
+  {
     #if defined(DEBUG)      // WCMCLEN
       cout << "[" << rank << "]\tsend("
            << uPedigreeId.ToString()
@@ -631,7 +631,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
         directed ? ADD_DIRECTED_EDGE_NI_NO_REPLY_TAG
                  : ADD_UNDIRECTED_EDGE_NI_NO_REPLY_TAG,
         EdgeNIMessageBundle(uPedigreeId, vDistributedId, propertyArr));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -658,14 +658,14 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(vtkIdType uDistributedId,
 #endif
 
   if (vOwner == rank || edge)
-    {
+  {
     // Resolve the pedigree ID for v immediately and add the edge.
     vtkIdType vDistributedId;
     this->AddVertexInternal(vPedigreeId, &vDistributedId);
     vDistributedId=this->MakeDistributedId(vOwner,vDistributedId);  // pass vOwner, NOT rank
     this->AddEdgeInternal(uDistributedId, vDistributedId, directed, propertyArr, edge);
     return;
-    }
+  }
 
   // v is remote and we don't care when the edge is added. Ask the
   // owner of v to resolve the pedigree ID of v and add the edge.
@@ -706,7 +706,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 #endif
 
   if (uOwner == rank)
-    {
+  {
     // Resolve the pedigree ID for u immediately and add the edge.
     vtkIdType u;
     this->AddVertexInternal(uPedigreeId, &u);
@@ -718,11 +718,11 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 #endif
     this->AddEdgeInternal(uDistributedId, vPedigreeId, directed, propertyArr, edge);
     return;
-    }
+  }
 
   vtkIdType vOwner = this->GetVertexOwnerByPedigreeId(vPedigreeId);
   if (vOwner == rank || edge)
-    {
+  {
     // Resolve the pedigree ID for v immediately and add the edge.
     vtkIdType vLocalIndex;
     this->AddVertexInternal(vPedigreeId, &vLocalIndex);
@@ -733,7 +733,7 @@ vtkPBGLDistributedGraphHelper::AddEdgeInternal(const vtkVariant& uPedigreeId,
 #endif
     this->AddEdgeInternal(uPedigreeId, vDistributedId, directed, propertyArr, edge);
     return;
-    }
+  }
 
   // Neither u nor v is local, and we don't care when the edge is
   // added, so ask the owner of v to resolve the pedigree ID of v and
@@ -762,10 +762,10 @@ vtkPBGLDistributedGraphHelper::FindVertex(const vtkVariant& pedigreeId)
     = this->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER());
   vtkIdType owner = this->GetVertexOwnerByPedigreeId(pedigreeId);
   if (owner == rank)
-    {
+  {
     // The vertex is local; just ask the local part of the graph.
     return this->Graph->FindVertex(pedigreeId);
-    }
+  }
 
   // The vertex is remote; send a message looking for it.
   vtkIdType result;
@@ -785,30 +785,30 @@ vtkPBGLDistributedGraphHelper::FindEdgeSourceAndTarget(vtkIdType id,
   vtkIdType owner = this->GetEdgeOwner(id);
 
   if (owner == rank)
-    {
+  {
     if (source)
-      {
+    {
       *source = this->Graph->GetSourceVertex(id);
-      }
-    if (target)
-      {
-      *target = this->Graph->GetTargetVertex(id);
-      }
-    return;
     }
+    if (target)
+    {
+      *target = this->Graph->GetTargetVertex(id);
+    }
+    return;
+  }
 
   std::pair<vtkIdType, vtkIdType> result;
   send_oob_with_reply(this->Internals->process_group, owner,
                       FIND_EDGE_SOURCE_TARGET_TAG, id, result);
 
   if (source)
-    {
+  {
     *source = result.first;
-    }
+  }
   if (target)
-    {
+  {
     *target = result.second;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -818,12 +818,12 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
 
   if (graph &&
       (graph->GetNumberOfVertices() != 0 || graph->GetNumberOfEdges() != 0))
-    {
+  {
     vtkErrorMacro("Cannot attach a distributed graph helper to a non-empty vtkGraph");
-    }
+  }
 
   if (this->Graph)
-    {
+  {
     // Set the piece number and number of pieces so that the
     // vtkGraph knows the layout of the graph.
     this->Graph->GetInformation()->Set(
@@ -925,7 +925,7 @@ void vtkPBGLDistributedGraphHelper::AttachToGraph(vtkGraph *graph)
       (ADD_UNDIRECTED_EDGE_NN_NO_REPLY_TAG,
        boost::bind(&vtkPBGLDistributedGraphHelperInternals::HandleAddEdgeNN,
                    this->Internals, _3, false));
-    }
+  }
 
   // vtkDistributedGraphHelper will set up the appropriate masks.
   this->Superclass::AttachToGraph(graph);
@@ -987,15 +987,15 @@ vtkPBGLDistributedGraphHelperInternals::HandleAddBackEdge
          == this->Helper->Graph->GetInformation()->Get(vtkDataObject::DATA_PIECE_NUMBER()));
   vtkGraphInternals *GraphInternals = this->Helper->Graph->GetGraphInternals(true);
   if (directed)
-    {
+  {
     GraphInternals->Adjacency[this->Helper->GetVertexIndex(edge.Target)]
       .InEdges.push_back(vtkInEdgeType(edge.Source, edge.Id));
-    }
+  }
   else
-    {
+  {
     GraphInternals->Adjacency[this->Helper->GetVertexIndex(edge.Target)]
       .OutEdges.push_back(vtkOutEdgeType(edge.Source, edge.Id));
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1085,18 +1085,18 @@ process_group(vtkGraph *graph)
 {
   vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
     return boost::graph::distributed::mpi_process_group();
-    }
+  }
 
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
     return boost::graph::distributed::mpi_process_group();
-    }
+  }
 
   return pbglHelper->Internals->process_group.base();
 }

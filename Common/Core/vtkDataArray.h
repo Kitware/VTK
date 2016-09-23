@@ -330,9 +330,9 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   void GetRange(double range[2], int comp)
-    {
+  {
     this->ComputeRange(range, comp);
-    }
+  }
 
   //@{
   /**
@@ -344,10 +344,10 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   double* GetRange(int comp)
-    {
+  {
     this->GetRange(this->Range, comp);
     return this->Range;
-    }
+  }
   //@}
 
   /**
@@ -358,9 +358,9 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   double* GetRange()
-    {
+  {
     return this->GetRange(0);
-    }
+  }
 
   /**
    * The the range of the data array values will be returned in the provided
@@ -371,9 +371,9 @@ public:
    * THIS METHOD IS NOT THREAD SAFE.
    */
   void GetRange(double range[2])
-    {
+  {
     this->GetRange(range,0);
-    }
+  }
 
   //@{
   /**
@@ -486,9 +486,9 @@ private:
 inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
 {
   if (source)
-    {
+  {
     switch (source->GetArrayType())
-      {
+    {
       case AoSDataArrayTemplate:
       case SoADataArrayTemplate:
       case TypedDataArray:
@@ -497,8 +497,8 @@ inline vtkDataArray* vtkDataArray::FastDownCast(vtkAbstractArray *source)
         return static_cast<vtkDataArray*>(source);
       default:
         break;
-      }
     }
+  }
   return NULL;
 }
 

@@ -71,7 +71,7 @@ int TestCubeMap(int argc, char *argv[])
   void* images[6];
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     vtkNew<vtkJPEGReader> imgReader;
     imgReader->SetFileName(
       vtkTestUtilities::ExpandDataFileName(argc, argv, fpath[i]));
@@ -81,7 +81,7 @@ int TestCubeMap(int argc, char *argv[])
     flip->Update();
     imgs[i] = flip->GetOutput();
     images[i] = imgs[i]->GetScalarPointer();
-    }
+  }
 
   int dims[3];
   imgs[0]->GetDimensions(dims);
@@ -144,9 +144,9 @@ int TestCubeMap(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.Get());
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

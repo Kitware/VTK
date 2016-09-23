@@ -30,13 +30,13 @@ vtkStandardNewMacro(vtkUTF8TextCodec);
 bool vtkUTF8TextCodec::CanHandle(const char* testStr)
 {
   if (0 == strcmp(testStr, "UTF-8"))
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 
@@ -70,14 +70,14 @@ bool vtkUTF8TextCodec::IsValid(istream& InputStream)
   istream::pos_type StreamPos = InputStream.tellg();
 
   try
-    {
+  {
     testIterator junk;
     this->ToUnicode(InputStream, junk);
-    }
+  }
   catch(...)
-    {
+  {
     returnBool = false;
-    }
+  }
 
   // reset the stream
   InputStream.clear();
@@ -91,24 +91,24 @@ void vtkUTF8TextCodec::ToUnicode(istream& InputStream,
                                  vtkTextCodec::OutputIterator& Output)
 {
   try
-    {
+  {
     while (!InputStream.eof())
-      {
+    {
       vtkUnicodeString::value_type CodePoint = this->NextUnicode(InputStream);
       *Output++ = CodePoint;
-      }
     }
+  }
   catch (std::string& ef)
-    {
+  {
     if (ef == "End of Input")
-      {
+    {
       return; // we just completed the sequence...
-      }
-    else
-      {
-      throw;
-      }
     }
+    else
+    {
+      throw;
+    }
+  }
 }
 
 
@@ -120,9 +120,9 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
   unsigned int getSize = 0;
   c[getSize] = InputStream.get();
   if (InputStream.fail())
-    {
+  {
     throw(std::string("End of Input"));
-    }
+  }
 
   getSize = vtk_utf8::internal::sequence_length(c);
 
@@ -130,11 +130,11 @@ vtkUnicodeString::value_type vtkUTF8TextCodec::NextUnicode(istream& InputStream)
     throw(std::string("Not enough space"));
 
   for (unsigned int i = 1; i < getSize; ++i)
-    {
+  {
     c[i] = InputStream.get();
     if (InputStream.fail())
       throw(std::string("Not enough space"));
-    }
+  }
 
   istream::char_type* c1 = c;
 

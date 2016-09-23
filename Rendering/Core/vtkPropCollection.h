@@ -95,13 +95,13 @@ inline vtkProp *vtkPropCollection::GetNextProp()
 inline vtkProp *vtkPropCollection::GetLastProp()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkProp *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

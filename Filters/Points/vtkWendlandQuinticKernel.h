@@ -73,14 +73,14 @@ public:
   virtual double ComputeFunctionWeight(const double d)
   {
     if ( d >= 2.0 )
-      {
+    {
       return 0.0;
-      }
+    }
     else
-      {
+    {
       double tmp = 1.0 - 0.5*d;
       return (tmp*tmp*tmp*tmp) * (1.0 + 2.0*d);
-      }
+    }
   }
   //@}
 
@@ -92,15 +92,15 @@ public:
   virtual double ComputeDerivWeight(const double d)
   {
     if ( d >= 2.0 )
-      {
+    {
       return 0.0;
-      }
+    }
     else
-      {
+    {
       double tmp = 1.0 - 0.5*d;
       return -2.0*(tmp*tmp*tmp) * (1.0 + 2.0*d) +
         2.0*(tmp*tmp*tmp*tmp);
-      }
+    }
   }
   //@}
 

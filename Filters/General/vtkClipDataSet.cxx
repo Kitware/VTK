@@ -79,10 +79,10 @@ vtkClipDataSet::vtkClipDataSet(vtkImplicitFunction *cf)
 vtkClipDataSet::~vtkClipDataSet()
 {
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
   this->SetClipFunction(NULL);
   this->InternalProgressObserver->Delete();
 }
@@ -103,9 +103,9 @@ void vtkClipDataSet::InternalProgressCallback(vtkAlgorithm *algorithm)
   float progress = algorithm->GetProgress();
   this->UpdateProgress(progress);
   if (this->AbortExecute)
-    {
+  {
     algorithm->SetAbortExecute(1);
-    }
+  }
 }
 
 
@@ -118,15 +118,15 @@ vtkMTimeType vtkClipDataSet::GetMTime()
   vtkMTimeType time;
 
   if ( this->ClipFunction != NULL )
-    {
+  {
     time = this->ClipFunction->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -135,9 +135,9 @@ vtkMTimeType vtkClipDataSet::GetMTime()
 vtkUnstructuredGrid *vtkClipDataSet::GetClippedOutput()
 {
   if (!this->GenerateClippedOutput)
-    {
+  {
     return NULL;
-    }
+  }
   return vtkUnstructuredGrid::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
 }
@@ -210,49 +210,49 @@ int vtkClipDataSet::RequestData(
   // if we have volumes
   if (inputObjectType == VTK_STRUCTURED_POINTS ||
       inputObjectType == VTK_IMAGE_DATA)
-    {
+  {
     int dimension;
     int *dims = vtkImageData::SafeDownCast(input)->GetDimensions();
     for (dimension=3, i=0; i<3; i++)
-      {
+    {
       if ( dims[i] <= 1 )
-        {
-        dimension--;
-        }
-      }
-    if ( dimension >= 3 )
       {
+        dimension--;
+      }
+    }
+    if ( dimension >= 3 )
+    {
       this->ClipVolume(input, output);
       return 1;
-      }
-     }
+    }
+  }
 
   // Initialize self; create output objects
   //
   if ( numPts < 1 )
-    {
+  {
     vtkDebugMacro(<<"No data to clip");
     return 1;
-    }
+  }
 
   if ( !this->ClipFunction && this->GenerateClipScalars )
-    {
+  {
     vtkErrorMacro(<<"Cannot generate clip scalars if no clip function defined");
     return 1;
-    }
+  }
 
   if ( numCells < 1 )
-    {
+  {
     return this->ClipPoints(input, output, inputVector);
-    }
+  }
 
   // allocate the output and associated helper classes
   estimatedSize = numCells;
   estimatedSize = estimatedSize / 1024 * 1024; //multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
   cellScalars = vtkFloatArray::New();
   cellScalars->Allocate(VTK_CELL_SIZE);
   vtkCellArray *conn[2];
@@ -265,7 +265,7 @@ int vtkClipDataSet::RequestData(
   locs[0] = vtkIdTypeArray::New();
   locs[0]->Allocate(estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
-    {
+  {
     numOutputs = 2;
     conn[1] = vtkCellArray::New();
     conn[1]->Allocate(estimatedSize,estimatedSize/2);
@@ -274,88 +274,88 @@ int vtkClipDataSet::RequestData(
     types[1]->Allocate(estimatedSize,estimatedSize/2);
     locs[1] = vtkIdTypeArray::New();
     locs[1]->Allocate(estimatedSize,estimatedSize/2);
-    }
+  }
   newPoints = vtkPoints::New();
 
   // set precision for the points in the output
   if(this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     vtkPointSet *inputPointSet = vtkPointSet::SafeDownCast(input);
     if(inputPointSet)
-      {
+    {
       newPoints->SetDataType(inputPointSet->GetPoints()->GetDataType());
-      }
+    }
     else
-      {
+    {
       newPoints->SetDataType(VTK_FLOAT);
-      }
     }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPoints->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   newPoints->Allocate(numPts,numPts/2);
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
   this->Locator->InitPointInsertion (newPoints, input->GetBounds());
 
   // Determine whether we're clipping with input scalars or a clip function
   // and do necessary setup.
   if ( this->ClipFunction )
-    {
+  {
     vtkFloatArray *tmpScalars = vtkFloatArray::New();
     tmpScalars->SetNumberOfTuples(numPts);
     tmpScalars->SetName("ClipDataSetScalars");
     inPD = vtkPointData::New();
     inPD->ShallowCopy(input->GetPointData());//copies original
     if ( this->GenerateClipScalars )
-      {
+    {
       inPD->SetScalars(tmpScalars);
-      }
+    }
     for ( i=0; i < numPts; i++ )
-      {
+    {
       s = this->ClipFunction->FunctionValue(input->GetPoint(i));
       tmpScalars->SetTuple1(i,s);
-      }
-    clipScalars = tmpScalars;
     }
+    clipScalars = tmpScalars;
+  }
   else //using input scalars
-    {
+  {
     clipScalars = this->GetInputArrayToProcess(0,inputVector);
     if ( !clipScalars )
-      {
+    {
       for ( i=0; i<2; i++ )
-        {
+      {
         if (conn[i])
-          {
+        {
           conn[i]->Delete();
-          }
-        if (types[i])
-          {
-          types[i]->Delete();
-          }
-        if (locs[i])
-          {
-          locs[i]->Delete();
-          }
         }
+        if (types[i])
+        {
+          types[i]->Delete();
+        }
+        if (locs[i])
+        {
+          locs[i]->Delete();
+        }
+      }
       cellScalars->Delete();
       newPoints->Delete();
       // When processing composite datasets with partial arrays, this warning is
       // not applicable, hence disabling it.
       // vtkErrorMacro(<<"Cannot clip without clip function or input scalars");
       return 1;
-      }
     }
+  }
 
   // Refer to BUG #8494 and BUG #11016. I cannot see any reason why one would
   // want to turn CopyScalars Off. My understanding is that this was done to
@@ -380,10 +380,10 @@ int vtkClipDataSet::RequestData(
   outCD[0] = output->GetCellData();
   outCD[0]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
   if ( this->GenerateClippedOutput )
-    {
+  {
     outCD[1] = clippedOutput->GetCellData();
     outCD[1]->CopyAllocate(inCD,estimatedSize,estimatedSize/2);
-    }
+  }
 
   //Process all cells and clip each in turn
   //
@@ -393,12 +393,12 @@ int vtkClipDataSet::RequestData(
   int num[2]; num[0]=num[1]=0;
   int numNew[2]; numNew[0]=numNew[1]=0;
   for (vtkIdType cellId=0; cellId < numCells && !abort; cellId++)
-    {
+  {
     if ( !(cellId % updateTime) )
-      {
+    {
       this->UpdateProgress(static_cast<double>(cellId) / numCells);
       abort = this->GetAbortExecute();
-      }
+    }
 
     input->GetCell(cellId,cell);
     cellPts = cell->GetPoints();
@@ -407,16 +407,16 @@ int vtkClipDataSet::RequestData(
 
     // evaluate implicit cutting function
     for ( i=0; i < npts; i++ )
-      {
+    {
       s = clipScalars->GetComponent(cellIds->GetId(i), 0);
       cellScalars->InsertTuple(i, &s);
-      }
+    }
 
     double value = 0.0;
     if (this->UseValueAsOffset || !this->ClipFunction)
-      {
+    {
       value = this->Value;
-      }
+    }
 
     // perform the clipping
     cell->Clip(value, cellScalars, this->Locator, conn[0],
@@ -425,33 +425,33 @@ int vtkClipDataSet::RequestData(
     num[0] = conn[0]->GetNumberOfCells();
 
     if ( this->GenerateClippedOutput )
-      {
+    {
       cell->Clip(value, cellScalars, this->Locator, conn[1],
                  inPD, outPD, inCD, cellId, outCD[1], !this->InsideOut);
       numNew[1] = conn[1]->GetNumberOfCells() - num[1];
       num[1] = conn[1]->GetNumberOfCells();
-      }
+    }
 
     for (i=0; i<numOutputs; i++) //for both outputs
-      {
+    {
       for (j=0; j < numNew[i]; j++)
-        {
+      {
         if (cell->GetCellType() == VTK_POLYHEDRON)
-          {
+        {
           //Polyhedron cells have a special cell connectivity format
           //(nCell0Faces, nFace0Pts, i, j, k, nFace1Pts, i, j, k, ...).
           //But we don't need to deal with it here. The special case is handled
           //by vtkUnstructuredGrid::SetCells(), which will be called next.
           types[i]->InsertNextValue(VTK_POLYHEDRON);
-          }
+        }
         else
-          {
+        {
           locs[i]->InsertNextValue(conn[i]->GetTraversalLocation());
           conn[i]->GetNextCell(npts,pts);
 
           //For each new cell added, got to set the type of the cell
           switch ( cell->GetCellDimension() )
-            {
+          {
             case 0: //points are generated--------------------------------
               cellType = (npts > 1 ? VTK_POLY_VERTEX : VTK_VERTEX);
               break;
@@ -468,22 +468,22 @@ int vtkClipDataSet::RequestData(
             case 3: //tetrahedra or wedges are generated------------------
               cellType = (npts == 4 ? VTK_TETRA : VTK_WEDGE);
               break;
-            } //switch
+          } //switch
 
           types[i]->InsertNextValue(cellType);
-          }
-        } //for each new cell
-      } //for both outputs
-    } //for each cell
+        }
+      } //for each new cell
+    } //for both outputs
+  } //for each cell
 
   cell->Delete();
   cellScalars->Delete();
 
   if ( this->ClipFunction )
-    {
+  {
     clipScalars->Delete();
     inPD->Delete();
-    }
+  }
 
   output->SetPoints(newPoints);
   output->SetCells(types[0], locs[0], conn[0]);
@@ -492,13 +492,13 @@ int vtkClipDataSet::RequestData(
   locs[0]->Delete();
 
   if ( this->GenerateClippedOutput )
-    {
+  {
     clippedOutput->SetPoints(newPoints);
     clippedOutput->SetCells(types[1], locs[1], conn[1]);
     conn[1]->Delete();
     types[1]->Delete();
     locs[1]->Delete();
-    }
+  }
 
   newPoints->Delete();
   this->Locator->Initialize();//release any extra memory
@@ -523,69 +523,69 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
 
   double value = 0.0;
   if (this->UseValueAsOffset || !this->ClipFunction)
-    {
+  {
     value = this->Value;
-    }
+  }
   if (this->ClipFunction)
-    {
+  {
     for(vtkIdType i=0; i<numPts; i++)
-      {
+    {
       double* pt = input->GetPoint(i);
       double fv = this->ClipFunction->FunctionValue(pt);
       int addPoint = 0;
       if (this->InsideOut)
-        {
+      {
         if (fv <= value)
-          {
-          addPoint = 1;
-          }
-        }
-      else
         {
-        if (fv > value)
-          {
           addPoint = 1;
-          }
-        }
-      if (addPoint)
-        {
-        vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
-        outPD->CopyData(inPD, i, id);
         }
       }
+      else
+      {
+        if (fv > value)
+        {
+          addPoint = 1;
+        }
+      }
+      if (addPoint)
+      {
+        vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
+        outPD->CopyData(inPD, i, id);
+      }
     }
+  }
   else
-    {
+  {
     vtkDataArray* clipScalars =
       this->GetInputArrayToProcess(0,inputVector);
     if (clipScalars)
-      {
+    {
       for(vtkIdType i=0; i<numPts; i++)
-        {
+      {
         int addPoint = 0;
         double fv = clipScalars->GetTuple1(i);
         if (this->InsideOut)
-          {
+        {
           if (fv <= value)
-            {
+          {
             addPoint = 1;
-            }
           }
+        }
         else
-          {
+        {
           if (fv > value)
-            {
-            addPoint = 1;
-            }
-          }
-        if (addPoint)
           {
+            addPoint = 1;
+          }
+        }
+        if (addPoint)
+        {
           vtkIdType id = outPoints->InsertNextPoint(input->GetPoint(i));
           outPD->CopyData(inPD, i, id);
-          }
         }
       }
     }
+  }
 
   output->SetPoints(outPoints);
   outPoints->Delete();
@@ -599,20 +599,20 @@ int vtkClipDataSet::ClipPoints(vtkDataSet* input,
 void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -622,11 +622,11 @@ void vtkClipDataSet::SetLocator(vtkIncrementalPointLocator *locator)
 void vtkClipDataSet::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -645,9 +645,9 @@ void vtkClipDataSet::ClipVolume(vtkDataSet *input, vtkUnstructuredGrid *output)
   clipVolume->SetInputData(tmp);
   double value = 0.0;
   if (this->UseValueAsOffset || !this->ClipFunction)
-    {
+  {
     value = this->Value;
-    }
+  }
   clipVolume->SetValue(value);
   clipVolume->SetInsideOut(this->InsideOut);
   clipVolume->SetClipFunction(this->ClipFunction);
@@ -682,23 +682,23 @@ void vtkClipDataSet::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Merge Tolerance: " << this->MergeTolerance << "\n";
   if ( this->ClipFunction )
-    {
+  {
     os << indent << "Clip Function: " << this->ClipFunction << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Clip Function: (none)\n";
-    }
+  }
   os << indent << "InsideOut: " << (this->InsideOut ? "On\n" : "Off\n");
   os << indent << "Value: " << this->Value << "\n";
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 
   os << indent << "Generate Clip Scalars: "
      << (this->GenerateClipScalars ? "On\n" : "Off\n");

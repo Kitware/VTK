@@ -79,23 +79,23 @@ bool ContextTest::Paint(vtkContext2D *painter)
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
-    {
+  {
     painter->GetPen()->SetColor(255,
                                 static_cast<unsigned char>(float(i)*25.0),
                                 0);
     painter->GetPen()->SetWidth(1.0 + float(i));
     painter->DrawLine(10, 50 + float(i)*10, 60, 50 + float(i)*10);
-    }
+  }
 
   // Use the draw lines function now to draw a shape.
   vtkSmartPointer<vtkPoints2D> points = vtkSmartPointer<vtkPoints2D>::New();
   points->SetNumberOfPoints(30);
   for (int i = 0; i < 30; ++i)
-    {
+  {
     double point[2] = { float(i) * 25.0 + 10.0,
                         sin(float(i) / 5.0) * 100.0 + 200.0 };
     points->SetPoint(i, point);
-    }
+  }
   painter->GetPen()->SetColor(0, 255, 0);
   painter->GetPen()->SetWidth(5.0);
   painter->DrawPoly(points);
@@ -112,7 +112,7 @@ bool ContextTest::Paint(vtkContext2D *painter)
   float markerPoints[10*2];
   unsigned char markerColors[10*4];
   for (int i = 0; i < 10; ++i)
-    {
+  {
     markerPoints[2 * i]     = 500.0 + i * 30.0;
     markerPoints[2 * i + 1] = 20 * sin(markerPoints[2 * i]) + 375.0;
 
@@ -122,32 +122,32 @@ bool ContextTest::Paint(vtkContext2D *painter)
     markerColors[4 * i + 2] = static_cast<unsigned char>(255 * (0.3));
     markerColors[4 * i + 3] =
         static_cast<unsigned char>(255 * (1.0 - ((i / 10.0) * 0.25)));
-    }
+  }
 
   for (int style = VTK_MARKER_NONE + 1; style < VTK_MARKER_UNKNOWN; ++style)
-    {
+  {
     // Increment the y values:
     for (int i = 1; i < 20; i += 2)
-      {
+    {
       markerPoints[i] += 35.0;
-      }
+    }
     painter->GetPen()->SetWidth(style * 5 + 5);
     // Not highlighted:
     painter->DrawMarkers(style, false, markerPoints, 10, markerColors, 4);
     // Highlight the middle 4 points
     painter->GetPen()->SetColorF(0.9, 0.8, 0.1, 0.5);
     painter->DrawMarkers(style, true, markerPoints + 3*2, 4);
-    }
+  }
 
   // Draw some individual lines of different thicknesses.
   for (int i = 0; i < 10; ++i)
-    {
+  {
     painter->GetPen()->SetColor(0,
                                 static_cast<unsigned char>(float(i)*25.0),
                                 255, 255);
     painter->GetPen()->SetWidth(1.0 + float(i));
     painter->DrawPoint(75, 50 + float(i)*10);
-    }
+  }
 
   painter->GetPen()->SetColor(0, 0, 255);
   painter->GetPen()->SetWidth(3.0);

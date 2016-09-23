@@ -43,13 +43,13 @@ int vtkPropPicker3D::Pick(double selectionX, double selectionY,
                         double selectionZ, vtkRenderer *renderer)
 {
   if ( this->PickFromList )
-    {
+  {
     return this->PickProp(selectionX, selectionY, selectionZ, renderer, this->PickList);
-    }
+  }
   else
-    {
+  {
     return this->PickProp(selectionX, selectionY, selectionZ, renderer);
-    }
+  }
 }
 
 
@@ -94,41 +94,41 @@ int vtkPropPicker3D::PickProp(
   props->InitTraversal(pit);
   vtkProp *prop = NULL;
   while ( (prop = props->GetNextProp(pit)) )
-    {
+  {
     if (prop->GetPickable())
-      {
+    {
       double *bnds = prop->GetBounds();
       if (bnds)
-        {
+      {
         if (selectionX >= bnds[0] && selectionX <= bnds[1] &&
             selectionY >= bnds[2] && selectionY <= bnds[3] &&
             selectionZ >= bnds[4] && selectionZ <= bnds[5])
-          {
+        {
           prop->InitPathTraversal();
           result = prop->GetNextPath();
-          }
         }
       }
     }
+  }
 
   if (result)
-    {
+  {
     result->GetFirstNode()->GetViewProp()->Pick();
     this->InvokeEvent(vtkCommand::PickEvent,NULL);
-    }
+  }
   this->SetPath(result);
 
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 
   // Call Pick on the Prop that was picked, and return 1 for success
   if ( result )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 void vtkPropPicker3D::PrintSelf(ostream& os, vtkIndent indent)
@@ -136,11 +136,11 @@ void vtkPropPicker3D::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if (this->PickFromProps)
-    {
+  {
     os << indent << "PickFrom List: " << this->PickFromProps << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "PickFrom List: (none)" << endl;
-    }
+  }
 }

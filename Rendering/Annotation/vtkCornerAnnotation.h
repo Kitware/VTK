@@ -120,7 +120,7 @@ public:
    * \sa GetText(), SetText()
    */
   enum TextPosition
-    {
+  {
     LowerLeft = 0, ///< Uses the lower left corner.
     LowerRight,    ///< Uses the lower right corner.
     UpperLeft,     ///< Uses the upper left corner.
@@ -129,7 +129,7 @@ public:
     RightEdge,     ///< Uses the right edge center.
     LeftEdge,      ///< Uses the left edge center
     UpperEdge      ///< Uses the upper edge center.
-    };
+  };
   static const int NumTextPositions = 8;
   //@}
 

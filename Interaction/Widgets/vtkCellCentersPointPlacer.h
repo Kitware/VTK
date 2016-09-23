@@ -133,11 +133,11 @@ public:
   //@}
 
   enum
-    {
+  {
     ParametricCenter = 0,
     CellPointsMean,
     None
-    };
+  };
 
 protected:
   vtkCellCentersPointPlacer();

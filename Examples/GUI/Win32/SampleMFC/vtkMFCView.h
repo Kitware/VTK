@@ -23,14 +23,14 @@
 //
 #define vtkMFCSetObjectMacro(name,type) \
 void Set##name (type* _arg) \
-  { \
+{ \
   if (this->name != _arg) \
-    { \
+  { \
     if (this->name != NULL) { this->name->UnRegister(NULL); }\
     this->name = _arg; \
     if (this->name != NULL) { this->name->Register(NULL); } \
-    } \
-  }
+  } \
+}
 
 /////////////////////////////////////////////////////////////////////////////
 // vtkMFCView view
@@ -80,7 +80,7 @@ protected:
   afx_msg void OnEditCopy();
   //}}AFX_MSG
   DECLARE_MESSAGE_MAP()
-    };
+};
 
 /////////////////////////////////////////////////////////////////////////////
 

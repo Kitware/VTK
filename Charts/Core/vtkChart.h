@@ -78,7 +78,7 @@ public:
     SELECT_RECTANGLE = SELECT,
     SELECT_POLYGON,
     NOTIFY
-    };
+  };
 
   /**
    * Enum of event type that are triggered by the charts
@@ -446,7 +446,7 @@ protected:
    * Hold mouse action mappings.
    */
   class MouseActions
-    {
+  {
   public:
     MouseActions();
     enum { MaxAction = 5 };
@@ -457,16 +457,16 @@ protected:
     short& SelectPolygon() { return Data[4]; }
     short& operator[](int index) { return Data[index]; }
     short Data[MaxAction];
-    };
+  };
   class MouseClickActions
-    {
+  {
   public:
     MouseClickActions();
     short& Notify() { return Data[0]; }
     short& Select() { return Data[1]; }
     short& operator[](int index) { return Data[index]; }
     short Data[2];
-    };
+  };
   //@}
 
   MouseActions Actions;

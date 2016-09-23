@@ -43,13 +43,13 @@ inline double ComputeLength(vtkIdList* poly, vtkPoints* pts)
   double p[3];
   pts->GetPoint(poly->GetId(0),p);
   for(int j=1; j<n;j++)
-    {
+  {
     int pIndex = poly->GetId(j);
     double q[3];
     pts->GetPoint(pIndex,q);
     s+= sqrt( vtkMath::Distance2BetweenPoints(p,q));
     memcpy(p,q,3*sizeof(double));
-    }
+  }
   return s;
 }
 
@@ -104,22 +104,22 @@ protected:
       outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
     if (!input || !output)
-      {
+    {
       assert(false);
       return 0;
-      }
+    }
 
     output->ShallowCopy(input);
 
     for(unsigned int level=0; level < input->GetNumberOfLevels(); ++level )
-      {
+    {
       for(unsigned int idx=0;idx < input->GetNumberOfDataSets(level);++idx )
-        {
+      {
         vtkUniformGrid *grid = input->GetDataSet( level, idx );
         if(!grid)
-          {
+        {
           continue;
-          }
+        }
         vtkCellData* cellData = grid->GetCellData();
         vtkDataArray* xVelocity = cellData->GetArray("x-velocity");
         vtkDataArray* yVelocity = cellData->GetArray("y-velocity");
@@ -131,17 +131,17 @@ protected:
 
         int numCells = grid->GetNumberOfCells();
         for (int cellId=0; cellId < numCells; cellId++)
-          {
+        {
           assert(xVelocity);
           double velocity[3] = {
             xVelocity->GetTuple(cellId)[0],
             yVelocity->GetTuple(cellId)[0],
             zVelocity->GetTuple(cellId)[0]};
           velocityVectors->InsertNextTuple(velocity);
-          }
-        grid->GetCellData()->AddArray(velocityVectors);
         }
+        grid->GetCellData()->AddArray(velocityVectors);
       }
+    }
 
     return 1;
 
@@ -162,10 +162,10 @@ int TestPStreamAMR( int argc, char* argv[] )
   int numProcs = c->GetNumberOfProcesses();
   int Rank = c->GetLocalProcessId();
   if(numProcs!=4)
-    {
+  {
     cerr<<"Cannot Create four MPI Processes. Success is only norminal";
     return EXIT_SUCCESS;
-    }
+  }
 
   char* fname = vtkTestUtilities::ExpandDataFileName(argc, argv,"Data/AMR/Enzo/DD0010/moving7_0010.hierarchy");
 
@@ -201,9 +201,9 @@ int TestPStreamAMR( int argc, char* argv[] )
   vtkNew<vtkPolyData> seeds;
   vtkNew<vtkPoints> seedPoints;
   for(double t=0; t<1; t+=0.1)
-    {
+  {
     seedPoints->InsertNextPoint(t,t,t);
-    }
+  }
 
   seeds->SetPoints(seedPoints.GetPointer());
   tracer->SetInputData(1,seeds.GetPointer());
@@ -225,11 +225,11 @@ int TestPStreamAMR( int argc, char* argv[] )
   int totalSize(0);
   lines->InitTraversal();
   while(lines->GetNextCell(polyLine.GetPointer()))
-    {
+  {
     double d = ComputeLength(polyLine.GetPointer(),out->GetPoints());
     totalLength+=d;
     totalSize+=polyLine->GetNumberOfIds();
-    }
+  }
   double totalLengthAll(0);
   c->Reduce(&totalLength,&totalLengthAll,1,vtkCommunicator::SUM_OP,0);
 
@@ -237,9 +237,9 @@ int TestPStreamAMR( int argc, char* argv[] )
   c->Reduce(&totalSize,&totalTotalSize,1,vtkCommunicator::SUM_OP,0);
 
   if(Rank==0)
-    {
+  {
     cout<<"Trace Length: "<<totalLengthAll<<endl;
-    }
+  }
   res = (totalLengthAll-17.18)/17.18 < 0.01;
 
   c->Finalize();

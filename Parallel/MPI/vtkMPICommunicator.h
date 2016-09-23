@@ -264,9 +264,9 @@ public:
   friend class vtkMPIController;
 
   vtkMPICommunicatorOpaqueComm *GetMPIComm()
-    {
+  {
     return this->MPIComm;
-    }
+  }
 
   int InitializeExternal(vtkMPICommunicatorOpaqueComm *comm);
 

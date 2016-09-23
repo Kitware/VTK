@@ -55,13 +55,13 @@ bool IsVector4Same(float expected[4], float computed[4])
                fabs(expected[2] - computed[2]) < eps &&
                fabs(expected[3] - computed[3]) < eps);
   if (!same)
-    {
+  {
     std::cout << "Not the same!\n";
     std::cout << "Expected: (" << expected[0] << ", " << expected[1] << ", "
               << expected[2] << ", " << expected[3] << ")\n";
     std::cout << "Computed: (" << computed[0] << ", " << computed[1] << ", "
               << computed[2] << ", " << computed[3] << ")\n";
-    }
+  }
 
   return same;
 }

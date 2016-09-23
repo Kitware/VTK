@@ -35,7 +35,7 @@ vtkStandardNewMacro(vtkXGPUInfoList);
 void vtkXGPUInfoList::Probe()
 {
   if(!this->Probed)
-    {
+  {
     this->Probed=true;
     this->Array=new vtkGPUInfoListArray;
     bool found=false;
@@ -44,56 +44,56 @@ void vtkXGPUInfoList::Probe()
     // see sample code in nvidia-settings-1.0/samples/nv-control-info.c
     Display *dpy=XOpenDisplay(NULL); // we use the environment variable DISPLAY
     if(dpy!=NULL)
-      {
+    {
       int eventBase;
       int errorBase;
       if(XNVCTRLQueryExtension(dpy,&eventBase,&errorBase)==True)
-        {
+      {
         int screenCount=XScreenCount(dpy);
         int nvScreenCount=0;
         int i=0;
         while(i<screenCount)
-          {
+        {
           if(XNVCTRLIsNvScreen(dpy,i))
-            {
+          {
             ++nvScreenCount;
-            }
-          ++i;
           }
+          ++i;
+        }
         found=nvScreenCount>0;
         if(found)
-          {
+        {
           this->Array->v.resize(nvScreenCount);
           int j=0;
           i=0;
           while(i<screenCount)
-            {
+          {
             if(XNVCTRLIsNvScreen(dpy,i))
-              {
+            {
               int ramSize;
               Bool status=XNVCTRLQueryAttribute(dpy,i,0,
                                                 NV_CTRL_VIDEO_RAM,&ramSize);
               if(!status)
-                {
+              {
                 ramSize=0;
-                }
+              }
               vtkGPUInfo *info=vtkGPUInfo::New();
               info->SetDedicatedVideoMemory(static_cast<vtkTypeUInt64>(ramSize)*1024); // ramSize is in KiB
               this->Array->v[j]=info;
               ++j;
-              }
-            ++i;
             }
+            ++i;
           }
         }
-      XCloseDisplay(dpy);
       }
+      XCloseDisplay(dpy);
+    }
 #endif // #ifdef VTK_USE_NVCONTROL
     if(!found)
-      {
+    {
       this->Array->v.resize(0); // no GPU.
-      }
     }
+  }
   assert("post: probed" && this->IsProbed());
 }
 

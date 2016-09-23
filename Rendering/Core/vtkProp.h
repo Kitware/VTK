@@ -363,11 +363,11 @@ public:
    * be timed and added together into this value.
    */
   virtual void SetAllocatedRenderTime(double t, vtkViewport *vtkNotUsed(v))
-    {
+  {
     this->AllocatedRenderTime = t;
     this->SavedEstimatedRenderTime = this->EstimatedRenderTime;
     this->EstimatedRenderTime = 0.0;
-    }
+  }
   //@}
 
   //@{

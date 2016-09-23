@@ -33,7 +33,7 @@ enum WebGLObjectTypes {
   wPOINTS = 0,
   wLINES = 1,
   wTRIANGLES = 2
-  };
+};
 
 class VTKWEBGLEXPORTER_EXPORT vtkWebGLObject : public vtkObject
 {

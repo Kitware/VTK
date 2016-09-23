@@ -305,27 +305,27 @@ guidance on attribution and permissions:
   vtkTypeUInt32* color = colors;
   vtkColorSeriesPalette* pal;
   for (unsigned i = 0; i < sizeof(names) / sizeof(names[0]); ++i)
-    {
+  {
     int start = sizes[i][0];
     int stop  = sizes[i][1];
     int step = start > stop ? -1 : 1;
     for (int n = start; n != stop + step; n += step)
-      {
+    {
       int paletteIndex = *(color++);
       pal = &(this->Palettes[paletteIndex]);
       std::ostringstream os;
       os << names[i];
       if (start != stop)
-        {
+      {
         os << " (" << n << ")";
-        }
+      }
       pal->Name = os.str();
       for (int j = 0; j < n; ++j)
-        {
+      {
         pal->Colors.push_back(vtkColor3ubFromHex3(*(color++)));
-        }
       }
     }
+  }
   this->Colors = 0;
   this->Palette = vtkColorSeries::SPECTRUM;
   this->Colors = &(this->Palettes[this->Palette].Colors);
@@ -346,13 +346,13 @@ int vtkColorSeries::Private::SetSchemeByName(
   int idx = 0;
   std::vector<vtkColorSeriesPalette>::iterator it;
   for (it = this->Palettes.begin(); it != this->Palettes.end(); ++it, ++idx)
-    {
+  {
     if (it->Name == name)
-      {
+    {
       this->SetScheme(idx);
       return idx;
-      }
     }
+  }
   // OK, we could not find such a palette. Create one.
   modified = true;
   vtkColorSeriesPalette blank;
@@ -397,15 +397,15 @@ void vtkColorSeries::PrintSelf(ostream &os, vtkIndent indent)
 void vtkColorSeries::SetColorScheme(int scheme)
 {
   if (this->Storage->Palette == scheme)
-    {
+  {
     return;
-    }
+  }
 
   if (scheme < 0 || scheme >= this->GetNumberOfColorSchemes())
-    {
+  {
     vtkWarningMacro(<< "Scheme " << scheme << " out of range. Ignoring.");
     return;
-    }
+  }
 
   this->Storage->SetScheme(scheme);
   this->Modified();
@@ -417,9 +417,9 @@ int vtkColorSeries::SetColorSchemeByName(const vtkStdString& schemeName)
   bool modified;
   int index = this->Storage->SetSchemeByName(schemeName, modified);
   if (modified)
-    {
+  {
     this->Modified();
-    }
+  }
   return index;
 }
 
@@ -444,16 +444,16 @@ void vtkColorSeries::SetColorSchemeName(const vtkStdString& name)
   // SetColorSchemeByName() so users can override
   // system defaults?
   if ( name.empty() )
-    {
+  {
     return;
-    }
+  }
 
   this->CopyOnWrite();
   if (this->Storage->Palettes[this->Storage->Palette].Name != name)
-    {
+  {
     this->Storage->Palettes[this->Storage->Palette].Name = name;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -479,13 +479,13 @@ void vtkColorSeries::SetNumberOfColors(int numColors)
 vtkColor3ub vtkColorSeries::GetColor(int index) const
 {
   if (index >=0 && index < static_cast<int>(this->Storage->Colors->size()))
-    {
+  {
     return (*this->Storage->Colors)[index];
-    }
+  }
   else
-    {
+  {
     return vtkColor3ub(0,0,0);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -506,11 +506,11 @@ vtkColor3ub vtkColorSeries::GetColorRepeating(int index) const
 void vtkColorSeries::SetColor(int index, const vtkColor3ub &color)
 {
   if (index >=0 && index < static_cast<int>(this->Storage->Colors->size()))
-    {
+  {
     this->CopyOnWrite();
     (*this->Storage->Colors)[index] = color;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -525,23 +525,23 @@ void vtkColorSeries::AddColor(const vtkColor3ub &color)
 void vtkColorSeries::InsertColor(int index, const vtkColor3ub &color)
 {
   if (index >=0 && index < static_cast<int>(this->Storage->Colors->size()))
-    {
+  {
     this->CopyOnWrite();
     this->Storage->Colors->insert(
       this->Storage->Colors->begin() + index, color);
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkColorSeries::RemoveColor(int index)
 {
   if (index >=0 && index < static_cast<int>(this->Storage->Colors->size()))
-    {
+  {
     this->CopyOnWrite();
     this->Storage->Colors->erase(this->Storage->Colors->begin() + index);
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -556,9 +556,9 @@ void vtkColorSeries::ClearColors()
 void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
 {
   if (! colors)
-    {
+  {
     return;
-    }
+  }
 
   this->Storage->Palettes = colors->Storage->Palettes;
   this->Storage->Palette = colors->Storage->Palette;
@@ -571,16 +571,16 @@ void vtkColorSeries::DeepCopy(vtkColorSeries* colors)
 void vtkColorSeries::BuildLookupTable(vtkLookupTable* lkup, int lutIndexing)
 {
   if (lkup)
-    {
+  {
     lkup->SetNumberOfTableValues(this->GetNumberOfColors());
     lkup->SetIndexedLookup((lutIndexing == ORDINAL) ? 0 : 1);
     for (int i = 0; i < this->GetNumberOfColors(); ++i)
-      {
+    {
       vtkColor3ub colr = this->GetColor(i);
       lkup->SetTableValue(
         i, colr.GetRed()/255., colr.GetGreen()/255., colr.GetBlue()/255., 1.);
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -597,7 +597,7 @@ void vtkColorSeries::CopyOnWrite()
   // If the current scheme is predefined, copy it to a new, custom scheme.
   int prevScheme = this->Storage->Palette;
   if (prevScheme < CUSTOM)
-    {
+  {
     int nextScheme = static_cast<int>(this->Storage->Palettes.size());
     vtkColorSeriesPalette blank;
     blank.Name = this->Storage->Palettes[prevScheme].Name + " copy";
@@ -605,5 +605,5 @@ void vtkColorSeries::CopyOnWrite()
     this->Storage->SetScheme(nextScheme);
     *this->Storage->Colors = this->Storage->Palettes[prevScheme].Colors;
     this->Modified();
-    }
+  }
 }

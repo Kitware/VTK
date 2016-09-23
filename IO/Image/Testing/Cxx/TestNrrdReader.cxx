@@ -37,17 +37,17 @@ int TestNrrdReader(int argc, char *argv[])
   char *filename2 =
       vtkTestUtilities::ExpandDataFileName(argc, argv, "Data/beach.ascii.nhdr");
   if ((filename1 == NULL) || (filename2 == NULL))
-    {
+  {
     cerr << "Could not get file names.";
     return 1;
-    }
+  }
 
   vtkNew<vtkNrrdReader> reader1;
   if (!reader1->CanReadFile(filename1))
-    {
+  {
     cerr << "Reader reports " << filename1 << " cannot be read.";
     return 1;
-    }
+  }
   reader1->SetFileName(filename1);
   reader1->Update();
 
@@ -64,10 +64,10 @@ int TestNrrdReader(int argc, char *argv[])
 
   vtkNew<vtkNrrdReader> reader2;
   if (!reader2->CanReadFile(filename2))
-    {
+  {
     cerr << "Reader reports " << filename2 << " cannot be read.";
     return 1;
-    }
+  }
   reader2->SetFileName(filename2);
   reader2->Update();
 
@@ -96,11 +96,11 @@ int TestNrrdReader(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindow->Render();
     interactor->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   delete[] filename1;
   delete[] filename2;

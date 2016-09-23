@@ -50,24 +50,24 @@ int TestDecimatePolylineFilter(int argc, char *argv[])
 
   // First circle:
   for(unsigned int i = 0; i < numberOfPointsInCircle; ++i)
-    {
+  {
     const double angle = 2.0 * vtkMath::Pi() * static_cast<double>(i)
       / static_cast<double>(numberOfPointsInCircle);
     points->InsertPoint(static_cast<vtkIdType>(i), std::cos(angle),
       std::sin(angle), 0.0);
     lineIds[i] = lineIdCounter++;
-    }
+  }
   lineIds[numberOfPointsInCircle] = 0;
 
   // Second circular arc:
   for(unsigned int i = 0; i < (numberOfPointsInCircle*3)/4; ++i)
-    {
+  {
     const double angle = 3.0 / 2.0 * vtkMath::Pi() * static_cast<double>(i)
       / static_cast<double>((numberOfPointsInCircle*3)/4);
     points->InsertPoint(static_cast<vtkIdType>(i+numberOfPointsInCircle),
                         std::cos(angle), std::sin(angle), 1.0);
     lineIds[numberOfPointsInCircle + 1 + i] = lineIdCounter++;
-    }
+  }
 
   // Construct associated cell array, containing both polylines.
   vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
@@ -97,25 +97,25 @@ int TestDecimatePolylineFilter(int argc, char *argv[])
   decimatePolylineFilter->Update();
 
   if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   decimatePolylineFilter->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
   decimatePolylineFilter->Update();
 
   if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   decimatePolylineFilter->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
   decimatePolylineFilter->Update();
 
   if(decimatePolylineFilter->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   vtkSmartPointer<vtkPolyDataMapper> decimatedMapper
     = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -144,9 +144,9 @@ int TestDecimatePolylineFilter(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

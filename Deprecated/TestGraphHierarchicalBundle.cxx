@@ -69,85 +69,85 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   double leafSpacing = 0.9;
 
   for (int i = 1; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-D"))
-      {
+    {
       i++;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-T"))
-      {
+    {
       i++;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-V"))
-      {
+    {
       i++;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-t"))
-      {
+    {
       showTree = true;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-S"))
-      {
+    {
       radial = false;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-A"))
-      {
+    {
       i++;
       angle = atof(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-L"))
-      {
+    {
       i++;
       logSpacing = atof(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-f"))
-      {
+    {
       i++;
       leafSpacing = atof(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-r"))
-      {
+    {
       treeType = RANDOM_TREE;
       i++;
       numVertices = atoi(argv[i]);
       i++;
       numEdges = atoi(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-s"))
-      {
+    {
       treeType = STRUCTURED_TREE;
       i++;
       numVertices = atoi(argv[i]);
       i++;
       numEdges = atoi(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-v"))
-      {
+    {
       treeType = VTK_SOURCES_TREE;
       i++;
       file = argv[i];
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-b"))
-      {
+    {
       i++;
       bundlingStrength = atof(argv[i]);
       continue;
-      }
+    }
 
     cerr << argv[0] << " Options:\n"
       << " -I : interactive\n"
@@ -161,14 +161,14 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
       << " -f leafspacing : tree leaf spacing\n"
       << " -t : show tree instead of edge bundles\n";
     return 0;
-    }
+  }
   vtkIdType levelOneVertices = static_cast<vtkIdType>(sqrt(static_cast<float>(numVertices)));
 
   // Create the graph.
 
   vtkGraph *graph = 0;
   if (treeType == RANDOM_TREE)
-    {
+  {
     VTK_CREATE(vtkRandomGraphSource, source);
     source->SetNumberOfVertices(numVertices);
     source->SetNumberOfEdges(numEdges);
@@ -179,34 +179,34 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
     VTK_CREATE(vtkStringArray, nameArray);
     nameArray->SetName("name");
     for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
-      {
+    {
       nameArray->InsertNextValue(vtkVariant(i).ToString());
-      }
+    }
     graph->GetVertexData()->AddArray(nameArray);
     graph->Register(0);
-    }
+  }
   else if (treeType == STRUCTURED_TREE)
-    {
+  {
     vtkMutableDirectedGraph* g = vtkMutableDirectedGraph::New();
     for (vtkIdType v = 0; v < numVertices; v++)
-      {
+    {
       g->AddVertex();
-      }
-    for (vtkIdType e = 0; e < numEdges; e++)
-      {
-      g->AddEdge(e%numVertices, (e*e)%numVertices);
-      }
-    graph = g;
     }
+    for (vtkIdType e = 0; e < numEdges; e++)
+    {
+      g->AddEdge(e%numVertices, (e*e)%numVertices);
+    }
+    graph = g;
+  }
 #if 0
   else
-    {
+  {
     VTK_CREATE(vtkXMLTreeReader, reader);
     reader->SetFileName(file);
     reader->Update();
     graph = reader->GetOutput();
     graph->Register(0);
-    }
+  }
 #endif
 
   //for (vtkIdType a = 0; a < graph->GetNumberOfEdges(); a++)
@@ -217,32 +217,32 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   // Create the tree.
   VTK_CREATE(vtkMutableDirectedGraph, tree);
   if (treeType == RANDOM_TREE)
-    {
+  {
     tree->AddVertex();
     for (vtkIdType i = 1; i < numVertices; i++)
-      {
+    {
       vtkIdType parent = static_cast<vtkIdType>(vtkMath::Random(0, tree->GetNumberOfVertices()));
       tree->AddChild(parent);
-      }
-    tree->GetVertexData()->AddArray(graph->GetVertexData()->GetAbstractArray("name"));
     }
+    tree->GetVertexData()->AddArray(graph->GetVertexData()->GetAbstractArray("name"));
+  }
   else if (treeType == STRUCTURED_TREE)
-    {
+  {
     vtkIdType i;
     tree->AddVertex();
     for (i = 0; i < levelOneVertices; i++)
-      {
+    {
       tree->AddChild(0);
-      }
+    }
     vtkIdType levelTwoVertices = numVertices - levelOneVertices - 1;
     for (i = 0; i < levelTwoVertices; i++)
-      {
-      tree->AddChild(static_cast<vtkIdType>(i / (levelTwoVertices / static_cast<double>(levelOneVertices)) + 1.5));
-      }
-    tree->GetVertexData()->AddArray(graph->GetVertexData()->GetAbstractArray("name"));
-    }
-  else
     {
+      tree->AddChild(static_cast<vtkIdType>(i / (levelTwoVertices / static_cast<double>(levelOneVertices)) + 1.5));
+    }
+    tree->GetVertexData()->AddArray(graph->GetVertexData()->GetAbstractArray("name"));
+  }
+  else
+  {
     VTK_CREATE(vtkStringArray, kitNames);
     kitNames->InsertNextValue("Common");
     kitNames->InsertNextValue("Filtering");
@@ -259,9 +259,9 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
     // Add vertices representing classes.
     for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
-      {
+    {
       tree->AddVertex();
-      }
+    }
 
     VTK_CREATE(vtkStringArray, extendedNameArray);
     extendedNameArray->DeepCopy(graph->GetVertexData()->GetAbstractArray("name"));
@@ -273,42 +273,42 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
     // Add kit vertices.
     for (vtkIdType k = 0; k < kitNames->GetNumberOfValues(); k++)
-      {
+    {
       tree->AddChild(root);
       extendedNameArray->InsertNextValue(kitNames->GetValue(k));
-      }
+    }
 
     vtkStringArray* fileArray = vtkArrayDownCast<vtkStringArray>(
       graph->GetVertexData()->GetAbstractArray("filename"));
     for (vtkIdType i = 0; i < graph->GetNumberOfVertices(); i++)
-      {
+    {
       vtkStdString curFile = fileArray->GetValue(i);
       bool found = false;
       vtkIdType k;
       for (k = 0; k < kitNames->GetNumberOfValues(); k++)
-        {
+      {
         vtkStdString kit = kitNames->GetValue(k);
         if (curFile.substr(0, kit.length()) == kit)
-          {
+        {
           tree->AddEdge(root + 1 + k, i);
           found = true;
           break;
-          }
-        }
-      if (!found)
-        {
-        cerr << "cannot find match for filename " << file << endl;
         }
       }
+      if (!found)
+      {
+        cerr << "cannot find match for filename " << file << endl;
+      }
+    }
 
     tree->GetVertexData()->AddArray(extendedNameArray);
-    }
+  }
 
   VTK_CREATE(vtkTree, realTree);
   if (!realTree->CheckedShallowCopy(tree))
-    {
+  {
     cerr << "Invalid tree structure." << endl;
-    }
+  }
 
   VTK_CREATE(vtkTreeLayoutStrategy, treeStrategy);
   treeStrategy->SetAngle(angle);
@@ -334,10 +334,10 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   lut->SetNumberOfTableValues(numValues);
   lut->Build();
   for (int i = 0; i < numValues; i++)
-    {
+  {
     double frac = static_cast<double>(i)/numValues;
     lut->SetTableValue(i, 1.0 - frac, frac, 0.0);
-    }
+  }
 
   VTK_CREATE(vtkPolyDataMapper, polyMapper);
   polyMapper->SetInputConnection(0, spline->GetOutputPort(0));
@@ -376,13 +376,13 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
   ren->SetBackground(1.0, 1.0, 1.0);
 
   if (showTree)
-    {
+  {
     ren->AddActor(treeActor);
-    }
+  }
   else
-    {
+  {
     ren->AddActor(polyActor);
-    }
+  }
   //ren->AddActor2D(labelActor);
 
   VTK_CREATE(vtkRenderWindowInteractor, iren);
@@ -395,11 +395,11 @@ int TestGraphHierarchicalBundle(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     win->Render();
     iren->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   // Clean up
   graph->Delete();

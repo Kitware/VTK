@@ -54,10 +54,10 @@ public:
    * object.
    */
   vtkSmartPointer& operator=(T* r)
-    {
+  {
     this->vtkSmartPointerBase::operator=(r);
     return *this;
-    }
+  }
   //@}
 
   //@{
@@ -67,10 +67,10 @@ public:
    */
   template <class U>
   vtkSmartPointer& operator=(const vtkSmartPointer<U>& r)
-    {
+  {
     this->vtkSmartPointerBase::operator=(CheckType(r.GetPointer()));
     return *this;
-    }
+  }
   //@}
 
   //@{
@@ -78,39 +78,39 @@ public:
    * Get the contained pointer.
    */
   T* GetPointer() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
   T* Get() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
   //@}
 
   /**
    * Get the contained pointer.
    */
   operator T* () const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
   /**
    * Dereference the pointer and return a reference to the contained
    * object.
    */
   T& operator*() const
-    {
+  {
     return *static_cast<T*>(this->Object);
-    }
+  }
 
   /**
    * Provides normal pointer target member access using operator ->.
    */
   T* operator->() const
-    {
+  {
     return static_cast<T*>(this->Object);
-    }
+  }
 
   /**
    * Transfer ownership of one reference to the given VTK object to
@@ -125,25 +125,25 @@ public:
    * The input argument may not be another smart pointer.
    */
   void TakeReference(T* t)
-    {
+  {
     *this = vtkSmartPointer<T>(t, NoReference());
-    }
+  }
 
   /**
    * Create an instance of a VTK object.
    */
   static vtkSmartPointer<T> New()
-    {
+  {
     return vtkSmartPointer<T>(T::New(), NoReference());
-    }
+  }
 
   /**
    * Create a new instance of the given VTK object.
    */
   static vtkSmartPointer<T> NewInstance(T* t)
-    {
+  {
     return vtkSmartPointer<T>(t->NewInstance(), NoReference());
-    }
+  }
 
   /**
    * Transfer ownership of one reference to the given VTK object to a
@@ -159,9 +159,9 @@ public:
    * The input argument may not be another smart pointer.
    */
   static vtkSmartPointer<T> Take(T* t)
-    {
+  {
     return vtkSmartPointer<T>(t, NoReference());
-    }
+  }
 
   // Work-around for HP and IBM overload resolution bug.  Since
   // NullPointerOnly is a private type the only pointer value that can
@@ -171,9 +171,9 @@ public:
 #if defined(__HP_aCC) || defined(__IBMCPP__)
 # define VTK_SMART_POINTER_DEFINE_OPERATOR_WORKAROUND(op) \
   bool operator op (NullPointerOnly*) const        \
-    {                                                     \
+  {                                                     \
     return ::operator op (*this, 0);                      \
-    }
+  }
 private:
   class NullPointerOnly {};
 public:
@@ -198,19 +198,19 @@ private:
   template <class T> \
   inline bool \
   operator op (const vtkSmartPointer<T>& l, const vtkSmartPointer<T>& r) \
-    { \
+  { \
     return (l.GetPointer() op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (T* l, const vtkSmartPointer<T>& r) \
-    { \
+  { \
     return (l op r.GetPointer()); \
-    } \
+  } \
   template <class T> \
   inline bool operator op (const vtkSmartPointer<T>& l, T* r) \
-    { \
+  { \
     return (l.GetPointer() op r); \
-    }
+  }
 /**
  * Compare smart pointer values.
  */

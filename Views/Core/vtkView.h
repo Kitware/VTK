@@ -159,21 +159,21 @@ public:
    * data when vtkCommand::ViewProgressEvent is fired.
    */
   class ViewProgressEventCallData
-    {
+  {
     const char* Message;
     double Progress;
   //@}
 
   public:
     ViewProgressEventCallData(const char* msg, double progress)
-      {
+    {
       this->Message = msg;
       this->Progress = progress;
-      }
+    }
     ~ViewProgressEventCallData()
-      {
+    {
       this->Message = 0;
-      }
+    }
 
     /**
      * Get the message.
@@ -186,7 +186,7 @@ public:
      */
     double GetProgress() const
       { return this->Progress; }
-    };
+  };
 
   /**
    * Meant for use by subclasses and vtkRepresentation subclasses.

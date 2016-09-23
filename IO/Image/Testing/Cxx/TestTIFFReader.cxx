@@ -26,11 +26,11 @@ int TestTIFFReader(int argc, char* argv[])
 {
   //Verify input arguments
   if ( argc < 3 )
-    {
+  {
     std::cout << "Usage: " << argv[0]
               << " Filename(.tif)" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   //Read the image
   vtkSmartPointer<vtkTIFFReader> reader =

@@ -89,7 +89,7 @@ public:
   //@}
 
   enum
-    {
+  {
     AnyLocation = 0,
     LowerLeftCorner,
     LowerRightCorner,
@@ -97,7 +97,7 @@ public:
     UpperLeftCorner,
     UpperRightCorner,
     UpperCenter
-    };
+  };
 
   //@{
   /**

@@ -58,7 +58,7 @@ public:
 
   // Interface dot product computation to SMP tools.
   template <class T1,class T2> class DotOp
-    {
+  {
     public:
       vtkVectorDotAlgorithm *Algo;
       vtkSMPThreadLocal<double> Min;
@@ -66,45 +66,45 @@ public:
       DotOp(vtkVectorDotAlgorithm<T1,T2> *algo) :
         Algo(algo), Min(VTK_DOUBLE_MAX), Max(VTK_DOUBLE_MIN) {}
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         double &min = this->Min.Local();
         double &max = this->Max.Local();
         const T1 *n = this->Algo->Normals + 3*k;
         const T2 *v = this->Algo->Vectors + 3*k;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           *s = n[0]*v[0] + n[1]*v[1] + n[2]*v[2];
           min = ( *s < min ? *s : min );
           max = ( *s > max ? *s : max );
           s++;
           n += 3;
           v += 3;
-          }
         }
-    };
+      }
+  };
 
   // Interface normalize computation to SMP tools.
   template <class T1,class T2> class MapOp
-    {
+  {
     public:
       vtkVectorDotAlgorithm *Algo;
       MapOp(vtkVectorDotAlgorithm<T1,T2> *algo)
         { this->Algo = algo; }
       void  operator() (vtkIdType k, vtkIdType end)
-        {
+      {
         const double dR = this->Algo->ScalarRange[1]-this->Algo->ScalarRange[0];
         const double srMin = this->Algo->ScalarRange[0];
         const double dS = this->Algo->Max - this->Algo->Min;
         const double min = this->Algo->Min;
         float *s = this->Algo->Scalars + k;
         for ( ; k < end; ++k)
-          {
+        {
           *s = srMin + ((*s - min)/dS)*dR;
           s++;
-          }
         }
-    };
+      }
+  };
 };
 
 //----------------------------------------------------------------------------
@@ -143,29 +143,29 @@ Dot(vtkVectorDot *self, vtkIdType numPts, TN *normals, TV *vectors,
   double max = VTK_DOUBLE_MIN;
   vtkSMPThreadLocal<double>::iterator itr;
   for ( itr=dot.Min.begin(); itr != dot.Min.end(); ++itr )
-    {
+  {
     if ( *itr < min )
-      {
-      min = *itr;
-      }
-    }
-  for ( itr=dot.Max.begin(); itr != dot.Max.end(); ++itr )
     {
-    if ( *itr > max )
-      {
-      max = *itr;
-      }
+      min = *itr;
     }
+  }
+  for ( itr=dot.Max.begin(); itr != dot.Max.end(); ++itr )
+  {
+    if ( *itr > max )
+    {
+      max = *itr;
+    }
+  }
 
   // Return the global range
   actualRange[0] = algo.Min = min;
   actualRange[1] = algo.Max = max;
 
   if ( self->GetMapScalars() )
-    {
+  {
     MapOp<TN,TV> mapValues(&algo);
     vtkSMPTools::For(0,algo.NumPts, mapValues);
-    }
+  }
 }
 
 
@@ -215,20 +215,20 @@ int vtkVectorDot::RequestData(
   output->CopyStructure( input );
 
   if ( (numPts=input->GetNumberOfPoints()) < 1 )
-    {
+  {
     vtkErrorMacro(<< "No points!");
     return 1;
-    }
+  }
   if ( (inNormals=pd->GetNormals()) == NULL )
-    {
+  {
     vtkErrorMacro(<< "No normals defined!");
     return 1;
-    }
+  }
   if ( (inVectors=pd->GetVectors()) == NULL )
-    {
+  {
     vtkErrorMacro(<< "No vectors defined!");
     return 1;
-    }
+  }
 
   // Allocate
   //
@@ -249,7 +249,7 @@ int vtkVectorDot::RequestData(
   double *actualRange = this->ActualRange;
   switch (vtkTemplate2PackMacro(inNormals->GetDataType(),
                                 inVectors->GetDataType()))
-    {
+  {
     // Double explicit specification of multiple template arguments.
     // Supports combinations of float and double.
     vtkTemplate2MacroFP((vtkVectorDotAlgorithm<VTK_T1,VTK_T2>::
@@ -260,11 +260,11 @@ int vtkVectorDot::RequestData(
       // Unknown input or output VTK type id.
       fastPath = 0;
       break;
-    }
+  }
 
   // If we couldn't use the fast path, then take the scenic route
   if ( ! fastPath )
-    {
+  {
     // Compute initial scalars
     //
     int abort=0;
@@ -273,44 +273,44 @@ int vtkVectorDot::RequestData(
     vtkIdType progressInterval=numPts/20 + 1;
     for (min=VTK_DOUBLE_MAX,max=(-VTK_DOUBLE_MAX),ptId=0;
          ptId < numPts && !abort; ptId++)
-      {
+    {
       if ( ! (ptId % progressInterval) )
-        {
+      {
         this->UpdateProgress ((double)ptId/numPts);
         abort = this->GetAbortExecute();
-        }
+      }
       inNormals->GetTuple(ptId, n);
       inVectors->GetTuple(ptId, v);
       s = vtkMath::Dot(n,v);
       if ( s < min )
-        {
+      {
         min = s;
-        }
-      if ( s > max )
-        {
-        max = s;
-        }
-      newScalars->SetTuple(ptId,&s);
       }
+      if ( s > max )
+      {
+        max = s;
+      }
+      newScalars->SetTuple(ptId,&s);
+    }
 
     // Map scalars into scalar range
     //
     if ( (dR=this->ScalarRange[1]-this->ScalarRange[0]) == 0.0 )
-      {
+    {
       dR = 1.0;
-      }
+    }
     if ( (dS=max-min) == 0.0 )
-      {
+    {
       dS = 1.0;
-      }
+    }
 
     for ( ptId=0; ptId < numPts; ptId++ )
-      {
+    {
       s = newScalars->GetComponent(ptId,0);
       s = ((s - min)/dS) * dR + this->ScalarRange[0];
       newScalars->SetTuple(ptId,&s);
-      }
     }
+  }
 
   // Update self and release memory
   //

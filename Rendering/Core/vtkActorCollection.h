@@ -105,13 +105,13 @@ inline vtkActor *vtkActorCollection::GetNextActor()
 inline vtkActor *vtkActorCollection::GetLastActor()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkActor *>(this->Bottom->Item);
-    }
+  }
 }
 
 inline vtkActor *vtkActorCollection::GetNextItem()

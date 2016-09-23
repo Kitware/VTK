@@ -55,9 +55,9 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
 {
   vtkTable* primaryTab = vtkTable::SafeDownCast( outMeta->GetBlock( 0 ) );
   if ( ! primaryTab )
-    {
+  {
     return;
-    }
+  }
 
   vtkImageData* outImage = vtkImageData::SafeDownCast(this->GetOutputDataObject(vtkPExtractHistogram2D::HISTOGRAM_IMAGE));
 
@@ -65,18 +65,18 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
   this->Superclass::Learn(inData,inParameters,outMeta);
 
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1)
-    {
+  {
     // Nothing to do for single process.
     return;
-    }
+  }
 
   // Now we need to collect and reduce data from all nodes on the root.
   vtkCommunicator* comm = this->Controller->GetCommunicator();
   if (!comm)
-    {
+  {
     vtkErrorMacro("vtkCommunicator is needed.");
     return;
-    }
+  }
 
   int myid = this->Controller->GetLocalProcessId();
 
@@ -89,20 +89,20 @@ void vtkPExtractHistogram2D::Learn(vtkTable *inData,
   // this sums up all of the images and distributes them to
   // every node
   if (!comm->AllReduce(myArray,recvArray,vtkCommunicator::SUM_OP))
-    {
+  {
     vtkErrorMacro(<< myid << ": Reduce failed!");
     reducedOutImage->Delete();
     return;
-    }
+  }
 
   outImage->DeepCopy(reducedOutImage);
 
   // update the maximum bin count
   for (int i=0; i<recvArray->GetNumberOfTuples(); i++)
-    {
+  {
     if (this->MaximumBinCount < recvArray->GetTuple1(i))
       this->MaximumBinCount = (long unsigned)recvArray->GetTuple1(i);
-    }
+  }
 
   reducedOutImage->Delete();
 
@@ -114,29 +114,29 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
 {
   if (!this->Controller || this->Controller->GetNumberOfProcesses() <= 1 ||
     this->UseCustomHistogramExtents)
-    {
+  {
     // Nothing extra to do for single process.
     return this->Superclass::ComputeBinExtents(col1,col2);
-    }
+  }
 
   vtkCommunicator* comm = this->Controller->GetCommunicator();
   if (!comm)
-    {
+  {
     vtkErrorMacro("vtkCommunicator is needed.");
     return false;
-    }
+  }
 
   // have everyone compute their own bin extents
   double myRange[4] = {VTK_DOUBLE_MAX,VTK_DOUBLE_MIN,VTK_DOUBLE_MAX,VTK_DOUBLE_MIN};
   double allRange[4] = {VTK_DOUBLE_MAX,VTK_DOUBLE_MIN,VTK_DOUBLE_MAX,VTK_DOUBLE_MIN};
   if (this->Superclass::ComputeBinExtents(col1,col2))
-    {
+  {
     double *r = this->GetHistogramExtents();
     myRange[0] = r[0];
     myRange[1] = r[1];
     myRange[2] = r[2];
     myRange[3] = r[3];
-    }
+  }
 
 
   int myid = this->Controller->GetLocalProcessId();
@@ -145,10 +145,10 @@ int vtkPExtractHistogram2D::ComputeBinExtents(vtkDataArray* col1, vtkDataArray* 
       !comm->AllReduce(myRange+1,allRange+1,1,vtkCommunicator::MAX_OP) ||
       !comm->AllReduce(myRange+2,allRange+2,1,vtkCommunicator::MIN_OP) ||
       !comm->AllReduce(myRange+3,allRange+3,1,vtkCommunicator::MAX_OP))
-    {
+  {
     vtkErrorMacro(<< myid << ": Reduce failed!");
     return 0;
-    }
+  }
 
   r[0] = allRange[0];
   r[1] = allRange[1];

@@ -66,9 +66,9 @@ void vtkBridgePointIterator::PrintSelf(ostream& os, vtkIndent indent)
 void vtkBridgePointIterator::Begin()
 {
   if(this->CurrentIterator!=0)
-    {
+  {
     this->CurrentIterator->Begin();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -79,9 +79,9 @@ int vtkBridgePointIterator::IsAtEnd()
   int result=1;
 
   if(this->CurrentIterator!=0)
-    {
+  {
     result=this->CurrentIterator->IsAtEnd();
-    }
+  }
   return result;
 }
 

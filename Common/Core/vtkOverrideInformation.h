@@ -45,9 +45,9 @@ public:
    * vtkVertex, then this funciton would return "vtkVertex"
    */
   const char* GetClassOverrideName()
-    {
+  {
       return this->ClassOverrideName;
-    }
+  }
 
   /**
    * Returns the name of the class that will override the class.
@@ -55,26 +55,26 @@ public:
    * vtkVertex called vtkMyVertex, then this would return "vtkMyVertex"
    */
   const char* GetClassOverrideWithName()
-    {
+  {
       return this->ClassOverrideWithName;
-    }
+  }
 
   /**
    * Return a human readable or GUI displayable description of this
    * override.
    */
   const char* GetDescription()
-    {
+  {
       return this->Description;
-    }
+  }
 
   /**
    * Return the specific object factory that this override occurs in.
    */
   vtkObjectFactory* GetObjectFactory()
-    {
+  {
       return this->ObjectFactory;
-    }
+  }
   //@{
   /**
    * Set the class override name

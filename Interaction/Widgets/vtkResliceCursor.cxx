@@ -75,7 +75,7 @@ vtkResliceCursor::vtkResliceCursor()
   // polydata.
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     vtkSmartPointer< vtkPlane > plane = vtkSmartPointer< vtkPlane >::New();
     this->ReslicePlanes->AddItem(plane);
 
@@ -91,7 +91,7 @@ vtkResliceCursor::vtkResliceCursor()
     this->CenterlineAxis[i]->SetPoints(pointsc);
     this->CenterlineAxis[i]->SetLines(linesc);
 
-    }
+  }
 
   this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
   this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
@@ -108,22 +108,22 @@ vtkResliceCursor::~vtkResliceCursor()
   this->ReslicePlanes->Delete();
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->CenterlineAxis[i]->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkResliceCursor::BuildCursorTopology()
 {
   if (this->Hole)
-    {
+  {
     this->BuildCursorTopologyWithHole();
-    }
+  }
   else
-    {
+  {
     this->BuildCursorTopologyWithoutHole();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -132,14 +132,14 @@ void vtkResliceCursor::BuildCursorTopologyWithoutHole()
   vtkIdType ptIds[2];
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->CenterlineAxis[i]->GetPoints()->SetNumberOfPoints(2);
     this->CenterlineAxis[i]->GetLines()->Reset();
 
     ptIds[0] = 0;
     ptIds[1] = 1;
     this->CenterlineAxis[i]->GetLines()->InsertNextCell(2, ptIds);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -148,7 +148,7 @@ void vtkResliceCursor::BuildCursorTopologyWithHole()
   vtkIdType ptIds[2];
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->CenterlineAxis[i]->GetPoints()->SetNumberOfPoints(4);
     this->CenterlineAxis[i]->GetLines()->Reset();
 
@@ -158,7 +158,7 @@ void vtkResliceCursor::BuildCursorTopologyWithHole()
     ptIds[0] = 2;
     ptIds[1] = 3;
     this->CenterlineAxis[i]->GetLines()->InsertNextCell(2, ptIds);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -181,20 +181,20 @@ void vtkResliceCursor::Reset()
   this->ZAxis[2]                = 1.0;
 
   if (this->GetImage())
-    {
+  {
     this->GetImage()->GetCenter(this->Center);
-    }
+  }
   else
-    {
+  {
     this->Center[0]               = 0.0;
     this->Center[1]               = 0.0;
     this->Center[2]               = 0.0;
-    }
+  }
 
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->GetPlane(i)->SetOrigin(this->Center);
-    }
+  }
 
   this->ReslicePlanes->GetItem(0)->SetNormal(1,0,0);
   this->ReslicePlanes->GetItem(1)->SetNormal(0,-1,0);
@@ -223,16 +223,16 @@ vtkPolyData * vtkResliceCursor::GetPolyData()
 void vtkResliceCursor::Update()
 {
   if (!this->Image)
-    {
+  {
     vtkErrorMacro( << "Image not set !" );
     return;
-    }
+  }
 
   if (this->GetMTime() > this->PolyDataBuildTime)
-    {
+  {
     this->BuildCursorTopology();
     this->BuildCursorGeometry();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -240,9 +240,9 @@ void vtkResliceCursor::ComputeAxes()
 {
   double normals[3][3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->GetPlane(i)->GetNormal(normals[i]);
-    }
+  }
 
   // The axes are the intersections of the plane normals.
 
@@ -272,7 +272,7 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
 
   double pts[12][3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
     pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
     pts[2][i] = this->Center[i] - pdLength * this->YAxis[i];
@@ -288,10 +288,10 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
     pts[9][i] = this->Center[i] + holeHalfWidth * this->YAxis[i];
     pts[10][i] = this->Center[i] - holeHalfWidth * this->ZAxis[i];
     pts[11][i] = this->Center[i] + holeHalfWidth * this->ZAxis[i];
-    }
+  }
 
   for (int j = 0; j < 3; j++)
-    {
+  {
     vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
     centerlinePoints->SetPoint(0, pts[2*j]);
     centerlinePoints->SetPoint(1, pts[6+2*j]);
@@ -299,7 +299,7 @@ void vtkResliceCursor::BuildCursorGeometryWithHole()
     centerlinePoints->SetPoint(3, pts[2*j+1]);
 
     this->CenterlineAxis[j]->Modified();
-    }
+  }
 
   this->PolyDataBuildTime.Modified();
 }
@@ -322,23 +322,23 @@ void vtkResliceCursor::BuildCursorGeometryWithoutHole()
   // Precompute prior to use within the loop.
   double pts[6][3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
     pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
     pts[2][i] = this->Center[i] - pdLength * this->YAxis[i];
     pts[3][i] = this->Center[i] + pdLength * this->YAxis[i];
     pts[4][i] = this->Center[i] - pdLength * this->ZAxis[i];
     pts[5][i] = this->Center[i] + pdLength * this->ZAxis[i];
-    }
+  }
 
   for (int j = 0; j < 3; j++)
-    {
+  {
     vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
     centerlinePoints->SetPoint(0, pts[2*j]);
     centerlinePoints->SetPoint(1, pts[2*j+1]);
 
     this->CenterlineAxis[j]->Modified();
-    }
+  }
 
   this->PolyDataBuildTime.Modified();
 }
@@ -347,13 +347,13 @@ void vtkResliceCursor::BuildCursorGeometryWithoutHole()
 void vtkResliceCursor::BuildCursorGeometry()
 {
   if (this->Hole)
-    {
+  {
     this->BuildCursorGeometryWithHole();
-    }
+  }
   else
-    {
+  {
     this->BuildCursorGeometryWithoutHole();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -386,7 +386,7 @@ void vtkResliceCursor::BuildPolyData()
 
   double pts[30][3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     pts[0][i] = this->Center[i] - pdLength * this->XAxis[i];
     pts[1][i] = this->Center[i] + pdLength * this->XAxis[i];
     pts[2][i] = pts[0][i] - ht[1] * this->YAxis[i] - ht[2] * this->ZAxis[i];
@@ -419,7 +419,7 @@ void vtkResliceCursor::BuildPolyData()
     pts[27][i] = pts[21][i] + ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
     pts[28][i] = pts[20][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
     pts[29][i] = pts[21][i] - ht[1] * this->YAxis[i] + ht[0] * this->XAxis[i];
-    }
+  }
 
   vtkIdType ptIds[2];
 
@@ -427,18 +427,18 @@ void vtkResliceCursor::BuildPolyData()
     { { 0, 2, 4, 6 }, { 1, 7, 5, 3 }, { 1,3,2,0 }, { 0,6,7,1 }, { 2,3,5,4 }, {6,4,5,7} };
 
   for (int j = 0; j < 3; j++)
-    {
+  {
 
     vtkPoints *centerlinePoints = this->CenterlineAxis[j]->GetPoints();
 
     for (int i = 0; i < 4; i++)
-      {
+    {
       ptIds[0] = 10 * j + 2 + 2*i;
       ptIds[1] = ptIds[0] + 1;
 
       points->InsertNextPoint(pts[ptIds[0]]);
       points->InsertNextPoint(pts[ptIds[1]]);
-      }
+    }
 
     centerlinePoints->SetPoint(0, pts[10*j]);
     centerlinePoints->SetPoint(1, pts[10*j+1]);
@@ -448,17 +448,17 @@ void vtkResliceCursor::BuildPolyData()
     slabPolys->Allocate(slabPolys->EstimateSize(6,4));
 
     for (int i = 0; i < 6; i++)
-      {
+    {
       vtkIdType currFacePtIds[4] = {facePtIds[i][0] + 8*j,
                                     facePtIds[i][1] + 8*j,
                                     facePtIds[i][2] + 8*j,
                                     facePtIds[i][3] + 8*j };
       lines->InsertNextCell(4,currFacePtIds);
       slabPolys->InsertNextCell(4,facePtIds[i]);
-      }
+    }
 
     this->CenterlineAxis[j]->Modified();
-    }
+  }
 
   this->PolyData->SetPolys(lines);
 
@@ -474,21 +474,21 @@ void vtkResliceCursor::SetCenter( double _arg1, double _arg2, double _arg3 )
   if (  (this->Center[0] != _arg1)
       ||(this->Center[1] != _arg2)
       ||(this->Center[2] != _arg3))
-    {
+  {
 
     // Ensure that the center of the cursor lies within the image bounds.
 
     if (this->Image)
-      {
+    {
       double bounds[6];
       this->Image->GetBounds(bounds);
       if (_arg1 < bounds[0] || _arg1 > bounds[1] ||
           _arg2 < bounds[2] || _arg2 > bounds[3] ||
           _arg3 < bounds[4] || _arg3 > bounds[5])
-        {
+      {
         return;
-        }
       }
+    }
 
     this->Center[0] = _arg1;
     this->Center[1] = _arg2;
@@ -498,7 +498,7 @@ void vtkResliceCursor::SetCenter( double _arg1, double _arg2, double _arg3 )
     this->GetPlane(0)->SetOrigin(this->Center);
     this->GetPlane(1)->SetOrigin(this->Center);
     this->GetPlane(2)->SetOrigin(this->Center);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -518,17 +518,17 @@ vtkPolyData * vtkResliceCursor::GetCenterlineAxisPolyData( int axis )
 double * vtkResliceCursor::GetAxis( int i )
 {
   if (i == 0)
-    {
+  {
     return this->XAxis;
-    }
+  }
   else if (i == 1)
-    {
+  {
     return this->YAxis;
-    }
+  }
   else
-    {
+  {
     return this->ZAxis;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -536,13 +536,13 @@ vtkMTimeType vtkResliceCursor::GetMTime()
 {
   vtkMTimeType mTime=this->Superclass::GetMTime();
   for (int i = 0; i < 3; i++)
-    {
+  {
     vtkMTimeType time = this->GetPlane(i)->GetMTime();
     if (time > mTime)
-      {
+    {
       mTime = time;
-      }
     }
+  }
 
   return mTime;
 }
@@ -554,22 +554,22 @@ void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Hole: ";
   if (this->Hole)
-    {
+  {
     os << indent << "On" << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Off" << "\n";
-    }
+  }
   os << indent << "ThickMode: ";
   if (this->ThickMode)
-    {
+  {
     os << indent << "On" << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Off" << "\n";
-    }
+  }
   os << indent << "HoleWidth: " << this->HoleWidth << endl;
   os << indent << "HoleWidthInPixels: " << this->HoleWidthInPixels << endl;
   os << indent << "Thickness: (" << this->Thickness[0] << ","
@@ -586,19 +586,19 @@ void vtkResliceCursor::PrintSelf(ostream& os, vtkIndent indent)
      << this->Center[2] << endl;
   os << indent << "Image: " << this->Image << "\n";
   if (this->Image)
-    {
+  {
     this->Image->PrintSelf(os, indent);
-    }
+  }
   os << indent << "PolyData: " << this->PolyData << "\n";
   if (this->PolyData)
-    {
+  {
     this->PolyData->PrintSelf(os, indent);
-    }
+  }
   os << indent << "ReslicePlanes: " << this->ReslicePlanes << "\n";
   if (this->ReslicePlanes)
-    {
+  {
     this->ReslicePlanes->PrintSelf(os, indent);
-    }
+  }
 
   // this->PolyDataBuildTime;
   // this->CenterlineAxis[3];

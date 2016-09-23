@@ -226,9 +226,9 @@ void vtkSliderRepresentation2D::SetTitleText(const char* label)
 {
   this->TitleMapper->SetInput(label);
   if ( this->TitleMapper->GetMTime() > this->GetMTime() )
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -255,34 +255,34 @@ void vtkSliderRepresentation2D::StartWidgetInteraction(double eventPos[2])
 
   vtkCell *sliderCell = this->SliderXForm->GetOutput()->GetCell(0);
   if ( sliderCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Slider;
     return;
-    }
+  }
 
   vtkCell *tubeCell = this->TubeXForm->GetOutput()->GetCell(0);
   if ( tubeCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Tube;
     this->ComputePickPosition(eventPos);
     return;
-    }
+  }
 
   vtkCell *leftCapCell = this->CapXForm->GetOutput()->GetCell(0);
   if ( leftCapCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::LeftCap;
     this->PickedT = 0.0;
     return;
-    }
+  }
 
   vtkCell *rightCapCell = this->CapXForm->GetOutput()->GetCell(1);
   if ( rightCapCell->EvaluatePosition(event,closest,subId,pcoords,dist2,weights) > 0 )
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::RightCap;
     this->PickedT = 1.0;
     return;
-    }
+  }
 
   this->InteractionState = vtkSliderRepresentation::Outside;
 }
@@ -350,13 +350,13 @@ double vtkSliderRepresentation2D::ComputePickPosition(double eventPos[2])
 void vtkSliderRepresentation2D::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->SliderActor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->SliderActor->SetProperty(this->SliderProperty);
-    }
+  }
 }
 
 
@@ -366,14 +366,14 @@ void vtkSliderRepresentation2D::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     int *size = this->Renderer->GetSize();
     if (0 == size[0] || 0 == size[1])
-      {
+    {
       // Renderer has no size yet: wait until the next
       // BuildRepresentation...
       return;
-      }
+    }
 
     double t = (this->Value-this->MinimumValue) / (this->MaximumValue-this->MinimumValue);
 
@@ -431,11 +431,11 @@ void vtkSliderRepresentation2D::BuildRepresentation()
                    (this->TubeWidth > this->EndCapWidth ? this->TubeWidth : this->EndCapWidth) );
 
     if ( ! this->ShowSliderLabel )
-      {
+    {
       this->LabelActor->VisibilityOff();
-      }
+    }
     else
-      {
+    {
       this->LabelActor->VisibilityOn();
       int labelSize[2];
       char label[256];
@@ -447,7 +447,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
       textSize[1] = static_cast<double>(labelSize[1])/static_cast<double>(size[1]);
       double radius = maxY/2.0 + textSize[1]*cos(theta) + textSize[0]*sin(theta);
       this->Points->SetPoint(16, (x[2]+x[3])/2.0, radius, 0.0); //label
-      }
+    }
 
     this->TitleProperty->SetFontSize(static_cast<int>(this->TitleHeight*size[1]));
     this->TitleMapper->GetSize(this->Renderer, titleSize);
@@ -478,7 +478,7 @@ void vtkSliderRepresentation2D::BuildRepresentation()
     this->TitleActor->SetPosition(p17[0],p17[1]);
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -546,72 +546,72 @@ void vtkSliderRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
 
   if ( this->SliderProperty )
-    {
+  {
     os << indent << "Slider Property:\n";
     this->SliderProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Slider Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->TubeProperty )
-    {
+  {
     os << indent << "TubeProperty:\n";
     this->TubeProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "TubeProperty: (none)\n";
-    }
+  }
 
   if ( this->CapProperty )
-    {
+  {
     os << indent << "CapProperty:\n";
     this->CapProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "CapProperty: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->LabelProperty )
-    {
+  {
     os << indent << "LabelProperty:\n";
     this->LabelProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "LabelProperty: (none)\n";
-    }
+  }
 
   if ( this->TitleProperty )
-    {
+  {
     os << indent << "TitleProperty:\n";
     this->TitleProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "TitleProperty: (none)\n";
-    }
+  }
 }

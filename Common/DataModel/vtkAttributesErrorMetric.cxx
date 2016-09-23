@@ -47,13 +47,13 @@ void vtkAttributesErrorMetric::SetAbsoluteAttributeTolerance(double value)
 {
   assert("pre: valid_range_value" && value>0);
   if(this->AbsoluteAttributeTolerance!=value || !this->DefinedByAbsolute)
-    {
+  {
     this->AbsoluteAttributeTolerance=value;
     this->SquareAbsoluteAttributeTolerance=this->AbsoluteAttributeTolerance*this->AbsoluteAttributeTolerance;
     this->Range=0;
     this->DefinedByAbsolute=1;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -65,11 +65,11 @@ void vtkAttributesErrorMetric::SetAttributeTolerance(double value)
 {
   assert("pre: valid_range_value" && value>0 && value<1);
   if(this->AttributeTolerance!=value || this->DefinedByAbsolute)
-    {
+  {
     this->AttributeTolerance=value;
     this->DefinedByAbsolute=0;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -95,20 +95,20 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
   vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
 
   if(this->GenericCell->IsAttributeLinear(a))
-    {
+  {
     //don't need to do anything:
     ae=0;
-    }
+  }
   else
-    {
+  {
     if(ac->GetActiveComponent()>=0)
-      {
+    {
       int i=ac->GetAttributeIndex(ac->GetActiveAttribute())+ac->GetActiveComponent()+ATTRIBUTE_OFFSET;
       double tmp=leftPoint[i]+alpha*(rightPoint[i]-leftPoint[i])-midPoint[i];
       ae=tmp*tmp;
-      }
+    }
     else // module of the vector
-      {
+    {
       int i=ac->GetAttributeIndex(ac->GetActiveAttribute())+ATTRIBUTE_OFFSET;
       int j=0;
       int c=ac->GetNumberOfComponents();
@@ -118,13 +118,13 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
       double interpolatedValueMod=0;
       double midValueMod=0;
       while(j<c)
-        {
+      {
         tmp=leftPoint[i+j]+alpha*(rightPoint[i+j]-leftPoint[i+j]);
         interpolatedValueMod+=tmp*tmp;
         tmp=midPoint[i+j];
         midValueMod+=tmp*tmp;
         ++j;
-        }
+      }
       tmp=sqrt(midValueMod)-sqrt(interpolatedValueMod);
       ae=tmp*tmp;
 #else
@@ -134,24 +134,24 @@ int vtkAttributesErrorMetric::RequiresEdgeSubdivision(double *leftPoint,
       // Remind that: ||x|-|y||<=|x-y|
       ae=0;
       while(j<c)
-        {
+      {
         tmp=leftPoint[i+j]+alpha*(rightPoint[i+j]-leftPoint[i+j])-midPoint[i+j];
         ae+=tmp*tmp;
         ++j;
-        }
-#endif
       }
-    assert("check: positive_ae" && ae>=0);
+#endif
     }
+    assert("check: positive_ae" && ae>=0);
+  }
 
   if(this->SquareAbsoluteAttributeTolerance==0)
-    {
+  {
     result=fabs(ae)>0.0001;
-    }
+  }
   else
-    {
+  {
     result=ae>this->SquareAbsoluteAttributeTolerance;
-    }
+  }
   return result;
 }
 
@@ -184,20 +184,20 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
 
 
   if(this->GenericCell->IsAttributeLinear(a))
-    {
+  {
     //don't need to do anything:
     ae=0;
-    }
+  }
   else
-    {
+  {
     if(ac->GetActiveComponent()>=0) // one component
-      {
+    {
       int i=ac->GetAttributeIndex(ac->GetActiveAttribute())+ac->GetActiveComponent()+ATTRIBUTE_OFFSET;
       double tmp=leftPoint[i]+alpha*(rightPoint[i]-leftPoint[i])-midPoint[i];
       ae=tmp*tmp;
-      }
+    }
     else // module of the vector
-      {
+    {
       // If x and y are two vectors, we compute: |x-y|
       // We should compute ||x|-|y|| but |x-y| is usually enough
       // and tends to produce less degenerated edges.
@@ -209,24 +209,24 @@ double vtkAttributesErrorMetric::GetError(double *leftPoint,
 
       ae=0;
       while(j<c)
-        {
+      {
         tmp=leftPoint[i+j]+alpha*(rightPoint[i+j]-leftPoint[i+j])-midPoint[i+j];
         ae+=tmp*tmp;
         ++j;
-        }
       }
     }
+  }
 
   double result;
 
   if(this->Range!=0)
-    {
+  {
     result=sqrt(ae)/this->Range;
-    }
+  }
   else
-    {
+  {
     result=0;
-    }
+  }
 
   assert("post: positive_result" && result>=0);
 
@@ -248,9 +248,9 @@ void vtkAttributesErrorMetric::PrintSelf(ostream& os, vtkIndent indent)
 void vtkAttributesErrorMetric::ComputeSquareAbsoluteAttributeTolerance()
 {
   if(!this->DefinedByAbsolute)
-    {
+  {
     if ( this->GetMTime() > this->SquareAbsoluteAttributeToleranceComputeTime )
-      {
+    {
       vtkGenericAttributeCollection *ac=this->DataSet->GetAttributes();
       vtkGenericAttribute *a=ac->GetAttribute(ac->GetActiveAttribute());
 
@@ -267,6 +267,6 @@ void vtkAttributesErrorMetric::ComputeSquareAbsoluteAttributeTolerance()
       this->SquareAbsoluteAttributeTolerance=tmp*tmp;
       this->SquareAbsoluteAttributeToleranceComputeTime.Modified();
       this->AbsoluteAttributeTolerance=sqrt(this->SquareAbsoluteAttributeTolerance);
-      }
     }
+  }
 }

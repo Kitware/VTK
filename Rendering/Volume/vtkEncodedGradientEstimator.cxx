@@ -75,9 +75,9 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
   delete [] this->GradientMagnitudes;
 
   if ( this->DirectionEncoder )
-    {
+  {
     this->DirectionEncoder->UnRegister( this );
-    }
+  }
 
   delete [] this->CircleLimits;
 }
@@ -85,16 +85,16 @@ vtkEncodedGradientEstimator::~vtkEncodedGradientEstimator()
 void vtkEncodedGradientEstimator::SetZeroNormalThreshold( float v )
 {
   if ( this->ZeroNormalThreshold != v )
-    {
+  {
     if ( v < 0.0 )
-      {
+    {
       vtkErrorMacro( << "The ZeroNormalThreshold must be a value >= 0.0" );
       return;
-      }
+    }
 
     this->ZeroNormalThreshold = v;
     this->Modified();
-    }
+  }
 }
 
 void
@@ -102,22 +102,22 @@ vtkEncodedGradientEstimator::SetDirectionEncoder(vtkDirectionEncoder *direnc)
 {
   // If we are setting it to its current value, don't do anything
   if ( this->DirectionEncoder == direnc )
-    {
+  {
     return;
-    }
+  }
 
   // If we already have a direction encoder, unregister it.
   if ( this->DirectionEncoder )
-    {
+  {
     this->DirectionEncoder->UnRegister(this);
     this->DirectionEncoder = NULL;
-    }
+  }
 
   // If we are passing in a non-NULL encoder, register it
   if ( direnc )
-    {
+  {
     direnc->Register( this );
-    }
+  }
 
   // Actually set the encoder, and consider the object Modified
   this->DirectionEncoder = direnc;
@@ -167,16 +167,16 @@ void vtkEncodedGradientEstimator::Update( )
   double             startCPUSeconds, endCPUSeconds;
 
   if ( !this->InputData )
-    {
+  {
     vtkErrorMacro(<< "No input in gradient estimator.");
     return;
-    }
+  }
 
   if ( this->GetMTime() > this->BuildTime ||
        this->DirectionEncoder->GetMTime() > this->BuildTime ||
        this->InputData->GetMTime() > this->BuildTime ||
        !this->EncodedNormals )
-    {
+  {
 
     startSeconds = vtkTimerLog::GetUniversalTime();
     startCPUSeconds = vtkTimerLog::GetCPUTime();
@@ -190,13 +190,13 @@ void vtkEncodedGradientEstimator::Update( )
     if ( this->EncodedNormalsSize[0] != scalarInputSize[0] ||
          this->EncodedNormalsSize[1] != scalarInputSize[1] ||
          this->EncodedNormalsSize[2] != scalarInputSize[2] )
-      {
+    {
       delete [] this->EncodedNormals;
       this->EncodedNormals = NULL;
 
       delete [] this->GradientMagnitudes;
       this->GradientMagnitudes = NULL;
-      }
+    }
 
     // Compute the number of encoded voxels
     vtkIdType encodedSize = scalarInputSize[0];
@@ -205,17 +205,17 @@ void vtkEncodedGradientEstimator::Update( )
 
     // Allocate space for the encoded normals if necessary
     if ( !this->EncodedNormals )
-      {
+    {
       this->EncodedNormals = new unsigned short[ encodedSize ];
       this->EncodedNormalsSize[0] = scalarInputSize[0];
       this->EncodedNormalsSize[1] = scalarInputSize[1];
       this->EncodedNormalsSize[2] = scalarInputSize[2];
-      }
+    }
 
     if ( !this->GradientMagnitudes && this->ComputeGradientMagnitudes )
-      {
+    {
       this->GradientMagnitudes = new unsigned char[ encodedSize ];
-      }
+    }
 
     // Copy info that multi threaded function will need into temp variables
     memcpy( this->InputSize, scalarInputSize, 3 * sizeof(int) );
@@ -227,14 +227,14 @@ void vtkEncodedGradientEstimator::Update( )
 
     if ( this->CylinderClip &&
          (this->InputSize[0] == this->InputSize[1]) )
-      {
+    {
       this->UseCylinderClip = 1;
       this->ComputeCircleLimits( this->InputSize[0] );
-      }
+    }
     else
-      {
+    {
       this->UseCylinderClip = 0;
-      }
+    }
     this->UpdateNormals();
 
     this->BuildTime.Modified();
@@ -244,7 +244,7 @@ void vtkEncodedGradientEstimator::Update( )
 
     this->LastUpdateTimeInSeconds    = static_cast<float>(endSeconds    - startSeconds);
     this->LastUpdateTimeInCPUSeconds = static_cast<float>(endCPUSeconds - startCPUSeconds);
-    }
+  }
 }
 
 void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
@@ -253,18 +253,18 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
   double  w, halfsize, length, start, end;
 
   if ( this->CircleLimitsSize != size )
-    {
+  {
     delete [] this->CircleLimits;
     this->CircleLimits = new int[2*size];
     this->CircleLimitsSize = size;
-    }
+  }
 
   ptr = this->CircleLimits;
 
   halfsize = (size-1)/2.0;
 
   for ( y = 0; y < size; y++ )
-    {
+  {
     w = halfsize - y;
     length = static_cast<int>( sqrt( (halfsize*halfsize) - (w*w) ) + 0.5 );
     start = halfsize - length - 1;
@@ -274,7 +274,7 @@ void vtkEncodedGradientEstimator::ComputeCircleLimits( int size )
 
     *(ptr++) = static_cast<int>(start);
     *(ptr++) = static_cast<int>(end);
-    }
+  }
 }
 
 // Print the vtkEncodedGradientEstimator
@@ -283,22 +283,22 @@ void vtkEncodedGradientEstimator::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if ( this->InputData )
-    {
+  {
     os << indent << "InputData: (" << this->InputData << ")\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Input: (none)\n";
-    }
+  }
 
   if ( this->DirectionEncoder )
-    {
+  {
     os << indent << "DirectionEncoder: (" << this->DirectionEncoder << ")\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "DirectionEncoder: (none)\n";
-    }
+  }
 
   os << indent << "Build Time: "
      << this->BuildTime.GetMTime() << endl;

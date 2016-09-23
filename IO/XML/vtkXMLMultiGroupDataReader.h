@@ -39,9 +39,9 @@ protected:
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()
-    {
+  {
     return "vtkMultiGroupDataSet";
-    }
+  }
 
 private:
   vtkXMLMultiGroupDataReader(const vtkXMLMultiGroupDataReader&) VTK_DELETE_FUNCTION;

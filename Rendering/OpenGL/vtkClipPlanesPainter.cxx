@@ -41,10 +41,10 @@ vtkClipPlanesPainter::~vtkClipPlanesPainter()
 void vtkClipPlanesPainter::ProcessInformation(vtkInformation* info)
 {
   if (info->Has(CLIPPING_PLANES()))
-    {
+  {
     this->SetClippingPlanes(vtkPlaneCollection::SafeDownCast(
         info->Get(CLIPPING_PLANES())));
-    }
+  }
 
   this->Superclass::ProcessInformation(info);
 }
@@ -55,12 +55,12 @@ void vtkClipPlanesPainter::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
     os << indent << "ClippingPlanes:";
   if ( this->ClippingPlanes )
-    {
+  {
     os << endl;
     this->ClippingPlanes->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << " (none)" << endl;
-    }
+  }
 }

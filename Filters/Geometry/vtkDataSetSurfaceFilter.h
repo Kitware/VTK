@@ -138,15 +138,15 @@ public:
 #ifdef VTK_USE_64BIT_IDS
   virtual int StructuredExecute(vtkDataSet *input,
     vtkPolyData *output, int *ext32, int *wholeExt32)
-    {
+  {
     vtkIdType ext[6]; vtkIdType wholeExt[6];
     for (int cc=0; cc < 6; cc++)
-      {
+    {
       ext[cc] = ext32[cc];
       wholeExt[cc] = wholeExt32[cc];
-      }
-    return this->StructuredExecute(input, output, ext, wholeExt);
     }
+    return this->StructuredExecute(input, output, ext, wholeExt);
+  }
 #endif
   virtual int UnstructuredGridExecute(vtkDataSet *input,
                                       vtkPolyData *output);
@@ -157,15 +157,15 @@ public:
 #ifdef VTK_USE_64BIT_IDS
   virtual int UniformGridExecute(vtkDataSet *input,
     vtkPolyData *output, int *ext32, int *wholeExt32, bool extractface[6] )
-    {
+  {
     vtkIdType ext[6]; vtkIdType wholeExt[6];
     for (int cc=0; cc < 6; cc++)
-      {
+    {
       ext[cc] = ext32[cc];
       wholeExt[cc] = wholeExt32[cc];
-      }
-    return this->UniformGridExecute(input, output, ext, wholeExt, extractface);
     }
+    return this->UniformGridExecute(input, output, ext, wholeExt, extractface);
+  }
 #endif
   //@}
 

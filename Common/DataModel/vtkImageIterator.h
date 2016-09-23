@@ -61,25 +61,25 @@ public:
    * Return an iterator (pointer) for the span
    */
   SpanIterator BeginSpan()
-    {
+  {
     return this->Pointer;
-    }
+  }
 
   /**
    * Return an iterator (pointer) for the end of the span
    */
   SpanIterator EndSpan()
-    {
+  {
     return this->SpanEndPointer;
-    }
+  }
 
   /**
    * Test if the end of the extent has been reached
    */
   int IsAtEnd()
-    {
+  {
     return (this->Pointer >= this->EndPointer);
-    }
+  }
 
 protected:
   DType *Pointer;

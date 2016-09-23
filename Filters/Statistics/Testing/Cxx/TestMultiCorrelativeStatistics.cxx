@@ -75,12 +75,12 @@ int TestMultiCorrelativeStatistics( int, char *[] )
   dataset3Arr->SetName( m2Name );
 
   for ( int i = 0; i < nVals; ++ i )
-    {
+  {
     int ti = i << 1;
     dataset1Arr->InsertNextValue( mingledData[ti] );
     dataset2Arr->InsertNextValue( mingledData[ti + 1] );
     dataset3Arr->InsertNextValue( i != 12 ? -1. : -1.001 );
-    }
+  }
 
   vtkTable* datasetTable = vtkTable::New();
   datasetTable->AddColumn( dataset1Arr );
@@ -130,20 +130,20 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
   cout << "## Calculated the following statistics for data set:\n";
   for ( unsigned int b = 0; b < outputMetaDS->GetNumberOfBlocks(); ++ b )
-    {
+  {
     vtkTable* outputMeta = vtkTable::SafeDownCast( outputMetaDS->GetBlock( b ) );
 
     if ( b == 0 )
-      {
+    {
       cout << "Primary Statistics\n";
-      }
+    }
     else
-      {
+    {
       cout << "Derived Statistics " << ( b - 1 ) << "\n";
-      }
+    }
 
     outputMeta->Dump();
-    }
+  }
 
   // Test Assess Mode
   vtkMultiBlockDataSet* paramsTables = vtkMultiBlockDataSet::New();
@@ -174,33 +174,33 @@ int TestMultiCorrelativeStatistics( int, char *[] )
 
   cout << "   Found the following outliers:\n";
   for ( int i = 0; i < 3; ++ i )
-    {
+  {
     cout << "   "
          << outputData->GetColumnName( tableIdx[i] );
-    }
+  }
   cout << "\n";
 
   for ( vtkIdType r = 0; r < outputData->GetNumberOfRows(); ++ r )
-    {
+  {
     if ( outputData->GetValue( r, tableIdx[2] ).ToDouble() > threshold )
-      {
+    {
       ++ nOutliers;
 
       for ( int i = 0; i < 3; ++ i )
-        {
+      {
         cout << "     "
              << outputData->GetValue( r,  tableIdx[i] ).ToString()
              << "    ";
-        }
-      cout << "\n";
       }
+      cout << "\n";
     }
+  }
 
   if ( nOutliers != 3 )
-    {
+  {
     vtkGenericWarningMacro("Expected 3 outliers, found " << nOutliers << ".");
     testStatus = 1;
-    }
+  }
 
   mcs->Delete();
 

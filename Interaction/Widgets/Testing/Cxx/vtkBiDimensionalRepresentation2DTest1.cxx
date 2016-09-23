@@ -25,10 +25,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != pos[2])
-    {
+  {
     std::cerr << "Failure in Get/Set Point1WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[2] = 99.9;
   node1->SetPoint2WorldPosition(pos);
@@ -36,10 +36,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != pos[2])
-    {
+  {
     std::cerr << "Failure in Get/Set Point2WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[2] = -88.9;
   node1->SetPoint3WorldPosition(pos);
@@ -47,10 +47,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != pos[2])
-    {
+  {
     std::cerr << "Failure in Get/Set Point3WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[0] = -44.9;
   node1->SetPoint4WorldPosition(pos);
@@ -58,10 +58,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != pos[2])
-    {
+  {
     std::cerr << "Failure in Get/Set Point4WorldPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   // display position
@@ -71,10 +71,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != 0.0)
-    {
+  {
     std::cerr << "Failure in Get/Set Point1DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[1] = 99.9;
   node1->SetPoint2DisplayPosition(pos);
@@ -82,10 +82,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != 0.0)
-    {
+  {
     std::cerr << "Failure in Get/Set Point2DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[1] = -88.9;
   node1->SetPoint3DisplayPosition(pos);
@@ -93,10 +93,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != 0.0)
-    {
+  {
     std::cerr << "Failure in Get/Set Point3DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   pos[0] = -44.9;
   node1->SetPoint4DisplayPosition(pos);
@@ -104,10 +104,10 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   if (p[0] != pos[0] ||
       p[1] != pos[1] ||
       p[2] != 0.0)
-    {
+  {
     std::cerr << "Failure in Get/Set Point4DisplayPosition, expected " << pos[0] << ", " << pos[1] << ", " << pos[2] << ", instead got " << p[0] << ", " << p[1] << ", " << p[2]  << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   TEST_SET_GET_BOOLEAN(node1, Line1Visibility);
   TEST_SET_GET_BOOLEAN(node1, Line2Visibility);
@@ -145,13 +145,13 @@ int vtkBiDimensionalRepresentation2DTest1(int , char * [] )
   std::cout << "LabelText = " << (node1->GetLabelText() ==  NULL ? "NULL" : node1->GetLabelText()) << std::endl;
   double *labelPos = node1->GetLabelPosition();
   if (labelPos)
-    {
+  {
     std::cout << "LabelPosition: " << labelPos[0] << ", " << labelPos[1] << ", " << labelPos[2] << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << "LabelPosition is null" << std::endl;
-    }
+  }
   double labelPosition[3];
   node1->GetLabelPosition(labelPosition);
   std::cout << "LabelPosition [3]: " << labelPosition[0] << ", " << labelPosition[1] << ", " << labelPosition[2] << std::endl;

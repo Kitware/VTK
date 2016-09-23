@@ -41,33 +41,33 @@ bool TestDataObjectTreeIterator()
   int numNodes = 0;
   vtkStdString blockName("Rolf");
   for (int level = 1; level < numLevels; ++level)
-    {
+  {
     int nblocks=blocksPerLevel[level];
     for (unsigned parent = levelStart; parent < levelEnd; ++parent)
-      {
+    {
       blocks[parent]->SetNumberOfBlocks(nblocks);
       for (int block=0; block < nblocks; ++block, ++numNodes)
-        {
+      {
         if (level == numLevels - 1)
-          {
+        {
           vtkNew<vtkUniformGrid> child;
           blocks[parent]->SetBlock(
             block, (block % 2) ? NULL : child.GetPointer());
           blocks[parent]->GetMetaData(block)->Set(
             vtkCompositeDataSet::NAME(), blockName.c_str());
           ++numLeaves;
-          }
+        }
         else
-          {
+        {
           vtkNew<vtkMultiBlockDataSet> child;
           blocks[parent]->SetBlock(block, child.GetPointer());
           blocks.push_back(child.GetPointer());
-          }
         }
       }
+    }
     levelStart = levelEnd;
     levelEnd = static_cast<unsigned>(blocks.size());
-    }
+  }
 
   vtkSmartPointer<vtkDataObjectTreeIterator> it;
   it.TakeReference(data->NewTreeIterator());
@@ -77,14 +77,14 @@ bool TestDataObjectTreeIterator()
   it->SkipEmptyNodesOff();
   counter = 0;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
-    {
+  {
     ++counter;
     if (blockName != it->GetCurrentMetaData()->Get(vtkCompositeDataSet::NAME()))
-      {
+    {
       cerr << "Unnamed leaf node!\n";
       ok = false;
-      }
     }
+  }
   cout << "Expecting " << numLeaves << " leaf nodes got " <<  counter << endl;;
   ok |= counter == numLeaves;
 
@@ -92,9 +92,9 @@ bool TestDataObjectTreeIterator()
   it->SkipEmptyNodesOff();
   counter = 0;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
-    {
+  {
     ++counter;
-    }
+  }
   cout << "Expecting " << numNodes << " total nodes got " <<  counter << endl;;
   ok |= counter == numNodes;
 
@@ -103,9 +103,9 @@ bool TestDataObjectTreeIterator()
   it->SkipEmptyNodesOff();
   counter = 0;
   for (it->InitTraversal(); !it->IsDoneWithTraversal(); it->GoToNextItem())
-    {
+  {
     ++counter;
-    }
+  }
   cout << "Expecting " << blocksPerLevel[1] << " top-level nodes got " <<  counter << endl;;
   ok |= counter == blocksPerLevel[1];
 
@@ -115,28 +115,28 @@ bool TestDataObjectTreeIterator()
 bool TestEmptyAMRIterator()
 {
   for(int init=0; init<2; init++)
-    {
+  {
     for(int op=0; op<2; op++)
-      {
+    {
       vtkSmartPointer<vtkUniformGridAMR> a = vtkSmartPointer<vtkUniformGridAMR>::New();
       if(init==1)
-        {
+      {
         a->Initialize();
-        }
+      }
       vtkSmartPointer<vtkCompositeDataIterator> iter;
       iter.TakeReference(a->NewIterator());
       iter->SetSkipEmptyNodes(op);
       int numIteration=0;
       for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-        {
+      {
         numIteration++;
-        }
+      }
       if(numIteration!=0)
-        {
+      {
         return false;
-        }
       }
     }
+  }
 
   return true;
 }
@@ -149,13 +149,13 @@ bool TestAMRToMultiBlock()
   int blocksPerLevel[3] = {1,4,9};
   a->Initialize(3, blocksPerLevel);
   for(unsigned int i=0; i<a->GetNumberOfLevels();i++)
-    {
+  {
     for(unsigned int j=0; j<a->GetNumberOfDataSets(i); j++)
-      {
+    {
       vtkSmartPointer<vtkUniformGrid> grid = vtkSmartPointer<vtkUniformGrid>::New();
       a->SetDataSet(i,j, grid);
-      }
     }
+  }
 
   vtkSmartPointer<vtkMultiBlockDataSet> b= vtkSmartPointer<vtkMultiBlockDataSet>::New();
   b->CopyStructure(a);
@@ -165,29 +165,29 @@ bool TestAMRToMultiBlock()
   aIter->SkipEmptyNodesOff();
 
   for (aIter->InitTraversal(); !aIter->IsDoneWithTraversal(); aIter->GoToNextItem())
-    {
+  {
     b->SetDataSet(aIter, aIter->GetCurrentDataObject());
     vtkDataObject* obj = b->GetDataSet(aIter);
     vtkUniformGrid* grid = vtkUniformGrid::SafeDownCast(obj);
     if(!grid)
-      {
+    {
       return false;
-      }
     }
+  }
 
   unsigned int numBlocks = 0;
   vtkSmartPointer<vtkCompositeDataIterator> bIter;
   bIter.TakeReference(b->NewIterator());
   aIter->SkipEmptyNodesOff();
   for (aIter->InitTraversal(); !aIter->IsDoneWithTraversal(); aIter->GoToNextItem())
-    {
+  {
     numBlocks++;
-    }
+  }
 
   if(numBlocks!=a->GetTotalNumberOfBlocks())
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 

@@ -68,7 +68,7 @@ inline
 const char *vtkOpenGLStrError(unsigned int code)
 {
   switch(static_cast<GLenum>(code))
-    {
+  {
     case GL_NO_ERROR:
       return "No error";
     case GL_INVALID_ENUM:
@@ -89,7 +89,7 @@ const char *vtkOpenGLStrError(unsigned int code)
       return "Invalid framebuffer operation";
     case vtkgl::TEXTURE_TOO_LARGE_EXT:
       return "Texture too large";
-    }
+  }
   return "Unknown error";
 }
 
@@ -110,20 +110,20 @@ int vtkGetOpenGLErrors(
   int i = 0;
   GLenum code = glGetError();
   if (i < maxNum)
-    {
+  {
     errCode[i] = static_cast<unsigned int>(code);
     errDesc[i] = vtkOpenGLStrError(code);
-    }
+  }
   while (code != GL_NO_ERROR && i < maxNum)
-    {
+  {
     i++;
     code = glGetError();
     if (i < maxNum)
-      {
+    {
       errCode[i] = static_cast<unsigned int>(code);
       errDesc[i] = vtkOpenGLStrError(code);
-      }
     }
+  }
   return i;
 }
 #else
@@ -156,16 +156,16 @@ void vtkPrintOpenGLErrors(
 {
   os << numErrors << " OpenGL errors detected" << endl;
   for (int i=0; (i<numErrors)&&(i<maxErrors); ++i)
-    {
+  {
     os << "  " <<  i << " : (" << errCode[i] << ") " << errDesc[i] << endl;
-    }
+  }
   if (numErrors>maxErrors)
-    {
+  {
     os
       << "More than " << maxErrors
       << " detected! The remainder are not reported"
       << endl;
-    }
+  }
 }
 #else
 inline
@@ -193,10 +193,10 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
   GLenum glError;
   unsigned int i = 0;
   do
-    {
+  {
     glError = glGetError();
     ++i;
-    }
+  }
   while(i < maxErrors && glError != GL_NO_ERROR);
 }
 #else
@@ -227,7 +227,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
         errDesc);                                    \
                                                      \
   if (numErrors)                                     \
-    {                                                \
+  {                                                \
     std::ostringstream oss;                          \
     vtkPrintOpenGLErrors(                            \
           oss,                                       \
@@ -237,7 +237,7 @@ void vtkClearOpenGLErrors(const unsigned int maxErrors = 16)
           errDesc);                                  \
                                                      \
     ostr(<< message << " " << oss.str().c_str());    \
-    }                                                \
+  }                                                \
 }
 # define vtkOpenGLCheckErrorMacro(message) \
   vtkOpenGLCheckErrorMacroImpl(vtkErrorMacro, message)

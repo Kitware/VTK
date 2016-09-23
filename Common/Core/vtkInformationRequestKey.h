@@ -43,9 +43,9 @@ public:
    * constructor directly from C++ instead.
    */
   static vtkInformationRequestKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationRequestKey(name, location);
-    }
+  }
 
   //@{
   /**

@@ -43,9 +43,9 @@ void vtkInteractorStyleMultiTouchCamera::OnRotate()
                           this->Interactor->GetEventPositions(pointer)[1]);
 
   if ( this->CurrentRenderer == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   camera->Roll( this->Interactor->GetRotation() - this->Interactor->GetLastRotation() );
@@ -65,30 +65,30 @@ void vtkInteractorStyleMultiTouchCamera::OnPinch()
                           this->Interactor->GetEventPositions(pointer)[1]);
 
   if ( this->CurrentRenderer == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
 
   double dyf = this->Interactor->GetScale()/this->Interactor->GetLastScale();
   if (camera->GetParallelProjection())
-    {
+  {
     camera->SetParallelScale(camera->GetParallelScale() / dyf);
-    }
+  }
   else
-    {
+  {
     camera->Dolly(dyf);
     if (this->AutoAdjustCameraClippingRange)
-      {
+    {
       this->CurrentRenderer->ResetCameraClippingRange();
-      }
     }
+  }
 
   if (this->Interactor->GetLightFollowCamera())
-    {
+  {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
-    }
+  }
   this->Interactor->Render();
 }
 
@@ -102,9 +102,9 @@ void vtkInteractorStyleMultiTouchCamera::OnPan()
                           this->Interactor->GetEventPositions(pointer)[1]);
 
   if ( this->CurrentRenderer == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -150,9 +150,9 @@ void vtkInteractorStyleMultiTouchCamera::OnPan()
 
   // clean up
   if (this->Interactor->GetLightFollowCamera())
-    {
+  {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
-    }
+  }
   camera->OrthogonalizeViewUp();
 
   rwi->Render();

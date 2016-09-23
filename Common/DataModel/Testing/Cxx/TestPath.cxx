@@ -34,17 +34,17 @@ int TestPath(int,char *[])
 
   if (path->GetCodes()->GetNumberOfTuples() != 7 ||
       path->GetPoints()->GetNumberOfPoints() != 7)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   path->Reset();
 
   if (path->GetCodes()->GetNumberOfTuples() != 0 ||
       path->GetPoints()->GetNumberOfPoints() != 0)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

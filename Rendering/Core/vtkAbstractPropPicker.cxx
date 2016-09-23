@@ -34,9 +34,9 @@ vtkAbstractPropPicker::vtkAbstractPropPicker()
 vtkAbstractPropPicker::~vtkAbstractPropPicker()
 {
   if ( this->Path )
-    {
+  {
     this->Path->Delete();
-    }
+  }
 }
 
 // set up for a pick
@@ -44,101 +44,101 @@ void vtkAbstractPropPicker::Initialize()
 {
   this->vtkAbstractPicker::Initialize();
   if ( this->Path )
-    {
+  {
     this->Path->Delete();
     this->Path = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkProp* vtkAbstractPropPicker::GetViewProp()
 {
   if ( this->Path != NULL )
-    {
+  {
     return this->Path->GetFirstNode()->GetViewProp();
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkProp3D *vtkAbstractPropPicker::GetProp3D()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkProp3D::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkActor *vtkAbstractPropPicker::GetActor()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkActor::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkActor2D *vtkAbstractPropPicker::GetActor2D()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkActor2D::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkVolume *vtkAbstractPropPicker::GetVolume()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkVolume::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkAssembly *vtkAbstractPropPicker::GetAssembly()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkAssembly::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 vtkPropAssembly *vtkAbstractPropPicker::GetPropAssembly()
 {
   if ( this->Path != NULL )
-    {
+  {
     vtkProp *prop = this->Path->GetFirstNode()->GetViewProp();
     return vtkPropAssembly::SafeDownCast(prop);
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
@@ -146,11 +146,11 @@ void vtkAbstractPropPicker::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
 
   if ( this->Path )
-    {
+  {
     os << indent << "Path: " << this->Path << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Path: (none)" << endl;
-    }
+  }
 }

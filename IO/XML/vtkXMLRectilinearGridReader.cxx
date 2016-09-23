@@ -34,9 +34,9 @@ vtkXMLRectilinearGridReader::vtkXMLRectilinearGridReader()
 vtkXMLRectilinearGridReader::~vtkXMLRectilinearGridReader()
 {
   if (this->NumberOfPieces)
-    {
+  {
     this->DestroyPieces();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -76,9 +76,9 @@ void vtkXMLRectilinearGridReader::SetupPieces(int numPieces)
   this->Superclass::SetupPieces(numPieces);
   this->CoordinateElements = new vtkXMLDataElement*[numPieces];
   for (int i = 0; i < numPieces; ++i)
-    {
+  {
     this->CoordinateElements[i] = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -93,21 +93,21 @@ void vtkXMLRectilinearGridReader::DestroyPieces()
 int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
 {
   if (!this->Superclass::ReadPiece(ePiece))
-    {
+  {
     return 0;
-    }
+  }
 
   // Find the Coordinates element in the piece.
   this->CoordinateElements[this->Piece] = 0;
   for (int i = 0; i < ePiece->GetNumberOfNestedElements(); ++i)
-    {
+  {
     vtkXMLDataElement* eNested = ePiece->GetNestedElement(i);
     if ((strcmp(eNested->GetName(), "Coordinates") == 0)
       && (eNested->GetNumberOfNestedElements() == 3))
-      {
+    {
       this->CoordinateElements[this->Piece] = eNested;
-      }
     }
+  }
 
   // If there is any volume, we require a Coordinates element.
   int* piecePointDimensions = this->PiecePointDimensions + this->Piece * 3;
@@ -115,10 +115,10 @@ int vtkXMLRectilinearGridReader::ReadPiece(vtkXMLDataElement* ePiece)
     (piecePointDimensions[0] > 0) &&
     (piecePointDimensions[1] > 0) &&
     (piecePointDimensions[2] > 0))
-    {
+  {
     vtkErrorMacro("A piece is missing its Coordinates element.");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -129,10 +129,10 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
   this->Superclass::SetupOutputData();
 
   if (!this->CoordinateElements)
-    {
+  {
     // Empty volume.
     return;
-    }
+  }
 
   // Allocate the coordinate arrays.
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
@@ -151,7 +151,7 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
   vtkDataArray* y = vtkArrayDownCast<vtkDataArray>(ya);
   vtkDataArray* z = vtkArrayDownCast<vtkDataArray>(za);
   if (x && y && z)
-    {
+  {
     x->SetNumberOfTuples(this->PointDimensions[0]);
     y->SetNumberOfTuples(this->PointDimensions[1]);
     z->SetNumberOfTuples(this->PointDimensions[2]);
@@ -161,23 +161,23 @@ void vtkXMLRectilinearGridReader::SetupOutputData()
     x->Delete();
     y->Delete();
     z->Delete();
-    }
+  }
   else
-    {
+  {
     if (xa)
-      {
+    {
       xa->Delete();
-      }
-    if (ya)
-      {
-      ya->Delete();
-      }
-    if (za)
-      {
-      za->Delete();
-      }
-    this->DataError = 1;
     }
+    if (ya)
+    {
+      ya->Delete();
+    }
+    if (za)
+    {
+      za->Delete();
+    }
+    this->DataError = 1;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -196,9 +196,9 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
   vtkIdType totalPieceSize =
     superclassPieceSize + dims[0] + dims[1] + dims[2];
   if (totalPieceSize == 0)
-    {
+  {
     totalPieceSize = 1;
-    }
+  }
 
   // Split the progress range based on the approximate fraction of
   // data that will be read by each step in this method.
@@ -218,9 +218,9 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
 
   // Let the superclass read its data.
   if (!this->Superclass::ReadPieceData())
-    {
+  {
     return 0;
-    }
+  }
 
   int index=this->Piece;
   vtkXMLDataElement* xc = this->CoordinateElements[index]->GetNestedElement(0);
@@ -234,29 +234,29 @@ int vtkXMLRectilinearGridReader::ReadPieceData()
   // Set the range of progress for the X coordinates array.
   this->SetProgressRange(progressRange, 1, fractions);
   if (result)
-    {
+  {
     this->ReadSubCoordinates(pieceExtent, this->UpdateExtent,
                              this->SubExtent, xc,
                              output->GetXCoordinates());
-    }
+  }
 
   // Set the range of progress for the Y coordinates array.
   this->SetProgressRange(progressRange, 2, fractions);
   if (result)
-    {
+  {
     this->ReadSubCoordinates(pieceExtent+2, this->UpdateExtent+2,
                              this->SubExtent+2, yc,
                              output->GetYCoordinates());
-    }
+  }
 
   // Set the range of progress for the Z coordinates array.
   this->SetProgressRange(progressRange, 3, fractions);
   if (result)
-    {
+  {
     this->ReadSubCoordinates(pieceExtent+4, this->UpdateExtent+4,
                              this->SubExtent+4, zc,
                              output->GetZCoordinates());
-    }
+  }
   return result;
 }
 

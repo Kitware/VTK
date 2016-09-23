@@ -34,35 +34,35 @@ class TestRemoveActorNonCurrentContextCallback: public vtkCommand
 public:
 
   static TestRemoveActorNonCurrentContextCallback *New()
-    {
+  {
     return new TestRemoveActorNonCurrentContextCallback;
-    }
+  }
 
   void Execute(vtkObject* caller,
                        unsigned long eventId,
                        void* vtkNotUsed(callData)) VTK_OVERRIDE
-    {
+  {
     if (eventId != vtkCommand::KeyPressEvent)
-      {
+    {
       return;
-      }
+    }
 
     vtkRenderWindowInteractor* interactor =
       static_cast<vtkRenderWindowInteractor*>(caller);
     if (interactor == NULL)
-      {
+    {
       return;
-      }
+    }
 
     char* pressedKey = interactor->GetKeySym();
 
     if (strcmp(pressedKey, "9") == 0)
-      {
+    {
       renderer2->RemoveAllViewProps();
       renderWindow1->Render();
       renderWindow2->Render();
-      }
     }
+  }
 
   vtkRenderer* renderer1;
   vtkRenderer* renderer2;
@@ -134,8 +134,8 @@ int TestRemoveActorNonCurrentContext(int argc, char* argv[])
   int retval = vtkTesting::Test(argc, argv,
                                 renderWindow1.GetPointer(), 10);
   if (retval == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor1->Start();
-    }
+  }
   return !retval;
 }

@@ -34,7 +34,7 @@ public:
   // is a high and low end, the orientation tuple defines how to grow ghost
   // layers along each dimension.
   enum NeighborOrientation
-    {
+  {
     SUBSET_LO   = -2, // The grid is a subset of the neighboring grid and the
                       // ghost layers are pointing away from the low end
     LO          = -1, // The grid partially overlap with its neighbor on the
@@ -55,7 +55,7 @@ public:
     UNDEFINED   =  5  // the neighboring relationship is undefined, e.g., if
                       // we are checking 2D data, the neighbor orientation
                       // in the 3rd dimension is undefined.
-    };
+  };
 
   // Class Member Variables made public for easier access
   int NeighborID;       // The registered ID of the neighboring grid
@@ -100,18 +100,18 @@ public:
   vtkStructuredNeighbor& operator=(const vtkStructuredNeighbor &N )
   {
     if( this != &N )
-      {
+    {
       this->Orientation[ 0 ] = N.Orientation[ 0 ];
       this->Orientation[ 1 ] = N.Orientation[ 1 ];
       this->Orientation[ 2 ] = N.Orientation[ 2 ];
       this->NeighborID = N.NeighborID;
       for( int i=0; i < 6; ++i )
-        {
+      {
         this->SendExtent[ i ]    = N.SendExtent[ i ];
         this->RcvExtent[ i ]     = N.RcvExtent[ i ];
         this->OverlapExtent[ i ] = N.OverlapExtent[ i ];
-        } // END for
-      } // END if
+      } // END for
+    } // END if
     return *this;
   }
   //@}

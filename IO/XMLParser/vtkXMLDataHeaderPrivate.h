@@ -51,10 +51,10 @@ public:
   virtual vtkTypeUInt64 Get(size_t index) const
     { return this->Header[index]; }
   virtual bool Set(size_t index, vtkTypeUInt64 value)
-    {
+  {
     this->Header[index] = T(value);
     return vtkTypeUInt64(this->Header[index]) == value;
-    }
+  }
   virtual size_t WordSize() const { return sizeof(T); }
   virtual size_t WordCount() const { return this->Header.size(); }
   virtual unsigned char* Data()
@@ -64,10 +64,10 @@ public:
 vtkXMLDataHeader* vtkXMLDataHeader::New(int width, size_t count)
 {
   switch(width)
-    {
+  {
     case 32: return new vtkXMLDataHeaderImpl<vtkTypeUInt32>(count);
     case 64: return new vtkXMLDataHeaderImpl<vtkTypeUInt64>(count);
-    }
+  }
   return 0;
 }
 

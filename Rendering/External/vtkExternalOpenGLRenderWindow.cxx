@@ -45,12 +45,12 @@ void vtkExternalOpenGLRenderWindow::Start(void)
   this->SetIsDirect(1);
 
   if (this->AutomaticWindowPositionAndResize)
-    {
+  {
     int info[4];
     glGetIntegerv(GL_VIEWPORT, info);
     this->SetPosition(info[0], info[1]);
     this->SetSize(info[2], info[3]);
-    }
+  }
 
   // For stereo, render the correct eye based on the OpenGL buffer mode
   GLint bufferType;
@@ -59,18 +59,18 @@ void vtkExternalOpenGLRenderWindow::Start(void)
   vtkRenderer* renderer;
   for (this->GetRenderers()->InitTraversal(sit);
     (renderer = this->GetRenderers()->GetNextRenderer(sit)); )
-    {
+  {
     if (bufferType == GL_BACK_RIGHT || bufferType == GL_RIGHT
       || bufferType == GL_FRONT_RIGHT)
-      {
+    {
       this->StereoRenderOn();
       this->SetStereoTypeToRight();
-      }
-    else
-      {
-      this->SetStereoTypeToLeft();
-      }
     }
+    else
+    {
+      this->SetStereoTypeToLeft();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -90,25 +90,25 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   int numPoints = input->GetNumberOfPoints();
 
   if (numPoints <= 0)
-    {
+  {
     // nothing to do...
     return 1;
-    }
+  }
 
   vtkIntArray* scalars = vtkArrayDownCast<vtkIntArray>(
     this->GetInputArrayToProcess(0, inputVector));
   if (!scalars)
-    {
+  {
     vtkErrorMacro("Input Scalars must be specified to index into the icon sheet.");
     return 0;
-    }
+  }
 
   // Optional scaling may be going on
   vtkDataArray *scalingArray = NULL;
   if ( this->IconScaling == VTK_ICON_SCALING_USE_SCALING_ARRAY )
-    {
+  {
     scalingArray = input->GetPointData()->GetArray("IconScale");
-    }
+  }
 
   double point[3], textureCoord[2];
   point[2] = 0;
@@ -135,19 +135,19 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   size[0] = this->DisplaySize[0];
   size[1] = this->DisplaySize[1];
   if(this->UseIconSize)
-    {
+  {
     size[0] = this->IconSize[0];
     size[1] = this->IconSize[1];
-    }
+  }
 
   vtkIdType ptId;
   double sf = 1.0;
   for(ptId = 0; ptId < numPoints; ++ptId)
-    {
+  {
     iconIndex = scalars->GetValue(ptId);
 
     if(iconIndex >= 0)
-      {
+    {
       this->IconConvertIndex(iconIndex, j, k);
 
       textureCoord[0] = j/sheetXDim;
@@ -165,19 +165,19 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
       textureCoord[0] = j/sheetXDim;
       textureCoord[1] = (k + 1.0)/sheetYDim;
       outTCoords->InsertTuple(ptId * 4 + 3, textureCoord);
-      }
+    }
 
     input->GetPoint(ptId, point);
     point[0] += this->Offset[0];
     point[1] += this->Offset[1];
 
     if ( scalingArray )
-      {
+    {
       sf = scalingArray->GetTuple1(ptId);
-      }
+    }
 
     switch(this->Gravity)
-      {
+    {
       case VTK_ICON_GRAVITY_CENTER_CENTER:
         break;
       case VTK_ICON_GRAVITY_TOP_RIGHT:
@@ -208,7 +208,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
         point[0] = point[0] - 0.5 * sf * size[0];
         point[1] = point[1] - 0.5 * sf * size[1];
         break;
-      }
+    }
 
     outPoints->InsertNextPoint(point[0] - 0.5 * sf * size[0], point[1] - 0.5 * sf * size[1], point[2]);
     outPoints->InsertNextPoint(point[0] + 0.5 * sf * size[0], point[1] - 0.5 * sf * size[1], point[2]);
@@ -220,7 +220,7 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
     outCells->InsertCellPoint(ptId * 4 + 1);
     outCells->InsertCellPoint(ptId * 4 + 2);
     outCells->InsertCellPoint(ptId * 4 + 3);
-    }
+  }
 
   output->SetPoints(outPoints);
   outPoints->Delete();
@@ -235,13 +235,13 @@ int vtkIconGlyphFilter::RequestData(vtkInformation *vtkNotUsed(request),
   // Pass the input point data to the cell data because for every point we
   // generate a quad cell.
   if ( this->PassScalars )
-    {
+  {
     outCD->CopyScalarsOn();
-    }
+  }
   else
-    {
+  {
     outCD->CopyScalarsOff();
-    }
+  }
   outCD->PassData(inPD);
 
   return 1;

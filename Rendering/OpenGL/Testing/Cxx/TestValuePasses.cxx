@@ -129,45 +129,45 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
     virtual void OnKeyPress()
     {
       if (this->GLRenderer == NULL)
-        {
+      {
         return;
-        }
+      }
 
       // Get the keypress
       vtkRenderWindowInteractor *rwi = this->Interactor;
       std::string key = rwi->GetKeySym();
 
       if(key == "c")
-        {
+      {
         vtkRenderPass * current = this->GLRenderer->GetPass();
         if (current == NULL)
-          {
+        {
           cerr << "Value (multipass) rendering" << endl;
           this->GLRenderer->SetPass(this->VCamera);
           this->GLRenderer->GetRenderWindow()->Render();
-          }
+        }
         else if (current == this->VCamera)
-          {
+        {
           cerr << "Normal (multipass) rendering" << endl;
           this->GLRenderer->SetPass(this->NormalC);
           this->GLRenderer->GetRenderWindow()->Render();
-          }
+        }
         else if (current == this->NormalC)
-          {
+        {
           cerr << "Hardcoded rendering" << endl;
           this->GLRenderer->SetPass(NULL);
           this->GLRenderer->GetRenderWindow()->Render();
-          }
         }
+      }
 
       if(key == "a")
-        {
+      {
         vtkRenderPass * current = this->GLRenderer->GetPass();
         if (current == this->VCamera)
-          {
+        {
           vtkDataSet *ds = vtkDataSet::SafeDownCast(this->Alg->GetOutputDataObject(0));
           if (ds)
-            {
+          {
 #define DO_INFO
 #ifdef DO_INFO
             cerr << "Change array through actor's info" << endl;
@@ -179,38 +179,38 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
             vtkFieldData *fd;
             fd = ds->GetPointData();
             for (int i = 0; i < fd->GetNumberOfArrays(); i++)
-              {
+            {
               na += fd->GetArray(i)->GetNumberOfComponents();
-              }
+            }
             fd = ds->GetCellData();
             for (int i = 0; i < fd->GetNumberOfArrays(); i++)
-              {
+            {
               na += fd->GetArray(i)->GetNumberOfComponents();
-              }
+            }
             int c = this->Counter % na;
 
             int mode;
             int a = -1;
             for (int f = 0; f < 2; f++)
-              {
+            {
               if (f == 0)
-                {
+              {
                 mode = VTK_SCALAR_MODE_USE_POINT_FIELD_DATA;
                 fd = ds->GetPointData();
-                }
+              }
               else
-                {
+              {
                 mode = VTK_SCALAR_MODE_USE_CELL_FIELD_DATA;
                 fd = ds->GetCellData();
-                }
+              }
               for (int i = 0; i < fd->GetNumberOfArrays(); i++)
-                {
+              {
                 vtkDataArray *array = fd->GetArray(i);
                 for (int j = 0; j < array->GetNumberOfComponents(); j++)
-                  {
+                {
                   a++;
                   if (c == a)
-                    {
+                  {
                     cerr << "Draw " << ((mode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA)?"point ":"cell ")
                          << i << "," << j << " " << fd->GetArray(i)->GetName() << endl;
 #ifdef DO_INFO
@@ -231,14 +231,14 @@ class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
                     vp->SetInputArrayToProcess(mode, i);
                     vp->SetInputComponentToProcess(j);
 #endif
-                    }
                   }
                 }
-               }
-            this->GLRenderer->GetRenderWindow()->Render();
+              }
             }
+            this->GLRenderer->GetRenderWindow()->Render();
           }
         }
+      }
 
       // Forward events
       vtkInteractorStyleTrackballCamera::OnKeyPress();
@@ -350,13 +350,13 @@ int TestValuePasses(int argc, char* argv[])
 
   int retVal;
   if(MesaHasVTKBug8135(renWin))
-    {
+  {
     // Mesa will crash if version<7.3
     cout<<"This version of Mesa would crash. Skip the test."<<endl;
     retVal=vtkRegressionTester::PASSED;
-    }
+  }
   else
-    {
+  {
     actor->SetVisibility(1);
     renderer->ResetCamera();
     vtkCamera *camera=renderer->GetActiveCamera();
@@ -391,11 +391,11 @@ int TestValuePasses(int argc, char* argv[])
 #endif
     retVal = vtkRegressionTestImage( renWin );
     if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       iren->Start();
-      }
-
     }
+
+  }
 
   return !retVal;
 }

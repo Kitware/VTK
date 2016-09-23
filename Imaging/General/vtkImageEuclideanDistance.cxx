@@ -81,26 +81,26 @@ void vtkImageEuclideanDistanceCopyData(vtkImageEuclideanDistance *self,
   inPtr2 = inPtr;
   outPtr2 = outPtr;
   for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-    {
+  {
     inPtr1 = inPtr2;
     outPtr1 = outPtr2;
     for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-      {
+    {
       inPtr0 = inPtr1;
       outPtr0 = outPtr1;
 
       for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-        {
+      {
         *outPtr0 = *inPtr0 ;
         inPtr0 += inInc0;
         outPtr0 += outInc0;
-        }
+      }
       inPtr1 += inInc1;
       outPtr1 += outInc1;
-      }
+    }
     inPtr2 += inInc2;
     outPtr2 += outInc2;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -131,44 +131,44 @@ void vtkImageEuclideanDistanceInitialize(vtkImageEuclideanDistance *self,
     // Initialization required. Input image is only used as binary mask,
     // so all non-zero values are set to maxDist
     //
-    {
+  {
     maxDist = self->GetMaximumDistance();
 
     inPtr2 = inPtr;
     outPtr2 = outPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       inPtr1 = inPtr2;
       outPtr1 = outPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         inPtr0 = inPtr1;
         outPtr0 = outPtr1;
 
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           if( *inPtr0 == 0 ) {*outPtr0 = 0;}
           else {*outPtr0 = maxDist;}
 
           inPtr0 += inInc0;
           outPtr0 += outInc0;
-          }
+        }
 
         inPtr1 += inInc1;
         outPtr1 += outInc1;
-        }
+      }
       inPtr2 += inInc2;
       outPtr2 += outInc2;
-      }
     }
+  }
   else
     // No initialization required. We just copy inData to outData.
-    {
+  {
     vtkImageEuclideanDistanceCopyData( self,
                                        inData, static_cast<T *>(inPtr),
                                        outData, outExt,
                                        static_cast<double *>(outPtr) );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -208,87 +208,87 @@ static void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *sel
   // precompute sq[]. Anisotropy is handled here by using Spacing information
   sq = static_cast<double *>(calloc(inSize0*2+2,sizeof(double)));
   for(df=2*inSize0+1;df>inSize0;df--)
-    {
+  {
     sq[df]=maxDist;
-    }
+  }
 
   if ( self->GetConsiderAnisotropy() )
-    {
+  {
     spacing = outData->GetSpacing()[ self->GetIteration() ];
-    }
+  }
   else
-    {
+  {
     spacing = 1;
-    }
+  }
 
   spacing*=spacing;
 
   for(df=inSize0;df>=0;df--)
-    {
+  {
     sq[df]=df*df*spacing;
-    }
+  }
 
   if ( self->GetIteration() == 0 )
-    {
+  {
     outPtr2 = outPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       outPtr1 = outPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         outPtr0 = outPtr1;
         df= inSize0 ;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           if(*outPtr0 != 0)
-            {
+          {
             df++ ;
             if(sq[df] < *outPtr0) {*outPtr0 = sq[df];}
-            }
-          else
-            {
-            df=0;
-            }
-          outPtr0 += outInc0;
           }
+          else
+          {
+            df=0;
+          }
+          outPtr0 += outInc0;
+        }
 
         outPtr0 -= outInc0;
         df= inSize0 ;
         for (idx0 = outMax0; idx0 >= outMin0; --idx0)
-          {
+        {
           if(*outPtr0 != 0)
-            {
+          {
             df++ ;
             if(sq[df] < *outPtr0) {*outPtr0 = sq[df];}
-            }
-          else
-            {
-            df=0;
-            }
-          outPtr0 -= outInc0;
           }
+          else
+          {
+            df=0;
+          }
+          outPtr0 -= outInc0;
+        }
 
         outPtr1 += outInc1;
-        }
-      outPtr2 += outInc2;
       }
+      outPtr2 += outInc2;
     }
+  }
   else // next iterations are all identical.
-    {
+  {
     outPtr2 = outPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       outPtr1 = outPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         outPtr0 = outPtr1;
 
         // Buffer current values
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           buff[idx0]= *outPtr0;
           outPtr0 += outInc0;
-          }
+        }
 
         // forward scan
         a=0; buffer=buff[ outMin0 ];
@@ -296,63 +296,63 @@ static void vtkImageEuclideanDistanceExecuteSaito(vtkImageEuclideanDistance *sel
         outPtr0 += outInc0;
 
         for (idx0 = outMin0+1; idx0 <= outMax0; ++idx0)
-          {
+        {
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1])
-            {
+          {
             b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
 
             for(n=a;n<=b;n++)
-              {
+            {
               m=buffer+sq[n+1];
               if(buff[idx0+n]<=m) {n=b;}
               else if(m<*(outPtr0+n*outInc0)) {*(outPtr0+n*outInc0)=m;}
-              }
+            }
             a=b;
-            }
+          }
           else
-            {
+          {
             a=0;
-            }
+          }
 
           buffer=buff[idx0];
           outPtr0 += outInc0;
-          }
+        }
 
         outPtr0 -= 2*outInc0;
         a=0;
         buffer=buff[outMax0];
 
         for(idx0=outMax0-1;idx0>=outMin0; --idx0)
-          {
+        {
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1])
-            {
+          {
             b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0-b)<outMin0) {b=idx0-outMin0;}
 
             for(n=a;n<=b;n++)
-              {
+            {
               m=buffer+sq[n+1];
               if(buff[idx0-n]<=m) {n=b;}
               else if(m<*(outPtr0-n*outInc0)) {*(outPtr0-n*outInc0)=m;}
-              }
+            }
             a=b;
-            }
+          }
           else
-            {
+          {
             a=0;
-            }
+          }
 
           buffer=buff[idx0];
           outPtr0 -= outInc0;
-          }
-        outPtr1 += outInc1;
         }
-      outPtr2 += outInc2;
+        outPtr1 += outInc1;
       }
+      outPtr2 += outInc2;
     }
+  }
 
   free(buff);
   free(sq);
@@ -395,86 +395,86 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
   // precompute sq[]. Anisotropy is handled here by using Spacing information
   sq = static_cast<double *>(calloc(inSize0*2+2,sizeof(double)));
   for(df=2*inSize0+1;df>inSize0;df--)
-    {
+  {
     sq[df]=maxDist;
-    }
+  }
   if ( self->GetConsiderAnisotropy() )
-    {
+  {
     spacing = outData->GetSpacing()[ self->GetIteration() ];
-    }
+  }
   else
-    {
+  {
     spacing = 1;
-    }
+  }
   spacing*=spacing;
 
   for(df=inSize0;df>=0;df--)
-    {
+  {
     sq[df]=df*df*spacing;
-    }
+  }
 
   if ( self->GetIteration() == 0 )
-    {
+  {
     outPtr2 = outPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       outPtr1 = outPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         outPtr0 = outPtr1;
         df= inSize0 ;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           if(*outPtr0 != 0)
-            {
+          {
             df++ ;
             if(sq[df] < *outPtr0) {*outPtr0 = sq[df];}
-            }
+          }
           else
-            {
+          {
             df=0;
-            }
+          }
 
           outPtr0 += outInc0;
-          }
+        }
 
         outPtr0 -= outInc0;
         df= inSize0 ;
         for (idx0 = outMax0; idx0 >= outMin0; --idx0)
-          {
+        {
           if(*outPtr0 != 0)
-            {
+          {
             df++ ;
             if(sq[df] < *outPtr0) {*outPtr0 = sq[df];}
-            }
+          }
           else
-            {
+          {
             df=0;
-            }
-
-          outPtr0 -= outInc0;
           }
 
-        outPtr1 += outInc1;
+          outPtr0 -= outInc0;
         }
-      outPtr2 += outInc2;
+
+        outPtr1 += outInc1;
       }
+      outPtr2 += outInc2;
     }
+  }
   else // next iterations are all identical.
-    {
+  {
     outPtr2 = outPtr;
     for (idx2 = outMin2; idx2 <= outMax2; ++idx2)
-      {
+    {
       outPtr1 = outPtr2;
       for (idx1 = outMin1; idx1 <= outMax1; ++idx1)
-        {
+      {
         // Buffer current values
         outPtr0 = outPtr1;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           temp[idx0] = buff[idx0]= *outPtr0;
           outPtr0 += outInc0;
-          }
+        }
 
         // forward scan
         a=0; buffer=buff[ outMin0 ];
@@ -482,30 +482,30 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
         outPtr0 ++;
 
         for (idx0 = outMin0+1; idx0 <= outMax0; ++idx0)
-          {
+        {
           if(a>0) {a--;}
 
           if(buff[idx0]>buffer+sq[1])
-            {
+          {
             b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0+b)>outMax0) {b=(outMax0)-idx0;}
 
             for(n=a;n<=b;n++)
-              {
+            {
               m=buffer+sq[n+1];
               if(buff[idx0+n]<=m) {n=b;}
               else if(m<*(outPtr0+n)) {*(outPtr0+n)=m;}
-              }
+            }
             a=b;
-            }
+          }
           else
-            {
+          {
             a=0;
-            }
+          }
 
           buffer=buff[idx0];
           outPtr0 ++;
-          }
+        }
 
         // backward scan
         outPtr0 -= 2;
@@ -513,42 +513,42 @@ static void vtkImageEuclideanDistanceExecuteSaitoCached(
         buffer=buff[outMax0];
 
         for(idx0=outMax0-1;idx0>=outMin0; --idx0)
-          {
+        {
           if(a>0) {a--;}
           if(buff[idx0]>buffer+sq[1])
-            {
+          {
             b=static_cast<int>(floor((((buff[idx0]-buffer)/spacing)-1)/2));
             if((idx0-b)<outMin0) b=idx0-outMin0;
 
             for(n=a;n<=b;n++)
-              {
+            {
               m=buffer+sq[n+1];
               if(buff[idx0-n]<=m) {n=b;}
               else if(m<*(outPtr0-n)) {*(outPtr0-n)=m;}
-              }
+            }
             a=b;
-            }
+          }
           else
-            {
+          {
             a=0;
-            }
+          }
           buffer=buff[idx0];
           outPtr0 --;
-          }
+        }
 
         // Unbuffer current values
         outPtr0 = outPtr1;
         for (idx0 = outMin0; idx0 <= outMax0; ++idx0)
-          {
+        {
           *outPtr0 = temp[idx0];
           outPtr0 += outInc0;
-          }
+        }
 
         outPtr1 += outInc1;
-        }
-      outPtr2 += outInc2;
       }
+      outPtr2 += outInc2;
     }
+  }
 
   free(buff);
   free(temp);
@@ -592,40 +592,40 @@ int vtkImageEuclideanDistance::IterativeRequestData(
   outPtr = outData->GetScalarPointer();
 
   if (!inPtr)
-    {
+  {
     vtkErrorMacro(<< "Execute: No scalars for update extent.")
     return 1;
-    }
+  }
 
   // ensure that iteration axis is not split during threaded execution
   int iteration = this->GetIteration();
   this->SplitPathLength = 0;
   for (int axis = 2; axis >= 0; --axis)
-    {
+  {
     if (axis != iteration)
-      {
+    {
       this->SplitPath[this->SplitPathLength++] = axis;
-      }
     }
+  }
 
   // this filter expects that the output be doubles.
   if (outData->GetScalarType() != VTK_DOUBLE)
-    {
+  {
     vtkErrorMacro(<< "Execute: Output must be be type double.");
     return 1;
-    }
+  }
 
   // this filter expects input to have 1 components
   if (outData->GetNumberOfScalarComponents() != 1 )
-    {
+  {
     vtkErrorMacro(<< "Execute: Cannot handle more than 1 components");
     return 1;
-    }
+  }
 
   if ( this->GetIteration() == 0 )
-    {
+  {
     switch (inData->GetScalarType())
-      {
+    {
       vtkTemplateMacro(
         vtkImageEuclideanDistanceInitialize(this,
                                             inData,
@@ -635,25 +635,25 @@ int vtkImageEuclideanDistance::IterativeRequestData(
       default:
         vtkErrorMacro(<< "Execute: Unknown ScalarType");
         return 1;
-      }
     }
+  }
   else
-    {
+  {
     if( inData != outData )
       switch (inData->GetScalarType())
-        {
+      {
         vtkTemplateMacro(
           vtkImageEuclideanDistanceCopyData(this,
                                             inData,
                                             static_cast<VTK_TT *>(inPtr),
                                             outData, outExt,
                                             static_cast<double *>(outPtr) ));
-        }
-    }
+      }
+  }
 
   // Call the specific algorithms.
   switch( this->GetAlgorithm() )
-    {
+  {
     case VTK_EDT_SAITO:
       vtkImageEuclideanDistanceExecuteSaito( this, outData, outExt,
                                              static_cast<double *>(outPtr) );
@@ -664,7 +664,7 @@ int vtkImageEuclideanDistance::IterativeRequestData(
       break;
     default:
       vtkErrorMacro(<< "Execute: Unknown Algorithm");
-    }
+  }
 
   this->UpdateProgress((this->GetIteration()+1.0)/3.0);
 
@@ -687,11 +687,11 @@ void vtkImageEuclideanDistance::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Algorithm: ";
   if ( this->Algorithm == VTK_EDT_SAITO )
-    {
+  {
     os << "Saito\n";
-    }
+  }
   else
-    {
+  {
     os << "Saito Cached\n";
-    }
+  }
 }

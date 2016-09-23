@@ -43,24 +43,24 @@ vtkSphericalDirectionEncoder::~vtkSphericalDirectionEncoder()
 int vtkSphericalDirectionEncoder::GetEncodedDirection( float n[3] )
 {
   if ( n[0] == 0.0 && n[1] == 0.0 && n[2] == 0.0 )
-    {
+  {
     return ( 255 * 256 );
-    }
+  }
 
   float theta, phi;
 
   // Need to handle this separately since some atan2 implementations
   // don't handle a zero denominator
   if ( n[0] == 0 )
-    {
+  {
     theta = ( n[1] > 0 ) ? 90.0 : 270.0 ;
-    }
+  }
   else
-    {
+  {
     theta = vtkMath::DegreesFromRadians( atan2( n[1], n[0] ) );
     theta = ( theta < 0.0 )    ? ( theta + 360.0 ) : theta;
     theta = ( theta >= 360.0 ) ? ( theta - 360.0 ) : theta;
-    }
+  }
 
   phi = vtkMath::DegreesFromRadians( asin( n[2] ) );
   phi = phi > 90.5 ? ( phi-360 ) : phi;
@@ -89,9 +89,9 @@ float *vtkSphericalDirectionEncoder::GetDecodedGradient( int value )
 void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
 {
   if ( vtkSphericalDirectionEncoder::DecodedGradientTableInitialized )
-    {
+  {
     return;
-    }
+  }
 
   float theta, phi;
   int   i, j;
@@ -105,7 +105,7 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
   float *ptr = vtkSphericalDirectionEncoder::DecodedGradientTable;
 
   for ( j = 0; j < 256; j++ )
-    {
+  {
     phi = -89.5 + j * ( 179.0 / 254.0 );
 
       transformPhi->Identity();
@@ -113,27 +113,27 @@ void vtkSphericalDirectionEncoder::InitializeDecodedGradientTable()
       transformPhi->TransformPoint( v1, v2 );
 
     for ( i = 0; i < 256; i++ )
-      {
+    {
       if ( j < 255 )
-        {
+      {
         theta = i * (359.0 / 255.0);
 
         transformTheta->Identity();
         transformTheta->RotateZ( theta );
         transformTheta->TransformPoint( v2, v3 );
-        }
+      }
       else
-        {
+      {
         v3[0] = 0.0;
         v3[1] = 0.0;
         v3[2] = 0.0;
-        }
+      }
 
       *(ptr++) = v3[0];
       *(ptr++) = v3[1];
       *(ptr++) = v3[2];
-      }
     }
+  }
 
   transformPhi->Delete();
   transformTheta->Delete();

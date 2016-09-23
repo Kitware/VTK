@@ -73,9 +73,9 @@ public:
    * number of values.
    */
   void SetValue(vtkIdType id, T value)
-    {
+  {
     this->Pointer[id] = value;
-    }
+  }
 
   /**
    * Must be called only after Initialize.

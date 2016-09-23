@@ -64,9 +64,9 @@ public:
   inline void append(const char *newcontent)
   {
     while (this->Top+strlen(newcontent)>=this->Buffer+this->MaxBufferSize)
-      {
+    {
       this->Grow();
-      }
+    }
     int nchars = sprintf(this->Top, "%s", newcontent);
     this->Top+=nchars;
   }
@@ -74,9 +74,9 @@ public:
   {
     snprintf(this->NumBuffer, 64, "%g", newcontent);
     while (this->Top+strlen(NumBuffer)>=this->Buffer+this->MaxBufferSize)
-      {
+    {
       this->Grow();
-      }
+    }
      int nchars = sprintf(this->Top, "%s", this->NumBuffer);
      this->Top+=nchars;
   }
@@ -122,9 +122,9 @@ public:
  int vtkGeoJSONWriter::FillInputPortInformation(int port, vtkInformation *info)
  {
    if (port == 0)
-     {
+   {
      info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
-     }
+   }
    return 1;
  }
 
@@ -136,33 +136,33 @@ public:
    ostream *fptr;
 
    if (!this->WriteToOutputString)
-     {
+   {
      if (!this->FileName)
-       {
+     {
        vtkErrorMacro(<< "No FileName specified! Can't write!");
        return NULL;
-       }
+     }
 
      fptr = new ofstream(this->FileName, ios::out);
-     }
+   }
    else
-     {
+   {
      // Get rid of any old output string.
      if (this->OutputString)
-       {
+     {
        delete [] this->OutputString;
        this->OutputString = NULL;
        this->OutputStringLength = 0;
-       }
-     fptr = new std::ostringstream;
      }
+     fptr = new std::ostringstream;
+   }
 
    if (fptr->fail())
-     {
+   {
      vtkErrorMacro(<< "Unable to open file: "<< this->FileName);
      delete fptr;
      return NULL;
-     }
+   }
 
    return fptr;
  }
@@ -173,9 +173,9 @@ public:
    vtkDebugMacro(<<"Closing file\n");
 
    if ( fp != NULL )
-     {
+   {
      if (this->WriteToOutputString)
-       {
+     {
        std::ostringstream *ostr =
          static_cast<std::ostringstream*>(fp);
 
@@ -185,10 +185,10 @@ public:
        this->OutputString = new char[ostr->str().size()+1];
        memcpy(this->OutputString, ostr->str().c_str(),
          this->OutputStringLength+1);
-       }
+     }
 
      delete fp;
-     }
+   }
  }
 
  //------------------------------------------------------------------------------
@@ -196,9 +196,9 @@ public:
    vtkIdType cnt, vtkIdType limit)
  {
    if (cnt+1 != limit)
-     {
+   {
      this->WriterHelper->append(",");
-     }
+   }
  }
 
  //------------------------------------------------------------------------------
@@ -236,14 +236,14 @@ public:
      else
      {
        if (vtkMath::IsNan(b))
-         {
+       {
          this->WriterHelper->append(",null");
-         }
+       }
        else
-         {
+       {
          this->WriterHelper->append(",");
          this->WriterHelper->append(b);
-         }
+       }
      }
    }
  }
@@ -257,21 +257,21 @@ public:
    vtkDebugMacro(<<"Writing vtk polygonal data to geojson file...");
    fp=this->OpenFile();
    if ( !fp )
-     {
+   {
      return;
-     }
+   }
 
    this->WriterHelper->append("{\n");
    this->WriterHelper->append("\"type\": \"Feature\",\n");
    vtkDataArray *da = input->GetPointData()->GetScalars();
    if (!da)
-     {
+   {
      da = input->GetPointData()->GetArray(0);
-     }
+   }
    if (da)
-     {
+   {
      switch (this->ScalarFormat)
-       {
+     {
        case 0:
          this->WriterHelper->append("\"properties\": {\"ScalarFormat\": \"none\"},\n");
          break;
@@ -287,12 +287,12 @@ public:
          this->WriterHelper->append(rng[1]);
          this->WriterHelper->append("] },\n");
          break;
-       }
      }
+   }
    else
-     {
+   {
      this->WriterHelper->append("\"properties\": {\"ScalarFormat\": \"none\"},\n");
-     }
+   }
    this->WriterHelper->append("\"geometry\":\n");
    this->WriterHelper->append("{\n");
    this->WriterHelper->append("\"type\": \"GeometryCollection\",\n");
@@ -310,203 +310,203 @@ public:
    vtkCellArray *ca;
    ca = input->GetVerts();
    if (ca && ca->GetNumberOfCells())
-     {
+   {
      bool done = false;
      vtkIdType inCell = 0;
      vtkIdType ptCnt = 0;
      do //loop to break into sections with < VTK_GJWRITER_MAXPOINTS points
-       {
+     {
        this->WriterHelper->append("{\n");
        this->WriterHelper->append("\"type\": \"MultiPoint\",\n");
        this->WriterHelper->append("\"coordinates\":\n");
        this->WriterHelper->append("[\n");
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
-         {
+       {
          ca->GetCell(cellLoc, cellSize, cellPts);
          cellLoc += cellSize+1;
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)
-           {
+         {
            double coords[3];
            input->GetPoint(cellPts[inPt], coords);
            this->WriterHelper->append("[");
            for (int i=0; i<3; i++)
-             {
+           {
              if (vtkMath::IsNan(coords[i]))
-               {
+             {
                this->WriterHelper->append("null");
-               }
-             else
-               {
-               this->WriterHelper->append(coords[i]);
-               }
-             if (i!=2)
-               {
-               this->WriterHelper->append(",");
-               }
              }
+             else
+             {
+               this->WriterHelper->append(coords[i]);
+             }
+             if (i!=2)
+             {
+               this->WriterHelper->append(",");
+             }
+           }
            this->WriteScalar(da, cellPts[inPt]);
            this->WriterHelper->append("]");
            this->ConditionalComma(inPt, cellSize);
-           }
-         if (ptCnt<VTK_GJWRITER_MAXPOINTS)
-           {
-           this->ConditionalComma(inCell, ca->GetNumberOfCells());
-           }
-         this->WriterHelper->append("\n");
          }
+         if (ptCnt<VTK_GJWRITER_MAXPOINTS)
+         {
+           this->ConditionalComma(inCell, ca->GetNumberOfCells());
+         }
+         this->WriterHelper->append("\n");
+       }
        this->WriterHelper->append("]"); //coordinates for this cell array
        if (inCell < ca->GetNumberOfCells())
-         {
+       {
          ptCnt = 0;
          this->WriterHelper->append(",\n");
-         }
+       }
        else
-         {
+       {
          if (numlines || numpolys)
-           {
+         {
            this->WriterHelper->append(",");
-           }
-         done = true;
          }
-       } while (!done);
-     }
+         done = true;
+       }
+     } while (!done);
+   }
 
    //lines
    ca = input->GetLines();
    if (ca && ca->GetNumberOfCells())
-     {
+   {
      bool done = false;
      vtkIdType inCell = 0;
      vtkIdType ptCnt = 0;
      do //loop to break into sections with < VTK_GJWRITER_MAXPOINTS points
-       {
+     {
        this->WriterHelper->append("{\n");
        this->WriterHelper->append("\"type\": \"MultiLineString\",\n");
        this->WriterHelper->append("\"coordinates\":\n");
        this->WriterHelper->append("[\n");
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
-         {
+       {
          this->WriterHelper->append("[ "); //one cell
          ca->GetCell(cellLoc, cellSize, cellPts);
          cellLoc += cellSize+1;
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)
-           {
+         {
            double coords[3];
            input->GetPoint(cellPts[inPt], coords);
            this->WriterHelper->append("[");
            for (int i =0; i<3; i++)
-             {
+           {
              if (vtkMath::IsNan(coords[i]))
-               {
+             {
                this->WriterHelper->append("null");
-               }
-             else
-               {
-               this->WriterHelper->append(coords[i]);
-               }
-             if (i!=2)
-               {
-               this->WriterHelper->append(",");
-               }
              }
+             else
+             {
+               this->WriterHelper->append(coords[i]);
+             }
+             if (i!=2)
+             {
+               this->WriterHelper->append(",");
+             }
+           }
            this->WriteScalar(da, cellPts[inPt]);
            this->WriterHelper->append("]");
            this->ConditionalComma(inPt, cellSize);
-           }
+         }
          this->WriterHelper->append("]");//one cell
          if (ptCnt<VTK_GJWRITER_MAXPOINTS)
-           {
+         {
            this->ConditionalComma(inCell, ca->GetNumberOfCells());
-           }
-         this->WriterHelper->append("\n");
          }
+         this->WriterHelper->append("\n");
+       }
        this->WriterHelper->append("]"); //coordinates for this cell array
        this->WriterHelper->append("\n");
        this->WriterHelper->append("}\n"); //this cell array
        if (inCell < ca->GetNumberOfCells())
-         {
+       {
          ptCnt = 0;
          this->WriterHelper->append(",\n");
-         }
+       }
        else
-         {
+       {
          if (numpolys)
-           {
+         {
            this->WriterHelper->append(",");
-           }
-         done = true;
          }
-       } while (!done);
-     }
+         done = true;
+       }
+     } while (!done);
+   }
    //polygons
    ca = input->GetPolys();
    if (ca && ca->GetNumberOfCells())
-     {
+   {
      bool done = false;
      vtkIdType inCell = 0;
      vtkIdType ptCnt = 0;
      do //loop to break into sections with < VTK_GJWRITER_MAXPOINTS points
-       {
+     {
        this->WriterHelper->append("{\n");
        this->WriterHelper->append("\"type\": \"MultiPolygon\",\n");
        this->WriterHelper->append("\"coordinates\":\n");
        this->WriterHelper->append("[\n");
        for (; inCell < ca->GetNumberOfCells() && ptCnt < VTK_GJWRITER_MAXPOINTS; inCell++)
-         {
+       {
          this->WriterHelper->append("[[ "); //one cell
          ca->GetCell(cellLoc, cellSize, cellPts);
          cellLoc += cellSize+1;
          ptCnt += cellSize;
          vtkIdType inPt;
          for (inPt = 0; inPt < cellSize; inPt++)
-           {
+         {
            double coords[3];
            input->GetPoint(cellPts[inPt], coords);
            this->WriterHelper->append("[");
            for (int i =0; i<3; i++)
-             {
+           {
              if (vtkMath::IsNan(coords[i]))
-               {
+             {
                this->WriterHelper->append("null");
-               }
-             else
-               {
-               this->WriterHelper->append(coords[i]);
-               }
-             if (i!=2)
-               {
-               this->WriterHelper->append(",");
-               }
              }
+             else
+             {
+               this->WriterHelper->append(coords[i]);
+             }
+             if (i!=2)
+             {
+               this->WriterHelper->append(",");
+             }
+           }
            this->WriteScalar(da, cellPts[inPt]);
            this->WriterHelper->append("]");
            this->ConditionalComma(inPt, cellSize);
-           }
+         }
          this->WriterHelper->append(" ]]");//one cell
          if (ptCnt<VTK_GJWRITER_MAXPOINTS)
-           {
+         {
            this->ConditionalComma(inCell, ca->GetNumberOfCells());
-           }
-         this->WriterHelper->append("\n");
          }
+         this->WriterHelper->append("\n");
+       }
        this->WriterHelper->append("]"); //coordinates for this cell array
        this->WriterHelper->append("\n");
        this->WriterHelper->append("}\n"); //this cell array
        if (inCell < ca->GetNumberOfCells())
-         {
+       {
          ptCnt = 0;
          this->WriterHelper->append(",\n");
-         }
+       }
        else
-         {
+       {
          done = true;
-         }
-       } while (!done);
-     }
+       }
+     } while (!done);
+   }
 
    this->WriterHelper->append("]\n");//feature.geometry.GeometryCollection.geometries
    this->WriterHelper->append("}\n");//feature.geometry
@@ -517,14 +517,14 @@ public:
 
    fp->flush();
    if (fp->fail())
-     {
+   {
      vtkErrorMacro("Problem writing result check disk space.");
      delete fp;
      fp = NULL;
-     }
+   }
 
    this->CloseFile(fp);
-}
+ }
 
 //------------------------------------------------------------------------------
 char *vtkGeoJSONWriter::RegisterAndGetOutputString()

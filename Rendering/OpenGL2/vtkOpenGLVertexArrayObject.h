@@ -51,10 +51,10 @@ public:
                          vtkOpenGLBufferObject *buffer,
                          const std::string &name, int offset, size_t stride,
                          int elementType, int elementTupleSize, bool normalize)
-    {
+  {
     return this->AddAttributeArrayWithDivisor(program, buffer, name,
       offset,stride,elementType, elementTupleSize, normalize, 0, false);
-    }
+  }
 
   bool AddAttributeArrayWithDivisor(vtkShaderProgram *program,
                          vtkOpenGLBufferObject *buffer,

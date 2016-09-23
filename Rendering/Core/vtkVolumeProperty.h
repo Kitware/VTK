@@ -411,13 +411,13 @@ private:
 inline const char *vtkVolumeProperty::GetInterpolationTypeAsString(void)
 {
   if (this->InterpolationType == VTK_NEAREST_INTERPOLATION)
-    {
+  {
     return "Nearest Neighbor";
-    }
+  }
   if (this->InterpolationType == VTK_LINEAR_INTERPOLATION)
-    {
+  {
     return "Linear";
-    }
+  }
   return "Unknown";
 }
 //@}

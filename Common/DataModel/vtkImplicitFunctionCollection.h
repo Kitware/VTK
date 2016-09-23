@@ -53,10 +53,10 @@ public:
    */
   vtkImplicitFunction *GetNextImplicitFunction(
     vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkImplicitFunction *>(
         this->GetNextItemAsObject(cookie));
-    };
+  };
   //@}
 
 protected:

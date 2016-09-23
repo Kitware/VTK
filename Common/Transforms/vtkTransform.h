@@ -191,30 +191,30 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransform : public vtkLinearTransform
    * constituents, for example to save a transformation to a file.
    */
   vtkLinearTransform *GetConcatenatedTransform(int i)
-    {
+  {
       vtkAbstractTransform *t;
       if (this->Input == NULL)
-        {
+      {
         t=this->Concatenation->GetTransform(i);
-        }
+      }
       else if (i < this->Concatenation->GetNumberOfPreTransforms())
-        {
+      {
         t=this->Concatenation->GetTransform(i);
-        }
+      }
       else if (i > this->Concatenation->GetNumberOfPreTransforms())
-        {
+      {
         t=this->Concatenation->GetTransform(i-1);
-        }
+      }
       else if (this->GetInverseFlag())
-        {
+      {
         t=this->Input->GetInverse();
-        }
+      }
       else
-        {
+      {
         t=this->Input;
-        }
+      }
       return static_cast<vtkLinearTransform *>(t);
-    }
+  }
   //@}
 
   //@{

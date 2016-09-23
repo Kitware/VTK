@@ -80,13 +80,13 @@ vtkMTimeType vtkClipConvexPolyData::GetMTime()
 {
   vtkMTimeType result=Superclass::GetMTime();
   if(this->Planes!=0)
-    {
+  {
     vtkMTimeType planesTime=this->Planes->GetMTime();
     if(planesTime>result)
-      {
+    {
       result=planesTime;
-      }
     }
+  }
   return result;
 }
 
@@ -95,22 +95,22 @@ void vtkClipConvexPolyData::ClearInternals()
 {
   unsigned int j;
   for(unsigned int i=0; i<this->Internal->Polygons.size(); i++)
-    {
+  {
     for (j=0; j<this->Internal->Polygons[i]->Vertices.size(); j++)
-      {
+    {
       delete this->Internal->Polygons[i]->Vertices[j];
-      }
+    }
     this->Internal->Polygons[i]->Vertices.clear();
 
     for (j=0; j<this->Internal->Polygons[i]->NewVertices.size(); j++)
-      {
+    {
       delete this->Internal->Polygons[i]->NewVertices[j];
-      }
+    }
     this->Internal->Polygons[i]->NewVertices.clear();
 
 
     delete this->Internal->Polygons[i];
-    }
+  }
   this->Internal->Polygons.clear();
 }
 
@@ -118,14 +118,14 @@ void vtkClipConvexPolyData::ClearInternals()
 void vtkClipConvexPolyData::ClearNewVertices()
 {
   for(unsigned int i=0; i<this->Internal->Polygons.size(); i++)
-    {
+  {
     for(unsigned int j=0; j<this->Internal->Polygons[i]->NewVertices.size();
         j++)
-      {
+    {
       delete this->Internal->Polygons[i]->NewVertices[j];
-      }
-    this->Internal->Polygons[i]->NewVertices.clear();
     }
+    this->Internal->Polygons[i]->NewVertices.clear();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -134,26 +134,26 @@ void vtkClipConvexPolyData::RemoveEmptyPolygons()
   bool done = false;
 
   while (!done )
-    {
+  {
     done = true;
     for(unsigned int i=0; i<this->Internal->Polygons.size(); i++)
-      {
+    {
       if ( this->Internal->Polygons[i]->Vertices.size() == 0 )
-        {
+      {
         std::vector<vtkCCPDPolygon*>::iterator where =
           std::find(this->Internal->Polygons.begin(),
                this->Internal->Polygons.end(),
                this->Internal->Polygons[i]);
         if ( where != this->Internal->Polygons.end() )
-          {
+        {
           delete this->Internal->Polygons[i];
           this->Internal->Polygons.erase(where);
           done = false;
           break;
-          }
         }
       }
     }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -165,15 +165,15 @@ int vtkClipConvexPolyData::RequestData(
 {
   // Pre-conditions
   if(this->Planes==0)
-    {
+  {
     vtkErrorMacro("plane collection is null");
     return 0;
-    }
+  }
   if(this->Planes->GetNumberOfItems()==0)
-    {
+  {
     vtkErrorMacro("plane collection is empty");
     return 0;
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -195,15 +195,15 @@ int vtkClipConvexPolyData::RequestData(
   size_t i, j;
   double tolerance;
   for ( i = 0; i < static_cast<size_t>(points->GetNumberOfPoints()); i++ )
-    {
+  {
     double pt[3];
     points->GetPoint(static_cast<vtkIdType>(i), pt);
     for ( j = 0; j < 3; j++ )
-      {
+    {
       min[j] = (pt[j] < min[j])?(pt[j]):(min[j]);
       max[j] = (pt[j] > max[j])?(pt[j]):(max[j]);
-      }
     }
+  }
   tolerance = sqrt(vtkMath::Distance2BetweenPoints(min,max))*0.00001;
 
   // Copy the polygons from the polys array to the internal
@@ -212,28 +212,28 @@ int vtkClipConvexPolyData::RequestData(
   vtkIdType *pts;
   polys->InitTraversal();
   while ( polys->GetNextCell(npts, pts) )
-    {
+  {
     vtkCCPDPolygon *polygon = new vtkCCPDPolygon;
     for ( i = 0; i < static_cast<size_t>(npts); i++ )
-      {
+    {
       vtkCCPDVertex *v = new vtkCCPDVertex;
       points->GetPoint(pts[i], v->Point);
       polygon->Vertices.push_back(v);
-      }
-    this->Internal->Polygons.push_back(polygon);
     }
+    this->Internal->Polygons.push_back(polygon);
+  }
 
   this->Planes->InitTraversal();
   vtkPlane *plane;
 
   // For each plane in the collection, clip the polygons with the plane.
   while ( (plane = this->Planes->GetNextItem()) )
-    {
+  {
     if ( !this->HasDegeneracies( plane ) )
-      {
+    {
       this->ClipWithPlane( plane, tolerance );
-      }
     }
+  }
 
   // Create a new set of points and polygons into which the results will
   // be stored
@@ -241,17 +241,17 @@ int vtkClipConvexPolyData::RequestData(
   vtkCellArray *outPolys  = vtkCellArray::New();
 
   for ( i = 0; i < this->Internal->Polygons.size(); i++ )
-    {
+  {
     size_t numPoints = this->Internal->Polygons[i]->Vertices.size();
     vtkIdType *polyPts = new vtkIdType[numPoints];
     for ( j = 0; j < numPoints; j++ )
-      {
+    {
       polyPts[j] = outPoints->InsertNextPoint(
         this->Internal->Polygons[i]->Vertices[j]->Point );
-      }
+    }
     outPolys->InsertNextCell(static_cast<vtkIdType>(numPoints), polyPts );
     delete [] polyPts;
-    }
+  }
 
   // Set the output vertices and polygons
   output->SetPoints(outPoints);
@@ -287,7 +287,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
 
   // For each polygon
   for ( i = 0; i < this->Internal->Polygons.size(); i++ )
-    {
+  {
     // the new polygon. We are clipping the existing polygon then
     // removing that old polygon and adding this clipped polygon
     vtkCCPDPolygon *newPoly = new vtkCCPDPolygon;
@@ -300,25 +300,25 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     // condition and we also don't want to consider it
     size_t numVertices = this->Internal->Polygons[i]->Vertices.size();
     for ( j = 0; j < numVertices; j++ )
-      {
+    {
       double *p1=this->Internal->Polygons[i]->Vertices[j]->Point;
       double p1D=p1[0]*normal[0]+p1[1]*normal[1]+p1[2]*normal[2] + normal[3];
       if ( p1D < 2.0*tolerance && p1D > -2.0*tolerance )
-        {
+      {
         p1D = 0;
-        }
+      }
       if ( p1D > 0 )
-        {
+      {
         somePositive = 1;
         break;
-        }
       }
+    }
 
     if ( somePositive )
-      {
+    {
       // For each vertex
       for ( j = 0; j < numVertices; j++ )
-        {
+      {
         double *p1=this->Internal->Polygons[i]->Vertices[j]->Point;
         double *p2=
           this->Internal->Polygons[i]->Vertices[(j+1)%numVertices]->Point;
@@ -332,54 +332,54 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
         // the cut. So if the point is within a 1/10th of the tolerance factor
         // we've set, we'll just consider it not clipped.
         if ( p1D < 2*tolerance && p1D > -2.0*tolerance )
-          {
+        {
           p1D = 0;
-          }
+        }
 
         if ( p2D < 2*tolerance && p2D > -2.0*tolerance )
-          {
+        {
           p2D = 0;
-          }
+        }
         // Add p1 in if it is not clipped. If the whole polygon is unclipped
         // then we'll just add in each vertex in turn. If the whole polygon
         // is clipped we won't add in any vertices. If the polygon is
         // clipped, we'll add in two new points corresponding the the
         // crossing location of the plane on two edges of the polygon
         if ( p1D >= 0 )
-          {
+        {
           vtkCCPDVertex *v = new vtkCCPDVertex;
           v->Point[0] = p1[0];
           v->Point[1] = p1[1];
           v->Point[2] = p1[2];
           newPoly->Vertices.push_back(v);
-          }
+        }
 
         // If the first point is exactly on the boundary, we need to also count it
         // as a new point
         if ( p1D == 0 && p2D <= 0)
-          {
+        {
           vtkCCPDVertex *v = new vtkCCPDVertex;
           v->Point[0] = p1[0];
           v->Point[1] = p1[1];
           v->Point[2] = p1[2];
           this->Internal->Polygons[i]->NewVertices.push_back(v);
           numNewPoints++;
-          }
+        }
 
         if ( p2D == 0 && p1D <= 0 )
-          {
+        {
           vtkCCPDVertex *v = new vtkCCPDVertex;
           v->Point[0] = p2[0];
           v->Point[1] = p2[1];
           v->Point[2] = p2[2];
           this->Internal->Polygons[i]->NewVertices.push_back(v);
           numNewPoints++;
-          }
+        }
 
         // If the plane clips this edge - find the crossing point. We'll need
         // to add this point to the new polygon
         if ( p1D*p2D < 0 )
-          {
+        {
           double w = -p1D / (p2D - p1D);
 
           vtkCCPDVertex *v = new vtkCCPDVertex;
@@ -394,71 +394,71 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
           v->Point[2] = p1[2] + w * (p2[2]-p1[2]);
           this->Internal->Polygons[i]->NewVertices.push_back(v);
           numNewPoints++;
-          }
         }
       }
+    }
 
     // Remove the current polygon
     for ( j = 0; j < numVertices; j++ )
-      {
+    {
       delete this->Internal->Polygons[i]->Vertices[j];
-      }
+    }
     this->Internal->Polygons[i]->Vertices.clear();
 
     // copy in the new polygon if it isn't entirely clipped
     numVertices = newPoly->Vertices.size();
     if ( numVertices > 0 )
-      {
+    {
       for ( j = 0; j < numVertices; j++ )
-        {
+      {
         this->Internal->Polygons[i]->Vertices.push_back(newPoly->Vertices[j]);
-        }
-      newPoly->Vertices.clear();
       }
-    delete newPoly;
+      newPoly->Vertices.clear();
     }
+    delete newPoly;
+  }
 
   // If we've added any new points when clipping the polydata then
   // we must have added at least six. Otherwise something is wrong
   if ( numNewPoints )
-    {
+  {
     if ( numNewPoints < 6 )
-      {
+    {
       vtkErrorMacro(<< "Failure - not enough new points");
       return;
-      }
+    }
 
     // Check that all new arrays contain exactly 0 or 2 points
     for ( i = 0; i < this->Internal->Polygons.size(); i++ )
-      {
+    {
       if ( this->Internal->Polygons[i]->NewVertices.size() != 0 &&
            this->Internal->Polygons[i]->NewVertices.size() != 2 )
-        {
+      {
         vtkErrorMacro( << "Horrible error - we have " <<
                        this->Internal->Polygons[i]->NewVertices.size()
                        << " crossing points");
         return;
-        }
       }
+    }
 
     // Find the first polygon with a new point
     size_t idx = 0;
     bool idxFound=false;
 
     for ( i = 0; !idxFound && i < this->Internal->Polygons.size(); i++ )
-      {
+    {
       idxFound=this->Internal->Polygons[i]->NewVertices.size() > 0;
       if(idxFound)
-        {
+      {
         idx=i;
-        }
       }
+    }
 
     if (!idxFound)
-      {
+    {
       vtkErrorMacro( << "Couldn't find any new vertices!");
       return;
-      }
+    }
 
     // the new polygon
     vtkCCPDPolygon *newPoly = new vtkCCPDPolygon;
@@ -483,37 +483,37 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     size_t subIdx;
 
     while ( static_cast<int>(newPoly->Vertices.size()) < numNewPoints / 2 )
-      {
+    {
       // Find the index of the closest new vertex that matches the
       // lastPoint but not the lastPointIdx.
       subIdx = 0;
       float closestDistance = VTK_FLOAT_MAX;
       bool foundSubIdx=false;
       for ( i = 0; i < this->Internal->Polygons.size(); i++ )
-        {
+      {
           if ( i != lastPointIdx &&
                this->Internal->Polygons[i]->NewVertices.size() > 0 )
           {
           for ( j = 0; j < 2; j++ )
-            {
+          {
             float testDistance =
               vtkMath::Distance2BetweenPoints(lastPoint,
                   this->Internal->Polygons[i]->NewVertices[j]->Point);
             if ( testDistance < tolerance && testDistance < closestDistance)
-              {
+            {
               closestDistance = testDistance;
               idx = i;
               subIdx =j;
               foundSubIdx=true;
-              }
             }
-           }
-        }
+          }
+          }
+      }
 
       if ( !foundSubIdx )
-        {
+      {
         vtkErrorMacro("Could not find a match");
-        }
+      }
 
       v = new vtkCCPDVertex;
       v->Point[0] =
@@ -531,7 +531,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
       lastPoint[2] =
         this->Internal->Polygons[idx]->NewVertices[(subIdx+1)%2]->Point[2];
       lastPointIdx = idx;
-      }
+    }
 
 
     // check to see that the polygon vertices are in the right order.
@@ -540,7 +540,7 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
     int flipCount = 0;
     int checkCount = 0;
     for (size_t startV = 0; startV+2 < newPoly->Vertices.size(); startV++)
-      {
+    {
       double *p1 = newPoly->Vertices[startV]->Point;
       double *p2 = newPoly->Vertices[startV+1]->Point;
       double *p3 = newPoly->Vertices[startV+2]->Point;
@@ -560,23 +560,23 @@ void vtkClipConvexPolyData::ClipWithPlane( vtkPlane *plane, double tolerance )
       // are all too close together and we might wind up with
       // misleading results
       if ( nd > tolerance )
-        {
+      {
         if ( vtkMath::Dot(cross,normal) < 0 )
-          {
+        {
           flipCount++;
-          }
-        checkCount++;
         }
+        checkCount++;
       }
+    }
 
     // As long as more than half the time we checked we got the answer
     // that we should flip, go ahead and flip it
     if ( flipCount > checkCount/2 )
-      {
+    {
       std::reverse(newPoly->Vertices.begin(), newPoly->Vertices.end());
-      }
-    this->Internal->Polygons.push_back(newPoly);
     }
+    this->Internal->Polygons.push_back(newPoly);
+  }
   this->RemoveEmptyPolygons();
   this->ClearNewVertices();
 }
@@ -599,12 +599,12 @@ bool vtkClipConvexPolyData::HasDegeneracies(vtkPlane *plane)
   // For each polygon
   int totalNumNewVertices = 0;
   for ( i = 0; i < this->Internal->Polygons.size(); i++ )
-    {
+  {
     // For each vertex
     size_t numVertices = this->Internal->Polygons[i]->Vertices.size();
     int numNewVertices = 0;
     for ( j = 0; j < numVertices; j++ )
-      {
+    {
       double *p1 = this->Internal->Polygons[i]->Vertices[j]->Point;
       double *p2 =
         this->Internal->Polygons[i]->Vertices[(j+1)%numVertices]->Point;
@@ -614,21 +614,21 @@ bool vtkClipConvexPolyData::HasDegeneracies(vtkPlane *plane)
 
       // If the plane clips this edge - find the crossing point
       if ( p1D*p2D <= 0 )
-        {
-        numNewVertices++;
-        }
-      }
-    if ( numNewVertices != 0 && numNewVertices != 2)
       {
-      return true;
+        numNewVertices++;
       }
-    totalNumNewVertices += numNewVertices;
     }
+    if ( numNewVertices != 0 && numNewVertices != 2)
+    {
+      return true;
+    }
+    totalNumNewVertices += numNewVertices;
+  }
 
   if ( totalNumNewVertices < 6 )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 

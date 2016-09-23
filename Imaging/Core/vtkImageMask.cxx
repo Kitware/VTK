@@ -58,31 +58,31 @@ void vtkImageMask::SetMaskedOutputValue(int num, double *v)
   int idx;
 
   if (num < 1)
-    {
+  {
     vtkErrorMacro("Output value must have length greater than 0");
     return;
-    }
+  }
   if (num != this->MaskedOutputValueLength)
-    {
+  {
     this->Modified();
-    }
+  }
 
   if (num > this->MaskedOutputValueLength)
-    {
+  {
     delete [] this->MaskedOutputValue;
     this->MaskedOutputValue = new double[num];
     this->MaskedOutputValueLength = num;
-    }
+  }
 
   this->MaskedOutputValueLength = num;
   for (idx = 0; idx < num; ++ idx)
-    {
+  {
     if (this->MaskedOutputValue[idx] != v[idx])
-      {
+    {
       this->Modified();
-      }
-    this->MaskedOutputValue[idx] = v[idx];
     }
+    this->MaskedOutputValue[idx] = v[idx];
+  }
 }
 
 
@@ -113,13 +113,13 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
   v = self->GetMaskedOutputValue();
   nv = self->GetMaskedOutputValueLength();
   for (idx0 = 0, idx1 = 0; idx0 < numC; ++idx0, ++idx1)
-    {
+  {
     if (idx1 >= nv)
-      {
+    {
       idx1 = 0;
-      }
-    maskedValue[idx0] = static_cast<T>(v[idx1]);
     }
+    maskedValue[idx0] = static_cast<T>(v[idx1]);
+  }
   pixSize = numC * sizeof(T);
   maskState = self->GetNotMask();
   maskAlpha = self->GetMaskAlpha();
@@ -138,80 +138,80 @@ void vtkImageMaskExecute(vtkImageMask *self, int ext[6],
 
   // Loop through output pixels
   for (idx2 = 0; idx2 < num2; ++idx2)
-    {
+  {
     for (idx1 = 0; !self->AbortExecute && idx1 < num1; ++idx1)
-      {
+    {
       if (!id)
-        {
+      {
         if (!(count%target))
-          {
-          self->UpdateProgress(count/(50.0*target));
-          }
-        count++;
-        }
-      for (idx0 = 0; idx0 < num0; ++idx0)
         {
+          self->UpdateProgress(count/(50.0*target));
+        }
+        count++;
+      }
+      for (idx0 = 0; idx0 < num0; ++idx0)
+      {
         if ( maskAlpha == 1.0 )
-          {
+        {
           // Pixel operation
           if (*in2Ptr && maskState == 1)
-            {
+          {
             memcpy(outPtr, maskedValue, pixSize);
-            }
+          }
           else if ( ! *in2Ptr && maskState == 0)
-            {
+          {
             memcpy(outPtr, maskedValue, pixSize);
-            }
+          }
           else
-            {
+          {
             memcpy(outPtr, in1Ptr, pixSize);
-            }
+          }
           in1Ptr += numC;
           outPtr += numC;
-          }
+        }
         else
-          {
+        {
           // We need to do an over operation
           int doMask = 0;
           if ( *in2Ptr && maskState == 1 )
-            {
+          {
             doMask = 1;
-            }
+          }
           else if ( !*in2Ptr && maskState == 0 )
-            {
+          {
             doMask = 1;
-            }
+          }
           if ( doMask )
-            {
+          {
             // Do an over operation
             for ( idxC = 0; idxC < numC; ++idxC )
-              {
+            {
               *outPtr = static_cast<T>(oneMinusMaskAlpha * *in1Ptr + maskedValue[idxC] * maskAlpha );
               ++outPtr;
               ++in1Ptr;
-              }
             }
+          }
           else
-            {
+          {
             // Copy verbatum
             for ( idxC = 0; idxC < numC; ++idxC )
-              {
+            {
               *outPtr = *in1Ptr;
               ++outPtr;
               ++in1Ptr;
-              }
             }
           }
-        in2Ptr += 1;
         }
+        in2Ptr += 1;
+      }
       in1Ptr += in1Inc1;
       in2Ptr += in2Inc1;
       outPtr += outInc1;
-      }
+    }
     in1Ptr += in1Inc2;
     in2Ptr += in2Inc2;
     outPtr += outInc2;
-    }
+  }
 
   delete [] maskedValue;
 }
@@ -244,28 +244,28 @@ void vtkImageMask::ThreadedRequestData(
   if (tExt[0] > outExt[0] || tExt[1] < outExt[1] ||
       tExt[2] > outExt[2] || tExt[3] < outExt[3] ||
       tExt[4] > outExt[4] || tExt[5] < outExt[5])
-    {
+  {
     vtkErrorMacro("Mask extent not large enough");
     return;
-    }
+  }
 
   if (inData[1][0]->GetNumberOfScalarComponents() != 1)
-    {
+  {
     vtkErrorMacro("Masks can have one component");
-    }
+  }
 
   if (inData[0][0]->GetScalarType() != outData[0]->GetScalarType() ||
       inData[1][0]->GetScalarType() != VTK_UNSIGNED_CHAR)
-    {
+  {
     vtkErrorMacro(<< "Execute: image ScalarType ("
       << inData[0][0]->GetScalarType() << ") must match out ScalarType ("
       << outData[0]->GetScalarType() << "), and mask scalar type ("
       << inData[1][0]->GetScalarType() << ") must be unsigned char.");
     return;
-    }
+  }
 
   switch (inData[0][0]->GetScalarType())
-    {
+  {
     vtkTemplateMacro(
       vtkImageMaskExecute(this, outExt, inData[0][0],
                           static_cast<VTK_TT *>(inPtr1), inData[1][0],
@@ -274,7 +274,7 @@ void vtkImageMask::ThreadedRequestData(
     default:
       vtkErrorMacro(<< "Execute: Unknown ScalarType");
       return;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -294,16 +294,16 @@ int vtkImageMask::RequestInformation (
   inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext);
   inInfo2->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext2);
   for (idx = 0; idx < 3; ++idx)
-    {
+  {
     if (ext2[idx*2] > ext[idx*2])
-      {
+    {
       ext[idx*2] = ext2[idx*2];
-      }
-    if (ext2[idx*2+1] < ext[idx*2+1])
-      {
-      ext[idx*2+1] = ext2[idx*2+1];
-      }
     }
+    if (ext2[idx*2+1] < ext[idx*2+1])
+    {
+      ext[idx*2+1] = ext2[idx*2+1];
+    }
+  }
 
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),ext,6);
 
@@ -318,9 +318,9 @@ void vtkImageMask::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "MaskedOutputValue: " << this->MaskedOutputValue[0];
   for (idx = 1; idx < this->MaskedOutputValueLength; ++idx)
-    {
+  {
     os << ", " << this->MaskedOutputValue[idx];
-    }
+  }
   os << endl;
 
   os << indent << "NotMask: " << (this->NotMask ? "On\n" : "Off\n");

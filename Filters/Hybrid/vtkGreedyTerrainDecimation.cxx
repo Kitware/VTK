@@ -107,9 +107,9 @@ inline vtkIdType vtkGreedyTerrainDecimation::InsertNextPoint(vtkIdType inputPtId
                                                              double x[3])
 {
   if ( (this->CurrentPointId+1) >= (vtkIdType)this->PointInfo->size() )
-    {
+  {
     this->PointInfo->resize(2*this->PointInfo->size());
-    }
+  }
 
   double *ptr = this->Points->WritePointer(3*this->CurrentPointId,3);
   *ptr++ = *x++;
@@ -142,7 +142,7 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
                                                     vtkIdType &numPts, vtkIdType &numTris)
 {
   switch (this->ErrorMeasure)
-    {
+  {
     case VTK_ERROR_NUMBER_OF_TRIANGLES:
       numTris = this->NumberOfTriangles;
       break;
@@ -151,7 +151,7 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
       break;
     default:
       numTris = numInputPts;
-    }
+  }
 
   numPts = numTris/2 + 1;
   numPts = (numPts < 4 ? 4 : numPts); //insure enough storage for initial four corner points
@@ -162,15 +162,15 @@ void vtkGreedyTerrainDecimation::EstimateOutputSize(const vtkIdType numInputPts,
 int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
 {
   switch (this->ErrorMeasure)
-    {
+  {
     case VTK_ERROR_NUMBER_OF_TRIANGLES:
       return this->Mesh->GetNumberOfPolys() >= this->NumberOfTriangles ? 1 : 0;
 
     case VTK_ERROR_SPECIFIED_REDUCTION:
-      {
+    {
       double reduction = (double)this->Mesh->GetNumberOfPolys()/this->MaximumNumberOfTriangles;
       return (1.0 - reduction) <= this->Reduction ? 1 : 0;
-      }
+    }
 
     case VTK_ERROR_ABSOLUTE:
       return error <= this->AbsoluteError ? 1 : 0;
@@ -180,7 +180,7 @@ int vtkGreedyTerrainDecimation::SatisfiesErrorMeasure(double error)
 
     default:
       return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -192,11 +192,11 @@ void vtkGreedyTerrainDecimation::UpdateTriangles(vtkIdType ptId)
 
   this->Mesh->GetPointCells(ptId,ncells,cells);
   for (unsigned short i=0; i<ncells; i++)
-    {
+  {
     this->Mesh->GetCellPoints(cells[i], npts, pts);
     this->UpdateTriangle(cells[i], (*this->PointInfo)[pts[0]],
                          (*this->PointInfo)[pts[1]], (*this->PointInfo)[pts[2]]);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -228,33 +228,33 @@ void vtkGreedyTerrainDecimation::InsertBoundaryVertices()
   // Note that the four corner vertices are already inserted.
   // Along x-axis at y=0.
   for (i=1; i<(this->Dimensions[0]-1); i++)
-    {
+  {
     inputPtId = i;
     this->AddPointToTriangulation(inputPtId);
-    }
+  }
 
   // Along x-axis at y=dim[1].
   offset = this->Dimensions[0]*(this->Dimensions[1]-1);
   for (i=1; i<(this->Dimensions[0]-1); i++)
-    {
+  {
     inputPtId = offset + i;
     this->AddPointToTriangulation(inputPtId);
-    }
+  }
 
   // Along y-axis at x=0.
   for (j=1; j<(this->Dimensions[1]-1); j++)
-    {
+  {
     inputPtId = j*this->Dimensions[0];
     this->AddPointToTriangulation(inputPtId);
-   }
+  }
 
   // Along y-axis at x=dims[0].
   offset = this->Dimensions[0]-1;
   for (j=1; j<(this->Dimensions[1]-1); j++)
-    {
+  {
     inputPtId = offset + j*this->Dimensions[0];
     this->AddPointToTriangulation(inputPtId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -273,13 +273,13 @@ int vtkGreedyTerrainDecimation::InCircle (double x[3], double x1[3], double x2[3
           (x[1]-center[1]) * (x[1]-center[1]);
 
   if ( dist2 < (0.999999999999*radius2) )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 #define VTK_DEL2D_TOLERANCE 1.0e-014
@@ -303,10 +303,10 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
   // get local triangle info
   this->Mesh->GetCellPoints(tri,npts,pts);
   for (i=0; i<3; i++)
-    {
+  {
     ptIds[i] = pts[i];
     this->GetPoint(ptIds[i], p[i]);
-    }
+  }
 
   // Randomization (of find edge neighbors) avoids walking in
   // circles in certain weird cases
@@ -315,7 +315,7 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
 
   // evaluate in/out of each edge
   for (inside=1, minProj=VTK_DEL2D_TOLERANCE, ic=0; ic<3; ic++)
-    {
+  {
     i  = (ir+ic) % 3;
     i2 = (i+1) % 3;
     i3 = (i+2) % 3;
@@ -328,70 +328,70 @@ vtkIdType vtkGreedyTerrainDecimation::FindTriangle(double x[3], vtkIdType ptIds[
 
     // compute local vectors
     for (j=0; j<2; j++)
-      {
+    {
       vp[j] = p[i3][j] - p[i][j];
       vx[j] = x[j] - p[i][j];
-      }
+    }
 
     //check for duplicate point
     vtkMath::Normalize2D(vp);
     if ( vtkMath::Normalize2D(vx) <= tol )
-      {
+    {
       vtkErrorMacro("Duplicate point");
       return -1;
-      }
+    }
 
     // see if two points are in opposite half spaces
     dp = vtkMath::Dot2D(n,vx) * (vtkMath::Dot2D(n,vp) < 0 ? -1.0 : 1.0);
     if ( dp < VTK_DEL2D_TOLERANCE )
-      {
+    {
       if ( dp < minProj ) //track edge most orthogonal to point direction
-        {
+      {
         inside = 0;
         nei[1] = ptIds[i];
         nei[2] = ptIds[i2];
         minProj = dp;
-        }
-      }//outside this edge
-    }//for each edge
+      }
+    }//outside this edge
+  }//for each edge
 
   if ( inside ) // all edges have tested positive
-    {
+  {
     nei[0] = (-1);
     status = VTK_IN_TRIANGLE;
     return tri;
-    }
+  }
 
   else if ( !inside && (fabs(minProj) < VTK_DEL2D_TOLERANCE) ) // on edge
-    {
+  {
     this->Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     if ( neighbors->GetNumberOfIds() < 1 )
-      {
+    {
       nei[0] = (-1);
       status = VTK_BOUNDARY_EDGE;
-      }
+    }
     else
-      {
+    {
       nei[0] = neighbors->GetId(0);
       status = VTK_INTERIOR_EDGE;
-      }
-    return tri;
     }
+    return tri;
+  }
 
   else //walk towards point
-    {
+  {
     this->Mesh->GetCellEdgeNeighbors(tri,nei[1],nei[2],neighbors);
     if ( (newNei=neighbors->GetId(0)) == nei[0] )
-      {
+    {
       vtkErrorMacro("Degeneracy");
       return -1;
-      }
+    }
     else
-      {
+    {
       nei[0] = tri;
       return this->FindTriangle(x,ptIds,newNei,tol,nei,neighbors,status);
-      }
     }
+  }
 }
 
 #undef VTK_DEL2D_TOLERANCE
@@ -405,9 +405,9 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
                                            vtkIdType p2, vtkIdType tri, int depth)
 {
   if ( depth > 15 )
-    {
+  {
     return;
-    }
+  }
 
   int i;
   vtkIdType *pts, npts, numNei, nei, p3;
@@ -425,23 +425,23 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
   numNei = neighbors->GetNumberOfIds();
 
   if ( numNei > 0 ) //i.e., not a boundary edge
-    {
+  {
     // get neighbor info including opposite point
     nei = neighbors->GetId(0);
     this->Mesh->GetCellPoints(nei, npts, pts);
     for (i=0; i<2; i++)
-      {
+    {
       if ( pts[i] != p1 && pts[i] != p2 )
-        {
+      {
         break;
-        }
       }
+    }
     p3 = pts[i];
     this->GetPoint(p3,x3);
 
     // see whether point is in circumcircle
     if ( this->InCircle (x3, x, x1, x2) )
-      {// swap diagonal
+    {// swap diagonal
       this->Mesh->RemoveReferenceToCell(p1,tri);
       this->Mesh->RemoveReferenceToCell(p2,nei);
       this->Mesh->ResizeCellList(ptId,1);
@@ -459,8 +459,8 @@ void vtkGreedyTerrainDecimation::CheckEdge(vtkIdType ptId, double x[3], vtkIdTyp
       this->CheckEdge(ptId, x, p3, p2, tri, ++depth);
       this->CheckEdge(ptId, x, p1, p3, nei,   depth);
 
-      }//in circle
-    }//interior edge
+    }//in circle
+  }//interior edge
 
   neighbors->Delete();
 }
@@ -477,9 +477,9 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
   //Make sure the point has not been previously inserted
   if ( (*this->TerrainInfo)[inputPtId].TriangleId == VTK_VERTEX_INSERTED )
-    {
+  {
     return -1;
-    }
+  }
 
   //Start off by determining the image coordinates and the position
   this->ComputeImageCoordinates(inputPtId, ij);
@@ -492,18 +492,18 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
   tri[0] = this->FindTriangle(x,pts,tri[0],this->Tolerance,nei,this->Neighbors,status);
   if ( tri[0] >= 0 ) //found a triangle
-    {
+  {
     // Insert the point into the output
     ptId = this->InsertNextPoint(inputPtId, x);
 
     if (this->Normals)
-      {
+    {
       float n[3];
       this->ComputePointNormal(ij[0], ij[1], n);
       this->Normals->InsertNextTuple(n);
-      }
+    }
     if ( status == VTK_IN_TRIANGLE ) //in triangle
-      {
+    {
       //delete this triangle; create three new triangles
       //first triangle is replaced with one of the new ones
       nodes[0][0] = ptId; nodes[0][1] = pts[0]; nodes[0][2] = pts[1];
@@ -524,23 +524,23 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
       this->CheckEdge(ptId, x, pts[0], pts[1], tri[0], 0);
       this->CheckEdge(ptId, x, pts[1], pts[2], tri[1], 0);
       this->CheckEdge(ptId, x, pts[2], pts[0], tri[2], 0);
-      }
+    }
 
     else if ( status == VTK_INTERIOR_EDGE ) // on interior triangle edge; has a neighbor
-      {
+    {
       //update cell list
       this->Mesh->GetCellPoints(nei[0],numNeiPts,neiPts);
       for (i=0; i<3; i++)
-        {
+      {
         if ( neiPts[i] != nei[1] && neiPts[i] != nei[2] )
-          {
+        {
           p1 = neiPts[i];
-          }
-        if ( pts[i] != nei[1] && pts[i] != nei[2] )
-          {
-          p2 = pts[i];
-          }
         }
+        if ( pts[i] != nei[1] && pts[i] != nei[2] )
+        {
+          p2 = pts[i];
+        }
+      }
       this->Mesh->ResizeCellList(p1,1);
       this->Mesh->ResizeCellList(p2,1);
 
@@ -569,21 +569,21 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
       // Check edge neighbors for Delaunay criterion.
       for ( i=0; i<4; i++ )
-        {
+      {
         this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i], 0);
-        }
       }
+    }
 
     else //if ( status == VTK_BOUNDARY_EDGE ) // on boundary triangle edge; no neighbor
-      {
+    {
       //update cell list
       for (i=0; i<3; i++)
-        {
+      {
         if ( pts[i] != nei[1] && pts[i] != nei[2] )
-          {
+        {
           p1 = pts[i];
-          }
         }
+      }
       this->Mesh->ResizeCellList(p1,1);
 
       //replace one triangle
@@ -601,16 +601,16 @@ vtkIdType vtkGreedyTerrainDecimation::AddPointToTriangulation(vtkIdType inputPtI
 
       // Check edge neighbors for Delaunay criterion.
       for ( i=0; i<2; i++ )
-        {
+      {
         this->CheckEdge (ptId, x, nodes[i][1], nodes[i][2], tri[i], 0);
-        }
       }
+    }
 
     //Indicate that it is now inserted and reinsert errors
     (*this->TerrainInfo)[inputPtId].TriangleId = VTK_VERTEX_INSERTED;
     this->UpdateTriangles(ptId);
 
-    }//if triangle containing point found
+  }//if triangle containing point found
 
   return 0;
 }
@@ -627,49 +627,49 @@ void vtkGreedyTerrainDecimation::ComputePointNormal(int i, int j, float n[3])
   dx = dy = 0;
   // X
   if (i > 0)
-    {
+  {
     x0 = scalars->GetTuple1(j*this->Dimensions[0] + i - 1);
     dx += this->Spacing[0];
-    }
+  }
   else
-    {
+  {
     x0 = scalars->GetTuple1(j*this->Dimensions[0] + i);
-    }
+  }
   if (i < this->Dimensions[0]-1)
-    {
+  {
     x1 = scalars->GetTuple1(j*this->Dimensions[0] + i + 1);
     dx += this->Spacing[0];
-    }
+  }
   else
-    {
+  {
     x1 = scalars->GetTuple1(j*this->Dimensions[0] + i);
-    }
+  }
   // Y
   if (j > 0)
-    {
+  {
     y0 = scalars->GetTuple1((j-1)*this->Dimensions[0] + i);
     dy += this->Spacing[1];
-    }
+  }
   else
-    {
+  {
     y0 = scalars->GetTuple1(j*this->Dimensions[0] + i);
-    }
+  }
   if (j < this->Dimensions[1]-1)
-    {
+  {
     y1 = scalars->GetTuple1((j+1)*this->Dimensions[0] + i);
     dy += this->Spacing[1];
-    }
+  }
   else
-    {
+  {
     y1 = scalars->GetTuple1(j*this->Dimensions[0] + i);
-    }
+  }
 
   if (dx == 0.0 || dy == 0.0)
-    {
+  {
     // This would only happen if the input was not an XY image.
     vtkErrorMacro("Could not compute normal.");
     return;
-    }
+  }
   vx[0] = (float)(dx);
   vx[1] = 0.0;
   vx[2] = (float)(x1-x0);
@@ -709,15 +709,15 @@ int vtkGreedyTerrainDecimation::RequestData(
   vtkDebugMacro(<<"Decimating terrain...");
 
   if ( input->GetDataDimension() != 2 )
-    {
+  {
     vtkWarningMacro(<<"This class treats 2D height fields only");
     return 1;
-    }
+  }
   if ( (this->Heights = this->InputPD->GetScalars()) == NULL )
-    {
+  {
     vtkWarningMacro(<<"This class requires height scalars");
     return 1;
-    }
+  }
 
   input->GetBounds(bounds);
   input->GetCenter(center);
@@ -725,10 +725,10 @@ int vtkGreedyTerrainDecimation::RequestData(
   double *origin = input->GetOrigin();
   double *spacing = input->GetSpacing();
   for (int ii=0; ii<3; ii++)
-    {
+  {
     this->Origin[ii] = (double)origin[ii];
     this->Spacing[ii] = (double)spacing[ii];
-    }
+  }
   this->Length = input->GetLength();
   this->MaximumNumberOfTriangles = 2 * (this->Dimensions[0]-1) * (this->Dimensions[1]-1);
   this->NumberOfTriangles = (this->NumberOfTriangles < this->MaximumNumberOfTriangles ?
@@ -757,12 +757,12 @@ int vtkGreedyTerrainDecimation::RequestData(
 
   // initailize the normals
   if (this->ComputeNormals)
-    {
+  {
     this->Normals = vtkFloatArray::New();
     this->Normals->SetNumberOfComponents(3);
     this->Normals->Allocate(numPts*3);
     this->Normals->SetName("Normals");
-    }
+  }
 
   // Supplemental arrays used to accelerate the algorithm.
   // TerrainInfo contains the "containing" triangle for each point. PointInfo maps the
@@ -807,7 +807,7 @@ int vtkGreedyTerrainDecimation::RequestData(
 
   // Handle normals of the four corners.
   if (this->Normals)
-    {
+  {
     float n[3];
     this->ComputePointNormal(0, 0, n);
     this->Normals->InsertNextTuple(n);
@@ -817,7 +817,7 @@ int vtkGreedyTerrainDecimation::RequestData(
     this->Normals->InsertNextTuple(n);
     this->ComputePointNormal(0, this->Dimensions[1]-1, n);
     this->Normals->InsertNextTuple(n);
-    }
+  }
 
   // Insert initial triangles into output mesh
   triangles = vtkCellArray::New();
@@ -843,9 +843,9 @@ int vtkGreedyTerrainDecimation::RequestData(
   // If boundary vertex deletion is not allowed, insert the boundary
   // points first.
   if ( ! this->BoundaryVertexDeletion )
-    {
+  {
     this->InsertBoundaryVertices();
-    }
+  }
 
   // While the error metric is not satisfied, add point with greatest error.
   // Note that this algorithm can terminate "prematurely" (e.g. compared to
@@ -856,28 +856,28 @@ int vtkGreedyTerrainDecimation::RequestData(
   int tenth=numPts/10+1;
 
   while ( !abortExecute && (inputPtId = this->TerrainError->Pop(0, error)) >= 0 )
-    {
+  {
     if ( this->SatisfiesErrorMeasure((1.0/error)) )
-      {
+    {
       break;
-      }
+    }
     else
-      {
+    {
       this->AddPointToTriangulation(inputPtId);
       if ( ! (++numInsertedPoints % tenth) )
-        {
+      {
         this->UpdateProgress( (double)(numInsertedPoints>numPts?numPts:numInsertedPoints)/numPts);
         abortExecute = this->GetAbortExecute();
-        }
       }
     }
+  }
 
   if (this->Normals)
-    {
+  {
     this->OutputPD->SetNormals(this->Normals);
     this->Normals->Delete();
     this->Normals = 0;
-    }
+  }
 
   vtkDebugMacro(<<"Output TIN contains: " << this->Mesh->GetNumberOfPoints() << " points"
                 <<"and " << this->Mesh->GetNumberOfPolys() << " triangles");
@@ -949,11 +949,11 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
                                         h, hMin, hMax, hMidL, hMidR);
 
   switch(type)
-    {
+  {
     case VTK_BOTTOM_TRIANGLE:
     case VTK_TWO_TRIANGLES:
       for (j=min[1]+1; j<midL[1]; j++) //for all scan lines; skip vertices
-        {
+      {
         idx = j*this->Dimensions[0];
         t = (double)(j - min[1]) / (midL[1] - min[1]);
         xL = (int)((1.0-t)*min[0] + t*midL[0]);
@@ -961,40 +961,40 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
         hL = (1.0-t)*hMin + t*hMidL;
         hR = (1.0-t)*hMin + t*hMidR;
         for (i=xL; i<=xR; i++)
-          {
+        {
           inputPtId = i + idx;
           if ( (*this->TerrainInfo)[inputPtId].TriangleId != VTK_VERTEX_INSERTED )
-            {
+          {
             (*this->TerrainInfo)[inputPtId].TriangleId = tri;
             if ( (xR-xL) > 0 )
-              {
+            {
               tt = (double)(i-xL) / (xR-xL);
               error = (1.0-tt)*hL + tt*hR;
-              }
+            }
             else
-              {
+            {
               error = hL;
-              }
+            }
             error = fabs( (double)this->Heights->GetTuple1(inputPtId) - error );
             if ( error > maxError )
-              {
+            {
               maxError = error;
               maxInputPtId = inputPtId;
-              }
-            } //if vertex not inserted
-          } //for this scanline
-        } //for all scanlines in this triangle
+            }
+          } //if vertex not inserted
+        } //for this scanline
+      } //for all scanlines in this triangle
 
       if ( type == VTK_BOTTOM_TRIANGLE )
-        {
+      {
         break;
-        }
+      }
       VTK_FALLTHROUGH;
 
     case VTK_TOP_TRIANGLE:
       //Start scanning the upper triangle
       for (j=max[1]-1; j>midL[1]; j--) //for all scan lines; skip vertices
-        {
+      {
         idx = j*this->Dimensions[0];
         t = (double)(j - midL[1]) / (max[1] - midL[1]);
         xL = (int) (t*max[0] + (1.0-t)*midL[0]);
@@ -1002,41 +1002,41 @@ void vtkGreedyTerrainDecimation::UpdateTriangle(vtkIdType tri, int ij1[2], int i
         hL = t*hMax + (1.0-t)*hMidL;
         hR = t*hMax + (1.0-t)*hMidR;
         for (i=xL; i<=xR; i++)
-          {
+        {
           inputPtId = i + idx;
           if ( (*this->TerrainInfo)[inputPtId].TriangleId != VTK_VERTEX_INSERTED )
-            {
+          {
             (*this->TerrainInfo)[inputPtId].TriangleId = tri;
             if ( (xR-xL) > 0 )
-              {
+            {
               tt = (double)(i-xL) / (xR-xL);
               error = (1.0-tt)*hL + tt*hR;
-              }
+            }
             else
-              {
+            {
               error = hL;
-              }
+            }
             error = fabs( (double)this->Heights->GetTuple1(inputPtId) - error );
             if ( error > maxError )
-              {
+            {
               maxError = error;
               maxInputPtId = inputPtId;
-              }
             }
           }
         }
+      }
       break;
 
     default:
       return;
-    }
+  }
 
   //The maximum error in the triangle has been found. Insert it into the queue.
   if ( maxError > 0.0 )
-    {
+  {
     this->TerrainError->DeleteId(maxInputPtId); //if previously inserted
     this->TerrainError->Insert((1.0/maxError),maxInputPtId);
-    }
+  }
 }
 
 
@@ -1053,171 +1053,171 @@ int vtkGreedyTerrainDecimation::CharacterizeTriangle(int ij1[2], int ij2[2], int
   // Check for situations where one edge of triangle is horizontal
   //
   if ( ij1[1] == ij2[1] )
-    {
+  {
     if ( ij1[0] < ij2[0] )
-      {
+    {
       midL = ij1;
       midR = ij2;
       hL = h[0];
       hR = h[1];
-      }
+    }
     else
-      {
+    {
       midL = ij2;
       midR = ij1;
       hL = h[1];
       hR = h[0];
-      }
+    }
     if( ij3[1] < ij1[1])
-      {
+    {
       min = ij3;
       hMin = h[2];
       return VTK_BOTTOM_TRIANGLE;
-      }
+    }
     else
-      {
+    {
       max = ij3;
       hMax = h[2];
       return VTK_TOP_TRIANGLE;
-      }
     }
+  }
 
   else if ( ij2[1] == ij3[1] )
-    {
+  {
     if ( ij2[0] < ij3[0] )
-      {
+    {
       midL = ij2;
       midR = ij3;
       hL = h[1];
       hR = h[2];
-      }
+    }
     else
-      {
+    {
       midL = ij3;
       midR = ij2;
       hL = h[2];
       hR = h[1];
-      }
+    }
     if( ij1[1] < ij2[1])
-      {
+    {
       min = ij1;
       hMin = h[0];
       return VTK_BOTTOM_TRIANGLE;
-      }
+    }
     else
-      {
+    {
       max = ij1;
       hMax = h[0];
       return VTK_TOP_TRIANGLE;
-      }
     }
+  }
 
   else if ( ij3[1] == ij1[1] )
-    {
+  {
     if ( ij3[0] < ij1[0] )
-      {
+    {
       midL = ij3;
       midR = ij1;
       hL = h[2];
       hR = h[0];
-      }
+    }
     else
-      {
+    {
       midL = ij1;
       midR = ij3;
       hL = h[0];
       hR = h[2];
-      }
+    }
     if( ij2[1] < ij3[1])
-      {
+    {
       min = ij2;
       hMin = h[1];
       return VTK_BOTTOM_TRIANGLE;
-      }
+    }
     else
-      {
+    {
       max = ij2;
       hMax = h[1];
       return VTK_TOP_TRIANGLE;
-      }
     }
+  }
 
   // Default situation (two triangles with no horizontal edges).
   // Determine max, min and mid vertices.
   //
   // Find minimum
   if ( ij1[1] < ij2[1] )
-    {
+  {
     if ( ij1[1] < ij3[1] )
-      {
+    {
       min = ij1;
       hMin = h[0];
-      }
+    }
     else
-      {
+    {
       min = ij3;
       hMin = h[2];
-      }
     }
+  }
   else
-    {
+  {
     if ( ij2[1] < ij3[1] )
-      {
+    {
       min = ij2;
       hMin = h[1];
-      }
+    }
     else
-      {
+    {
       min = ij3;
       hMin = h[2];
-      }
     }
+  }
 
   // Find maximum
   if ( ij1[1] > ij2[1] )
-    {
+  {
     if ( ij1[1] > ij3[1] )
-      {
+    {
       max = ij1;
       hMax = h[0];
-      }
+    }
     else
-      {
+    {
       max = ij3;
       hMax = h[2];
-      }
     }
+  }
   else
-    {
+  {
     if ( ij2[1] > ij3[1] )
-      {
+    {
       max = ij2;
       hMax = h[1];
-      }
+    }
     else
-      {
+    {
       max = ij3;
       hMax = h[2];
-      }
     }
+  }
 
   // Find the midL and midR
   double hMid, hMid2;
   if ( ij1 != min && ij1 != max)
-    {
+  {
     mid = ij1;
     hMid = h[0];
-    }
+  }
   else if ( ij2 != min && ij2 != max)
-    {
+  {
     mid = ij2;
     hMid = h[1];
-    }
+  }
   else //if ( ij3 != min && ij2 != max)
-    {
+  {
     mid = ij3;
     hMid = h[2];
-    }
+  }
 
   // Computation of the intersection
   //
@@ -1227,19 +1227,19 @@ int vtkGreedyTerrainDecimation::CharacterizeTriangle(int ij1[2], int ij2[2], int
   hMid2 = (1.0-t)*hMin + t*hMax;
 
   if ( mid[0] < mid2[0] )
-    {
+  {
     midL = mid;
     midR = mid2;
     hL = hMid;
     hR = hMid2;
-    }
+  }
   else
-    {
+  {
     midL = mid2;
     midR = mid;
     hL = hMid2;
     hR = hMid;
-    }
+  }
 
   return VTK_TWO_TRIANGLES;
 }
@@ -1258,25 +1258,25 @@ void vtkGreedyTerrainDecimation::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Error Measure: ";
   if ( this->ErrorMeasure == VTK_ERROR_NUMBER_OF_TRIANGLES )
-    {
+  {
     os << "Number of triangles\n";
     os << indent << "Number of triangles: " << this->NumberOfTriangles << "\n";
-    }
+  }
   else if ( this->ErrorMeasure == VTK_ERROR_SPECIFIED_REDUCTION )
-    {
+  {
     os << "Specified reduction\n";
     os << indent << "Reduction: " << this->Reduction << "\n";
-    }
+  }
   else if ( this->ErrorMeasure == VTK_ERROR_ABSOLUTE )
-    {
+  {
     os << "Absolute\n";
     os << indent << "Absolute Error: " << this->AbsoluteError << "\n";
-    }
+  }
   else // this->ErrorMeasure == VTK_ERROR_RELATIVE
-    {
+  {
     os << "Relative\n";
     os << indent << "Relative Error: " << this->RelativeError << "\n";
-    }
+  }
 
   os << indent << "BoundaryVertexDeletion: "
      << (this->BoundaryVertexDeletion ? "On\n" : "Off\n");

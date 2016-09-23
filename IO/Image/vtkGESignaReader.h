@@ -51,17 +51,17 @@ public:
    * Valid extentsions
    */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".MR .CT";
-    }
+  }
 
   /**
    * A descriptive name for this format
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "GESigna";
-    }
+  }
 
 protected:
   vtkGESignaReader() {}

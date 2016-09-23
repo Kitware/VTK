@@ -255,31 +255,31 @@ public:
   //@}
 
     if ( ! this->Visited[idx] )
-      {
+    {
       this->Visited[idx] = 1;
       *sPtr = v;
-      }
+    }
     else
-      {
+    {
       switch (this->AccumulationMode)
-        {
+      {
         case VTK_ACCUMULATION_MODE_MIN:
           if ( *sPtr > v )
-            {
+          {
             *sPtr = v;
-            }
+          }
           break;
         case VTK_ACCUMULATION_MODE_MAX:
           if ( *sPtr < v )
-            {
+          {
             *sPtr = v;
-            }
+          }
           break;
         case VTK_ACCUMULATION_MODE_SUM:
           *sPtr += v;
           break;
-        }
-      }//not first visit
+      }
+    }//not first visit
   }
 
 protected:

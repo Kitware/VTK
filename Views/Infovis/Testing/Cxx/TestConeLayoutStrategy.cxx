@@ -57,10 +57,10 @@ int TestConeLayoutStrategy(int argc, char* argv[])
   VTK_CREATE(vtkIdTypeArray, dist);
   dist->SetName("distance");
   for (vtkIdType i = 0; i < t->GetNumberOfEdges(); i++)
-    {
+  {
     dist->InsertNextValue(i);
     switch (i % 3)
-      {
+    {
       case 0:
         label->InsertNextValue("a");
         break;
@@ -70,8 +70,8 @@ int TestConeLayoutStrategy(int argc, char* argv[])
       case 2:
         label->InsertNextValue("c");
         break;
-      }
     }
+  }
   t->GetEdgeData()->AddArray(dist);
   t->GetEdgeData()->AddArray(label);
 
@@ -101,12 +101,12 @@ int TestConeLayoutStrategy(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(view->GetRenderWindow());
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
  return !retVal;
 }

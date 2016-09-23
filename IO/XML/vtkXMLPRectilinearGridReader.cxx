@@ -95,29 +95,29 @@ vtkXMLPRectilinearGridReader::ReadPrimaryElement(vtkXMLDataElement* ePrimary)
   int i;
   int numNested = ePrimary->GetNumberOfNestedElements();
   for(i=0;i < numNested; ++i)
-    {
+  {
     vtkXMLDataElement* eNested = ePrimary->GetNestedElement(i);
     if((strcmp(eNested->GetName(), "PCoordinates") == 0) &&
        (eNested->GetNumberOfNestedElements() == 3))
-      {
+    {
       this->PCoordinatesElement = eNested;
-      }
     }
+  }
 
   // If there is any volume, we require a PCoordinates element.
   if(!this->PCoordinatesElement)
-    {
+  {
     int extent[6];
     vtkInformation* outInfo = this->GetCurrentOutputInformation();
     outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
                  extent);
     if((extent[0] <= extent[1]) && (extent[2] <= extent[3]) &&
        (extent[4] <= extent[5]))
-      {
+    {
       vtkErrorMacro("Could not find PCoordinates element with 3 arrays.");
       return 0;
-      }
     }
+  }
 
   return 1;
 }
@@ -129,10 +129,10 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
   this->Superclass::SetupOutputData();
 
   if(!this->PCoordinatesElement)
-    {
+  {
     // Empty volume.
     return;
-    }
+  }
 
   // Allocate the coordinate arrays.
   vtkRectilinearGrid* output = vtkRectilinearGrid::SafeDownCast(
@@ -151,7 +151,7 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
   vtkDataArray* y = vtkArrayDownCast<vtkDataArray>(ay);
   vtkDataArray* z = vtkArrayDownCast<vtkDataArray>(az);
   if(x && y && z)
-    {
+  {
     x->SetNumberOfTuples(this->PointDimensions[0]);
     y->SetNumberOfTuples(this->PointDimensions[1]);
     z->SetNumberOfTuples(this->PointDimensions[2]);
@@ -161,14 +161,14 @@ void vtkXMLPRectilinearGridReader::SetupOutputData()
     x->Delete();
     y->Delete();
     z->Delete();
-    }
+  }
   else
-    {
+  {
     if (ax) { ax->Delete(); }
     if (ay) { ay->Delete(); }
     if (az) { az->Delete(); }
     this->DataError = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -220,9 +220,9 @@ void vtkXMLPRectilinearGridReader::CopySubCoordinates(int* inBounds,
 
 
 int vtkXMLPRectilinearGridReader::FillOutputPortInformation(int, vtkInformation *info)
-  {
+{
   info->Set(vtkDataObject::DATA_TYPE_NAME(), "vtkRectilinearGrid");
   return 1;
-  }
+}
 
 

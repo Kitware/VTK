@@ -76,45 +76,45 @@ void vtkLightingMapPass::RenderOpaqueGeometry(const vtkRenderState *s)
   int c = s->GetPropArrayCount();
   int i = 0;
   while (i < c)
-    {
+  {
     vtkProp *p = s->GetPropArray()[i];
     vtkSmartPointer<vtkInformation> keys = p->GetPropertyKeys();
     if (!keys)
-      {
+    {
       keys.TakeReference(vtkInformation::New());
-      }
+    }
     switch (this->GetRenderType())
-      {
+    {
       case LUMINANCE:
         keys->Set(vtkLightingMapPass::RENDER_LUMINANCE(), 1);
         break;
       case NORMALS:
         keys->Set(vtkLightingMapPass::RENDER_NORMALS(), 1);
         break;
-      }
+    }
     p->SetPropertyKeys(keys);
     int rendered =
       p->RenderOpaqueGeometry(s->GetRenderer());
     this->NumberOfRenderedProps += rendered;
     ++i;
-    }
+  }
 
   // Remove keys
   i = 0;
   while (i < c)
-    {
+  {
     vtkProp *p = s->GetPropArray()[i];
     vtkInformation *keys = p->GetPropertyKeys();
     switch (this->GetRenderType())
-      {
+    {
       case LUMINANCE:
         keys->Remove(vtkLightingMapPass::RENDER_LUMINANCE());
         break;
       case NORMALS:
         keys->Remove(vtkLightingMapPass::RENDER_NORMALS());
         break;
-      }
+    }
     p->SetPropertyKeys(keys);
     ++i;
-    }
+  }
 }

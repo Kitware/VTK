@@ -54,20 +54,20 @@ vtkRenderedTreeAreaRepresentation* vtkTreeAreaView::GetTreeAreaRepresentation()
 {
   vtkRenderedTreeAreaRepresentation* treeAreaRep = 0;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
-    {
+  {
     vtkDataRepresentation* rep = this->GetRepresentation(i);
     treeAreaRep = vtkRenderedTreeAreaRepresentation::SafeDownCast(rep);
     if (treeAreaRep)
-      {
-      break;
-      }
-    }
-  if (!treeAreaRep)
     {
+      break;
+    }
+  }
+  if (!treeAreaRep)
+  {
     vtkSmartPointer<vtkTree> g = vtkSmartPointer<vtkTree>::New();
     treeAreaRep = vtkRenderedTreeAreaRepresentation::SafeDownCast(
       this->AddRepresentationFromInput(g));
-    }
+  }
   return treeAreaRep;
 }
 
@@ -275,9 +275,9 @@ void vtkTreeAreaView::SetEdgeLabelFontSize(const int size)
 {
   vtkTextProperty* prop = this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty();
   if (prop)
-    {
+  {
     prop->SetFontSize(size);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -285,9 +285,9 @@ int vtkTreeAreaView::GetEdgeLabelFontSize()
 {
   vtkTextProperty* prop = this->GetTreeAreaRepresentation()->GetGraphEdgeLabelTextProperty();
   if (prop)
-    {
+  {
     return prop->GetFontSize();
-    }
+  }
   return 0;
 }
 

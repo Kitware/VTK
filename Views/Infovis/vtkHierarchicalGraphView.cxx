@@ -43,22 +43,22 @@ vtkRenderedGraphRepresentation* vtkHierarchicalGraphView::GetGraphRepresentation
 {
   vtkRenderedHierarchyRepresentation* graphRep = 0;
   for (int i = 0; i < this->GetNumberOfRepresentations(); ++i)
-    {
+  {
     vtkDataRepresentation* rep = this->GetRepresentation(i);
     graphRep = vtkRenderedHierarchyRepresentation::SafeDownCast(rep);
     if (graphRep)
-      {
-      break;
-      }
-    }
-  if (!graphRep)
     {
+      break;
+    }
+  }
+  if (!graphRep)
+  {
     vtkSmartPointer<vtkTree> t = vtkSmartPointer<vtkTree>::New();
     graphRep = vtkRenderedHierarchyRepresentation::SafeDownCast(
       this->AddRepresentationFromInput(t));
     vtkSmartPointer<vtkDirectedGraph> g = vtkSmartPointer<vtkDirectedGraph>::New();
     graphRep->SetInputData(1, g);
-    }
+  }
   return graphRep;
 }
 

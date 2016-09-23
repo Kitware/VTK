@@ -51,10 +51,10 @@ public:
   // point-based variables
   std::vector<int> VariableMap;
   vtkNetCDFPOPReaderInternal()
-    {
+  {
       this->VariableArraySelection =
         vtkSmartPointer<vtkDataArraySelection>::New();
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -82,15 +82,15 @@ vtkNetCDFPOPReader::~vtkNetCDFPOPReader()
 {
   this->SetFileName(0);
   if(this->OpenedFileName)
-    {
+  {
     nc_close(this->NCDFFD);
     this->SetOpenedFileName(NULL);
-    }
+  }
   if(this->SelectionObserver)
-    {
+  {
     this->SelectionObserver->Delete();
     this->SelectionObserver = NULL;
-    }
+  }
   delete this->Internals;
   this->Internals = NULL;
 }
@@ -124,27 +124,27 @@ int vtkNetCDFPOPReader::RequestInformation(
 {
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   if(this->FileName == NULL)
-    {
+  {
     vtkErrorMacro("FileName not set.");
     return 0;
-    }
+  }
 
   if(this->OpenedFileName == NULL || strcmp(this->OpenedFileName, this->FileName) != 0)
-    {
+  {
     if(this->OpenedFileName)
-      {
+    {
       nc_close(this->NCDFFD);
       this->SetOpenedFileName(NULL);
-      }
+    }
     int retval = nc_open(this->FileName, NC_NOWRITE, &this->NCDFFD);//read file
     if (retval != NC_NOERR)//checks if read file error
-      {
+    {
       // we don't need to close the file if there was an error opening the file
       vtkErrorMacro(<< "Can't read file " << nc_strerror(retval));
       return 0;
-      }
-    this->SetOpenedFileName(this->FileName);
     }
+    this->SetOpenedFileName(this->FileName);
+  }
   // get number of variables from file
   int numberOfVariables;
   nc_inq_nvars(this->NCDFFD, &numberOfVariables);
@@ -157,7 +157,7 @@ int vtkNetCDFPOPReader::RequestInformation(
   int actualVariableCounter = 0;
   // For every variable in the file
   for(int i=0;i<numberOfVariables;i++)
-    {
+  {
     this->Internals->VariableMap[i] = -1;
     //get number of dimensions
     CALL_NETCDF(nc_inq_varndims(this->NCDFFD, i, &dataDimension));
@@ -165,22 +165,22 @@ int vtkNetCDFPOPReader::RequestInformation(
     //grid spacing
     CALL_NETCDF(nc_inq_vardimid(this->NCDFFD, i, dimidsp));
     if(dataDimension == 3)
-      {
+    {
       this->Internals->VariableMap[i] = actualVariableCounter++;
       //get variable name
       CALL_NETCDF(nc_inq_varname(this->NCDFFD, i, variableName));
       this->Internals->VariableArraySelection->AddArray(variableName);
       for(int m=0;m<dataDimension;m++)
-        {
+      {
         CALL_NETCDF(nc_inq_dimlen(this->NCDFFD, dimidsp[m], dimensions+m));
         //acquire variable dimensions
-        }
+      }
       extent[0] = extent[2] = extent[4] =0; //set extent
       extent[1] = static_cast<int>((dimensions[2] -1) / this->Stride[0]);
       extent[3] = static_cast<int>((dimensions[1] -1) / this->Stride[1]);
       extent[5] = static_cast<int>((dimensions[0] -1) / this->Stride[2]);
-      }
     }
+  }
   //fill in the extent information
   outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),extent,6);
   return 1;
@@ -200,9 +200,9 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   // if output port is negative then that means this filter is calling the
   // update directly, in that case just assume port 0
   if (outputPort == -1)
-    {
+  {
     outputPort = 0;
-    }
+  }
   // get the data object
   vtkInformation *outInfo = outputVector->GetInformationObject(outputPort);
 
@@ -245,11 +245,11 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
   //initialize memory (raw data space, x y z axis space) and rectilinear grid
   bool firstPass = true;
   for(size_t i=0;i<this->Internals->VariableMap.size();i++)
-    {
+  {
     if(this->Internals->VariableMap[i] != -1 &&
        this->Internals->VariableArraySelection->GetArraySetting(
          this->Internals->VariableMap[i]) != 0)
-      {
+    {
       // varidp is probably i in which case nc_inq_varid isn't needed
       int varidp;
       nc_inq_varid(this->NCDFFD,
@@ -257,7 +257,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
                      this->Internals->VariableMap[i]), &varidp);
 
       if(firstPass == true)
-        {
+      {
         int dimidsp[3];
         nc_inq_vardimid(this->NCDFFD, varidp, dimidsp);
         firstPass = false;
@@ -282,9 +282,9 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
         vtkFloatArray *yCoords = vtkFloatArray::New();
         yCoords->SetArray(y, count[1], 0, 1);
         for (unsigned int q=0; q<count[0]; q++)
-          {
+        {
           x[q] = -x[q];
-          }
+        }
         vtkFloatArray *zCoords = vtkFloatArray::New();
         zCoords->SetArray(x, count[0], 0, 1);
         rgrid->SetXCoordinates(xCoords);
@@ -293,7 +293,7 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
         xCoords->Delete();
         yCoords->Delete();
         zCoords->Delete();
-        }
+      }
       //create vtkFloatArray and get the scalars into it
       vtkFloatArray *scalars = vtkFloatArray::New();
       vtkIdType numberOfTuples = (count[0])*(count[1])*(count[2]);
@@ -310,9 +310,9 @@ int vtkNetCDFPOPReader::RequestData(vtkInformation* request,
                          this->Internals->VariableMap[i]));
       rgrid->GetPointData()->AddArray(scalars);
       scalars->Delete();
-      }
-    this->UpdateProgress((i+1.0)/this->Internals->VariableMap.size());
     }
+    this->UpdateProgress((i+1.0)/this->Internals->VariableMap.size());
+  }
   return 1;
 }
 
@@ -334,9 +334,9 @@ int vtkNetCDFPOPReader::GetNumberOfVariableArrays()
 const char* vtkNetCDFPOPReader::GetVariableArrayName(int index)
 {
   if(index < 0 || index >= this->GetNumberOfVariableArrays())
-    {
+  {
     return NULL;
-    }
+  }
   return this->Internals->VariableArraySelection->GetArrayName(index);
 }
 
@@ -351,19 +351,19 @@ void vtkNetCDFPOPReader::SetVariableArrayStatus(const char* name, int status)
 {
   vtkDebugMacro("Set cell array \"" << name << "\" status to: " << status);
   if(this->Internals->VariableArraySelection->ArrayExists(name) == 0)
-    {
+  {
     vtkErrorMacro(<< name << " is not available in the file.");
     return;
-    }
+  }
   int enabled = this->Internals->VariableArraySelection->ArrayIsEnabled(name);
   if(status != 0 && enabled == 0)
-    {
+  {
     this->Internals->VariableArraySelection->EnableArray(name);
     this->Modified();
-    }
+  }
   else if(status == 0 && enabled != 0)
-    {
+  {
     this->Internals->VariableArraySelection->DisableArray(name);
     this->Modified();
-    }
+  }
 }

@@ -275,11 +275,11 @@ class VTKIONETCDF_EXPORT vtkMPASReader : public vtkUnstructuredGridAlgorithm
   int CenterLonRange[2];
 
   enum GeometryType
-    {
+  {
     Spherical,
     Projected,
     Planar
-    };
+  };
 
   GeometryType Geometry;
 

@@ -145,9 +145,9 @@ public:
    * Return the output port (a vtkAlgorithmOutput) of the clipped output.
    */
   vtkAlgorithmOutput* GetClippedOutputPort()
-    {
+  {
       return this->GetOutputPort(1);
-    }
+  }
 
   //@{
   /**

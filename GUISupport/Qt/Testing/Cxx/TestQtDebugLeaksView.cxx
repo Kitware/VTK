@@ -34,17 +34,17 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   QApplication app(argc, argv);
 
   if (vtkDebugLeaks::GetDebugLeaksObserver())
-    {
+  {
     fail("Expected debug leaks observer to be null at start of test.");
-    }
+  }
 
   vtkQtDebugLeaksView view;
   vtkQtDebugLeaksModel* model = view.model();
 
   if (!vtkDebugLeaks::GetDebugLeaksObserver())
-    {
+  {
     fail("Expected debug leaks observer to be initialized after constructing view.");
-    }
+  }
 
   // Normally the model is updated asynchronously during the application event loop.
   // Since there is no event loop running during this test we'll call processEvents()
@@ -54,9 +54,9 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   std::cout << "Expect a warning message to be printed:" << std::endl;
   QList<vtkObjectBase*> cones = model->getObjects("vtkConeSource");
   if (!cones.isEmpty())
-    {
+  {
     fail("Expected number of vtkConeSource to be 0");
-    }
+  }
 
   // The rest of the test requires that VTK_DEBUG_LEAKS is enabled.
   // The beginning of this test is still useful to ensure that the widget
@@ -68,18 +68,18 @@ int TestQtDebugLeaksView(int argc, char* argv[])
 
   cones = model->getObjects("vtkConeSource");
   if (cones.size() != 1 || cones[0] != cone)
-    {
+  {
     fail("Debug leaks model failed to locate the cone");
-    }
+  }
 
   view.setFilterEnabled(true);
   view.setFilterText("vtkCone");
 
   QTableView* classTable = view.findChild<QTableView*>("ClassTable");
   if (classTable->model()->rowCount() != 1)
-    {
+  {
     fail("Expected exactly 1 row in debug leaks view.");
-    }
+  }
 
   classTable->selectRow(0);
 
@@ -87,66 +87,66 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   QTableView* referenceTable = view.findChild<QTableView*>("ReferenceTable");
 
   if (referenceTable->model() != referenceModel)
-    {
+  {
     fail("Reference table has incorrect model");
-    }
+  }
 
   view.setFilterEnabled(false);
 
   if (classTable->model()->rowCount() <= 1)
-    {
+  {
     fail("Expected more than 1 row in the debug leaks view");
-    }
+  }
 
   if (view.filterText() != "vtkCone")
-    {
+  {
     fail("Expected filter text to be 'vtkCone'");
-    }
+  }
 
   int baseReferenceCount = cone->GetReferenceCount();
 
   if (referenceModel->rowCount() != 1)
-    {
+  {
     fail("Expected reference model to have exactly 1 row");
-    }
+  }
 
   if (referenceModel->data(referenceModel->index(0, 1)) != baseReferenceCount)
-    {
+  {
     fail("Incorrect reference count");
-    }
+  }
 
   vtkSmartPointer<vtkConeSource> newReference = cone;
 
   int newReferenceCount = cone->GetReferenceCount();
   if (newReferenceCount <= baseReferenceCount)
-    {
+  {
     fail("Expected reference count to increase after constructing smart pointer");
-    }
+  }
 
   // Normally the reference count model is updated periodically during the application event loop.
   // Since there is no event loop running in this test we'll directly invoke the update routine.
   QMetaObject::invokeMethod(referenceModel, "updateReferenceCounts", Qt::DirectConnection);
 
   if (referenceModel->data(referenceModel->index(0, 1)) != newReferenceCount)
-    {
+  {
     fail("Incorrect reference count");
-    }
+  }
 
   newReference = NULL;
   QMetaObject::invokeMethod(referenceModel, "updateReferenceCounts", Qt::DirectConnection);
 
   if (referenceModel->data(referenceModel->index(0, 1)) != baseReferenceCount)
-    {
+  {
     fail("Incorrect reference count");
-    }
+  }
 
   newReference = vtkSmartPointer<vtkConeSource>::New();
   app.processEvents();
 
   if (referenceModel->rowCount() != 2)
-    {
+  {
     fail("Expected reference model to have exactly 2 rows");
-    }
+  }
 
   newReference = NULL;
   cone = NULL;
@@ -154,9 +154,9 @@ int TestQtDebugLeaksView(int argc, char* argv[])
   view.setFilterEnabled(true);
 
   if (classTable->model()->rowCount() != 0)
-    {
+  {
     fail("Expected 0 rows in the debug leaks view");
-    }
+  }
 
   #endif
 

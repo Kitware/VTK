@@ -69,23 +69,23 @@ public:
    * Create a new T on construction.
    */
   vtkNew() : Object(T::New())
-    {
+  {
     this->CheckObjectBase(this->Object);
-    }
+  }
 
   //@{
   /**
    * Deletes reference to instance of T on destruction.
    */
   ~vtkNew()
-    {
+  {
     T* obj = this->Object;
     if (obj)
-      {
+    {
       this->Object = 0;
       obj->Delete();
-      }
     }
+  }
   //@}
 
   /**
@@ -93,9 +93,9 @@ public:
    * object.
    */
   T* operator->() const
-    {
+  {
     return this->Object;
-    }
+  }
 
   //@{
   /**
@@ -105,13 +105,13 @@ public:
    * scope for example.
    */
   T* GetPointer() const
-    {
+  {
     return this->Object;
-    }
+  }
   T* Get() const
-    {
+  {
     return this->Object;
-    }
+  }
   //@}
 
 private:

@@ -103,13 +103,13 @@ public:
   {
     iterator iter = this->begin();
     while (iter != this->end())
-      {
+    {
       if (*iter)
-        {
+      {
         (*iter)->Delete();
-        }
-      ++iter;
       }
+      ++iter;
+    }
   }
 
   //@{
@@ -122,16 +122,16 @@ public:
   {
     T*& vtkobject = this->Internal.Local();
     if (!vtkobject)
-      {
+    {
       if (this->Exemplar)
-        {
+      {
         vtkobject = this->Exemplar->NewInstance();
-        }
-      else
-        {
-        vtkobject = T::SafeDownCast(T::New());
-        }
       }
+      else
+      {
+        vtkobject = T::SafeDownCast(T::New());
+      }
+    }
     return vtkobject;
   }
   //@}
@@ -140,9 +140,9 @@ public:
    * Return the number of thread local objects that have been initialized
    */
   size_t size() const
-    {
+  {
     return this->Internal.size();
-    }
+  }
 
   //@{
   /**
@@ -162,16 +162,16 @@ public:
   //@}
 
     iterator operator++(int)
-      {
+    {
         iterator copy = *this;
         ++this->Iter;
         return copy;
-      }
+    }
 
     bool operator==(const iterator& other)
-      {
+    {
       return this->Iter == other.Iter;
-      }
+    }
 
     bool operator!=(const iterator& other)
     {
@@ -184,9 +184,9 @@ public:
     }
 
     T** operator->()
-      {
+    {
         return &*this->Iter;
-      }
+    }
 
   private:
     TLSIter Iter;
@@ -195,18 +195,18 @@ public:
   };
 
   iterator begin()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.begin();
       return iter;
-    };
+  };
 
   iterator end()
-    {
+  {
       iterator iter;
       iter.Iter = this->Internal.end();
       return iter;
-    }
+  }
 
 private:
   TLS Internal;

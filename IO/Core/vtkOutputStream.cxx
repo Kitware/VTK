@@ -40,10 +40,10 @@ void vtkOutputStream::PrintSelf(ostream& os, vtkIndent indent)
 int vtkOutputStream::StartWriting()
 {
   if(!this->Stream)
-    {
+  {
     vtkErrorMacro("StartWriting() called with no Stream set.");
     return 0;
-    }
+  }
   return 1;
 }
 

@@ -36,9 +36,9 @@ A SumData(A *a, int n)
 {
   A sum = 0;
   for (int i = 0; i < n; ++i)
-    {
+  {
     sum += a[i];
-    }
+  }
   return sum;
 }
 
@@ -52,11 +52,11 @@ void CopyToPoints(vtkPoints2D *points, A *a, int n)
   float startAngle = 0.0;
 
   for (int i = 0; i < n; ++i)
-    {
+  {
     data[2*i] = startAngle;
     data[2*i+1] = startAngle + ((static_cast<float>(a[i]) / sum) * 360.0);
     startAngle = data[2*i+1];
-    }
+  }
 }
 }
 
@@ -64,11 +64,11 @@ class vtkPlotPiePrivate
 {
   public:
     vtkPlotPiePrivate()
-      {
+    {
       this->CenterX = 0;
       this->CenterY = 0;
       this->Radius  = 0;
-      }
+    }
 
   float CenterX;
   float CenterY;
@@ -93,10 +93,10 @@ vtkPlotPie::~vtkPlotPie()
 {
   delete this->Private;
   if (this->Points)
-    {
+  {
     this->Points->Delete();
     this->Points = 0;
-    }
+  }
   this->Private = 0;
 }
 
@@ -104,29 +104,29 @@ vtkPlotPie::~vtkPlotPie()
 bool vtkPlotPie::Paint(vtkContext2D *painter)
 {
   if (!this->Visible)
-    {
+  {
     return false;
-    }
+  }
 
   // First check if we have an input
   vtkTable *table = this->Data->GetInput();
   if (!table)
-    {
+  {
     vtkDebugMacro(<< "Paint event called with no input table set.");
     return false;
-    }
+  }
   else if(this->Data->GetMTime() > this->BuildTime ||
           table->GetMTime() > this->BuildTime ||
           this->MTime > this->BuildTime)
-    {
+  {
     vtkDebugMacro(<< "Paint event called with outdated table cache. Updating.");
     this->UpdateTableCache(table);
-    }
+  }
 
   float* data = static_cast<float*>(this->Points->GetVoidPointer(0));
 
   for (int i = 0; i < this->Points->GetNumberOfPoints(); ++i)
-    {
+  {
     painter->GetBrush()
         ->SetColor(this->ColorSeries->GetColorRepeating(i).GetData());
 
@@ -135,7 +135,7 @@ bool vtkPlotPie::Paint(vtkContext2D *painter)
                               0.0, 0.0,
                               data[2*i], data[2*i+1]
                               );
-    }
+  }
 
   this->PaintChildren(painter);
   return true;
@@ -162,7 +162,7 @@ void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
 {
   if (arg1 != this->Dimensions[0] || arg2 != this->Dimensions[1] ||
       arg3 != this->Dimensions[2] || arg4 != this->Dimensions[3])
-    {
+  {
     this->Dimensions[0] = arg1;
     this->Dimensions[1] = arg2;
     this->Dimensions[2] = arg3;
@@ -173,7 +173,7 @@ void vtkPlotPie::SetDimensions(int arg1, int arg2, int arg3, int arg4)
     this->Private->Radius  = this->Dimensions[2] < this->Dimensions[3]
         ? 0.5 * this->Dimensions[2] : 0.5 * this->Dimensions[3];
     this->Modified();
-    }
+  }
 }
 
 void vtkPlotPie::SetDimensions(int arg[4])
@@ -186,9 +186,9 @@ void vtkPlotPie::SetDimensions(int arg[4])
 void vtkPlotPie::SetColorSeries(vtkColorSeries *colorSeries)
 {
   if (this->ColorSeries == colorSeries)
-    {
+  {
     return;
-    }
+  }
   this->ColorSeries = colorSeries;
   this->Modified();
 }
@@ -208,13 +208,13 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
   float y = point.GetY() - this->Private->CenterY;
 
   if (sqrt((x*x) + (y*y)) <= this->Private->Radius)
-    {
+  {
     float *angles = static_cast<float *>(this->Points->GetVoidPointer(0));
     float pointAngle = vtkMath::DegreesFromRadians(atan2(y,x));
     if (pointAngle < 0)
-      {
+    {
       pointAngle = 180.0 + (180.0 + pointAngle);
-      }
+    }
     float *lbound = std::lower_bound(angles,
                                      angles + (this->Points->GetNumberOfPoints() * 2),
                                      pointAngle);
@@ -228,7 +228,7 @@ vtkIdType vtkPlotPie::GetNearestPoint(const vtkVector2f& point,
     value->SetX(ret);
     value->SetY(data->GetTuple1(ret));
     return ret;
-    }
+  }
 
   return -1;
 }
@@ -246,24 +246,24 @@ bool vtkPlotPie::UpdateTableCache(vtkTable *table)
   vtkDataArray* data = this->Data->GetInputArrayToProcess(0, table);
 
   if (!data)
-    {
+  {
     vtkErrorMacro(<< "No data set (index 0).");
     return false;
-    }
+  }
 
   if (!this->Points)
-    {
+  {
     this->Points = vtkPoints2D::New();
-    }
+  }
 
 
   switch (data->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       CopyToPoints(this->Points,
                    static_cast<VTK_TT*>(data->GetVoidPointer(0)),
                    data->GetNumberOfTuples()));
-    }
+  }
 
   this->BuildTime.Modified();
   return true;

@@ -342,11 +342,11 @@ public:
    * No-ops at this level. Typically overridden in subclasses.
    */
   virtual void InterpolateFunctions(double vtkNotUsed(pcoords)[3], double* vtkNotUsed(weight))
-    {
-    }
+  {
+  }
   virtual void InterpolateDerivs(double vtkNotUsed(pcoords)[3], double* vtkNotUsed(derivs))
-    {
-    }
+  {
+  }
 
   // left public for quick computational access
   vtkPoints *Points;

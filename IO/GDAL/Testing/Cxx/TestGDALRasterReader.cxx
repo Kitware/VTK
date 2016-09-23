@@ -73,9 +73,9 @@ int TestGDALRasterReader(int argc, char** argv)
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
 
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

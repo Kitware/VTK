@@ -65,17 +65,17 @@ int vtkImageInPlaceFilter::RequestData(
   if (inSize == outSize &&
       (vtkDataObject::GetGlobalReleaseDataFlag() ||
        inInfo->Get(vtkDemandDrivenPipeline::RELEASE_DATA())))
-    {
+  {
     // pass the data
     output->GetPointData()->PassData(input->GetPointData());
     output->SetExtent(outExt);
-    }
+  }
   else
-    {
+  {
     output->SetExtent(outExt);
     output->AllocateScalars(outInfo);
     this->CopyData(input,output,outExt);
-    }
+  }
 
   return 1;
 }
@@ -110,16 +110,16 @@ void vtkImageInPlaceFilter::CopyData(vtkImageData *inData,
 
   // Loop through output pixels
   for (idxZ = 0; idxZ <= maxZ; idxZ++)
-    {
+  {
     for (idxY = 0; idxY <= maxY; idxY++)
-      {
+    {
       memcpy(outPtr,inPtr,rowLength);
       outPtr += outIncY;
       inPtr += inIncY;
-      }
+    }
     outPtr += outIncZ;
     inPtr += inIncZ;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

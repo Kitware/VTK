@@ -24,8 +24,8 @@ struct vtkSMPToolsInit
   tbb::task_scheduler_init Init;
 
   vtkSMPToolsInit(int numThreads) : Init(numThreads)
-    {
-    }
+  {
+  }
 };
 
 static bool vtkSMPToolsInitialized = 0;
@@ -37,16 +37,16 @@ void vtkSMPTools::Initialize(int numThreads)
 {
   vtkSMPToolsCS.Lock();
   if (!vtkSMPToolsInitialized)
-    {
+  {
     // If numThreads <= 0, don't create a task_scheduler_init
     // and let TBB do the default thing.
     if (numThreads > 0)
-      {
+    {
       static vtkSMPToolsInit aInit(numThreads);
       vtkTBBNumSpecifiedThreads = numThreads;
-      }
-    vtkSMPToolsInitialized = true;
     }
+    vtkSMPToolsInitialized = true;
+  }
   vtkSMPToolsCS.Unlock();
 }
 

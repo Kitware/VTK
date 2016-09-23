@@ -69,19 +69,19 @@ int TestOSPRayPass(int argc, char* argv[])
   vtkSmartPointer<vtkOSPRayPass> ospray=vtkSmartPointer<vtkOSPRayPass>::New();
 
   for (int i = 1; i<10; i++)
-    {
+  {
     if (i%2)
-      {
+    {
       cerr << "Render via OSPRAY" << endl;
       renderer->SetPass(ospray);
-      }
+    }
     else
-      {
+    {
       cerr << "Render via GL" << endl;
       renderer->SetPass(NULL);
-      }
-    renWin->Render();
     }
+    renWin->Render();
+  }
 
   vtkSmartPointer<vtkOSPRayTestInteractor> style =
     vtkSmartPointer<vtkOSPRayTestInteractor>::New();

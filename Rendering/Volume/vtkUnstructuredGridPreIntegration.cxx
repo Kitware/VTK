@@ -66,13 +66,13 @@ vtkUnstructuredGridPreIntegration::~vtkUnstructuredGridPreIntegration()
   this->SetIntegrator(NULL);
 
   if (this->IntegrationTable)
-    {
+  {
     for (int i = 0; i < this->NumComponents; i++)
-      {
+    {
       delete[] this->IntegrationTable[i];
-      }
-    delete[] this->IntegrationTable;
     }
+    delete[] this->IntegrationTable;
+  }
   delete[] this->IntegrationTableScalarShift;
   delete[] this->IntegrationTableScalarScale;
 }
@@ -120,13 +120,13 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
 {
   // Delete old tables.
   if (this->IntegrationTable)
-    {
+  {
     for (int i = 0; i < this->NumComponents; i++)
-      {
+    {
       delete[] this->IntegrationTable[i];
-      }
-    delete[] this->IntegrationTable;
     }
+    delete[] this->IntegrationTable;
+  }
   delete[] this->IntegrationTableScalarShift;
   delete[] this->IntegrationTableScalarScale;
 
@@ -174,84 +174,84 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
   float d_length = (float)(1.0/this->IntegrationTableLengthScale);
 
   for (int component = 0; component < this->NumComponents; component++)
-    {
+  {
     int d_idx, sb_idx, sf_idx;
 
     // Allocate table.
     try
-      {
+    {
       this->IntegrationTable[component]
         = new float[4*this->IntegrationTableScalarResolution
                    *this->IntegrationTableScalarResolution
                    *this->IntegrationTableLengthResolution];
-      }
+    }
     catch (...)
-      {
+    {
       this->IntegrationTable[component] = NULL;
-      }
+    }
 
     if (this->IntegrationTable[component] == NULL)
-      {
+    {
       // Could not allocate memory for table.
       if (   (this->IntegrationTableScalarResolution > 32)
           || (this->IntegrationTableLengthResolution > 64) )
-        {
+      {
         vtkWarningMacro("Could not allocate integration table.\n"
                         "Reducing the table size and trying again.");
         for (int i = 0; i < component; i++)
-          {
+        {
           delete[] this->IntegrationTable[i];
-          }
+        }
         delete[] this->IntegrationTable;
         this->IntegrationTable = NULL;
 
         this->IntegrationTableScalarResolution = 32;
         this->IntegrationTableLengthResolution = 64;
         this->BuildPreIntegrationTables(scalars);
-        }
-      else
-        {
-        vtkErrorMacro("Could not allocate integration table.");
-        }
-      break;
       }
+      else
+      {
+        vtkErrorMacro("Could not allocate integration table.");
+      }
+      break;
+    }
 
     // Determine scale and shift.
     double *range = scalars->GetRange(component);
     if (range[0] == range[1])
-      {
+    {
       // Unusual case where the scalars are all the same.
       this->IntegrationTableScalarScale[component] = 1.0;
-      }
+    }
     else
-      {
+    {
       this->IntegrationTableScalarScale[component]
         = (this->IntegrationTableScalarResolution-1)/(range[1]-range[0]);
-      }
+    }
     this->IntegrationTableScalarShift[component]
       = -range[0]*this->IntegrationTableScalarScale[component];
 
     // Set values for d=0 (they are all zero).
     float *c = this->IntegrationTable[component];
     for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
-      {
+    {
       for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
            sf_idx++)
-        {
+      {
         c[0] = c[1] = c[2] = c[3] = 0.0f;
         c += 4;
-        }
       }
+    }
 
     // Initialize integrator.
     if (this->Property->GetColorChannels(component) == 3)
-      {
+    {
       tmpProperty->SetColor(this->Property->GetRGBTransferFunction(component));
-      }
+    }
     else
-      {
+    {
       tmpProperty->SetColor(this->Property->GetGrayTransferFunction(component));
-      }
+    }
     tmpProperty->SetScalarOpacity(this->Property->GetScalarOpacity(component));
     tmpProperty->SetScalarOpacityUnitDistance
       (this->Property->GetScalarOpacityUnitDistance(component));
@@ -267,13 +267,13 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
     // Set values for next smallest d (the base values).
     tmpIntersectionLengths->SetTuple1(0, d_length);
     for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution; sb_idx++)
-      {
+    {
       double sb = (sb_idx - this->IntegrationTableScalarShift[component])
                   / (this->IntegrationTableScalarScale[component]);
       tmpFarIntersections->SetTuple1(0, sb);
       for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
            sf_idx++)
-        {
+      {
         double sf = (sf_idx - this->IntegrationTableScalarShift[component])
                     / (this->IntegrationTableScalarScale[component]);
         tmpNearIntersections->SetTuple1(0, sf);
@@ -282,20 +282,20 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
                                     tmpNearIntersections, tmpFarIntersections,
                                     c);
         c += 4;
-        }
       }
+    }
 
     // Set rest of values using other values in table.
     if (this->IncrementalPreIntegration)
-      {
+    {
       for (d_idx = 2; d_idx < this->IntegrationTableLengthResolution; d_idx++)
-        {
+      {
         for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution;
              sb_idx++)
-          {
+        {
           for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
                sf_idx++)
-            {
+          {
             // We are going to perform incremental pre-integration.  To do
             // this, we compute the integration of a ray from sf to sb of
             // length d by combining two entries in the table.  The first
@@ -316,20 +316,20 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
             c[2] = colorf[2] + colorb[2]*(1.0f - colorf[3]);
             c[3] = colorf[3] + colorb[3]*(1.0f - colorf[3]);
             c += 4;
-            }
           }
         }
       }
+    }
     else
-      {
+    {
       for (d_idx = 2; d_idx < this->IntegrationTableLengthResolution; d_idx++)
-        {
+      {
         for (sb_idx = 0; sb_idx < this->IntegrationTableScalarResolution;
              sb_idx++)
-          {
+        {
           for (sf_idx = 0; sf_idx < this->IntegrationTableScalarResolution;
                sf_idx++)
-            {
+          {
             // Compute the integration table the old-fashioned slow way.
             float length = d_idx*d_length;
             float sb = (float)
@@ -347,11 +347,11 @@ void vtkUnstructuredGridPreIntegration::BuildPreIntegrationTables(vtkDataArray *
                                         tmpFarIntersections,
                                         c);
             c += 4;
-            }
           }
         }
       }
     }
+  }
 
   // Get rid of temporary data.
   tmpVolume->Delete();
@@ -373,27 +373,27 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
   if (   (property == this->Property)
       && (this->IntegrationTableBuilt > property->GetMTime())
       && (this->IntegrationTableBuilt > this->MTime) )
-    {
+  {
     // Nothing changed from the last time Initialize was run.
     return;
-    }
+  }
 
   this->Property = property;
   this->Volume = volume;
   this->IntegrationTableBuilt.Modified();
 
   if (!property->GetIndependentComponents())
-    {
+  {
     vtkErrorMacro("Cannot store dependent components in pre-integration table.");
     return;
-    }
+  }
 
   // Determine the maximum possible length of a ray segment.
   vtkDataSet *input = volume->GetMapper()->GetDataSetInput();
   vtkIdType numcells = input->GetNumberOfCells();
   this->MaxLength = 0;
   for (vtkIdType i = 0; i < numcells; i++)
-    {
+  {
     double cellbounds[6];
     input->GetCellBounds(i, cellbounds);
 #define SQR(x)  ((x)*(x))
@@ -402,10 +402,10 @@ void vtkUnstructuredGridPreIntegration::Initialize(vtkVolume *volume,
                                   + SQR(cellbounds[5]-cellbounds[4]) );
 #undef SQR
     if (diagonal_length > this->MaxLength)
-      {
+    {
       this->MaxLength = diagonal_length;
-      }
     }
+  }
 
   this->BuildPreIntegrationTables(scalars);
 }
@@ -421,13 +421,13 @@ void vtkUnstructuredGridPreIntegration::Integrate(
   vtkIdType numIntersections = intersectionLengths->GetNumberOfTuples();
 
   for (vtkIdType i = 0; i < numIntersections; i++)
-    {
+  {
     float *c = this->GetTableEntry(nearIntersections->GetComponent(i, 0),
                                    farIntersections->GetComponent(i, 0),
                                    intersectionLengths->GetComponent(i, 0), 0);
     float newcolor[4] = {c[0], c[1], c[2], c[3]};
     for (int component = 1; component < this->NumComponents; component++)
-      {
+    {
       c = this->GetTableEntry(nearIntersections->GetComponent(i, component),
                               farIntersections->GetComponent(i, component),
                               intersectionLengths->GetComponent(i, 0),
@@ -440,13 +440,13 @@ void vtkUnstructuredGridPreIntegration::Integrate(
       newcolor[1] = newcolor[1]*coef1 + c[1]*coef2;
       newcolor[2] = newcolor[2]*coef1 + c[2]*coef2;
       newcolor[3] = newcolor[3]*coef1 + c[3]*coef2;
-      }
+    }
 
     float coef = 1.0f - color[3];
     color[0] += newcolor[0]*coef;
     color[1] += newcolor[1]*coef;
     color[2] += newcolor[2]*coef;
     color[3] += newcolor[3]*coef;
-    }
+  }
 }
 

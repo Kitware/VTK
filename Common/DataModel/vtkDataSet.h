@@ -184,11 +184,11 @@ public:
    * THE DATASET IS NOT MODIFIED
    */
   vtkIdType FindPoint(double x, double y, double z)
-    {
+  {
     double xyz[3];
     xyz[0] = x; xyz[1] = y; xyz[2] = z;
     return this->FindPoint (xyz);
-    }
+  }
   virtual vtkIdType FindPoint(double x[3]) = 0;
   //@}
 

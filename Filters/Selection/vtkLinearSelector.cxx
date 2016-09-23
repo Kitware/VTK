@@ -66,13 +66,13 @@ void vtkLinearSelector::PrintSelf( ostream& os, vtkIndent indent )
   os << indent
      << "Points: ";
   if ( this->Points )
-    {
+  {
     this->Points->PrintSelf( os, indent );
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 
   os << indent
      << "Tolerance: "
@@ -118,16 +118,16 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
 
   // preparation de l'output
   if ( ! output )
-    {
+  {
     vtkErrorMacro( <<"vtkLinearSelector: filter does not have any output." );
     return 0;
-    }	// if ( ! output )
+  }	// if ( ! output )
 
   if ( ! compositeInput )
-    {
+  {
     vtkErrorMacro( <<"vtkLinearSelector: filter does not have any input." );
     return 0;
-    }	// if ( ! compositeInput )
+  }	// if ( ! compositeInput )
 
   // Now traverse the input
   vtkCompositeDataIterator* inputIterator = compositeInput->NewIterator();
@@ -135,7 +135,7 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
   inputIterator->InitTraversal();
   inputIterator->GoToFirstItem();
   for ( ; ! inputIterator->IsDoneWithTraversal(); inputIterator->GoToNextItem() )
-    {
+  {
     // Retrieve indices of current object
     vtkDataSet* input = vtkDataSet::SafeDownCast( inputIterator->GetCurrentDataObject() );
     vtkIdTypeArray* indices = vtkIdTypeArray::New();
@@ -152,7 +152,7 @@ int vtkLinearSelector::RequestData( vtkInformation* vtkNotUsed( request ),
     // Clean up
     n->Delete();
     indices->Delete();
-    }
+  }
 
   // Clean up
   inputIterator->Delete();
@@ -167,10 +167,10 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
 
   // Reject meaningless parameterizations
   if ( nSegments < 1 )
-    {
+  {
     vtkWarningMacro( <<"Cannot intersect: not enough points to define a broken line." );
     return;
-    }
+  }
 
   // Prepare lists of start and end points
   vtkIdType nCoords = 3 * nSegments;
@@ -178,17 +178,17 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
   double* endPoints = new double[nCoords];
 
   if ( this->Points )
-    {
+  {
     // Prepare and store segment vertices
     if ( this->IncludeVertices )
-      {
+    {
       // Vertices are included, use full segment extent
       for ( vtkIdType i = 0; i < nSegments; ++ i )
-        {
+      {
         vtkIdType offset = 3 * i;
         this->Points->GetPoint( i, startPoints + offset );
         this->Points->GetPoint( i + 1, endPoints + offset );
-        cerr << i - 1 
+        cerr << i - 1
              << ": "
              << startPoints[offset]
              << " "
@@ -196,56 +196,56 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
              << " "
              << startPoints[offset + 2]
              << endl;
-        }
-      } // if ( this->IncludeVertices )
+      }
+    } // if ( this->IncludeVertices )
     else
-      {
+    {
       // Vertices are excluded, reduce segment by given ratio
       for ( vtkIdType i = 0; i < nSegments; ++ i )
-        {
+      {
         vtkIdType offset = 3 * i;
         this->Points->GetPoint( i, startPoints + offset );
         this->Points->GetPoint( i + 1, endPoints + offset );
         for ( int j = 0; j < 3; ++ j, ++ offset )
-          {
+        {
           double delta =  this->VertexEliminationTolerance * ( endPoints[offset] - startPoints[offset] );
           startPoints[offset] += delta;
           endPoints[offset] -= delta;
-          } // for ( j )
-        } // for ( i )
-      } // else
-    } // if ( this->Points )
+        } // for ( j )
+      } // for ( i )
+    } // else
+  } // if ( this->Points )
   else // if ( this->Points )
-    {
+  {
     // Prepare and store segment vertices
     if ( this->IncludeVertices )
-      {
+    {
       // Vertices are included, use full segment extent
       for ( int i = 0; i < 3; ++ i )
-        {
+      {
         startPoints[i] = this->StartPoint[i];
         endPoints[i] = this->EndPoint[i];
-        }
-      } // if ( this->IncludeVertices )
+      }
+    } // if ( this->IncludeVertices )
     else
-      {
+    {
       // Vertices are excluded, reduce segment by given ratio
       for ( int i = 0; i < 3; ++ i )
-        {
+      {
         double delta =  this->VertexEliminationTolerance * ( this->EndPoint[i] - this->StartPoint[i] );
         startPoints[i] = this->StartPoint[i] + delta;
         endPoints[i] = this->EndPoint[i] - delta;
-        }
-      } // else
-    } // else // if ( this->Points )
+      }
+    } // else
+  } // else // if ( this->Points )
 
   // Iterate over cells
   const vtkIdType nCells = input->GetNumberOfCells();
   for ( vtkIdType id = 0; id < nCells; ++ id )
-    {
+  {
     vtkCell* cell = input->GetCell ( id );
     if ( cell )
-      {
+    {
       // Storage for coordinates of intersection with the line
       double coords [3];
       double pcoords [3];
@@ -254,7 +254,7 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
 
       // Seek intersection of cell with each segment
       for ( vtkIdType i = 0; i < nSegments; ++ i )
-        {
+      {
         // Intersection with a line segment
         vtkIdType offset = 3 * i;
         if ( cell->IntersectWithLine ( startPoints + offset,
@@ -264,12 +264,12 @@ void vtkLinearSelector::SeekIntersectingCells( vtkDataSet* input, vtkIdTypeArray
                                        coords,
                                        pcoords,
                                        subId ) )
-          {
+        {
           outIndices->InsertNextValue( id );
-          }
-        } // for ( i )
-      }	// if ( cell )
-    } // for ( vtkIdType id = 0; id < nCells; ++ id )
+        }
+      } // for ( i )
+    }	// if ( cell )
+  } // for ( vtkIdType id = 0; id < nCells; ++ id )
 
   // Clean up
   delete [] startPoints;

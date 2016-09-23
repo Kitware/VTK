@@ -383,12 +383,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       useOSP = false;
-      }
     }
+  }
 
   double scalarRange[2];
 
@@ -433,9 +433,9 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
   // Attach OSPRay render pass
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     ren->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   vtkNew<vtkPiecewiseFunction> scalarOpacity;
   scalarOpacity->AddPoint(50, 0.0);
@@ -477,7 +477,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     renWin->Render();
 
     vtkNew<vtkRTAnalyticSource> wavelet;
@@ -494,12 +494,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
                                                 iren.GetPointer(),
                                                 TestGPURayCastVolumeUpdateLog));
-    }
+  }
   else
-    {
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported" << endl;
-    }
+  }
 
   return !retVal;
 }

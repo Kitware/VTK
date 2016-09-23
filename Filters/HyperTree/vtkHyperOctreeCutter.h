@@ -199,16 +199,16 @@ public:
    * Return the sorting procedure as a descriptive character string.
    */
   const char *GetSortByAsString()
-    {
+  {
       if ( this->SortBy == VTK_SORT_BY_VALUE )
-        {
+      {
         return "SortByValue";
-        }
+      }
       else
-        {
+      {
         return "SortByCell";
-        }
-    }
+      }
+  }
   //@}
 
   /**

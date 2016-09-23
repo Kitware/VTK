@@ -65,9 +65,9 @@ public:
   {
     T result = 0;
     for (int i = 0; i < Size; ++i)
-      {
+    {
       result += this->Data[i] * this->Data[i];
-      }
+    }
     return result;
   }
   //@}
@@ -90,9 +90,9 @@ public:
     const double norm(this->Norm());
     const double inv(1.0 / norm);
     for (int i = 0; i < Size; ++i)
-      {
+    {
       this->Data[i] = static_cast<T>(this->Data[i] * inv);
-      }
+    }
     return norm;
   }
   //@}
@@ -118,9 +118,9 @@ public:
   {
     T result(0);
     for (int i = 0; i < Size; ++i)
-      {
+    {
       result += this->Data[i] * other[i];
-      }
+    }
     return result;
   }
   //@}
@@ -134,9 +134,9 @@ public:
   {
     vtkVector<TR, Size> result;
     for (int i = 0; i < Size; ++i)
-      {
+    {
       result[i] = static_cast<TR>(this->Data[i]);
-      }
+    }
     return result;
   }
 };
@@ -202,9 +202,9 @@ public:
    * Lexicographical comparison of two vector.
    */
   bool operator<(const vtkVector2<T> &v) const
-    {
+  {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]);
-    }
+  }
 };
   //@}
 
@@ -294,10 +294,10 @@ public:
    * Lexicographical comparison of two vector.
    */
   bool operator<(const vtkVector3<T> &v) const
-    {
+  {
     return (this->Data[0] < v.Data[0]) || (this->Data[0] == v.Data[0] && this->Data[1] < v.Data[1]) ||
       (this->Data[0] == v.Data[0] && this->Data[1] == v.Data[1] && this->Data[2] < v.Data[2]);
-    }
+  }
 };
   //@}
 

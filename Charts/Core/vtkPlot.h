@@ -355,11 +355,11 @@ public:
    * The returned \a bounds are stored as (Xmin, Xmax, Ymin, Ymax).
    */
   virtual void GetUnscaledInputBounds(double bounds[4])
-    {
+  {
     // Implemented here by calling GetBounds() to support plot
     // subclasses that do no log-scaling or plot orientation.
     return this->GetBounds(bounds);
-    }
+  }
 
   /**
    * Subclasses that build data caches to speed up painting should override this

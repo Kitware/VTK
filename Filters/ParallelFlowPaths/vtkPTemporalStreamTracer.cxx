@@ -72,10 +72,10 @@ void vtkPTemporalStreamTracer::AssignSeedsToProcessors(
   ParticleVector &LocalSeedPoints, int &LocalAssignedCount)
 {
   if(!this->Controller)
-    {
+  {
     return Superclass::AssignSeedsToProcessors(source, sourceID, ptId,
                                                LocalSeedPoints, LocalAssignedCount);
-    }
+  }
 
   ParticleVector candidates;
   //
@@ -146,9 +146,9 @@ void vtkPTemporalStreamTracer::AssignUniqueIds(
   vtkTemporalStreamTracerNamespace::ParticleVector &LocalSeedPoints)
 {
   if(!this->Controller)
-    {
+  {
     return Superclass::AssignUniqueIds(LocalSeedPoints);
-    }
+  }
 
   vtkIdType ParticleCountOffset = 0;
   vtkIdType numParticles = LocalSeedPoints.size();
@@ -244,9 +244,9 @@ int vtkPTemporalStreamTracer::RequestData(
   int rvalue = this->Superclass::RequestData(request, inputVector, outputVector);
 
   if(this->Controller)
-    {
+  {
     this->Controller->Barrier();
-    }
+  }
 
   return rvalue;
 }

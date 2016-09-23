@@ -132,16 +132,16 @@ void android_main(struct android_app* state)
   jstring jsParam1 = (jstring)env->CallObjectMethod(intent, gseid, env->NewStringUTF("VTKTesting"));
   int testing = 0;
   if (jsParam1)
-    {
+  {
     const char *Param1 = env->GetStringUTFChars(jsParam1, 0);
     testing = !strcmp(Param1,"Testing");
     //When done with it, or when you've made a copy
     env->ReleaseStringUTFChars(jsParam1, Param1);
-    }
+  }
   state->activity->vm->DetachCurrentThread();
 
   if (testing)
-    {
+  {
     ANativeActivity* nativeActivity = state->activity;
     const char* internalPath = nativeActivity->externalDataPath;
     std::string dataPath(internalPath);
@@ -151,13 +151,13 @@ void android_main(struct android_app* state)
     struct stat sb;
     int32_t res = stat(dataPath.c_str(), &sb);
     if (0 == res && sb.st_mode & S_IFDIR)
-      {
+    {
       LOGW("'files/' dir already in app's internal data storage.");
-      }
+    }
     else if (ENOENT == errno)
-      {
+    {
       res = mkdir(dataPath.c_str(), 0774);
-      }
+    }
 
     // internalDataPath points directly to the files/ directory
     std::string outputFile = dataPath + "/NativeVTKResult.png";
@@ -190,7 +190,7 @@ void android_main(struct android_app* state)
 
 
     ANativeActivity_finish(state->activity);
-    }
+  }
   }
   /*********************************************
   *  END OF THE REGRESSION TESTING BLOCK

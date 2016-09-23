@@ -184,10 +184,10 @@ protected:
    * Returns the number of nodes per cell according to the given dimension.
    */
   int GetNumberOfNodesPerCell( const int dim )
-    {
+  {
       int numNodes = 0;
       switch( dim )
-        {
+      {
         case 1:
          numNodes = 2; // line cell
          break;
@@ -199,9 +199,9 @@ protected:
          break;
         default:
          assert( "ERROR: code should not reach here!" && false );
-        } // END switch
+      } // END switch
       return( numNodes );
-    }
+  }
   //@}
 
   /**
@@ -300,59 +300,59 @@ protected:
     bool status = false;
 
     switch( this->DataDescription )
-      {
+    {
       case VTK_X_LINE:
         if( (GridExtent[0] <= i) && (i <= GridExtent[1]) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_Y_LINE:
         if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_Z_LINE:
         if( (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_XY_PLANE:
         if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
             (GridExtent[2] <= j) && (j <= GridExtent[3])  )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_YZ_PLANE:
         if( (GridExtent[2] <= j) && (j <= GridExtent[3] ) &&
             (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_XZ_PLANE:
         if( (GridExtent[0] <= i) && (i <= GridExtent[1] ) &&
             (GridExtent[4] <= k) && (k <= GridExtent[5] ) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       case VTK_XYZ_GRID:
         if( (GridExtent[0] <= i) && (i <= GridExtent[1]) &&
             (GridExtent[2] <= j) && (j <= GridExtent[3]) &&
             (GridExtent[4] <= k) && (k <= GridExtent[5]) )
-          {
+        {
           status = true;
-          }
+        }
         break;
       default:
         std::cout << "Data description is: " << this->DataDescription << "\n";
         std::cout.flush();
         assert( "pre: Undefined data-description!" && false );
-      } // END switch
+    } // END switch
 
     return( status );
   }
@@ -683,9 +683,9 @@ inline void vtkStructuredGridConnectivity::SetGhostedGridExtent(
           (this->NumberOfGrids == this->GhostedExtents.size()/6 ) );
 
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->GhostedExtents[ gridID*6+i ] = ext[i];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -695,9 +695,9 @@ inline void vtkStructuredGridConnectivity::GetGridExtent(
   assert( "pre: gridID out-of-bounds!" &&
         (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
   for( int i=0; i < 6; ++i )
-    {
+  {
     ext[i] = this->GridExtents[ gridID*6+i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -708,19 +708,19 @@ inline void vtkStructuredGridConnectivity::GetGhostedGridExtent(
         (gridID >= 0  && gridID < static_cast<int>(this->NumberOfGrids)));
 
   if( this->GhostedExtents.size() == 0 )
-    {
+  {
     ext[0] = ext[2] = ext[4] = -1;
     ext[1] = ext[3] = ext[5] = 0;
     vtkErrorMacro( "No ghosted extents found for registered grid extends!!!" );
     return;
-    }
+  }
 
   assert( "GhostedExtents are not aligned with registered grid extents" &&
         ( this->GhostedExtents.size() == this->GridExtents.size() ) );
   for( int i=0; i < 6; ++i )
-    {
+  {
     ext[i] = this->GhostedExtents[ gridID*6+i ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -728,65 +728,65 @@ inline bool vtkStructuredGridConnectivity::IsNodeOnBoundaryOfExtent(
     const int i, const int j, const int k, int ext[6] )
 {
   if( !this->IsNodeWithinExtent( i,j,k, ext) )
-    {
+  {
     return false;
-    }
+  }
 
   bool status = false;
   switch( this->DataDescription )
-    {
+  {
     case VTK_X_LINE:
        if( i==ext[0] || i==ext[1] )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_Y_LINE:
        if( j==ext[2] || j==ext[3] )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_Z_LINE:
        if( k==ext[4] || k==ext[5] )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_XY_PLANE:
        if( (i==ext[0] || i==ext[1]) ||
            (j==ext[2] || j==ext[3]) )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_YZ_PLANE:
        if( (j==ext[2] || j==ext[3]) ||
            (k==ext[4] || k==ext[5]) )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_XZ_PLANE:
        if( (i==ext[0] || i==ext[1]) ||
            (k==ext[4] || k==ext[5]) )
-         {
+       {
          status = true;
-         }
+       }
        break;
      case VTK_XYZ_GRID:
        if( (i==ext[0] || i==ext[1]) ||
            (j==ext[2] || j==ext[3]) ||
            (k==ext[4] || k==ext[5]) )
-         {
+       {
          status = true;
-         }
+       }
        break;
      default:
        std::cout << "Data description is: " << this->DataDescription << "\n";
        std::cout.flush();
        assert( "pre: Undefined data-description!" && false );
-    } // END switch
+  } // END switch
 
   return( status );
 }
@@ -799,59 +799,59 @@ inline bool vtkStructuredGridConnectivity::IsNodeInterior(
   bool status = false;
 
   switch( this->DataDescription )
-    {
+  {
     case VTK_X_LINE:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_Y_LINE:
       if( (GridExtent[2] < j) && (j < GridExtent[3] ) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_Z_LINE:
       if( (GridExtent[4] < k) && (k < GridExtent[5] ) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_XY_PLANE:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
           (GridExtent[2] < j) && (j < GridExtent[3])  )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_YZ_PLANE:
       if( (GridExtent[2] < j) && (j < GridExtent[3] ) &&
           (GridExtent[4] < k) && (k < GridExtent[5] ) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_XZ_PLANE:
       if( (GridExtent[0] < i) && (i < GridExtent[1] ) &&
           (GridExtent[4] < k) && (k < GridExtent[5] ) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     case VTK_XYZ_GRID:
       if( (GridExtent[0] < i) && (i < GridExtent[1]) &&
           (GridExtent[2] < j) && (j < GridExtent[3]) &&
           (GridExtent[4] < k) && (k < GridExtent[5]) )
-        {
+      {
         status = true;
-        }
+      }
       break;
     default:
       std::cout << "Data description is: " << this->DataDescription << "\n";
       std::cout.flush();
       assert( "pre: Undefined data-description!" && false );
-    } // END switch
+  } // END switch
 
   return( status );
 }
@@ -864,74 +864,74 @@ inline void vtkStructuredGridConnectivity::DetermineNeighborOrientation(
 
   // A. Non-overlapping cases
   if( overlap[0] == overlap[1] )
-    {
+  {
     if( A[1] == B[0] )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::HI;
-      }
+    }
     else if( A[0] == B[1] )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::LO;
-      }
+    }
     else
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
       assert( "ERROR: Code should not reach here!" && false );
-      }
-    } // END non-overlapping cases
+    }
+  } // END non-overlapping cases
   // B. Sub-set cases
   else if( this->IsSubset( A, B) )
-    {
+  {
     if( (A[0] == B[0]) && (A[1] == B[1]) )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::ONE_TO_ONE;
-      }
+    }
     else if( this->StrictlyInsideBounds( A[0], B[0], B[1] ) &&
              this->StrictlyInsideBounds( A[1], B[0], B[1] ) )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::SUBSET_BOTH;
-      }
+    }
     else if( A[0] == B[0] )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::SUBSET_HI;
-      }
+    }
     else if( A[1] == B[1] )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::SUBSET_LO;
-      }
+    }
     else
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
       assert( "ERROR: Code should not reach here!" && false );
-      }
     }
+  }
   // C. Super-set cases
   else if( this->IsSubset( B, A ) )
-    {
+  {
     orient[ idx ] = vtkStructuredNeighbor::SUPERSET;
-    }
+  }
   // D. Partially-overlapping (non-subset) cases
   else if( !(this->IsSubset(A,B) || this->IsSubset(A,B)) )
-    {
+  {
     if( this->InBounds( A[0], B[0], B[1] ) )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::LO;
-      }
+    }
     else if( this->InBounds( A[1], B[0], B[1] ) )
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::HI;
-      }
+    }
     else
-      {
+    {
       orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
       assert( "ERROR: Code should not reach here!" && false );
-      }
     }
+  }
   else
-    {
+  {
     orient[ idx ] = vtkStructuredNeighbor::UNDEFINED;
     assert( "ERROR: Code should not reach here!" && false );
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -940,13 +940,13 @@ inline int vtkStructuredGridConnectivity::Get1DOrientation(
         const int OnLo, const int OnHi, const int NotOnBoundary )
 {
   if( idx == ExtentLo )
-    {
+  {
     return OnLo;
-    }
+  }
   else if( idx == ExtentHi )
-    {
+  {
     return OnHi;
-    }
+  }
   return NotOnBoundary;
 }
 
@@ -963,9 +963,9 @@ inline bool vtkStructuredGridConnectivity::HasBlockConnection(
         (blockDirection >= 0) && (blockDirection < 6) );
   bool status = false;
   if( this->BlockTopology[ gridID ] & (1 << blockDirection) )
-    {
+  {
     status = true;
-    }
+  }
   return( status );
 }
 
@@ -1008,9 +1008,9 @@ inline void vtkStructuredGridConnectivity::ClearBlockConnections(
   assert("pre: BlockTopology has not been properly allocated" &&
         (this->NumberOfGrids == this->BlockTopology.size()));
   for( int i=0; i < 6; ++i )
-    {
+  {
     this->RemoveBlockConnection( gridID, i );
-    } // END for all block directions
+  } // END for all block directions
 }
 
 //------------------------------------------------------------------------------
@@ -1025,12 +1025,12 @@ inline int vtkStructuredGridConnectivity::GetNumberOfConnectingBlockFaces(
 
   int count = 0;
   for( int i=0; i < 6; ++i )
-    {
+  {
     if( this->HasBlockConnection( gridID, i ) )
-      {
+    {
       ++count;
-      }
     }
+  }
   assert( "post: count must be in [0,5]" && (count >=0 && count <= 6) );
   return( count );
 }
@@ -1040,10 +1040,10 @@ inline void vtkStructuredGridConnectivity::SetNumberOfGrids(
     const unsigned int N )
 {
   if (N == 0)
-    {
+  {
     vtkErrorMacro("Number of grids cannot be 0.");
     return;
-    }
+  }
 
   this->NumberOfGrids = N;
   this->AllocateUserRegisterDataStructures();

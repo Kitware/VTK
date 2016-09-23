@@ -52,75 +52,75 @@ int ArrayTypesTest(int argc, char* argv[])
   cerr << "Testing array types..." << endl;
   int errors = 0;
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Author")))
-    {
+  {
     cerr << "ERROR: Author array missing" << endl;
     ++errors;
-    }
+  }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Affiliation")))
-    {
+  {
     cerr << "ERROR: Affiliation array missing" << endl;
     ++errors;
-    }
+  }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Alma Mater")))
-    {
+  {
     cerr << "ERROR: Alma Mater array missing" << endl;
     ++errors;
-    }
+  }
   if (!vtkArrayDownCast<vtkStringArray>(table->GetColumnByName("Categories")))
-    {
+  {
     cerr << "ERROR: Categories array missing" << endl;
     ++errors;
-    }
+  }
   if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Age")))
-    {
+  {
     cerr << "ERROR: Age array missing or not converted to int" << endl;
     ++errors;
-    }
+  }
   else
-    {
+  {
     vtkIntArray* age = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Age"));
     int sum = 0;
     for (vtkIdType i = 0; i < age->GetNumberOfTuples(); i++)
-      {
+    {
       sum += age->GetValue(i);
-      }
+    }
     if (sum != 181)
-      {
+    {
       cerr << "ERROR: Age sum is incorrect" << endl;
       ++errors;
-      }
     }
+  }
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Coolness")))
-    {
+  {
     cerr << "ERROR: Coolness array missing or not converted to double" << endl;
     ++errors;
-    }
+  }
   else
-    {
+  {
     vtkDoubleArray* cool = vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Coolness"));
     double sum = 0;
     for (vtkIdType i = 0; i < cool->GetNumberOfTuples(); i++)
-      {
+    {
       sum += cool->GetValue(i);
-      }
+    }
     double eps = 10e-8;
     double diff = (2.35 > sum) ? (2.35 - sum) : (sum - 2.35);
     if (diff > eps)
-      {
+    {
       cerr << "ERROR: Coolness sum is incorrect" << endl;
       ++errors;
-      }
     }
+  }
 
   cerr << "Testing force double..." << endl;
   numeric->ForceDoubleOn();
   numeric->Update();
   table = vtkTable::SafeDownCast(numeric->GetOutput());
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("Age")))
-    {
+  {
     cerr << "ERROR: Arrays should have been forced to double" << endl;
     ++errors;
-    }
+  }
 
   return errors;
 }
@@ -158,51 +158,51 @@ int WhitespaceAndEmptyCellsTest()
   cerr << "Testing handling whitespace and empty cells..." << endl;
   int errors = 0;
   if (!vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn")))
-    {
+  {
     cerr << "ERROR: IntegerColumn array missing or not converted to int" << endl;
     ++errors;
-    }
+  }
   else
-    {
+  {
     vtkIntArray* column =
         vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("IntegerColumn"));
     if (defaultIntValue != column->GetValue(0))
-      {
+    {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
            << ". Expected: " << defaultIntValue;
       ++errors;
-      }
+    }
     if (1 != column->GetValue(1))
-      {
+    {
       cerr << "ERROR: Cell with whitespace value is: "
            << column->GetValue(1) << ". Expected: 1";
       ++errors;
-      }
     }
+  }
 
   if (!vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn")))
-    {
+  {
     cerr << "ERROR: DoubleColumn array missing or not converted to double"
          << endl;
     ++errors;
-    }
+  }
   else
-    {
+  {
     vtkDoubleArray* column =
         vtkArrayDownCast<vtkDoubleArray>(table->GetColumnByName("DoubleColumn"));
     if (!vtkMath::IsNan(column->GetValue(0)))
-      {
+    {
       cerr << "ERROR: Empty cell value is: " << column->GetValue(0)
            << ". Expected: " << vtkMath::Nan();
       ++errors;
-      }
+    }
     if (1.1 != column->GetValue(1))
-      {
+    {
       cerr << "ERROR: Cell with whitespace value is: "
            << column->GetValue(1) << ". Expected: 1.1";
       ++errors;
-      }
     }
+  }
   return errors;
 }
 }

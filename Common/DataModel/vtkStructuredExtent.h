@@ -96,21 +96,21 @@ inline bool vtkStructuredExtent::Smaller(const int ext[6], const int wholeExt[6]
 {
   if (ext[0]   < wholeExt[0] || ext[0]     > wholeExt[0 + 1] ||
     ext[0 + 1] < wholeExt[0] || ext[0 + 1] > wholeExt[0 + 1])
-    {
+  {
     return false;
-    }
+  }
 
   if (ext[2]   < wholeExt[2] || ext[2]     > wholeExt[2 + 1] ||
     ext[2 + 1] < wholeExt[2] || ext[2 + 1] > wholeExt[2 + 1])
-    {
+  {
     return false;
-    }
+  }
 
   if (ext[4]   < wholeExt[4] || ext[4]     > wholeExt[4 + 1] ||
     ext[4 + 1] < wholeExt[4] || ext[4 + 1] > wholeExt[4 + 1])
-    {
+  {
     return false;
-    }
+  }
 
   return true;
 }
@@ -119,16 +119,16 @@ inline bool vtkStructuredExtent::Smaller(const int ext[6], const int wholeExt[6]
 inline bool vtkStructuredExtent::StrictlySmaller(const int ext[6], const int wholeExt[6])
 {
   if (!vtkStructuredExtent::Smaller(ext, wholeExt))
-    {
+  {
     return false;
-    }
+  }
 
   if (ext[0] > wholeExt[0] || ext[1] < wholeExt[1] ||
     ext[2] > wholeExt[2] || ext[3] < wholeExt[3] ||
     ext[4] > wholeExt[4] || ext[5] < wholeExt[5])
-    {
+  {
     return true;
-    }
+  }
 
   return false;
 }

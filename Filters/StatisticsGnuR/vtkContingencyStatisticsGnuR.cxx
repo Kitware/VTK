@@ -91,15 +91,15 @@ void vtkContingencyStatisticsGnuR::CalculatePValues( vtkTable* outTab)
   if ( ! testChi2Col || ! testChi2yCol
        || testChi2Col->GetNumberOfTuples() != dimCol->GetNumberOfTuples()
        || testChi2yCol->GetNumberOfTuples() != dimCol->GetNumberOfTuples() )
-    {
+  {
     vtkWarningMacro( "Something went wrong with the R calculations. Reported p-values will be invalid." );
     this->Superclass::CalculatePValues( outTab );
-    }
+  }
   else
-    {
+  {
     outTab->AddColumn( testChi2Col );
     outTab->AddColumn( testChi2yCol );
-    }
+  }
 
   testChi2Col->SetName( "P" );
   testChi2yCol->SetName( "P Yates" );

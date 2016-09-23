@@ -168,13 +168,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[4]) VTK_OVERRIDE
-    {
+  {
     vtkTetra::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[12]) VTK_OVERRIDE
-    {
+  {
     vtkTetra::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
   //@{

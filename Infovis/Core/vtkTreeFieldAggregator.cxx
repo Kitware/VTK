@@ -74,46 +74,46 @@ int vtkTreeFieldAggregator::RequestData(
 
   // Check for the existence of the field to be aggregated
   if (!output->GetVertexData()->HasArray(this->Field))
-    {
+  {
     this->LeafVertexUnitSize = true;
-    }
+  }
 
   // Extract the field from the tree
   vtkAbstractArray* arr;
   if (this->LeafVertexUnitSize)
-    {
+  {
     arr = vtkIntArray::New();
     arr->SetNumberOfTuples(output->GetNumberOfVertices());
     arr->SetName(this->Field);
     for (vtkIdType i = 0; i < arr->GetNumberOfTuples(); i++)
-      {
+    {
       vtkArrayDownCast<vtkIntArray>(arr)->SetTuple1(i, 1);
-      }
+    }
     output->GetVertexData()->AddArray(arr);
     arr->Delete();
-    }
+  }
   else
-    {
+  {
     vtkAbstractArray* oldArr = output->GetVertexData()->GetAbstractArray(this->Field);
     if (oldArr->GetNumberOfComponents() != 1)
-      {
+    {
       vtkErrorMacro(<< "The field " << this->Field << " must have one component per tuple");
-      }
+    }
     if (oldArr->IsA("vtkStringArray"))
-      {
+    {
       vtkDoubleArray* doubleArr = vtkDoubleArray::New();
       doubleArr->Resize(oldArr->GetNumberOfTuples());
       for (vtkIdType i = 0; i < oldArr->GetNumberOfTuples(); i++)
-        {
-        doubleArr->InsertNextTuple1(vtkTreeFieldAggregator::GetDoubleValue(oldArr, i));
-        }
-      arr = doubleArr;
-      }
-    else
       {
+        doubleArr->InsertNextTuple1(vtkTreeFieldAggregator::GetDoubleValue(oldArr, i));
+      }
+      arr = doubleArr;
+    }
+    else
+    {
       arr = vtkAbstractArray::CreateArray(oldArr->GetDataType());
       arr->DeepCopy(oldArr);
-      }
+    }
     arr->SetName(this->Field);
 
     // We would like to do just perform output->GetVertexData()->RemoveArray(this->Field),
@@ -123,7 +123,7 @@ int vtkTreeFieldAggregator::RequestData(
 
     output->GetVertexData()->AddArray(arr);
     arr->Delete();
-    }
+  }
 
   // Set up DFS iterator that traverses
   // children before the parent (i.e. bottom-up).
@@ -138,31 +138,31 @@ int vtkTreeFieldAggregator::RequestData(
 
   // Iterator through the tree, aggregating child values into parent.
   while (dfs->HasNext())
-    {
+  {
     vtkIdType vertex = dfs->Next();
     double value = 0;
     if (output->IsLeaf(vertex))
-      {
+    {
       value = vtkTreeFieldAggregator::GetDoubleValue(arr, vertex);
       if (this->LogScale)
-        {
+      {
         value = log10(value);
         if (value < this->MinValue)
-          {
+        {
           value = this->MinValue;
-          }
         }
       }
+    }
     else
-      {
+    {
       output->GetChildren(vertex, it);
       while (it->HasNext())
-        {
+      {
         value += vtkTreeFieldAggregator::GetDoubleValue(arr, it->Next());
-        }
       }
-    vtkTreeFieldAggregator::SetDoubleValue(arr, vertex, value);
     }
+    vtkTreeFieldAggregator::SetDoubleValue(arr, vertex, value);
+  }
 
   return 1;
 }
@@ -179,63 +179,63 @@ void vtkTreeFieldAggregator::PrintSelf(ostream& os, vtkIndent indent)
 double vtkTreeFieldAggregator::GetDoubleValue(vtkAbstractArray* arr, vtkIdType id)
 {
   if (arr->IsA("vtkDataArray"))
-    {
+  {
     double d = vtkArrayDownCast<vtkDataArray>(arr)->GetTuple1(id);
     if (d < this->MinValue)
-      {
-      return MinValue;
-      }
-    return d;
-    }
-  else if (arr->IsA("vtkVariantArray"))
     {
+      return MinValue;
+    }
+    return d;
+  }
+  else if (arr->IsA("vtkVariantArray"))
+  {
     vtkVariant v = vtkArrayDownCast<vtkVariantArray>(arr)->GetValue(id);
     if (!v.IsValid())
-      {
+    {
       return this->MinValue;
-      }
+    }
     bool ok;
     double d = v.ToDouble(&ok);
     if (!ok)
-      {
-      return this->MinValue;
-      }
-    if (d < this->MinValue)
-      {
-      return MinValue;
-      }
-    return d;
-    }
-  else if (arr->IsA("vtkStringArray"))
     {
+      return this->MinValue;
+    }
+    if (d < this->MinValue)
+    {
+      return MinValue;
+    }
+    return d;
+  }
+  else if (arr->IsA("vtkStringArray"))
+  {
     vtkVariant v(vtkArrayDownCast<vtkStringArray>(arr)->GetValue(id));
     bool ok;
     double d = v.ToDouble(&ok);
     if (!ok)
-      {
+    {
       return this->MinValue;
-      }
-    if (d < this->MinValue)
-      {
-      return MinValue;
-      }
-    return d;
     }
+    if (d < this->MinValue)
+    {
+      return MinValue;
+    }
+    return d;
+  }
   return this->MinValue;
 }
 
 void vtkTreeFieldAggregator::SetDoubleValue(vtkAbstractArray* arr, vtkIdType id, double value)
 {
   if (arr->IsA("vtkDataArray"))
-    {
+  {
     vtkArrayDownCast<vtkDataArray>(arr)->SetTuple1(id, value);
-    }
+  }
   else if (arr->IsA("vtkVariantArray"))
-    {
+  {
     vtkArrayDownCast<vtkVariantArray>(arr)->SetValue(id, vtkVariant(value));
-    }
+  }
   else if (arr->IsA("vtkStringArray"))
-    {
+  {
     vtkArrayDownCast<vtkStringArray>(arr)->SetValue(id, vtkVariant(value).ToString());
-    }
+  }
 }

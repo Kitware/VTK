@@ -38,7 +38,7 @@
 int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Create an 3D array ...
     vtkSmartPointer<vtkSparseArray<double> > array = vtkSmartPointer<vtkSparseArray<double> >::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
@@ -70,15 +70,15 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     {
     const vtkArrayExtents extents = array->GetExtents();
     for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == 0);
-          }
         }
       }
+    }
     }
 
     // Verify that we can write data into the array with AddValue() and read it out again ...
@@ -86,15 +86,15 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     double value = 0;
     const vtkArrayExtents extents = array->GetExtents();
     for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           array->AddValue(vtkArrayCoordinates(i, j, k), value++);
-          }
         }
       }
+    }
     }
 
     {
@@ -102,11 +102,11 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkIdType index = 0;
     const vtkArrayExtents extents = array->GetExtents();
     for(int i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(int j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(int k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           test_expression(array->GetValue(i, j, k) == value);
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == value);
           test_expression(array->GetValueN(index) == value);
@@ -120,9 +120,9 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
           ++index;
           ++value;
-          }
         }
       }
+    }
     }
 
     // Verify the number of non-null values
@@ -139,9 +139,9 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(deep_copy->GetExtents() == array->GetExtents());
     test_expression(deep_copy->GetNullValue() == array->GetNullValue());
     for(vtkArray::SizeT n = 0; n != deep_copy->GetNonNullSize(); ++n)
-      {
+    {
       test_expression(deep_copy->GetValueN(n) == array->GetValueN(n));
-      }
+    }
     // Verify that the Clear() method removes all values from the array ...
     array->Clear();
     test_expression(array->GetDimensions() == 3);
@@ -190,9 +190,9 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
       array->GetCoordinateStorage(0);
 
     for (unsigned int i = 0; i < array->GetNonNullSize() - 1; ++i)
-      {
+    {
       test_expression(coords[i] < coords[i+1]);
-      }
+    }
 
     // ------------------------------------------------------------
     // Verify Set/Add/GetValue and SetExtentsFromContents for 0, 1, 2
@@ -412,10 +412,10 @@ int TestArrayAPISparse(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
         "NonNullSize:") != std::string::npos);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     std::cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

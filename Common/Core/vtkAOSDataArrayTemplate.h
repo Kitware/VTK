@@ -49,10 +49,10 @@ public:
   typedef typename Superclass::ValueType ValueType;
 
   enum DeleteMethod
-    {
+  {
     VTK_DATA_ARRAY_FREE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE=vtkBuffer<ValueType>::VTK_DATA_ARRAY_DELETE
-    };
+  };
 
   static vtkAOSDataArrayTemplate* New();
 
@@ -189,18 +189,18 @@ public:
   FastDownCast(vtkAbstractArray *source)
   {
     if (source)
-      {
+    {
       switch (source->GetArrayType())
-        {
+      {
         case vtkAbstractArray::AoSDataArrayTemplate:
           if (vtkDataTypesCompare(source->GetDataType(),
                                   vtkTypeTraits<ValueType>::VTK_TYPE_ID))
-            {
+          {
             return static_cast<vtkAOSDataArrayTemplate<ValueType>*>(source);
-            }
+          }
           break;
-        }
       }
+    }
     return NULL;
   }
   //@}

@@ -52,10 +52,10 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent) VTK_OVERRIDE;
 
   enum ModeType
-    {
+  {
     DISCOVER,
     FINISH
-    };
+  };
 
   //@{
   /**
@@ -83,11 +83,11 @@ protected:
   vtkIntArray* Color;
 
   enum ColorType
-    {
+  {
     WHITE,
     GRAY,
     BLACK
-    };
+  };
 
 private:
   vtkTreeDFSIterator(const vtkTreeDFSIterator &) VTK_DELETE_FUNCTION;

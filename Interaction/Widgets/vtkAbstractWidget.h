@@ -132,10 +132,10 @@ public:
    * added to the renderer independent of the widget.
    */
   vtkWidgetRepresentation *GetRepresentation()
-    {
+  {
       this->CreateDefaultRepresentation();
       return this->WidgetRep;
-    }
+  }
   //@}
 
   //@{

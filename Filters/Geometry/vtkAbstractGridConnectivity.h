@@ -219,9 +219,9 @@ inline vtkUnsignedCharArray*
 vtkAbstractGridConnectivity::GetGhostedPointGhostArray( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return NULL;
-    }
+  }
 
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
@@ -237,9 +237,9 @@ inline vtkUnsignedCharArray*
 vtkAbstractGridConnectivity::GetGhostedCellGhostArray( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return NULL;
-    }
+  }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
        (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -254,9 +254,9 @@ inline vtkPointData*
 vtkAbstractGridConnectivity::GetGhostedGridPointData( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return NULL;
-    }
+  }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
        (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -271,9 +271,9 @@ inline vtkCellData*
 vtkAbstractGridConnectivity::GetGhostedGridCellData( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return NULL;
-    }
+  }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
             (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -288,9 +288,9 @@ inline vtkPoints*
 vtkAbstractGridConnectivity::GetGhostedPoints( const int gridID )
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return NULL;
-    }
+  }
 
   assert( "pre: GridID is out-of-bound GridPointData" &&
             (gridID >= 0) && (gridID < static_cast<int>(this->NumberOfGrids)));
@@ -331,7 +331,7 @@ vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
              (this->GridPoints.size() == this->NumberOfGrids  ) );
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
-    {
+  {
 // NOTE: Ghost arrays are not deleted here b/c when they are registered, they
 // are not shallow-copied.
 //    if( this->GridPointGhostArrays[i] != NULL )
@@ -343,18 +343,18 @@ vtkAbstractGridConnectivity::DeAllocateUserRegisterDataStructures()
 //      this->GridCellGhostArrays[i]->Delete();
 //      }
     if( this->GridPointData[i] != NULL )
-      {
+    {
       this->GridPointData[i]->Delete();
-      }
+    }
     if( this->GridCellData[i] != NULL )
-      {
+    {
       this->GridCellData[i]->Delete();
-      }
+    }
     if( this->GridPoints[i] != NULL )
-      {
+    {
       this->GridPoints[i]->Delete();
-      }
-    } // END for all grids
+    }
+  } // END for all grids
 
   this->GridPointGhostArrays.clear();
   this->GridCellGhostArrays.clear();
@@ -383,9 +383,9 @@ inline void
 vtkAbstractGridConnectivity::DeAllocateInternalDataStructures()
 {
   if( !this->AllocatedGhostDataStructures )
-    {
+  {
     return;
-    }
+  }
 
   assert( "pre: Data-structure has not been properly allocated" &&
           (this->GhostedGridPointData.size() == this->NumberOfGrids) );
@@ -399,28 +399,28 @@ vtkAbstractGridConnectivity::DeAllocateInternalDataStructures()
           (this->GhostedGridPoints.size() == this->NumberOfGrids ) );
 
   for( unsigned int i=0; i < this->NumberOfGrids; ++i )
-    {
+  {
     if( this->GhostedGridPointData[i] != NULL )
-      {
+    {
       this->GhostedGridPointData[i]->Delete();
-      }
+    }
     if( this->GhostedGridCellData[i] != NULL )
-      {
+    {
       this->GhostedGridCellData[i]->Delete();
-      }
+    }
     if( this->GhostedPointGhostArray[i] != NULL )
-      {
+    {
       this->GhostedPointGhostArray[i]->Delete();
-      }
+    }
     if( this->GhostedCellGhostArray[i] != NULL )
-      {
+    {
       this->GhostedCellGhostArray[i]->Delete();
-      }
+    }
     if( this->GhostedGridPoints[i] != NULL )
-      {
+    {
       this->GhostedGridPoints[i]->Delete();
-      }
-    } // END for all grids
+    }
+  } // END for all grids
 
   this->GhostedGridPointData.clear();
   this->GhostedGridCellData.clear();
@@ -464,28 +464,28 @@ inline void vtkAbstractGridConnectivity::RegisterFieldData(
 
   // Note: The size of these vectors is allocated in SetNumberOfGrids
   if( PointData != NULL )
-    {
+  {
     assert( "pre: GridPointData[gridID] must be NULL" &&
              this->GridPointData[ gridID ]==NULL );
     this->GridPointData[ gridID ] = vtkPointData::New();
     this->GridPointData[ gridID ]->ShallowCopy( PointData );
-    }
+  }
   else
-    {
+  {
     this->GridPointData[ gridID ] = NULL;
-    }
+  }
 
   if( CellData != NULL )
-    {
+  {
     assert( "pre: GridCellData[gridID] must be NULL" &&
             this->GridCellData[gridID]==NULL );
     this->GridCellData[ gridID ]  = vtkCellData::New();
     this->GridCellData[ gridID ]->ShallowCopy( CellData );
-    }
+  }
   else
-    {
+  {
     this->GridCellData[ gridID ] = NULL;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -499,17 +499,17 @@ inline void vtkAbstractGridConnectivity::RegisterGridNodes(
        (this->GridPoints.size() == this->NumberOfGrids) );
 
   if( nodes != NULL )
-    {
+  {
     assert( "pre:GridPoints[gridID] must be NULL" &&
             this->GridPoints[gridID]==NULL );
     this->GridPoints[ gridID ] = vtkPoints::New();
     this->GridPoints[ gridID ]->SetDataTypeToDouble();
     this->GridPoints[ gridID ]->ShallowCopy( nodes );
-    }
+  }
   else
-    {
+  {
     this->GridPoints[ gridID ] = NULL;
-    }
+  }
 }
 
 #endif /* vtkAbstractGridConnectivity_h */

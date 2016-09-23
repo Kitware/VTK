@@ -94,7 +94,7 @@ public:
     COMPOSITE_INPLACE_DISJOINT,
     COMPOSITE_BALANCED,
     COMPOSITE_AUTO
-    };
+  };
   void SetStrategy(int val){ this->Strategy = val; }
   int GetStrategy(){ return this->Strategy; }
 

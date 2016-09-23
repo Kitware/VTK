@@ -61,9 +61,9 @@ public:
                             vtkImageStencilData *stencil=0,
                             vtkAlgorithm *algorithm=0,
                             int threadId=0)
-    {
+  {
     this->Initialize(image, extent, stencil, algorithm, threadId);
-    }
+  }
 
   /**
    * Initialize an iterator.  See constructor for more details.
@@ -83,54 +83,54 @@ public:
    * Test if the iterator has completed iterating over the entire extent.
    */
   bool IsAtEnd()
-    {
+  {
     return (this->Id == this->End);
-    }
+  }
 
   /**
    * Check if the iterator is within the region specified by the stencil.
    * This is updated when NextSpan() is called.
    */
   bool IsInStencil()
-    {
+  {
     return this->InStencil;
-    }
+  }
 
   //@{
   /**
    * Get the index at the beginning of the current span.
    */
   void GetIndex(int result[3])
-    {
+  {
     result[0] = this->Index[0];
     result[1] = this->Index[1];
     result[2] = this->Index[2];
-    }
+  }
   //@}
 
   /**
    * Get the index at the beginning of the current span.
    */
   const int *GetIndex()
-    {
+  {
     return this->Index;
-    }
+  }
 
   /**
    * Get the point Id at the beginning of the current span.
    */
   vtkIdType GetId()
-    {
+  {
     return this->Id;
-    }
+  }
 
   /**
    * Get the end of the span.
    */
   vtkIdType SpanEndId()
-    {
+  {
     return this->SpanEnd;
-    }
+  }
 
   /**
    * Get a void pointer and pixel increment for the given point Id.

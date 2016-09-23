@@ -266,16 +266,16 @@ inline vtkIdType vtkRectilinearGrid::GetNumberOfCells()
   int i;
 
   for (i=0; i<3; i++)
-    {
+  {
     if (this->Dimensions[i] <= 0)
-      {
+    {
       return 0;
-      }
-    if (this->Dimensions[i] > 1)
-      {
-      nCells *= (this->Dimensions[i]-1);
-      }
     }
+    if (this->Dimensions[i] > 1)
+    {
+      nCells *= (this->Dimensions[i]-1);
+    }
+  }
 
   return nCells;
 }

@@ -47,10 +47,10 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   int length;
   int pipe;
   do
-    {
+  {
     pipe =  vtksysProcess_WaitForData(process, &data, &length, NULL);
     switch (pipe)
-      {
+    {
     case vtksysProcess_Pipe_STDOUT:
       cout.write(data, length);
       break;
@@ -58,8 +58,8 @@ int TestFBO(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     case vtksysProcess_Pipe_STDERR:
       cerr.write(data, length);
       break;
-      }
-    } while (pipe != vtksysProcess_Pipe_None);
+    }
+  } while (pipe != vtksysProcess_Pipe_None);
 
   vtksysProcess_Delete(process);
   return 0; // 0==passed, always pass.

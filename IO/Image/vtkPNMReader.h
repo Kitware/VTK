@@ -50,17 +50,17 @@ public:
    * .pnm .pgm .ppm
    */
   virtual const char* GetFileExtensions()
-    {
+  {
       return ".pnm .pgm .ppm";
-    }
+  }
 
   /**
    * PNM
    */
   virtual const char* GetDescriptiveName()
-    {
+  {
       return "PNM";
-    }
+  }
 
 protected:
   vtkPNMReader() {}

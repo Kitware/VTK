@@ -60,16 +60,16 @@ int RGrid( int argc, char *argv[] )
 
 #ifdef VTK_OPENGL1
   if (strcmp(renWin->GetRenderingBackend(),"OpenGL1"))
-    {
+  {
     return vtkTesting::FAILED;
-    }
+  }
 #endif
 
 #ifdef VTK_OPENGL2
   if (strcmp(renWin->GetRenderingBackend(),"OpenGL2"))
-    {
+  {
     return vtkTesting::FAILED;
-    }
+  }
 #endif
 
   vtkFloatArray *xCoords = vtkFloatArray::New();
@@ -114,9 +114,9 @@ int RGrid( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Clean up
   renderer->Delete();

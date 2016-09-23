@@ -120,13 +120,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions (double pcoords[3], double weights[9]) VTK_OVERRIDE
-    {
+  {
     vtkBiQuadraticQuad::InterpolationFunctionsPrivate(pcoords,weights);
-    }
+  }
   void InterpolateDerivs (double pcoords[3], double derivs[18]) VTK_OVERRIDE
-    {
+  {
     vtkBiQuadraticQuad::InterpolationDerivsPrivate(pcoords,derivs);
-    }
+  }
   //@}
 
 protected:

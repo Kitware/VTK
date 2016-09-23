@@ -36,11 +36,11 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 class DowncastTest
@@ -68,18 +68,18 @@ void SuccessTest(vtkObject* source, int line)
 {
   int count = 0;
   if(!vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
-    {
+  {
     std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
     throw std::runtime_error(buffer.str());
-    }
+  }
 
   if(count != 1)
-    {
+  {
     std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
     throw std::runtime_error(buffer.str());
-    }
+  }
 }
 
 template<template <typename> class TargetT, typename TypesT>
@@ -87,18 +87,18 @@ void FailTest(vtkObject* source, int line)
 {
   int count = 0;
   if(vtkTryDowncast<TargetT, TypesT>(source, DowncastTest(count)))
-    {
+  {
     std::ostringstream buffer;
     buffer << "Expression failed at line " << line;
     throw std::runtime_error(buffer.str());
-    }
+  }
 
   if(count != 0)
-    {
+  {
     std::ostringstream buffer;
     buffer << "Functor was called " << count << " times at line " << line;
     throw std::runtime_error(buffer.str());
-    }
+  }
 }
 
 /*
@@ -175,7 +175,7 @@ struct Transpose
 int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     /* this "if" is a temporary workaround for the clang compiler,
      * everything inside "#ifdef __clang__" should be removed when
      * clang no longer needs these templates to be instantiated. */
@@ -256,10 +256,10 @@ int TestArrayCasting(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     SuccessTest<vtkSparseArray, vtkAllTypes>(sparse_int, __LINE__);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

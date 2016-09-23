@@ -87,11 +87,11 @@ public:
   virtual void SetRenderWindow(vtkRenderWindow *win);
 
   enum
-    {
+  {
     INTERACTION_MODE_2D,
     INTERACTION_MODE_3D,
     INTERACTION_MODE_UNKNOWN
-    };
+  };
 
   void SetInteractionMode(int mode);
   vtkGetMacro(InteractionMode, int);
@@ -193,10 +193,10 @@ public:
   //@}
 
   enum
-    {
+  {
     NO_OVERLAP,
     ALL
-    };
+  };
 
   //@{
   /**
@@ -215,10 +215,10 @@ public:
   //@}
 
   enum
-    {
+  {
     FREETYPE,
     QT
-    };
+  };
 
   //@{
   /**

@@ -202,20 +202,20 @@ inline void vtkMatrix4x4::Multiply4x4(const double a[16], const double b[16],
   double tmp[16];
 
   for (int i = 0; i < 16; i += 4)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       tmp[i + j] = a[i + 0] * b[j + 0] +
                    a[i + 1] * b[j + 4] +
                    a[i + 2] * b[j + 8] +
                    a[i + 3] * b[j + 12];
-      }
     }
+  }
 
   for (int k = 0; k < 16; k++)
-    {
+  {
     c[k] = tmp[k];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -229,10 +229,10 @@ inline void vtkMatrix4x4::Multiply4x4(
 inline void vtkMatrix4x4::SetElement(int i, int j, double value)
 {
   if (this->Element[i][j] != value)
-    {
+  {
     this->Element[i][j] = value;
     this->Modified();
-    }
+  }
 }
 
 #endif

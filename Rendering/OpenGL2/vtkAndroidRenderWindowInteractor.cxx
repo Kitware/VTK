@@ -267,7 +267,7 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
 
   LOGW("Starting event loop");
   while (!this->Done)
-    {
+  {
     // Read all pending events.
     int ident;
     int events;
@@ -275,10 +275,10 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
 
     ident = ALooper_pollAll(500, NULL, &events, (void**)&source);
     if (ident == ALOOPER_POLL_TIMEOUT)
-      {
+    {
       // just watch for resize events
       if (this->AndroidApplication->window && this->Enabled)
-        {
+      {
         // so it seems that andoid's configuration changes first
         // then the size of the native window changes a bit later
         // then after some rendering is done the egl surface gets resized
@@ -289,34 +289,34 @@ void  vtkAndroidRenderWindowInteractor::StartEventLoop()
         int width = ANativeWindow_getWidth(this->AndroidApplication->window);
         int height = ANativeWindow_getHeight(this->AndroidApplication->window);
         if (width != this->Size[0] || height != this->Size[1])
-          {
+        {
           this->UpdateSize(width,height);
           this->RenderWindow->Render();
           this->RenderWindow->Render();
           vtkErrorMacro("Config Resized to " << width << " by " << height);
-          }
         }
       }
+    }
 
     if (ident >= 0)
-      {
+    {
       LOGW("Processing Event");
       // Process this event.
       if (source != NULL)
-        {
+      {
         source->process(this->AndroidApplication, source);
-        }
+      }
 
       // Check if we are exiting.
       if (this->AndroidApplication->destroyRequested != 0)
-        {
+      {
         LOGW("Destroying Window");
         this->RenderWindow->Finalize();
         LOGW("Destroyed");
         return;
-        }
       }
     }
+  }
 }
 
 static void android_handle_cmd(struct android_app* app, int32_t cmd)
@@ -329,18 +329,18 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
 {
   LOGW("Handling Command");
   switch (cmd)
-    {
+  {
     case APP_CMD_INIT_WINDOW:
       // The window is being shown, get it ready.
       if (this->RenderWindow != NULL)
-        {
+      {
         LOGW("Creating Window");
         this->RenderWindow->SetWindowId(this->AndroidApplication->window);
         this->RenderWindow->Start();
         LOGW("Done Creating Window start");
         this->RenderWindow->Render();
         LOGW("Done first render");
-        }
+      }
       break;
 //    case APP_CMD_CONFIG_CHANGED:
 //      {
@@ -349,23 +349,23 @@ void vtkAndroidRenderWindowInteractor::HandleCommand(int32_t cmd)
 //      }
 //      break;
     case APP_CMD_WINDOW_REDRAW_NEEDED:
-      {
+    {
       this->RenderWindow->Render();
-      }
+    }
       break;
     case APP_CMD_TERM_WINDOW:
-      {
+    {
       LOGW("Terminating Window");
       this->RenderWindow->Finalize();
       LOGW("Terminated");
   //    ANativeActivity_finish(this->AndroidApplication->activity);
-      }
+    }
       break;
     case APP_CMD_DESTROY:
       LOGW("Destroying Application");
       this->Done = true;
       break;
-    }
+  }
 }
 
 static int32_t android_handle_input(struct android_app* app, AInputEvent* event)
@@ -378,9 +378,9 @@ const char *vtkAndroidRenderWindowInteractor::GetKeySym(int keyCode)
 {
   const char *keysym = "None";
   if (keyCode <= AKEYCODE_3D_MODE)
-    {
+  {
     keysym = this->KeyCodeToKeySymTable[keyCode];
-    }
+  }
   return keysym;
 }
 
@@ -388,7 +388,7 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
 {
   const char *keysym = this->GetKeySym(nChar);
   if (down)
-    {
+  {
     this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
                                  metaState & AMETA_SHIFT_ON,
                                  nChar, nRepCnt,
@@ -396,7 +396,7 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
     this->SetAltKey(metaState & AMETA_ALT_ON);
     this->InvokeEvent(vtkCommand::KeyPressEvent, NULL);
     return;
-    }
+  }
 
   this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
                                metaState & AMETA_SHIFT_ON,
@@ -405,13 +405,13 @@ void vtkAndroidRenderWindowInteractor::HandleKeyEvent(bool down, int nChar, int 
   this->SetAltKey(metaState & AMETA_ALT_ON);
   this->InvokeEvent(vtkCommand::KeyReleaseEvent, NULL);
   if (keysym && strlen(keysym) == 1)
-    {
+  {
     this->SetKeyEventInformation(metaState & AMETA_CTRL_ON,
                                  metaState & AMETA_SHIFT_ON,
                                  keysym[0],
                                  nRepCnt);
     this->InvokeEvent(vtkCommand::CharEvent, NULL);
-    }
+  }
 }
 
 void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
@@ -419,77 +419,77 @@ void vtkAndroidRenderWindowInteractor::HandleMotionEvent(
   int *xPtr, int *yPtr, int *idPtr, int metaState)
 {
   for (int i = 0; i < numPtrs; ++i)
-    {
+  {
     this->SetEventInformationFlipY(xPtr[i],
                                    yPtr[i],
                                    metaState & AMETA_CTRL_ON,
                                    metaState & AMETA_SHIFT_ON,
                                    0,0,0,
                                    idPtr[i]);
-    }
+  }
 
   switch(actionType)
-    {
+  {
     case AMOTION_EVENT_ACTION_POINTER_DOWN:
     case AMOTION_EVENT_ACTION_DOWN:
-      {
+    {
       // just return if it is already down
       if (this->GetPointerIndexForExistingContact(actionId) > -1)
-        {
+      {
         return;
-        }
+      }
       int index = this->GetPointerIndexForContact(actionId);
       if (index > -1)
-        {
+      {
         this->SetPointerIndex(index);
         this->LeftButtonPressEvent();
-        }
       }
+    }
       return;
     // an up event ends all
     case AMOTION_EVENT_ACTION_UP:
-      {
+    {
       // kill off all current pointers
       for (int i=0; i < VTKI_MAX_POINTERS; i++)
-        {
+      {
         if (this->IsPointerIndexSet(i))
-          {
+        {
           this->SetPointerIndex(i);
           this->LeftButtonReleaseEvent();
           this->ClearPointerIndex(i);
-          }
         }
-      return;
       }
+      return;
+    }
     case AMOTION_EVENT_ACTION_POINTER_UP:
-      {
+    {
       // is it already down?
       int i = this->GetPointerIndexForExistingContact(actionId);
       if (i > -1)
-        {
+      {
         this->SetPointerIndex(i);
         this->LeftButtonReleaseEvent();
         this->ClearContact(actionId);
-        }
       }
+    }
       return;
     case AMOTION_EVENT_ACTION_MOVE:
       this->MouseMoveEvent();
       return;
-    } // end switch action
+  } // end switch action
 }
 
 int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
 
   switch (AInputEvent_getType(event))
-    {
+  {
     case AINPUT_EVENT_TYPE_MOTION:
-      {
+    {
       int action = AMotionEvent_getAction(event);
       int metaState = AMotionEvent_getMetaState(event);
       int numPtrs = AMotionEvent_getPointerCount(event);
@@ -500,11 +500,11 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       int *yPtr = (int *)malloc(numPtrs*sizeof(int));
       int *idPtr = (int *)malloc(numPtrs*sizeof(int));
       for (int i = 0; i < numPtrs; ++i)
-        {
+      {
         idPtr[i] = AMotionEvent_getPointerId(event, i);
         xPtr[i] = AMotionEvent_getX(event, i);
         yPtr[i] = AMotionEvent_getY(event, i);
-        }
+      }
       int actionId = AMotionEvent_getPointerId(event, eventPointer);
       this->HandleMotionEvent(action, actionId, numPtrs,
         xPtr, yPtr, idPtr, metaState);
@@ -512,10 +512,10 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
       free(yPtr);
       free(idPtr);
       return 1;
-      }
+    }
       break;
     case AINPUT_EVENT_TYPE_KEY:
-      {
+    {
       int action = AKeyEvent_getAction(event);
       int nChar = AKeyEvent_getKeyCode(event);
       int metaState = AKeyEvent_getMetaState(event);
@@ -525,9 +525,9 @@ int32_t vtkAndroidRenderWindowInteractor::HandleInput(AInputEvent* event)
         metaState,
         nRepCnt);
       return 1;
-      }
+    }
       break;
-    } // end switch event type motion versus key
+  } // end switch event type motion versus key
 
   return 0;
 }
@@ -538,14 +538,14 @@ void vtkAndroidRenderWindowInteractor::Initialize()
 {
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
-    {
+  {
     vtkErrorMacro(<<"No renderer defined!");
     return;
-    }
+  }
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
 
   vtkEGLRenderWindow *ren;
   int *size;
@@ -555,7 +555,7 @@ void vtkAndroidRenderWindowInteractor::Initialize()
   ren = (vtkEGLRenderWindow *)(this->RenderWindow);
 
   if (ren->GetOwnWindow())
-    {
+  {
     this->AndroidApplication->userData = this;
     this->AndroidApplication->onAppCmd = android_handle_cmd;
     this->AndroidApplication->onInputEvent = android_handle_input;
@@ -563,32 +563,32 @@ void vtkAndroidRenderWindowInteractor::Initialize()
     // run event loop until window mapped
     bool done = false;
     while (!done && this->RenderWindow->GetMapped() == 0)
-      {
+    {
       // Read all pending events.
       int ident;
       int events;
       struct android_poll_source* source;
 
       if ((ident = ALooper_pollAll(-1, NULL, &events, (void**)&source)) >= 0)
-        {
+      {
         // Process this event.
         if (source != NULL)
-          {
+        {
           source->process(this->AndroidApplication, source);
-          }
+        }
 
         // Check if we are exiting.
         if (this->AndroidApplication->destroyRequested != 0)
-          {
+        {
           LOGW("Destroying Window in init");
           this->RenderWindow->Finalize();
           done = true;
           LOGW("Destroyed window in init");
           return;
-          }
         }
       }
     }
+  }
 
   size = ren->GetSize();
   ren->GetPosition();
@@ -601,9 +601,9 @@ void vtkAndroidRenderWindowInteractor::Initialize()
 void vtkAndroidRenderWindowInteractor::Enable()
 {
   if (this->Enabled)
-    {
+  {
     return;
-    }
+  }
   this->Enabled = 1;
   this->Modified();
 }
@@ -613,9 +613,9 @@ void vtkAndroidRenderWindowInteractor::Enable()
 void vtkAndroidRenderWindowInteractor::Disable()
 {
   if (!this->Enabled)
-    {
+  {
     return;
-    }
+  }
 
   this->Enabled = 0;
   this->Modified();
@@ -625,9 +625,9 @@ void vtkAndroidRenderWindowInteractor::Disable()
 void vtkAndroidRenderWindowInteractor::TerminateApp(void)
 {
   if (this->AndroidApplication)
-    {
+  {
     ANativeActivity_finish(this->AndroidApplication->activity);
-    }
+  }
 
 //  this->AndroidApplication->destroyRequested = 1;
 }
@@ -656,19 +656,19 @@ vtkAndroidRenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg
 {
   if ( f != vtkAndroidRenderWindowInteractor::ClassExitMethod
        || arg != vtkAndroidRenderWindowInteractor::ClassExitMethodArg)
-    {
+  {
     // delete the current arg if there is a delete method
     if ((vtkAndroidRenderWindowInteractor::ClassExitMethodArg)
         && (vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete))
-      {
+    {
       (*vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkAndroidRenderWindowInteractor::ClassExitMethodArg);
-      }
+    }
     vtkAndroidRenderWindowInteractor::ClassExitMethod = f;
     vtkAndroidRenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -677,11 +677,11 @@ void
 vtkAndroidRenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete)
-    {
+  {
     vtkAndroidRenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -695,13 +695,13 @@ void vtkAndroidRenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkAndroidRenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
-    {
+  {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
-    }
+  }
   else if (this->ClassExitMethod)
-    {
+  {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
-    }
+  }
 
   this->TerminateApp();
 }

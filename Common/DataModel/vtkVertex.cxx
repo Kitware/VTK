@@ -31,10 +31,10 @@ vtkVertex::vtkVertex()
   this->Points->SetNumberOfPoints(1);
   this->PointIds->SetNumberOfIds(1);
   for (int i = 0; i < 1; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -50,23 +50,23 @@ int vtkVertex::EvaluatePosition(double x[3], double* closestPoint,
 
   this->Points->GetPoint(0, X);
   if (closestPoint)
-    {
+  {
     closestPoint[0] = X[0]; closestPoint[1] = X[1]; closestPoint[2] = X[2];
-    }
+  }
 
   dist2 = vtkMath::Distance2BetweenPoints(X,x);
   weights[0] = 1.0;
 
   if (dist2 == 0.0)
-    {
+  {
     pcoords[0] = 0.0;
     return 1;
-    }
+  }
   else
-    {
+  {
     pcoords[0] = -1.0;
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -92,13 +92,13 @@ int vtkVertex::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   pts->SetId(0,this->PointIds->GetId(0));
 
   if ( pcoords[0] != 0.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 
 }
 
@@ -116,17 +116,17 @@ void vtkVertex::Contour(double value, vtkDataArray *cellScalars,
                         vtkCellData *inCd, vtkIdType cellId, vtkCellData *outCd)
 {
   if ( value == cellScalars->GetComponent(0,0) )
-    {
+  {
     int newCellId;
     vtkIdType pts[1];
     pts[0] = locator->InsertNextPoint(this->Points->GetPoint(0));
     if ( outPd )
-      {
+    {
       outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
-      }
+    }
     newCellId = verts->InsertNextCell(1,pts);
     outCd->CopyData(inCd,cellId,newCellId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -145,13 +145,13 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
   this->Points->GetPoint(0, X);
 
   for (i=0; i<3; i++)
-    {
+  {
     ray[i] = p2[i] - p1[i];
-    }
+  }
   if (( rayFactor = vtkMath::Dot(ray,ray)) == 0.0 )
-    {
+  {
     return 0;
-    }
+  }
   //
   //  Project each point onto ray. Determine whether point is within tolerance.
   //
@@ -159,23 +159,23 @@ int vtkVertex::IntersectWithLine(double p1[3], double p2[3], double tol, double&
       / rayFactor;
 
   if ( t >= 0.0 && t <= 1.0 )
-    {
+  {
     for (i=0; i<3; i++)
-      {
+    {
       projXYZ[i] = p1[i] + t*ray[i];
       if ( fabs(X[i]-projXYZ[i]) > tol )
-        {
+      {
         break;
-        }
       }
+    }
 
     if ( i > 2 ) // within tolerance
-      {
+    {
       pcoords[0] = 0.0;
       x[0] = X[0]; x[1] = X[1]; x[2] = X[2];
       return 1;
-      }
     }
+  }
 
   pcoords[0] = -1.0;
   return 0;
@@ -206,12 +206,12 @@ void vtkVertex::Derivatives(int vtkNotUsed(subId),
   int i, idx;
 
   for (i=0; i<dim; i++)
-    {
+  {
     idx = i*dim;
     derivs[idx] = 0.0;
     derivs[idx+1] = 0.0;
     derivs[idx+2] = 0.0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -228,15 +228,15 @@ void vtkVertex::Clip(double value, vtkDataArray *cellScalars,
   s = cellScalars->GetComponent(0,0);
 
   if ( ( !insideOut && s > value) || (insideOut && s <= value) )
-    {
+  {
     this->Points->GetPoint(0, x);
     if ( locator->InsertUniquePoint(x, pts[0]) )
-      {
+    {
       outPd->CopyData(inPd,this->PointIds->GetId(0),pts[0]);
-      }
+    }
     newCellId = verts->InsertNextCell(1,pts);
     outCd->CopyData(inCd,cellId,newCellId);
-    }
+  }
 
 }
 

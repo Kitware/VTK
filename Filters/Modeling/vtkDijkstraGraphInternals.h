@@ -34,13 +34,13 @@ class vtkDijkstraGraphInternals
 public:
 
   vtkDijkstraGraphInternals()
-    {
+  {
       this->HeapSize = 0;
-    }
+  }
 
   ~vtkDijkstraGraphInternals()
-    {
-    }
+  {
+  }
 
   // CumulativeWeights(v) current summed weight for path to vertex v.
   std::vector<double> CumulativeWeights;
@@ -78,23 +78,23 @@ public:
     if ( l <= this->HeapSize &&
         ( this->CumulativeWeights[ this->Heap[l] ] <
           this->CumulativeWeights[ this->Heap[i] ] ) )
-      {
+    {
       smallest = l;
-      }
+    }
     else
-      {
+    {
       smallest = i;
-      }
+    }
 
     if ( r <= this->HeapSize &&
         ( this->CumulativeWeights[ this->Heap[ r ] ] <
           this->CumulativeWeights[ this->Heap[ smallest ] ] ) )
-      {
+    {
       smallest = r;
-      }
+    }
 
     if ( smallest != i )
-      {
+    {
       int t = this->Heap[i];
 
       this->Heap[ i ] = this->Heap[ smallest ];
@@ -107,15 +107,15 @@ public:
       this->HeapIndices[ t ] = smallest;
 
       this->Heapify( smallest );
-      }
+    }
   }
 
   void HeapInsert(const int& v)
   {
     if ( this->HeapSize >= (this->Heap.size() - 1) )
-      {
+    {
       return;
-      }
+    }
 
     this->HeapSize++;
     int i = this->HeapSize;
@@ -123,11 +123,11 @@ public:
     while ( i > 1 &&
             this->CumulativeWeights[ this->Heap[i/2] ] >
             this->CumulativeWeights[v] )
-      {
+    {
       this->Heap[ i ] = this->Heap[i/2];
       this->HeapIndices[ this->Heap[i] ] = i;
       i /= 2;
-      }
+    }
      // Heap and HeapIndices are kinda inverses
     this->Heap[ i ] = v;
     this->HeapIndices[ v ] = i;
@@ -136,9 +136,9 @@ public:
   int HeapExtractMin()
   {
     if ( this->HeapSize == 0 )
-      {
+    {
       return -1;
-      }
+    }
 
     int minv = this->Heap[ 1 ];
     this->HeapIndices[ minv ] = -1;
@@ -157,18 +157,18 @@ public:
     // where in Heap is vertex v
     int i = this->HeapIndices[ v ];
     if ( i < 1 || i > static_cast<int>(this->HeapSize) )
-      {
+    {
       return;
-      }
+    }
 
     while ( i > 1 &&
             this->CumulativeWeights[ this->Heap[ i/2 ] ] >
             this->CumulativeWeights[ v ] )
-      {
+    {
       this->Heap[ i ] = this->Heap[i/2];
       this->HeapIndices[ this->Heap[i] ] = i;
       i /= 2;
-      }
+    }
 
     // Heap and HeapIndices are kinda inverses
     this->Heap[ i ] = v;

@@ -32,10 +32,10 @@ vtkOutlineCornerFilter::vtkOutlineCornerFilter ()
 vtkOutlineCornerFilter::~vtkOutlineCornerFilter ()
 {
   if (this->OutlineCornerSource != NULL)
-    {
+  {
     this->OutlineCornerSource->Delete ();
     this->OutlineCornerSource = NULL;
-    }
+  }
 }
 
 int vtkOutlineCornerFilter::RequestData(

@@ -49,9 +49,9 @@ int main()
   float pts[4][3] = { {0.0, 0.0, 0.0}, {0.0, 1.0, 0.0},
                       {1.0, 0.0, 0.0}, {1.0, 1.0, 0.0} };
   for (i=0; i<4; i++)
-    {
+  {
     pcoords->SetTuple(i, pts[i]);
-    }
+  }
 
   // Create vtkPoints and assign pcoords as the internal data array.
   vtkPoints* points = vtkPoints::New();

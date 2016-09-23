@@ -56,59 +56,59 @@ static void GetParticleCoordinates( hid_t &dataIdx,
   zcoords.resize( NumParticles );
 
   if( iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8  )
-    {
+  {
     theTypes[0] = H5Tcreate( H5T_COMPOUND, sizeof(double) );
     theTypes[1] = H5Tcreate( H5T_COMPOUND, sizeof(double) );
     theTypes[2] = H5Tcreate( H5T_COMPOUND, sizeof(double) );
     H5Tinsert( theTypes[0], "particle_x", 0, H5T_NATIVE_DOUBLE );
     H5Tinsert( theTypes[1], "particle_y", 0, H5T_NATIVE_DOUBLE );
     H5Tinsert( theTypes[2], "particle_z", 0, H5T_NATIVE_DOUBLE );
-    }
+  }
 
   // Read the coordinates from the file
   switch( iReader->NumberOfDimensions )
-    {
+  {
     case 1:
       if( iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8 )
-        {
+      {
         H5Dread(dataIdx,theTypes[0],H5S_ALL,H5S_ALL,H5P_DEFAULT,&xcoords[0]);
-        }
+      }
       else
-        {
+      {
         iReader->ReadParticlesComponent(dataIdx,"Particles/posx",&xcoords[0]);
-        }
+      }
       break;
     case 2:
       if( iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8 )
-        {
+      {
         H5Dread(dataIdx,theTypes[0],H5S_ALL,H5S_ALL,H5P_DEFAULT,&xcoords[0]);
         H5Dread(dataIdx,theTypes[1],H5S_ALL,H5S_ALL,H5P_DEFAULT,&ycoords[0]);
-        }
+      }
       else
-        {
+      {
         iReader->ReadParticlesComponent(dataIdx,"Particles/posx",&xcoords[0]);
         iReader->ReadParticlesComponent(dataIdx,"Particles/posy",&ycoords[0]);
-        }
+      }
       break;
     case 3:
       if( iReader->FileFormatVersion < FLASH_READER_FLASH3_FFV8 )
-        {
+      {
         H5Dread(dataIdx,theTypes[0],H5S_ALL,H5S_ALL,H5P_DEFAULT,&xcoords[0]);
         H5Dread(dataIdx,theTypes[1],H5S_ALL,H5S_ALL,H5P_DEFAULT,&ycoords[0]);
         H5Dread(dataIdx,theTypes[2],H5S_ALL,H5S_ALL,H5P_DEFAULT,&zcoords[0]);
-        }
+      }
       else
-        {
+      {
         iReader->ReadParticlesComponent(dataIdx,"Particles/posx",&xcoords[0]);
         iReader->ReadParticlesComponent(dataIdx,"Particles/posy",&ycoords[0]);
         iReader->ReadParticlesComponent(dataIdx,"Particles/posz",&zcoords[0]);
-        }
+      }
       break;
     default:
       std::cerr << "ERROR: Undefined dimension!\n" << std::endl;
       std::cerr.flush();
       return;
-    }
+  }
 
 }
 
@@ -143,9 +143,9 @@ void vtkAMRFlashParticlesReader::PrintSelf( std::ostream &os, vtkIndent indent )
 void vtkAMRFlashParticlesReader::ReadMetaData()
 {
   if( this->Initialized )
-    {
+  {
     return;
-    }
+  }
 
   this->Internal->SetFileName( this->FileName );
   this->Internal->ReadMetaData();
@@ -156,9 +156,9 @@ void vtkAMRFlashParticlesReader::ReadMetaData()
   // following lines of code provide a simple workaround for that.
   this->NumberOfBlocks = this->Internal->NumberOfBlocks;
   if( this->NumberOfBlocks == 0 && this->Internal->NumberOfParticles > 0)
-    {
+  {
     this->NumberOfBlocks=1;
-    }
+  }
   this->Initialized    = true;
   this->SetupParticleDataSelections();
 }
@@ -176,10 +176,10 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 {
   hid_t dataIdx = H5Dopen( this->Internal->FileIndex, file );
   if( dataIdx < 0 )
-    {
+  {
     vtkErrorMacro( "Could not open particles file!" );
     return NULL;
-    }
+  }
 
   vtkPolyData *particles = vtkPolyData::New();
   vtkPoints   *positions = vtkPoints::New();
@@ -204,18 +204,18 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 
   vtkIdType NumberOfParticlesLoaded = 0;
   for( int i=0; i < TotalNumberOfParticles; ++i )
-    {
+  {
     if( i%this->Frequency == 0 )
-      {
+    {
       if( this->CheckLocation(xcoords[i],ycoords[i],zcoords[i] ) )
-        {
+      {
         int pidx = NumberOfParticlesLoaded;
         ids->InsertId( pidx, i );
         positions->SetPoint( pidx, xcoords[i], ycoords[i], zcoords[i] );
         ++NumberOfParticlesLoaded;
-        } // END if within requested region
-      } // END if within requested interval
-    } // END for all particles
+      } // END if within requested region
+    } // END if within requested interval
+  } // END for all particles
 
   xcoords.clear(); ycoords.clear(); zcoords.clear();
 
@@ -232,38 +232,38 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
   vtkCellArray *polyVertex = vtkCellArray::New();
   polyVertex ->InsertNextCell( NumberOfParticlesLoaded );
   for( vtkIdType idx=0; idx < NumberOfParticlesLoaded; ++idx )
-    {
+  {
     polyVertex->InsertCellPoint( idx );
-    }
+  }
   particles->SetVerts( polyVertex );
   polyVertex->Delete();
 
   // Load particle data arrays
   int numArrays = this->ParticleDataArraySelection->GetNumberOfArrays();
   for( int i=0; i < numArrays; ++i )
-    {
+  {
     const char *name = this->ParticleDataArraySelection->GetArrayName( i );
     if( this->ParticleDataArraySelection->ArrayIsEnabled( name ) )
-      {
+    {
       int attrIdx     = this->Internal->ParticleAttributeNamesToIds[ name ];
       hid_t attrType  = this->Internal->ParticleAttributeTypes[ attrIdx ];
 
       if( attrType == H5T_NATIVE_DOUBLE )
-        {
+      {
         double *data = new double[ this->Internal->NumberOfParticles ];
         assert( data != NULL );
 
         if( this->Internal->FileFormatVersion < FLASH_READER_FLASH3_FFV8 )
-          {
+        {
           hid_t dataType = H5Tcreate( H5T_COMPOUND, sizeof(double) );
           H5Tinsert( dataType, name, 0, H5T_NATIVE_DOUBLE );
           H5Dread(dataIdx, dataType, H5S_ALL, H5S_ALL, H5P_DEFAULT,data);
           H5Tclose( dataType );
-          }
+        }
         else
-          {
+        {
           this->Internal->ReadParticlesComponent( dataIdx, name, data );
-          }
+        }
 
         vtkDataArray *array = vtkDoubleArray::New();
         array->SetName( name );
@@ -272,15 +272,15 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 
         vtkIdType numIds = ids->GetNumberOfIds();
         for( vtkIdType pidx=0; pidx < numIds; ++pidx )
-          {
+        {
           vtkIdType particleIdx = ids->GetId( pidx );
           array->SetComponent( pidx, 0, data[ particleIdx ] );
-          } // END for all ids of loaded particles
+        } // END for all ids of loaded particles
         pdata->AddArray( array );
         delete [] data;
-        }
+      }
       else if( attrType == H5T_NATIVE_INT )
-        {
+      {
         hid_t dataType = H5Tcreate( H5T_COMPOUND, sizeof(int) );
         H5Tinsert( dataType, name, 0, H5T_NATIVE_INT );
 
@@ -295,20 +295,20 @@ vtkPolyData* vtkAMRFlashParticlesReader::GetParticles(
 
         vtkIdType numIds = ids->GetNumberOfIds( );
         for( vtkIdType pidx=0; pidx < numIds; ++pidx )
-          {
+        {
           vtkIdType particleIdx = ids->GetId( pidx );
           array->SetComponent( pidx, 0, data[ particleIdx ] );
-          } // END for all ids of loaded particles
+        } // END for all ids of loaded particles
         pdata->AddArray( array );
         delete [] data;
-        }
+      }
       else
-        {
+      {
         vtkErrorMacro( "Unsupport array type in HDF5 file!" );
         return NULL;
-        }
-      } // END if the array is supposed to be loaded
-    } // END for all arrays
+      }
+    } // END if the array is supposed to be loaded
+  } // END for all arrays
 
   H5Dclose(dataIdx);
 
@@ -323,11 +323,11 @@ vtkPolyData* vtkAMRFlashParticlesReader::ReadParticles( const int blkidx )
 
   int NumberOfParticles = this->Internal->NumberOfParticles;
   if( NumberOfParticles <= 0 )
-    {
+  {
     vtkPolyData *emptyParticles = vtkPolyData::New();
     assert( "Cannot create particle dataset" && (emptyParticles != NULL)  );
     return( emptyParticles );
-    }
+  }
 
   vtkPolyData* particles = this->GetParticles(
      this->Internal->ParticleName.c_str(), blkidx );
@@ -344,10 +344,10 @@ void vtkAMRFlashParticlesReader::SetupParticleDataSelections()
   unsigned int N =
       static_cast<unsigned int>(this->Internal->ParticleAttributeNames.size());
   for( unsigned int i=0; i < N; ++i )
-    {
+  {
     this->ParticleDataArraySelection->AddArray(
       this->Internal->ParticleAttributeNames[ i ].c_str( ) );
-    } // END for all particles attributes
+  } // END for all particles attributes
 
   this->InitializeParticleDataSelections();
 }

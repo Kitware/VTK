@@ -21,12 +21,12 @@
 vtkStandardNewMacro(vtkWebGLDataSet);
 
 std::string vtkWebGLDataSet::GetMD5()
-  {
+{
   return this->MD5;
-  }
+}
 
 vtkWebGLDataSet::vtkWebGLDataSet()
-  {
+{
   this->NumberOfVertices = 0;
   this->NumberOfPoints = 0;
   this->NumberOfIndexes = 0;
@@ -39,10 +39,10 @@ vtkWebGLDataSet::vtkWebGLDataSet()
   this->binary = NULL;
   this->binarySize = 0;
   this->hasChanged = false;
-  }
+}
 
 vtkWebGLDataSet::~vtkWebGLDataSet()
-  {
+{
   delete[] this->vertices;
   delete[] this->normals;
   delete[] this->indexes;
@@ -50,84 +50,84 @@ vtkWebGLDataSet::~vtkWebGLDataSet()
   delete[] this->tcoords;
   delete[] this->colors;
   delete[] this->binary;
-  }
+}
 
 void vtkWebGLDataSet::SetVertices(float* v, int size)
-  {
+{
   delete[] this->vertices;
   this->vertices = v;
   this->NumberOfVertices = size;
   this->webGLType = wTRIANGLES;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetIndexes(short* i, int size)
-  {
+{
   delete[] this->indexes;
   this->indexes = i;
   this->NumberOfIndexes = size;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetNormals(float* n)
-  {
+{
   if (this->normals) delete[] this->normals;
   this->normals = n;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetColors(unsigned char* c)
-  {
+{
   if (this->colors) delete[] this->colors;
   this->colors = c;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetPoints(float* p, int size)
-  {
+{
   if (this->points) delete[] this->points;
   this->points = p;
   this->NumberOfPoints = size;
   this->webGLType = wLINES;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetTCoords(float *t)
-  {
+{
   if (this->tcoords) delete[] this->tcoords;
   this->tcoords = t;
   this->hasChanged = true;
-  }
+}
 
 unsigned char* vtkWebGLDataSet::GetBinaryData()
-  {
+{
   this->hasChanged = false;
   return this->binary;
-  }
+}
 
 int vtkWebGLDataSet::GetBinarySize()
-  {
+{
   return this->binarySize;
-  }
+}
 
 void vtkWebGLDataSet::SetMatrix(float* m)
-  {
+{
   this->Matrix = m;
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::GenerateBinaryData()
-  {
+{
   if (this->NumberOfIndexes == 0 && this->webGLType != wPOINTS)
-    {
+  {
     return;
-    }
+  }
   int size=0, pos=0, total=0;
   delete[] this->binary;
   this->binarySize = 0;
 
   if(this->webGLType == wLINES)
-    {
+  {
     pos = sizeof(pos);
     size = this->NumberOfPoints*sizeof(this->points[0]);
 
@@ -148,9 +148,9 @@ void vtkWebGLDataSet::GenerateBinaryData()
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
-    }
+  }
   else if (this->webGLType == wTRIANGLES)
-    {
+  {
     pos = sizeof(pos);
     size = sizeof(this->vertices[0])*this->NumberOfVertices;
 
@@ -171,16 +171,16 @@ void vtkWebGLDataSet::GenerateBinaryData()
     memcpy(&this->binary[pos], this->indexes, this->NumberOfIndexes*sizeof(this->indexes[0])); pos+=this->NumberOfIndexes*sizeof(this->indexes[0]);
     memcpy(&this->binary[pos], this->Matrix, sizeof(this->Matrix[0])*16); pos+=sizeof(this->Matrix[0])*16;                    //Matrix
     if (this->tcoords)                                                                                                        //TCoord
-      {
+    {
       memcpy(&this->binary[pos], this->tcoords, size*2);
       pos+=size*2;
-      }
+    }
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
-    }
+  }
   else if (this->webGLType == wPOINTS)
-    {
+  {
     pos = sizeof(pos);
     size = this->NumberOfPoints*sizeof(this->points[0]);
 
@@ -198,22 +198,22 @@ void vtkWebGLDataSet::GenerateBinaryData()
 
     memcpy(&this->binary[0], &pos, sizeof(pos));
     this->binarySize = total;
-    }
+  }
   vtkWebGLExporter::ComputeMD5((unsigned char*)this->binary, this->binarySize, this->MD5);
   this->hasChanged = true;
-  }
+}
 
 void vtkWebGLDataSet::SetType(WebGLObjectTypes t)
-  {
+{
   this->webGLType = t;
-  }
+}
 
 bool vtkWebGLDataSet::HasChanged()
-  {
+{
   return this->hasChanged;
-  }
+}
 
 void vtkWebGLDataSet::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os, indent);
-  }
+}

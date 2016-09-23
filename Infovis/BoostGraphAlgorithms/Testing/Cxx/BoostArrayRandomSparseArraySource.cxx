@@ -43,7 +43,7 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc),
                                       char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkBoostRandomSparseArraySource> source = vtkSmartPointer<vtkBoostRandomSparseArraySource>::New();
     source->SetExtents(vtkArrayExtents(2, 2, 2));
     source->SetElementProbabilitySeed(123);
@@ -71,11 +71,11 @@ int BoostArrayRandomSparseArraySource(int vtkNotUsed(argc),
     test_expression(sparse_array->GetValue(vtkArrayCoordinates(1, 1, 1)) == 0.0);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

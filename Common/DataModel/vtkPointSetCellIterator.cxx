@@ -36,9 +36,9 @@ void vtkPointSetCellIterator::SetPointSet(vtkPointSet *ds)
   this->PointSetPoints = ds ? ds->GetPoints() : NULL;
   this->CellId = 0;
   if(ds)
-    {
+  {
     this->Points->SetDataType(ds->GetPoints()->GetDataType());
-    }
+  }
 }
 
 //------------------------------------------------------------------------------

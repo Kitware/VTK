@@ -130,9 +130,9 @@ int TestProgrammaticPlacement( int argc, char *argv[] )
   // testing option fails.
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   dWidget->Off();
 
   return !retVal;

@@ -381,9 +381,9 @@ inline
 vtkPixelExtent &vtkPixelExtent::operator=(const vtkPixelExtent &other)
 {
   if (&other == this)
-    {
+  {
     return *this;
-    }
+  }
   this->SetData(other);
   return *this;
 }
@@ -454,9 +454,9 @@ int vtkPixelExtent::Empty() const
 {
   if ( this->Data[0] > this->Data[1]
     || this->Data[2] > this->Data[3])
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -468,9 +468,9 @@ bool vtkPixelExtent::operator==(const vtkPixelExtent &other) const
     && (this->Data[1] == other.Data[1])
     && (this->Data[2] == other.Data[2])
     && (this->Data[3] == other.Data[3]) )
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -482,9 +482,9 @@ int vtkPixelExtent::Contains(const vtkPixelExtent &other) const
     && (this->Data[1] >= other.Data[1])
     && (this->Data[2] <= other.Data[2])
     && (this->Data[3] >= other.Data[3]) )
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -496,9 +496,9 @@ int vtkPixelExtent::Contains(int i, int j) const
     && (this->Data[1] >= i)
     && (this->Data[2] <= j)
     && (this->Data[3] >= j) )
-    {
+  {
     return 1;
-    }
+  }
   return 0;
 }
 
@@ -508,15 +508,15 @@ inline
 void vtkPixelExtent::operator&=(const vtkPixelExtent &other)
 {
   if (this->Empty())
-    {
+  {
     return;
-    }
+  }
 
   if (other.Empty())
-    {
+  {
     this->Clear();
     return;
-    }
+  }
 
   this->Data[0] = std::max(this->Data[0], other.Data[0]);
   this->Data[1] = std::min(this->Data[1], other.Data[1]);
@@ -524,9 +524,9 @@ void vtkPixelExtent::operator&=(const vtkPixelExtent &other)
   this->Data[3] = std::min(this->Data[3], other.Data[3]);
 
   if (this->Empty())
-    {
+  {
     this->Clear();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -534,15 +534,15 @@ inline
 void vtkPixelExtent::operator|=(const vtkPixelExtent &other)
 {
   if (other.Empty())
-    {
+  {
     return;
-    }
+  }
 
   if (this->Empty())
-    {
+  {
     this->SetData(other.GetData());
     return;
-    }
+  }
 
   this->Data[0] = std::min(this->Data[0], other.Data[0]);
   this->Data[1] = std::max(this->Data[1], other.Data[1]);
@@ -635,13 +635,13 @@ inline
 void vtkPixelExtent::Shift(const vtkPixelExtent &other)
 {
   for (int q=0; q<2; ++q)
-    {
+  {
     int qq = q*2;
     int n = -other[qq];
 
     this->Data[qq  ] += n;
     this->Data[qq+1] += n;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -649,13 +649,13 @@ inline
 void vtkPixelExtent::Shift()
 {
   for (int q=0; q<2; ++q)
-    {
+  {
     int qq = q*2;
     int n =- this->Data[qq];
 
     this->Data[qq  ] += n;
     this->Data[qq+1] += n;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -669,12 +669,12 @@ vtkPixelExtent vtkPixelExtent::Split(int dir)
   int s = l/2;
 
   if (s)
-    {
+  {
     s += this->Data[q];
     half = *this;
     half.Data[q] = s;
     this->Data[q+1] = s - 1;
-    }
+  }
 
   return half;
 }

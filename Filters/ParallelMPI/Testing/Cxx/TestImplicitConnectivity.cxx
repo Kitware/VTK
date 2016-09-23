@@ -73,9 +73,9 @@ void WriteDistributedDataSet(
   writer->SetFileName( oss.str().c_str() );
   writer->SetInputData(dataset);
   if( Controller->GetLocalProcessId() == 0 )
-    {
+  {
     writer->SetWriteMetaFile(1);
-    }
+  }
   writer->Update();
   writer->Delete();
 #else
@@ -91,13 +91,13 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
   assert("pre: Multi-block is NULL!" && (mbds != NULL) );
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkDataSet* grid = vtkDataSet::SafeDownCast(mbds->GetBlock(block));
 
     if( grid == NULL )
-      {
+    {
       continue;
-      }
+    }
 
     vtkDoubleArray *nodeXYZArray = vtkDoubleArray::New();
     nodeXYZArray->SetName( "NODE-XYZ" );
@@ -106,16 +106,16 @@ void AddNodeCenteredXYZField( vtkMultiBlockDataSet *mbds )
 
     double xyz[3];
     for( vtkIdType pntIdx=0; pntIdx < grid->GetNumberOfPoints(); ++pntIdx )
-      {
+    {
       grid->GetPoint( pntIdx, xyz );
       nodeXYZArray->SetComponent( pntIdx, 0, xyz[0] );
       nodeXYZArray->SetComponent( pntIdx, 1, xyz[1] );
       nodeXYZArray->SetComponent( pntIdx, 2, xyz[2] );
-      } // END for all points
+    } // END for all points
 
     grid->GetPointData()->AddArray( nodeXYZArray );
     nodeXYZArray->Delete();
-    } // END for all blocks
+  } // END for all blocks
 
 }
 
@@ -176,9 +176,9 @@ vtkMultiBlockDataSet* GetDataSet(
   // Populate blocks for this process
   unsigned int block=0;
   for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-    {
+  {
     if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-      {
+    {
       // Copy the structured grid
       vtkStructuredGrid *grid = vtkStructuredGrid::New();
       grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -198,12 +198,12 @@ vtkMultiBlockDataSet* GetDataSet(
         vtkDataObject::PIECE_EXTENT(),
         info->Get( vtkDataObject::PIECE_EXTENT() ),
         6 );
-      } // END if we own the block
+    } // END if we own the block
     else
-      {
+    {
       mbds->SetBlock( block, NULL );
-      } // END else we don't own the block
-    } // END for all blocks
+    } // END else we don't own the block
+  } // END for all blocks
 
   wholeStructuredGrid->Delete();
   gridPartitioner->Delete();
@@ -238,22 +238,22 @@ void GenerateRectGrid( vtkRectilinearGrid* grid, int ext[6], double origin[3])
   // compute & populate coordinate vectors
   double beta = 0.01; /* controls the intensity of the stretching */
   for(int i=0; i < 3; ++i)
-    {
+  {
     coords[i] = vtkDataArray::CreateDataArray(VTK_DOUBLE);
     if( dims[i] == 0 )
-      {
+    {
       continue;
-      }
+    }
     coords[i]->SetNumberOfTuples(dims[i]);
 
     double prev = origin[i];
     for(int j=0; j < dims[i]; ++j)
-      {
+    {
       double val = prev + ( (j==0)? 0.0 : exponential_distribution(j,beta) );
       coords[ i ]->SetTuple( j, &val );
       prev = val;
-      } // END for all points along this dimension
-     } // END for all dimensions
+    } // END for all points along this dimension
+  } // END for all dimensions
 
    grid->SetXCoordinates( coords[0] );
    grid->SetYCoordinates( coords[1] );
@@ -313,9 +313,9 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
     // Populate blocks for this process
     unsigned int block=0;
     for( ; block < partitionedGrid->GetNumberOfBlocks(); ++block )
-     {
+    {
      if( Rank == static_cast<int>( block%NumberOfProcessors ) )
-       {
+     {
        // Copy the structured grid
        vtkRectilinearGrid *grid = vtkRectilinearGrid::New();
        grid->DeepCopy( partitionedGrid->GetBlock(block) );
@@ -335,12 +335,12 @@ vtkMultiBlockDataSet* GetRectGridDataSet(
          vtkDataObject::PIECE_EXTENT(),
          info->Get( vtkDataObject::PIECE_EXTENT() ),
          6 );
-       } // END if we own the block
+     } // END if we own the block
      else
-       {
+     {
        mbds->SetBlock( block, NULL );
-       } // END else we don't own the block
-     } // END for all blocks
+     } // END else we don't own the block
+    } // END for all blocks
 
   wholeGrid->Delete();
   gridPartitioner->Delete();
@@ -361,12 +361,12 @@ void RegisterRectGrid(vtkMultiBlockDataSet* mbds,
   assert( "pre: connectivity is NULL!" && (connectivity != NULL) );
 
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block)
-    {
+  {
     vtkRectilinearGrid* grid =
         vtkRectilinearGrid::SafeDownCast(mbds->GetBlock(block));
 
     if( grid != NULL )
-      {
+    {
       vtkInformation* info = mbds->GetMetaData( block );
       assert( "pre: metadata should not be NULL" && (info != NULL) );
       assert( "pre: must have piece extent!" &&
@@ -380,8 +380,8 @@ void RegisterRectGrid(vtkMultiBlockDataSet* mbds,
               grid->GetZCoordinates(),
               grid->GetPointData()
               );
-      } // END if block belongs to this process
-    } // END for all blocks
+    } // END if block belongs to this process
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -394,11 +394,11 @@ void RegisterGrid(
 
 
   for( unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block )
-    {
+  {
     vtkStructuredGrid *grid =
         vtkStructuredGrid::SafeDownCast(mbds->GetBlock(block));
     if( grid != NULL )
-      {
+    {
       vtkInformation *info = mbds->GetMetaData( block );
       assert( "pre: metadata should not be NULL" && (info != NULL) );
       assert( "pre: must have piece extent!" &&
@@ -409,8 +409,8 @@ void RegisterGrid(
           grid->GetPoints(),
           grid->GetPointData()
           );
-      } // END if block belongs to this process
-    } // END for all blocks
+    } // END if block belongs to this process
+  } // END for all blocks
 }
 
 //------------------------------------------------------------------------------
@@ -423,40 +423,40 @@ int CheckGrid(vtkDataSet* grid)
   assert("pre: PD should not be NULL!" && (PD != NULL) );
 
   if( !PD->HasArray("NODE-XYZ") )
-    {
+  {
     std::cerr << "ERROR: NODE-XYZ array does not exist!\n";
     return 1;
-    }
+  }
 
   vtkDoubleArray* array=vtkArrayDownCast<vtkDoubleArray>(PD->GetArray("NODE-XYZ"));
   if( array==NULL )
-    {
+  {
     std::cerr << "ERROR: null vtkDataArray!\n";
     return 1;
-    }
+  }
 
   if( PD->GetNumberOfTuples() != grid->GetNumberOfPoints() )
-    {
+  {
     std::cerr << "ERROR: PointData numTuples != num grid points!\n";
     return 1;
-    }
+  }
 
   double pnt[3];
   double* dataPtr = static_cast<double*>(array->GetVoidPointer(0));
 
   vtkIdType N = grid->GetNumberOfPoints();
   for(vtkIdType idx=0; idx < N; ++idx)
-    {
+  {
     grid->GetPoint(idx,pnt);
 
     if( !vtkMathUtilities::NearlyEqual(pnt[0],dataPtr[idx*3],1.e-9)   ||
         !vtkMathUtilities::NearlyEqual(pnt[1],dataPtr[idx*3+1],1.e-9) ||
         !vtkMathUtilities::NearlyEqual(pnt[2],dataPtr[idx*3+2],1.e-9) )
-      {
+    {
       ++rc;
-      } // END if rc
+    } // END if rc
 
-    } // END for all points
+  } // END for all points
 
   return( rc );
 }
@@ -473,12 +473,12 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
 
   vtkDataSet* grid = NULL;
   for(unsigned int block=0; block < mbds->GetNumberOfBlocks(); ++block)
-    {
+  {
     grid = vtkDataSet::SafeDownCast( mbds->GetBlock(block) );
     if( grid != NULL )
-      {
+    {
       if( grid->IsA("vtkStructuredGrid") )
-        {
+      {
         vtkStructuredGrid* sGrid = vtkStructuredGrid::SafeDownCast(grid);
         gridConnectivity->RegisterGrid(
             block,
@@ -486,9 +486,9 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
             sGrid->GetPoints(),
             sGrid->GetPointData()
             );
-        }
+      }
       else
-        {
+      {
         assert("pre: expected rectilinear grid!" &&
                 grid->IsA("vtkRectilinearGrid"));
         vtkRectilinearGrid* rGrid = vtkRectilinearGrid::SafeDownCast(grid);
@@ -500,29 +500,29 @@ int TestOutput(vtkMultiBlockDataSet* mbds, int wholeExtent[6])
             rGrid->GetZCoordinates(),
             rGrid->GetPointData()
             );
-        }
+      }
 
       rc += CheckGrid(grid);
-      } // END if grid != NULL
+    } // END if grid != NULL
 
-    } // END for all blocks
+  } // END for all blocks
 
   int rcLocal = rc;
   Controller->AllReduce(&rcLocal,&rc,1,vtkCommunicator::SUM_OP);
   if( rc > 0 )
-    {
+  {
     vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
         "ERROR: Check grid failed!");
-    }
+  }
 
   gridConnectivity->EstablishConnectivity();
 
   if( gridConnectivity->HasImplicitConnectivity() )
-    {
+  {
     vtkMPIUtilities::Printf(vtkMPIController::SafeDownCast(Controller),
         "ERROR: output grid still has a gap!\n");
     ++rc;
-    }
+  }
   vtkMPIUtilities::Printf(
       vtkMPIController::SafeDownCast(Controller),"Grid has no gaps!\n");
   gridConnectivity->Delete();
@@ -588,9 +588,9 @@ int TestImplicitGridConnectivity2DYZ( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -677,9 +677,9 @@ int TestImplicitGridConnectivity2DXZ( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -767,9 +767,9 @@ int TestImplicitGridConnectivity2DXY( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -857,9 +857,9 @@ int TestImplicitGridConnectivity3D( )
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -944,9 +944,9 @@ int TestRectGridImplicitConnectivity3D()
       vtkMPIController::SafeDownCast(Controller),"%s\n",oss.str().c_str());
 
   if(!gridConnectivity->HasImplicitConnectivity())
-    {
+  {
     ++rc;
-    }
+  }
 
   // STEP 5: Exchange the data
   gridConnectivity->ExchangeData();
@@ -1020,9 +1020,9 @@ int TestImplicitConnectivity( int argc, char *argv[] )
   Controller->Delete();
 
   if( rc != 0 )
-    {
+  {
     std::cout << "Test Failed!\n";
     rc = 0;
-    }
+  }
   return( rc );
 }

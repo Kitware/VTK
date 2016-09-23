@@ -53,12 +53,12 @@ int vtkPiecewiseFunctionShiftScale::RequestData(
   int i;
 
   for (i = 0; i < numInValues; i++)
-    {
+  {
     output->AddPoint((inFunction[2*i] + this->PositionShift) *
                      this->PositionScale,
                      (inFunction[2*i+1] + this->ValueShift) *
                      this->ValueScale);
-    }
+  }
 
   return 1;
 }

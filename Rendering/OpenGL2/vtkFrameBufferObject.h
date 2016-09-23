@@ -106,9 +106,9 @@ public:
    * Choose the buffers to render into.
    */
   void SetActiveBuffer(unsigned int index)
-    {
+  {
     this->SetActiveBuffers(1, &index);
-    }
+  }
 
   /**
    * User provided color buffers are attached by index

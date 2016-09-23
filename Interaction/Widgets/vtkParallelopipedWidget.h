@@ -75,10 +75,10 @@ public:
    * so it can be added to the renderer independent of the widget.
    */
   void SetRepresentation(vtkParallelopipedRepresentation *r)
-    {
+  {
     this->Superclass::SetWidgetRepresentation(
         reinterpret_cast<vtkWidgetRepresentation*>(r));
-    }
+  }
 
   /**
    * Return the representation as a vtkParallelopipedRepresentation.
@@ -139,11 +139,11 @@ protected:
    * Events invoked by this widget
    */
   enum WidgetEventIds
-    {
+  {
     RequestResizeEvent = 10000,
     RequestResizeAlongAnAxisEvent,
     RequestChairModeEvent
-    };
+  };
 
   vtkWidgetSet* WidgetSet;
 

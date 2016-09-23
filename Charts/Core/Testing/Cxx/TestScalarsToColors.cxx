@@ -84,14 +84,14 @@ int TestScalarsToColors(int ,  char * [])
 #endif
 
   if (openGL2Backend || view->GetContext()->GetDevice()->IsA("vtkOpenGL2ContextDevice2D"))
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
-    }
+  }
   else
-    {
+  {
     cout << "GL version 2 or higher is required." << endl;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

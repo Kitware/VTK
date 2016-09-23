@@ -72,15 +72,15 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
   // Ask the renderer do the hardware pick
   vtkPropCollection* pickList = NULL;
   if(this->PickFromList)
-    {
+  {
     pickList = this->PickList;
-    }
+  }
 
   this->SetPath(renderer->PickPropFrom(x0, y0, x1, y1,pickList));
 
   // Software pick resulted in a hit.
   if ( this->Path )
-    {
+  {
     picked = 1;
 
     //invoke the pick event
@@ -89,34 +89,34 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
     //find the mapper and dataset corresponding to the picked prop
     pickable = this->TypeDecipher(propCandidate, &mapper);
     if ( pickable )
-      {
+    {
       if ( mapper )
-        {
+      {
         this->Mapper = mapper;
         vtkMapper *map1;
         vtkAbstractVolumeMapper *vmap;
         vtkImageMapper3D *imap;
         if ( (map1=vtkMapper::SafeDownCast(mapper)) != NULL )
-          {
+        {
           this->DataSet = map1->GetInput();
           this->Mapper = map1;
-          }
+        }
         else if ( (vmap=vtkAbstractVolumeMapper::SafeDownCast(mapper)) != NULL )
-          {
+        {
           this->DataSet = vmap->GetDataSetInput();
           this->Mapper = vmap;
-          }
+        }
         else if ( (imap=vtkImageMapper3D::SafeDownCast(mapper)) != NULL )
-          {
+        {
           this->DataSet = imap->GetDataSetInput();
           this->Mapper = imap;
-          }
+        }
         else
-          {
+        {
           this->DataSet = NULL;
-          }
-        }//mapper
-      }//pickable
+        }
+      }//mapper
+    }//pickable
 
     //go through list of props the renderer got for us and put only
     //the prop3Ds into this->Prop3Ds
@@ -126,22 +126,22 @@ int vtkRenderedAreaPicker::AreaPick(double x0, double y0, double x1, double y1,
     vtkProp *prop;
     vtkAssemblyPath *path;
     while ((prop = pProps->GetNextProp()))
-      {
+    {
       for ( prop->InitPathTraversal(); (path=prop->GetNextPath()); )
-        {
+      {
         propCandidate = path->GetLastNode()->GetViewProp();
         pickable = this->TypeDecipher(propCandidate, &mapper);
         if ( pickable && !this->Prop3Ds->IsItemPresent(prop) )
-          {
+        {
           this->Prop3Ds->AddItem(static_cast<vtkProp3D *>(prop));
-          }
         }
       }
+    }
 
     // Invoke pick method if one defined - prop goes first
     this->Path->GetFirstNode()->GetViewProp()->Pick();
     this->InvokeEvent(vtkCommand::PickEvent,NULL);
-    }
+  }
 
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);
 

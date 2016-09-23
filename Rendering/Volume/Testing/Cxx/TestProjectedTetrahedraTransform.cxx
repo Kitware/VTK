@@ -68,9 +68,9 @@ vtkSmartPointer<vtkVolume> CubeVolume(double r, double g, double b)
   // Add scalars to the grid
   vtkNew<vtkDoubleArray> scalars;
   for (int i = 0; i < 8; i++)
-    {
+  {
     scalars->InsertNextValue(0);
-    }
+  }
   ugrid->GetPointData()->SetScalars(scalars.GetPointer());
 
   // Volume Rendering Mapper
@@ -154,9 +154,9 @@ int TestProjectedTetrahedraTransform(int argc, char *argv[])
 
   int retVal = vtkTesting::Test(argc, argv, renderWindow.GetPointer(), 20);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return !retVal;
 }

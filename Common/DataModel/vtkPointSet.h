@@ -161,13 +161,13 @@ private:
 inline vtkIdType vtkPointSet::GetNumberOfPoints()
 {
   if (this->Points)
-    {
+  {
     return this->Points->GetNumberOfPoints();
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 

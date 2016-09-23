@@ -30,17 +30,17 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Confirm that we can work with dense arrays of bool values
     vtkSmartPointer<vtkDenseArray<char> > dense = vtkSmartPointer<vtkDenseArray<char> >::New();
     vtkDenseArray<char>& dense_ref = *dense;
@@ -66,10 +66,10 @@ int TestArrayBool(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(sparse->GetValue(1, 1) == 1);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

@@ -40,7 +40,7 @@
 int ArrayTableToSparseArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Generate an input table ...
     vtkSmartPointer<vtkIdTypeArray> i = vtkSmartPointer<vtkIdTypeArray>::New();
     i->SetName("i");
@@ -126,11 +126,11 @@ int ArrayTableToSparseArray(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     }
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     std::cerr << e.what() << endl;
     return 1;
-    }
+  }
 }
 

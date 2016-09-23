@@ -107,20 +107,20 @@ void AttachPulseToGrid( vtkUniformGrid *grid )
 
 
   for(int cellIdx=0; cellIdx < grid->GetNumberOfCells(); ++cellIdx )
-    {
+  {
       double center[3];
       AMRCommon::ComputeCellCenter( grid, cellIdx, center );
 
       double r = 0.0;
       for( int i=0; i < 3; ++i )
-       {
+      {
          double dx = center[i]-Pulse.origin[i];
          r += (dx*dx) / (Pulse.width[i]*Pulse.width[i]);
-       }
+      }
       double f = Pulse.amplitude*std::exp( -r );
 
       xyz->SetTuple1( cellIdx, f );
-    } // END for all cells
+  } // END for all cells
 
   grid->GetCellData()->AddArray( xyz );
   xyz->Delete();

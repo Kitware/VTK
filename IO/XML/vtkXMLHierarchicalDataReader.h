@@ -47,9 +47,9 @@ protected:
 
   // Get the name of the data set being read.
   virtual const char* GetDataSetName()
-    {
+  {
     return "vtkHierarchicalDataSet";
-    }
+  }
 
 private:
   vtkXMLHierarchicalDataReader(const vtkXMLHierarchicalDataReader&) VTK_DELETE_FUNCTION;

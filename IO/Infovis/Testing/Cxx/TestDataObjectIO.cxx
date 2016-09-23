@@ -80,7 +80,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
   vtkEdgeListIterator *inputEdges = vtkEdgeListIterator::New();
   vtkEdgeListIterator *outputEdges = vtkEdgeListIterator::New();
   while(inputEdges->HasNext())
-    {
+  {
     vtkEdgeType inputEdge = inputEdges->Next();
     vtkEdgeType outputEdge = outputEdges->Next();
     if(inputEdge.Source != outputEdge.Source)
@@ -91,7 +91,7 @@ bool CompareData(vtkGraph* Output, vtkGraph* Input)
 
     if(inputEdge.Id != outputEdge.Id)
       return false;
-    }
+  }
   inputEdges->Delete();
   outputEdges->Delete();
 
@@ -103,10 +103,10 @@ void InitializeData(vtkTree* Data)
   vtkPoints *pts = vtkPoints::New();
   vtkMutableDirectedGraph *g = vtkMutableDirectedGraph::New();
   for (vtkIdType i = 0; i < 5; ++i)
-    {
+  {
     g->AddVertex();
     pts->InsertNextPoint(i, 0, 0);
-    }
+  }
   g->AddEdge(2, 0);
   g->AddEdge(0, 1);
   g->AddEdge(0, 3);
@@ -114,9 +114,9 @@ void InitializeData(vtkTree* Data)
   g->SetPoints(pts);
 
   if (!Data->CheckedShallowCopy(g))
-    {
+  {
     cerr << "Invalid tree structure." << endl;
-    }
+  }
 
   g->Delete();
   pts->Delete();
@@ -142,7 +142,7 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
   double inx[3];
   double outx[3];
   for(vtkIdType child = 0; child != Input->GetNumberOfVertices(); ++child)
-    {
+  {
     Input->GetPoint(child, inx);
     Output->GetPoint(child, outx);
 
@@ -151,7 +151,7 @@ bool CompareData(vtkTree* Output, vtkTree* Input)
 
     if(Input->GetParent(child) != Output->GetParent(child))
       return false;
-    }
+  }
 
   return true;
 }
@@ -177,11 +177,11 @@ bool TestDataObjectSerialization()
   vtkDataObject *obj = reader->GetOutput();
   DataT* const input_data = DataT::SafeDownCast(obj);
   if(!input_data)
-    {
+  {
     reader->Delete();
     output_data->Delete();
     return false;
-    }
+  }
 
   const bool result = CompareData(output_data, input_data);
 
@@ -196,19 +196,19 @@ int TestDataObjectIO(int /*argc*/, char* /*argv*/[])
   int result = 0;
 
   if(!TestDataObjectSerialization<vtkDirectedGraph>())
-    {
+  {
     cerr << "Error: failure serializing vtkDirectedGraph" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkUndirectedGraph>())
-    {
+  {
     cerr << "Error: failure serializing vtkUndirectedGraph" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectSerialization<vtkTree>())
-    {
+  {
     cerr << "Error: failure serializing vtkTree" << endl;
     result = 1;
-    }
+  }
   return result;
 }

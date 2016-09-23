@@ -51,15 +51,15 @@ vtkOpenGLRayCastImageDisplayHelper::vtkOpenGLRayCastImageDisplayHelper()
 vtkOpenGLRayCastImageDisplayHelper::~vtkOpenGLRayCastImageDisplayHelper()
 {
   if (this->TextureObject)
-    {
+  {
     this->TextureObject->Delete();
     this->TextureObject = 0;
-    }
+  }
   if (this->ShaderProgram)
-    {
+  {
     delete this->ShaderProgram;
     this->ShaderProgram = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -135,11 +135,11 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   float depth;
   if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
-    {
+  {
     depth = requestedDepth*2.0 - 1.0;
-    }
+  }
   else
-    {
+  {
     // Pass the center of the volume through the world to view function
     // of the renderer to get the z view coordinate to use for the
     // view to world transformation of the image bounds. This way we
@@ -150,7 +150,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                         1.0 );
     ren->WorldToDisplay();
     depth = ren->GetDisplayPoint()[2];
-    }
+  }
 
   // Don't write into the Zbuffer - just use it for comparisons
   glDepthMask( 0 );
@@ -159,17 +159,17 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   this->TextureObject->SetMagnificationFilter(vtkTextureObject::Linear);
 
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
-    {
+  {
     this->TextureObject->Create2DFromRaw(
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_CHAR, static_cast<unsigned char *>(image));
-    }
+  }
   else
-    {
+  {
     this->TextureObject->Create2DFromRaw(
       imageMemorySize[0], imageMemorySize[1], 4,
       VTK_UNSIGNED_SHORT, static_cast<unsigned short *>(image));
-    }
+  }
 
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
   offsetY = .5 / static_cast<float>(imageMemorySize[1]);
@@ -203,7 +203,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
     imageViewportSize[1] - 1.0f, depth};
 
   if (!this->ShaderProgram)
-    {
+  {
     this->ShaderProgram = new vtkOpenGLHelper;
 
     // build the shader source code
@@ -228,17 +228,17 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     // if the shader changed reinitialize the VAO
     if (newShader != this->ShaderProgram->Program)
-      {
+    {
       this->ShaderProgram->Program = newShader;
       this->ShaderProgram->VAO->ShaderProgramChanged(); // reset the VAO as the shader has changed
-      }
+    }
 
     this->ShaderProgram->ShaderSourceTime.Modified();
-    }
+  }
   else
-    {
+  {
     ctx->GetShaderCache()->ReadyShaderProgram(this->ShaderProgram->Program);
-    }
+  }
 
   glEnable(GL_BLEND);
 
@@ -253,10 +253,10 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   glGetIntegerv(GL_BLEND_DST_RGB, &blendDstC);
 
   if (this->PreMultipliedColors)
-    {
+  {
     // make the blend function correct for textures premultiplied by alpha.
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    }
+  }
 
   // bind and activate this texture
   this->TextureObject->Activate();
@@ -284,9 +284,9 @@ void vtkOpenGLRayCastImageDisplayHelper::ReleaseGraphicsResources(vtkWindow *win
 {
   this->TextureObject->ReleaseGraphicsResources(win);
   if (this->ShaderProgram)
-    {
+  {
     this->ShaderProgram->ReleaseGraphicsResources(win);
     delete this->ShaderProgram;
     this->ShaderProgram = NULL;
-    }
+  }
 }

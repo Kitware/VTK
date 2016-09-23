@@ -75,10 +75,10 @@ public:
   ~LSDynaFamily();
 
   struct LSDynaFamilySectionMark
-    {
+  {
     vtkIdType FileNumber;
     vtkIdType Offset;
-    };
+  };
 
   void SetDatabaseDirectory( std::string dd );
   std::string GetDatabaseDirectory();
@@ -122,15 +122,15 @@ public:
     LSDynaFamilySectionMark Marks[NumberOfSectionTypes];
 
     LSDynaFamilyAdaptLevel()
-      {
+    {
       LSDynaFamilySectionMark mark;
       mark.FileNumber = 0;
       mark.Offset = 0;
       for ( int i=0; i<LSDynaFamily::NumberOfSectionTypes; ++i )
-        {
+      {
         this->Marks[i] = mark;
-        }
       }
+    }
   };
 
   static const char* SectionTypeNames[];
@@ -263,57 +263,57 @@ protected:
 
 //-----------------------------------------------------------------------------
 inline char* LSDynaFamily::GetNextWordAsChars()
-  {
+{
   if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read char past end of buffer\n" );
   return (char*) (&this->Chunk[ (this->ChunkWord++)*this->WordSize ]);
-  }
+}
 
 //-----------------------------------------------------------------------------
 inline double LSDynaFamily::GetNextWordAsFloat()
-  {
+{
   if ( this->ChunkWord >= this->ChunkValid ) fprintf( stderr, "Read float past end of buffer\n" );
   switch (this->WordSize)
-    {
+  {
   case 4:
-    {
+  {
     vtkTypeFloat32 value;
     memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
     return value;
-    }
+  }
   case 8:
   default:
-    {
+  {
     vtkTypeFloat64 value;
     memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
     return value;
-    }
-    }
   }
+  }
+}
 
 //-----------------------------------------------------------------------------
 inline vtkIdType LSDynaFamily::GetNextWordAsInt()
-  {
+{
   if ( this->ChunkWord >= this->ChunkValid )
-    {
+  {
     fprintf( stderr, "Read int past end of buffer\n" );
-    }
+  }
   switch (this->WordSize)
-    {
+  {
   case 4:
-    {
+  {
     vtkTypeInt32 value;
     memcpy(&value, &this->Chunk[ this->ChunkWord++ << 2 ], sizeof(value));
     return value;
-    }
+  }
   case 8:
   default:
-    {
+  {
     vtkIdType value;
     memcpy(&value, &this->Chunk[ this->ChunkWord++ << 3 ], sizeof(value));
     return value;
-    }
-    }
   }
+  }
+}
 
 //-----------------------------------------------------------------------------
 template<typename T>

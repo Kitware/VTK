@@ -90,10 +90,10 @@ int TestGPURayCastCropping(int argc, char *argv[])
   vtkGPUVolumeRayCastMapper *volumeMapper[2][4];
   int i=0;
   while(i<2)
-    {
+  {
     int j=0;
     while(j<4)
-      {
+    {
       volumeMapper[i][j]= vtkGPUVolumeRayCastMapper::New();
       volumeMapper[i][j]->SetInputConnection(reader->GetOutputPort());
       volumeMapper[i][j]->SetSampleDistance(0.25);
@@ -112,15 +112,15 @@ int TestGPURayCastCropping(int argc, char *argv[])
       userMatrix->Translate(-25,-25,-25);
 
       if(i==0)
-        {
+      {
         userMatrix->RotateX(j*90+20);
         userMatrix->RotateY(20);
-        }
+      }
       else
-        {
+      {
         userMatrix->RotateX(20);
         userMatrix->RotateY(j*90+20);
-        }
+      }
 
       userMatrix->Translate(j*55+25,i*55+25,0);
       volume->SetUserTransform(userMatrix);
@@ -131,9 +131,9 @@ int TestGPURayCastCropping(int argc, char *argv[])
 //        }
       volume->Delete();
       ++j;
-      }
-    ++i;
     }
+    ++i;
+  }
   reader->Delete();
   volumeProperty->Delete();
 
@@ -155,13 +155,13 @@ int TestGPURayCastCropping(int argc, char *argv[])
 
   vtkFrustumCoverageCuller *fc=vtkFrustumCoverageCuller::SafeDownCast(culler);
   if(fc!=0)
-    {
+  {
     fc->SetSortingStyleToBackToFront();
-    }
+  }
   else
-    {
+  {
     cout<<"culler is not a vtkFrustumCoverageCuller"<<endl;
-    }
+  }
 
   // First test if mapper is supported
 
@@ -169,7 +169,7 @@ int TestGPURayCastCropping(int argc, char *argv[])
 
   int retVal;
   if(valid)
-    {
+  {
     ren1->ResetCamera();
     ren1->GetActiveCamera()->Zoom(3.0);
 //  ren1->GetActiveCamera()->SetParallelProjection(1);
@@ -177,25 +177,25 @@ int TestGPURayCastCropping(int argc, char *argv[])
 
     retVal = vtkTesting::Test(argc, argv, renWin, 75);
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal=vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   // Clean up.
   iren->Delete();
 
   if ((retVal == vtkTesting::PASSED) || (retVal == vtkTesting::DO_INTERACTOR))
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 }

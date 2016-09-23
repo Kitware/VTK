@@ -118,14 +118,14 @@ namespace ospray {
 
       // transform OpenGL depth to linear depth
       for (size_t i=0; i<glDepthBufferWidth*glDepthBufferHeight; i++)
-        {
+      {
         const double z_n = 2.0 * glDepthBuffer[i] - 1.0;
         ospDepthBuffer[i] = 2.0 * zNear * zFar / (zFar + zNear - z_n * (zFar - zNear));
         if (isnan(ospDepthBuffer[i]))
-          {
+        {
           ospDepthBuffer[i] = FLT_MAX;
-          }
         }
+      }
 
       // transform from orthogonal Z depth to ray distance t
       osp::vec3f dir_du = normalize(cross(cameraDir, cameraUp));
@@ -140,17 +140,17 @@ namespace ospray {
       const osp::vec3f dir_00 = cameraDir - .5f * dir_du - .5f * dir_dv;
 
       for (size_t j=0; j<glDepthBufferHeight; j++)
-        {
+      {
         for (size_t i=0; i<glDepthBufferWidth; i++)
-          {
+        {
           const osp::vec3f dir_ij = normalize(dir_00 +
                                               float(i)/float(glDepthBufferWidth-1) * dir_du +
                                               float(j)/float(glDepthBufferHeight-1) * dir_dv);
 
           const float t = ospDepthBuffer[j*glDepthBufferWidth+i] / dot(cameraDir, dir_ij);
           ospDepthBuffer[j*glDepthBufferWidth+i] = t;
-          }
         }
+      }
 
       // nearest texture filtering required for depth textures -- we don't want interpolation of depth values...
       osp::vec2i texSize = {static_cast<int>(glDepthBufferWidth),
@@ -194,26 +194,26 @@ vtkOSPRayRendererNode::~vtkOSPRayRendererNode()
   delete[] this->Buffer;
   delete[] this->ZBuffer;
   if (this->OModel)
-    {
+  {
     ospRelease((OSPModel)this->OModel);
-    }
+  }
   if (this->ORenderer)
-    {
+  {
     ospRelease((OSPRenderer)this->ORenderer);
-    }
+  }
   if (this->OFrameBuffer)
-    {
+  {
     ospRelease(this->OFrameBuffer);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::SetSamplesPerPixel(int value, vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   info->Set(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL(), value);
 }
@@ -222,14 +222,14 @@ void vtkOSPRayRendererNode::SetSamplesPerPixel(int value, vtkRenderer *renderer)
 int vtkOSPRayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return 1;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL()))
-    {
+  {
     return (info->Get(vtkOSPRayRendererNode::SAMPLES_PER_PIXEL()));
-    }
+  }
   return 1;
 }
 
@@ -237,9 +237,9 @@ int vtkOSPRayRendererNode::GetSamplesPerPixel(vtkRenderer *renderer)
 void vtkOSPRayRendererNode::SetMaxFrames(int value, vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   info->Set(vtkOSPRayRendererNode::MAX_FRAMES(), value);
 }
@@ -248,14 +248,14 @@ void vtkOSPRayRendererNode::SetMaxFrames(int value, vtkRenderer *renderer)
 int vtkOSPRayRendererNode::GetMaxFrames(vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return 1;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::MAX_FRAMES()))
-    {
+  {
     return (info->Get(vtkOSPRayRendererNode::MAX_FRAMES()));
-    }
+  }
   return 1;
 }
 
@@ -263,9 +263,9 @@ int vtkOSPRayRendererNode::GetMaxFrames(vtkRenderer *renderer)
 void vtkOSPRayRendererNode::SetRendererType(std::string name, vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   info->Set(vtkOSPRayRendererNode::RENDERER_TYPE(), name);
 }
@@ -274,14 +274,14 @@ void vtkOSPRayRendererNode::SetRendererType(std::string name, vtkRenderer *rende
 std::string vtkOSPRayRendererNode::GetRendererType(vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return std::string("scivis");
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::RENDERER_TYPE()))
-    {
+  {
     return (info->Get(vtkOSPRayRendererNode::RENDERER_TYPE()));
-    }
+  }
   return std::string("scivis");
 }
 
@@ -289,9 +289,9 @@ std::string vtkOSPRayRendererNode::GetRendererType(vtkRenderer *renderer)
 void vtkOSPRayRendererNode::SetAmbientSamples(int value, vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   info->Set(vtkOSPRayRendererNode::AMBIENT_SAMPLES(), value);
 }
@@ -300,14 +300,14 @@ void vtkOSPRayRendererNode::SetAmbientSamples(int value, vtkRenderer *renderer)
 int vtkOSPRayRendererNode::GetAmbientSamples(vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return 0;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::AMBIENT_SAMPLES()))
-    {
+  {
     return (info->Get(vtkOSPRayRendererNode::AMBIENT_SAMPLES()));
-    }
+  }
   return 0;
 }
 
@@ -315,9 +315,9 @@ int vtkOSPRayRendererNode::GetAmbientSamples(vtkRenderer *renderer)
 void vtkOSPRayRendererNode::SetCompositeOnGL(int value, vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   info->Set(vtkOSPRayRendererNode::COMPOSITE_ON_GL(), value);
 }
@@ -326,14 +326,14 @@ void vtkOSPRayRendererNode::SetCompositeOnGL(int value, vtkRenderer *renderer)
 int vtkOSPRayRendererNode::GetCompositeOnGL(vtkRenderer *renderer)
 {
   if (!renderer)
-    {
+  {
     return 0;
-    }
+  }
   vtkInformation *info = renderer->GetInformation();
   if (info && info->Has(vtkOSPRayRendererNode::COMPOSITE_ON_GL()))
-    {
+  {
     return (info->Get(vtkOSPRayRendererNode::COMPOSITE_ON_GL()));
-    }
+  }
   return 0;
 }
 
@@ -347,10 +347,10 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 {
   // do not override other passes
   if (operation != render)
-    {
+  {
     this->Superclass::Traverse(operation);
     return;
-    }
+  }
 
   this->Apply(operation,true);
 
@@ -363,30 +363,30 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   vtkCollectionIterator *it = nodes->NewIterator();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())
-    {
+  {
     vtkOSPRayCameraNode *child =
       vtkOSPRayCameraNode::SafeDownCast(it->GetCurrentObject());
     if (child)
-      {
+    {
       child->Traverse(operation);
       break;
-      }
-    it->GoToNextItem();
     }
+    it->GoToNextItem();
+  }
 
   //lights
   this->Lights.clear();
   it->InitTraversal();
   while (!it->IsDoneWithTraversal())
-    {
+  {
     vtkOSPRayLightNode *child =
       vtkOSPRayLightNode::SafeDownCast(it->GetCurrentObject());
     if (child)
-      {
+    {
       child->Traverse(operation);
-      }
-    it->GoToNextItem();
     }
+    it->GoToNextItem();
+  }
   OSPData lightArray = ospNewData(this->Lights.size(), OSP_OBJECT,
     (this->Lights.size()?&this->Lights[0]:NULL), 0);
   ospSetData(oRenderer, "lights", lightArray);
@@ -401,61 +401,61 @@ void vtkOSPRayRendererNode::Traverse(int operation)
   vtkMTimeType recent = 0;
   int numAct = 0; //catches removed actors
   while (!it->IsDoneWithTraversal())
-    {
+  {
     vtkOSPRayActorNode *child =
       vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
     vtkOSPRayVolumeNode *vchild =
       vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
     if (child)
-      {
+    {
       numAct++;
       recent = std::max(recent, child->GetMTime());
-      }
+    }
     if (vchild)
-      {
+    {
       numAct++;
       recent = std::max(recent, vchild->GetMTime());
-      }
+    }
 
     it->GoToNextItem();
-    }
+  }
 
   bool enable_cache = true; //turn off to force rebuilds for debugging
   if (!this->OModel ||
       !enable_cache ||
       (recent > this->RenderTime) ||
       (numAct != this->NumActors))
-    {
+  {
     this->NumActors = numAct;
     //ospRelease((OSPModel)this->OModel);
     oModel = ospNewModel();
     this->OModel = oModel;
     it->InitTraversal();
     while (!it->IsDoneWithTraversal())
-      {
+    {
       vtkOSPRayActorNode *child =
         vtkOSPRayActorNode::SafeDownCast(it->GetCurrentObject());
       if (child)
-        {
+      {
         child->Traverse(operation);
-        }
+      }
       vtkOSPRayVolumeNode *vchild =
         vtkOSPRayVolumeNode::SafeDownCast(it->GetCurrentObject());
       if (vchild)
-        {
+      {
         vchild->Traverse(operation);
-        }
-      it->GoToNextItem();
       }
+      it->GoToNextItem();
+    }
     this->RenderTime = recent;
     ospCommit(oModel);
     ospSetObject(oRenderer,"model", oModel);
     ospCommit(oRenderer);
-    }
+  }
   else
-    {
+  {
     oModel = (OSPModel)this->OModel;
-    }
+  }
   it->Delete();
 
   this->Apply(operation,false);
@@ -465,23 +465,23 @@ void vtkOSPRayRendererNode::Traverse(int operation)
 void vtkOSPRayRendererNode::Invalidate(bool prepass)
 {
   if (prepass)
-    {
+  {
       this->RenderTime = 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkOSPRayRendererNode::Build(bool prepass)
 {
   if (prepass)
-    {
+  {
     vtkRenderer *aren = vtkRenderer::SafeDownCast(this->Renderable);
     // make sure we have a camera
     if ( !aren->IsActiveCameraCreated() )
-      {
+    {
       aren->ResetCamera();
-      }
     }
+  }
   this->Superclass::Build(prepass);
 }
 
@@ -490,27 +490,27 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 {
   vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
   if (!ren)
-    {
+  {
     return;
-    }
+  }
 
   if (prepass)
-    {
+  {
     OSPRenderer oRenderer = NULL;
     static std::string previousType;
     std::string type = this->GetRendererType(static_cast<vtkRenderer*>(this->Renderable));
     if (!this->ORenderer || previousType != type)
-      {
+    {
       this->Traverse(invalidate);
       ospRelease((osp::Renderer*)this->ORenderer);
       oRenderer = (osp::Renderer*)ospNewRenderer(type.c_str());
       this->ORenderer = oRenderer;
       previousType = type;
-      }
+    }
     else
-      {
+    {
       oRenderer = (osp::Renderer*)this->ORenderer;
-      }
+    }
     ospCommit(this->ORenderer);
 
     vtkRenderer *ren = vtkRenderer::SafeDownCast(this->GetRenderable());
@@ -518,13 +518,13 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     this->Size[0] = tmp[0];
     this->Size[1] = tmp[1];
     if (ren->GetUseShadows())
-      {
+    {
       ospSet1i(oRenderer,"shadowsEnabled",1);
-      }
+    }
     else
-      {
+    {
       ospSet1i(oRenderer,"shadowsEnabled",0);
-      }
+    }
     ospSet1i(oRenderer,"aoSamples",
              this->GetAmbientSamples(static_cast<vtkRenderer*>(this->Renderable)));
     ospSet1i(oRenderer,"spp",
@@ -534,15 +534,15 @@ void vtkOSPRayRendererNode::Render(bool prepass)
 
     double *bg = ren->GetBackground();
     ospSet3f(oRenderer,"bgColor", bg[0], bg[1], bg[2]);
-    }
+  }
   else
-    {
+  {
     OSPRenderer oRenderer = (osp::Renderer*)this->ORenderer;
     ospCommit(oRenderer);
 
     osp::vec2i isize = {this->Size[0], this->Size[1]};
     if (this->ImageX != this->Size[0] || this->ImageY != this->Size[1])
-      {
+    {
       this->ImageX = this->Size[0];
       this->ImageY = this->Size[1];
       this->OFrameBuffer = ospNewFrameBuffer
@@ -562,19 +562,19 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       {
         ODepthBuffer = new float[this->Size[0] * this->Size[1]];
       }
-      }
+    }
     else if (this->Accumulate)
-      {
+    {
       ospFrameBufferClear
         (this->OFrameBuffer,
          OSP_FB_COLOR | (this->ComputeDepth ? OSP_FB_DEPTH : 0) | (this->Accumulate ? OSP_FB_ACCUM : 0));
-      }
+    }
 
     vtkCamera *cam = vtkRenderer::SafeDownCast(this->Renderable)->GetActiveCamera();
 
     ospSet1i(oRenderer, "backgroundEnabled", ren->GetErase());
     if (this->CompositeOnGL)
-      {
+    {
       OSPTexture2D glDepthTex=NULL;
       /*
       if (glDepthTex)
@@ -622,11 +622,11 @@ void vtkOSPRayRendererNode::Render(bool prepass)
          this->GetZBuffer(), ODepthBuffer, viewportWidth, viewportHeight);
 
       ospSetObject(oRenderer, "maxDepthTexture", glDepthTex);
-      }
+    }
     else
-      {
+    {
       ospSetObject(oRenderer, "maxDepthTexture", 0);
-      }
+    }
     ospCommit(oRenderer);
 
     ospRenderFrame(this->OFrameBuffer, oRenderer,
@@ -637,7 +637,7 @@ void vtkOSPRayRendererNode::Render(bool prepass)
     ospUnmapFrameBuffer(rgba, this->OFrameBuffer);
 
     if (this->ComputeDepth)
-      {
+    {
       double *clipValues = cam->GetClippingRange();
       double clipMin = clipValues[0];
       double clipMax = clipValues[1];
@@ -647,12 +647,12 @@ void vtkOSPRayRendererNode::Render(bool prepass)
       float *s = (float *)Z;
       float *d = this->ZBuffer;
       for (int i = 0; i < (this->Size[0]*this->Size[1]); i++, s++, d++)
-        {
+      {
         *d = (*s<clipMin? 1.0 : (*s - clipMin) * clipDiv);
-        }
-      ospUnmapFrameBuffer(Z, this->OFrameBuffer);
       }
+      ospUnmapFrameBuffer(Z, this->OFrameBuffer);
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -660,67 +660,67 @@ void vtkOSPRayRendererNode::WriteLayer(unsigned char *buffer, float *Z,
                                        int buffx, int buffy, int layer)
 {
   if (layer == 0)
-    {
+  {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
-      {
+    {
       unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
       float *zptr = this->ZBuffer + j*this->Size[0];
       unsigned char *optr = buffer + j*buffx*4;
       float *ozptr = Z +  j*buffx;
       for (int i = 0; i < buffx && i < this->Size[0]; i++)
-        {
+      {
         *optr++ = *iptr++;
         *optr++ = *iptr++;
         *optr++ = *iptr++;
         *optr++ = *iptr++;
         *ozptr++ = *zptr;
         zptr++;
-        }
       }
     }
+  }
   else
-    {
+  {
     for (int j = 0; j < buffy && j < this->Size[1]; j++)
-      {
+    {
       unsigned char *iptr = this->Buffer + j*this->Size[0]*4;
       float *zptr = this->ZBuffer + j*this->Size[0];
       unsigned char *optr = buffer + j*buffx*4;
       float *ozptr = Z +  j*buffx;
       for (int i = 0; i < buffx && i < this->Size[0]; i++)
-        {
+      {
         if (*zptr<1.0)
-          {
+        {
           if (this->CompositeOnGL)
-            {
+          {
             //ospray is cooperating with GL (osprayvolumemapper)
             unsigned char a = (*(iptr+2));
             float A = (float)a/255;
             for (int h = 0; h<3; h++)
-              {
+            {
               *optr = (unsigned char)(((float)*iptr)*(1-A) + ((float)*optr)*(A));
               optr++; iptr++;
-              }
+            }
             optr++;
             iptr++;
-            }
+          }
           else
-            {
+          {
             //ospray owns all layers in window
             *optr++ = *iptr++;
             *optr++ = *iptr++;
             *optr++ = *iptr++;
             *optr++ = *iptr++;
-            }
-          *ozptr = *zptr;
           }
+          *ozptr = *zptr;
+        }
         else
-          {
+        {
           optr+=4;
           iptr+=4;
-          }
+        }
         ozptr++;
         zptr++;
-        }
       }
     }
+  }
 }

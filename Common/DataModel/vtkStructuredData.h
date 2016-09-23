@@ -244,9 +244,9 @@ protected:
    */
   static vtkIdType GetLinearIndex(
       const int i, const int j, const int k, const int N1, const int N2 )
-    {
+  {
       return( (static_cast<vtkIdType>(k)*N2+j)*N1+i );
-    }
+  }
 
   //@{
   /**
@@ -257,12 +257,12 @@ protected:
    */
   static void GetStructuredCoordinates(
       const vtkIdType idx, const int N1, const int N2,int &i, int &j, int &k )
-    {
+  {
       int N12 = N1*N2;
       k = idx/N12;
       j = (idx-k*N12)/N1;
       i = idx-k*N12-j*N1;
-    }
+  }
   //@}
 
   // Want to avoid importing <algorithm> in the header...

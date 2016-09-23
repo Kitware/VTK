@@ -687,14 +687,14 @@ int TestControlPointsHandleItem(int, char * [])
 //  chart->SetActionToButton(vtkChart::PAN, vtkContextMouseEvent::MIDDLE_BUTTON);
 //  chart->SetActionToButton(vtkChart::SELECT, vtkContextMouseEvent::RIGHT_BUTTON);
   for (int i = 0; i < 4; ++i)
-    {
+  {
     chart->GetAxis(i)->SetVisible(true);
     chart->GetAxis(i)->SetNumberOfTicks(0);
     chart->GetAxis(i)->SetBehavior(2);
     chart->GetAxis(i)->SetLabelsVisible(false);
     chart->GetAxis(i)->SetMargins(1,1);
     chart->GetAxis(i)->SetTitle("");
-    }
+  }
 
   view->GetScene()->AddItem(chart.GetPointer());
 

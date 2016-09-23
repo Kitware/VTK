@@ -97,11 +97,11 @@ public:
    * Enum for methods of reduction
    */
   enum
-    {
+  {
     MEAN,
     MEDIAN,
     MODE
-    };
+  };
 
 protected:
   vtkReduceTable();

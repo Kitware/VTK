@@ -47,19 +47,19 @@ vtkAppendFilter::vtkAppendFilter()
 vtkAppendFilter::~vtkAppendFilter()
 {
   if (this->InputList != NULL)
-    {
+  {
     this->InputList->Delete();
     this->InputList = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkDataSet *vtkAppendFilter::GetInput(int idx)
 {
   if (idx >= this->GetNumberOfInputConnections(0) || idx < 0)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkDataSet::SafeDownCast(
     this->GetExecutive()->GetInputData(0, idx));
@@ -70,36 +70,36 @@ vtkDataSet *vtkAppendFilter::GetInput(int idx)
 void vtkAppendFilter::RemoveInputData(vtkDataSet *ds)
 {
   if (!ds)
-    {
+  {
     return;
-    }
+  }
   int numCons = this->GetNumberOfInputConnections(0);
   for(int i=0; i<numCons; i++)
-    {
+  {
     if (this->GetInput(i) == ds)
-      {
+    {
       this->RemoveInputConnection(0,
         this->GetInputConnection(0, i));
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 vtkDataSetCollection *vtkAppendFilter::GetInputList()
 {
   if (this->InputList)
-    {
+  {
     this->InputList->Delete();
-    }
+  }
   this->InputList = vtkDataSetCollection::New();
 
   for (int idx = 0; idx < this->GetNumberOfInputConnections(0); ++idx)
-    {
+  {
     if (this->GetInput(idx))
-      {
+    {
       this->InputList->AddItem(this->GetInput(idx));
-      }
     }
+  }
 
   return this->InputList;
 }
@@ -114,23 +114,23 @@ int vtkAppendFilter::RequestData(
   bool reallyMergePoints = false;
   if (this->MergePoints == 1 &&
       inputVector[0]->GetNumberOfInformationObjects() > 0 )
-    {
+  {
     reallyMergePoints = true;
 
     // ensure that none of the inputs has ghost-cells.
     // (originally the code was checking for ghost cells only on 1st input,
     // that's not sufficient).
     for (int cc = 0; cc < inputVector[0]->GetNumberOfInformationObjects(); cc++)
-      {
+    {
       vtkDataSet * tempData = vtkDataSet::GetData(inputVector[0], cc);
       if (tempData->HasAnyGhostCells())
-        {
+      {
         vtkDebugMacro(<< "Ghost cells present, so points will not be merged");
         reallyMergePoints = false;
         break;
-        }
       }
     }
+  }
 
   // get the output info object
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -153,17 +153,17 @@ int vtkAppendFilter::RequestData(
 
   int numInputs = inputs->GetNumberOfItems();
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     totalNumPts += dataSet->GetNumberOfPoints();
     totalNumCells += dataSet->GetNumberOfCells();
-    }
+  }
 
   if ( totalNumPts < 1)
-    {
+  {
     vtkDebugMacro(<<"No data to append!");
     return 1;
-    }
+  }
 
   // Now we can allocate memory
   output->Allocate(totalNumCells);
@@ -172,39 +172,39 @@ int vtkAppendFilter::RequestData(
 
   // set precision for the points in the output
   if (this->OutputPointsPrecision == vtkAlgorithm::DEFAULT_PRECISION)
-    {
+  {
     // take the precision of the first pointset
     int datatype = VTK_FLOAT;
     for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-      {
+    {
       vtkInformation* inInfo = inputVector[0]->GetInformationObject(inputIndex);
       vtkPointSet* ps = 0;
       if (inInfo)
-        {
+      {
         ps = vtkPointSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-        }
+      }
       if ( ps != NULL && ps->GetNumberOfPoints() > 0)
-        {
+      {
         datatype = ps->GetPoints()->GetDataType();
         break;
-        }
       }
+    }
     newPts->SetDataType(datatype);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::SINGLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
   else if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
 
   // If we aren't merging points, we need to allocate the points here.
   if (!reallyMergePoints)
-    {
+  {
     newPts->SetNumberOfPoints(totalNumPts);
-    }
+  }
 
   vtkSmartPointer<vtkIdList> ptIds = vtkSmartPointer<vtkIdList>::New();
   ptIds->Allocate(VTK_CELL_SIZE);
@@ -217,18 +217,18 @@ int vtkAppendFilter::RequestData(
   vtkIdType* globalIndices = new vtkIdType[totalNumPts];
   vtkSmartPointer<vtkIncrementalOctreePointLocator> ptInserter;
   if (reallyMergePoints)
-    {
+  {
     vtkBoundingBox outputBB;
 
     for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-      {
+    {
       vtkDataSet* dataSet = inputs->GetItem(inputIndex);
 
       // Union of bounding boxes
       double localBox[6];
       dataSet->GetBounds(localBox);
       outputBB.AddBounds(localBox);
-      }
+    }
 
     double outputBounds[6];
     outputBB.GetBounds(outputBounds);
@@ -236,86 +236,86 @@ int vtkAppendFilter::RequestData(
     ptInserter = vtkSmartPointer<vtkIncrementalOctreePointLocator>::New();
     ptInserter->SetTolerance(0.0);
     ptInserter->InitPointInsertion(newPts, outputBounds);
-    }
+  }
 
   // append the blocks / pieces in terms of the geoemetry and topology
   vtkIdType count = 0;
   vtkIdType ptOffset = 0;
   float decimal = 0.0;
   for (int inputIndex = 0, abort = 0; inputIndex < numInputs && !abort; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkIdType dataSetNumPts = dataSet->GetNumberOfPoints();
     vtkIdType dataSetNumCells = dataSet->GetNumberOfCells();
 
     // copy points
     for (vtkIdType ptId = 0; ptId < dataSetNumPts && !abort; ++ptId)
-      {
+    {
       if (reallyMergePoints)
-        {
+      {
         vtkIdType globalPtId = 0;
         ptInserter->InsertUniquePoint(dataSet->GetPoint(ptId), globalPtId);
         globalIndices[ptId + ptOffset] = globalPtId;
         // The point inserter puts the point into newPts, so we don't have to do that here.
-        }
+      }
       else
-        {
+      {
         globalIndices[ptId + ptOffset] = ptId + ptOffset;
         newPts->SetPoint(ptId + ptOffset, dataSet->GetPoint(ptId));
-        }
+      }
 
       // Update progress
       count++;
       if ( !(count % twentieth) )
-        {
+      {
         decimal += 0.05;
         this->UpdateProgress(decimal);
         abort = this->GetAbortExecute();
-        }
       }
+    }
 
     // copy cell
     vtkUnstructuredGrid *ug = vtkUnstructuredGrid::SafeDownCast(dataSet);
     for (vtkIdType cellId = 0; cellId < dataSetNumCells && !abort; ++cellId)
-      {
+    {
       newPtIds->Reset ();
       if (ug && dataSet->GetCellType(cellId) == VTK_POLYHEDRON )
-        {
+      {
         vtkIdType nfaces, *facePtIds;
         ug->GetFaceStream(cellId,nfaces,facePtIds);
         for(vtkIdType id=0; id < nfaces; ++id)
-          {
+        {
           vtkIdType nPoints = facePtIds[0];
           newPtIds->InsertNextId(nPoints);
           for (vtkIdType j = 1; j <= nPoints; ++j)
-            {
+          {
             newPtIds->InsertNextId(globalIndices[facePtIds[j] + ptOffset]);
-            }
-          facePtIds += nPoints + 1;
           }
-        output->InsertNextCell(VTK_POLYHEDRON, nfaces, newPtIds->GetPointer(0));
+          facePtIds += nPoints + 1;
         }
+        output->InsertNextCell(VTK_POLYHEDRON, nfaces, newPtIds->GetPointer(0));
+      }
       else
-        {
+      {
         dataSet->GetCellPoints(cellId, ptIds);
         for (vtkIdType id = 0; id < ptIds->GetNumberOfIds(); ++id)
-          {
+        {
           newPtIds->InsertId(id, globalIndices[ptIds->GetId(id) + ptOffset]);
-          }
-        output->InsertNextCell(dataSet->GetCellType(cellId),newPtIds);
         }
+        output->InsertNextCell(dataSet->GetCellType(cellId),newPtIds);
+      }
 
       // Update progress
       count++;
       if ( !(count % twentieth) )
-        {
+      {
         decimal += 0.05;
         this->UpdateProgress(decimal);
         abort = this->GetAbortExecute();
-        }
       }
-    ptOffset += dataSetNumPts;
     }
+    ptOffset += dataSetNumPts;
+  }
 
 
   // Now copy the array data
@@ -340,22 +340,22 @@ vtkDataSetCollection* vtkAppendFilter::GetNonEmptyInputs(vtkInformationVector **
   vtkDataSetCollection* collection = vtkDataSetCollection::New();
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(inputIndex);
     vtkDataSet* dataSet = NULL;
     if (inInfo)
-      {
+    {
       dataSet = vtkDataSet::SafeDownCast(inInfo->Get(vtkDataObject::DATA_OBJECT()));
-      }
-    if (dataSet != NULL)
-      {
-      if (dataSet->GetNumberOfPoints() <= 0 && dataSet->GetNumberOfCells() <= 0)
-        {
-        continue; //no input, just skip
-        }
-      collection->AddItem(dataSet);
-      }
     }
+    if (dataSet != NULL)
+    {
+      if (dataSet->GetNumberOfPoints() <= 0 && dataSet->GetNumberOfCells() <= 0)
+      {
+        continue; //no input, just skip
+      }
+      collection->AddItem(dataSet);
+    }
+  }
 
   return collection;
 }
@@ -369,11 +369,11 @@ void vtkAppendFilter::AppendArrays(int attributesType,
 {
   // Check if attributesType is supported
   if (attributesType != vtkDataObject::POINT && attributesType != vtkDataObject::CELL)
-    {
+  {
     vtkErrorMacro(<< "Unhandled attributes type " << attributesType << ", must be either "
                   << "vtkDataObject::POINT or vtkDataObject::CELL");
     return;
-    }
+  }
 
   //////////////////////////////////////////////////////////////////
   // Phase 1 - Find arrays to append based on name
@@ -393,68 +393,68 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   inputs.TakeReference(this->GetNonEmptyInputs(inputVector));
   int numInputs = inputs->GetNumberOfItems();
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkDataSetAttributes* inputData = dataSet->GetAttributes(attributesType);
 
     if (isFirstInputData)
-      {
+    {
       isFirstInputData = false;
       firstInputData = inputData;
       for (int arrayIndex = 0; arrayIndex < inputData->GetNumberOfArrays(); ++arrayIndex)
-        {
+      {
         vtkAbstractArray* array = inputData->GetAbstractArray(arrayIndex);
         if (array && array->GetName())
-          {
+        {
           // NOTE - it is possible for an array to not have a name,
           // but be an active attribute. We'll deal with that case
           // later on.
           dataArrayNames.insert(std::string(array->GetName()));
-          }
         }
       }
+    }
     else
-      {
+    {
       std::set<std::string>::iterator it = dataArrayNames.begin();
       while (it != dataArrayNames.end())
-        {
+      {
         const char* arrayName = it->c_str();
         vtkAbstractArray* array = inputData->GetAbstractArray(arrayName);
         vtkAbstractArray* firstArray = firstInputData->GetAbstractArray(arrayName);
         if (!array ||
             array->GetDataType() != firstArray->GetDataType() ||
             array->GetNumberOfComponents() != firstArray->GetNumberOfComponents())
-          {
+        {
           // Incompatible array in this input. We can't append it.
           dataArrayNames.erase(it++);
-          }
+        }
         else
-          {
+        {
           ++it;
-          }
         }
       }
     }
+  }
 
   // Allocate arrays for the output
   for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
-    {
+  {
     vtkAbstractArray* srcArray = firstInputData->GetAbstractArray((*it).c_str());
     vtkAbstractArray* dstArray = vtkAbstractArray::CreateArray(srcArray->GetDataType());
     dstArray->CopyInformation(srcArray->GetInformation());
     dstArray->SetName(srcArray->GetName());
     dstArray->SetNumberOfComponents(srcArray->GetNumberOfComponents());
     for (int j = 0; j < srcArray->GetNumberOfComponents(); ++j)
-      {
+    {
       if (srcArray->GetComponentName(j))
-        {
+      {
         dstArray->SetComponentName(j, srcArray->GetComponentName(j));
-        }
       }
+    }
     dstArray->SetNumberOfTuples(totalNumberOfElements);
     outputData->AddArray(dstArray);
     dstArray->Delete();
-    }
+  }
 
   //////////////////////////////////////////////////////////////////
   // Phase 2 - Set up arrays as attributes
@@ -466,44 +466,44 @@ void vtkAppendFilter::AppendArrays(int attributesType,
 
   // Initialize with the active attribute from the first input
   for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
-    {
+  {
     attributeArrays[attribute] = firstInputData->GetAbstractAttribute(attribute);
-    }
+  }
 
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
 
     for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-      {
+    {
       if (attributeArrays[attributeIndex])
-        {
+      {
         vtkDataSetAttributes* inputData = dataSet->GetAttributes(attributesType);
         vtkAbstractArray* thisArray = inputData->GetAbstractAttribute(attributeIndex);
         bool matches = thisArray &&
           ((attributeArrays[attributeIndex]->GetName() == NULL && thisArray->GetName() == NULL) ||
            strcmp(attributeArrays[attributeIndex]->GetName(), thisArray->GetName()) == 0);
         if (!matches)
-          {
+        {
           // This input doesn't agree on the active attribute, so unset it.
           attributeArrays[attributeIndex] = NULL;
-          }
         }
       }
     }
+  }
 
   // Set the active attributes
   for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-    {
+  {
     if (attributeArrays[attributeIndex])
-      {
+    {
       const char* arrayName = attributeArrays[attributeIndex]->GetName();
       if (arrayName)
-        {
+      {
         outputData->SetActiveAttribute(arrayName, attributeIndex);
-        }
       }
     }
+  }
 
   //////////////////////////////////////////////////////////////////
   // Phase 3 - Handle attributes with no name
@@ -517,15 +517,15 @@ void vtkAppendFilter::AppendArrays(int attributesType,
   // have no information about how to append NULL-named arrays.
   bool attributeNeedsNullArray[vtkDataSetAttributes::NUM_ATTRIBUTES];
   for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-    {
+  {
     attributeNeedsNullArray[attributeIndex] = true;
-    }
+  }
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
 
     for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-      {
+    {
       // Check if the attribute array name is NULL. If attribute is
       // not set or the name is not NULL, we do not need a NULL
       // array.
@@ -535,63 +535,63 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       if (!attributeArray || attributeArray->GetName() ||
           (attributeArray->GetNumberOfComponents() != firstAttributeArray->GetNumberOfComponents()) ||
           (attributeArray->GetDataType() != firstAttributeArray->GetDataType()))
-        {
+      {
         attributeNeedsNullArray[attributeIndex] = false;
-        }
       }
     }
+  }
 
   // Now allocate the attribute arrays we need
   for (int attributeIndex = 0; attributeIndex < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attributeIndex)
-    {
+  {
     if (attributeNeedsNullArray[attributeIndex])
-      {
+    {
       vtkAbstractArray* srcArray = firstInputData->GetAttribute(attributeIndex);
       vtkAbstractArray* dstArray = vtkAbstractArray::CreateArray(srcArray->GetDataType());
       dstArray->SetNumberOfComponents(srcArray->GetNumberOfComponents());
       for (int j = 0; j < srcArray->GetNumberOfComponents(); ++j)
-        {
+      {
         if (srcArray->GetComponentName(j))
-          {
+        {
           dstArray->SetComponentName(j, srcArray->GetComponentName(j));
-          }
         }
+      }
       dstArray->SetNumberOfTuples(totalNumberOfElements);
       outputData->SetAttribute(dstArray, attributeIndex);
       dstArray->Delete();
-      }
     }
+  }
 
   //////////////////////////////////////////////////////////////
   // Phase 4 - Copy data
   //////////////////////////////////////////////////////////////
   vtkIdType offset = 0;
   for (int inputIndex = 0; inputIndex < numInputs; ++inputIndex)
-    {
+  {
     vtkDataSet* dataSet = inputs->GetItem(inputIndex);
     vtkDataSetAttributes* inputData = dataSet->GetAttributes(attributesType);
     for (std::set<std::string>::iterator it = dataArrayNames.begin(); it != dataArrayNames.end(); ++it)
-      {
+    {
       const char* arrayName = it->c_str();
       vtkAbstractArray* srcArray = inputData->GetAbstractArray(arrayName);
       vtkAbstractArray* dstArray = outputData->GetAbstractArray(arrayName);
 
       for (vtkIdType id = 0; id < srcArray->GetNumberOfTuples(); ++id)
-        {
+      {
         if (globalIds)
-          {
+        {
           dstArray->SetTuple(globalIds[id + offset], id, srcArray);
-          }
+        }
         else
-          {
+        {
           dstArray->SetTuple(id + offset, id, srcArray);
-          }
         }
       }
+    }
 
     // Copy attributes
     for (int attribute = 0; attribute < vtkDataSetAttributes::NUM_ATTRIBUTES; ++attribute)
-      {
+    {
       vtkAbstractArray* srcArray = inputData->GetAbstractAttribute(attribute);
       vtkAbstractArray* dstArray = outputData->GetAbstractAttribute(attribute);
 
@@ -599,30 +599,30 @@ void vtkAppendFilter::AppendArrays(int attributesType,
       // have been copied in the loop above.
       if (srcArray && !srcArray->GetName() &&
           dstArray && !dstArray->GetName())
-        {
+      {
         for (vtkIdType id = 0; id < srcArray->GetNumberOfTuples(); ++id)
-          {
+        {
           if (globalIds)
-            {
+          {
             dstArray->SetTuple(globalIds[id + offset], id, srcArray);
-            }
+          }
           else
-            {
+          {
             dstArray->SetTuple(id + offset, id, srcArray);
-            }
           }
         }
       }
+    }
 
     if (attributesType == vtkDataObject::POINT)
-      {
+    {
       offset += dataSet->GetNumberOfPoints();
-      }
-    else if (attributesType == vtkDataObject::CELL)
-      {
-      offset += dataSet->GetNumberOfCells();
-      }
     }
+    else if (attributesType == vtkDataObject::CELL)
+    {
+      offset += dataSet->GetNumberOfCells();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -635,15 +635,15 @@ int vtkAppendFilter::RequestUpdateExtent(vtkInformation *vtkNotUsed(request),
   // Let downstream request a subset of connection 0, for connections >= 1
   // send their WHOLE_EXTENT as UPDATE_EXTENT.
   for (int idx = 1; idx < numInputConnections; ++idx)
-    {
+  {
     vtkInformation * inputInfo = inputVector[0]->GetInformationObject(idx);
     if (inputInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-      {
+    {
       int ext[6];
       inputInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), ext);
       inputInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), ext, 6);
-      }
     }
+  }
 
   return 1;
 }

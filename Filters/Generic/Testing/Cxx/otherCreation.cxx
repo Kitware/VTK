@@ -69,13 +69,13 @@ int TestAssertion(ostream &strm,
 {
   strm<<indent<<"Test `"<<label<<"\': ";
   if(assertion)
-    {
+  {
     strm<<"passed."<<endl;
-    }
+  }
   else
-    {
+  {
     strm<<"FAILED!"<<endl;
-    }
+  }
   return assertion;
 }
 
@@ -608,7 +608,7 @@ int TestWithPointsAndCells(ostream &strm)
   vtkGenericAdaptorCell *cab=0;
 
   while(itNum<itCount)
-    {
+  {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost << "empty cell iterator " << itNum << " exists";
     s=ost.str();
@@ -618,7 +618,7 @@ int TestWithPointsAndCells(ostream &strm)
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
-      {
+    {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
       s=ost.str();
@@ -628,7 +628,7 @@ int TestWithPointsAndCells(ostream &strm)
       cab=it->GetCell();
       MacroTest(strm,indent,"cell at iterator position is set",cab!=0);
       it->Next();
-      }
+    }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
     s=ost.str();
@@ -636,7 +636,7 @@ int TestWithPointsAndCells(ostream &strm)
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
-    }
+  }
   strm<<"NewCellIterator() end"<<endl;
 
   double x[3];
@@ -650,7 +650,7 @@ int TestWithPointsAndCells(ostream &strm)
   i=0;
   count=ds->GetNumberOfPoints();
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished point iterator",!pit->IsAtEnd());
     pit->GetPosition(x);
     pts->GetPoint(i,y);
@@ -658,7 +658,7 @@ int TestWithPointsAndCells(ostream &strm)
     MacroTest(strm,indent,"point iterator id",pit->GetId()==i);
     ++i;
     pit->Next();
-    }
+  }
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
 
@@ -670,16 +670,16 @@ int TestWithPointsAndCells(ostream &strm)
   pit=ds->NewPointIterator();
   int count2=0;
   while(!it->IsAtEnd())
-    {
+  {
     cab=it->GetCell();
     cab->GetPointIterator(pit);
     pit->Begin();
     switch(count)
-      {
+    {
       case 0: // tetra
         count2=0;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -687,12 +687,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 1: // triangle
         count2=4;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -700,12 +700,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 2: // line
         count2=7;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -713,12 +713,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 3: // vertex
         count2=9;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -726,12 +726,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 4: // tetra
         count2=10;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -739,14 +739,14 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 5: // triangle
         count2=0;
         while(!pit->IsAtEnd())
-          {
+        {
           switch(count2)
-            {
+          {
             case 0:
               MacroTest(strm,indent,"point iterator id",pit->GetId()==11);
               break;
@@ -759,19 +759,19 @@ int TestWithPointsAndCells(ostream &strm)
             default:
               MacroTest(strm,indent,"impossible case",0);
               break;
-            }
+          }
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
           MacroTest(strm,indent,"point iterator position",(x[0]==y[0])&&(x[1]==y[1])&&(x[2]==y[2]));
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 6: // line
         count2=14;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -779,12 +779,12 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       case 7: // vertex
         count2=15;
         while(!pit->IsAtEnd())
-          {
+        {
           MacroTest(strm,indent,"point iterator id",pit->GetId()==count2);
           pit->GetPosition(x);
           pts->GetPoint(pit->GetId(),y);
@@ -792,15 +792,15 @@ int TestWithPointsAndCells(ostream &strm)
           pit->Next();
 
           count2++;
-          }
+        }
         break;
       default:
         MacroTest(strm,indent,"impossible case",0);
         break;
-      }
+    }
     ++count;
     it->Next();
-    }
+  }
   pit->Delete();
   it->Delete();
   strm<<" cell::GetPointIterator() end"<<endl;
@@ -869,7 +869,7 @@ int TestWithPointsAndCells(ostream &strm)
   vtkGenericAdaptorCell *cab2;
 
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished cell iterator",!it->IsAtEnd());
     cab=it->GetCell();
     dim=cab->GetDimension();
@@ -877,20 +877,20 @@ int TestWithPointsAndCells(ostream &strm)
     int currentDim=dim-1;
 
     while(currentDim>=-1)
-      {
+    {
       cab->GetBoundaryIterator(boundaries,currentDim);
       boundaries->Begin();
       while(!boundaries->IsAtEnd())
-        {
+      {
         cab2=boundaries->GetCell();
         MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
         boundaries->Next();
-        }
-      --currentDim;
       }
+      --currentDim;
+    }
     ++i;
     it->Next();
-    }
+  }
   boundaries->Delete();
   it->Delete();
 
@@ -1084,10 +1084,10 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   int m=0;
   vtkDoubleArray *attrib= vtkDoubleArray::New();
   while(m<17)
-    {
+  {
     attrib->InsertNextValue(m+100);
     ++m;
-    }
+  }
 
   assert(g->GetPointData()!=0);
   g->GetPointData()->SetScalars(attrib);
@@ -1130,7 +1130,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   vtkGenericAdaptorCell *cab;
 
   while(itNum<itCount)
-    {
+  {
     vtkGenericCellIterator *it=ds->NewCellIterator(itNum);
     ost<<"empty cell iterator "<<itNum<<" exists";
     s=ost.str();
@@ -1140,7 +1140,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     i=0;
     count=ds->GetNumberOfCells(itNum);
     while(i<count)
-      {
+    {
       ost.str("");
       ost<<"not finished cell iterator "<<itNum;
       s=ost.str();
@@ -1150,7 +1150,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
       cab=it->GetCell();
       MacroTest(strm,indent,"cell at current position is set",cab!=0);
       it->Next();
-      }
+    }
     ost.str("");
     ost<<"Finished cell iterator "<<itNum;
     s=ost.str();
@@ -1158,7 +1158,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     MacroTest(strm,indent,cstring,it->IsAtEnd());
     it->Delete();
     ++itNum;
-    }
+  }
   strm<<"NewCellIterator() end"<<endl;
 
   double x[3];
@@ -1172,7 +1172,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   i=0;
   count=ds->GetNumberOfPoints();
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished point iterator",!pit->IsAtEnd());
     pit->GetPosition(x);
     pts->GetPoint(i,y);
@@ -1180,7 +1180,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     MacroTest(strm,indent,"point iterator id",pit->GetId()==i);
     ++i;
     pit->Next();
-    }
+  }
   pit->Delete();
   strm<<"NewPointIterator() end"<<endl;
 
@@ -1286,7 +1286,7 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   vtkGenericAdaptorCell *cab2;
 
   while(i<count)
-    {
+  {
     MacroTest(strm,indent,"not finished cell iterator",!it->IsAtEnd());
     cab=it->GetCell();
     dim=cab->GetDimension();
@@ -1294,20 +1294,20 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
     int currentDim=dim-1;
 
     while(currentDim>=-1)
-      {
+    {
       cab->GetBoundaryIterator(boundaries,currentDim);
       boundaries->Begin();
       while(!boundaries->IsAtEnd())
-        {
+      {
         cab2=boundaries->GetCell();
         MacroTest(strm,indent,"the cell at iterator position is set",cab2!=0);
         boundaries->Next();
-        }
-      --currentDim;
       }
+      --currentDim;
+    }
     ++i;
     it->Next();
-    }
+  }
   boundaries->Delete();
   it->Delete();
 
@@ -1437,14 +1437,14 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   pit->Begin();
   m=100;
   while(!pit->IsAtEnd())
-    {
+  {
     tuples=attribute->GetTuple(pit);
     MacroTest(strm,indent,"valid point tuple",tuples[0]==m);
     attribute->GetTuple(pit,myTuples);
     MacroTest(strm,indent,"valid point tuple",myTuples[0]==m);
     pit->Next();
     ++m;
-    }
+  }
 
   pit->Delete();
   strm<<"GetTuple() on point iterator end"<<endl;
@@ -1521,11 +1521,11 @@ int TestWithPointsAndCellsAndPointData(ostream &strm)
   pit->Begin();
   m=100;
   while(!pit->IsAtEnd())
-    {
+  {
     MacroTest(strm,indent,"valid point tuple",attribute->GetComponent(0,pit)==m);
     pit->Next();
     ++m;
-    }
+  }
 
   pit->Delete();
   strm<<"GetComponent() on point iterator end"<<endl;
@@ -1681,24 +1681,24 @@ int otherCreation(int vtkNotUsed(argc),
                   char *vtkNotUsed(argv)[])
 {
   if (TestEmpty(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPoints(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPointsAndCells(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   if (TestWithPointsAndCellsAndPointData(cout))
-    {
+  {
     return 1;
-    }
+  }
 
   return 0;
 }

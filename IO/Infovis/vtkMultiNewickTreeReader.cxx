@@ -84,9 +84,9 @@ int vtkMultiNewickTreeReader::RequestUpdateExtent(
 
   // make sure piece is valid
   if (piece < 0 || piece >= numPieces)
-    {
+  {
     return 1;
-    }
+  }
 
   return 1;
 }
@@ -100,24 +100,24 @@ int vtkMultiNewickTreeReader::RequestData(
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
 
   if(outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
+  {
     return 1;
-    }
+  }
 
   vtkDebugMacro(<<"Reading Multiple Newick trees ...");
 
   if(this->GetFileName() == NULL || strcmp(this->GetFileName(), "") == 0)
-    {
+  {
     vtkErrorMacro(<<"Input filename not set");
     return 1;
-    }
+  }
 
   std::ifstream ifs( this->GetFileName(), std::ifstream::in );
   if(!ifs.good())
-    {
+  {
     vtkErrorMacro(<<"Unable to open " << this->GetFileName() << " for reading");
     return 1;
-    }
+  }
 
   vtkMultiPieceDataSet * const output = vtkMultiPieceDataSet::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -136,27 +136,27 @@ int vtkMultiNewickTreeReader::RequestData(
   char * current = buffer;
   unsigned int NumOfTrees = 0;
   while ( *current != '\0')
-    {
+  {
     while (*current == '\n' || *current == ' ')
-      {//ignore extra \n and spaces
+    {//ignore extra \n and spaces
       current ++;
-      }
+    }
 
     char * currentTreeStart = current; //record the starting char of the tree
     unsigned int singleTreeLength = 0;
     while ( *current != ';' &&  *current != '\0')
-      {
+    {
       singleTreeLength++;
       current++;
-      }
+    }
 
     if (*current == ';')  // each newick tree string ends with ";"
-      {
+    {
       char * singleTreeBuffer = new char[singleTreeLength+1];
       for (unsigned int i = 0; i < singleTreeLength; i++)
-         {
+      {
          singleTreeBuffer[i] = * (currentTreeStart +i);
-         }
+      }
       singleTreeBuffer[singleTreeLength] = '\0';
       current ++;//skip ';'
 
@@ -168,8 +168,8 @@ int vtkMultiNewickTreeReader::RequestData(
       NumOfTrees++;
 
       delete [] singleTreeBuffer;
-      }
     }
+  }
   delete [] buffer;
 
   return 1;

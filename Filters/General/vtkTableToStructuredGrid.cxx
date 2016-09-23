@@ -93,11 +93,11 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     (extent[5] - extent[4] + 1);
 
   if (input->GetNumberOfRows() != num_values)
-    {
+  {
     vtkErrorMacro("The input table must have exactly " << num_values
       << " rows. Currently it has " << input->GetNumberOfRows() << " rows.");
     return 0;
-    }
+  }
 
   vtkDataArray* xarray = vtkArrayDownCast<vtkDataArray>(
     input->GetColumnByName(this->XColumn));
@@ -106,11 +106,11 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
   vtkDataArray* zarray = vtkArrayDownCast<vtkDataArray>(
     input->GetColumnByName(this->ZColumn));
   if (!xarray || !yarray || !zarray)
-    {
+  {
     vtkErrorMacro("Failed to locate  the columns to use for the point"
       " coordinates");
     return 0;
-    }
+  }
 
   vtkPoints* newPoints = vtkPoints::New();
   if (xarray == yarray && yarray == zarray &&
@@ -118,11 +118,11 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     this->YComponent == 1 &&
     this->ZComponent == 2 &&
     xarray->GetNumberOfComponents() == 3)
-    {
+  {
     newPoints->SetData(xarray);
-    }
+  }
   else
-    {
+  {
     // Ideally we determine the smallest data type that can contain the values
     // in all the 3 arrays. For now I am just going with doubles.
     vtkDoubleArray* newData =  vtkDoubleArray::New();
@@ -130,14 +130,14 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
     newData->SetNumberOfTuples(input->GetNumberOfRows());
     vtkIdType numtuples = newData->GetNumberOfTuples();
     for (vtkIdType cc=0; cc < numtuples; cc++)
-      {
+    {
       newData->SetComponent(cc, 0, xarray->GetComponent(cc, this->XComponent));
       newData->SetComponent(cc, 1, yarray->GetComponent(cc, this->YComponent));
       newData->SetComponent(cc, 2, zarray->GetComponent(cc, this->ZComponent));
-      }
+    }
     newPoints->SetData(newData);
     newData->Delete();
-    }
+  }
 
   output->SetExtent(extent);
   output->SetPoints(newPoints);
@@ -145,13 +145,13 @@ int vtkTableToStructuredGrid::Convert(vtkTable* input,
 
   // Add all other columns as point data.
   for (int cc=0; cc < input->GetNumberOfColumns(); cc++)
-    {
+  {
     vtkAbstractArray* arr = input->GetColumn(cc);
     if (arr != xarray && arr != yarray && arr != zarray)
-      {
+    {
       output->GetPointData()->AddArray(arr);
-      }
     }
+  }
   return 1;
 }
 

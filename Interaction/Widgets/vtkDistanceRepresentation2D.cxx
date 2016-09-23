@@ -77,10 +77,10 @@ void vtkDistanceRepresentation2D::GetPoint2WorldPosition(double pos[3])
 double* vtkDistanceRepresentation2D::GetPoint1WorldPosition()
 {
   if (!this->Point1Representation)
-    {
+  {
     static double temp[3]=  {0, 0, 0};
     return temp;
-    }
+  }
   return this->Point1Representation->GetWorldPosition();
 }
 
@@ -88,10 +88,10 @@ double* vtkDistanceRepresentation2D::GetPoint1WorldPosition()
 double* vtkDistanceRepresentation2D::GetPoint2WorldPosition()
 {
   if (!this->Point2Representation)
-    {
+  {
     static double temp[3]=  {0, 0, 0};
     return temp;
-    }
+  }
   return this->Point2Representation->GetWorldPosition();
 }
 
@@ -119,20 +119,20 @@ void vtkDistanceRepresentation2D::SetPoint2DisplayPosition(double x[3])
 void vtkDistanceRepresentation2D::SetPoint1WorldPosition(double x[3])
 {
   if (this->Point1Representation)
-    {
+  {
     this->Point1Representation->SetWorldPosition(x);
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::SetPoint2WorldPosition(double x[3])
 {
   if (this->Point2Representation)
-    {
+  {
     this->Point2Representation->SetWorldPosition(x);
     this->BuildRepresentation();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -171,7 +171,7 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
        this->Point2Representation->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     this->Superclass::BuildRepresentation();
 
     // Okay, compute the distance and set the label
@@ -184,9 +184,9 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->AxisActor->GetPoint2Coordinate()->SetValue(p2);
     this->AxisActor->SetRulerMode(this->RulerMode);
     if (this->Scale != 0.0)
-      {
+    {
       this->AxisActor->SetRulerDistance(this->RulerDistance / this->Scale);
-      }
+    }
     this->AxisActor->SetNumberOfLabels(this->NumberOfRulerTicks);
 
     char string[512];
@@ -194,7 +194,7 @@ void vtkDistanceRepresentation2D::BuildRepresentation()
     this->AxisActor->SetTitle(string);
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -209,14 +209,14 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
   this->BuildRepresentation();
 
   if ( this->AxisActor->GetVisibility() )
-    {
+  {
     return this->AxisActor->RenderOverlay(v);
-    }
-  else
-      {
-      return 0;
-      }
   }
+  else
+  {
+      return 0;
+  }
+}
 
   //----------------------------------------------------------------------
   int vtkDistanceRepresentation2D::RenderOpaqueGeometry(vtkViewport *v)
@@ -224,14 +224,14 @@ int vtkDistanceRepresentation2D::RenderOverlay(vtkViewport *v)
   this->BuildRepresentation();
 
   if ( this->AxisActor->GetVisibility() )
-    {
+  {
     return this->AxisActor->RenderOpaqueGeometry(v);
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
-}
+  }
+  }
 
 //----------------------------------------------------------------------
 void vtkDistanceRepresentation2D::PrintSelf(ostream& os, vtkIndent indent)

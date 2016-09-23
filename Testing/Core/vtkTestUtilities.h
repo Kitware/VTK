@@ -108,38 +108,38 @@ char* vtkTestUtilities::GetArgOrEnvOrDefault(const char* arg,
   int index = -1;
 
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (strcmp(arg, argv[i]) == 0 && i < argc - 1)
-      {
+    {
       index = i + 1;
-      }
     }
+  }
 
   char* value;
 
   if (index != -1)
-    {
+  {
     value = new char[strlen(argv[index]) + 1];
     strcpy(value, argv[index]);
-    }
+  }
   else
-    {
+  {
     char *foundenv = getenv(env);
     if (foundenv)
-      {
+    {
       value = new char[strlen(foundenv) + 1];
       strcpy(value, foundenv);
-      }
+    }
     else if (def)
-      {
+    {
       value = new char[strlen(def) + 1];
       strcpy(value, def);
-      }
-    else
-      {
-      value = NULL;
-      }
     }
+    else
+    {
+      value = NULL;
+    }
+  }
 
   return value;
 }
@@ -159,7 +159,7 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
                                                        env,
                                                        def);
   if (value)
-    {
+  {
     fullName = new char[strlen(value) + strlen(fname) + 2 +
                         static_cast<size_t>(slash ? 1 : 0)];
     fullName[0] = 0;
@@ -168,17 +168,17 @@ char* vtkTestUtilities::ExpandFileNameWithArgOrEnvOrDefault(const char* arg,
     fullName[len] = '/';
     fullName[len+1] = 0;
     strcat(fullName, fname);
-    }
+  }
   else
-    {
+  {
     fullName = new char[strlen(fname) + 1 + static_cast<size_t>(slash ? 1 : 0)];
     strcpy(fullName, fname);
-    }
+  }
 
   if (slash)
-    {
+  {
     strcat(fullName, "/");
-    }
+  }
 
   delete[] value;
 

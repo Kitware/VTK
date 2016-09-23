@@ -65,9 +65,9 @@ public:
    * 3 times the number of directions floats in an array.
    */
   float *GetDecodedGradientTable( void )
-    {
+  {
       return &(this->DecodedGradientTable[0]);
-    }
+  }
 
 
 protected:

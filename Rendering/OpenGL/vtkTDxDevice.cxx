@@ -58,10 +58,10 @@ vtkRenderWindowInteractor *vtkTDxDevice::GetInteractor() const
 void vtkTDxDevice::SetInteractor(vtkRenderWindowInteractor *i)
 {
   if(this->Interactor!=i)
-    {
+  {
     this->Interactor=i;
     this->Modified();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------

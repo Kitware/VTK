@@ -63,18 +63,18 @@ int TestImageDataLIC2D(int argc, char* argv[])
 
   char** new_argv = new char*[argc+10];
   for (int cc=0; cc < argc; cc++)
-    {
+  {
     new_argv[cc] = vtksys::SystemTools::DuplicateString(argv[cc]);
-    }
+  }
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(filename.c_str());
   new_argv[argc++] = vtksys::SystemTools::DuplicateString(noise.c_str());
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--mag=5");
   new_argv[argc++] = vtksys::SystemTools::DuplicateString("--partitions=5");
   int status = ImageDataLIC2D(argc, new_argv);
   for (int kk=0; kk < argc; kk++)
-    {
+  {
     delete [] new_argv[kk];
-    }
+  }
   delete [] new_argv;
   return status;
 }
@@ -114,42 +114,42 @@ int ImageDataLIC2D(int argc, char* argv[])
     "(optional) Specify the filename to a png image file to use as the noise texture.");
 
   if (!arg.Parse() || filename=="")
-    {
+  {
     cerr << "Problem parsing arguments." << endl;
     cerr << arg.GetHelp() << endl;
     return -1;
-    }
+  }
 
   if (magnification < 1)
-    {
+  {
     cerr << "WARNING: Magnification cannot be less than 1. Using 1" << endl;
     magnification = 1;
-    }
+  }
 
   if (num_steps < 0)
-    {
+  {
     cerr << "WARNING: Number of steps cannot be less than 0. Forcing 0." << endl;
     num_steps = 0;
-    }
+  }
 
   // set up test helper
   vtkSmartPointer<vtkTesting> tester
     = vtkSmartPointer<vtkTesting>::New();
 
   for (int cc=0; cc < argc; cc++)
-    {
+  {
     tester->AddArgument(argv[cc]);
-    }
+  }
   if (!tester->IsValidImageSpecified())
-    {
+  {
     cerr << "ERROR: Valid image not specified." << endl;
     return -2;
-    }
+  }
 
   // load noise
   vtkSmartPointer<vtkImageData> noise;
   if (noise_filename != "")
-    {
+  {
     vtkSmartPointer<vtkPNGReader> pngReader
       = vtkSmartPointer<vtkPNGReader>::New();
 
@@ -161,10 +161,10 @@ int ImageDataLIC2D(int argc, char* argv[])
     vtkUnsignedCharArray *cVals
       = vtkArrayDownCast<vtkUnsignedCharArray>(noise->GetPointData()->GetScalars());
     if (!cVals)
-      {
+    {
       cerr << "Error: expected unsigned chars, test fails" << endl;
       return 1;
-      }
+    }
 
     unsigned char *pCVals = cVals->GetPointer(0);
     vtkIdType cTups = cVals->GetNumberOfTuples();
@@ -177,14 +177,14 @@ int ImageDataLIC2D(int argc, char* argv[])
 
     size_t nVals = 2*cTups;
     for (size_t i=0; i<nVals; ++i)
-      {
+    {
       pFVals[i] = pCVals[i]/255.0;
-      }
+    }
 
     noise->GetPointData()->RemoveArray(0);
     noise->GetPointData()->SetScalars(fVals);
     fVals->Delete();
-    }
+  }
 
   // load vectors
   vtkSmartPointer<vtkGenericDataObjectReader> reader
@@ -195,31 +195,31 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   vtkDataSet *dataset = vtkDataSet::SafeDownCast(reader->GetOutput());
   if (!dataset)
-    {
+  {
     cerr << "Error: expected dataset, test fails" << endl;
     return 1;
-    }
+  }
   double bounds[6];
   dataset->GetBounds(bounds);
 
   // If 3D use XY slice, otherwise use non-trivial slice.
   int dataDesc = VTK_XY_PLANE;
   if (bounds[0] == bounds[1])
-    {
+  {
     dataDesc = VTK_YZ_PLANE;
-    }
+  }
   else if (bounds[2] == bounds[3])
-    {
+  {
     dataDesc = VTK_XZ_PLANE;
-    }
+  }
   else if (bounds[4] == bounds[5])
-    {
+  {
     dataDesc = VTK_XY_PLANE;
-    }
+  }
 
   int comp[3] = {0,1,2};
   switch (dataDesc)
-    {
+  {
   case VTK_XY_PLANE:
     comp[0] = 0;
     comp[1] = 1;
@@ -237,7 +237,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     comp[1] = 2;
     comp[2] = 1;
     break;
-    }
+  }
 
   int  width  = static_cast<int>(ceil((bounds[2*comp[0]+1]-bounds[2*comp[0]]) * resolution));
   int  height = static_cast<int>(ceil((bounds[2*comp[1]+1]-bounds[2*comp[1]]) * resolution));
@@ -290,19 +290,19 @@ int ImageDataLIC2D(int argc, char* argv[])
     = vtkSmartPointer<vtkImageDataLIC2D>::New();
   filter->AddObserver(vtkCommand::ErrorEvent, errorObserver);
   if (filter->SetContext( renWin ) == 0)
-    {
+  {
     std::cout << "Required OpenGL extensions not supported."  << std::endl;
     return 0;
-    }
+  }
 
   filter->SetSteps(num_steps);
   filter->SetStepSize(0.8/magnification);
   filter->SetMagnification(magnification);
   filter->SetInputConnection(0, probe->GetOutputPort(0));
   if ( noise )
-    {
+  {
     filter->SetInputData(1, noise);
-    }
+  }
   filter->UpdateInformation();
   noise = NULL;
 
@@ -320,7 +320,7 @@ int ImageDataLIC2D(int argc, char* argv[])
   // for each piece in the paritioned dataset compute lic and
   // copy into the output.
   for (int kk=0; kk < num_partitions; kk++)
-    {
+  {
     filter->UpdatePiece(kk, num_partitions, 0);
 
     vtkImageData *licPieceDataSet = filter->GetOutput();
@@ -346,7 +346,7 @@ int ImageDataLIC2D(int argc, char* argv[])
             licData->GetNumberOfComponents(),
             licData->GetDataType(),
             licData->GetVoidPointer(0));
-     }
+  }
   probe = NULL;
   filter = NULL;
   renWin = NULL;
@@ -361,9 +361,9 @@ int ImageDataLIC2D(int argc, char* argv[])
   float *pData = licData->GetPointer(0);
   size_t n = 3*licDataSize;
   for (size_t i=0; i<n; ++i)
-    {
+  {
     pPng[i] = static_cast<unsigned char>(pData[i]*255.0f);
-    }
+  }
   licData = NULL;
 
   // wrap the result into an image data for the png writer
@@ -378,7 +378,7 @@ int ImageDataLIC2D(int argc, char* argv[])
 
   // save a png
   if (outputpath != "")
-    {
+  {
     vtkSmartPointer<vtkPNGWriter> writer
       = vtkSmartPointer<vtkPNGWriter>::New();
 
@@ -386,7 +386,7 @@ int ImageDataLIC2D(int argc, char* argv[])
     writer->SetInputData(pngDataSet);
     writer->Write();
     writer = NULL;
-    }
+  }
 
   // run the test
   vtkSmartPointer<vtkTrivialProducer> tp
@@ -396,9 +396,9 @@ int ImageDataLIC2D(int argc, char* argv[])
   int retVal =
     (tester->RegressionTest(tp, 10) == vtkTesting::PASSED)? 0 : -4;
   if (retVal)
-    {
+  {
     cerr << "ERROR: test failed." << endl;
-    }
+  }
 
   tp = NULL;
   pngDataSet = NULL;

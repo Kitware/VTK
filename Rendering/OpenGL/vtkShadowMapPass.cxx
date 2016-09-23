@@ -99,38 +99,38 @@ vtkShadowMapPass::vtkShadowMapPass()
 vtkShadowMapPass::~vtkShadowMapPass()
 {
   if(this->ShadowMapBakerPass!=0)
-    {
+  {
     this->ShadowMapBakerPass->Delete();
-    }
+  }
   if(this->OpaquePass!=0)
-    {
+  {
     this->OpaquePass->Delete();
-    }
+  }
 
   if(this->Program!=0)
-     {
+  {
      this->Program->Delete();
-     }
+  }
 
   if(this->IntensityMap!=0)
-    {
+  {
     vtkErrorMacro(<<"IntensityMap should have been deleted in ReleaseGraphicsResources().");
-    }
+  }
 
   if(this->IntensitySource!=0)
-    {
+  {
     this->IntensitySource->Delete();
-    }
+  }
 
   if(this->IntensityExporter!=0)
-    {
+  {
     this->IntensityExporter->Delete();
-    }
+  }
 
   if(this->Halo!=0)
-    {
+  {
     this->Halo->Delete();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -140,22 +140,22 @@ void vtkShadowMapPass::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ShadowMapBackerPass: ";
   if(this->ShadowMapBakerPass!=0)
-    {
+  {
     this->ShadowMapBakerPass->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
   os << indent << "OpaquePass: ";
   if(this->OpaquePass!=0)
-    {
+  {
     this->OpaquePass->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -180,49 +180,49 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
   if(this->ShadowMapBakerPass!=0 &&
 //     this->ShadowMapBakerPass->GetOpaquePass()!=0
      this->OpaquePass!=0)
-    {
+  {
      // Test for Hardware support. If not supported, just render the delegate.
     bool supported=vtkFrameBufferObject::IsSupported(r->GetRenderWindow());
 
     if(!supported)
-      {
+    {
       vtkErrorMacro("FBOs are not supported by the context. Cannot use shadow mapping.");
-      }
+    }
     if(supported)
-      {
+    {
       supported=vtkTextureObject::IsSupported(r->GetRenderWindow());
       if(!supported)
-        {
+      {
         vtkErrorMacro("Texture Objects are not supported by the context. Cannot use shadow mapping.");
-        }
       }
+    }
 
     if(supported)
-      {
+    {
       supported=
         vtkShaderProgram2::IsSupported(static_cast<vtkOpenGLRenderWindow *>(
                                          r->GetRenderWindow()));
       if(!supported)
-        {
+      {
         vtkErrorMacro("GLSL is not supported by the context. Cannot use shadow mapping.");
-        }
       }
+    }
 
     if(!supported)
-      {
+    {
       this->OpaquePass->Render(s);
       this->NumberOfRenderedProps+=
         this->OpaquePass->GetNumberOfRenderedProps();
       return;
-      }
+    }
 
     if(!this->ShadowMapBakerPass->GetHasShadows())
-      {
+    {
       this->OpaquePass->Render(s);
       this->NumberOfRenderedProps+=
         this->OpaquePass->GetNumberOfRenderedProps();
       return;
-      }
+    }
 
     // Copy the list of lights and the lights. We cannot just modify them in
     // place because it will change their modification time.
@@ -234,7 +234,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     vtkLightCollection *lights2;
 #ifdef DONT_DUPLICATE_LIGHTS
     if(this->CompositeZPass==0)
-      {
+    {
 #endif
       // parallel rendering hangs with this technique
       lights2=vtkLightCollection::New();
@@ -242,25 +242,25 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
       vtkLight *l=lights->GetNextItem();
       size_t lightIndex=0;
       while(l!=0)
-        {
+      {
         vtkLight *l2=l->ShallowClone();
         lights2->AddItem(l2);
         l2->Delete();
         l=lights->GetNextItem();
         ++lightIndex;
-        }
+      }
 
       // save the original light collection.
       lights->Register(this);
       // make the copy the current light collection on the renderer
       r->SetLightCollection(lights2);
 #ifdef DONT_DUPLICATE_LIGHTS
-      }
+    }
     else
-      {
+    {
       // safe and slow for parallel rendering
       lights2=lights;
-      }
+    }
 #endif
 
     // Render scene with shadowing lights off.
@@ -273,11 +273,11 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     l=lights2->GetNextItem();
     lightIndex=0;
     while(l!=0)
-      {
+    {
       lightSwitches[lightIndex]=l->GetSwitch()==1;
       l=lights2->GetNextItem();
       ++lightIndex;
-      }
+    }
 
     bool autoLight=r->GetAutomaticLightCreation()==1;
     r->SetAutomaticLightCreation(false);
@@ -287,15 +287,15 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     l=lights2->GetNextItem();
     lightIndex=0;
     while(l!=0)
-      {
+    {
       if(lightSwitches[lightIndex] &&
          this->ShadowMapBakerPass->LightCreatesShadow(l))
-        {
+      {
         l->SetSwitch(false);
-        }
+      }
       l=lights2->GetNextItem();
       ++lightIndex;
-      }
+    }
 
 #ifdef VTK_SHADOW_MAP_PASS_DEBUG
     cout << "finish before rendering geometry without shadowing lights" << endl;
@@ -320,14 +320,14 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
     // maybe ivar:
     if(this->Program==0)
-      {
+    {
       this->Program=vtkShaderProgram2::New();
-      }
+    }
     this->Program->SetContext(context);
     vtkShader2Collection *shaders=this->Program->GetShaders();
 
     if(this->ShadowMapBakerPass->GetNeedUpdate())
-      {
+    {
       this->ShadowMapBakerPass->SetUpToDate();
       // we have to perform a concatenation. remove all the shaders first.
       this->Program->ReleaseGraphicsResources();
@@ -399,17 +399,17 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
        delete fsCode;
        shaders->AddItem(fs);
        fs->Delete();
-      }
+    }
 
 #ifdef VTK_SHADOW_MAP_PASS_DEBUG
     this->Program->Build();
 
     if(this->Program->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-      {
+    {
       vtkErrorMacro("Couldn't build the shader program. At this point , it can be an error in a shader or a driver bug.");
       delete[] lightSwitches;
       return;
-      }
+    }
 
     this->Program->PrintActiveUniformVariablesOnCout();
 #endif
@@ -417,17 +417,17 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     r->SetShaderProgram(this->Program);
 
     if(this->IntensityMap==0)
-      {
+    {
       this->IntensityMap=vtkTextureObject::New();
       this->IntensityMap->SetContext(context);
       this->IntensityMap->SetWrapS(vtkTextureObject::Clamp);
       this->IntensityMap->SetWrapT(vtkTextureObject::Clamp);
       this->IntensityMap->SetMinificationFilter(vtkTextureObject::Linear);
       this->IntensityMap->SetLinearMagnification(true);
-      }
+    }
     if(this->IntensityMap->GetWidth()!=
        this->ShadowMapBakerPass->GetResolution())
-      {
+    {
        // Load the spotlight intensity map.
       vtkPixelBufferObject *pbo=vtkPixelBufferObject::New();
       pbo->SetContext(context);
@@ -459,7 +459,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
                                    this->ShadowMapBakerPass->GetResolution(),
                                    1,pbo,false);
       pbo->Delete();
-      }
+    }
 
     // set uniforms
     // set TO,TU
@@ -482,15 +482,15 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     vtkMatrix4x4 *mat=vtkMatrix4x4::New();
     int row=0;
     while(row<4)
-      {
+    {
       int column=0;
       while(column<4)
-        {
+      {
         mat->SetElement(row,column,static_cast<double>(m[column*4+row]));
         ++column;
-        }
-      ++row;
       }
+      ++row;
+    }
     mat->Invert();
     vtkMatrixToLinearTransform *viewCamera_Inv
       =vtkMatrixToLinearTransform::New();
@@ -515,10 +515,10 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     glGetIntegerv(GL_MATRIX_MODE,&savedMatrixMode);
 
     while(l!=0)
-      {
+    {
       if(lightSwitches[lightIndex] &&
          this->ShadowMapBakerPass->LightCreatesShadow(l) )
-        {
+      {
         l->SetSwitch(true);
 
         // setup texture matrix.
@@ -562,14 +562,14 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
         delete shadowMapTextureUnitString;
 
         ++shadowingLightIndex;
-        }
+      }
       else
-        {
+      {
         l->SetSwitch(false); // any other light
-        }
+      }
       l=lights2->GetNextItem();
       ++lightIndex;
-      }
+    }
 
     // Ice-T
     viewCamera_Inv->Delete();
@@ -623,12 +623,12 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
     int i=0;
     glMatrixMode(GL_TEXTURE);
     while(i<shadowingLightIndex)
-      {
+    {
       vtkgl::ActiveTexture(vtkgl::TEXTURE0+
                            static_cast<GLenum>(i));
       glPopMatrix();
       ++i;
-      }
+    }
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
 
     r->SetShaderProgram(0);
@@ -637,38 +637,38 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 
 #ifdef DONT_DUPLICATE_LIGHTS
     if(this->CompositeZPass==0)
-      {
+    {
 #endif
        // restore original light collection
       r->SetLightCollection(lights);
       lights->Delete();
       lights2->Delete();
 #ifdef DONT_DUPLICATE_LIGHTS
-      }
+    }
     else
-      {
+    {
       // restore original light switchs.
       lights->InitTraversal();
       l=lights->GetNextItem();
       lightIndex=0;
       while(l!=0)
-        {
+      {
         l->SetSwitch(lightSwitches[lightIndex]);
         l=lights->GetNextItem();
         ++lightIndex;
-        }
       }
+    }
 #endif
     delete[] lightSwitches;
 
     r->SetAutomaticLightCreation(autoLight);
     glDepthMask(GL_TRUE);
 
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<<" no ShadowMapBakerPass or no OpaquePass on the ShadowMapBakerPass.");
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -677,7 +677,7 @@ void vtkShadowMapPass::Render(const vtkRenderState *s)
 void vtkShadowMapPass::BuildSpotLightIntensityMap()
 {
    if(this->IntensitySource==0)
-     {
+   {
      this->IntensitySource=vtkSampleFunction::New();
      this->IntensityExporter=vtkImageExport::New();
      this->Halo=vtkImplicitHalo::New();
@@ -687,7 +687,7 @@ void vtkShadowMapPass::BuildSpotLightIntensityMap()
      scale->SetNormalizeByWeight(false);
      this->IntensitySource->SetImplicitFunction(scale);
      scale->Delete();
-     }
+   }
    unsigned int resolution=this->ShadowMapBakerPass->GetResolution();
 
    this->Halo->SetRadius(resolution/2.0);
@@ -717,17 +717,17 @@ void vtkShadowMapPass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
   if(this->ShadowMapBakerPass!=0)
-    {
+  {
     this->ShadowMapBakerPass->ReleaseGraphicsResources(w);
-    }
+  }
   if(this->Program!=0)
-    {
+  {
     this->Program->ReleaseGraphicsResources();
-    }
+  }
 
   if(this->IntensityMap!=0)
-    {
+  {
     this->IntensityMap->Delete();
     this->IntensityMap=0;
-    }
+  }
 }

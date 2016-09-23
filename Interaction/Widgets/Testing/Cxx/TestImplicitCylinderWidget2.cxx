@@ -405,7 +405,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetCenter(wbounds[1] + 1.0, wbounds[3] + 1.0, wbounds[5] + 1.0);
   rep->GetCenter(center1);
   if (center1[0] > wbounds[1] || center1[1] > wbounds[3] || center1[2] > wbounds[5])
-    {
+  {
     std::cerr << "center ("
               << center1[0] << "," << center1[1] << "," << center1[2]
               << ") outside widget bounds ("
@@ -413,7 +413,7 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
               << wbounds[2] << "-" << wbounds[3] << ","
               << wbounds[4] << "-" << wbounds[5] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // #2: With ConstrainCenter off, center SHOULD be settable outside current widget bounds.
   rep->ConstrainToWidgetBoundsOff();
@@ -423,14 +423,14 @@ int TestImplicitCylinderWidget2(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetCenter(center1);
   rep->GetCenter(center2);
   if (center1[0] != center2[0] || center1[1] != center2[1] || center1[2] != center2[2])
-    {
+  {
     std::cerr << "center not set correctly. expected ("
               << center1[0] << "," << center1[1] << "," << center1[2]
               << "), got: ("
               << center2[0] << "," << center2[1] << "," << center2[2]
               << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   rep->SetCenter(center);
   cylWidget->SetEnabled(0);

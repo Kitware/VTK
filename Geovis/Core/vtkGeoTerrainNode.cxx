@@ -36,13 +36,13 @@ vtkGeoTerrainNode::vtkGeoTerrainNode()
   this->BoundingSphereRadius = 0.0;
 
   for (int idx = 0; idx < 3; ++idx)
-    {
+  {
     this->BoundingSphereCenter[idx] = 0.0;
     this->CornerNormal00[idx] = 0.0;
     this->CornerNormal01[idx] = 0.0;
     this->CornerNormal10[idx] = 0.0;
     this->CornerNormal11[idx] = 0.0;
-    }
+  }
   this->ProjectionBounds[0] = 0.0;
   this->ProjectionBounds[1] = 0.0;
   this->ProjectionBounds[2] = 0.0;
@@ -159,19 +159,19 @@ void vtkGeoTerrainNode::UpdateBoundingSphere()
   this->BoundingSphereRadius = distance;
   distance = vtkGeoMath::DistanceSquared(this->BoundingSphereCenter,c01);
   if (this->BoundingSphereRadius < distance)
-    {
+  {
     this->BoundingSphereRadius = distance;
-    }
+  }
   distance = vtkGeoMath::DistanceSquared(this->BoundingSphereCenter,c10);
   if (this->BoundingSphereRadius < distance)
-    {
+  {
     this->BoundingSphereRadius = distance;
-    }
+  }
   distance = vtkGeoMath::DistanceSquared(this->BoundingSphereCenter,c11);
   if (this->BoundingSphereRadius < distance)
-    {
+  {
     this->BoundingSphereRadius = distance;
-    }
+  }
   this->BoundingSphereRadius = sqrt(this->BoundingSphereRadius);
 
   // Change corners to normals (c00 points to normal ivar)
@@ -186,10 +186,10 @@ void vtkGeoTerrainNode::UpdateBoundingSphere()
 vtkGeoTerrainNode* vtkGeoTerrainNode::GetChild(int idx)
 {
   if (idx < 0 || idx > 3)
-    {
+  {
     vtkErrorMacro("Index out of range.");
     return 0;
-    }
+  }
   return vtkGeoTerrainNode::SafeDownCast(this->Children[idx]);
 }
 
@@ -206,7 +206,7 @@ void vtkGeoTerrainNode::ShallowCopy(vtkGeoTreeNode *src)
   vtkGeoTerrainNode *terrainNode = vtkGeoTerrainNode::SafeDownCast(src);
 
   if(terrainNode != NULL)
-    {
+  {
     vtkPolyData * polyData = vtkPolyData::New();
     polyData->ShallowCopy(terrainNode->Model);
     this->SetModel(polyData);
@@ -241,7 +241,7 @@ void vtkGeoTerrainNode::ShallowCopy(vtkGeoTreeNode *src)
     this->GraticuleLevel = terrainNode->GraticuleLevel;
     this->Error = terrainNode->Error;
     this->Coverage = terrainNode->Coverage;
-    }
+  }
   this->Superclass::ShallowCopy(src);
 }
 
@@ -251,7 +251,7 @@ void vtkGeoTerrainNode::DeepCopy(vtkGeoTreeNode *src)
   vtkGeoTerrainNode *terrainNode = vtkGeoTerrainNode::SafeDownCast(src);
 
   if(terrainNode != NULL)
-    {
+  {
     vtkPolyData * polyData = vtkPolyData::New();
     polyData->DeepCopy(terrainNode->Model);
     this->SetModel(polyData);
@@ -287,7 +287,7 @@ void vtkGeoTerrainNode::DeepCopy(vtkGeoTreeNode *src)
     this->GraticuleLevel = terrainNode->GraticuleLevel;
     this->Error = terrainNode->Error;
     this->Coverage = terrainNode->Coverage;
-    }
+  }
 
   this->Superclass::DeepCopy(src);
 }

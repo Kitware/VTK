@@ -81,37 +81,37 @@ public:
    * for mouse/touch events
    */
   virtual double *GetWorldEventPosition(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
+    }
     return this->WorldEventPositions[pointerIndex];
-    }
+  }
   virtual double *GetLastWorldEventPosition(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
+    }
     return this->LastWorldEventPositions[pointerIndex];
-    }
+  }
   virtual double *GetWorldEventOrientation(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
+    }
     return this->WorldEventOrientations[pointerIndex];
-    }
+  }
   virtual double *GetLastWorldEventOrientation(int pointerIndex)
-    {
+  {
     if (pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return NULL;
-      }
-    return this->LastWorldEventOrientations[pointerIndex];
     }
+    return this->LastWorldEventOrientations[pointerIndex];
+  }
   //@}
 
   //@{
@@ -123,9 +123,9 @@ public:
   virtual void SetPhysicalEventPosition(double x, double y, double z, int pointerIndex)
   {
     if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return;
-      }
+    }
     vtkDebugMacro(
       << this->GetClassName() << " (" << this
       << "): setting PhysicalEventPosition to ("
@@ -137,7 +137,7 @@ public:
         this->LastPhysicalEventPositions[pointerIndex][0] != x ||
         this->LastPhysicalEventPositions[pointerIndex][1] != y ||
         this->LastPhysicalEventPositions[pointerIndex][2] != z)
-      {
+    {
       this->LastPhysicalEventPositions[pointerIndex][0] = this->PhysicalEventPositions[pointerIndex][0];
       this->LastPhysicalEventPositions[pointerIndex][1] = this->PhysicalEventPositions[pointerIndex][1];
       this->LastPhysicalEventPositions[pointerIndex][2] = this->PhysicalEventPositions[pointerIndex][2];
@@ -145,7 +145,7 @@ public:
       this->PhysicalEventPositions[pointerIndex][1] = y;
       this->PhysicalEventPositions[pointerIndex][2] = z;
       this->Modified();
-      }
+    }
   }
   //@}
 
@@ -158,9 +158,9 @@ public:
   virtual void SetWorldEventPosition(double x, double y, double z, int pointerIndex)
   {
     if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return;
-      }
+    }
     vtkDebugMacro(
       << this->GetClassName() << " (" << this
       << "): setting WorldEventPosition to ("
@@ -172,7 +172,7 @@ public:
         this->LastWorldEventPositions[pointerIndex][0] != x ||
         this->LastWorldEventPositions[pointerIndex][1] != y ||
         this->LastWorldEventPositions[pointerIndex][2] != z)
-      {
+    {
       this->LastWorldEventPositions[pointerIndex][0] = this->WorldEventPositions[pointerIndex][0];
       this->LastWorldEventPositions[pointerIndex][1] = this->WorldEventPositions[pointerIndex][1];
       this->LastWorldEventPositions[pointerIndex][2] = this->WorldEventPositions[pointerIndex][2];
@@ -180,14 +180,14 @@ public:
       this->WorldEventPositions[pointerIndex][1] = y;
       this->WorldEventPositions[pointerIndex][2] = z;
       this->Modified();
-      }
+    }
   }
   virtual void SetWorldEventOrientation(double w, double x, double y, double z, int pointerIndex)
   {
     if (pointerIndex < 0 || pointerIndex >= VTKI_MAX_POINTERS)
-      {
+    {
       return;
-      }
+    }
     vtkDebugMacro(
       << this->GetClassName() << " (" << this
       << "): setting WorldEventOrientation to ("
@@ -201,7 +201,7 @@ public:
         this->LastWorldEventOrientations[pointerIndex][1] != x ||
         this->LastWorldEventOrientations[pointerIndex][2] != y ||
         this->LastWorldEventOrientations[pointerIndex][3] != z)
-      {
+    {
       this->LastWorldEventOrientations[pointerIndex][0] = this->WorldEventOrientations[pointerIndex][0];
       this->LastWorldEventOrientations[pointerIndex][1] = this->WorldEventOrientations[pointerIndex][1];
       this->LastWorldEventOrientations[pointerIndex][2] = this->WorldEventOrientations[pointerIndex][2];
@@ -211,7 +211,7 @@ public:
       this->WorldEventOrientations[pointerIndex][2] = y;
       this->WorldEventOrientations[pointerIndex][3] = z;
       this->Modified();
-      }
+    }
   }
   //@}
 

@@ -47,21 +47,21 @@ void ParticlePathFilterInternal::Reset()
 int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
 {
   if(!this->Filter->Output || this->ClearCache)
-    {
+  {
     this->Filter->Output = vtkSmartPointer<vtkPolyData>::New();
     this->Filter->Output->SetPoints(vtkSmartPointer<vtkPoints>::New());
     this->Filter->Output->GetPointData()->CopyAllocate(particles->GetPointData());
-    }
+  }
   if(this->ClearCache)
-    { // clear cache no matter what
+  { // clear cache no matter what
     this->Paths.clear();
-    }
+  }
 
   vtkPoints* pts = particles->GetPoints();
   if(!pts || pts->GetNumberOfPoints()==0)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkPointData* outPd = this->Filter->Output->GetPointData();
   vtkPoints* outPoints = this->Filter->Output->GetPoints();
@@ -73,43 +73,43 @@ int ParticlePathFilterInternal::OutputParticles(vtkPolyData* particles)
   //Append the input arrays to the output arrays
   int begin = outPoints->GetNumberOfPoints();
   for(int i=0; i<pts->GetNumberOfPoints(); i++)
-    {
+  {
     outPoints->InsertNextPoint(pts->GetPoint(i));
-    }
+  }
   vtkDataSetAttributes::FieldList ptList(1);
   ptList.InitializeFieldList(pd);
   for(int i=0, j = begin; i<pts->GetNumberOfPoints(); i++,j++)
-    {
+  {
     outPd->CopyData(ptList,pd,0,i,j);
-    }
+  }
 
   //Augment the paths
   for(vtkIdType i=0; i<pts->GetNumberOfPoints(); i++)
-    {
+  {
     int outId =  i+begin;
 
     int pid = particleIds->GetValue(i);
     for(int j= static_cast<int>(this->Paths.size()); j<=pid; j++)
-      {
+    {
       this->Paths.push_back( vtkSmartPointer<vtkIdList>::New());
-      }
+    }
 
     vtkIdList* path = this->Paths[pid];
 
 #ifdef DEBUG
     if(path->GetNumberOfIds()>0)
-      {
+    {
       vtkFloatArray* outParticleAge = vtkArrayDownCast<vtkFloatArray>(outPd->GetArray("ParticleAge"));
       if(outParticleAge->GetValue(outId) < outParticleAge->GetValue(path->GetId(path->GetNumberOfIds()-1)))
-        {
+      {
         vtkOStrStreamWrapper vtkmsg;
         vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
                << "\n" << "): " <<" new particles have wrong ages"<< "\n\n";
-        }
       }
+    }
 #endif
     path->InsertNextId(outId);
-    }
+  }
 
   return 1;
 }
@@ -118,19 +118,19 @@ void ParticlePathFilterInternal::Finalize()
   this->Filter->Output->SetLines(vtkSmartPointer<vtkCellArray>::New());
   vtkCellArray* outLines = this->Filter->Output->GetLines();
   if(!outLines)
-    {
+  {
     vtkOStrStreamWrapper vtkmsg;
     vtkmsg << "ERROR: In " __FILE__ ", line " << __LINE__
            << "\n" << "): " <<" no lines in the output"<< "\n\n";
     return;
-    }
+  }
   for(unsigned int i=0; i<this->Paths.size(); i++)
-    {
+  {
     if(this->Paths[i]->GetNumberOfIds()>1)
-      {
+    {
       outLines->InsertNextCell(this->Paths[i]);
-      }
     }
+  }
 }
 
 vtkParticlePathFilter::vtkParticlePathFilter()
@@ -143,15 +143,15 @@ vtkParticlePathFilter::vtkParticlePathFilter()
 vtkParticlePathFilter::~vtkParticlePathFilter()
 {
   if(this->SimulationTime)
-    {
+  {
     this->SimulationTime->Delete();
     this->SimulationTime = NULL;
-    }
+  }
   if(this->SimulationTimeStep)
-    {
+  {
     this->SimulationTimeStep->Delete();
     this->SimulationTimeStep = NULL;
-    }
+  }
 }
 
 void vtkParticlePathFilter::ResetCache()
@@ -173,26 +173,26 @@ int vtkParticlePathFilter::OutputParticles(vtkPolyData* particles)
 void vtkParticlePathFilter::InitializeExtraPointDataArrays(vtkPointData* outputPD)
 {
   if(this->SimulationTime == NULL)
-    {
+  {
     this->SimulationTime = vtkDoubleArray::New();
     this->SimulationTime->SetName("SimulationTime");
-    }
+  }
   if(outputPD->GetArray("SimulationTime"))
-    {
+  {
     outputPD->RemoveArray("SimulationTime");
-    }
+  }
   this->SimulationTime->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTime);
 
   if(this->SimulationTimeStep == NULL)
-    {
+  {
     this->SimulationTimeStep = vtkIntArray::New();
     this->SimulationTimeStep->SetName("SimulationTimeStep");
-    }
+  }
   if(outputPD->GetArray("SimulationTimeStep"))
-    {
+  {
     outputPD->RemoveArray("SimulationTimeStep");
-    }
+  }
   this->SimulationTimeStep->SetNumberOfTuples(0);
   outputPD->AddArray(this->SimulationTimeStep);
 }

@@ -51,25 +51,25 @@ void vtkCoincidentTopologyResolutionPainter::ProcessInformation(
   vtkInformation* info)
 {
   if (info->Has(RESOLVE_COINCIDENT_TOPOLOGY()))
-    {
+  {
     this->SetResolveCoincidentTopology(info->Get(RESOLVE_COINCIDENT_TOPOLOGY()));
-    }
+  }
 
   if (info->Has(Z_SHIFT()))
-    {
+  {
     this->SetZShift(info->Get(Z_SHIFT()));
-    }
+  }
 
   if (info->Has(POLYGON_OFFSET_PARAMETERS()))
-    {
+  {
     double* p = info->Get(POLYGON_OFFSET_PARAMETERS());
     this->SetPolygonOffsetParameters(p[0], p[1]);
-    }
+  }
 
   if (info->Has(POLYGON_OFFSET_FACES()))
-    {
+  {
     this->SetOffsetFaces(info->Get(POLYGON_OFFSET_FACES()));
-    }
+  }
 
   this->Superclass::ProcessInformation(info);
 }

@@ -136,23 +136,23 @@ public:
   virtual void SetWindowName(const char *);
 
   void SetNextWindowInfo(char *)
-    {
+  {
       vtkWarningMacro("SetNextWindowInfo not implemented (WindowRemap not implemented).");
-    }
+  }
   virtual void* GetGenericDrawable()
-    {
+  {
       vtkWarningMacro("Method not implemented.");
       return 0;
-    }
+  }
   virtual void SetDisplayId(void*)
-    {
+  {
       vtkWarningMacro("Method not implemented.");
-    }
+  }
   virtual void *GetGenericDisplayId()
-    {
+  {
       vtkWarningMacro("Method not implemented.");
       return 0;
-    }
+  }
 
   /**
    * Set this RenderWindow's window id to a pre-existing window.
@@ -169,9 +169,9 @@ public:
   virtual void SetParentInfo(char*);
 
   void SetNextWindowId(void*)
-    {
+  {
       vtkWarningMacro("SetNextWindowId not implemented (WindowRemap not implemented).");
-    }
+  }
 
   /**
    * Initialize the render window from the information associated

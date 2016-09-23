@@ -82,16 +82,16 @@ void vtkCompositePolyDataMapper2::ComputeBounds()
   // plain old polydata. In this case, the bounds are simply
   // the bounds of the input polydata.
   if (!input)
-    {
+  {
     this->Superclass::ComputeBounds();
     return;
-    }
+  }
 
   if (input->GetMTime() < this->BoundsMTime &&
       this->GetMTime() < this->BoundsMTime)
-    {
+  {
     return;
-    }
+  }
 
   // computing bounds with only visible blocks
   vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
@@ -106,21 +106,21 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
     this->GetInputDataObject(0, 0));
   vtkMTimeType lastMTime = std::max(input ? input->GetMTime() : 0, this->GetMTime());
   if (lastMTime <= this->LastOpaqueCheckTime)
-    {
+  {
     return this->LastOpaqueCheckValue;
-    }
+  }
   this->LastOpaqueCheckTime = lastMTime;
   if (this->ScalarVisibility && input &&
       (this->ColorMode == VTK_COLOR_MODE_DEFAULT ||
        this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS))
-    {
+  {
     vtkSmartPointer<vtkCompositeDataIterator> iter;
     iter.TakeReference(input->NewIterator());
     for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-      {
+    {
       vtkPolyData *pd = vtkPolyData::SafeDownCast(iter->GetCurrentDataObject());
       if (pd)
-        {
+      {
         int cellFlag;
         vtkDataArray* scalars = this->GetScalars(pd,
           this->ScalarMode, this->ArrayAccessMode, this->ArrayId,
@@ -130,33 +130,33 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
              this->ColorMode == VTK_COLOR_MODE_DIRECT_SCALARS) &&
           (scalars->GetNumberOfComponents() ==  4 /*(RGBA)*/ ||
            scalars->GetNumberOfComponents() == 2 /*(LuminanceAlpha)*/))
-          {
+        {
           int opacityIndex = scalars->GetNumberOfComponents() - 1;
           unsigned char opacity = 0;
           switch (scalars->GetDataType())
-            {
+          {
             vtkTemplateMacro(
               vtkScalarsToColors::ColorToUChar(
                 static_cast<VTK_TT>(scalars->GetRange(opacityIndex)[0]),
                 &opacity));
-            }
+          }
           if (opacity < 255)
-            {
+          {
             // If the opacity is 255, despite the fact that the user specified
             // RGBA, we know that the Alpha is 100% opaque. So treat as opaque.
             this->LastOpaqueCheckValue = false;
             return false;
-            }
           }
         }
       }
     }
+  }
   else if(this->CompositeAttributes &&
     this->CompositeAttributes->HasBlockOpacities())
-    {
+  {
     this->LastOpaqueCheckValue = false;
     return false;
-    }
+  }
 
   this->LastOpaqueCheckValue = this->Superclass::GetIsOpaque();
   return this->LastOpaqueCheckValue;
@@ -166,53 +166,53 @@ bool vtkCompositePolyDataMapper2::GetIsOpaque()
 void vtkCompositePolyDataMapper2::SetBlockVisibility(unsigned int index, bool visible)
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->SetBlockVisibility(index, visible);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 bool vtkCompositePolyDataMapper2::GetBlockVisibility(unsigned int index) const
 {
   if(this->CompositeAttributes)
-    {
+  {
     return this->CompositeAttributes->GetBlockVisibility(index);
-    }
+  }
   else
-    {
+  {
     return true;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockVisibility(unsigned int index)
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockVisibility(index);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockVisibilites()
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockVisibilites();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockColor(unsigned int index, double color[3])
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->SetBlockColor(index, color);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -227,39 +227,39 @@ double* vtkCompositePolyDataMapper2::GetBlockColor(unsigned int index)
 void vtkCompositePolyDataMapper2::RemoveBlockColor(unsigned int index)
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockColor(index);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockColors()
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockColors();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::SetBlockOpacity(unsigned int index, double opacity)
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->SetBlockOpacity(index, opacity);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
 {
   if(this->CompositeAttributes)
-    {
+  {
     return this->CompositeAttributes->GetBlockOpacity(index);
-    }
+  }
   return 1.;
 }
 
@@ -267,20 +267,20 @@ double vtkCompositePolyDataMapper2::GetBlockOpacity(unsigned int index)
 void vtkCompositePolyDataMapper2::RemoveBlockOpacity(unsigned int index)
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockOpacity(index);
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkCompositePolyDataMapper2::RemoveBlockOpacities()
 {
   if(this->CompositeAttributes)
-    {
+  {
     this->CompositeAttributes->RemoveBlockOpacities();
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -288,10 +288,10 @@ void vtkCompositePolyDataMapper2::SetCompositeDataDisplayAttributes(
   vtkCompositeDataDisplayAttributes *attributes)
 {
   if(this->CompositeAttributes != attributes)
-    {
+  {
     this->CompositeAttributes = attributes;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

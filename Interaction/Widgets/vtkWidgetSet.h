@@ -167,28 +167,28 @@ public:
   template < class TWidget >
   void DispatchAction(TWidget *caller,
                       typename ActionFunction< TWidget >::TActionFunctionPointer action)
-    {
+  {
     // Dispatch action to the caller first.
     for (WidgetIteratorType it  = this->Widget.begin();
                             it != this->Widget.end()  ; ++it)
-      {
+    {
       TWidget *w = static_cast<TWidget *>(*it);
       if (caller == w)
-        {
+      {
         ((*w).*(action))(caller);
         break;
-        }
       }
+    }
   //@}
 
     // Dispatch action to all other widgets
     for (WidgetIteratorType it  = this->Widget.begin();
                             it != this->Widget.end()  ; ++it)
-      {
+    {
       TWidget *w = static_cast<TWidget *>(*it);
       if (caller != w) ((*w).*(action))(caller);
-      }
     }
+  }
 
 protected:
   vtkWidgetSet();

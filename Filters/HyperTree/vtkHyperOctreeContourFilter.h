@@ -87,26 +87,26 @@ public:
    * between 0<=i<NumberOfContours.
    */
   void SetValue(int i, double value)
-    {
+  {
       this->ContourValues->SetValue(i,value);
-    }
+  }
 
   /**
    * Get the ith contour value.
    */
   double GetValue(int i)
-    {
+  {
       return this->ContourValues->GetValue(i);
-    }
+  }
 
   /**
    * Get a pointer to an array of contour values. There will be
    * GetNumberOfContours() values in the list.
    */
   double *GetValues()
-    {
+  {
       return this->ContourValues->GetValues();
-    }
+  }
 
   /**
    * Fill a supplied list with contour values. There will be
@@ -114,9 +114,9 @@ public:
    * enough memory to hold the list.
    */
   void GetValues(double *contourValues)
-    {
+  {
       this->ContourValues->GetValues(contourValues);
-    }
+  }
 
   /**
    * Set the number of contours to place into the list. You only really
@@ -124,26 +124,26 @@ public:
    * will automatically increase list size as needed.
    */
   void SetNumberOfContours(int number)
-    {
+  {
       this->ContourValues->SetNumberOfContours(number);
-    }
+  }
 
   /**
    * Get the number of contours in the list of contour values.
    */
   int GetNumberOfContours()
-    {
+  {
       return this->ContourValues->GetNumberOfContours();
-    }
+  }
 
   /**
    * Generate numContours equally spaced contour values between specified
    * range. Contour values will include min/max range values.
    */
   void GenerateValues(int numContours, double range[2])
-    {
+  {
       this->ContourValues->GenerateValues(numContours, range);
-    }
+  }
 
   /**
    * Generate numContours equally spaced contour values between specified
@@ -151,9 +151,9 @@ public:
    */
   void GenerateValues(int numContours, double
                       rangeStart, double rangeEnd)
-    {
+  {
       this->ContourValues->GenerateValues(numContours, rangeStart, rangeEnd);
-    }
+  }
 
   /**
    * Modified GetMTime Because we delegate to vtkContourValues

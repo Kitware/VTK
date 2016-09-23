@@ -57,13 +57,13 @@ void vtkHyperOctreeDualGridContourFilter::PrintSelf(ostream& os,
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
 
   if ( this->Locator )
-    {
+  {
     os << indent << "Locator: " << this->Locator << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Locator: (none)\n";
-    }
+  }
 }
 
 
@@ -109,10 +109,10 @@ vtkHyperOctreeDualGridContourFilter::~vtkHyperOctreeDualGridContourFilter()
 {
   this->ContourValues->Delete();
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -127,10 +127,10 @@ vtkMTimeType vtkHyperOctreeDualGridContourFilter::GetMTime()
   mTime = ( contourValuesMTime > mTime ? contourValuesMTime : mTime );
 
   if ( this->Locator != NULL )
-    {
+  {
     time = this->Locator->GetMTime();
     mTime = ( time > mTime ? time : mTime );
-    }
+  }
 
   return mTime;
 }
@@ -147,17 +147,17 @@ void vtkHyperOctreeDualGridContourFilter::GenerateTraversalTable()
   int cursor, child, newCursor, newChild;
 
   for (zChild = 0; zChild < 2; ++zChild)
-    {
+  {
     for (yChild = 0; yChild < 2; ++yChild)
-      {
+    {
       for (xChild = 0; xChild < 2; ++xChild)
-        {
+      {
         for (zCursor = 0; zCursor < 2; ++zCursor)
-          {
+        {
           for (yCursor = 0; yCursor < 2; ++yCursor)
-            {
+          {
             for (xCursor = 0; xCursor < 2; ++xCursor)
-              {
+            {
               // Compute the x, y, z index into the
               // 4x4x4 neighborhood of children.
               xNeighbor = xCursor + xChild;
@@ -178,12 +178,12 @@ void vtkHyperOctreeDualGridContourFilter::GenerateTraversalTable()
               newChild = xNewChild + 2*yNewChild + 4*zNewChild;
               this->NeighborhoodTraversalTable[8*child + cursor]
                       = newChild+ 8*newCursor;
-              }
             }
           }
         }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -198,57 +198,57 @@ void vtkHyperOctreeDualGridContourFilter::TraverseNeighborhoodRecursively(
   memset(childrenToTraverse,0,8);
 
   if ( ! neighborhood[0].GetIsLeaf())
-    { // Main cursor is a node.  Traverse all children.
+  { // Main cursor is a node.  Traverse all children.
     divide = 1;
     childrenToTraverse[0] = childrenToTraverse[1]
        = childrenToTraverse[2] = childrenToTraverse[3]
        = childrenToTraverse[4] = childrenToTraverse[5]
        = childrenToTraverse[6] = childrenToTraverse[7] = 1;
-    }
+  }
   else
-    {
+  {
     if (! neighborhood[1].GetIsLeaf() )
-      { // x face
+    { // x face
       divide = 1;
       childrenToTraverse[1] = childrenToTraverse[3]
          = childrenToTraverse[5] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[2].GetIsLeaf() )
-      { // y face
+    { // y face
       divide = 1;
       childrenToTraverse[2] = childrenToTraverse[3]
          = childrenToTraverse[6] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[4].GetIsLeaf() )
-      { // z face
+    { // z face
       divide = 1;
       childrenToTraverse[4] = childrenToTraverse[5]
          = childrenToTraverse[6] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[3].GetIsLeaf() )
-      { // xy edge
+    { // xy edge
       divide = 1;
       childrenToTraverse[3] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[5].GetIsLeaf() )
-      { // xz edge
+    { // xz edge
       divide = 1;
       childrenToTraverse[5] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[6].GetIsLeaf() )
-      { // xz edge
+    { // xz edge
       divide = 1;
       childrenToTraverse[6] = childrenToTraverse[7] = 1;
-      }
+    }
     if (! neighborhood[7].GetIsLeaf() )
-      { // xyz corner
+    { // xyz corner
       divide = 1;
       childrenToTraverse[7] = 1;
-      }
     }
+  }
 
   if (divide)
-    {
+  {
     int child;
     int neighbor;
     unsigned char tChild, tParent;
@@ -258,19 +258,19 @@ void vtkHyperOctreeDualGridContourFilter::TraverseNeighborhoodRecursively(
     // This might also be useful for 4d trees :)
     unsigned short newXYZIds[32];
     for (child = 0; child < 8; ++child)
-      {
+    {
       if (childrenToTraverse[child])
-        {
+      {
         unsigned short *inId;
         unsigned short *outId = newXYZIds;
         // Move each neighbor down to a child.
         for (neighbor = 0; neighbor < 8; ++neighbor)
-          {
+        {
           tChild = (*traversalTable) & 7;
           tParent = ((*traversalTable) & 248)>>3;
           inId = xyzIds+(tParent<<2); // Faster to multiply by 4 than 3.
           if (neighborhood[tParent].GetIsLeaf())
-            { // Parent is a leaf or this is an empty node.
+          { // Parent is a leaf or this is an empty node.
             // We can't traverse anymore.
             // equal operator should work for this class.
             newNeighborhood[neighbor] = neighborhood[tParent];
@@ -279,9 +279,9 @@ void vtkHyperOctreeDualGridContourFilter::TraverseNeighborhoodRecursively(
             *outId++ = *inId++;
             // We need an extra increment to skip over unused 4th id.
             ++outId;
-            }
+          }
           else
-            { // Move to child.
+          { // Move to child.
             // equal operator should work for this class.
             newNeighborhood[neighbor] = neighborhood[tParent];
             newNeighborhood[neighbor].ToChild(tChild);
@@ -292,18 +292,18 @@ void vtkHyperOctreeDualGridContourFilter::TraverseNeighborhoodRecursively(
             *outId++ = (*inId++ << 1) | ((tChild>>2)&1);
             // We need an extra increment to skip over unused 4th id.
             ++outId;
-            }
-          ++traversalTable;
           }
+          ++traversalTable;
+        }
         this->TraverseNeighborhoodRecursively(newNeighborhood, newXYZIds);
-        }
-      else
-        {
-        traversalTable += 8;
-        }
       }
-    return;
+      else
+      {
+        traversalTable += 8;
+      }
     }
+    return;
+  }
 
   // All neighbors must be leaves.
 
@@ -326,9 +326,9 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
       !neighborhood[2].GetTree() || !neighborhood[3].GetTree() ||
       !neighborhood[4].GetTree() || !neighborhood[5].GetTree() ||
       !neighborhood[6].GetTree() || !neighborhood[7].GetTree())
-    {
+  {
     return;
-    }
+  }
 
   static int edges[12][2] = { {0,1}, {1,2}, {2,3}, {0,3},
                               {4,5}, {5,6}, {6,7}, {4,7},
@@ -353,7 +353,7 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
   double scalars[8];
   double levelDim;
   for (int iter = 0; iter < 8; ++iter)
-    {
+  {
     // Note: we have to extent points on boundary of tree !!!
     scalars[iter] = this->InScalars->GetComponent(vertMap[iter],0);
     levelDim = static_cast<double>(1<<neighborhood[iter].GetLevel());
@@ -368,11 +368,11 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
       (static_cast<double>(*xyzIds++)+0.5)*(this->Size[2])/levelDim;
     // We need to skip over unused 4th id.
     ++xyzIds;
-    }
+  }
 
   int numContours=this->ContourValues->GetNumberOfContours();
   for (int iter = 0; iter < numContours; ++iter)
-    {
+  {
     double value = this->ContourValues->GetValue(iter);
 
     // The cell contour method had two problems:
@@ -395,46 +395,46 @@ void vtkHyperOctreeDualGridContourFilter::EvaluatePoint(
 
     // Build the case table
     for ( i=0, index = 0; i < 8; i++)
-      {
+    {
       if (scalars[i] >= value)
-        {
+      {
         index |= CASE_MASK[i];
-        }
       }
+    }
 
     triCase = vtkMarchingCubesTriangleCases::GetCases() + index;
     edge = triCase->edges;
 
     for ( ; edge[0] > -1; edge += 3 )
-      {
+    {
       for (i=0; i<3; i++) // insert triangle
-        {
+      {
         vert = edges[edge[i]];
         t = (value - scalars[vert[0]]) / (scalars[vert[1]] - scalars[vert[0]]);
         x1 = (points[vert[0]]);
         x2 = (points[vert[1]]);
         for (j=0; j<3; j++)
-          {
+        {
           x[j] = x1[j] + t * (x2[j] - x1[j]);
-          }
+        }
         if ( this->Locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           int p1 = vertMap[vert[0]];
           int p2 = vertMap[vert[1]];
           this->OutPD->InterpolateEdge(this->InPD,pts[i],p1,p2,t);
-          }
         }
+      }
       // check for degenerate triangle
       if ( pts[0] != pts[1] &&
            pts[0] != pts[2] &&
            pts[1] != pts[2] )
-        {
+      {
         this->NewPolys->InsertNextCell(3,pts);
         // We have no point data in the octree that would convert to cell data.
         //outCd->CopyData(inCd,cellId,newCellId);
-        }
       }
     }
+  }
 
   // We have passed all the tests, generate the dual cell.
   /*
@@ -499,34 +499,34 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if(this->Input->GetNumberOfLevels()==1)
-    {
+  {
     // just the root. There is absolutely no chance
     // to get an isosurface here.
     this->Input=0;
     return 1;
-    }
+  }
 
   if (this->Input->GetDimension() != 3)
-    {
+  {
     vtkErrorMacro("This class only handles 3d Octree's");
     return 1;
-    }
+  }
 
   this->InScalars=this->GetInputArrayToProcess(0,inputVector);
   if(this->InScalars==0)
-    {
+  {
     vtkDebugMacro(<<"No data to contour");
     this->Input=0;
     return 1;
-    }
+  }
 
   int numContours=this->ContourValues->GetNumberOfContours();
   if(numContours==0)
-    {
+  {
     vtkDebugMacro(<<"No contour");
     this->Input=0;
     return 1;
-    }
+  }
 
   double *values=this->ContourValues->GetValues();
 
@@ -538,16 +538,16 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
   int i=0;
   int allOut=1;
   while(allOut && i<numContours)
-    {
+  {
     allOut=(values[i]<range[0]) || (values[i]>range[1]);
     ++i;
-    }
+  }
   if(allOut)
-    {
+  {
     // empty output
     this->Input=0;
     return 1;
-    }
+  }
 
   this->Output=vtkPolyData::SafeDownCast(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
@@ -568,9 +568,9 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
 
   // locator used to merge potentially duplicate points
   if ( this->Locator == NULL )
-    {
+  {
     this->CreateDefaultLocator();
-    }
+  }
 
   this->Locator->InitPointInsertion (newPoints, this->Input->GetBounds());
 
@@ -608,20 +608,20 @@ int vtkHyperOctreeDualGridContourFilter::RequestData(
 void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkIncrementalPointLocator *locator)
 {
   if ( this->Locator == locator)
-    {
+  {
     return;
-    }
+  }
 
   if ( this->Locator )
-    {
+  {
     this->Locator->UnRegister(this);
     this->Locator = NULL;
-    }
+  }
 
   if ( locator )
-    {
+  {
     locator->Register(this);
-    }
+  }
 
   this->Locator = locator;
   this->Modified();
@@ -631,11 +631,11 @@ void vtkHyperOctreeDualGridContourFilter::SetLocator(vtkIncrementalPointLocator 
 void vtkHyperOctreeDualGridContourFilter::CreateDefaultLocator()
 {
   if ( this->Locator == NULL )
-    {
+  {
     this->Locator = vtkMergePoints::New();
     this->Locator->Register(this);
     this->Locator->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

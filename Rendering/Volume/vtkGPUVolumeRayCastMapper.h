@@ -199,9 +199,9 @@ public:
    */
   virtual int IsRenderSupported(vtkRenderWindow *vtkNotUsed(window),
                                 vtkVolumeProperty *vtkNotUsed(property))
-    {
+  {
       return 0;
-    }
+  }
 
   void CreateCanonicalView( vtkRenderer *ren,
                             vtkVolume *volume,

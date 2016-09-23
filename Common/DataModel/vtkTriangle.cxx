@@ -35,10 +35,10 @@ vtkTriangle::vtkTriangle()
   this->Points->SetNumberOfPoints(3);
   this->PointIds->SetNumberOfIds(3);
   for (int i = 0; i < 3; i++)
-    {
+  {
     this->Points->SetPoint(i, 0.0, 0.0, 0.0);
     this->PointIds->SetId(i,0);
-    }
+  }
   this->Line = vtkLine::New();
 }
 
@@ -101,42 +101,42 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
   // work since we've projected point to plane.)
   //
   for (maxComponent=0.0, i=0; i<3; i++)
-    {
+  {
     // trying to avoid an expensive call to fabs()
     if (n[i] < 0)
-      {
+    {
       fabsn = -n[i];
-      }
+    }
     else
-      {
+    {
       fabsn = n[i];
-      }
+    }
     if (fabsn > maxComponent)
-      {
+    {
       maxComponent = fabsn;
       idx = i;
-      }
     }
+  }
   for (j=0, i=0; i<3; i++)
-    {
+  {
     if ( i != idx )
-      {
+    {
       indices[j++] = i;
-      }
     }
+  }
 
   for (i=0; i<2; i++)
-    {
+  {
     rhs[i] = cp[indices[i]] - pt3[indices[i]];
     c1[i] = pt1[indices[i]] - pt3[indices[i]];
     c2[i] = pt2[indices[i]] - pt3[indices[i]];
-    }
+  }
 
   if ( (det = vtkMath::Determinant2x2(c1,c2)) == 0.0 )
-    {
+  {
     pcoords[0] = pcoords[1] = 0.0;
     return -1;
-    }
+  }
 
   pcoords[0] = vtkMath::Determinant2x2(rhs,c2) / det;
   pcoords[1] = vtkMath::Determinant2x2(c1,rhs) / det;
@@ -150,112 +150,112 @@ int vtkTriangle::EvaluatePosition(double x[3], double* closestPoint,
   if ( weights[0] >= 0.0 && weights[0] <= 1.0 &&
        weights[1] >= 0.0 && weights[1] <= 1.0 &&
        weights[2] >= 0.0 && weights[2] <= 1.0 )
-    {
+  {
     //projection distance
     if (closestPoint)
-      {
+    {
       dist2 = vtkMath::Distance2BetweenPoints(cp,x);
       closestPoint[0] = cp[0];
       closestPoint[1] = cp[1];
       closestPoint[2] = cp[2];
-      }
-    return 1;
     }
+    return 1;
+  }
   else
-    {
+  {
     double t;
     if (closestPoint)
-      {
+    {
       if ( weights[1] < 0.0 && weights[2] < 0.0 )
-        {
+      {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt3);
         dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
         dist2Line2 = vtkLine::DistanceToLine(x,pt3,pt2,t,closestPoint2);
         if (dist2Point < dist2Line1)
-          {
+        {
           dist2 = dist2Point;
           closest = pt3;
-          }
+        }
         else
-          {
+        {
           dist2 = dist2Line1;
           closest = closestPoint1;
-          }
+        }
         if (dist2Line2 < dist2)
-          {
+        {
           dist2 = dist2Line2;
           closest = closestPoint2;
-          }
-        for (i=0; i<3; i++)
-          {
-          closestPoint[i] = closest[i];
-          }
         }
-      else if ( weights[2] < 0.0 && weights[0] < 0.0 )
+        for (i=0; i<3; i++)
         {
+          closestPoint[i] = closest[i];
+        }
+      }
+      else if ( weights[2] < 0.0 && weights[0] < 0.0 )
+      {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt1);
         dist2Line1 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint1);
         dist2Line2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint2);
         if (dist2Point < dist2Line1)
-          {
+        {
           dist2 = dist2Point;
           closest = pt1;
-          }
+        }
         else
-          {
+        {
           dist2 = dist2Line1;
           closest = closestPoint1;
-          }
+        }
         if (dist2Line2 < dist2)
-          {
+        {
           dist2 = dist2Line2;
           closest = closestPoint2;
-          }
-        for (i=0; i<3; i++)
-          {
-          closestPoint[i] = closest[i];
-          }
         }
-      else if ( weights[1] < 0.0 && weights[0] < 0.0 )
+        for (i=0; i<3; i++)
         {
+          closestPoint[i] = closest[i];
+        }
+      }
+      else if ( weights[1] < 0.0 && weights[0] < 0.0 )
+      {
         dist2Point = vtkMath::Distance2BetweenPoints(x,pt2);
         dist2Line1 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint1);
         dist2Line2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint2);
         if (dist2Point < dist2Line1)
-          {
+        {
           dist2 = dist2Point;
           closest = pt2;
-          }
+        }
         else
-          {
+        {
           dist2 = dist2Line1;
           closest = closestPoint1;
-          }
+        }
         if (dist2Line2 < dist2)
-          {
+        {
           dist2 = dist2Line2;
           closest = closestPoint2;
-          }
+        }
         for (i=0; i<3; i++)
-          {
+        {
           closestPoint[i] = closest[i];
-          }
-        }
-      else if ( weights[0] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
-        }
-      else if ( weights[1] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
-        }
-      else if ( weights[2] < 0.0 )
-        {
-        dist2 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint);
         }
       }
-    return 0;
+      else if ( weights[0] < 0.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt1,pt2,t,closestPoint);
+      }
+      else if ( weights[1] < 0.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt2,pt3,t,closestPoint);
+      }
+      else if ( weights[2] < 0.0 )
+      {
+        dist2 = vtkLine::DistanceToLine(x,pt1,pt3,t,closestPoint);
+      }
     }
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -273,9 +273,9 @@ void vtkTriangle::EvaluateLocation(int& vtkNotUsed(subId), double pcoords[3],
   u3 = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)
-    {
+  {
     x[i] = pt0[i]*u3 + pt1[i]*pcoords[0] + pt2[i]*pcoords[1];
-    }
+  }
 
   weights[0] = u3;
   weights[1] = pcoords[0];
@@ -319,33 +319,33 @@ int vtkTriangle::CellBoundary(int vtkNotUsed(subId), double pcoords[3],
   // compare against three lines in parametric space that divide element
   // into three pieces
   if ( t1 >= 0.0 && t2 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(0));
     pts->SetId(1,this->PointIds->GetId(1));
-    }
+  }
 
   else if ( t2 < 0.0 && t3 >= 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(1));
     pts->SetId(1,this->PointIds->GetId(2));
-    }
+  }
 
   else //( t1 < 0.0 && t3 < 0.0 )
-    {
+  {
     pts->SetId(0,this->PointIds->GetId(2));
     pts->SetId(1,this->PointIds->GetId(0));
-    }
+  }
 
   if ( pcoords[0] < 0.0 || pcoords[1] < 0.0 ||
        pcoords[0] > 1.0 || pcoords[1] > 1.0 ||
        (1.0 - pcoords[0] - pcoords[1]) < 0.0 )
-    {
+  {
     return 0;
-    }
+  }
   else
-    {
+  {
     return 1;
-    }
+  }
 
 }
 
@@ -398,68 +398,68 @@ void vtkTriangle::Contour(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   for ( i=0, index = 0; i < 3; i++)
-    {
+  {
     if (cellScalars->GetComponent(i,0) >= value)
-      {
+    {
       index |= CASE_MASK[i];
-      }
     }
+  }
 
   lineCase = lineCases + index;
   edge = lineCase->edges;
 
   for ( ; edge[0] > -1; edge += 2 )
-    {
+  {
     for (i=0; i<2; i++) // insert line
-      {
+    {
       vert = edges[edge[i]];
       // calculate a preferred interpolation direction
       deltaScalar = (cellScalars->GetComponent(vert[1],0)
                      - cellScalars->GetComponent(vert[0],0));
       if (deltaScalar > 0)
-        {
+      {
         e1 = vert[0]; e2 = vert[1];
-        }
+      }
       else
-        {
+      {
         e1 = vert[1]; e2 = vert[0];
         deltaScalar = -deltaScalar;
-        }
+      }
 
       // linear interpolation
       if (deltaScalar == 0.0)
-        {
+      {
         t = 0.0;
-        }
+      }
       else
-        {
+      {
         t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
-        }
+      }
 
       this->Points->GetPoint(e1, x1);
       this->Points->GetPoint(e2, x2);
 
       for (j=0; j<3; j++)
-        {
+      {
         x[j] = x1[j] + t * (x2[j] - x1[j]);
-        }
+      }
       if ( locator->InsertUniquePoint(x, pts[i]) )
-        {
+      {
         if ( outPd )
-          {
+        {
           vtkIdType p1 = this->PointIds->GetId(e1);
           vtkIdType p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate line
     if ( pts[0] != pts[1] )
-      {
+    {
       newCellId = offset + lines->InsertNextCell(2,pts);
       outCd->CopyData(inCd,cellId,newCellId);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -503,28 +503,28 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
 
   vtkTriangle::ComputeNormal (pt1, pt2, pt3, n);
   if (n[0] != 0 || n[1] != 0 || n[2] != 0)
-    {
+  {
     // Intersect plane of triangle with line
     //
     if ( ! vtkPlane::IntersectWithLine(p1,p2,n,pt1,t,x) )
-      {
+    {
       pcoords[0] = pcoords[1] = 0.0;
       return 0;
-      }
+    }
 
     // Evaluate position
     //
     int inside;
     if ( (inside = this->EvaluatePosition(x, closestPoint, subId, pcoords,
           dist2, weights)) >= 0)
-      {
+    {
       if ( dist2 <= tol2 )
-        {
+      {
         return 1;
-        }
-      return inside;
       }
+      return inside;
     }
+  }
 
   // Normals are null, so the triangle is degenerated and
   // we still need to check intersection between line and
@@ -533,37 +533,37 @@ int vtkTriangle::IntersectWithLine(double p1[3], double p2[3], double tol,
   double dist2Pt2Pt3 = vtkMath::Distance2BetweenPoints(pt2, pt3);
   double dist2Pt3Pt1 = vtkMath::Distance2BetweenPoints(pt3, pt1);
   if (dist2Pt1Pt2 > dist2Pt2Pt3 && dist2Pt1Pt2 > dist2Pt3Pt1)
-    {
+  {
     this->Line->Points->InsertPoint(0,pt1);
     this->Line->Points->InsertPoint(1,pt2);
-    }
+  }
   else if (dist2Pt2Pt3 > dist2Pt3Pt1 && dist2Pt2Pt3 > dist2Pt1Pt2)
-    {
+  {
     this->Line->Points->InsertPoint(0,pt2);
     this->Line->Points->InsertPoint(1,pt3);
-    }
+  }
   else
-    {
+  {
     this->Line->Points->InsertPoint(0,pt3);
     this->Line->Points->InsertPoint(1,pt1);
-    }
+  }
 
   if (this->Line->IntersectWithLine(p1,p2,tol,t,x,pcoords,subId))
-    {
+  {
     // Compute r and s manually, using dot and norm.
     double pt3Pt1[3];
     double pt3Pt2[3];
     double pt3X[3];
     for (int i = 0; i < 3; i++)
-      {
+    {
       pt3Pt1[i] = pt1[i] - pt3[i];
       pt3Pt2[i] = pt2[i] - pt3[i];
       pt3X[i] = x[i] - pt3[i];
-      }
+    }
     pcoords[0] = vtkMath::Dot(pt3X, pt3Pt1) / dist2Pt3Pt1;
     pcoords[1] = vtkMath::Dot(pt3X, pt3Pt2) / dist2Pt2Pt3;
     return 1;
-    }
+  }
 
   pcoords[0] = pcoords[1] = 0.0;
   return 0;
@@ -577,10 +577,10 @@ int vtkTriangle::Triangulate(int vtkNotUsed(index), vtkIdList *ptIds,
   ptIds->Reset();
 
   for ( int i=0; i < 3; i++ )
-    {
+  {
     ptIds->InsertId(i,this->PointIds->GetId(i));
     pts->InsertPoint(i,this->Points->GetPoint(i));
-    }
+  }
 
   return 1;
 }
@@ -605,25 +605,25 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
   vtkTriangle::ComputeNormal (x0, x1, x2, n);
 
   for (i=0; i < 3; i++)
-    {
+  {
     v10[i] = x1[i] - x0[i];
     v[i] = x2[i] - x0[i];
-    }
+  }
 
   vtkMath::Cross(n,v10,v20); //creates local y' axis
 
   if ( (lenX=vtkMath::Normalize(v10)) <= 0.0
        || vtkMath::Normalize(v20) <= 0.0 ) //degenerate
-    {
+  {
     for ( j=0; j < dim; j++ )
-      {
+    {
       for ( i=0; i < 3; i++ )
-        {
+      {
         derivs[j*dim + i] = 0.0;
-        }
       }
-    return;
     }
+    return;
+  }
 
   v0[0] = v0[1] = 0.0; //convert points to 2D (i.e., local system)
   v1[0] = lenX; v1[1] = 0.0;
@@ -649,13 +649,13 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
   // derivatives in local system and then transform into modelling system.
   // First compute derivatives in local x'-y' coordinate system
   for ( j=0; j < dim; j++ )
-    {
+  {
     sum[0] = sum[1] = 0.0;
     for ( i=0; i < 3; i++) //loop over interp. function derivatives
-      {
+    {
       sum[0] += functionDerivs[i] * values[dim*i + j];
       sum[1] += functionDerivs[3 + i] * values[dim*i + j];
-      }
+    }
     dBydx = sum[0]*JI[0][0] + sum[1]*JI[0][1];
     dBydy = sum[0]*JI[1][0] + sum[1]*JI[1][1];
 
@@ -663,7 +663,7 @@ void vtkTriangle::Derivatives(int vtkNotUsed(subId), double vtkNotUsed(pcoords)[
     derivs[3*j] = dBydx * v10[0] + dBydy * v20[0];
     derivs[3*j + 1] = dBydx * v10[1] + dBydy * v20[1];
     derivs[3*j + 2] = dBydx * v10[2] + dBydy * v20[2];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -696,12 +696,12 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
   //  calculate normals and intersection points of bisecting planes.
   //
   for (i=0; i<2; i++)
-    {
+  {
     n12[i] = x2[i] - x1[i];
     n13[i] = x3[i] - x1[i];
     x12[i] = (x2[i] + x1[i])/2.0;
     x13[i] = (x3[i] + x1[i])/2.0;
-    }
+  }
 
   //  Compute solutions to the intersection of two bisecting lines
   //  (2-eqns. in 2-unknowns).
@@ -717,34 +717,34 @@ double vtkTriangle::Circumcircle(double  x1[2], double x2[2], double x3[2],
   // Solve system of equations
   //
   if ( vtkMath::SolveLinearSystem(A,rhs,2) == 0 )
-    {
+  {
     center[0] = center[1] = 0.0;
     return VTK_DOUBLE_MAX;
-    }
+  }
   else
-    {
+  {
     center[0] = rhs[0]; center[1] = rhs[1];
-    }
+  }
 
   //determine average value of radius squared
   for (sum=0, i=0; i<2; i++)
-    {
+  {
     diff = x1[i] - center[i];
     sum += diff*diff;
     diff = x2[i] - center[i];
     sum += diff*diff;
     diff = x3[i] - center[i];
     sum += diff*diff;
-    }
+  }
 
   if ( (sum /= 3.0) > VTK_DOUBLE_MAX )
-    {
+  {
     return VTK_DOUBLE_MAX;
-    }
+  }
   else
-    {
+  {
     return sum;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -778,17 +778,17 @@ int vtkTriangle::BarycentricCoords(double x[2], double  x1[2], double x2[2],
   A[2] = a3;
 
   if ( vtkMath::SolveLinearSystem(A,p,3) )
-    {
+  {
     for (i=0; i<3; i++)
-      {
-      bcoords[i] = p[i];
-      }
-    return 1;
-    }
-  else
     {
-    return 0;
+      bcoords[i] = p[i];
     }
+    return 1;
+  }
+  else
+  {
+    return 0;
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -804,15 +804,15 @@ int vtkTriangle::ProjectTo2D(double x1[3], double x2[3], double x3[3],
   vtkTriangle::ComputeNormal (x1, x2, x3, n);
 
   for (int i=0; i < 3; i++)
-    {
+  {
     v21[i] = x2[i] - x1[i];
     v31[i] = x3[i] - x1[i];
-    }
+  }
 
   if ( (xLen=vtkMath::Normalize(v21)) <= 0.0 )
-    {
+  {
     return 0;
-    }
+  }
 
   // The first point is at (0,0); the next at (xLen,0); compute the other
   // point relative to the first two.
@@ -868,25 +868,25 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
 
   // Build the case table
   if ( insideOut )
-    {
+  {
     for ( i=0, index = 0; i < 3; i++)
-      {
+    {
       if (cellScalars->GetComponent(i,0) <= value)
-        {
-        index |= CASE_MASK[i];
-        }
-      }
-    }
-  else
-    {
-    for ( i=0, index = 0; i < 3; i++)
       {
-      if (cellScalars->GetComponent(i,0) > value)
-        {
         index |= CASE_MASK[i];
-        }
       }
     }
+  }
+  else
+  {
+    for ( i=0, index = 0; i < 3; i++)
+    {
+      if (cellScalars->GetComponent(i,0) > value)
+      {
+        index |= CASE_MASK[i];
+      }
+    }
+  }
 
   // Select the case based on the index and get the list of edges for this case
   triangleCase = triangleCases + index;
@@ -894,71 +894,71 @@ void vtkTriangle::Clip(double value, vtkDataArray *cellScalars,
 
   // generate each triangle
   for ( ; edge[0] > -1; edge += 3 )
-    {
+  {
     for (i=0; i<3; i++) // insert triangle
-      {
+    {
       // vertex exists, and need not be interpolated
       if (edge[i] >= 100)
-        {
+      {
         vertexId = edge[i] - 100;
         this->Points->GetPoint(vertexId, x);
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           outPd->CopyData(inPd,this->PointIds->GetId(vertexId),pts[i]);
-          }
         }
+      }
 
       else //new vertex, interpolate
-        {
+      {
         vert = edges[edge[i]];
 
         // calculate a preferred interpolation direction
         deltaScalar = (cellScalars->GetComponent(vert[1],0) -
                        cellScalars->GetComponent(vert[0],0));
         if (deltaScalar > 0)
-          {
+        {
           e1 = vert[0]; e2 = vert[1];
-          }
+        }
         else
-          {
+        {
            e1 = vert[1]; e2 = vert[0];
            deltaScalar = -deltaScalar;
-          }
+        }
 
         // linear interpolation
         if (deltaScalar == 0.0)
-          {
+        {
           t = 0.0;
-          }
+        }
         else
-          {
+        {
           t = (value - cellScalars->GetComponent(e1,0)) / deltaScalar;
-          }
+        }
 
         this->Points->GetPoint(e1, x1);
         this->Points->GetPoint(e2, x2);
 
         for (j=0; j<3; j++)
-          {
+        {
           x[j] = x1[j] + t * (x2[j] - x1[j]);
-          }
+        }
         if ( locator->InsertUniquePoint(x, pts[i]) )
-          {
+        {
           vtkIdType p1 = this->PointIds->GetId(e1);
           vtkIdType p2 = this->PointIds->GetId(e2);
           outPd->InterpolateEdge(inPd,pts[i],p1,p2,t);
-          }
         }
       }
+    }
     // check for degenerate tri's
     if (pts[0] == pts[1] || pts[0] == pts[2] || pts[1] == pts[2])
-      {
+    {
       continue;
-      }
+    }
 
     newCellId = tris->InsertNextCell(3,pts);
     outCd->CopyData(inCd,cellId,newCellId);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -977,23 +977,23 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
   //  Compute appropriate vectors
   //
   for (i=0; i<3; i++)
-    {
+  {
     x1[i] = x[i] - p1[i];
     x2[i] = x[i] - p2[i];
     x3[i] = x[i] - p3[i];
     v13[i] = p1[i] - p3[i];
     v21[i] = p2[i] - p1[i];
     v32[i] = p3[i] - p2[i];
-    }
+  }
 
   //  See whether intersection point is within tolerance of a vertex.
   //
   if ( (x1[0]*x1[0] + x1[1]*x1[1] + x1[2]*x1[2]) <= tol2 ||
   (x2[0]*x2[0] + x2[1]*x2[1] + x2[2]*x2[2]) <= tol2 ||
   (x3[0]*x3[0] + x3[1]*x3[1] + x3[2]*x3[2]) <= tol2 )
-    {
+  {
     return 1;
-    }
+  }
 
   //  If not near a vertex, check whether point is inside of triangular face.
   //
@@ -1008,13 +1008,13 @@ int vtkTriangle::PointInTriangle(double x[3], double p1[3], double p2[3],
   if ( (vtkMath::Dot(n1,n2) >= 0.0) &&
        (vtkMath::Dot(n2,n3) >= 0.0) &&
        (vtkMath::Dot(n1,n3) >= 0.0) )
-    {
+  {
     return 1;
-    }
+  }
   else
-    {
+  {
     return 0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -1029,24 +1029,24 @@ double vtkTriangle::GetParametricDistance(double pcoords[3])
   pc[2] = 1.0 - pcoords[0] - pcoords[1];
 
   for (i=0; i<3; i++)
-    {
+  {
     if ( pc[i] < 0.0 )
-      {
+    {
       pDist = -pc[i];
-      }
-    else if ( pc[i] > 1.0 )
-      {
-      pDist = pc[i] - 1.0;
-      }
-    else //inside the cell in the parametric direction
-      {
-      pDist = 0.0;
-      }
-    if ( pDist > pDistMax )
-      {
-      pDistMax = pDist;
-      }
     }
+    else if ( pc[i] > 1.0 )
+    {
+      pDist = pc[i] - 1.0;
+    }
+    else //inside the cell in the parametric direction
+    {
+      pDist = 0.0;
+    }
+    if ( pDist > pDistMax )
+    {
+      pDistMax = pDist;
+    }
+  }
 
   return pDistMax;
 }
@@ -1063,11 +1063,11 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
   int i, j;
 
   for (i = 0; i < 3; i++)
-    {
+  {
     ABCx[0][i] = x1[i];
     ABCx[1][i] = x2[i];
     ABCx[2][i] = x3[i];
-    }
+  }
 
   vtkMath::Cross(x1, x2, crossX1X2);
   vtkMath::Cross(x2, x3, crossX2X3);
@@ -1080,12 +1080,12 @@ void vtkTriangle::ComputeQuadric(double x1[3], double x2[3], double x3[3],
   n[3] = -determinantABC;
 
   for (i = 0; i < 4; i++)
-    {
+  {
     for (j = 0; j < 4; j++)
-      {
+    {
       quadric[i][j] = n[i] * n[j];
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

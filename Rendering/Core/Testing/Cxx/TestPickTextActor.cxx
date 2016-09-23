@@ -46,11 +46,11 @@ int TestPickTextActor(int, char*[])
   picker->Pick(145, 145, 0.0, renderer.Get());
   vtkActor2D* pickedActor = picker->GetActor2D();
   if (pickedActor != actor1.Get())
-    {
+  {
     std::cout << "Incorrect actor picked!" << std::endl;
     std::cout << "Should have been " << actor1.Get() << ", but was " << pickedActor << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

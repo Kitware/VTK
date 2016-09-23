@@ -38,15 +38,15 @@ vtkAMRBox::vtkAMRBox(const double* origin, const int* dimensions, const double* 
 {
   int ndim[3];
   for( int d=0; d<3; ++d )
-    {
+  {
     ndim[d] = dimensions[d]-1;
-    }
+  }
   int lo[3], hi[3];
   for( int d=0; d<3; ++d )
-    {
+  {
     lo[d] = spacing[d]>0? vtkMath::Round( (origin[d] - globalOrigin[d])/spacing[d] ): 0;
     hi[d] = lo[d] + ndim[d]-1;
-    }
+  }
 
   this->SetDimensions( lo, hi, gridDescription);
 }
@@ -95,10 +95,10 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 
   if (this==&other) return *this;
   for(int i=0; i<3; i++)
-    {
+  {
     this->LoCorner[i] = other.LoCorner[i];
     this->HiCorner[i] = other.HiCorner[i];
-    }
+  }
   return *this;
 }
 
@@ -106,10 +106,10 @@ vtkAMRBox &vtkAMRBox::operator=(const vtkAMRBox &other)
 void vtkAMRBox::Initialize( )
 {
   for( int i=0; i < 3; ++i )
-    {
+  {
     this->LoCorner[ i ] = 0;
     this->HiCorner[ i ] = 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -126,7 +126,7 @@ void vtkAMRBox::SetDimensions(
   this->HiCorner[2]= khi;
 
   switch( desc )
-    {
+  {
     case VTK_XY_PLANE:
       this->HiCorner[2] = this->LoCorner[2]-1;
       break;
@@ -136,7 +136,7 @@ void vtkAMRBox::SetDimensions(
     case VTK_YZ_PLANE:
       this->HiCorner[0] = this->LoCorner[0]-1;
       break;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -160,10 +160,10 @@ void vtkAMRBox::GetDimensions(int *lo, int *hi) const
 {
  assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
-    {
+  {
     lo[q]=this->LoCorner[q];
     hi[q]=this->HiCorner[q];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -183,9 +183,9 @@ void vtkAMRBox::GetValidHiCorner(int *hi) const
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   for (int q=0; q < 3; ++q)
-    {
+  {
     hi[q] = this->EmptyDimension(q)? this->LoCorner[q]: this->HiCorner[q];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -195,9 +195,9 @@ void vtkAMRBox::GetBoxOrigin(const vtkAMRBox& extent, const double X0[3], const 
   x0[0] = x0[1] = x0[2] = 0.0;
 
   for( int i=0; i < 3; ++i )
-    {
+  {
     x0[i] = X0[i]+ extent.GetLoCorner()[i]*spacing[i];
-    }
+  }
 }
 
 
@@ -206,10 +206,10 @@ void vtkAMRBox::GetBounds(const vtkAMRBox& extent, const double origin[3], const
 {
   int i, j;
   for( i=0, j=0; i < 3; ++i )
-    {
+  {
     bounds[ j++ ] = origin[i]+extent.LoCorner[i]*spacing[i];
     bounds[ j++ ] = origin[i]+(extent.HiCorner[i]+1)*spacing[i];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -225,9 +225,9 @@ bool vtkAMRBox::HasPoint(const vtkAMRBox& box, const double origin[3], const dou
   if( x >= min[0] && x <= max[0] &&
       y >= min[1] && y <= max[1] &&
       z >= min[2] && z <= max[2]   )
-    {
+  {
     return true;
-    }
+  }
   return false;
 
 }
@@ -242,9 +242,9 @@ bool vtkAMRBox::operator==(const vtkAMRBox &other) const
          && this->HiCorner[0]==other.HiCorner[0]
          && this->HiCorner[1]==other.HiCorner[1]
          && this->HiCorner[2]==other.HiCorner[2]))
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -313,21 +313,21 @@ bool vtkAMRBox::IntersectBoxAlongDimension(const vtkAMRBox &other, const int q)
 {
   assert( "pre: dimension is out-of-bounds!" && (q >= 0) && (q <= 2) );
   if(this->EmptyDimension(q) || other.EmptyDimension(q))
-    {
+  {
     return false;
-    }
+  }
   if( this->LoCorner[q] <= other.LoCorner[q] )
-    {
+  {
     this->LoCorner[q] = other.LoCorner[q];
-    }
+  }
   if (this->HiCorner[q] >= other.HiCorner[q])
-    {
+  {
     this->HiCorner[q] = other.HiCorner[q];
-    }
+  }
   if (this->LoCorner[q] >= this->HiCorner[q])
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -336,9 +336,9 @@ bool vtkAMRBox::Intersect(const vtkAMRBox &other)
   if( !this->IntersectBoxAlongDimension(other,0) ||
       !this->IntersectBoxAlongDimension(other,1) ||
       !this->IntersectBoxAlongDimension(other,2) )
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -357,21 +357,21 @@ int vtkAMRBox::GetCellLinearIndex(const vtkAMRBox& box, const int i, const int j
   // that correspond to the non-null dimensions
   int nd(0);
   for(int d=0; d<3; d++)
-    {
+  {
     if(!box.EmptyDimension(d))
-      {
+    {
       N[nd] = N[d];
       I[nd] = I[d];
       assert(I[nd]>=0 && I[nd]<N[nd]);
       nd++;
-      }
     }
+  }
 
   int idx=0;
   for(int d=nd-1; d>=0; d--)
-    {
+  {
     idx= idx*N[d]+I[d];
-    }
+  }
   return idx;
 }
 
@@ -383,24 +383,24 @@ void vtkAMRBox::Coarsen(int r)
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   if( this->Empty() )
-    {
+  {
     std::cerr << "WARNING: tried refining an empty AMR box!\n";
     std::cerr << "FILE:" << __FILE__ << std::endl;
     std::cerr << "LINE:" << __LINE__ << std::endl;
     std::cerr.flush();
     return;
-    }
+  }
   for(int q=0; q < 3; ++q )
-    {
+  {
     if(this->EmptyDimension(q))
-      {
+    {
       continue;
-      }
+    }
     this->LoCorner[q]=( (this->LoCorner[q] < 0)?
             -abs(this->LoCorner[q]+1)/r-1 : this->LoCorner[q]/r);
     this->HiCorner[q]=( this->HiCorner[q]<0 ?
             -abs(this->HiCorner[q]+1)/r-1 : this->HiCorner[q]/r);
-    }
+  }
   assert( "post: Coarsened AMR box should not be empty!" && !this->Empty() );
   assert( "post: Coarsened AMR Box instance is invalid" && !this->IsInvalid() );
 }
@@ -411,21 +411,21 @@ void vtkAMRBox::Refine(int r)
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
 
   if( this->Empty() )
-    {
+  {
     std::cerr << "WARNING: tried refining an empty AMR box!\n";
     std::cerr << "FILE:" << __FILE__ << std::endl;
     std::cerr << "LINE:" << __LINE__ << std::endl;
     std::cerr.flush();
     return;
-    }
+  }
   for(int q=0; q < 3; ++q )
-    {
+  {
     if(!this->EmptyDimension(q))
-      {
+    {
       this->LoCorner[q]=this->LoCorner[q]*r;
       this->HiCorner[q]=(this->HiCorner[q]+1)*r-1;
-      }
     }
+  }
   assert( "post: Refined AMR box should not be empty!" && !this->Empty() );
   assert( "post: Refined AMR Box instance is invalid" && !this->IsInvalid() );
 
@@ -436,9 +436,9 @@ bool vtkAMRBox::DoesBoxIntersectAlongDimension(
       const vtkAMRBox &other, const int q) const
 {
   if(this->EmptyDimension(q) && other.EmptyDimension(q))
-    {
+  {
     return true;
-    }
+  }
   int minVal = 0;
   int maxVal = 0;
   minVal = (this->LoCorner[q] < other.LoCorner[q]) ?
@@ -447,9 +447,9 @@ bool vtkAMRBox::DoesBoxIntersectAlongDimension(
       other.HiCorner[q] : this->HiCorner[q];
 
   if (minVal >= maxVal)
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -458,19 +458,19 @@ bool vtkAMRBox::DoesIntersect(const vtkAMRBox &other) const
 {
   assert( "pre: AMR Box instance is invalid" && !this->IsInvalid() );
   if (this->Empty())
-    {
+  {
     return false;
-    }
+  }
   if (other.Empty())
-    {
+  {
     return false;
-    }
+  }
   if( !this->DoesBoxIntersectAlongDimension(other,0) ||
       !this->DoesBoxIntersectAlongDimension(other,1) ||
       !this->DoesBoxIntersectAlongDimension(other,2) )
-    {
+  {
     return false;
-    }
+  }
   return true;
 }
 
@@ -495,9 +495,9 @@ void vtkAMRBox::GetGhostVector(int r, int nghost[6]) const
 {
   // STEP 0: initialize nghost
   for( int i=0; i < 3; ++i )
-    {
+  {
     nghost[i*2] = nghost[i*2+1] = 0;
-    }
+  }
 
   // STEP 1: compute number of ghost layers along each dimension's min and max.
   // Detecting partially overlapping boxes is based on the following:
@@ -509,26 +509,26 @@ void vtkAMRBox::GetGhostVector(int r, int nghost[6]) const
   vtkAMRBox coarsenedBox = *this;
   coarsenedBox.Coarsen(r);
   for( int i=0; i < 3; ++i )
-    {
+  {
     if(!this->EmptyDimension(i))
-      {
+    {
       int minRange[2];
       minRange[0] = coarsenedBox.LoCorner[i]*r;
       minRange[1] = coarsenedBox.LoCorner[i]*r + (r-1);
       if( this->LoCorner[i] > minRange[0] )
-        {
+      {
         nghost[i*2]=(minRange[1]+1)- this->LoCorner[i];
-        }
+      }
 
       int maxRange[2];
       maxRange[0] = coarsenedBox.HiCorner[i]*r;
       maxRange[1] = coarsenedBox.HiCorner[i]*r + (r-1);
       if( this->HiCorner[i] < maxRange[1] )
-        {
+      {
         nghost[i*2+1] = this->HiCorner[i]-(maxRange[0]-1);
-        }
       }
-    } // END for all dimensions
+    }
+  } // END for all dimensions
 }
 
 void vtkAMRBox::RemoveGhosts(int r)
@@ -541,26 +541,26 @@ void vtkAMRBox::RemoveGhosts(int r)
   vtkAMRBox coarsenedBox = *this;
   coarsenedBox.Coarsen(r);
   for( int i=0; i < 3; ++i )
-    {
+  {
     if(!this->EmptyDimension(i))
-      {
+    {
       int minRange[2];
       minRange[0] = coarsenedBox.LoCorner[i]*r;
       minRange[1] = coarsenedBox.LoCorner[i]*r + (r-1);
       if( this->LoCorner[i] > minRange[0] )
-        {
+      {
         this->LoCorner[i]=(minRange[1]+1);
-        }
+      }
 
       int maxRange[2];
       maxRange[0] = coarsenedBox.HiCorner[i]*r;
       maxRange[1] = coarsenedBox.HiCorner[i]*r + (r-1);
       if( this->HiCorner[i] < maxRange[1] )
-        {
+      {
         this->HiCorner[i] = (maxRange[0]-1);
-        }
       }
-    } // END for all dimensions
+    }
+  } // END for all dimensions
 }
 
 
@@ -568,12 +568,12 @@ int vtkAMRBox::ComputeDimension() const
 {
  int dim(3);
  for(int i=0;i<3; i++)
-   {
+ {
    if(this->EmptyDimension(i))
-     {
+   {
      dim--;
-     }
    }
+ }
  return( dim );
 }
 
@@ -590,16 +590,16 @@ vtkIdType vtkAMRBox::GetNumberOfCells() const
   this->GetNumberOfCells(cellExtent);
   int numCells = 0;
   for( int i=0; i < 3; ++i )
-    {
+  {
     if( numCells == 0 )
-      {
+    {
       numCells = cellExtent[i];
-      }
-    else if( cellExtent[i] != 0 )
-      {
-      numCells *= cellExtent[i];
-      }
     }
+    else if( cellExtent[i] != 0 )
+    {
+      numCells *= cellExtent[i];
+    }
+  }
   return( numCells );
 }
 
@@ -616,12 +616,12 @@ bool vtkAMRBox::Contains(const int *I) const
 {
   bool res(true);
   for(int i=0; i<3; i++)
-    {
+  {
     if (!this->EmptyDimension(i) &&  (this->LoCorner[i]>I[i] || this->HiCorner[i]<I[i]))
-      {
+    {
       res = false;
-      }
     }
+  }
   return res;
 }
 
@@ -649,16 +649,16 @@ vtkIdType vtkAMRBox::GetNumberOfNodes() const
   this->GetNumberOfNodes( ext );
   int numNodes = 0;
   for( int i=0; i < 3; ++i )
-    {
+  {
     if( numNodes == 0 )
-      {
+    {
       numNodes = ext[i];
-      }
-    else if( ext[i] != 0 )
-      {
-      numNodes *= ext[i];
-      }
     }
+    else if( ext[i] != 0 )
+    {
+      numNodes *= ext[i];
+    }
+  }
   return( numNodes );
 }
 
@@ -674,10 +674,10 @@ void vtkAMRBox::Shift(int i, int j, int k)
 void vtkAMRBox::Shift(const int *ijk)
 {
   for(int q=0; q < 3; ++q )
-    {
+  {
     this->LoCorner[q] = this->LoCorner[q]+ijk[q];
     this->HiCorner[q] = this->HiCorner[q]+ijk[q];
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -688,13 +688,13 @@ void vtkAMRBox::Grow(int byN)
   //       Or should we otherwise, ensure that the box is grown with
   //       bounds.
   for(int q=0; q < 3; ++q )
-    {
+  {
     if(!this->EmptyDimension(q))
-      {
+    {
       this->LoCorner[q]-=byN;
       this->HiCorner[q]+=byN;
-      }
     }
+  }
   assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
 }
 
@@ -706,12 +706,12 @@ void vtkAMRBox::Shrink(int byN)
   //       Or should we otherwise, ensure that the box is grown with
   //       bounds.
   for(int q=0; q < 3; ++q )
-    {
+  {
     if(!this->EmptyDimension(q))
-      {
+    {
       this->LoCorner[q]+=byN;
       this->HiCorner[q]-=byN;
-      }
     }
+  }
   assert( "post: Grown AMR Box instance is invalid" && !this->IsInvalid() );
 }

@@ -50,9 +50,9 @@ public:
   explicit vtkTuple(const T& scalar)
   {
     for (int i = 0; i < Size; ++i)
-      {
+    {
       this->Data[i] = scalar;
-      }
+    }
   }
 
   /**
@@ -63,9 +63,9 @@ public:
   explicit vtkTuple(const T* init)
   {
     for (int i = 0; i < Size; ++i)
-      {
+    {
       this->Data[i] = init[i];
-      }
+    }
   }
 
   /**
@@ -107,16 +107,16 @@ public:
   bool Compare(const vtkTuple<T, Size>& other, const T& tol) const
   {
     if (Size != other.GetSize())
-      {
+    {
       return false;
-      }
+    }
     for (int i = 0; i < Size; ++i)
-      {
+    {
       if (std::abs(this->Data[i] - other.Data[i]) >= tol)
-        {
+      {
         return false;
-        }
       }
+    }
     return true;
   }
   //@}
@@ -130,9 +130,9 @@ public:
   {
     vtkTuple<TR, Size> result;
     for (int i = 0; i < Size; ++i)
-      {
+    {
       result[i] = static_cast<TR>(this->Data[i]);
-      }
+    }
     return result;
   }
   //@}
@@ -156,17 +156,17 @@ ostream& operator<<(ostream& out, const vtkTuple<A, Size>& t)
   out << "(";
   bool first = true;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     if (first)
-      {
+    {
       first = false;
-      }
-    else
-      {
-      out << ", ";
-      }
-    out << t[i];
     }
+    else
+    {
+      out << ", ";
+    }
+    out << t[i];
+  }
   out << ")";
   return out;
 }
@@ -177,17 +177,17 @@ ostream& operator<<(ostream& out, const vtkTuple<unsigned char, Size>& t)
   out << "(";
   bool first = true;
   for (int i = 0; i < Size; ++i)
-    {
+  {
     if (first)
-      {
+    {
       first = false;
-      }
-    else
-      {
-      out << ", ";
-      }
-    out << static_cast<int>(t[i]);
     }
+    else
+    {
+      out << ", ";
+    }
+    out << static_cast<int>(t[i]);
+  }
   out << ")";
   return out;
 }
@@ -201,12 +201,12 @@ template<typename A, int Size>
 bool operator==(const vtkTuple<A, Size>& t1, const vtkTuple<A, Size>& t2)
 {
   for (int i = 0; i < Size; ++i)
-    {
+  {
     if (t1[i] != t2[i])
-      {
+    {
       return false;
-      }
     }
+  }
   return true;
 }
 //@}

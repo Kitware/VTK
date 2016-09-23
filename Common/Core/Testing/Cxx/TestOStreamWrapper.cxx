@@ -29,10 +29,10 @@ int TestOStreamWrapper(int, char *[])
   actual = vtkmsg.str();
   vtkmsg.rdbuf()->freeze(0);
   if(actual != expect)
-    {
+  {
     failed = 1;
     fprintf(stderr, "Expected '%s' but got '%s'\n",
             expect.c_str(), actual.c_str());
-    }
+  }
   return failed;
 }

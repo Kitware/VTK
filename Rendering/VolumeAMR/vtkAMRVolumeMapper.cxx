@@ -72,10 +72,10 @@ vtkAMRVolumeMapper::~vtkAMRVolumeMapper()
   this->Resampler->Delete();
   this->Resampler = NULL;
   if (this->Grid)
-    {
+  {
     this->Grid->Delete();
     this->Grid = NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -101,16 +101,16 @@ void vtkAMRVolumeMapper::SetInputConnection (int port, vtkAlgorithmOutput *input
 {
   if ((this->Resampler->GetNumberOfInputConnections(0) > 0)
       && (this->Resampler->GetInputConnection(port,0) == input))
-    {
+  {
     return;
-    }
+  }
   this->Resampler->SetInputConnection(port, input);
   this->vtkVolumeMapper::SetInputConnection(port, input);
   if (this->Grid)
-    {
+  {
     this->Grid->Delete();
     this->Grid = NULL;
-    }
+  }
 }
 //----------------------------------------------------------------------------
 double *vtkAMRVolumeMapper::GetBounds()
@@ -120,13 +120,13 @@ double *vtkAMRVolumeMapper::GetBounds()
     vtkOverlappingAMR::SafeDownCast
     (this->Resampler->GetInputDataObject(0,0));
   if (!hdata)
-    {
+  {
     vtkMath::UninitializeBounds(this->Bounds);
-    }
+  }
   else
-    {
+  {
     hdata->GetBounds(this->Bounds);
-    }
+  }
   return this->Bounds;
 }
 //----------------------------------------------------------------------------
@@ -180,13 +180,13 @@ void vtkAMRVolumeMapper::SetScalarMode(int mode)
   // modes to point based since this is what the resample filter is doing
   int newMode = mode;
   if (mode == VTK_SCALAR_MODE_USE_CELL_DATA)
-    {
+  {
     newMode = VTK_SCALAR_MODE_USE_POINT_DATA;
-    }
+  }
   else if (mode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA)
-    {
+  {
     newMode = VTK_SCALAR_MODE_USE_POINT_FIELD_DATA;
-    }
+  }
 
   this->InternalMapper->SetScalarMode(newMode);
 }
@@ -273,40 +273,40 @@ void vtkAMRVolumeMapper::Render(vtkRenderer *ren, vtkVolume *vol)
   // time is less than the previous time to draw
   if (!(this->Grid && (1.0 / ren->GetRenderWindow()->GetDesiredUpdateRate()
                        < this->InternalMapper->GetTimeToDraw())))
-    {
+  {
     if (!this->HasMetaData)
-      {
+    {
       // If there is no meta data then the resample filter has not been updated
       // with the proper frustrun bounds else it would have been done when
       // processing request information
       this->UpdateResampler(ren, NULL);
-      }
+    }
     if (this->GridNeedsToBeUpdated)
-      {
+    {
       this->UpdateGrid();
-      }
+    }
 
     if (this->Grid == NULL)
-      {
+    {
       // Could not create a grid
       return;
-      }
+    }
 
     this->InternalMapper->SetInputData(this->Grid);
-    }
+  }
   // Enable threading for the internal volume renderer and the reset the
   // original value when done - need when running inside of ParaView
   if (this->UseDefaultThreading)
-    {
+  {
     int maxNumThreads = vtkMultiThreader::GetGlobalMaximumNumberOfThreads();
     vtkMultiThreader::SetGlobalMaximumNumberOfThreads(0);
     this->InternalMapper->Render(ren, vol);
     vtkMultiThreader::SetGlobalMaximumNumberOfThreads(maxNumThreads);
-    }
+  }
   else
-    {
+  {
     this->InternalMapper->Render(ren, vol);
-    }
+  }
 }
 //----------------------------------------------------------------------------
 void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *amr)
@@ -319,31 +319,31 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
   cam->GetFocalPoint(fp);
 
   if (this->Grid)
-    {
+  {
     // Compare distances with the grid's bounds
     this->Grid->GetBounds(gb);
     vtkBoundingBox bbox(gb);
     double maxL = bbox.GetMaxLength();
     // If the grid's max length is 0 then we need to update
     if (maxL > 0.0)
-      {
+    {
       pd = fabs(d - this->LastPostionFPDistance) / this->LastPostionFPDistance;
       if ((this->LastPostionFPDistance > 0.0) && (pd <= this->ResamplerUpdateTolerance))
-        {
+      {
         // Lets see if the focal point has not moved enough to cause an update
         d2 = vtkMath::Distance2BetweenPoints(fp, this->LastFocalPointPosition)/(maxL*maxL);
         if (d2 <= (this->ResamplerUpdateTolerance * this->ResamplerUpdateTolerance))
-          {
+        {
           // nothing needs to be updated
           return;
-          }
+        }
         else
-          {
+        {
 //          int oops = 1;
-          }
         }
       }
     }
+  }
   cam->GetDirectionOfProjection(bvec);
   this->Resampler->SetBiasVector(bvec);
   this->Resampler->SetUseBiasVector(true);
@@ -353,11 +353,11 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
   this->LastFocalPointPosition[2] = fp[2];
 
   if (this->RequestedResamplingMode == 0)
-    {
+  {
     this->UpdateResamplerFrustrumMethod(ren, amr);
-    }
+  }
   else
-    {
+  {
     // This is the focal point approach where we
     // center the grid on the focal point and set its length
     // to be the distance between the camera and its focal point
@@ -372,7 +372,7 @@ void vtkAMRVolumeMapper::UpdateResampler(vtkRenderer *ren, vtkOverlappingAMR *am
     p[2] = fp[2] + d;
     this->Resampler->SetMax(p);
     this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
-    }
+  }
   // The grid may have changed
   this->GridNeedsToBeUpdated = true;
 }
@@ -385,25 +385,25 @@ void vtkAMRVolumeMapper::UpdateResamplerFrustrumMethod(vtkRenderer *ren,
   // If we have been passed a valid amr then assume this is the proper
   // meta data to use
   if (amr)
-    {
+  {
     amr->GetBounds(bounds);
-    }
+  }
   else
-    {
+  {
     // Make sure the bounds are up to date
     this->GetBounds(bounds);
-    }
+  }
 
   double computed_bounds[6];
   if (vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
     ren->GetActiveCamera(), ren, bounds, computed_bounds))
-    {
+  {
     vtkBoundingBox bbox(computed_bounds);
     // Now set the min/max of the resample filter
     this->Resampler->SetMin( const_cast< double* >(bbox.GetMinPoint()) );
     this->Resampler->SetMax( const_cast< double* >(bbox.GetMaxPoint()) );
     this->Resampler->SetNumberOfSamples(this->NumberOfSamples);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -434,53 +434,53 @@ bool vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
   vtkBoundingBox bbox;
   pnt[3] = 1.0;
   for (i = 0; i < 2; i++)
-    {
+  {
     pnt[0] = bounds[i];
     for (j = 2; j < 4; j++)
-      {
+    {
       pnt[1] = bounds[j];
       for (k = 4; k < 6; k++)
-        {
+      {
         pnt[2] = bounds[k];
         matrix->MultiplyPoint(pnt, tpnt);
         if (tpnt[3])
-          {
+        {
           bbox.AddPoint(tpnt[0]/tpnt[3],
                         tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
-          }
+        }
         else
-          {
+        {
           vtkGenericWarningMacro("UpdateResampler: Found an Ideal Point going to VC!");
-          }
         }
       }
     }
+  }
 
   double zRange[2];
   if (bbox.IsValid())
-    {
+  {
     zRange[0] = bbox.GetMinPoint()[2];
     zRange[1] = bbox.GetMaxPoint()[2];
     // Normalize the z values to make sure they are between -1 and 1
     for (i = 0; i < 2; i++)
-      {
+    {
       if (zRange[i] < -1.0)
-        {
+      {
         zRange[i] = -1.0;
-        }
+      }
       else if (zRange[i] > 1.0)
-        {
+      {
         zRange[i] = 1.0;
-        }
       }
     }
+  }
   else
-    {
+  {
     // Since we could not find a valid bounding box assume that the
     // zrange is -1 to 1
     zRange[0] = -1.0;
     zRange[1] = 1.0;
-    }
+  }
 
   // Now that we have the z range of the data in View Coordinates lets
   // convert that part of the View Volume back into World Coordinates
@@ -491,33 +491,33 @@ bool vtkAMRVolumeMapper::ComputeResamplerBoundsFrustumMethod(
   bbox.Reset();
   // Compute the bounding box
   for (i = -1; i < 2; i+=2)
-    {
+  {
     pnt[0] = i;
     for (j = -1; j < 2; j+=2)
-      {
+    {
       pnt[1] = j;
       for (k = 0; k < 2; k++)
-        {
+      {
         pnt[2] = zRange[k];
         vtkMatrix4x4::MultiplyPoint(mat,pnt,tpnt);
         if (tpnt[3])
-          {
+        {
           bbox.AddPoint(tpnt[0]/tpnt[3],
                         tpnt[1]/tpnt[3], tpnt[2]/tpnt[3]);
-          }
+        }
         else
-          {
+        {
           vtkGenericWarningMacro("UpdateResampler: Found an Ideal Point going to WC!");
-          }
         }
       }
     }
+  }
 
   // Check to see if the box is valid
   if (!bbox.IsValid())
-    {
+  {
     return false; // There is nothing we can do
-    }
+  }
   bbox.GetBounds(out_bounds);
   return true;
 }
@@ -546,23 +546,23 @@ void vtkAMRVolumeMapper::UpdateGrid()
 #endif
   vtkMultiBlockDataSet *mb = this->Resampler->GetOutput();
   if (!mb)
-    {
+  {
     return;
-    }
+  }
   unsigned int nb = mb->GetNumberOfBlocks();
   if (!nb)
-    {
+  {
     // No new grid was created
     return;
-    }
+  }
   if (nb != 1)
-    {
+  {
     vtkErrorMacro("UpdateGrid: Resampler created more than 1 Grid!");
-    }
+  }
   if (this->Grid)
-    {
+  {
     this->Grid->Delete();
-    }
+  }
   this->Grid = vtkUniformGrid::SafeDownCast(mb->GetBlock(0));
   this->Grid->Register(0);
   this->GridNeedsToBeUpdated = false;
@@ -591,17 +591,17 @@ void vtkAMRVolumeMapper::ProcessInformationRequest(vtkRenderer *ren,
 {
   vtkInformation *input = inputVector[0]->GetInformationObject( 0 );
   if (!(input &&  input->Has(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA())))
-    {
+  {
     this->HasMetaData = false;
     this->Resampler->SetDemandDrivenMode(0);
     return;
-    }
+  }
 
   if (!this->HasMetaData)
-    {
+  {
     this->HasMetaData = true;
     this->Resampler->SetDemandDrivenMode(1);
-    }
+  }
   vtkOverlappingAMR *amrMetaData =
     vtkOverlappingAMR::SafeDownCast(
                                             input->Get(vtkCompositeDataPipeline::COMPOSITE_DATA_META_DATA()) );
@@ -619,24 +619,24 @@ void vtkAMRVolumeMapper::PrintSelf(ostream& os, vtkIndent indent)
 
   if ( this->ScalarMode == VTK_SCALAR_MODE_USE_POINT_FIELD_DATA ||
        this->ScalarMode == VTK_SCALAR_MODE_USE_CELL_FIELD_DATA )
-    {
+  {
     if (this->ArrayAccessMode == VTK_GET_ARRAY_BY_ID)
-      {
+    {
       os << indent << "ArrayId: " << this->ArrayId << endl;
-      }
-    else
-      {
-      os << indent << "ArrayName: " << this->ArrayName << endl;
-      }
     }
+    else
+    {
+      os << indent << "ArrayName: " << this->ArrayName << endl;
+    }
+  }
   os << indent << "UseDefaultThreading:" << this->UseDefaultThreading << "\n";
   os << indent << "ResampledUpdateTolerance: " <<
         this->ResamplerUpdateTolerance << "\n";
   os << indent << "NumberOfSamples: ";
   for( int i=0; i < 3; ++i )
-    {
+  {
     os << this->NumberOfSamples[ i ] << " ";
-    }
+  }
   os << std::endl;
   os << indent << "RequestedResamplingMode: " <<
         this->RequestedResamplingMode << "\n";

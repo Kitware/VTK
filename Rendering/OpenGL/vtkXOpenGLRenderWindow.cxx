@@ -157,35 +157,35 @@ vtkglX::GLXFBConfig* vtkXOpenGLRenderWindowTryForFBConfig(Display *DisplayId,
   attributes[index++] = GLX_DEPTH_SIZE;
   attributes[index++] = 1;
   if (alphaBitPlanes)
-    {
+  {
     attributes[index++] = GLX_ALPHA_SIZE;
     attributes[index++] = 1;
-    }
+  }
   if (doublebuff)
-    {
+  {
     attributes[index++] = GLX_DOUBLEBUFFER;
     attributes[index++] = True;
-    }
+  }
   if (stencil)
-    {
+  {
     attributes[index++] = GLX_STENCIL_SIZE;
     attributes[index++] = 8;
-    }
+  }
   if (stereo)
-    {
+  {
     // also try for STEREO
     attributes[index++] = GLX_STEREO;
     attributes[index++] = True;
-    }
+  }
   if (multisamples)
-    {
+  {
 #ifdef GLX_SAMPLE_BUFFERS_SGIS
     attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
     attributes[index++] = 1;
     attributes[index++] = GLX_SAMPLES_SGIS;
     attributes[index++] = multisamples;
 #endif
-    }
+  }
 
   attributes[index++] = None;
   int tmp;
@@ -216,35 +216,35 @@ XVisualInfo *vtkXOpenGLRenderWindowTryForVisual(Display *DisplayId,
   attributes[index++] = GLX_DEPTH_SIZE;
   attributes[index++] = 1;
   if (alphaBitPlanes)
-    {
+  {
     attributes[index++] = GLX_ALPHA_SIZE;
     attributes[index++] = 1;
-    }
+  }
   if (doublebuff)
-    {
+  {
     attributes[index++] = GLX_DOUBLEBUFFER;
     attributes[index++] = True;
-    }
+  }
   if (stencil)
-    {
+  {
     attributes[index++] = GLX_STENCIL_SIZE;
     attributes[index++] = 8;
-    }
+  }
   if (stereo)
-    {
+  {
     // also try for STEREO
     attributes[index++] = GLX_STEREO;
     attributes[index++] = True;
-    }
+  }
   if (multisamples)
-    {
+  {
 #ifdef GLX_SAMPLE_BUFFERS_SGIS
     attributes[index++] = GLX_SAMPLE_BUFFERS_SGIS;
     attributes[index++] = 1;
     attributes[index++] = GLX_SAMPLES_SGIS;
     attributes[index++] = multisamples;
 #endif
-    }
+  }
 
   attributes[index++] = None;
 
@@ -266,13 +266,13 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
 
   // try every possibility stoping when we find one that works
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
-    {
+  {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
-      {
+    {
       if (fbc)
-        {
+      {
         XFree(fbc);
-        }
+      }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  win_doublebuffer,
@@ -280,20 +280,20 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  win_alphaplanes,
                                                  stencil);
       if (fbc && win_stereo && !stereo)
-        {
+      {
         // requested a stereo capable window but we could not get one
         win_stereo = 0;
-        }
       }
     }
+  }
   for (stereo = win_stereo; !fbc && stereo >= 0; stereo--)
-    {
+  {
     for (multi = win_multisamples; !fbc && multi >= 0; multi--)
-      {
+    {
       if (fbc)
-        {
+      {
         XFree(fbc);
-        }
+      }
       fbc = vtkXOpenGLRenderWindowTryForFBConfig(DisplayId,
                                                  drawable_type,
                                                  !win_doublebuffer,
@@ -301,16 +301,16 @@ vtkglX::GLXFBConfig *vtkXOpenGLRenderWindowGetDesiredFBConfig(
                                                  win_alphaplanes,
                                                  stencil);
       if (fbc)
-        {
+      {
         win_doublebuffer = !win_doublebuffer;
-        }
+      }
       if (fbc && win_stereo && !stereo)
-        {
+      {
         // requested a stereo capable window but we could not get one
         win_stereo = 0;
-        }
       }
     }
+  }
   return ( fbc );
 }
 
@@ -324,75 +324,75 @@ XVisualInfo *vtkXOpenGLRenderWindow::GetDesiredVisualInfo()
 
   // get the default display connection
   if (!this->DisplayId)
-    {
+  {
     this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
 
     if (this->DisplayId == NULL)
-      {
+    {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
       abort();
-      }
+    }
 
     this->OwnDisplay = 1;
-    }
+  }
 
   // try every possibility stoping when we find one that works
   for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
-    {
+  {
     for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
-      {
+    {
       for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
-        {
+      {
         for (multi = this->MultiSamples; !v && multi >= 0; multi--)
-          {
+        {
           if (v)
-            {
+          {
             XFree(v);
-            }
+          }
           v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
                                                  this->DoubleBuffer,
                                                  stereo, multi, alpha,
                                                  stencil);
           if (v)
-            {
+          {
             this->StereoCapableWindow = stereo;
             this->MultiSamples = multi;
             this->AlphaBitPlanes = alpha;
             this->StencilCapable = stencil;
-            }
           }
         }
       }
     }
+  }
   for (stencil = this->StencilCapable; !v && stencil >= 0; stencil--)
-    {
+  {
     for (alpha = this->AlphaBitPlanes; !v && alpha >= 0; alpha--)
-      {
+    {
       for (stereo = this->StereoCapableWindow; !v && stereo >= 0; stereo--)
-        {
+      {
         for (multi = this->MultiSamples; !v && multi >= 0; multi--)
-          {
+        {
           v = vtkXOpenGLRenderWindowTryForVisual(this->DisplayId,
                                                  !this->DoubleBuffer,
                                                  stereo, multi, alpha,
                                                  stencil);
           if (v)
-            {
+          {
             this->DoubleBuffer = !this->DoubleBuffer;
             this->StereoCapableWindow = stereo;
             this->MultiSamples = multi;
             this->AlphaBitPlanes = alpha;
             this->StencilCapable = stencil;
-            }
           }
         }
       }
     }
+  }
   if (!v)
-    {
+  {
     vtkErrorMacro(<< "Could not find a decent visual\n");
-    }
+  }
   return ( v );
 }
 
@@ -438,9 +438,9 @@ vtkXOpenGLRenderWindow::~vtkXOpenGLRenderWindow()
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
-    }
+  }
 
   delete this->Internal;
 }
@@ -451,28 +451,28 @@ void vtkXOpenGLRenderWindow::Frame()
   this->MakeCurrent();
   if (!this->AbortRender && this->DoubleBuffer && this->SwapBuffers
       && this->WindowId!=0)
-    {
+  {
     glXSwapBuffers(this->DisplayId, this->WindowId);
     vtkDebugMacro(<< " glXSwapBuffers\n");
-    }
+  }
   else
-    {
+  {
     glFlush();
-    }
+  }
 }
 
 bool vtkXOpenGLRenderWindow::InitializeFromCurrentContext()
 {
   GLXContext currentContext = glXGetCurrentContext();
   if (currentContext != NULL)
-    {
+  {
     this->SetDisplayId((void*)glXGetCurrentDisplay());
     this->SetWindowId((void*)glXGetCurrentDrawable());
     this->Internal->ContextId = currentContext;
     this->OpenGLInit();
     this->OwnContext = 0;
     return true;
-    }
+  }
   return false;
 }
 
@@ -488,14 +488,14 @@ void vtkXOpenGLRenderWindow::SetStereoCapableWindow(int capable)
       && !this->Internal->OffScreenContextId
 #endif
     )
-    {
+  {
     vtkOpenGLRenderWindow::SetStereoCapableWindow(capable);
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Requesting a StereoCapableWindow must be performed "
                     << "before the window is realized, i.e. before a render.");
-    }
+  }
 }
 
 static int PbufferAllocFail = 0;
@@ -518,11 +518,11 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
   xsh.flags = USSize;
   if ((this->Position[0] >= 0)&&(this->Position[1] >= 0))
-    {
+  {
     xsh.flags |= USPosition;
     xsh.x =  static_cast<int>(this->Position[0]);
     xsh.y =  static_cast<int>(this->Position[1]);
-    }
+  }
 
   x = ((this->Position[0] >= 0) ? this->Position[0] : 5);
   y = ((this->Position[1] >= 0) ? this->Position[1] : 5);
@@ -534,27 +534,27 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
   // get the default display connection
   if (!this->DisplayId)
-    {
+  {
     this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
     if (this->DisplayId == NULL)
-      {
+    {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
       abort();
-      }
-    this->OwnDisplay = 1;
     }
+    this->OwnDisplay = 1;
+  }
 
   attr.override_redirect = False;
   if (this->Borders == 0.0)
-    {
+  {
     attr.override_redirect = True;
-    }
+  }
 
   // create our own window ?
   this->OwnWindow = 0;
   if (!this->WindowId)
-    {
+  {
     v = this->GetDesiredVisualInfo();
     this->ColorMap = XCreateColormap(this->DisplayId,
                                      XRootWindow(this->DisplayId,v->screen),
@@ -567,9 +567,9 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
 
     // get a default parent if one has not been set.
     if (! this->ParentId)
-      {
+    {
       this->ParentId = XRootWindow(this->DisplayId, v->screen);
-      }
+    }
     this->WindowId =
       XCreateWindow(this->DisplayId,
                     this->ParentId,
@@ -582,9 +582,9 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     XStoreName(this->DisplayId, this->WindowId, this->WindowName);
     XSetNormalHints(this->DisplayId,this->WindowId,&xsh);
     this->OwnWindow = 1;
-    }
+  }
   else
-    {
+  {
     XChangeWindowAttributes(this->DisplayId,this->WindowId,
                             CWOverrideRedirect, &attr);
     XGetWindowAttributes(this->DisplayId,
@@ -593,10 +593,10 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     matcher.screen = XDefaultScreen(DisplayId);
     v = XGetVisualInfo(this->DisplayId, VisualIDMask | VisualScreenMask,
                        &matcher, &nItems);
-    }
+  }
 
   if (this->OwnWindow)
-    {
+  {
     // RESIZE THE WINDOW TO THE DESIRED SIZE
     vtkDebugMacro(<< "Resizing the xwindow\n");
     XResizeWindow(this->DisplayId,this->WindowId,
@@ -605,45 +605,45 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
                   ((this->Size[1] > 0) ?
                    static_cast<unsigned int>(this->Size[1]) : 300));
     XSync(this->DisplayId,False);
-    }
+  }
 
   // is GLX extension is supported?
   if(!glXQueryExtension(this->DisplayId, NULL, NULL))
-    {
+  {
     vtkErrorMacro("GLX not found.  Aborting.");
     if (this->HasObserver(vtkCommand::ExitEvent))
-      {
+    {
       this->InvokeEvent(vtkCommand::ExitEvent, NULL);
       return;
-      }
-    else
-      {
-      abort();
-      }
     }
+    else
+    {
+      abort();
+    }
+  }
 
   if (!this->Internal->ContextId)
-    {
+  {
     this->Internal->ContextId =
       glXCreateContext(this->DisplayId, v, 0, GL_TRUE);
-    }
+  }
 
   if(!this->Internal->ContextId)
-    {
+  {
     vtkErrorMacro("Cannot create GLX context.  Aborting.");
     if (this->HasObserver(vtkCommand::ExitEvent))
-      {
+    {
       this->InvokeEvent(vtkCommand::ExitEvent, NULL);
       return;
-      }
-    else
-      {
-      abort();
-      }
     }
+    else
+    {
+      abort();
+    }
+  }
 
   if(this->OwnWindow && !this->OffScreenRendering)
-    {
+  {
     vtkDebugMacro(" Mapping the xwindow\n");
     XMapWindow(this->DisplayId, this->WindowId);
     XSync(this->DisplayId,False);
@@ -652,16 +652,16 @@ void vtkXOpenGLRenderWindow::CreateAWindow()
     // guarantee that the window is mapped before the program continues
     // on to do the OpenGL rendering.
     while (winattr.map_state == IsUnmapped)
-      {
+    {
       XGetWindowAttributes(this->DisplayId,
                            this->WindowId,&winattr);
-      }
     }
+  }
   // free the visual info
   if (v)
-    {
+  {
     XFree(v);
-    }
+  }
   this->Mapped = 1;
   this->Size[0] = width;
   this->Size[1] = height;
@@ -672,58 +672,58 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
 {
   // free the cursors
   if (this->DisplayId)
-    {
+  {
     if (this->WindowId)
-      {
+    {
       // we will only have a cursor defined if a CurrentCursor has been
       // set > 0 or if the cursor has been hidden... if we undefine without
       // checking, bad things can happen (BadWindow)
       if (this->GetCurrentCursor() || this->CursorHidden)
-        {
+      {
         XUndefineCursor(this->DisplayId,this->WindowId);
-        }
-      }
-    if (this->XCArrow)
-      {
-      XFreeCursor(this->DisplayId,this->XCArrow);
-      }
-    if (this->XCCrosshair)
-      {
-      XFreeCursor(this->DisplayId,this->XCCrosshair);
-      }
-    if (this->XCSizeAll)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeAll);
-      }
-    if (this->XCSizeNS)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNS);
-      }
-    if (this->XCSizeWE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeWE);
-      }
-    if (this->XCSizeNE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNE);
-      }
-    if (this->XCSizeNW)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeNW);
-      }
-    if (this->XCSizeSE)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeSE);
-      }
-    if (this->XCSizeSW)
-      {
-      XFreeCursor(this->DisplayId,this->XCSizeSW);
-      }
-    if (this->XCHand)
-      {
-      XFreeCursor(this->DisplayId,this->XCHand);
       }
     }
+    if (this->XCArrow)
+    {
+      XFreeCursor(this->DisplayId,this->XCArrow);
+    }
+    if (this->XCCrosshair)
+    {
+      XFreeCursor(this->DisplayId,this->XCCrosshair);
+    }
+    if (this->XCSizeAll)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeAll);
+    }
+    if (this->XCSizeNS)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeNS);
+    }
+    if (this->XCSizeWE)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeWE);
+    }
+    if (this->XCSizeNE)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeNE);
+    }
+    if (this->XCSizeNW)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeNW);
+    }
+    if (this->XCSizeSE)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeSE);
+    }
+    if (this->XCSizeSW)
+    {
+      XFreeCursor(this->DisplayId,this->XCSizeSW);
+    }
+    if (this->XCHand)
+    {
+      XFreeCursor(this->DisplayId,this->XCHand);
+    }
+  }
 
   this->XCCrosshair = 0;
   this->XCArrow     = 0;
@@ -737,7 +737,7 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
   this->XCHand      = 0;
 
   if (this->OwnContext && this->Internal->ContextId)
-    {
+  {
       this->MakeCurrent();
     // tell each of the renderers that this render window/graphics context
     // is being removed (the RendererCollection is removed by vtkRenderWindow's
@@ -747,56 +747,56 @@ void vtkXOpenGLRenderWindow::DestroyWindow()
     for ( ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject());
           ren != NULL;
           ren = vtkOpenGLRenderer::SafeDownCast(this->Renderers->GetNextItemAsObject())  )
-      {
+    {
       ren->SetRenderWindow(NULL);
       ren->SetRenderWindow(this);
-      }
+    }
 
     if (this->Internal->ContextId)
-      {
+    {
       /* first delete all the old lights */
       for (short cur_light = GL_LIGHT0; cur_light < GL_LIGHT0+MAX_LIGHTS; cur_light++)
-        {
+      {
         glDisable(static_cast<GLenum>(cur_light));
-        }
+      }
 
       /* now delete all textures */
       glDisable(GL_TEXTURE_2D);
       for (int i = 1; i < this->TextureResourceIds->GetNumberOfIds(); i++)
-        {
+      {
         GLuint txId = static_cast<GLuint>(this->TextureResourceIds->GetId(i));
 #ifdef GL_VERSION_1_1
         if (glIsTexture(txId))
-          {
+        {
           glDeleteTextures(1, &txId);
-          }
+        }
 #else
         if (glIsList(txId))
-          {
+        {
           glDeleteLists(txId,1);
-          }
-#endif
         }
+#endif
+      }
 
       glFinish();
       glXDestroyContext(this->DisplayId, this->Internal->ContextId);
-      }
     }
+  }
     this->Internal->ContextId = NULL;
 
   // then close the old window if we own it
   if (this->OwnWindow && this->DisplayId && this->WindowId)
-    {
+  {
     XDestroyWindow(this->DisplayId,this->WindowId);
     this->WindowId = 0;
-    }
+  }
 
   // if we create the display, we'll delete it
   if (this->OwnDisplay && this->DisplayId)
-    {
+  {
     XCloseDisplay(this->DisplayId);
     this->DisplayId = NULL;
-    }
+  }
 
   delete[] this->Capabilities;
   this->Capabilities = 0;
@@ -816,60 +816,60 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   // always prefer OSMESA if we built with it
 #ifdef VTK_USE_OSMESA
   if(1)
-    {
+  {
     if (!this->Internal->OffScreenWindow)
-      {
+    {
       this->Internal->OffScreenWindow = vtkOSMesaCreateWindow(width,height);
       this->Size[0] = width;
       this->Size[1] = height;
       this->OwnWindow = 1;
-      }
-    if (!this->Internal->OffScreenContextId)
-      {
-      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
-      }
-    this->MakeCurrent();
     }
+    if (!this->Internal->OffScreenContextId)
+    {
+      this->Internal->OffScreenContextId = OSMesaCreateContext(GL_RGBA, NULL);
+    }
+    this->MakeCurrent();
+  }
   else
 #endif
-    {
+  {
     if(!this->CreateHardwareOffScreenWindow(width,height))
-      {
+    {
       // get the default display connection
       if (!this->DisplayId)
-        {
+      {
         this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
         if (this->DisplayId == NULL)
-          {
+        {
           vtkErrorMacro(<< "bad X server connection. DISPLAY="
             << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
           abort();
-          }
-        this->OwnDisplay = 1;
         }
+        this->OwnDisplay = 1;
+      }
 
       int v1, v2;
       glXQueryVersion(this->DisplayId, &v1, &v2);
 
       // check for GLX 1.3 or greater for Pbuffer offscreen support
       if(v1 > 1 || (v1 == 1 && v2 >= 3))
-        {
+      {
         if(!this->Internal->PbufferContextId)
-          {
+        {
           // Load GLX 1.3
           vtkOpenGLExtensionManager *manager=vtkOpenGLExtensionManager::New();
           int loaded = vtkgl::LoadExtension("GLX_VERSION_1_3", manager);
           manager->Delete();
 
           if(loaded)
-            {
+          {
             // get FBConfig
             vtkglX::GLXFBConfig* fb = vtkXOpenGLRenderWindowGetDesiredFBConfig(
               this->DisplayId,this->StereoCapableWindow, this->MultiSamples,
               this->DoubleBuffer,this->AlphaBitPlanes, vtkglX::PBUFFER_BIT,
               this->StencilCapable);
             if(fb)
-              {
+            {
               XErrorHandler previousHandler = XSetErrorHandler(vtkXOGLPbufferErrorHandler);
               this->Internal->PbufferContextId =
                 vtkglX::CreateNewContext(this->DisplayId, fb[0],
@@ -891,24 +891,24 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
 
               // failed to allocate Pbuffer, clean up
               if(PbufferAllocFail)
-                {
+              {
                 //vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
                 this->Internal->Pbuffer = 0;
                 if(this->Internal->PbufferContextId)
                   glXDestroyContext(this->DisplayId,
                                     this->Internal->PbufferContextId);
                 this->Internal->PbufferContextId = NULL;
-                }
-              PbufferAllocFail = 0;
               }
+              PbufferAllocFail = 0;
             }
           }
         }
+      }
 
       // GLX 1.3 doesn't exist or failed to allocate Pbuffer
       // fallback on GLX 1.0 GLXPixmap offscreen support
       if(!this->Internal->PbufferContextId && !this->Internal->PixmapContextId)
-        {
+      {
         v = this->GetDesiredVisualInfo();
         this->Internal->PixmapContextId = glXCreateContext(this->DisplayId,
                                                            v, 0, GL_FALSE);
@@ -924,12 +924,12 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
                        this->Internal->PixmapContextId);
 
         if(v)
-          {
+        {
           XFree(v);
-          }
         }
-      } // if not hardware offscreen
-    }
+      }
+    } // if not hardware offscreen
+  }
   this->Mapped = 1;
   this->Size[0] = width;
   this->Size[1] = height;
@@ -941,10 +941,10 @@ void vtkXOpenGLRenderWindow::CreateOffScreenWindow(int width, int height)
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
-    {
+  {
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
-    }
+  }
 
   this->OpenGLInit();
 }
@@ -957,61 +957,61 @@ void vtkXOpenGLRenderWindow::DestroyOffScreenWindow()
   vtkCollectionSimpleIterator rit;
   this->Renderers->InitTraversal(rit);
   while ( (ren = this->Renderers->GetNextRenderer(rit)) )
-    {
+  {
     ren->SetRenderWindow(NULL);
     ren->SetRenderWindow(this);
-    }
+  }
 
 
 #ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId)
-    {
+  {
     OSMesaDestroyContext(this->Internal->OffScreenContextId);
     this->Internal->OffScreenContextId = NULL;
     vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
     this->Internal->OffScreenWindow = NULL;
-    }
+  }
   else
 #endif
-    {
+  {
     if(this->OffScreenUseFrameBuffer)
-      {
+    {
       this->DestroyHardwareOffScreenWindow();
-      }
+    }
     else
-      {
+    {
       if(this->Internal->PbufferContextId)
-        {
+      {
         vtkglX::DestroyPbuffer(this->DisplayId, this->Internal->Pbuffer);
         this->Internal->Pbuffer = 0;
         glXDestroyContext(this->DisplayId, this->Internal->PbufferContextId);
         this->Internal->PbufferContextId = NULL;
-        }
+      }
       else if(this->Internal->PixmapContextId)
-        {
+      {
         glXDestroyGLXPixmap(this->DisplayId, this->Internal->PixmapWindowId);
         this->Internal->PixmapWindowId = 0;
         XFreePixmap(this->DisplayId, this->Internal->pixmap);
         glXDestroyContext( this->DisplayId, this->Internal->PixmapContextId);
         this->Internal->PixmapContextId = NULL;
-        }
       }
     }
+  }
   this->Mapped = 0;
 }
 
 void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
 {
   if(!this->OffScreenRendering)
-    {
+  {
     return;
-    }
+  }
 
   // Generally, we simply destroy and recreate the offscreen window/contexts.
   // However, that's totally unnecessary for OSMesa. So we avoid that.
 #ifdef VTK_USE_OSMESA
   if (this->Internal->OffScreenContextId && this->Internal->OffScreenWindow)
-    {
+  {
     vtkOSMesaDestroyWindow(this->Internal->OffScreenWindow);
     this->Internal->OffScreenWindow = NULL;
 
@@ -1021,17 +1021,17 @@ void vtkXOpenGLRenderWindow::ResizeOffScreenWindow(int width, int height)
     this->Size[1] = height;
     this->OwnWindow = 1;
     return;
-    }
+  }
 #endif
 
   if(this->Internal->PixmapContextId ||
      this->Internal->PbufferContextId ||
      this->OffScreenUseFrameBuffer
     )
-    {
+  {
     this->DestroyOffScreenWindow();
     this->CreateOffScreenWindow(width, height);
-    }
+  }
 }
 
 
@@ -1046,10 +1046,10 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
   vtkRenderer* ren;
   for (this->Renderers->InitTraversal();
        (ren = this->Renderers->GetNextItem());)
-    {
+  {
     ren->SetRenderWindow(0);
     ren->SetRenderWindow(this);
-    }
+  }
 
   this->OpenGLInit();
 }
@@ -1058,10 +1058,10 @@ void vtkXOpenGLRenderWindow::WindowInitialize (void)
 void vtkXOpenGLRenderWindow::Initialize (void)
 {
   if(!this->OffScreenRendering && !this->Internal->ContextId)
-    {
+  {
     // initialize the window
     this->WindowInitialize();
-    }
+  }
   else if(this->OffScreenRendering &&
           ! (this->Internal->PixmapContextId ||
              this->Internal->PbufferContextId
@@ -1070,12 +1070,12 @@ void vtkXOpenGLRenderWindow::Initialize (void)
 #endif
              || this->OffScreenUseFrameBuffer
             ))
-    {
+  {
     // initialize offscreen window
     int width = ((this->Size[0] > 0) ? this->Size[0] : 300);
     int height = ((this->Size[1] > 0) ? this->Size[1] : 300);
     this->CreateOffScreenWindow(width, height);
-    }
+  }
 }
 
 void vtkXOpenGLRenderWindow::Finalize (void)
@@ -1095,33 +1095,33 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
   int *temp;
 
   if (this->OffScreenRendering)
-    {
+  {
     return;
-    }
+  }
 
   if (this->FullScreen == arg) return;
 
   if (!this->Mapped || this->OffScreenRendering)
-    {
+  {
     this->PrefFullScreen();
     return;
-    }
+  }
 
   // set the mode
   this->FullScreen = arg;
   if (this->FullScreen <= 0)
-    {
+  {
     this->Position[0] = this->OldScreen[0];
     this->Position[1] = this->OldScreen[1];
     this->Size[0] = this->OldScreen[2];
     this->Size[1] = this->OldScreen[3];
     this->Borders = this->OldScreen[4];
-    }
+  }
   else
-    {
+  {
     // if window already up get its values
     if (this->WindowId)
-      {
+    {
       XWindowAttributes attribs;
 
       //  Find the current window size
@@ -1137,8 +1137,8 @@ void vtkXOpenGLRenderWindow::SetFullScreen(int arg)
 
       this->OldScreen[4] = this->Borders;
       this->PrefFullScreen();
-      }
     }
+  }
 
   // remap the window
   this->WindowRemap();
@@ -1154,17 +1154,17 @@ void vtkXOpenGLRenderWindow::PrefFullScreen()
   this->Position[1] = 0;
 
   if (this->OffScreenRendering)
-    {
+  {
     this->Size[0] = 1280;
     this->Size[1] = 1024;
-    }
+  }
   else
-    {
+  {
     int *size;
     size = this->GetScreenSize();
     this->Size[0] = size[0];
     this->Size[1] = size[1];
-    }
+  }
 
   // don't show borders
   this->Borders = 0;
@@ -1198,28 +1198,28 @@ void vtkXOpenGLRenderWindow::Start(void)
 void vtkXOpenGLRenderWindow::SetSize(int width,int height)
 {
   if ((this->Size[0] != width)||(this->Size[1] != height))
-    {
+  {
     this->Superclass::SetSize(width, height);
 
     if (this->Interactor)
-      {
+    {
       this->Interactor->SetSize( width, height );
-      }
+    }
 
     if(this->OffScreenRendering)
-      {
+    {
       this->ResizeOffScreenWindow(width,height);
-      }
+    }
     else if(this->WindowId && this->Mapped && ! this->OffScreenRendering)
-      {
+    {
       XResizeWindow(this->DisplayId,this->WindowId,
                     static_cast<unsigned int>(width),
                     static_cast<unsigned int>(height));
       XSync(this->DisplayId,False);
-      }
+    }
 
     this->Modified();
-    }
+  }
 }
 
 
@@ -1233,10 +1233,10 @@ int vtkXOpenGLRenderWindow::GetDesiredDepth()
   v = this->GetDesiredVisualInfo();
 
   if (v)
-    {
+  {
     depth = v->depth;
     XFree(v);
-    }
+  }
 
   return depth;
 }
@@ -1251,10 +1251,10 @@ Visual *vtkXOpenGLRenderWindow::GetDesiredVisual ()
   v = this->GetDesiredVisualInfo();
 
   if (v)
-    {
+  {
     vis = v->visual;
     XFree(v);
-    }
+  }
 
   return vis;
 }
@@ -1271,12 +1271,12 @@ Colormap vtkXOpenGLRenderWindow::GetDesiredColormap ()
   v = this->GetDesiredVisualInfo();
 
   if (v)
-    {
+  {
     this->ColorMap = XCreateColormap(this->DisplayId,
                                      XRootWindow(this->DisplayId, v->screen),
                                      v->visual, AllocNone);
     XFree(v);
-    }
+  }
 
   return this->ColorMap;
 }
@@ -1318,49 +1318,49 @@ void vtkXOpenGLRenderWindow::MakeCurrent()
 
   // set the current window
   if (this->OffScreenRendering && this->Internal->OffScreenContextId)
-    {
+  {
     if (OSMesaMakeCurrent(this->Internal->OffScreenContextId,
                           this->Internal->OffScreenWindow, GL_UNSIGNED_BYTE,
                           this->Size[0], this->Size[1]) != GL_TRUE)
-      {
+    {
       vtkWarningMacro("failed call to OSMesaMakeCurrent");
-      }
     }
+  }
   else
 #endif
     if(this->OffScreenRendering && this->Internal->PbufferContextId)
-      {
+    {
       if (((this->Internal->PbufferContextId != glXGetCurrentContext())
            || this->ForceMakeCurrent))
-        {
+      {
         vtkglX::MakeContextCurrent(this->DisplayId, this->Internal->Pbuffer,
                                    this->Internal->Pbuffer,
                                    this->Internal->PbufferContextId);
         this->ForceMakeCurrent = 0;
-        }
       }
+    }
     else
       if(this->OffScreenRendering && this->Internal->PixmapContextId)
-        {
+      {
         if (((this->Internal->PixmapContextId != glXGetCurrentContext())
              || this->ForceMakeCurrent))
-          {
+        {
           glXMakeCurrent(this->DisplayId,this->Internal->PixmapWindowId,
                          this->Internal->PixmapContextId);
           this->ForceMakeCurrent = 0;
-          }
         }
+      }
       else
-        {
+      {
         if (this->Internal->ContextId &&
             ((this->Internal->ContextId != glXGetCurrentContext())
              || this->ForceMakeCurrent))
-          {
+        {
           glXMakeCurrent(this->DisplayId,this->WindowId,
                          this->Internal->ContextId);
           this->ForceMakeCurrent = 0;
-          }
         }
+      }
 }
 
 // ----------------------------------------------------------------------------
@@ -1371,25 +1371,25 @@ bool vtkXOpenGLRenderWindow::IsCurrent()
   bool result=false;
 #ifdef VTK_USE_OSMESA
   if(this->OffScreenRendering && this->Internal->OffScreenContextId)
-    {
+  {
     result=this->Internal->OffScreenContextId==OSMesaGetCurrentContext();
-    }
+  }
   else
-    {
+  {
 #endif
       if(this->OffScreenRendering && this->Internal->PixmapContextId)
-        {
+      {
         result=this->Internal->PixmapContextId==glXGetCurrentContext();
-        }
+      }
       else
-        {
+      {
         if(this->Internal->ContextId)
-          {
+        {
           result=this->Internal->ContextId==glXGetCurrentContext();
-          }
         }
+      }
 #ifdef VTK_USE_OSMESA
-    }
+  }
 #endif
   return result;
 }
@@ -1411,9 +1411,9 @@ extern "C"
 
     if (((reinterpret_cast<XAnyEvent *>(event))->window == win) &&
         ((event->type == ButtonPress)))
-      {
+    {
       vtkXOpenGLRenderWindowFoundMatch = 1;
-      }
+    }
 
     return 0;
   }
@@ -1423,28 +1423,28 @@ void *vtkXOpenGLRenderWindow::GetGenericContext()
 {
 #if defined(MESA) && defined(VTK_USE_OSMESA)
   if (this->OffScreenRendering && this->Internal->OffScreenContextId)
-    {
+  {
     return (void *)this->Internal->OffScreenContextId;
-    }
+  }
   else
 #endif
     if(this->OffScreenRendering && this->Internal->PbufferContextId)
-      {
+    {
       return static_cast<void *>(this->Internal->PbufferContextId);
-      }
+    }
     else if(this->OffScreenRendering && this->Internal->PixmapContextId)
-      {
+    {
       return static_cast<void *>(this->Internal->PixmapContextId);
-      }
+    }
     else
-      {
+    {
       static GC gc = static_cast<GC>(NULL);
       if (!gc)
-        {
+      {
         gc = XCreateGC(this->DisplayId, this->WindowId, 0, 0);
-        }
-      return static_cast<void *>(gc);
       }
+      return static_cast<void *>(gc);
+    }
 
 }
 
@@ -1454,9 +1454,9 @@ int vtkXOpenGLRenderWindow::GetEventPending()
 
   vtkXOpenGLRenderWindowFoundMatch = 0;
   if (this->OffScreenRendering)
-    {
+  {
     return vtkXOpenGLRenderWindowFoundMatch;
-    }
+  }
   XCheckIfEvent(this->DisplayId, &report, vtkXOpenGLRenderWindowPredProc,
                 reinterpret_cast<char *>(this->WindowId));
   return vtkXOpenGLRenderWindowFoundMatch;
@@ -1467,19 +1467,19 @@ int *vtkXOpenGLRenderWindow::GetScreenSize()
 {
   // get the default display connection
   if (!this->DisplayId)
-    {
+  {
     this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
     if (this->DisplayId == NULL)
-      {
+    {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
       abort();
-      }
-    else
-      {
-      this->OwnDisplay = 1;
-      }
     }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
 
   this->ScreenSize[0] =
     XDisplayWidth(this->DisplayId, XDefaultScreen(this->DisplayId));
@@ -1498,9 +1498,9 @@ int *vtkXOpenGLRenderWindow::GetPosition(void)
 
   // if we aren't mapped then just return the ivar
   if (!this->Mapped || this->OffScreenRendering)
-    {
+  {
     return this->Position;
-    }
+  }
 
   //  Find the current window size
   XGetWindowAttributes(this->DisplayId, this->WindowId, &attribs);
@@ -1542,15 +1542,15 @@ void vtkXOpenGLRenderWindow::SetPosition(int x, int y)
 {
   // if we aren't mapped then just set the ivars
   if (!this->Mapped || this->OffScreenRendering)
-    {
+  {
     if ((this->Position[0] != x)||(this->Position[1] != y))
-      {
+    {
       this->Modified();
-      }
+    }
     this->Position[0] = x;
     this->Position[1] = y;
     return;
-    }
+  }
 
   XMoveWindow(this->DisplayId,this->WindowId,x,y);
   XSync(this->DisplayId,False);
@@ -1578,10 +1578,10 @@ void vtkXOpenGLRenderWindow::SetWindowId(Window arg)
   this->WindowId = arg;
 
   if (this->CursorHidden)
-    {
+  {
     this->CursorHidden = 0;
     this->HideCursor();
-    }
+  }
 }
 
 // Set this RenderWindow's X window id to a pre-existing window.
@@ -1591,19 +1591,19 @@ void vtkXOpenGLRenderWindow::SetWindowInfo(char *info)
 
   // get the default display connection
   if (!this->DisplayId)
-    {
+  {
     this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
     if (this->DisplayId == NULL)
-      {
+    {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
       abort();
-      }
-    else
-      {
-      this->OwnDisplay = 1;
-      }
     }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
 
   sscanf(info,"%i",&tmp);
 
@@ -1626,19 +1626,19 @@ void vtkXOpenGLRenderWindow::SetParentInfo(char *info)
 
   // get the default display connection
   if (!this->DisplayId)
-    {
+  {
     this->DisplayId = XOpenDisplay(static_cast<char *>(NULL));
     if (this->DisplayId == NULL)
-      {
+    {
       vtkErrorMacro(<< "bad X server connection. DISPLAY="
         << vtksys::SystemTools::GetEnv("DISPLAY") << ". Aborting.\n");
       abort();
-      }
-    else
-      {
-      this->OwnDisplay = 1;
-      }
     }
+    else
+    {
+      this->OwnDisplay = 1;
+    }
+  }
 
   sscanf(info,"%i",&tmp);
 
@@ -1659,9 +1659,9 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   MakeCurrent();
 
   if (!this->DisplayId)
-    {
+  {
     return "display id not set";
-    }
+  }
 
   int scrnum = XDefaultScreen(this->DisplayId);
   const char *serverVendor = glXQueryServerString(this->DisplayId, scrnum,
@@ -1698,16 +1698,16 @@ const char* vtkXOpenGLRenderWindow::ReportCapabilities()
   char **extlist = XListExtensions(this->DisplayId, &n);
 
   for (int i = 0; i < n; i++)
-    {
+  {
     if (i != n-1)
-      {
+    {
       strm << extlist[i] << ", ";
-      }
-    else
-      {
-      strm << extlist[i] << endl;
-      }
     }
+    else
+    {
+      strm << extlist[i] << endl;
+    }
+  }
 
   delete[] this->Capabilities;
 
@@ -1723,17 +1723,17 @@ int vtkXOpenGLRenderWindow::SupportsOpenGL()
 {
   this->MakeCurrent();
   if (!this->DisplayId)
-    {
+  {
     return 0;
-    }
+  }
 
   int value = 0;
   XVisualInfo *v = this->GetDesiredVisualInfo();
   if (v)
-    {
+  {
     glXGetConfig(this->DisplayId, v, GLX_USE_GL, &value);
     XFree(v);
-    }
+  }
 
   return value;
 }
@@ -1744,20 +1744,20 @@ int vtkXOpenGLRenderWindow::IsDirect()
   this->MakeCurrent();
   this->UsingHardware = 0;
   if (this->OffScreenRendering && this->Internal->PbufferContextId)
-    {
+  {
     this->UsingHardware = glXIsDirect(this->DisplayId,
                                       this->Internal->PbufferContextId) ? 1:0;
-    }
+  }
   else if (this->OffScreenRendering && this->Internal->PixmapContextId)
-    {
+  {
     this->UsingHardware = glXIsDirect(this->DisplayId,
                                       this->Internal->PixmapContextId) ? 1:0;
-    }
+  }
   else if (this->DisplayId && this->Internal->ContextId)
-    {
+  {
     this->UsingHardware = glXIsDirect(this->DisplayId,
                                       this->Internal->ContextId) ? 1:0;
-    }
+  }
   return this->UsingHardware;
 }
 
@@ -1771,19 +1771,19 @@ void vtkXOpenGLRenderWindow::SetWindowName(const char * cname)
   this->vtkOpenGLRenderWindow::SetWindowName( name );
 
   if (this->Mapped && ! this->OffScreenRendering)
-    {
+  {
     if( XStringListToTextProperty( &name, 1, &win_name_text_prop ) == 0 )
-      {
+    {
       XFree (win_name_text_prop.value);
       vtkWarningMacro(<< "Can't rename window");
       delete [] name;
       return;
-      }
+    }
 
     XSetWMName( this->DisplayId, this->WindowId, &win_name_text_prop );
     XSetWMIconName( this->DisplayId, this->WindowId, &win_name_text_prop );
     XFree (win_name_text_prop.value);
-    }
+  }
   delete [] name;
 }
 
@@ -1826,14 +1826,14 @@ void vtkXOpenGLRenderWindow::Render()
   // compute size at the start of a render and use
   // the ivar other times.
   if (this->Mapped && ! this->OffScreenRendering)
-    {
+  {
     //  Find the current window size
     XGetWindowAttributes(this->DisplayId,
                          this->WindowId, &attribs);
 
     this->Size[0] = attribs.width;
     this->Size[1] = attribs.height;
-    }
+  }
 
   // Now do the superclass stuff
   this->vtkOpenGLRenderWindow::Render();
@@ -1851,11 +1851,11 @@ void vtkXOpenGLRenderWindow::HideCursor()
   static XColor black = { 0, 0, 0, 0, 0, 0 };
 
   if (!this->DisplayId || !this->WindowId)
-    {
+  {
     this->CursorHidden = 1;
-    }
+  }
   else if (!this->CursorHidden)
-    {
+  {
     Pixmap blankPixmap = XCreateBitmapFromData(this->DisplayId,
                                                this->WindowId,
                                                blankBits, 16, 16);
@@ -1869,21 +1869,21 @@ void vtkXOpenGLRenderWindow::HideCursor()
     XFreePixmap(this->DisplayId, blankPixmap);
 
     this->CursorHidden = 1;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkXOpenGLRenderWindow::ShowCursor()
 {
   if (!this->DisplayId || !this->WindowId)
-    {
+  {
     this->CursorHidden = 0;
-    }
+  }
   else if (this->CursorHidden)
-    {
+  {
     XUndefineCursor(this->DisplayId, this->WindowId);
     this->CursorHidden = 0;
-    }
+  }
 }
 
 
@@ -1897,42 +1897,42 @@ void vtkXOpenGLRenderWindow::ShowCursor()
 void vtkXOpenGLRenderWindow::SetOffScreenRendering(int i)
 {
   if (this->OffScreenRendering == i)
-    {
+  {
     return;
-    }
+  }
 
   // invoke super
   this->vtkRenderWindow::SetOffScreenRendering(i);
 
   if(this->OffScreenRendering)
-    {
+  {
     this->Internal->ScreenDoubleBuffer = this->DoubleBuffer;
     this->DoubleBuffer = 0;
     if(this->Mapped)
-      {
+    {
       this->DestroyWindow();
-      }
+    }
 
     // delay initialization until Render
-    }
+  }
   else
-    {
+  {
     this->DestroyOffScreenWindow();
 
     this->DoubleBuffer = this->Internal->ScreenDoubleBuffer;
 
     // reset size based on screen window
     if(this->Mapped && this->WindowId)
-      {
+    {
       XWindowAttributes a;
       XGetWindowAttributes(this->DisplayId, this->WindowId, &a);
 
       this->Size[0] = a.width;
       this->Size[1] = a.height;
-      }
+    }
     // force context switch as we might be going from osmesa to onscreen
     this->SetForceMakeCurrent();
-    }
+  }
 }
 
 // This probably has been moved to superclass.
@@ -1940,114 +1940,114 @@ void *vtkXOpenGLRenderWindow::GetGenericWindowId()
 {
 #ifdef VTK_USE_OSMESA
   if (this->OffScreenRendering && this->Internal->OffScreenWindow)
-    {
+  {
     return reinterpret_cast<void*>(this->Internal->OffScreenWindow);
-    }
+  }
   else
 #endif
     if(this->OffScreenRendering)
-      {
+    {
       return reinterpret_cast<void*>(this->Internal->PixmapWindowId);
-      }
+    }
   return reinterpret_cast<void*>(this->WindowId);
 }
 
 void vtkXOpenGLRenderWindow::SetCurrentCursor(int shape)
 {
   if ( this->InvokeEvent(vtkCommand::CursorChangedEvent,&shape) )
-    {
+  {
     return;
-    }
+  }
   this->Superclass::SetCurrentCursor(shape);
   if (!this->DisplayId || !this->WindowId)
-    {
+  {
     return;
-    }
+  }
 
   if (shape == VTK_CURSOR_DEFAULT)
-    {
+  {
     XUndefineCursor(this->DisplayId,this->WindowId);
     return;
-    }
+  }
 
   switch (shape)
-    {
+  {
     case VTK_CURSOR_CROSSHAIR:
       if (!this->XCCrosshair)
-        {
+      {
         this->XCCrosshair = XCreateFontCursor(this->DisplayId, XC_crosshair);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCCrosshair);
       break;
     case VTK_CURSOR_ARROW:
       if (!this->XCArrow)
-        {
+      {
         this->XCArrow = XCreateFontCursor(this->DisplayId, XC_top_left_arrow);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCArrow);
       break;
     case VTK_CURSOR_SIZEALL:
       if (!this->XCSizeAll)
-        {
+      {
         this->XCSizeAll = XCreateFontCursor(this->DisplayId, XC_fleur);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeAll);
       break;
     case VTK_CURSOR_SIZENS:
       if (!this->XCSizeNS)
-        {
+      {
         this->XCSizeNS = XCreateFontCursor(this->DisplayId,
                                            XC_sb_v_double_arrow);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNS);
       break;
     case VTK_CURSOR_SIZEWE:
       if (!this->XCSizeWE)
-        {
+      {
         this->XCSizeWE = XCreateFontCursor(this->DisplayId,
                                            XC_sb_h_double_arrow);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeWE);
       break;
     case VTK_CURSOR_SIZENE:
       if (!this->XCSizeNE)
-        {
+      {
         this->XCSizeNE = XCreateFontCursor(this->DisplayId,
                                            XC_top_right_corner);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNE);
       break;
     case VTK_CURSOR_SIZENW:
       if (!this->XCSizeNW)
-        {
+      {
         this->XCSizeNW = XCreateFontCursor(this->DisplayId,
                                            XC_top_left_corner);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeNW);
       break;
     case VTK_CURSOR_SIZESE:
       if (!this->XCSizeSE)
-        {
+      {
         this->XCSizeSE = XCreateFontCursor(this->DisplayId,
                                            XC_bottom_right_corner);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSE);
       break;
     case VTK_CURSOR_SIZESW:
       if (!this->XCSizeSW)
-        {
+      {
         this->XCSizeSW = XCreateFontCursor(this->DisplayId,
                                            XC_bottom_left_corner);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCSizeSW);
       break;
     case VTK_CURSOR_HAND:
       if (!this->XCHand)
-        {
+      {
         this->XCHand = XCreateFontCursor(this->DisplayId,
                                          XC_hand1);
-        }
+      }
       XDefineCursor(this->DisplayId, this->WindowId, this->XCHand);
       break;
-    }
+  }
 }

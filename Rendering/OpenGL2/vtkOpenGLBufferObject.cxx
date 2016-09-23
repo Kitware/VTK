@@ -22,7 +22,7 @@ namespace {
 inline GLenum convertType(vtkOpenGLBufferObject::ObjectType type)
 {
   switch (type)
-    {
+  {
     case vtkOpenGLBufferObject::ElementArrayBuffer:
       return GL_ELEMENT_ARRAY_BUFFER;
     case vtkOpenGLBufferObject::TextureBuffer:
@@ -33,17 +33,17 @@ inline GLenum convertType(vtkOpenGLBufferObject::ObjectType type)
     default:
     case vtkOpenGLBufferObject::ArrayBuffer:
       return GL_ARRAY_BUFFER;
-    }
+  }
 }
 }
 
 struct vtkOpenGLBufferObject::Private
 {
   Private()
-    {
+  {
     this->Handle = 0;
     this->Type = GL_ARRAY_BUFFER;
-    }
+  }
   GLenum Type;
   GLuint Handle;
 };
@@ -58,20 +58,20 @@ vtkOpenGLBufferObject::vtkOpenGLBufferObject()
 vtkOpenGLBufferObject::~vtkOpenGLBufferObject()
 {
   if (this->Internal->Handle != 0)
-    {
+  {
     glDeleteBuffers(1, &this->Internal->Handle);
-    }
+  }
   delete this->Internal;
 }
 
 void vtkOpenGLBufferObject::ReleaseGraphicsResources()
 {
   if (this->Internal->Handle != 0)
-    {
+  {
     glBindBuffer(this->Internal->Type, 0);
     glDeleteBuffers(1, &this->Internal->Handle);
     this->Internal->Handle = 0;
-    }
+  }
 }
 
 void vtkOpenGLBufferObject::SetType(vtkOpenGLBufferObject::ObjectType value)
@@ -82,17 +82,17 @@ void vtkOpenGLBufferObject::SetType(vtkOpenGLBufferObject::ObjectType value)
 vtkOpenGLBufferObject::ObjectType vtkOpenGLBufferObject::GetType() const
 {
   if (this->Internal->Type == GL_ARRAY_BUFFER)
-    {
+  {
     return vtkOpenGLBufferObject::ArrayBuffer;
-    }
+  }
   if (this->Internal->Type == GL_ELEMENT_ARRAY_BUFFER)
-    {
+  {
     return vtkOpenGLBufferObject::ElementArrayBuffer;
-    }
+  }
   else
-    {
+  {
     return vtkOpenGLBufferObject::TextureBuffer;
-    }
+  }
 }
 
 int vtkOpenGLBufferObject::GetHandle() const
@@ -103,9 +103,9 @@ int vtkOpenGLBufferObject::GetHandle() const
 bool vtkOpenGLBufferObject::Bind()
 {
   if (!this->Internal->Handle)
-    {
+  {
     return false;
-    }
+  }
 
   glBindBuffer(this->Internal->Type, this->Internal->Handle);
   return true;
@@ -114,9 +114,9 @@ bool vtkOpenGLBufferObject::Bind()
 bool vtkOpenGLBufferObject::Release()
 {
   if (!this->Internal->Handle)
-    {
+  {
     return false;
-    }
+  }
 
   glBindBuffer(this->Internal->Type, 0);
   return true;
@@ -127,10 +127,10 @@ bool vtkOpenGLBufferObject::GenerateBuffer(
 {
   GLenum objectTypeGL = convertType(objectType);
   if (this->Internal->Handle == 0)
-    {
+  {
     glGenBuffers(1, &this->Internal->Handle);
     this->Internal->Type = objectTypeGL;
-    }
+  }
   return (this->Internal->Type == objectTypeGL);
 }
 
@@ -140,10 +140,10 @@ bool vtkOpenGLBufferObject::UploadInternal(
 {
   const bool generated = this->GenerateBuffer(objectType);
   if (!generated)
-    {
+  {
     this->Error = "Trying to upload array buffer to incompatible buffer.";
     return false;
-    }
+  }
 
   glBindBuffer(this->Internal->Type, this->Internal->Handle);
   glBufferData(this->Internal->Type, size, static_cast<const GLvoid *>(buffer),

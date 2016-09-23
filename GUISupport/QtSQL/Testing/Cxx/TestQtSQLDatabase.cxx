@@ -66,53 +66,53 @@ int TestQtSQLDatabase(int argc, char* argv[])
   QString queryText("SELECT name, age, weight FROM people WHERE age <= 20");
 
   for (int i = 1; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       interactive = true;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-t"))
-      {
+    {
       i++;
       dbtype = argv[i];
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-d"))
-      {
+    {
       i++;
       database = argv[i];
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-u"))
-      {
+    {
       i++;
       user = argv[i];
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-w"))
-      {
+    {
       askpass = true;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-h"))
-      {
+    {
       i++;
       host = argv[i];
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-p"))
-      {
+    {
       i++;
       port = atoi(argv[i]);
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-q"))
-      {
+    {
       i++;
       queryText = argv[i];
       continue;
-      }
+    }
 
     cerr << argv[0] << " Options:\n"
       << " -I (interactive, shows Qt table with query result)\n"
@@ -124,13 +124,13 @@ int TestQtSQLDatabase(int argc, char* argv[])
       << " -w (password required; default: no password required)\n"
       << " -q (query; default: select * from people ...)\n";
     return 0;
-    }
+  }
 
   QString password;
   if (askpass)
-    {
+  {
     password = QInputDialog::getText(NULL, "Enter password", "Password", QLineEdit::Password);
-    }
+  }
 
   vtkQtSQLDatabase* db = vtkQtSQLDatabase::New();
   db->SetDatabaseType(dbtype.toLatin1().data());
@@ -138,103 +138,103 @@ int TestQtSQLDatabase(int argc, char* argv[])
   db->SetUserName(user.toLatin1().data());
   db->SetPort(port);
   if (!db->Open(password.toLatin1().data()))
-    {
+  {
     cerr << "Unable to open database" << endl;
     return 1;
-    }
+  }
   vtkSQLQuery* query = db->GetQueryInstance();
 
   bool dataExists = false;
   query->SetQuery("SHOW TABLES");
   query->Execute();
   if (query->NextRow())
-    {
+  {
     dataExists = true; // there is a table
-    }
+  }
 
   if (!dataExists)
-    {
+  {
     QString createQuery("CREATE TABLE IF NOT EXISTS people (name TEXT, age INTEGER, weight FLOAT)");
     cout << createQuery.toLatin1().data() << endl;
     query->SetQuery(createQuery.toLatin1().data());
     if (!query->Execute())
-      {
+    {
       cerr << "Create query failed" << endl;
       return 1;
-      }
+    }
 
     for (int i = 0; i < 40; i++)
-      {
+    {
       QString insertQuery = QString("INSERT INTO people VALUES('John Doe %1', %1, %2)").arg(i).arg(10*i);
       cout << insertQuery.toLatin1().data() << endl;
       query->SetQuery(insertQuery.toLatin1().data());
       if (!query->Execute())
-        {
+      {
         cerr << "Insert query failed" << endl;
         return 1;
-        }
       }
     }
+  }
 
   query->SetQuery(queryText.toLatin1().data());
   cerr << endl << "Running query: " << query->GetQuery() << endl;
 
   cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
   if (!query->Execute())
-    {
+  {
     cerr << "Query failed" << endl;
     return 1;
-    }
+  }
   for (int col = 0; col < query->GetNumberOfFields(); col++)
-    {
+  {
     if (col > 0)
-      {
+    {
       cerr << ", ";
-      }
-    cerr << query->GetFieldName(col);
     }
+    cerr << query->GetFieldName(col);
+  }
   cerr << endl;
   while (query->NextRow())
-    {
+  {
     for (int field = 0; field < query->GetNumberOfFields(); field++)
-      {
+    {
       if (field > 0)
-        {
+      {
         cerr << ", ";
-        }
-      cerr << query->DataValue(field).ToString().c_str();
       }
-    cerr << endl;
+      cerr << query->DataValue(field).ToString().c_str();
     }
+    cerr << endl;
+  }
 
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if (!query->Execute())
-    {
+  {
     cerr << "Query failed" << endl;
     return 1;
-    }
+  }
   for (int col = 0; col < query->GetNumberOfFields(); col++)
-    {
+  {
     if (col > 0)
-      {
+    {
       cerr << ", ";
-      }
-    cerr << query->GetFieldName(col);
     }
+    cerr << query->GetFieldName(col);
+  }
   cerr << endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while (query->NextRow(va))
-    {
+  {
     for (int field = 0; field < va->GetNumberOfValues(); field++)
-      {
+    {
       if (field > 0)
-        {
+      {
         cerr << ", ";
-        }
-      cerr << va->GetValue(field).ToString().c_str();
       }
-    cerr << endl;
+      cerr << va->GetValue(field).ToString().c_str();
     }
+    cerr << endl;
+  }
   va->Delete();
 
   cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
@@ -243,23 +243,23 @@ int TestQtSQLDatabase(int argc, char* argv[])
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
-    {
+  {
     table->GetColumn(col)->Print(cerr);
-    }
+  }
   cerr << endl;
   for (vtkIdType row = 0; row < table->GetNumberOfRows(); row++)
-    {
+  {
     for (vtkIdType col = 0; col < table->GetNumberOfColumns(); col++)
-      {
+    {
       vtkVariant v = table->GetValue(row, col);
       cerr << "row " << row << ", col " << col << " - "
         << v.ToString() << " (" << vtkImageScalarTypeNameMacro(v.GetType()) << ")" << endl;
-      }
     }
+  }
 
   // Put the table in a view ... just for fun
   if (interactive)
-    {
+  {
     vtkQtTableModelAdapter* model = new vtkQtTableModelAdapter(table);
     QTableView* view = new QTableView();
     view->setModel(model);
@@ -269,7 +269,7 @@ int TestQtSQLDatabase(int argc, char* argv[])
 
     delete view;
     delete model;
-    }
+  }
 
   reader->Delete();
   query->Delete();

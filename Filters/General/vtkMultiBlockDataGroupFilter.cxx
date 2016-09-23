@@ -52,15 +52,15 @@ int vtkMultiBlockDataGroupFilter::RequestUpdateExtent(
 {
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   for (int i=0; i<numInputs; i++)
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(i);
     if (inInfo->Has(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()))
-      {
+    {
       inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
         inInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()),
         6);
-      }
     }
+  }
   return 1;
 }
 
@@ -74,9 +74,9 @@ int vtkMultiBlockDataGroupFilter::RequestData(
   vtkMultiBlockDataSet* output = vtkMultiBlockDataSet::SafeDownCast(
     info->Get(vtkDataObject::DATA_OBJECT()));
   if (!output)
-    {
+  {
     return 0;
-    }
+  }
 
   /*
   unsigned int updatePiece = static_cast<unsigned int>(
@@ -88,7 +88,7 @@ int vtkMultiBlockDataGroupFilter::RequestData(
   int numInputs = inputVector[0]->GetNumberOfInformationObjects();
   output->SetNumberOfBlocks(numInputs);
   for (int idx = 0; idx < numInputs; ++idx)
-    {
+  {
     /*
     // This can be a vtkMultiPieceDataSet if we ever support it.
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::New();
@@ -99,31 +99,31 @@ int vtkMultiBlockDataGroupFilter::RequestData(
     vtkDataObject* input = 0;
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(idx);
     if (inInfo)
-      {
+    {
       input = inInfo->Get(vtkDataObject::DATA_OBJECT());
-      }
+    }
     if (input)
-      {
+    {
       vtkDataObject* dsCopy = input->NewInstance();
       dsCopy->ShallowCopy(input);
       output->SetBlock(idx, dsCopy);
       dsCopy->Delete();
-      }
-    else
-      {
-      output->SetBlock(idx, 0);
-      }
     }
+    else
+    {
+      output->SetBlock(idx, 0);
+    }
+  }
 
   if (output->GetNumberOfBlocks() == 1 &&
     output->GetBlock(0) && output->GetBlock(0)->IsA("vtkMultiBlockDataSet"))
-    {
+  {
     vtkMultiBlockDataSet* block = vtkMultiBlockDataSet::SafeDownCast(
       output->GetBlock(0));
     block->Register(this);
     output->ShallowCopy(block);
     block->UnRegister(this);
-    }
+  }
 
   return 1;
 }

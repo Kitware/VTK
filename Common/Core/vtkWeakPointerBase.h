@@ -66,11 +66,11 @@ public:
    * Get the contained pointer.
    */
   vtkObjectBase* GetPointer() const
-    {
+  {
     // Inline implementation so smart pointer comparisons can be fully
     // inlined.
     return this->Object;
-    }
+  }
 
 private:
   friend class vtkObjectBaseToWeakPointerBaseFriendship;
@@ -89,20 +89,20 @@ protected:
 #define VTK_WEAK_POINTER_BASE_DEFINE_OPERATOR(op) \
   inline bool \
   operator op (const vtkWeakPointerBase& l, const vtkWeakPointerBase& r) \
-    { \
+  { \
     return (static_cast<void*>(l.GetPointer()) op \
             static_cast<void*>(r.GetPointer())); \
-    } \
+  } \
   inline bool \
   operator op (vtkObjectBase* l, const vtkWeakPointerBase& r) \
-    { \
+  { \
     return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
-    } \
+  } \
   inline bool \
   operator op (const vtkWeakPointerBase& l, vtkObjectBase* r) \
-    { \
+  { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
-    }
+  }
 /**
  * Compare smart pointer values.
  */

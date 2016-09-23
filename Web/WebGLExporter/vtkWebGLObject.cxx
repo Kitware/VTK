@@ -55,9 +55,9 @@ void vtkWebGLObject::SetId(std::string i)
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetType(WebGLObjectTypes t)
-  {
+{
   this->webGlType = t;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetTransformationMatrix(vtkMatrix4x4* m)
@@ -67,114 +67,114 @@ void vtkWebGLObject::SetTransformationMatrix(vtkMatrix4x4* m)
 
 //-----------------------------------------------------------------------------
 std::string vtkWebGLObject::GetMD5()
-  {
+{
   return this->MD5;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::PrintSelf(ostream& os, vtkIndent indent)
-  {
+{
   this->Superclass::PrintSelf(os, indent);
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::HasChanged()
-  {
+{
   return this->hasChanged;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetWireframeMode(bool wireframe)
-  {
+{
   this->iswireframeMode = wireframe;
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::isWireframeMode()
-  {
+{
   return this->iswireframeMode;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetVisibility(bool vis)
-  {
+{
   this->isvisible = vis;
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::isVisible()
-  {
+{
   return this->isvisible;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetHasTransparency(bool t)
-  {
+{
   this->hasTransparency = t;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetIsWidget(bool w)
-  {
+{
   this->iswidget = w;
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::isWidget()
-  {
+{
   return this->iswidget;
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::HasTransparency()
-  {
+{
   return this->hasTransparency;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetRendererId(size_t i)
-  {
+{
   this->rendererId = i;
-  }
+}
 
 //-----------------------------------------------------------------------------
 size_t vtkWebGLObject::GetRendererId()
-  {
+{
   return this->rendererId;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetLayer(int l)
-  {
+{
   this->layer = l;
-  }
+}
 
 //-----------------------------------------------------------------------------
 int vtkWebGLObject::GetLayer()
-  {
+{
   return this->layer;
-  }
+}
 
 //-----------------------------------------------------------------------------
 bool vtkWebGLObject::InteractAtServer()
-  {
+{
   return this->interactAtServer;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::SetInteractAtServer(bool i)
-  {
+{
   this->interactAtServer = i;
-  }
+}
 
 //-----------------------------------------------------------------------------
 void vtkWebGLObject::GetBinaryData(int part, vtkUnsignedCharArray* buffer)
 {
   if (!buffer)
-    {
+  {
     vtkErrorMacro("Buffer must not be NULL.");
     return;
-    }
+  }
 
   const int binarySize = this->GetBinarySize(part);
   const unsigned char* binaryData = this->GetBinaryData(part);
@@ -183,9 +183,9 @@ void vtkWebGLObject::GetBinaryData(int part, vtkUnsignedCharArray* buffer)
   buffer->SetNumberOfTuples(binarySize);
 
   if (binarySize)
-    {
+  {
     std::copy(binaryData, binaryData+binarySize, buffer->GetPointer(0));
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------

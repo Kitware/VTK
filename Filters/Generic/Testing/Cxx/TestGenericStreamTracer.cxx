@@ -163,9 +163,9 @@ int TestGenericStreamTracer(int argc, char* argv[])
   streamer->GetOutput()->PrintSelf(cout,indent);
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   // Cleanup
   renderer->Delete();

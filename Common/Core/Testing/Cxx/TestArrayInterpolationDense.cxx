@@ -35,7 +35,7 @@ void test_expression(const bool expression, const std::string& message)
 int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     vtkSmartPointer<vtkDenseArray<double> > a = vtkSmartPointer<vtkDenseArray<double> >::New();
     a->Resize(4);
     a->SetValue(0, 0);
@@ -75,10 +75,10 @@ int TestArrayInterpolationDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(d->GetValue(1, 1) == 6, "expected 6");
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

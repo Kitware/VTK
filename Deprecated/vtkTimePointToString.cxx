@@ -130,15 +130,15 @@ int vtkTimePointToString::RequestData(
     this->GetInputAbstractArrayToProcess(0, inputVector));
 
   if (inputArray == NULL)
-    {
+  {
     vtkErrorMacro(<< "The input array must be of type vtkTypeUInt64Array.");
     return 0;
-    }
+  }
   if (this->OutputArrayName == NULL)
-    {
+  {
     vtkErrorMacro(<< "The output array name must be specified.");
     return 0;
-    }
+  }
 
   // Initialize the string array
   vtkStringArray* stringArray = vtkStringArray::New();
@@ -153,82 +153,82 @@ int vtkTimePointToString::RequestData(
 
   // Convert the time points to strings
   for (vtkIdType i = 0; i < numTuples*numComps; i++)
-    {
+  {
     vtkTypeUInt64 timePoint = inputArray->GetValue(i);
     const char* s = vtkTimePointUtility::TimePointToISO8601(timePoint, this->ISO8601Format);
     vtkStdString str = s;
     stringArray->SetValue(i, str);
     delete[] s;
-    }
+  }
 
   // Add the array to the approprate field data (i.e. the same field data as the input).
   bool addedArray = false;
   for (vtkIdType i = 0; i < output->GetFieldData()->GetNumberOfArrays(); i++)
-    {
+  {
     if (inputArray == output->GetFieldData()->GetAbstractArray(i))
-      {
+    {
       output->GetFieldData()->AddArray(stringArray);
       addedArray = true;
-      }
     }
+  }
   vtkDataSet* outputDataSet;
   if (!addedArray && (outputDataSet = vtkDataSet::SafeDownCast(output)))
-    {
+  {
     for (vtkIdType i = 0; i < outputDataSet->GetPointData()->GetNumberOfArrays(); i++)
-      {
+    {
       if (inputArray == outputDataSet->GetPointData()->GetAbstractArray(i))
-        {
+      {
         outputDataSet->GetPointData()->AddArray(stringArray);
         addedArray = true;
-        }
       }
+    }
     for (vtkIdType i = 0; i < outputDataSet->GetCellData()->GetNumberOfArrays(); i++)
-      {
+    {
       if (inputArray == outputDataSet->GetCellData()->GetAbstractArray(i))
-        {
+      {
         outputDataSet->GetCellData()->AddArray(stringArray);
         addedArray = true;
-        }
       }
     }
+  }
   vtkGraph* outputGraph;
   if (!addedArray && (outputGraph = vtkGraph::SafeDownCast(output)))
-    {
+  {
     for (vtkIdType i = 0; i < outputGraph->GetVertexData()->GetNumberOfArrays(); i++)
-      {
+    {
       if (inputArray == outputGraph->GetVertexData()->GetAbstractArray(i))
-        {
+      {
         outputGraph->GetVertexData()->AddArray(stringArray);
         addedArray = true;
-        }
       }
+    }
     for (vtkIdType i = 0; i < outputGraph->GetEdgeData()->GetNumberOfArrays(); i++)
-      {
+    {
       if (inputArray == outputGraph->GetEdgeData()->GetAbstractArray(i))
-        {
+      {
         outputGraph->GetEdgeData()->AddArray(stringArray);
         addedArray = true;
-        }
       }
     }
+  }
   vtkTable* outputTable;
   if (!addedArray && (outputTable = vtkTable::SafeDownCast(output)))
-    {
+  {
     for (vtkIdType i = 0; i < outputTable->GetRowData()->GetNumberOfArrays(); i++)
-      {
+    {
       if (inputArray == outputTable->GetRowData()->GetAbstractArray(i))
-        {
+      {
         outputTable->GetRowData()->AddArray(stringArray);
         addedArray = true;
-        }
       }
     }
+  }
   if (!addedArray)
-    {
+  {
     vtkErrorMacro(<< "The input array was not found in the field, point, or cell data.");
     stringArray->Delete();
     return 0;
-    }
+  }
 
   // Clean up
   stringArray->Delete();
@@ -243,9 +243,9 @@ int vtkTimePointToString::ProcessRequest(
 {
   // create the output
   if(request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-    {
+  {
     return this->RequestDataObject(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
@@ -257,28 +257,28 @@ int vtkTimePointToString::RequestDataObject(
 {
   vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
   if (!inInfo)
-    {
+  {
     return 0;
-    }
+  }
   vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
 
   if (input)
-    {
+  {
     // for each output
     for(int i=0; i < this->GetNumberOfOutputPorts(); ++i)
-      {
+    {
       vtkInformation* info = outputVector->GetInformationObject(i);
       vtkDataObject *output = info->Get(vtkDataObject::DATA_OBJECT());
 
       if (!output || !output->IsA(input->GetClassName()))
-        {
+      {
         vtkDataObject* newOutput = input->NewInstance();
         info->Set(vtkDataObject::DATA_OBJECT(), newOutput);
         newOutput->Delete();
-        }
       }
-    return 1;
     }
+    return 1;
+  }
   return 0;
 }
 

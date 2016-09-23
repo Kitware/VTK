@@ -52,13 +52,13 @@ int vtkPassThrough::RequestData(
   vtkDataObject* input = inInfo->Get(vtkDataObject::DATA_OBJECT());
   vtkDataObject* output = outInfo->Get(vtkDataObject::DATA_OBJECT());
   if(this->DeepCopyInput)
-    {
+  {
     output->DeepCopy(input);
-    }
+  }
   else
-    {
+  {
     output->ShallowCopy(input);
-    }
+  }
 
   return 1;
 }

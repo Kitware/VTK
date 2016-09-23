@@ -29,17 +29,17 @@
 #define test_expression(expression) \
 { \
   if(!(expression)) \
-    { \
+  { \
     std::ostringstream buffer; \
     buffer << "Expression failed at line " << __LINE__ << ": " << #expression; \
     throw std::runtime_error(buffer.str()); \
-    } \
+  } \
 }
 
 int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 {
   try
-    {
+  {
     // Create an array ...
     vtkSmartPointer<vtkDenseArray<double> > array = vtkSmartPointer<vtkDenseArray<double> >::New();
     array->Resize(vtkArrayExtents::Uniform(3, 0));
@@ -71,15 +71,15 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     array->Fill(0.0);
     const vtkArrayExtents extents = array->GetExtents();
     for(vtkIdType i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(vtkIdType j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(vtkIdType k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == 0.0);
-          }
         }
       }
+    }
     }
 
     // Verify that we can write data into the array and read it out again ...
@@ -87,15 +87,15 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     double value = 0;
     const vtkArrayExtents extents = array->GetExtents();
     for(vtkIdType i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(vtkIdType j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(vtkIdType k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           array->SetValue(vtkArrayCoordinates(i, j, k), value++);
-          }
         }
       }
+    }
     }
 
     {
@@ -103,11 +103,11 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     vtkIdType index = 0;
     const vtkArrayExtents extents = array->GetExtents();
     for(vtkIdType i = extents[0].GetBegin(); i != extents[0].GetEnd(); ++i)
-      {
+    {
       for(vtkIdType j = extents[1].GetBegin(); j != extents[1].GetEnd(); ++j)
-        {
+      {
         for(vtkIdType k = extents[2].GetBegin(); k != extents[2].GetEnd(); ++k)
-          {
+        {
           test_expression(array->GetValue(vtkArrayCoordinates(i, j, k)) == value);
 
           vtkArrayCoordinates coordinates;
@@ -115,9 +115,9 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
           ++index;
           ++value;
-          }
         }
       }
+    }
     }
 
     // Verify that fill works correctly ...
@@ -158,10 +158,10 @@ int TestArrayAPIDense(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
     test_expression(array->GetValue(1, 0) == 6);
 
     return 0;
-    }
+  }
   catch(std::exception& e)
-    {
+  {
     cerr << e.what() << endl;
     return 1;
-    }
+  }
 }

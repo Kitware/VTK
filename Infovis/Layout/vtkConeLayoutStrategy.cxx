@@ -68,13 +68,13 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
 
   // If there are no children, we are done.
   if (nrChildren == 0)
-    {
+  {
     return 1.0;
-    }
+  }
 
   this->Graph->GetOutEdges(node, children);
   if (nrChildren == 1)
-    {
+  {
     // For one child, simply position that child; radius required
     // for the tree will then depend on radius required for that
     // child.
@@ -82,12 +82,12 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
       children->NextGraphEdge()->GetTarget(),
       points);
     return radius;
-    }
+  }
 
   // If there is more than one child nodes ...
   radii = new double[nrChildren];
   for (vtkIdType i = 0; i < nrChildren; i++)
-    {
+  {
     // Layout the next child and record its raidus.  If
     // necessary update the size of largest child cone.
     // Accumulate the (approximate) arc-length
@@ -97,10 +97,10 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
     radii[i] =  this->LocalPlacement(child, points);
     circum += radii[i]*2.0;
     if (radii[i] > largest)
-      {
+    {
       largest = radii[i];
-      }
     }
+  }
   radius = circum / (2.0*vtkMath::Pi());
 
   // Iterate over the children, assigning the node of each
@@ -111,27 +111,27 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
   this->Graph->GetOutEdges(node, children);
 
   for (vtkIdType j = 0; j < nrChildren; j++)
-    {
+  {
     child = children->NextGraphEdge()->GetTarget();
     dAlpha = (radii[j] + radii[prevChild]) / radius;
     alpha  += dAlpha;
     points->SetPoint(child, radius*cos(alpha), radius*sin(alpha), 0.0);
     prevChild = j;
     if (j == 0)
-      {
+    {
       cx = radius*cos(alpha);
       cy = radius*sin(alpha);
       cr = radius;
-      }
+    }
     else
-      {
+    {
       vx = cx - radius*cos(alpha);
       vy = cy = radius*sin(alpha);
       norm = sqrt(vx*vx + vy*vy);
       if (norm == 0.0)
-        {
+      {
         continue;
-        }
+      }
       vx /= norm;
       vy /= norm;
       i1x = cx - vx*cr;
@@ -140,34 +140,34 @@ double vtkConeLayoutStrategy::LocalPlacement(vtkIdType node, vtkPoints *points)
       i3y = radius*sin(alpha) - radius*vy;
       norm = sqrt((i1x-i3x)*(i1x-i3x) + (i1y-i3y)*(i1y-i3y));
       if (radius > norm)
-        {
+      {
         cx = radius*cos(alpha);
         cy = radius*sin(alpha);
         cr = radius;
-        }
+      }
       else
-        {
+      {
         if (norm > cr)
-          {
+        {
           cx = (i1x + i3x)/2.0;
           cy = (i1y + i3y)/2.0;
           cr = norm/2.0;
-          }
         }
       }
     }
+  }
 
   delete [] radii;
 
   // Update statistics, used when height of cones is calculated.
   if (radius < this->MinRadius)
-    {
+  {
     this->MinRadius = radius;
-    }
+  }
   if (radius > this->MaxRadius)
-    {
+  {
     this->MaxRadius = radius;
-    }
+  }
   this->SumOfRadii += radius;
   this->NrCones++;
 
@@ -199,13 +199,13 @@ void vtkConeLayoutStrategy::GlobalPlacement(
   final[0] += refX;
   final[1] += refY;
   if (this->Compression)
-    {
+  {
     final[2] = level*this->Spacing;
-    }
+  }
   else
-    {
+  {
     final[2] = level*this->Spacing*(this->MaxRadius*this->Compactness);
-    }
+  }
   points->SetPoint(root, final);
 
   // Having fixed the position of "root", now iterate over its
@@ -214,10 +214,10 @@ void vtkConeLayoutStrategy::GlobalPlacement(
 
   this->Graph->GetOutEdges(root, children);
   while (children->HasNext())
-    {
+  {
     child = children->NextGraphEdge()->GetTarget();
     this->GlobalPlacement(child, points, final[0], final[1], level+1);
-    }
+  }
 }
 
 void vtkConeLayoutStrategy::Layout()
@@ -244,17 +244,17 @@ void vtkConeLayoutStrategy::Layout()
   nrRoots = 0;
   root = superGraph->AddVertex();
   for (node = 0; node < numVerts; node++)
-    {
+  {
     if (superGraph->GetInDegree(node) == 0)
-      {
+    {
       superGraph->AddEdge(root,node);
       nrRoots++;
-      }
     }
+  }
   if (nrRoots == 0)
-    {
+  {
     vtkErrorMacro(<<"No roots found in input dataset - output may be ill-defined.");
-    }
+  }
 
   this->MinRadius  = 1.0E10F;
   this->MaxRadius  = 0.0;
@@ -275,10 +275,10 @@ void vtkConeLayoutStrategy::Layout()
   vtkIdType c;
   double p[3];
   for (c = 0; c < numVerts; c++)
-    {
+  {
     tmpPoints->GetPoint(c, p);
     points->SetPoint(c,p);
-    }
+  }
 
   this->Graph = temp;
   this->Graph->SetPoints(points);

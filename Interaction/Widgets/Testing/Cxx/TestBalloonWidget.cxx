@@ -40,13 +40,13 @@ public:
   static vtkBalloonCallback *New()
     { return new vtkBalloonCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       vtkBalloonWidget *balloonWidget = reinterpret_cast<vtkBalloonWidget*>(caller);
       if ( balloonWidget->GetCurrentProp() != NULL )
-        {
+      {
         std::cout << "Prop selected\n";
-        }
-    }
+      }
+  }
 
   vtkActor *PickedActor;
 
@@ -58,14 +58,14 @@ public:
   static vtkBalloonPickCallback *New()
     { return new vtkBalloonPickCallback; }
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
       vtkPropPicker *picker = reinterpret_cast<vtkPropPicker*>(caller);
       vtkProp *prop = picker->GetViewProp();
       if ( prop != NULL )
-        {
+      {
         this->BalloonWidget->UpdateBalloonString(prop,"Picked");
-        }
-    }
+      }
+  }
   vtkBalloonWidget *BalloonWidget;
 };
 

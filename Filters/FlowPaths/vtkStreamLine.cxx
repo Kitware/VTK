@@ -54,10 +54,10 @@ int vtkStreamLine::RequestData(
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
   vtkDataSet *source = 0;
   if (sourceInfo)
-    {
+  {
     source = vtkDataSet::SafeDownCast(
       sourceInfo->Get(vtkDataObject::DATA_OBJECT()));
-    }
+  }
 
   vtkStreamer::StreamPoint *sPrev, *sPtr;
   vtkPoints *newPts;
@@ -89,7 +89,7 @@ int vtkStreamLine::RequestData(
   newVectors->SetNumberOfComponents(3);
   newVectors->Allocate(3000);
   if ( this->Vorticity )
-    {
+  {
     lineNormalGenerator = vtkPolyLine::New();
     normals = vtkFloatArray::New();
     normals->SetNumberOfComponents(3);
@@ -99,14 +99,14 @@ int vtkStreamLine::RequestData(
     rotation->Allocate(1000);
     rotation->SetName("Thetas");
     output->GetPointData()->AddArray(rotation);
-    }
+  }
 
   if ( input->GetPointData()->GetScalars() || this->SpeedScalars
        || this->OrientationScalars)
-    {
+  {
     newScalars = vtkFloatArray::New();
     newScalars->Allocate(1000);
-    }
+  }
   newLines = vtkCellArray::New();
   newLines->Allocate(newLines->EstimateSize(2*this->NumberOfStreamers,
                                             VTK_CELL_SIZE));
@@ -114,37 +114,37 @@ int vtkStreamLine::RequestData(
   // Loop over all streamers generating points
   //
   for (ptId=0; ptId < this->NumberOfStreamers; ptId++)
-    {
+  {
     if ( this->Streamers[ptId].GetNumberOfPoints() < 2 )
-      {
+    {
       continue;
-      }
+    }
     sPrev = this->Streamers[ptId].GetStreamPoint(0);
     sPtr = this->Streamers[ptId].GetStreamPoint(1);
 
     if ( this->Streamers[ptId].GetNumberOfPoints() == 2 && sPtr->cellId >= 0 )
-      {
+    {
       continue;
-      }
+    }
 
     tOffset = sPrev->t;
 
     for ( i=1;
     i < this->Streamers[ptId].GetNumberOfPoints() && sPtr->cellId >= 0;
     i++, sPrev=sPtr, sPtr=this->Streamers[ptId].GetStreamPoint(i) )
-      {
+    {
       //
       // Create points for line
       //
       while ( tOffset >= sPrev->t && tOffset < sPtr->t )
-        {
+      {
         r = (tOffset - sPrev->t) / (sPtr->t - sPrev->t);
 
         for (j=0; j<3; j++)
-          {
+        {
           x[j] = sPrev->x[j] + r * (sPtr->x[j] - sPrev->x[j]);
           v[j] = sPrev->v[j] + r * (sPtr->v[j] - sPrev->v[j]);
-          }
+        }
 
         // add point to line
         id = newPts->InsertNextPoint(x);
@@ -152,36 +152,36 @@ int vtkStreamLine::RequestData(
         newVectors->InsertTuple(id,v);
 
         if ( newScalars )
-          {
+        {
           s = sPrev->s + r * (sPtr->s - sPrev->s);
           newScalars->InsertTuple(id,&s);
-          }
+        }
 
         if ( this->Vorticity )
-          {
+        {
           // Store the rotation values. Used after all the streamlines
           // are generated.
           theta = sPrev->theta + r * (sPtr->theta - sPrev->theta);
           rotation->InsertTuple(id, &theta);
-          }
+        }
 
         tOffset += this->StepLength;
 
-        } // while
-      } //for this streamer
+      } // while
+    } //for this streamer
 
     if ( pts->GetNumberOfIds() > 1 )
-      {
+    {
       newLines->InsertNextCell(pts);
       pts->Reset();
-      }
-    } //for all streamers
+    }
+  } //for all streamers
 
   vtkDebugMacro(<<"Created " << newPts->GetNumberOfPoints() << " points, "
                << newLines->GetNumberOfCells() << " lines");
 
   if (this->Vorticity)
-    {
+  {
     // Rotate the normal vectors with stream vorticity
     vtkIdType nPts=0;
     vtkIdType *linePts=0;
@@ -196,17 +196,17 @@ int vtkStreamLine::RequestData(
     //  any lines. The normals are only calculated for points that are used
     //  in lines so referencing normals for all points can lead to UMRs
     for (newLines->InitTraversal(); newLines->GetNextCell(nPts,linePts); )
-      {
+    {
       for(i=0; i<nPts; i++)
-        {
+      {
         normals->GetTuple(linePts[i], normal);
         newVectors->GetTuple(linePts[i], v);
         // obtain two unit orthogonal vectors on the plane perpendicular to
         // the streamline
         for(j=0; j<3; j++)
-          {
+        {
           local1[j] = normal[j];
-          }
+        }
         length = vtkMath::Normalize(local1);
         vtkMath::Cross(local1, v, local2);
         vtkMath::Normalize(local2);
@@ -215,17 +215,17 @@ int vtkStreamLine::RequestData(
         costheta = cos(theta);
         sintheta = sin(theta);
         for(j=0; j<3; j++)
-          {
+        {
           normal[j] = length* (costheta*local1[j] + sintheta*local2[j]);
-          }
-        normals->SetTuple(linePts[i], normal);
         }
+        normals->SetTuple(linePts[i], normal);
       }
+    }
     output->GetPointData()->SetNormals(normals);
     normals->Delete();
     lineNormalGenerator->Delete();
     rotation->Delete();
-    }
+  }
 
   output->SetPoints(newPts);
   newPts->Delete();
@@ -234,11 +234,11 @@ int vtkStreamLine::RequestData(
   newVectors->Delete();
 
   if ( newScalars )
-    {
+  {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
 
   pts->Delete();
   output->SetLines(newLines);

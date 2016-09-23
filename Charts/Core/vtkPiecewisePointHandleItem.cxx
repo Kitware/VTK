@@ -32,10 +32,10 @@
 #include <algorithm>
 
 enum enumPointHandleType
-  {
+{
   enSharpNess=0,
   enMidPoint
-  };
+};
 
 class PointHandle
 {
@@ -43,7 +43,7 @@ public:
   void Init(float x, float y, vtkIdType idx,
     enumPointHandleType type, float val, float distance,
     double sceneOrigin[2])
-    {
+  {
     this->Position[0]=x;
     this->Position[1]=y;
     this->PointIndex = idx;
@@ -52,11 +52,11 @@ public:
     this->fDistance = distance;
     this->ScenePos[0]=sceneOrigin[0]+x;
     this->ScenePos[1]=sceneOrigin[1]+y;
-    };
+  };
   void DrawCircle(vtkContext2D* painter, float radius)
-    {
+  {
     painter->DrawArc(this->Position[0], this->Position[1], radius, 0.f, 360.f);
-    };
+  };
   float Position[2];
   float ScenePos[2];
   vtkIdType PointIndex;
@@ -92,33 +92,33 @@ vtkPiecewisePointHandleItem::~vtkPiecewisePointHandleItem()
 {
   this->SetPiecewiseFunction(0);
   if (this->Callback)
-    {
+  {
     this->Callback->Delete();
     this->Callback = 0;
-    }
+  }
   delete this->Internal;
 }
 // ----------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::SetParent(vtkAbstractContextItem* parent)
 {
   if(this->Parent == parent)
-    {
+  {
     return;
-    }
+  }
   else if(this->Parent)
-    {
+  {
     if (this->PiecewiseFunction)
-      {
+    {
       this->Parent->RemoveObserver(this->Callback);
-      }
-
     }
+
+  }
   this->Superclass::SetParent(parent);
   if(parent)
-    {
+  {
     this->Parent->AddObserver(vtkControlPointsItem::CurrentPointChangedEvent,
        this->Callback);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -128,10 +128,10 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
     this->GetParent());
   if(!parentControl || parentControl->GetCurrentPoint()<0 ||
      !this->GetPiecewiseFunction())
-    {
+  {
     this->CurrentPointIndex = -1;
     return true;
-    }
+  }
   vtkIdType currentIdx = parentControl->GetCurrentPoint();
   this->CurrentPointIndex = currentIdx;
   double point[4];
@@ -164,15 +164,15 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   double preMid=0.0, preSharp=0.0, curMid=point[2], curSharp=point[3];
   double prePoint[4], nxtPoint[4];
   if(preIdx>=0)
-    {
+  {
     this->PiecewiseFunction->GetNodeValue(preIdx,prePoint);
     preMid=prePoint[2]; preSharp=prePoint[3];
-    }
+  }
   if(nxtIdx<parentControl->GetNumberOfPoints())
-    {
+  {
     this->PiecewiseFunction->GetNodeValue(nxtIdx,nxtPoint);
     preMid=prePoint[2]; preSharp=prePoint[3];
-    }
+  }
 
   // The following calculations are to find out the correct
   // handle positions to draw. The handle positions are relative
@@ -221,17 +221,17 @@ bool vtkPiecewisePointHandleItem::Paint(vtkContext2D *painter)
   painter->DrawLine(-(ptRadius+blxdistance*(1-preMid)), 0, -ptRadius, 0);
 
   for(int i=0; i<4; i++)
-    {
+  {
     if (i==this->MouseOverHandleIndex)
-      {
+    {
       painter->GetBrush()->SetColor(255, 0, 255);
-      }
-    else
-      {
-      painter->GetBrush()->SetColor(0, 200, 0);
-      }
-    this->Internal->PointHandles[i].DrawCircle(painter, radius);
     }
+    else
+    {
+      painter->GetBrush()->SetColor(0, 200, 0);
+    }
+    this->Internal->PointHandles[i].DrawCircle(painter, radius);
+  }
 
   painter->PopMatrix();
   painter->GetPen()->SetColor(penColor);
@@ -247,9 +247,9 @@ bool vtkPiecewisePointHandleItem::Hit(const vtkContextMouseEvent &mouse)
 {
   float pos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
   if (this->IsOverHandle(pos) >= 0)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -261,13 +261,13 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
     this->GetParent());
   if(!parentControl || parentControl->GetCurrentPoint()<0 ||
      !this->GetPiecewiseFunction() || !this->Scene->GetLastPainter())
-    {
+  {
     return -1;
-    }
+  }
 
   // we have four screen handles to check
   for(int i=0; i<4; ++i)
-    {
+  {
     double sceneHandlePoint[2]={
       this->Internal->PointHandles[i].ScenePos[0],
       this->Internal->PointHandles[i].ScenePos[1]};
@@ -280,10 +280,10 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
     double radius2 = this->HandleRadius * this->HandleRadius
       * tolerance * tolerance;
     if(distance2 <= radius2)
-      {
+    {
       return i;
-      }
     }
+  }
 
   return -1;
 }
@@ -292,9 +292,9 @@ int vtkPiecewisePointHandleItem::IsOverHandle(
 bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mouse)
 {
   if (mouse.GetButton() == vtkContextMouseEvent::LEFT_BUTTON)
-    {
+  {
     if(this->MouseOverHandleIndex >= 0)
-      {
+    {
       PointHandle* activeHandle =
         &this->Internal->PointHandles[this->MouseOverHandleIndex];
       float deltaX = mouse.GetScenePos().GetX() - activeHandle->ScenePos[0];
@@ -304,45 +304,45 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mou
         this->GetParent());
       if(activeHandle->fDistance<=0 || !parentControl ||
         parentControl->GetCurrentPoint()<0 || !this->GetPiecewiseFunction())
-        {
+      {
         return false;
-        }
+      }
       vtkIdType curIdx = activeHandle->PointIndex;
       double point[4];
       this->PiecewiseFunction->GetNodeValue(curIdx, point);
       if(activeHandle->enType==enMidPoint)
-        {
+      {
         double fMid=deltaX/activeHandle->fDistance+activeHandle->fValue;
         fMid = std::max(fMid, 0.0);
         fMid = std::min(fMid, 1.0);
         point[2]=fMid;
-        }
+      }
       else
-        {
+      {
         if(this->MouseOverHandleIndex==2)
-          {
+        {
           deltaY = -deltaY;
-          }
+        }
         double fSharp=deltaY/activeHandle->fDistance+activeHandle->fValue;
         fSharp = std::max(fSharp, 0.0);
         fSharp = std::min(fSharp, 1.0);
         point[3]=fSharp;
-        }
+      }
       this->GetPiecewiseFunction()->SetNodeValue(curIdx, point);
       return true;
-      }
     }
+  }
   else if (mouse.GetButton() == vtkContextMouseEvent::NO_BUTTON)
-    {
+  {
     float mspos[2] = { mouse.GetScenePos().GetX(), mouse.GetScenePos().GetY() };
     int handleIdx = this->IsOverHandle(mspos);
     if (this->MouseOverHandleIndex != handleIdx)
-      {
+    {
       this->MouseOverHandleIndex = handleIdx;
       this->GetScene()->SetDirty(true);
       return true;
-      }
     }
+  }
 
   return false;
 }
@@ -351,9 +351,9 @@ bool vtkPiecewisePointHandleItem::MouseMoveEvent(const vtkContextMouseEvent &mou
 bool vtkPiecewisePointHandleItem::MouseButtonPressEvent(const vtkContextMouseEvent &)
 {
   if(this->MouseOverHandleIndex>=0)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -361,11 +361,11 @@ bool vtkPiecewisePointHandleItem::MouseButtonPressEvent(const vtkContextMouseEve
 bool vtkPiecewisePointHandleItem::MouseButtonReleaseEvent(const vtkContextMouseEvent &)
 {
   if(this->MouseOverHandleIndex>=0)
-    {
+  {
     this->MouseOverHandleIndex = -1;
     this->GetScene()->SetDirty(true);
     return true;
-    }
+  }
   return false;
 }
 
@@ -381,28 +381,28 @@ void vtkPiecewisePointHandleItem::SetPiecewiseFunction(
   vtkPiecewiseFunction* function)
 {
   if (function == this->PiecewiseFunction)
-    {
+  {
     return;
-    }
+  }
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->RemoveObserver(this->Callback);
-    }
+  }
   this->PiecewiseFunction = function;
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     this->PiecewiseFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
-    }
+  }
   this->Redraw();
 }
 //-----------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::Redraw()
 {
   if (this->Scene)
-    {
+  {
     this->Scene->SetDirty(true);
-    }
+  }
 }
 //-----------------------------------------------------------------------------
 void vtkPiecewisePointHandleItem::CallRedraw(
@@ -412,7 +412,7 @@ void vtkPiecewisePointHandleItem::CallRedraw(
   vtkPiecewisePointHandleItem* item =
     reinterpret_cast<vtkPiecewisePointHandleItem*>(receiver);
   switch(event)
-    {
+  {
     case vtkCommand::ModifiedEvent:
     case vtkCommand::EndEvent:
     case vtkControlPointsItem::CurrentPointChangedEvent:
@@ -420,7 +420,7 @@ void vtkPiecewisePointHandleItem::CallRedraw(
       break;
     default:
       break;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -429,14 +429,14 @@ void vtkPiecewisePointHandleItem::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PiecewiseFunction: ";
   if (this->PiecewiseFunction)
-    {
+  {
     os << endl;
     this->PiecewiseFunction->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
   os << indent << "MouseOverHandleIndex: " << this->MouseOverHandleIndex << endl;
   os << indent << "CurrentPointIndex: " << this->CurrentPointIndex << endl;
 }

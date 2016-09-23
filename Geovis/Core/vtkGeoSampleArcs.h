@@ -62,10 +62,10 @@ public:
   //@}
 
   enum
-    {
+  {
     RECTANGULAR,
     SPHERICAL
-    };
+  };
 
   //@{
   /**

@@ -52,20 +52,20 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   scols = (int)(cols * pixfac);
   srows = (int)(rows * pixfac);
   if ( scols > pagewid * VTK_MARGIN || srows > pagehgt * VTK_MARGIN )
-    {
+  {
     if ( scols > pagewid * VTK_MARGIN )
-      {
+    {
       scale = scale*(pagewid * VTK_MARGIN / scols);
       scols = (int)(scale * cols * pixfac);
       srows = (int)(scale * rows * pixfac);
-      }
+    }
     if ( srows > pagehgt * VTK_MARGIN )
-      {
+    {
       scale = scale * (pagehgt * VTK_MARGIN / srows);
       scols = (int)(scale * cols * pixfac);
       srows = (int)(scale * rows * pixfac);
-      }
     }
+  }
   float llx = ( pagewid - scols ) / 2;
   float lly = ( pagehgt - srows ) / 2;
 
@@ -83,19 +83,19 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   *file << "} bind def\n";
 
   if ( bpp == 3)
-    {
+  {
     *file << "/rpicstr " << cols << " string def\n";
     *file << "/gpicstr " << cols << " string def\n";
     *file << "/bpicstr " << cols << " string def\n";
-    }
+  }
   else if (bpp == 1)
-    {
+  {
     *file << "/picstr " << cols << " string def\n";
-    }
+  }
   else
-    {
+  {
     vtkWarningMacro( " vtkPostScriptWriter only supports 1 and 3 component images");
-    }
+  }
 
   *file << "%%EndProlog\n";
   *file << "%%Page: 1 1\n";
@@ -105,18 +105,18 @@ void vtkPostScriptWriter::WriteFileHeader(ofstream *file,
   *file << cols << " " << rows << " 8\n";
   *file << "[ " << cols << " 0 0 " << -rows << " 0 " << rows << " ]\n";
   if (bpp == 3)
-    {
+  {
     *file << "{ rpicstr readstring }\n";
     *file << "{ gpicstr readstring }\n";
     *file << "{ bpicstr readstring }\n";
     *file << "true 3\n";
     *file << "colorimage\n";
-    }
+  }
   else
-    {
+  {
     *file << "{ picstr readstring }\n";
     *file << "image\n";
-    }
+  }
 }
 
 
@@ -134,20 +134,20 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
 
   // Make sure we actually have data.
   if ( !data->GetPointData()->GetScalars())
-    {
+  {
     vtkErrorMacro(<< "Could not get data from input.");
     return;
-    }
+  }
 
   // take into consideration the scalar type
   switch (data->GetScalarType())
-    {
+  {
     case VTK_UNSIGNED_CHAR:
       break;
     default:
       vtkErrorMacro("PostScriptWriter only accepts unsigned char scalars!");
       return;
-    }
+  }
 
   area = ((extent[5] - extent[4] + 1)*(extent[3] - extent[2] + 1)*
           (extent[1] - extent[0] + 1)) /
@@ -159,45 +159,45 @@ void vtkPostScriptWriter::WriteFile(ofstream *file, vtkImageData *data,
   // ignore alpha
   int maxComponent = numComponents;
   if (numComponents == 2)
-    {
+  {
     maxComponent = 1;
-    }
+  }
   if (numComponents == 4)
-    {
+  {
     maxComponent = 3;
-    }
+  }
   target = (unsigned long)((extent[5]-extent[4]+1)*
                            (extent[3]-extent[2]+1)/(50.0*area));
   target++;
 
   for (idx2 = extent[4]; idx2 <= extent[5]; ++idx2)
-    {
+  {
     for (idx1 = extent[3]; idx1 >= extent[2]; idx1--)
-      {
+    {
       if (!(count%target))
-        {
+      {
         this->UpdateProgress(progress + count/(50.0*target));
-        }
+      }
       count++;
       // write out components one at a time because
       for (idxC = 0; idxC < maxComponent; idxC++)
-        {
+      {
         ptr = (unsigned char*)data->GetScalarPointer(extent[0],idx1, idx2);
         ptr += idxC;
         for ( idx0 = extent[0]; idx0 <= extent[1]; idx0++ )
-          {
+        {
           if ( itemsperline == 30 )
-            {
+          {
             *file << endl;
             itemsperline = 0;
-            }
+          }
           *file << hexits[*ptr >> 4] << hexits[*ptr & 15];
           ++itemsperline;
           ptr += numComponents;
-          }
         }
       }
     }
+  }
 
 }
 

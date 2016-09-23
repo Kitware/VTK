@@ -150,10 +150,10 @@ private:
   vtkInternals* Internals;
   unsigned char Endianness;
   enum
-    {
+  {
     BigEndian,
     LittleEndian
-    };
+  };
 };
 
 #endif

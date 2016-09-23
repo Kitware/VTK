@@ -31,18 +31,18 @@ void vtkAbstractMapper3D::GetBounds(double bounds[6])
 {
   this->GetBounds();
   for (int i=0; i<6; i++)
-    {
+  {
     bounds[i] = this->Bounds[i];
-    }
+  }
 }
 
 double *vtkAbstractMapper3D::GetCenter()
 {
   this->GetBounds();
   for (int i=0; i<3; i++)
-    {
+  {
     this->Center[i] = (this->Bounds[2*i+1] + this->Bounds[2*i]) / 2.0;
-    }
+  }
   return this->Center;
 }
 
@@ -53,10 +53,10 @@ double vtkAbstractMapper3D::GetLength()
 
   this->GetBounds();
   for (i=0; i<3; i++)
-    {
+  {
     diff = this->Bounds[2*i+1] - this->Bounds[2*i];
     l += diff * diff;
-    }
+  }
 
   return sqrt(l);
 }
@@ -68,10 +68,10 @@ void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
   const double *mat = *propMatrix->Element;
 
   if (clipPlanes)
-    {
+  {
     int n = clipPlanes->GetNumberOfItems();
     if (i >= 0 && i < n)
-      {
+    {
       // Get the plane
       vtkPlane *plane = clipPlanes->GetItem(i);
       double *normal = plane->GetNormal();
@@ -90,8 +90,8 @@ void vtkAbstractMapper3D::GetClippingPlaneInDataCoords(
       hnormal[3] = v1*mat[3] + v2*mat[7] + v3*mat[11] + v4*mat[15];
 
       return;
-      }
     }
+  }
 
   vtkErrorMacro("Clipping plane index " << i << " is out of range.");
 }
@@ -101,9 +101,9 @@ int vtkAbstractMapper3D::GetNumberOfClippingPlanes()
   int n = 0;
 
   if ( this->ClippingPlanes )
-    {
+  {
     n = this->ClippingPlanes->GetNumberOfItems();
-    }
+  }
 
   return n;
 }

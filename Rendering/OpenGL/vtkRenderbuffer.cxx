@@ -47,7 +47,7 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
 
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
-    {
+  {
     vtkOpenGLExtensionManager *mgr = glwin->GetExtensionManager();
 
     bool floatTex = mgr->ExtensionSupported("GL_ARB_texture_float")==1;
@@ -56,7 +56,7 @@ bool vtkRenderbuffer::IsSupported(vtkRenderWindow *win)
     bool fbo = vtkFrameBufferObject2::IsSupported(win);
 
     supported = floatTex && floatDepth && fbo;
-    }
+  }
 
   return supported;
 }
@@ -68,7 +68,7 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
 
   vtkOpenGLRenderWindow *glwin = dynamic_cast<vtkOpenGLRenderWindow*>(win);
   if (glwin)
-    {
+  {
     vtkOpenGLExtensionManager *mgr = glwin->GetExtensionManager();
 
     bool floatTex = mgr->ExtensionSupported("GL_ARB_texture_float")==1;
@@ -77,7 +77,7 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
     supported = floatTex && fbo;
 
     if (supported)
-      {
+    {
       // no functions to load for floatTex
 
       // we'll use floating point depth buffers if they are
@@ -85,16 +85,16 @@ bool vtkRenderbuffer::LoadRequiredExtensions(vtkRenderWindow *win)
       this->DepthBufferFloat
          = mgr->ExtensionSupported("GL_ARB_depth_buffer_float");
       if (this->DepthBufferFloat)
-        {
+      {
         mgr->LoadSupportedExtension("GL_ARB_depth_buffer_float");
-        }
+      }
 
       // the rest is part of the FBO ext defer to that
       // class to leverage its cross platform ext loading
       // gymnastics
       vtkFrameBufferObject2::LoadRequiredExtensions(win);
-      }
     }
+  }
 
   return supported;
 }
@@ -115,10 +115,10 @@ void vtkRenderbuffer::Free()
   // we are(eg smart pointers), in which case we should
   // do nothing.
   if (this->Context && this->Handle)
-    {
+  {
     vtkgl::DeleteRenderbuffersEXT(1, &this->Handle);
     vtkOpenGLCheckErrorMacro("failed at glDeleteRenderBuffers");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -143,10 +143,10 @@ void vtkRenderbuffer::SetContext(vtkRenderWindow *renWin)
   vtkOpenGLRenderWindow *context = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
   if ( !context
     || !this->LoadRequiredExtensions(renWin) )
-    {
+  {
     vtkErrorMacro("Unsupported render context");
     return;
-    }
+  }
 
   // allocate new fbo
   this->Context=renWin;
@@ -174,12 +174,12 @@ int vtkRenderbuffer::CreateDepthAttachment(
   // to be the case with mesa hence the need to explicitly specify
   // it as such if at all possible.
   if (this->DepthBufferFloat)
-    {
+  {
     return this->Create(
           vtkgl::DEPTH_COMPONENT32F,
           width,
           height);
-    }
+  }
 
   return this->Create(
         GL_DEPTH_COMPONENT,

@@ -63,10 +63,10 @@ public:
    */
   double *GetCenter();
   void GetCenter(double center[3])
-    {
+  {
       double *rc = this->GetCenter();
       center[0] = rc[0]; center[1] = rc[1]; center[2] = rc[2];
-    }
+  }
   //@}
 
   /**

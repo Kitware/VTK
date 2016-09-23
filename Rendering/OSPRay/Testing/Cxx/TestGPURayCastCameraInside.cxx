@@ -916,13 +916,13 @@ int TestGPURayCastCameraInside(int argc, char *argv[])
 
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
 
   char* volumeFile = vtkTestUtilities::ExpandDataFileName(
                        argc, argv, "Data/ironProt.vtk");
@@ -972,9 +972,9 @@ int TestGPURayCastCameraInside(int argc, char *argv[])
   vtkSmartPointer<vtkOSPRayPass> osprayPass =
     vtkSmartPointer<vtkOSPRayPass>::New();
   if (useOSP)
-    {
+  {
     ren->SetPass(osprayPass.GetPointer());
-    }
+  }
 
   ren->AddVolume(volume.GetPointer());
   ren->ResetCamera();

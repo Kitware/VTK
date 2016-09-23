@@ -43,9 +43,9 @@ public:
    * constructor directly from C++ instead.
    */
   static vtkInformationDataObjectMetaDataKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationDataObjectMetaDataKey(name, location);
-    }
+  }
 
   /**
    * Simply shallow copies the key from fromInfo to toInfo if request

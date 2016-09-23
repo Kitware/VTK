@@ -36,17 +36,17 @@ int vtkOpenGLTextActor::RenderOverlay(vtkViewport *viewport)
   // Render to GL2PS if capturing:
   vtkOpenGLGL2PSHelper *gl2ps = vtkOpenGLGL2PSHelper::GetInstance();
   if (gl2ps)
-    {
+  {
     switch (gl2ps->GetActiveState())
-      {
+    {
       case vtkOpenGLGL2PSHelper::Capture:
         return this->RenderGL2PS(viewport, gl2ps);
       case vtkOpenGLGL2PSHelper::Background:
         return 0; // No rendering.
       case vtkOpenGLGL2PSHelper::Inactive:
         break; // continue rendering.
-      }
     }
+  }
 
   return this->Superclass::RenderOverlay(viewport);
 }
@@ -67,16 +67,16 @@ int vtkOpenGLTextActor::RenderGL2PS(vtkViewport *viewport,
 {
   std::string input = (this->Input && this->Input[0]) ? this->Input : "";
   if (input.empty())
-    {
+  {
     return 0;
-    }
+  }
 
   vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
   if (!ren)
-    {
+  {
     vtkWarningMacro("Viewport is not a renderer.");
     return 0;
-    }
+  }
 
   // Figure out position:
   vtkCoordinate *coord = this->GetActualPositionCoordinate();

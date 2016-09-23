@@ -45,20 +45,20 @@ void vtkShader::SetSource(const std::string &source)
 bool vtkShader::Compile()
 {
   if (this->Source.empty() || this->ShaderType == Unknown || !this->Dirty)
-    {
+  {
     return false;
-    }
+  }
 
   // Ensure we delete the previous shader if necessary.
   if (this->Handle != 0)
-    {
+  {
     glDeleteShader(static_cast<GLuint>(this->Handle));
     this->Handle = 0;
-    }
+  }
 
   GLenum type = GL_VERTEX_SHADER;
   switch (this->ShaderType)
-    {
+  {
 #ifdef GL_GEOMETRY_SHADER
     case vtkShader::Geometry:
       type = GL_GEOMETRY_SHADER;
@@ -71,7 +71,7 @@ bool vtkShader::Compile()
     default:
       type = GL_VERTEX_SHADER;
       break;
-    }
+  }
 
   GLuint handle = glCreateShader(type);
   const GLchar *source = static_cast<const GLchar *>(this->Source.c_str());
@@ -82,16 +82,16 @@ bool vtkShader::Compile()
 
   // Handle shader compilation failures.
   if (!isCompiled)
-    {
+  {
     GLint length(0);
     glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &length);
     if (length > 1)
-      {
+    {
       char *logMessage = new char[length];
       glGetShaderInfoLog(handle, length, NULL, logMessage);
       this->Error = logMessage;
       delete[] logMessage;
-      }
+    }
     glDeleteShader(handle);
     return false;
   }
@@ -106,9 +106,9 @@ bool vtkShader::Compile()
 void vtkShader::Cleanup()
 {
   if (this->ShaderType == Unknown || this->Handle == 0)
-    {
+  {
     return;
-    }
+  }
 
   glDeleteShader(static_cast<GLuint>(this->Handle));
   this->Handle = 0;

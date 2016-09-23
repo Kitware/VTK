@@ -39,9 +39,9 @@ class vtkInformationEnsembleMemberRequestKey : public vtkInformationIntegerReque
 public:
   vtkInformationEnsembleMemberRequestKey(const char* name, const char* location) :
     vtkInformationIntegerRequestKey(name, location)
-    {
+  {
     this->DataKey = vtkEnsembleSource::DATA_MEMBER();
-    }
+  }
 };
 vtkInformationKeySubclassMacro(vtkEnsembleSource, UPDATE_MEMBER, EnsembleMemberRequest, IntegerRequest);
 
@@ -67,10 +67,10 @@ vtkEnsembleSource::~vtkEnsembleSource()
   delete this->Internal;
 
   if (this->MetaData)
-    {
+  {
     this->MetaData->Delete();
     this->MetaData = 0;
-    }
+  }
 }
 
 int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
@@ -80,9 +80,9 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   vtkAlgorithm* currentReader = this->GetCurrentReader(outInfo);
   if (currentReader)
-    {
+  {
     if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA_OBJECT()))
-      {
+    {
       // Make sure to initialize our output to the right type.
       // Note all ensemble members are expected to produce the same
       // data type or we are toast.
@@ -93,14 +93,14 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
         output);
       output->Delete();
       return 1;
-      }
+    }
     if (request->Has(vtkDemandDrivenPipeline::REQUEST_INFORMATION()))
-      {
+    {
       if (this->MetaData)
-        {
+      {
         outputVector->GetInformationObject(0)->Set(META_DATA(),
           this->MetaData);
-        }
+      }
       // Call RequestInformation on all readers as they may initialize
       // data structures there. Note that this has to be done here
       // because current reader can be changed with a pipeline request
@@ -110,18 +110,18 @@ int vtkEnsembleSource::ProcessRequest(vtkInformation *request,
       std::vector<vtkSmartPointer<vtkAlgorithm> >::iterator end =
         this->Internal->Algorithms.end();
       for(; iter != end; iter++)
-        {
+      {
         int retVal = (*iter)->ProcessRequest(request, inputVector, outputVector);
         if (!retVal)
-          {
+        {
           return retVal;
-          }
         }
-      return 1;
       }
+      return 1;
+    }
 
     return currentReader->ProcessRequest(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
 
@@ -144,17 +144,17 @@ vtkAlgorithm* vtkEnsembleSource::GetCurrentReader(vtkInformation* outInfo)
 {
   unsigned int currentMember = 0;
   if (outInfo->Has(UPDATE_MEMBER()))
-    {
+  {
     currentMember = static_cast<unsigned int>(outInfo->Get(UPDATE_MEMBER()));
-    }
+  }
   else
-    {
+  {
     currentMember = this->CurrentMember;
-    }
+  }
   if (currentMember >= this->GetNumberOfMembers())
-    {
+  {
     return 0;
-    }
+  }
   return this->Internal->Algorithms[currentMember];
 }
 
@@ -171,11 +171,11 @@ void vtkEnsembleSource::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Current member: " << this->CurrentMember << endl;
   os << indent << "MetaData: " << endl;
   if (this->MetaData)
-    {
+  {
     this->MetaData->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "(NULL)" << endl;
-    }
+  }
 }

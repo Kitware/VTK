@@ -39,19 +39,19 @@ int main( int argc, char* argv[] )
   // by the external program which launches this application.
   // However, when using threads, we need to set it ourselves.
   if (controller->IsA("vtkThreadedController"))
-    {
+  {
     // Set the number of processes to 2 for this example.
     controller->SetNumberOfProcesses(2);
-    }
+  }
   int numProcs = controller->GetNumberOfProcesses();
 
   if (numProcs != 2)
-    {
+  {
     cerr << "This example requires two processes." << endl;
     controller->Finalize();
     controller->Delete();
     return 1;
-    }
+  }
 
   // Assign the functions and execute them
   controller->SetMultipleMethod(0, pipe1, 0);

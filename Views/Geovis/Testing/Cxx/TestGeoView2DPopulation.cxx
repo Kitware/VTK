@@ -130,9 +130,9 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   priority = vtkArrayDownCast<vtkIntArray>(table->GetColumnByName("Priority"));
 
   for(i = 0; i < numRows; i++)
-    {
+  {
     colorArray->SetValue(i, log(static_cast<double>(priority->GetValue(i)) + 1.0));
-    }
+  }
 
   timer->StartTimer();
 
@@ -143,9 +143,9 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   graph->GetVertexData()->AddArray(colorArray);
 
   for(i = 0; i < numRows; i++)
-    {
+  {
     graph->AddVertex();
-    }
+  }
 
   vtkSmartPointer<vtkRenderedGraphRepresentation> graphRep =
     vtkSmartPointer<vtkRenderedGraphRepresentation>::New();
@@ -189,10 +189,10 @@ int TestGeoView2DPopulation(int argc, char* argv[])
   view->Update();
   int retVal = vtkRegressionTestImage(win);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     win->GetInteractor()->Initialize();
     win->GetInteractor()->Start();
-    }
+  }
 
   terrainSource->ShutDown();
   imageSource->ShutDown();

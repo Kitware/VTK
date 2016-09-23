@@ -85,13 +85,13 @@ struct IntervalsConnect
     std::ostringstream oss;
     oss << "(";
     for(int i=0; i < 3; ++i)
-      {
+    {
       if(i==1 || i==2)
-        {
+      {
         oss << ", ";
-        }
+      }
       switch( orient[i] )
-        {
+      {
         case IMPLICIT_LO:
           oss << "IMPLICIT_LO";
           break;
@@ -127,8 +127,8 @@ struct IntervalsConnect
           break;
         default:
           oss << "*UNKNOWN*";
-        } // END switch
-      } // END for
+      } // END switch
+    } // END for
     oss << ")";
     return( oss.str() );
   }
@@ -174,15 +174,15 @@ bool Interval::ImplicitNeighbors(const Interval& A, const Interval& B, int& t)
 
   bool status = false;
   if( A.High()+1 == B.Low() )
-    {
+  {
     status = true;
     t = IntervalsConnect::IMPLICIT_HI;
-    }
+  }
   else if( B.High()+1 == A.Low() )
-    {
+  {
     status = true;
     t = IntervalsConnect::IMPLICIT_LO;
-    }
+  }
   return( status );
 }
 
@@ -203,77 +203,77 @@ bool Interval::Intersects(const Interval& A, const Interval& B,
 
   // Disjoint cases
   if( A.High() < B.Low() )
-    {
+  {
     type = IntervalsConnect::DISJOINT;
     Overlap.Invalidate();
     status = false;
-    }
+  }
   else if( B.High() < A.Low() )
-    {
+  {
     type = IntervalsConnect::DISJOINT;
     Overlap.Invalidate();
     status = false;
-    }
+  }
   // ONE_TO_ONE case
   else if( A.Cardinality()==B.Cardinality() &&
            A.Low()==B.Low() &&
            A.High()==B.High() )
-    {
+  {
     type = IntervalsConnect::ONE_TO_ONE;
     Overlap.Set(A.Low(),A.High());
     status = true;
-    }
+  }
   // A is a SUBSET of B
   else if( A.Within(B) )
-    {
+  {
     type = IntervalsConnect::SUBSET;
     Overlap.Set(A.Low(),A.High());
     status = true;
-    }
+  }
   // A is a superset of B
   else if( B.Within(A) )
-    {
+  {
     type = IntervalsConnect::SUPERSET;
     Overlap.Set(B.Low(),B.High());
     status = true;
-    }
+  }
   // A touches B on the high end
   else if( A.High() == B.Low() )
-    {
+  {
     type = IntervalsConnect::HI;
     Overlap.Set(A.High(),A.High());
     status = true;
-    }
+  }
   // A touches B on the low end
   else if( A.Low() == B.High() )
-    {
+  {
     type = IntervalsConnect::LO;
     Overlap.Set(A.Low(),A.Low());
     status = true;
-    }
+  }
   // A intersects B on its low end
   else if( (A.Low() >= B.Low()) && (A.Low() <= B.High()) )
-    {
+  {
     type = IntervalsConnect::OVERLAP_LO;
     Overlap.Set(A.Low(),B.High());
     status = true;
-    }
+  }
   // A intersects B on its high end
   else if( (A.High() >= B.Low() ) && (A.High() <= B.High()) )
-    {
+  {
     type = IntervalsConnect::OVERLAP_HI;
     Overlap.Set(B.Low(),A.High());
     status = true;
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro(
         << "Undefined interval intersection!"
         << "Code should not reach here!!!");
     type = IntervalsConnect::UNDEFINED;
     status = false;
     Overlap.Invalidate();
-    }
+  }
   return( status );
 }
 
@@ -292,7 +292,7 @@ struct ImplicitNeighbor
   int Overlap[6];     // the overlap extent
 
   std::string ToString()
-    {
+  {
     std::ostringstream oss;
 
     oss << "rank=" << this->Rank << " ";
@@ -314,7 +314,7 @@ struct ImplicitNeighbor
     oss << IntervalsConnect::OrientationToString(this->Orientation);
 
     return( oss.str() );
-    }
+  }
 };
 
 //------------------------------------------------------------------------------
@@ -351,9 +351,9 @@ struct DomainMetaData
         vtkStructuredData::GetDataDescriptionFromExtent(wholeExt);
 
     if (this->DataDescription == VTK_EMPTY)
-      {
+    {
       return;
-      }
+    }
 
     // Sanity checks!
     assert( "pre: data description is VTK_EMPTY!" &&
@@ -366,7 +366,7 @@ struct DomainMetaData
     std::fill(this->GlobalImplicit,this->GlobalImplicit+3,0);
 
     switch( this->DataDescription )
-      {
+    {
       case VTK_XY_PLANE:
         this->NDim        = 2;
         this->DimIndex[0] = 0;
@@ -392,7 +392,7 @@ struct DomainMetaData
         vtkGenericWarningMacro(
             << "Cannot handle data description: "
             << this->DataDescription << "\n");
-      } // END switch
+    } // END switch
 
     assert( "post: NDim==2 || NDim==3" && ( this->NDim==2 || this->NDim==3 ) );
   }
@@ -425,9 +425,9 @@ struct StructuredGrid
     if( (this->X_Coords != NULL) &&
         (this->Y_Coords != NULL) &&
         (this->Z_Coords != NULL) )
-      {
+    {
       return true;
-      }
+    }
     return false;
   }
 
@@ -435,30 +435,30 @@ struct StructuredGrid
   void Clear()
   {
     if( this->Nodes != NULL )
-      {
+    {
       this->Nodes->Delete();
       this->Nodes = NULL;
-      }
+    }
     if( this->PointData != NULL )
-      {
+    {
       this->PointData->Delete();
       this->PointData = NULL;
-      }
+    }
     if( this->X_Coords != NULL )
-      {
+    {
       this->X_Coords->Delete();
       this->X_Coords = NULL;
-      }
+    }
     if( this->Y_Coords != NULL )
-      {
+    {
       this->Y_Coords->Delete();
       this->Y_Coords = NULL;
-      }
+    }
     if( this->Z_Coords != NULL )
-      {
+    {
       this->Z_Coords->Delete();
       this->Z_Coords = NULL;
-      }
+    }
     this->Neighbors.clear();
   }
 
@@ -471,12 +471,12 @@ struct StructuredGrid
 
     // Grow the extent in each dimension as needed
     for(int i=0; i < 3; ++i)
-      {
+    {
       if( grid->Grow[i]==1 )
-        {
+      {
         this->Extent[i*2+1] += 1;
-        } // END if
-      } // END for all dimensions
+      } // END if
+    } // END for all dimensions
 
     // the number of nodes in the grown extent
     vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(
@@ -484,21 +484,21 @@ struct StructuredGrid
 
    // Allocate coordinates, if needed
    if( grid->Nodes != NULL )
-     {
+   {
      this->Nodes = vtkPoints::New();
      this->Nodes->SetDataType( grid->Nodes->GetDataType() );
      this->Nodes->SetNumberOfPoints( nnodes );
-     } // END if has points
+   } // END if has points
    else
-     {
+   {
      this->Nodes = NULL;
-     }
+   }
 
    // Allocate rectilinear grid coordinates, if needed
    if( (grid->X_Coords != NULL) &&
        (grid->Y_Coords != NULL) &&
        (grid->Z_Coords != NULL) )
-     {
+   {
      int dims[3];
      vtkStructuredData::GetDimensionsFromExtent(
          this->Extent,dims,this->DataDescription);
@@ -507,63 +507,63 @@ struct StructuredGrid
          grid->X_Coords->GetDataType());
      this->X_Coords->SetNumberOfTuples( dims[0] );
      for(vtkIdType idx=0; idx < grid->X_Coords->GetNumberOfTuples(); ++idx)
-       {
+     {
        this->X_Coords->SetTuple(idx,idx,grid->X_Coords);
-       }
+     }
 
      this->Y_Coords = vtkDataArray::CreateDataArray(
          grid->Y_Coords->GetDataType());
      this->Y_Coords->SetNumberOfTuples( dims[1] );
      for(vtkIdType idx=0; idx < grid->Y_Coords->GetNumberOfTuples(); ++idx)
-        {
+     {
         this->Y_Coords->SetTuple(idx,idx,grid->Y_Coords);
-        }
+     }
 
      this->Z_Coords = vtkDataArray::CreateDataArray(
          grid->Z_Coords->GetDataType());
      this->Z_Coords->SetNumberOfTuples( dims[2] );
      for(vtkIdType idx=0; idx < grid->Z_Coords->GetNumberOfTuples(); ++idx)
-        {
-        this->Z_Coords->SetTuple(idx,idx,grid->Z_Coords);
-        }
-     } // END if rectilinear grid
-   else
      {
+        this->Z_Coords->SetTuple(idx,idx,grid->Z_Coords);
+     }
+   } // END if rectilinear grid
+   else
+   {
      grid->X_Coords = NULL;
      grid->Y_Coords = NULL;
      grid->Z_Coords = NULL;
-     }
+   }
 
    // Allocate fields, if needed
    if( grid->PointData != NULL )
-     {
+   {
      this->PointData = vtkPointData::New();
      this->PointData->CopyAllocate(grid->PointData,nnodes);
 
      // NOTE: CopyAllocate, allocates the buffers internally, but, does not
      // set the number of tuples of each array to nnodes.
      for(int array=0; array < this->PointData->GetNumberOfArrays(); ++array)
-       {
+     {
        vtkDataArray* a = this->PointData->GetArray( array );
        a->SetNumberOfTuples(nnodes);
-       } // END for all arrays
+     } // END for all arrays
 
-     }
+   }
    else
-     {
+   {
      this->PointData = NULL;
-     }
+   }
 
    // copy everything from the given grid
    int desc   = grid->DataDescription;
    int ijk[3] = {0,0,0};
 
    for( I(ijk)=IMIN(grid->Extent); I(ijk) <= IMAX(grid->Extent); ++I(ijk) )
-     {
+   {
      for( J(ijk)=JMIN(grid->Extent); J(ijk) <= JMAX(grid->Extent); ++J(ijk) )
-       {
+     {
        for( K(ijk)=KMIN(grid->Extent); K(ijk) <= KMAX(grid->Extent); ++K(ijk) )
-         {
+       {
          // Compute the source index
          vtkIdType srcIdx =
              vtkStructuredData::ComputePointIdForExtent(grid->Extent,ijk,desc);
@@ -574,19 +574,19 @@ struct StructuredGrid
 
          // Copy nodes
          if( this->Nodes != NULL )
-           {
+         {
            this->Nodes->SetPoint(targetIdx,grid->Nodes->GetPoint(srcIdx));
-           }
+         }
 
          // Copy node-centered fields
          if( this->PointData != NULL )
-           {
+         {
            this->PointData->CopyData(grid->PointData,srcIdx,targetIdx);
-           }
+         }
 
-         } // END for all k
-       } // END for all j
-     } // END for all i
+       } // END for all k
+     } // END for all j
+   } // END for all i
 
   }
 
@@ -621,14 +621,14 @@ struct StructuredGrid
         z_coords->GetVoidPointer(0),z_coords->GetNumberOfTuples(),1);
 
     if(fields != NULL)
-      {
+    {
       this->PointData = vtkPointData::New();
       this->PointData->ShallowCopy(fields);
-      }
+    }
     else
-      {
+    {
       this->PointData = NULL;
-      }
+    }
   }
 
 //------------------------------------------------------------------------------
@@ -645,24 +645,24 @@ struct StructuredGrid
   this->Z_Coords = NULL;
 
   if(nodes != NULL)
-    {
+  {
     this->Nodes = vtkPoints::New();
     this->Nodes->ShallowCopy(nodes);
-    }
+  }
   else
-    {
+  {
     this->Nodes = NULL;
-    }
+  }
 
   if(fields != NULL)
-    {
+  {
     this->PointData = vtkPointData::New();
     this->PointData->ShallowCopy(fields);
-    }
+  }
   else
-    {
+  {
     this->PointData = NULL;
-    }
+  }
   }
 
 };
@@ -707,15 +707,15 @@ void CommunicationManager::Clear()
 
   std::map<int,unsigned char*>::iterator it;
   for(it=this->Send.begin(); it != this->Send.end(); ++it)
-    {
+  {
     delete [] it->second;
-    }
+  }
   this->Send.clear();
 
   for(it=this->Rcv.begin(); it != this->Rcv.end(); ++it)
-    {
+  {
     delete [] it->second;
-    }
+  }
   this->Rcv.clear();
 }
 
@@ -773,37 +773,37 @@ void CommunicationManager::AllocateRcvBuffers(vtkMPIController* comm)
 
   // STEP 1: Post receives
   for(it=this->RcvByteSize.begin(); it != this->RcvByteSize.end(); ++it)
-    {
+  {
     int fromRank = it->first;
     int* dataPtr = &(it->second);
     comm->NoBlockReceive(dataPtr,1,fromRank,0,this->Requests[rqstIdx]);
     ++rqstIdx;
-    }
+  }
 
   // STEP 2: Post Sends
   for(it=this->SendByteSize.begin(); it != this->SendByteSize.end(); ++it)
-    {
+  {
     int toRank   = it->first;
     int* dataPtr = &(it->second);
     comm->NoBlockSend(dataPtr,1,toRank,0,this->Requests[rqstIdx]);
     ++rqstIdx;
-    }
+  }
 
   // STEP 3: WaitAll
   if (!this->Requests.empty())
-    {
+  {
     comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
-    }
+  }
   this->Requests.clear();
 
   // STEP 4: Allocate rcv buffers
   std::map<int,unsigned char*>::iterator bufferIter = this->Rcv.begin();
   for( ;bufferIter != this->Rcv.end(); ++bufferIter)
-    {
+  {
     int fromRank = bufferIter->first;
     assert("pre: rcv buffer should be NULL!" && (this->Rcv[fromRank]==NULL) );
     this->Rcv[ fromRank ] = new unsigned char[ this->RcvByteSize[fromRank] ];
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -820,7 +820,7 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
 
   // STEP 2: Post Rcvs
   for(it=this->Rcv.begin(); it != this->Rcv.end(); ++it)
-    {
+  {
     int fromRank          = it->first;
     unsigned char* buffer = it->second;
     assert("pre: rcv buffer size not found!" &&
@@ -829,11 +829,11 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
 
     comm->NoBlockReceive(buffer,bytesize,fromRank,0,this->Requests[rqstIdx]);
     ++rqstIdx;
-    }
+  }
 
   // STEP 3: Post Sends
   for(it=this->Send.begin(); it != this->Send.end(); ++it)
-    {
+  {
     int toRank            = it->first;
     unsigned char* buffer = it->second;
     assert("pre: rcv buffer size not found!" &&
@@ -842,13 +842,13 @@ void CommunicationManager::Exchange(vtkMPIController* comm)
 
     comm->NoBlockSend(buffer,bytesize,toRank,0,this->Requests[rqstIdx]);
     ++rqstIdx;
-    }
+  }
 
   // STEP 4: WaitAll
   if (!this->Requests.empty())
-    {
+  {
     comm->WaitAll(this->NumMsgs(),&this->Requests[0]);
-    }
+  }
   this->Requests.clear();
 }
 
@@ -878,25 +878,25 @@ vtkStructuredImplicitConnectivity::~vtkStructuredImplicitConnectivity()
   this->DomainInfo = NULL;
 
   if( this->InputGrid != NULL )
-    {
+  {
     this->InputGrid->Clear();
     delete this->InputGrid;
     this->InputGrid = NULL;
-    }
+  }
 
   if( this->OutputGrid != NULL )
-    {
+  {
     this->OutputGrid->Clear();
     delete this->OutputGrid;
     this->OutputGrid = NULL;
-    }
+  }
 
   if( this->CommManager != NULL )
-    {
+  {
     this->CommManager->Clear();
     delete this->CommManager;
     this->CommManager = NULL;
-    }
+  }
 
   this->Controller = NULL;
 }
@@ -907,14 +907,14 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
   os << "Controller: "      << this->Controller << std::endl;
   if( this->Controller != NULL )
-    {
+  {
     os << "Number of Ranks: " << this->Controller->GetNumberOfProcesses();
     os << std::endl;
-    } // END if Controller != NULL
+  } // END if Controller != NULL
 
   os << "Input Grid: " << this->InputGrid  << std::endl;
   if( this->InputGrid != NULL )
-    {
+  {
     os << "Extent: [" << this->InputGrid->Extent[0];
     os << ", " << this->InputGrid->Extent[1];
     os << ", " << this->InputGrid->Extent[2];
@@ -932,11 +932,11 @@ void vtkStructuredImplicitConnectivity::PrintSelf(ostream& os,vtkIndent indent)
     os << std::endl;
     size_t N = this->InputGrid->Neighbors.size();
     for(size_t nei=0; nei < N; ++nei)
-      {
+    {
       os << "\t" << this->InputGrid->Neighbors[ nei ].ToString();
       os << std::endl;
-      } // END for all neighbors
-    } // END if InputGrid != NULL
+    } // END for all neighbors
+  } // END if InputGrid != NULL
 }
 
 //------------------------------------------------------------------------------
@@ -971,10 +971,10 @@ void vtkStructuredImplicitConnectivity::RegisterGrid(
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.
   if (this->DomainInfo->HasGrid(extent))
-    {
+  {
     this->InputGrid = new vtk::detail::StructuredGrid();
     this->InputGrid->Initialize(gridID,extent,gridNodes,pointData);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -999,11 +999,11 @@ void vtkStructuredImplicitConnectivity::RegisterRectilinearGrid(
   // Only add if the grid falls within the output extent. Processes that do
   // not contain the VOI will fail this test.
   if (this->DomainInfo->HasGrid(extent))
-    {
+  {
     this->InputGrid = new vtk::detail::StructuredGrid();
     this->InputGrid->Initialize(gridID, extent, xcoords, ycoords, zcoords,
                                 pointData);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1017,15 +1017,15 @@ void vtkStructuredImplicitConnectivity::ExchangeExtents()
   // Each process sends 7 ints: [gridId imin imax jmin jmax kmin kmax]
   int extbuffer[7];
   if( this->InputGrid == NULL )
-    {
+  {
     // pad the buffer with -1, indicating that this process has no grid
     std::fill(extbuffer,extbuffer+7,-1);
-    }
+  }
   else
-    {
+  {
     extbuffer[0] = this->InputGrid->ID;
     memcpy(&extbuffer[1],this->InputGrid->Extent,6*sizeof(int));
-    }
+  }
 
   // STEP 1: Allocate receive buffer, we receive 7 ints for each rank
   int nranks = this->Controller->GetNumberOfProcesses();
@@ -1040,9 +1040,9 @@ void vtkStructuredImplicitConnectivity::ExchangeExtents()
 void vtkStructuredImplicitConnectivity::ComputeNeighbors()
 {
   if (!this->InputGrid)
-    {
+  {
     return;
-    }
+  }
 
   int type;
   vtk::detail::Interval A; // used to store the local interval at each dim
@@ -1052,13 +1052,13 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
 
   int nranks = this->Controller->GetNumberOfProcesses();
   for(int rank=0; rank < nranks; ++rank)
-    {
+  {
     int rmtID = this->DomainInfo->ExtentListInfo[rank*7];
     if( (rmtID == this->InputGrid->ID) || (rmtID == -1) )
-      {
+    {
       // skip self or empty remote grid
       continue;
-      }
+    }
 
     int* rmtExtent = &(this->DomainInfo->ExtentListInfo)[rank*7+1];
 
@@ -1073,7 +1073,7 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
     int nimplicit  = 0;
 
     for(int dim=0; dim < this->DomainInfo->NDim; ++dim)
-      {
+    {
       int d = this->DomainInfo->DimIndex[dim];
       assert("pre: invalid dimension!" && (d >= 0) && (d <= 2) );
 
@@ -1081,55 +1081,55 @@ void vtkStructuredImplicitConnectivity::ComputeNeighbors()
       B.Set( rmtExtent[d*2], rmtExtent[d*2+1] );
 
       if( A.ImplicitNeighbor(B,type) )
-        {
+      {
         this->InputGrid->Implicit[ d ]= 1;
         Neighbor.Orientation[ d ] = type;
 
         // Compute overlap based on the fact that we are communicating
         // data to the left <=> grow to the right.
         if( type == vtk::detail::IntervalsConnect::IMPLICIT_HI )
-          {
+        {
           ++nimplicit;
           Neighbor.Overlap[d*2]    =
           Neighbor.Overlap[d*2+1]  = Neighbor.Extent[d*2];
           this->InputGrid->Grow[d] = 1; /* increment by 1 in this dimension */
-          } // END if IMPLICIT_HI
+        } // END if IMPLICIT_HI
         else if( type == vtk::detail::IntervalsConnect::IMPLICIT_LO )
-          {
+        {
           ++nimplicit;
           Neighbor.Overlap[d*2]   =
           Neighbor.Overlap[d*2+1] = this->InputGrid->Extent[d*2];
-          } // END else if IMPLICIT_LO
+        } // END else if IMPLICIT_LO
         else
-          {
+        {
           vtkGenericWarningMacro(
               << "Invalid implicit connectivity type! "
               << "Code should not reach here!\n"
               );
-          } // END else
-        } // END if implicit
+        } // END else
+      } // END if implicit
       else if( A.Intersects(B,Overlap,type) )
-        {
+      {
         Neighbor.Orientation[ d ] = type;
         Neighbor.Overlap[d*2]     = Overlap.Low();
         Neighbor.Overlap[d*2+1]   = Overlap.High();
-        } // END if intersect
+      } // END if intersect
       else
-        {
+      {
         disregard = true;
         Neighbor.Orientation[ d ] = type;
-        } // END else
-      } // END for all dimensions
+      } // END else
+    } // END for all dimensions
 
     // Determine whether to include the neighbor to the list of neighbors in
     // this rank.
 
     if( !(nimplicit > 1 || disregard) )
-      {
+    {
       this->InputGrid->Neighbors.push_back( Neighbor );
-      }
+    }
 
-    } // END for all ranks
+  } // END for all ranks
 }
 
 //------------------------------------------------------------------------------
@@ -1140,9 +1140,9 @@ bool vtkStructuredImplicitConnectivity::GlobalDataDescriptionMatch()
       &this->DomainInfo->DataDescription,&sum,1,vtkCommunicator::SUM_OP);
   if( (sum/this->Controller->GetNumberOfProcesses()) ==
       this->DomainInfo->DataDescription)
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -1150,17 +1150,17 @@ bool vtkStructuredImplicitConnectivity::GlobalDataDescriptionMatch()
 bool vtkStructuredImplicitConnectivity::HasImplicitConnectivity()
 {
   if( this->DomainInfo == NULL )
-    {
+  {
     vtkGenericWarningMacro(<< "NULL domain, WholeExtent not set!");
     return false;
-    }
+  }
 
   if( (this->DomainInfo->GlobalImplicit[0] > 0) ||
       (this->DomainInfo->GlobalImplicit[1] > 0) ||
       (this->DomainInfo->GlobalImplicit[2] > 0) )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -1172,13 +1172,13 @@ void vtkStructuredImplicitConnectivity::GetGlobalImplicitConnectivityState()
 
   int sndbuffer[3];
   if( this->InputGrid == NULL)
-    {
+  {
     std::fill(sndbuffer,sndbuffer+3,0);
-    }
+  }
   else
-    {
+  {
     memcpy(sndbuffer,this->InputGrid->Implicit,3*sizeof(int));
-    }
+  }
 
   this->Controller->AllReduce(
       sndbuffer,this->DomainInfo->GlobalImplicit,3,vtkCommunicator::SUM_OP);
@@ -1264,11 +1264,11 @@ void vtkStructuredImplicitConnectivity::GetOutputRectilinearGrid(
 void vtkStructuredImplicitConnectivity::ConstructOutput()
 {
   if( this->OutputGrid != NULL )
-    {
+  {
     this->OutputGrid->Clear();
     delete this->OutputGrid;
     this->OutputGrid = NULL;
-    }
+  }
 
    this->OutputGrid = new vtk::detail::StructuredGrid();
    this->OutputGrid->Initialize( this->InputGrid );
@@ -1284,34 +1284,34 @@ void vtkStructuredImplicitConnectivity::UpdateNeighborList(const int dim)
   vtk::detail::ImplicitNeighbor* neiPtr = NULL;
   size_t nNeis = this->InputGrid->Neighbors.size();
   for( size_t nei=0; nei < nNeis; ++nei )
-    {
+  {
     neiPtr     = &(this->InputGrid->Neighbors)[nei];
     int orient = neiPtr->Orientation[ dim ];
 
     if( orient==vtk::detail::IntervalsConnect::IMPLICIT_HI ||
         orient==vtk::detail::IntervalsConnect::IMPLICIT_LO ||
         orient==vtk::detail::IntervalsConnect::UNDEFINED)
-      {
+    {
       continue;
-      }// END if implicit connectivity
+    }// END if implicit connectivity
 
     // Update neighbor extent
     if( neiPtr->Extent[dim*2+1] < this->DomainInfo->WholeExtent[dim*2+1] )
-      {
+    {
       neiPtr->Extent[dim*2+1]++;
-      } // END if update neighbor extent
+    } // END if update neighbor extent
 
     // Update overlap extent
     if( neiPtr->Overlap[dim*2+1] < this->DomainInfo->WholeExtent[dim*2+1] &&
         neiPtr->Overlap[dim*2+1]+1 <= neiPtr->Extent[dim*2+1])
-      {
+    {
       neiPtr->Overlap[dim*2+1]++;
-      } // END if update overlap
+    } // END if update overlap
 
 
     assert("post: overlap extent out-of-bounds of output grid extent!" &&
       vtkStructuredExtent::Smaller(neiPtr->Overlap,this->OutputGrid->Extent));
-    } // END for all neighbors
+  } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------
@@ -1327,63 +1327,63 @@ void vtkStructuredImplicitConnectivity::PackData(
   bytestream.Push( ext, 6);
 
   if( this->OutputGrid->Nodes != NULL )
-    {
+  {
     bytestream << VTK_STRUCTURED_GRID;
     vtkIdType nnodes = vtkStructuredData::GetNumberOfPoints(ext);
     bytestream << nnodes;
 
     int ijk[3] = {0,0,0};
     for( I(ijk)=IMIN(ext); I(ijk) <= IMAX(ext); ++I(ijk) )
-      {
+    {
       for( J(ijk)=JMIN(ext); J(ijk) <= JMAX(ext); ++J(ijk) )
-        {
+      {
         for( K(ijk)=KMIN(ext); K(ijk) <= KMAX(ext); ++K(ijk) )
-          {
+        {
           vtkIdType idx = vtkStructuredData::ComputePointIdForExtent(
               this->OutputGrid->Extent,ijk,this->OutputGrid->DataDescription);
           bytestream.Push(this->OutputGrid->Nodes->GetPoint(idx),3);
-          } // END for all k
-        } // END for all j
-      } // END for all i
-    } // END if structured grid
+        } // END for all k
+      } // END for all j
+    } // END for all i
+  } // END if structured grid
   else if( this->OutputGrid->IsRectilinearGrid() )
-    {
+  {
     bytestream << VTK_RECTILINEAR_GRID;
     vtkDataArray* coords[3];
     coords[0] = this->OutputGrid->X_Coords;
     coords[1] = this->OutputGrid->Y_Coords;
     coords[2] = this->OutputGrid->Z_Coords;
     for(int dim=0; dim < 3; ++dim)
-      {
+    {
       assert("pre: NULL coordinates" && coords[dim] != NULL);
       int flag = -1;
       if( ext[dim*2] == ext[dim*2+1] )
-        {
+      {
         flag = 1;
         bytestream << flag;
         bytestream << coords[ dim ]->GetTuple1(0);
-        }
+      }
       else
-        {
+      {
         bytestream << flag;
-        }
-      } // END for all dimensions
-    } // END if rectilinear grid
+      }
+    } // END for all dimensions
+  } // END if rectilinear grid
   else
-    {
+  {
     bytestream << VTK_UNIFORM_GRID;
-    }
+  }
 
   // serialize the node-centered fields
   if(this->OutputGrid->PointData != NULL)
-    {
+  {
     vtkFieldDataSerializer::SerializeSubExtent(
         ext,this->OutputGrid->Extent,this->OutputGrid->PointData,bytestream);
-    }
+  }
   else
-    {
+  {
     bytestream << 0;
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -1393,9 +1393,9 @@ void vtkStructuredImplicitConnectivity::UnPackData(
   assert("pre: output grid is NULL!" && (this->OutputGrid != NULL) );
 
   if( size == 0 )
-    {
+  {
     return;
-    }
+  }
 
   assert("pre: NULL buffer encountered!" && (buffer != NULL) );
 
@@ -1414,7 +1414,7 @@ void vtkStructuredImplicitConnectivity::UnPackData(
 
 
   if( datatype == VTK_STRUCTURED_GRID )
-    {
+  {
     int nnodes   = 0;
     bytestream >> nnodes;
     assert("pre: nnodes must be greater than 0!" && (nnodes > 0) );
@@ -1426,11 +1426,11 @@ void vtkStructuredImplicitConnectivity::UnPackData(
     unsigned int pntsz = 3;
 
     for( I(ijk)=IMIN(ext); I(ijk) <= IMAX(ext); ++I(ijk) )
-      {
+    {
       for( J(ijk)=JMIN(ext); J(ijk) <= JMAX(ext); ++J(ijk) )
-        {
+      {
         for( K(ijk)=KMIN(ext); K(ijk) <= KMAX(ext); ++K(ijk) )
-          {
+        {
           vtkIdType idx = vtkStructuredData::ComputePointIdForExtent(
               this->OutputGrid->Extent,ijk,this->OutputGrid->DataDescription);
           assert("post: idx is out-of-bounds!" && (idx >= 0) &&
@@ -1440,39 +1440,39 @@ void vtkStructuredImplicitConnectivity::UnPackData(
           assert("post: pntsz!=3" && (pntsz==3) );
 
           this->OutputGrid->Nodes->SetPoint(idx,pnt);
-          } // END for all k
-        } // END for all j
-      } // END for all i
+        } // END for all k
+      } // END for all j
+    } // END for all i
 
     delete [] pnt;
-    } // END if structured
+  } // END if structured
   else if( datatype == VTK_RECTILINEAR_GRID )
-    {
+  {
     vtkDataArray* coords[3];
     coords[0] = this->OutputGrid->X_Coords;
     coords[1] = this->OutputGrid->Y_Coords;
     coords[2] = this->OutputGrid->Z_Coords;
     for(int dim=0; dim < 3; ++dim)
-      {
+    {
       assert("pre: NULL coordinates" && coords[dim] != NULL);
       int flag = 0;
       bytestream >> flag;
       if( flag == 1 )
-        {
+      {
         double coordinate;
         vtkIdType lastIdx = coords[ dim ]->GetNumberOfTuples()-1;
         bytestream >> coordinate;
         coords[ dim ]->SetTuple1(lastIdx, coordinate);
-        }
-      } // END for all dimensions
-    } // END if rectilinear
+      }
+    } // END for all dimensions
+  } // END if rectilinear
 
   // de-serialize the node-centered fields
   if( this->OutputGrid->PointData != NULL )
-    {
+  {
     vtkFieldDataSerializer::DeSerializeToSubExtent(
       ext,this->OutputGrid->Extent,this->OutputGrid->PointData,bytestream);
-    }
+  }
 
   delete [] ext;
 }
@@ -1484,9 +1484,9 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
 
   // Allocate CommBuffer data-structure
   if(this->CommManager == NULL)
-    {
+  {
     this->CommManager = new vtk::detail::CommunicationManager();
-    }
+  }
 
   // Clear previously calculated buffers, since we call this iteratively as
   // we carry out the communication along each dimension independently.
@@ -1494,17 +1494,17 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
 
   size_t nNeis = this->InputGrid->Neighbors.size();
   for(size_t nei=0; nei < nNeis; ++nei)
-    {
+  {
     vtk::detail::ImplicitNeighbor* neiPtr= &(this->InputGrid->Neighbors)[nei];
     int orient = neiPtr->Orientation[ dim ];
 
     if( orient == vtk::detail::IntervalsConnect::IMPLICIT_HI )
-      {
+    {
       // enqueue rcv from the rank of this neighbor
       this->CommManager->EnqueueRcv(neiPtr->Rank);
-      } // END if
+    } // END if
     else if( orient == vtk::detail::IntervalsConnect::IMPLICIT_LO)
-      {
+    {
       // enqueue send to the rank of this neighbor
       vtkMultiProcessStream bytestream;
       this->PackData(neiPtr->Overlap,bytestream);
@@ -1514,8 +1514,8 @@ void vtkStructuredImplicitConnectivity::AllocateBuffers(const int dim)
       bytestream.GetRawData(buffer,bytesize);
 
       this->CommManager->EnqueueSend(neiPtr->Rank,buffer,bytesize);
-      } // END else if
-    } // END for all neighbors
+    } // END else if
+  } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------
@@ -1534,19 +1534,19 @@ void vtkStructuredImplicitConnectivity::GrowGrid(const int dim)
   // STEP 4: Unpack data to output grid
   size_t nNeis = this->InputGrid->Neighbors.size();
   for( size_t nei=0; nei < nNeis; ++nei)
-    {
+  {
     vtk::detail::ImplicitNeighbor* neiPtr= &(this->InputGrid->Neighbors)[nei];
     int orient  = neiPtr->Orientation[ dim ];
     int neiRank = neiPtr->Rank;
 
     if( orient == vtk::detail::IntervalsConnect::IMPLICIT_HI)
-      {
+    {
       unsigned char* buffer = this->CommManager->GetRcvBuffer(neiRank);
       unsigned int   size   = this->CommManager->GetRcvBufferSize(neiRank);
       this->UnPackData(buffer,size);
-      } // END if rcv'ed data
+    } // END if rcv'ed data
 
-    } // END for all neighbors
+  } // END for all neighbors
 }
 
 //------------------------------------------------------------------------------
@@ -1556,24 +1556,24 @@ void vtkStructuredImplicitConnectivity::ExchangeData()
   assert( "pre: null controller!" && (this->Controller != NULL) );
 
   if(this->InputGrid != NULL)
-    {
+  {
     // STEP 0: construct output grid data-structure
     this->ConstructOutput();
 
     // STEP 1: Process each dimension
     for(int d=0; d < this->DomainInfo->NDim; ++d)
-      {
+    {
       int dim = this->DomainInfo->DimIndex[ d ];
       this->GrowGrid( dim );
 
       // STEP 2: Update neighbor list, w/ the grown grid information
       this->UpdateNeighborList( dim );
-      } // END for all dimensions
-    } // END if
+    } // END for all dimensions
+  } // END if
   else
-    {
+  {
     this->OutputGrid = NULL;
-    } // END else
+  } // END else
 
   // Barrier synchronization
   this->Controller->Barrier();

@@ -90,20 +90,20 @@ void vtkOutputWindow::DisplayText(const char* txt)
 {
   cerr << txt;
   if (this->PromptUser)
-    {
+  {
     char c = 'n';
     cerr << "\nDo you want to suppress any further messages (y,n,q)?."
               << endl;
     cin >> c;
     if (c == 'y')
-      {
+    {
       vtkObject::GlobalWarningDisplayOff();
-      }
-    if(c == 'q')
-      {
-      this->PromptUser = 0;
-      }
     }
+    if(c == 'q')
+    {
+      this->PromptUser = 0;
+    }
+  }
   this->InvokeEvent(vtkCommand::MessageEvent, (void*)txt);
 }
 
@@ -142,13 +142,13 @@ vtkOutputWindow* vtkOutputWindow::New()
 vtkOutputWindow* vtkOutputWindow::GetInstance()
 {
   if(!vtkOutputWindow::Instance)
-    {
+  {
     // Try the factory first
     vtkOutputWindow::Instance = (vtkOutputWindow*)
       vtkObjectFactory::CreateInstance("vtkOutputWindow");
     // if the factory did not provide one, then create it here
     if(!vtkOutputWindow::Instance)
-      {
+    {
       // if the factory failed to create the object,
       // then destroy it now, as vtkDebugLeaks::ConstructClass was called
       // with "vtkOutputWindow", and not the real name of the class
@@ -167,8 +167,8 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
       vtkOutputWindow::Instance = new vtkOutputWindow;
 #endif
 #endif
-      }
     }
+  }
   // return the instance
   return vtkOutputWindow::Instance;
 }
@@ -176,19 +176,19 @@ vtkOutputWindow* vtkOutputWindow::GetInstance()
 void vtkOutputWindow::SetInstance(vtkOutputWindow* instance)
 {
   if (vtkOutputWindow::Instance==instance)
-    {
+  {
     return;
-    }
+  }
   // preferably this will be NULL
   if (vtkOutputWindow::Instance)
-    {
+  {
     vtkOutputWindow::Instance->Delete();
-    }
+  }
   vtkOutputWindow::Instance = instance;
   if (!instance)
-    {
+  {
     return;
-    }
+  }
   // user will call ->Delete() after setting instance
   instance->Register(NULL);
 }

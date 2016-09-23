@@ -42,14 +42,14 @@ bool vtkCompositeDataDisplayAttributes::GetBlockVisibility(unsigned int flat_ind
   std::map<unsigned int, bool>::const_iterator iter =
     this->BlockVisibilities.find(flat_index);
   if(iter != this->BlockVisibilities.end())
-    {
+  {
     return iter->second;
-    }
+  }
   else
-    {
+  {
     // default to true
     return true;
-    }
+  }
 }
 
 bool vtkCompositeDataDisplayAttributes::HasBlockVisibilities() const
@@ -84,9 +84,9 @@ void vtkCompositeDataDisplayAttributes::GetBlockColor(
   std::map<unsigned int, vtkColor3d>::const_iterator
     iter = this->BlockColors.find(flat_index);
   if(iter != this->BlockColors.end())
-    {
+  {
     std::copy(&iter->second[0], &iter->second[3], color);
-    }
+  }
 }
 
 vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(
@@ -95,9 +95,9 @@ vtkColor3d vtkCompositeDataDisplayAttributes::GetBlockColor(
   std::map<unsigned int, vtkColor3d>::const_iterator
     iter = this->BlockColors.find(flat_index);
   if(iter != this->BlockColors.end())
-    {
+  {
     return iter->second;
-    }
+  }
   return vtkColor3d();
 }
 
@@ -138,9 +138,9 @@ double vtkCompositeDataDisplayAttributes::GetBlockOpacity(unsigned int flat_inde
   std::map<unsigned int, double>::const_iterator iter = this->BlockOpacities.find(flat_index);
 
   if(iter != this->BlockOpacities.end())
-    {
+  {
     return iter->second;
-    }
+  }
 
   return 0;
 }
@@ -177,9 +177,9 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBounds(
   vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
     cda, dobj, flat_index, &bbox);
   if(bbox.IsValid())
-    {
+  {
     bbox.GetBounds(bounds);
-    }
+  }
 }
 
 void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
@@ -190,9 +190,9 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   bool parentVisible)
 {
   if(!dobj || !bbox)
-    {
+  {
     return;
-    }
+  }
 
   // A block always *has* a visibility state, either explicitly set or inherited.
   bool blockVisible = (cda && cda->HasBlockVisibility(flat_index)) ?
@@ -204,30 +204,30 @@ void vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
   vtkMultiBlockDataSet *mbds = vtkMultiBlockDataSet::SafeDownCast(dobj);
   vtkMultiPieceDataSet *mpds = vtkMultiPieceDataSet::SafeDownCast(dobj);
   if (mbds || mpds)
-    {
+  {
     unsigned int numChildren = mbds? mbds->GetNumberOfBlocks() :
       mpds->GetNumberOfPieces();
     for (unsigned int cc=0 ; cc < numChildren; cc++)
-      {
+    {
       vtkDataObject* child = mbds ? mbds->GetBlock(cc) : mpds->GetPiece(cc);
       if (child == NULL)
-        {
+      {
         // speeds things up when dealing with NULL blocks (which is common with AMRs).
         flat_index++;
         continue;
-        }
+      }
       vtkCompositeDataDisplayAttributes::ComputeVisibleBoundsInternal(
         cda, child, flat_index, bbox, blockVisible);
-      }
     }
+  }
   else if (dobj && blockVisible == true)
-    {
+  {
     vtkDataSet *ds = vtkDataSet::SafeDownCast(dobj);
     if(ds)
-      {
+    {
       double bounds[6];
       ds->GetBounds(bounds);
       bbox->AddBounds(bounds);
-      }
     }
+  }
 }

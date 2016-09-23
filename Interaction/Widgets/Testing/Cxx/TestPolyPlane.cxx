@@ -57,12 +57,12 @@ class vtkTestPolyPlaneCallback : public vtkCommand
 {
 public:
   static vtkTestPolyPlaneCallback *New()
-    {
+  {
     return new vtkTestPolyPlaneCallback;
-    }
+  }
 
   void Execute(vtkObject *caller, unsigned long, void*) VTK_OVERRIDE
-    {
+  {
     vtkContourWidget *widget = reinterpret_cast<vtkContourWidget*>(caller);
     vtkContourRepresentation *rep = vtkContourRepresentation::
                         SafeDownCast(widget->GetRepresentation());
@@ -72,7 +72,7 @@ public:
     // If less than 2 points, we can't define a polyplane..
 
     if (pd->GetPoints()->GetNumberOfPoints() >= 2)
-      {
+    {
 
       vtkPolyLine *polyline = vtkPolyLine::New();
       polyline->Initialize( pd->GetNumberOfPoints(),
@@ -83,8 +83,8 @@ public:
       polyline->Delete();
 
       this->Cutter->SetCutFunction(this->PolyPlane);
-      }
     }
+  }
 
 
   vtkTestPolyPlaneCallback() : PolyPlane(0),Cutter(0) {};
@@ -306,9 +306,9 @@ int TestPolyPlane( int argc, char *argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return EXIT_SUCCESS;
 }

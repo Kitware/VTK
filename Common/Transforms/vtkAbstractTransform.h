@@ -460,13 +460,13 @@ class VTKCOMMONTRANSFORMS_EXPORT vtkTransformConcatenationStack
 {
 public:
   static vtkTransformConcatenationStack *New()
-    {
+  {
       return new vtkTransformConcatenationStack();
-    }
+  }
   void Delete()
-    {
+  {
       delete this;
-    }
+  }
 
   /**
    * pop will pop delete 'concat', then pop the

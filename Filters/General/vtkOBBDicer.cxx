@@ -40,10 +40,10 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
   // Gather all the points into a single list
   //
   for ( this->PointsList->Reset(), i=0; i < numPts; i++ )
-    {
+  {
     ptId = ptIds->GetId(i);
     this->PointsList->InsertNextPoint(input->GetPoint(ptId));
-    }
+  }
 
   // Now compute the OBB
   //
@@ -55,7 +55,7 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
   // assign cells to appropriate child.
   //
   if ( numPts > this->NumberOfPointsPerPiece )
-    {
+  {
     vtkOBBNode *LHnode= new vtkOBBNode;
     vtkOBBNode *RHnode= new vtkOBBNode;
     OBBptr->Kids = new vtkOBBNode *[2];
@@ -71,46 +71,46 @@ void vtkOBBDicer::BuildTree(vtkIdList *ptIds, vtkOBBNode *OBBptr,
 
     //split the longest axis down the middle
     for (i=0; i < 3; i++) //compute split point
-      {
+    {
       p[i] = OBBptr->Corner[i] + OBBptr->Axes[0][i]/2.0 +
              OBBptr->Axes[1][i]/2.0 + OBBptr->Axes[2][i]/2.0;
-      }
+    }
 
     // compute split normal
     for (i=0 ; i < 3; i++)
-      {
+    {
       n[i] = OBBptr->Axes[0][i];
-      }
+    }
     vtkMath::Normalize(n);
 
     //traverse cells, assigning to appropriate child list as necessary
     for ( i=0; i < numPts; i++ )
-      {
+    {
       ptId = ptIds->GetId(i);
       input->GetPoint(ptId, x);
       val = n[0]*(x[0]-p[0]) + n[1]*(x[1]-p[1]) + n[2]*(x[2]-p[2]);
 
       if ( val < 0.0 )
-        {
+      {
         LHlist->InsertNextId(ptId);
-        }
+      }
       else
-        {
+      {
         RHlist->InsertNextId(ptId);
-        }
+      }
 
-      }//for all points
+    }//for all points
 
     ptIds->Delete(); //don't need to keep anymore
     this->BuildTree(LHlist, LHnode, input);
     this->BuildTree(RHlist, RHnode, input);
-    }//if should build tree
+  }//if should build tree
 
   else //terminate recursion
-    {
+  {
     ptIds->Squeeze();
     OBBptr->Cells = ptIds;
-    }
+  }
 }
 
 // Current implementation uses an OBBTree to split up the dataset.
@@ -137,10 +137,10 @@ int vtkOBBDicer::RequestData(
   output->CopyStructure( input );
 
   if ( (numPts = input->GetNumberOfPoints()) < 1 )
-    {
+  {
     vtkErrorMacro(<<"No data to dice!");
     return 1;
-    }
+  }
 
   // The superclass computes piece size limits based on filter ivars
   this->UpdatePieceMeasures(input);
@@ -152,9 +152,9 @@ int vtkOBBDicer::RequestData(
   ptIds = vtkIdList::New();
   ptIds->SetNumberOfIds(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
-    {
+  {
     ptIds->SetId(ptId,ptId);
-    }
+  }
 
   root = new vtkOBBNode;
   this->BuildTree(ptIds,root, input);
@@ -176,18 +176,18 @@ int vtkOBBDicer::RequestData(
   // Update self
   //
   if ( this->FieldData )
-    {
+  {
     output->GetPointData()->AddArray(groupIds);
     output->GetPointData()->CopyFieldOff("vtkOBBDicer_GroupIds");
     output->GetPointData()->PassData(input->GetPointData());
-    }
+  }
   else
-    {
+  {
     output->GetPointData()->AddArray(groupIds);
     output->GetPointData()->SetActiveScalars(groupIds->GetName());
     output->GetPointData()->CopyScalarsOff();
     output->GetPointData()->PassData(input->GetPointData());
-    }
+  }
 
   output->GetCellData()->PassData(input->GetCellData());
 
@@ -199,37 +199,37 @@ int vtkOBBDicer::RequestData(
 void vtkOBBDicer::MarkPoints(vtkOBBNode *OBBptr, vtkShortArray *groupIds)
 {
   if ( OBBptr->Kids == NULL ) //leaf OBB
-    {
+  {
     vtkIdList *ptIds;
     vtkIdType i, ptId, numIds;
 
     ptIds = OBBptr->Cells;
     if ( (numIds=ptIds->GetNumberOfIds()) > 0 )
-      {
+    {
       for ( i=0; i < numIds; i++ )
-        {
+      {
         ptId = ptIds->GetId(i);
         groupIds->SetValue(ptId,this->NumberOfActualPieces);
-        }
+      }
       this->NumberOfActualPieces++;
-      }//if any points in this leaf OBB
-    }
+    }//if any points in this leaf OBB
+  }
   else
-    {
+  {
     this->MarkPoints(OBBptr->Kids[0],groupIds);
     this->MarkPoints(OBBptr->Kids[1],groupIds);
-    }
+  }
 }
 
 void vtkOBBDicer::DeleteTree(vtkOBBNode *OBBptr)
 {
   if ( OBBptr->Kids != NULL )
-    {
+  {
     this->DeleteTree(OBBptr->Kids[0]);
     this->DeleteTree(OBBptr->Kids[1]);
     delete OBBptr->Kids[0];
     delete OBBptr->Kids[1];
-    }
+  }
 }
 
 void vtkOBBDicer::PrintSelf(ostream& os, vtkIndent indent)

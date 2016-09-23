@@ -237,7 +237,7 @@ public:
     SELECTION_ADDITION,
     SELECTION_SUBTRACTION,
     SELECTION_TOGGLE
-    };
+  };
 
 protected:
   vtkContextScene();

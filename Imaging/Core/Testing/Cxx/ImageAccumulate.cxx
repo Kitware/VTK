@@ -49,25 +49,25 @@ int ImageAccumulate(int , char *[])
   acc->GetMin(min);
   acc->GetMax(max);
   if( min[0] != 0 )
-    {
+  {
     cerr << "Min: " << min[0] << endl;
     rval++;
-    }
+  }
   if( max[0] != 5 )
-    {
+  {
     cerr << "Max: " << max[0] << endl;
     rval++;
-    }
+  }
   double mean[3];
   long int voxcount;
   voxcount = acc->GetVoxelCount();
   acc->GetMean(mean);
   double m = double(1+2+3+4+5)/voxcount;
   if( fabs(mean[0] - m) > 1e-10 )
-    {
+  {
     cerr << "Mean: " << mean[0] << endl;
     rval++;
-    }
+  }
 
 
   // Test IgnoreZero option
@@ -79,21 +79,21 @@ int ImageAccumulate(int , char *[])
   acc->GetMin(min);
   acc->GetMax(max);
   if( min[0] != 1 )
-    {
+  {
     cerr << "Min: " << min[0] << endl;
     rval++;
-    }
+  }
   if( max[0] != 5 )
-    {
+  {
     cerr << "Max: " << max[0] << endl;
     rval++;
-    }
+  }
   acc->GetMean(mean);
   if( mean[0] != double(1+2+3+4+5)/5  )
-    {
+  {
     cerr << "Mean: " << mean[0] << endl;
     rval++;
-    }
+  }
 
   sinus->Delete();
   acc->Delete();

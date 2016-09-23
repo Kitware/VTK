@@ -35,9 +35,9 @@ class vtkLessThanClientID
 {
 public:
   bool operator()(const UInt16 &id1, const UInt16 &id2) const
-    {
+  {
       return id1<id2;
-    }
+  }
 };
 
 
@@ -65,9 +65,9 @@ vtkTDxMacDevice::vtkTDxMacDevice()
 vtkTDxMacDevice::~vtkTDxMacDevice()
 {
   if(this->Initialized)
-    {
+  {
     this->Close();
-    }
+  }
   this->SetClientApplicationName(0);
 }
 
@@ -85,14 +85,14 @@ void vtkTDxMacDevice::Initialize()
   assert("pre: valid_name" && this->GetClientApplicationName()!=0);
 
   if(vtkClientIDToDeviceObject.empty())
-    {
+  {
     OSErr result=InstallConnexionHandlers(vtkTDxMacDeviceMessageHandler,0L,0L);
     this->Initialized=result==noErr; // 0
-    }
+  }
   else
-    {
+  {
     this->Initialized=true;
-    }
+  }
 
   this->LastButtonState=0; // all buttons released.
 
@@ -132,19 +132,19 @@ void vtkTDxMacDevice::Close()
     vtkClientIDToDeviceObject.find(this->ClientID);
 
   if(it==vtkClientIDToDeviceObject.end())
-    {
+  {
     vtkErrorMacro(<< "No matching vtkTDxMacDevice object for clientID=" << this->ClientID);
-    }
+  }
   else
-    {
+  {
     vtkClientIDToDeviceObject.erase(it);
-    }
+  }
 
   // only if the map is empty.
   if(vtkClientIDToDeviceObject.empty())
-    {
+  {
     CleanupConnexionHandlers();
-    }
+  }
 
   this->ClientID=0;
   this->LastButtonState=0; // all buttons released.
@@ -175,7 +175,7 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
   bool pressed;
 
   switch(s->command)
-    {
+  {
     case kConnexionCmdHandleAxis:
       vtkDebugMacro(<< "it is kConnexionCmdHandleAxis");
       motionInfo.X=s->axis[0]; // Tx: SInt16 between -1024 and 1024
@@ -195,17 +195,17 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
 
       motionInfo.Angle=vtkMath::Norm(axis);
       if(motionInfo.Angle==0.0)
-        {
+      {
         motionInfo.AxisX=0.0;
         motionInfo.AxisY=0.0;
         motionInfo.AxisZ=1.0;
-        }
+      }
       else
-        {
+      {
         motionInfo.AxisX=axis[0]/motionInfo.Angle;
         motionInfo.AxisY=axis[1]/motionInfo.Angle;
         motionInfo.AxisZ=axis[2]/motionInfo.Angle;
-        }
+      }
       this->Interactor->InvokeEvent(vtkCommand::TDxMotionEvent,&motionInfo);
       break;
     case kConnexionCmdHandleButtons:
@@ -225,27 +225,27 @@ void vtkTDxMacDevice::ProcessEvent(const ConnexionDeviceState *s)
       buttonInfo=0;
       mask=mask>>1;
       while(mask!=0)
-        {
+      {
         mask=mask>>1;
         ++buttonInfo;
-        }
+      }
       if(pressed)
-        {
+      {
         vtkDebugMacro(<< "it is kConnexionCmdHandleButtons (press) event");
         this->Interactor->InvokeEvent(vtkCommand::TDxButtonPressEvent,
                                       &buttonInfo);
-        }
+      }
       else
-        {
+      {
         vtkDebugMacro(<< "it is kConnexionCmdHandleButtons (release) event");
         this->Interactor->InvokeEvent(vtkCommand::TDxButtonReleaseEvent,
                                       &buttonInfo);
-        }
+      }
       break;
     default:
       // ignore kConnexionCmd(None|HandleRawData|AppSpecific)
       break;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -255,13 +255,13 @@ void vtkTDxMacDevice::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "ClientApplicationName=";
   if(this->ClientApplicationName!=0)
-    {
+  {
     os << this->ClientApplicationName << endl;
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -290,10 +290,10 @@ unsigned char *vtkTDxMacDevice::CStringToPascalString(const char *s)
   result[l+1]=0;
   size_t i=0;
   while(i<l)
-    {
+  {
     result[i+1]=static_cast<unsigned char>(s[i]);
     ++i;
-    }
+  }
 
   assert("post result_exists" && result!=0);
   return result;
@@ -311,19 +311,19 @@ void vtkTDxMacDeviceMessageHandler(io_connect_t connection,
   vtkTDxMacDevice *device;
 
   switch(messageType)
-    {
+  {
     case kConnexionMsgDeviceState:
       s=static_cast<ConnexionDeviceState *>(messageArgument);
       it=vtkClientIDToDeviceObject.find(s->client);
 
       if(it==vtkClientIDToDeviceObject.end())
-        {
+      {
         // it can happen during initialization phase because of a race condition:
         // clientID is registered with the system, events can happen but the
         // line that records the clientID is the map is not executed yet.
         // No worries.
         return;
-        }
+      }
 
       device=(*it).second;
       device->ProcessEvent(s);
@@ -331,5 +331,5 @@ void vtkTDxMacDeviceMessageHandler(io_connect_t connection,
     default:
       // other messageTypes can happen and should be ignored.
       break;
-    }
+  }
 }

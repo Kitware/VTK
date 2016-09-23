@@ -46,7 +46,7 @@ public:
     ACCEPT_GREATER_THAN = 1,
     ACCEPT_BETWEEN = 2,
     ACCEPT_OUTSIDE = 3
-    };
+  };
 
   //@{
   /**
@@ -66,14 +66,14 @@ public:
    * This may be any data type stored in a vtkVariant.
    */
   virtual void SetMinValue(vtkVariant v)
-    {
+  {
     this->MinValue = v;
     this->Modified();
-    }
+  }
   virtual vtkVariant GetMinValue()
-    {
+  {
     return this->MinValue;
-    }
+  }
   //@}
 
   //@{
@@ -82,14 +82,14 @@ public:
    * This may be any data type stored in a vtkVariant.
    */
   virtual void SetMaxValue(vtkVariant v)
-    {
+  {
     this->MaxValue = v;
     this->Modified();
-    }
+  }
   virtual vtkVariant GetMaxValue()
-    {
+  {
     return this->MaxValue;
-    }
+  }
   //@}
 
   /**

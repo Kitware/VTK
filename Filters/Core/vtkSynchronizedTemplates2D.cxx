@@ -110,7 +110,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 
   // Figure out which plane the image lies in.
   if (updateExt[4] == updateExt[5])
-    { // z collapsed
+  { // z collapsed
     axis0 = 0;
     min0 = updateExt[0];
     max0 = updateExt[1];
@@ -120,9 +120,9 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
     max1 = updateExt[3];
     inc1 = incs[1];
     x[2] = origin[2] + (updateExt[4]*spacing[2]);
-    }
+  }
   else if (updateExt[2] == updateExt[3])
-    { // y collapsed
+  { // y collapsed
     axis0 = 0;
     min0 = updateExt[0];
     max0 = updateExt[1];
@@ -132,9 +132,9 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
     max1 = updateExt[5];
     inc1 = incs[2];
     x[1] = origin[1] + (updateExt[2]*spacing[1]);
-    }
+  }
   else if (updateExt[0] == updateExt[1])
-    { // x collapsed
+  { // x collapsed
     axis0 = 1;
     min0 = updateExt[2];
     max0 = updateExt[3];
@@ -144,20 +144,20 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
     max1 = updateExt[5];
     inc1 = incs[2];
     x[0] = origin[0] + (updateExt[0]*spacing[0]);
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro("Expecting 2D data.");
     return;
-    }
+  }
   dim0 = max0-min0+1;
 
 
   // setup the table entries
   for (i = 0; i < 64; i++)
-    {
+  {
     lineCases[i] = -1;
-    }
+  }
 
   lineCases[12] = 3;
   lineCases[13] = dim0*2;
@@ -198,7 +198,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 
   // for each contour
   for (vidx = 0; vidx < numContours; vidx++)
-    {
+  {
     rowPtr = scalars;
 
     lineCases[13] = dim0*2;
@@ -210,7 +210,7 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 
     // Traverse all pixel cells, generating line segements using templates
     for (j = min1; j <= max1; j++)
-      {
+    {
       inPtr = rowPtr;
       rowPtr += inc1;
 
@@ -221,26 +221,26 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
 
       // swap the buffers
       if (j%2)
-        {
+      {
         lineCases[13] = dim0*2;
         lineCases[21] = dim0*2;
         lineCases[37] = dim0*2;
         lineCases[63] = dim0*2;
         isect1Ptr = isect1;
         isect2Ptr = isect1 + dim0*2;
-        }
+      }
       else
-        {
+      {
         lineCases[13] = -dim0*2;
         lineCases[21] = -dim0*2;
         lineCases[37] = -dim0*2;
         lineCases[63] = -dim0*2;
         isect1Ptr = isect1 + dim0*2;
         isect2Ptr = isect1;
-        }
+      }
 
       for (i = min0; i < max0; i++)
-        {
+      {
         s0 = s1;
         s1 = *(inPtr + inc0);
         // compute in/out for verts
@@ -250,74 +250,74 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
         *isect2Ptr = -1;
         *(isect2Ptr + 1) = -1;
         if (v0 ^ v1)
-          {
+        {
           // watch for degenerate points
           if (s0 == value)
-            {
+          {
             if (i > min0 && *(isect2Ptr-2) > -1)
-              {
-              *isect2Ptr = *(isect2Ptr-2);
-              }
-            else if (j > min1 && *(isect1Ptr+1) > -1)
-              {
-              *isect2Ptr = *(isect1Ptr+1);
-              }
-            }
-          else if (s1 == value && j > min1 && *(isect1Ptr+3) > -1)
             {
-            *isect2Ptr = *(isect1Ptr+3);
+              *isect2Ptr = *(isect2Ptr-2);
             }
+            else if (j > min1 && *(isect1Ptr+1) > -1)
+            {
+              *isect2Ptr = *(isect1Ptr+1);
+            }
+          }
+          else if (s1 == value && j > min1 && *(isect1Ptr+3) > -1)
+          {
+            *isect2Ptr = *(isect1Ptr+3);
+          }
           // if the edge has not been set yet then it is a new point
           if (*isect2Ptr == -1)
-            {
+          {
             t = (value - s0) / (s1 - s0);
             x[axis0] = origin[axis0] + spacing[axis0]*(i+t);
             x[axis1] = y;
             *isect2Ptr = newPts->InsertNextPoint(x);
             if (newScalars)
-              {
+            {
               newScalars->InsertNextTuple(&value);
-              }
             }
           }
+        }
         if (j < max1)
-          {
+        {
           s2 = *(inPtr + inc1);
           v2 = (s2 < value ? 0 : 1);
           if (v0 ^ v2)
-            {
+          {
             if (s0 == value)
-              {
+            {
               if (*isect2Ptr > -1)
-                {
+              {
                 *(isect2Ptr + 1) = *isect2Ptr;
-                }
-              else if (j > min1 && *(isect1Ptr+1) > -1)
-                {
-                *(isect2Ptr + 1) = *(isect1Ptr+1);
-                }
-              else if (i > min0 && *(isect2Ptr-2) > -1)
-                {
-                *(isect2Ptr + 1) = *(isect2Ptr-2);
-                }
               }
+              else if (j > min1 && *(isect1Ptr+1) > -1)
+              {
+                *(isect2Ptr + 1) = *(isect1Ptr+1);
+              }
+              else if (i > min0 && *(isect2Ptr-2) > -1)
+              {
+                *(isect2Ptr + 1) = *(isect2Ptr-2);
+              }
+            }
             // if the edge has not been set yet then it is a new point
             if (*(isect2Ptr + 1) == -1)
-              {
+            {
               t = (value - s0) / (s2 - s0);
               x[axis0] = origin[axis0] + spacing[axis0]*i;
               x[axis1] = y + spacing[axis1]*t;
               *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
               if (newScalars)
-                {
+              {
                 newScalars->InsertNextTuple(&value);
-                }
               }
             }
           }
+        }
 
         if (j > min1)
-          {
+        {
           // now add any lines that need to be added
           // basically look at the isect values,
           // form an index and lookup the lines
@@ -328,63 +328,63 @@ void vtkContourImage(vtkSynchronizedTemplates2D *self,
           tablePtr = lineCases + idx*4;
 
           if (*tablePtr != -1)
-            {
+          {
             ptIds[0] = *(isect1Ptr + *tablePtr);
             tablePtr++;
             ptIds[1] = *(isect1Ptr + *tablePtr);
             if (ptIds[0] != ptIds[1])
-              {
+            {
               // insert non-degenerate lines
               lines->InsertNextCell(2,ptIds);
-              }
+            }
             tablePtr++;
             if (*tablePtr != -1)
-              {
+            {
               ptIds[0] = *(isect1Ptr + *tablePtr);
               tablePtr++;
               ptIds[1] = *(isect1Ptr + *tablePtr);
               if (ptIds[0] != ptIds[1])
-                {
+              {
                 lines->InsertNextCell(2,ptIds);
-                }
               }
             }
           }
+        }
         inPtr += inc0;
         isect2Ptr += 2;
         isect1Ptr += 2;
-        }
+      }
       // now compute the last column, use s2 since it is around
       if (j < max1)
-        {
+      {
         s2 = *(inPtr + dim0);
         v2 = (s2 < value ? 0 : 1);
         *(isect2Ptr + 1) = -1;
         if (v1 ^ v2)
-          {
+        {
           if (s1 == value && *(isect2Ptr-2) > -1)
-            {
+          {
             *(isect2Ptr + 1) = *(isect2Ptr-2);
-            }
+          }
           else if (s1 == value && *(isect1Ptr+1) > -1)
-            {
+          {
             *(isect2Ptr + 1) = *(isect1Ptr+1);
-            }
+          }
           else
-            {
+          {
             t = (value - s1) / (s2 - s1);
             x[axis0] = origin[axis0] + spacing[axis0]*max0;
             x[axis1] = y + spacing[axis1]*t;
             *(isect2Ptr + 1) = newPts->InsertNextPoint(x);
             if (newScalars)
-              {
+            {
               newScalars->InsertNextTuple(&value);
-              }
             }
           }
         }
       }
     }
+  }
 
   delete [] isect1;
 }
@@ -423,18 +423,18 @@ int vtkSynchronizedTemplates2D::RequestData(
     inInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT());
   inScalars = this->GetInputArrayToProcess(0,inputVector);
   if ( inScalars == NULL )
-    {
+  {
     vtkErrorMacro(<<"Scalars must be defined for contouring");
     return 1;
-    }
+  }
 
   int numComps = inScalars->GetNumberOfComponents();
   if (this->ArrayComponent >= numComps)
-    {
+  {
     vtkErrorMacro("Scalars have " << numComps << " components. "
                   "ArrayComponent must be smaller than " << numComps);
     return 1;
-    }
+  }
 
   // We have to compute the dimenisons from the update extent because
   // the extent may be larger.
@@ -452,9 +452,9 @@ int vtkSynchronizedTemplates2D::RequestData(
   //
   estimatedSize = (int) (sqrt((double)(dataSize)));
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
   newPts = vtkPoints::New();
   newPts->Allocate(estimatedSize,estimatedSize);
   newLines = vtkCellArray::New();
@@ -466,24 +466,24 @@ int vtkSynchronizedTemplates2D::RequestData(
 
   void *scalars = inScalars->GetVoidPointer(0);
   if (this->ComputeScalars)
-    {
+  {
     newScalars = inScalars->NewInstance();
     newScalars->SetNumberOfComponents(inScalars->GetNumberOfComponents());
     newScalars->SetName(inScalars->GetName());
     newScalars->Allocate(5000,25000);
-    }
+  }
   switch (inScalars->GetDataType())
-    {
+  {
     vtkTemplateMacro(
       vtkContourImage(this,(VTK_TT *)scalars, newPts,
                       newScalars, newLines, input, ext));
-    }//switch
+  }//switch
 
   // Lets set the name of the scalars here.
   if (newScalars)
-    {
+  {
     newScalars->SetName(inScalars->GetName());
-    }
+  }
 
   vtkDebugMacro(<<"Created: "
                << newPts->GetNumberOfPoints() << " points, "
@@ -499,11 +499,11 @@ int vtkSynchronizedTemplates2D::RequestData(
   newLines->Delete();
 
   if (newScalars)
-    {
+  {
     int idx = output->GetPointData()->AddArray(newScalars);
     output->GetPointData()->SetActiveAttribute(idx, vtkDataSetAttributes::SCALARS);
     newScalars->Delete();
-    }
+  }
 
   output->Squeeze();
   return 1;
@@ -523,12 +523,12 @@ void vtkSynchronizedTemplates2D::PrintSelf(ostream& os, vtkIndent indent)
 
   this->ContourValues->PrintSelf(os,indent.GetNextIndent());
   if (this->ComputeScalars)
-    {
+  {
     os << indent << "ComputeScalarsOn\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "ComputeScalarsOff\n";
-    }
+  }
   os << indent << "ArrayComponent: " << this->ArrayComponent << endl;
 }

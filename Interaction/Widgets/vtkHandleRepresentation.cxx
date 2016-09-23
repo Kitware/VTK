@@ -55,24 +55,24 @@ vtkHandleRepresentation::~vtkHandleRepresentation()
 void vtkHandleRepresentation::SetDisplayPosition(double displyPos[3])
 {
   if (this->Renderer && this->PointPlacer)
-    {
+  {
     if (this->PointPlacer->ValidateDisplayPosition( this->Renderer, displyPos ))
-      {
+    {
       double worldPos[3], worldOrient[9];
       if (this->PointPlacer->ComputeWorldPosition(
             this->Renderer, displyPos, worldPos, worldOrient ))
-        {
+      {
         this->DisplayPosition->SetValue(displyPos);
         this->WorldPosition->SetValue(worldPos);
         this->DisplayPositionTime.Modified();
-        }
       }
     }
+  }
   else
-    {
+  {
     this->DisplayPosition->SetValue(displyPos);
     this->DisplayPositionTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -85,10 +85,10 @@ void vtkHandleRepresentation::GetDisplayPosition(double pos[3])
   if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime ||
                           (this->Renderer->GetVTKWindow() &&
                            this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
-    {
+  {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
     this->DisplayPosition->SetValue(p[0],p[1],0.0);
-    }
+  }
   this->DisplayPosition->GetValue(pos);
 }
 
@@ -102,10 +102,10 @@ double* vtkHandleRepresentation::GetDisplayPosition()
   if ( this->Renderer && (this->WorldPositionTime > this->DisplayPositionTime ||
                           (this->Renderer->GetVTKWindow() &&
                            this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime)) )
-    {
+  {
     int *p = this->WorldPosition->GetComputedDisplayValue(this->Renderer);
     this->DisplayPosition->SetValue(p[0],p[1],0.0);
-    }
+  }
   return this->DisplayPosition->GetValue();
 }
 
@@ -113,18 +113,18 @@ double* vtkHandleRepresentation::GetDisplayPosition()
 void vtkHandleRepresentation::SetWorldPosition(double pos[3])
 {
   if (this->Renderer && this->PointPlacer)
-    {
+  {
     if (this->PointPlacer->ValidateWorldPosition( pos ))
-      {
+    {
       this->WorldPosition->SetValue(pos);
       this->WorldPositionTime.Modified();
-      }
     }
+  }
   else
-    {
+  {
     this->WorldPosition->SetValue(pos);
     this->WorldPositionTime.Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -157,11 +157,11 @@ void vtkHandleRepresentation::SetRenderer(vtkRenderer *ren)
   // the renderer was specified, then the coordinate systems are not
   // synchronized.
   if ( this->DisplayPositionTime > this->WorldPositionTime )
-    {
+  {
     double p[3];
     this->DisplayPosition->GetValue(p);
     this->SetDisplayPosition(p); //side affect updated world pos
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -169,12 +169,12 @@ void vtkHandleRepresentation::DeepCopy(vtkProp *prop)
 {
   vtkHandleRepresentation *rep = vtkHandleRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetTolerance(rep->GetTolerance());
     this->SetActiveRepresentation(rep->GetActiveRepresentation());
     this->SetConstrained(rep->GetConstrained());
     this->SetPointPlacer(rep->GetPointPlacer());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 
@@ -183,11 +183,11 @@ void vtkHandleRepresentation::ShallowCopy(vtkProp *prop)
 {
   vtkHandleRepresentation *rep = vtkHandleRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->SetTolerance(rep->GetTolerance());
     this->SetActiveRepresentation(rep->GetActiveRepresentation());
     this->SetConstrained(rep->GetConstrained());
-    }
+  }
   this->Superclass::ShallowCopy(prop);
 }
 
@@ -227,14 +227,14 @@ void vtkHandleRepresentation::PrintSelf(ostream& os, vtkIndent indent)
      << (this->ActiveRepresentation ? "On" : "Off") << "\n";
 
   if ( this->PointPlacer )
-    {
+  {
     os << indent << "PointPlacer:\n";
     this->PointPlacer->PrintSelf( os, indent.GetNextIndent() );
-    }
+  }
   else
-    {
+  {
     os << indent << "PointPlacer: (none)\n";
-    }
+  }
 
   // this->InteractionState is printed in superclass
   // this is commented to avoid PrintSelf errors

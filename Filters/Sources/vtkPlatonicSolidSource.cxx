@@ -113,7 +113,7 @@ int vtkPlatonicSolidSource::RequestData(
   // Based on type, select correct connectivity and point arrays
   //
   switch (this->SolidType)
-    {
+  {
     case VTK_SOLID_TETRAHEDRON:
       numPts = 4;
       cellSize = 3;
@@ -158,7 +158,7 @@ int vtkPlatonicSolidSource::RequestData(
       solidVerts = vtkPlatonicSolidSourceDetail::DodeVerts;
       solidScale = 1.0/1.070466269319;
       break;
-    }
+  }
 
   // Create the solids
   //
@@ -166,13 +166,13 @@ int vtkPlatonicSolidSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     pts->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     pts->SetDataType(VTK_FLOAT);
-    }
+  }
 
   pts->SetNumberOfPoints(numPts);
   vtkCellArray *polys = vtkCellArray::New();
@@ -183,17 +183,17 @@ int vtkPlatonicSolidSource::RequestData(
 
   // Points
   for ( i=0, pptr=solidPoints; i<numPts; i++, pptr+=3 )
-    {
+  {
     pts->SetPoint(i, solidScale*(pptr[0]), solidScale*(pptr[1]),
                      solidScale*(pptr[2]));
-    }
+  }
 
   // Cells
   for ( i=0, cptr=solidVerts; i<numCells; i++, cptr+=cellSize )
-    {
+  {
     polys->InsertNextCell(cellSize,cptr);
     colors->SetTuple1(i,i);
-    }
+  }
 
   // Assemble the output
   output->SetPoints(pts);
@@ -214,25 +214,25 @@ void vtkPlatonicSolidSource::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Solid Type: " << "\n";
   if ( this->SolidType == VTK_SOLID_TETRAHEDRON )
-    {
+  {
     os << "Tetrahedron\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_CUBE )
-    {
+  {
     os << "Cube\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_OCTAHEDRON )
-    {
+  {
     os << "Octahedron\n";
-    }
+  }
   else if ( this->SolidType == VTK_SOLID_ICOSAHEDRON )
-    {
+  {
     os << "Icosahedron\n";
-    }
+  }
   else //if ( this->SolidType == VTK_SOLID_DODECAHEDRON )
-    {
+  {
     os << "Dodecahedron\n";
-    }
+  }
 
   os << indent << "Output Points Precision: " << this->OutputPointsPrecision
      << "\n";

@@ -193,9 +193,9 @@ public:
   void SetBoundaryModeToAssignToOneRegion()
     { this->SetBoundaryMode(vtkDistributedDataFilter::ASSIGN_TO_ONE_REGION); }
   void SetBoundaryModeToAssignToAllIntersectingRegions()
-    { this->SetBoundaryMode(
+  { this->SetBoundaryMode(
       vtkDistributedDataFilter::ASSIGN_TO_ALL_INTERSECTING_REGIONS);
-    }
+  }
   void SetBoundaryModeToSplitBoundaryCells()
     { this->SetBoundaryMode(vtkDistributedDataFilter::SPLIT_BOUNDARY_CELLS); }
   int GetBoundaryMode();
@@ -327,21 +327,21 @@ private:
   enum{
       DeleteNo = 0,
       DeleteYes = 1
-      };
+  };
 
   enum{
       DuplicateCellsNo = 0,
       DuplicateCellsYes = 1
-      };
+  };
 
   enum{
       GhostCellsNo = 0,
       GhostCellsYes = 1
-      };
+  };
 
   enum{
       UnsetGhostLevel = 99
-      };
+  };
 
   /**
    * ?

@@ -56,10 +56,10 @@ static void ImageCallback(vtkObject *__renwin, unsigned long, void *, void *)
 {
   static int inImageCallback = 0;
   if (inImageCallback)
-    {
+  {
     cout << "*********ImageCallback called recursively?" << endl;
     return;
-    }
+  }
   inImageCallback = 1;
 
   vtkOpenGLClearErrorMacro();
@@ -149,88 +149,88 @@ int LoadOpenGLExtension(int argc, char *argv[])
   int supported=extensions->ExtensionSupported("GL_VERSION_1_2");
   int loaded=0;
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 1.2" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_1_2");
     if(loaded)
-      {
+    {
       cout << "OpenGL 1.2 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 1.2 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 1.2 features!" <<endl;
+    }
+  }
   supported=extensions->ExtensionSupported("GL_VERSION_1_3");
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 1.3" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_1_3");
     if(loaded)
-      {
+    {
       cout << "OpenGL 1.3 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 1.3 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 1.3 features!" <<endl;
+    }
+  }
   supported=extensions->ExtensionSupported("GL_VERSION_1_4");
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 1.4" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_1_4");
     if(loaded)
-      {
+    {
       cout << "OpenGL 1.4 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 1.4 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 1.4 features!" <<endl;
+    }
+  }
   supported=extensions->ExtensionSupported("GL_VERSION_1_5");
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 1.5" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_1_5");
     if(loaded)
-      {
+    {
       cout << "OpenGL 1.5 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 1.5 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 1.5 features!" <<endl;
+    }
+  }
   supported=extensions->ExtensionSupported("GL_VERSION_2_0");
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 2.0" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_2_0");
     if(loaded)
-      {
+    {
       cout << "OpenGL 2.0 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 2.0 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 2.0 features!" <<endl;
+    }
+  }
   supported=extensions->ExtensionSupported("GL_VERSION_2_1");
   if(supported)
-    {
+  {
     cout << "Driver claims to support OpenGL 2.1" <<endl;
     loaded=extensions->LoadSupportedExtension("GL_VERSION_2_1");
     if(loaded)
-      {
+    {
       cout << "OpenGL 2.1 features loaded." <<endl;
-      }
-    else
-      {
-      cout << "Failed to load OpenGL 2.1 features!" <<endl;
-      }
     }
+    else
+    {
+      cout << "Failed to load OpenGL 2.1 features!" <<endl;
+    }
+  }
   cout << "GetExtensionsString..." << endl;
   cout << extensions->GetExtensionsString() << endl;
 
@@ -254,7 +254,7 @@ int LoadOpenGLExtension(int argc, char *argv[])
 
   image=0;
   if (extensions->LoadSupportedExtension("GL_ARB_imaging"))
-    {
+  {
     // Set up a convolution filter.  We are using the Laplacian filter, which
     // is basically an edge detector.  Once vtkgl::CONVOLUTION_2D is enabled,
     // the filter will be applied any time an image is transferred in the
@@ -280,9 +280,9 @@ int LoadOpenGLExtension(int argc, char *argv[])
 
     cout << "Do test render with convolution on." << endl;
     renwin->Render();
-    }
+  }
   else
-    {
+  {
     renderer->RemoveAllViewProps();
     vtkTextActor *t=vtkTextActor::New();
     t->SetInput("GL_ARB_imaging not supported.");
@@ -291,13 +291,13 @@ int LoadOpenGLExtension(int argc, char *argv[])
     renderer->AddViewProp(t);
     t->Delete();
     renwin->Render();
-    }
+  }
   extensions->Delete();
   int retVal = vtkRegressionTestImage(renwin);
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   cone->Delete();
   mapper->Delete();
   actor->Delete();
@@ -305,9 +305,9 @@ int LoadOpenGLExtension(int argc, char *argv[])
   renwin->Delete();
   iren->Delete();
   if(image!=0)
-    {
+  {
     image->Delete();
-    }
+  }
 
   return !retVal;
 }

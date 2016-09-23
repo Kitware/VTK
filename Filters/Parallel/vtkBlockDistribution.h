@@ -108,13 +108,13 @@ vtkBlockDistribution::GetProcessorOfElement(vtkIdType globalIndex)
   vtkIdType cutoffIndex = cutoffProcessor * (smallBlockSize + 1);
 
   if (globalIndex < cutoffIndex)
-    {
+  {
     return globalIndex / (smallBlockSize + 1);
-    }
+  }
   else
-    {
+  {
     return cutoffProcessor + (globalIndex - cutoffIndex) / smallBlockSize;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------
@@ -134,13 +134,13 @@ vtkBlockDistribution::GetFirstGlobalIndexOnProcessor(vtkIdType rank)
   vtkIdType estimate = rank * (this->NumElements / this->NumProcessors + 1);
   vtkIdType cutoffProcessor = this->NumElements % this->NumProcessors;
   if (rank < cutoffProcessor)
-    {
+  {
     return estimate;
-    }
+  }
   else
-    {
+  {
     return estimate - (rank - cutoffProcessor);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------

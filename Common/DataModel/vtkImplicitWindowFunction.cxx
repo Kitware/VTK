@@ -44,11 +44,11 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
   double value, diff1, diff2, scaledRange;
 
   if ( ! this->ImplicitFunction && ! beenWarned )
-    {
+  {
     vtkErrorMacro(<<"Implicit function must be defined");
     beenWarned = 1;
     return 0.0;
-    }
+  }
 
   value = this->ImplicitFunction->EvaluateFunction(x);
 
@@ -57,31 +57,31 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 
   scaledRange = (this->WindowValues[1] - this->WindowValues[0]) / 2.0;
   if ( scaledRange == 0.0 )
-    {
+  {
     scaledRange = 1.0;
-    }
+  }
 
   if ( diff1 >= 0.0 && diff2 <= 0.0 ) //within window
-    {
+  {
     if ( diff1 <= (-diff2) )
-      {
+    {
       value = diff1 / scaledRange + this->WindowValues[0];
-      }
-    else
-      {
-      value = (-diff2) / scaledRange + this->WindowValues[0];
-      }
     }
+    else
+    {
+      value = (-diff2) / scaledRange + this->WindowValues[0];
+    }
+  }
 
   else if ( diff1 < 0.0 ) //below window
-    {
+  {
     value = diff1 / scaledRange + this->WindowValues[0];
-    }
+  }
 
   else //above window
-    {
+  {
     value = -diff2 / scaledRange + this->WindowValues[0];
-    }
+  }
 
   return value;
 }
@@ -90,9 +90,9 @@ double vtkImplicitWindowFunction::EvaluateFunction(double x[3])
 void vtkImplicitWindowFunction::EvaluateGradient(double x[3], double n[3])
 {
     if ( this->ImplicitFunction )
-      {
+    {
       this->ImplicitFunction->EvaluateGradient(x,n);
-      }
+    }
 }
 
 vtkMTimeType vtkImplicitWindowFunction::GetMTime()
@@ -104,9 +104,9 @@ vtkMTimeType vtkImplicitWindowFunction::GetMTime()
   {
     fMtime = this->ImplicitFunction->GetMTime();
     if ( fMtime > mtime )
-      {
+    {
       mtime = fMtime;
-      }
+    }
   }
   return mtime;
 }
@@ -116,13 +116,13 @@ void vtkImplicitWindowFunction::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if ( this->ImplicitFunction )
-    {
+  {
     os << indent << "Implicit Function: " << this->ImplicitFunction << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "No implicit function defined.\n";
-    }
+  }
 
   os << indent << "Window Range: (" << this->WindowRange[0]
      << ", " << this->WindowRange[1] << ")\n";

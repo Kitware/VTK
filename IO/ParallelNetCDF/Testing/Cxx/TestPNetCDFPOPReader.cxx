@@ -87,9 +87,9 @@ int TestPNetCDFPOPReader( int argc, char *argv[] )
   int retVal = vtkRegressionTestImage( renWin );
 
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   actor->Delete();
   mapper->Delete();

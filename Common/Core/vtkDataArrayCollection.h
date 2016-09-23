@@ -38,9 +38,9 @@ public:
    * Add a dataarray to the list.
    */
   void AddItem(vtkDataArray *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
   /**
    * Get the next dataarray in the list.

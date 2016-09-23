@@ -107,10 +107,10 @@ public:
   vtkSetMacro(MinimumComponentValue,double);
   vtkGetMacro(MinimumComponentValue,double);
   void SetComponentRange (double minimumValue, double maximumValue)
-    {
+  {
     this->SetMinimumComponentValue (minimumValue);
     this->SetMaximumComponentValue (maximumValue);
-    }
+  }
   //@}
 
   //@{
@@ -285,53 +285,53 @@ public:
    * and a data array are produced.
    */
   void GenerateAllPointDataOn()
-    {
+  {
     this->GeneratePointScalarsOn();
     this->GeneratePointVectorsOn();
     this->GeneratePointNormalsOn();
     this->GeneratePointTCoordsOn();
     this->GeneratePointTensorsOn();
     this->GeneratePointArrayOn();
-    }
+  }
   void GenerateAllPointDataOff()
-    {
+  {
     this->GeneratePointScalarsOff();
     this->GeneratePointVectorsOff();
     this->GeneratePointNormalsOff();
     this->GeneratePointTCoordsOff();
     this->GeneratePointTensorsOff();
     this->GeneratePointArrayOff();
-    }
+  }
   void GenerateAllCellDataOn()
-    {
+  {
     this->GenerateCellScalarsOn();
     this->GenerateCellVectorsOn();
     this->GenerateCellNormalsOn();
     this->GenerateCellTCoordsOn();
     this->GenerateCellTensorsOn();
     this->GenerateCellArrayOn();
-    }
+  }
   void GenerateAllCellDataOff()
-    {
+  {
     this->GenerateCellScalarsOff();
     this->GenerateCellVectorsOff();
     this->GenerateCellNormalsOff();
     this->GenerateCellTCoordsOff();
     this->GenerateCellTensorsOff();
     this->GenerateCellArrayOff();
-    }
+  }
   void GenerateAllDataOn()
-    {
+  {
     this->GenerateAllPointDataOn();
     this->GenerateAllCellDataOn();
     this->GenerateFieldArrayOn();
-    }
+  }
   void GenerateAllDataOff()
-    {
+  {
     this->GenerateAllPointDataOff();
     this->GenerateAllCellDataOff();
     this->GenerateFieldArrayOff();
-    }
+  }
   //@}
 
 protected:

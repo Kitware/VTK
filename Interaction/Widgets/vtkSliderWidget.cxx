@@ -52,9 +52,9 @@ vtkSliderWidget::vtkSliderWidget()
 void vtkSliderWidget::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkSliderRepresentation3D::New();
-    }
+  }
 }
 
 
@@ -70,30 +70,30 @@ void vtkSliderWidget::SelectAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if (!self->CurrentRenderer ||
       !self->CurrentRenderer->IsInViewport(static_cast<int>(eventPos[0]), static_cast<int>(eventPos[1])))
-    {
+  {
     self->WidgetState = vtkSliderWidget::Start;
     return;
-    }
+  }
 
   // See if the widget has been selected. StartWidgetInteraction records the
   // starting point of the motion.
   self->WidgetRep->StartWidgetInteraction(eventPos);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkSliderRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
   if ( interactionState == vtkSliderRepresentation::Slider )
-    {
+  {
     self->WidgetState = vtkSliderWidget::Sliding;
-    }
+  }
   else
-    {
+  {
     self->WidgetState = vtkSliderWidget::Animating;
-    }
+  }
 
   // Highlight as necessary
   self->WidgetRep->Highlight(1);
@@ -114,9 +114,9 @@ void vtkSliderWidget::MoveAction(vtkAbstractWidget *w)
   // See whether we're active
   if ( self->WidgetState == vtkSliderWidget::Start ||
        self->WidgetState == vtkSliderWidget::Animating )
-    {
+  {
     return;
-    }
+  }
 
   // Definitely moving the slider, get the updated position
   double eventPos[2];
@@ -137,15 +137,15 @@ void vtkSliderWidget::EndSelectAction(vtkAbstractWidget *w)
   vtkSliderWidget *self = reinterpret_cast<vtkSliderWidget*>(w);
 
   if ( self->WidgetState == vtkSliderWidget::Start )
-    {
+  {
     return;
-    }
+  }
 
   // If animating we do it and return
   if ( self->WidgetState == vtkSliderWidget::Animating )
-    {
+  {
     self->AnimateSlider(self->WidgetRep->GetInteractionState());
-    }
+  }
 
   // Highlight if necessary
   self->WidgetRep->Highlight(0);
@@ -172,9 +172,9 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
   // If the slider bead has been selected, then nothing happens
   if ( selectionState == vtkSliderRepresentation::Outside ||
        selectionState == vtkSliderRepresentation::Slider )
-    {
+  {
     return;
-    }
+  }
 
   // Depending on animation mode, we'll jump to the pick point or
   // animate towards it.
@@ -183,55 +183,55 @@ void vtkSliderWidget::AnimateSlider(int selectionState)
   double pickedT=sliderRep->GetPickedT();
 
   if ( this->AnimationMode == vtkSliderWidget::Jump )
-    {
+  {
     if ( selectionState == vtkSliderRepresentation::Tube )
-      {
+    {
       sliderRep->SetValue(minValue + pickedT*(maxValue-minValue));
-      }
-
-    else if ( selectionState == vtkSliderRepresentation::LeftCap )
-      {
-      sliderRep->SetValue(minValue);
-      }
-
-    else if ( selectionState == vtkSliderRepresentation::RightCap )
-      {
-      sliderRep->SetValue(maxValue);
-      }
-    sliderRep->BuildRepresentation();
-    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
     }
 
-  else if ( this->AnimationMode == vtkSliderWidget::Animate )
-    {
-    double targetValue=minValue, originalValue=sliderRep->GetValue();
-    if ( selectionState == vtkSliderRepresentation::Tube )
-      {
-      targetValue = minValue + pickedT*(maxValue-minValue);
-      }
-
     else if ( selectionState == vtkSliderRepresentation::LeftCap )
-      {
-      targetValue = minValue;
-      }
+    {
+      sliderRep->SetValue(minValue);
+    }
 
     else if ( selectionState == vtkSliderRepresentation::RightCap )
-      {
+    {
+      sliderRep->SetValue(maxValue);
+    }
+    sliderRep->BuildRepresentation();
+    this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
+  }
+
+  else if ( this->AnimationMode == vtkSliderWidget::Animate )
+  {
+    double targetValue=minValue, originalValue=sliderRep->GetValue();
+    if ( selectionState == vtkSliderRepresentation::Tube )
+    {
+      targetValue = minValue + pickedT*(maxValue-minValue);
+    }
+
+    else if ( selectionState == vtkSliderRepresentation::LeftCap )
+    {
+      targetValue = minValue;
+    }
+
+    else if ( selectionState == vtkSliderRepresentation::RightCap )
+    {
       targetValue = maxValue;
-      }
+    }
 
     // Okay, animate the slider
     double value;
     for (int i=0; i < this->NumberOfAnimationSteps; i++)
-      {
+    {
       value = originalValue +
         (static_cast<double>(i+1)/this->NumberOfAnimationSteps)*(targetValue-originalValue);
       sliderRep->SetValue(value);
       sliderRep->BuildRepresentation();
       this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
       this->Render();
-      }
     }
+  }
 
   this->WidgetState = vtkSliderWidget::Start;
 }
@@ -245,7 +245,7 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Animation Mode: ";
   switch ( this->AnimationMode )
-    {
+  {
     case vtkSliderWidget::Jump:
       os << "Jump\n";
       break;
@@ -254,7 +254,7 @@ void vtkSliderWidget::PrintSelf(ostream& os, vtkIndent indent)
       break;
     default:
       os << "AnimateOff\n";
-    }
+  }
 
   os << indent << "Number of Animation Steps: "
      << this->NumberOfAnimationSteps << "\n";

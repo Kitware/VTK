@@ -80,7 +80,7 @@ int TestStencilWithPolyDataSurface(int, char *[])
     vtkSmartPointer<vtkPoints>::New();
   newPoints->SetNumberOfPoints(points->GetNumberOfPoints());
   for (vtkIdType i = 0; i < points->GetNumberOfPoints(); i++)
-    {
+  {
     double point[3];
     points->GetPoint(i, point);
     double r = exp(randomSequence->GetScaledValue(0.0, 0.1));
@@ -89,7 +89,7 @@ int TestStencilWithPolyDataSurface(int, char *[])
     point[1] *= r;
     point[2] *= r;
     newPoints->SetPoint(i, point);
-    }
+  }
   polyData->SetPoints(newPoints);
 
   // make sure triangle strips can be used as input
@@ -140,7 +140,7 @@ int TestStencilWithPolyDataSurface(int, char *[])
   iren->SetInteractorStyle(style);
 
   for (int i = 0; i < 6; i++)
-    {
+  {
     int zIdx = 3 + 11*i;
     double z = zIdx*spacing[2] + origin[2];
 
@@ -198,7 +198,7 @@ int TestStencilWithPolyDataSurface(int, char *[])
     camera->SetClippingRange(5.0, 15.0);
 
     renWin->AddRenderer(renderer);
-    }
+  }
 
   iren->Initialize();
   renWin->Render();

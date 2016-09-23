@@ -38,12 +38,12 @@ class TranslationTableType;
 // Non Sparse Mode is supposed to be for a small number of distributed processes (Unstructured)
 // Implicit Mode is for Structured Data
 enum EnsightReaderCellIdMode
-    {
+{
     SINGLE_PROCESS_MODE,
     SPARSE_MODE,
     NON_SPARSE_MODE,
     IMPLICIT_STRUCTURED_MODE
-    };
+};
 
 class VTKIOENSIGHT_EXPORT vtkGenericEnSightReader : public vtkMultiBlockDataSetAlgorithm
 {

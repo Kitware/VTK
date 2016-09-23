@@ -60,9 +60,9 @@ public:
    */
   static vtkInformationObjectBaseVectorKey* MakeKey(const char* name, const char* location,
                                              const char* requiredClass=0)
-    {
+  {
     return new vtkInformationObjectBaseVectorKey(name, location, requiredClass);
-    }
+  }
 
   /**
    * Clear the vector.

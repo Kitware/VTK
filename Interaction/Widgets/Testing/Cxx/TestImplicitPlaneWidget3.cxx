@@ -270,7 +270,7 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetOrigin(wbounds[1] + 1.0, wbounds[3] + 1.0, wbounds[5] + 1.0);
   rep->GetOrigin(origin1);
   if (origin1[0] > wbounds[1] || origin1[1] > wbounds[3] || origin1[2] > wbounds[5])
-    {
+  {
     std::cerr << "origin ("
               << origin1[0] << "," << origin1[1] << "," << origin1[2]
               << ") outside widget bounds ("
@@ -278,7 +278,7 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
               << wbounds[2] << "-" << wbounds[3] << ","
               << wbounds[4] << "-" << wbounds[5] << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // #2: With ConstrainOrigin off, origin SHOULD be settable outside current widget bounds.
   rep->ConstrainToWidgetBoundsOff();
@@ -288,14 +288,14 @@ int TestImplicitPlaneWidget3(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   rep->SetOrigin(origin1);
   rep->GetOrigin(origin2);
   if (origin1[0] != origin2[0] || origin1[1] != origin2[1] || origin1[2] != origin2[2])
-    {
+  {
     std::cerr << "origin not set correctly. expected ("
               << origin1[0] << "," << origin1[1] << "," << origin1[2]
               << "), got: ("
               << origin2[0] << "," << origin2[1] << "," << origin2[2]
               << ")" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   rep->SetOrigin(origin);
   planeWidget->SetEnabled(0);

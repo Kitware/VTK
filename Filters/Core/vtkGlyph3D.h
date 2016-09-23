@@ -140,9 +140,9 @@ public:
    */
   void SetSourceConnection(int id, vtkAlgorithmOutput* algOutput);
   void SetSourceConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetSourceConnection(0, algOutput);
-    }
+  }
   //@}
 
   /**
@@ -361,17 +361,17 @@ private:
 inline const char *vtkGlyph3D::GetScaleModeAsString(void)
 {
   if ( this->ScaleMode == VTK_SCALE_BY_SCALAR )
-    {
+  {
     return "ScaleByScalar";
-    }
+  }
   else if ( this->ScaleMode == VTK_SCALE_BY_VECTOR )
-    {
+  {
     return "ScaleByVector";
-    }
+  }
   else
-    {
+  {
     return "DataScalingOff";
-    }
+  }
 }
 //@}
 
@@ -382,17 +382,17 @@ inline const char *vtkGlyph3D::GetScaleModeAsString(void)
 inline const char *vtkGlyph3D::GetColorModeAsString(void)
 {
   if ( this->ColorMode == VTK_COLOR_BY_SCALAR )
-    {
+  {
     return "ColorByScalar";
-    }
+  }
   else if ( this->ColorMode == VTK_COLOR_BY_VECTOR )
-    {
+  {
     return "ColorByVector";
-    }
+  }
   else
-    {
+  {
     return "ColorByScale";
-    }
+  }
 }
 //@}
 
@@ -403,17 +403,17 @@ inline const char *vtkGlyph3D::GetColorModeAsString(void)
 inline const char *vtkGlyph3D::GetVectorModeAsString(void)
 {
   if ( this->VectorMode == VTK_USE_VECTOR)
-    {
+  {
     return "UseVector";
-    }
+  }
   else if ( this->VectorMode == VTK_USE_NORMAL)
-    {
+  {
     return "UseNormal";
-    }
+  }
   else
-    {
+  {
     return "VectorRotationOff";
-    }
+  }
 }
 //@}
 
@@ -424,17 +424,17 @@ inline const char *vtkGlyph3D::GetVectorModeAsString(void)
 inline const char *vtkGlyph3D::GetIndexModeAsString(void)
 {
   if ( this->IndexMode == VTK_INDEXING_OFF)
-    {
+  {
     return "IndexingOff";
-    }
+  }
   else if ( this->IndexMode == VTK_INDEXING_BY_SCALAR)
-    {
+  {
     return "IndexingByScalar";
-    }
+  }
   else
-    {
+  {
     return "IndexingByVector";
-    }
+  }
 }
 //@}
 

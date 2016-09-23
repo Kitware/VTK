@@ -54,13 +54,13 @@ vtkSQLGraphReader::vtkSQLGraphReader()
 vtkSQLGraphReader::~vtkSQLGraphReader()
 {
   if (this->VertexQuery != NULL)
-    {
+  {
     this->VertexQuery->Delete();
-    }
+  }
   if (this->EdgeQuery != NULL)
-    {
+  {
     this->EdgeQuery->Delete();
-    }
+  }
   this->SetSourceField(0);
   this->SetTargetField(0);
   this->SetVertexIdField(0);
@@ -82,14 +82,14 @@ void vtkSQLGraphReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "TargetField: " << (this->TargetField ? this->TargetField : "(null)") << endl;
   os << indent << "EdgeQuery: " << (this->EdgeQuery ? "" : "(null)") << endl;
   if (this->EdgeQuery)
-    {
+  {
     this->EdgeQuery->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "VertexQuery: " << (this->VertexQuery ? "" : "(null)") << endl;
   if (this->VertexQuery)
-    {
+  {
     this->VertexQuery->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
 }
 
 vtkCxxSetObjectMacro(vtkSQLGraphReader, VertexQuery, vtkSQLQuery);
@@ -102,33 +102,33 @@ int vtkSQLGraphReader::RequestData(
 {
   // Check for valid inputs
   if (this->EdgeQuery == NULL)
-    {
+  {
     vtkErrorMacro("The EdgeQuery must be defined");
     return 0;
-    }
+  }
   if (this->SourceField == NULL)
-    {
+  {
     vtkErrorMacro("The SourceField must be defined");
     return 0;
-    }
+  }
   if (this->TargetField == NULL)
-    {
+  {
     vtkErrorMacro("The TargetField must be defined");
     return 0;
-    }
+  }
   if (this->VertexQuery != NULL)
-    {
+  {
     if (this->VertexIdField == NULL)
-      {
+    {
       vtkErrorMacro("The VertexIdField must be defined when using a VertexQuery");
       return 0;
-      }
+    }
     if (this->XField != NULL && this->YField == NULL)
-      {
+    {
       vtkErrorMacro("The YField must be defined if the XField is defined");
       return 0;
-      }
     }
+  }
 
   vtkGraph* output = vtkGraph::GetData(outputVector);
 
@@ -142,9 +142,9 @@ int vtkSQLGraphReader::RequestData(
 
   const char* domain = "default";
   if (this->VertexIdField)
-    {
+  {
     domain = this->VertexIdField;
-    }
+  }
 
   filter->SetInputConnection(edgeReader->GetOutputPort());
   filter->AddLinkVertex(this->SourceField, domain);
@@ -156,47 +156,47 @@ int vtkSQLGraphReader::RequestData(
 
   // Set up the internal filter to use the vertex table
   if (this->VertexQuery != NULL)
-    {
+  {
     vtkSmartPointer<vtkRowQueryToTable> vertexReader = vtkSmartPointer<vtkRowQueryToTable>::New();
     vertexReader->SetQuery(this->VertexQuery);
     vertexReader->Update();
     filter->SetInputConnection(1, vertexReader->GetOutputPort());
     if (this->XField != NULL)
-      {
+    {
       assign->SetXCoordArrayName(this->XField);
       assign->SetYCoordArrayName(this->YField);
       if (this->ZField != NULL)
-        {
+      {
         assign->SetZCoordArrayName(this->ZField);
-        }
       }
     }
+  }
 
   // Get the internal filter output and assign it to the output
   if (this->XField != NULL)
-    {
+  {
     assign->Update();
     vtkGraph* assignOutput = vtkGraph::SafeDownCast(assign->GetOutput());
     output->ShallowCopy(assignOutput);
-    }
+  }
   else
-    {
+  {
     filter->Update();
     vtkGraph* filterOutput = filter->GetOutput();
     output->ShallowCopy(filterOutput);
-    }
+  }
 
   vtkInformation* outInfo = outputVector->GetInformationObject(0);
   int piece = -1;
   int npieces = -1;
   if (outInfo->Has(
         vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()))
-    {
+  {
     piece = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER());
     npieces = outInfo->Get(
       vtkStreamingDemandDrivenPipeline::UPDATE_NUMBER_OF_PIECES());
-    }
+  }
   output->GetInformation()->Set(vtkDataObject::DATA_NUMBER_OF_PIECES(), npieces);
   output->GetInformation()->Set(vtkDataObject::DATA_PIECE_NUMBER(), piece);
 
@@ -215,19 +215,19 @@ int vtkSQLGraphReader::RequestDataObject(
   if (!current
     || (this->Directed && !vtkDirectedGraph::SafeDownCast(current))
     || (!this->Directed && vtkDirectedGraph::SafeDownCast(current)))
-    {
+  {
     vtkGraph *output = 0;
     if (this->Directed)
-      {
+    {
       output = vtkDirectedGraph::New();
-      }
+    }
     else
-      {
+    {
       output = vtkUndirectedGraph::New();
-      }
+    }
     this->GetExecutive()->SetOutputData(0, output);
     output->Delete();
-    }
+  }
 
   return 1;
 }

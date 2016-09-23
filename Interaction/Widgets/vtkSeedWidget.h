@@ -118,10 +118,10 @@ public:
    * so it can be added to the renderer independent of the widget.
    */
   void SetRepresentation( vtkSeedRepresentation *rep )
-    {
+  {
     this->Superclass::SetWidgetRepresentation(
       reinterpret_cast<vtkWidgetRepresentation*>(rep) );
-    }
+  }
 
   /**
    * Return the representation as a vtkSeedRepresentation.
@@ -186,12 +186,12 @@ public:
   // The state of the widget
 
   enum
-    {
+  {
     Start = 1,
     PlacingSeeds = 2,
     PlacedSeeds = 4,
     MovingSeed = 8
-    };
+  };
 
 protected:
   vtkSeedWidget();

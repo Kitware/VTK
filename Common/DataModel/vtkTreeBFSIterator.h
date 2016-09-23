@@ -55,11 +55,11 @@ protected:
   vtkIntArray* Color;
 
   enum ColorType
-    {
+  {
     WHITE,
     GRAY,
     BLACK
-    };
+  };
 
 private:
   vtkTreeBFSIterator(const vtkTreeBFSIterator &) VTK_DELETE_FUNCTION;

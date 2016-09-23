@@ -69,13 +69,13 @@ public:
    * performed.
    */
   void SetRenderer(vtkRenderer* ren)
-    {
+  {
       if (this->Renderer != ren)
-        {
+      {
         this->Renderer = ren;
         this->Modified();
-        }
-    }
+      }
+  }
   vtkRenderer* GetRenderer()
     { return this->Renderer; }
   //@}

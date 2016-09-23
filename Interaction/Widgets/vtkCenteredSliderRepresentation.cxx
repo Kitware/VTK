@@ -137,10 +137,10 @@ void vtkCenteredSliderRepresentation::BuildTube()
 
   // the top cap
   if (this->TubeCells)
-    {
+  {
     this->TubeCells->Delete();
     this->TubeCells = 0;
-    }
+  }
   this->TubeCells = vtkCellArray::New();
   this->TubeCells->InsertNextCell(5);
   this->TubeCells->InsertCellPoint(0);
@@ -158,13 +158,13 @@ void vtkCenteredSliderRepresentation::BuildTube()
   this->TubeCells->InsertCellPoint(this->ArcCount+2);
 
   for (int i = 0; i < this->ArcCount; i += 2)
-    {
+  {
     this->TubeCells->InsertNextCell(4);
     this->TubeCells->InsertCellPoint(i+1);
     this->TubeCells->InsertCellPoint(i+2);
     this->TubeCells->InsertCellPoint(this->ArcCount+i+6);
     this->TubeCells->InsertCellPoint(this->ArcCount+i+5);
-    }
+  }
 
   vtkSmartPointer<vtkUnsignedCharArray> colors =
     vtkSmartPointer<vtkUnsignedCharArray>::New();
@@ -172,10 +172,10 @@ void vtkCenteredSliderRepresentation::BuildTube()
   colors->SetNumberOfTuples(this->ArcCount*2+12);
 
   if (this->Tube)
-    {
+  {
     this->Tube->Delete();
     this->Tube = 0;
-    }
+  }
   this->Tube = vtkPolyData::New();
   this->Tube->SetPoints(this->Points);
   this->Tube->GetPointData()->SetScalars(colors);
@@ -207,14 +207,14 @@ void vtkCenteredSliderRepresentation::BuildTube()
   double midPoint = this->ArcCount/2.0;
   double halfArcLength = (this->ArcEnd - this->ArcStart)/2.0;
   for (int i = 0; i < this->ArcCount; ++i)
-    {
+  {
     double factor = fabs((i - midPoint)/midPoint);
     factor = pow(factor,1.4);
     double sign = 1;
     if (i < midPoint)
-      {
+    {
       sign = -1;
-      }
+    }
     this->Points->SetPoint
       (i + 2, 0.3,
        (1.0 - this->TubeSize/2.0) - halfArcLength*factor*sign, 0.0);
@@ -224,7 +224,7 @@ void vtkCenteredSliderRepresentation::BuildTube()
     col[3] = static_cast<unsigned char>(255*factor);
     colors->SetTypedTuple(i+2,col);
     colors->SetTypedTuple(i+this->ArcCount+6,col);
-    }
+  }
 
   // last four points are the slider
   this->Points->SetPoint(this->ArcCount*2+8, 0.0,
@@ -294,49 +294,49 @@ int vtkCenteredSliderRepresentation::ComputeInteractionState(int x, int y,
   // convert the eventPos into parametric coordinates
   double pcoord[2];
   if (!(p2[0] - p1[0]) || !(p2[1] - p1[1]))
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   pcoord[0] = (static_cast<double>(x) - p1[0])/(p2[0] - p1[0]);
   pcoord[1] = (static_cast<double>(y) - p1[1])/(p2[1] - p1[1]);
 
   if ( pcoord[0] < 0 || pcoord[0] > 1.0)
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Outside;
     return this->InteractionState;
-    }
+  }
 
   // if it is on the slider...
   if ( fabs(pcoord[1] - (1.0 - 0.5*this->TubeSize)) < 0.1)
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Slider;
     return this->InteractionState;
-    }
+  }
 
   // if on the tube
   if ( pcoord[1] >= this->ArcStart && pcoord[1] <= this->ArcEnd)
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::Tube;
     this->ComputePickPosition(x,y);
     return this->InteractionState;
-    }
+  }
 
   // on the bottom aka left cap
   if ( pcoord[1] >= 1.0 - this->TubeSize &&
        pcoord[1] <= 1.0 - this->TubeSize + this->ArcStart)
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::LeftCap;
     return this->InteractionState;
-    }
+  }
 
   // on the top aka right cap
   if ( pcoord[1] >= this->ArcEnd && pcoord[1] <= 1.0)
-    {
+  {
     this->InteractionState = vtkSliderRepresentation::RightCap;
     return this->InteractionState;
-    }
+  }
 
   this->InteractionState = vtkSliderRepresentation::Outside;
   return this->InteractionState;
@@ -388,13 +388,13 @@ double vtkCenteredSliderRepresentation
 void vtkCenteredSliderRepresentation::Highlight(int highlight)
 {
   if ( highlight )
-    {
+  {
     this->SliderActor->SetProperty(this->SelectedProperty);
-    }
+  }
   else
-    {
+  {
     this->SliderActor->SetProperty(this->SliderProperty);
-    }
+  }
   this->HighlightState = highlight;
 }
 
@@ -405,17 +405,17 @@ void vtkCenteredSliderRepresentation::BuildRepresentation()
   if ( this->GetMTime() <= this->BuildTime &&
        (!this->Renderer || !this->Renderer->GetVTKWindow() ||
         this->Renderer->GetVTKWindow()->GetMTime() <= this->BuildTime) )
-    {
+  {
     return;
-    }
+  }
 
   int *size = this->Renderer->GetSize();
   if (0 == size[0] || 0 == size[1])
-    {
+  {
     // Renderer has no size yet: wait until the next
     // BuildRepresentation...
     return;
-    }
+  }
 
   this->XForm->Identity();
 
@@ -472,9 +472,9 @@ int vtkCenteredSliderRepresentation::RenderOpaqueGeometry(vtkViewport *viewport)
   int count = this->TubeActor->RenderOpaqueGeometry(viewport);
   count += this->SliderActor->RenderOpaqueGeometry(viewport);
   if (this->HighlightState && strlen(this->LabelActor->GetInput()))
-    {
+  {
     count += this->LabelActor->RenderOpaqueGeometry(viewport);
-    }
+  }
   return count;
 }
 
@@ -485,9 +485,9 @@ int vtkCenteredSliderRepresentation::RenderOverlay(vtkViewport *viewport)
   int count = this->TubeActor->RenderOverlay(viewport);
   count += this->SliderActor->RenderOverlay(viewport);
   if (this->HighlightState && strlen(this->LabelActor->GetInput()))
-    {
+  {
     count += this->LabelActor->RenderOverlay(viewport);
-    }
+  }
   return count;
 }
 
@@ -504,54 +504,54 @@ void vtkCenteredSliderRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   this->Point2Coordinate->PrintSelf(os, indent.GetNextIndent());
 
   if ( this->SliderProperty )
-    {
+  {
     os << indent << "Slider Property:\n";
     this->SliderProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Slider Property: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->TubeProperty )
-    {
+  {
     os << indent << "TubeProperty:\n";
     this->TubeProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "TubeProperty: (none)\n";
-    }
+  }
 
   if ( this->SelectedProperty )
-    {
+  {
     os << indent << "SelectedProperty:\n";
     this->SelectedProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "SelectedProperty: (none)\n";
-    }
+  }
 
   if ( this->LabelProperty )
-    {
+  {
     os << indent << "LabelProperty:\n";
     this->LabelProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "LabelProperty: (none)\n";
-    }
+  }
 
 }
 
@@ -561,9 +561,9 @@ void vtkCenteredSliderRepresentation::SetTitleText(const char* label)
 {
   this->LabelActor->SetInput(label);
   if ( this->LabelActor->GetMTime() > this->GetMTime() )
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------

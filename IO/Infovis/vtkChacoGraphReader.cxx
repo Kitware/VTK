@@ -92,17 +92,17 @@ int vtkChacoGraphReader::RequestData(
   vtkInformationVector *outputVector)
 {
   if (this->FileName == NULL)
-    {
+  {
     vtkErrorMacro("File name undefined");
     return 0;
-    }
+  }
 
   std::ifstream fin(this->FileName);
   if(!fin.is_open())
-    {
+  {
     vtkErrorMacro("Could not open file " << this->FileName << ".");
     return 0;
-    }
+  }
 
   // Create a mutable graph builder
   VTK_CREATE(vtkMutableUndirectedGraph, builder);
@@ -117,9 +117,9 @@ int vtkChacoGraphReader::RequestData(
   firstLine >> numVerts >> numEdges;
   vtkIdType type = 0;
   if (firstLine.good())
-    {
+  {
     firstLine >> type;
-    }
+  }
 
   // Create the weight arrays
   int vertWeights = type % 10;
@@ -127,47 +127,47 @@ int vtkChacoGraphReader::RequestData(
   //cerr << "type=" << type << ",vertWeights=" << vertWeights << ",edgeWeights=" << edgeWeights << endl;
   vtkIntArray** vertArr = new vtkIntArray*[vertWeights];
   for (int vw = 0; vw < vertWeights; vw++)
-    {
+  {
     std::ostringstream oss;
     oss << "weight " << (vw+1);
     vertArr[vw] = vtkIntArray::New();
     vertArr[vw]->SetName(oss.str().c_str());
     builder->GetVertexData()->AddArray(vertArr[vw]);
     vertArr[vw]->Delete();
-    }
+  }
   vtkIntArray** edgeArr = new vtkIntArray*[edgeWeights];
   for (int ew = 0; ew < edgeWeights; ew++)
-    {
+  {
     std::ostringstream oss;
     oss << "weight " << (ew+1);
     edgeArr[ew] = vtkIntArray::New();
     edgeArr[ew]->SetName(oss.str().c_str());
     builder->GetEdgeData()->AddArray(edgeArr[ew]);
     edgeArr[ew]->Delete();
-    }
+  }
 
   // Add the vertices
   for (vtkIdType v = 0; v < numVerts; v++)
-    {
+  {
     builder->AddVertex();
-    }
+  }
 
   // Add the edges
   for (vtkIdType u = 0; u < numVerts; u++)
-    {
+  {
     my_getline(fin, line);
     std::stringstream stream;
     stream << line;
     //cerr << "read line " << stream.str() << endl;
     int weight;
     for (int vw = 0; vw < vertWeights; vw++)
-      {
+    {
       stream >> weight;
       vertArr[vw]->InsertNextValue(weight);
-      }
+    }
     vtkIdType v;
     while (stream.good())
-      {
+    {
       stream >> v;
       //cerr << "read adjacent vertex " << v << endl;
 
@@ -176,16 +176,16 @@ int vtkChacoGraphReader::RequestData(
       // Only add the edge if v less than u.
       // This avoids adding the same edge twice.
       if (v < u)
-        {
+      {
         builder->AddEdge(u, v);
         for (int ew = 0; ew < edgeWeights; ew++)
-          {
+        {
           stream >> weight;
           edgeArr[ew]->InsertNextValue(weight);
-          }
         }
       }
     }
+  }
   delete[] edgeArr;
   delete[] vertArr;
 
@@ -195,10 +195,10 @@ int vtkChacoGraphReader::RequestData(
   // Get the output graph
   vtkGraph* output = vtkGraph::GetData(outputVector);
   if (!output->CheckedShallowCopy(builder))
-    {
+  {
     vtkErrorMacro(<<"Invalid graph structure");
     return 0;
-    }
+  }
 
   return 1;
 }
@@ -212,19 +212,19 @@ my_getline(std::istream& in, vtkStdString &out, char delimiter)
 
   while ((nextValue = in.get()) != EOF &&
          numCharactersRead < out.max_size())
-    {
+  {
     ++numCharactersRead;
 
     char downcast = static_cast<char>(nextValue);
     if (downcast != delimiter)
-      {
+    {
       out += downcast;
-      }
-    else
-      {
-      return numCharactersRead;
-      }
     }
+    else
+    {
+      return numCharactersRead;
+    }
+  }
 
   return numCharactersRead;
 }

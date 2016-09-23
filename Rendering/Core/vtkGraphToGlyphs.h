@@ -52,7 +52,7 @@ public:
   void PrintSelf(ostream& os, vtkIndent indent);
 
   enum
-    {
+  {
     VERTEX = 1,
     DASH,
     CROSS,
@@ -62,7 +62,7 @@ public:
     CIRCLE,
     DIAMOND,
     SPHERE
-    };
+  };
 
   //@{
   /**

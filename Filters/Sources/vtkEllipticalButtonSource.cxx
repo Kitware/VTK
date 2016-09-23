@@ -59,10 +59,10 @@ int vtkEllipticalButtonSource::RequestData(
 
   // Check input
   if ( this->Width <= 0.0 || this->Height <= 0.0 )
-    {
+  {
     vtkErrorMacro(<<"Button must have non-zero height and width");
     return 1;
-    }
+  }
 
   // Create the button in several steps. First, create the button in
   // the x-y plane, this requires creating the texture region and then
@@ -77,13 +77,13 @@ int vtkEllipticalButtonSource::RequestData(
 
   // Set the desired precision for the points in the output.
   if(this->OutputPointsPrecision == vtkAlgorithm::DOUBLE_PRECISION)
-    {
+  {
     newPts->SetDataType(VTK_DOUBLE);
-    }
+  }
   else
-    {
+  {
     newPts->SetDataType(VTK_FLOAT);
-    }
+  }
 
   newPts->SetNumberOfPoints(numPts);
 
@@ -112,15 +112,15 @@ int vtkEllipticalButtonSource::RequestData(
 
   double xP[3], dX, dY;
   if ( this->TextureStyle == VTK_TEXTURE_STYLE_FIT_IMAGE )
-    {
+  {
     dX = static_cast<double>(this->TextureDimensions[0]);
     dY = static_cast<double>(this->TextureDimensions[1]);
-    }
+  }
   else
-    {
+  {
     dX = this->A;
     dY = this->B;
-    }
+  }
   int hRes = static_cast<int>(
     ceil(this->CircumferentialResolution * (dY/(dY+dX)))) / 2;
   hRes = (hRes <= 0 ? 1 : hRes);
@@ -175,7 +175,7 @@ int vtkEllipticalButtonSource::RequestData(
   // Okay, now fill in the points along the edges
   double t;
   for (i=1; i < wRes; i++) //x0 -> x1
-    {
+  {
     t = static_cast<double>(i)/wRes;
     x[0] = x0[0] + t * (x1[0]-x0[0]);
     x[1] = x0[1];
@@ -183,9 +183,9 @@ int vtkEllipticalButtonSource::RequestData(
     newPts->SetPoint(offset+i,x);
     normals->SetTuple(offset+i,n);
     tcoords->SetTuple2(offset+i, t,0.0);
-    }
+  }
   for (i=1; i < hRes; i++) //x1 -> x2
-    {
+  {
     t = static_cast<double>(i)/hRes;
     x[0] = x1[0];
     x[1] = x1[1] + t * (x2[1]-x1[1]);
@@ -193,9 +193,9 @@ int vtkEllipticalButtonSource::RequestData(
     newPts->SetPoint(offset+wRes+i,x);
     normals->SetTuple(offset+wRes+i,n);
     tcoords->SetTuple2(offset+wRes+i, 1.0,t);
-    }
+  }
   for (i=1; i < wRes; i++) //x2 -> x3
-    {
+  {
     t = static_cast<double>(i)/wRes;
     x[0] = x2[0] + t * (x3[0]-x2[0]);
     x[1] = x2[1];
@@ -203,9 +203,9 @@ int vtkEllipticalButtonSource::RequestData(
     newPts->SetPoint(offset+wRes+hRes+i,x);
     normals->SetTuple(offset+wRes+hRes+i,n);
     tcoords->SetTuple2(offset+wRes+hRes+i, (1.0-t),1.0);
-    }
+  }
   for (i=1; i < hRes; i++) //x3 -> x0
-    {
+  {
     t = static_cast<double>(i)/hRes;
     x[0] = x3[0];
     x[1] = x3[1] + t * (x0[1]-x3[1]);
@@ -213,47 +213,47 @@ int vtkEllipticalButtonSource::RequestData(
     newPts->SetPoint(offset+2*wRes+hRes+i,x);
     normals->SetTuple(offset+2*wRes+hRes+i,n);
     tcoords->SetTuple2(offset+2*wRes+hRes+i, 0.0,(1.0-t));
-    }
+  }
 
   // Fill in the inside of the texture region
   vtkIdType pts[3];
   pts[0] = 0;
   for (i=0; i<(this->CircumferentialResolution-1); i++)
-    {
+  {
     pts[1] = i + 1;
     pts[2] = i + 2;
     newPolys->InsertNextCell(3,pts);
-    }
+  }
   pts[1] = this->CircumferentialResolution;
   pts[2] = 1;
   newPolys->InsertNextCell(3,pts);
 
   if ( this->TextureResolution >= 1 )
-    {
+  {
     this->InterpolateCurve(1, newPts, this->CircumferentialResolution,
                            normals, tcoords, this->TextureResolution,
                            0, 0, offset, 1, 1, 1);
     this->CreatePolygons(newPolys, this->CircumferentialResolution,
                          this->TextureResolution-1, 1);
-    }
+  }
 
   // Create the shoulder region.  --------------------------------------------
   // Start by duplicating points around the texture region. These are
   // copied to avoid texture interpolation pollution.
   int c1Start = offset + this->CircumferentialResolution;
   for ( i=0; i < this->CircumferentialResolution; i++)
-    {
+  {
     newPts->SetPoint(c1Start+i, newPts->GetPoint(offset+i));
     normals->SetTuple(c1Start+i, normals->GetTuple(offset+i));
     tcoords->SetTuple(c1Start+i, this->ShoulderTextureCoordinate);
-    }
+  }
 
   // Now create points around the perimeter of the button. The locations
   // of the points (i.e., angles) are taken from the texture region.
   int c2Start = offset + (this->ShoulderResolution+1) *
                       this->CircumferentialResolution;
   for ( i=0; i < this->CircumferentialResolution; i++)
-    {
+  {
     //compute the angle
     newPts->GetPoint(offset+i, xP);
     dX = xP[0] - this->Center[0];
@@ -267,7 +267,7 @@ int vtkEllipticalButtonSource::RequestData(
     newPts->SetPoint(c2Start+i, x);
     normals->SetTuple(c2Start+i, n);
     tcoords->SetTuple(c2Start+i, this->ShoulderTextureCoordinate);
-    }
+  }
 
   // Interpolate points between the curves. Create polygons.
   this->InterpolateCurve(0, newPts, this->CircumferentialResolution,
@@ -279,11 +279,11 @@ int vtkEllipticalButtonSource::RequestData(
 
   // Create the other side of the button if requested.
   if ( this->TwoSided > 0.0 )
-    {
+  {
     //do the points
     numPts /= 2;
     for (i=0; i<numPts; i++)
-      {
+    {
       newPts->GetPoint(i, x);
       x[0] = -(x[0]-this->Center[0]) + this->Center[0];
       x[2] = -(x[2]-this->Center[2]) + this->Center[2];
@@ -293,7 +293,7 @@ int vtkEllipticalButtonSource::RequestData(
       x[2] = -x[2];
       normals->SetTuple(i+numPts, x);
       tcoords->SetTuple(i+numPts, tcoords->GetTuple(i));
-      }
+    }
     //do the polygons
     vtkIdType *ipts = 0;
     vtkIdType opts[4];
@@ -301,15 +301,15 @@ int vtkEllipticalButtonSource::RequestData(
     vtkIdType npts = 0;
     vtkIdType numPolys=newPolys->GetNumberOfCells();
     for ( j=0, newPolys->InitTraversal(); j < numPolys; j++ )
-      {
+    {
       newPolys->GetNextCell(npts,ipts);
       for (i=0; i<npts; i++)
-        {
+      {
         opts[i] = ipts[i] + numPts;
-        }
-      newPolys->InsertNextCell(npts,opts);
       }
+      newPolys->InsertNextCell(npts,opts);
     }
+  }
 
   // Clean up and get out
   output->SetPoints(newPts);
@@ -340,7 +340,7 @@ void vtkEllipticalButtonSource::InterpolateCurve(int inTextureRegion,
   //walk around the curves interpolating new points between them
   for ( i=0; i < numPts;
         i++, c1StartPt+=c1Incr, c2StartPt+=c2Incr, startPt+=incr)
-    {
+  {
     newPts->GetPoint(c1StartPt, x0);
     newPts->GetPoint(c2StartPt, x1);
     tcoords->GetTuple(c1StartPt, tc0);
@@ -348,7 +348,7 @@ void vtkEllipticalButtonSource::InterpolateCurve(int inTextureRegion,
 
     //do the interpolations along this radius
     for ( j=1; j < res; j++ )
-      {
+    {
       idx = startPt+(j-1)*numPts;
       t = static_cast<double>(j) / res;
       x[0] = x0[0] + t * (x1[0] - x0[0]);
@@ -359,8 +359,8 @@ void vtkEllipticalButtonSource::InterpolateCurve(int inTextureRegion,
       tc[0] = tc0[0] + t * (tc1[0] - tc0[0]);
       tc[1] = tc0[1] + t * (tc1[1] - tc0[1]);
       tcoords->SetTuple(idx, tc);
-      }
-    }//for all points
+    }
+  }//for all points
 }
 
 //----------------------------------------------------------------------------
@@ -371,25 +371,25 @@ void vtkEllipticalButtonSource::CreatePolygons(vtkCellArray *newPolys,
   vtkIdType idx, pts[4];
 
   for (i=0; i < res; i++, startIdx+=num)
-    {
+  {
     idx = startIdx;
     for (j=0; j < num; j++, idx++)
-      {
+    {
       pts[0] = idx;
       pts[1] = idx + num;
       if ( j == (num-1) )
-        {
+      {
         pts[2] = startIdx + num;
         pts[3] = startIdx;
-        }
+      }
       else
-        {
+      {
         pts[2] = idx + num + 1;
         pts[3] = idx + 1;
-        }
-      newPolys->InsertNextCell(4,pts);
       }
+      newPolys->InsertNextCell(4,pts);
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -399,19 +399,19 @@ void vtkEllipticalButtonSource::IntersectEllipseWithLine(double a2, double b2, d
   double m;
 
   if ( fabs(dY) <= fabs(dX) )
-    {
+  {
     m = dY/dX;
     xe = sqrt( a2*b2/(b2 + m*m*a2) );
     if ( dX < 0.0 ) xe = -xe;
     ye = m*xe;
-    }
+  }
   else
-    {
+  {
     m = dX/dY;
     ye = sqrt( a2*b2/(m*m*b2 + a2) );
     if ( dY < 0.0 ) ye = -ye;
     xe = m*ye;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

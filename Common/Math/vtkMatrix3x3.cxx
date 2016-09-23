@@ -36,9 +36,9 @@ vtkMatrix3x3::~vtkMatrix3x3()
 void vtkMatrix3x3::Zero(double elements[9])
 {
   for (int i = 0; i < 9; ++i)
-    {
+  {
     elements[i] = 0.0;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -106,15 +106,15 @@ const double *vtkMatrix3x3::operator[](unsigned int i) const
 bool vtkMatrix3x3::operator==(const vtkMatrix3x3 &other)
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (Element[i][j] != other.Element[i][j])
-        {
+      {
         return false;
-        }
       }
     }
+  }
   return true;
 }
 #endif
@@ -124,15 +124,15 @@ bool vtkMatrix3x3::operator==(const vtkMatrix3x3 &other)
 bool vtkMatrix3x3::operator!=(const vtkMatrix3x3 &other)
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for (int j = 0; j < 3; ++j)
-      {
+    {
       if (Element[i][j] != other.Element[i][j])
-        {
+      {
         return true;
-        }
       }
     }
+  }
   return false;
 }
 #endif
@@ -214,20 +214,20 @@ void vtkMatrix3x3::Multiply3x3(const double a[9], const double b[9],
   double accum[9];
 
   for (int i = 0; i < 9; i += 3)
-    {
+  {
     for (int k = 0; k < 3; k++)
-      {
+    {
       accum[i + k] = a[i + 0] * b[k + 0] +
                      a[i + 1] * b[k + 3] +
                      a[i + 2] * b[k + 6];
-      }
     }
+  }
 
   // Copy to final dest
   for (int j = 0; j < 9; j++)
-    {
+  {
     c[j] = accum[j];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -250,18 +250,18 @@ void vtkMatrix3x3::Invert(const double inElements[9],
 
   double det = vtkMatrix3x3::Determinant(inElements);
   if (det == 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // calculate the adjoint matrix
   vtkMatrix3x3::Adjoint(inElements, outElements);
 
   // scale the adjoint matrix to get the inverse
   for (int i = 0; i < 9; i++)
-    {
+  {
     outElements[i] /= det;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -320,9 +320,9 @@ void vtkMatrix3x3::Adjoint(const double inElements[9], double outElements[9])
 void vtkMatrix3x3::DeepCopy(double elements[9], const double newElements[9])
 {
   for (int i = 0; i < 9; ++i)
-    {
+  {
     elements[i] = newElements[i];
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -331,14 +331,14 @@ void vtkMatrix3x3::Transpose(const double inElements[9],
                              double outElements[9])
 {
   for (int i = 0; i < 3; ++i)
-    {
+  {
     for(int j = i; j < 3; ++j)
-      {
+    {
       double temp = inElements[3*i + j];
       outElements[3*i + j] = inElements[3*j + i];
       outElements[3*j + i] = temp;
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -348,12 +348,12 @@ void vtkMatrix3x3::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Elements:\n";
   for (int i = 0; i < 3; ++i)
-    {
+  {
     os << indent;
     for (int j = 0; j < 3; ++j)
-      {
+    {
       os << "\t" << this->Element[i][j];
-      }
-    os << "\n";
     }
+    os << "\n";
+  }
 }

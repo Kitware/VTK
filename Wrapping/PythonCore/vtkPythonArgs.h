@@ -51,7 +51,7 @@ public:
       this->N = PyTuple_GET_SIZE(args);
       this->M = PyType_Check(self);
       this->I = this->M;
-    }
+  }
   //@}
 
   //@{
@@ -63,7 +63,7 @@ public:
       this->N = PyTuple_GET_SIZE(args);
       this->M = 0;
       this->I = 0;
-    }
+  }
   //@}
 
   /**
@@ -662,9 +662,9 @@ inline
 vtkObjectBase *vtkPythonArgs::GetSelfPointer(PyObject *self, PyObject *args)
 {
   if (PyType_Check(self))
-    {
+  {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
-    }
+  }
   return (self ? ((PyVTKObject *)self)->vtk_ptr : NULL);
 }
 
@@ -673,9 +673,9 @@ inline
 void *vtkPythonArgs::GetSelfSpecialPointer(PyObject *self, PyObject *args)
 {
   if (PyType_Check(self))
-    {
+  {
     self = vtkPythonArgs::GetSelfFromFirstArg(self, args);
-    }
+  }
   return (self ? ((PyVTKSpecialObject *)self)->vtk_ptr : NULL);
 }
 
@@ -695,9 +695,9 @@ bool vtkPythonArgs::CheckArgCount(int nmin, int nmax)
 {
   int nargs = this->N - this->M;
   if (nargs >= nmin && nargs <= nmax)
-    {
+  {
     return true;
-    }
+  }
   this->ArgCountError(nmin, nmax);
   return false;
 }
@@ -708,9 +708,9 @@ bool vtkPythonArgs::CheckArgCount(int n)
 {
   int nargs = this->N - this->M;
   if (nargs == n)
-    {
+  {
     return true;
-    }
+  }
   this->ArgCountError(n, n);
   return false;
 }
@@ -722,9 +722,9 @@ inline
 bool vtkPythonArgs::IsPureVirtual()
 {
   if (IsBound())
-    {
+  {
     return false;
-    }
+  }
   this->PureVirtualError();
   return true;
 }
@@ -787,10 +787,10 @@ inline
 PyObject *vtkPythonArgs::BuildValue(const void *a)
 {
   if (a)
-    {
+  {
     const char *s = vtkPythonUtil::ManglePointer(a, "p_void");
     return PyString_FromString(s);
-    }
+  }
   Py_INCREF(Py_None);
   return Py_None;
 }
@@ -807,10 +807,10 @@ PyObject *vtkPythonArgs::BuildValue(const char *a, size_t l)
   PyObject *o = PyUnicode_Decode(a, static_cast<Py_ssize_t>(l), NULL, NULL);
 #endif
   if (o == NULL)
-    {
+  {
     PyErr_Clear();
     o = PyBytes_FromStringAndSize(a, static_cast<Py_ssize_t>(l));
-    }
+  }
   return o;
 #endif
 }
@@ -819,9 +819,9 @@ inline
 PyObject *vtkPythonArgs::BuildValue(const char *a)
 {
   if (a)
-    {
+  {
     return vtkPythonArgs::BuildValue(a, strlen(a));
-    }
+  }
   Py_INCREF(Py_None);
   return Py_None;
 }
@@ -878,9 +878,9 @@ PyObject *vtkPythonArgs::BuildValue(unsigned int a)
   return PyInt_FromLong(a);
 #else
   if ((long)(a) >= 0)
-    {
+  {
     return PyInt_FromLong((long)(a));
-    }
+  }
   return PyLong_FromUnsignedLong(a);
 #endif
 }
@@ -895,9 +895,9 @@ inline
 PyObject *vtkPythonArgs::BuildValue(unsigned long a)
 {
   if ((long)(a) >= 0)
-    {
+  {
     return PyInt_FromLong((long)(a));
-    }
+  }
   return PyLong_FromUnsignedLong(a);
 }
 

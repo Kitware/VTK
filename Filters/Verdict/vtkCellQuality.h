@@ -44,7 +44,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
 {
 
   enum
-    {
+  {
     NONE = 0,
     AREA,
     ASPECT_BETA,
@@ -77,7 +77,7 @@ class VTKFILTERSVERDICT_EXPORT vtkCellQuality : public vtkDataSetAlgorithm
     TAPER,
     VOLUME,
     WARPAGE
-    };
+  };
 
 public:
   void PrintSelf (ostream&, vtkIndent);
@@ -99,121 +99,121 @@ public:
   //@}
 
   void SetQualityMeasureToArea ()
-    {
+  {
     this->SetQualityMeasure(AREA);
-    }
+  }
   void SetQualityMeasureToAspectBeta ()
-    {
+  {
     this->SetQualityMeasure(ASPECT_BETA);
-    }
+  }
   void SetQualityMeasureToAspectFrobenius ()
-    {
+  {
     this->SetQualityMeasure(ASPECT_FROBENIUS);
-    }
+  }
   void SetQualityMeasureToAspectGamma ()
-    {
+  {
     this->SetQualityMeasure(ASPECT_GAMMA);
-    }
+  }
   void SetQualityMeasureToAspectRatio ()
-    {
+  {
     this->SetQualityMeasure(ASPECT_RATIO);
-    }
+  }
   void SetQualityMeasureToCollapseRatio ()
-    {
+  {
     this->SetQualityMeasure(COLLAPSE_RATIO);
-    }
+  }
   void SetQualityMeasureToCondition ()
-    {
+  {
     this->SetQualityMeasure(CONDITION);
-    }
+  }
   void SetQualityMeasureToDiagonal ()
-    {
+  {
     this->SetQualityMeasure(DIAGONAL);
-    }
+  }
   void SetQualityMeasureToDimension ()
-    {
+  {
     this->SetQualityMeasure(DIMENSION);
-    }
+  }
   void SetQualityMeasureToDistortion ()
-    {
+  {
     this->SetQualityMeasure(DISTORTION);
-    }
+  }
   void SetQualityMeasureToJacobian ()
-    {
+  {
     this->SetQualityMeasure(JACOBIAN);
-    }
+  }
   void SetQualityMeasureToMaxAngle ()
-    {
+  {
     this->SetQualityMeasure(MAX_ANGLE);
-    }
+  }
   void SetQualityMeasureToMaxAspectFrobenius ()
-    {
+  {
     this->SetQualityMeasure(MAX_ASPECT_FROBENIUS);
-    }
+  }
   void SetQualityMeasureToMaxEdgeRatio ()
-    {
+  {
     this->SetQualityMeasure(MAX_EDGE_RATIO);
-    }
+  }
   void SetQualityMeasureToMedAspectFrobenius ()
-    {
+  {
     this->SetQualityMeasure(MED_ASPECT_FROBENIUS);
-    }
+  }
   void SetQualityMeasureToMinAngle ()
-    {
+  {
     this->SetQualityMeasure(MIN_ANGLE);
-    }
+  }
   void SetQualityMeasureToOddy ()
-    {
+  {
     this->SetQualityMeasure(ODDY);
-    }
+  }
   void SetQualityMeasureToRadiusRatio ()
-    {
+  {
     this->SetQualityMeasure(RADIUS_RATIO);
-    }
+  }
   void SetQualityMeasureToRelativeSizeSquared ()
-    {
+  {
     this->SetQualityMeasure(RELATIVE_SIZE_SQUARED);
-    }
+  }
   void SetQualityMeasureToScaledJacobian ()
-    {
+  {
     this->SetQualityMeasure(SCALED_JACOBIAN);
-    }
+  }
   void SetQualityMeasureToShapeAndSize ()
-    {
+  {
     this->SetQualityMeasure(SHAPE_AND_SIZE);
-    }
+  }
   void SetQualityMeasureToShape ()
-    {
+  {
     this->SetQualityMeasure(SHAPE);
-    }
+  }
   void SetQualityMeasureToShearAndSize ()
-    {
+  {
     this->SetQualityMeasure(SHEAR_AND_SIZE);
-    }
+  }
   void SetQualityMeasureToShear ()
-    {
+  {
     this->SetQualityMeasure(SHEAR);
-    }
+  }
   void SetQualityMeasureToSkew ()
-    {
+  {
     this->SetQualityMeasure(SKEW);
-    }
+  }
   void SetQualityMeasureToStretch ()
-    {
+  {
     this->SetQualityMeasure(STRETCH);
-    }
+  }
   void SetQualityMeasureToTaper ()
-    {
+  {
     this->SetQualityMeasure(TAPER);
-    }
+  }
   void SetQualityMeasureToVolume ()
-    {
+  {
     this->SetQualityMeasure(VOLUME);
-    }
+  }
   void SetQualityMeasureToWarpage ()
-    {
+  {
     this->SetQualityMeasure(WARPAGE);
-    }
+  }
 
   //@{
   /**

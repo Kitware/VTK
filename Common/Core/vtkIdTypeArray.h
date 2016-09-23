@@ -53,14 +53,14 @@ public:
    * Get the data type.
    */
   int GetDataType() VTK_OVERRIDE
-    {
+  {
       // This needs to overwritten from superclass because
       // the templated superclass is not able to differentiate
       // vtkIdType from a long long or an int since vtkIdType
       // is simply a typedef. This means that
       // vtkAOSDataArrayTemplate<vtkIdType> != vtkIdTypeArray.
       return VTK_ID_TYPE;
-    }
+  }
 #endif
 
   /**

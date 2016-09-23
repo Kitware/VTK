@@ -44,52 +44,52 @@ vtkTextureUnitManager::~vtkTextureUnitManager()
 void vtkTextureUnitManager::DeleteTable()
 {
   if(this->TextureUnits!=0)
-    {
+  {
     size_t i=0;
     size_t c=this->NumberOfTextureUnits;
     bool valid=true;
     while(valid && i<c)
-      {
+    {
       valid = !this->TextureUnits[i];
       ++i;
-      }
+    }
     if(!valid)
-      {
+    {
       vtkErrorMacro(<<"the texture unit is deleted but some texture units have not been released: Id="<<i);
-      }
+    }
     delete[] this->TextureUnits;
     this->TextureUnits=0;
     this->NumberOfTextureUnits=0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
 void vtkTextureUnitManager::SetContext(vtkOpenGLRenderWindow *context)
 {
   if(this->Context!=context)
-    {
+  {
     if(this->Context!=0)
-      {
+    {
       this->DeleteTable();
-      }
+    }
     this->Context=context;
     if(this->Context!=0)
-      {
+    {
       glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &this->NumberOfTextureUnits);
       if(this->NumberOfTextureUnits > 0)
-        {
+      {
         this->TextureUnits = new bool [this->NumberOfTextureUnits];
         size_t i=0;
         size_t c=this->NumberOfTextureUnits;
         while(i<c)
-          {
+        {
           this->TextureUnits[i]=false;
           ++i;
-          }
         }
       }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -113,21 +113,21 @@ int vtkTextureUnitManager::Allocate()
   size_t i=0;
   size_t c=this->NumberOfTextureUnits;
   while(!found && i<c)
-    {
+  {
     found = !this->TextureUnits[i];
     ++i;
-    }
+  }
 
   int result;
   if(found)
-    {
+  {
     result=static_cast<int>(i-1);
     this->TextureUnits[result] = true;
-    }
+  }
   else
-    {
+  {
     result = -1;
-    }
+  }
 
   assert("post: valid_result" && (result==-1 || (result>=0 && result<this->GetNumberOfTextureUnits())));
   assert("post: allocated" && (result==-1 || this->IsAllocated(result)));
@@ -137,9 +137,9 @@ int vtkTextureUnitManager::Allocate()
 int vtkTextureUnitManager::Allocate(int unit)
 {
   if (this->IsAllocated(unit))
-    {
+  {
     return -1;
-    }
+  }
 
   this->TextureUnits[unit] = true;
 
@@ -176,11 +176,11 @@ void vtkTextureUnitManager::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Context: ";
   if(this->Context!=0)
-    {
+  {
     os << static_cast<void *>(this->Context) <<endl;
-    }
+  }
   else
-    {
+  {
     os << "none" << endl;
-    }
+  }
 }

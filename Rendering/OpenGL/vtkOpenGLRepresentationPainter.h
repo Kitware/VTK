@@ -44,9 +44,9 @@ public:
    * requests i.e. this painter itself.
    */
   virtual double GetTimeToDraw()
-    {
+  {
     return this->TimeToDraw;
-    }
+  }
 
 protected:
   vtkOpenGLRepresentationPainter();

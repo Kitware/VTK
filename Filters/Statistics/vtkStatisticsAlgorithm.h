@@ -78,21 +78,21 @@ public:
    * enumeration values to specify input port types
    */
   enum InputPorts
-    {
+  {
     INPUT_DATA = 0,         //!< Port 0 is for learn data
     LEARN_PARAMETERS = 1,   //!< Port 1 is for learn parameters (initial guesses, etc.)
     INPUT_MODEL = 2         //!< Port 2 is for a priori models
-    };
+  };
 
   /**
    * enumeration values to specify output port types
    */
   enum OutputIndices
-    {
+  {
     OUTPUT_DATA  = 0,       //!< Output 0 mirrors the input data, plus optional assessment columns
     OUTPUT_MODEL = 1,       //!< Output 1 contains any generated model
     OUTPUT_TEST  = 2        //!< Output 2 contains result of statistical test(s)
-    };
+  };
 
   /**
    * A convenience method for setting learn input parameters (if one is expected or allowed).

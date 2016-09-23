@@ -42,12 +42,12 @@ vtkOpenGLHardwareSupport::~vtkOpenGLHardwareSupport()
 int vtkOpenGLHardwareSupport::GetNumberOfFixedTextureUnits()
 {
   if (! vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture)
-    {
+  {
     if (!this->ExtensionManagerSet())
-      {
+    {
       vtkWarningMacro(<<"extension manager not set. Return 1.");
       return 1;
-      }
+    }
 
     // multitexture is a core feature of OpenGL 1.3.
     // multitexture is an ARB extension of OpenGL 1.2.1
@@ -57,19 +57,19 @@ int vtkOpenGLHardwareSupport::GetNumberOfFixedTextureUnits()
       this->ExtensionManager->ExtensionSupported("GL_ARB_multitexture");
 
     if (supports_GL_1_3)
-      {
+    {
       this->ExtensionManager->LoadExtension("GL_VERSION_1_3");
-      }
+    }
     else if (supports_GL_1_2_1 && supports_ARB_mutlitexture)
-      {
+    {
       this->ExtensionManager->LoadExtension("GL_VERSION_1_2");
       this->ExtensionManager->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
-    else
-      {
-      return 1;
-      }
     }
+    else
+    {
+      return 1;
+    }
+  }
 
   GLint numSupportedTextures = 1;
   glGetIntegerv(vtkgl::MAX_TEXTURE_UNITS, &numSupportedTextures);
@@ -93,37 +93,37 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
   bool supports_shaders = vtkgl::GetActiveAttrib != 0;
 
   if (!supports_shaders)
-    {
+  {
     if (!this->ExtensionManagerSet())
-      {
+    {
       vtkWarningMacro(<<"extension manager not set. Return 1.");
-      }
+    }
     else
-      {
+    {
       if (this->ExtensionManager->ExtensionSupported("GL_VERSION_2_0"))
-        {
+      {
         this->ExtensionManager->LoadExtension("GL_VERSION_2_0");
         supports_shaders=true;
-        }
+      }
       else
-        {
+      {
         supports_shaders=
           this->ExtensionManager->ExtensionSupported("GL_ARB_vertex_shader")==1;
         if (supports_shaders)
-          {
+        {
           this->ExtensionManager->LoadCorePromotedExtension(
             "GL_ARB_vertex_shader");
-          }
         }
       }
     }
+  }
 
   if (supports_shaders)
-    {
+  {
     GLint value;
     glGetIntegerv(vtkgl::MAX_COMBINED_TEXTURE_IMAGE_UNITS, &value);
     result = static_cast<int>(value);
-    }
+  }
   return result;
 }
 
@@ -131,11 +131,11 @@ int vtkOpenGLHardwareSupport::GetNumberOfTextureUnits()
 bool vtkOpenGLHardwareSupport::GetSupportsMultiTexturing()
 {
   if (!vtkgl::MultiTexCoord2d || ! vtkgl::ActiveTexture)
-    {
+  {
     if (!ExtensionManagerSet())
-      {
+    {
       return false;
-      }
+    }
 
     // multitexture is a core feature of OpenGL 1.3.
     // multitexture is an ARB extension of OpenGL 1.2.1
@@ -145,15 +145,15 @@ bool vtkOpenGLHardwareSupport::GetSupportsMultiTexturing()
       this->ExtensionManager->ExtensionSupported("GL_ARB_multitexture");
 
     if (supports_GL_1_3 || supports_GL_1_2_1 || supports_ARB_mutlitexture)
-      {
-      return true;
-      }
-    return false;
-    }
-  else
     {
-    return true;
+      return true;
     }
+    return false;
+  }
+  else
+  {
+    return true;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -167,14 +167,14 @@ void vtkOpenGLHardwareSupport::PrintSelf(ostream& os, vtkIndent indent)
 bool vtkOpenGLHardwareSupport::ExtensionManagerSet()
 {
   if(!this->ExtensionManager)
-    {
+  {
     vtkErrorMacro("" << this->GetClassName() << ": requires an ExtensionManager set.");
     return false;
-    }
+  }
   if(!this->ExtensionManager->GetRenderWindow())
-    {
+  {
     vtkErrorMacro("" << this->GetClassName() << ": requires an ExtensionManager with Render Window set.");
     return false;
-    }
+  }
   return true;
 }

@@ -114,9 +114,9 @@ public:
    */
   void SetSourceConnection(int id, vtkAlgorithmOutput* algOutput);
   void SetSourceConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetSourceConnection(0, algOutput);
-    }
+  }
   //@}
 
   //@{

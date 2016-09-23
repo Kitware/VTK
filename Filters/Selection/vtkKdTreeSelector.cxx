@@ -60,9 +60,9 @@ void vtkKdTreeSelector::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "KdTree: " << (this->KdTree ? "" : "(null)") << endl;
   if (this->KdTree)
-    {
+  {
     this->KdTree->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   os << indent << "SelectionFieldName: "
     << (this->SelectionFieldName ? this->SelectionFieldName : "(null)") << endl;
   os << indent << "BuildKdTreeFromInput: "
@@ -85,34 +85,34 @@ void vtkKdTreeSelector::SetKdTree(vtkKdTree* arg)
   vtkDebugMacro(<< this->GetClassName() << " (" << this
                 << "): setting KdTree to " << arg );
   if (this->KdTree != arg)
-    {
+  {
     vtkKdTree* tempSGMacroVar = this->KdTree;
     this->KdTree = arg;
     if (this->KdTree != NULL)
-      {
+    {
       this->BuildKdTreeFromInput = false;
       this->KdTree->Register(this);
-      }
-    else
-      {
-      this->BuildKdTreeFromInput = true;
-      }
-    if (tempSGMacroVar != NULL)
-      {
-      tempSGMacroVar->UnRegister(this);
-      }
-    this->Modified();
     }
+    else
+    {
+      this->BuildKdTreeFromInput = true;
+    }
+    if (tempSGMacroVar != NULL)
+    {
+      tempSGMacroVar->UnRegister(this);
+    }
+    this->Modified();
+  }
 }
 
 vtkMTimeType vtkKdTreeSelector::GetMTime()
 {
   vtkMTimeType mTime = this->Superclass::GetMTime();
   if (this->KdTree != NULL)
-    {
+  {
     vtkMTimeType time = this->KdTree->GetMTime();
     mTime = (time > mTime ? time : mTime);
-    }
+  }
   return mTime;
 }
 
@@ -125,116 +125,116 @@ int vtkKdTreeSelector::RequestData(
   vtkGraph* graph = NULL;
 
   if (this->BuildKdTreeFromInput)
-    {
+  {
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     if (inInfo == NULL)
-      {
+    {
       vtkErrorMacro("No input, but building kd-tree from input");
       return 0;
-      }
+    }
     vtkDataObject *input = inInfo->Get(vtkDataObject::DATA_OBJECT());
     if (input == NULL)
-      {
+    {
       vtkErrorMacro("Input is NULL");
       return 0;
-      }
+    }
     graph = vtkGraph::SafeDownCast(input);
     vtkPointSet *pointSet = vtkPointSet::SafeDownCast(input);
     if (!graph && !pointSet)
-      {
+    {
       vtkErrorMacro("Input must be a graph or point set");
       return 0;
-      }
+    }
 
     vtkPoints *points = 0;
     if (graph)
-      {
+    {
       points = graph->GetPoints();
-      }
+    }
     else
-      {
+    {
       points = pointSet->GetPoints();
-      }
+    }
 
     // If no points, there is nothing to do
     if (points == NULL || points->GetNumberOfPoints() == 0)
-      {
+    {
       return 1;
-      }
+    }
 
     // Construct the kd-tree if we need to
     if (this->KdTree == NULL || this->KdTree->GetMTime() < input->GetMTime())
-      {
+    {
       if (this->KdTree == NULL)
-        {
+      {
         this->KdTree = vtkKdTree::New();
-        }
+      }
       this->KdTree->Initialize();
       this->KdTree->BuildLocatorFromPoints(points);
-      }
+    }
 
     // Look for selection field
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
         this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
-      {
+    {
       if (graph)
-        {
+      {
         field = graph->GetVertexData()->GetAbstractAttribute(this->SelectionAttribute);
-        }
+      }
       else
-        {
+      {
         field = pointSet->GetPointData()->GetAbstractAttribute(this->SelectionAttribute);
-        }
+      }
       if (field == NULL)
-        {
+      {
         vtkErrorMacro("Could not find attribute " << this->SelectionAttribute);
         return 0;
-        }
-      }
-    if (this->SelectionFieldName)
-      {
-      if (graph)
-        {
-        field = graph->GetVertexData()->GetAbstractArray(this->SelectionFieldName);
-        }
-      else
-        {
-        field = pointSet->GetPointData()->GetAbstractArray(this->SelectionFieldName);
-        }
-      if (field == NULL)
-        {
-        vtkErrorMacro("SelectionFieldName field not found");
-        return 0;
-        }
       }
     }
+    if (this->SelectionFieldName)
+    {
+      if (graph)
+      {
+        field = graph->GetVertexData()->GetAbstractArray(this->SelectionFieldName);
+      }
+      else
+      {
+        field = pointSet->GetPointData()->GetAbstractArray(this->SelectionFieldName);
+      }
+      if (field == NULL)
+      {
+        vtkErrorMacro("SelectionFieldName field not found");
+        return 0;
+      }
+    }
+  }
 
   // If no kd-tree, there is nothing to do
   if (this->KdTree == NULL)
-    {
+  {
     return 1;
-    }
+  }
 
   // Use the kd-tree to find the selected points
   vtkIdTypeArray* ids = vtkIdTypeArray::New();
   if (this->SingleSelection)
-    {
+  {
     double center[3];
     for (int c = 0; c < 3; c++)
-      {
+    {
       center[c] = (this->SelectionBounds[2*c] + this->SelectionBounds[2*c+1]) / 2.0;
-      }
+    }
     double dist;
     vtkIdType closestToCenter = this->KdTree->FindClosestPoint(center, dist);
     if (dist < this->SingleSelectionThreshold)
-      {
-      ids->InsertNextValue(closestToCenter);
-      }
-    }
-  else
     {
-    this->KdTree->FindPointsInArea(this->SelectionBounds, ids);
+      ids->InsertNextValue(closestToCenter);
     }
+  }
+  else
+  {
+    this->KdTree->FindPointsInArea(this->SelectionBounds, ids);
+  }
 
   // Fill the selection with the found ids
   vtkSelection* output = vtkSelection::GetData(outputVector);
@@ -242,45 +242,45 @@ int vtkKdTreeSelector::RequestData(
     vtkSmartPointer<vtkSelectionNode>::New();
   output->AddNode(node);
   if (graph)
-    {
+  {
     node->SetFieldType(vtkSelectionNode::VERTEX);
-    }
+  }
   else
-    {
+  {
     node->SetFieldType(vtkSelectionNode::POINT);
-    }
+  }
   if (field)
-    {
+  {
     vtkAbstractArray* arr = vtkAbstractArray::CreateArray(field->GetDataType());
     arr->SetName(field->GetName());
     for (vtkIdType i = 0; i < ids->GetNumberOfTuples(); i++)
-      {
+    {
       arr->InsertNextTuple(ids->GetValue(i), field);
-      }
+    }
     if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS ||
         this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
-      {
+    {
       if (this->SelectionAttribute == vtkDataSetAttributes::GLOBALIDS)
-        {
-        node->SetContentType(vtkSelectionNode::GLOBALIDS);
-        }
-      else if (this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
-        {
-        node->SetContentType(vtkSelectionNode::PEDIGREEIDS);
-        }
-      }
-    else
       {
-      node->SetContentType(vtkSelectionNode::VALUES);
+        node->SetContentType(vtkSelectionNode::GLOBALIDS);
       }
+      else if (this->SelectionAttribute == vtkDataSetAttributes::PEDIGREEIDS)
+      {
+        node->SetContentType(vtkSelectionNode::PEDIGREEIDS);
+      }
+    }
+    else
+    {
+      node->SetContentType(vtkSelectionNode::VALUES);
+    }
     node->SetSelectionList(arr);
     arr->Delete();
-    }
+  }
   else
-    {
+  {
     node->SetContentType(vtkSelectionNode::INDICES);
     node->SetSelectionList(ids);
-    }
+  }
 
   // Clean up
   ids->Delete();

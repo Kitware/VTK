@@ -44,9 +44,9 @@ void vtkImageIterator<DType>::Initialize(vtkImageData *id, int *ext)
 
   // if the extent is empty then the end pointer should equal the beg pointer
   if (ext[1] < ext[0] || ext[3] < ext[2] || ext[5] < ext[4])
-    {
+  {
     this->EndPointer = this->Pointer;
-    }
+  }
 
   this->SpanEndPointer =
     this->Pointer + this->Increments[0]*(ext[1] - ext[0] + 1);
@@ -69,11 +69,11 @@ void vtkImageIterator<DType>::NextSpan()
   this->Pointer += this->Increments[1];
   this->SpanEndPointer += this->Increments[1];
   if (this->Pointer >= this->SliceEndPointer)
-    {
+  {
     this->Pointer += this->ContinuousIncrements[2];
     this->SpanEndPointer += this->ContinuousIncrements[2];
     this->SliceEndPointer += this->Increments[2];
-    }
+  }
 }
 
 #endif

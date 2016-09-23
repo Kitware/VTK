@@ -75,17 +75,17 @@ int ImageResize3D(int argc, char *argv[])
   double range[2] = { 0, 4095 };
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkSmartPointer<vtkImageSliceMapper> imageMapper =
       vtkSmartPointer<vtkImageSliceMapper>::New();
     if (i < 3)
-      {
+    {
       imageMapper->SetInputConnection(resize->GetOutputPort());
-      }
+    }
     else
-      {
+    {
       imageMapper->SetInputConnection(resize2->GetOutputPort());
-      }
+    }
     imageMapper->SetOrientation(i % 3);
     imageMapper->SliceAtFocalPointOn();
 
@@ -117,17 +117,17 @@ int ImageResize3D(int argc, char *argv[])
     point[imageMapper->GetOrientation()] += 500.0;
     camera->SetPosition(point);
     if (imageMapper->GetOrientation() == 2)
-      {
+    {
       camera->SetViewUp(0.0, 1.0, 0.0);
-      }
+    }
     else
-      {
+    {
       camera->SetViewUp(0.0, 0.0, -1.0);
-      }
+    }
     camera->ParallelProjectionOn();
     camera->SetParallelScale(0.8*128);
 
-    }
+  }
 
   renWin->SetSize(512,512);
 

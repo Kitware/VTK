@@ -103,7 +103,7 @@
     vtkAbstractArray *_aa(_array);                                         \
     if (vtkAOSDataArrayTemplate<VTK_TT> *_dat =                            \
         vtkAOSDataArrayTemplate<VTK_TT>::FastDownCast(_aa))                \
-      {                                                                    \
+    {                                                                    \
       typedef VTK_TT vtkDAValueType;                                       \
       typedef vtkAOSDataArrayTemplate<vtkDAValueType> vtkDAContainerType;     \
       typedef vtkDAContainerType::Iterator vtkDAIteratorType;              \
@@ -112,10 +112,10 @@
       (void)vtkDABegin; /* Prevent warnings when unused */                 \
       (void)vtkDAEnd;                                                      \
       _call;                                                               \
-      }                                                                    \
+    }                                                                    \
     else if (vtkTypedDataArray<VTK_TT> *_tda =                             \
              vtkTypedDataArray<VTK_TT>::FastDownCast(_aa))                 \
-      {                                                                    \
+    {                                                                    \
       typedef VTK_TT vtkDAValueType;                                       \
       typedef vtkTypedDataArray<vtkDAValueType> vtkDAContainerType;        \
       typedef vtkDAContainerType::Iterator vtkDAIteratorType;              \
@@ -124,9 +124,9 @@
       (void)vtkDABegin;                                                    \
       (void)vtkDAEnd;                                                      \
       _call;                                                               \
-      }                                                                    \
+    }                                                                    \
     else                                                                   \
-      {                                                                    \
+    {                                                                    \
       /* This is not ideal, as no explicit iterator has been declared.     \
        * Cast the void pointer and hope for the best! */                   \
       typedef VTK_TT vtkDAValueType;                                       \
@@ -138,7 +138,7 @@
       (void)vtkDABegin;                                                    \
       (void)vtkDAEnd;                                                      \
       _call;                                                               \
-      }                                                                    \
+    }                                                                    \
     )
 
 #endif //vtkDataArrayIteratorMacro_h

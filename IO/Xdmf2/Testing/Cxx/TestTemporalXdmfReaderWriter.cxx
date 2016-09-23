@@ -59,10 +59,10 @@ int TestStaticMesh(vtkXdmfReader* reader)
       vtkUnstructuredGrid::SafeDownCast(mb->GetBlock(0));
     ASSERT_TEST(grid, "Block 0 is not an unstructured grid as expected!");
     if (i == 0)
-      {
+    {
       geometryAtT0 = grid->GetPoints();
       topologyAtT0 = grid->GetCells();
-      }
+    }
 
     ASSERT_TEST(grid->GetPoints() == geometryAtT0, "Geometry is not static over time as expected!");
     ASSERT_TEST(grid->GetCells() == topologyAtT0, "Topology is not static over time as expected!");
@@ -78,10 +78,10 @@ int TestTemporalXdmfReaderWriter(int argc, char *argv[])
   vtkNew<vtkXdmfReader> reader;
   reader->SetFileName(filePath);
   if (TestStaticMesh(reader.Get()) == VTK_ERROR)
-    {
+  {
     std::cerr << "Error while reading " << reader->GetFileName() << std::endl;
     return VTK_ERROR;
-    }
+  }
 
   // Write the input data to a new Xdmf file
   std::string outFilePath = "temporalStaticMeshesTest.xmf";
@@ -96,10 +96,10 @@ int TestTemporalXdmfReaderWriter(int argc, char *argv[])
   vtkNew<vtkXdmfReader> reader2;
   reader2->SetFileName(outFilePath.c_str());
   if (TestStaticMesh(reader2.Get()) == VTK_ERROR)
-    {
+  {
       std::cerr << "Error while reading " << reader2->GetFileName() << std::endl;
     return VTK_ERROR;
-    }
+  }
 
   return 0;
 }

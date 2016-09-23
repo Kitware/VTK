@@ -140,9 +140,9 @@ void vtkQtTreeRingLabelMapper::RenderOverlay(vtkViewport *viewport,
 {
   vtkRenderer *ren = vtkRenderer::SafeDownCast(viewport);
   if (ren)
-    {
+  {
     this->LabelTexture->Render(ren);
-    }
+  }
   this->polyDataMapper->RenderOverlay(viewport, actor);
 }
 
@@ -151,17 +151,17 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
                                                     vtkActor2D *actor)
 {
   if(!QApplication::instance())
-    {
+  {
     vtkErrorMacro("This class requires a QApplication instance.");
     return;
-    }
+  }
 
   vtkTextProperty *tprop = this->LabelTextProperty;
   if (!tprop)
-    {
+  {
     vtkErrorMacro(<<"Need text property to render labels");
     return;
-    }
+  }
 
   int numComp = 0, activeComp = 0;
   vtkAbstractArray *abstractData;
@@ -170,30 +170,30 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
   vtkUnicodeStringArray *uStringData;
   vtkTree *input=this->GetInputTree();
   if ( !input )
-    {
+  {
     vtkErrorMacro(<<"Need input tree to render labels (2)");
     return;
-    }
+  }
 
   if( input->GetNumberOfVertices() == 0 )
-    {
+  {
     return;
-    }
+  }
 
   vtkDataSetAttributes *pd = input->GetVertexData();
   sectorInfo = this->GetInputArrayToProcess(0, input);
   if( !sectorInfo )
-    {
+  {
     vtkErrorMacro(<< "Input Tree does not have sector information.");
     return;
-    }
+  }
 
   vtkRenderer* renderer = vtkRenderer::SafeDownCast( viewport );
 
   if ( this->CurrentViewPort != viewport || this->GetMTime() > this->BuildTime ||
        input->GetMTime() > this->BuildTime || tprop->GetMTime() > this->BuildTime ||
        renderer->GetActiveCamera()->GetMTime() > this->BuildTime )
-    {
+  {
     vtkDebugMacro(<<"Rebuilding labels");
 
     int *size = renderer->GetSize();
@@ -202,9 +202,9 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
 
     // See if we have to recalculate fonts sizes
     if (this->CurrentViewPort != viewport)
-      {
+    {
       this->CurrentViewPort = viewport;
-      }
+    }
 
     // figure out what to label, and if we can label it
     abstractData = NULL;
@@ -212,78 +212,78 @@ void vtkQtTreeRingLabelMapper::RenderOpaqueGeometry(vtkViewport *viewport,
     stringData = NULL;
     uStringData = NULL;
     switch (this->LabelMode)
-      {
+    {
       case VTK_LABEL_SCALARS:
         if ( pd->GetScalars() )
-          {
+        {
           numericData = pd->GetScalars();
-          }
+        }
         break;
       case VTK_LABEL_VECTORS:
         if ( pd->GetVectors() )
-          {
+        {
           numericData = pd->GetVectors();
-          }
+        }
         break;
       case VTK_LABEL_NORMALS:
         if ( pd->GetNormals() )
-          {
+        {
           numericData = pd->GetNormals();
-          }
+        }
         break;
       case VTK_LABEL_TCOORDS:
         if ( pd->GetTCoords() )
-          {
+        {
           numericData = pd->GetTCoords();
-          }
+        }
         break;
       case VTK_LABEL_TENSORS:
         if ( pd->GetTensors() )
-          {
+        {
           numericData = pd->GetTensors();
-          }
+        }
         break;
       case VTK_LABEL_FIELD_DATA:
       {
       int arrayNum;
       if (this->FieldDataName != NULL)
-        {
+      {
         abstractData = pd->GetAbstractArray(this->FieldDataName, arrayNum);
-        }
+      }
       else
-        {
+      {
         arrayNum = (this->FieldDataArray < pd->GetNumberOfArrays() ?
                     this->FieldDataArray : pd->GetNumberOfArrays() - 1);
         abstractData = pd->GetAbstractArray(arrayNum);
-        }
+      }
       numericData = vtkArrayDownCast<vtkDataArray>(abstractData);
       stringData = vtkArrayDownCast<vtkStringArray>(abstractData);
       uStringData = vtkArrayDownCast<vtkUnicodeStringArray>(abstractData);
       };
       break;
-      }
+    }
 
     // determine number of components and check input
     if( numericData )
-      {
+    {
       numComp = numericData->GetNumberOfComponents();
       activeComp = 0;
       if ( this->LabeledComponent >= 0 )
-        {
+      {
         activeComp = (this->LabeledComponent < numComp ?
                       this->LabeledComponent : numComp - 1);
         numComp = 1;
-        }
       }
+    }
     else if( !stringData && !uStringData )
-      {
+    {
       vtkErrorMacro(<<"Need input data to render labels (3)");
       return;
-      }
+    }
 
     this->LabelTree(input, sectorInfo, numericData, stringData, uStringData,
                     activeComp, numComp, viewport );
-    }
+  }
 
   VTK_CREATE( vtkQImageToImageSource, qis );
   qis->SetQImage( this->QtImage );
@@ -307,10 +307,10 @@ void vtkQtTreeRingLabelMapper::LabelTree(
   char string[1024];
   vtkIdType i, root = tree->GetRoot();
   if (root < 0)
-    {
+  {
     vtkErrorMacro(<< "Input Tree does not have a root.");
     return;
-    }
+  }
 
   vtkDataArray *TextRotationArray = tree->GetVertexData()->GetArray(this->TextRotationArrayName);
 
@@ -333,14 +333,14 @@ void vtkQtTreeRingLabelMapper::LabelTree(
 
   double slimits[4], sdimDC[2], textPosDC[2];
   for( i = 0; i < tree->GetNumberOfVertices(); i++ )
-    {
+  {
     sectorInfo->GetTuple(i, slimits);
 
     //check to see if the point is in the window
     if( !this->PointInWindow(slimits, sdimDC, textPosDC, viewport) )
-      {
+    {
       continue;
-      }
+    }
 
     //check to see if the text will fit in the sector
     this->GetVertexLabel(i, numericData, stringData, uStringData, activeComp, numComps, string);
@@ -364,21 +364,21 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     QString minString( "wwwww" );
     double allowedTextWidth = 0;
     if( sdimDC[0] > sdimDC[1] )
-      {
+    {
       if( sdimDC[0] < fontMetric.width(minString) )
-        {
-        continue;
-        }
-      allowedTextWidth = static_cast<int>(sdimDC[0]);
-      }
-    else
       {
-      if( sdimDC[1] < fontMetric.width(minString) )
-        {
         continue;
-        }
-      allowedTextWidth = static_cast<int>(sdimDC[1]);
       }
+      allowedTextWidth = static_cast<int>(sdimDC[0]);
+    }
+    else
+    {
+      if( sdimDC[1] < fontMetric.width(minString) )
+      {
+        continue;
+      }
+      allowedTextWidth = static_cast<int>(sdimDC[1]);
+    }
 //FIXME - This next step assumes no markup to the original text, which is probably a bad
 //  choice, but is necessary due to Qt's current methods for handling and computing
 //  rich text widths and ellipsis...
@@ -390,20 +390,20 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     //check to see if the text will fit in the sector;
     //  if not, don't draw the label...
     if( sdimDC[0] > sdimDC[1] )
-      {
+    {
       if( sdimDC[1] < fontMetric.height() )
         continue;
-      }
+    }
     else
-      {
+    {
       if( sdimDC[0] < fontMetric.height() )
         continue;
-      }
+    }
 
     double delta_x = 0., delta_y = 0.;
 
     switch( this->LabelTextProperty->GetJustification() )
-      {
+    {
       case VTK_TEXT_LEFT:
         break;
       case VTK_TEXT_CENTERED:
@@ -414,10 +414,10 @@ void vtkQtTreeRingLabelMapper::LabelTree(
 //FIXME - The width is not correct for html encodings...
         delta_x = -fontMetric.width(testString);
         break;
-      }
+    }
 
     switch (this->LabelTextProperty->GetVerticalJustification())
-      {
+    {
       case VTK_TEXT_TOP:
         break;
       case VTK_TEXT_CENTERED:
@@ -427,20 +427,20 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       case VTK_TEXT_BOTTOM:
         delta_y = -baseline;
         break;
-      }
+    }
 
     double h = this->WindowSize[1];
 
     //specify the clockwise text rotation angle
     double rotation = 0.;
     if( TextRotationArray )
-      {
+    {
       TextRotationArray->GetTuple(i, &rotation);
       rotation *= -1.;
-      }
+    }
 
     if( this->LabelTextProperty->GetShadow() )
-      {
+    {
       painter.save();
 
       int shOff[2];
@@ -472,7 +472,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
       textDocument.drawContents( &painter );
 
       painter.restore();
-      }
+    }
 
     painter.save();
     painter.translate( x[0], h-x[1] );
@@ -489,7 +489,7 @@ void vtkQtTreeRingLabelMapper::LabelTree(
     textDocument.drawContents( &painter );
 
     painter.restore();
-    }
+  }
 
 //   QFile file( "C:/src/qtfonts.png" );
 //   file.open( QIODevice::WriteOnly);
@@ -564,14 +564,14 @@ void vtkQtTreeRingLabelMapper::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "WindowSize: " << this->WindowSize[0] << "w x" << this->WindowSize[1] << "h\n";
   if (this->LabelTextProperty)
-    {
+  {
     os << indent << "Label Text Property:\n";
     this->LabelTextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Label Text Property: (none)\n";
-    }
+  }
   os << indent << "TextRotationArrayName: " << (this->TextRotationArrayName ? this->TextRotationArrayName : "(none)") << endl;
 }
 
@@ -583,85 +583,85 @@ void vtkQtTreeRingLabelMapper::GetVertexLabel(
   double val;
   int j;
   if ( numericData )
-    {
+  {
     if ( numComp == 1 )
-      {
+    {
       if (numericData->GetDataType() == VTK_CHAR)
-        {
+      {
         if (strcmp(this->LabelFormat,"%c") != 0)
-          {
+        {
           vtkErrorMacro(<<"Label format must be %c to use with char");
           string[0] = '\0';
           return;
-          }
+        }
         sprintf(string, this->LabelFormat,
                 static_cast<char>(numericData->GetComponent(vertex, activeComp)));
-        }
+      }
       else
-        {
+      {
         sprintf(string, this->LabelFormat,
                 numericData->GetComponent(vertex, activeComp));
-        }
       }
+    }
     else
-      {
+    {
       strcpy(format, "("); strcat(format, this->LabelFormat);
       for (j=0; j<(numComp-1); j++)
-        {
+      {
         sprintf(string, format, numericData->GetComponent(vertex, j));
         strcpy(format,string); strcat(format,", ");
         strcat(format, this->LabelFormat);
-        }
+      }
       sprintf(string, format, numericData->GetComponent(vertex, numComp-1));
       strcat(string, ")");
-      }
     }
+  }
   else if (stringData)// rendering string data
-    {
+  {
     if (strcmp(this->LabelFormat,"%s") != 0)
-      {
+    {
       vtkErrorMacro(<<"Label format must be %s to use with strings");
       string[0] = '\0';
       return;
-      }
+    }
     sprintf(string, this->LabelFormat,
             stringData->GetValue(vertex).c_str());
-    }
+  }
   else if (uStringData)// rendering unicode string data
-    {
+  {
     if (strcmp(this->LabelFormat,"%s") != 0)
-      {
+    {
       vtkErrorMacro(<<"Label format must be %s to use with strings");
       string[0] = '\0';
       return;
-      }
-    sprintf(string, this->LabelFormat, uStringData->GetValue(vertex).utf8_str());
     }
+    sprintf(string, this->LabelFormat, uStringData->GetValue(vertex).utf8_str());
+  }
   else // Use the vertex id
-    {
+  {
     val = static_cast<double>(vertex);
     sprintf(string, this->LabelFormat, val);
-    }
+  }
 }
 
 vtkMTimeType vtkQtTreeRingLabelMapper::GetMTime()
 {
   vtkMTimeType filterMTime = this->MTime.GetMTime();
   if( this->Renderer )
-    {
+  {
     vtkRenderWindow* rw = this->Renderer->GetRenderWindow();
     if ( rw )
-      {
+    {
       vtkMTimeType renWindMTime = rw->GetMTime();
       if ( renWindMTime > filterMTime )
-        {
+      {
         int* rwSize = rw->GetSize();
         if ( rwSize[0] != this->WindowSize[0] || rwSize[1] != this->WindowSize[1] )
-          {
+        {
           return renWindMTime;
-          }
         }
       }
     }
+  }
   return filterMTime;
 }

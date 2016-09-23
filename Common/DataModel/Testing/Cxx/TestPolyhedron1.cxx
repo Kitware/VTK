@@ -64,9 +64,9 @@ int TestPolyhedron1( int argc, char* argv[] )
   vtkSmartPointer<vtkPoints> dodechedronPoints = vtkSmartPointer<vtkPoints>::New();
   dodechedronPoints->Initialize();
   for (int i = 0; i < 20; i++)
-    {
+  {
     dodechedronPoints->InsertNextPoint(dodechedronPoint[i]);
-    }
+  }
 
   vtkIdType dodechedronPointsIds[20] = {0,   1,  2,  3,  4,  5,  6,  7,  8,  9,
                                         10, 11, 12, 13, 14, 15, 16, 17, 18, 19};
@@ -86,9 +86,9 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   vtkSmartPointer<vtkCellArray> dodechedronFaces = vtkSmartPointer<vtkCellArray>::New();
   for (int i = 0; i < 12; i++)
-    {
+  {
     dodechedronFaces->InsertNextCell(5, dodechedronFace[i]);
-    }
+  }
 
   double offset = 0;//0.375185;
 
@@ -115,18 +115,18 @@ int TestPolyhedron1( int argc, char* argv[] )
     vtkSmartPointer<vtkDoubleArray>::New();
   pointDataArray->Initialize();
   for (int i = 0; i < 20; i++)
-    {
+  {
     cout << plane->EvaluateFunction(dodechedronPoint[i]) << endl;
     pointDataArray->InsertNextValue(plane->EvaluateFunction(dodechedronPoint[i])+0.01);
-    }
+  }
 
   vtkSmartPointer<vtkDoubleArray> cellDataArray =
     vtkSmartPointer<vtkDoubleArray>::New();
   cellDataArray->Initialize();
   for (int i = 0; i < 12; i++)
-    {
+  {
     cellDataArray->InsertNextValue(static_cast<double>(1.0));
-    }
+  }
 
   vtkSmartPointer<vtkUnstructuredGrid> ugrid =
     vtkSmartPointer<vtkUnstructuredGrid>::New();
@@ -272,9 +272,9 @@ int TestPolyhedron1( int argc, char* argv[] )
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -105,10 +105,10 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -118,9 +118,9 @@ void vtkBoxWidget2::SelectAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkBoxRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Test for states that involve face or handle picking here so
   // selection highlighting doesn't happen if that interaction is disabled.
@@ -183,10 +183,10 @@ void vtkBoxWidget2::TranslateAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -196,9 +196,9 @@ void vtkBoxWidget2::TranslateAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkBoxRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
@@ -231,10 +231,10 @@ void vtkBoxWidget2::ScaleAction(vtkAbstractWidget *w)
   // Okay, make sure that the pick is in the current renderer
   if ( !self->CurrentRenderer ||
        !self->CurrentRenderer->IsInViewport(X,Y) )
-    {
+  {
     self->WidgetState = vtkBoxWidget2::Start;
     return;
-    }
+  }
 
   // Begin the widget interaction which has the side effect of setting the
   // interaction state.
@@ -244,9 +244,9 @@ void vtkBoxWidget2::ScaleAction(vtkAbstractWidget *w)
   self->WidgetRep->StartWidgetInteraction(e);
   int interactionState = self->WidgetRep->GetInteractionState();
   if ( interactionState == vtkBoxRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->WidgetState = vtkBoxWidget2::Active;
@@ -268,9 +268,9 @@ void vtkBoxWidget2::MoveAction(vtkAbstractWidget *w)
 
   // See whether we're active
   if ( self->WidgetState == vtkBoxWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // compute some info we need for all cases
   int X = self->Interactor->GetEventPosition()[0];
@@ -293,9 +293,9 @@ void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget *w)
 {
   vtkBoxWidget2 *self = reinterpret_cast<vtkBoxWidget2*>(w);
   if ( self->WidgetState == vtkBoxWidget2::Start )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not active
   self->WidgetState = vtkBoxWidget2::Start;
@@ -313,9 +313,9 @@ void vtkBoxWidget2::EndSelectAction(vtkAbstractWidget *w)
 void vtkBoxWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkBoxRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

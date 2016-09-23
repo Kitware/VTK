@@ -36,23 +36,23 @@ vtkButtonRepresentation::~vtkButtonRepresentation()
 void vtkButtonRepresentation::SetState(int state)
 {
   if ( this->NumberOfStates < 1 )
-    {
+  {
     return;
-    }
+  }
 
   int remain = state % this->NumberOfStates;
   if ( remain < 0 )
-    {
+  {
     remain += this->NumberOfStates;
-    }
+  }
   state = remain;
 
   // Modify if necessary
   if ( state != this->State )
-    {
+  {
     this->State = state;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -72,24 +72,24 @@ void vtkButtonRepresentation::Highlight(int state)
 {
   int newState;
   if ( state == vtkButtonRepresentation::HighlightNormal )
-    {
+  {
     newState = vtkButtonRepresentation::HighlightNormal;
-    }
+  }
   else if ( state == vtkButtonRepresentation::HighlightHovering )
-    {
+  {
     newState = vtkButtonRepresentation::HighlightHovering;
-    }
+  }
   else //if ( state == vtkButtonRepresentation::HighlightSelecting )
-    {
+  {
     newState = vtkButtonRepresentation::HighlightSelecting;
-    }
+  }
 
   if ( newState != this->HighlightState )
-    {
+  {
     this->HighlightState = newState;
     this->InvokeEvent(vtkCommand::HighlightEvent,&(this->HighlightState));
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -99,11 +99,11 @@ void vtkButtonRepresentation::ShallowCopy(vtkProp *prop)
     vtkButtonRepresentation::SafeDownCast(prop);
 
   if ( rep )
-    {
+  {
     this->NumberOfStates = rep->NumberOfStates;
     this->State = rep->State;
     this->HighlightState = rep->HighlightState;
-    }
+  }
 
   this->Superclass::ShallowCopy(prop);
 }

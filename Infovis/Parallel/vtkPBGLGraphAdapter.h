@@ -376,19 +376,19 @@ MakeDistributedVertexIndexMap(vtkGraph* graph)
 {
   vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
     return vtkGraphDistributedVertexIndexMap();
-    }
+  }
 //@}
 
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
     return vtkGraphDistributedVertexIndexMap();
-    }
+  }
 
   return vtkGraphDistributedVertexIndexMap(pbglHelper->GetProcessGroup(),
                                            boost::vtkVertexGlobalMap(graph),
@@ -422,18 +422,18 @@ MakeDistributedVertexPropertyMap(vtkGraph* graph, DataArray* array)
 
   vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
     return MapType();
-    }
+  }
 
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
     return MapType();
-    }
+  }
 
   return MapType(pbglHelper->GetProcessGroup(),
                  boost::vtkVertexGlobalMap(graph),
@@ -467,18 +467,18 @@ MakeDistributedEdgePropertyMap(vtkGraph* graph, DataArray* array)
 
   vtkDistributedGraphHelper *helper = graph->GetDistributedGraphHelper();
   if (!helper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph without a distributed graph helper is not a distributed graph");
     return MapType();
-    }
+  }
 
   vtkPBGLDistributedGraphHelper *pbglHelper
     = vtkPBGLDistributedGraphHelper::SafeDownCast(helper);
   if (!pbglHelper)
-    {
+  {
     vtkErrorWithObjectMacro(graph, "A vtkGraph with a non-Parallel BGL distributed graph helper cannot be used with the Parallel BGL");
     return MapType();
-    }
+  }
 
   return MapType(pbglHelper->GetProcessGroup(),
                  boost::vtkEdgeGlobalMap(graph),

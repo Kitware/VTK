@@ -260,26 +260,26 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
     {
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
       for ( int i=0; i<11; ++i )
-        {
+      {
         this->CaseCounts[i] = 0;
         for ( int j=0; j<51; ++j )
-          {
+        {
           this->SubcaseCounts[i][j] = 0;
-          }
         }
+      }
 #endif // PARAVIEW_DEBUG_TESSELLATOR
     }
     vtkIdType GetCaseCount( int c )
-      {
+    {
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
       return this->CaseCounts[c];
 #else
       (void)c;
       return 0;
 #endif // PARAVIEW_DEBUG_TESSELLATOR
-      }
+    }
     vtkIdType GetSubcaseCount( int casenum, int sub )
-      {
+    {
 #ifdef PARAVIEW_DEBUG_TESSELLATOR
       return this->SubcaseCounts[casenum][sub];
 #else
@@ -287,7 +287,7 @@ class VTKFILTERSCORE_EXPORT vtkStreamingTessellator : public vtkObject
       (void)sub;
       return 0;
 #endif // PARAVIEW_DEBUG_TESSELLATOR
-      }
+    }
     //@}
 
   protected:

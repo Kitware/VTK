@@ -100,13 +100,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double sf[3]) VTK_OVERRIDE
-    {
+  {
     vtkTriangle::InterpolationFunctions(pcoords,sf);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[6]) VTK_OVERRIDE
-    {
+  {
     vtkTriangle::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
   /**
    * Return the ids of the vertices defining edge (`edgeId`).
@@ -262,11 +262,11 @@ inline void vtkTriangle::ComputeNormal(double v1[3], double v2[3],
   vtkTriangle::ComputeNormalDirection(v1, v2, v3, n);
 
   if ( (length = sqrt((n[0]*n[0] + n[1]*n[1] + n[2]*n[2]))) != 0.0 )
-    {
+  {
     n[0] /= length;
     n[1] /= length;
     n[2] /= length;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

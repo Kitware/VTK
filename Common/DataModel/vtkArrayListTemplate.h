@@ -58,11 +58,11 @@ struct BaseArrayPair
 
   BaseArrayPair(vtkIdType num, int numComp, vtkDataArray *outArray) :
     Num(num), NumComp(numComp), OutputArray(outArray)
-    {
-    }
+  {
+  }
   virtual ~BaseArrayPair()
-    {
-    }
+  {
+  }
 
   virtual void Copy(vtkIdType inId, vtkIdType outId) = 0;
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
@@ -83,59 +83,59 @@ struct ArrayPair : public BaseArrayPair
 
   ArrayPair(T *in, T *out, vtkIdType num, int numComp, vtkDataArray *outArray, T null) :
     BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
-    {
-    }
+  {
+  }
   virtual ~ArrayPair()  //calm down some finicky compilers
-    {
-    }
+  {
+  }
 
   virtual void Copy(vtkIdType inId, vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       this->Output[outId*this->NumComp+j] = this->Input[inId*this->NumComp+j];
-      }
     }
+  }
 
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
                            const double *weights, vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       double v = 0.0;
       for (vtkIdType i=0; i < numWeights; ++i)
-        {
+      {
         v += weights[i] * static_cast<double>(this->Input[ids[i]*this->NumComp+j]);
-        }
-      this->Output[outId*this->NumComp+j] = static_cast<T>(v);
       }
+      this->Output[outId*this->NumComp+j] = static_cast<T>(v);
     }
+  }
 
   virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
-    {
+  {
     double v;
     vtkIdType numComp=this->NumComp;
     for (int j=0; j < numComp; ++j)
-      {
+    {
       v = this->Input[v0*numComp+j] +
         t * (this->Input[v1*numComp+j] - this->Input[v0*numComp+j]);
       this->Output[outId*numComp+j] = static_cast<T>(v);
-      }
     }
+  }
 
   virtual void AssignNullValue(vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       this->Output[outId*this->NumComp+j] = this->NullValue;
-      }
     }
+  }
 
   virtual void Realloc(vtkIdType sze)
-    {
+  {
       this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
       this->Output = static_cast<T*>(this->OutputArray->GetVoidPointer(0));
-    }
+  }
 
 };
 
@@ -150,59 +150,59 @@ struct RealArrayPair : public BaseArrayPair
 
   RealArrayPair(TInput *in, TOutput *out, vtkIdType num, int numComp, vtkDataArray *outArray, TOutput null) :
     BaseArrayPair(num,numComp,outArray), Input(in), Output(out), NullValue(null)
-    {
-    }
+  {
+  }
   virtual ~RealArrayPair()  //calm down some finicky compilers
-    {
-    }
+  {
+  }
 
   virtual void Copy(vtkIdType inId, vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       this->Output[outId*this->NumComp+j] = static_cast<TOutput>(this->Input[inId*this->NumComp+j]);
-      }
     }
+  }
 
   virtual void Interpolate(int numWeights, const vtkIdType *ids,
                            const double *weights, vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       double v = 0.0;
       for (vtkIdType i=0; i < numWeights; ++i)
-        {
+      {
         v += weights[i] * static_cast<double>(this->Input[ids[i]*this->NumComp+j]);
-        }
-      this->Output[outId*this->NumComp+j] = static_cast<TOutput>(v);
       }
+      this->Output[outId*this->NumComp+j] = static_cast<TOutput>(v);
     }
+  }
 
   virtual void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
-    {
+  {
     double v;
     vtkIdType numComp=this->NumComp;
     for (int j=0; j < numComp; ++j)
-      {
+    {
       v = this->Input[v0*numComp+j] +
         t * (this->Input[v1*numComp+j] - this->Input[v0*numComp+j]);
       this->Output[outId*numComp+j] = static_cast<TOutput>(v);
-      }
     }
+  }
 
   virtual void AssignNullValue(vtkIdType outId)
-    {
+  {
     for (int j=0; j < this->NumComp; ++j)
-      {
+    {
       this->Output[outId*this->NumComp+j] = this->NullValue;
-      }
     }
+  }
 
   virtual void Realloc(vtkIdType sze)
-    {
+  {
       this->OutputArray->WriteVoidPointer(0,sze*this->NumComp);
       this->Output = static_cast<TOutput*>(this->OutputArray->GetVoidPointer(0));
-    }
+  }
 
 };
 
@@ -239,69 +239,69 @@ struct ArrayList
 
   // Loop over the array pairs and copy data from one to another
   void Copy(vtkIdType inId, vtkIdType outId)
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         (*it)->Copy(inId, outId);
-        }
-    }
+      }
+  }
 
   // Loop over the arrays and have them interpolate themselves
   void Interpolate(int numWeights, const vtkIdType *ids, const double *weights, vtkIdType outId)
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         (*it)->Interpolate(numWeights, ids, weights, outId);
-        }
-    }
+      }
+  }
 
   // Loop over the arrays perform edge interpolation
   void InterpolateEdge(vtkIdType v0, vtkIdType v1, double t, vtkIdType outId)
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         (*it)->InterpolateEdge(v0, v1, t, outId);
-        }
-    }
+      }
+  }
 
   // Loop over the arrays and assign the null value
   void AssignNullValue(vtkIdType outId)
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         (*it)->AssignNullValue(outId);
-        }
-    }
+      }
+  }
 
   // Extend (realloc) the arrays
   void Realloc(vtkIdType sze)
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         (*it)->Realloc(sze);
-        }
-    }
+      }
+  }
 
   // Only you can prevent memory leaks!
   ~ArrayList()
-    {
+  {
       for (std::vector<BaseArrayPair*>::iterator it = Arrays.begin();
            it != Arrays.end(); ++it)
-        {
+      {
         delete (*it);
-        }
-    }
+      }
+  }
 
   // Return the number of arrays
   vtkIdType GetNumberOfArrays()
-    {
+  {
       return Arrays.size();
-    }
+  }
 
 };
 

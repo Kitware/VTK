@@ -48,9 +48,9 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkIdType vertexIds[NO_OF_VERTICES];
 
   for(int i=0; i < NO_OF_VERTICES; ++i)
-    {
+  {
     vertexIds[i] = inGraph->AddVertex();
-    }
+  }
 
   inGraph->AddEdge(vertexIds[0], vertexIds[1]);
   inGraph->AddEdge(vertexIds[0], vertexIds[2]);
@@ -139,25 +139,25 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   vtkSmartPointer<vtkGraph> outGraph (cvs->GetOutput());
 
   while(outVtxLstItr->HasNext())
-    {
+  {
     vtkIdType vtxId = outVtxLstItr->Next();
     for(int i=0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
-      {
+    {
       resultNoSelfLoop->InsertNextValue(
         outGraph->GetVertexData()->GetAbstractArray(i)->
         GetVariantValue(vtxId));
-      }
     }
+  }
 
   while(outEgeLstItr->HasNext())
-    {
+  {
     vtkEdgeType edge = outEgeLstItr->Next();
     for(int i=0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
-      {
+    {
       resultNoSelfLoop->InsertNextValue(outGraph->GetEdgeData()->
         GetAbstractArray(i)->GetVariantValue(edge.Id));
-      }
     }
+  }
 
 
   // Checking for self loops.
@@ -168,49 +168,49 @@ int TestCollapseVerticesByArray(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   outEgeLstItr->SetGraph(cvs->GetOutput());
 
   while(outVtxLstItr->HasNext())
-    {
+  {
     vtkIdType vtxId = outVtxLstItr->Next();
 
     for(int i=0; i < outGraph->GetVertexData()->GetNumberOfArrays(); ++i)
-      {
+    {
       resultSelfLoop->InsertNextValue(
         outGraph->GetVertexData()->GetAbstractArray(i)->
         GetVariantValue(vtxId));
-      }
     }
+  }
 
   while(outEgeLstItr->HasNext())
-    {
+  {
     vtkEdgeType edge = outEgeLstItr->Next();
 
     for(int i=0; i < outGraph->GetEdgeData()->GetNumberOfArrays(); ++i)
-      {
+    {
       resultSelfLoop->InsertNextValue(outGraph->GetEdgeData()->
         GetAbstractArray(i)->GetVariantValue(edge.Id));
-      }
     }
+  }
 
   // Compare with the valid dataset.
   for(int i=0; i < resultNoSelfLoop->GetDataSize(); ++i)
-    {
+  {
     if(resultNoSelfLoop->GetValue(i) != validResult->GetValue(i))
-      {
+    {
       retVal++;
-      }
     }
+  }
 
   for(int i=0; i < resultSelfLoop->GetDataSize(); ++i)
-    {
+  {
     if(resultSelfLoop->GetValue(i) != validResult->GetValue(i))
-      {
+    {
       retVal++;
-      }
     }
+  }
 
   if(retVal !=0)
-    {
+  {
     cerr << "Data mismatch with the valid dataset." << endl;
-    }
+  }
 
   return retVal;
 }

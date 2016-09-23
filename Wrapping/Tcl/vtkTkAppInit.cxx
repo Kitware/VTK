@@ -77,24 +77,24 @@ EXTERN void TclSetLibraryPath _ANSI_ARGS_((Tcl_Obj * pathPtr));
 class vtkMPICleanup {
 public:
   vtkMPICleanup()
-    {
+  {
       this->Controller = 0;
-    }
+  }
   void Initialize(int *argc, char ***argv)
-    {
+  {
       MPI_Init(argc, argv);
       this->Controller = vtkMPIController::New();
       this->Controller->Initialize(argc, argv, 1);
       vtkMultiProcessController::SetGlobalController(this->Controller);
-    }
+  }
   ~vtkMPICleanup()
-    {
+  {
       if ( this->Controller )
-        {
+      {
         this->Controller->Finalize();
         this->Controller->Delete();
-        }
-    }
+      }
+  }
 private:
   vtkMPIController *Controller;
 };
@@ -172,15 +172,15 @@ int Tcl_AppInit(Tcl_Interp *interp)
   vtkTclApplicationInitTclTk(interp, relative_dirs);
 
   if (Tcl_Init(interp) == TCL_ERROR)
-    {
+  {
     return TCL_ERROR;
-    }
+  }
 
 #ifdef VTK_USE_TK
   if (Tk_Init(interp) == TCL_ERROR)
-    {
+  {
     return TCL_ERROR;
-    }
+  }
 #endif
 
 #ifndef VTK_BUILD_SHARED_LIBS
@@ -267,9 +267,9 @@ static int vtkTkAppInitDebugReport(int, char* message, int*)
 void vtkTkAppInitEnableMSVCDebugHook()
 {
   if(getenv("DART_TEST_FROM_DART"))
-    {
+  {
     _CrtSetReportHook(vtkTkAppInitDebugReport);
-    }
+  }
 }
 #else
 void vtkTkAppInitEnableMSVCDebugHook()

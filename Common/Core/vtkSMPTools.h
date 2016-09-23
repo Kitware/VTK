@@ -97,10 +97,10 @@ struct vtkSMPTools_FunctorInternal<Functor, true>
   {
     unsigned char& inited = this->Initialized.Local();
     if (!inited)
-      {
+    {
       this->F.Initialize();
       inited = 1;
-      }
+    }
     this->F(first, last);
   }
   void For(vtkIdType first, vtkIdType last, vtkIdType grain)

@@ -55,12 +55,12 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   // instead of 1.0 because for some reason our SGI Infinite Reality
   // engine won't return a 1.0 from the zbuffer
   if (z < 0.999999)
-    {
+  {
     selectionZ = z;
     vtkDebugMacro(<< " z from zBuffer: " << selectionZ);
-    }
+  }
   else
-    {
+  {
     // Get camera focal point and position. Convert to display (screen)
     // coordinates. We need a depth value for z-buffer.
     camera = renderer->GetActiveCamera();
@@ -71,7 +71,7 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
     displayCoord = renderer->GetDisplayPoint();
     selectionZ = displayCoord[2];
     vtkDebugMacro(<< "computed z from focal point: " << selectionZ);
-    }
+  }
 
   // now convert the display point to world coordinates
   display[0] = selectionX;
@@ -83,9 +83,9 @@ int vtkWorldPointPicker::Pick(double selectionX, double selectionY,
   world = renderer->GetWorldPoint ();
 
   for (int i=0; i < 3; i++)
-    {
+  {
     this->PickPosition[i] = world[i] / world[3];
-    }
+  }
 
   // Invoke end pick method if defined
   this->InvokeEvent(vtkCommand::EndPickEvent,NULL);

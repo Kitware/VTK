@@ -108,11 +108,11 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   float depth;
   if ( requestedDepth > 0.0 && requestedDepth <= 1.0 )
-    {
+  {
     depth = requestedDepth;
-    }
+  }
   else
-    {
+  {
     // Pass the center of the volume through the world to view function
     // of the renderer to get the z view coordinate to use for the
     // view to world transformation of the image bounds. This way we
@@ -123,7 +123,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
                         1.0 );
     ren->WorldToView();
     depth = ren->GetViewPoint()[2];
-    }
+  }
 
     // Convert the four corners of the image into world coordinates
   float verts[12];
@@ -211,15 +211,15 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   glEnable( GL_BLEND );
 
   if ( this->PreMultipliedColors )
-    {
+  {
     // Values in the texture map have already been pre-multiplied by alpha
     glBlendFunc( GL_ONE, GL_ONE_MINUS_SRC_ALPHA );
-    }
+  }
   else
-    {
+  {
     // Values in the texture map have not been pre-multiplied by alpha
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-    }
+  }
 
   // Turn lighting off - the texture already has illumination in it
   glDisable( GL_LIGHTING );
@@ -246,21 +246,21 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   int newTextureSize[2];
 
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
-    {
+  {
     // Test the texture to see if it fits in memory
     glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
                   imageMemorySize[0], imageMemorySize[1],
                   0, GL_RGBA, GL_UNSIGNED_BYTE,
                   static_cast<unsigned char *>(image) );
-    }
+  }
   else
-    {
+  {
     // Test the texture to see if it fits in memory
     glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
                   imageMemorySize[0], imageMemorySize[1],
                   0, GL_RGBA, GL_UNSIGNED_SHORT,
                   static_cast<unsigned short *>(image) );
-    }
+  }
 
   GLint params[1];
   glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
@@ -268,27 +268,27 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
   // if it does, we will render it later. define the texture here
   if ( params[0] != 0 )
-    {
+  {
     if ( imageScalarType == VTK_UNSIGNED_CHAR )
-      {
+    {
       glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8,
                     imageMemorySize[0], imageMemorySize[1],
                     0, GL_RGBA, GL_UNSIGNED_BYTE,
                     static_cast<unsigned char *>(image) );
-      }
+    }
     else
-      {
+    {
       glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8,
                     imageMemorySize[0], imageMemorySize[1],
                     0, GL_RGBA, GL_UNSIGNED_SHORT,
                     static_cast<unsigned short *>(image) );
-      }
     }
+  }
   // if it doesn't, we are going to break it up now and render it.
   // That's because we want this in the ifdef because this only works in
   // 1.1 and later.
   else
-    {
+  {
     // Figure out our new texture size. Keep dividing the big one in half until
     // OpenGL says this texture is OK
     newTextureSize[0] = imageMemorySize[0];
@@ -296,39 +296,39 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     while ( params[0] == 0 && newTextureSize[0] >= 32 &&
             newTextureSize[1] >= 32 )
-      {
+    {
       if ( newTextureSize[0] > newTextureSize[1] )
-        {
+      {
         newTextureSize[0] /= 2;
-        }
+      }
       else
-        {
+      {
         newTextureSize[1] /= 2;
-        }
+      }
 
       if ( imageScalarType == VTK_UNSIGNED_CHAR )
-        {
+      {
         glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
                       newTextureSize[0], newTextureSize[1],
                       0, GL_RGBA, GL_UNSIGNED_BYTE,
                       static_cast<unsigned char *>(image) );
-        }
+      }
       else
-        {
+      {
         glTexImage2D( GL_PROXY_TEXTURE_2D, 0, GL_RGBA8,
                       newTextureSize[0], newTextureSize[1],
                       0, GL_RGBA, GL_UNSIGNED_SHORT,
                       static_cast<unsigned short *>(image) );
-        }
+      }
       glGetTexLevelParameteriv ( GL_PROXY_TEXTURE_2D, 0,
                                  GL_TEXTURE_WIDTH, params );
-      }
+    }
 
     // If we got down to 32 by 32 and OpenGL still doesn't like it, something
     // must be seriously wrong and we will ignore it. Otherwise, we have our
     // new texture size and let's start chopping up the image
     if ( newTextureSize[0] >= 32 && newTextureSize[1] >= 32 )
-      {
+    {
       // How many tiles in x?
       int xLimit = 1 + static_cast<int>(
         static_cast<float>(imageInUseSize[0]) /
@@ -344,15 +344,15 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
       unsigned short *newTextureShort = NULL;
 
       if ( imageScalarType == VTK_UNSIGNED_CHAR )
-        {
+      {
         newTextureChar =
           new unsigned char [newTextureSize[0] * newTextureSize[1] * 4];
-        }
+      }
       else
-        {
+      {
         newTextureShort =
           new unsigned short [newTextureSize[0] * newTextureSize[1] * 4];
-        }
+      }
 
 
       // This is the 1/2 pixel offset for texture coordinates
@@ -367,7 +367,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
       // loop through the tiles in y
       for ( jj = 0; jj < yLimit; jj++ )
-        {
+      {
         vy1 = static_cast<float>(jj) / static_cast<float>(yLimit);
         vy2 = static_cast<float>(jj+1) / static_cast<float>(yLimit);
 
@@ -376,9 +376,9 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
         pySize = static_cast<int>(2 - py1 + vy2 * static_cast<float>(
                                     imageInUseSize[1]-1));
         if ( py1 + pySize > imageInUseSize[1] )
-          {
+        {
           pySize = imageInUseSize[1] - py1;
-          }
+        }
 
         yMinOffset = 2.0 * offsetY *
           (vy1*static_cast<float>(imageInUseSize[1]-1)-static_cast<float>(py1));
@@ -388,7 +388,7 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
         // loop through the tiles in x
         for ( ii = 0; ii < xLimit; ii++ )
-          {
+        {
           vx1 = static_cast<float>(ii) / static_cast<float>(xLimit);
           vx2 = static_cast<float>(ii+1) / static_cast<float>(xLimit);
 
@@ -397,9 +397,9 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
           pxSize = static_cast<int>(2 - px1 + vx2 * static_cast<float>(
                                       imageInUseSize[0]-1));
           if ( px1 + pxSize > imageInUseSize[0] )
-            {
+          {
             pxSize = imageInUseSize[0] - px1;
-            }
+          }
 
           xMinOffset = 2.0 * offsetX *
             (vx1*static_cast<float>(imageInUseSize[0]-1) -
@@ -410,29 +410,29 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
              vx2*static_cast<float>(imageInUseSize[0]-1));
 
           if ( px1 + pxSize > imageInUseSize[0] )
-            {
+          {
             pxSize = imageInUseSize[0] - px1;
-            }
+          }
 
           // copy subtexture of image into newTexture
           int loop;
           for ( loop = 0; loop < pySize; loop++ )
-            {
+          {
             if ( imageScalarType == VTK_UNSIGNED_CHAR )
-              {
+            {
               memcpy( newTextureChar + 4*loop*newTextureSize[0],
                       static_cast<unsigned char *>(image) +
                       4*(py1+loop)*imageMemorySize[0] + 4*px1,
                       pxSize * sizeof(unsigned char) * 4 );
-              }
+            }
             else
-              {
+            {
               memcpy( newTextureShort + 4*loop*newTextureSize[0],
                       static_cast<unsigned short *>(image) +
                       4*(py1+loop)*imageMemorySize[0] + 4*px1,
                       pxSize * sizeof(unsigned short) * 4 );
-              }
             }
+          }
 
           newVerts[ 0] = verts[0] + vx1*(verts[3]-verts[0]) + vy1*(verts[ 9]-verts[0]);
           newVerts[ 1] = verts[1] + vx1*(verts[4]-verts[1]) + vy1*(verts[10]-verts[1]);
@@ -460,35 +460,35 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
           tcoords[7]  = (float)pySize/(float)newTextureSize[1] - offsetY - yMaxOffset;
 
           if ( imageScalarType == VTK_UNSIGNED_CHAR )
-            {
+          {
             glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8,
                           newTextureSize[0], newTextureSize[1],
                           0, GL_RGBA, GL_UNSIGNED_BYTE, newTextureChar );
-            }
+          }
           else
-            {
+          {
             glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA8,
                           newTextureSize[0], newTextureSize[1],
                           0, GL_RGBA, GL_UNSIGNED_SHORT, newTextureShort );
-            }
+          }
 
           // Render the polygon
           glBegin( GL_POLYGON );
 
           for ( i = 0; i < 4; i++ )
-            {
+          {
             glTexCoord2fv( tcoords+i*2 );
             glVertex3fv( newVerts+i*3 );
-            }
+          }
 
           glEnd();
-          }
         }
+      }
 
       // Delete the memory we created
       delete [] newTextureChar;
       delete [] newTextureShort;
-      }
+    }
 
     glFlush();
     glFinish();
@@ -499,23 +499,23 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
 
     vtkOpenGLCheckErrorMacro("failed after RenderTextureInternal");
     return;
-    }
+  }
 
 #else
   if ( imageScalarType == VTK_UNSIGNED_CHAR )
-    {
+  {
     glTexImage2D( GL_TEXTURE_2D, 0, 4,
                   imageMemorySize[0], imageMemorySize[1],
                   0, GL_RGBA, GL_UNSIGNED_BYTE,
                   static_cast<unsigned char *>(image) );
-    }
+  }
   else
-    {
+  {
     glTexImage2D( GL_TEXTURE_2D, 0, 4,
                   imageMemorySize[0], imageMemorySize[1],
                   0, GL_RGBA, GL_UNSIGNED_SHORT,
                   static_cast<unsigned short *>(image) );
-    }
+  }
 
 #endif
   offsetX = .5 / static_cast<float>(imageMemorySize[0]);
@@ -538,10 +538,10 @@ void vtkOpenGLRayCastImageDisplayHelper::RenderTextureInternal( vtkVolume *vol,
   glBegin( GL_POLYGON );
 
   for ( i = 0; i < 4; i++ )
-    {
+  {
     glTexCoord2fv( tcoords+i*2 );
     glVertex3fv( verts+i*3 );
-    }
+  }
   glEnd();
 
 

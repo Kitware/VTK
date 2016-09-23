@@ -44,30 +44,30 @@ ComputeWeights(double*, vtkIdList *pIds, vtkDoubleArray *prob,
   double weight = 1.0 / static_cast<double>(numPts);
 
   if ( ! prob ) //standard linear interpolation
-    {
+  {
     for (vtkIdType i=0; i < numPts; ++i)
-      {
+    {
       w[i] = weight;
-      }
     }
+  }
 
   else //weight by probability
-    {
+  {
     double sum=0.0;
     for (vtkIdType i=0; i < numPts; ++i)
-      {
+    {
       w[i] = weight * p[i];
       sum += w[i];
-      }
+    }
     // Now normalize
     if ( this->NormalizeWeights && sum != 0.0 )
-      {
+    {
       for (vtkIdType i=0; i < numPts; ++i)
-        {
+      {
         w[i] /= sum;
-        }
       }
     }
+  }
 
   return numPts;
 }

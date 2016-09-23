@@ -49,10 +49,10 @@ vtkPrimitivePainter::vtkPrimitivePainter()
 vtkPrimitivePainter::~vtkPrimitivePainter()
 {
   if( this->OutputData )
-    {
+  {
     this->OutputData->Delete();
     this->OutputData = 0;
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -73,7 +73,7 @@ void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
 {
   this->GenericVertexAttributes = false;
   if (info->Has(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()))
-    {
+  {
     vtkGenericVertexAttributeMapping *mappings =
       vtkGenericVertexAttributeMapping::SafeDownCast(
       info->Get(DATA_ARRAY_TO_VERTEX_ATTRIBUTE()));
@@ -81,27 +81,27 @@ void vtkPrimitivePainter::ProcessInformation(vtkInformation *info)
       (mappings->GetNumberOfMappings() > 0);
     this->MultiTextureAttributes = false;
     if (mappings)
-      {
+    {
       for (unsigned int i = 0; i < mappings->GetNumberOfMappings(); ++i)
-        {
+      {
         if (mappings->GetTextureUnit(i) >= 0)
-          {
+        {
           this->MultiTextureAttributes = true;
           break;
-          }
         }
       }
     }
+  }
 
   if (info->Has(DISABLE_SCALAR_COLOR()) &&
     info->Get(DISABLE_SCALAR_COLOR()) == 1)
-    {
+  {
     this->DisableScalarColor = 1;
-    }
+  }
   else
-    {
+  {
     this->DisableScalarColor = 0;
-    }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -118,10 +118,10 @@ void vtkPrimitivePainter::PrepareForRendering(vtkRenderer* renderer,
   // If the input has changed update the output.
   if (this->OutputUpdateTime < this->MTime ||
     this->OutputUpdateTime < this->GetInput()->GetMTime())
-    {
+  {
     this->OutputData->ShallowCopy(this->GetInputAsPolyData());
     this->OutputUpdateTime.Modified();
-    }
+  }
 
   this->Superclass::PrepareForRendering(renderer, actor);
 }
@@ -134,18 +134,18 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
 {
   unsigned long supported_typeflags = this->SupportedPrimitive & typeflags;
   if (!supported_typeflags)
-    {
+  {
     // no supported primitive requested to be rendered.
       this->Superclass::RenderInternal(renderer, act, typeflags,
                                        forceCompileOnly);
     return;
-    }
+  }
 
   if (!renderer->GetRenderWindow()->GetPainterDeviceAdapter())
-    {
+  {
     vtkErrorMacro("Painter Device Adapter is missing!");
     return;
-    }
+  }
 
   this->Timer->StartTimer();
 
@@ -170,157 +170,157 @@ void vtkPrimitivePainter::RenderInternal(vtkRenderer* renderer,
 
   // if the primitives are invisible then get out of here
   if (tran <= 0.0)
-    {
+  {
     return;
-    }
+  }
 
   // get the shading interpolation
   interpolation = prop->GetInterpolation();
 
   if (!this->DisableScalarColor)
-    {
+  {
     // are they cell or point scalars
     c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetPointData()->GetScalars());
     if (!c)
-      {
+    {
       c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetCellData()->GetScalars());
       cellScalars = 1;
-      }
+    }
 
     if (!c)
-      {
+    {
       c = vtkArrayDownCast<vtkUnsignedCharArray>(input->GetFieldData()->
         GetArray("Color"));
       fieldScalars = 1; // note when fieldScalars == 1, also cellScalars == 1.
       // this ensures that primitive painters that do not distinguish between
       // fieldScalars and cellScalars (eg. Verts/Lines/Polys painters) can ignore
       // fieldScalars flag.
-      }
     }
+  }
 
   n = input->GetPointData()->GetNormals();
   if (interpolation == VTK_FLAT)
-    {
+  {
     // shunt point normals.
     n = 0;
     if (this->OutputData->GetPointData()->GetNormals())
-      {
+    {
       this->OutputData->GetPointData()->SetNormals(0);
-      }
     }
+  }
 
   cellNormals = 0;
   if (n == 0 && input->GetCellData()->GetNormals())
-    {
+  {
     cellNormals = 1;
     n = input->GetCellData()->GetNormals();
-    }
+  }
 
   unsigned long idx = 0;
   if (n && !cellNormals)
-    {
+  {
     idx |= VTK_PDM_NORMALS;
-    }
+  }
   if (c)
-    {
+  {
     idx |= VTK_PDM_COLORS;
     if (
       /* RGBA */
       (c->GetNumberOfComponents() == 4 && c->GetValueRange(3)[0] == 255) ||
       /* LuminanceAlpha */
       (c->GetNumberOfComponents() == 2 && c->GetValueRange(1)[0] == 255))
-      {
+    {
       // If the opacity is 255, don't bother send the opacity values to OpenGL.
       // Treat the colors are opaque colors (which they are).
       idx |= VTK_PDM_OPAQUE_COLORS;
-      }
+    }
     if (cellScalars)
-      {
-      idx |= VTK_PDM_CELL_COLORS;
-      }
-    if (fieldScalars)
-      {
-      idx |= VTK_PDM_FIELD_COLORS;
-      }
-    }
-  if (cellNormals)
     {
-    idx |= VTK_PDM_CELL_NORMALS;
+      idx |= VTK_PDM_CELL_COLORS;
     }
+    if (fieldScalars)
+    {
+      idx |= VTK_PDM_FIELD_COLORS;
+    }
+  }
+  if (cellNormals)
+  {
+    idx |= VTK_PDM_CELL_NORMALS;
+  }
 
   // Texture and color by texture
   t = input->GetPointData()->GetTCoords();
   if ( t )
-    {
+  {
     tDim = t->GetNumberOfComponents();
     if (tDim > 3)
-      {
+    {
       vtkDebugMacro(<< "Currently only 1d, 2d and 3d texture coordinates are supported.\n");
       t = NULL;
-      }
     }
+  }
 
   // Set the flags
   if (t)
-    {
+  {
     idx |= VTK_PDM_TCOORDS;
-    }
+  }
 
   // Edge flag
   ef = input->GetPointData()->GetAttribute(vtkDataSetAttributes::EDGEFLAG);
   if (ef && ef->GetNumberOfComponents() != 1)
-    {
+  {
     vtkDebugMacro(<< "Currently only 1d edge flags are supported.");
     ef = NULL;
-    }
+  }
   if (ef && !ef->IsA("vtkUnsignedCharArray"))
-    {
+  {
     vtkDebugMacro(<< "Currently only unsigned char edge flags are suported.");
     ef = NULL;
-    }
+  }
 
   // Set the flags
   if (ef)
-    {
+  {
     idx |= VTK_PDM_EDGEFLAGS;
-    }
+  }
 
   if (!act)
-    {
+  {
     vtkErrorMacro("No actor");
-    }
+  }
 
   vtkShaderDeviceAdapter2 *shaderDevice2 = NULL;
 
   if (prop->GetShading())
-    {
+  {
     shaderDevice2 = prop->GetShaderDeviceAdapter2();
-    }
+  }
 
   if(!shaderDevice2)
-    {
+  {
     // load the shader device adapator from the information object
     shaderDevice2 =
       vtkShaderDeviceAdapter2::SafeDownCast(
         this->GetInformation()->Get(SHADER_DEVICE_ADAPTOR()));
-    }
+  }
 
   if (shaderDevice2 && this->GenericVertexAttributes)
-    {
+  {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
-    }
+  }
 
   if (this->MultiTextureAttributes)
-    {
+  {
     idx |= VTK_PDM_GENERIC_VERTEX_ATTRIBUTES;
-    }
+  }
 
   if (this->RenderPrimitive(idx, n, c, t, renderer))
-    {
+  {
     // subclass rendered the supported primitive successfully.
     // The delegate need not render it.
     typeflags &= (~this->SupportedPrimitive);
-    }
+  }
 
   this->Timer->StopTimer();
   this->TimeToDraw = this->Timer->GetElapsedTime();

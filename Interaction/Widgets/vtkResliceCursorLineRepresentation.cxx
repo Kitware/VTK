@@ -86,16 +86,16 @@ ComputeInteractionState(int X, int Y, int modify)
   this->InteractionState = vtkResliceCursorLineRepresentation::Outside;
 
   if (!this->Renderer)
-    {
+  {
     return this->InteractionState;
-    }
+  }
 
   vtkResliceCursor * rc = this->GetResliceCursor();
   if (!rc)
-    {
+  {
     vtkErrorMacro( << "Reslice cursor not set!" );
     return this->InteractionState;
-    }
+  }
 
   this->Modifier = modify;
 
@@ -105,9 +105,9 @@ ComputeInteractionState(int X, int Y, int modify)
   double bounds[6];
   this->ResliceCursorActor->GetCenterlineActor(axis1)->GetBounds(bounds);
   if (bounds[1] < bounds[0])
-    {
+  {
     return this->InteractionState;
-    }
+  }
 
   // Pick
   this->Picker->SetResliceCursorAlgorithm(
@@ -118,24 +118,24 @@ ComputeInteractionState(int X, int Y, int modify)
   const bool pickedAxis2 = this->Picker->GetPickedAxis2() ? true : false;
   const bool pickedCenter = this->Picker->GetPickedCenter() ? true : false;
   if (picked)
-    {
+  {
     this->Picker->GetPickPosition(this->StartPickPosition);
-    }
+  }
 
   // Now assign the interaction state
 
   if (pickedCenter)
-    {
+  {
     this->InteractionState = vtkResliceCursorLineRepresentation::OnCenter;
-    }
+  }
   else if (pickedAxis1)
-    {
+  {
     this->InteractionState = vtkResliceCursorLineRepresentation::OnAxis1;
-    }
+  }
   else if (pickedAxis2)
-    {
+  {
     this->InteractionState = vtkResliceCursorLineRepresentation::OnAxis2;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -149,17 +149,17 @@ void vtkResliceCursorLineRepresentation
   this->StartEventPosition[1] = startEventPos[1];
 
   if (this->ManipulationMode == WindowLevelling)
-    {
+  {
     this->InitialWindow = this->CurrentWindow;
     this->InitialLevel  = this->CurrentLevel;
-    }
+  }
   else
-    {
+  {
     if ( vtkResliceCursor *rc = this->GetResliceCursor() )
-      {
+    {
       rc->GetCenter(this->StartCenterPosition);
-      }
     }
+  }
 
   this->LastEventPosition[0] = startEventPos[0];
   this->LastEventPosition[1] = startEventPos[1];
@@ -171,27 +171,27 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
   vtkResliceCursor *rc = this->GetResliceCursor();
 
   if (this->ManipulationMode == WindowLevelling)
-    {
+  {
     this->WindowLevel(e[0], e[1]);
     this->LastEventPosition[0] = e[0];
     this->LastEventPosition[1] = e[1];
     return;
-    }
+  }
 
   // Depending on the state, different motions are allowed.
 
   if ( this->InteractionState == Outside || ! this->Renderer || !rc )
-    {
+  {
     this->LastEventPosition[0] = e[0];
     this->LastEventPosition[1] = e[1];
     return;
-    }
+  }
 
 
   if (rc->GetThickMode() &&
         this->ManipulationMode ==
           vtkResliceCursorRepresentation::ResizeThickness)
-    {
+  {
 
     double sf = 1.0;
 
@@ -210,14 +210,14 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
     this->LastEventPosition[1] = e[1];
 
     return;
-    }
+  }
 
   // depending on the state, perform different operations
   //
   // 1. Translation
 
   if ( this->InteractionState == OnCenter && !this->Modifier )
-    {
+  {
 
     // Intersect with the viewing vector. We will use this point and the
     // start event point to compute an offset vector to translate the
@@ -229,42 +229,42 @@ void vtkResliceCursorLineRepresentation::WidgetInteraction(double e[2])
     // Offset the center by this vector.
 
     for (int i = 0; i < 3; i++)
-      {
+    {
       newCenter[i] = this->StartCenterPosition[i] +
         intersectionPos[i] - this->StartPickPosition[i];
-      }
+    }
 
     rc->SetCenter(newCenter);
-    }
+  }
 
 
   // 2. Rotation of axis 1
 
   if ( this->InteractionState == OnAxis1 && !this->Modifier )
-    {
+  {
     this->RotateAxis( e,
         this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis1() );
-    }
+  }
 
   // 3. Rotation of axis 2
 
   if ( this->InteractionState == OnAxis2 && !this->Modifier )
-    {
+  {
     this->RotateAxis( e,
         this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis2() );
-    }
+  }
 
   // 4. Rotation of both axes
 
   if ( (this->InteractionState == OnAxis2 ||
         this->InteractionState == OnAxis1) && this->Modifier )
-    {
+  {
     // Rotate both by the same angle
     const double angle = this->RotateAxis( e,
         this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis1() );
     this->RotateAxis(
         this->ResliceCursorActor->GetCursorAlgorithm()->GetPlaneAxis2(), angle );
-    }
+  }
 
   this->LastEventPosition[0] = e[0];
   this->LastEventPosition[1] = e[1];
@@ -290,16 +290,16 @@ double vtkResliceCursorLineRepresentation
   if (lastIntersectionPos[0] == currIntersectionPos[0] &&
       lastIntersectionPos[1] == currIntersectionPos[1] &&
       lastIntersectionPos[2] == currIntersectionPos[2])
-    {
+  {
     return 0;
-    }
+  }
 
   double lastVector[3], currVector[3];
   for (int i = 0; i < 3; i++)
-    {
+  {
     lastVector[i] = lastIntersectionPos[i] - center[i];
     currVector[i] = currIntersectionPos[i] - center[i];
-    }
+  }
 
   vtkMath::Normalize(lastVector);
   vtkMath::Normalize(currVector);
@@ -320,9 +320,9 @@ double vtkResliceCursorLineRepresentation
   angle *= sign;
 
   if (angle == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   this->RotateAxis( axis, angle );
 
@@ -441,10 +441,10 @@ void vtkResliceCursorLineRepresentation::BuildRepresentation()
        this->GetResliceCursor()->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
 
     this->BuildTime.Modified();
-    }
+  }
 
   this->Superclass::BuildRepresentation();
 }
@@ -465,17 +465,17 @@ int vtkResliceCursorLineRepresentation::RenderOverlay(vtkViewport *viewport)
   int count = 0;
 
   if (this->TexturePlaneActor->GetVisibility() && !this->UseImageActor)
-    {
+  {
     count += this->TexturePlaneActor->RenderOverlay(viewport);
-    }
+  }
   if (this->ImageActor->GetVisibility() && this->UseImageActor)
-    {
+  {
     count += this->ImageActor->RenderOverlay(viewport);
-    }
+  }
   if (this->DisplayText && this->TextActor->GetVisibility())
-    {
+  {
     count += this->TextActor->RenderOverlay(viewport);
-    }
+  }
 
   return count;
 }
@@ -523,18 +523,18 @@ int vtkResliceCursorLineRepresentation
 
   int count = 0;
   if (this->TexturePlaneActor->GetVisibility() && !this->UseImageActor)
-    {
+  {
     count += this->TexturePlaneActor->RenderOpaqueGeometry(viewport);
-    }
+  }
   if (this->ImageActor->GetVisibility() && this->UseImageActor)
-    {
+  {
     count += this->ImageActor->RenderOpaqueGeometry(viewport);
-    }
+  }
   count += this->ResliceCursorActor->RenderOpaqueGeometry(viewport);
   if (this->DisplayText && this->TextActor->GetVisibility())
-    {
+  {
     count += this->TextActor->RenderOpaqueGeometry(viewport);
-    }
+  }
 
   return count;
 }
@@ -546,9 +546,9 @@ double *vtkResliceCursorLineRepresentation::GetBounds()
   vtkMath::UninitializeBounds(this->InitialBounds);
 
   if (vtkResliceCursor *r = this->GetResliceCursor())
-    {
+  {
     r->GetImage()->GetBounds(this->InitialBounds);
-    }
+  }
 
   //vtkBoundingBox *bb = new vtkBoundingBox();
   //bb->AddBounds(this->ResliceCursorActor->GetBounds());
@@ -565,16 +565,16 @@ int vtkResliceCursorLineRepresentation::RenderTranslucentPolygonalGeometry(
 {
   int count = 0;
   if (this->TexturePlaneActor->GetVisibility() && !this->UseImageActor)
-    {
+  {
     count +=
       this->TexturePlaneActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
 
   if (this->ImageActor->GetVisibility() && this->UseImageActor)
-    {
+  {
     count +=
       this->ImageActor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
 
   count += this->ResliceCursorActor->
     RenderTranslucentPolygonalGeometry(viewport);
@@ -605,33 +605,33 @@ void vtkResliceCursorLineRepresentation::PrintSelf(ostream& os, vtkIndent indent
 
   os << indent << "ResliceCursorActor: " << this->ResliceCursorActor << "\n";
   if (this->ResliceCursorActor)
-    {
+  {
     this->ResliceCursorActor->PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "Picker: " << this->Picker << "\n";
   if (this->Picker)
-    {
+  {
     this->Picker->PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "MatrixReslicedView: " << this->MatrixReslicedView << "\n";
   if (this->MatrixReslicedView)
-    {
+  {
     this->MatrixReslicedView->PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "MatrixView: " << this->MatrixView << "\n";
   if (this->MatrixView)
-    {
+  {
     this->MatrixView->PrintSelf(os, indent);
-    }
+  }
 
   os << indent << "MatrixReslice: " << this->MatrixReslice << "\n";
   if (this->MatrixReslice)
-    {
+  {
     this->MatrixReslice->PrintSelf(os, indent);
-    }
+  }
 
   // this->StartPickPosition;
   // this->StartCenterPosition;

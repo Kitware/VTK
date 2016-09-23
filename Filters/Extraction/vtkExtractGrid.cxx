@@ -40,9 +40,9 @@ vtkExtractGrid::vtkExtractGrid()
 vtkExtractGrid::~vtkExtractGrid()
 {
   if( this->Internal != NULL )
-    {
+  {
     this->Internal->Delete();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -63,10 +63,10 @@ int vtkExtractGrid::RequestInformation(
       this->VOI,wholeExtent,this->SampleRate,(this->IncludeBoundary==1));
 
   if (!this->Internal->IsValid())
-    {
+  {
     vtkDebugMacro("Error while initializing filter.");
     return 0;
-    }
+  }
 
   this->Internal->GetOutputWholeExtent(outWholeExt);
 
@@ -81,9 +81,9 @@ int vtkExtractGrid::RequestUpdateExtent(
   vtkInformationVector *outputVector)
 {
   if (!this->Internal->IsValid())
-    {
+  {
     return 0;
-    }
+  }
 
   int i;
 
@@ -93,18 +93,18 @@ int vtkExtractGrid::RequestUpdateExtent(
   bool emptyExtent = false;
   int uExt[6];
   for (i=0; i<3; i++)
-    {
+  {
     if (this->Internal->GetSize(i) < 1)
-      {
+    {
       uExt[0] = uExt[2] = uExt[4] = 0;
       uExt[1] = uExt[3] = uExt[5] = -1;
       emptyExtent = true;
       break;
-      }
     }
+  }
 
   if (!emptyExtent)
-    {
+  {
     // Find input update extent based on requested output
     // extent
     int oUExt[6];
@@ -113,23 +113,23 @@ int vtkExtractGrid::RequestUpdateExtent(
     int oWExt[6]; // For parallel parititon this will be different.
     this->Internal->GetOutputWholeExtent(oWExt);
     for (i=0; i<3; i++)
-      {
+    {
       int idx = oUExt[2*i] - oWExt[2*i]; // Extent value to index
       if (idx < 0 || idx >= (int)this->Internal->GetSize(i))
-        {
+      {
         vtkWarningMacro("Requested extent outside whole extent.")
         idx = 0;
-        }
+      }
       uExt[2*i] = this->Internal->GetMappedExtentValueFromIndex(i, idx);
       int jdx = oUExt[2*i+1] - oWExt[2*i]; // Extent value to index
       if (jdx < idx || jdx >= (int)this->Internal->GetSize(i))
-        {
+      {
         vtkWarningMacro("Requested extent outside whole extent.")
         jdx = 0;
-        }
-      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
       }
+      uExt[2*i + 1] = this->Internal->GetMappedExtentValueFromIndex(i, jdx);
     }
+  }
   inInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(), uExt, 6);
   // We can handle anything.
   inInfo->Set(vtkStreamingDemandDrivenPipeline::EXACT_EXTENT(), 0);
@@ -150,9 +150,9 @@ int vtkExtractGrid::RequestData(
                              (this->IncludeBoundary != 0));
 
   if (!this->Internal->IsValid())
-    {
+  {
     return 0;
-    }
+  }
 
   // Set the output extent -- this is how RequestDataImpl knows what to copy.
   vtkInformation *outInfo = outputVector->GetInformationObject(0);
@@ -170,10 +170,10 @@ bool vtkExtractGrid::RequestDataImpl(vtkInformationVector **inputVector,
   if( (this->SampleRate[0] < 1) ||
       (this->SampleRate[1] < 1) ||
       (this->SampleRate[2] < 1) )
-    {
+  {
     vtkErrorMacro("SampleRate must be >= 1 in all 3 dimensions!");
     return false;
-    }
+  }
 
   // get the info objects
   vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
@@ -186,9 +186,9 @@ bool vtkExtractGrid::RequestDataImpl(vtkInformationVector **inputVector,
     outInfo->Get(vtkDataObject::DATA_OBJECT()));
 
   if (input->GetNumberOfPoints() == 0)
-    {
+  {
     return true;
-    }
+  }
 
   vtkPointData *pd=input->GetPointData();
   vtkCellData *cd=input->GetCellData();

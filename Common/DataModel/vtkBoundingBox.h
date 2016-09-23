@@ -404,17 +404,17 @@ inline int vtkBoundingBox::ContainsPoint(double px, double py,
                                          double pz) const
 {
   if ((px < this->MinPnt[0]) || (px > this->MaxPnt[0]))
-    {
+  {
     return 0;
-    }
+  }
   if ((py < this->MinPnt[1]) || (py > this->MaxPnt[1]))
-    {
+  {
     return 0;
-    }
+  }
   if ((pz < this->MinPnt[2]) || (pz > this->MaxPnt[2]))
-    {
+  {
     return 0;
-    }
+  }
   return 1;
 }
 

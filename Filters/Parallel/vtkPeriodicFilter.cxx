@@ -40,14 +40,14 @@ void vtkPeriodicFilter::PrintSelf(ostream& os, vtkIndent indent)
 {
   this->Superclass::PrintSelf(os, indent);
   if (this->IterationMode == VTK_ITERATION_MODE_DIRECT_NB)
-    {
+  {
     os << indent << "Iteration Mode: Direct Number" << endl;
     os << indent << "Number of Periods: " << this->NumberOfPeriods << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Iteration Mode: Maximum" << endl;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -94,19 +94,19 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
   vtkMultiBlockDataSet *output = vtkMultiBlockDataSet::GetData(outputVector, 0);
 
   if (dsInput)
-    {
+  {
     mb = vtkMultiBlockDataSet::New();
     mb->SetNumberOfBlocks(1);
     mb->SetBlock(0, dsInput);
     this->AddIndex(1);
     input = mb;
-    }
+  }
   else if (this->Indices.empty())
-    {
+  {
     // Trivial case
     output->ShallowCopy(input);
     return 1;
-    }
+  }
 
   this->PeriodNumbers.clear();
 
@@ -120,58 +120,58 @@ int vtkPeriodicFilter::RequestData(vtkInformation *vtkNotUsed(request),
   iter->SkipEmptyNodesOff();
   iter->InitTraversal();
   while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
-    {
+  {
     const unsigned int index = iter->GetCurrentFlatIndex();
     if (this->Indices.find(index) != this->Indices.end())
-      {
+    {
       this->CreatePeriodicDataSet(iter, output, input);
-      }
+    }
     else
-      {
+    {
       vtkDataObject* inputLeaf = input->GetDataSet(iter);
       if (inputLeaf)
-        {
+      {
         vtkDataObject* newLeaf = inputLeaf->NewInstance();
         newLeaf->ShallowCopy(inputLeaf);
         output->SetDataSet(iter, newLeaf);
         newLeaf->Delete();
-        }
       }
-    iter->GoToNextItem();
     }
+    iter->GoToNextItem();
+  }
 
   // Reduce period number in case of parrallelism, and update empty multipieces
   if (this->ReducePeriodNumbers)
-    {
+  {
     int* reducedPeriodNumbers = new int[this->PeriodNumbers.size()];
     vtkMultiProcessController *controller = vtkMultiProcessController::GetGlobalController();
     if (controller)
-      {
+    {
       controller->AllReduce(&this->PeriodNumbers.front(), reducedPeriodNumbers,
         this->PeriodNumbers.size(), vtkCommunicator::MAX_OP);
       int i = 0;
       iter->InitTraversal();
       while (!iter->IsDoneWithTraversal() && this->Indices.size() > 0)
-        {
+      {
         if (reducedPeriodNumbers[i] > this->PeriodNumbers[i])
-          {
+        {
           const unsigned int index = iter->GetCurrentFlatIndex();
           if (this->Indices.find(index) != this->Indices.end())
-            {
+          {
             this->SetPeriodNumber(iter, output, reducedPeriodNumbers[i]);
-            }
           }
+        }
         iter->GoToNextItem();
         i++;
-        }
       }
-    delete [] reducedPeriodNumbers;
     }
+    delete [] reducedPeriodNumbers;
+  }
   iter->Delete();
 
   if (mb != NULL)
-    {
+  {
     mb->Delete();
-    }
+  }
   return 1;
 }

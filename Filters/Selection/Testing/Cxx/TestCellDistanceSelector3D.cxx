@@ -51,20 +51,20 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
   // Output must be a multiblock dataset
   vtkMultiBlockDataSet* outputMB = vtkMultiBlockDataSet::SafeDownCast( extract->GetOutput() );
   if ( ! outputMB )
-    {
+  {
     vtkGenericWarningMacro("Cannot downcast extracted selection to multiblock dataset.");
 
     return 1;
-    }
+  }
 
   // First block must be an unstructured grid
   vtkUnstructuredGrid* ugrid = vtkUnstructuredGrid::SafeDownCast( outputMB->GetBlock( 0 ) );
   if ( ! ugrid )
-    {
+  {
     vtkGenericWarningMacro("Cannot downcast extracted selection to unstructured grid.");
 
     return 1;
-    }
+  }
 
   // Initialize test status
   int testStatus = 0;
@@ -79,28 +79,28 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
        << endl;
 
   if ( nCells != cardCellDistanceSelection3D[testIdx] )
-    {
+  {
     vtkGenericWarningMacro( "Incorrect cardinality: "
                            << nCells
                            << " != "
                            << cardCellDistanceSelection3D[testIdx] );
     testStatus = 1;
-    }
+  }
 
   // Verify selection cells
   cerr << "Original cell Ids: ";
   ugrid->GetCellData()->SetActiveScalars( "vtkOriginalCellIds" );
   vtkDataArray* oCellIds = ugrid->GetCellData()->GetScalars();
   for ( vtkIdType i = 0; i < oCellIds->GetNumberOfTuples(); ++ i )
-    {
+  {
     cerr << oCellIds->GetTuple1( i )
          << " ";
-    }
+  }
   cerr << endl;
 
   // If requested, write mesh
   if ( writeGrid )
-    {
+  {
     std::ostringstream fileNameSS;
     fileNameSS << "./CellDistanceExtraction3D-"
                << testIdx
@@ -112,7 +112,7 @@ static int CheckExtractedUGrid( vtkExtractSelection* extract,
     cerr << "Wrote file "
          << fileNameSS.str()
          << endl;
-    }
+  }
 
   return testStatus;
 }

@@ -24,24 +24,24 @@ class vtkInformationKeyToInformationFriendship
 public:
   static void SetAsObjectBase(vtkInformation* info, vtkInformationKey* key,
                               vtkObjectBase* value)
-    {
+  {
     info->SetAsObjectBase(key, value);
-    }
+  }
   static const vtkObjectBase* GetAsObjectBase(const vtkInformation* info,
                                         const vtkInformationKey* key)
-    {
+  {
     return info->GetAsObjectBase(key);
-    }
+  }
   static vtkObjectBase* GetAsObjectBase(vtkInformation* info,
                                         vtkInformationKey* key)
-    {
+  {
     return info->GetAsObjectBase(key);
-    }
+  }
   static void ReportAsObjectBase(vtkInformation* info, vtkInformationKey* key,
                                  vtkGarbageCollector* collector)
-    {
+  {
     info->ReportAsObjectBase(key, collector);
-    }
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -142,9 +142,9 @@ void vtkInformationKey::Print(ostream& os, vtkInformation* info)
 {
   // Just print the value type and pointer by default.
   if(vtkObjectBase* value = this->GetAsObjectBase(info))
-    {
+  {
     os << value->GetClassName() << "(" << value << ")";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -120,13 +120,13 @@ inline vtkActor2D *vtkActor2DCollection::GetNextActor2D()
 inline vtkActor2D *vtkActor2DCollection::GetLastActor2D()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkActor2D *>(this->Bottom->Item);
-    }
+  }
 }
 
 inline vtkActor2D *vtkActor2DCollection::GetNextItem()

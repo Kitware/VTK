@@ -186,9 +186,9 @@ public:
    * Events invoked by this widget
    */
   enum WidgetEventIds
-    {
+  {
     CroppingPlanesPositionChangedEvent = 10050
-    };
+  };
 
 protected:
 

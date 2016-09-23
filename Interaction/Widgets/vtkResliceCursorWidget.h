@@ -98,12 +98,12 @@ public:
    * Events
    */
   enum
-    {
+  {
     WindowLevelEvent = 1055,
     ResliceAxesChangedEvent,
     ResliceThicknessChangedEvent,
     ResetCursorEvent
-    };
+  };
 
   /**
    * Reset the cursor back to its initial state

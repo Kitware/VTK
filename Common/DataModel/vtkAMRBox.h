@@ -370,11 +370,11 @@ void FillRegion(
   destDims.Shift(ofs);
   // Quick sanity check.
   if (!arrayRegion.Contains(destRegion))
-    {
+  {
     vtkGenericWarningMacro(
          << "ERROR: Array must enclose the destination region. "
          << "Aborting the fill.");
-    }
+  }
   // Get the bounds of the indices we fill.
   const int* destLo = destDims.GetLoCorner();
   int destHi[3];
@@ -384,18 +384,18 @@ void FillRegion(
   arrayDims.GetNumberOfCells(arrayHi);
   // Fill.
   for (int k=destLo[2]; k<=destHi[2]; ++k)
-    {
+  {
     vtkIdType kOfs=k*arrayHi[0]*arrayHi[1];
     for (int j=destLo[1]; j<=destHi[1]; ++j)
-      {
+    {
       vtkIdType idx=kOfs+j*arrayHi[0]+destLo[0];
       for (int i=destLo[0]; i<=destHi[0]; ++i)
-        {
+      {
         pArray[idx]=fillValue;
         ++idx;
-        }
       }
     }
+  }
 //@}
 
 }

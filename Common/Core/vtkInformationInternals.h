@@ -44,9 +44,9 @@ public:
   struct HashFun
   {
     size_t operator()(KeyType key) const
-      {
+    {
       return static_cast<size_t>(key - KeyType(0));
-      }
+    }
   };
   typedef vtksys::hash_map<KeyType, DataType, HashFun> MapType;
 #else
@@ -59,15 +59,15 @@ public:
 #endif
 
   ~vtkInformationInternals()
-    {
+  {
     for(MapType::iterator i = this->Map.begin(); i != this->Map.end(); ++i)
-      {
+    {
       if(vtkObjectBase* value = i->second)
-        {
+      {
         value->UnRegister(0);
-        }
       }
     }
+  }
 };
 
 #undef VTK_INFORMATION_USE_HASH_MAP

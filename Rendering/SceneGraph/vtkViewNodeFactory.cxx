@@ -26,13 +26,13 @@ public:
   std::map<std::string, vtkViewNode *(*)()> Overrides;
 
   vtkInternals()
-    {
-    }
+  {
+  }
 
   ~vtkInternals()
-    {
+  {
       this->Overrides.clear();
-    }
+  }
 };
 
 //============================================================================
@@ -60,15 +60,15 @@ void vtkViewNodeFactory::PrintSelf(ostream& os, vtkIndent indent)
 vtkViewNode *vtkViewNodeFactory::CreateNode(vtkObject *who)
 {
   if (!who)
-    {
+  {
     return NULL;
-    }
+  }
   const char *forwhom = who->GetClassName();
   vtkViewNode *vn = this->CreateNode(forwhom);
   if (vn)
-    {
+  {
     vn->SetRenderable(who);
-    }
+  }
   return vn;
 }
 
@@ -77,9 +77,9 @@ vtkViewNode *vtkViewNodeFactory::CreateNode(const char *forwhom)
 {
   if (this->Internals->Overrides.find(forwhom) ==
       this->Internals->Overrides.end())
-    {
+  {
     return NULL;
-    }
+  }
   vtkViewNode *(*func)() = this->Internals->Overrides.find(forwhom)->second;
   vtkViewNode *vn = func();
   vn->SetMyFactory(this);

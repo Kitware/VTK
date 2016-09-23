@@ -84,17 +84,17 @@ static int TestSpecificLandmarkTransform(
   // make the squash plane oblique
   squash->RotateWXYZ(50, 0.1, 0.3, -0.2);
   if (dimensionality == 0)
-    {
+  {
     squash->Scale(0.0, 0.0, 0.0);
-    }
+  }
   else if (dimensionality == 1)
-    {
+  {
     squash->Scale(1.0, 0.0, 0.0);
-    }
+  }
   else if (dimensionality == 2)
-    {
+  {
     squash->Scale(1.0, 1.0, 0.0);
-    }
+  }
   squash->RotateWXYZ(-50, 0.1, 0.3, -0.2);
 
   // generate the transform we want to recover
@@ -110,7 +110,7 @@ static int TestSpecificLandmarkTransform(
   vtkNew<vtkPoints> points2;
   double psigma = sigma/sqrt(3.0);
   for (int i = 0; i < npoints; i++)
-    {
+  {
     double p[3] = { lcoords[i][0], lcoords[i][1], lcoords[i][2] };
     // optionally reduce the dimensionality
     squash->TransformPoint(p, p);
@@ -121,7 +121,7 @@ static int TestSpecificLandmarkTransform(
     p[1] += psigma*lnoise[i][1];
     p[2] += psigma*lnoise[i][2];
     points2->InsertNextPoint(p);
-    }
+  }
 
   // compute the landmark transform
   vtkNew<vtkLandmarkTransform> ltrans;
@@ -133,60 +133,60 @@ static int TestSpecificLandmarkTransform(
   // check the determinant
   double det = ltrans->GetMatrix()->Determinant();
   if (det*det < 1e-12)
-    {
+  {
     rval = 1;
     errstream << "Singular matrix, determinant = " << det << ". ";
-    }
+  }
   else if (mode == VTK_LANDMARK_AFFINE)
-    {
+  {
     if (det*scale1*scale2*scale3 < 0.0)
-      {
-      rval = 1;
-      errstream << "Determinant has wrong sign: " << det << ". ";
-      }
-    }
-  else if (mode == VTK_LANDMARK_SIMILARITY)
     {
-    if (det < 0.0)
-      {
       rval = 1;
       errstream << "Determinant has wrong sign: " << det << ". ";
-      }
+    }
+  }
+  else if (mode == VTK_LANDMARK_SIMILARITY)
+  {
+    if (det < 0.0)
+    {
+      rval = 1;
+      errstream << "Determinant has wrong sign: " << det << ". ";
+    }
     else
-      {
+    {
       double scale = scale1;
       if (dimensionality == 0 || npoints <= 1)
-        {
+      {
         scale = 1.0;
-        }
+      }
       for (int j = 0; j < 3; j++)
-        {
+      {
         double v[3] = { 0.0, 0.0, 0.0 };
         v[j] = 1.0;
         ltrans->TransformVector(v, v);
         double s = vtkMath::Norm(v);
         if ((s - scale)*(s - scale) > 1.1*sigma)
-          {
+        {
           rval = 1;
           errstream << "Scale should be " << scale << ": " << s << ". ";
           break;
-          }
         }
       }
     }
+  }
   else if (mode == VTK_LANDMARK_RIGIDBODY)
-    {
+  {
     if (det < 0.0)
-      {
+    {
       rval = 1;
       errstream << "Determinant has wrong sign: " << det << ". ";
-      }
+    }
     else if ((det - 1.0)*(det - 1.0) > 1e-12)
-      {
+    {
       rval = 1;
       errstream << "Determinant should be 1.0: " << det << ". ";
-      }
     }
+  }
 
   // apply the landmark transform and compare to original
   vtkNew<vtkPoints> points3;
@@ -195,32 +195,32 @@ static int TestSpecificLandmarkTransform(
   double dsum = 0.0;
   double dmax = 0.0;
   for (int i = 0; i < npoints; i++)
-    {
+  {
     double p2[3], p3[3];
     points2->GetPoint(i, p2);
     points3->GetPoint(i, p3);
     double d = vtkMath::Distance2BetweenPoints(p2, p3);
     dmax = (dmax > d ? dmax : d);
     dsum += d;
-    }
+  }
 
   // we expect average error to be close to sigma
   double r = (npoints > 0 ? sqrt(dsum/npoints) : 0.0);
   if (r > 1.1*sigma)
-    {
+  {
     rval = 1;
     errstream << "Average error is too high: "
               << "r = " << r << " vs. sigma " << sigma << ". ";
-    }
+  }
 
   // we expect the max error to be around 2 sigma
   double e = sqrt(dmax);
   if (e > 2.5*sigma)
-    {
+  {
     rval = 1;
     errstream << "Maximum error is too high: "
               << "e = " << e << " vs. sigma " << sigma << ". ";
-    }
+  }
 
   // the transform should be inverse consistent, meaning that if we swap
   // the points we get the inverse matrix.
@@ -236,24 +236,24 @@ static int TestSpecificLandmarkTransform(
   double tol = 1e-6;
   double maxerr = 0.0;
   for (int i = 0; i < 4; i++)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       double f = testInverse->GetElement(i, j);
       f = (i == j ? (1.0 - f) : f);
       f = fabs(f);
       maxerr = ((f > maxerr) ? f : maxerr);
-      }
     }
+  }
   if (maxerr > tol)
-    {
+  {
     rval = 1;
     errstream << "Backwards xform isn't inverse of forward xform: "
               << "error " << maxerr << " > " << tol << ". ";
-    }
+  }
 
   if (rval != 0)
-    {
+  {
     std::cerr << "Error for " << ltrans->GetModeAsString()
               << " with dimensionality=" << dimensionality
               << ", npoints=" << npoints
@@ -262,7 +262,7 @@ static int TestSpecificLandmarkTransform(
               << ", scale2=" << scale2
               << ", scale3=" << scale3
               << ": " << errstream.str() << std::endl;
-    }
+  }
 
   return rval;
 }
@@ -354,12 +354,12 @@ int TestLandmarkTransform(int,char *[])
   };
 
   for (size_t i = 0; i < sizeof(benchmarks)/sizeof(Conditions); i++)
-    {
+  {
     const Conditions *c = &benchmarks[i];
     rval |= TestSpecificLandmarkTransform(
       c->mode, c->dimensionality, c->npoints, c->sigma,
       c->scale1, c->scale2, c->scale3);
-    }
+  }
 
   return rval;
 }

@@ -97,13 +97,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double sf[4]) VTK_OVERRIDE
-    {
+  {
     vtkQuad::InterpolationFunctions(pcoords,sf);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[8]) VTK_OVERRIDE
-    {
+  {
     vtkQuad::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
   /**

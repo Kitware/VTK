@@ -151,7 +151,7 @@ template<class BaseLhs, class BaseRhs, typename ReturnType,
 template <class SomeLhs, class SomeRhs, class Functor>
 void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
 ::AddInternal(const Functor& fun, long)
-  {
+{
   typedef vtkDoubleDispatcherPrivate::FunctorDoubleDispatcherHelper<
       BaseLhs, BaseRhs,
       SomeLhs, SomeRhs,
@@ -162,7 +162,7 @@ void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
   Adapter ada(fun);
   MappedType mt(ada);
   DoAddFunctor(typeid(SomeLhs), typeid(SomeRhs),mt);
-  }
+}
 
 //----------------------------------------------------------------------------
 template<class BaseLhs, class BaseRhs, typename ReturnType,
@@ -170,7 +170,7 @@ template<class BaseLhs, class BaseRhs, typename ReturnType,
 template <class SomeLhs, class SomeRhs, class Functor>
 void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
 ::AddInternal(Functor* fun, int)
-  {
+{
   typedef vtkDoubleDispatcherPrivate::FunctorRefDispatcherHelper<
       BaseLhs, BaseRhs,
       SomeLhs, SomeRhs,
@@ -181,42 +181,42 @@ void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
   Adapter ada(*fun);
   MappedType mt(ada);
   DoAddFunctor(typeid(SomeLhs), typeid(SomeRhs),mt);
-  }
+}
 
 //----------------------------------------------------------------------------
 template<class BaseLhs, class BaseRhs, typename ReturnType,
          template <class, class> class CastingPolicy>
 void vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
 ::DoAddFunctor(TypeInfo lhs, TypeInfo rhs, MappedType fun)
-  {
+{
   FunctorMap[KeyType(lhs, rhs)] = fun;
-  }
+}
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, class BaseRhs, typename ReturnType,
           template <class, class> class CastingPolicy>
 bool vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
 ::DoRemove(TypeInfo lhs, TypeInfo rhs)
-  {
+{
   return FunctorMap.erase(KeyType(lhs, rhs)) == 1;
-  }
+}
 
 //----------------------------------------------------------------------------
 template <class BaseLhs, class BaseRhs, typename ReturnType,
           template <class, class> class CastingPolicy>
 ReturnType vtkDoubleDispatcher<BaseLhs,BaseRhs,ReturnType,CastingPolicy>
 ::Go(BaseLhs* lhs, BaseRhs* rhs)
-  {
+{
   typename MapType::key_type k(typeid(*lhs),typeid(*rhs));
   typename MapType::iterator i = FunctorMap.find(k);
   if (i == FunctorMap.end())
-    {
+  {
     //we don't want to throw exceptions so we have two options.
     //we can return the default, or make a lightweight struct for return value
     return ReturnType();
-    }
-  return (i->second)(*lhs,*rhs);
   }
+  return (i->second)(*lhs,*rhs);
+}
 
 #endif // vtkDoubleDispatcher_h
 // VTK-HeaderTest-Exclude: vtkDoubleDispatcher.h

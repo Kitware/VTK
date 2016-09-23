@@ -178,9 +178,9 @@ public:
    * result in an incomplete trailing tuple.
    */
   inline vtkIdType GetNumberOfValues() const
-    {
+  {
     return (this->MaxId + 1);
-    }
+  }
 
   /**
    * Set the tuple at dstTupleIdx in this array to the tuple at srcTupleIdx in
@@ -309,10 +309,10 @@ public:
    * Reset to an empty state, without freeing any memory.
    */
   void Reset()
-    {
+  {
       this->MaxId = -1;
       this->DataChanged();
-    }
+  }
   //@}
 
   /**
@@ -416,9 +416,9 @@ public:
    * to override this method.
    */
   virtual vtkIdType GetDataSize()
-    {
+  {
     return this->GetNumberOfComponents() * this->GetNumberOfTuples();
-    }
+  }
 
   //@{
   /**
@@ -609,7 +609,7 @@ public:
     MappedDataArray,
 
     DataArrayTemplate = AoSDataArrayTemplate //! Legacy
-    };
+  };
 
   /**
    * Method for type-checking in FastDownCast implementations. See also

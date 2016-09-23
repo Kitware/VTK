@@ -88,9 +88,9 @@ int vtkProteinRibbonFilter::FillInputPortInformation(int port,
                                                      vtkInformation *info)
 {
   if(!this->Superclass::FillInputPortInformation(port, info))
-    {
+  {
     return 0;
-    }
+  }
 
   info->Set(vtkAlgorithm::INPUT_REQUIRED_DATA_TYPE(), "vtkPolyData");
   return 1;
@@ -112,10 +112,10 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
     vtkArrayDownCast<vtkIdTypeArray>(pointData->GetAbstractArray("atom_type"));
 
   if (!atomTypes || !atomType)
-    {
+  {
     vtkErrorMacro(<< "Atom Type String & Ids Arrays Required");
     return 0;
-    }
+  }
 
   // Extract secondary structures information from input poly data
   vtkIdTypeArray *resi =
@@ -132,10 +132,10 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
     vtkArrayDownCast<vtkUnsignedCharArray>(pointData->GetAbstractArray("ishetatm"));
 
   if (!resi || !chain || !atom_ss || !atom_ssbegin || !atom_ssend || !ishetatm)
-    {
+  {
     vtkErrorMacro(<< "Atom Secondary Structures Arrays Required");
     return 0;
-    }
+  }
 
   unsigned char currentChain = 0;
   unsigned char ss = 0;
@@ -167,52 +167,52 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
   vtkNew<vtkPeriodicTable> pTab;
 
   for (int i = 0; i < input->GetNumberOfPoints(); i++)
-    {
+  {
     vtkStdString type = atomTypes->GetValue(i);
     unsigned short atomicNum = static_cast<unsigned short>(atomType->GetValue(i) + 1);
 
     if (ishetatm->GetValue(i) && this->DrawSmallMoleculesAsSpheres)
-      {
+    {
       if (type != "O")
-        {
+      {
         CreateAtomAsSphere(strand.GetPointer(), pointsColors.GetPointer(),
                            input->GetPoint(i),
                            ToColor3ubFromColor3f(pTab->GetDefaultRGBTuple(atomicNum)),
                            pTab->GetVDWRadius(atomicNum), 1.f);
-        }
       }
+    }
     else if (type == "CA")
-      {
+    {
       // Create a ribbon between 2 CA atoms passing through each O atoms found in-between
       double *xyz = input->GetPoint(i);
       unsigned char atomChain = chain->GetValue(i);
       vtkIdType atomResi = resi->GetValue(i);
 
       if (currentChain != atomChain || currentResi + 1 != atomResi)
-        {
+      {
         this->CreateThinStrip(strand.GetPointer(), pointsColors.GetPointer(),
           strandPoints.GetPointer(), borderPoints[0], borderPoints[1], colors);
         borderPoints[0].clear();
         borderPoints[1].clear();
         colors.clear();
         hasPrevCO = false;
-        }
+      }
       currentCA.Set(xyz[0], xyz[1], xyz[2]);
       currentChain = atomChain;
       currentResi = atomResi;
       ss = atom_ss->GetValue(i);
       colors.push_back(atomsColors[i]);
-      }
+    }
     else if (type == "O")
-      {
+    {
       // Insert a new step in the next ribbon
       double *xyz = input->GetPoint(i);
       vtkVector3f p(xyz[0], xyz[1], xyz[2]);
       p = (p - currentCA).Normalized() * ((ss == 'c') ? this->CoilWidth : this->HelixWidth);
       if (hasPrevCO && p.Dot(prevCO) < 0)
-        {
+      {
         p = p * -1.f;
-        }
+      }
       hasPrevCO = true;
       prevCO = p;
       bool isSheet = (ss == 's');
@@ -220,8 +220,8 @@ int vtkProteinRibbonFilter::RequestData(vtkInformation *,
         std::pair<vtkVector3f, bool>(currentCA - prevCO, isSheet));
       borderPoints[1].push_back(
         std::pair<vtkVector3f, bool>(currentCA + prevCO, isSheet));
-      }
     }
+  }
 
   // Create the last ribbon strip if needed
   this->CreateThinStrip(strand.GetPointer(), pointsColors.GetPointer(),
@@ -249,16 +249,16 @@ void vtkProteinRibbonFilter::SetColorByAtom(std::vector<vtkColor3ub>& colors,
   unsigned int len = atomTypes->GetNumberOfValues();
   colors.resize(len);
   for (unsigned int i = 0; i < len; i++)
-    {
+  {
     if(this->ElementColors.find(atomTypes->GetValue(i)) != this->ElementColors.end())
-      {
+    {
       colors[i] = this->ElementColors[atomTypes->GetValue(i)];
-      }
-    else
-      {
-      colors[i] = vtkColor3ub(0xFFFFFF);
-      }
     }
+    else
+    {
+      colors[i] = vtkColor3ub(0xFFFFFF);
+    }
+  }
 }
 
 
@@ -271,16 +271,16 @@ void vtkProteinRibbonFilter::SetColorByStructure(std::vector<vtkColor3ub>& color
   unsigned int len = atomTypes->GetNumberOfValues();
   colors.resize(len);
   for (unsigned int i = 0; i < len; i++)
-    {
+  {
     if (ss->GetValue(i) == 's')
-      {
+    {
       colors[i] = sheetColor;
-      }
-    else if (ss->GetValue(i) == 'h')
-      {
-      colors[i] = helixColor;
-      }
     }
+    else if (ss->GetValue(i) == 'h')
+    {
+      colors[i] = helixColor;
+    }
+  }
 }
 
 
@@ -311,27 +311,27 @@ void vtkProteinRibbonFilter::CreateAtomAsSphere(vtkPolyData* poly,
   vtkIdType numCellPoints,  *cellPoints;
   // Add new points
   for (vtkIdType i = 0; i < numPoints; ++i)
-    {
+  {
     points->InsertNextPoint(spherePoints->GetPoint(i));
     for (int j = 0; j < 3; ++j)
-      {
+    {
       pointsColors->InsertNextValue(color[j]);
-      }
     }
+  }
 
   // Add new cells (polygons) that represent the sphere
   spherePolys->InitTraversal();
   while (spherePolys->GetNextCell(numCellPoints, cellPoints) != 0)
-    {
+  {
     vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
     for (vtkIdType i = 0; i < numCellPoints; ++i)
-      {
+    {
       // The new point ids should be offset by the pointOffset above
       newCellPoints[i] = cellPoints[i] + pointOffset;
-      }
+    }
     poly->InsertNextCell(VTK_TRIANGLE_STRIP, numCellPoints, newCellPoints);
     delete [] newCellPoints;
-    }
+  }
 }
 
 
@@ -343,9 +343,9 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
                                              std::vector<vtkColor3ub> &colors)
 {
   if (p1.size() < 2 || p2.size() < 2)
-    {
+  {
     return;
-    }
+  }
 
   // Get offset for the new point IDs that will be added to points
   vtkIdType pointOffset = p->GetNumberOfPoints();
@@ -358,33 +358,33 @@ void vtkProteinRibbonFilter::CreateThinStrip(vtkPolyData* poly,
 
   // Insert smoothed ribbon borders points into the polydata
   for (int i = 0; i < len; i++)
-    {
+  {
     p->InsertNextPoint((*points1)[i].GetData());
     p->InsertNextPoint((*points2)[i].GetData());
 
     vtkColor3ub color = colors[static_cast<int>(floor(0.5f + i /
                                      static_cast<float>(this->SubdivideFactor)))];
     for (int k = 0; k < 2; ++k)
-      {
+    {
       for (int ci = 0; ci < 3; ++ci)
-        {
+      {
         pointsColors->InsertNextValue(color[ci]);
-        }
       }
     }
+  }
   delete points1;
   delete points2;
 
   // Fill in between the 2 ribbons borders with triangle strips
   vtkIdType connectivity[4];
   for (int i = 0, offset = pointOffset; i < len - 1; i++, offset += 2)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       connectivity[j] = offset + j;
-      }
-    poly->InsertNextCell(VTK_TRIANGLE_STRIP, 4 , connectivity);
     }
+    poly->InsertNextCell(VTK_TRIANGLE_STRIP, 4 , connectivity);
+  }
 }
 
 
@@ -397,23 +397,23 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
   // Smoothing test
   points.push_back(p[0].first);
   for (int i = 1, lim = static_cast<int>(p.size()) - 1; i < lim; i++)
-    {
+  {
     vtkVector3f& p1 = p[i].first;
     vtkVector3f& p2 = p[i+1].first;
     if (p[i].second)
-      {
+    {
       points.push_back((p1 + p2) * 0.5f);
-      }
-    else
-      {
-      points.push_back(p1);
-      }
     }
+    else
+    {
+      points.push_back(p1);
+    }
+  }
   points.push_back(p[p.size() - 1].first);
 
   // Catmull-Rom subdivision
   for (int i = -1, size = static_cast<int>(points.size()); i <= size - 3; i++)
-    {
+  {
     vtkVector3f& p0 = points[(i == -1) ? 0 : i];
     vtkVector3f& p1 = points[i+1];
     vtkVector3f& p2 = points[i+2];
@@ -421,7 +421,7 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
     vtkVector3f v0 = (p2 - p0) * 0.5f;
     vtkVector3f v1 = (p3 - p1) * 0.5f;
     for (int j = 0; j < div; j++)
-      {
+    {
       double t = 1.0 / div * j;
       double t2 = t * t;
       double x = p1.GetX() + t * v0.GetX()
@@ -434,8 +434,8 @@ std::vector<vtkVector3f>* vtkProteinRibbonFilter::Subdivide(std::vector<std::pai
         + t2 * (-3 * p1.GetZ() + 3 * p2.GetZ() - 2 * v0.GetZ() - v1.GetZ())
         + t2 * t * (2 * p1.GetZ() - 2 * p2.GetZ() + v0.GetZ() + v1.GetZ());
       ret->push_back(vtkVector3f(x, y, z));
-      }
     }
+  }
    ret->push_back(points[points.size() - 1]);
    return ret;
 }

@@ -111,7 +111,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
   char typeChar = 'O';
 
   switch ( (argtype & VTK_PARSE_BASE_TYPE) )
-    {
+  {
     case VTK_PARSE_FLOAT:
       typeChar = 'f';
       break;
@@ -180,7 +180,7 @@ static char vtkWrapPython_FormatChar(unsigned int argtype)
     case VTK_PARSE_UNICODE_STRING:
       typeChar = 'u';
       break;
-    }
+  }
 
   return typeChar;
 }
@@ -205,144 +205,144 @@ static char *vtkWrapPython_ArgCheckString(
   requiredArgs = vtkWrap_CountRequiredArguments(currentFunction);
 
   if (currentFunction->IsExplicit)
-    {
+  {
     /* used to mark constructors as 'explicit' */
     result[currPos++] = '-';
-    }
+  }
 
   /* placeholder for 'self' in method calls */
   if (!currentFunction->IsStatic)
-    {
+  {
     result[currPos++] = '@';
-    }
+  }
 
   /* position for insertion after format chars */
   endPos = currPos + totalArgs;
   if (totalArgs > requiredArgs)
-    {
+  {
     /* add one for the "|" that marks the end of required args */
     endPos++;
-    }
+  }
 
   /* create a format character for each argument */
   for (i = 0; i < totalArgs; i++)
-    {
+  {
     arg = currentFunction->Parameters[i];
     argtype = (arg->Type & VTK_PARSE_UNQUALIFIED_TYPE);
 
     if (i == requiredArgs)
-      {
+    {
       /* make all following arguments optional */
       result[currPos++] = '|';
-      }
+    }
 
     /* will store the classname for objects */
     classname[0] = '\0';
 
     if (vtkWrap_IsEnumMember(data, arg))
-      {
+    {
       c = 'E';
       sprintf(classname, "%.200s.%.200s", data->Name, arg->Class);
-      }
+    }
     else if (arg->IsEnum)
-      {
+    {
       c = 'E';
       vtkWrapText_PythonName(arg->Class, classname);
-      }
+    }
     else if (vtkWrap_IsPythonObject(arg))
-      {
+    {
       c = 'O';
       vtkWrapText_PythonName(arg->Class, classname);
-      }
+    }
     else if (vtkWrap_IsVTKObject(arg))
-      {
+    {
       c = 'V';
       vtkWrapText_PythonName(arg->Class, classname);
-      }
+    }
     else if (vtkWrap_IsSpecialObject(arg))
-      {
+    {
       c = 'W';
       vtkWrapText_PythonName(arg->Class, classname);
-      }
+    }
     else if (vtkWrap_IsQtEnum(arg) || vtkWrap_IsQtObject(arg))
-      {
+    {
       c = 'Q';
       vtkWrapText_PythonName(arg->Class, classname);
-      }
+    }
     else if (vtkWrap_IsFunction(arg))
-      {
+    {
       c = 'F';
-      }
+    }
     else if (vtkWrap_IsVoidPointer(arg))
-      {
+    {
       c = 'v';
-      }
+    }
     else if (vtkWrap_IsString(arg))
-      {
+    {
       c = 's';
       if ((argtype & VTK_PARSE_BASE_TYPE) == VTK_PARSE_UNICODE_STRING)
-        {
-        c = 'u';
-        }
-      }
-    else if (vtkWrap_IsCharPointer(arg))
       {
-      c = 'z';
+        c = 'u';
       }
+    }
+    else if (vtkWrap_IsCharPointer(arg))
+    {
+      c = 'z';
+    }
     else if (vtkWrap_IsNumeric(arg) &&
              vtkWrap_IsScalar(arg))
-      {
+    {
       c = vtkWrapPython_FormatChar(argtype);
-      }
+    }
     else if (vtkWrap_IsArray(arg) || vtkWrap_IsPODPointer(arg))
-      {
+    {
       c = 'P';
       result[endPos++] = ' ';
       result[endPos++] = '*';
       result[endPos++] = vtkWrapPython_FormatChar(argtype);
-      }
+    }
     else if (vtkWrap_IsNArray(arg))
-      {
+    {
       c = 'A';
       result[endPos++] = ' ';
       result[endPos++] = '*';
       result[endPos++] = vtkWrapPython_FormatChar(argtype);
       if (vtkWrap_IsNArray(arg))
-        {
+      {
         for (j = 1; j < arg->NumberOfDimensions; j++)
-          {
+        {
           result[endPos++] = '[';
           for (k = 0; arg->Dimensions[j][k]; k++)
-            {
+          {
             result[endPos++] = arg->Dimensions[j][k];
-            }
-          result[endPos++] = ']';
           }
+          result[endPos++] = ']';
         }
       }
+    }
 
     /* add the format char to the string */
     result[currPos++] = c;
     if (classname[0] != '\0')
-      {
+    {
       result[endPos++] = ' ';
       if ((argtype == VTK_PARSE_OBJECT_REF ||
            argtype == VTK_PARSE_QOBJECT_REF ||
            argtype == VTK_PARSE_UNKNOWN_REF) &&
           (arg->Type & VTK_PARSE_CONST) == 0)
-        {
+      {
         result[endPos++] = '&';
-        }
+      }
       else if (argtype == VTK_PARSE_OBJECT_PTR ||
                argtype == VTK_PARSE_UNKNOWN_PTR ||
                argtype == VTK_PARSE_QOBJECT_PTR)
-        {
+      {
         result[endPos++] = '*';
-        }
+      }
       strcpy(&result[endPos], classname);
       endPos += strlen(classname);
-      }
     }
+  }
 
   result[endPos] = '\0';
   return result;
@@ -377,36 +377,36 @@ int *vtkWrapPython_ArgCountToOverloadMap(
   any_static = 0;
   mixed_static = 0;
   for (i = fnum; i < numberOfWrappedFunctions; i++)
-    {
+  {
     if (wrappedFunctions[i]->Name &&
         strcmp(wrappedFunctions[i]->Name, theFunc->Name) == 0)
-      {
+    {
       if (wrappedFunctions[i]->IsStatic)
-        {
+      {
         any_static = 1;
-        }
+      }
       else if (any_static)
-        {
+      {
         mixed_static = 1;
-        }
       }
     }
+  }
 
   for (i = 0; i < 100; i++)
-    {
+  {
     overloadMap[i] = 0;
-    }
+  }
 
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
-    {
+  {
     theOccurrence = wrappedFunctions[occ];
 
     if (theOccurrence->Name == 0 ||
         strcmp(theOccurrence->Name, theFunc->Name) != 0)
-      {
+    {
       continue;
-      }
+    }
 
     occCounter++;
 
@@ -416,28 +416,28 @@ int *vtkWrapPython_ArgCountToOverloadMap(
     /* vtkobject calls might have an extra "self" arg in front */
     if (mixed_static && is_vtkobject &&
         !theOccurrence->IsStatic)
-      {
+    {
       totalArgs++;
-      }
+    }
 
     if (totalArgs > *nmax)
-      {
+    {
       *nmax = totalArgs;
-      }
+    }
 
     for (i = requiredArgs; i <= totalArgs && i < 100; i++)
-      {
+    {
       if (overloadMap[i] == 0)
-        {
+      {
         overloadMap[i] = occCounter;
-        }
+      }
       else
-        {
+      {
         overloadMap[i] = -1;
         *overlap = 1;
-        }
       }
     }
+  }
 
   return overloadMap;
 }
@@ -463,10 +463,10 @@ void vtkWrapPython_OverloadMethodDef(
   theFunc = wrappedFunctions[fnum];
 
   if (all_legacy)
-    {
+  {
     fprintf(fp,
             "#if !defined(VTK_LEGACY_REMOVE)\n");
-    }
+  }
 
   fprintf(fp,
          "static PyMethodDef Py%s_%s_Methods[] = {\n",
@@ -474,14 +474,14 @@ void vtkWrapPython_OverloadMethodDef(
 
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
-    {
+  {
     theOccurrence = wrappedFunctions[occ];
 
     if (theOccurrence->Name == 0 ||
         strcmp(theOccurrence->Name, theFunc->Name) != 0)
-      {
+    {
       continue;
-      }
+    }
 
     occCounter++;
 
@@ -494,36 +494,36 @@ void vtkWrapPython_OverloadMethodDef(
     if (vtkWrap_IsConstructor(data, theOccurrence) &&
         requiredArgs <= 1 && totalArgs >= 1 &&
         !theOccurrence->IsExplicit)
-      {
+    {
       putInTable = 1;
-      }
+    }
 
     /* all methods that overlap with others must go in the table */
     for (i = requiredArgs; i <= totalArgs; i++)
-      {
+    {
       if (overloadMap[i] == -1)
-        {
+      {
         putInTable = 1;
-        }
       }
+    }
 
     if (!putInTable)
-      {
+    {
       continue;
-      }
+    }
 
     if (theOccurrence->IsLegacy && !all_legacy)
-      {
+    {
       fprintf(fp,
              "#if !defined(VTK_LEGACY_REMOVE)\n");
-      }
+    }
 
     /* method suffix to distinguish between signatures */
     occSuffix[0] = '\0';
     if (numberOfOccurrences > 1)
-      {
+    {
       sprintf(occSuffix, "_s%d", occCounter);
-      }
+    }
 
     fprintf(fp,
             "  {NULL, Py%s_%s%s, METH_VARARGS%s,\n"
@@ -534,21 +534,21 @@ void vtkWrapPython_OverloadMethodDef(
             vtkWrapPython_ArgCheckString(data, theOccurrence));
 
     if (theOccurrence->IsLegacy && !all_legacy)
-      {
+    {
       fprintf(fp,
               "#endif\n");
-      }
     }
+  }
 
   fprintf(fp,
           "  {NULL, NULL, 0, NULL}\n"
           "};\n");
 
   if (all_legacy)
-    {
+  {
     fprintf(fp,
             "#endif\n");
-    }
+  }
 
   fprintf(fp,
           "\n");
@@ -573,30 +573,30 @@ void vtkWrapPython_OverloadMasterMethod(
   currentFunction = wrappedFunctions[fnum];
 
   for (i = fnum; i < numberOfWrappedFunctions; i++)
-    {
+  {
     if (wrappedFunctions[i]->Name &&
         strcmp(wrappedFunctions[i]->Name, currentFunction->Name) == 0)
-      {
+    {
       if (wrappedFunctions[i]->IsStatic)
-        {
+      {
         any_static = 1;
-        }
       }
     }
+  }
 
   for (i = 0; i <= maxArgs; i++)
-    {
+  {
     if (overloadMap[i] == -1)
-      {
+    {
       overlap = 1;
-      }
     }
+  }
 
   if (all_legacy)
-    {
+  {
     fprintf(fp,
             "#if !defined(VTK_LEGACY_REMOVE)\n");
-    }
+  }
 
   fprintf(fp,
           "static PyObject *\n"
@@ -605,11 +605,11 @@ void vtkWrapPython_OverloadMasterMethod(
            classname, currentFunction->Name);
 
   if (overlap)
-    {
+  {
     fprintf(fp,
           "  PyMethodDef *methods = Py%s_%s_Methods;\n",
            classname, currentFunction->Name);
-    }
+  }
 
   fprintf(fp,
           "  int nargs = vtkPythonArgs::GetArgCount(%sargs);\n"
@@ -623,59 +623,59 @@ void vtkWrapPython_OverloadMasterMethod(
   /* find all occurrences of this method */
   occCounter = 0;
   for (occ = fnum; occ < numberOfWrappedFunctions; occ++)
-    {
+  {
     theOccurrence = wrappedFunctions[occ];
 
     /* is it the same name */
     if (theOccurrence->Name &&
         strcmp(currentFunction->Name, theOccurrence->Name) == 0)
-      {
+    {
       occCounter++;
 
       foundOne = 0;
       for (i = 0; i <= maxArgs; i++)
-        {
+      {
         if (overloadMap[i] == occCounter)
-          {
+        {
           if (!foundOne && theOccurrence->IsLegacy && !all_legacy)
-            {
+          {
             fprintf(fp,
                  "#if !defined(VTK_LEGACY_REMOVE)\n");
-            }
+          }
           fprintf(fp,
                   "    case %d:\n",
                   i);
           foundOne = 1;
-          }
         }
+      }
       if (foundOne)
-        {
+      {
         fprintf(fp,
                 "      return Py%s_%s_s%d(self, args);\n",
                 classname, currentFunction->Name, occCounter);
         if (theOccurrence->IsLegacy && !all_legacy)
-          {
+        {
           fprintf(fp,
                 "#endif\n");
-          }
         }
       }
     }
+  }
 
   if (overlap)
-    {
+  {
     for (i = 0; i <= maxArgs; i++)
-      {
+    {
       if (overloadMap[i] == -1)
-        {
+      {
         fprintf(fp,
                 "    case %d:\n",
                 i);
-        }
       }
+    }
     fprintf(fp,
             "      return vtkPythonOverload::CallMethod(methods, self, args);\n");
-    }
+  }
 
   fprintf(fp,
           "    }\n"
@@ -691,10 +691,10 @@ void vtkWrapPython_OverloadMasterMethod(
           "\n");
 
   if (all_legacy)
-    {
+  {
     fprintf(fp,
             "#endif\n");
-    }
+  }
 
   fprintf(fp,"\n");
 }

@@ -48,9 +48,9 @@ vtkPUnstructuredGridGhostDataGenerator::vtkPUnstructuredGridGhostDataGenerator()
 vtkPUnstructuredGridGhostDataGenerator::~vtkPUnstructuredGridGhostDataGenerator()
 {
   if(this->GhostZoneBuilder != NULL)
-    {
+  {
     this->GhostZoneBuilder->Delete();
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -91,10 +91,10 @@ int vtkPUnstructuredGridGhostDataGenerator::RequestData(
    vtkUnstructuredGrid::SafeDownCast(input->Get(vtkDataObject::DATA_OBJECT()));
 
   if( (grid==NULL) || (grid->GetNumberOfCells()==0) )
-    {
+  {
     // empty input, do nothing
     return 1;
-    }
+  }
 
   // STEP 1: Get output grid
   vtkInformation* output = outputVector->GetInformationObject(0);
@@ -106,7 +106,7 @@ int vtkPUnstructuredGridGhostDataGenerator::RequestData(
 
   // STEP 2: Build the ghost zones, if not already built
   if( this->GhostZoneBuilder == NULL )
-    {
+  {
     this->GhostZoneBuilder = vtkPUnstructuredGridConnectivity::New();
     vtkMPIController* mpiController =
         vtkMPIController::SafeDownCast(this->Controller);
@@ -114,7 +114,7 @@ int vtkPUnstructuredGridGhostDataGenerator::RequestData(
     this->GhostZoneBuilder->SetController(mpiController);
     this->GhostZoneBuilder->RegisterGrid( grid );
     this->GhostZoneBuilder->BuildGhostZoneConnectivity();
-    }
+  }
 
   // STEP 3: Update the ghost zones
   this->GhostZoneBuilder->UpdateGhosts();

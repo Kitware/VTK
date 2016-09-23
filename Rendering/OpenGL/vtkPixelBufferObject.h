@@ -109,7 +109,7 @@ public:
    */
   bool Upload1D(int type, void* data,
     unsigned int numtuples, int comps, vtkIdType increment)
-    {
+  {
     unsigned int newdims[3];
     newdims[0] = numtuples;
     newdims[1] = 1;
@@ -119,7 +119,7 @@ public:
     newinc[1] = 0;
     newinc[2] = 0;
     return this->Upload3D(type, data, newdims, comps, newinc,0,0);
-    }
+  }
   //@}
 
   //@{
@@ -135,7 +135,7 @@ public:
     unsigned int dims[2],
     int comps,
     vtkIdType increments[2])
-    {
+  {
     unsigned int newdims[3];
     newdims[0] = dims[0];
     newdims[1] = dims[1];
@@ -145,7 +145,7 @@ public:
     newinc[1] = increments[1];
     newinc[2] = 0;
     return this->Upload3D(type, data, newdims, comps, newinc,0,0);
-    }
+  }
   //@}
 
   /**
@@ -206,7 +206,7 @@ public:
     int type, void* data,
     unsigned int dim,
     int numcomps, vtkIdType increment)
-    {
+  {
     unsigned int newdims[3];
     newdims[0] = dim;
     newdims[1] = 1;
@@ -216,7 +216,7 @@ public:
     newincrements[1] = 0;
     newincrements[2] = 0;
     return this->Download3D(type, data, newdims, numcomps, newincrements);
-    }
+  }
   //@}
 
   //@{
@@ -228,7 +228,7 @@ public:
     int type, void* data,
     unsigned int dims[2],
     int numcomps, vtkIdType increments[2])
-    {
+  {
     unsigned int newdims[3];
     newdims[0] = dims[0];
     newdims[1] = dims[1];
@@ -238,7 +238,7 @@ public:
     newincrements[1] = increments[1];
     newincrements[2] =  0;
     return this->Download3D(type, data, newdims, numcomps, newincrements);
-    }
+  }
   //@}
 
   /**

@@ -63,11 +63,11 @@ void vtkFixedPointRayCastImage::AllocateImage()
 
   if ( this->ImageMemorySize[0] > 0 &&
        this->ImageMemorySize[1] > 0 )
-    {
+  {
     this->Image = new unsigned short [ ( 4 *
                                          this->ImageMemorySize[0] *
                                          this->ImageMemorySize[1] )];
-    }
+  }
 }
 
 // Clear image to 0
@@ -76,12 +76,12 @@ void vtkFixedPointRayCastImage::ClearImage()
   unsigned short *ucptr = this->Image;
 
   for ( int i = 0; i < this->ImageMemorySize[0]*this->ImageMemorySize[1]; i++ )
-    {
+  {
     *(ucptr++) = 0;
     *(ucptr++) = 0;
     *(ucptr++) = 0;
     *(ucptr++) = 0;
-    }
+  }
 }
 
 void vtkFixedPointRayCastImage::AllocateZBuffer()
@@ -90,7 +90,7 @@ void vtkFixedPointRayCastImage::AllocateZBuffer()
   // bother to do anything
   if ( this->ZBufferSize[0]*this->ZBufferSize[1] >
        this->ZBufferMemorySize )
-    {
+  {
     // If our current buffer is not large enough, delete it
     delete [] this->ZBuffer;
     this->ZBuffer = NULL;
@@ -106,22 +106,22 @@ void vtkFixedPointRayCastImage::AllocateZBuffer()
     // very happy.
     if ( this->ZBufferMemorySize <
          this->ZBufferSize[0]*this->ZBufferSize[1] )
-      {
+    {
       this->ZBufferMemorySize =
         this->ZBufferSize[0] * this->ZBufferSize[1];
-      }
+    }
 
     // Allocate the memory
     this->ZBuffer = new float [this->ZBufferMemorySize];
-    }
+  }
 }
 
 float vtkFixedPointRayCastImage::GetZBufferValue(int x, int y)
 {
   if ( !this->UseZBuffer )
-    {
+  {
     return 1.0;
-    }
+  }
 
   int xPos, yPos;
 

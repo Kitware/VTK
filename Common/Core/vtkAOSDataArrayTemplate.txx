@@ -92,24 +92,24 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::ShallowCopy(vtkDataArray *other)
 {
   SelfType *o = SelfType::FastDownCast(other);
   if (o)
-    {
+  {
     this->Size = o->Size;
     this->MaxId = o->MaxId;
     this->SetName(o->Name);
     this->SetNumberOfComponents(o->NumberOfComponents);
     this->CopyComponentNames(o);
     if (this->Buffer != o->Buffer)
-      {
+    {
       this->Buffer->Delete();
       this->Buffer = o->Buffer;
       this->Buffer->Register(NULL);
-      }
+    }
     this->DataChanged();
-    }
+  }
   else
-    {
+  {
     this->Superclass::ShallowCopy(other);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -123,46 +123,46 @@ void vtkAOSDataArrayTemplate<ValueTypeT>::InsertTuples(
   // can avoid doing a dispatch for the most common usage of this method.
   SelfType *other = vtkArrayDownCast<SelfType>(source);
   if (!other)
-    {
+  {
     // Let the superclass handle dispatch/fallback.
     this->Superclass::InsertTuples(dstStart, n, srcStart, source);
     return;
-    }
+  }
 
   if (n == 0)
-    {
+  {
     return;
-    }
+  }
 
   int numComps = this->GetNumberOfComponents();
   if (other->GetNumberOfComponents() != numComps)
-    {
+  {
     vtkErrorMacro("Number of components do not match: Source: "
                   << other->GetNumberOfComponents() << " Dest: "
                   << this->GetNumberOfComponents());
     return;
-    }
+  }
 
   vtkIdType maxSrcTupleId = srcStart + n - 1;
   vtkIdType maxDstTupleId = dstStart + n - 1;
 
   if (maxSrcTupleId >= other->GetNumberOfTuples())
-    {
+  {
     vtkErrorMacro("Source array too small, requested tuple at index "
                   << maxSrcTupleId << ", but there are only "
                   << other->GetNumberOfTuples() << " tuples in the array.");
     return;
-    }
+  }
 
   vtkIdType newSize = (maxDstTupleId + 1) * this->NumberOfComponents;
   if (this->Size < newSize)
-    {
+  {
     if (!this->Resize(maxDstTupleId + 1))
-      {
+    {
       vtkErrorMacro("Resize failed.");
       return;
-      }
     }
+  }
 
   this->MaxId = std::max(this->MaxId, newSize - 1);
 
@@ -181,13 +181,13 @@ vtkAOSDataArrayTemplate<ValueTypeT>
 {
   vtkIdType newSize = valueIdx + numValues;
   if (newSize > this->Size)
-    {
+  {
     if (!this->Resize(newSize / this->NumberOfComponents + 1))
-      {
+    {
       return NULL;
-      }
-    this->MaxId = (newSize - 1);
     }
+    this->MaxId = (newSize - 1);
+  }
 
   // For extending the in-use ids but not the size:
   this->MaxId = std::max(this->MaxId, newSize - 1);
@@ -271,10 +271,10 @@ bool vtkAOSDataArrayTemplate<ValueTypeT>::AllocateTuples(vtkIdType numTuples)
 {
   vtkIdType numValues = numTuples * this->GetNumberOfComponents();
   if (this->Buffer->Allocate(numValues))
-    {
+  {
     this->Size = this->Buffer->GetSize();
     return true;
-    }
+  }
   return false;
 }
 
@@ -283,10 +283,10 @@ template <class ValueTypeT>
 bool vtkAOSDataArrayTemplate<ValueTypeT>::ReallocateTuples(vtkIdType numTuples)
 {
   if (this->Buffer->Reallocate(numTuples * this->GetNumberOfComponents()))
-    {
+  {
     this->Size = this->Buffer->GetSize();
     return true;
-    }
+  }
   return false;
 }
 

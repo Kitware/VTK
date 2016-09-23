@@ -55,9 +55,9 @@ void vtkIcicleView::SetTopToBottom(bool reversed)
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     st->SetReverse(reversed);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -66,9 +66,9 @@ bool vtkIcicleView::GetTopToBottom()
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     return st->GetReverse();
-    }
+  }
   return false;
 }
 
@@ -78,10 +78,10 @@ void vtkIcicleView::SetRootWidth(double width)
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     st->SetRootStartAngle(0.0);
     st->SetRootEndAngle(width);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -90,9 +90,9 @@ double vtkIcicleView::GetRootWidth()
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     return st->GetRootEndAngle();
-    }
+  }
   return 0.0;
 }
 
@@ -102,9 +102,9 @@ void vtkIcicleView::SetLayerThickness(double thickness)
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     st->SetRingThickness(thickness);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -113,9 +113,9 @@ double vtkIcicleView::GetLayerThickness()
   vtkStackedTreeLayoutStrategy* st =
     vtkStackedTreeLayoutStrategy::SafeDownCast(this->GetLayoutStrategy());
   if (st)
-    {
+  {
     return st->GetRingThickness();
-    }
+  }
   return 0.0;
 }
 
@@ -125,9 +125,9 @@ void vtkIcicleView::SetUseGradientColoring(bool value)
   vtkTreeMapToPolyData* tm =
     vtkTreeMapToPolyData::SafeDownCast(this->GetAreaToPolyData());
   if (tm)
-    {
+  {
     tm->SetAddNormals(value);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -136,9 +136,9 @@ bool vtkIcicleView::GetUseGradientColoring()
   vtkTreeMapToPolyData* tm =
     vtkTreeMapToPolyData::SafeDownCast(this->GetAreaToPolyData());
   if (tm)
-    {
+  {
     return tm->GetAddNormals();
-    }
+  }
   return false;
 }
 

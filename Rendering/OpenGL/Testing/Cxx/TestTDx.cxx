@@ -45,13 +45,13 @@ class myCommand : public vtkCommand
 public:
   void Execute(vtkObject *vtkNotUsed(caller), unsigned long eventId,
                void *callData)
-    {
+  {
       cout << "myCommand::Execute()" << endl;
       int *button;
       vtkTDxMotionEventInfo *i;
 
       switch(eventId)
-        {
+      {
         case vtkCommand::TDxMotionEvent:
           i=static_cast<vtkTDxMotionEventInfo *>(callData);
 
@@ -70,8 +70,8 @@ public:
         default:
           cout << "unexpected VTK event" << endl;
           break;
-        }
-    }
+      }
+  }
 };
 
 int TestTDx(int argc, char* argv[])
@@ -150,9 +150,9 @@ int TestTDx(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   c->Delete();

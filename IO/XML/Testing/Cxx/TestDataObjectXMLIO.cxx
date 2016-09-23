@@ -64,11 +64,11 @@ static vtkInformationUnsignedLongKey *TestUnsignedLongKey =
 bool stringEqual(const std::string &expect, const std::string &actual)
 {
   if (expect != actual)
-    {
+  {
     std::cerr << "Strings do not match! Expected: '" << expect << "', got: '"
               << actual << "'.\n";
     return false;
-    }
+  }
   return true;
 }
 
@@ -81,11 +81,11 @@ template <typename T>
 bool compareValues(const std::string &desc, T expect, T actual)
 {
   if (expect != actual)
-    {
+  {
     std::cerr << "Failed comparison for '" << desc << "'. Expected '" << expect
               << "', got '" << actual << "'.\n";
     return false;
-    }
+  }
   return true;
 }
 
@@ -93,11 +93,11 @@ void InitializeDataCommon(vtkDataObject *data)
 {
   vtkFieldData *fd = data->GetFieldData();
   if (!fd)
-    {
+  {
     fd = vtkFieldData::New();
     data->SetFieldData(fd);
     fd->FastDelete();
-    }
+  }
 
   // Add a dummy array to test component name and information key serialization.
   vtkNew<vtkFloatArray> array;
@@ -130,24 +130,24 @@ bool CompareDataCommon(vtkDataObject *data)
 {
   vtkFieldData *fd = data->GetFieldData();
   if (!fd)
-    {
+  {
     std::cerr << "Field data object missing.\n";
     return false;
-    }
+  }
 
   vtkDataArray *array = fd->GetArray("Test Array");
   if (!array)
-    {
+  {
     std::cerr << "Missing testing array from field data.\n";
     return false;
-    }
+  }
 
   if (array->GetNumberOfComponents() != 3)
-    {
+  {
     std::cerr << "Test array expected to have 3 components, has "
               << array->GetNumberOfComponents() << std::endl;
     return false;
-    }
+  }
 
   if (!array->GetComponentName(0) ||
       (strcmp("Component 0 name", array->GetComponentName(0)) != 0) ||
@@ -155,17 +155,17 @@ bool CompareDataCommon(vtkDataObject *data)
       (strcmp("Component 1 name", array->GetComponentName(1)) != 0) ||
       !array->GetComponentName(2) ||
       (strcmp("Component 2 name", array->GetComponentName(2)) != 0))
-    {
+  {
     std::cerr << "Incorrect component names on test array.\n";
     return false;
-    }
+  }
 
   vtkInformation *info = array->GetInformation();
   if (!info)
-    {
+  {
     std::cerr << "Missing array information.\n";
     return false;
-    }
+  }
 
   if (!compareValues("double key", 1., info->Get(TestDoubleKey)) ||
       !compareValues("double vector key length", 3, info->Length(TestDoubleVectorKey)) ||
@@ -184,9 +184,9 @@ bool CompareDataCommon(vtkDataObject *data)
       !stringEqual("Second (with whitespace!)", info->Get(TestStringVectorKey, 1)) ||
       !stringEqual("Third (with\nnewline!)", info->Get(TestStringVectorKey, 2)) ||
       !compareValues("unsigned long key", 9ul, info->Get(TestUnsignedLongKey)))
-    {
+  {
     return false;
-    }
+  }
 
   return true;
 }
@@ -207,19 +207,19 @@ bool CompareData(vtkImageData* Output, vtkImageData* Input)
 {
   // Compare both input and output as a sanity check.
   if (!CompareDataCommon(Input) || !CompareDataCommon(Output))
-    {
+  {
     return false;
-    }
+  }
 
   if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
 
   const int point_count = Input->GetDimensions()[0] * Input->GetDimensions()[1] * Input->GetDimensions()[2];
   for(int point = 0; point != point_count; ++point)
-    {
+  {
     if(memcmp(Input->GetPoint(point), Output->GetPoint(point), 3 * sizeof(double)))
       return false;
-    }
+  }
 
   return true;
 }
@@ -239,9 +239,9 @@ bool CompareData(vtkPolyData* Output, vtkPolyData* Input)
 {
   // Compare both input and output as a sanity check.
   if (!CompareDataCommon(Input) || !CompareDataCommon(Output))
-    {
+  {
     return false;
-    }
+  }
   if(Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
     return false;
   if(Input->GetNumberOfPolys() != Output->GetNumberOfPolys())
@@ -260,9 +260,9 @@ bool CompareData(vtkRectilinearGrid* Output, vtkRectilinearGrid* Input)
 {
   // Compare both input and output as a sanity check.
   if (!CompareDataCommon(Input) || !CompareDataCommon(Output))
-    {
+  {
     return false;
-    }
+  }
   if(memcmp(Input->GetDimensions(), Output->GetDimensions(), 3 * sizeof(int)))
     return false;
 
@@ -294,9 +294,9 @@ bool CompareData(vtkUnstructuredGrid* Output, vtkUnstructuredGrid* Input)
 {
   // Compare both input and output as a sanity check.
   if (!CompareDataCommon(Input) || !CompareDataCommon(Output))
-    {
+  {
     return false;
-    }
+  }
   if(Input->GetNumberOfPoints() != Output->GetNumberOfPoints())
     return false;
   if(Input->GetNumberOfCells() != Output->GetNumberOfCells())
@@ -328,11 +328,11 @@ bool TestDataObjectXMLSerialization()
   vtkDataObject *obj = reader->GetOutput();
   DataT* input_data = DataT::SafeDownCast(obj);
   if(!input_data)
-    {
+  {
     reader->Delete();
     output_data->Delete();
     return false;
-    }
+  }
 
   const bool result = CompareData(output_data, input_data);
 
@@ -364,11 +364,11 @@ bool TestUniformGridXMLSerialization()
   vtkDataObject *obj = reader->GetOutput();
   vtkImageData* input_data = vtkImageData::SafeDownCast(obj);
   if(!input_data)
-    {
+  {
     reader->Delete();
     output_data->Delete();
     return false;
-    }
+  }
 
   const bool result = CompareData(output_data, input_data);
 
@@ -383,38 +383,38 @@ int TestDataObjectXMLIO(int /*argc*/, char* /*argv*/[])
   int result = 0;
 
   if(!TestDataObjectXMLSerialization<vtkImageData>())
-    {
+  {
     cerr << "Error: failure serializing vtkImageData" << endl;
     result = 1;
-    }
+  }
   if(!TestUniformGridXMLSerialization())
-    {
+  {
     // note that the current output from serializing a vtkUniformGrid
     // is a vtkImageData. this is the same as writing out a
     // vtkUniformGrid using vtkXMLImageDataWriter.
     cerr << "Error: failure serializing vtkUniformGrid" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectXMLSerialization<vtkPolyData>())
-    {
+  {
     cerr << "Error: failure serializing vtkPolyData" << endl;
     result = 1;
-    }
+  }
   if(!TestDataObjectXMLSerialization<vtkRectilinearGrid>())
-    {
+  {
     cerr << "Error: failure serializing vtkRectilinearGrid" << endl;
     result = 1;
-    }
+  }
 //  if(!TestDataObjectXMLSerialization<vtkStructuredGrid>())
 //    {
 //    cerr << "Error: failure serializing vtkStructuredGrid" << endl;
 //    result = 1;
 //    }
   if(!TestDataObjectXMLSerialization<vtkUnstructuredGrid>())
-    {
+  {
     cerr << "Error: failure serializing vtkUnstructuredGrid" << endl;
     result = 1;
-    }
+  }
 
   return result;
 }

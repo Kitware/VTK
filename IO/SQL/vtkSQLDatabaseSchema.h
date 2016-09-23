@@ -69,7 +69,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
    * Basic data types for database columns
    */
   enum DatabaseColumnType
-    {
+  {
       SERIAL    = 0, // specifying the indices explicitly to prevent bad compiler mishaps
       SMALLINT  = 1,
       INTEGER   = 2,
@@ -82,30 +82,30 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
       TIME      = 9,
       DATE      = 10,
       TIMESTAMP = 11
-    };
+  };
 
   /**
    * Types of indices that can be generated for database tables
    */
   enum DatabaseIndexType
-    {
+  {
       INDEX       = 0, // Non-unique index of values in named columns
       UNIQUE      = 1, // Index of values in named columns required to have at most one entry per pair of valid values.
       PRIMARY_KEY = 2 // Like UNIQUE but additionally this serves as the primary key for the table to speed up insertions.
-    };
+  };
 
   /**
    * Events where database triggers can be registered.
    */
   enum DatabaseTriggerType
-    {
+  {
       BEFORE_INSERT = 0, // Just before a row is inserted
       AFTER_INSERT  = 1,  // Just after a row is inserted
       BEFORE_UPDATE = 2, // Just before a row's values are changed
       AFTER_UPDATE  = 3,  // Just after a row's values are changed
       BEFORE_DELETE = 4, // Just before a row is deleted
       AFTER_DELETE  = 5  // Just after a row is deleted
-    };
+  };
 
   /**
    * Add a preamble to the schema
@@ -145,10 +145,10 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   virtual int AddColumnToTable(
     const char* tblName, int colType, const char* colName,
     int colSize, const char* colAttribs )
-    {
+  {
     return this->AddColumnToTable( this->GetTableHandleFromName( tblName ),
       colType, colName, colSize, colAttribs );
-    }
+  }
   //@}
 
   //@{
@@ -161,10 +161,10 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
     int tblHandle, int idxType, const char* idxName );
   virtual int AddIndexToTable(
     const char* tblName, int idxType, const char* idxName )
-    {
+  {
     return this->AddIndexToTable( this->GetTableHandleFromName( tblName ),
       idxType, idxName );
-    }
+  }
   //@}
 
   //@{
@@ -176,12 +176,12 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   virtual int AddColumnToIndex( int tblHandle, int idxHandle, int colHandle );
   virtual int AddColumnToIndex(
     const char* tblName, const char* idxName, const char* colName )
-    {
+  {
     int tblHandle = this->GetTableHandleFromName( tblName );
     return this->AddColumnToIndex( tblHandle,
       this->GetIndexHandleFromName( tblName, idxName ),
       this->GetColumnHandleFromName( tblName, colName ) );
-    }
+  }
   //@}
 
   //@{
@@ -197,10 +197,10 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   virtual int AddTriggerToTable(
     const char* tblName, int trgType, const char* trgName,
     const char* trgAction, const char* trgBackend = VTK_SQL_ALLBACKENDS )
-    {
+  {
     return this->AddTriggerToTable( this->GetTableHandleFromName( tblName ),
       trgType, trgName, trgAction, trgBackend );
-    }
+  }
   //@}
 
   //@{
@@ -221,10 +221,10 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
   virtual int AddOptionToTable(
     const char* tblName, const char* optStr,
     const char* optBackend = VTK_SQL_ALLBACKENDS )
-    {
+  {
     return this->AddOptionToTable( this->GetTableHandleFromName( tblName ),
       optStr, optBackend );
-    }
+  }
   //@}
 
   /**
@@ -388,7 +388,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
 
   // Tokens passed to AddTable to indicate the type of data that follows. Random integers chosen to prevent mishaps.
   enum VarargTokens
-    {
+  {
       COLUMN_TOKEN       = 58,
       INDEX_TOKEN        = 63,
       INDEX_COLUMN_TOKEN = 65,
@@ -396,7 +396,7 @@ class VTKIOSQL_EXPORT vtkSQLDatabaseSchema : public vtkObject
       TRIGGER_TOKEN      = 81,
       OPTION_TOKEN       = 86,
       END_TABLE_TOKEN    = 99
-    };
+  };
 
   /**
    * An unwrappable but useful routine to construct built-in schema.

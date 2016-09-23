@@ -151,7 +151,7 @@ typedef vtkTypeList::Append<AoSArrayList, SoAArrayList>::Result AllArrayList;
 inline bool isIntegral(int vtkType)
 {
   switch (vtkType)
-    {
+  {
     case VTK_CHAR:
     case VTK_SIGNED_CHAR:
     case VTK_UNSIGNED_CHAR:
@@ -167,7 +167,7 @@ inline bool isIntegral(int vtkType)
     case VTK___INT64:
     case VTK_UNSIGNED___INT64:
       return true;
-    }
+  }
   return false;
 }
 
@@ -176,11 +176,11 @@ inline bool isIntegral(int vtkType)
 inline bool isReal(int vtkType)
 {
   switch (vtkType)
-    {
+  {
     case VTK_FLOAT:
     case VTK_DOUBLE:
       return true;
-    }
+  }
   return false;
 }
 
@@ -188,11 +188,11 @@ inline bool isReal(int vtkType)
 // Check condition during test.
 #define testAssert(expr, errorMessage) \
   if (!(expr)) \
-    { \
+  { \
     ++errors; \
     vtkGenericWarningMacro(<<"Assertion failed: " #expr << "\n" \
                            << errorMessage); \
-    }
+  }
 
 //------------------------------------------------------------------------------
 int TestDispatch()
@@ -204,12 +204,12 @@ int TestDispatch()
 
   for (ArrayIter it = Arrays::allArrays.begin(),
        itEnd = Arrays::allArrays.end(); it != itEnd; ++it)
-    {
+  {
     vtkDataArray *array = *it;
     testAssert(dispatcher.Execute(array, worker), "Dispatch failed.");
     testAssert(worker.Array1 == array, "Array 1 does not match input.");
     worker.Reset();
-    }
+  }
 
   return errors;
 }
@@ -225,23 +225,23 @@ int TestDispatchByArray()
   // AoS arrays: All should pass:
   for (ArrayIter it = Arrays::aosArrays.begin(),
        itEnd = Arrays::aosArrays.end(); it != itEnd; ++it)
-    {
+  {
     vtkDataArray *array = *it;
     testAssert(dispatcher.Execute(array, worker), "Dispatch failed.");
     testAssert(worker.Array1 == array, "Array 1 does not match input.");
     worker.Reset();
-    }
+  }
 
   // AoS arrays: All should fail:
   for (ArrayIter it = Arrays::soaArrays.begin(),
        itEnd = Arrays::soaArrays.end(); it != itEnd; ++it)
-    {
+  {
     vtkDataArray *array = *it;
     testAssert(!dispatcher.Execute(array, worker),
                "Dispatch should have failed.");
     testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
     worker.Reset();
-    }
+  }
 
   return errors;
 }
@@ -257,24 +257,24 @@ int TestDispatchByValueType()
 
   for (ArrayIter it = Arrays::allArrays.begin(),
        itEnd = Arrays::allArrays.end(); it != itEnd; ++it)
-    {
+  {
     vtkDataArray *array = *it;
     bool isValid = isReal(array->GetDataType());
 
     if (isValid)
-      {
+    {
       testAssert(dispatcher.Execute(array, worker), "Dispatch failed.");
       testAssert(worker.Array1 == array, "Array 1 does not match input.");
-      }
+    }
     else
-      {
+    {
       testAssert(!dispatcher.Execute(array, worker),
                  "Dispatch should have failed.");
       testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
-      }
+    }
 
     worker.Reset();
-    }
+  }
 
   return errors;
 }
@@ -295,36 +295,36 @@ int TestDispatch2ByArray()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid =
         array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid =
           array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
 
       if (array1Valid && array2Valid)
-        {
+      {
         testAssert(dispatcher.Execute(array1, array2, worker),
                    "Dispatch failed.");
         testAssert(worker.Array1 == array1, "Array 1 does not match input.");
         testAssert(worker.Array2 == array2, "Array 2 does not match input.");
-        }
+      }
       else
-        {
+      {
         testAssert(!dispatcher.Execute(array1, array2, worker),
                    "Dispatch should have failed.");
         testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
         testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
-        }
+      }
 
       worker.Reset();
-      }
     }
+  }
 
   return errors;
 }
@@ -345,34 +345,34 @@ int TestDispatch2ByValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid = isIntegral(array1->GetDataType());
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid = isReal(array2->GetDataType());
 
       if (array1Valid && array2Valid)
-        {
+      {
         testAssert(dispatcher.Execute(array1, array2, worker),
                    "Dispatch failed.");
         testAssert(worker.Array1 == array1, "Array 1 does not match input.");
         testAssert(worker.Array2 == array2, "Array 2 does not match input.");
-        }
+      }
       else
-        {
+      {
         testAssert(!dispatcher.Execute(array1, array2, worker),
                    "Dispatch should have failed.");
         testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
         testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
-        }
+      }
 
       worker.Reset();
-      }
     }
+  }
 
   return errors;
 }
@@ -392,37 +392,37 @@ int TestDispatch2ByArrayWithSameValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid =
         array1->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid =
           array2->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate &&
           vtkDataTypesCompare(array1->GetDataType(), array2->GetDataType());
 
       if (array1Valid && array2Valid)
-        {
+      {
         testAssert(dispatcher.Execute(array1, array2, worker),
                    "Dispatch failed.");
         testAssert(worker.Array1 == array1, "Array 1 does not match input.");
         testAssert(worker.Array2 == array2, "Array 2 does not match input.");
-        }
+      }
       else
-        {
+      {
         testAssert(!dispatcher.Execute(array1, array2, worker),
                    "Dispatch should have failed.");
         testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
         testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
-        }
+      }
 
       worker.Reset();
-      }
     }
+  }
 
   return errors;
 }
@@ -442,35 +442,35 @@ int TestDispatch2BySameValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid = isIntegral(array1->GetDataType());
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid = vtkDataTypesCompare(array1->GetDataType(),
                                              array2->GetDataType()) != 0;
 
       if (array1Valid && array2Valid)
-        {
+      {
         testAssert(dispatcher.Execute(array1, array2, worker),
                    "Dispatch failed.");
         testAssert(worker.Array1 == array1, "Array 1 does not match input.");
         testAssert(worker.Array2 == array2, "Array 2 does not match input.");
-        }
+      }
       else
-        {
+      {
         testAssert(!dispatcher.Execute(array1, array2, worker),
                    "Dispatch should have failed.");
         testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
         testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
-        }
+      }
 
       worker.Reset();
-      }
     }
+  }
 
   return errors;
 }
@@ -494,45 +494,45 @@ int TestDispatch3ByArray()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid =
         array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid =
           array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate;
 
       for (ArrayIter it3 = Arrays::allArrays.begin(),
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
-        {
+      {
         vtkDataArray *array3 = *it3;
         bool array3Valid = array3->GetDataType() == VTK_FLOAT;
 
         if (array1Valid && array2Valid && array3Valid)
-          {
+        {
           testAssert(dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch failed.");
           testAssert(worker.Array1 == array1, "Array 1 does not match input.");
           testAssert(worker.Array2 == array2, "Array 2 does not match input.");
           testAssert(worker.Array3 == array3, "Array 3 does not match input.");
-          }
+        }
         else
-          {
+        {
           testAssert(!dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch should have failed.");
           testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
           testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
           testAssert(worker.Array3 == NULL, "Array 3 should be NULL.");
-          }
+        }
 
         worker.Reset();
-        }
       }
     }
+  }
 
   return errors;
 }
@@ -555,44 +555,44 @@ int TestDispatch3ByValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid = isReal(array1->GetDataType());
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid = isIntegral(array2->GetDataType());
 
       for (ArrayIter it3 = Arrays::allArrays.begin(),
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
-        {
+      {
         vtkDataArray *array3 = *it3;
         bool array3Valid = vtkDataTypesCompare(array3->GetDataType(),
                                                VTK_UNSIGNED_CHAR) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
-          {
+        {
           testAssert(dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch failed.");
           testAssert(worker.Array1 == array1, "Array 1 does not match input.");
           testAssert(worker.Array2 == array2, "Array 2 does not match input.");
           testAssert(worker.Array3 == array3, "Array 3 does not match input.");
-          }
+        }
         else
-          {
+        {
           testAssert(!dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch should have failed.");
           testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
           testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
           testAssert(worker.Array3 == NULL, "Array 3 should be NULL.");
-          }
+        }
 
         worker.Reset();
-        }
       }
     }
+  }
 
   return errors;
 }
@@ -616,14 +616,14 @@ int TestDispatch3ByArrayWithSameValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid =
         array1->GetArrayType() == vtkAbstractArray::SoADataArrayTemplate;
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid =
           array2->GetArrayType() == vtkAbstractArray::AoSDataArrayTemplate &&
@@ -631,32 +631,32 @@ int TestDispatch3ByArrayWithSameValueType()
 
       for (ArrayIter it3 = Arrays::allArrays.begin(),
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
-        {
+      {
         vtkDataArray *array3 = *it3;
         bool array3Valid = vtkDataTypesCompare(array1->GetDataType(),
                                                array3->GetDataType()) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
-          {
+        {
           testAssert(dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch failed.");
           testAssert(worker.Array1 == array1, "Array 1 does not match input.");
           testAssert(worker.Array2 == array2, "Array 2 does not match input.");
           testAssert(worker.Array3 == array3, "Array 3 does not match input.");
-          }
+        }
         else
-          {
+        {
           testAssert(!dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch should have failed.");
           testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
           testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
           testAssert(worker.Array3 == NULL, "Array 3 should be NULL.");
-          }
+        }
 
         worker.Reset();
-        }
       }
     }
+  }
 
   return errors;
 }
@@ -676,7 +676,7 @@ int TestDispatch3BySameValueType()
 
   for (ArrayIter it1 = Arrays::allArrays.begin(),
        itEnd1 = Arrays::allArrays.end(); it1 != itEnd1; ++it1)
-    {
+  {
     vtkDataArray *array1 = *it1;
     bool array1Valid = isReal(array1->GetDataType()) ||
                        vtkDataTypesCompare(array1->GetDataType(),
@@ -684,39 +684,39 @@ int TestDispatch3BySameValueType()
 
     for (ArrayIter it2 = Arrays::allArrays.begin(),
          itEnd2 = Arrays::allArrays.end(); it2 != itEnd2; ++it2)
-      {
+    {
       vtkDataArray *array2 = *it2;
       bool array2Valid = vtkDataTypesCompare(array1->GetDataType(),
                                              array2->GetDataType()) != 0;
 
       for (ArrayIter it3 = Arrays::allArrays.begin(),
            itEnd3 = Arrays::allArrays.end(); it3 != itEnd3; ++it3)
-        {
+      {
         vtkDataArray *array3 = *it3;
         bool array3Valid = vtkDataTypesCompare(array1->GetDataType(),
                                                array3->GetDataType()) != 0;
 
         if (array1Valid && array2Valid && array3Valid)
-          {
+        {
           testAssert(dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch failed.");
           testAssert(worker.Array1 == array1, "Array 1 does not match input.");
           testAssert(worker.Array2 == array2, "Array 2 does not match input.");
           testAssert(worker.Array3 == array3, "Array 3 does not match input.");
-          }
+        }
         else
-          {
+        {
           testAssert(!dispatcher.Execute(array1, array2, array3, worker),
                      "Dispatch should have failed.");
           testAssert(worker.Array1 == NULL, "Array 1 should be NULL.");
           testAssert(worker.Array2 == NULL, "Array 2 should be NULL.");
           testAssert(worker.Array3 == NULL, "Array 3 should be NULL.");
-          }
+        }
 
         worker.Reset();
-        }
       }
     }
+  }
 
   return errors;
 }

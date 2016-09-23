@@ -65,10 +65,10 @@
 const char *eStr;                                                  \
 bool ok = vtkFrameBufferObject2::GetFrameBufferStatus(mode, eStr); \
 if (!ok)                                                           \
-  {                                                                \
+{                                                                \
   macro(                                                           \
     << "OpenGL ERROR. The FBO is incomplete : " << eStr);          \
-  }                                                                \
+}                                                                \
  }
 # define vtkCheckFrameBufferStatusMacro(mode) \
     vtkCheckFrameBufferStatusMacroImpl(vtkErrorMacro, mode)

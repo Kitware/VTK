@@ -31,11 +31,11 @@ vtkStandardNewMacro(vtkTreeWriter);
 void vtkTreeWriter::WriteEdges(ostream& Stream, vtkTree* Tree)
 {
   for (vtkIdType e = 0; e < Tree->GetNumberOfEdges(); ++e)
-    {
+  {
     vtkIdType parent = Tree->GetSourceVertex(e);
     vtkIdType child = Tree->GetTargetVertex(e);
     Stream << child << " " << parent << "\n";
-    }
+  }
 }
 
 void vtkTreeWriter::WriteData()
@@ -46,67 +46,67 @@ void vtkTreeWriter::WriteData()
   vtkDebugMacro(<<"Writing vtk tree data...");
 
   if ( !(fp=this->OpenVTKFile()) || !this->WriteHeader(fp) )
-    {
+  {
     if (fp)
-      {
+    {
       if(this->FileName)
-        {
+      {
         vtkErrorMacro("Ran out of disk space; deleting file: "
                       << this->FileName);
         this->CloseVTKFile(fp);
         unlink(this->FileName);
-        }
+      }
       else
-        {
+      {
         this->CloseVTKFile(fp);
         vtkErrorMacro("Could not read memory header. ");
-        }
       }
-    return;
     }
+    return;
+  }
 
   *fp << "DATASET TREE\n";
 
   int error_occurred = 0;
 
   if(!error_occurred && !this->WriteFieldData(fp, input->GetFieldData()))
-    {
+  {
     error_occurred = 1;
-    }
+  }
   if (!error_occurred && !this->WritePoints(fp, input->GetPoints()))
-    {
+  {
     error_occurred = 1;
-    }
+  }
   if(!error_occurred)
-    {
+  {
     const vtkIdType edge_count = input->GetNumberOfEdges();
     *fp << "EDGES " << edge_count << "\n";
     this->WriteEdges(*fp, input);
-    }
+  }
   if (!error_occurred && !this->WriteEdgeData(fp, input))
-    {
+  {
     error_occurred = 1;
-    }
+  }
   if (!error_occurred && !this->WriteVertexData(fp, input))
-    {
+  {
     error_occurred = 1;
-    }
+  }
 
   if(error_occurred)
-    {
+  {
     if(this->FileName)
-      {
+    {
       vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
       this->CloseVTKFile(fp);
       unlink(this->FileName);
-      }
+    }
     else
-      {
+    {
       vtkErrorMacro("Error writing data set to memory");
       this->CloseVTKFile(fp);
-      }
-    return;
     }
+    return;
+  }
   this->CloseVTKFile(fp);
 }
 

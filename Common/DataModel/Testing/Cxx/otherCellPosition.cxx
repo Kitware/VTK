@@ -60,7 +60,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(vertexPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     vertex->EvaluatePosition (&vertexPoint[j][0], &vertexClosest[0], subId, &vertexCoords[0], dist2, &vertexWeights[0]);
     strm << "vtkVertex (" << vertexPoint[j][0] << ", " << vertexPoint[j][1] << ", " << vertexPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << vertexClosest[0] << ", " << vertexClosest[1] << ", " << vertexClosest[2] << endl;
@@ -69,7 +69,7 @@ int TestOCP(ostream& strm)
     strm << "\tsubid: " << subId << endl;
     strm << "\tdist2: " << dist2 << endl;
     strm << endl;
-    }
+  }
 
   //Poly Vertex
   vtkPolyVertex *polyVertex = vtkPolyVertex::New();
@@ -87,7 +87,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(polyVertexPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     polyVertex->EvaluatePosition (&polyVertexPoint[j][0], &polyVertexClosest[0], subId, &polyVertexCoords[0], dist2, &polyVertexWeights[0]);
     strm << "vtkPolyVertex (" << polyVertexPoint[j][0] << ", " << polyVertexPoint[j][1] << ", " << polyVertexPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << polyVertexClosest[0] << ", " << polyVertexClosest[1] << ", " << polyVertexClosest[2] << endl;
@@ -96,7 +96,7 @@ int TestOCP(ostream& strm)
     strm << "\tsubid: " << subId << endl;
     strm << "\tdist2: " << dist2 << endl;
     strm << endl;
-    }
+  }
 
   //Line
   vtkLine *line = vtkLine::New();
@@ -111,7 +111,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(linePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     line->EvaluatePosition (&linePoint[j][0], &lineClosest[0], subId, &lineCoords[0], dist2, &lineWeights[0]);
     strm << "vtkLine (" << linePoint[j][0] << ", " << linePoint[j][1] << ", " << linePoint[j][2] << ")" << endl;
     strm << "\tclosest: " << lineClosest[0] << ", " << lineClosest[1] << ", " << lineClosest[2] << endl;
@@ -120,7 +120,7 @@ int TestOCP(ostream& strm)
     strm << "\tsubid: " << subId << endl;
     strm << "\tdist2: " << dist2 << endl;
     strm << endl;
-    }
+  }
 
   //Poly Line
   vtkPolyLine *polyLine = vtkPolyLine::New();
@@ -140,7 +140,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(polyLinePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     polyLine->EvaluatePosition (&polyLinePoint[j][0], &polyLineClosest[0], subId, &polyLineCoords[0], dist2, &polyLineWeights[0]);
     strm << "vtkPolyLine (" << polyLinePoint[j][0] << ", " << polyLinePoint[j][1] << ", " << polyLinePoint[j][2] << ")" << endl;
     strm << "\tclosest: " << polyLineClosest[0] << ", " << polyLineClosest[1] << ", " << polyLineClosest[2] << endl;
@@ -149,7 +149,7 @@ int TestOCP(ostream& strm)
     strm << "\tsubid: " << subId << endl;
     strm << "\tdist2: " << dist2 << endl;
     strm << endl;
-    }
+  }
 
   //Triangle
   vtkTriangle *triangle = vtkTriangle::New();
@@ -167,7 +167,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(trianglePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     triangle->EvaluatePosition (&trianglePoint[j][0], &triangleClosest[0], subId, &triangleCoords[0], dist2, &triangleWeights[0]);
     strm << "vtkTriangle (" << trianglePoint[j][0] << ", " << trianglePoint[j][1] << ", " << trianglePoint[j][2] << ")" << endl;
     strm << "\tclosest: " << triangleClosest[0] << ", " << triangleClosest[1] << ", " << triangleClosest[2] << endl;
@@ -178,7 +178,7 @@ int TestOCP(ostream& strm)
     triangle->EvaluateLocation (subId, triangleCoords, trianglePosition, triangleWeights);
     strm << "\tposition: " << trianglePosition[0] << ", " << trianglePosition[1] << ", " << trianglePosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Triangle Strip
   vtkTriangleStrip *triangleStrip = vtkTriangleStrip::New();
@@ -200,7 +200,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(triangleStripPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     triangleStrip->EvaluatePosition (&triangleStripPoint[j][0], &triangleStripClosest[0], subId, &triangleStripCoords[0], dist2, &triangleStripWeights[0]);
     strm << "vtkTriangleStrip (" << triangleStripPoint[j][0] << ", " << triangleStripPoint[j][1] << ", " << triangleStripPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << triangleStripClosest[0] << ", " << triangleStripClosest[1] << ", " << triangleStripClosest[2] << endl;
@@ -211,7 +211,7 @@ int TestOCP(ostream& strm)
     triangleStrip->EvaluateLocation (subId, triangleStripCoords, triangleStripPosition, triangleStripWeights);
     strm << "\tposition: " << triangleStripPosition[0] << ", " << triangleStripPosition[1] << ", " << triangleStripPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Quad
   vtkQuad *quad = vtkQuad::New();
@@ -231,7 +231,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(quadPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     quad->EvaluatePosition (&quadPoint[j][0], &quadClosest[0], subId, &quadCoords[0], dist2, &quadWeights[0]);
     strm << "vtkQuad (" << quadPoint[j][0] << ", " << quadPoint[j][1] << ", " << quadPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << quadClosest[0] << ", " << quadClosest[1] << ", " << quadClosest[2] << endl;
@@ -242,7 +242,7 @@ int TestOCP(ostream& strm)
     quad->EvaluateLocation (subId, quadCoords, quadPosition, quadWeights);
     strm << "\tposition: " << quadPosition[0] << ", " << quadPosition[1] << ", " << quadPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Pixel
   vtkPixel *pixel = vtkPixel::New();
@@ -262,7 +262,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(pixelPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     pixel->EvaluatePosition (&pixelPoint[j][0], &pixelClosest[0], subId, &pixelCoords[0], dist2, &pixelWeights[0]);
     strm << "vtkPixel (" << pixelPoint[j][0] << ", " << pixelPoint[j][1] << ", " << pixelPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << pixelClosest[0] << ", " << pixelClosest[1] << ", " << pixelClosest[2] << endl;
@@ -273,7 +273,7 @@ int TestOCP(ostream& strm)
     pixel->EvaluateLocation (subId, pixelCoords, pixelPosition, pixelWeights);
     strm << "\tposition: " << pixelPosition[0] << ", " << pixelPosition[1] << ", " << pixelPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Polygon
   vtkPolygon *polygon = vtkPolygon::New();
@@ -295,7 +295,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(polygonPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     polygon->EvaluatePosition (&polygonPoint[j][0], &polygonClosest[0], subId, &polygonCoords[0], dist2, &polygonWeights[0]);
     strm << "vtkPolygon (" << polygonPoint[j][0] << ", " << polygonPoint[j][1] << ", " << polygonPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << polygonClosest[0] << ", " << polygonClosest[1] << ", " << polygonClosest[2] << endl;
@@ -306,7 +306,7 @@ int TestOCP(ostream& strm)
     polygon->EvaluateLocation (subId, polygonCoords, polygonPosition, polygonWeights);
     strm << "\tposition: " << polygonPosition[0] << ", " << polygonPosition[1] << ", " << polygonPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Tetra
   vtkTetra *tetra = vtkTetra::New();
@@ -326,7 +326,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(tetraPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     tetra->EvaluatePosition (&tetraPoint[j][0], &tetraClosest[0], subId, &tetraCoords[0], dist2, &tetraWeights[0]);
     strm << "vtkTetra (" << tetraPoint[j][0] << ", " << tetraPoint[j][1] << ", " << tetraPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << tetraClosest[0] << ", " << tetraClosest[1] << ", " << tetraClosest[2] << endl;
@@ -337,7 +337,7 @@ int TestOCP(ostream& strm)
     tetra->EvaluateLocation (subId, tetraCoords, tetraPosition, tetraWeights);
     strm << "\tposition: " << tetraPosition[0] << ", " << tetraPosition[1] << ", " << tetraPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Voxel
   vtkVoxel *voxel = vtkVoxel::New();
@@ -368,7 +368,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(voxelPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     voxel->EvaluatePosition (&voxelPoint[j][0], &voxelClosest[0], subId, &voxelCoords[0], dist2, &voxelWeights[0]);
     strm << "vtkVoxel (" << voxelPoint[j][0] << ", " << voxelPoint[j][1] << ", " << voxelPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << voxelClosest[0] << ", " << voxelClosest[1] << ", " << voxelClosest[2] << endl;
@@ -379,7 +379,7 @@ int TestOCP(ostream& strm)
     voxel->EvaluateLocation (subId, voxelCoords, voxelPosition, voxelWeights);
     strm << "\tposition: " << voxelPosition[0] << ", " << voxelPosition[1] << ", " << voxelPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Wedge
   vtkWedge *wedge = vtkWedge::New();
@@ -405,7 +405,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(wedgePoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     wedge->EvaluatePosition (&wedgePoint[j][0], &wedgeClosest[0], subId, &wedgeCoords[0], dist2, &wedgeWeights[0]);
     strm << "vtkWedge (" << wedgePoint[j][0] << ", " << wedgePoint[j][1] << ", " << wedgePoint[j][2] << ")" << endl;
     strm << "\tclosest: " << wedgeClosest[0] << ", " << wedgeClosest[1] << ", " << wedgeClosest[2] << endl;
@@ -416,7 +416,7 @@ int TestOCP(ostream& strm)
     wedge->EvaluateLocation (subId, wedgeCoords, wedgePosition, wedgeWeights);
     strm << "\tposition: " << wedgePosition[0] << ", " << wedgePosition[1] << ", " << wedgePosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Hexahedron
   vtkHexahedron *hexahedron = vtkHexahedron::New();
@@ -447,7 +447,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(hexahedronPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     hexahedron->EvaluatePosition (&hexahedronPoint[j][0], &hexahedronClosest[0], subId, &hexahedronCoords[0], dist2, &hexahedronWeights[0]);
     strm << "vtkHexahedron (" << hexahedronPoint[j][0] << ", " << hexahedronPoint[j][1] << ", " << hexahedronPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << hexahedronClosest[0] << ", " << hexahedronClosest[1] << ", " << hexahedronClosest[2] << endl;
@@ -458,7 +458,7 @@ int TestOCP(ostream& strm)
     hexahedron->EvaluateLocation (subId, hexahedronCoords, hexahedronPosition, hexahedronWeights);
     strm << "\tposition: " << hexahedronPosition[0] << ", " << hexahedronPosition[1] << ", " << hexahedronPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Pentagonal Prism
   vtkPentagonalPrism *penta = vtkPentagonalPrism::New();
@@ -493,7 +493,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(pentaPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     penta->EvaluatePosition (&pentaPoint[j][0], &pentaClosest[0], subId, &pentaCoords[0], dist2, &pentaWeights[0]);
     strm << "vtkPentagonalPrism (" << pentaPoint[j][0] << ", " << pentaPoint[j][1] << ", " << pentaPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << pentaClosest[0] << ", " << pentaClosest[1] << ", " << pentaClosest[2] << endl;
@@ -504,7 +504,7 @@ int TestOCP(ostream& strm)
     penta->EvaluateLocation (subId, pentaCoords, pentaPosition, pentaWeights);
     strm << "\tposition: " << pentaPosition[0] << ", " << pentaPosition[1] << ", " << pentaPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   //Hexagonal Prism
   vtkHexagonalPrism *hexa = vtkHexagonalPrism::New();
@@ -544,7 +544,7 @@ int TestOCP(ostream& strm)
 
   n = sizeof(hexaPoint) / (3 * sizeof(double));
   for (j = 0; j < n; j++)
-    {
+  {
     hexa->EvaluatePosition (&hexaPoint[j][0], &hexaClosest[0], subId, &hexaCoords[0], dist2, &hexaWeights[0]);
     strm << "vtkHexagonalPrism (" << hexaPoint[j][0] << ", " << hexaPoint[j][1] << ", " << hexaPoint[j][2] << ")" << endl;
     strm << "\tclosest: " << hexaClosest[0] << ", " << hexaClosest[1] << ", " << hexaClosest[2] << endl;
@@ -555,7 +555,7 @@ int TestOCP(ostream& strm)
     hexa->EvaluateLocation (subId, hexaCoords, hexaPosition, hexaWeights);
     strm << "\tposition: " << hexaPosition[0] << ", " << hexaPosition[1] << ", " << hexaPosition[2] << endl;
     strm << endl;
-    }
+  }
 
   ids->Delete();
   vertex->Delete();

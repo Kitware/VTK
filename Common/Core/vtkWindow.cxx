@@ -78,11 +78,11 @@ void vtkWindow::SetSize(int x, int y)
 {
   if ( this->Size[0] != x
     || this->Size[1] != y )
-    {
+  {
     this->Size[0] = x;
     this->Size[1] = y;
     this->Modified();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -102,11 +102,11 @@ void vtkWindow::SetPosition(int x, int y)
 {
   if ( this->Position[0] != x
     || this->Position[1] != y )
-    {
+  {
     this->Modified();
     this->Position[0] = x;
     this->Position[1] = y;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -116,13 +116,13 @@ void vtkWindow::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Erase: " << (this->Erase ? "On\n" : "Off\n");
   if ( this->WindowName )
-    {
+  {
     os << indent << "Window Name: " << this->WindowName << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Window Name: (none)\n";
-    }
+  }
 
   // Can only print out the ivars because the window may not have been
   // created yet.

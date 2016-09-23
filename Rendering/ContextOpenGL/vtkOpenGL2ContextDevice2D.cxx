@@ -55,7 +55,7 @@ bool vtkOpenGL2ContextDevice2D::IsSupported(vtkViewport *viewport)
   bool supported = false;
   vtkOpenGLRenderer *gl = vtkOpenGLRenderer::SafeDownCast(viewport);
   if (gl)
-    {
+  {
     vtkOpenGLRenderWindow *context =
       vtkOpenGLRenderWindow::SafeDownCast(gl->GetRenderWindow());
 
@@ -73,10 +73,10 @@ bool vtkOpenGL2ContextDevice2D::IsSupported(vtkViewport *viewport)
       && extensions->DriverVersionAtLeast(8)));
 
     if ( ogl_support && driver_support )
-      {
+    {
       supported = true;
-      }
     }
+  }
 
   return supported;
 }
@@ -99,20 +99,20 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
 {
   vtkOpenGLClearErrorMacro();
   if (points && n > 0)
-    {
+  {
     this->SetPointSize(this->Pen->GetWidth());
     if (sprite)
-      {
+    {
       if (!this->Storage->SpriteTexture)
-        {
+      {
         this->Storage->SpriteTexture = vtkTexture::New();
-        }
+      }
       int properties = this->Brush->GetTextureProperties();
       this->Storage->SpriteTexture->SetInputData(sprite);
       this->Storage->SpriteTexture->SetRepeat(properties & vtkContextDevice2D::Repeat);
       this->Storage->SpriteTexture->SetInterpolate(properties & vtkContextDevice2D::Linear);
       this->Storage->SpriteTexture->Render(this->Renderer);
-      }
+    }
 
     // We can actually use point sprites here
     glEnable(vtkgl::POINT_SPRITE);
@@ -125,15 +125,15 @@ void vtkOpenGL2ContextDevice2D::DrawPointSprites(vtkImageData *sprite,
     glDisable(vtkgl::POINT_SPRITE);
 
     if (sprite)
-      {
+    {
       this->Storage->SpriteTexture->PostRender(this->Renderer);
       glDisable(GL_TEXTURE_2D);
-      }
     }
+  }
   else
-    {
+  {
     vtkWarningMacro(<< "Points supplied without a valid image or pointer.");
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after DrawPointSprites");
 }
 
@@ -212,16 +212,16 @@ void vtkOpenGL2ContextDevice2D::ReleaseGraphicsResources(vtkWindow *window)
 bool vtkOpenGL2ContextDevice2D::LoadExtensions(vtkOpenGLExtensionManager *m)
 {
   if(m->ExtensionSupported("GL_VERSION_2_0"))
-    {
+  {
     m->LoadExtension("GL_VERSION_1_4");
     m->LoadExtension("GL_VERSION_2_0");
     this->Storage->OpenGL20 = true;
     this->Storage->PowerOfTwoTextures = false;
-    }
+  }
   else
-    {
+  {
     this->Storage->OpenGL20 = false;
-    }
+  }
 
   this->Storage->GLExtensionsLoaded = true;
 

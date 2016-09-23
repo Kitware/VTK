@@ -36,13 +36,13 @@ class FuncCall
 
 public:
   void operator() (const tbb::blocked_range<vtkIdType>& r) const
-    {
+  {
       o.Execute(r.begin(), r.end());
-    }
+  }
 
   FuncCall (T& _o) : o(_o)
-    {
-    }
+  {
+  }
 };
 
 //--------------------------------------------------------------------------------
@@ -53,17 +53,17 @@ static void vtkSMPTools_Impl_For(
 {
   vtkIdType n = last - first;
   if (!n)
-    {
+  {
     return;
-    }
+  }
   if (grain > 0)
-    {
+  {
     tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last, grain), FuncCall<FunctorInternal>(fi));
-    }
+  }
   else
-    {
+  {
     tbb::parallel_for(tbb::blocked_range<vtkIdType>(first, last), FuncCall<FunctorInternal>(fi));
-    }
+  }
 }
 
 //--------------------------------------------------------------------------------

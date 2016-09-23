@@ -55,16 +55,16 @@ vtkProp::vtkProp()
 vtkProp::~vtkProp()
 {
   if ( this->Paths )
-    {
+  {
     this->Paths->Delete();
-    }
+  }
 
   delete [] this->Consumers;
 
   if(this->PropertyKeys!=0)
-    {
+  {
     this->PropertyKeys->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -87,13 +87,13 @@ void vtkProp::ShallowCopy(vtkProp *prop)
 void vtkProp::InitPathTraversal()
 {
   if ( this->Paths == NULL )
-    {
+  {
     this->Paths = vtkAssemblyPaths::New();
     vtkAssemblyPath *path = vtkAssemblyPath::New();
     path->AddNode(this,NULL);
     this->BuildPaths(this->Paths,path);
     path->Delete();
-    }
+  }
   this->Paths->InitTraversal();
 }
 
@@ -101,9 +101,9 @@ void vtkProp::InitPathTraversal()
 vtkAssemblyPath *vtkProp::GetNextPath()
 {
   if ( ! this->Paths)
-    {
+  {
     return NULL;
-    }
+  }
   return this->Paths->GetNextItem();
 }
 
@@ -142,14 +142,14 @@ void vtkProp::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "PropertyKeys: ";
   if(this->PropertyKeys!=0)
-    {
+  {
     this->PropertyKeys->PrintSelf(os,indent);
     os << endl;
-    }
+  }
   else
-    {
+  {
     os << "none." << endl;
-    }
+  }
 
   os << indent << "useBounds: " << this->UseBounds <<endl;
 }
@@ -160,17 +160,17 @@ void vtkProp::AddConsumer(vtkObject *c)
 {
   // make sure it isn't already there
   if (this->IsConsumer(c))
-    {
+  {
     return;
-    }
+  }
   // add it to the list, reallocate memory
   vtkObject **tmp = this->Consumers;
   this->NumberOfConsumers++;
   this->Consumers = new vtkObject* [this->NumberOfConsumers];
   for (int i = 0; i < (this->NumberOfConsumers-1); i++)
-    {
+  {
     this->Consumers[i] = tmp[i];
-    }
+  }
   this->Consumers[this->NumberOfConsumers-1] = c;
   // free old memory
   delete [] tmp;
@@ -181,9 +181,9 @@ void vtkProp::RemoveConsumer(vtkObject *c)
 {
   // make sure it is already there
   if (!this->IsConsumer(c))
-    {
+  {
     return;
-    }
+  }
   // remove it from the list, reallocate memory
   vtkObject **tmp = this->Consumers;
   this->NumberOfConsumers--;
@@ -191,13 +191,13 @@ void vtkProp::RemoveConsumer(vtkObject *c)
   int cnt = 0;
   int i;
   for (i = 0; i <= this->NumberOfConsumers; i++)
-    {
+  {
     if (tmp[i] != c)
-      {
+    {
       this->Consumers[cnt] = tmp[i];
       cnt++;
-      }
     }
+  }
   // free old memory
   delete [] tmp;
 }
@@ -207,12 +207,12 @@ int vtkProp::IsConsumer(vtkObject *c)
 {
   int i;
   for (i = 0; i < this->NumberOfConsumers; i++)
-    {
+  {
     if (this->Consumers[i] == c)
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -220,9 +220,9 @@ int vtkProp::IsConsumer(vtkObject *c)
 vtkObject *vtkProp::GetConsumer(int i)
 {
   if (i >= this->NumberOfConsumers)
-    {
+  {
     return 0;
-    }
+  }
   return this->Consumers[i];
 }
 
@@ -234,19 +234,19 @@ bool vtkProp::HasKeys(vtkInformation *requiredKeys)
 {
   bool result=requiredKeys==0;
   if(!result)
-    {
+  {
     vtkInformationIterator *it=vtkInformationIterator::New();
     it->SetInformation(requiredKeys);
     it->GoToFirstItem();
     result=true;
     while(result && !it->IsDoneWithTraversal())
-      {
+    {
       vtkInformationKey *k=it->GetCurrentKey();
       result=this->PropertyKeys!=0 && this->PropertyKeys->Has(k);
       it->GoToNextItem();
-      }
-    it->Delete();
     }
+    it->Delete();
+  }
   return result;
 }
 
@@ -265,13 +265,13 @@ bool vtkProp::RenderFilteredOpaqueGeometry(vtkViewport *v,
   assert("pre: v_exists" && v!=0);
   bool result;
   if(this->HasKeys(requiredKeys))
-    {
+  {
     result=this->RenderOpaqueGeometry(v)==1;
-    }
+  }
   else
-    {
+  {
     result=false;
-    }
+  }
   return result;
 }
 
@@ -292,13 +292,13 @@ bool vtkProp::RenderFilteredTranslucentPolygonalGeometry(
   assert("pre: v_exists" && v!=0);
   bool result;
   if(this->HasKeys(requiredKeys))
-    {
+  {
     result=this->RenderTranslucentPolygonalGeometry(v)==1;
-    }
+  }
   else
-    {
+  {
     result=false;
-    }
+  }
   return result;
 }
 
@@ -318,13 +318,13 @@ bool vtkProp::RenderFilteredVolumetricGeometry(vtkViewport *v,
   assert("pre: v_exists" && v!=0);
   bool result;
   if(this->HasKeys(requiredKeys))
-    {
+  {
     result=this->RenderVolumetricGeometry(v)==1;
-    }
+  }
   else
-    {
+  {
     result=false;
-    }
+  }
   return result;
 }
 
@@ -344,12 +344,12 @@ bool vtkProp::RenderFilteredOverlay(vtkViewport *v,
   assert("pre: v_exists" && v!=0);
   bool result;
   if(this->HasKeys(requiredKeys))
-    {
+  {
     result=this->RenderOverlay(v)==1;
-    }
+  }
   else
-    {
+  {
     result=false;
-    }
+  }
   return result;
 }

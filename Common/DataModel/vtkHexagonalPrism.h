@@ -101,13 +101,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[12]) VTK_OVERRIDE
-    {
+  {
     vtkHexagonalPrism::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[36]) VTK_OVERRIDE
-    {
+  {
     vtkHexagonalPrism::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
   //@{

@@ -98,30 +98,30 @@ void BuildGraphMLGraph(vtkMutableDirectedGraph* graph, std::string file)
   vtkNew<vtkPoints> points;
   graph->SetPoints(points.GetPointer());
   for (vtkIdType i = 0; i < tree->GetNumberOfVertices(); ++i)
-    {
+  {
     vtkStdString k = keyArr->GetValue(i);
     if (k == "x")
-      {
+    {
       x = vtkVariant(contentArr->GetValue(i)).ToDouble();
-      }
+    }
     if (k == "y")
-      {
+    {
       y = vtkVariant(contentArr->GetValue(i)).ToDouble();
       graph->AddVertex();
       points->InsertNextPoint(x, y, 0.0);
-      }
+    }
     vtkStdString s = sourceArr->GetValue(i);
     if (s != "")
-      {
+    {
       source = vtkVariant(s).ToInt();
-      }
+    }
     vtkStdString t = targetArr->GetValue(i);
     if (t != "")
-      {
+    {
       target = vtkVariant(t).ToInt();
       graph->AddEdge(source, target);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -199,11 +199,11 @@ int TestBoostDividedEdgeBundling(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage(renderWindow.GetPointer());
   if (retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindow->Render();
     interactor->Start();
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
   return !retVal;
 }
 

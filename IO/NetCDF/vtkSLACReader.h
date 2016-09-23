@@ -169,13 +169,13 @@ public:
     EdgeEndpoints() : MinEndPoint(-1), MaxEndPoint(-1) {}
     EdgeEndpoints(vtkIdType endpointA, vtkIdType endpointB) {
       if (endpointA < endpointB)
-        {
+      {
         this->MinEndPoint = endpointA;  this->MaxEndPoint = endpointB;
-        }
+      }
       else
-        {
+      {
         this->MinEndPoint = endpointB;  this->MaxEndPoint = endpointA;
-        }
+      }
     }
     inline vtkIdType GetMinEndPoint() const { return this->MinEndPoint; }
     inline vtkIdType GetMaxEndPoint() const { return this->MaxEndPoint; }

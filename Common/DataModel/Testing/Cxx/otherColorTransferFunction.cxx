@@ -59,13 +59,13 @@ int Test(ostream& strm)
   ctf1->GetTable(0, 15, 256, &table[0][0]);
   strm << "GetTable(0, 15, 256, &table[0][0])" << endl;
   for (i = 0; i < 256; i++)
-    {
+  {
       for (j = 0; j < 3; j++)
-        {
+      {
         strm << table[j][i] << " ";
-        }
+      }
       strm << endl;
-    }
+  }
 
   strm << "BuildFunctionFrom(0, 15, 256, &table[0][0])" << endl;
   vtkColorTransferFunction *ctf2 = vtkColorTransferFunction::New();
@@ -99,7 +99,7 @@ int Test(ostream& strm)
   double *dData = new double[128];
 
   for (k = 0; k < 128; k++)
-    {
+  {
     *(cData+k) = static_cast<char>(static_cast<float>(k)/255.0);
     *(ucData+k) = static_cast<unsigned char>(static_cast<float>(k)/255.0);
     *(sData+k) = static_cast<short>(static_cast<float>(k)/255.0);
@@ -110,11 +110,11 @@ int Test(ostream& strm)
     *(ulData+k) = static_cast<unsigned long>(static_cast<float>(k)/255.0);
     *(fData+k) = static_cast<float>(static_cast<float>(k)/255.0);
     *(dData+k) = static_cast<double>(static_cast<float>(k)/255.0);
-    }
+  }
 
   unsigned char *ucResult = new unsigned char[128*4];
   for (k = 1; k <= 4; k++)
-    {
+  {
     ctf2->MapScalarsThroughTable2((void *) cData, ucResult, VTK_CHAR, 128, 1, k);
     ctf2->MapScalarsThroughTable2((void *) ucData, ucResult, VTK_UNSIGNED_CHAR, 128, 1, k);
     ctf2->MapScalarsThroughTable2((void *) sData, ucResult, VTK_SHORT, 128, 1, k);
@@ -125,7 +125,7 @@ int Test(ostream& strm)
     ctf2->MapScalarsThroughTable2((void *) ulData, ucResult, VTK_UNSIGNED_LONG, 128, 1, k);
     ctf2->MapScalarsThroughTable2((void *) fData, ucResult, VTK_FLOAT, 128, 1, k);
     ctf2->MapScalarsThroughTable2((void *) dData, ucResult, VTK_DOUBLE, 128, 1, k);
-    }
+  }
 
   ctf1->Delete();
   ctf2->Delete();

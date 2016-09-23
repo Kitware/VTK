@@ -72,14 +72,14 @@ protected:
   vtkShaderProgram2 * Shader;
 
   enum eMaterialParamater
-    {
+  {
     DISABLED = 0,
     AMBIENT = 1,
     DIFFUSE = 2,
     SPECULAR = 3,
     AMBIENT_AND_DIFFUSE = 4,
     EMISSION = 5
-    };
+  };
   eMaterialParamater Mode;
 
 private:

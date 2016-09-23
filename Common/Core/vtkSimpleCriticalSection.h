@@ -68,18 +68,18 @@ class VTKCOMMONCORE_EXPORT vtkSimpleCriticalSection
 public:
   // Default cstor
   vtkSimpleCriticalSection()
-    {
+  {
     this->Init();
-    }
+  }
   // Construct object locked if isLocked is different from 0
   vtkSimpleCriticalSection(int isLocked)
-    {
+  {
     this->Init();
     if(isLocked)
-      {
+    {
       this->Lock();
-      }
     }
+  }
   // Destructor
   virtual ~vtkSimpleCriticalSection();
 

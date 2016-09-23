@@ -32,75 +32,75 @@ int vtkBalloonWidgetTest1(int , char * [] )
   node1->AddBalloon(prop1, stdString, imageData);
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
-    {
+  {
     std::cerr << "1. Get null return string." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   if (stdString.compare(retstr) != 0)
-    {
+  {
     std::cerr << "1. Expected " << stdString << ", got " << retstr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   node1->AddBalloon(prop1, cstr, imageData);
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
-    {
+  {
     std::cerr << "2. Get null return string." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   if (strcmp(retstr,cstr) != 0)
-    {
+  {
     std::cerr << "2. Expected " << cstr << ", got " << retstr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   node1->AddBalloon(prop1, "string2", imageData);
   // check the image data first, since adding other balloons resets it
   vtkImageData *retImageData = node1->GetBalloonImage(prop1);
   if (retImageData != imageData)
-    {
+  {
     std::cerr << "Didn't get back expected image data" << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
-    {
+  {
     std::cerr << "3. Get null return string." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   if (strcmp(retstr,"string2") != 0)
-    {
+  {
     std::cerr << "3. Expected 'string2', got " << retstr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   node1->AddBalloon(prop1, cstr);
   retstr = node1->GetBalloonString(prop1);
    if (!retstr)
-    {
+   {
     std::cerr << "4. Get null return string." << std::endl;
     return EXIT_FAILURE;
-    }
+   }
   if (strcmp(retstr,cstr) != 0)
-    {
+  {
     std::cerr << "4. Expected " << cstr << ", got " << retstr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   node1->AddBalloon(prop1, "string3");
   retstr = node1->GetBalloonString(prop1);
   if (!retstr)
-    {
+  {
     std::cerr << "5. Get null return string." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
   if (strcmp(retstr,"string3") != 0)
-    {
+  {
     std::cerr << "5. Expected 'string3', got " << retstr << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
   return EXIT_SUCCESS;

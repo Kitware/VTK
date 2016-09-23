@@ -35,10 +35,10 @@ public:
   vtkTemplateTypeMacro(vtkBuffer<ScalarTypeT>, vtkObject)
   typedef ScalarTypeT ScalarType;
   enum
-    {
+  {
     VTK_DATA_ARRAY_FREE,
     VTK_DATA_ARRAY_DELETE
-    };
+  };
 
   static vtkBuffer<ScalarTypeT>* New();
 
@@ -111,20 +111,20 @@ void vtkBuffer<ScalarT>::SetBuffer(
     vtkIdType size, bool save, int deleteMethod)
 {
   if (this->Pointer != array)
-    {
+  {
     if (!this->Save)
-      {
+    {
       if (this->DeleteMethod == VTK_DATA_ARRAY_FREE)
-        {
+      {
         free(this->Pointer);
-        }
-      else
-        {
-        delete [] this->Pointer;
-        }
       }
-    this->Pointer = array;
+      else
+      {
+        delete [] this->Pointer;
+      }
     }
+    this->Pointer = array;
+  }
   this->Size = size;
   this->Save = save;
   this->DeleteMethod = deleteMethod;
@@ -137,16 +137,16 @@ bool vtkBuffer<ScalarT>::Allocate(vtkIdType size)
   // release old memory.
   this->SetBuffer(NULL, 0);
   if (size > 0)
-    {
+  {
     ScalarType* newArray =
         static_cast<ScalarType*>(malloc(size * sizeof(ScalarType)));
     if (newArray)
-      {
+    {
       this->SetBuffer(newArray, size, false, VTK_DATA_ARRAY_FREE);
       return true;
-      }
-    return false;
     }
+    return false;
+  }
   return true; // size == 0
 }
 
@@ -158,31 +158,31 @@ bool vtkBuffer<ScalarT>::Reallocate(vtkIdType newsize)
 
   if (this->Pointer &&
       (this->Save || this->DeleteMethod == VTK_DATA_ARRAY_DELETE))
-    {
+  {
     ScalarType* newArray =
         static_cast<ScalarType*>(malloc(newsize * sizeof(ScalarType)));
     if (!newArray)
-      {
+    {
       return false;
-      }
+    }
     std::copy(this->Pointer, this->Pointer + std::min(this->Size, newsize),
               newArray);
     // now save the new array and release the old one too.
     this->SetBuffer(newArray, newsize, false, VTK_DATA_ARRAY_FREE);
-    }
+  }
   else
-    {
+  {
     // Try to reallocate with minimal memory usage and possibly avoid
     // copying.
     ScalarType* newArray = static_cast<ScalarType*>(
           realloc(this->Pointer, newsize * sizeof(ScalarType)));
     if (!newArray)
-      {
+    {
       return false;
-      }
+    }
     this->Pointer = newArray;
     this->Size = newsize;
-    }
+  }
   return true;
 }
 

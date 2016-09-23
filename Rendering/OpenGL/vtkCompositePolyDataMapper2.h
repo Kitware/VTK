@@ -74,10 +74,10 @@ public:
    */
   void SetBlockColor(unsigned int index, double color[3]);
   void SetBlockColor(unsigned int index, double r, double g, double b)
-    {
+  {
     double color[3] = {r, g, b};
     this->SetBlockColor(index, color);
-    }
+  }
   double* GetBlockColor(unsigned int index);
   void RemoveBlockColor(unsigned int index);
   void RemoveBlockColors();

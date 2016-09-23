@@ -106,11 +106,11 @@ protected:
 
   /// How are node sizes specified?
   enum RadiusMode
-    {
+  {
     NONE,     //!< No node sizes specified... unit radius is assumed.
     LEAVES,   //!< Only leaf node sizes specified... parents are calculated during layout.
     ALL       //!< All node sizes specified (overconstrained, so a scale factor for each parent is calculated during layout).
-    };
+  };
 
   vtkCosmicTreeLayoutStrategy();
   virtual ~vtkCosmicTreeLayoutStrategy();

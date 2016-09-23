@@ -33,7 +33,7 @@ int TestStreamGraph(int, char*[])
   stream->SetEdgeWindow(5);
   stream->SetEdgeWindowArrayName("time");
   for (int i = 0; i < 10; ++i)
-    {
+  {
     src->SetValue(0, i);
     tgt->SetValue(0, i+1);
     time->SetValue(0, i);
@@ -43,22 +43,22 @@ int TestStreamGraph(int, char*[])
     vtkSmartPointer<vtkTable> edgeTable = vtkSmartPointer<vtkTable>::New();
     edgeTable->SetRowData(stream->GetOutput()->GetEdgeData());
     edgeTable->Dump();
-    }
+  }
 
   vtkGraph* output = stream->GetOutput();
   if (output->GetNumberOfVertices() != 11 || output->GetNumberOfEdges() != 6)
-    {
+  {
     cerr << "ERROR: Incorrect number of vertices/edges." << endl;
     return 1;
-    }
+  }
   vtkDataArray* outputTime = output->GetEdgeData()->GetArray("time");
   double timeRange[2];
   outputTime->GetRange(timeRange);
   if (timeRange[0] != 4 || timeRange[1] != 9)
-    {
+  {
     cerr << "ERROR: Incorrect time range." << endl;
     return 1;
-    }
+  }
 
   return 0;
 }

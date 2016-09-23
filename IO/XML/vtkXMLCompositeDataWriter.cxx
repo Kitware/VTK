@@ -60,25 +60,25 @@ public:
   // Get the default extension for the dataset_type. Will return NULL if an
   // extension cannot be determined.
   const char* GetDefaultFileExtensionForDataSet(int dataset_type)
-    {
+  {
     std::map<int, vtkSmartPointer<vtkXMLWriter> >::iterator iter
       = this->TmpWriters.find(dataset_type);
     if (iter == this->TmpWriters.end())
-      {
+    {
       vtkSmartPointer<vtkXMLWriter> writer;
       writer.TakeReference(vtkXMLDataSetWriter::NewWriter(dataset_type));
       if (writer)
-        {
+      {
         std::pair<int, vtkSmartPointer<vtkXMLWriter> > pair(dataset_type, writer);
         iter = this->TmpWriters.insert(pair).first;
-        }
       }
-    if (iter != this->TmpWriters.end())
-      {
-      return iter->second->GetDefaultFileExtension();
-      }
-    return NULL;
     }
+    if (iter != this->TmpWriters.end())
+    {
+      return iter->second->GetDefaultFileExtension();
+    }
+    return NULL;
+  }
 };
 
 //----------------------------------------------------------------------------
@@ -136,13 +136,13 @@ int vtkXMLCompositeDataWriter::ProcessRequest(
   vtkInformationVector* outputVector)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     return this->RequestUpdateExtent(request, inputVector, outputVector);
-    }
+  }
   if (request->Has(vtkDemandDrivenPipeline::REQUEST_DATA()))
-    {
+  {
     return this->RequestData(request, inputVector, outputVector);
-    }
+  }
 
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }
@@ -151,10 +151,10 @@ int vtkXMLCompositeDataWriter::ProcessRequest(
 void vtkXMLCompositeDataWriter::SetWriteMetaFile(int flag)
 {
   if (this->WriteMetaFile != flag)
-    {
+  {
     this->WriteMetaFile = flag;
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -182,11 +182,11 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
   vtkCompositeDataSet *compositeData = vtkCompositeDataSet::SafeDownCast(
     inInfo->Get(vtkDataObject::DATA_OBJECT()));
   if (!compositeData)
-    {
+  {
     vtkErrorMacro("No hierarchical input has been provided. Cannot write");
     this->InputInformation = 0;
     return 0;
-    }
+  }
 
   // Create writers for each input.
   this->CreateWriters(compositeData);
@@ -195,12 +195,12 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 
   // Make sure we have a file to write.
   if (!this->Stream && !this->FileName)
-    {
+  {
     vtkErrorMacro("Writer called with no FileName set.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     this->InputInformation = 0;
     return 0;
-    }
+  }
 
   // We are just starting to write.  Do not call
   // UpdateProgressDiscrete because we want a 0 progress callback the
@@ -227,20 +227,20 @@ int vtkXMLCompositeDataWriter::RequestData(vtkInformation*,
 
   int writerIdx = 0;
   if (!this->WriteComposite(compositeData, this->Internal->Root, writerIdx))
-    {
+  {
     this->RemoveWrittenFiles(subdir.c_str());
     return 0;
-    }
+  }
 
   if (this->WriteMetaFile)
-    {
+  {
     this->SetProgressRange(progressRange, this->GetNumberOfInputConnections(0),
                            this->GetNumberOfInputConnections(0)
                            + this->WriteMetaFile);
     int retVal = this->WriteMetaFileIfRequested();
     this->InputInformation = 0;
     return retVal;
-    }
+  }
 
   // We have finished writing.
   this->UpdateProgressDiscrete(1);
@@ -261,27 +261,27 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   // Locate the actual data writer for this dataset.
   vtkXMLWriter* writer = this->GetWriter(myWriterIndex);
   if (!writer)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkDataSet* curDS = vtkDataSet::SafeDownCast(dObj);
   if (!curDS)
-    {
+  {
     if (dObj)
-      {
+    {
       vtkWarningMacro("This writer cannot handle sub-datasets of type: "
         << dObj->GetClassName()
         << " Dataset will be skipped.");
-      }
-    return 0;
     }
+    return 0;
+  }
 
   if (datasetXML)
-    {
+  {
     // Create the entry for the collection file.
     datasetXML->SetAttribute("file", fileName);
-    }
+  }
 
   // FIXME
   // Ken's note, I do not think you can fix this, the
@@ -301,11 +301,11 @@ int vtkXMLCompositeDataWriter::WriteNonCompositeData(
   writer->RemoveObserver(this->ProgressObserver);
 
   if (writer->GetErrorCode() == vtkErrorCode::OutOfDiskSpaceError)
-    {
+  {
     this->SetErrorCode(vtkErrorCode::OutOfDiskSpaceError);
     vtkErrorMacro("Ran out of disk space; deleting file: " << this->FileName);
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -320,9 +320,9 @@ int vtkXMLCompositeDataWriter::WriteData()
   ostream& os = *(this->Stream);
 
   if (this->Internal->Root)
-    {
+  {
     this->Internal->Root->PrintXML(os, indent);
-    }
+  }
 
   return this->EndFile();
 }
@@ -331,12 +331,12 @@ int vtkXMLCompositeDataWriter::WriteData()
 int vtkXMLCompositeDataWriter::WriteMetaFileIfRequested()
 {
   if (this->WriteMetaFile)
-    {
+  {
     if (!this->Superclass::WriteInternal())
-      {
+    {
       return 0;
-      }
     }
+  }
   return 1;
 }
 
@@ -344,22 +344,22 @@ int vtkXMLCompositeDataWriter::WriteMetaFileIfRequested()
 void vtkXMLCompositeDataWriter::MakeDirectory(const char* name)
 {
   if (!vtksys::SystemTools::MakeDirectory(name))
-    {
+  {
     vtkErrorMacro(<< "Sorry unable to create directory: " << name
                    << endl << "Last systen error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkXMLCompositeDataWriter::RemoveADirectory(const char* name)
 {
   if (!vtksys::SystemTools::RemoveADirectory(name))
-    {
+  {
     vtkErrorMacro(<< "Sorry unable to remove a directory: " << name
                    << endl << "Last system error was: "
                    << vtksys::SystemTools::GetLastSystemError().c_str());
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -372,15 +372,15 @@ const char* vtkXMLCompositeDataWriter::GetDefaultFileExtension()
 const char* vtkXMLCompositeDataWriter::GetDataSetName()
 {
   if (!this->InputInformation)
-    {
+  {
     return "CompositeDataSet";
-    }
+  }
   vtkDataObject *hdInput = vtkDataObject::SafeDownCast(
     this->InputInformation->Get(vtkDataObject::DATA_OBJECT()));
   if (!hdInput)
-    {
+  {
     return 0;
-    }
+  }
   return hdInput->GetClassName();
 }
 
@@ -391,27 +391,27 @@ void vtkXMLCompositeDataWriter::FillDataTypes(vtkCompositeDataSet* hdInput)
   iter.TakeReference(hdInput->NewIterator());
   vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
   if (treeIter)
-    {
+  {
     treeIter->VisitOnlyLeavesOn();
     treeIter->TraverseSubTreeOn();
-    }
+  }
   iter->SkipEmptyNodesOff();
 
   this->Internal->DataTypes.clear();
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem())
-    {
+  {
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     // BUG #0015942: Datasets with no cells or points are considered empty and
     // we'll skip then in our serialization code.
     if (ds && (ds->GetNumberOfPoints() > 0 || ds->GetNumberOfCells() > 0))
-      {
+    {
       this->Internal->DataTypes.push_back(ds->GetDataObjectType());
-      }
-    else
-      {
-      this->Internal->DataTypes.push_back(-1);
-      }
     }
+    else
+    {
+      this->Internal->DataTypes.push_back(-1);
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -424,10 +424,10 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
   iter.TakeReference(hdInput->NewIterator());
   vtkDataObjectTreeIterator* treeIter = vtkDataObjectTreeIterator::SafeDownCast(iter);
   if (treeIter)
-    {
+  {
     treeIter->VisitOnlyLeavesOn();
     treeIter->TraverseSubTreeOn();
-    }
+  }
   iter->SkipEmptyNodesOff();
 
   size_t numDatasets = this->Internal->DataTypes.size();
@@ -435,21 +435,21 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
 
   int i = 0;
   for (iter->InitTraversal(); !iter->IsDoneWithTraversal(); iter->GoToNextItem(), ++i)
-    {
+  {
     vtkSmartPointer<vtkXMLWriter>& writer = this->Internal->Writers[i];
     vtkDataSet* ds = vtkDataSet::SafeDownCast(iter->GetCurrentDataObject());
     if (ds == NULL)
-      {
+    {
       writer = NULL;
       continue;
-      }
+    }
 
     // Create a writer based on the type of this input. We just instantiate
     // vtkXMLDataSetWriter. That internally creates the write type of writer
     // based on the data type.
     writer.TakeReference(vtkXMLDataSetWriter::NewWriter(this->Internal->DataTypes[i]));
     if (writer)
-      {
+    {
       // Copy settings to the writer.
       writer->SetDebug(this->GetDebug());
       writer->SetByteOrder(this->GetByteOrder());
@@ -462,8 +462,8 @@ void vtkXMLCompositeDataWriter::CreateWriters(vtkCompositeDataSet* hdInput)
 
       // Pass input.
       writer->SetInputDataObject(ds);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -471,9 +471,9 @@ vtkXMLWriter* vtkXMLCompositeDataWriter::GetWriter(int index)
 {
   int size = static_cast<int>(this->Internal->Writers.size());
   if (index >= 0 && index < size)
-    {
+  {
     return this->Internal->Writers[index].GetPointer();
-    }
+  }
   return 0;
 }
 
@@ -486,31 +486,31 @@ void vtkXMLCompositeDataWriter::SplitFileName()
   // Split the file name and extension from the path.
   std::string::size_type pos = fileName.find_last_of("/\\");
   if (pos != fileName.npos)
-    {
+  {
     // Keep the slash in the file path.
     this->Internal->FilePath = fileName.substr(0, pos+1);
     name = fileName.substr(pos+1);
-    }
+  }
   else
-    {
+  {
     this->Internal->FilePath = "./";
     name = fileName;
-    }
+  }
 
   // Split the extension from the file name.
   pos = name.find_last_of(".");
   if (pos != name.npos)
-    {
+  {
     this->Internal->FilePrefix = name.substr(0, pos);
-    }
+  }
   else
-    {
+  {
     this->Internal->FilePrefix = name;
 
     // Since a subdirectory is used to store the files, we need to
     // change its name if there is no file extension.
     this->Internal->FilePrefix += "_data";
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -533,9 +533,9 @@ void vtkXMLCompositeDataWriter::ProgressCallbackFunction(vtkObject* caller,
 {
   vtkAlgorithm* w = vtkAlgorithm::SafeDownCast(caller);
   if (w)
-    {
+  {
     reinterpret_cast<vtkXMLCompositeDataWriter*>(clientdata)->ProgressCallback(w);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -546,9 +546,9 @@ void vtkXMLCompositeDataWriter::ProgressCallback(vtkAlgorithm* w)
   float progress = this->ProgressRange[0] + internalProgress*width;
   this->UpdateProgressDiscrete(progress);
   if (this->AbortExecute)
-    {
+  {
     w->SetAbortExecute(1);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -556,9 +556,9 @@ vtkStdString vtkXMLCompositeDataWriter::CreatePieceFileName(
   int piece)
 {
   if (this->Internal->DataTypes[piece] < 0)
-    {
+  {
     return "";
-    }
+  }
 
   std::ostringstream stream;
   stream << this->Internal->FilePrefix.c_str() << "/"

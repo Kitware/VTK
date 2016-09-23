@@ -42,11 +42,11 @@ int TestODBCDatabase( int, char ** const )
   bool status = db->Open(NULL);
 
   if ( ! status )
-    {
+  {
     cerr << "Couldn't open database.  Error message: "
          << db->GetLastErrorText() << "\n";
     return 1;
-    }
+  }
 
   vtkSQLQuery* query = db->GetQueryInstance();
 
@@ -54,15 +54,15 @@ int TestODBCDatabase( int, char ** const )
   cout << createQuery << endl;
   query->SetQuery( createQuery.c_str() );
   if ( !query->Execute() )
-    {
+  {
     cerr << "Create query failed.  Error message: "
          << query->GetLastErrorText() << endl;
     return 1;
-    }
+  }
 
   int i;
   for ( i = 0; i < 20; ++ i )
-    {
+  {
     std::ostringstream queryBuf;
 
     queryBuf << "INSERT INTO people VALUES('John Doe "
@@ -71,36 +71,36 @@ int TestODBCDatabase( int, char ** const )
     cout << queryBuf.str() << endl;
     query->SetQuery( queryBuf.str().c_str() );
     if ( !query->Execute() )
-      {
+    {
       cerr << "Insert query " << i << " failed.  Error message: "
            << query->GetLastErrorText() << endl;
       return 1;
-      }
     }
+  }
 
 
   const char *placeholders = "INSERT INTO people (name, age, weight) VALUES (?, ?, ?)";
   query->SetQuery(placeholders);
   for ( i = 21; i < 40; i++ )
-    {
+  {
     char name[20];
     sprintf(name, "John Doe %d", i);
     bool bind1 = query->BindParameter(0, name);
     bool bind2 = query->BindParameter(1, i);
     bool bind3 = query->BindParameter(2, 10.1*i);
     if (!(bind1 && bind2 && bind3))
-      {
+    {
       cerr << "Parameter binding failed on query " << i
            << ": " << bind1 << " " << bind2 << " " << bind3 << endl;
       return 1;
-      }
+    }
     cout << query->GetQuery() << endl;
     if (!query->Execute())
-      {
+    {
       cerr << "Insert query " << i << " failed" << endl;
       return 1;
-      }
     }
+  }
 
   const char* queryText = "SELECT name, age, weight FROM people WHERE age <= 30";
   query->SetQuery( queryText );
@@ -108,65 +108,65 @@ int TestODBCDatabase( int, char ** const )
 
   cerr << endl << "Using vtkSQLQuery directly to execute query:" << endl;
   if ( !query->Execute() )
-    {
+  {
     cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
     return 1;
-    }
+  }
 
   cerr << "Fields returned by query: ";
   for ( int col = 0; col < query->GetNumberOfFields(); ++ col )
-    {
+  {
     if ( col > 0 )
-      {
+    {
       cerr << ", ";
-      }
-    cerr << query->GetFieldName( col );
     }
+    cerr << query->GetFieldName( col );
+  }
   cerr << endl;
   int thisRow = 0;
   while ( query->NextRow() )
-    {
+  {
     cerr << "Row " << thisRow << ": ";
     ++thisRow;
     for ( int field = 0; field < query->GetNumberOfFields(); ++ field )
-      {
+    {
       if ( field > 0 )
-        {
+      {
         cerr << ", ";
-        }
-      cerr << query->DataValue( field ).ToString().c_str();
       }
-    cerr << endl;
+      cerr << query->DataValue( field ).ToString().c_str();
     }
+    cerr << endl;
+  }
 
   cerr << endl << "Using vtkSQLQuery to execute query and retrieve by row:" << endl;
   if ( !query->Execute() )
-    {
+  {
     cerr << "Query failed with error message " << query->GetLastErrorText() << endl;
     return 1;
-    }
+  }
   for ( int col = 0; col < query->GetNumberOfFields(); ++ col )
-    {
+  {
     if ( col > 0 )
-      {
+    {
       cerr << ", ";
-      }
-    cerr << query->GetFieldName( col );
     }
+    cerr << query->GetFieldName( col );
+  }
   cerr << endl;
   vtkVariantArray* va = vtkVariantArray::New();
   while ( query->NextRow( va ) )
-    {
+  {
     for ( int field = 0; field < va->GetNumberOfValues(); ++ field )
-      {
+    {
       if ( field > 0 )
-        {
+      {
         cerr << ", ";
-        }
-      cerr << va->GetValue( field ).ToString().c_str();
       }
-    cerr << endl;
+      cerr << va->GetValue( field ).ToString().c_str();
     }
+    cerr << endl;
+  }
   va->Delete();
 
   cerr << endl << "Using vtkRowQueryToTable to execute query:" << endl;
@@ -175,21 +175,21 @@ int TestODBCDatabase( int, char ** const )
   reader->Update();
   vtkTable* table = reader->GetOutput();
   for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++ col )
-    {
+  {
     table->GetColumn( col )->Print( cerr );
-    }
+  }
   cerr << endl;
 
 #if defined(PRINT_TABLE_CONTENTS)
 for ( vtkIdType row = 0; row < table->GetNumberOfRows(); ++ row )
-    {
+{
     for ( vtkIdType col = 0; col < table->GetNumberOfColumns(); ++ col )
-      {
+    {
       vtkVariant v = table->GetValue( row, col );
       cerr << "row " << row << ", col " << col << " - "
            << v.ToString() << " ( " << vtkImageScalarTypeNameMacro( v.GetType()) << " )" << endl;
-      }
     }
+}
 #endif
 
   query->SetQuery( "DROP TABLE people" );

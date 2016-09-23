@@ -187,10 +187,10 @@ private:
 inline void vtkMatrix3x3::SetElement(int i, int j, double value)
 {
   if (this->Element[i][j] != value)
-    {
+  {
     this->Element[i][j] = value;
     this->Modified();
-    }
+  }
 }
 
 inline bool vtkMatrix3x3::IsIdentity()
@@ -199,13 +199,13 @@ inline bool vtkMatrix3x3::IsIdentity()
   if (M[0] == 1.0 && M[4] == 1.0 && M[8] == 1.0 &&
       M[1] == 0.0 && M[2] == 0.0 && M[3] == 0.0 && M[5] == 0.0 &&
       M[6] == 0.0 && M[7] == 0.0)
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 }
 
 #endif

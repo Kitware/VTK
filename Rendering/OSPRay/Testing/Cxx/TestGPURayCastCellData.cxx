@@ -44,13 +44,13 @@ int TestGPURayCastCellData(int argc, char *argv[])
   cout << "CTEST_FULL_OUTPUT (Avoid ctest truncation of output)" << endl;
   bool useOSP = true;
   for (int i = 0; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-GL"))
-      {
+    {
       cerr << "GL" << endl;
       useOSP = false;
-      }
     }
+  }
 
   double scalarRange[2];
 
@@ -118,9 +118,9 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   vtkNew<vtkOSPRayPass> osprayPass;
   if (useOSP)
-    {
+  {
     ren->SetPass(osprayPass.GetPointer());
-    }
+  }
 
 
   renWin->Render();
@@ -130,9 +130,9 @@ int TestGPURayCastCellData(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renWin.GetPointer() );
   if( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

@@ -68,10 +68,10 @@ vtkMTimeType vtkSTLReader::GetMTime()
   vtkMTimeType mTime1 = this->Superclass::GetMTime();
 
   if (this->Locator)
-    {
+  {
     vtkMTimeType mTime2 = this->Locator->GetMTime();
     mTime1 = std::max(mTime1, mTime2);
-    }
+  }
 
   return mTime1;
 }
@@ -88,25 +88,25 @@ int vtkSTLReader::RequestData(
 
   // All of the data in the first piece.
   if (outInfo->Get(vtkStreamingDemandDrivenPipeline::UPDATE_PIECE_NUMBER()) > 0)
-    {
+  {
     return 0;
-    }
+  }
 
   if (!this->FileName || *this->FileName == 0)
-    {
+  {
     vtkErrorMacro(<<"A FileName must be specified.");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
-    }
+  }
 
   // Initialize
   FILE *fp = fopen(this->FileName, "r");
   if (fp == NULL)
-    {
+  {
     vtkErrorMacro(<< "File " << this->FileName << " not found");
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return 0;
-    }
+  }
 
   vtkPoints *newPts = vtkPoints::New();
   vtkCellArray *newPolys = vtkCellArray::New();
@@ -114,38 +114,38 @@ int vtkSTLReader::RequestData(
 
   // Depending upon file type, read differently
   if (this->GetSTLFileType(this->FileName) == VTK_ASCII)
-    {
+  {
     newPts->Allocate(5000);
     newPolys->Allocate(10000);
     if (this->ScalarTags)
-      {
+    {
       newScalars = vtkFloatArray::New();
       newScalars->Allocate(5000);
-      }
+    }
     if (!this->ReadASCIISTL(fp, newPts, newPolys, newScalars))
-      {
+    {
       fclose(fp);
       return 0;
-      }
     }
+  }
   else
-    {
+  {
     // Close file and reopen in binary mode.
     fclose(fp);
     fp = fopen(this->FileName, "rb");
     if (fp == NULL)
-      {
+    {
       vtkErrorMacro(<< "File " << this->FileName << " not found");
       this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
       return 0;
-      }
+    }
 
     if (!this->ReadBinarySTL(fp, newPts, newPolys))
-      {
+    {
       fclose(fp);
       return 0;
-      }
     }
+  }
 
   vtkDebugMacro(<< "Read: "
     << newPts->GetNumberOfPoints() << " points, "
@@ -158,61 +158,61 @@ int vtkSTLReader::RequestData(
   vtkCellArray *mergedPolys = newPolys;
   vtkFloatArray *mergedScalars = newScalars;
   if (this->Merging)
-    {
+  {
     mergedPts = vtkPoints::New();
     mergedPts->Allocate(newPts->GetNumberOfPoints() /2);
     mergedPolys = vtkCellArray::New();
     mergedPolys->Allocate(newPolys->GetSize());
     if (newScalars)
-      {
+    {
       mergedScalars = vtkFloatArray::New();
       mergedScalars->Allocate(newPolys->GetSize());
-      }
+    }
 
     vtkSmartPointer<vtkIncrementalPointLocator> locator = this->Locator;
     if (this->Locator == NULL)
-      {
+    {
       locator.TakeReference(this->NewDefaultLocator());
-      }
+    }
     locator->InitPointInsertion(mergedPts, newPts->GetBounds());
 
     int nextCell = 0;
     vtkIdType *pts = 0;
     vtkIdType npts;
     for (newPolys->InitTraversal(); newPolys->GetNextCell(npts, pts);)
-      {
+    {
       vtkIdType nodes[3];
       for (int i = 0; i < 3; i++)
-        {
+      {
         double x[3];
         newPts->GetPoint(pts[i], x);
         locator->InsertUniquePoint(x, nodes[i]);
-        }
+      }
 
       if (nodes[0] != nodes[1] &&
         nodes[0] != nodes[2] &&
         nodes[1] != nodes[2])
-        {
+      {
         mergedPolys->InsertNextCell(3, nodes);
         if (newScalars)
-          {
+        {
           mergedScalars->InsertNextValue(newScalars->GetValue(nextCell));
-          }
         }
-      nextCell++;
       }
+      nextCell++;
+    }
 
     newPts->Delete();
     newPolys->Delete();
     if (newScalars)
-      {
+    {
       newScalars->Delete();
-      }
+    }
 
     vtkDebugMacro(<< "Merged to: "
       << mergedPts->GetNumberOfPoints() << " points, "
       << mergedPolys->GetNumberOfCells() << " triangles");
-    }
+  }
 
   output->SetPoints(mergedPts);
   mergedPts->Delete();
@@ -221,16 +221,16 @@ int vtkSTLReader::RequestData(
   mergedPolys->Delete();
 
   if (mergedScalars)
-    {
+  {
     mergedScalars->SetName("STLSolidLabeling");
     output->GetCellData()->SetScalars(mergedScalars);
     mergedScalars->Delete();
-    }
+  }
 
   if (this->Locator)
-    {
+  {
     this->Locator->Initialize(); //free storage
-    }
+  }
 
   output->Squeeze();
 
@@ -249,19 +249,19 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
   //
   char header[81];
   if (fread(header, 1, 80, fp) != 80)
-    {
+  {
     vtkErrorMacro("STLReader error reading file: " << this->FileName
       << " Premature EOF while reading header.");
     return false;
-    }
+  }
 
   unsigned long ulint;
   if (fread(&ulint, 1, 4, fp) != 4)
-    {
+  {
     vtkErrorMacro("STLReader error reading file: " << this->FileName
       << " Premature EOF while reading header.");
     return false;
-    }
+  }
   vtkByteSwap::Swap4LE(&ulint);
 
   // Many .stl files contain bogus count.  Hence we will ignore and read
@@ -269,10 +269,10 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
   //
   int numTris = static_cast<int>(ulint);
   if (numTris <= 0)
-    {
+  {
     vtkDebugMacro(<< "Bad binary count: attempting to correct("
       << numTris << ")");
-    }
+  }
 
   // Verify the numTris with the length of the file
   unsigned long ulFileLength = vtksys::SystemTools::FileLength(this->FileName);
@@ -280,9 +280,9 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
   ulFileLength /= 50;       // 50 byte - twelve 32-bit-floating point numbers + 2 byte for attribute byte count
 
   if (numTris < static_cast<int>(ulFileLength))
-    {
+  {
     numTris = static_cast<int>(ulFileLength);
-    }
+  }
 
   // now we can allocate the memory we need for this STL file
   newPts->Allocate(numTris * 3);
@@ -290,14 +290,14 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
 
   facet_t facet;
   for (int i = 0; fread(&facet, 48, 1, fp) > 0; i++)
-    {
+  {
     unsigned short ibuff2;
     if (fread(&ibuff2, 2, 1, fp) != 1) //read extra junk
-      {
+    {
       vtkErrorMacro("STLReader error reading file: " << this->FileName
         << " Premature EOF while reading extra junk.");
       return false;
-      }
+    }
 
     vtkByteSwap::Swap4LE(facet.n);
     vtkByteSwap::Swap4LE(facet.n+1);
@@ -323,11 +323,11 @@ bool vtkSTLReader::ReadBinarySTL(FILE *fp, vtkPoints *newPts,
     newPolys->InsertNextCell(3, pts);
 
     if ((i % 5000) == 0 && i != 0)
-      {
+    {
       vtkDebugMacro(<< "triangle# " << i);
       this->UpdateProgress(static_cast<double>(i) / numTris);
-      }
     }
+  }
 
   return true;
 }
@@ -341,126 +341,126 @@ bool vtkSTLReader::ReadASCIISTL(FILE *fp, vtkPoints *newPts,
   // Ingest header and junk to get to first vertex
   char line[256];
   if (!fgets(line, 255, fp))
-    {
+  {
     vtkErrorMacro("STLReader error reading file: " << this->FileName
                    << " Premature EOF while reading header at line 0.");
     return false;
-    }
+  }
 
   int lineCount = 1;
   int done = (fgets(line, 255, fp) == 0);
   float x[3];
   lineCount++;
   if (!strcmp(line, "COLOR") || !strcmp(line, "color"))
-    {
+  {
       // if there is a color field, skip it
       done = (fgets(line, 255, fp) == 0);
       lineCount++;
-    }
+  }
 
   try
-    {
+  {
     int currentSolid = 0;
     // Go into loop, reading facet normal and vertices
     while (!done)
-      {
+    {
       if (!fgets(line, 255, fp))
-        {
+      {
         throw std::runtime_error("unable to read outer loop.");
-        }
+      }
       lineCount++;
 
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-        {
+      {
         throw std::runtime_error("unable to read point.");
-        }
+      }
       lineCount++;
 
       vtkIdType pts[3];
       pts[0] = newPts->InsertNextPoint(x);
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-        {
+      {
         throw std::runtime_error("unable to read point.");
-        }
+      }
       lineCount++;
 
       pts[1] = newPts->InsertNextPoint(x);
       if (fscanf(fp, "%*s %f %f %f\n", x, x+1, x+2) != 3)
-        {
+      {
         throw std::runtime_error("unable to read reading point.");
-        }
+      }
       lineCount++;
 
       pts[2] = newPts->InsertNextPoint(x);
       if (!fgets(line, 255, fp)) // end loop
-        {
+      {
         throw std::runtime_error("unable to read end loop.");
-        }
+      }
       lineCount++;
 
       if (!fgets(line, 255, fp)) // end facet
-        {
+      {
         throw std::runtime_error("unable to read end facet.");
-        }
+      }
       lineCount++;
 
       newPolys->InsertNextCell(3, pts);
       if (scalars)
-        {
+      {
         scalars->InsertNextValue(currentSolid);
-        }
+      }
 
       if ((newPolys->GetNumberOfCells() % 5000) == 0)
-        {
+      {
         this->UpdateProgress((newPolys->GetNumberOfCells()%50000) / 50000.0);
-        }
+      }
       done = (fscanf(fp,"%s", line) == EOF);
       if (!strcmp(line, "ENDSOLID") || !strcmp(line, "endsolid"))
-        {
+      {
         currentSolid++;
         if (!fgets(line, 255, fp) && !feof(fp))
-          {
+        {
           throw std::runtime_error("unable to read end solid.");
-          }
+        }
 
         done = feof(fp);
         while (!strstr(line, "SOLID") && !strstr(line, "solid") && !done)
-          {
+        {
           if (!fgets(line, 255, fp))
-            {
+          {
             // if fgets() returns an error, it may be due to the fact that the EOF
             // is reached(BUG #13101) hence we test again.
             done = feof(fp);
             if (!done)
-              {
+            {
               throw std::runtime_error("unable to read solid.");
-              }
             }
+          }
           lineCount++;
           done = feof(fp);
-          }
+        }
 
         done = (fscanf(fp,"%s", line)==EOF);
         if (!strstr(line, "COLOR") || !strstr(line, "color"))
-          {
+        {
           done = (fgets(line, 255, fp) == 0);
           lineCount++;
           done = done || (fscanf(fp,"%s", line)==EOF);
-          }
-        }
-      else if (!done)
-        {
-        done = (fgets(line, 255, fp) == 0);
-        lineCount++;
         }
       }
+      else if (!done)
+      {
+        done = (fgets(line, 255, fp) == 0);
+        lineCount++;
+      }
     }
+  }
   catch (const std::runtime_error &e)
-    {
+  {
     vtkErrorMacro("STLReader: error while reading file " <<
       this->FileName << " at line " << lineCount << ": " << e.what());
     return false;
-    }
+  }
 
   return true;
 }
@@ -471,7 +471,7 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
   vtksys::SystemTools::FileTypeEnum ft =
     vtksys::SystemTools::DetectFileType(filename);
   switch (ft)
-    {
+  {
   case vtksys::SystemTools::FileTypeBinary:
     return VTK_BINARY;
   case vtksys::SystemTools::FileTypeText:
@@ -482,7 +482,7 @@ int vtkSTLReader::GetSTLFileType(const char *filename)
   default:
     vtkErrorMacro("Case not handled, file type is " << static_cast<int>(ft));
     return VTK_BINARY; // should not happen
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -505,11 +505,11 @@ void vtkSTLReader::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "ScalarTags: " <<(this->ScalarTags ? "On\n" : "Off\n");
   os << indent << "Locator: ";
   if (this->Locator)
-    {
+  {
     this->Locator->PrintSelf(os << endl, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 }

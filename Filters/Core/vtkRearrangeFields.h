@@ -138,11 +138,11 @@ public:
    * Remove all operations.
    */
   void RemoveAllOperations()
-    {
+  {
     this->Modified();
     this->LastId = 0;
     this->DeleteAllOperations();
-    }
+  }
   //@}
 
   enum FieldType

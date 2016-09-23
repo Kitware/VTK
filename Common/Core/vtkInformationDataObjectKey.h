@@ -45,9 +45,9 @@ public:
    * constructor directly from C++ instead.
    */
   static vtkInformationDataObjectKey* MakeKey(const char* name, const char* location)
-    {
+  {
     return new vtkInformationDataObjectKey(name, location);
-    }
+  }
 
   //@{
   /**

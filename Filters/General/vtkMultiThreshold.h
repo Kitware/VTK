@@ -266,15 +266,15 @@ public:
         return false;
 
       if ( this->Type == -1 )
-        {
+      {
         if ( other.Type == -1 )
           return this->Name < other.Name;
         return true;
-        }
+      }
       else
-        {
+      {
         return this->Type < other.Type;
-        }
+      }
     }
   };
 
@@ -459,9 +459,9 @@ inline int vtkMultiThreshold::AddNotchIntervalSet(
 {
   int band = this->AddIntervalSet( xlo, xhi, CLOSED, CLOSED, assoc, arrayName, component, allScalars );
   if ( band < 0 )
-    {
+  {
     return -1;
-    }
+  }
   return this->AddBooleanSet( NAND, 1, &band );
 }
 

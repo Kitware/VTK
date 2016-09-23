@@ -230,13 +230,13 @@ int TestLightActor(int argc, char* argv[])
 
   renWin->Render();
   if(peeling->GetLastRenderingUsedDepthPeeling())
-    {
+  {
     cout<<"depth peeling was used"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"depth peeling was not used (alpha blending instead)"<<endl;
-    }
+  }
 
   renderer->ResetCamera();
   vtkCamera *camera=renderer->GetActiveCamera();
@@ -247,9 +247,9 @@ int TestLightActor(int argc, char* argv[])
 
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   return !retVal;
@@ -266,16 +266,16 @@ void AddLightActors(vtkRenderer *r)
   lights->InitTraversal();
   vtkLight *l=lights->GetNextItem();
   while(l!=0)
-    {
+  {
     double angle=l->GetConeAngle();
     if(l->LightTypeIsSceneLight() && l->GetPositional()
        && angle<180.0) // spotlight
-      {
+    {
       vtkLightActor *la=vtkLightActor::New();
       la->SetLight(l);
       r->AddViewProp(la);
       la->Delete();
-      }
-    l=lights->GetNextItem();
     }
+    l=lights->GetNextItem();
+  }
 }

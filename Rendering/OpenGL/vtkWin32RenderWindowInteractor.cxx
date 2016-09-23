@@ -78,26 +78,26 @@ vtkWin32RenderWindowInteractor::~vtkWin32RenderWindowInteractor()
 
   // we need to release any hold we have on a windows event loop
   if (this->WindowId && this->Enabled && this->InstallMessageProc)
-    {
+  {
     vtkWin32OpenGLRenderWindow *ren;
     ren = static_cast<vtkWin32OpenGLRenderWindow *>(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)(vtkGetWindowLong(this->WindowId,sizeof(vtkLONG)));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL))
-      {
+    {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
       CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(intptr_t)this->OldProc);
-      }
-    else
-      {
-      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)this->OldProc);
-      }
-    this->Enabled = 0;
     }
+    else
+    {
+      vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)this->OldProc);
+    }
+    this->Enabled = 0;
+  }
 #ifdef VTK_USE_TDX
   this->Device->Delete();
 #endif
@@ -108,18 +108,18 @@ void  vtkWin32RenderWindowInteractor::StartEventLoop()
 {
   // No need to do anything if this is a 'mapped' interactor
   if (!this->Enabled || !this->InstallMessageProc)
-    {
+  {
     return;
-    }
+  }
 
   this->StartedMessageLoop = 1;
 
   MSG msg;
   while (GetMessage(&msg, NULL, 0, 0))
-    {
+  {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -131,14 +131,14 @@ void vtkWin32RenderWindowInteractor::Initialize()
 
   // make sure we have a RenderWindow and camera
   if ( ! this->RenderWindow)
-    {
+  {
     vtkErrorMacro(<<"No renderer defined!");
     return;
-    }
+  }
   if (this->Initialized)
-    {
+  {
     return;
-    }
+  }
   this->Initialized = 1;
   // get the info we need from the RenderingWindow
   ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
@@ -157,37 +157,37 @@ void vtkWin32RenderWindowInteractor::Enable()
   vtkWin32OpenGLRenderWindow *ren;
   vtkWin32OpenGLRenderWindow *tmp;
   if (this->Enabled)
-    {
+  {
     return;
-    }
+  }
   if (this->InstallMessageProc)
-    {
+  {
     // add our callback
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     this->OldProc = (WNDPROC)vtkGetWindowLong(this->WindowId,vtkGWL_WNDPROC);
     tmp=(vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
     if (tmp != ren)
-      {
+    {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
       CallWindowProc(this->OldProc,this->WindowId,WM_USER+12,24,(intptr_t)vtkHandleMessage);
-      }
+    }
     else
-      {
+    {
       vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)vtkHandleMessage);
-      }
+    }
 
 #ifdef VTK_USE_TDX
     if(this->UseTDx)
-      {
+    {
       this->Device->SetInteractor(this);
       this->Device->Initialize();
       this->Device->StartListening();
-      }
+    }
 #endif
 
     // in case the size of the window has changed while we were away
@@ -195,7 +195,7 @@ void vtkWin32RenderWindowInteractor::Enable()
     size = ren->GetSize();
     this->Size[0] = size[0];
     this->Size[1] = size[1];
-    }
+  }
   this->Enabled = 1;
   this->Modified();
 }
@@ -206,37 +206,37 @@ void vtkWin32RenderWindowInteractor::Disable()
 {
   vtkWin32OpenGLRenderWindow *tmp;
   if (!this->Enabled)
-    {
+  {
     return;
-    }
+  }
 
   if (this->InstallMessageProc && this->Enabled && this->WindowId)
-    {
+  {
     // we need to release any hold we have on a windows event loop
     vtkWin32OpenGLRenderWindow *ren;
     ren = (vtkWin32OpenGLRenderWindow *)(this->RenderWindow);
     tmp = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(this->WindowId,sizeof(vtkLONG));
     // watch for odd conditions
     if ((tmp != ren) && (ren != NULL))
-      {
+    {
       // OK someone else has a hold on our event handler
       // so lets have them handle this stuff
       // well send a USER message to the other
       // event handler so that it can properly
       // call this event handler if required
       CallWindowProc(this->OldProc,this->WindowId,WM_USER+14,28,(intptr_t)this->OldProc);
-      }
+    }
     else
-      {
+    {
       vtkSetWindowLong(this->WindowId,vtkGWL_WNDPROC,(intptr_t)this->OldProc);
-      }
+    }
 #ifdef VTK_USE_TDX
     if(this->Device->GetInitialized())
-      {
+    {
       this->Device->Close();
-      }
-#endif
     }
+#endif
+  }
   this->Enabled = 0;
   this->Modified();
 }
@@ -247,9 +247,9 @@ void vtkWin32RenderWindowInteractor::TerminateApp(void)
   // Only post a quit message if Start was called...
   //
   if (this->StartedMessageLoop)
-    {
+  {
     PostQuitMessage(0);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -337,9 +337,9 @@ int vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
                                                 int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
 
   this->SetEventInformationFlipY(X,
                                  Y,
@@ -348,7 +348,7 @@ int vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
   this->SetAltKey(GetKeyState(VK_MENU) & (~1));
   if (!this->MouseInWindow &&
       (X >= 0 && X < this->Size[0] && Y >= 0 && Y < this->Size[1]))
-    {
+  {
     this->InvokeEvent(vtkCommand::EnterEvent, NULL);
     this->MouseInWindow = 1;
     // request WM_MOUSELEAVE generation
@@ -357,7 +357,7 @@ int vtkWin32RenderWindowInteractor::OnMouseMove(HWND hWnd, UINT nFlags,
     tme.dwFlags = TME_LEAVE;
     tme.hwndTrack = hWnd;
     TrackMouseEvent(&tme);
-    }
+  }
 
   return this->InvokeEvent(vtkCommand::MouseMoveEvent, NULL);
 }
@@ -367,9 +367,9 @@ int vtkWin32RenderWindowInteractor::OnNCMouseMove(HWND, UINT nFlags,
                                                   int X, int Y)
 {
   if (!this->Enabled || !this->MouseInWindow)
-    {
+  {
     return 0;
-    }
+  }
 
   int *pos = this->RenderWindow->GetPosition();
   this->SetEventInformationFlipY(X - pos[0],
@@ -387,9 +387,9 @@ int vtkWin32RenderWindowInteractor::OnMouseWheelForward(HWND, UINT nFlags,
                                                         int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -403,9 +403,9 @@ int vtkWin32RenderWindowInteractor::OnMouseWheelBackward(HWND, UINT nFlags,
                                                          int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -419,9 +419,9 @@ int vtkWin32RenderWindowInteractor::OnLButtonDown(HWND wnd, UINT nFlags,
                                                   int X, int Y, int repeat)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X,
@@ -438,9 +438,9 @@ int vtkWin32RenderWindowInteractor::OnLButtonUp(HWND, UINT nFlags,
                                                 int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -456,9 +456,9 @@ int vtkWin32RenderWindowInteractor::OnMButtonDown(HWND wnd, UINT nFlags,
                                                   int X, int Y, int repeat)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X,
@@ -475,9 +475,9 @@ int vtkWin32RenderWindowInteractor::OnMButtonUp(HWND, UINT nFlags,
                                                 int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -493,9 +493,9 @@ int vtkWin32RenderWindowInteractor::OnRButtonDown(HWND wnd, UINT nFlags,
                                                   int X, int Y, int repeat)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   SetFocus(wnd);
   SetCapture(wnd);
   this->SetEventInformationFlipY(X,
@@ -512,9 +512,9 @@ int vtkWin32RenderWindowInteractor::OnRButtonUp(HWND, UINT nFlags,
                                                 int X, int Y)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   this->SetEventInformationFlipY(X,
                                  Y,
                                  nFlags & MK_CONTROL,
@@ -530,9 +530,9 @@ int vtkWin32RenderWindowInteractor::OnSize(HWND, UINT, int X, int Y)
 {
   this->UpdateSize(X,Y);
   if (this->Enabled)
-    {
+  {
      return this->InvokeEvent(vtkCommand::ConfigureEvent, NULL);
-    }
+  }
   return 0;
 }
 
@@ -540,17 +540,17 @@ int vtkWin32RenderWindowInteractor::OnSize(HWND, UINT, int X, int Y)
 int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   int tid = static_cast<int>(timerId);
   const int ret = this->InvokeEvent(vtkCommand::TimerEvent,(void*)&tid);
 
   // Here we deal with one-shot versus repeating timers
   if ( this->IsOneShotTimer(tid) )
-    {
+  {
     KillTimer(this->WindowId,tid); //'cause windows timers are always repeating
-    }
+  }
 
   return ret;
 }
@@ -559,9 +559,9 @@ int vtkWin32RenderWindowInteractor::OnTimer(HWND, UINT timerId)
 int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
   int alt = GetKeyState(VK_MENU) & (~1);
@@ -571,20 +571,20 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
     BYTE keyState[256];
     GetKeyboardState(keyState);
     if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
-      {
+    {
       nChar = 0;
-      }
+    }
 #endif
   }
   const char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
-    {
+  {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
-    }
+  }
   if (keysym == 0)
-    {
+  {
     keysym = "None";
-    }
+  }
   this->SetKeyEventInformation(ctrl,
                                shift,
                                nChar,
@@ -598,9 +598,9 @@ int vtkWin32RenderWindowInteractor::OnKeyDown(HWND, UINT vCode, UINT nRepCnt, UI
 int vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT nFlags)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
   int alt = GetKeyState(VK_MENU) & (~1);
@@ -610,20 +610,20 @@ int vtkWin32RenderWindowInteractor::OnKeyUp(HWND, UINT vCode, UINT nRepCnt, UINT
 #ifndef _WIN32_WCE
     GetKeyboardState(keyState);
     if (ToAscii(vCode,nFlags & 0xff,keyState,&nChar,0) == 0)
-      {
+    {
       nChar = 0;
-      }
+    }
 #endif
   }
   const char *keysym = AsciiToKeySymTable[(unsigned char)nChar];
   if (keysym == 0)
-    {
+  {
     keysym = VKeyCodeToKeySymTable[(unsigned char)vCode];
-    }
+  }
   if (keysym == 0)
-    {
+  {
     keysym = "None";
-    }
+  }
   this->SetKeyEventInformation(ctrl,
                                shift,
                                nChar,
@@ -638,9 +638,9 @@ int vtkWin32RenderWindowInteractor::OnChar(HWND, UINT nChar,
                                            UINT nRepCnt, UINT)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
   int ctrl  = GetKeyState(VK_CONTROL) & (~1);
   int shift = GetKeyState(VK_SHIFT) & (~1);
   int alt = GetKeyState(VK_MENU) & (~1);
@@ -656,16 +656,16 @@ int vtkWin32RenderWindowInteractor::OnChar(HWND, UINT nChar,
 int vtkWin32RenderWindowInteractor::OnFocus(HWND, UINT)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
 
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized() && !this->Device->GetIsListening())
-    {
+  {
     this->Device->StartListening();
     return 1;
-    }
+  }
 #endif
 
   return 0;
@@ -675,15 +675,15 @@ int vtkWin32RenderWindowInteractor::OnFocus(HWND, UINT)
 int vtkWin32RenderWindowInteractor::OnKillFocus(HWND, UINT)
 {
   if (!this->Enabled)
-    {
+  {
     return 0;
-    }
+  }
 #ifdef VTK_USE_TDX
   if(this->Device->GetInitialized() && this->Device->GetIsListening())
-    {
+  {
     this->Device->StopListening();
     return 1;
-    }
+  }
 #endif
 
   return 0;
@@ -701,16 +701,16 @@ LRESULT CALLBACK vtkHandleMessage(HWND hWnd,UINT uMsg, WPARAM wParam,
   ren = (vtkWin32OpenGLRenderWindow *)vtkGetWindowLong(hWnd,sizeof(vtkLONG));
 
   if (ren)
-    {
+  {
     me = (vtkWin32RenderWindowInteractor *)ren->GetInteractor();
-    }
+  }
 
   if (me && me->GetReferenceCount()>0)
-    {
+  {
     me->Register(me);
     res = vtkHandleMessage2(hWnd,uMsg,wParam,lParam,me);
     me->UnRegister(me);
-    }
+  }
 
   return res;
 }
@@ -725,22 +725,22 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
                                    vtkWin32RenderWindowInteractor *me)
 {
   if ((uMsg == WM_USER+13)&&(wParam == 26))
-    {
+  {
     // someone is telling us to set our OldProc
     me->OldProc = (WNDPROC)lParam;
     return 1;
-    }
+  }
 
   int handled(0);
 
   switch (uMsg)
-    {
+  {
     case WM_PAINT:
-      {
+    {
       const LRESULT ret(CallWindowProc(me->OldProc, hWnd, uMsg, wParam, lParam));
       me->InvokeEvent(vtkCommand::RenderEvent, NULL);
       return ret;
-      }
+    }
 
     case WM_SIZE:
       handled = me->OnSize(hWnd,wParam,LOWORD(lParam),HIWORD(lParam));
@@ -792,7 +792,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
       break;
 
     case WM_MOUSEWHEEL:
-      {
+    {
       POINT pt;
       pt.x = MAKEPOINTS(lParam).x;
       pt.y = MAKEPOINTS(lParam).y;
@@ -801,7 +801,7 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
         handled = me->OnMouseWheelForward(hWnd,wParam,pt.x,pt.y);
       else
         handled = me->OnMouseWheelBackward(hWnd,wParam,pt.x,pt.y);
-      }
+    }
       break;
 
 #ifdef WM_MCVMOUSEMOVE
@@ -834,13 +834,13 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 
     case WM_ACTIVATE:
       if(wParam==WA_INACTIVE)
-        {
+      {
         handled = me->OnKillFocus(hWnd,wParam);
-        }
+      }
       else
-        {
+      {
         handled = me->OnFocus(hWnd,wParam);
-        }
+      }
       break;
 
     case WM_SETFOCUS:
@@ -856,12 +856,12 @@ LRESULT CALLBACK vtkHandleMessage2(HWND hWnd,UINT uMsg, WPARAM wParam,
 
     default:
       break;
-    };
+  };
 
   if (0 == handled)
-    {
+  {
     return CallWindowProc(me->OldProc, hWnd, uMsg, wParam, lParam);
-    }
+  }
 
   return 0;
 }
@@ -874,19 +874,19 @@ vtkWin32RenderWindowInteractor::SetClassExitMethod(void (*f)(void *),void *arg)
 {
   if ( f != vtkWin32RenderWindowInteractor::ClassExitMethod
        || arg != vtkWin32RenderWindowInteractor::ClassExitMethodArg)
-    {
+  {
     // delete the current arg if there is a delete method
     if ((vtkWin32RenderWindowInteractor::ClassExitMethodArg)
         && (vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete))
-      {
+    {
       (*vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
         (vtkWin32RenderWindowInteractor::ClassExitMethodArg);
-      }
+    }
     vtkWin32RenderWindowInteractor::ClassExitMethod = f;
     vtkWin32RenderWindowInteractor::ClassExitMethodArg = arg;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -895,11 +895,11 @@ void
 vtkWin32RenderWindowInteractor::SetClassExitMethodArgDelete(void (*f)(void *))
 {
   if (f != vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete)
-    {
+  {
     vtkWin32RenderWindowInteractor::ClassExitMethodArgDelete = f;
 
     // no call to this->Modified() since this is a class member function
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -914,13 +914,13 @@ void vtkWin32RenderWindowInteractor::PrintSelf(ostream& os, vtkIndent indent)
 void vtkWin32RenderWindowInteractor::ExitCallback()
 {
   if (this->HasObserver(vtkCommand::ExitEvent))
-    {
+  {
     this->InvokeEvent(vtkCommand::ExitEvent,NULL);
-    }
+  }
   else if (this->ClassExitMethod)
-    {
+  {
     (*this->ClassExitMethod)(this->ClassExitMethodArg);
-    }
+  }
 
   this->TerminateApp();
 }

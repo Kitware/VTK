@@ -40,10 +40,10 @@ void vtkOpenGLPropItem::UpdateTransforms()
   vtkContextDevice2D *dev = this->Painter->GetDevice();
   vtkOpenGLContextDevice2D *glDev = vtkOpenGLContextDevice2D::SafeDownCast(dev);
   if (!glDev)
-    {
+  {
     vtkErrorMacro(<<"Context device is not vtkOpenGLContextDevice2D.");
     return;
-    }
+  }
 
   // Get the active camera:
   vtkRenderer *ren = this->Scene->GetRenderer();

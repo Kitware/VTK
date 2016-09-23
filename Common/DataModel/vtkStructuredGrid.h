@@ -89,9 +89,9 @@ public:
   vtkIdType GetNumberOfCells() VTK_OVERRIDE;
   void GetCellPoints(vtkIdType cellId, vtkIdList *ptIds) VTK_OVERRIDE;
   void GetPointCells(vtkIdType ptId, vtkIdList *cellIds) VTK_OVERRIDE
-    {
+  {
       vtkStructuredData::GetPointCells(ptId,cellIds,this->GetDimensions());
-    }
+  }
   void Initialize() VTK_OVERRIDE;
   int GetMaxCellSize() VTK_OVERRIDE {return 8;}; //hexahedron is the largest
   void GetCellNeighbors(vtkIdType cellId, vtkIdList *ptIds,
@@ -282,16 +282,16 @@ inline vtkIdType vtkStructuredGrid::GetNumberOfCells()
 
   this->GetDimensions(dims);
   for (i=0; i<3; i++)
-    {
+  {
     if (dims[i] <= 0)
-      {
+    {
       return 0;
-      }
-    if (dims[i] > 1)
-      {
-      nCells *= (dims[i]-1);
-      }
     }
+    if (dims[i] > 1)
+    {
+      nCells *= (dims[i]-1);
+    }
+  }
 
   return nCells;
 }

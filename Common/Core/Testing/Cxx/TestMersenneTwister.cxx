@@ -79,28 +79,28 @@ int MomentCheck(double min, double max, std::size_t nValues)
 #define EPSILON 1.e-3
 
   if (fabs(empiricalMean - analyticMean) > EPSILON)
-    {
+  {
     std::cerr<<"Mean deviates from uniform distribution."<<std::endl;
     return VTK_FAILURE;
-    }
+  }
 
   if (fabs(empiricalVariance - analyticVariance) > EPSILON)
-    {
+  {
     std::cerr<<"Variance deviates from uniform distribution."<<std::endl;
     return VTK_FAILURE;
-    }
+  }
 
   if (fabs(empiricalSkewness - analyticSkewness) > EPSILON)
-    {
+  {
     std::cerr<<"Skewness deviates from uniform distribution."<<std::endl;
     return VTK_FAILURE;
-    }
+  }
 
   if (fabs(empiricalKurtosis - analyticKurtosis) > EPSILON)
-    {
+  {
     std::cerr<<"Kurtosis deviates from uniform distribution."<<std::endl;
     return VTK_FAILURE;
-    }
+  }
 
 #undef EPSILON
 
@@ -119,10 +119,10 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   double** values1 = new double*[nThreads];
   double** values2 = new double*[nThreads];
   for(std::size_t i = 0; i < nThreads; ++i)
-    {
+  {
     values1[i] = new double[nValues];
     values2[i] = new double[nValues];
-    }
+  }
 
   vtkNew<vtkMersenneTwister> seq1, seq2;
   typedef vtkMersenneTwister::SequenceId SequenceId;
@@ -130,47 +130,47 @@ int ThreadCheck(std::size_t nThreads, std::size_t nValues)
   SequenceId* ids2 = new SequenceId[nThreads];
 
   for (std::size_t i=0; i< nThreads; i++)
-    {
+  {
     // For some Windows builds, this is apparently a conversion.
     ids1[i] = seq1->InitializeNewSequence(static_cast<SequenceId>(i));
     ids2[i] = seq2->InitializeNewSequence(static_cast<SequenceId>(i));
-    }
+  }
 
   for(std::size_t i = 0; i < nThreads; ++i)
-    {
+  {
     for(std::size_t j = 0; j < nValues; ++j)
-      {
+    {
       seq1->Next(ids1[i]);
       values1[i][j] = seq1->GetValue(ids1[i]);
-      }
     }
+  }
 
   for(std::size_t j = 0; j < nValues; ++j)
-    {
+  {
     for(std::size_t i = 0; i < nThreads; ++i)
-      {
+    {
       seq2->Next(ids2[i]);
       values2[i][j] = seq2->GetValue(ids2[i]);
-      }
     }
+  }
 
   for(std::size_t i = 0; i < nThreads; ++i)
-    {
+  {
     for(std::size_t j = 0; j < nValues; ++j)
-      {
+    {
       if (fabs(values1[i][j] - values2[i][j]) > VTK_DBL_EPSILON)
-        {
+      {
         std::cerr<<"Values are not independent across sequence ids."<<std::endl;
         retVal = VTK_FAILURE;
-        }
       }
     }
+  }
 
   for(std::size_t i = 0; i < nThreads; ++i)
-    {
+  {
     delete [] values1[i];
     delete [] values2[i];
-    }
+  }
   delete [] values1;
   delete [] values2;
 
@@ -203,28 +203,28 @@ int ConsistencyCheck()
                                0.8330867585347151, 0.183371047990076};
 
   for (int i=0; i<10; i++)
-    {
+  {
     seq->Next(id0);
     seq->Next(id1);
     seq2->Next(id0);
     if (fabs(seq->GetValue(id0) - expectedValues[i]) > VTK_DBL_EPSILON)
-      {
+    {
       std::cerr<<"Sequence seeded with seed 0 has changed."<<std::endl;
       return VTK_FAILURE;
-      }
+    }
     if (fabs(seq->GetValue(id0) - seq->GetValue(id1)) < VTK_DBL_EPSILON)
-      {
+    {
       std::cerr<<"Sequence 0 seeded with seed 0 has produced the same value as "
                <<"sequence 1 seeded with seed 0."<<std::endl;
       return VTK_FAILURE;
-      }
+    }
     if (fabs(seq->GetValue(id0) - seq2->GetValue(id0)) < VTK_DBL_EPSILON)
-      {
+    {
       std::cerr<<"Sequence 0 seeded with seed 0 has produced the same value as "
                <<"sequence 0 seeded with seed 1."<<std::endl;
       return VTK_FAILURE;
-      }
     }
+  }
 
   return VTK_SUCCESS;
 }
@@ -232,19 +232,19 @@ int ConsistencyCheck()
 int TestMersenneTwister(int,char *[])
 {
   if (MomentCheck(0.,1.,1.e7) != VTK_SUCCESS)
-    {
+  {
     return VTK_FAILURE;
-    }
+  }
 
   if (ThreadCheck(5,5) != VTK_SUCCESS)
-    {
+  {
     return VTK_FAILURE;
-    }
+  }
 
   if (ConsistencyCheck() != VTK_SUCCESS)
-    {
+  {
     return VTK_FAILURE;
-    }
+  }
 
   return VTK_SUCCESS;
 }

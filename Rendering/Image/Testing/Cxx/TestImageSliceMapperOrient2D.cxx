@@ -57,7 +57,7 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
   delete[] fname;
 
   for (int i = 0; i < 4; i++)
-    {
+  {
     vtkRenderer *renderer = vtkRenderer::New();
     vtkCamera *camera = renderer->GetActiveCamera();
     renderer->SetBackground(0.1, 0.2, 0.4);
@@ -69,18 +69,18 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
     vtkImageSliceMapper *imageMapper = vtkImageSliceMapper::New();
 
     if (i == 0 || i == 1)
-      {
+    {
       vtkImagePermute *permute = vtkImagePermute::New();
       permute->SetInputConnection(reader->GetOutputPort());
       permute->SetFilteredAxes((2-i)%3, (3-i)%3, (4-i)%3);
       imageMapper->SetInputConnection(permute->GetOutputPort());
       permute->Delete();
       imageMapper->SetOrientation(i);
-      }
+    }
     else
-      {
+    {
       imageMapper->SetInputConnection(reader->GetOutputPort());
-      }
+    }
 
     double *bounds = imageMapper->GetBounds();
     double point[3];
@@ -94,13 +94,13 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
     camera->ParallelProjectionOn();
     camera->SetParallelScale(120.0);
     if (imageMapper->GetOrientation() == 1)
-      {
+    {
       camera->SetViewUp(1.0, 0.0, 0.0);
-      }
+    }
     else if (imageMapper->GetOrientation() == 0)
-      {
+    {
       camera->SetViewUp(0.0, 0.0, 1.0);
-      }
+    }
 
     vtkImageSlice *image = vtkImageSlice::New();
     image->SetMapper(imageMapper);
@@ -108,21 +108,21 @@ int TestImageSliceMapperOrient2D(int argc, char* argv[])
     renderer->AddViewProp(image);
 
     if (i == 3)
-      {
+    {
       image->GetProperty()->SetColorWindow(127.5);
-      }
+    }
 
     image->Delete();
-    }
+  }
 
   renWin->SetSize(400,400);
 
   renWin->Render();
   int retVal = vtkRegressionTestImage( renWin );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     iren->Start();
-    }
+  }
   iren->Delete();
 
   reader->Delete();

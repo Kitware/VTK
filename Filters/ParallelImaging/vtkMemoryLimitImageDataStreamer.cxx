@@ -51,9 +51,9 @@ vtkMemoryLimitImageDataStreamer
                  vtkInformationVector* outputVector)
 {
   if(request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_UPDATE_EXTENT()))
-    {
+  {
     if (this->CurrentDivision == 0)
-      {
+    {
       // we must set the extent on the input
       vtkInformation* outInfo = outputVector->GetInformationObject(0);
 
@@ -90,7 +90,7 @@ vtkMemoryLimitImageDataStreamer
       // double the number of pieces until the size fits in memory
       // or the reduction in size falls to 20%
       do
-        {
+      {
         oldSize = size;
         translator->SetNumberOfPieces(this->NumberOfStreamDivisions);
         translator->PieceToExtentByPoints();
@@ -121,26 +121,26 @@ vtkMemoryLimitImageDataStreamer
         size = sizer->GetEstimatedSize(this,0,0);
         // watch for the first time through
         if (!oldSize)
-          {
+        {
           ratio = 0.5;
-          }
+        }
         // otherwise the normal ratio calculation
         else
-          {
+        {
           ratio = size/(float)oldSize;
-          }
+        }
         this->NumberOfStreamDivisions = this->NumberOfStreamDivisions*2;
         count++;
-        }
+      }
       while (size > this->MemoryLimit &&
              (size < maxSize && ratio < 0.8) && count < 29);
 
       // undo the last *2
       this->NumberOfStreamDivisions = this->NumberOfStreamDivisions/2;
       sizer->Delete();
-      }
+    }
     return
       this->Superclass::ProcessRequest(request, inputVector, outputVector);
-    }
+  }
   return this->Superclass::ProcessRequest(request, inputVector, outputVector);
 }

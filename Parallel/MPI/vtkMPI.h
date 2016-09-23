@@ -45,9 +45,9 @@ class VTKPARALLELMPI_EXPORT vtkMPICommunicatorReceiveDataInfo
 {
 public:
   vtkMPICommunicatorReceiveDataInfo()
-    {
+  {
     this->Handle=0;
-    }
+  }
   MPI_Datatype DataType;
   MPI_Status Status;
   MPI_Comm* Handle;

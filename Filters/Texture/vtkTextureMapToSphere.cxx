@@ -62,28 +62,28 @@ int vtkTextureMapToSphere::RequestData(
   output->CopyStructure( input );
 
   if ( numPts < 1 )
-    {
+  {
     vtkErrorMacro(<<"Can't generate texture coordinates without points");
     return 1;
-    }
+  }
 
   if ( this->AutomaticSphereGeneration )
-    {
+  {
     this->Center[0] = this->Center[1] = this->Center[2] = 0.0;
     for ( ptId=0; ptId < numPts; ptId++ )
-      {
+    {
       input->GetPoint(ptId, x);
       this->Center[0] += x[0];
       this->Center[1] += x[1];
       this->Center[2] += x[2];
-      }
+    }
     this->Center[0] /= numPts;
     this->Center[1] /= numPts;
     this->Center[2] /= numPts;
 
     vtkDebugMacro(<<"Center computed as: (" << this->Center[0] <<", "
                   << this->Center[1] <<", " << this->Center[2] <<")");
-    }
+  }
 
   //loop over all points computing spherical coordinates. Only tricky part
   //is keeping track of singularities/numerical problems.
@@ -92,91 +92,91 @@ int vtkTextureMapToSphere::RequestData(
   newTCoords->SetNumberOfComponents(2);
   newTCoords->SetNumberOfTuples(numPts);
   for ( ptId=0; ptId < numPts; ptId++ )
-    {
+  {
     input->GetPoint(ptId, x);
     rho = sqrt((double)vtkMath::Distance2BetweenPoints(x,this->Center));
     if ( rho != 0.0 )
-      {
+    {
       // watch for truncation problems
       if ( fabs((diff=x[2]-this->Center[2])) > rho )
-        {
+      {
         phi = 0.0;
         if ( diff > 0.0 )
-          {
-          tc[1] = 0.0;
-          }
-        else
-          {
-          tc[1] = 1.0;
-          }
-        }
-      else
         {
+          tc[1] = 0.0;
+        }
+        else
+        {
+          tc[1] = 1.0;
+        }
+      }
+      else
+      {
         phi = acos((double)(diff/rho));
         tc[1] = phi / vtkMath::Pi();
-        }
       }
+    }
     else
-      {
+    {
       tc[1] = 0.0;
-      }
+    }
 
     r = rho * sin((double)phi);
     if ( r != 0.0 )
-      {
+    {
       // watch for truncation problems
       if ( fabs((diff=x[0]-this->Center[0])) > r )
-        {
+      {
         if ( diff > 0.0 )
-          {
-          thetaX = 0.0;
-          }
-        else
-          {
-          thetaX = vtkMath::Pi();
-          }
-        }
-      else
         {
-        thetaX = acos ((double)diff/r);
+          thetaX = 0.0;
         }
+        else
+        {
+          thetaX = vtkMath::Pi();
+        }
+      }
+      else
+      {
+        thetaX = acos ((double)diff/r);
+      }
 
       if ( fabs((diff=x[1]-this->Center[1])) > r )
-        {
-        if ( diff > 0.0 )
-          {
-          thetaY = PiOverTwo;
-          }
-        else
-          {
-          thetaY = -PiOverTwo;
-          }
-        }
-      else
-        {
-        thetaY = asin ((double)diff/r);
-        }
-      }
-    else
       {
-      thetaX = thetaY = 0.0;
+        if ( diff > 0.0 )
+        {
+          thetaY = PiOverTwo;
+        }
+        else
+        {
+          thetaY = -PiOverTwo;
+        }
       }
+      else
+      {
+        thetaY = asin ((double)diff/r);
+      }
+    }
+    else
+    {
+      thetaX = thetaY = 0.0;
+    }
 
     if ( this->PreventSeam )
-      {
+    {
       tc[0] = thetaX / vtkMath::Pi();
-      }
+    }
     else
-      {
+    {
       tc[0] = thetaX / (2.0*vtkMath::Pi());
       if ( thetaY < 0.0 )
-        {
+      {
         tc[0] = 1.0 - tc[0];
-        }
       }
+    }
 
     newTCoords->SetTuple(ptId,tc);
-    }
+  }
 
   output->GetPointData()->CopyTCoordsOff();
   output->GetPointData()->PassData(input->GetPointData());

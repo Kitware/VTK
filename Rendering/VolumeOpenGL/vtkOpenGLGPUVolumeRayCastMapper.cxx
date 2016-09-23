@@ -103,8 +103,8 @@ class vtkUnsupportedRequiredExtensionsStringStream
 public:
   std::ostringstream Stream;
   vtkUnsupportedRequiredExtensionsStringStream()
-    {
-    }
+  {
+  }
 private:
   // undefined copy constructor.
   vtkUnsupportedRequiredExtensionsStringStream(const
@@ -119,8 +119,8 @@ class vtkMapDataArrayTextureId
 public:
   std::map<vtkImageData *,vtkKWScalarField *> Map;
   vtkMapDataArrayTextureId()
-    {
-    }
+  {
+  }
 private:
   // undefined copy constructor.
   vtkMapDataArrayTextureId(const vtkMapDataArrayTextureId &other);
@@ -133,8 +133,8 @@ class vtkMapMaskTextureId
 public:
   std::map<vtkImageData *,vtkKWMask *> Map;
   vtkMapMaskTextureId()
-    {
-    }
+  {
+  }
 private:
   // undefined copy constructor.
   vtkMapMaskTextureId(const vtkMapMaskTextureId &other);
@@ -252,54 +252,54 @@ class vtkTextureTable : public vtkObject
 {
 public:
   bool IsLoaded()const
-    {
+  {
     return this->Loaded;
-    }
+  }
 
   void Bind()
-    {
+  {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
-    }
+  }
   int ComputeTableSize(vtkPiecewiseFunction* function)
-    {
+  {
     int const idealW = function->EstimateMinNumberOfSamples(this->LastRange[0],
       this->LastRange[1]);
 
     return this->ComputeTableSize(idealW);
-    }
+  }
   int ComputeTableSize(vtkColorTransferFunction* function)
-    {
+  {
     int const idealW = function->EstimateMinNumberOfSamples(this->LastRange[0],
       this->LastRange[1]);
 
     return this->ComputeTableSize(idealW);
-    }
+  }
   int ComputeTableSize(vtkLookupTable* function)
-    {
+  {
     return this->ComputeTableSize(function->GetNumberOfTableValues());
-    }
+  }
 
 protected:
   vtkTextureTable()
-    {
+  {
       this->TextureId=0;
       this->Table=0;
       this->Loaded=false;
       this->LastLinearInterpolation=false;
       this->LastRange[0] = this->LastRange[1] = 0.0;
-    }
+  }
   virtual ~vtkTextureTable()
-    {
+  {
       if(this->TextureId!=0)
-        {
+      {
         glDeleteTextures(1,&this->TextureId);
         vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
-        }
+      }
       delete[] this->Table;
       this->Table = 0;
-    }
+  }
 
   GLuint TextureId;
   vtkTimeStamp BuildTime;
@@ -317,31 +317,31 @@ private:
   // or the maximum supported.
   // Warning: This method assumes there is an active GL context.
   int ComputeTableSize(int idealWidth)
-    {
+  {
     idealWidth = vtkMath::NearestPowerOfTwo(idealWidth);
     GLint maxWidth = -1;
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxWidth);
     if (maxWidth < 0)
-      {
+    {
       vtkErrorMacro("Failed to query max texture size! using default "
         << vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize);
       return vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize;
-      }
+    }
 
     if (maxWidth >= idealWidth)
-      {
+    {
       idealWidth = vtkMath::Max(vtkOpenGLGPUVolumeRayCastMapperOpacityTableSize,
         idealWidth);
 
       return idealWidth;
-      }
+    }
 
     vtkWarningMacro("This OpenGL implementation does not support the required "
       "texture size of " << idealWidth << ", falling back to maximum allowed, "
       << maxWidth << "." << "This may cause an incorrect color table mapping.");
 
     return maxWidth;
-    }
+  }
 };
 
 //-----------------------------------------------------------------------------
@@ -360,36 +360,36 @@ public:
               double range[2],
               double unitDistance,
               bool linearInterpolation)
-    {
+  {
       assert("pre: scalarOpacity_exists" && scalarOpacity!=0);
       vtkOpenGLClearErrorMacro();
 
       bool needUpdate=false;
       if(this->TextureId==0)
-        {
+      {
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
-        }
+      }
       if (this->LastRange[0] != range[0] ||
         this->LastRange[1] != range[1])
-        {
+      {
         needUpdate = true;
         this->LastRange[0] = range[0];
         this->LastRange[1] = range[1];
-        }
+      }
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
       if(needUpdate)
-        {
+      {
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
                         vtkgl::CLAMP_TO_EDGE);
-        }
+      }
 
       if(scalarOpacity->GetMTime() > this->BuildTime ||
          (this->LastBlendMode!=blendMode)
          || (blendMode==vtkVolumeMapper::COMPOSITE_BLEND &&
              this->LastSampleDistance!=sampleDistance)
          || needUpdate || !this->Loaded)
-        {
+      {
         this->Loaded=false;
         const int tableSize = this->ComputeTableSize(scalarOpacity);
         delete[] this->Table;
@@ -402,38 +402,38 @@ public:
         // Correct the opacity array for the spacing between the planes if we
         // are using a composite blending operation
         if(blendMode==vtkVolumeMapper::COMPOSITE_BLEND)
-          {
+        {
           float *ptr=this->Table;
           double factor=sampleDistance/unitDistance;
           int i=0;
           while(i<tableSize)
-            {
+          {
             if(*ptr>0.0001f)
-              {
+            {
               *ptr=static_cast<float>(1.0-pow(1.0-static_cast<double>(*ptr),
                                               factor));
-              }
+            }
             ++ptr;
             ++i;
-            }
-          this->LastSampleDistance=sampleDistance;
           }
+          this->LastSampleDistance=sampleDistance;
+        }
         else if (blendMode==vtkVolumeMapper::ADDITIVE_BLEND)
-          {
+        {
           float *ptr=this->Table;
           double factor=sampleDistance/unitDistance;
           int i=0;
           while(i<tableSize)
-            {
+          {
             if(*ptr>0.0001f)
-              {
+            {
               *ptr=static_cast<float>(static_cast<double>(*ptr)*factor);
-              }
+            }
             ++ptr;
             ++i;
-            }
-          this->LastSampleDistance=sampleDistance;
           }
+          this->LastSampleDistance=sampleDistance;
+        }
 
         glTexImage1D(GL_TEXTURE_1D,0,GL_ALPHA16,
                      tableSize,0,
@@ -441,33 +441,33 @@ public:
         vtkOpenGLStaticCheckErrorMacro("1d opacity texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
-        }
+      }
 
       needUpdate=needUpdate ||
         this->LastLinearInterpolation!=linearInterpolation;
       if(needUpdate)
-        {
+      {
         this->LastLinearInterpolation=linearInterpolation;
         GLint value;
         if(linearInterpolation)
-          {
+        {
           value=GL_LINEAR;
-          }
+        }
         else
-          {
+        {
           value=GL_NEAREST;
-          }
+        }
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,value);
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,value);
-        }
+      }
     vtkOpenGLStaticCheckErrorMacro("failed after Update");
-    }
+  }
 protected:
   vtkOpacityTable()
-    {
+  {
       this->LastBlendMode=vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND;
       this->LastSampleDistance=1.0;
-    }
+  }
 
   ~vtkOpacityTable() {};
 
@@ -486,29 +486,29 @@ class vtkOpacityTables
 {
 public:
   vtkOpacityTables(unsigned int numberOfTables)
-    {
+  {
     this->Tables.reserve(static_cast<size_t>(numberOfTables));
     for (unsigned int i = 0; i < numberOfTables; i++)
-      {
-      this->Tables.push_back(vtkOpacityTable::New());
-      }
-    }
-  ~vtkOpacityTables()
     {
+      this->Tables.push_back(vtkOpacityTable::New());
+    }
+  }
+  ~vtkOpacityTables()
+  {
     size_t const size = this->Tables.size();
     for (size_t i = 0; i < size; i++)
-      {
+    {
       this->Tables[i]->Delete();
-      }
     }
+  }
   vtkOpacityTable* GetTable(size_t const i)
-    {
+  {
     return this->Tables[i];
-    }
+  }
   size_t GetNumberOfTables()
-    {
+  {
     return this->Tables.size();
-    }
+  }
 private:
   vtkOpacityTables() VTK_DELETE_FUNCTION;
   vtkOpacityTables(const vtkOpacityTables &other) VTK_DELETE_FUNCTION;
@@ -528,31 +528,31 @@ public:
   void Update(vtkColorTransferFunction *scalarRGB,
               double range[2],
               bool linearInterpolation)
-    {
+  {
       assert("pre: scalarRGB_exists" && scalarRGB!=0);
       vtkOpenGLClearErrorMacro();
 
       bool needUpdate=false;
       if(this->TextureId==0)
-        {
+      {
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
-        }
+      }
       if (range[0] != this->LastRange[0] || range[1] != this->LastRange[1])
-        {
+      {
         needUpdate=true;
         this->LastRange[0] = range[0];
         this->LastRange[1] = range[1];
-        }
+      }
       glBindTexture(GL_TEXTURE_1D,this->TextureId);
       if(needUpdate)
-        {
+      {
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S,
                         vtkgl::CLAMP_TO_EDGE);
-        }
+      }
       if(scalarRGB->GetMTime() > this->BuildTime
          || needUpdate || !this->Loaded)
-        {
+      {
         this->Loaded=false;
         const int tableSize = this->ComputeTableSize(scalarRGB);
         delete[] this->Table;
@@ -568,27 +568,27 @@ public:
         vtkOpenGLStaticCheckErrorMacro("1d RGB texture is too large");
         this->Loaded=true;
         this->BuildTime.Modified();
-        }
+      }
 
       needUpdate=needUpdate ||
         this->LastLinearInterpolation!=linearInterpolation;
       if(needUpdate)
-        {
+      {
         this->LastLinearInterpolation=linearInterpolation;
         GLint value;
         if(linearInterpolation)
-          {
+        {
           value=GL_LINEAR;
-          }
+        }
         else
-          {
+        {
           value=GL_NEAREST;
-          }
+        }
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MIN_FILTER,value);
         glTexParameteri(GL_TEXTURE_1D,GL_TEXTURE_MAG_FILTER,value);
-        }
+      }
     vtkOpenGLStaticCheckErrorMacro("failed after Update");
-    }
+  }
 
 protected:
   vtkRGBTable() {};
@@ -607,7 +607,7 @@ class vtkKWScalarField
 {
 public:
   vtkKWScalarField()
-    {
+  {
       this->TextureId=0;
       this->Loaded=false;
       this->Supports_GL_ARB_texture_float=false;
@@ -619,28 +619,28 @@ public:
       this->LoadedExtent[3]=VTK_INT_MIN;
       this->LoadedExtent[4]=VTK_INT_MAX;
       this->LoadedExtent[5]=VTK_INT_MIN;
-    }
+  }
   ~vtkKWScalarField()
-    {
+  {
       if(this->TextureId!=0)
-        {
+      {
         glDeleteTextures(1,&this->TextureId);
         vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
-        }
-    }
+      }
+  }
 
   vtkTimeStamp GetBuildTime()
-    {
+  {
       return this->BuildTime;
-    }
+  }
 
   void Bind()
-    {
+  {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
       vtkOpenGLStaticCheckErrorMacro("failed at glBindTexture");
-    }
+  }
 
   void Update(vtkImageData *input,
               int cellFlag,
@@ -652,40 +652,40 @@ public:
               bool linearInterpolation,
               double tableRange[2],
               vtkIdType maxMemoryInBytes)
-    {
+  {
       vtkOpenGLClearErrorMacro();
 
       bool needUpdate=false;
       bool modified=false;
       if(this->TextureId==0)
-        {
+      {
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
-        }
+      }
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
 
       int obsolete=needUpdate || !this->Loaded || input->GetMTime()>this->BuildTime;
       if(!obsolete)
-        {
+      {
         obsolete=cellFlag!=this->LoadedCellFlag;
         int i=0;
         while(!obsolete && i<6)
-          {
+        {
           obsolete=obsolete || this->LoadedExtent[i]>textureExtent[i];
           ++i;
           obsolete=obsolete || this->LoadedExtent[i]<textureExtent[i];
           ++i;
-          }
         }
+      }
 
       if(!obsolete)
-        {
+      {
         obsolete=this->LoadedTableRange[0]!=tableRange[0] ||
           this->LoadedTableRange[1]!=tableRange[1];
-        }
+      }
 
       if(obsolete)
-        {
+      {
         this->Loaded=false;
         int dim[3];
         input->GetDimensions(dim);
@@ -709,26 +709,26 @@ public:
 
         int scalarType=scalars->GetDataType();
         if(scalars->GetNumberOfComponents()==4)
-          {
+        {
           // this is RGBA, unsigned char only
           internalFormat=GL_RGBA16;
           format=GL_RGBA;
           type=GL_UNSIGNED_BYTE;
-          }
+        }
         else
-          {
+        {
           // input->GetNumberOfScalarComponents()==1
           switch(scalarType)
-            {
+          {
             case VTK_FLOAT:
               if(this->Supports_GL_ARB_texture_float)
-                {
+              {
                 internalFormat=vtkgl::INTENSITY16F_ARB;
-                }
+              }
               else
-                {
+              {
                 internalFormat=GL_INTENSITY16;
-                }
+              }
               format=GL_RED;
               type=GL_FLOAT;
               shift=-tableRange[0];
@@ -778,13 +778,13 @@ public:
             case VTK_UNSIGNED_LONG_LONG:
               needTypeConversion=1; // to float
               if(this->Supports_GL_ARB_texture_float)
-                {
+              {
                 internalFormat=vtkgl::INTENSITY16F_ARB;
-                }
+              }
               else
-                {
+              {
                 internalFormat=GL_INTENSITY16;
-                }
+              }
               format=GL_RED;
               type=GL_FLOAT;
               shift=-tableRange[0];
@@ -823,24 +823,24 @@ public:
             default:
               assert("check: impossible case" && 0);
               break;
-            }
           }
+        }
 
         // Enough memory?
         int textureSize[3];
         int i=0;
         while(i<3)
-          {
+        {
           textureSize[i]=textureExtent[2*i+1]-textureExtent[2*i]+1;
           ++i;
-          }
+        }
 
         GLint width;
         glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&width);
         this->Loaded=textureSize[0]<=width && textureSize[1]<=width
           && textureSize[2]<=width;
         if(this->Loaded)
-          {
+        {
           // so far, so good. the texture size is theorically small enough
           // for OpenGL
 
@@ -852,7 +852,7 @@ public:
 
           this->Loaded=width!=0;
           if(this->Loaded)
-            {
+          {
             // so far, so good but some cards always succeed with a proxy texture
             // let's try to actually allocate..
 
@@ -861,21 +861,21 @@ public:
             GLenum errorCode=glGetError();
             this->Loaded=errorCode!=GL_OUT_OF_MEMORY;
             if(this->Loaded)
-              {
+            {
               // so far, so good, actual allocation succeeded.
               if(errorCode!=GL_NO_ERROR)
-                {
+              {
                 cout<<"after try to load the texture";
                 cout<<" ERROR (x"<<hex<<errorCode<<") "<<dec;
                 cout<<vtkOpenGLGPUVolumeRayCastMapper::OpenGLErrorMessage(static_cast<unsigned int>(errorCode));
                 cout<<endl;
-                }
+              }
               // so far, so good but some cards don't report allocation error
               this->Loaded=textureSize[0]*textureSize[1]*
                 textureSize[2]*vtkAbstractArray::GetDataTypeSize(scalarType)*
                 scalars->GetNumberOfComponents()<=maxMemoryInBytes;
               if(this->Loaded)
-                {
+              {
                 // OK, we consider the allocation above succeeded...
                 // If it actually didn't the only to fix it for the user
                 // is to decrease the value of this->MaxMemoryInBytes.
@@ -895,7 +895,7 @@ public:
                 glTexParameterfv(vtkgl::TEXTURE_3D,GL_TEXTURE_BORDER_COLOR, borderColor);
 
                 if(needTypeConversion)
-                  {
+                {
                   // Convert and send to the GPU, z-slice by z-slice.
                   // Allocate memory on the GPU (NULL data pointer with the right
                   // dimensions)
@@ -917,25 +917,25 @@ public:
                                +textureExtent[2])*(dim[0]-cellFlag)
                     +textureExtent[0];
                   while(k<textureSize[2])
-                    {
+                  {
                     int j=0;
                     int jOffset=0;
                     int jDestOffset=0;
                     while(j<textureSize[1])
-                      {
+                    {
                       i=0;
                       while(i<textureSize[0])
-                        {
+                      {
                         sliceArray->SetTuple1(jDestOffset+i,
                                               (scalars->GetTuple1(kOffset+jOffset
                                                                   +i)
                                                +shift)*scale);
                         ++i;
-                        }
+                      }
                       ++j;
                       jOffset+=dim[0]-cellFlag;
                       jDestOffset+=textureSize[0];
-                      }
+                    }
 
                     // Here we are assuming that GL_ARB_texture_non_power_of_two is
                     // available
@@ -946,11 +946,11 @@ public:
                                          format,type, slicePtr);
                     ++k;
                     kOffset+=kInc;
-                    }
-                  sliceArray->Delete();
                   }
+                  sliceArray->Delete();
+                }
                 else
-                  {
+                {
                   // One chunk of data to the GPU.
                   // It works for the whole volume or for a subvolume.
                   // Here we are assuming that GL_ARB_texture_non_power_of_two is
@@ -964,14 +964,14 @@ public:
                   glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 
                   if(!(textureExtent[1]-textureExtent[0]+cellFlag==dim[0]))
-                    {
+                  {
                     glPixelStorei(GL_UNPACK_ROW_LENGTH,dim[0]-cellFlag);
-                    }
+                  }
                   if(!(textureExtent[3]-textureExtent[2]+cellFlag==dim[1]))
-                    {
+                  {
                     glPixelStorei(vtkgl::UNPACK_IMAGE_HEIGHT_EXT,
                                   dim[1]-cellFlag);
-                    }
+                  }
                   void *dataPtr=scalars->GetVoidPointer(
                     ((textureExtent[4]*(dim[1]-cellFlag)+textureExtent[2])
                      *(dim[0]-cellFlag)+textureExtent[0])
@@ -988,14 +988,14 @@ public:
                   glPixelStorei(vtkgl::UNPACK_IMAGE_HEIGHT_EXT,0);
                   glPixelTransferf(GL_RED_SCALE,1.0);
                   glPixelTransferf(GL_RED_BIAS,0.0);
-                  }
+                }
                 this->LoadedCellFlag=cellFlag;
                 i=0;
                 while(i<6)
-                  {
+                {
                   this->LoadedExtent[i]=textureExtent[i];
                   ++i;
-                  }
+                }
 
                 double spacing[3];
                 double origin[3];
@@ -1007,7 +1007,7 @@ public:
                 swapBounds[2]=(spacing[2]<0);
 
                 if(!this->LoadedCellFlag) // loaded extents represent points
-                  {
+                {
                   // slabsPoints[i]=(slabsDataSet[i] - origin[i/2]) / spacing[i/2];
                   // in general, x=o+i*spacing.
                   // if spacing is positive min extent match the min of the
@@ -1032,126 +1032,126 @@ public:
                   this->LoadedBounds[5]=origin[2]+
                     static_cast<double>(this->LoadedExtent[5-swapBounds[2]])*spacing[2];
 
-                  }
+                }
                 else // loaded extents represent cells
-                  {
+                {
                   int wholeTextureExtent[6];
                   input->GetExtent(wholeTextureExtent);
                   i=1;
                   while(i<6)
-                    {
+                  {
                     wholeTextureExtent[i]--;
                     i+=2;
-                    }
+                  }
 
                   i=0;
                   while(i<3)
-                    {
+                  {
                     if(this->LoadedExtent[2*i]==wholeTextureExtent[2*i])
-                      {
+                    {
                       this->LoadedBounds[2*i+swapBounds[i]]=origin[i];
-                      }
+                    }
                     else
-                      {
+                    {
                       this->LoadedBounds[2*i+swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i])+0.5)*spacing[i];
-                      }
+                    }
 
                     if(this->LoadedExtent[2*i+1]==wholeTextureExtent[2*i+1])
-                      {
+                    {
                       this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i+1])+1.0)*spacing[i];
-                      }
+                    }
                     else
-                      {
+                    {
                       this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i+1])+0.5)*spacing[i];
-                      }
-                    ++i;
                     }
+                    ++i;
                   }
+                }
                 this->LoadedTableRange[0]=tableRange[0];
                 this->LoadedTableRange[1]=tableRange[1];
                 modified=true;
-                } // if enough memory
+              } // if enough memory
               else
-                {
-                }
-              } //load fail with out of memory
-            else
               {
               }
-            } // proxy ok
-          else
-            { // proxy failed
+            } //load fail with out of memory
+            else
+            {
             }
+          } // proxy ok
+          else
+          { // proxy failed
           }
+        }
         else
-          {
+        {
           // out of therical limitationa
-          }
-        } // if obsolete
+        }
+      } // if obsolete
 
       if(this->Loaded &&
          (needUpdate || modified ||
           linearInterpolation!=this->LinearInterpolation))
-        {
+      {
         this->LinearInterpolation=linearInterpolation;
         if(this->LinearInterpolation)
-          {
-          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
-                          GL_LINEAR);
-          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
-                          GL_LINEAR);
-          }
-        else
-          {
-          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
-                          GL_NEAREST );
-          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
-                          GL_NEAREST );
-          }
-        modified=true;
-        }
-      if(modified)
         {
-        this->BuildTime.Modified();
+          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
+                          GL_LINEAR);
+          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
+                          GL_LINEAR);
         }
+        else
+        {
+          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
+                          GL_NEAREST );
+          glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
+                          GL_NEAREST );
+        }
+        modified=true;
+      }
+      if(modified)
+      {
+        this->BuildTime.Modified();
+      }
     vtkOpenGLStaticCheckErrorMacro("failed after Update");
-    }
+  }
 
   double *GetLoadedBounds()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedBounds;
-    }
+  }
 
   vtkIdType *GetLoadedExtent()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedExtent;
-    }
+  }
 
   int GetLoadedCellFlag()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedCellFlag;
-    }
+  }
 
   bool IsLoaded()
-    {
+  {
       return this->Loaded;
-    }
+  }
 
   bool GetSupports_GL_ARB_texture_float()
-    {
+  {
       return this->Supports_GL_ARB_texture_float;
-    }
+  }
 
   void SetSupports_GL_ARB_texture_float(bool value)
-    {
+  {
       this->Supports_GL_ARB_texture_float=value;
-    }
+  }
 
 protected:
   GLuint TextureId;
@@ -1171,7 +1171,7 @@ class vtkKWMask
 {
 public:
   vtkKWMask()
-    {
+  {
       this->TextureId=0;
       this->Loaded=false;
       this->LoadedExtent[0]=VTK_INT_MAX;
@@ -1180,29 +1180,29 @@ public:
       this->LoadedExtent[3]=VTK_INT_MIN;
       this->LoadedExtent[4]=VTK_INT_MAX;
       this->LoadedExtent[5]=VTK_INT_MIN;
-    }
+  }
   ~vtkKWMask()
-    {
+  {
       if(this->TextureId!=0)
-        {
+      {
         glDeleteTextures(1,&this->TextureId);
         vtkOpenGLStaticCheckErrorMacro("failed at glDeleteTextures");
         this->TextureId=0;
-        }
-    }
+      }
+  }
 
   vtkTimeStamp GetBuildTime()
-    {
+  {
       return this->BuildTime;
-    }
+  }
 
   // \pre vtkgl::ActiveTexture(vtkgl::TEXTURE7) has to be called first.
   void Bind()
-    {
+  {
       assert("pre: uptodate" && this->Loaded);
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
       vtkOpenGLStaticCheckErrorMacro("failed at glBindTexture");
-    }
+  }
 
   // \pre vtkgl::ActiveTexture(vtkgl::TEXTURE7) has to be called first.
   void Update(vtkImageData *input,
@@ -1213,35 +1213,35 @@ public:
               int arrayId,
               const char *arrayName,
               vtkIdType maxMemoryInBytes)
-    {
+  {
       vtkOpenGLClearErrorMacro();
 
       bool needUpdate=false;
       bool modified=false;
       if(this->TextureId==0)
-        {
+      {
         glGenTextures(1,&this->TextureId);
         needUpdate=true;
-        }
+      }
       glBindTexture(vtkgl::TEXTURE_3D,this->TextureId);
 
       int obsolete=needUpdate || !this->Loaded
         || input->GetMTime()>this->BuildTime;
       if(!obsolete)
-        {
+      {
         obsolete=cellFlag!=this->LoadedCellFlag;
         int i=0;
         while(!obsolete && i<6)
-          {
+        {
           obsolete=obsolete || this->LoadedExtent[i]>textureExtent[i];
           ++i;
           obsolete=obsolete || this->LoadedExtent[i]<textureExtent[i];
           ++i;
-          }
         }
+      }
 
       if(obsolete)
-        {
+      {
         this->Loaded=false;
         int dim[3];
         input->GetDimensions(dim);
@@ -1256,13 +1256,13 @@ public:
 
         int scalarType=scalars->GetDataType();
         if(scalarType!=VTK_UNSIGNED_CHAR)
-          {
+        {
           cout <<"mask should be VTK_UNSIGNED_CHAR." << endl;
-          }
+        }
         if(scalars->GetNumberOfComponents()!=1)
-          {
+        {
           cout <<"mask should be a one-component scalar field." << endl;
-          }
+        }
 
         GLint internalFormat=GL_ALPHA8;
         GLenum format=GL_ALPHA;
@@ -1272,17 +1272,17 @@ public:
         int textureSize[3];
         int i=0;
         while(i<3)
-          {
+        {
           textureSize[i]=textureExtent[2*i+1]-textureExtent[2*i]+1;
           ++i;
-          }
+        }
 
         GLint width;
         glGetIntegerv(vtkgl::MAX_3D_TEXTURE_SIZE,&width);
         this->Loaded=textureSize[0]<=width && textureSize[1]<=width
           && textureSize[2]<=width;
         if(this->Loaded)
-          {
+        {
           // so far, so good. the texture size is theorically small enough
           // for OpenGL
 
@@ -1294,7 +1294,7 @@ public:
 
           this->Loaded=width!=0;
           if(this->Loaded)
-            {
+          {
             // so far, so good but some cards always succeed with a proxy texture
             // let's try to actually allocate..
 
@@ -1303,21 +1303,21 @@ public:
             GLenum errorCode=glGetError();
             this->Loaded=errorCode!=GL_OUT_OF_MEMORY;
             if(this->Loaded)
-              {
+            {
               // so far, so good, actual allocation succeeded.
               if(errorCode!=GL_NO_ERROR)
-                {
+              {
                 cout<<"after try to load the texture";
                 cout<<" ERROR (x"<<hex<<errorCode<<") "<<dec;
                 cout<<vtkOpenGLGPUVolumeRayCastMapper::OpenGLErrorMessage(static_cast<unsigned int>(errorCode));
                 cout<<endl;
-                }
+              }
               // so far, so good but some cards don't report allocation error
               this->Loaded=textureSize[0]*textureSize[1]*
                 textureSize[2]*vtkAbstractArray::GetDataTypeSize(scalarType)*
                 scalars->GetNumberOfComponents()<=maxMemoryInBytes;
               if(this->Loaded)
-                {
+              {
                 // OK, we consider the allocation above succeeded...
                 // If it actually didn't the only to fix it for the user
                 // is to decrease the value of this->MaxMemoryInBytes.
@@ -1339,14 +1339,14 @@ public:
                 glPixelStorei(GL_UNPACK_ALIGNMENT,1);
 
                 if(!(textureExtent[1]-textureExtent[0]+cellFlag==dim[0]))
-                  {
+                {
                   glPixelStorei(GL_UNPACK_ROW_LENGTH,dim[0]-cellFlag);
-                  }
+                }
                 if(!(textureExtent[3]-textureExtent[2]+cellFlag==dim[1]))
-                  {
+                {
                   glPixelStorei(vtkgl::UNPACK_IMAGE_HEIGHT_EXT,
                                 dim[1]-cellFlag);
-                  }
+                }
                 void *dataPtr=scalars->GetVoidPointer(
                   ((textureExtent[4]*(dim[1]-cellFlag)+textureExtent[2])
                    *(dim[0]-cellFlag)+textureExtent[0])
@@ -1365,10 +1365,10 @@ public:
                 this->LoadedCellFlag=cellFlag;
                 i=0;
                 while(i<6)
-                  {
+                {
                   this->LoadedExtent[i]=textureExtent[i];
                   ++i;
-                  }
+                }
 
                 double spacing[3];
                 double origin[3];
@@ -1380,7 +1380,7 @@ public:
                 swapBounds[2]=(spacing[2]<0);
 
                 if(!this->LoadedCellFlag) // loaded extents represent points
-                  {
+                {
                   // slabsPoints[i]=(slabsDataSet[i] - origin[i/2]) / spacing[i/2];
                   // in general, x=o+i*spacing.
                   // if spacing is positive min extent match the min of the
@@ -1405,101 +1405,101 @@ public:
                   this->LoadedBounds[5]=origin[2]+
                     static_cast<double>(this->LoadedExtent[5-swapBounds[2]])*spacing[2];
 
-                  }
+                }
                 else // loaded extents represent cells
-                  {
+                {
                   int wholeTextureExtent[6];
                   input->GetExtent(wholeTextureExtent);
                   i=1;
                   while(i<6)
-                    {
+                  {
                     wholeTextureExtent[i]--;
                     i+=2;
-                    }
+                  }
 
                   i=0;
                   while(i<3)
-                    {
+                  {
                     if(this->LoadedExtent[2*i]==wholeTextureExtent[2*i])
-                      {
+                    {
                       this->LoadedBounds[2*i+swapBounds[i]]=origin[i];
-                      }
+                    }
                     else
-                      {
+                    {
                       this->LoadedBounds[2*i+swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i])+0.5)*spacing[i];
-                      }
+                    }
 
                     if(this->LoadedExtent[2*i+1]==wholeTextureExtent[2*i+1])
-                      {
+                    {
                       this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i+1])+1.0)*spacing[i];
-                      }
+                    }
                     else
-                      {
+                    {
                       this->LoadedBounds[2*i+1-swapBounds[i]]=origin[i]+
                         (static_cast<double>(this->LoadedExtent[2*i+1])+0.5)*spacing[i];
-                      }
-                    ++i;
                     }
+                    ++i;
                   }
-                modified=true;
-                } // if enough memory
-              else
-                {
                 }
-              } //load fail with out of memory
-            else
+                modified=true;
+              } // if enough memory
+              else
               {
               }
-            } // proxy ok
-          else
-            { // proxy failed
+            } //load fail with out of memory
+            else
+            {
             }
+          } // proxy ok
+          else
+          { // proxy failed
           }
+        }
         else
-          {
+        {
           // out of therical limitationa
-          }
-        } // if obsolete
+        }
+      } // if obsolete
 
       if(this->Loaded && (needUpdate || modified))
-        {
+      {
         glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MIN_FILTER,
                         GL_NEAREST );
         glTexParameterf(vtkgl::TEXTURE_3D,GL_TEXTURE_MAG_FILTER,
                         GL_NEAREST );
         modified=true;
-        }
+      }
       if(modified)
-        {
+      {
         this->BuildTime.Modified();
-        }
+      }
       vtkOpenGLStaticCheckErrorMacro("failed after Update");
-    }
+  }
 
   double *GetLoadedBounds()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedBounds;
-    }
+  }
 
   vtkIdType *GetLoadedExtent()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedExtent;
-    }
+  }
 
   int GetLoadedCellFlag()
-    {
+  {
       assert("pre: loaded" && this->Loaded);
       return this->LoadedCellFlag;
-    }
+  }
 
   bool IsLoaded()
-    {
+  {
       return this->Loaded;
-    }
+  }
 
 protected:
   GLuint TextureId;
@@ -1519,7 +1519,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CheckFrameBufferStatus()
   GLenum status;
   status = vtkgl::CheckFramebufferStatusEXT(vtkgl::FRAMEBUFFER_EXT);
   switch(status)
-    {
+  {
     case 0:
       cout << "call to vtkgl::CheckFramebufferStatusEXT generates an error."
            << endl;
@@ -1549,7 +1549,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CheckFrameBufferStatus()
       break;
     default:
       cout << "Unknown framebuffer status=0x" << hex<< status << dec << endl;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1562,7 +1562,7 @@ vtkStdString vtkOpenGLGPUVolumeRayCastMapper::BufferToString(int buffer)
 
   GLint b=static_cast<GLint>(buffer);
   switch(b)
-    {
+  {
     case GL_NONE:
       ost << "GL_NONE";
       break;
@@ -1596,27 +1596,27 @@ vtkStdString vtkOpenGLGPUVolumeRayCastMapper::BufferToString(int buffer)
     default:
       glGetIntegerv(GL_AUX_BUFFERS,&size);
       if(buffer>=GL_AUX0 && buffer<(GL_AUX0+size))
-        {
+      {
         ost << "GL_AUX" << (buffer-GL_AUX0);
-        }
+      }
       else
-        {
+      {
         glGetIntegerv(vtkgl::MAX_COLOR_ATTACHMENTS_EXT,&size);
         if(static_cast<GLuint>(buffer)>=vtkgl::COLOR_ATTACHMENT0_EXT &&
            static_cast<GLuint>(buffer)<
            (vtkgl::COLOR_ATTACHMENT0_EXT+static_cast<GLuint>(size)))
-          {
+        {
           ost << "GL_COLOR_ATTACHMENT"
               << (static_cast<GLuint>(buffer)-vtkgl::COLOR_ATTACHMENT0_EXT)
               << "_EXT";
-          }
-        else
-          {
-          ost << "unknown color buffer type=0x"<<hex<<buffer<<dec;
-          }
         }
+        else
+        {
+          ost << "unknown color buffer type=0x"<<hex<<buffer<<dec;
+        }
+      }
       break;
-    }
+  }
 
   result=ost.str();
   return result;
@@ -1632,12 +1632,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayReadAndDrawBuffers()
   vtkStdString s;
   GLenum i=0;
   while(i<max)
-    {
+  {
     glGetIntegerv(vtkgl::DRAW_BUFFER0+i,&value);
     s=this->BufferToString(static_cast<int>(value));
     cout << "draw buffer " << i << "=" << s << endl;
     ++i;
-    }
+  }
 
   glGetIntegerv(GL_READ_BUFFER,&value);
   s=this->BufferToString(static_cast<int>(value));
@@ -1656,11 +1656,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayFrameBufferAttachments()
   glGetIntegerv(vtkgl::FRAMEBUFFER_BINDING_EXT,&framebufferBinding);
   this->PrintError("after getting FRAMEBUFFER_BINDING_EXT");
   if(framebufferBinding==0)
-    {
+  {
     cout<<"Current framebuffer is bind to the system one"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"Current framebuffer is bind to framebuffer object "
         <<framebufferBinding<<endl;
 
@@ -1670,16 +1670,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayFrameBufferAttachments()
     this->PrintError("after getting MAX_COLOR_ATTACHMENTS_EXT");
     GLenum i=0;
     while(i<maxColorAttachments)
-      {
+    {
       cout<<"color attachement "<<i<<":"<<endl;
       this->DisplayFrameBufferAttachment(vtkgl::COLOR_ATTACHMENT0_EXT+i);
       ++i;
-      }
+    }
     cout<<"depth attachement :"<<endl;
     this->DisplayFrameBufferAttachment(vtkgl::DEPTH_ATTACHMENT_EXT);
     cout<<"stencil attachement :"<<endl;
     this->DisplayFrameBufferAttachment(vtkgl::STENCIL_ATTACHMENT_EXT);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -1700,7 +1700,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayFrameBufferAttachment(
 
   this->PrintError("after getting FRAMEBUFFER_ATTACHMENT_OBJECT_TYPE_EXT");
   switch(params)
-    {
+  {
     case GL_NONE:
       cout<<" this attachment is empty"<<endl;
       break;
@@ -1722,28 +1722,28 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayFrameBufferAttachment(
        this->PrintError(
          "after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_CUBE_MAP_FACE_EXT");
       if(params==0)
-        {
+      {
         cout<<" this is not a cube map texture."<<endl;
-        }
+      }
       else
-        {
+      {
         cout<<" this is a cube map texture and the image is contained in face "
             <<params<<endl;
-        }
+      }
        vtkgl::GetFramebufferAttachmentParameterivEXT(
          vtkgl::FRAMEBUFFER_EXT,attachment,
          vtkgl::FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT,&params);
         this->PrintError(
           "after getting FRAMEBUFFER_ATTACHMENT_TEXTURE_3D_ZOFFSET_EXT");
       if(params==0)
-        {
+      {
         cout<<" this is not 3D texture."<<endl;
-        }
+      }
       else
-        {
+      {
         cout<<" this is a 3D texture and the zoffset of the attached image is "
             <<params<<endl;
-        }
+      }
       break;
     case vtkgl::RENDERBUFFER_EXT:
       cout<<" this attachment is a renderbuffer"<<endl;
@@ -1814,7 +1814,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::DisplayFrameBufferAttachment(
     default:
       cout<<" unexcepted value."<<endl;
       break;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1826,7 +1826,7 @@ const char *vtkOpenGLGPUVolumeRayCastMapper::OpenGLErrorMessage(
 {
   const char *result;
   switch(static_cast<GLenum>(errorCode))
-    {
+  {
     case GL_NO_ERROR:
       result="No error";
       break;
@@ -1862,7 +1862,7 @@ const char *vtkOpenGLGPUVolumeRayCastMapper::OpenGLErrorMessage(
       break;
     default:
       result="unknown error";
-    }
+  }
   assert("post: result_exists" && result!=0);
   return result;
 }
@@ -1875,15 +1875,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::PrintError(const char *headerMessage)
 {
   GLenum errorCode=glGetError();
   if(errorCode!=GL_NO_ERROR)
-    {
+  {
     if ( headerMessage )
-      {
+    {
       cout<<headerMessage;
-      }
+    }
     cout<<" ERROR (x"<<hex<<errorCode<<") "<<dec;
     cout<<OpenGLErrorMessage(static_cast<unsigned int>(errorCode));
     cout<<endl;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -1903,21 +1903,21 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
   // 1 grabbed depth buffer 2d texture
   int i=0;
   while(i<vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects)
-    {
+  {
     this->TextureObjects[i]=0;
     ++i;
-    }
+  }
 
   this->DepthRenderBufferObject=0;
   this->FrameBufferObject=0;
 
   for ( int j = 0; j < 8; j++ )
-    {
+  {
     for (i = 0; i < 3; i++ )
-      {
+    {
       this->BoundingBox[j][i] = 0.0;
-      }
     }
+  }
 
   this->LastSize[0]=0;
   this->LastSize[1]=0;
@@ -1929,10 +1929,10 @@ vtkOpenGLGPUVolumeRayCastMapper::vtkOpenGLGPUVolumeRayCastMapper()
 
   i=0;
   while(i<3)
-    {
+  {
     this->TempMatrix[i]=vtkMatrix4x4::New();
     ++i;
-    }
+  }
 
   this->ErrorLine=0;
   this->ErrorColumn=0;
@@ -2011,50 +2011,50 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
 
   int i=0;
   while(i<3)
-    {
+  {
     this->TempMatrix[i]->Delete();
     this->TempMatrix[i]=0;
     ++i;
-    }
+  }
 
   delete[] this->ErrorString;
 
   if ( this->SmallInput )
-    {
+  {
     this->SmallInput->UnRegister(this);
-    }
+  }
 
   if(this->PolyDataBoundingBox!=0)
-    {
+  {
     this->PolyDataBoundingBox->UnRegister(this);
     this->PolyDataBoundingBox=0;
-    }
+  }
   if(this->Planes!=0)
-    {
+  {
     this->Planes->UnRegister(this);
     this->Planes=0;
-    }
+  }
   if(this->NearPlane!=0)
-    {
+  {
     this->NearPlane->UnRegister(this);
     this->NearPlane=0;
-    }
+  }
   if(this->Clip!=0)
-    {
+  {
     this->Clip->UnRegister(this);
     this->Clip=0;
-    }
+  }
   if(this->Densify!=0)
-    {
+  {
     this->Densify->UnRegister(this);
     this->Densify=0;
-    }
+  }
 
   if(this->BoxSource!=0)
-    {
+  {
     this->BoxSource->UnRegister(this);
     this->BoxSource=0;
-    }
+  }
   this->InvVolumeMatrix->UnRegister(this);
   this->InvVolumeMatrix=0;
 
@@ -2063,37 +2063,37 @@ vtkOpenGLGPUVolumeRayCastMapper::~vtkOpenGLGPUVolumeRayCastMapper()
   delete this->MaskTextures;
 
   if(this->Program!=0)
-    {
+  {
     this->Program->Delete();
-    }
+  }
   if(this->Main!=0)
-    {
+  {
     this->Main->Delete();
-    }
+  }
   if(this->Projection!=0)
-    {
+  {
     this->Projection->Delete();
-    }
+  }
   if(this->Trace!=0)
-    {
+  {
     this->Trace->Delete();
-    }
+  }
   if(this->CroppingShader!=0)
-    {
+  {
     this->CroppingShader->Delete();
-    }
+  }
   if(this->Component!=0)
-    {
+  {
     this->Component->Delete();
-    }
+  }
   if(this->Shade!=0)
-    {
+  {
     this->Shade->Delete();
-    }
+  }
   if(this->ScaleBiasProgram!=0)
-    {
+  {
     this->ScaleBiasProgram->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2109,16 +2109,16 @@ int vtkOpenGLGPUVolumeRayCastMapper::IsRenderSupported(
 {
   window->MakeCurrent();
   if(!this->LoadExtensionsSucceeded)
-    {
+  {
     this->LoadExtensions(window);
-    }
+  }
   if(!this->LoadExtensionsSucceeded)
-    {
+  {
     vtkDebugMacro(
       "The following OpenGL extensions are required but not supported: "
       << (this->UnsupportedRequiredExtensions->Stream.str()).c_str());
     return 0;
-    }
+  }
   return 1;
 }
 
@@ -2138,17 +2138,17 @@ int vtkOpenGLGPUVolumeRayCastMapper::TestRequiredExtension(
   int result=extensions->ExtensionSupported(extensionName);
 
   if(!result)
-    {
+  {
     if(this->LoadExtensionsSucceeded)
-      {
+    {
       this->UnsupportedRequiredExtensions->Stream<<extensionName;
       this->LoadExtensionsSucceeded=0;
-      }
-    else
-      {
-      this->UnsupportedRequiredExtensions->Stream<<", "<<extensionName;
-      }
     }
+    else
+    {
+      this->UnsupportedRequiredExtensions->Stream<<", "<<extensionName;
+    }
+  }
   return result;
 }
 
@@ -2184,12 +2184,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // get the extension manager
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(window);
   if (!context)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " Disabled because context is not a vtkOpenGLRederWindow.";
     this->LoadExtensionsSucceeded=0;
     return;
-    }
+  }
   vtkOpenGLExtensionManager *extensions = context->GetExtensionManager();
 
   // It does not work on Mac OS X 10.6 (Snow Leopard) with nVidia.
@@ -2205,12 +2205,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   Gestalt (gestaltSystemVersionMinor, &minor);
   #pragma clang diagnostic pop
   if (extensions->DriverIsNvidia() && (major == 10) && (minor == 6))
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream <<
       " Disabled on unsupported Apple OS X driver.";
     this->LoadExtensionsSucceeded=0;
     return;
-    }
+  }
 #endif
 
   // mesa notes:
@@ -2221,11 +2221,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   if ( (extensions->DriverIsMesa()
     && !(extensions->DriverGLRendererIsOSMesa() && extensions->DriverVersionAtLeast(9)))
     && !extensions->GetIgnoreDriverBugs("Mesa FBO bugs"))
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " Disabled because of Mesa FBO bugs.";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // GL_ARB_draw_buffers requires OpenGL 1.3, so we must have OpenGL 1.3
   // We don't need to check for some extensions that become part of OpenGL
@@ -2240,12 +2240,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
 
   // No 1.3 support - give up
   if(!supports_GL_1_3)
-    {
+  {
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " OpenGL 1.3 is required but not supported";
     return;
-    }
+  }
 
   // Check for 2.0 support
   supports_GL_2_0=extensions->ExtensionSupported("GL_VERSION_2_0");
@@ -2258,7 +2258,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   int supports_texture_non_power_of_two = 1;
   int supports_draw_buffers             = 1;
   if(!supports_GL_2_0)
-    {
+  {
     supports_shading_language_100=
       extensions->ExtensionSupported("GL_ARB_shading_language_100");
     supports_shader_objects=
@@ -2269,7 +2269,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
       extensions->ExtensionSupported("GL_ARB_texture_non_power_of_two");
     supports_draw_buffers=
       extensions->ExtensionSupported("GL_ARB_draw_buffers");
-    }
+  }
 
   // We have to check for framebuffer objects
   int supports_GL_EXT_framebuffer_object=
@@ -2290,13 +2290,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   // Now start adding messages to the UnsupportedRequiredExtensions string
   // Log message if shading language 100 is not supported
   if(!supports_shading_language_100)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " shading_language_100 (or OpenGL 2.0) is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
   else
-    {
+  {
     // We can query the GLSL version, we need >=1.20
     const char *glsl_version=
       reinterpret_cast<const char *>(glGetString(vtkgl::SHADING_LANGUAGE_VERSION));
@@ -2308,65 +2308,65 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
     ist >> glslMinor;
 //sscanf(version, "%d.%d", &glslMajor, &glslMinor);
     if(glslMajor<1 || (glslMajor==1 && glslMinor<20))
-      {
+    {
       this->LoadExtensionsSucceeded=0;
-      }
     }
+  }
 
   // Log message if shader objects are not supported
   if(!supports_shader_objects)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " shader_objects (or OpenGL 2.0) is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Log message if fragment shaders are not supported
   if(!supports_fragment_shader)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " fragment_shader (or OpenGL 2.0) is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Log message if non power of two textures are not supported
   if(!supports_texture_non_power_of_two)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " texture_non_power_of_two (or OpenGL 2.0) is required but not "
                                                << "supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Log message if draw buffers are not supported
   if(!supports_draw_buffers)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " draw_buffers (or OpenGL 2.0) is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Log message if depth textures are not supported
   if(!supports_depth_texture)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " depth_texture (or OpenGL 1.4) is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Log message if framebuffer objects are not supported
   if(!supports_GL_EXT_framebuffer_object)
-    {
+  {
     this->UnsupportedRequiredExtensions->Stream<<
       " framebuffer_object is required but not supported";
     this->LoadExtensionsSucceeded=0;
-    }
+  }
 
   // Have we succeeded so far? If not, just return.
   if(!this->LoadExtensionsSucceeded)
-    {
+  {
     return;
-    }
+  }
 
   // Now start loading the extensions
   // First load all 1.2 and 1.3 extensions (we know we
@@ -2376,18 +2376,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
 
   // Load the 2.0 extensions if supported
   if(supports_GL_2_0)
-    {
+  {
     extensions->LoadExtension("GL_VERSION_2_0");
-    }
+  }
   // Otherwise, we'll need to specifically load the
   // shader objects, fragment shader, and draw buffers
   // extensions
   else
-    {
+  {
     extensions->LoadCorePromotedExtension("GL_ARB_shader_objects");
     extensions->LoadCorePromotedExtension("GL_ARB_fragment_shader");
     extensions->LoadCorePromotedExtension("GL_ARB_draw_buffers");
-    }
+  }
 
   // Load the framebuffer object extension
   extensions->LoadExtension("GL_EXT_framebuffer_object");
@@ -2398,9 +2398,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->Supports_GL_ARB_texture_float=
     extensions->ExtensionSupported("GL_ARB_texture_float" );
   if(this->Supports_GL_ARB_texture_float)
-    {
+  {
     extensions->LoadExtension( "GL_ARB_texture_float" );
-    }
+  }
 
   // Optional extension (does not fail if not present)
   // Used to minimize memory footprint when loading large 3D textures
@@ -2415,24 +2415,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
      extensions->ExtensionSupported("GL_ARB_pixel_buffer_object"));
 
   if(this->SupportsPixelBufferObjects)
-    {
+  {
     if(supports_GL_1_5)
-      {
+    {
       extensions->LoadExtension("GL_VERSION_1_5");
-      }
-    else
-      {
-      extensions->LoadCorePromotedExtension("GL_ARB_vertex_buffer_object");
-      }
-    if(supports_GL_2_1)
-      {
-      extensions->LoadExtension("GL_VERSION_2_1");
-      }
-    else
-      {
-      extensions->LoadCorePromotedExtension("GL_ARB_pixel_buffer_object");
-      }
     }
+    else
+    {
+      extensions->LoadCorePromotedExtension("GL_ARB_vertex_buffer_object");
+    }
+    if(supports_GL_2_1)
+    {
+      extensions->LoadExtension("GL_VERSION_2_1");
+    }
+    else
+    {
+      extensions->LoadCorePromotedExtension("GL_ARB_pixel_buffer_object");
+    }
+  }
 
   // Ultimate test. Some old cards support OpenGL 2.0 but not while
   // statements in a fragment shader (example: nVidia GeForce FX 5200)
@@ -2451,23 +2451,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadExtensions(
   this->Program->SetPrintErrors(true);
 
   if(this->Program->GetLastBuildStatus()!=VTK_SHADER_PROGRAM2_LINK_SUCCEEDED)
-    {
+  {
     this->LoadExtensionsSucceeded=0;
     this->UnsupportedRequiredExtensions->Stream<<
       " this card does not support while statements in fragment shaders.";
-    }
+  }
 
   this->Program->ReleaseGraphicsResources();
   if(this->LastComponent!=
      vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized)
-    {
+  {
     this->Program->GetShaders()->RemoveItem(this->Component);
-    }
+  }
   if(this->LastShade!=
      vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized)
-    {
+  {
     this->Program->GetShaders()->RemoveItem(this->Shade);
-    }
+  }
 
   this->LastParallelProjection=
     vtkOpenGLGPUVolumeRayCastMapperProjectionNotInitialized;
@@ -2488,7 +2488,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
   vtkWindow *window)
 {
   if(this->OpenGLObjectsCreated)
-    {
+  {
     window->MakeCurrent();
     vtkOpenGLClearErrorMacro();
     this->LastSize[0]=0;
@@ -2501,26 +2501,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     GLuint textureObjects[vtkOpenGLGPUVolumeRayCastMapperNumberOfTextureObjects];
     int i=0;
     while(i<(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
-      {
+    {
       textureObjects[i]=static_cast<GLuint>(this->TextureObjects[i]);
       ++i;
-      }
+    }
     glDeleteTextures(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers,textureObjects);
 
     if(this->MaxValueFrameBuffer!=0)
-      {
+    {
       GLuint maxValueFrameBuffer=
         static_cast<GLuint>(this->MaxValueFrameBuffer);
       glDeleteTextures(1,&maxValueFrameBuffer);
       this->MaxValueFrameBuffer=0;
-      }
+    }
     if(this->MaxValueFrameBuffer2!=0)
-      {
+    {
       GLuint maxValueFrameBuffer2=
         static_cast<GLuint>(this->MaxValueFrameBuffer2);
       glDeleteTextures(1,&maxValueFrameBuffer2);
       this->MaxValueFrameBuffer2=0;
-      }
+    }
     this->LastParallelProjection=
       vtkOpenGLGPUVolumeRayCastMapperProjectionNotInitialized;
     this->LastRayCastMethod=
@@ -2532,101 +2532,101 @@ void vtkOpenGLGPUVolumeRayCastMapper::ReleaseGraphicsResources(
     this->LastShade=vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized;
     this->OpenGLObjectsCreated=0;
     vtkOpenGLCheckErrorMacro("failed during ReleaseGraphicsResources");
-    }
+  }
 
   if(this->NoiseTextureId!=0)
-    {
+  {
     window->MakeCurrent();
     vtkOpenGLClearErrorMacro();
     GLuint noiseTextureObjects=static_cast<GLuint>(this->NoiseTextureId);
     glDeleteTextures(1,&noiseTextureObjects);
     this->NoiseTextureId=0;
     vtkOpenGLCheckErrorMacro("failed during ReleaseGraphicsResources");
-    }
+  }
 
   if(this->ScalarsTextures!=0)
-    {
+  {
     if(!this->ScalarsTextures->Map.empty())
-      {
+    {
       std::map<vtkImageData *,vtkKWScalarField *>::iterator it=this->ScalarsTextures->Map.begin();
       while(it!=this->ScalarsTextures->Map.end())
-        {
+      {
         vtkKWScalarField *texture=(*it).second;
         delete texture;
         ++it;
-        }
-      this->ScalarsTextures->Map.clear();
       }
+      this->ScalarsTextures->Map.clear();
     }
+  }
 
   if(this->MaskTextures!=0)
-    {
+  {
     if(!this->MaskTextures->Map.empty())
-      {
+    {
       std::map<vtkImageData *,vtkKWMask *>::iterator it=this->MaskTextures->Map.begin();
       while(it!=this->MaskTextures->Map.end())
-        {
+      {
         vtkKWMask *texture=(*it).second;
         delete texture;
         ++it;
-        }
-      this->MaskTextures->Map.clear();
       }
+      this->MaskTextures->Map.clear();
     }
+  }
 
   if (this->RGBTable)
-    {
+  {
     this->RGBTable->Delete();
     this->RGBTable = NULL;
-    }
+  }
 
   if (this->Mask1RGBTable)
-    {
+  {
     this->Mask1RGBTable->Delete();
     this->Mask1RGBTable = NULL;
-    }
+  }
 
   if (this->Mask2RGBTable)
-    {
+  {
     this->Mask2RGBTable->Delete();
     this->Mask2RGBTable = NULL;
-    }
+  }
 
   delete this->OpacityTables;
   this->OpacityTables=0;
 
   if(this->Program!=0)
-    {
+  {
     this->Program->ReleaseGraphicsResources();
-    }
+  }
    if(this->Main!=0)
-    {
+   {
     this->Main->ReleaseGraphicsResources();
-    }
+   }
   if(this->Projection!=0)
-    {
+  {
     this->Projection->ReleaseGraphicsResources();
-    }
+  }
   if(this->Trace!=0)
-    {
+  {
     this->Trace->ReleaseGraphicsResources();
-    }
+  }
   if(this->CroppingShader!=0)
-    {
+  {
     this->CroppingShader->ReleaseGraphicsResources();
-    }
+  }
   if(this->Component!=0)
-    {
+  {
     this->Component->ReleaseGraphicsResources();
-    }
+  }
   if(this->Shade!=0)
-    {
+  {
     this->Shade->ReleaseGraphicsResources();
-    }
+  }
   if(this->ScaleBiasProgram!=0)
-    {
+  {
     this->ScaleBiasProgram->ReleaseGraphicsResources();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -2650,7 +2650,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
   GLuint savedFrameBuffer=static_cast<GLuint>(value);
 
   if ( !this->OpenGLObjectsCreated )
-    {
+  {
     // Initialize only if the objects haven't been created yet.
 
     // We need only two color buffers (ping-pong)
@@ -2672,10 +2672,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
     vtkgl::GenRenderbuffersEXT(1, &depthRenderBufferObject); // depth
     int i=0;
     while(i<( vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
-      {
+    {
       textureObjects[i]=0;
       ++i;
-      }
+    }
 
     // Frame buffers(2d textures)+colorMap (1d texture) +dataset (3d texture)
     // + opacity (1d texture)+grabbed depth buffer (2d texture)
@@ -2684,10 +2684,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
     vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,frameBufferObject);
     i = 0;
     while(i < this->NumberOfFrameBuffers)
-      {
+    {
       glBindTexture(GL_TEXTURE_2D,textureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]);
       ++i;
-      }
+    }
 
     // Save GL objects by static casting to standard C types. GL* types
     // are not allowed in VTK header files.
@@ -2695,14 +2695,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
     this->DepthRenderBufferObject=static_cast<unsigned int>(depthRenderBufferObject);
     i=0;
     while(i<(vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+this->NumberOfFrameBuffers))
-      {
+    {
       this->TextureObjects[i]=static_cast<unsigned int>(textureObjects[i]);
       ++i;
-      }
+    }
 
     this->OpenGLObjectsCreated=1;
 
-    } // endif OpenGLObjectsCreated
+  } // endif OpenGLObjectsCreated
 
   int size[2];
   int i=0;
@@ -2712,9 +2712,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
 
   GLenum errorCode=glGetError();
   while(i <this->NumberOfFrameBuffers && errorCode==GL_NO_ERROR)
-    {
+  {
     if (this->SizeChanged)
-      {
+    {
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront+i]));
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, vtkgl::CLAMP_TO_EDGE);
@@ -2722,25 +2722,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
       // Here we are assuming that GL_ARB_texture_non_power_of_two is available
       if(this->Supports_GL_ARB_texture_float)
-        {
+      {
         glTexImage2D(GL_TEXTURE_2D,0,vtkgl::RGBA16F_ARB,size[0],size[1],
                      0, GL_RGBA, GL_FLOAT, NULL );
-        }
+      }
       else
-        {
+      {
         glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                      0, GL_RGBA, GL_FLOAT, NULL );
-        }
       }
+    }
 
     errorCode=glGetError();
     ++i;
-    }
+  }
 
   if (this->SizeChanged)
-    {
+  {
     if(errorCode==GL_NO_ERROR)
-      {
+    {
       // grabbed depth buffer
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectDepthMap]));
       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, vtkgl::CLAMP_TO_EDGE);
@@ -2766,12 +2766,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::CreateOpenGLObjects(vtkRenderer *ren)
                 static_cast<GLuint>(savedFrameBuffer2));
       errorCode=glGetError();
       if(errorCode==GL_NO_ERROR)
-        {
+      {
         this->LastSize[0]=size[0];
         this->LastSize[1]=size[1];
-        }
       }
     }
+  }
 
 
   // Bind the Frame buffer object and then attach 2D texture to the FBO
@@ -2830,7 +2830,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
   GLuint savedFrameBuffer=static_cast<GLuint>(value);
 
   if(needNewMaxValueBuffer)
-    {
+  {
     // blend mode changed and need max value buffer.
 
     // create and bind second color buffer (we use only the red component
@@ -2848,11 +2848,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     glGenTextures(1,&maxValueFrameBuffer2);
     this->MaxValueFrameBuffer2=
       static_cast<unsigned int>(maxValueFrameBuffer2);
-    }
+  }
   else
-    {
+  {
     if (this->MaxValueFrameBuffer && !accumulativeBlendMode)
-      {
+    {
       // blend mode changed and does not need max value buffer anymore.
 
       vtkgl::BindFramebufferEXT(vtkgl::FRAMEBUFFER_EXT,
@@ -2871,11 +2871,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
         static_cast<GLuint>(this->MaxValueFrameBuffer2);
       glDeleteTextures(1,&maxValueFrameBuffer2);
       this->MaxValueFrameBuffer2=0;
-      }
     }
+  }
 
   if (accumulativeBlendMode && (this->SizeChanged || needNewMaxValueBuffer))
-    {
+  {
     // max scalar frame buffer
     GLuint maxValueFrameBuffer=static_cast<GLuint>(this->MaxValueFrameBuffer);
     glBindTexture(GL_TEXTURE_2D,maxValueFrameBuffer);
@@ -2885,15 +2885,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     // Here we are assuming that GL_ARB_texture_non_power_of_two is available
     if(this->Supports_GL_ARB_texture_float)
-      {
+    {
       glTexImage2D(GL_TEXTURE_2D,0,vtkgl::RGBA16F_ARB,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
-      }
+    }
     else
-      {
+    {
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
-      }
+    }
 
 
     // Bind and attach here (after the size has been set, or ATI will cry),
@@ -2916,16 +2916,16 @@ int vtkOpenGLGPUVolumeRayCastMapper::AllocateFrameBuffers(vtkRenderer *ren)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     // Here we are assuming that GL_ARB_texture_non_power_of_two is available
     if(this->Supports_GL_ARB_texture_float)
-      {
+    {
       glTexImage2D(GL_TEXTURE_2D,0,vtkgl::RGBA16F_ARB,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
-      }
+    }
     else
-      {
+    {
       glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16,size[0],size[1],
                    0, GL_RGBA, GL_FLOAT, NULL );
-      }
     }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after AllocateFrameBuffers");
   return result;
@@ -2958,26 +2958,26 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetTextureFormat(
   *componentSize=vtkAbstractArray::GetDataTypeSize(scalarType)*components;
 
   if(components==4)
-    {
+  {
     // this is RGBA, unsigned char only
     *internalFormat=GL_RGBA16;
     *format=GL_RGBA;
     *type=GL_UNSIGNED_BYTE;
-    }
+  }
   else
-    {
+  {
     // components==1
     switch(scalarType)
-      {
+    {
       case VTK_FLOAT:
         if(this->Supports_GL_ARB_texture_float)
-          {
+        {
           *internalFormat=vtkgl::INTENSITY16F_ARB;
-          }
+        }
         else
-          {
+        {
           *internalFormat=GL_INTENSITY16;
-          }
+        }
         *format=GL_RED;
         *type=GL_FLOAT;
         break;
@@ -3016,13 +3016,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetTextureFormat(
       case VTK_UNSIGNED_LONG:
       case VTK_UNSIGNED_LONG_LONG:
         if(this->Supports_GL_ARB_texture_float)
-          {
+        {
           *internalFormat=vtkgl::INTENSITY16F_ARB;
-          }
+        }
         else
-          {
+        {
           *internalFormat=GL_INTENSITY16;
-          }
+        }
         *format=GL_RED;
         *type=GL_FLOAT;
         break;
@@ -3048,8 +3048,8 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetTextureFormat(
       default:
         assert("check: impossible case" && 0);
         break;
-      }
     }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3078,7 +3078,7 @@ bool vtkOpenGLGPUVolumeRayCastMapper::TestLoadingScalar(
 
   result=width!=0;
   if(result)
-    {
+  {
      // so far, so good but some cards always succeed with a proxy texture
     // let's try to actually allocate..
     vtkgl::TexImage3D(vtkgl::TEXTURE_3D,0,static_cast<GLint>(internalFormat),
@@ -3089,19 +3089,19 @@ bool vtkOpenGLGPUVolumeRayCastMapper::TestLoadingScalar(
     GLenum errorCode=glGetError();
     result=errorCode!=GL_OUT_OF_MEMORY;
     if(result)
-      {
+    {
       if(errorCode!=GL_NO_ERROR)
-        {
+      {
         cout<<"after try to load the texture";
         cout<<" ERROR (x"<<hex<<errorCode<<") "<<dec;
         cout<<OpenGLErrorMessage(static_cast<unsigned int>(errorCode));
         cout<<endl;
-        }
+      }
       // so far, so good but some cards don't report allocation error
       result=textureSize[0]*textureSize[1]*textureSize[2]*componentSize
         <=static_cast<float>(this->MaxMemoryInBytes)*this->MaxMemoryFraction;
-      }
     }
+  }
   return result;
 }
 
@@ -3159,15 +3159,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
 
   vtkKWScalarField *texture;
   if(it==this->ScalarsTextures->Map.end())
-    {
+  {
     texture=new vtkKWScalarField;
     this->ScalarsTextures->Map[input]=texture;
     texture->SetSupports_GL_ARB_texture_float(this->Supports_GL_ARB_texture_float==1);
-    }
+  }
   else
-    {
+  {
     texture=(*it).second;
-    }
+  }
 
   texture->Update(input,this->CellFlag,textureExtent,this->ScalarMode,
                   this->ArrayAccessMode,
@@ -3184,7 +3184,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
 
   // Mask
   if(maskInput!=0)
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE7);
 
     // Find the texture.
@@ -3194,14 +3194,14 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
 
     vtkKWMask *mask;
     if(it2==this->MaskTextures->Map.end())
-      {
+    {
       mask=new vtkKWMask;
       this->MaskTextures->Map[maskInput]=mask;
-      }
+    }
     else
-      {
+    {
       mask=(*it2).second;
-      }
+    }
 
     mask->Update(maskInput,this->CellFlag,textureExtent,this->ScalarMode,
                  this->ArrayAccessMode,
@@ -3212,7 +3212,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::LoadScalarField(vtkImageData *input,
     result=result && mask->IsLoaded();
     this->CurrentMask=mask;
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after LoadScalarField");
 
@@ -3241,7 +3241,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
   // build the table
 
   if(numberOfScalarComponents==1)
-    {
+  {
     vtkVolumeProperty *volumeProperty=vol->GetProperty();
     vtkColorTransferFunction *colorTransferFunction=volumeProperty->GetRGBTransferFunction(0);
 
@@ -3252,10 +3252,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
       volumeProperty->GetInterpolationType()==VTK_LINEAR_INTERPOLATION);
     // Restore default
     vtkgl::ActiveTexture( vtkgl::TEXTURE0);
-    }
+  }
 
   if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
-    {
+  {
     vtkVolumeProperty *volumeProperty=vol->GetProperty();
     vtkColorTransferFunction *c=volumeProperty->GetRGBTransferFunction(1);
 
@@ -3268,7 +3268,7 @@ int vtkOpenGLGPUVolumeRayCastMapper::UpdateColorTransferFunction(
 
      // Restore default
     vtkgl::ActiveTexture( vtkgl::TEXTURE0);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateColorTransferFunction");
   return 1;
@@ -3394,37 +3394,37 @@ void vtkOpenGLGPUVolumeRayCastMapper::DebugDisplayBox(vtkPolyData *box)
   cout<<"npts="<<points->GetNumberOfPoints()<<endl;
   int pointId=0;
   while(pointId<points->GetNumberOfPoints())
-    {
+  {
     double coords[3];
     points->GetPoint(pointId,coords);
     cout<<"pointId="<<pointId<<endl;
     int i=0;
     while(i<3)
-      {
+    {
       cout<<" "<<coords[i];
       ++i;
-      }
+    }
     cout<<endl;
     ++pointId;
-    }
+  }
   vtkIdType npts=0;
   vtkIdType *pts=0;
   cout<<"ncells="<<polys->GetNumberOfCells()<<endl;
   int cellId=0;
   polys->InitTraversal();
   while(cellId<polys->GetNumberOfCells())
-    {
+  {
     polys->GetNextCell(npts,pts);
     cout<<"cellId="<<cellId<<" npts="<<npts<<endl;
     vtkIdType i=0;
     while(i<npts)
-      {
+    {
       cout<<pts[i]<<" ";
       ++i;
-      }
+    }
     cout<<endl;
     ++cellId;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3444,17 +3444,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   vtkMatrix4x4::Transpose(vol->GetMatrix(),this->TempMatrix[0]);
 
   if(this->BoxSource==0)
-    {
+  {
     this->BoxSource=vtkTessellatedBoxSource::New();
-    }
+  }
   this->BoxSource->SetBounds(worldBounds);
   this->BoxSource->SetLevel(0);
   this->BoxSource->QuadsOn();
 
   if(this->Planes==0)
-    {
+  {
     this->Planes=vtkPlaneCollection::New();
-    }
+  }
   this->Planes->RemoveAllItems();
 
   vtkCamera *cam = ren->GetActiveCamera();
@@ -3469,11 +3469,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   camWorldPos[3] = 1.0;
   this->InvVolumeMatrix->MultiplyPoint( camWorldPos, camPos );
   if ( camPos[3] )
-    {
+  {
     camPos[0] /= camPos[3];
     camPos[1] /= camPos[3];
     camPos[2] /= camPos[3];
-    }
+  }
 
   cam->GetFocalPoint(camFocalWorldPoint);
   camFocalWorldPoint[3]=1.0;
@@ -3509,25 +3509,25 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
 
   this->InvVolumeMatrix->MultiplyPoint( camNearWorldPoint, camNearPoint );
   if (camNearPoint[3]!=0.0)
-    {
+  {
     camNearPoint[0] /= camNearPoint[3];
     camNearPoint[1] /= camNearPoint[3];
     camNearPoint[2] /= camNearPoint[3];
-    }
+  }
 
   this->InvVolumeMatrix->MultiplyPoint( camFarWorldPoint, camFarPoint );
   if (camFarPoint[3]!=0.0)
-    {
+  {
     camFarPoint[0] /= camFarPoint[3];
     camFarPoint[1] /= camFarPoint[3];
     camFarPoint[2] /= camFarPoint[3];
-    }
+  }
 
 
   if(this->NearPlane==0)
-    {
+  {
     this->NearPlane= vtkPlane::New();
-    }
+  }
 
   // We add an offset to the near plane to avoid hardware clipping of the
   // near plane due to floating-point precision.
@@ -3538,9 +3538,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
     sqrt(vtkMath::Distance2BetweenPoints(camNearPoint,camFarPoint));
   double offset=0.001; // some arbitrary small value.
   if(offset>=distNearFar)
-    {
+  {
     offset=distNearFar/1000.0;
-    }
+  }
 
   camNearPoint[0]+=camPlaneNormal[0]*offset;
   camNearPoint[1]+=camPlaneNormal[1]*offset;
@@ -3553,11 +3553,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
   this->Planes->AddItem(this->NearPlane);
 
   if ( this->ClippingPlanes )
-    {
+  {
     this->ClippingPlanes->InitTraversal();
     vtkPlane *plane;
     while ( (plane = this->ClippingPlanes->GetNextItem()) )
-      {
+    {
       // Planes are in world coordinates, we need to
       // convert them in local coordinates
       double planeOrigin[4], planeNormal[4];//, planeP1[4];
@@ -3567,11 +3567,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
       planeNormal[3] = 1.;
       this->InvVolumeMatrix->MultiplyPoint(planeOrigin, planeOrigin);
       if( planeOrigin[3])
-        {
+      {
         planeOrigin[0] /= planeOrigin[3];
         planeOrigin[1] /= planeOrigin[3];
         planeOrigin[2] /= planeOrigin[3];
-        }
+      }
       this->TempMatrix[0]->MultiplyPoint(planeNormal, planeNormal);
       vtkMath::Normalize(planeNormal);
       vtkPlane* localPlane = vtkPlane::New();
@@ -3579,24 +3579,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::ClipBoundingBox(vtkRenderer *ren,
       localPlane->SetNormal(planeNormal);
       this->Planes->AddItem(localPlane);
       localPlane->Delete();
-      }
     }
+  }
 
   if(this->Clip==0)
-    {
+  {
     this->Clip=vtkClipConvexPolyData::New();
     this->Clip->SetInputConnection(this->BoxSource->GetOutputPort());
     this->Clip->SetPlanes( this->Planes );
-    }
+  }
 
   this->Clip->Update();
 
   if(this->Densify==0)
-    {
+  {
     this->Densify=vtkDensifyPolyData::New();
     this->Densify->SetInputConnection(this->Clip->GetOutputPort());
     this->Densify->SetNumberOfSubdivisions(2);
-    }
+  }
   this->Densify->Update();
   this->ClippedBoundingBox = this->Densify->GetOutput();
 }
@@ -3627,46 +3627,46 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
   // First compute center point
   npts = points->GetNumberOfPoints();
   for ( i = 0; i < npts; i++ )
-    {
+  {
     double pt[3];
     points->GetPoint( i, pt );
     for ( j = 0; j < 3; j++ )
-      {
+    {
       center[j] += pt[j];
-      }
     }
+  }
 
   if(npts>0)
-    {
+  {
     center[0]/=static_cast<double>(npts);
     center[1]/=static_cast<double>(npts);
     center[2]/=static_cast<double>(npts);
-    }
+  }
 
   double *loadedBounds=0;
   vtkIdType *loadedExtent=0;
 
   if ( tcoordFlag )
-    {
+  {
     loadedBounds=this->CurrentScalar->GetLoadedBounds();
     loadedExtent=this->CurrentScalar->GetLoadedExtent();
-    }
+  }
 
   double *spacing=this->GetInput()->GetSpacing();
   double spacingSign[3];
   i=0;
   while(i<3)
-    {
+  {
     if(spacing[i]<0)
-      {
+    {
       spacingSign[i]=-1.0;
-      }
-    else
-      {
-      spacingSign[i]=1.0;
-      }
-    ++i;
     }
+    else
+    {
+      spacingSign[i]=1.0;
+    }
+    ++i;
+  }
 
   // make it double for the ratio of the progress.
   int polyId=0;
@@ -3674,12 +3674,12 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
   polys->InitTraversal();
   int abort=0;
   while ( !abort && polys->GetNextCell(npts, pts) )
-    {
+  {
     vtkIdType start, end, inc;
 
     // Need to have at least a triangle
     if ( npts > 2 )
-      {
+    {
       // Check the cross product of the first two
       // vectors dotted with the vector from the
       // center to the second point. Is it positive or
@@ -3701,80 +3701,80 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderClippedBoundingBox(
 
       double dot = vtkMath::Dot( v3, v4 );
       if(!this->PreserveOrientation)
-        {
+      {
         dot=-dot;
-        }
+      }
       if(dot >= -0.000001)
-        {
+      {
         start = 0;
         end = npts;
         inc = 1;
-        }
+      }
       else
-        {
+      {
         start = npts-1;
         end = -1;
         inc = -1;
-        }
+      }
 
       glBegin( GL_TRIANGLE_FAN ); // GL_POLYGON -> GL_TRIANGLE_FAN
 
       double vert[3];
       double tcoord[3];
       for ( i = start; i != end; i += inc )
-        {
+      {
         points->GetPoint(pts[i], vert);
         if ( tcoordFlag )
-          {
+        {
           for ( j = 0; j < 3; j++ )
-            {
+          {
             // loaded bounds take both cell data and point date cases into
             // account
             if(this->CellFlag) // texcoords between 0 and 1. More complex
               // depends on the loaded texture
-              {
+            {
               tcoord[j] = spacingSign[j]*(vert[j] - loadedBounds[j*2]) /
                 (loadedBounds[j*2+1] - loadedBounds[j*2]);
-              }
+            }
             else // texcoords between 1/2N and 1-1/2N.
-              {
+            {
               double tmp; // between 0 and 1
               tmp = spacingSign[j]*(vert[j] - loadedBounds[j*2]) /
                 (loadedBounds[j*2+1] - loadedBounds[j*2]);
               double delta=static_cast<double>(
                 loadedExtent[j*2+1]-loadedExtent[j*2]+1);
               tcoord[j]=(tmp*(delta-1)+0.5)/delta;
-              }
             }
-          vtkgl::MultiTexCoord3dv(vtkgl::TEXTURE0, tcoord);
           }
-        glVertex3dv(vert);
+          vtkgl::MultiTexCoord3dv(vtkgl::TEXTURE0, tcoord);
         }
+        glVertex3dv(vert);
+      }
       glEnd();
 
-      }
+    }
     if(tcoordFlag)
-      {
+    {
       // otherwise, we are rendering back face to initialize the zbuffer.
       if (!this->GeneratingCanonicalView && this->ReportProgress)
-        {
+      {
         glFinish();
         // Only invoke an event at most one every second.
         double currentTime=vtkTimerLog::GetUniversalTime();
         if(currentTime - this->LastProgressEventTime > 1.0)
-          {
+        {
           double progress=(static_cast<double>(currentBlock)+polyId/polyCount)/
             static_cast<double>(numberOfBlocks);
           this->InvokeEvent(vtkCommand::VolumeMapperRenderProgressEvent,
                             &progress);
           renWin->MakeCurrent();
           this->LastProgressEventTime = currentTime;
-          }
         }
-      abort=renWin->CheckAbortStatus();
       }
-    ++polyId;
+      abort=renWin->CheckAbortStatus();
     }
+    ++polyId;
+  }
 
   vtkOpenGLCheckErrorMacro("failed after RenderClippedBoundingBox");
   return abort;
@@ -3802,13 +3802,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::CopyFBOToTexture()
   if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
      || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
      || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE5);
     glBindTexture(GL_TEXTURE_2D,this->MaxValueFrameBuffer2);
     glReadBuffer(vtkgl::COLOR_ATTACHMENT0_EXT+1);
     glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,this->ReducedSize[0],
                       this->ReducedSize[1]);
-    }
+  }
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
   // reset the readbuffer to keep os mesa happy
   // during CheckFrameBufferStatus
@@ -3833,7 +3833,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::CleanupRender()
 void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram(vtkRenderWindow *w)
 {
   if(this->ScaleBiasProgram==0)
-    {
+  {
     this->ScaleBiasProgram=vtkShaderProgram2::New();
     this->ScaleBiasProgram->SetContext(
       static_cast<vtkOpenGLRenderWindow *>(w));
@@ -3844,7 +3844,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildScaleBiasProgram(vtkRenderWindow *w)
     s->SetSourceCode(vtkGPUVolumeRayCastMapper_ScaleBiasFS);
     shaders->AddItem(s);
     s->Delete();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -3858,7 +3858,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
   vtkOpenGLClearErrorMacro();
 
   if ( this->GeneratingCanonicalView )
-    {
+  {
     // We just need to copy of the data, not render it
     glBindTexture(GL_TEXTURE_2D,
                   this->TextureObjects[
@@ -3873,7 +3873,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
     unsigned char *outPtr = static_cast<unsigned char *>(this->CanonicalViewImageData->GetScalarPointer());
     glGetTexImage( GL_TEXTURE_2D, 0, GL_RGB, GL_UNSIGNED_BYTE, outPtr );
     return;
-    }
+  }
 
   int  lowerLeft[2];
   int usize, vsize;
@@ -3914,7 +3914,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
   double bias=0.5-this->FinalColorLevel/this->FinalColorWindow;
 
   if(scale!=1.0 || bias!=0.0)
-    {
+  {
     this->BuildScaleBiasProgram(ren->GetRenderWindow());
     vtkUniformVariables *v=this->ScaleBiasProgram->GetUniformVariables();
     int ivalue=0;
@@ -3924,11 +3924,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
     fvalue=static_cast<float>(bias);
     v->SetUniformf("bias",1,&fvalue);
     this->ScaleBiasProgram->Use();
-    }
+  }
   else
-    {
+  {
     glEnable(GL_TEXTURE_2D); // fixed pipeline
-    }
+  }
 
   glBegin(GL_QUADS);
   glTexCoord2f(static_cast<GLfloat>(xOffset),static_cast<GLfloat>(yOffset));
@@ -3948,13 +3948,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderTextureToScreen(vtkRenderer *ren)
   glTexEnvi(GL_TEXTURE_ENV,GL_TEXTURE_ENV_MODE,GL_MODULATE);
 
   if(scale!=1.0 || bias!=0.0)
-    {
+  {
     this->ScaleBiasProgram->Restore();
-    }
+  }
   else
-    {
+  {
     glDisable(GL_TEXTURE_2D);
-    }
+  }
 
   glDepthMask(GL_TRUE);
 
@@ -3987,39 +3987,39 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
   assert("pre: positive_time" && allocatedTime>0.0);
 
   if ( this->GeneratingCanonicalView )
-    {
+  {
     this->ReductionFactor = 1.0;
     return;
-    }
+  }
 
   if ( !this->AutoAdjustSampleDistances )
-    {
+  {
     this->ReductionFactor = 1.0 / this->ImageSampleDistance;
     return;
-    }
+  }
 
   if ( this->TimeToDraw )
-    {
+  {
     double oldFactor = this->ReductionFactor;
 
     double timeToDraw;
     if (allocatedTime < 1.0)
-      {
+    {
       timeToDraw = this->SmallTimeToDraw;
       if ( timeToDraw == 0.0 )
-        {
-        timeToDraw = this->BigTimeToDraw/3.0;
-        }
-      }
-    else
       {
-      timeToDraw = this->BigTimeToDraw;
+        timeToDraw = this->BigTimeToDraw/3.0;
       }
+    }
+    else
+    {
+      timeToDraw = this->BigTimeToDraw;
+    }
 
     if ( timeToDraw == 0.0 )
-      {
+    {
       timeToDraw = 10.0;
-      }
+    }
 
     double fullTime = timeToDraw / this->ReductionFactor;
     double newFactor = allocatedTime / fullTime;
@@ -4027,7 +4027,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
     if ( oldFactor == 1.0 ||
          newFactor / oldFactor > 1.3 ||
          newFactor / oldFactor < .95 )
-      {
+    {
 
       this->ReductionFactor = (newFactor+oldFactor)/2.0;
 
@@ -4036,19 +4036,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeReductionFactor(
       this->ReductionFactor = (this->ReductionFactor < 0.1)?(0.10):(this->ReductionFactor);
 
       if ( 1.0/this->ReductionFactor > this->MaximumImageSampleDistance )
-        {
+      {
         this->ReductionFactor = 1.0 / this->MaximumImageSampleDistance;
-        }
+      }
       if ( 1.0/this->ReductionFactor < this->MinimumImageSampleDistance )
-        {
+      {
         this->ReductionFactor = 1.0 / this->MinimumImageSampleDistance;
-        }
       }
     }
+  }
   else
-    {
+  {
     this->ReductionFactor = 1.0;
-    }
+  }
 
   assert("post: valid_new_reduction_range" && this->ReductionFactor>0.0
          && this->ReductionFactor<=1.0);
@@ -4080,20 +4080,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // If we haven't already succeeded in loading the extensions,
   // try to load them
   if(!this->LoadExtensionsSucceeded)
-    {
+  {
     this->LoadExtensions(ren->GetRenderWindow());
-    }
+  }
 
   // If we can't load the necessary extensions, provide
   // feedback on why it failed.
   if(!this->LoadExtensionsSucceeded)
-    {
+  {
     vtkErrorMacro(
       "Rendering failed because the following OpenGL extensions "
       "are required but not supported: " <<
       (this->UnsupportedRequiredExtensions->Stream.str()).c_str());
     return;
-    }
+  }
 
   // Create the OpenGL object that we need
   this->CreateOpenGLObjects(ren);
@@ -4104,10 +4104,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
   // Allocate the frame buffers
   if(!this->AllocateFrameBuffers(ren))
-    {
+  {
     vtkErrorMacro("Not enough GPU memory to create a framebuffer.");
     return;
-    }
+  }
 
   // Save the scalar range - this is what we will use for the range
   // of the transfer functions
@@ -4116,21 +4116,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
 
   if(this->RGBTable == NULL)
-    {
+  {
     this->RGBTable = vtkRGBTable::New();
-    }
+  }
 
   if (this->MaskInput != NULL && this->MaskType == LabelMapMaskType)
-    {
+  {
     if(this->Mask1RGBTable == NULL)
-      {
+    {
       this->Mask1RGBTable = vtkRGBTable::New();
-      }
-    if(this->Mask2RGBTable == NULL)
-      {
-      this->Mask2RGBTable = vtkRGBTable::New();
-      }
     }
+    if(this->Mask2RGBTable == NULL)
+    {
+      this->Mask2RGBTable = vtkRGBTable::New();
+    }
+  }
 
    // Update the color transfer function
   this->UpdateColorTransferFunction(vol,numberOfScalarComponents);
@@ -4146,10 +4146,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // If this is the canonical view - we don't want to intermix so we'll just
   // start by clearing the z buffer.
   if ( this->GeneratingCanonicalView )
-    {
+  {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
+  }
 
   // See if the volume transform is orientation-preserving
   vtkMatrix4x4 *m=vol->GetMatrix();
@@ -4163,7 +4163,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // If we have clipping planes, render the back faces of the clipped
   // bounding box of the whole dataset to set the zbuffer.
   if(this->ClippingPlanes && this->ClippingPlanes->GetNumberOfItems()!=0)
-    {
+  {
     // push the model view matrix onto the stack, make sure we
     // adjust the mode first
     glMatrixMode(GL_MODELVIEW);
@@ -4181,7 +4181,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     glColorMask(GL_TRUE,GL_TRUE,GL_TRUE,GL_TRUE);
     //glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
-    }
+  }
   // Check if everything is OK
   this->CheckFrameBufferStatus();
 
@@ -4210,10 +4210,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   int componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
 
   switch(this->BlendMode)
-    {
+  {
     case vtkVolumeMapper::COMPOSITE_BLEND:
       switch(numberOfScalarComponents)
-        {
+      {
         case 1:
           componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentOne;
           break;
@@ -4223,7 +4223,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         default:
           assert("check: impossible case" && false);
           break;
-        }
+      }
 
       // If we are using a mask to limit the volume rendering to or blend using a
       // label map mask..
@@ -4234,20 +4234,20 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
             vtkOpenGLGPUVolumeRayCastMapperMethodComposite;
 
       if ( vol->GetProperty()->GetShade() )
-        {
+      {
         shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeYes;
-        }
+      }
       else
-        {
+      {
         shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNo;
         //cout<<"program is composite"<<endl;
-        }
+      }
       break;
     case vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND:
       shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed;
       componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
       switch(numberOfScalarComponents)
-        {
+      {
         case 1:
           rayCastMethod= (this->MaskInput && this->MaskType ==
             vtkGPUVolumeRayCastMapper::BinaryMaskType) ?
@@ -4261,13 +4261,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         default:
           assert("check: impossible case" && false);
           break;
-        }
+      }
       break;
     case vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND:
       shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed;
       componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
       switch(numberOfScalarComponents)
-        {
+      {
         case 1:
           rayCastMethod= (this->MaskInput && this->MaskType ==
             vtkGPUVolumeRayCastMapper::BinaryMaskType) ?
@@ -4281,32 +4281,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
         default:
           assert("check: impossible case" && false);
           break;
-        }
+      }
       break;
     case vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND:
       shadeMethod=vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed;
       componentMethod=vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed;
       switch(numberOfScalarComponents)
-        {
+      {
         case 1:
           rayCastMethod=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive;
           break;
         default:
           assert("check: impossible case" && false);
           break;
-        }
+      }
       break;
     default:
       assert("check: impossible case" && 0);
       rayCastMethod=0;
       break;
-    }
+  }
 
   this->ComputeNumberOfCroppingRegions(); // TODO AMR vs single block
   if(this->AMRMode)
-    {
+  {
     NumberOfCroppingRegions=2; // >1, means use do compositing between blocks
-    }
+  }
   this->BuildProgram(ren->GetRenderWindow(),
                      parallelProjection,rayCastMethod,shadeMethod,
                      componentMethod);
@@ -4316,39 +4316,39 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // for active texture 0, dataset
 
   if(numberOfScalarComponents==1)
-    {
+  {
     // colortable
     vtkgl::ActiveTexture(vtkgl::TEXTURE1);
     this->RGBTable->Bind();
 
      if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
-       {
+     {
        vtkgl::ActiveTexture(vtkgl::TEXTURE8);
        this->Mask1RGBTable->Bind();
        vtkgl::ActiveTexture(vtkgl::TEXTURE9);
        this->Mask2RGBTable->Bind();
-       }
-    }
+     }
+  }
 
   float fvalue[2];
   int ivalue=0;
   v->SetUniformi("dataSetTexture",1,&ivalue);
 
   if(this->MaskInput!=0)
-    {
+  {
     // Make the mask texture available on texture unit 7
     ivalue=7;
     v->SetUniformi("maskTexture",1,&ivalue);
-    }
+  }
 
   if(numberOfScalarComponents==1 &&
      this->BlendMode!=vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-    {
+  {
     ivalue=1;
     v->SetUniformi("colorTexture",1,&ivalue);
 
     if (this->MaskInput != 0 && this->MaskType == LabelMapMaskType)
-      {
+    {
       ivalue=8;
       v->SetUniformi("mask1ColorTexture",1,&ivalue);
 
@@ -4357,9 +4357,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
 
       fvalue[0]=static_cast<float>(this->MaskBlendFactor);
       v->SetUniformf("maskBlendFactor",1,fvalue);
-      }
-
     }
+
+  }
 
   ivalue=2;
   v->SetUniformi("opacityTexture",1,&ivalue);
@@ -4381,32 +4381,32 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   this->CheckFrameBufferStatus();
 
   if(this->NumberOfCroppingRegions>1)
-    {
+  {
     // framebuffer texture
     if(rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMIP
        && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP
        && rayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive)
-      {
+    {
       vtkgl::ActiveTexture(vtkgl::TEXTURE4);
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->TextureObjects[vtkOpenGLGPUVolumeRayCastMapperTextureObjectFrameBufferLeftFront]));
 
       ivalue=4;
       v->SetUniformi("frameBufferTexture",1,&ivalue);
-      }
+    }
     this->CheckFrameBufferStatus();
 
     // max scalar value framebuffer texture
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-      {
+    {
       vtkgl::ActiveTexture(vtkgl::TEXTURE5);
       glBindTexture(GL_TEXTURE_2D,static_cast<GLuint>(this->MaxValueFrameBuffer2));
 
       ivalue=5;
       v->SetUniformi("scalarBufferTexture",1,&ivalue);
-      }
     }
+  }
 
   this->CheckFrameBufferStatus();
 
@@ -4440,14 +4440,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   buffer[0] = vtkgl::COLOR_ATTACHMENT0_EXT;
   if(this->NumberOfCroppingRegions>1 &&
      this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND)
-    {
+  {
     // max scalar frame buffer
     buffer[1] = vtkgl::COLOR_ATTACHMENT1_EXT;
-    }
+  }
   else
-    {
+  {
     buffer[1] = GL_NONE;
-    }
+  }
 
   vtkgl::DrawBuffers(2,buffer);
 
@@ -4456,9 +4456,9 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
   // Use by the composite+shade program
   double shininess=vol->GetProperty()->GetSpecularPower();
   if(shininess>128.0)
-    {
+  {
     shininess=128.0; // upper limit for the OpenGL shininess.
-    }
+  }
   glMaterialf(GL_FRONT_AND_BACK,GL_SHININESS,static_cast<GLfloat>(shininess));
 
   glDisable(GL_COLOR_MATERIAL); // other mapper may have enable that.
@@ -4521,7 +4521,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
      (this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
       || this->BlendMode==vtkGPUVolumeRayCastMapper::MAXIMUM_INTENSITY_BLEND
       || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND))
-    {
+  {
 //    cout << "this->MaxValueFrameBuffer="<< this->MaxValueFrameBuffer <<endl;
 //    cout << "this->MaxValueFrameBuffer2="<< this->MaxValueFrameBuffer2 <<endl;
 
@@ -4540,21 +4540,21 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     vtkgl::DrawBuffers(2,buffer);
 
     if(this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND)
-      {
+    {
       glClearColor(1.0, 0.0, 0.0, 0.0);
-      }
+    }
     else
-      {
+    {
       // for MAXIMUM_INTENSITY_BLEND and for ADDITIVE_BLEND
       glClearColor(0.0, 0.0, 0.0, 0.0);
-      }
+    }
 //    cout << "check before clear on max" << endl;
     this->CheckFrameBufferStatus();
     glClear(GL_COLOR_BUFFER_BIT);
-    }
+  }
 
   if(this->NumberOfCroppingRegions>1)
-    {
+  {
     // color buffer target in the color attachement 0
     vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
                                    vtkgl::COLOR_ATTACHMENT0_EXT,
@@ -4569,7 +4569,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
        || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND )
-      {
+    {
       // max buffer target in the color attachment 1
       vtkgl::FramebufferTexture2DEXT(vtkgl::FRAMEBUFFER_EXT,
                                      vtkgl::COLOR_ATTACHMENT0_EXT+1,
@@ -4579,42 +4579,42 @@ void vtkOpenGLGPUVolumeRayCastMapper::PreRender(vtkRenderer *ren,
       // max buffer input is on texture unit 5.
       vtkgl::ActiveTexture(vtkgl::TEXTURE5);
       glBindTexture(GL_TEXTURE_2D,this->MaxValueFrameBuffer2);
-      }
-    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
     }
+    vtkgl::ActiveTexture(vtkgl::TEXTURE0);
+  }
 
   this->CheckFrameBufferStatus();
 
   if(this->OpacityTables!=0 &&
      this->OpacityTables->GetNumberOfTables()!=numberOfLevels)
-    {
+  {
     delete this->OpacityTables;
     this->OpacityTables=0;
-    }
+  }
   if(this->OpacityTables==0)
-    {
+  {
     this->OpacityTables=new vtkOpacityTables(numberOfLevels);
-    }
+  }
 
   this->Program->Use();
 
   // debug code
   // DO NOT REMOVE the following commented line
   if(!this->Program->IsValid())
-    {
+  {
     vtkErrorMacro(<<this->Program->GetLastValidateLog());
 //    this->Program->PrintActiveUniformVariablesOnCout();
-    }
+  }
 
   glCullFace (GL_BACK);
   // otherwise, we are rendering back face to initialize the zbuffer.
 
 
   if(!this->GeneratingCanonicalView && this->ReportProgress)
-    {
+  {
     // initialize the time to avoid a progress event at the beginning.
     this->LastProgressEventTime=vtkTimerLog::GetUniversalTime();
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after PreRender");
 }
@@ -4668,14 +4668,14 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
 
   double z0;
   if(w0[3] != 0.0)
-    {
+  {
     z0 = w0[2] / w0[3];
-    }
+  }
   else
-    {
+  {
     z0 = 0.0;
     vtkGenericWarningMacro( "eyeToWorld transformation has some projective component." );
-    }
+  }
 
   double p0[4];
   viewportToEye->MultiplyPoint(w0,p0);
@@ -4686,24 +4686,24 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
   bool inFrustum=p0[0]>=-1.0 && p0[0]<=1.0 && p0[1]>=-1.0 && p0[1]<=1.0 && p0[2]>=-1.0 && p0[2]<=1.0;
 
   if(inFrustum)
-    {
+  {
     int dim=0;
     while(dim<3)
-      {
+    {
       double v1[4];
       int coord=0;
       while(coord<3)
-        {
+      {
         if(coord==dim)
-          {
+        {
           v1[coord]=volBounds[2*coord+1];
-          }
-        else
-          {
-          v1[coord]=volBounds[2*coord]; // same as v0[coord];
-          }
-        ++coord;
         }
+        else
+        {
+          v1[coord]=volBounds[2*coord]; // same as v0[coord];
+        }
+        ++coord;
+      }
       v1[3]=1.0;
 
       double w1[4];
@@ -4711,14 +4711,14 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
       double z1;
 
       if(w1[3]!=0.0)
-        {
+      {
         z1=w1[2]/w1[3];
-        }
+      }
       else
-        {
+      {
         z1=0.0;
         vtkGenericWarningMacro( "eyeToWorld transformation has some projective component." );
-        }
+      }
 
 
       double p1[4];
@@ -4730,7 +4730,7 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
       inFrustum=p1[0]>=-1.0 && p1[0]<=1.0 && p1[1]>=-1.0 && p1[1]<=1.0 && p1[2]>=-1.0 && p1[2]<=1.0;
 
       if(inFrustum)
-        {
+      {
         double dx=fabs(p1[0]-p0[0]);
         double dy=fabs(p1[1]-p0[1]);
         double dz=fabs(z1-z0);
@@ -4739,57 +4739,57 @@ double vtkOpenGLGPUVolumeRayCastMapper::ComputeMinimalSampleDistancePerPixel(
         dy=dy/(dims[dim]-1)*vsize;
 
         if(dz!=0.0)
-          {
+        {
           if(dx!=0.0)
-            {
+          {
             double d=dz/dx;
             if(!this->IgnoreSampleDistancePerPixel)
-              {
+            {
               if(result>d)
-                {
-                result=d;
-                }
-              }
-            else
               {
-              this->IgnoreSampleDistancePerPixel=false;
-              result=d;
+                result=d;
               }
             }
+            else
+            {
+              this->IgnoreSampleDistancePerPixel=false;
+              result=d;
+            }
+          }
 
           if(dy!=0.0)
-            {
+          {
             double d=dz/dy;
             if(!this->IgnoreSampleDistancePerPixel)
-              {
+            {
               if(result>d)
-                {
-                result=d;
-                }
-              }
-            else
               {
-              this->IgnoreSampleDistancePerPixel=false;
-              result=d;
+                result=d;
               }
             }
-
+            else
+            {
+              this->IgnoreSampleDistancePerPixel=false;
+              result=d;
+            }
           }
+
         }
-      ++dim;
       }
+      ++dim;
     }
+  }
 
   eyeToDataset->Delete();
 
   if(this->IgnoreSampleDistancePerPixel)
-    {
+  {
       //    cout<<"ignore SampleDistancePerPixel"<<endl;
-    }
+  }
   else
-    {
+  {
       //cout<<"SampleDistancePerPixel="<<result<<endl;
-    }
+  }
 
   return result;
 }
@@ -4804,11 +4804,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
   vtkImageData *input = this->GetInput();
 
   if(!this->AutoAdjustSampleDistances)
-    {
+  {
     this->ActualSampleDistance=this->SampleDistance;
-    }
+  }
   else
-    {
+  {
     double datasetSpacing[3]; // from input. same for each block in streaming.
     // different for each block in AMR. Given in dataset space.
 
@@ -4818,7 +4818,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     double minWorldSpacing=VTK_DOUBLE_MAX;
     int i=0;
     while(i<3)
-      {
+    {
       double tmp=worldToDataset->GetElement(0,i);
       double tmp2=tmp*tmp;
       tmp=worldToDataset->GetElement(1,i);
@@ -4828,11 +4828,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
       // we use fabs() in case the spacing is negative.
       double worldSpacing=fabs(datasetSpacing[i]*sqrt(tmp2+tmp*tmp));
       if(worldSpacing<minWorldSpacing)
-        {
+      {
         minWorldSpacing=worldSpacing;
-        }
-      ++i;
       }
+      ++i;
+    }
     // minWorldSpacing is the optimal sample distance in world space.
     // To go faster (reduceFactor<1.0), we multiply this distance
     // by 1/reduceFactor.
@@ -4840,10 +4840,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
     this->ActualSampleDistance=static_cast<float>(minWorldSpacing);
 
     if ( this->ReductionFactor < 1.0 )
-      {
+    {
       this->ActualSampleDistance /= static_cast<GLfloat>(this->ReductionFactor*0.5);
-      }
     }
+  }
 
   // As the opacity table table depend on the samplingdistance per block,
   // it has to be recomputed if the sample distance changed between blocks
@@ -4871,14 +4871,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderBlock(vtkRenderer *ren,
 //  this->ValidateProgram();
 
   if(!this->Cropping)
-    {
+  {
     this->RenderWholeVolume(ren,vol);
-    }
+  }
   else
-    {
+  {
     this->ClipCroppingRegionPlanes();
     this->RenderRegions(ren,vol);
-    }
+  }
   vtkOpenGLCheckErrorMacro("after render");
 }
 
@@ -4891,23 +4891,23 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
 {
   vtkOpenGLClearErrorMacro();
   if(this->NumberOfCroppingRegions>1)
-    {
+  {
     if(this->BlendMode==vtkVolumeMapper::MAXIMUM_INTENSITY_BLEND
       || this->BlendMode==vtkGPUVolumeRayCastMapper::MINIMUM_INTENSITY_BLEND
       || this->BlendMode==vtkGPUVolumeRayCastMapper::ADDITIVE_BLEND)
-      {
+    {
       vtkgl::ActiveTexture( vtkgl::TEXTURE5 );
       glBindTexture(GL_TEXTURE_2D,0);
-      }
+    }
 
     if(this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMIP
        && this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodMinIP
        && this->LastRayCastMethod!=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive)
-      {
+    {
       vtkgl::ActiveTexture( vtkgl::TEXTURE4 );
       glBindTexture(GL_TEXTURE_2D,0);
-      }
     }
+  }
 
   // noisetexture
   vtkgl::ActiveTexture(vtkgl::TEXTURE6);
@@ -4922,18 +4922,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::PostRender(
   glBindTexture(GL_TEXTURE_1D,0);
 
   if(numberOfScalarComponents==1)
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE1);
     glBindTexture(GL_TEXTURE_1D,0);
-    }
+  }
 
 
   // mask, if any
   if(this->MaskInput!=0)
-    {
+  {
     vtkgl::ActiveTexture(vtkgl::TEXTURE7);
     glBindTexture(vtkgl::TEXTURE_3D_EXT,0);
-    }
+  }
 
   // back to active texture 0.
   vtkgl::ActiveTexture(vtkgl::TEXTURE0);
@@ -4993,19 +4993,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
 
   // If it is just one, then get the range from the scalars
   if(numberOfScalarComponents==1)
-    {
+  {
     // Warning: here, we ignore the blank cells.
     scalars->GetRange(range);
-    }
+  }
   // If it is 3, then use the 4th component's range since that is
   // the component that will be passed through the scalar opacity
   // transfer function to look up opacity
   else
-    {
+  {
     // Note that we've already checked data type and we know this is
     // unsigned char
     scalars->GetRange(range,3);
-    }
+  }
 
   // The rendering work has been broken into 3 stages to support AMR
   // volume rendering in blocks. Here we are simply rendering the
@@ -5015,19 +5015,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GPURender(vtkRenderer *ren,
 
   this->PreRender(ren,vol,bounds,range,numberOfScalarComponents,1);
   if(this->LoadExtensionsSucceeded)
-    {
+  {
     this->RenderBlock(ren,vol,0);
     this->PostRender(ren,numberOfScalarComponents);
-    }
+  }
 
   // If this isn't a canonical view render, then update the progress to
   // 1 because we are done.
   if (!this->GeneratingCanonicalView )
-    {
+  {
     double progress=1.0;
     this->InvokeEvent(vtkCommand::VolumeMapperRenderProgressEvent,&progress);
     ren->GetRenderWindow()->MakeCurrent();
-    }
+  }
 }
 
 
@@ -5066,20 +5066,20 @@ extern "C" int vtkRegionComparisonFunction(const void *x,
 
   int result;
   if(dx<dy)
-    {
+  {
     result=-1;
-    }
+  }
   else
-    {
+  {
     if(dx>dy)
-      {
+    {
       result=1;
-      }
-    else
-      {
-      result=0;
-      }
     }
+    else
+    {
+      result=0;
+    }
+  }
   return result;
 }
 
@@ -5107,11 +5107,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
   this->InvVolumeMatrix->Invert();
   this->InvVolumeMatrix->MultiplyPoint( camPos, camPos );
   if ( camPos[3] )
-    {
+  {
     camPos[0] /= camPos[3];
     camPos[1] /= camPos[3];
     camPos[2] /= camPos[3];
-    }
+  }
 
   // These are the region limits for x (first four), y (next four) and
   // z (last four). The first region limit is the lower bound for
@@ -5120,12 +5120,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
   double limit[12];
   size_t i;
   for ( i = 0; i < 3; i++ )
-    {
+  {
     limit[i*4  ] = volBounds[i*2];
     limit[i*4+1] = this->ClippedCroppingRegionPlanes[i*2];
     limit[i*4+2] = this->ClippedCroppingRegionPlanes[i*2+1];
     limit[i*4+3] = volBounds[i*2+1];
-    }
+  }
 
   // For each of the 27 possible regions, find out if it is enabled,
   // and if so, compute the bounds and the distance from the camera
@@ -5133,11 +5133,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
   size_t numRegions = 0;
   size_t region;
   for ( region = 0; region < 27; region++ )
-    {
+  {
     int regionFlag = 1<<region;
 
     if ( this->CroppingRegionFlags & regionFlag )
-      {
+    {
       // what is the coordinate in the 3x3x3 grid
       size_t loc[3];
       loc[0] = region%3;
@@ -5149,15 +5149,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
       if((limit[loc[0]]!=limit[loc[0]+1])
          && (limit[loc[1]+4]!=limit[loc[1]+5])
          && (limit[loc[2]+8]!=limit[loc[2]+9]))
-        {
+      {
         // compute the bounds and center
         double center[3];
         for ( i = 0; i < 3; i++ )
-          {
+        {
           bounds[numRegions][i*2  ] = limit[4*i+loc[i]];
           bounds[numRegions][i*2+1] = limit[4*i+loc[i]+1];
           center[i]=(bounds[numRegions][i*2]+bounds[numRegions][i*2+1])*0.5;
-          }
+        }
 
         // compute the distance squared to the center
         distance2[numRegions] =
@@ -5167,18 +5167,18 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
 
         // we've added one region
         numRegions++;
-        }
       }
     }
+  }
   vtkRegionDistance2 regions[27];
 
   i=0;
   while(i<numRegions)
-    {
+  {
     regions[i].Id=i;
     regions[i].Distance2=distance2[i];
     ++i;
-    }
+  }
   qsort(regions,numRegions,sizeof(vtkRegionDistance2),
         vtkRegionComparisonFunction);
 
@@ -5186,11 +5186,11 @@ void vtkOpenGLGPUVolumeRayCastMapper::RenderRegions(vtkRenderer *ren,
   int abort=0;
   i=0;
   while(!abort && i < numRegions)
-    {
+  {
 //    cout<<"i="<<i<<" regions[i].Id="<<regions[i].Id<<endl;
     abort=this->RenderSubVolume(ren,bounds[regions[i].Id],vol);
     ++i;
-    }
+  }
 
 }
 
@@ -5202,19 +5202,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::ComputeNumberOfCroppingRegions()
 {
   this->NumberOfCroppingRegions=0;
   if(this->Cropping)
-    {
+  {
     // For each of the 27 possible regions, find out if it is enabled;
     for ( int region = 0; region < 27; region++ )
-      {
+    {
       int regionFlag = 1<<region;
 
       if ( this->CroppingRegionFlags & regionFlag )
-        {
+      {
         // we've added one region
         ++this->NumberOfCroppingRegions;
-        }
       }
     }
+  }
   this->NumberOfCroppingRegions=2; // FB: DEBUG
   assert("post: positive_NumberOfCroppingRegions" &&
          this->NumberOfCroppingRegions>=0);
@@ -5245,10 +5245,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::SlabsFromDatasetToIndex(
 
   int i=0;
   while(i<6)
-    {
+  {
     slabsPoints[i]=(slabsDataSet[i] - origin[i/2]) / spacing[i/2];
     ++i;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -5276,10 +5276,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::SlabsFromIndexToDataset(
 
   int i=0;
   while(i<6)
-    {
+  {
     slabsDataSet[i]=slabsPoints[i]*spacing[i/2]+origin[i/2];
     ++i;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -5307,14 +5307,14 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   int wholeTextureExtent[6];
   this->GetTransformedInput()->GetExtent(wholeTextureExtent);
   if(this->CellFlag)
-    {
+  {
     i=1;
     while(i<6)
-      {
+    {
       wholeTextureExtent[i]--;
       i+=2;
-      }
     }
+  }
 
   // 1. Found out the extent of the subvolume
   double realExtent[6];
@@ -5323,45 +5323,45 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   this->SlabsFromDatasetToIndex(bounds,realExtent);
 
   if(this->CellFlag) // 3D texture are celldata
-    {
+  {
     // texture extents are expressed in cells in this case
     i=0;
     while(i<6)
-      {
+    {
       subvolumeTextureExtent[i]=vtkMath::Floor(realExtent[i]-0.5);
       ++i;
       subvolumeTextureExtent[i]=vtkMath::Floor(realExtent[i]-0.5)+1;
       ++i;
-      }
     }
+  }
   else
-    {
+  {
     // texture extents are expressed in points in this case
     i=0;
     while(i<6)
-      {
+    {
       subvolumeTextureExtent[i]=vtkMath::Floor(realExtent[i]);
       ++i;
       subvolumeTextureExtent[i]=vtkMath::Floor(realExtent[i])+1; // used to not have +1
       ++i;
-      }
     }
+  }
 
   i=0;
   while(i<6)
-    {
+  {
     assert("check: wholeTextureExtent" && wholeTextureExtent[i]==0);
     if(subvolumeTextureExtent[i]<wholeTextureExtent[i])
-      {
+    {
       subvolumeTextureExtent[i]=wholeTextureExtent[i];
-      }
+    }
     ++i;
     if(subvolumeTextureExtent[i]>wholeTextureExtent[i])
-      {
+    {
       subvolumeTextureExtent[i]=wholeTextureExtent[i];
-      }
-    ++i;
     }
+    ++i;
+  }
 
   assert("check: subvolume_inside_wholevolume" &&
          subvolumeTextureExtent[0]>=wholeTextureExtent[0]
@@ -5380,28 +5380,28 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
     this->ScalarsTextures->Map.find(this->GetTransformedInput());
   vtkKWScalarField *texture;
   if(it==this->ScalarsTextures->Map.end())
-    {
+  {
     texture=0;
-    }
+  }
   else
-    {
+  {
     texture=(*it).second;
-    }
+  }
 
   vtkKWMask *mask=0;
   if(this->MaskInput!=0)
-    {
+  {
     std::map<vtkImageData *,vtkKWMask *>::iterator it2=
       this->MaskTextures->Map.find(this->MaskInput);
     if(it2==this->MaskTextures->Map.end())
-      {
+    {
       mask=0;
-      }
-    else
-      {
-      mask=(*it2).second;
-      }
     }
+    else
+    {
+      mask=(*it2).second;
+    }
+  }
 
   int loaded =
     texture!=0 &&
@@ -5414,20 +5414,20 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   vtkIdType *loadedExtent;
 
   if(loaded)
-    {
+  {
     loadedExtent=texture->GetLoadedExtent();
     i=0;
     while(loaded && i<6)
-      {
+    {
       loaded=loaded && loadedExtent[i]<=subvolumeTextureExtent[i];
       ++i;
       loaded=loaded && loadedExtent[i]>=subvolumeTextureExtent[i];
       ++i;
-      }
     }
+  }
 
   if(loaded)
-    {
+  {
     this->CurrentScalar=texture;
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
     this->CurrentScalar->Bind();
@@ -5435,20 +5435,20 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
     vtkgl::ActiveTexture(vtkgl::TEXTURE7);
     this->CurrentMask=mask;
     if(this->CurrentMask!=0)
-      {
+    {
       this->CurrentMask->Bind();
-      }
     }
+  }
 
   if(!loaded)
-    {
+  {
     // 3. Not loaded: try to load the whole dataset
     if(!this->LoadScalarField(this->GetTransformedInput(),this->MaskInput,wholeTextureExtent,volume))
-      {
+    {
       // 4. loading the whole dataset failed: try to load the subvolume
       if(!this->LoadScalarField(this->GetTransformedInput(),this->MaskInput, subvolumeTextureExtent,
                                 volume))
-        {
+      {
         // 5. loading the subvolume failed: stream the subvolume
         // 5.1 do zslabs first, if too large then cut with x or y with the
         // largest dimension. order of zlabs depends on sign of spacing[2]
@@ -5465,11 +5465,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         int textureSize[3];
         i=0;
         while(i<3)
-          {
+        {
           textureSize[i]=subvolumeTextureExtent[2*i+1]-subvolumeTextureExtent[2*i]+1;
           originalTextureSize[i]=textureSize[i];
           ++i;
-          }
+        }
 
         // Make sure loading did not fail because of theorical limits
 
@@ -5480,59 +5480,59 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         int clippedZ=0;
 
         if(textureSize[0]>width)
-          {
+        {
           textureSize[0]=width;
           clippedXY=1;
-          }
+        }
         if(textureSize[1]>width)
-          {
+        {
           textureSize[1]=width;
           clippedXY=1;
-          }
+        }
         if(textureSize[2]>width)
-          {
+        {
           textureSize[2]=width;
           clippedZ=1;
-          }
+        }
 
         int minSize;
         if(this->CellFlag)
-          {
+        {
           minSize=1;
-          }
+        }
         else
-          {
+        {
           minSize=2;
-          }
+        }
 
         if(clippedXY)
-          {
+        {
           // We cannot expect to first divide as z-slabs because it is already
           // clipped in another dimension. From now, just divide in the largest
           // dimension.
           bool foundSize=false;
           while(!foundSize && textureSize[0]>=minSize
                 && textureSize[1]>=minSize)
-            {
+          {
             foundSize=this->TestLoadingScalar(internalFormat,format,type,
                                               textureSize,componentSize);
             if(!foundSize)
-              {
+            {
               int maxDim=0;
               if(textureSize[1]>textureSize[0])
-                {
+              {
                 maxDim=1;
-                }
-              if(textureSize[2]>textureSize[maxDim])
-                {
-                maxDim=2;
-                }
-              textureSize[maxDim]>>=1; // /=2
               }
+              if(textureSize[2]>textureSize[maxDim])
+              {
+                maxDim=2;
+              }
+              textureSize[maxDim]>>=1; // /=2
             }
           }
+        }
         else
-          {
+        {
           // we are in cropping mode, it will be slow anyway. the case we want
           // to optimize is stream the all scalar field. With that in mine,
           // it is better to first try to send z-slabs. If even a minimal
@@ -5542,58 +5542,58 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
           // iteration.
 
           if(!clippedZ)
-            {
+          {
             // we start by subdividing only if we did not already clipped
             // the z dimension according to the theorical limits.
             textureSize[2]>>=1; // /=2
-            }
+          }
 
           bool foundSize=false;
           while(!foundSize && textureSize[2]>=minSize)
-            {
+          {
             foundSize=this->TestLoadingScalar(internalFormat,format,type,
                                               textureSize,componentSize);
             if(!foundSize)
-              {
-              textureSize[2]>>=1; // /=2
-              }
-            }
-          if(!foundSize)
             {
+              textureSize[2]>>=1; // /=2
+            }
+          }
+          if(!foundSize)
+          {
             textureSize[2]=minSize;
             if(textureSize[0]>textureSize[1])
-              {
+            {
               textureSize[0]>>=1; // /=2
-              }
+            }
             else
-              {
+            {
               textureSize[1]>>=1; // /=2
-              }
+            }
             while(!foundSize && textureSize[0]>=minSize
                   && textureSize[1]>=minSize)
-              {
+            {
               foundSize=this->TestLoadingScalar(internalFormat,format,type,
                                                 textureSize,componentSize);
               if(!foundSize)
-                {
+              {
                 if(textureSize[0]>textureSize[1])
-                  {
+                {
                   textureSize[0]>>=1; // /=2
-                  }
+                }
                 else
-                  {
+                {
                   textureSize[1]>>=1; // /=2
-                  }
                 }
               }
             }
+          }
           if(!foundSize)
-            {
+          {
             vtkErrorMacro(
               <<"No memory left on the GPU even for a minimal block.");
             return 1; // abort
-            }
           }
+        }
 
         // except for the last bound.
         // front to back ordering
@@ -5608,11 +5608,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         this->InvVolumeMatrix->Invert();
         this->InvVolumeMatrix->MultiplyPoint( camPos, camPos );
         if ( camPos[3] )
-          {
+        {
           camPos[0] /= camPos[3];
           camPos[1] /= camPos[3];
           camPos[2] /= camPos[3];
-          }
+        }
 
 
         // 5.2 iterate of each stream of the subvolume and render it:
@@ -5624,15 +5624,15 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         size_t remainder[3];
         i=0;
         while(i<3)
-          {
+        {
           remainder[i]=static_cast<size_t>(
             (originalTextureSize[i]-textureSize[i])%(textureSize[i]-1));
           if(remainder[i]>0)
-            {
+          {
             remainder[i]=1;
-            }
-          ++i;
           }
+          ++i;
+        }
 
         size_t counts[3];
 
@@ -5659,43 +5659,43 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         blockExtent[4]=realExtent[4];
         blockExtent[5]=vtkMath::Floor(blockExtent[4])+textureSize[2];
         if(!this->CellFlag)
-          {
+        {
           blockExtent[5]--;
-          }
+        }
         if(blockExtent[5]>realExtent[5])
-          {
+        {
           blockExtent[5]=realExtent[5];
-          }
+        }
         while(zIndex<counts[2])
-          {
+        {
 
           blockExtent[2]=realExtent[2];
           blockExtent[3]=vtkMath::Floor(blockExtent[2])+textureSize[1];
           if(!this->CellFlag)
-            {
+          {
             blockExtent[3]--;
-            }
+          }
           if(blockExtent[3]>realExtent[3])
-            {
+          {
             blockExtent[3]=realExtent[3];
-            }
+          }
           size_t yIndex=0;
           while(yIndex<counts[1])
-            {
+          {
 
             blockExtent[0]=realExtent[0];
             blockExtent[1]=vtkMath::Floor(blockExtent[0])+textureSize[0];
             if(!this->CellFlag)
-              {
+            {
               blockExtent[1]--;
-              }
+            }
             if(blockExtent[1]>realExtent[1])
-              {
+            {
               blockExtent[1]=realExtent[1];
-              }
+            }
             size_t xIndex=0;
             while(xIndex<counts[0])
-              {
+            {
               assert("check: valid_blockId" && blockId<count);
               // save blockExtent to the list of blocks
               double blockBounds[6];
@@ -5705,10 +5705,10 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
               double center[3];
               i=0;
               while(i<3)
-                {
+              {
                 center[i]=(blockBounds[i*2]+blockBounds[i*2+1])*0.5;
                 ++i;
-                }
+              }
 
               // compute the distance squared to the center
               double distance2=(camPos[0]-center[0])*(camPos[0]-center[0])+
@@ -5717,11 +5717,11 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
 
               i=0;
               while(i<6)
-                {
+              {
                 blocks[blockId].Bounds[i]=blockBounds[i];
                 blocks[blockId].Extent[i]=blockExtent[i];
                 ++i;
-                }
+              }
 
               sortedBlocks[blockId].Id=blockId;
               sortedBlocks[blockId].Distance2=distance2;
@@ -5731,42 +5731,42 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
               blockExtent[0]=blockExtent[1];
               blockExtent[1]=blockExtent[0]+textureSize[0];
               if(!this->CellFlag)
-                {
+              {
                 blockExtent[1]--;
-                }
+              }
               if(blockExtent[1]>realExtent[1])
-                {
+              {
                 blockExtent[1]=realExtent[1];
-                }
+              }
               ++xIndex;
-              } // while x
+            } // while x
 
             blockExtent[2]=blockExtent[3];
             blockExtent[3]=blockExtent[2]+textureSize[1];
             if(!this->CellFlag)
-              {
+            {
               blockExtent[3]--;
-              }
+            }
             if(blockExtent[3]>realExtent[3])
-              {
+            {
               blockExtent[3]=realExtent[3];
-              }
+            }
             ++yIndex;
-            } // while y
+          } // while y
 
 
           blockExtent[4]=blockExtent[5];
           blockExtent[5]=blockExtent[4]+textureSize[2];
           if(!this->CellFlag)
-            {
+          {
             blockExtent[5]--;
-            }
+          }
           if(blockExtent[5]>realExtent[5])
-            {
+          {
             blockExtent[5]=realExtent[5];
-            }
+          }
           ++zIndex;
-          } // while z
+        } // while z
 
         assert("check: valid_number_of_blocks" && blockId==count);
 
@@ -5778,73 +5778,73 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
         i=0;
         int abort=0;
         while(!abort && i < count) // 1) //count)
-          {
+        {
           size_t k=sortedBlocks[i].Id;
 
           int blockTextureExtent[6];
           int j;
           if(this->CellFlag) // 3D texture are celldata
-            {
+          {
             // texture extents are expressed in cells in this case
             j=0;
             while(j<6)
-              {
+            {
               blockTextureExtent[j]=vtkMath::Floor(blocks[k].Extent[j]);
               ++j;
-              }
             }
+          }
           else
-            {
+          {
             // texture extents are expressed in points in this case
             j=0;
             while(j<6)
-              {
+            {
               blockTextureExtent[j]=vtkMath::Floor(blocks[k].Extent[j]);
               ++j;
               blockTextureExtent[j]=vtkMath::Floor(blocks[k].Extent[j]);
               if(blockTextureExtent[j]<blocks[k].Extent[j])
-                {
+              {
                 ++blockTextureExtent[j];
-                }
-              ++j;
               }
+              ++j;
             }
+          }
 
           // Load the block
           if(!this->LoadScalarField(this->GetInput(),this->MaskInput, blockTextureExtent,
                                     volume))
-            {
+          {
             cout<<"Loading the streamed block FAILED!!!!!"<<endl;
-            }
+          }
 
           loadedExtent=this->CurrentScalar->GetLoadedExtent();
 
           float lowBounds[3];
           float highBounds[3];
           if(!this->CurrentScalar->GetLoadedCellFlag()) // points
-            {
+          {
             j=0;
             while(j<3)
-              {
+            {
               double delta=
                 static_cast<double>(loadedExtent[j*2+1]-loadedExtent[j*2]);
               lowBounds[j]=static_cast<float>((blocks[k].Extent[j*2]-static_cast<double>(loadedExtent[j*2]))/delta);
               highBounds[j]=static_cast<float>((blocks[k].Extent[j*2+1]-static_cast<double>(loadedExtent[j*2]))/delta);
               ++j;
-              }
             }
+          }
           else // cells
-            {
+          {
             j=0;
             while(j<3)
-              {
+            {
               double delta=
                 static_cast<double>(loadedExtent[j*2+1]-loadedExtent[j*2]);
               lowBounds[j]=static_cast<float>((blocks[k].Extent[j*2]-0.5-static_cast<double>(loadedExtent[j*2]))/delta);
               highBounds[j]=static_cast<float>((blocks[k].Extent[j*2+1]-0.5-static_cast<double>(loadedExtent[j*2]))/delta);
               ++j;
-              }
             }
+          }
 
 
 
@@ -5874,19 +5874,19 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
           this->Program->SendUniforms();
           abort=this->RenderClippedBoundingBox(1,i,count,ren->GetRenderWindow());
           if (!abort)
-            {
+          {
             this->CopyFBOToTexture();
-            }
+          }
 
           ++i;
-          }
+        }
 
         delete[] blocks;
         delete[] sortedBlocks;
         return abort;
-        }
       }
     }
+  }
 
   loadedExtent=this->CurrentScalar->GetLoadedExtent();
 
@@ -5894,22 +5894,22 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   float lowBounds[3];
   float highBounds[3];
   if(!this->CurrentScalar->GetLoadedCellFlag()) // points
-    {
+  {
     i=0;
     while(i<3)
-      {
+    {
       double delta=
         static_cast<double>(loadedExtent[i*2+1]-loadedExtent[i*2]+1);
       lowBounds[i]=static_cast<float>((realExtent[i*2]+0.5-static_cast<double>(loadedExtent[i*2]))/delta);
       highBounds[i]=static_cast<float>((realExtent[i*2+1]+0.5-static_cast<double>(loadedExtent[i*2]))/delta);
       ++i;
-      }
     }
+  }
   else // cells
-    {
+  {
     i=0;
     while(i<3)
-      {
+    {
       double delta=
         static_cast<double>(loadedExtent[i*2+1]-loadedExtent[i*2]+1);
 
@@ -5923,8 +5923,8 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
       lowBounds[i]=static_cast<float>((realExtent[i*2]-static_cast<double>(loadedExtent[i*2]))/delta);
       highBounds[i]=static_cast<float>((realExtent[i*2+1]-static_cast<double>(loadedExtent[i*2]))/delta);
       ++i;
-      }
     }
+  }
 
   assert("check: positive_low_bounds0" && lowBounds[0]>=0.0);
   assert("check: positive_low_bounds1" && lowBounds[1]>=0.0);
@@ -5947,9 +5947,9 @@ int vtkOpenGLGPUVolumeRayCastMapper::RenderSubVolume(vtkRenderer *ren,
   this->Program->SendUniforms();
   int abort=this->RenderClippedBoundingBox(1,0,1,ren->GetRenderWindow());
   if (!abort)
-    {
+  {
     this->CopyFBOToTexture();
-    }
+  }
   vtkOpenGLCheckErrorMacro("failed after RenderSubVolume");
   return abort;
 }
@@ -5970,10 +5970,10 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
   double delta[3];
   int i=0;
   while(i<3)
-    {
+  {
     delta[i]=bounds[2*i+1]-bounds[2*i];
     ++i;
-    }
+  }
 
   // worldToTexture matrix is needed
 
@@ -6003,7 +6003,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
   float fvalues[3];
 
   if(parallelProjection)
-    {
+  {
     // Unit vector of the direction of projection in world space.
     double dirWorld[4];
     double dir[4];
@@ -6017,16 +6017,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     // direction in texture space times sample distance in world space.
     i=0;
     while(i<3)
-      {
+    {
       dir[i]=dir[i]*this->ActualSampleDistance/delta[i];
       fvalues[i]=static_cast<float>(dir[i]);
       ++i;
-      }
+    }
     v->SetUniformf("parallelRayDirection",3,fvalues);
     //cout<<"rayDir="<<dir[0]<<","<<dir[1]<<","<<dir[2]<<endl;
-    }
+  }
   else
-    {
+  {
     // Perspective projection
 
     // Compute camera position in texture coordinates
@@ -6046,40 +6046,40 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
 
     // From homogeneous to cartesian coordinates.
     if(cameraPosDataset[3]!=1.0)
-      {
+    {
       double ratio=1/cameraPosDataset[3];
       cameraPosDataset[0]*=ratio;
       cameraPosDataset[1]*=ratio;
       cameraPosDataset[2]*=ratio;
-      }
+    }
 
     double *spacing=this->GetInput()->GetSpacing();
     double spacingSign[3];
     i=0;
     while(i<3)
-      {
+    {
       if(spacing[i]<0)
-        {
+      {
         spacingSign[i]=-1.0;
-        }
-      else
-        {
-        spacingSign[i]=1.0;
-        }
-      ++i;
       }
+      else
+      {
+        spacingSign[i]=1.0;
+      }
+      ++i;
+    }
 
     if(this->CellFlag)
-      {
+    {
       i=0;
       while(i<3)
-        {
+      {
         cameraPosTexture[i] = spacingSign[i]*(cameraPosDataset[i]-bounds[i*2])/delta[i];
         ++i;
-        }
       }
+    }
     else
-      {
+    {
       // Initial fix by APGX (Gianluca Arcidiacono)
       // http://www.vtk.org/pipermail/vtkusers/2010-August/110978.html
       // VTKEdge Bug 8549
@@ -6087,15 +6087,15 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
       vtkIdType *loadedExtent=this->CurrentScalar->GetLoadedExtent();
       i=0;
       while(i<3)
-        {
+      {
         double tmp; // between 0 and 1
         tmp = spacingSign[i]*(cameraPosDataset[i] - bounds[i*2]) / delta[i];
         double delta2=static_cast<double>(
           loadedExtent[i*2+1]-loadedExtent[i*2]+1);
         cameraPosTexture[i]=(tmp*(delta2-1)+0.5)/delta2;
         ++i;
-        }
       }
+    }
 
     // Only make sense for the vectorial part of the homogeneous matrix.
     // coefMatrix=transposeWorldToTexture*worldToTexture
@@ -6125,7 +6125,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
     fvalues[1]=static_cast<float>(2*coefMatrix->GetElement(1,2));
     fvalues[2]=static_cast<float>(2*coefMatrix->GetElement(0,2));
     v->SetUniformf("matrix2",3,fvalues);
-    }
+  }
 
   // Change-of-coordinate matrix from Eye space to texture space.
   vtkMatrix4x4 *eyeToTexture=this->TempMatrix[1];
@@ -6141,77 +6141,77 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
   int shadeMethod=this->LastShade;
 
   if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeYes)
-    {
+  {
     index=0;
     column=0;
     while(column<3)
-      {
+    {
       row=0;
       while(row<3)
-        {
+      {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
         matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
-        }
-      ++column;
       }
+      ++column;
+    }
     v->SetUniformMatrix("eyeToTexture3",3,3,matrix);
 
     index=0;
     column=0;
     while(column<4)
-      {
+    {
       row=0;
       while(row<4)
-        {
+      {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
         matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
-        }
-      ++column;
       }
-    v->SetUniformMatrix("eyeToTexture4",4,4,matrix);
+      ++column;
     }
+    v->SetUniformMatrix("eyeToTexture4",4,4,matrix);
+  }
 
   eyeToTexture->Invert();
 
   index=0;
   column=0;
   while(column<4)
-    {
+  {
     row=0;
     while(row<4)
-      {
+    {
 //      cout << "index=" << index << " row*4+column=" << row*4+column << endl;
       matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
       ++index;
       ++row;
-      }
-    ++column;
     }
+    ++column;
+  }
 
   v->SetUniformMatrix("textureToEye",4,4,matrix);
 
   if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeYes)
-    {
+  {
     eyeToTexture->Transpose();
 
     index=0;
     column=0;
     while(column<3)
-      {
+    {
       row=0;
       while(row<3)
-        {
+      {
 //        cout << "index=" << index << " row*4+column=" << row*4+column << endl;
         matrix[index]=static_cast<GLfloat>(eyeToTexture->Element[row][column]);
         ++index;
         ++row;
-        }
-      ++column;
       }
+      ++column;
+    }
     v->SetUniformMatrix("transposeTextureToEye",3,3,matrix);
 
     float cellScale[3]; // 1/(2*Step)
@@ -6233,7 +6233,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::LoadProjectionParameters(
 
     v->SetUniformf("cellScale",3,cellScale);
     v->SetUniformf("cellStep",3,cellStep);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -6255,82 +6255,82 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
          && raycastMethod<=vtkOpenGLGPUVolumeRayCastMapperMethodAdditive);
 
   if(this->Program==0)
-    {
+  {
     this->Program=vtkShaderProgram2::New();
     this->Program->SetContext(static_cast<vtkOpenGLRenderWindow *>(w));
-    }
+  }
 
   vtkShader2Collection *shaders=this->Program->GetShaders();
 
   if(this->Main==0)
-    {
+  {
     this->Main=vtkShader2::New();
     this->Main->SetType(VTK_SHADER_TYPE_FRAGMENT);
     this->Main->SetSourceCode(vtkGPUVolumeRayCastMapper_HeaderFS);
 //      this->Main->SetSourceCode(vtkGPUVolumeRayCastMapper_DebugFS);
     shaders->AddItem(this->Main);
-    }
+  }
   if(this->Projection==0)
-    {
+  {
     this->Projection=vtkShader2::New();
     this->Projection->SetType(VTK_SHADER_TYPE_FRAGMENT);
     // SourceCode is postponed.
     shaders->AddItem(this->Projection);
-    }
+  }
   if(this->Trace==0)
-    {
+  {
     this->Trace=vtkShader2::New();
     this->Trace->SetType(VTK_SHADER_TYPE_FRAGMENT);
     // SourceCode is postponed.
     shaders->AddItem(this->Trace);
-    }
+  }
   if(this->CroppingShader==0)
-    {
+  {
     this->CroppingShader=vtkShader2::New();
     this->CroppingShader->SetType(VTK_SHADER_TYPE_FRAGMENT);
     // SourceCode is postponed.
     shaders->AddItem(this->CroppingShader);
-    }
+  }
   if(this->Component==0)
-    {
+  {
     this->Component=vtkShader2::New();
     this->Component->SetType(VTK_SHADER_TYPE_FRAGMENT);
     // SourceCode is postponed.
     // addition to collection is postponed.
-    }
+  }
   if(this->Shade==0)
-    {
+  {
     this->Shade=vtkShader2::New();
     this->Shade->SetType(VTK_SHADER_TYPE_FRAGMENT);
     // SourceCode is postponed.
     // addition to collection is postponed.
-    }
+  }
 
 //  cout<<"projection="<<parallelProjection<<endl;
 //  cout<<"method="<<raycastMethod<<endl;
   if(parallelProjection!=this->LastParallelProjection)
-    {
+  {
     this->LastParallelProjection=parallelProjection;
     // update projection
     const char *projectionCode;
     if(parallelProjection)
-      {
+    {
       projectionCode=vtkGPUVolumeRayCastMapper_ParallelProjectionFS;
-      }
-    else
-      {
-      projectionCode=vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS;
-      }
-    this->Projection->SetSourceCode(projectionCode);
     }
+    else
+    {
+      projectionCode=vtkGPUVolumeRayCastMapper_PerspectiveProjectionFS;
+    }
+    this->Projection->SetSourceCode(projectionCode);
+  }
 
   if(raycastMethod!=this->LastRayCastMethod)
-    {
+  {
     this->LastRayCastMethod=raycastMethod;
     // update tracing method
     const char *methodCode;
     switch(raycastMethod)
-      {
+    {
       case vtkOpenGLGPUVolumeRayCastMapperMethodMIP:
         methodCode=vtkGPUVolumeRayCastMapper_MIPFS;
         break;
@@ -6365,87 +6365,87 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         assert("check: impossible case" && 0);
         methodCode=0; // to avoid warning
         break;
-      }
-    this->Trace->SetSourceCode(methodCode);
     }
+    this->Trace->SetSourceCode(methodCode);
+  }
 
   // update cropping method
   int croppingMode;
   switch(raycastMethod)
-    {
+  {
     case vtkOpenGLGPUVolumeRayCastMapperMethodMIP:
     case vtkOpenGLGPUVolumeRayCastMapperMethodMIPBinaryMask:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMIPCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMIPNoCropping;
-        }
+      }
       break;
     case vtkOpenGLGPUVolumeRayCastMapperMethodMIPFourDependent:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMIPFourDependentCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=
           vtkOpenGLGPUVolumeRayCastMapperMIPFourDependentNoCropping;
-        }
+      }
       break;
     case vtkOpenGLGPUVolumeRayCastMapperMethodMinIP:
     case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPBinaryMask:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMinIPCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMinIPNoCropping;
-        }
+      }
       break;
     case vtkOpenGLGPUVolumeRayCastMapperMethodMinIPFourDependent:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=
           vtkOpenGLGPUVolumeRayCastMapperMinIPFourDependentNoCropping;
-        }
+      }
       break;
     case vtkOpenGLGPUVolumeRayCastMapperMethodAdditive:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperAdditiveCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperAdditiveNoCropping;
-        }
+      }
       break;
     default:
       if(this->NumberOfCroppingRegions>1)
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperCompositeCropping;
-        }
+      }
       else
-        {
+      {
         croppingMode=vtkOpenGLGPUVolumeRayCastMapperCompositeNoCropping;
-        }
+      }
       break;
-    }
+  }
 
 //  cout<<"croppingMode="<<croppingMode<<endl;
   if(croppingMode!=this->LastCroppingMode)
-    {
+  {
     this->LastCroppingMode=croppingMode;
     const char *croppingCode;
     switch(croppingMode)
-      {
+    {
       case vtkOpenGLGPUVolumeRayCastMapperMIPCropping:
         croppingCode=vtkGPUVolumeRayCastMapper_MIPCroppingFS;
         break;
@@ -6486,73 +6486,73 @@ void vtkOpenGLGPUVolumeRayCastMapper::BuildProgram(vtkRenderWindow *w,
         assert("check: impossible case" && 0);
         croppingCode=0; // to avoid warning
         break;
-      }
-    this->CroppingShader->SetSourceCode(croppingCode);
     }
+    this->CroppingShader->SetSourceCode(croppingCode);
+  }
 
   if(componentMethod!=this->LastComponent)
-    {
+  {
     if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed)
-      {
+    {
       if(this->LastComponent!=
          vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized)
-        {
-        shaders->RemoveItem(this->Component);
-        }
-      }
-    else
       {
+        shaders->RemoveItem(this->Component);
+      }
+    }
+    else
+    {
       if(this->LastComponent==
          vtkOpenGLGPUVolumeRayCastMapperComponentNotInitialized ||
          this->LastComponent==
          vtkOpenGLGPUVolumeRayCastMapperComponentNotUsed)
-        {
+      {
         shaders->AddItem(this->Component);
-        }
+      }
       const char *componentCode;
       if(componentMethod==vtkOpenGLGPUVolumeRayCastMapperComponentOne)
-        {
+      {
         componentCode=vtkGPUVolumeRayCastMapper_OneComponentFS;
-        }
-      else
-        {
-        componentCode=vtkGPUVolumeRayCastMapper_FourComponentsFS;
-        }
-      this->Component->SetSourceCode(componentCode);
       }
-    this->LastComponent=componentMethod;
+      else
+      {
+        componentCode=vtkGPUVolumeRayCastMapper_FourComponentsFS;
+      }
+      this->Component->SetSourceCode(componentCode);
     }
+    this->LastComponent=componentMethod;
+  }
 
   if(shadeMethod!=this->LastShade)
-    {
+  {
     if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed)
-      {
+    {
       if(this->LastShade!=
          vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized)
-        {
-        shaders->RemoveItem(this->Shade);
-        }
-      }
-    else
       {
+        shaders->RemoveItem(this->Shade);
+      }
+    }
+    else
+    {
       if(this->LastShade==vtkOpenGLGPUVolumeRayCastMapperShadeNotInitialized
          || this->LastShade==vtkOpenGLGPUVolumeRayCastMapperShadeNotUsed)
-        {
+      {
         shaders->AddItem(this->Shade);
-        }
+      }
       const char *shadeCode;
       if(shadeMethod==vtkOpenGLGPUVolumeRayCastMapperShadeYes)
-        {
+      {
         shadeCode=vtkGPUVolumeRayCastMapper_ShadeFS;
-        }
-      else
-        {
-        shadeCode=vtkGPUVolumeRayCastMapper_NoShadeFS;
-        }
-      this->Shade->SetSourceCode(shadeCode);
       }
-    this->LastShade=shadeMethod;
+      else
+      {
+        shadeCode=vtkGPUVolumeRayCastMapper_NoShadeFS;
+      }
+      this->Shade->SetSourceCode(shadeCode);
     }
+    this->LastShade=shadeMethod;
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -6562,13 +6562,13 @@ const char *vtkOpenGLGPUVolumeRayCastMapper::GetEnabledString(
   unsigned char value)
 {
   if(value)
-    {
+  {
     return "enabled";
-    }
+  }
   else
-    {
+  {
     return "disabled";
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -6589,7 +6589,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetOpenGLState()
 
   GLenum texture=vtkgl::TEXTURE0;
   while(texture<vtkgl::TEXTURE6)
-    {
+  {
     vtkgl::ActiveTexture(texture);
     cout<<"texture"<<texture-vtkgl::TEXTURE0<<endl;
     cout<<"1d:"<<GetEnabledString(glIsEnabled(GL_TEXTURE_1D))<<endl;
@@ -6602,7 +6602,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetOpenGLState()
     glGetIntegerv(vtkgl::TEXTURE_BINDING_3D,&value);
     cout<<"binding 3d:"<<value<<endl;
     ++texture;
-    }
+  }
 
   // restore current active texture
   vtkgl::ActiveTexture(activeTexture);
@@ -6617,13 +6617,13 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
   //cout<<"lighting: ";
   GLboolean flag=glIsEnabled(GL_LIGHTING);
   if(flag)
-    {
+  {
     cout<<"enabled"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"disabled"<<endl;
-    }
+  }
   GLint value;
   glGetIntegerv(GL_MAX_LIGHTS,&value);
   cout<<"number of lights supported by this GPU:"<<value<<endl;
@@ -6640,17 +6640,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
   cout<<"light\t| status\t| ambient\t| diffuse\t| specular\t| position\t| spot direction\t| spot exponent\t| spot cutoff\t| k0\t| k1\t| k2"<<endl;
 
   while(i<c)
-    {
+  {
     cout<<i<<"\t| ";
     glIsEnabled(GL_LIGHT0+i);
     if(flag)
-      {
+    {
       cout<<"enabled";
-      }
+    }
     else
-      {
+    {
       cout<<"disabled";
-      }
+    }
 
     glGetLightfv(GL_LIGHT0+i,GL_AMBIENT,values);
     cout<<"\t| ("<<values[0]<<","<<values[1]<<","<<values[2]<<","<<values[3];
@@ -6673,24 +6673,24 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
     glGetLightfv(GL_LIGHT0+i,GL_QUADRATIC_ATTENUATION,values);
     cout<<"\t| "<<values[0]<<endl;
     ++i;
-    }
+  }
 
   cout<<"color material=";
   flag=glIsEnabled(GL_COLOR_MATERIAL);
   if(flag)
-    {
+  {
     cout<<"enabled"<<endl;
-    }
+  }
   else
-    {
+  {
     cout<<"disabled"<<endl;
-    }
+  }
 
   cout<<"color material face=";
   GLint ivalue[4];
   glGetIntegerv(GL_COLOR_MATERIAL_FACE,ivalue); // 2.14.3
   switch(ivalue[0])
-    {
+  {
     case GL_FRONT_AND_BACK:
       cout<<"GL_FRONT_AND_BACK";
       break;
@@ -6703,12 +6703,12 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
     default:
       cout<<"unknown value="<<ivalue[0]<<endl;
       break;
-    }
+  }
 
   cout<<"color material parameter=";
   glGetIntegerv(GL_COLOR_MATERIAL_PARAMETER,ivalue); // 2.14.3
   switch(ivalue[0])
-    {
+  {
     case GL_AMBIENT_AND_DIFFUSE:
       cout<<"GL_AMBIENT_AND_DIFFUSE";
       break;
@@ -6727,7 +6727,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetLightingStatus()
     default:
       cout<<"unknown value="<<ivalue[0]<<endl;
       break;
-    }
+  }
 
   GLfloat fcolor[4];
   glGetMaterialfv(GL_FRONT,GL_EMISSION,fcolor);
@@ -6752,9 +6752,9 @@ int vtkOpenGLGPUVolumeRayCastMapper::PowerOfTwoGreaterOrEqual(int x)
 
   int result=1;
   while(result<x)
-    {
+  {
     result<<=1; // *2
-    }
+  }
   assert("post: valid_result" && result>=x);
   return result;
 }
@@ -6767,7 +6767,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
   vtkOpenGLClearErrorMacro();
 
   if(this->NoiseTextureId==0)
-    {
+  {
     GLuint noiseTextureObject;
     glGenTextures(1,&noiseTextureObject);
     this->NoiseTextureId=static_cast<unsigned int>(noiseTextureObject);
@@ -6783,16 +6783,16 @@ void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
 
     glGetIntegerv(GL_MAX_TEXTURE_SIZE,&maxSize);
     if(size>maxSize)
-      {
+    {
       size=maxSize;
-      }
+    }
     if(this->NoiseTexture!=0 && this->NoiseTextureSize!=size)
-      {
+    {
       delete[] this->NoiseTexture;
       this->NoiseTexture=0;
-      }
+    }
     if(this->NoiseTexture==0)
-      {
+    {
       this->NoiseTexture=new float[size*size];
       this->NoiseTextureSize=size;
       vtkPerlinNoise *noiseGenerator=vtkPerlinNoise::New();
@@ -6801,17 +6801,17 @@ void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
       noiseGenerator->SetAmplitude(amplitude);
       int j=0;
       while(j<size)
-        {
+      {
         int i=0;
         while(i<size)
-          {
+        {
           this->NoiseTexture[j*size+i]=0.0; //amplitude+static_cast<float>(noiseGenerator->EvaluateFunction(i,j,0.0));
           ++i;
-          }
-        ++j;
         }
-      noiseGenerator->Delete();
+        ++j;
       }
+      noiseGenerator->Delete();
+    }
     glTexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE,size,size,0,GL_RED,GL_FLOAT,
                  this->NoiseTexture);
 
@@ -6823,7 +6823,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::UpdateNoiseTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     vtkgl::ActiveTexture(vtkgl::TEXTURE0);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateNoiseTexture");
 }
@@ -6855,14 +6855,14 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
                                          this->CellFlag);
 
   if(this->CellFlag) // if we deal with cell data
-    {
+  {
     i=1;
     while(i<6)
-      {
+    {
       wholeTextureExtent[i]--;
       i+=2;
-      }
     }
+  }
 
   // Indexable hardware limits
   GLint maxSize;
@@ -6872,19 +6872,19 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
   double dMaxSize=static_cast<double>(maxSize);
   i=0;
   while(i<3)
-    {
+  {
     double textureSize=wholeTextureExtent[2*i+1]-wholeTextureExtent[2*i]+1;
     if(textureSize>maxSize)
-      {
+    {
       ratio[i]=dMaxSize/textureSize;
-      }
+    }
     else
-      {
+    {
       ratio[i]=1.0; // no reduction
-      }
+    }
     rTextureSize[i]=static_cast<vtkIdType>(floor(textureSize*ratio[i]));
     ++i;
-    }
+  }
 
   // Data memory limits.
   int scalarType=scalars->GetDataType();
@@ -6895,7 +6895,7 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
 
   if(size>static_cast<double>(this->MaxMemoryInBytes)
      *static_cast<double>(this->MaxMemoryFraction))
-    {
+  {
     double r=static_cast<double>(this->MaxMemoryInBytes)
       *static_cast<double>(this->MaxMemoryFraction)/static_cast<double>(size);
     double r3=pow(r,1.0/3.0);
@@ -6904,71 +6904,71 @@ void vtkOpenGLGPUVolumeRayCastMapper::GetReductionRatio(double ratio[3])
     i=0;
     int count=0;
     while(i<3)
-      {
+    {
       vtkIdType newSize=static_cast<vtkIdType>(
         floor(static_cast<double>(rTextureSize[i])*r3));
       reduced[i]=newSize>=1;
       if(reduced[i])
-        {
+      {
         ++count;
-        }
-      ++i;
       }
+      ++i;
+    }
 
     if(count<3) // some axis cannot be reduced
-      {
+    {
       double r2=sqrt(r);
       count=0;
       i=0;
       while(i<3)
-        {
+      {
         if(reduced[i])
-          {
+        {
           vtkIdType newSize=static_cast<vtkIdType>(
             floor(static_cast<double>(rTextureSize[i])*r2));
           reduced[i]=newSize>=1;
           if(reduced[i])
-            {
+          {
             ++count;
-            }
           }
+        }
         ++i;
-        }
+      }
       if(count<2) // we can only reduce one axis
-        {
+      {
         i=0;
         while(i<3)
-          {
+        {
           if(reduced[i])
-            {
+          {
             ratio[i]*=r;
-            }
-          ++i;
           }
-        }
-      else // we can reduce two axes
-        {
-        i=0;
-        while(i<3)
-          {
-          if(reduced[i])
-            {
-            ratio[i]*=r2;
-            }
           ++i;
-          }
         }
       }
-    else // we can reduce all three axes
+      else // we can reduce two axes
       {
-      i=0;
-      while(i<3)
+        i=0;
+        while(i<3)
         {
-        ratio[i]*=r3;
-        ++i;
+          if(reduced[i])
+          {
+            ratio[i]*=r2;
+          }
+          ++i;
         }
       }
     }
+    else // we can reduce all three axes
+    {
+      i=0;
+      while(i<3)
+      {
+        ratio[i]*=r3;
+        ++i;
+      }
+    }
+  }
 
   assert("post: valid_i_ratio" && ratio[0]>0 && ratio[0]<=1.0);
   assert("post: valid_j_ratio" && ratio[1]>0 && ratio[1]<=1.0);

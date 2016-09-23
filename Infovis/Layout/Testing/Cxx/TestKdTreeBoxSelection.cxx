@@ -64,12 +64,12 @@ void BuildTree(vtkIdType parent, vtkKdNode *parentVertex, vtkMutableDirectedGrap
   parentVertex->GetBounds(bounds);
   rectArray->InsertTuple(parent, bounds);
   if (parentVertex->GetLeft() != NULL)
-    {
+  {
     vtkIdType curIndex = tree->AddChild(parent);
     BuildTree(curIndex, parentVertex->GetLeft(), tree, rectArray);
     curIndex = tree->AddChild(parent);
     BuildTree(curIndex, parentVertex->GetRight(), tree, rectArray);
-    }
+  }
 }
 
 int TestKdTreeBoxSelection(int argc, char *argv[])
@@ -77,23 +77,23 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   bool interactive = false;
   bool threedim = false;
   for (int i = 1; i < argc; i++)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       interactive = true;
       continue;
-      }
+    }
     if (!strcmp(argv[i], "-d"))
-      {
+    {
       threedim = true;
       continue;
-      }
+    }
 
     cerr << argv[0] << " options:\n"
       << "  -I run interactively\n"
       << "  -d three-dimensional\n";
     return 0;
-    }
+  }
 
   //
   // Create a random graph and perform layout
@@ -107,17 +107,17 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   VTK_CREATE(vtkGraphLayout, layout);
   layout->SetInputConnection(source->GetOutputPort());
   if (threedim)
-    {
+  {
     VTK_CREATE(vtkForceDirectedLayoutStrategy, forceLayout);
     forceLayout->SetGraphBounds(-3, 3, -3, 3, -3, 3);
     layout->SetLayoutStrategy(forceLayout);
-    }
+  }
   else
-    {
+  {
     VTK_CREATE(vtkSimple2DLayoutStrategy, simpleLayout);
     simpleLayout->SetJitter(true);
     layout->SetLayoutStrategy(simpleLayout);
-    }
+  }
 
   layout->Update();
   vtkGraph* g = vtkGraph::SafeDownCast(layout->GetOutput());
@@ -151,10 +151,10 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   VTK_CREATE(vtkPoints, selectPoints);
   double pt[3];
   for (vtkIdType i = 0; i < selection->GetNumberOfTuples(); i++)
-    {
+  {
     g->GetPoint(selection->GetValue(i), pt);
     selectPoints->InsertNextPoint(pt);
-    }
+  }
   selectPoly->SetPoints(selectPoints);
 
   VTK_CREATE(vtkSphereSource, selectSphere);
@@ -200,9 +200,9 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   VTK_CREATE(vtkTree, realTree);
   if (!realTree->CheckedShallowCopy(tree))
-    {
+  {
     cerr << "Invalid tree structure." << endl;
-    }
+  }
 
   VTK_CREATE(vtkTreeLevelsFilter, treeLevels);
   treeLevels->SetInputData(realTree);
@@ -231,13 +231,13 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   VTK_CREATE(vtkTransform, transform);
   if (threedim)
-    {
+  {
     transform->Translate(0, 0, 0);
-    }
+  }
   else
-    {
+  {
     transform->Translate(0, 0, glyphSize);
-    }
+  }
 
   VTK_CREATE(vtkTransformFilter, transFilter);
   transFilter->SetInputConnection(graphToPoly->GetOutputPort());
@@ -272,9 +272,9 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
 
   VTK_CREATE(vtkRenderer, ren);
   if (!threedim)
-    {
+  {
     ren->AddActor(treeActor);
-    }
+  }
   ren->AddActor(graphActor);
   ren->AddActor(glyphActor);
   ren->AddActor(cubeActor);
@@ -293,10 +293,10 @@ int TestKdTreeBoxSelection(int argc, char *argv[])
   iren->SetInteractorStyle(interact);
 
   if (interactive)
-    {
+  {
     iren->Initialize();
     iren->Start();
-    }
+  }
 
   return 0;
 }

@@ -90,11 +90,11 @@ void save(Archiver& ar, const vtkVariant& variant,
           const unsigned int vtkNotUsed(version))
 {
   if (!variant.IsValid())
-    {
+  {
     char null = 0;
     ar & null;
     return;
-    }
+  }
 
   // Output the type
   char Type = variant.GetType();
@@ -103,14 +103,14 @@ void save(Archiver& ar, const vtkVariant& variant,
   // Output the value
 #define VTK_VARIANT_SAVE(Value,Type,Function)   \
    case Value:                                  \
-     {                                          \
+   {                                          \
        Type value = variant.Function();         \
        ar & value;                              \
-     }                                          \
+   }                                          \
      return
 
   switch (Type)
-    {
+  {
     VTK_VARIANT_SAVE(VTK_STRING,vtkStdString,ToString);
     VTK_VARIANT_SAVE(VTK_UNICODE_STRING,vtkUnicodeString,ToUnicodeString);
     VTK_VARIANT_SAVE(VTK_FLOAT,float,ToFloat);
@@ -129,7 +129,7 @@ void save(Archiver& ar, const vtkVariant& variant,
     default:
       cerr << "cannot serialize variant with type " << variant.GetType()
            << '\n';
-    }
+  }
 #undef VTK_VARIANT_SAVE
 }
 
@@ -142,15 +142,15 @@ void load(Archiver& ar, vtkVariant& variant,
 
 #define VTK_VARIANT_LOAD(Value,Type)            \
     case Value:                                 \
-      {                                         \
+    {                                         \
         Type value;                             \
         ar & value;                             \
         variant = vtkVariant(value);            \
-      }                                         \
+    }                                         \
       return
 
   switch (Type)
-    {
+  {
     case 0: variant = vtkVariant(); return;
     VTK_VARIANT_LOAD(VTK_STRING,vtkStdString);
     VTK_VARIANT_LOAD(VTK_UNICODE_STRING,vtkUnicodeString);
@@ -169,7 +169,7 @@ void load(Archiver& ar, vtkVariant& variant,
     default:
       cerr << "cannot deserialize variant with type " << static_cast<unsigned int>(Type) << '\n';
       variant = vtkVariant();
-    }
+  }
 #undef VTK_VARIANT_LOAD
 }
 
@@ -194,9 +194,9 @@ void save(Archiver& ar, const vtkVariantArray& c_array,
   vtkIdType n = array.GetNumberOfTuples();
   ar & n;
   for (vtkIdType i = 0; i < n; ++i)
-    {
+  {
     ar & array.GetValue(i);
-    }
+  }
 }
 
 template<typename Archiver>
@@ -209,13 +209,13 @@ void load(Archiver& ar, vtkVariantArray& array,
   array.SetName(name.c_str());
 
   if(name.empty())
-    {
+  {
     array.SetName(0);
-    }
+  }
   else
-    {
+  {
     array.SetName(name.c_str());
-    }
+  }
 
   // Array data
   vtkIdType n;
@@ -223,10 +223,10 @@ void load(Archiver& ar, vtkVariantArray& array,
   array.SetNumberOfTuples(n);
   vtkVariant value;
   for (vtkIdType i = 0; i < n; ++i)
-    {
+  {
     ar & value;
     array.SetValue(i, value);
-    }
+  }
 }
 
 BOOST_SERIALIZATION_SPLIT_FREE(vtkVariantArray)

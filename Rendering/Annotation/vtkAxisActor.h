@@ -182,11 +182,11 @@ public:
   //@}
 
   enum TickLocation
-    {
+  {
     VTK_TICKS_INSIDE = 0,
     VTK_TICKS_OUTSIDE = 1,
     VTK_TICKS_BOTH = 2
-    };
+  };
 
   //@{
   /**
@@ -251,12 +251,12 @@ public:
   //@}
 
   enum AlignLocation
-    {
+  {
     VTK_ALIGN_TOP = 0,
     VTK_ALIGN_BOTTOM = 1,
     VTK_ALIGN_POINT1 = 2,
     VTK_ALIGN_POINT2 = 3
-    };
+  };
 
   //@{
   /**
@@ -402,11 +402,11 @@ public:
   //@}
 
   enum AxisType
-    {
+  {
     VTK_AXIS_TYPE_X = 0,
     VTK_AXIS_TYPE_Y = 1,
     VTK_AXIS_TYPE_Z = 2
-    };
+  };
 
   //@{
   /**
@@ -420,12 +420,12 @@ public:
   //@}
 
   enum AxisPosition
-    {
+  {
     VTK_AXIS_POS_MINMIN = 0,
     VTK_AXIS_POS_MINMAX = 1,
     VTK_AXIS_POS_MAXMAX = 2,
     VTK_AXIS_POS_MAXMIN = 3
-    };
+  };
 
   //@{
   /**
@@ -550,9 +550,9 @@ public:
    * Get label actors responsigle for drawing label text.
    */
   inline vtkAxisFollower** GetLabelActors()
-    {
+  {
     return this->LabelActors;
-    }
+  }
 
   //@{
   /**
@@ -566,9 +566,9 @@ public:
    * Get label actors responsigle for drawing label text.
    */
   inline vtkProp3DAxisFollower** GetLabelProps3D()
-    {
+  {
     return this->LabelProps3D;
-    }
+  }
 
   //@{
   /**

@@ -57,27 +57,27 @@ int TestButterflyScalars(int argc, char * argv[])
 
   //Loop to select colors for each of the points in the polydata.
   for (int i = 0; i < originalMesh->GetNumberOfPoints(); i++)
-    {
+  {
     if (i > 0 && i < 5)
-      {
+    {
       //Black
       colors->InsertTuple3(i, 255, 255, 0);
-      }
+    }
     else if (i > 4 && i < 10)
-      {
+    {
       //Blue
       colors->InsertTuple3(i, 0, 0, 255);
-      }
+    }
     else if (i > 9 && i < 300)
-      {
+    {
       //Red
       colors->InsertTuple3(i, 255, 0, 0);
-      }
-    else
-      {
-      colors->InsertTuple3(i, 255, 0, 0);
-      }
     }
+    else
+    {
+      colors->InsertTuple3(i, 255, 0, 0);
+    }
+  }
 
   originalMesh->GetPointData()->SetScalars(colors);
 
@@ -114,9 +114,9 @@ int TestButterflyScalars(int argc, char * argv[])
 
   int testStatus = vtkRegressionTestImage(renderWindow.GetPointer());
   if (testStatus == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     renderWindowInteractor->Start();
-    }
+  }
 
   return (testStatus ? EXIT_SUCCESS : EXIT_FAILURE);
 }

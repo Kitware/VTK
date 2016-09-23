@@ -97,9 +97,9 @@ public:
   vtkOStreamWrapper& WriteInternal(void*);
   template <typename T>
   vtkOStreamWrapper& operator << (T* p)
-    {
+  {
     return this->WriteInternal(p);
-    }
+  }
 #endif
 
   vtkOStreamWrapper& operator << (void (*)(void*));
@@ -114,9 +114,9 @@ public:
   template <template <typename, typename, typename> class S>
   vtkOStreamWrapper& operator << (const
     S< char, std::char_traits<char>, std::allocator<char> >& s)
-    {
+  {
     return *this << reinterpret_cast<std_string const&>(s);
-    }
+  }
 
   /**
    * Forward the write method to the real stream.

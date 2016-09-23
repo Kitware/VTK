@@ -44,9 +44,9 @@ std::string vtkWebUtilities::WriteAttributesToJavaScript(
   if (dataset == NULL || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
-    {
+  {
     return "[]";
-    }
+  }
 
   std::ostringstream stream;
 
@@ -78,9 +78,9 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
   if (dataset == NULL || (
       field_type != vtkDataObject::POINT &&
       field_type != vtkDataObject::CELL) )
-    {
+  {
     return "[]";
-    }
+  }
 
   std::ostringstream stream;
   stream << "[";
@@ -101,14 +101,14 @@ std::string vtkWebUtilities::WriteAttributeHeadersToJavaScript(
     splitter->GetOutputDataObject(0))->GetRowData();
 
   for (int cc=0; cc < dsa->GetNumberOfArrays(); cc++)
-    {
+  {
     const char* name = dsa->GetArrayName(cc);
     if (cc != 0)
-      {
+    {
       stream << ", ";
-      }
-    stream << "\"" << (name? name : "") << "\"";
     }
+    stream << "\"" << (name? name : "") << "\"";
+  }
   stream << "]";
   return stream.str();
 }

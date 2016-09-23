@@ -44,16 +44,16 @@ public:
   static Command* New() {  return new Command(); }
   void Execute(vtkObject *caller, unsigned long eventId,
                        void *callData) VTK_OVERRIDE
-    {
+  {
     if (this->Target)
-      {
-      this->Target->ProcessEvents(caller, eventId, callData);
-      }
-    }
-  void SetTarget(vtkView* t)
     {
-    this->Target = t;
+      this->Target->ProcessEvents(caller, eventId, callData);
     }
+  }
+  void SetTarget(vtkView* t)
+  {
+    this->Target = t;
+  }
 private:
   Command() { this->Target = 0; }
   vtkView* Target;
@@ -106,12 +106,12 @@ bool vtkView::IsRepresentationPresent(vtkDataRepresentation* rep)
 {
   unsigned int i;
   for( i = 0; i < this->Implementation->Representations.size(); i++ )
-    {
+  {
     if( this->Implementation->Representations[i] == rep )
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 }
 
@@ -143,17 +143,17 @@ vtkDataRepresentation* vtkView::CreateDefaultRepresentation(vtkAlgorithmOutput* 
 vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorithmOutput* conn)
 {
   if (this->ReuseSingleRepresentation && this->GetNumberOfRepresentations() > 0)
-    {
+  {
     this->GetRepresentation()->SetInputConnection(conn);
     return this->GetRepresentation();
-    }
+  }
   vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
   if (!rep)
-    {
+  {
     vtkErrorMacro("Could not add representation from input connection because "
       "no default representation was created for the given input connection.");
     return 0;
-    }
+  }
 
   this->AddRepresentation(rep);
   rep->Delete();
@@ -164,17 +164,17 @@ vtkDataRepresentation* vtkView::AddRepresentationFromInputConnection(vtkAlgorith
 vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorithmOutput* conn)
 {
   if (this->ReuseSingleRepresentation && this->GetNumberOfRepresentations() > 0)
-    {
+  {
     this->GetRepresentation()->SetInputConnection(conn);
     return this->GetRepresentation();
-    }
+  }
   vtkDataRepresentation* rep = this->CreateDefaultRepresentation(conn);
   if (!rep)
-    {
+  {
     vtkErrorMacro("Could not add representation from input connection because "
       "no default representation was created for the given input connection.");
     return 0;
-    }
+  }
 
   this->SetRepresentation(rep);
   rep->Delete();
@@ -185,7 +185,7 @@ vtkDataRepresentation* vtkView::SetRepresentationFromInputConnection(vtkAlgorith
 void vtkView::AddRepresentation(vtkDataRepresentation* rep)
 {
   if (rep != NULL && !this->IsRepresentationPresent(rep))
-    {
+  {
     // We add the representation to the internal data-structure before calling
     // AddToView(). This ensures that if the `rep` itself calls
     // AddRepresentation() for an internal representation, the internal
@@ -195,7 +195,7 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
     size_t index = this->Implementation->Representations.size();
     this->Implementation->Representations.push_back(rep);
     if (rep->AddToView(this))
-      {
+    {
       rep->AddObserver(vtkCommand::SelectionChangedEvent, this->GetObserver());
 
       // UpdateEvent is called from push pipeline executions from
@@ -204,13 +204,13 @@ void vtkView::AddRepresentation(vtkDataRepresentation* rep)
       rep->AddObserver(vtkCommand::UpdateEvent, this->GetObserver());
 
       this->AddRepresentationInternal(rep);
-      }
+    }
     else
-      {
+    {
       this->Implementation->Representations.erase(
         this->Implementation->Representations.begin() + index);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ void vtkView::SetRepresentation(vtkDataRepresentation* rep)
 void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
 {
   if (this->IsRepresentationPresent(rep))
-    {
+  {
     rep->RemoveFromView(this);
     rep->RemoveObserver(this->GetObserver());
     this->RemoveRepresentationInternal(rep);
@@ -232,14 +232,14 @@ void vtkView::RemoveRepresentation(vtkDataRepresentation* rep)
     it = this->Implementation->Representations.begin();
     itEnd = this->Implementation->Representations.end();
     for (; it != itEnd; ++it)
-      {
+    {
       if (it->GetPointer() == rep)
-        {
+      {
         this->Implementation->Representations.erase(it);
         break;
-        }
       }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -247,24 +247,24 @@ void vtkView::RemoveRepresentation(vtkAlgorithmOutput* conn)
 {
   unsigned int i;
   for( i = 0; i < this->Implementation->Representations.size(); i++ )
-    {
+  {
     vtkDataRepresentation* rep = this->Implementation->Representations[i];
     if (rep->GetNumberOfInputPorts() > 0 &&
         rep->GetInputConnection() == conn)
-      {
+    {
       this->RemoveRepresentation(rep);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkView::RemoveAllRepresentations()
 {
   while (this->Implementation->Representations.size())
-    {
+  {
     vtkDataRepresentation* rep = this->Implementation->Representations.back();
     this->RemoveRepresentation(rep);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -277,9 +277,9 @@ int vtkView::GetNumberOfRepresentations()
 vtkDataRepresentation* vtkView::GetRepresentation(int index)
 {
   if (index >= 0 && index < this->GetNumberOfRepresentations())
-    {
+  {
     return this->Implementation->Representations[index];
-    }
+  }
   return 0;
 }
 
@@ -295,57 +295,57 @@ void vtkView::ProcessEvents(vtkObject* caller, unsigned long eventId,
 {
   vtkDataRepresentation* caller_rep = vtkDataRepresentation::SafeDownCast( caller );
   if (this->IsRepresentationPresent(caller_rep) && eventId == vtkCommand::SelectionChangedEvent)
-    {
+  {
     this->InvokeEvent(vtkCommand::SelectionChangedEvent);
     return;
-    }
+  }
 
   if (this->IsRepresentationPresent(caller_rep) && eventId == vtkCommand::UpdateEvent)
-    {
+  {
     // UpdateEvent is called from push pipeline executions from
     // vtkExecutionScheduler. We want to automatically render the view
     // when one of our representations is updated.
     this->Update();
     return;
-    }
+  }
 
   if (eventId == vtkCommand::ProgressEvent)
-    {
+  {
     std::map<vtkObject*, std::string>::iterator iter =
       this->Internal->RegisteredProgress.find(caller);
     if (iter != this->Internal->RegisteredProgress.end())
-      {
+    {
       ViewProgressEventCallData eventdata(iter->second.c_str(),
         *(reinterpret_cast<const double*>(callData)));
       this->InvokeEvent(vtkCommand::ViewProgressEvent, &eventdata);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkView::RegisterProgress(vtkObject* algorithm, const char* message/*=NULL*/)
 {
   if (algorithm && this->Internal->RegisteredProgress.find(algorithm) != this->Internal->RegisteredProgress.end())
-    {
+  {
     const char* used_message = message? message : algorithm->GetClassName();
     this->Internal->RegisteredProgress[algorithm] = used_message;
     algorithm->AddObserver(vtkCommand::ProgressEvent, this->Observer);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkView::UnRegisterProgress(vtkObject* algorithm)
 {
   if (algorithm)
-    {
+  {
     std::map<vtkObject*, std::string>::iterator iter =
       this->Internal->RegisteredProgress.find(algorithm);
     if (iter != this->Internal->RegisteredProgress.end())
-      {
+    {
       this->Internal->RegisteredProgress.erase(iter);
       algorithm->RemoveObservers(vtkCommand::ProgressEvent, this->Observer);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -353,12 +353,12 @@ void vtkView::Update()
 {
   unsigned int i;
   for( i = 0; i < this->Implementation->Representations.size(); i++ )
-    {
+  {
     if( this->Implementation->Representations[i] )
-      {
+    {
       this->Implementation->Representations[i]->Update();
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -28,46 +28,46 @@ int CheckDeletedCells()
 {
   vtkPoints* points = vtkPoints::New();
   for(vtkIdType i=0;i<10;i++)
-    {
+  {
     points->InsertNextPoint(i, i, i);
-    }
+  }
   vtkSmartPointer<vtkPolyData> poly = vtkSmartPointer<vtkPolyData>::New();
   poly->SetPoints(points);
   points->Delete();
   poly->Allocate(10);
   for(vtkIdType i=0;i<10;i++)
-    {
+  {
     poly->InsertNextCell(VTK_VERTEX, 1, &i);
-    }
+  }
   poly->BuildCells();
   if(poly->GetNumberOfPoints() != 10 || poly->GetNumberOfCells() != 10)
-    {
+  {
     std::cout << "Wrong number of input points or cells!" << std::endl;
     return VTK_FAILURE;
-    }
+  }
 
   for(vtkIdType i=0;i<5;i++)
-    {
+  {
     poly->DeleteCell(i*2+1);
-    }
+  }
   poly->RemoveDeletedCells();
 
   if(poly->GetNumberOfCells() != 5)
-    {
+  {
     std::cout << "Wrong number of removed cells!" << std::endl;
     return VTK_FAILURE;
-    }
+  }
 
   for(vtkIdType i=0;i<5;i++)
-    {
+  {
     vtkCell* cell = poly->GetCell(i);
     if(cell->GetPointId(0) != i*2)
-      {
+    {
       std::cout << "Wrong point of cell " << i << ", should be point " << i*2
                 << " but is " << cell->GetPointId(0) << std::endl;
       return VTK_FAILURE;
-      }
     }
+  }
 
 
   return VTK_SUCCESS;
@@ -235,33 +235,33 @@ int TestPolyDataRemoveDeletedCells (int, char*[])
   int retVal = VTK_SUCCESS;
 
   if (pd->GetNumberOfCells() != numCells-4)
-    {
+  {
     std::cout << "Number of cells does not match!" << std::endl;
     retVal = VTK_FAILURE;
-    }
+  }
 
   for (vtkIdType i = 0; i < pd->GetNumberOfCells(); i++)
-    {
+  {
     if (pd->GetCellType(i) != newScalars->GetValue(i))
-      {
+    {
       std::cout << "Cell " << i << " has wrong data. Value should be " << pd->GetCellType(i)
                 << " but is " << newScalars->GetValue(i) << std::endl;
       retVal = VTK_FAILURE;
-      }
+    }
 
     if (pd->GetCellType(i) != types[i])
-      {
+    {
       std::cout << "Cell " << i << " has wrong type. Value should be " << pd->GetCellType(i)
                 << " but is " << newScalars->GetValue(i) << std::endl;
       retVal = VTK_FAILURE;
-      }
     }
+  }
 
   pd->Delete();
   if(retVal != VTK_SUCCESS)
-    {
+  {
     return retVal;
-    }
+  }
 
   return CheckDeletedCells();
 }

@@ -42,7 +42,7 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove()
   int y = this->Interactor->GetEventPosition()[1];
 
   switch (this->State)
-    {
+  {
     case VTKIS_ROTATE:
       this->FindPokedRenderer(x, y);
       this->Rotate();
@@ -66,7 +66,7 @@ void vtkInteractorStyleTrackballCamera::OnMouseMove()
       this->Spin();
       this->InvokeEvent(vtkCommand::InteractionEvent, NULL);
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -75,40 +75,40 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonDown()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   if (this->Interactor->GetShiftKey())
-    {
+  {
     if (this->Interactor->GetControlKey())
-      {
+    {
       this->StartDolly();
-      }
-    else
-      {
-      this->StartPan();
-      }
     }
-  else
+    else
     {
-    if (this->Interactor->GetControlKey())
-      {
-      this->StartSpin();
-      }
-    else
-      {
-      this->StartRotate();
-      }
+      this->StartPan();
     }
+  }
+  else
+  {
+    if (this->Interactor->GetControlKey())
+    {
+      this->StartSpin();
+    }
+    else
+    {
+      this->StartRotate();
+    }
+  }
 }
 
 //----------------------------------------------------------------------------
 void vtkInteractorStyleTrackballCamera::OnLeftButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_DOLLY:
       this->EndDolly();
       break;
@@ -124,12 +124,12 @@ void vtkInteractorStyleTrackballCamera::OnLeftButtonUp()
     case VTKIS_ROTATE:
       this->EndRotate();
       break;
-    }
+  }
 
   if ( this->Interactor )
-    {
+  {
     this->ReleaseFocus();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -138,9 +138,9 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartPan();
@@ -150,15 +150,15 @@ void vtkInteractorStyleTrackballCamera::OnMiddleButtonDown()
 void vtkInteractorStyleTrackballCamera::OnMiddleButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_PAN:
       this->EndPan();
       if ( this->Interactor )
-        {
+      {
         this->ReleaseFocus();
-        }
+      }
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -167,9 +167,9 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
@@ -179,16 +179,16 @@ void vtkInteractorStyleTrackballCamera::OnRightButtonDown()
 void vtkInteractorStyleTrackballCamera::OnRightButtonUp()
 {
   switch (this->State)
-    {
+  {
     case VTKIS_DOLLY:
       this->EndDolly();
 
       if ( this->Interactor )
-        {
+      {
         this->ReleaseFocus();
-        }
+      }
       break;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -197,9 +197,9 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelForward()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
@@ -215,9 +215,9 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelBackward()
   this->FindPokedRenderer(this->Interactor->GetEventPosition()[0],
                           this->Interactor->GetEventPosition()[1]);
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   this->GrabFocus(this->EventCallbackCommand);
   this->StartDolly();
@@ -231,9 +231,9 @@ void vtkInteractorStyleTrackballCamera::OnMouseWheelBackward()
 void vtkInteractorStyleTrackballCamera::Rotate()
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -254,14 +254,14 @@ void vtkInteractorStyleTrackballCamera::Rotate()
   camera->OrthogonalizeViewUp();
 
   if (this->AutoAdjustCameraClippingRange)
-    {
+  {
     this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  }
 
   if (rwi->GetLightFollowCamera())
-    {
+  {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
-    }
+  }
 
   rwi->Render();
 }
@@ -270,9 +270,9 @@ void vtkInteractorStyleTrackballCamera::Rotate()
 void vtkInteractorStyleTrackballCamera::Spin()
 {
   if ( this->CurrentRenderer == NULL )
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -297,9 +297,9 @@ void vtkInteractorStyleTrackballCamera::Spin()
 void vtkInteractorStyleTrackballCamera::Pan()
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -344,9 +344,9 @@ void vtkInteractorStyleTrackballCamera::Pan()
                       motionVector[2] + viewPoint[2]);
 
   if (rwi->GetLightFollowCamera())
-    {
+  {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
-    }
+  }
 
   rwi->Render();
 }
@@ -355,9 +355,9 @@ void vtkInteractorStyleTrackballCamera::Pan()
 void vtkInteractorStyleTrackballCamera::Dolly()
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkRenderWindowInteractor *rwi = this->Interactor;
   double *center = this->CurrentRenderer->GetCenter();
@@ -370,28 +370,28 @@ void vtkInteractorStyleTrackballCamera::Dolly()
 void vtkInteractorStyleTrackballCamera::Dolly(double factor)
 {
   if (this->CurrentRenderer == NULL)
-    {
+  {
     return;
-    }
+  }
 
   vtkCamera *camera = this->CurrentRenderer->GetActiveCamera();
   if (camera->GetParallelProjection())
-    {
+  {
     camera->SetParallelScale(camera->GetParallelScale() / factor);
-    }
+  }
   else
-    {
+  {
     camera->Dolly(factor);
     if (this->AutoAdjustCameraClippingRange)
-      {
+    {
       this->CurrentRenderer->ResetCameraClippingRange();
-      }
     }
+  }
 
   if (this->Interactor->GetLightFollowCamera())
-    {
+  {
     this->CurrentRenderer->UpdateLightsGeometryToFollowCamera();
-    }
+  }
 
   this->Interactor->Render();
 }

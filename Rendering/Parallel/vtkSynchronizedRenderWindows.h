@@ -109,9 +109,9 @@ public:
   //@}
 
   enum
-    {
+  {
     SYNC_RENDER_TAG = 15001,
-    };
+  };
 protected:
   vtkSynchronizedRenderWindows();
   ~vtkSynchronizedRenderWindows();

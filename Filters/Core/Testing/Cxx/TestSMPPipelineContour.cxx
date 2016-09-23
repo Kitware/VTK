@@ -49,7 +49,7 @@ public:
     vtkRTAnalyticSource*& source = this->ImageSources.Local();
 
     for (vtkIdType i=begin; i<end; i++)
-      {
+    {
       int extent[6];
       this->Translator->PieceToExtentThreadSafe(i,
                                                 NUMBER_OF_PIECES,
@@ -62,7 +62,7 @@ public:
       vtkImageData* piece = vtkImageData::New();
       piece->ShallowCopy(source->GetOutput());
       Pieces[i] = piece;
-      }
+    }
   }
 
   void Reduce()
@@ -85,10 +85,10 @@ int TestSMPPipelineContour(int, char *[])
 
   vtkNew<vtkMultiBlockDataSet> mbds;
   for (int i=0; i<NUMBER_OF_PIECES; i++)
-    {
+  {
     mbds->SetBlock(i, Pieces[i]);
     Pieces[i]->Delete();
-    }
+  }
 
   vtkNew<vtkThreadedCompositeDataPipeline> executive;
 
@@ -108,11 +108,11 @@ int TestSMPPipelineContour(int, char *[])
   iter.TakeReference(static_cast<vtkCompositeDataSet*>(cf->GetOutputDataObject(0))->NewIterator());
   iter->InitTraversal();
   while(!iter->IsDoneWithTraversal())
-    {
+  {
     vtkPolyData* piece = static_cast<vtkPolyData*>(iter->GetCurrentDataObject());
     numCells += piece->GetNumberOfCells();
     iter->GoToNextItem();
-    }
+  }
 
   cout << "Total num. cells: " << numCells << endl;
 
@@ -134,10 +134,10 @@ int TestSMPPipelineContour(int, char *[])
   cout << "Serial num. cells: " << st->GetOutput()->GetNumberOfCells() << endl;
 
   if (st->GetOutput()->GetNumberOfCells() != numCells)
-    {
+  {
     cout << "Number of cells did not match." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
 
 #if 0

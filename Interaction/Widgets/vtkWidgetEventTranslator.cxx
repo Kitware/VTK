@@ -33,55 +33,55 @@ struct EventItem {
   unsigned long WidgetEvent;
 
   EventItem(vtkEvent *e, unsigned long we)
-    {
+  {
     this->VTKEvent    = e;
     this->WidgetEvent = we;
-    }
+  }
 };
 
 // A list of events
 struct EventList : public std::list<EventItem>
 {
   unsigned long find(unsigned long VTKEvent)
-    {
+  {
     std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
-      {
+    {
       if ( VTKEvent == liter->VTKEvent->GetEventId() )
-        {
+      {
         return liter->WidgetEvent;
-        }
       }
-    return vtkWidgetEvent::NoEvent;
     }
+    return vtkWidgetEvent::NoEvent;
+  }
 
   unsigned long find(vtkEvent *VTKEvent)
-    {
+  {
     std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
-      {
+    {
       if ( *VTKEvent == liter->VTKEvent )
-        {
+      {
         return liter->WidgetEvent;
-        }
       }
-    return vtkWidgetEvent::NoEvent;
     }
+    return vtkWidgetEvent::NoEvent;
+  }
 
   // Remove a mapping
   int Remove( vtkEvent *VTKEvent )
-    {
+  {
     std::list<EventItem>::iterator liter = this->begin();
     for ( ; liter != this->end(); ++liter)
-      {
+    {
       if ( *VTKEvent == liter->VTKEvent )
-        {
+      {
         this->erase( liter );
         return 1;
-        }
       }
-    return 0;
     }
+    return 0;
+  }
 };
 
 
@@ -114,13 +114,13 @@ void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent,
   vtkSmartPointer< vtkEvent > e = vtkSmartPointer< vtkEvent >::New();
   e->SetEventId(VTKEvent); //default modifiers
   if (widgetEvent != vtkWidgetEvent::NoEvent)
-    {
+  {
     (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
-    }
+  }
   else
-    {
+  {
     this->RemoveTranslation( e );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -144,13 +144,13 @@ void vtkWidgetEventTranslator::SetTranslation(unsigned long VTKEvent,
   e->SetRepeatCount(repeatCount);
   e->SetKeySym(keySym);
   if (widgetEvent != vtkWidgetEvent::NoEvent)
-    {
+  {
     (*this->EventMap)[VTKEvent].push_back(EventItem(e,widgetEvent));
-    }
+  }
   else
-    {
+  {
     this->RemoveTranslation( e );
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -158,14 +158,14 @@ void vtkWidgetEventTranslator::SetTranslation(vtkEvent *VTKEvent,
                                               unsigned long widgetEvent)
 {
   if (widgetEvent != vtkWidgetEvent::NoEvent)
-    {
+  {
     (*this->EventMap)[VTKEvent->GetEventId()].push_back(
       EventItem(VTKEvent,widgetEvent));
-    }
+  }
   else
-    {
+  {
     this->RemoveTranslation( VTKEvent );
-    }
+  }
 }
 
 
@@ -174,14 +174,14 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent)
 {
    EventMapIterator iter = this->EventMap->find(VTKEvent);
    if ( iter != this->EventMap->end() )
-     {
+   {
      EventList &elist = (*iter).second;
      return elist.find(VTKEvent);
-     }
+   }
    else
-     {
+   {
      return vtkWidgetEvent::NoEvent;
-     }
+   }
 }
 
 //----------------------------------------------------------------------------
@@ -198,7 +198,7 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent,
 {
   EventMapIterator iter = this->EventMap->find(VTKEvent);
   if ( iter != this->EventMap->end() )
-    {
+  {
     this->Event->SetEventId(VTKEvent);
     this->Event->SetModifier(modifier);
     this->Event->SetKeyCode(keyCode);
@@ -206,11 +206,11 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(unsigned long VTKEvent,
     this->Event->SetKeySym(keySym);
     EventList &elist = (*iter).second;
     return elist.find(this->Event);
-    }
+  }
   else
-    {
+  {
     return vtkWidgetEvent::NoEvent;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -218,14 +218,14 @@ unsigned long vtkWidgetEventTranslator::GetTranslation(vtkEvent *VTKEvent)
 {
   EventMapIterator iter = this->EventMap->find(VTKEvent->GetEventId());
   if ( iter != this->EventMap->end() )
-    {
+  {
     EventList &elist = (*iter).second;
     return elist.find(VTKEvent);
-    }
+  }
   else
-    {
+  {
     return vtkWidgetEvent::NoEvent;
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -248,17 +248,17 @@ int vtkWidgetEventTranslator::RemoveTranslation( vtkEvent *e )
   EventMapIterator iter = this->EventMap->find(e->GetEventId());
   int numTranslationsRemoved = 0;
   if (iter != this->EventMap->end())
-    {
+  {
     while (iter->second.Remove(e))
-      {
+    {
       ++numTranslationsRemoved;
       iter = this->EventMap->find(e->GetEventId());
       if (iter == this->EventMap->end())
-        {
+      {
         break;
-        }
       }
     }
+  }
 
   return numTranslationsRemoved;
 }
@@ -284,10 +284,10 @@ void vtkWidgetEventTranslator::ClearEvents()
 {
   EventMapIterator iter = this->EventMap->begin();
   for ( ; iter != this->EventMap->end(); ++iter )
-    {
+  {
     EventList &elist = (*iter).second;
     elist.clear();
-    }
+  }
   this->EventMap->clear();
 }
 
@@ -298,9 +298,9 @@ void vtkWidgetEventTranslator::AddEventsToInteractor(vtkRenderWindowInteractor *
 {
   EventMapIterator iter = this->EventMap->begin();
   for ( ; iter != this->EventMap->end(); ++iter )
-    {
+  {
     i->AddObserver((*iter).first, command, priority);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -310,9 +310,9 @@ void vtkWidgetEventTranslator::AddEventsToParent(vtkAbstractWidget *w,
 {
   EventMapIterator iter = this->EventMap->begin();
   for ( ; iter != this->EventMap->end(); ++iter )
-    {
+  {
     w->AddObserver((*iter).first, command, priority);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -325,16 +325,16 @@ void vtkWidgetEventTranslator::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Event Table:\n";
   EventMapIterator iter = this->EventMap->begin();
   for ( ; iter != this->EventMap->end(); ++iter )
-    {
+  {
     EventList &elist = (*iter).second;
     std::list<EventItem>::iterator liter = elist.begin();
     for ( ; liter != elist.end(); ++liter)
-      {
+    {
       os << "VTKEvent(" << vtkCommand::GetStringFromEventId(liter->VTKEvent->GetEventId()) << ","
          << liter->VTKEvent->GetModifier() << "," << liter->VTKEvent->GetKeyCode() << ","
          << liter->VTKEvent->GetRepeatCount() << ",";
       os << (liter->VTKEvent->GetKeySym() ? liter->VTKEvent->GetKeySym() : "(any)");
       os << ") maps to " << vtkWidgetEvent::GetStringFromEventId(liter->WidgetEvent) << "\n";
-      }
     }
+  }
 }

@@ -92,7 +92,7 @@ private:
 // Test picking manager client that removes itself from the picking manager
 // in its destructor. This mimics the behavior of the VTK widget framework.
 class PickingManagerClient : public vtkObject
-  {
+{
   public:
     static PickingManagerClient* New();
     vtkTypeMacro(PickingManagerClient, vtkObject);
@@ -111,7 +111,7 @@ class PickingManagerClient : public vtkObject
 
     PickingManagerClient(const PickingManagerClient&) VTK_DELETE_FUNCTION;
     void operator=(const PickingManagerClient&) VTK_DELETE_FUNCTION;
-  };
+};
 
 vtkStandardNewMacro(PickingManagerClient);
 
@@ -127,9 +127,9 @@ PickingManagerClient::~PickingManagerClient()
   this->Picker->Delete();
 
   if (this->PickingManager)
-    {
+  {
     this->PickingManager->RemoveObject(this);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -142,9 +142,9 @@ void PickingManagerClient::SetPickingManager(vtkPickingManager *pm)
 void PickingManagerClient::RegisterPicker()
 {
   if (!this->PickingManager)
-    {
+  {
     return;
-    }
+  }
 
   this->PickingManager->AddPicker(this->Picker, this);
 }
@@ -387,9 +387,9 @@ AddPickerTwice(int pickerType0, int objectType0,
     this->AddPickerObject(pickerType1, objectType1).first;
 
   if (samePicker)
-    {
+  {
     this->PickingManager->AddPicker(picker1.GetPointer());
-    }
+  }
 
   return (this->CheckState(numberOfPickers,
                            picker0.GetPointer(), numberOfObjectsLinked0) &&
@@ -424,9 +424,9 @@ RemoveOneOfPickers(int pickerType0, int objectType0,
     this->AddPickerObject(pickerType1, objectType1).first;
 
   if (samePicker)
-    {
+  {
     this->PickingManager->AddPicker(picker1.GetPointer());
-    }
+  }
 
   this->PickingManager->RemovePicker(picker0.GetPointer());
 
@@ -460,9 +460,9 @@ void PickingManagerTest::PrintErrorMessage(int line, const char* errorStr)
             << errorStr << "\n";
 
   if(PickingManager)
-    {
+  {
     PickingManager->Print(std::cout);
-    }
+  }
 }
 
 //------------------------------------------------------------------------------
@@ -471,9 +471,9 @@ bool PickingManagerTest::VTKVerify(bool test,
                                    int line = -1)
 {
   if (!test)
-    {
+  {
     this->PrintErrorMessage(line, errorStr);
-    }
+  }
 
   return test;
 }

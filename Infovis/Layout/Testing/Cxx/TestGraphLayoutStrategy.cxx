@@ -60,16 +60,16 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->Update();
   output = layout->GetOutput();
   for (vtkIdType i = 0; i < numVert; i++)
-    {
+  {
     output->GetPoint(i, pt);
     double dist = pt[0]*pt[0] + pt[1]*pt[1] - 1.0;
     dist = dist > 0 ? dist : -dist;
     if (dist > eps || pt[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << i << " is not on the unit circle." << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   cerr << "Testing vtkFast2DLayoutStrategy..." << endl;
@@ -82,7 +82,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   VTK_CREATE(vtkEdgeListIterator, edges);
   output->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType e = edges->Next();
     vtkIdType u = e.Source;
     vtkIdType v = e.Target;
@@ -90,22 +90,22 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
     if (dist < length/tol || dist > length*tol)
-      {
+    {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
       errors++;
-      }
+    }
     if (pt[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << u << " not on the xy plane" << endl;
       errors++;
-      }
+    }
     if (pt2[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << v << " not on the xy plane" << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   cerr << "Testing vtkForceDirectedLayoutStrategy..." << endl;
@@ -116,7 +116,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   output = layout->GetOutput();
   output->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType e = edges->Next();
     vtkIdType u = e.Source;
     vtkIdType v = e.Target;
@@ -124,12 +124,12 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
     if (dist < length/tol || dist > length*tol)
-      {
+    {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   cerr << "Testing vtkPassThroughLayoutStrategy..." << endl;
@@ -138,14 +138,14 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->Update();
   output = layout->GetOutput();
   for (vtkIdType i = 0; i < numVert; i++)
-    {
+  {
     output->GetPoint(i, pt);
     if (pt[0] != 0.0 || pt[1] != 0.0 || pt[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << i << " is not 0,0,0." << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   cerr << "Testing vtkRandomLayoutStrategy..." << endl;
@@ -156,16 +156,16 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   layout->Update();
   output = layout->GetOutput();
   for (vtkIdType i = 0; i < numVert; i++)
-    {
+  {
     output->GetPoint(i, pt);
     if (pt[0] < bounds[0] || pt[0] > bounds[1]
      || pt[1] < bounds[2] || pt[1] > bounds[3]
      || pt[2] < bounds[4] || pt[2] > bounds[5])
-      {
+    {
       cerr << "ERROR: Point " << i << " is not within the bounds." << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   cerr << "Testing vtkSimple2DLayoutStrategy..." << endl;
@@ -177,7 +177,7 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   output = layout->GetOutput();
   output->GetEdges(edges);
   while (edges->HasNext())
-    {
+  {
     vtkEdgeType e = edges->Next();
     vtkIdType u = e.Source;
     vtkIdType v = e.Target;
@@ -185,22 +185,22 @@ int TestGraphLayoutStrategy(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     output->GetPoint(v, pt2);
     double dist = sqrt(vtkMath::Distance2BetweenPoints(pt, pt2));
     if (dist < length/tol || dist > length*tol)
-      {
+    {
       cerr << "ERROR: Edge " << u << "," << v << " distance is " << dist
            << " but resting distance is " << length << endl;
       errors++;
-      }
+    }
     if (pt[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << u << " not on the xy plane" << endl;
       errors++;
-      }
+    }
     if (pt2[2] != 0.0)
-      {
+    {
       cerr << "ERROR: Point " << v << " not on the xy plane" << endl;
       errors++;
-      }
     }
+  }
   cerr << "...done." << endl;
 
   return errors;

@@ -66,11 +66,11 @@ public:
    * Get the contained pointer.
    */
   vtkObjectBase* GetPointer() const
-    {
+  {
     // Inline implementation so smart pointer comparisons can be fully
     // inlined.
     return this->Object;
-    }
+  }
 
   /**
    * Report the reference held by the smart pointer to a collector.
@@ -98,20 +98,20 @@ private:
 #define VTK_SMART_POINTER_BASE_DEFINE_OPERATOR(op) \
   inline bool \
   operator op (const vtkSmartPointerBase& l, const vtkSmartPointerBase& r) \
-    { \
+  { \
     return (static_cast<void*>(l.GetPointer()) op \
             static_cast<void*>(r.GetPointer())); \
-    } \
+  } \
   inline bool \
   operator op (vtkObjectBase* l, const vtkSmartPointerBase& r) \
-    { \
+  { \
     return (static_cast<void*>(l) op static_cast<void*>(r.GetPointer())); \
-    } \
+  } \
   inline bool \
   operator op (const vtkSmartPointerBase& l, vtkObjectBase* r) \
-    { \
+  { \
     return (static_cast<void*>(l.GetPointer()) op static_cast<void*>(r)); \
-    }
+  }
 /**
  * Compare smart pointer values.
  */

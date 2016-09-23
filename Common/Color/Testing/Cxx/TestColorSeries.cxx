@@ -37,9 +37,9 @@ int TestColorSeries( int argc, char* argv[] )
   int valResult = vtkTesting::PASSED;
   vtkTesting* t = vtkTesting::New();
   for ( int cc = 1; cc < argc; ++ cc )
-    {
+  {
     t->AddArgument(argv[cc]);
-    }
+  }
 
   VTK_CREATE(vtkColorSeries,palettes);
   vtkColor3ub color;
@@ -51,17 +51,17 @@ int TestColorSeries( int argc, char* argv[] )
   // Should return black as there are no colors:
   color = palettes->GetColor( 0 );
   if ( ! black.Compare( color, 1 ) )
-    {
+  {
     vtkGenericWarningMacro( "Failure: GetColor on empty palette" );
     valResult = vtkTesting::FAILED;
-    }
+  }
   // Should return black as there are no colors:
   color = palettes->GetColorRepeating( 0 );
   if ( ! black.Compare( color, 1 ) )
-    {
+  {
     vtkGenericWarningMacro( "Failure: GetColorRepeating on empty palette" );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   // Test appending colors:
   color = vtkColor3ub( 255, 255, 255 ); palettes->AddColor( color );
@@ -83,12 +83,12 @@ int TestColorSeries( int argc, char* argv[] )
   // First, find the largest number of colors in any palette:
   int mps = 0; // maximum palette size
   for ( int p = 0; p < np; ++ p )
-    {
+  {
     palettes->SetColorScheme( p );
     int nc = palettes->GetNumberOfColors(); // in the current scheme
     if ( nc > mps )
       mps = nc;
-    }
+  }
   // Now size the test image properly and generate swatches
   pix->SetNumberOfTuples( np * 5 * mps * 5 );
   pix->FillComponent( 0, 255 );
@@ -97,7 +97,7 @@ int TestColorSeries( int argc, char* argv[] )
   img->SetExtent( 0, mps * 5 - 1, 0, np * 5 - 1, 0, 0 );
   img->GetPointData()->SetScalars( pix.GetPointer() );
   for ( int p = 0; p < np; ++ p )
-    {
+  {
     palettes->SetColorScheme( p );
     int nc = palettes->GetNumberOfColors(); // in the current scheme
     /*
@@ -107,12 +107,12 @@ int TestColorSeries( int argc, char* argv[] )
       */
     int yoff = ( np - p - 1 ) * 5; // Put palette 0 at the top of the image
     for ( int c = 0; c < nc; ++ c )
-      {
+    {
       color = palettes->GetColorRepeating( c );
       for ( int i = 1; i < 4; ++ i )
-        {
+      {
         for ( int j = 1; j < 4; ++ j )
-          {
+        {
           vtkIdType coord = ( ( ( yoff + i ) * mps + c ) * 5 + j ) * 3;
           /*
           cout
@@ -122,10 +122,10 @@ int TestColorSeries( int argc, char* argv[] )
           pix->SetValue( coord ++, color.GetRed() );
           pix->SetValue( coord ++, color.GetGreen() );
           pix->SetValue( coord ++, color.GetBlue() );
-          }
         }
       }
     }
+  }
 
   /* Uncomment to save an updated test image.
   VTK_CREATE(vtkPNGWriter,wri);
@@ -142,64 +142,64 @@ int TestColorSeries( int argc, char* argv[] )
   vtkStdString palName = palettes->GetColorSchemeName();
   vtkStdString expected( "Brewer Sequential Blue-Green (9) copy" );
   if ( palName != expected )
-    {
+  {
     vtkGenericWarningMacro(
       << "Failure: Palette copy-on-write: name should have been "
       << "\"" << expected.c_str() << "\" but was "
       << "\"" << palName.c_str() << "\" instead." );
     valResult = vtkTesting::FAILED;
-    }
+  }
   if ( palettes->GetNumberOfColors() != 10 )
-    {
+  {
     vtkGenericWarningMacro(
       << "Modified palette should have had 10 entries but had "
       << palettes->GetNumberOfColors() << " instead."
       );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   palettes->SetColorSchemeName(""); // Test bad name... should have no effect.
   palName = palettes->GetColorSchemeName();
   if ( palName != expected )
-    {
+  {
     vtkGenericWarningMacro(
       << "Failure: Setting empty palette name should have no effect."
     );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   // Check setting a custom palette name and non-copy-on-write
   // behavior for custom palettes:
   palettes->SetColorSchemeName("Unoriginal Blue-Green");
   palettes->SetColorSchemeByName("Unoriginal Blue-Green");
   if ( np != palettes->GetColorScheme() )
-    {
+  {
     vtkGenericWarningMacro(
       << "Modified palette had ID " << palettes->GetColorScheme()
       << " not expected ID " << np
     );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   palettes->SetNumberOfColors( 8 );
   if ( palettes->GetNumberOfColors() != 8 )
-    {
+  {
     vtkGenericWarningMacro(
       << "Resized palette should have had 8 entries but had "
       << palettes->GetNumberOfColors() << " instead."
       );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   palettes->ClearColors();
   if ( palettes->GetNumberOfColors() != 0 )
-    {
+  {
     vtkGenericWarningMacro(
       << "Cleared palette should have had 0 entries but had "
       << palettes->GetNumberOfColors() << " instead."
       );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
 
   // Make sure our custom scheme is still around
@@ -208,19 +208,19 @@ int TestColorSeries( int argc, char* argv[] )
   color = palettes->GetColor( 2 ); // Should return blue
   vtkColor3ub blue( 0, 0, 255 );
   if ( ! blue.Compare( color, 1 ) )
-    {
+  {
     vtkGenericWarningMacro( "Failure: GetColor on small test palette" );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   // Test DeepCopy
   VTK_CREATE(vtkColorSeries,other);
   other->DeepCopy(palettes);
   if ( other->GetColorScheme() != palettes->GetColorScheme() )
-    {
+  {
     vtkGenericWarningMacro( "Failure: DeepCopy did not preserve current scheme" );
     valResult = vtkTesting::FAILED;
-    }
+  }
   other->DeepCopy(NULL);
 
   // Test SetColor
@@ -228,10 +228,10 @@ int TestColorSeries( int argc, char* argv[] )
   other->SetColor( 0, blue );
   color = other->GetColor( 0 );
   if ( ! blue.Compare( color, 1 ) )
-    {
+  {
     vtkGenericWarningMacro( "Failure: SetColor on test palette" );
     valResult = vtkTesting::FAILED;
-    }
+  }
 
   // Build a lookup table
   vtkLookupTable* lut = palettes->CreateLookupTable();
@@ -243,15 +243,15 @@ int TestColorSeries( int argc, char* argv[] )
   palettes->AddObserver(vtkCommand::WarningEvent, warningObserver);
   palettes->SetColorScheme(1000);
   if (warningObserver->GetWarning())
-    {
+  {
     std::cout << "Caught expected warning: "
               << warningObserver->GetWarningMessage() << std::endl;
-    }
+  }
   else
-    {
+  {
     vtkGenericWarningMacro( "Failure: SetColorScheme(1000) did not produce expected warning" );
     valResult = vtkTesting::FAILED;
-    }
+  }
   vtkIndent indent;
   palettes->PrintSelf(std::cout, indent);
 

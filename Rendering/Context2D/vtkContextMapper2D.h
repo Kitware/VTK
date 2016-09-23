@@ -54,15 +54,15 @@ public:
    */
   vtkDataArray *GetInputArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputArrayToProcess(idx, input);
-    }
+  }
 
   vtkAbstractArray *GetInputAbstractArrayToProcess(int idx,
                                        vtkDataObject* input)
-    {
+  {
     return this->vtkAlgorithm::GetInputAbstractArrayToProcess(idx, input);
-    }
+  }
 
 protected:
   vtkContextMapper2D();

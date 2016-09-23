@@ -55,11 +55,11 @@ int TestOSPRayDynamicScene(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   cerr << "ADD" << endl;
   std::map<int, vtkActor*> actors;
   for (int i = 0; i < GRIDDIM; i++)
-    {
+  {
     for (int j = 0; j < GRIDDIM; j++)
-      {
+    {
       for (int k = 0; k < GRIDDIM; k++)
-        {
+      {
         vtkSmartPointer<vtkSphereSource> sphere = vtkSmartPointer<vtkSphereSource>::New();
         sphere->SetCenter(i,j,k);
         sphere->SetPhiResolution(10);
@@ -71,57 +71,57 @@ int TestOSPRayDynamicScene(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
         actor->SetMapper(mapper);
         actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k] = actor;
         renWin->Render();
-        }
       }
     }
+  }
 
   cerr << "HIDE" << endl;
   for (int i = 0; i < GRIDDIM; i++)
-    {
+  {
     for (int j = 0; j < GRIDDIM; j++)
-      {
+    {
       for (int k = 0; k < GRIDDIM; k++)
-        {
+      {
         vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
         actor->VisibilityOff();
         renWin->Render();
-        }
       }
     }
+  }
 
   cerr << "SHOW" << endl;
   for (int i = 0; i < GRIDDIM; i++)
-    {
+  {
     for (int j = 0; j < GRIDDIM; j++)
-      {
+    {
       for (int k = 0; k < GRIDDIM; k++)
-        {
+      {
         vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
         actor->VisibilityOn();
         renWin->Render();
-        }
       }
     }
+  }
 
   cerr << "REMOVE" << endl;
   for (int i = 0; i < GRIDDIM; i++)
-    {
+  {
     for (int j = 0; j < GRIDDIM; j++)
-      {
+    {
       for (int k = 0; k < GRIDDIM; k++)
-        {
+      {
         vtkActor *actor = actors[i*GRIDDIM*GRIDDIM+j*GRIDDIM+k];
         //leaving one to have a decent image to compare against
         bool killme = !(i==0 && j==1 && k==0);
         if (killme)
-          {
+        {
           renderer->RemoveActor(actor);
           actor->Delete();
           renWin->Render();
-          }
         }
       }
     }
+  }
 
   iren->Start();
 

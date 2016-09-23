@@ -32,18 +32,18 @@ int TestPlaneSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
 
   double center[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
-    }
+  }
   planeSource->SetCenter(center);
 
   double normal[3];
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
-    }
+  }
   planeSource->SetNormal(normal);
 
   planeSource->Update();
@@ -52,24 +52,24 @@ int TestPlaneSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   vtkSmartPointer<vtkPoints> points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_FLOAT)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   planeSource->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     center[i] = randomSequence->GetValue();
-    }
+  }
   planeSource->SetCenter(center);
 
   for(unsigned int i = 0; i < 3; ++i)
-    {
+  {
     randomSequence->Next();
     normal[i] = randomSequence->GetValue();
-    }
+  }
   planeSource->SetNormal(normal);
 
   planeSource->Update();
@@ -78,9 +78,9 @@ int TestPlaneSource(int vtkNotUsed(argc), char *vtkNotUsed(argv)[])
   points = polyData->GetPoints();
 
   if(points->GetDataType() != VTK_DOUBLE)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -96,31 +96,31 @@ int vtkOpenGLRenderer::UpdateLights ()
   vtkCollectionSimpleIterator sit;
   for(this->Lights->InitTraversal(sit);
       (light = this->Lights->GetNextLight(sit)); )
-    {
+  {
     status = light->GetSwitch();
     if (status > 0.0)
-      {
+    {
       count++;
-      }
     }
+  }
 
   if( !count )
-    {
+  {
     vtkDebugMacro(<<"No lights are on, creating one.");
     this->CreateLight();
-    }
+  }
 
   for(this->Lights->InitTraversal(sit);
       (light = this->Lights->GetNextLight(sit)); )
-    {
+  {
     status = light->GetSwitch();
 
     // if the light is on then define it and bind it.
     if (status > 0.0)
-      {
+    {
       light->Render(this,0);
-      }
     }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after UpdateLights");
 
@@ -145,14 +145,14 @@ void vtkOpenGLRenderer::DeviceRender(void)
   vtkTimerLog::MarkStartEvent("OpenGL Dev Render");
 
   if(this->Pass!=0)
-    {
+  {
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
     s.SetFrameBuffer(0);
     this->Pass->Render(&s);
-    }
+  }
   else
-    {
+  {
     // Do not remove this MakeCurrent! Due to Start / End methods on
     // some objects which get executed during a pipeline update,
     // other windows might get rendered since the last time
@@ -166,7 +166,7 @@ void vtkOpenGLRenderer::DeviceRender(void)
     this->UpdateGeometry();
 
     vtkOpenGLCheckErrorMacro("failed after DeviceRender");
-    }
+  }
 
   vtkTimerLog::MarkEndEvent("OpenGL Dev Render");
 }
@@ -180,12 +180,12 @@ int vtkOpenGLRenderer::UpdateGeometry()
   this->NumberOfPropsRendered = 0;
 
   if ( this->PropArrayCount == 0 )
-    {
+  {
     return 0;
-    }
+  }
 
   if (this->Selector)
-    {
+  {
     // When selector is present, we are performing a selection,
     // so do the selection rendering pass instead of the normal passes.
     // Delegate the rendering of the props to the selector itself.
@@ -194,24 +194,24 @@ int vtkOpenGLRenderer::UpdateGeometry()
     this->RenderTime.Modified();
     vtkDebugMacro("Rendered " << this->NumberOfPropsRendered << " actors" );
     return this->NumberOfPropsRendered;
-    }
+  }
 
   // if we are suing shadows then let the renderpasses handle it
   // for opaque and translucent
   if (this->UseShadows)
-    {
+  {
     if (!this->ShadowMapPass)
-      {
+    {
       this->ShadowMapPass = vtkShadowMapPass::New();
-      }
+    }
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
     //s.SetFrameBuffer(0);
     this->ShadowMapPass->GetShadowMapBakerPass()->Render(&s);
     this->ShadowMapPass->Render(&s);
-    }
+  }
   else
-    {
+  {
     // Opaque geometry first:
     this->DeviceRenderOpaqueGeometry();
 
@@ -220,47 +220,47 @@ int vtkOpenGLRenderer::UpdateGeometry()
     int hasTranslucentPolygonalGeometry=0;
     for ( i = 0; !hasTranslucentPolygonalGeometry && i < this->PropArrayCount;
           i++ )
-      {
+    {
       hasTranslucentPolygonalGeometry=
         this->PropArray[i]->HasTranslucentPolygonalGeometry();
-      }
-    if(hasTranslucentPolygonalGeometry)
-      {
-      this->DeviceRenderTranslucentPolygonalGeometry();
-      }
     }
+    if(hasTranslucentPolygonalGeometry)
+    {
+      this->DeviceRenderTranslucentPolygonalGeometry();
+    }
+  }
 
   // Apply FXAA before volumes and overlays. Volumes don't need AA, and overlays
   // are usually things like text, which are already antialiased.
   if (this->UseFXAA)
-    {
+  {
     if (!this->FXAAFilter)
-      {
+    {
       this->FXAAFilter = vtkOpenGLFXAAFilter::New();
-      }
+    }
     if (this->FXAAOptions)
-      {
+    {
       this->FXAAFilter->UpdateConfiguration(this->FXAAOptions);
-      }
+    }
 
     this->FXAAFilter->Execute(this);
-    }
+  }
 
   // loop through props and give them a chance to
   // render themselves as volumetric geometry.
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     this->NumberOfPropsRendered +=
       this->PropArray[i]->RenderVolumetricGeometry(this);
-    }
+  }
 
   // loop through props and give them a chance to
   // render themselves as an overlay (or underlay)
   for ( i = 0; i < this->PropArrayCount; i++ )
-    {
+  {
     this->NumberOfPropsRendered +=
       this->PropArray[i]->RenderOverlay(this);
-    }
+  }
 
   this->RenderTime.Modified();
 
@@ -280,18 +280,18 @@ void vtkOpenGLRenderer::DeviceRenderOpaqueGeometry()
                                                     this->PropArrayCount);
 
   if (useHLR)
-    {
+  {
     vtkNew<vtkHiddenLineRemovalPass> hlrPass;
     vtkRenderState s(this);
     s.SetPropArrayAndCount(this->PropArray, this->PropArrayCount);
     s.SetFrameBuffer(0);
     hlrPass->Render(&s);
     this->NumberOfPropsRendered += hlrPass->GetNumberOfRenderedProps();
-    }
+  }
   else
-    {
+  {
     this->Superclass::DeviceRenderOpaqueGeometry();
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -308,20 +308,20 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     = vtkOpenGLRenderWindow::SafeDownCast(this->RenderWindow);
 
   if(this->UseDepthPeeling && !context)
-    {
+  {
     vtkErrorMacro("OpenGL render window is required.")
     return;
-    }
+  }
 
   if(!this->UseDepthPeeling)
-    {
+  {
     // just alpha blending
     this->UpdateTranslucentPolygonalGeometry();
-    }
+  }
   else   // depth peeling.
-    {
+  {
     if (!this->DepthPeelingPass)
-      {
+    {
       // Dual depth peeling requires:
       // - float textures (ARB_texture_float)
       // - RG textures (ARB_texture_rg)
@@ -345,49 +345,49 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
       std::string glVersion =
           reinterpret_cast<const char *>(glGetString(GL_VERSION));
       if (glVersion.find("Mesa") != std::string::npos)
-        {
+      {
         std::string glRenderer =
             reinterpret_cast<const char *>(glGetString(GL_RENDERER));
         if (glRenderer.find("llvmpipe") != std::string::npos ||
             glRenderer.find("SWR") != std::string::npos)
-          {
+        {
           vtkDebugMacro("Disabling dual depth peeling -- mesa bug detected. "
                         "GL_VERSION = '" << glVersion << "'; "
                         "GL_RENDERER = '" << glRenderer << "'.");
           dualDepthPeelingSupported = false;
-          }
         }
+      }
 
       // The old implemention can be force by defining the environment var
       // "VTK_USE_LEGACY_DEPTH_PEELING":
       if (dualDepthPeelingSupported)
-        {
+      {
         const char *forceLegacy = getenv("VTK_USE_LEGACY_DEPTH_PEELING");
         if (forceLegacy)
-          {
+        {
           vtkDebugMacro("Disabling dual depth peeling -- "
                         "VTK_USE_LEGACY_DEPTH_PEELING defined in environment.");
           dualDepthPeelingSupported = false;
-          }
         }
+      }
 
       if (dualDepthPeelingSupported)
-        {
+      {
 #if GL_ES_VERSION_2_0 != 1 // vtkDualDepthPeelingPass is not built on ES2
         vtkDebugMacro("Using dual depth peeling.");
         this->DepthPeelingPass = vtkDualDepthPeelingPass::New();
 #endif
-        }
+      }
       else
-        {
+      {
         vtkDebugMacro("Using standard depth peeling (dual depth peeling not "
                       "supported by the graphics card/driver).");
         this->DepthPeelingPass = vtkDepthPeelingPass::New();
-        }
+      }
       vtkTranslucentPass *tp = vtkTranslucentPass::New();
       this->DepthPeelingPass->SetTranslucentPass(tp);
       tp->Delete();
-      }
+    }
     this->DepthPeelingPass->SetMaximumNumberOfPeels(this->MaximumNumberOfPeels);
     this->DepthPeelingPass->SetOcclusionRatio(this->OcclusionRatio);
     vtkRenderState s(this);
@@ -395,7 +395,7 @@ void vtkOpenGLRenderer::DeviceRenderTranslucentPolygonalGeometry()
     s.SetFrameBuffer(0);
     this->LastRenderingUsedDepthPeeling=1;
     this->DepthPeelingPass->Render(&s);
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after DeviceRenderTranslucentPolygonalGeometry");
 }
@@ -419,23 +419,23 @@ void vtkOpenGLRenderer::Clear(void)
   GLbitfield  clear_mask = 0;
 
   if (! this->Transparent())
-    {
+  {
     if (this->IsPicking)
-      {
+    {
       glClearColor(0.0,0.0,0.0,0.0);
-      }
+    }
     else
-      {
+    {
       glClearColor( static_cast<GLclampf>(this->Background[0]),
                     static_cast<GLclampf>(this->Background[1]),
                     static_cast<GLclampf>(this->Background[2]),
                     static_cast<GLclampf>(0.0));
-      }
-    clear_mask |= GL_COLOR_BUFFER_BIT;
     }
+    clear_mask |= GL_COLOR_BUFFER_BIT;
+  }
 
   if (!this->GetPreserveDepthBuffer())
-    {
+  {
 #if GL_ES_VERSION_2_0 == 1
     glClearDepthf(static_cast<GLclampf>(1.0));
 #else
@@ -443,7 +443,7 @@ void vtkOpenGLRenderer::Clear(void)
 #endif
     clear_mask |= GL_DEPTH_BUFFER_BIT;
     glDepthMask(GL_TRUE);
-    }
+  }
 
   vtkDebugMacro(<< "glClear\n");
   glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
@@ -452,7 +452,7 @@ void vtkOpenGLRenderer::Clear(void)
   // If gradient background is turned on, draw it now.
   if (!this->IsPicking && !this->Transparent() &&
       (this->GradientBackground || this->TexturedBackground))
-    {
+  {
     int size[2];
     size[0] = this->GetSize()[0];
     size[1] = this->GetSize()[1];
@@ -490,7 +490,7 @@ void vtkOpenGLRenderer::Clear(void)
     actor->SetMapper(mapper.Get());
 
     if(this->TexturedBackground && this->BackgroundTexture)
-      {
+    {
       this->BackgroundTexture->InterpolateOn();
       actor->SetTexture(this->BackgroundTexture);
 
@@ -508,9 +508,9 @@ void vtkOpenGLRenderer::Clear(void)
       tmp[0] = 0.0;
       tcoords->SetTuple(3,tmp);
       polydata->GetPointData()->SetTCoords(tcoords.Get());
-      }
+    }
     else // gradient
-      {
+    {
       vtkNew<vtkUnsignedCharArray> colors;
       float tmp[4];
       tmp[0] = this->Background[0]*255;
@@ -527,11 +527,11 @@ void vtkOpenGLRenderer::Clear(void)
       colors->SetTuple(2,tmp);
       colors->SetTuple(3,tmp);
       polydata->GetPointData()->SetScalars(colors.Get());
-      }
+    }
 
     glDisable(GL_DEPTH_TEST);
     actor->RenderOverlay(this);
-    }
+  }
 
   glEnable(GL_DEPTH_TEST);
 
@@ -602,21 +602,21 @@ void vtkOpenGLRenderer::StartPick(unsigned int vtkNotUsed(pickFromSize))
 void vtkOpenGLRenderer::ReleaseGraphicsResources(vtkWindow *w)
 {
   if (w && this->Pass)
-    {
+  {
     this->Pass->ReleaseGraphicsResources(w);
-    }
+  }
   if (this->FXAAFilter)
-    {
+  {
     this->FXAAFilter->ReleaseGraphicsResources();
-    }
+  }
   if (w && this->DepthPeelingPass)
-    {
+  {
     this->DepthPeelingPass->ReleaseGraphicsResources(w);
-    }
+  }
   if (w && this->ShadowMapPass)
-    {
+  {
     this->ShadowMapPass->ReleaseGraphicsResources(w);
-    }
+  }
   this->Superclass::ReleaseGraphicsResources(w);
 }
 
@@ -650,7 +650,7 @@ void vtkOpenGLRenderer::DevicePickRender()
 void vtkOpenGLRenderer::DonePick()
 {
   if (this->PickInfo->PerformedHardwarePick)
-    {
+  {
     unsigned char *pixBuffer = this->GetRenderWindow()->GetPixelData(
       this->PickX1, this->PickY1, this->PickX2, this->PickY2, 0);
   //    (this->GetRenderWindow()->GetSwapBuffers() == 1) ? 0 : 1);
@@ -670,9 +670,9 @@ void vtkOpenGLRenderer::DonePick()
     unsigned char *pb = pixBuffer;
     float *dbPtr = depthBuffer;
     for (int y = this->PickY1; y <= this->PickY2; y++)
-      {
+    {
       for (int x = this->PickX1; x <= this->PickX2; x++)
-        {
+      {
         unsigned char rgb[3];
         rgb[0] = *pb++;
         rgb[1] = *pb++;
@@ -684,15 +684,15 @@ void vtkOpenGLRenderer::DonePick()
         val = val << 8;
         val |= rgb[0];
         if (val > 0)
-          {
+        {
           if (this->PickInfo->PickValues.find(val) == this->PickInfo->PickValues.end())
-            {
+          {
             this->PickInfo->PickValues.insert(std::pair<unsigned int,float>(val,*dbPtr));
-            }
           }
-        dbPtr++;
         }
+        dbPtr++;
       }
+    }
 
     this->PickInfo->NumPicked = (unsigned int)this->PickInfo->PickValues.size();
 
@@ -701,14 +701,14 @@ void vtkOpenGLRenderer::DonePick()
       this->PickInfo->PickValues.begin();
     this->PickedZ = 1.0;
     for ( ; dvItr != this->PickInfo->PickValues.end(); dvItr++)
-      {
+    {
       if(dvItr->second < this->PickedZ)
-        {
+      {
         this->PickedZ = dvItr->second;
         this->PickInfo->PickedId = dvItr->first - 1;
-        }
       }
     }
+  }
 
   // Restore the default framebuffer
   //glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -732,36 +732,36 @@ vtkOpenGLRenderer::~vtkOpenGLRenderer()
   delete this->PickInfo;
 
   if(this->Pass != NULL)
-    {
+  {
     this->Pass->UnRegister(this);
     this->Pass = NULL;
-    }
+  }
 
   if (this->FXAAFilter)
-    {
+  {
     this->FXAAFilter->Delete();
     this->FXAAFilter = 0;
-    }
+  }
 
   if (this->ShadowMapPass)
-    {
+  {
     this->ShadowMapPass->Delete();
     this->ShadowMapPass = 0;
-    }
+  }
 
   if (this->DepthPeelingPass)
-    {
+  {
     this->DepthPeelingPass->Delete();
     this->DepthPeelingPass = 0;
-    }
+  }
 }
 
 bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
 {
   if (this->HaveApplePrimitiveIdBugChecked)
-    {
+  {
     return this->HaveApplePrimitiveIdBugValue;
-    }
+  }
 
 #ifdef __APPLE__
   // Known working Apple+AMD systems:
@@ -792,7 +792,7 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
   if (vendor.find("ATI") != std::string::npos ||
       vendor.find("AMD") != std::string::npos ||
       vendor.find("amd") != std::string::npos)
-    {
+  {
     // assume we have the bug
     this->HaveApplePrimitiveIdBugValue = true;
 
@@ -803,14 +803,14 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
     int patchVersion = 0;
     // try to extract some minor version numbers
     if (version.find("4.1 ATI-1.") == 0)
-      {
+    {
       std::string minorVer = version.substr(strlen("4.1 ATI-1."),std::string::npos);
       if (minorVer.find(".") == 2)
-        {
+      {
         minorVersion = atoi(minorVer.substr(0,2).c_str());
         patchVersion = atoi(minorVer.substr(3,std::string::npos).c_str());
-        }
       }
+    }
     if (
         ((version.find("4.1 ATI-1.38.3") != std::string::npos ||
           version.find("4.1 ATI-1.40.15") != std::string::npos) &&
@@ -819,10 +819,10 @@ bool vtkOpenGLRenderer::HaveApplePrimitiveIdBug()
           minorVersion > 40 ||
           (minorVersion == 40 && patchVersion >= 16)
          )
-      {
+    {
       this->HaveApplePrimitiveIdBugValue = false;
-      }
     }
+  }
 #else
   this->HaveApplePrimitiveIdBugValue = false;
 #endif
@@ -840,9 +840,9 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
                                     unsigned int *callerBuffer)
 {
   if (this->PickInfo->PickValues.empty())
-    {
+  {
     return 0;
-    }
+  }
 
   unsigned int max = (atMost < this->PickInfo->NumPicked) ? atMost : this->PickInfo->NumPicked;
 
@@ -852,9 +852,9 @@ int vtkOpenGLRenderer::GetPickedIds(unsigned int atMost,
     this->PickInfo->PickValues.begin();
   this->PickedZ = 1.0;
   for ( ; dvItr != this->PickInfo->PickValues.end() && k < max; dvItr++)
-    {
+  {
     *optr = static_cast<unsigned int>(dvItr->first);
     optr++;
-    }
+  }
   return k;
 }

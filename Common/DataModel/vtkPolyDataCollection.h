@@ -42,9 +42,9 @@ public:
    * Add a poly data to the list.
    */
   void AddItem(vtkPolyData *pd)
-    {
+  {
       this->vtkCollection::AddItem(pd);
-    }
+  }
 
   /**
    * Get the next poly data in the list.

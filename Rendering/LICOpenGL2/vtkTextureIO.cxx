@@ -47,9 +47,9 @@ vtkFloatArray *DownloadTexture(
   vtkPixelExtent texExt(0U, tw-1U, 0U, th-1U);
   vtkPixelExtent subExt(texExt);
   if (sub)
-    {
+  {
     subExt.SetData(sub);
-    }
+  }
 
   vtkFloatArray *ta = vtkFloatArray::New();
   ta->SetNumberOfComponents(tnc);
@@ -89,9 +89,9 @@ void vtkTextureIO::Write(
 
   vtkPixelExtent subExt(0U, tw-1U, 0U, th-1U);
   if (subset)
-    {
+  {
     subExt.SetData(subset);
-    }
+  }
 
   int dataExt[6]={0,0, 0,0, 0,0};
   subExt.CellToNode();
@@ -99,10 +99,10 @@ void vtkTextureIO::Write(
 
   double dataOrigin[6]={0,0, 0,0, 0,0};
   if (origin)
-    {
+  {
     dataOrigin[0] = origin[0];
     dataOrigin[1] = origin[1];
-    }
+  }
 
   vtkFloatArray *ta = DownloadTexture(texture, subset);
 
@@ -131,13 +131,13 @@ void vtkTextureIO::Write(
 {
   int n = static_cast<int>(exts.size());
   if (n == 0)
-    {
+  {
     //vtkGenericWarningMacro("Empty extents nothing will be written");
     return;
-    }
+  }
   vtkMultiBlockDataSet *mb = vtkMultiBlockDataSet::New();
   for (int i=0; i<n; ++i)
-    {
+  {
     vtkPixelExtent ext = exts[i];
     if (ext.Empty()) continue;
 
@@ -149,10 +149,10 @@ void vtkTextureIO::Write(
 
     double dataOrigin[6]={0,0,0,0,0,0};
     if (origin)
-      {
+    {
       dataOrigin[0] = origin[0];
       dataOrigin[1] = origin[1];
-      }
+    }
 
     vtkImageData *id = vtkImageData::New();
     id->SetExtent(dataExt);
@@ -162,7 +162,7 @@ void vtkTextureIO::Write(
 
     mb->SetBlock(i, id);
     id->Delete();
-    }
+  }
 
   vtkXMLMultiBlockDataWriter *w = vtkXMLMultiBlockDataWriter::New();
   cerr << "writing to: " << filename << endl;

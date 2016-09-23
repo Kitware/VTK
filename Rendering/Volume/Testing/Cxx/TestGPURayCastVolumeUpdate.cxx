@@ -461,7 +461,7 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     renWin->Render();
 
     vtkNew<vtkRTAnalyticSource> wavelet;
@@ -478,12 +478,12 @@ int TestGPURayCastVolumeUpdate(int argc, char *argv[])
     retVal = !( vtkTesting::InteractorEventLoop(argc, argv,
                                                 iren.GetPointer(),
                                                 TestGPURayCastVolumeUpdateLog));
-    }
+  }
   else
-    {
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported" << endl;
-    }
+  }
 
   return !retVal;
 }

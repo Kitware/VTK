@@ -61,12 +61,12 @@ int vtkBandedPolyDataContourFilter::ComputeScalarIndex(double val)
 {
 
   for (int i=0; i < (this->NumberOfClipValues-1); i++)
-    {
+  {
     if ( val >= this->ClipValues[i] && val < this->ClipValues[i+1]  )
-      {
+    {
       return i;
-      }
     }
+  }
   return this->NumberOfClipValues - 1;
 
 }
@@ -78,12 +78,12 @@ int vtkBandedPolyDataContourFilter::IsContourValue(double val)
 
   // Check to see whether a vertex is an intersection point.
   for ( i=0; i < this->NumberOfClipValues; i++)
-    {
+  {
     if ( val == this->ClipValues[i] )
-      {
+    {
       return 1;
-      }
     }
+  }
   return 0;
 }
 
@@ -110,9 +110,9 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 
 
   if ( lowIdx == highIdx )
-    {
+  {
     return 0;
-    }
+  }
 
   double x[3], x1[3], x2[3];
   newPts->GetPoint(v1, x1);
@@ -120,18 +120,18 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
 
   bool reverse = (v1 > v2);
   if ( low > high )
-    {
+  {
     std::swap(low,high);
     std::swap(lowIdx,highIdx);
     std::swap(x1[0],x2[0]);
     std::swap(x1[1],x2[1]);
     std::swap(x1[2],x2[2]);
     reverse = !reverse;
-    }
+  }
 
   int count = highIdx - lowIdx;
   for ( int i = 0; i < count; ++i )
-    {
+  {
     int idx = lowIdx + 1 + i;
     double t = (this->ClipValues[idx] - low) / (high - low);
     x[0] = x1[0] + t*(x2[0]-x1[0]);
@@ -143,7 +143,7 @@ int vtkBandedPolyDataContourFilter::ClipEdge(int v1, int v2,
     outScalars->InsertTuple(ptId,&this->ClipValues[idx]);
     int pos = reverse ? count-i-1 : i;
     edgePts[ pos ] = ptId;
-    }
+  }
   return count;
 }
 
@@ -153,17 +153,17 @@ extern "C" {
 static int vtkCompareClipValues(const void *val1, const void *val2)
 {
   if ( *((double*)val1) < *((double*)val2) )
-    {
+  {
     return (-1);
-    }
+  }
   else if ( *((double*)val1) > *((double*)val2) )
-    {
+  {
     return (1);
-    }
+  }
   else
-    {
+  {
     return (0);
-    }
+  }
 }
 }
 
@@ -175,9 +175,9 @@ inline int vtkBandedPolyDataContourFilter::InsertCell(vtkCellArray *cells,
 {
   int idx = this->ComputeClippedIndex( s );
   if ( idx < 0 )
-    {
+  {
     return cellId;
-    }
+  }
   cells->InsertNextCell(npts,pts);
   return InsertNextScalar( newS, cellId, idx );
 }
@@ -191,9 +191,9 @@ inline int vtkBandedPolyDataContourFilter::InsertLine(vtkCellArray *cells,
 {
   int idx = this->ComputeClippedIndex( s );
   if ( idx < 0 )
-    {
+  {
     return cellId;
-    }
+  }
   cells->InsertNextCell(2);
   cells->InsertCellPoint(pt1);
   cells->InsertCellPoint(pt2);
@@ -207,9 +207,9 @@ int vtkBandedPolyDataContourFilter::ComputeClippedIndex(double s )
 
   if ( !this->Clipping ||
        (idx >= this->ClipIndex[0] && idx < this->ClipIndex[1]) )
-    {
+  {
     return idx;
-    }
+  }
   return -1;
 }
 
@@ -219,19 +219,19 @@ int vtkBandedPolyDataContourFilter::InsertNextScalar( vtkFloatArray* scalars,
                                                       int            idx )
 {
   if ( idx < 0 )
-    {
+  {
     return cellId;
-    }
+  }
 
   if ( this->ScalarMode == VTK_SCALAR_MODE_INDEX )
-    {
+  {
     double value = idx;
     scalars->InsertTuple(cellId++,&value);
-    }
+  }
   else
-    {
+  {
     scalars->InsertTuple(cellId++,&this->ClipValues[idx]);
-    }
+  }
   return cellId;
 }
 
@@ -278,17 +278,17 @@ int vtkBandedPolyDataContourFilter::RequestData(
   numCells = input->GetNumberOfCells();
   if ( !inPts || (numPts=inPts->GetNumberOfPoints()) < 1 ||
        !inScalars || numCells < 1 )
-    {
+  {
     vtkErrorMacro(<<"No input data!");
     return 1;
-    }
+  }
 
   if ( inScalars->GetNumberOfComponents() < this->Component + 1 )
-    {
+  {
     vtkErrorMacro( << "Input scalars expected to have "<<this->Component+1
                    << " components" );
     return 0;
-    }
+  }
 
   // Set up supplemental data structures for processing edge/generating
   // intersections. First we sort the contour values into an ascending
@@ -312,9 +312,9 @@ int vtkBandedPolyDataContourFilter::RequestData(
     (this->ContourValues->GetValue(this->NumberOfClipValues-2-1));
 
   for ( i=1; i<this->NumberOfClipValues-1; i++)
-    {
+  {
     this->ClipValues[i] = this->ContourValues->GetValue(i-1);
-    }
+  }
 
   qsort(this->ClipValues, this->NumberOfClipValues, sizeof(double),
         vtkCompareClipValues);
@@ -323,16 +323,16 @@ int vtkBandedPolyDataContourFilter::RequestData(
   // of each other based on full scalar range, but could define temporary based
   // on percentage of scalar range...
   for ( i=0; i<(this->NumberOfClipValues-1); i++)
-    {
+  {
     if ( (this->ClipValues[i] + this->InternalClipTolerance) >= this->ClipValues[i+1] )
-      {
+    {
       for (j=i+1; j<(this->NumberOfClipValues-2); j++)
-        {
+      {
         this->ClipValues[j] = this->ClipValues[j+1];
-        }
-      this->NumberOfClipValues--;
       }
+      this->NumberOfClipValues--;
     }
+  }
 
   this->ClipIndex[0] =
     this->ComputeScalarIndex(this->ContourValues->GetValue(0));
@@ -346,9 +346,9 @@ int vtkBandedPolyDataContourFilter::RequestData(
   estimatedSize *= this->NumberOfClipValues;
   estimatedSize = estimatedSize / 1024 * 1024; // multiple of 1024
   if (estimatedSize < 1024)
-    {
+  {
     estimatedSize = 1024;
-    }
+  }
 
   // The original set of points and point data are copied. Later on
   // intersection points due to clipping will be created.
@@ -366,12 +366,12 @@ int vtkBandedPolyDataContourFilter::RequestData(
   outScalars->Delete();
 
   for (i=0; i<numPts; i++)
-    {
+  {
     newPts->InsertPoint(i,inPts->GetPoint(i));
     outPD->CopyData(pd, i, i);
     double value = inScalars->GetTuple(i)[this->Component];
     outScalars->InsertTuple(i, &value);
-    }
+  }
 
   // These are the new cell scalars
   vtkFloatArray *newScalars = vtkFloatArray::New();
@@ -386,30 +386,30 @@ int vtkBandedPolyDataContourFilter::RequestData(
   // into single vertices. Cell data per vertex is set.
   //
   if ( input->GetVerts()->GetNumberOfCells() > 0 )
-    {
+  {
     vtkCellArray *verts = input->GetVerts();
     vtkCellArray *newVerts = vtkCellArray::New();
     newVerts->Allocate(verts->GetSize());
     for ( verts->InitTraversal(); verts->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
-      {
+    {
       for (i=0; i<npts; i++)
-        {
+      {
         cellId = this->InsertCell( newVerts,
                                    1,pts+i,cellId,
                                    inScalars->GetTuple(pts[i])[this->Component],
                                    newScalars);
-        }
       }
+    }
     output->SetVerts(newVerts);
     newVerts->Delete();
-    }
+  }
   this->UpdateProgress(0.05);
 
   // Lines are chopped into line segments.
   //
   if ( input->GetLines()->GetNumberOfCells() > 0 )
-    {
+  {
     vtkCellArray *lines = input->GetLines();
 
     maxCellSize = lines->GetMaxCellSize();
@@ -423,30 +423,30 @@ int vtkBandedPolyDataContourFilter::RequestData(
     //start by generating intersection points
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
-      {
+    {
       for (i=0; i<(npts-1); i++)
-        {
+      {
         numEdgePts = this->ClipEdge(pts[i],pts[i+1],newPts,inScalars,outScalars,
                                     pd,outPD, fullLine );
         if ( numEdgePts > 0 ) //there is an intersection
-          {
+        {
           intList->InsertNextCell(numEdgePts,fullLine);
           edgeTable->InsertEdge(pts[i],pts[i+1], //associate ints with edge
                                 intList->GetInsertLocation(numEdgePts));
-          }
+        }
         else //no intersection points along the edge
-          {
+        {
           edgeTable->InsertEdge(pts[i],pts[i+1],-1); //-1 means no points
-          }
-        }//for all line segments in this line
-      }
+        }
+      }//for all line segments in this line
+    }
 
     //now create line segments
     for ( lines->InitTraversal(); lines->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
-      {
+    {
       for (i=0; i<(npts-1); i++)
-        {
+      {
         v = pts[i];
         vR = pts[i+1];
         bool reverse = (v > vR );
@@ -457,46 +457,46 @@ int vtkBandedPolyDataContourFilter::RequestData(
 
         vtkIdType p1=v;
         if ( (intLoc=edgeTable->IsEdge(v,vR)) != -1 )
-          {
+        {
           intList->GetCell(intLoc,numIntPts,intPts);
           int incr;
           int k;
           if ( !reverse )
-            {
+          {
             k = 0;
             incr = 1;
-            }
+          }
           else
-            {
+          {
             k = numIntPts-1;
             incr = -1;
-            }
+          }
           for ( int n = 0; n < numIntPts; ++n, k += incr )
-            {
+          {
             vtkIdType p2 = intPts[k];
             double value = outScalars->GetTuple(increasing ? p1 : p2)[0];
             cellId = this->InsertLine(newLines, p1, p2, cellId,
                                       value, newScalars);
             p1 = p2;
-            }
+          }
           double value = outScalars->GetTuple(increasing ? p1 : vR)[0];
           cellId = this->InsertLine(newLines, p1, vR, cellId,
                                     value, newScalars);
-          }
+        }
         else
-          {
+        {
           double value = outScalars->GetTuple(vR)[0];
           cellId = this->InsertLine(newLines, v, vR, cellId,
                                     value, newScalars);
-          }
         }
       }
+    }
 
     delete [] fullLine;
 
     output->SetLines(newLines);
     newLines->Delete();
-    }
+  }
   this->UpdateProgress(0.1);
 
   // Polygons are assumed convex and chopped into filled, convex polygons.
@@ -505,7 +505,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
   vtkIdType numPolys = input->GetPolys()->GetNumberOfCells();
   vtkIdType numStrips = input->GetStrips()->GetNumberOfCells();
   if ( numPolys > 0 || numStrips > 0 )
-    {
+  {
     // Set up processing. We are going to store an ordered list of
     // intersections along each edge (ordered from smallest point id
     // to largest). These will later be connected into convex polygons
@@ -520,20 +520,20 @@ int vtkBandedPolyDataContourFilter::RequestData(
     // If contour edges requested, set things up.
     vtkCellArray *contourEdges=0;
     if ( this->GenerateContourEdges )
-      {
+    {
       contourEdges = vtkCellArray::New();
       contourEdges->Allocate(numCells);
       this->GetContourEdgesOutput()->SetLines(contourEdges);
       contourEdges->Delete();
       this->GetContourEdgesOutput()->SetPoints(newPts);
-      }
+    }
 
     // Set up structures for processing polygons
     maxCellSize = polys->GetMaxCellSize();
     if( maxCellSize == 0 )
-      {
+    {
       maxCellSize = input->GetStrips()->GetMaxCellSize();
-      }
+    }
     maxCellSize *= (1 + this->NumberOfClipValues);
 
     vtkIdType *newPolygon = new vtkIdType [maxCellSize];
@@ -545,23 +545,23 @@ int vtkBandedPolyDataContourFilter::RequestData(
     // Lump strips and polygons together.
     // Decompose strips into triangles.
     if ( numStrips > 0 )
-      {
+    {
       vtkCellArray *strips = input->GetStrips();
       tmpPolys = vtkCellArray::New();
       if ( numPolys > 0 )
-        {
+      {
         tmpPolys->DeepCopy(polys);
-        }
-      else
-        {
-        tmpPolys->Allocate(polys->EstimateSize(numStrips,5));
-        }
-      for ( strips->InitTraversal(); strips->GetNextCell(npts,pts); )
-        {
-        vtkTriangleStrip::DecomposeStrip(npts, pts, tmpPolys);
-        }
-      polys = tmpPolys;
       }
+      else
+      {
+        tmpPolys->Allocate(polys->EstimateSize(numStrips,5));
+      }
+      for ( strips->InitTraversal(); strips->GetNextCell(npts,pts); )
+      {
+        vtkTriangleStrip::DecomposeStrip(npts, pts, tmpPolys);
+      }
+      polys = tmpPolys;
+    }
 
     // Process polygons to produce edge intersections.------------------------
     //
@@ -570,33 +570,33 @@ int vtkBandedPolyDataContourFilter::RequestData(
     vtkIdType count=0;
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort;
       abort=this->GetAbortExecute() )
-      {
+    {
       if  ( ! (++count % updateCount) )
-        {
+      {
         this->UpdateProgress(0.1 + 0.45*(static_cast<double>(count)/numPolys));
-        }
+      }
 
       for (i=0; i<npts; i++)
-        {
+      {
         v = pts[i];
         vR = pts[(i+1) % npts];
         if ( edgeTable->IsEdge(v,vR) == -1 )
-          {
+        {
           numEdgePts = this->ClipEdge(v,vR,newPts,inScalars,outScalars,
                                       pd,outPD,fullPoly);
           if ( numEdgePts > 0 )
-            {
+          {
             intList->InsertNextCell(numEdgePts,fullPoly);
             edgeTable->InsertEdge(v,vR, //associate ints with edge
                                   intList->GetInsertLocation(numEdgePts));
-            }
+          }
           else //no intersection points along the edge
-            {
+          {
             edgeTable->InsertEdge(v,vR,-1); //-1 means no points
-            }
-          }//if edge not processed yet
-        }
-      }//for all polygons
+          }
+        }//if edge not processed yet
+      }
+    }//for all polygons
 
     // Process polygons to produce output triangles------------------------
     //
@@ -609,18 +609,18 @@ int vtkBandedPolyDataContourFilter::RequestData(
     count = 0;
     for ( polys->InitTraversal(); polys->GetNextCell(npts,pts) && !abort;
           abort=this->GetAbortExecute() )
-      {
+    {
       if  ( ! (++count % updateCount) )
-        {
+      {
         this->UpdateProgress(0.55 +
                              0.45*(static_cast<double>(count)/numPolys));
-        }
+      }
 
       //Create a new polygon that includes all the points including the
       //intersection vertices. This hugely simplifies the logic of the
       //code.
       for ( intersectionPoint=0, numFullPts=0, i=0; i<npts; i++)
-        {
+      {
         v = pts[i];
         vR = pts[(i+1)%npts];
 
@@ -631,90 +631,90 @@ int vtkBandedPolyDataContourFilter::RequestData(
 
         //see whether intersection points need to be added.
         if ( (intLoc=edgeTable->IsEdge(v,vR)) != -1 )
-          {
+        {
           intersectionPoint = 1;
           intList->GetCell(intLoc,numIntPts,intPts);
           if ( v < vR ) {intsIdx = 0; intsInc=1;} //order of the edge
           else {intsIdx=numIntPts-1; intsInc=(-1);}
           for ( ; intsIdx >= 0 && intsIdx < numIntPts; intsIdx += intsInc )
-            {
+          {
             s[numFullPts] = outScalars->GetTuple(intPts[intsIdx])[0];
             isContourValue[numFullPts] = 1;
             isOriginalVertex[numFullPts] = 0;
             fullPoly[numFullPts++] = intPts[intsIdx];
-            }
           }
-        } //for all points and edges
+        }
+      } //for all points and edges
 
       //Very important: have to find the right starting vertex. The vertex
       //needs to be one where the contour values increase in both directions.
       //Really should check whether the vertex is convex.
       double minValue=VTK_DOUBLE_MAX;
       for ( i=0; i<numFullPts; i++)
-        {
+      {
         if ( isOriginalVertex[i] )
-          {
+        {
           if ( s[i] < minValue && s[i] <= s[(i+numFullPts-1)%numFullPts] &&
                s[i] <= s[(i+1)%numFullPts] )
-            {
+          {
             idx = i;
             minValue = s[i];
-            }
           }
         }
+      }
 
       //Trivial output - completely in a contour band or a triangle
       if ( ! intersectionPoint || numFullPts == 3 )
-        {
+      {
         cellId = this->InsertCell(newPolys,npts,pts,cellId,s[idx],newScalars);
         continue;
-        }
+      }
 
       //Produce contour edges if requested
       if ( this->GenerateContourEdges )
-        {
+      {
         for (i=0; i < numFullPts; i++)
-          {
+        {
           if ( isContourValue[i] && isContourValue[(i+1)%numFullPts] &&
                s[i] == s[(i+1)%numFullPts] )
-            {
+          {
             contourEdges->InsertNextCell(2);
             contourEdges->InsertCellPoint(fullPoly[i]);
             contourEdges->InsertCellPoint(fullPoly[(i+1)%numFullPts]);
-            }
           }
         }
+      }
 
       //Find the first intersection points in the polygons starting
       //from this vertex and build a polygon.
       numPointsToAdd = 1;
       for ( mR=idx, intersectionPoint=0; !intersectionPoint; )
-        {
+      {
         numPointsToAdd++;
         mR = (mR + 1) % numFullPts;
         if ( isContourValue[mR] && s[mR] != s[idx] ) intersectionPoint = 1;
-        }
+      }
       for ( mL=idx, intersectionPoint=0; !intersectionPoint; )
-        {
+      {
         numPointsToAdd++;
         mL = (mL + numFullPts - 1) % numFullPts;
         if ( isContourValue[mL] && s[mL] != s[idx] ) intersectionPoint = 1;
-        }
+      }
       for ( numPolyPoints=0, i=0; i<numPointsToAdd; i++)
-        {
+      {
         newPolygon[numPolyPoints++] = fullPoly[(mL+i)%numFullPts];
-        }
+      }
       if(numPolyPoints >= 3)
-        {
+      {
         cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
                                   cellId,s[idx],newScalars);
-        }
+      }
       if ( this->GenerateContourEdges )
-        {
+      {
         contourEdges->InsertNextCell(2);
         contourEdges->InsertCellPoint(fullPoly[mR]);
         contourEdges->InsertCellPoint(fullPoly[mL]);
-        }
+      }
 
       //We've got an edge (mL,mR) that marks the edge of the region not yet
       //clipped. We move this edge forward from intersection point to
@@ -722,73 +722,73 @@ int vtkBandedPolyDataContourFilter::RequestData(
       m2R = mR;
       m2L = mL;
       while ( m2R != m2L )
-        {
+      {
         numPointsToAdd = (mL > mR ? mL-mR+1 : numFullPts-(mR-mL)+1);
         if ( numPointsToAdd == 3 )
-          {//just a triangle left
+        {//just a triangle left
           for (i=0; i<numPointsToAdd; i++)
-            {
+          {
             newPolygon[i] = fullPoly[(mR+i)%numFullPts];
-            }
+          }
           cellId = this->InsertCell(newPolys,numPointsToAdd,newPolygon,
                                     cellId,s[mR],newScalars);
           if ( this->GenerateContourEdges )
-            {
+          {
             contourEdges->InsertNextCell(2);
             contourEdges->InsertCellPoint(fullPoly[mR]);
             contourEdges->InsertCellPoint(fullPoly[mL]);
-            }
-          break;
           }
+          break;
+        }
         else //find the next intersection points
-          {
+        {
           numLeftPointsToAdd = 0;
           numRightPointsToAdd = 0;
           for ( intersectionPoint=0;
                 !intersectionPoint && ((m2R+1)%numFullPts) != m2L; )
-            {
+          {
             numRightPointsToAdd++;
             m2R = (m2R + 1) % numFullPts;
             if ( isContourValue[m2R] ) intersectionPoint = 1;
-            }
+          }
           for ( intersectionPoint=0;
                 !intersectionPoint && ((m2L+numFullPts-1)%numFullPts) != m2R; )
-            {
+          {
             numLeftPointsToAdd++;
             m2L = (m2L + numFullPts - 1) % numFullPts;
             if ( isContourValue[m2L] ) intersectionPoint = 1;
-            }
+          }
 
           //specify the polygon vertices. From m2L to mL, then mR to m2R.
           for ( numPolyPoints=0, i=0; i<numLeftPointsToAdd; i++)
-            {
+          {
             newPolygon[numPolyPoints++] = fullPoly[(m2L+i)%numFullPts];
-            }
+          }
           newPolygon[numPolyPoints++] = fullPoly[mL];
           newPolygon[numPolyPoints++] = fullPoly[mR];
           for ( i=1; i<=numRightPointsToAdd; i++)
-            {
+          {
             newPolygon[numPolyPoints++] = fullPoly[(mR+i)%numFullPts];
-            }
+          }
 
           //add the polygon
           if(numPolyPoints < 3)
-            {
+          {
             break;
-            }
+          }
           cellId = this->InsertCell(newPolys,numPolyPoints,newPolygon,
                                     cellId,s[mR],newScalars);
           if ( this->GenerateContourEdges )
-            {
+          {
             contourEdges->InsertNextCell(2);
             contourEdges->InsertCellPoint(fullPoly[mR]);
             contourEdges->InsertCellPoint(fullPoly[mL]);
-            }
+          }
           mL = m2L;
           mR = m2R;
-          }//add a polygon
-        }//while still removing polygons
-      }//for all polygons
+        }//add a polygon
+      }//while still removing polygons
+    }//for all polygons
 
     delete [] s;
     delete [] newPolygon;
@@ -799,7 +799,7 @@ int vtkBandedPolyDataContourFilter::RequestData(
     output->SetPolys(newPolys);
     newPolys->Delete();
     if ( tmpPolys ) {tmpPolys->Delete(); }
-    }//for all polygons (and strips) in input
+  }//for all polygons (and strips) in input
 
   vtkDebugMacro(<<"Created " << cellId << " total cells\n");
   vtkDebugMacro(<<"Created " << output->GetVerts()->GetNumberOfCells()
@@ -834,9 +834,9 @@ int vtkBandedPolyDataContourFilter::RequestData(
 vtkPolyData *vtkBandedPolyDataContourFilter::GetContourEdgesOutput()
 {
   if (this->GetNumberOfOutputPorts() < 2)
-    {
+  {
     return NULL;
-    }
+  }
 
   return vtkPolyData::SafeDownCast(
     this->GetExecutive()->GetOutputData(1));
@@ -867,13 +867,13 @@ void vtkBandedPolyDataContourFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "Scalar Mode: ";
   if ( this->ScalarMode == VTK_SCALAR_MODE_INDEX )
-    {
+  {
     os << "INDEX\n";
-    }
+  }
   else
-    {
+  {
     os << "VALUE\n";
-    }
+  }
 
   os << indent << "Clip Tolerance: " << this->ClipTolerance << "\n";
 }

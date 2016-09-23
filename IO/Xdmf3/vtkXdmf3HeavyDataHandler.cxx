@@ -88,14 +88,14 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   shared_ptr<XdmfDomain> group = shared_dynamic_cast<XdmfDomain>(item);
 
   if (!group)
-    {
+  {
     shared_ptr<XdmfUnstructuredGrid> unsGrid =
       shared_dynamic_cast<XdmfUnstructuredGrid>(item);
     if (unsGrid)
-      {
+    {
       unsigned int nSets = unsGrid->getNumberSets();
       if (nSets > 0)
-        {
+      {
         vtkMultiBlockDataSet *mbds =
           vtkMultiBlockDataSet::SafeDownCast(toFill);
         vtkUnstructuredGrid *child = vtkUnstructuredGrid::New();
@@ -106,7 +106,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
         mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
           unsGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
-          {
+        {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
           mbds->SetBlock
             (i+1,
@@ -115,22 +115,22 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
             unsGrid->getSet(i)->getName().c_str());
           sub->Delete();
-          }
+        }
         child->Delete();
         return mbds;
-        }
+      }
       return this->MakeUnsGrid(unsGrid,
                                vtkUnstructuredGrid::SafeDownCast(toFill),
                                this->Keeper);
-      }
+    }
 
     shared_ptr<XdmfRectilinearGrid> recGrid =
       shared_dynamic_cast<XdmfRectilinearGrid>(item);
     if (recGrid)
-      {
+    {
       unsigned int nSets = recGrid->getNumberSets();
       if (nSets > 0)
-        {
+      {
         vtkMultiBlockDataSet *mbds =
           vtkMultiBlockDataSet::SafeDownCast(toFill);
         vtkRectilinearGrid *child = vtkRectilinearGrid::New();
@@ -141,7 +141,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
         mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
           recGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
-          {
+        {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
           mbds->SetBlock
             (i+1,
@@ -150,22 +150,22 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
             recGrid->getSet(i)->getName().c_str());
           sub->Delete();
-          }
+        }
         child->Delete();
         return mbds;
-        }
+      }
       return this->MakeRecGrid(recGrid,
                                vtkRectilinearGrid::SafeDownCast(toFill),
                                this->Keeper);
-      }
+    }
 
     shared_ptr<XdmfCurvilinearGrid> crvGrid =
       shared_dynamic_cast<XdmfCurvilinearGrid>(item);
     if (crvGrid)
-      {
+    {
       unsigned int nSets = crvGrid->getNumberSets();
       if (nSets > 0)
-        {
+      {
         vtkMultiBlockDataSet *mbds =
           vtkMultiBlockDataSet::SafeDownCast(toFill);
         vtkStructuredGrid *child = vtkStructuredGrid::New();
@@ -176,7 +176,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
         mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
           crvGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
-          {
+        {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
           mbds->SetBlock
             (i+1,
@@ -185,22 +185,22 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
             crvGrid->getSet(i)->getName().c_str());
           sub->Delete();
-          }
+        }
         child->Delete();
         return mbds;
-        }
+      }
       return this->MakeCrvGrid(crvGrid,
                                vtkStructuredGrid::SafeDownCast(toFill),
                                this->Keeper);
-      }
+    }
 
     shared_ptr<XdmfRegularGrid> regGrid =
       shared_dynamic_cast<XdmfRegularGrid>(item);
     if (regGrid)
-      {
+    {
       unsigned int nSets = regGrid->getNumberSets();
       if (nSets > 0)
-        {
+      {
         vtkMultiBlockDataSet *mbds =
           vtkMultiBlockDataSet::SafeDownCast(toFill);
         vtkImageData *child = vtkImageData::New();
@@ -211,7 +211,7 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
         mbds->GetMetaData((unsigned int)0)->Set(vtkCompositeDataSet::NAME(),
             regGrid->getName().c_str());
         for (unsigned int i = 0; i < nSets; i++)
-          {
+        {
           vtkUnstructuredGrid *sub = vtkUnstructuredGrid::New();
           mbds->SetBlock
             (i+1,
@@ -220,49 +220,49 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
           mbds->GetMetaData(i+1)->Set(vtkCompositeDataSet::NAME(),
             crvGrid->getSet(i)->getName().c_str());
           sub->Delete();
-          }
+        }
         child->Delete();
         return mbds;
-        }
+      }
       return this->MakeRegGrid(regGrid,
                                vtkImageData::SafeDownCast(toFill),
                                this->Keeper);
-      }
+    }
 
     shared_ptr<XdmfGraph> graph = shared_dynamic_cast<XdmfGraph>(item);
     if (graph)
-      {
+    {
       return this->MakeGraph(graph,
                              vtkMutableDirectedGraph::SafeDownCast(toFill),
                              this->Keeper);
-      }
+    }
 
     return NULL; //already spit a warning out before this
-    }
+  }
 
   shared_ptr<XdmfGridCollection> asGC =
     shared_dynamic_cast<XdmfGridCollection>(item);
   bool isDomain = asGC?false:true;
   bool isTemporal = false;
   if (asGC && asGC->getType() == XdmfGridCollectionType::Temporal())
-    {
+  {
     isTemporal = true;
-    }
+  }
 
   //ignore groups that are not in timestep we were asked for
   //but be sure to return everything within them
   bool lastTime = this->doTime;
   if (this->doTime && !(isDomain || isTemporal) && asGC->getTime())
-    {
+  {
     if (asGC->getTime()->getValue() != this->time)
-      {
+    {
       //don't return MB that doesn't match the requested time
       return NULL;
-      }
+    }
 
     //inside a match, make sure we get everything underneath
     this->doTime = false;
-    }
+  }
 
   vtkMultiBlockDataSet *topB = vtkMultiBlockDataSet::SafeDownCast(toFill);
   vtkDataObject *result;
@@ -270,177 +270,177 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::Populate(
   unsigned int nGridCollections = group->getNumberGridCollections();
 
   for (unsigned int i = 0; i < nGridCollections; i++)
-    {
+  {
     if (!this->AsTime)
-      {
+    {
       if (isDomain && !this->ShouldRead(i,nGridCollections))
-        {
+      {
         topB->SetBlock(cnt++, NULL);
         continue;
-        }
+      }
       vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
       result = this->Populate(group->getGridCollection(i), child);
       topB->SetBlock(cnt++, result);
       child->Delete();
-      }
+    }
     else
-      {
+    {
       vtkMultiBlockDataSet *child = vtkMultiBlockDataSet::New();
       result = this->Populate(group->getGridCollection(i), child);
       if (result)
-        {
+      {
         topB->SetBlock(cnt++, result);
-        }
-      child->Delete();
       }
+      child->Delete();
     }
+  }
   unsigned int nUnstructuredGrids = group->getNumberUnstructuredGrids();
   for (unsigned int i = 0; i < nUnstructuredGrids; i++)
-    {
+  {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nUnstructuredGrids))
-      {
+    {
       topB->SetBlock(cnt++, NULL);
       continue;
-      }
+    }
     shared_ptr<XdmfUnstructuredGrid> cGrid = group->getUnstructuredGrid(i);
     unsigned int nSets = cGrid->getNumberSets();
     vtkDataObject *child;
     if (nSets > 0)
-      {
+    {
       child = vtkMultiBlockDataSet::New();
-      }
+    }
     else
-      {
+    {
       child = vtkUnstructuredGrid::New();
-      }
+    }
     result = this->Populate(group->getUnstructuredGrid(i), child);
     if (result)
-      {
+    {
       topB->SetBlock(cnt, result);
       topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
         cGrid->getName().c_str());
       cnt++;
-      }
-    child->Delete();
     }
+    child->Delete();
+  }
   unsigned int nRectilinearGrids = group->getNumberRectilinearGrids();
   for (unsigned int i = 0; i < nRectilinearGrids; i++)
-    {
+  {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRectilinearGrids))
-      {
+    {
       topB->SetBlock(cnt++, NULL);
       continue;
-      }
+    }
     shared_ptr<XdmfRectilinearGrid> cGrid = group->getRectilinearGrid(i);
     unsigned int nSets = cGrid->getNumberSets();
     vtkDataObject *child;
     if (nSets > 0)
-      {
+    {
       child = vtkMultiBlockDataSet::New();
-      }
+    }
     else
-      {
+    {
       child = vtkRectilinearGrid::New();
-      }
+    }
     result = this->Populate(cGrid, child);
     if (result)
-      {
+    {
       topB->SetBlock(cnt, result);
       topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
         cGrid->getName().c_str());
       cnt++;
-      }
-    child->Delete();
     }
+    child->Delete();
+  }
   unsigned int nCurvilinearGrids= group->getNumberCurvilinearGrids();
   for (unsigned int i = 0; i < nCurvilinearGrids; i++)
-    {
+  {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nCurvilinearGrids))
-      {
+    {
       topB->SetBlock(cnt++, NULL);
       continue;
-      }
+    }
     shared_ptr<XdmfCurvilinearGrid> cGrid = group->getCurvilinearGrid(i);
     unsigned int nSets = cGrid->getNumberSets();
     vtkDataObject *child;
     if (nSets > 0)
-      {
+    {
       child = vtkMultiBlockDataSet::New();
-      }
+    }
     else
-      {
+    {
       child = vtkStructuredGrid::New();
-      }
+    }
     result = this->Populate(cGrid, child);
     if (result)
-      {
+    {
       topB->SetBlock(cnt, result);
       topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
         cGrid->getName().c_str());
       cnt++;
-      }
-    child->Delete();
     }
+    child->Delete();
+  }
   unsigned int nRegularGrids = group->getNumberRegularGrids();
   for (unsigned int i = 0; i < nRegularGrids; i++)
-    {
+  {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nRegularGrids))
-      {
+    {
       topB->SetBlock(cnt++, NULL);
       continue;
-      }
+    }
     shared_ptr<XdmfRegularGrid> cGrid = group->getRegularGrid(i);
     unsigned int nSets = cGrid->getNumberSets();
     vtkDataObject *child;
     if (nSets > 0)
-      {
+    {
       child = vtkMultiBlockDataSet::New();
-      }
+    }
     else
-      {
+    {
       child = vtkUniformGrid::New();
-      }
+    }
     result = this->Populate(cGrid, child);
     if (result)
-      {
+    {
       topB->SetBlock(cnt, result);
       topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
         cGrid->getName().c_str());
       cnt++;
-      }
-    child->Delete();
     }
+    child->Delete();
+  }
   unsigned int nGraphs = group->getNumberGraphs();
   for (unsigned int i = 0; i < nGraphs; i++)
-    {
+  {
     if (this->AsTime && !isTemporal && !this->ShouldRead(i,nGraphs))
-      {
+    {
       topB->SetBlock(cnt++, NULL);
       continue;
-      }
+    }
     vtkMutableDirectedGraph *child = vtkMutableDirectedGraph::New();
     result = this->Populate(group->getGraph(i), child);
     if (result)
-      {
+    {
       topB->SetBlock(cnt, result);
       topB->GetMetaData(cnt)->Set(vtkCompositeDataSet::NAME(),
         group->getGraph(i)->getName().c_str());
       cnt++;
-      }
-    child->Delete();
     }
+    child->Delete();
+  }
 
   if (lastTime)
-    {
+  {
     //restore time search now that we've done the group contents
     this->doTime = true;
-    }
+  }
 
   if (isTemporal && topB->GetNumberOfBlocks()==1)
-    {
+  {
     //temporal collection is just a place holder for its content
     return topB->GetBlock(0);
-    }
+  }
 
   return topB;
 }
@@ -450,43 +450,43 @@ bool vtkXdmf3HeavyDataHandler::ShouldRead(unsigned int piece,
                                           unsigned int npieces)
 {
   if (this->NumProcs<1)
-    {
+  {
     //no parallel information given to us, assume serial
     return true;
-    }
+  }
   if (npieces == 1)
-    {
+  {
     return true;
-    }
+  }
   if (npieces < this->NumProcs)
-    {
+  {
     if (piece == this->Rank)
-      {
+    {
       return true;
-      }
-    return false;
     }
+    return false;
+  }
 
 #if 1
   unsigned int mystart = this->Rank*npieces/this->NumProcs;
   unsigned int myend = (this->Rank+1)*npieces/this->NumProcs;
   if (piece >= mystart)
-    {
+  {
     if (piece < myend || (this->Rank==this->NumProcs-1))
-      {
+    {
       return true;
-      }
     }
+  }
   return false;
 #else
   if ((piece % this->NumProcs) == this->Rank)
-    {
+  {
     return true;
-    }
+  }
   else
-    {
+  {
     return false;
-    }
+  }
 #endif
 
 }
@@ -533,13 +533,13 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeUnsGrid
   vtkXdmf3ArrayKeeper *keeper)
 {
   if (dataSet && this->GridEnabled(grid) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfToVTK
       (
        this->FieldArrays, this->CellArrays, this->PointArrays,
        grid.get(), dataSet, keeper);
     return dataSet;
-    }
+  }
   return NULL;
 }
 
@@ -551,13 +551,13 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeRecGrid
    vtkXdmf3ArrayKeeper *keeper)
 {
   if (dataSet && this->GridEnabled(grid) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfToVTK
       (
        this->FieldArrays, this->CellArrays, this->PointArrays,
        grid.get(), dataSet, keeper);
     return dataSet;
-    }
+  }
   return NULL;
 }
 
@@ -569,13 +569,13 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeCrvGrid
    vtkXdmf3ArrayKeeper *keeper)
 {
   if (dataSet && this->GridEnabled(grid) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfToVTK
       (
        this->FieldArrays, this->CellArrays, this->PointArrays,
        grid.get(), dataSet, keeper);
     return dataSet;
-    }
+  }
   return NULL;
 }
 
@@ -587,13 +587,13 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeRegGrid
    vtkXdmf3ArrayKeeper *keeper)
 {
   if (dataSet && this->GridEnabled(grid) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfToVTK
       (
        this->FieldArrays, this->CellArrays, this->PointArrays,
        grid.get(), dataSet, keeper);
     return dataSet;
-    }
+  }
   return NULL;
 }
 
@@ -605,13 +605,13 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::MakeGraph
    vtkXdmf3ArrayKeeper *keeper)
 {
   if (dataSet && this->GridEnabled(grid) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfToVTK
       (
        this->FieldArrays, this->CellArrays, this->PointArrays,
        grid.get(), dataSet, keeper);
     return dataSet;
-    }
+  }
   return NULL;
 }
 
@@ -624,11 +624,11 @@ vtkDataObject *vtkXdmf3HeavyDataHandler::ExtractSet
 {
   shared_ptr<XdmfSet> set = grid->getSet(setnum);
   if (dataSet && subSet && SetEnabled(set) && this->ForThisTime(grid))
-    {
+  {
     vtkXdmf3DataSet::XdmfSubsetToVTK
       (
        grid.get(), setnum, dataSet, subSet, keeper);
     return subSet;
-    }
+  }
   return NULL;
 }

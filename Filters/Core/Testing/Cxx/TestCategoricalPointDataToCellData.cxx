@@ -48,15 +48,15 @@ void AddTriangle(const double* p0,
   double p[3];
   vtkIdType pId, *bIndex;
   for (vtkIdType i=0;i<3;i++)
-    {
+  {
     bIndex = bIndices[i];
     for (vtkIdType j=0;j<3;j++)
-      {
+    {
       p[j] = (p0[j]*bIndex[2]) + (p1[j]*bIndex[0]) + (p2[j]*bIndex[1]);
-      }
+    }
     pointLocator->InsertUniquePoint(p, pId);
     t->GetPointIds()->SetId(i,pId);
-    }
+  }
   cells->InsertNextCell(t);
 }
 }
@@ -92,45 +92,45 @@ int TestCategoricalPointDataToCellData(int vtkNotUsed(argc),
   double dx = (bounds[1] - bounds[0])/nX;
   double dy = (bounds[3] - bounds[2])/nY;
   for (vtkIdType i=0;i<4;i++)
-    {
+  {
     for (vtkIdType j=0;j<2;j++)
-      {
+    {
       p[i][j] = bounds[2*j];
-      }
-    p[i][2] = 0.;
     }
+    p[i][2] = 0.;
+  }
   p[1][0] += dx;
   p[2][0] += dx;
   p[2][1] += dy;
   p[3][1] += dy;
 
   for (vtkIdType xInc = 0; xInc < nX; xInc++)
-    {
+  {
     p[0][1] = p[1][1] = bounds[2];
     p[2][1] = p[3][1] = bounds[2] + dy;
 
     for (vtkIdType yInc = 0; yInc < nY; yInc++)
-      {
+    {
         if ((xInc < nX/2) == (yInc < nY/2))
-          {
+        {
           AddTriangle(p[0],p[1],p[3], pointLocator, cellArray);
           AddTriangle(p[1],p[2],p[3], pointLocator, cellArray);
-          }
+        }
         else
-          {
+        {
           AddTriangle(p[0],p[1],p[2], pointLocator, cellArray);
           AddTriangle(p[0],p[2],p[3], pointLocator, cellArray);
-          }
+        }
         for (vtkIdType i=0;i<4;i++)
-          {
+        {
           p[i][1] += dy;
-          }
-      }
+        }
+    }
 
     p[0][0] = p[3][0] = p[1][0];
     p[1][0] += dx;
     p[2][0] += dx;
-    }
+  }
 
   unstructuredGrid->SetPoints(pointArray);
   unstructuredGrid->SetCells(VTK_TRIANGLE, cellArray);
@@ -144,11 +144,11 @@ int TestCategoricalPointDataToCellData(int vtkNotUsed(argc),
   elevation->SetNumberOfTuples(nPoints);
 
   for (vtkIdType i = 0; i < nPoints; i++)
-    {
+  {
     double xyz[3];
     unstructuredGrid->GetPoints()->GetPoint(i,xyz);
     elevation->SetTypedTuple(i, &xyz[1]);
-    }
+  }
 
   unstructuredGrid->GetPointData()->AddArray(elevation);
   unstructuredGrid->GetPointData()->SetScalars(elevation);
@@ -165,28 +165,28 @@ int TestCategoricalPointDataToCellData(int vtkNotUsed(argc),
     vtkUnstructuredGrid::SafeDownCast(pointDataToCellData->GetOutput());
 
   if (!output)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   vtkDoubleArray* cellElevation = vtkDoubleArray::SafeDownCast(
     output->GetCellData()->GetScalars("Elevation"));
 
   if (!cellElevation)
-    {
+  {
     return EXIT_FAILURE;
-    }
+  }
 
   double expectedCellElevationValues[8] = {-1.,-.5,-.5,0.,0.,.5,.5,1.};
 
   for (vtkIdType i = 0; i < cellElevation->GetNumberOfTuples(); i++)
-    {
+  {
     if (std::fabs(expectedCellElevationValues[i%8] -
                   cellElevation->GetTuple1(i)) > EPSILON)
-      {
+    {
       return EXIT_FAILURE;
-      }
     }
+  }
 
   return EXIT_SUCCESS;
 }

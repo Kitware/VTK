@@ -69,10 +69,10 @@ void vtkQtRecordView::SetFieldType(int type)
 {
   this->DataObjectToTable->SetFieldType(type);
   if(this->FieldType != type)
-    {
+  {
     this->FieldType = type;
     this->Modified();
-    }
+  }
 }
 
 void vtkQtRecordView::AddRepresentationInternal(vtkDataRepresentation* rep)
@@ -101,9 +101,9 @@ void vtkQtRecordView::Update()
   if (d->GetMTime() == this->LastInputMTime &&
       this->LastMTime == this->GetMTime() &&
       s->GetMTime() == this->CurrentSelectionMTime)
-    {
+  {
     return;
-    }
+  }
 
   this->LastInputMTime = d->GetMTime();
   this->LastMTime = this->GetMTime();
@@ -111,18 +111,18 @@ void vtkQtRecordView::Update()
 
   vtkStdString html;
   if (!rep)
-    {
+  {
     this->TextWidget->setHtml(html.c_str());
     return;
-    }
+  }
 
   this->DataObjectToTable->Update();
   vtkTable *table = this->DataObjectToTable->GetOutput();
   if (!table)
-    {
+  {
     this->TextWidget->setHtml(html.c_str());
     return;
-    }
+  }
 
   vtkSmartPointer<vtkSelection> cs;
   cs.TakeReference(vtkConvertSelection::ToSelectionType(
@@ -132,28 +132,28 @@ void vtkQtRecordView::Update()
   const vtkIdType column_count = table->GetNumberOfColumns();
 
   if(node)
-    {
+  {
     vtkAbstractArray *indexArr = node->GetSelectionList();
     int numRecords = indexArr->GetNumberOfTuples() > 2 ? 2 : indexArr->GetNumberOfTuples();
     for(vtkIdType i=0; i<numRecords; ++i)
-      {
+    {
       vtkVariant v(0);
       switch (indexArr->GetDataType())
-        {
+      {
         vtkExtraExtendedTemplateMacro(v = *static_cast<VTK_TT*>(indexArr->GetVoidPointer(i)));
-        }
+      }
 
       for(vtkIdType j = 0; j != column_count; ++j)
-        {
+      {
         html += "<b>";
         html += table->GetColumnName(j);
         html += ":</b> ";
         html += table->GetValue(v.ToInt(), j).ToString().c_str();
         html += "<br>\n";
-        }
-      html += "<br>\n<br>\n<br>\n<br>\n<br>\n";
       }
+      html += "<br>\n<br>\n<br>\n<br>\n<br>\n";
     }
+  }
 
   this->TextWidget->setHtml(html.c_str());
 }

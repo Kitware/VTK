@@ -67,9 +67,9 @@ public:
   void Reset(vtkIdType size)
   {
     for (vtkIdType i=0; i < size + 1; i++)
-      {
+    {
       this->Bins[i] = this->Init;
-      }
+    }
     this->Counter = 0;
   }
 
@@ -98,26 +98,26 @@ Histogram::Bin Histogram::Init(-1, 1, std::numeric_limits<double>::max());
 bool BinCountCmp(const Histogram::Bin &b1, const Histogram::Bin &b2)
 {
   if (b1.Count < b2.Count)
-    {
+  {
     return true;
-    }
+  }
   else if (b1.Count > b2.Count)
-    {
+  {
     return false;
-    }
+  }
   else
-    {
+  {
     return (b1.Value < b2.Value);
-    }
+  }
 }
 
 vtkIdType Histogram::IndexOfLargestBin()
 {
   // If there is only one datapoint, return its index
   if (this->Counter == 1)
-    {
+  {
     return this->Bins[0].Index;
-    }
+  }
 
   // Sort the histogram bins by value, effectively grouping like bins
   std::sort(this->Bins.begin(), this->Bins.end());
@@ -126,21 +126,21 @@ vtkIdType Histogram::IndexOfLargestBin()
   BinIt it2 = this->Bins.begin();
   BinIt it1 = it2++;
   for (; (*it2).Assigned() && it2 != this->Bins.end(); ++it2)
-    {
+  {
     // If the adjacent bins are close enough to be merged...
     if (fabs((*it1).Value - (*it2).Value) < VTK_EPSILON)
-      {
+    {
       //...then increment the count of the first bin. We need not worry about
       // the count of the second bin, since it will remain 1 and will therefore
       // not be in contention for the largest bin.
       (*it1).Count++;
-      }
+    }
     else
-      {
+    {
       //...otherwise, move on to the next potential set of merges.
       it1 = it2;
-      }
     }
+  }
 
   // Finally, return the index of the element with the largest count. If there
   // is more than one, the index of the element with the smallest value is
@@ -190,31 +190,31 @@ int vtkPointDataToCellData::RequestData(
   output->CopyStructure( input );
 
   if ( (numCells=input->GetNumberOfCells()) < 1 )
-    {
+  {
     vtkDebugMacro(<<"No input cells!");
     return 1;
-    }
+  }
   weights=new double[maxCellSize];
 
   Histogram hist(maxCellSize);
 
   if (this->CategoricalData == 1)
-    {
+  {
     // If the categorical data flag is enabled, then a) there must be scalars
     // to treat as categorical data, and b) the scalars must have one component.
     if (!input->GetPointData()->GetScalars())
-      {
+    {
       vtkDebugMacro(<<"No input scalars!");
       delete [] weights;
       return 1;
-      }
+    }
     if (input->GetPointData()->GetScalars()->GetNumberOfComponents() != 1)
-      {
+    {
       vtkDebugMacro(<<"Input scalars have more than one component! Cannot categorize!");
       delete [] weights;
       return 1;
-      }
     }
+  }
 
   cellPts = vtkIdList::New();
   cellPts->Allocate(maxCellSize);
@@ -233,54 +233,54 @@ int vtkPointDataToCellData::RequestData(
   int abort=0;
   vtkIdType progressInterval=numCells/20 + 1;
   for (cellId=0; cellId < numCells && !abort; cellId++)
-    {
+  {
     if ( !(cellId % progressInterval) )
-      {
+    {
       this->UpdateProgress((double)cellId/numCells);
       abort = GetAbortExecute();
-      }
+    }
 
     input->GetCellPoints(cellId, cellPts);
     numPts = cellPts->GetNumberOfIds();
 
     if (numPts == 0)
-      {
+    {
       continue;
-      }
+    }
 
     // If we aren't dealing with categorical data...
     if (!(this->CategoricalData))
-      {
+    {
       // ...then we simply provide each point with an equal weight value and
       // interpolate.
       weight = 1.0 / numPts;
       for (ptId=0; ptId < numPts; ptId++)
-        {
-        weights[ptId] = weight;
-        }
-      outCD->InterpolatePoint(inPD, cellId, cellPts, weights);
-      }
-    else
       {
+        weights[ptId] = weight;
+      }
+      outCD->InterpolatePoint(inPD, cellId, cellPts, weights);
+    }
+    else
+    {
       // ...otherwise, we populate a histogram from the scalar values at each
       // point, and then select the bin with the most elements.
       hist.Reset(numPts);
       for (ptId=0; ptId < numPts; ptId++)
-        {
+      {
         pointId = cellPts->GetId(ptId);
         hist.Fill(pointId,
                   input->GetPointData()->GetScalars()->GetTuple1(pointId));
-        }
+      }
 
       outCD->CopyData(inPD, hist.IndexOfLargestBin(), cellId);
-      }
     }
+  }
 
   if ( !this->PassPointData )
-    {
+  {
     output->GetPointData()->CopyAllOff();
     output->GetPointData()->CopyFieldOn(vtkDataSetAttributes::GhostArrayName());
-    }
+  }
   output->GetPointData()->PassData(input->GetPointData());
 
   cellPts->Delete();

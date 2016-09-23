@@ -53,9 +53,9 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   lut->SetNumberOfTableValues(NumValues);
   lut->SetTableRange(0, NumValues-1);
   for (int i = 0; i < NumValues; i++)
-    {
+  {
     lut->SetTableValue(i, 0.0, 0.0, 0.0, 0.0);
-    }
+  }
 
   lut->SetTableValue(0, 0 / 255.0, 0 / 255.0, 0 / 255.0, 0 / 255.0);
   lut->SetTableValue(2, 250 / 255.0, 250 / 255.0, 225 / 255.0, 255 / 255.0);
@@ -405,7 +405,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
   const double midPoint = 0.5;
   const double sharpness = 1.0;
   for (int i = 0; i < numColors; i++, value += step)
-    {
+  {
     lut->GetTableValue(i, color);
 
     opacity->AddPoint(
@@ -413,7 +413,7 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 
     colorTransferFunction->AddRGBPoint(
       value, color[0], color[1], color[2], midPoint, sharpness);
-    }
+  }
 
   vtkSmartPointer<vtkXMLImageDataReader> reader =
     vtkSmartPointer<vtkXMLImageDataReader>::New();
@@ -482,20 +482,20 @@ int TestGPURayCastLargeColorTransferFunction(int argc, char* argv[])
 
   int retVal;
   if (valid)
-    {
+  {
     iren->Initialize();
 
     retVal = vtkRegressionTestImage(renderWindow.GetPointer());
     if (retVal == vtkRegressionTester::DO_INTERACTOR)
-      {
-      iren->Start();
-      }
-    }
-  else
     {
+      iren->Start();
+    }
+  }
+  else
+  {
     retVal = vtkTesting::PASSED;
     cout << "Required extensions not supported." << endl;
-    }
+  }
 
   return !((retVal == vtkTesting::PASSED) ||
            (retVal == vtkTesting::DO_INTERACTOR));

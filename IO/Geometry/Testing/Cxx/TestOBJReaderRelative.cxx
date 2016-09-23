@@ -50,22 +50,22 @@ int TestOBJReaderRelative( int argc, char *argv[] )
 
 #define CHECK(obj, method)                                            \
   if (obj##_rel->method != obj##_abs->method)                         \
-    {                                                                 \
+  {                                                                 \
     cerr << "Error: different values for " #obj "->" #method << endl; \
     retVal = 1;                                                       \
-    }
+  }
 #define CHECK_ARRAY(obj, idx)                                              \
   if (obj##_rel[idx] != obj##_abs[idx])                                    \
-    {                                                                      \
+  {                                                                      \
     cerr << "Error: different values for " #obj "[" << (idx) << "]" << endl; \
     retVal = 1;                                                            \
-    }
+  }
 #define CHECK_SCALAR(obj)                                \
   if (obj##_rel != obj##_abs)                            \
-    {                                                    \
+  {                                                    \
     cerr << "Error: different values for " #obj << endl; \
     retVal = 1;                                          \
-    }
+  }
 
   CHECK(data, GetNumberOfVerts())
   CHECK(data, GetNumberOfLines())
@@ -86,14 +86,14 @@ int TestOBJReaderRelative( int argc, char *argv[] )
   polys_abs->InitTraversal();
   while (!polys_rel->GetNextCell(npts_rel, pts_rel) &&
          !polys_abs->GetNextCell(npts_abs, pts_abs))
-    {
+  {
     CHECK_SCALAR(npts)
 
     for (vtkIdType i = 0; i < npts_rel && i < npts_abs; ++i)
-      {
+    {
       CHECK_ARRAY(pts, i)
-      }
     }
+  }
 
 #undef CHECK_SCALAR
 #undef CHECK_ARRAY

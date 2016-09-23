@@ -78,12 +78,12 @@ int TestTextMapper(int, char *[])
   anchors->GetCellData()->SetScalars(colors.GetPointer());
 
   for (size_t row = 0; row < 3; ++row)
-    {
+  {
     for (size_t col = 0; col < 3; ++col)
-      {
+    {
       vtkNew<vtkTextMapper> mapper;
       switch (row)
-        {
+      {
         case 0:
           mapper->GetTextProperty()->SetJustificationToRight();
           break;
@@ -93,9 +93,9 @@ int TestTextMapper(int, char *[])
         case 2:
           mapper->GetTextProperty()->SetJustificationToLeft();
           break;
-        }
+      }
       switch (col)
-        {
+      {
         case 0:
           mapper->GetTextProperty()->SetVerticalJustificationToBottom();
           break;
@@ -105,7 +105,7 @@ int TestTextMapper(int, char *[])
         case 2:
           mapper->GetTextProperty()->SetVerticalJustificationToTop();
           break;
-        }
+      }
       mapper->GetTextProperty()->SetOrientation(45.0 * (3 * row + col));
       mapper->GetTextProperty()->SetColor(0.75, .2 + col * .26, .2 + row * .2);
       vtkNew<vtkActor2D> actor;
@@ -114,8 +114,8 @@ int TestTextMapper(int, char *[])
       setupTextMapper(mapper.GetPointer(), actor.GetPointer(),
                       anchors.GetPointer());
       ren->AddActor2D(actor.GetPointer());
-      }
     }
+  }
 
   vtkNew<vtkPolyDataMapper2D> anchorMapper;
   anchorMapper->SetInputData(anchors.GetPointer());

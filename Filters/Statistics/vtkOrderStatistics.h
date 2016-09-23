@@ -65,7 +65,7 @@ public:
     InverseCDF              = 0, // Identical to method 1 of R
     InverseCDFAveragedSteps = 1, // Identical to method 2 of R, ignored for non-numeric types
     NearestObservation      = 2  // Identical to method 3 of R
-    };
+  };
 
   //@{
   /**

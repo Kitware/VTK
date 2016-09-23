@@ -92,15 +92,15 @@ protected:
   vtkSetMacro(ZShift, double);
   vtkSetMacro(OffsetFaces, int);
   void SetPolygonOffsetParameters(double factor, double units)
-    {
+  {
     if (this->PolygonOffsetFactor != factor ||
       this->PolygonOffsetUnits != units)
-      {
+    {
       this->PolygonOffsetFactor = factor;
       this->PolygonOffsetUnits = units;
       this->Modified();
-      }
     }
+  }
 
   int ResolveCoincidentTopology;
   double PolygonOffsetFactor;

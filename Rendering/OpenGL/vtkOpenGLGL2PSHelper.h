@@ -47,10 +47,10 @@ public:
   static void SetLineWidth(float lineWidth)
   {
     if (vtkOpenGLGL2PSHelper::InGL2PSRender)
-      {
+    {
       glPassThrough(vtkOpenGLGL2PSHelper::LineWidthToken);
       glPassThrough(vtkOpenGLGL2PSHelper::LineWidthFactor * lineWidth);
-      }
+    }
   }
   //@}
 

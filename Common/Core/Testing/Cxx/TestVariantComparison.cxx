@@ -124,13 +124,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(alphaString < numberString);
 
   if (errorCount == 0)
-    {
+  {
     cerr << "Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -175,13 +175,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_FALSE(positiveFloatVariant < invalidVariant);
 
   if (errorCount == 0)
-    {
+  {
     cerr << "Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -231,13 +231,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(vtkVariant(d) == vtkVariant(str));
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -258,13 +258,13 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(TestMap.size() == 1);
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
   errorCount = 0;
 
@@ -309,21 +309,21 @@ TestVariantComparison(int, char *[])
   CHECK_EXPRESSION_TRUE(TestMap2.size() == 8);
 
   if (errorCount == 0)
-    {
+  {
     cerr << " Test succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << errorCount << " error(s) found!\n";
-    }
+  }
   overallErrorCount += errorCount;
 
   if (overallErrorCount == 0)
-    {
+  {
     cerr << "All tests succeeded.\n";
-    }
+  }
   else
-    {
+  {
     cerr << "Some tests failed!  Overall error count: " << overallErrorCount
          << "\n";
     cerr << "Debug information:\n";
@@ -347,7 +347,7 @@ TestVariantComparison(int, char *[])
          << "positive " << positive64 << ", "
          << "negative " << negative64 << ", "
          << "unsigned " << unsigned64 << "\n";
-    }
+  }
 
   fooObject->Delete();
   return (overallErrorCount > 0);

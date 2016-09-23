@@ -44,10 +44,10 @@ public:
    * Set the encoding to be used for rendered images.
    */
   enum
-    {
+  {
     ENCODING_NONE=0,
     ENCODING_BASE64=1
-    };
+  };
   vtkSetClampMacro(ImageEncoding, int, ENCODING_NONE, ENCODING_BASE64);
   vtkGetMacro(ImageEncoding, int);
   //@}
@@ -57,11 +57,11 @@ public:
    * Set the compression to be used for rendered images.
    */
   enum
-    {
+  {
     COMPRESSION_NONE=0,
     COMPRESSION_PNG=1,
     COMPRESSION_JPEG=2
-    };
+  };
   vtkSetClampMacro(ImageCompression, int, COMPRESSION_NONE, COMPRESSION_JPEG);
   vtkGetMacro(ImageCompression, int);
   //@}

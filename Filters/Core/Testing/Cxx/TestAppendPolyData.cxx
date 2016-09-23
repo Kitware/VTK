@@ -71,23 +71,23 @@ int TestAppendPolyData(int, char *[])
 
   if(outputPolyData->GetNumberOfPoints()
     != inputPolyData0->GetNumberOfPoints() + inputPolyData1->GetNumberOfPoints())
-    {
+  {
     std::cerr << "The output number of points is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if(outputPolyData->GetNumberOfCells()
     != inputPolyData0->GetNumberOfCells() + inputPolyData1->GetNumberOfCells())
-    {
+  {
     std::cerr << "The output number of cells is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   if(outputPolyData->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points0->SetDataType(VTK_DOUBLE);
   points0->DeepCopy(pointsArray0);
@@ -98,10 +98,10 @@ int TestAppendPolyData(int, char *[])
   outputPolyData = appendPolyData->GetOutput();
 
   if(outputPolyData->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points1->SetDataType(VTK_DOUBLE);
   points1->DeepCopy(pointsArray1);
@@ -110,10 +110,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   appendPolyData->SetOutputPointsPrecision(vtkAlgorithm::SINGLE_PRECISION);
 
@@ -128,10 +128,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points0->SetDataType(VTK_DOUBLE);
   points0->DeepCopy(pointsArray0);
@@ -140,10 +140,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points1->SetDataType(VTK_DOUBLE);
   points1->DeepCopy(pointsArray1);
@@ -152,10 +152,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_FLOAT)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   appendPolyData->SetOutputPointsPrecision(vtkAlgorithm::DOUBLE_PRECISION);
 
@@ -170,10 +170,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points0->SetDataType(VTK_DOUBLE);
   points0->DeepCopy(pointsArray0);
@@ -182,10 +182,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   points1->SetDataType(VTK_DOUBLE);
   points1->DeepCopy(pointsArray1);
@@ -194,10 +194,10 @@ int TestAppendPolyData(int, char *[])
   appendPolyData->Update();
 
   if(appendPolyData->GetOutput()->GetPoints()->GetDataType() != VTK_DOUBLE)
-    {
+  {
     std::cerr << "The output points data type is incorrect." << std::endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

@@ -138,7 +138,7 @@ int vtkPixelTransfer::Blit(
 {
   // second layer of dispatch
   switch(destType)
-    {
+  {
     vtkTemplateMacro(
         return vtkPixelTransfer::Blit(
             srcWholeExt,
@@ -149,7 +149,7 @@ int vtkPixelTransfer::Blit(
             srcData,
             nDestComps,
             (VTK_TT*)destData););
-    }
+  }
   return 0;
 }
 
@@ -166,22 +166,22 @@ int vtkPixelTransfer::Blit(
        DEST_TYPE *destData)
 {
   if ( (srcData == NULL) || (destData == NULL) )
-    {
+  {
     return -1;
-    }
+  }
   if ( (srcWholeExt == srcSubset)
     && (destWholeExt == destSubset)
     && (nSrcComps == nDestComps) )
-    {
+  {
     // buffers are contiguous
     size_t n = srcWholeExt.Size()*nSrcComps;
     for (size_t i=0; i<n; ++i)
-      {
-      destData[i] = static_cast<DEST_TYPE>(srcData[i]);
-      }
-    }
-  else
     {
+      destData[i] = static_cast<DEST_TYPE>(srcData[i]);
+    }
+  }
+  else
+  {
     // buffers are not contiguous
     int tmp[2];
 
@@ -208,26 +208,26 @@ int vtkPixelTransfer::Blit(
     int nCopyComps = nSrcComps < nDestComps ? nSrcComps : nDestComps;
 
     for (int j=0; j<nxny[1]; ++j)
-      {
+    {
       int sjj = swnx*(srcExt[2]+j)+srcExt[0];
       int djj = dwnx*(destExt[2]+j)+destExt[0];
       for (int i=0; i<nxny[0]; ++i)
-        {
+      {
         int sidx = nSrcComps*(sjj+i);
         int didx = nDestComps*(djj+i);
         // copy values from source
         for (int p=0; p<nCopyComps; ++p)
-          {
+        {
           destData[didx+p] = static_cast<DEST_TYPE>(srcData[sidx+p]);
-          }
+        }
         // ensure all dest comps are initialized
         for (int p=nCopyComps; p<nDestComps; ++p)
-          {
+        {
           destData[didx+p] = static_cast<DEST_TYPE>(0);
-          }
         }
       }
     }
+  }
   return 0;
 }
 

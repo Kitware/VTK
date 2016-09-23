@@ -41,9 +41,9 @@ public:
    * Add an ObjectFactory from the list.
    */
   void AddItem(vtkObjectFactory *t)
-    {
+  {
       this->vtkCollection::AddItem(t);
-    }
+  }
 
   /**
    * Get the next ObjectFactory in the list. Return NULL when the end of the

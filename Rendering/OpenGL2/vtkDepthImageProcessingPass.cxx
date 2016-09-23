@@ -66,10 +66,10 @@ vtkDepthImageProcessingPass::vtkDepthImageProcessingPass()
 vtkDepthImageProcessingPass::~vtkDepthImageProcessingPass()
 {
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->Delete();
     this->DelegatePass=0;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -79,13 +79,13 @@ void vtkDepthImageProcessingPass::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "DelegatePass:";
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->PrintSelf(os,indent);
-    }
+  }
   else
-    {
+  {
     os << "(none)" <<endl;
-    }
+  }
 }
 // ----------------------------------------------------------------------------
 // Description:
@@ -126,30 +126,30 @@ void vtkDepthImageProcessingPass::RenderDelegate(const vtkRenderState *s,
   r->SetActiveCamera(newCamera);
 
   if(newCamera->GetParallelProjection())
-    {
+  {
     newCamera->SetParallelScale(
       newCamera->GetParallelScale()*newHeight/static_cast<double>(height));
-    }
+  }
   else
-    {
+  {
     double large;
     double small;
     if(newCamera->GetUseHorizontalViewAngle())
-      {
+    {
       large=newWidth;
       small=width;
-      }
+    }
     else
-      {
+    {
       large=newHeight;
       small=height;
 
-      }
+    }
     double angle=vtkMath::RadiansFromDegrees(newCamera->GetViewAngle());
     angle = 2.0*atan(tan(angle/2.0)*large/static_cast<double>(small));
 
     newCamera->SetViewAngle(vtkMath::DegreesFromRadians(angle));
-    }
+  }
 
   s2.SetFrameBuffer(fbo);
 
@@ -209,7 +209,7 @@ void vtkDepthImageProcessingPass::ReleaseGraphicsResources(vtkWindow *w)
 {
   assert("pre: w_exists" && w!=0);
   if(this->DelegatePass!=0)
-    {
+  {
     this->DelegatePass->ReleaseGraphicsResources(w);
-    }
+  }
 }

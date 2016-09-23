@@ -34,20 +34,20 @@ std::string RGBAToDoubleString(double *rgba)
   std::ostringstream os;
   os << "[";
   for (int i = 0; i < 4; ++i)
-    {
+  {
     if (i == 0)
-      {
+    {
       os << std::fixed << std::setw(8) << std::setprecision(6) << rgba[i];
-      }
-    else
-      {
-      os << std::fixed << std::setw(9) << std::setprecision(6) << rgba[i];
-      }
-    if (i < 3)
-      {
-      os << ",";
-      }
     }
+    else
+    {
+      os << std::fixed << std::setw(9) << std::setprecision(6) << rgba[i];
+    }
+    if (i < 3)
+    {
+      os << ",";
+    }
+  }
   os << "]";
   return os.str();
 }
@@ -59,20 +59,20 @@ std::string RGBAToCharString(double *rgba)
   std::ostringstream os;
   os << "[";
   for (int i = 0; i < 4; ++i)
-    {
+  {
     if (i == 0)
-      {
+    {
       os << std::setw(3) << static_cast<int>(rgba[i] * 255);
-      }
-    else
-      {
-      os << std::setw(4) << static_cast<int>(rgba[i] * 255);
-      }
-    if (i < 3)
-      {
-      os << ",";
-      }
     }
+    else
+    {
+      os << std::setw(4) << static_cast<int>(rgba[i] * 255);
+    }
+    if (i < 3)
+    {
+      os << ",";
+    }
+  }
   os << "]";
   return os.str();
 }
@@ -117,12 +117,12 @@ std::string DisplayOrdinalLUTAsString(vtkLookupTable *lut)
     << dR[0] << " to " << dR[1] << std::endl;
   std::vector<double> indices;
   for (int i = 0; i < tv; ++i)
-    {
+  {
     indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);
-    }
+  }
   for (std::vector<double>::const_iterator p = indices.begin();
        p != indices.end(); ++p)
-    {
+  {
     double rgba[4];
     lut->GetColor(*p, rgba);
     rgba[3] = lut->GetOpacity(*p);
@@ -133,7 +133,7 @@ std::string DisplayOrdinalLUTAsString(vtkLookupTable *lut)
     os << RGBToHexString(rgba);
     os << " ";
     os << std::endl;
-    }
+  }
   return os.str();
 }
 
@@ -149,7 +149,7 @@ std::string DisplayCategoricalLUTAsString(vtkLookupTable *lut)
     << " Table Range: " << std::fixed << std::setw(8) << std::setprecision(6)
     << dR[0] << " to " << dR[1] << std::endl;
   for (vtkIdType i = 0; i < tv; ++i)
-    {
+  {
     const unsigned char* cval = lut->MapValue(i);
     double rgba[4];
     for (int j = 0; j < 4; ++j)
@@ -163,7 +163,7 @@ std::string DisplayCategoricalLUTAsString(vtkLookupTable *lut)
     os << RGBToHexString(rgba);
     os << " ";
     os << std::endl;
-    }
+  }
   return os.str();
 }
 
@@ -174,34 +174,34 @@ std::pair<bool, std::string> CompareOrdinalLUTs(vtkLookupTable *lut1,
 {
   std::pair<bool, std::string> res(true, "");
   if (lut1->GetNumberOfTableValues() != lut2->GetNumberOfTableValues())
-    {
+  {
     res.first = false;
     res.second = "Table values do not match.";
-    }
+  }
   else
-    {
+  {
     double dR1[2];
     lut1->GetTableRange(dR1);
     double dR2[2];
     lut2->GetTableRange(dR2);
     if (dR1[0] != dR2[0] && dR2[1] != dR1[1])
-      {
+    {
       res.first = false;
       res.second = "Table ranges do not match.";
-      }
+    }
     else
-      {
+    {
       vtkIdType tv = lut1->GetNumberOfTableValues();
       double dR[2];
       lut1->GetTableRange(dR);
       std::vector<double> indices;
       for (int i = 0; i < tv; ++i)
-        {
+      {
         indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);
-        }
+      }
       for (std::vector<double>::const_iterator p = indices.begin();
            p != indices.end(); ++p)
-        {
+      {
         double rgba1[4];
         lut1->GetColor(*p, rgba1);
         rgba1[3] = lut1->GetOpacity(*p);
@@ -210,22 +210,22 @@ std::pair<bool, std::string> CompareOrdinalLUTs(vtkLookupTable *lut1,
         rgba2[3] = lut2->GetOpacity(*p);
         bool areEquivalent = true;
         for (int i = 0; i < 4; ++i)
-          {
+        {
           areEquivalent &= rgba1[i] == rgba2[i];
           if (!areEquivalent)
-            {
-            break;
-            }
-          }
-        if (!areEquivalent)
           {
+            break;
+          }
+        }
+        if (!areEquivalent)
+        {
           res.first = false;
           res.second = "Colors do not match.";
           break;
-          }
         }
       }
     }
+  }
   return res;
 }
 
@@ -236,38 +236,38 @@ std::pair<bool, std::string> CompareCategoricalLUTs(vtkLookupTable *lut1,
 {
   std::pair<bool, std::string> res(true, "");
   if (lut1->GetNumberOfTableValues() != lut2->GetNumberOfTableValues())
-    {
+  {
     res.first = false;
     res.second = "Table values do not match.";
-    }
+  }
   else
-    {
+  {
     double dR1[2];
     lut1->GetTableRange(dR1);
     double dR2[2];
     lut2->GetTableRange(dR2);
     if (dR1[0] != dR2[0] && dR2[1] != dR1[1])
-      {
+    {
       res.first = false;
       res.second = "Table ranges do not match.";
-      }
+    }
     else
-      {
+    {
       vtkIdType tv = lut1->GetNumberOfTableValues();
       double dR[2];
       lut1->GetTableRange(dR);
       std::vector<double> indices;
       for (int i = 0; i < tv; ++i)
-        {
+      {
         indices.push_back((dR[1] - dR[0]) * i / tv + dR[0]);
-        }
+      }
       vtkSmartPointer<vtkDoubleArray> data =
        vtkSmartPointer<vtkDoubleArray>::New();
       for (std::vector<double>::const_iterator p = indices.begin();
            p != indices.end(); ++p)
-        {
+      {
         data->InsertNextValue(*p);
-        }
+      }
       vtkUnsignedCharArray *color1 =
         lut1->MapScalars(data, VTK_RGBA, 0);
       vtkUnsignedCharArray *color2 =
@@ -275,29 +275,29 @@ std::pair<bool, std::string> CompareCategoricalLUTs(vtkLookupTable *lut1,
       unsigned char* cval1;
       unsigned char* cval2;
       for (vtkIdType i = 0; i < color1->GetNumberOfTuples(); ++i)
-        {
+      {
         cval1 = color1->GetPointer(i * 4);
         cval2 = color2->GetPointer(i * 4);
         bool areEquivalent = true;
         for (int j = 0; j < 4; ++j)
-          {
+        {
           areEquivalent &= cval1[j] == cval2[j];
           if (!areEquivalent)
-            {
-            break;
-            }
-          }
-        if (!areEquivalent)
           {
+            break;
+          }
+        }
+        if (!areEquivalent)
+        {
           res.first = false;
           res.second = "Colors do not match.";
           break;
-          }
         }
+      }
       color1->Delete();
       color2->Delete();
     }
-    }
+  }
   return res;
 }
 
@@ -320,14 +320,14 @@ int TestColorSeriesLookupTables(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
    vtkSmartPointer <vtkVariantArray>::New();
   std::string str = "abcdefghijklmnopqrstuvwxyz";
   for (size_t i = 0; i < 10; ++i)
-    {
+  {
     values->InsertNextValue(vtkVariant(str.substr(i, 1)));
-    }
+  }
   for (int i = 0; i < values->GetNumberOfTuples(); ++i)
-    {
+  {
     lut3->SetAnnotation(i, values->GetValue(i).ToString());
     lut4->SetAnnotation(i, values->GetValue(i).ToString());
-    }
+  }
 
   colorSeries->BuildLookupTable(lut1);
   // Convert from categorical to ordinal.
@@ -336,7 +336,7 @@ int TestColorSeriesLookupTables(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
   // lut1 & lut2 should be ordinal lookup tables.
   std::pair<bool, std::string> comparison = CompareOrdinalLUTs(lut1, lut2);
   if (!comparison.first)
-    {
+  {
     std::cout << line;
     std::cout << std::boolalpha << comparison.first << " "
       << std::noboolalpha << comparison.second << std::endl;
@@ -346,14 +346,14 @@ int TestColorSeriesLookupTables(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     std::cout << DisplayOrdinalLUTAsString(lut2) << std::endl;
     std::cout << line;
     res &= comparison.first;
-    }
+  }
   // lut3 will be categorical.
   colorSeries->BuildLookupTable(lut3, 99);
   // Expecting a fail here as the tables are different.
   // lut2 is ordinal and lut3 is categorical.
   comparison = CompareOrdinalLUTs(lut2, lut3);
   if (comparison.first)
-    {
+  {
     std::cout << line;
     std::cout << std::boolalpha << comparison.first << " "
       << std::noboolalpha << comparison.second << std::endl;
@@ -363,16 +363,16 @@ int TestColorSeriesLookupTables(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     std::cout << DisplayCategoricalLUTAsString(lut3) << std::endl;
     std::cout << line;
     res &= !comparison.first;
-    }
+  }
   else
-    {
+  {
     res &= !comparison.first;
-    }
+  }
   // lut3 and lut4 will be categorical.
   colorSeries->BuildLookupTable(lut4);
   comparison = CompareCategoricalLUTs(lut3, lut4);
   if (!comparison.first)
-    {
+  {
     std::cout << line;
     std::cout << std::boolalpha << comparison.first << " "
       << std::noboolalpha << comparison.second << std::endl;
@@ -382,7 +382,7 @@ int TestColorSeriesLookupTables(int vtkNotUsed(argc), char* vtkNotUsed(argv)[])
     std::cout << DisplayCategoricalLUTAsString(lut4) << std::endl;
     std::cout << line;
     res &= comparison.first;
-    }
+  }
 
   return (res) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

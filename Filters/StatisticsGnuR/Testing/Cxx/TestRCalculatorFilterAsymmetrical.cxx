@@ -52,10 +52,10 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
   r1->Update();
   vtkTree *outTree1 = vtkTree::SafeDownCast(r1->GetOutput());
   if (outTree1 == NULL)
-    {
+  {
     cerr << "case #1 failed." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // test case #2: 2 input tables, 1 output tree
   vtkNew<vtkMultiPieceDataSet> inComposite1;
@@ -73,10 +73,10 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
 
   outTree1 = vtkTree::SafeDownCast(r2->GetOutput());
   if (outTree1 == NULL)
-    {
+  {
     cerr << "case #2 failed." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // test case #3: 2 input tables, 2 output trees
   vtkNew<vtkRCalculatorFilter> r3;
@@ -90,22 +90,22 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
 
   vtkMultiPieceDataSet * outComposite = vtkMultiPieceDataSet::SafeDownCast(r3->GetOutput());
   if(outComposite == NULL)
-    {
+  {
     cerr << "case #3 failed because outComposite is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   outTree1 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(0));
   if (outTree1 == NULL)
-    {
+  {
     cerr << "case #3 failed because outTree1 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   vtkTree *outTree2 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(1));
   if (outTree2 == NULL)
-    {
+  {
     cerr << "case #3 failed because outTree2 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // test case #4: 1 input table, 2 output trees
   vtkNew<vtkRCalculatorFilter> r4;
@@ -118,22 +118,22 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
 
   outComposite = vtkMultiPieceDataSet::SafeDownCast(r4->GetOutput());
   if(outComposite == NULL)
-    {
+  {
     cerr << "case #4 failed because outComposite is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   outTree1 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(0));
   if (outTree1 == NULL)
-    {
+  {
     cerr << "case #4 failed because outTree1 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   outTree2 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(1));
   if (outTree2 == NULL)
-    {
+  {
     cerr << "case #4 failed because outTree2 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   // test case #5: 1 input table, 1 input tree, 2 output trees
   vtkNew<vtkTree> inTree1;
@@ -153,22 +153,22 @@ int TestRCalculatorFilterAsymmetrical(int vtkNotUsed(argc), char *vtkNotUsed(arg
 
   outComposite = vtkMultiPieceDataSet::SafeDownCast(r5->GetOutput());
   if(outComposite == NULL)
-    {
+  {
     cerr << "case #4 failed because outComposite is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   outTree1 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(0));
   if (outTree1 == NULL)
-    {
+  {
     cerr << "case #4 failed because outTree1 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
   outTree2 = vtkTree::SafeDownCast(outComposite->GetPieceAsDataObject(1));
   if (outTree2 == NULL)
-    {
+  {
     cerr << "case #4 failed because outTree2 is NULL." << endl;
     return EXIT_FAILURE;
-    }
+  }
 
   return EXIT_SUCCESS;
 }

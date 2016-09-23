@@ -141,9 +141,9 @@ protected:
   virtual int ComputeInputUpdateExtent(vtkInformation*,
                                        vtkInformationVector**,
                                        vtkInformationVector*)
-    {
+  {
       return 1;
-    };
+  };
   //@}
 
   // see algorithm for more info

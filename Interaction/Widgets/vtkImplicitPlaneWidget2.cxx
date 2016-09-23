@@ -39,14 +39,14 @@ public:
   static vtkInteractionCallback *New()
     { return new vtkInteractionCallback; }
   void Execute(vtkObject*, unsigned long eventId, void*) VTK_OVERRIDE
-    {
+  {
       switch (eventId)
-        {
+      {
         case vtkCommand::ModifiedEvent:
           this->ImplicitPlaneWidget->InvokeInteractionCallback();
           break;
-        }
-    }
+      }
+  }
   vtkImplicitPlaneWidget2 *ImplicitPlaneWidget;
 };
 
@@ -120,9 +120,9 @@ void vtkImplicitPlaneWidget2::SelectAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -154,9 +154,9 @@ void vtkImplicitPlaneWidget2::TranslateAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -188,9 +188,9 @@ void vtkImplicitPlaneWidget2::ScaleAction(vtkAbstractWidget *w)
   self->UpdateCursorShape(interactionState);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // We are definitely selected
   self->GrabFocus(self->EventCallbackCommand);
@@ -220,7 +220,7 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
   int changed = 0;
 
   if (self->ManagesCursor && self->WidgetState != vtkImplicitPlaneWidget2::Active)
-    {
+  {
     int oldInteractionState = reinterpret_cast<vtkImplicitPlaneRepresentation*>(
       self->WidgetRep)->GetInteractionState();
 
@@ -231,17 +231,17 @@ void vtkImplicitPlaneWidget2::MoveAction(vtkAbstractWidget *w)
     reinterpret_cast<vtkImplicitPlaneRepresentation*>(self->WidgetRep)->
       SetInteractionState(oldInteractionState);
     changed = (changed || state != oldInteractionState) ? 1 : 0;
-    }
+  }
 
   // See whether we're active
   if ( self->WidgetState == vtkImplicitPlaneWidget2::Start )
-    {
+  {
     if (changed && self->ManagesCursor)
-      {
+    {
       self->Render();
-      }
-    return;
     }
+    return;
+  }
 
   // Okay, adjust the representation
   double e[2];
@@ -262,9 +262,9 @@ void vtkImplicitPlaneWidget2::EndSelectAction(vtkAbstractWidget *w)
 
   if ( self->WidgetState != vtkImplicitPlaneWidget2::Active  ||
        self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Return state to not selected
   double e[2];
@@ -295,9 +295,9 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
   self->WidgetRep->ComputeInteractionState(X, Y);
 
   if ( self->WidgetRep->GetInteractionState() == vtkImplicitPlaneRepresentation::Outside )
-    {
+  {
     return;
-    }
+  }
 
   // Invoke all of the events associated with moving the plane
   self->InvokeEvent(vtkCommand::StartInteractionEvent,NULL);
@@ -306,13 +306,13 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
   double factor = ( self->Interactor->GetControlKey() ? 0.5 : 1.0);
   if (vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Down") ||
       vtkStdString( self->Interactor->GetKeySym() ) == vtkStdString("Left"))
-    {
+  {
     self->GetImplicitPlaneRepresentation()->BumpPlane(-1,factor);
-    }
+  }
   else
-    {
+  {
     self->GetImplicitPlaneRepresentation()->BumpPlane(1,factor);
-    }
+  }
   self->InvokeEvent(vtkCommand::InteractionEvent,NULL);
 
   self->EventCallbackCommand->SetAbortFlag(1);
@@ -324,14 +324,14 @@ void vtkImplicitPlaneWidget2::MovePlaneAction(vtkAbstractWidget *w)
 void vtkImplicitPlaneWidget2::SetEnabled(int enabling)
 {
   if(this->Enabled == enabling)
-    {
+  {
     return;
-    }
+  }
 
   if(this->GetCurrentRenderer() && !enabling)
-    {
+  {
     this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(this->InteractionCallback);
-    }
+  }
 
   Superclass::SetEnabled(enabling);
 }
@@ -340,9 +340,9 @@ void vtkImplicitPlaneWidget2::SetEnabled(int enabling)
 void vtkImplicitPlaneWidget2::CreateDefaultRepresentation()
 {
   if ( ! this->WidgetRep )
-    {
+  {
     this->WidgetRep = vtkImplicitPlaneRepresentation::New();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -359,20 +359,20 @@ int vtkImplicitPlaneWidget2::UpdateCursorShape( int state )
   // So as to change the cursor shape when the mouse is poised over
   // the widget.
   if (this->ManagesCursor)
-    {
+  {
     if (state == vtkImplicitPlaneRepresentation::Outside)
-      {
+    {
       return this->RequestCursorShape(VTK_CURSOR_DEFAULT);
-      }
-    else if (state == vtkImplicitPlaneRepresentation::MovingOutline)
-      {
-      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
-      }
-    else
-      {
-      return this->RequestCursorShape(VTK_CURSOR_HAND);
-      }
     }
+    else if (state == vtkImplicitPlaneRepresentation::MovingOutline)
+    {
+      return this->RequestCursorShape(VTK_CURSOR_SIZEALL);
+    }
+    else
+    {
+      return this->RequestCursorShape(VTK_CURSOR_HAND);
+    }
+  }
 
   return 0;
 }
@@ -383,28 +383,28 @@ void vtkImplicitPlaneWidget2::SetLockNormalToCamera(int lock)
   if (!this->GetImplicitPlaneRepresentation() ||
       !this->Enabled ||
       !this->GetCurrentRenderer())
-    {
+  {
     return;
-    }
+  }
 
   this->GetImplicitPlaneRepresentation()->SetLockNormalToCamera(lock);
 
   // We assume that the renderer of the Widget cannot be changed without
   // previously being disabled.
   if (lock)
-    {
+  {
     // We Observe the Camera && make the update
     this->GetCurrentRenderer()->GetActiveCamera()->AddObserver(
       vtkCommand::ModifiedEvent, this->InteractionCallback, this->Priority);
 
     this->GetImplicitPlaneRepresentation()->SetNormalToCamera();
     this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-    }
+  }
   else
-    {
+  {
     this->GetCurrentRenderer()->GetActiveCamera()->RemoveObserver(
       this->InteractionCallback);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -415,15 +415,15 @@ void vtkImplicitPlaneWidget2::InvokeInteractionCallback()
       reinterpret_cast<vtkImplicitPlaneRepresentation*>(this->WidgetRep);
 
   if(widgetRep->GetLockNormalToCamera())
-    {
+  {
     previousMtime = widgetRep->GetMTime();
     this->GetImplicitPlaneRepresentation()->SetNormalToCamera();
 
     if(widgetRep->GetMTime() > previousMtime)
-      {
+    {
       this->InvokeEvent(vtkCommand::InteractionEvent,NULL);
-      }
     }
+  }
 }
 
 //----------------------------------------------------------------------------

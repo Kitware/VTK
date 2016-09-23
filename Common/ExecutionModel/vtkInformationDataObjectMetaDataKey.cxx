@@ -35,9 +35,9 @@ void vtkInformationDataObjectMetaDataKey::CopyDefaultInformation(
   vtkInformation* toInfo)
 {
   if (request->Has(vtkStreamingDemandDrivenPipeline::REQUEST_INFORMATION()))
-    {
+  {
     this->ShallowCopy(fromInfo, toInfo);
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

@@ -76,10 +76,10 @@ public:
   static vtkExternalLight *New();
 
   enum ReplaceModes
-    {
+  {
     INDIVIDUAL_PARAMS   = 0, // default
     ALL_PARAMS          = 1
-    };
+  };
 
   //@{
   /**

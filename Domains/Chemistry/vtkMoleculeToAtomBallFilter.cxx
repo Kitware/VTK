@@ -84,7 +84,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
   // Build a sphere for each atom and append it's data to the output
   // arrays.
   for (vtkIdType atomInd = 0; atomInd < numAtoms; ++atomInd)
-    {
+  {
     // Extract atomic number, position
     vtkAtom atom = input->GetAtom(atomInd);
     atomicNum = atom.GetAtomicNumber();
@@ -92,7 +92,7 @@ int vtkMoleculeToAtomBallFilter::RequestData(
 
     // Get scaled radius:
     switch (this->RadiusSource)
-      {
+    {
       default:
       case CovalentRadius:
         scaledRadius = this->RadiusScale * pTab->GetCovalentRadius(atomicNum);
@@ -103,13 +103,13 @@ int vtkMoleculeToAtomBallFilter::RequestData(
       case UnitRadius:
         scaledRadius = this->RadiusScale /* * 1.0 */;
         break;
-      }
+    }
 
     // Make hydrogens slightly larger
     if (atomicNum == 1 && RadiusSource == CovalentRadius)
-      {
+    {
       scaledRadius *= 1.1;
-      }
+    }
 
 
     // Update sphere source
@@ -129,25 +129,25 @@ int vtkMoleculeToAtomBallFilter::RequestData(
 
     // Add new points, use atomic number for point scalar data.
     for (vtkIdType i = 0; i < numPoints; ++i)
-      {
+    {
       points->InsertNextPoint(spherePoints->GetPoint(i));
       atomicNums->InsertNextValue(atomicNum);
-      }
+    }
 
     // Add new cells (polygons) that represent the sphere
     spherePolys->InitTraversal();
     while (spherePolys->GetNextCell(numCellPoints, cellPoints) != 0)
-      {
+    {
       vtkIdType *newCellPoints = new vtkIdType[numCellPoints];
       for (vtkIdType i = 0; i < numCellPoints; ++i)
-        {
+      {
         // The new point ids should be offset by the pointOffset above
         newCellPoints[i] = cellPoints[i] + pointOffset;
-        }
+      }
       polys->InsertNextCell(numCellPoints, newCellPoints);
       delete [] newCellPoints;
-      }
     }
+  }
 
   // update output
   output->SetPoints(points);
@@ -171,7 +171,7 @@ void vtkMoleculeToAtomBallFilter::PrintSelf(ostream& os, vtkIndent indent)
 
   os << indent << "RadiusSource: ";
   switch (RadiusSource)
-    {
+  {
     case CovalentRadius:
       os << "CovalentRadius\n";
       break;
@@ -184,7 +184,7 @@ void vtkMoleculeToAtomBallFilter::PrintSelf(ostream& os, vtkIndent indent)
     default:
       os << "Unknown\n";
       break;
-    }
+  }
   os << indent << "Resolution: " << Resolution << "\n";
   os << indent << "RadiusScale: " << RadiusScale << "\n";
 }

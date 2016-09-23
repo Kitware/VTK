@@ -103,13 +103,13 @@ public:
    * (aka shape functions/derivatives)
    */
   void InterpolateFunctions(double pcoords[3], double weights[5]) VTK_OVERRIDE
-    {
+  {
     vtkPyramid::InterpolationFunctions(pcoords,weights);
-    }
+  }
   void InterpolateDerivs(double pcoords[3], double derivs[15]) VTK_OVERRIDE
-    {
+  {
     vtkPyramid::InterpolationDerivs(pcoords,derivs);
-    }
+  }
   //@}
 
   int JacobianInverse(double pcoords[3], double **inverse, double derivs[15]);

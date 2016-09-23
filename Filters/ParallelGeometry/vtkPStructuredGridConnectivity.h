@@ -405,12 +405,12 @@ inline bool vtkPStructuredGridConnectivity::GridExtentsAreEqual(
     int rhs[6], int lhs[6] )
 {
   for( int i=0; i < 6; ++i )
-    {
+  {
     if( rhs[i] != lhs[i] )
-      {
+    {
       return false;
-      }
     }
+  }
   return true;
 }
 
@@ -423,9 +423,9 @@ inline bool vtkPStructuredGridConnectivity::HasPointData(const int gridIdx)
 
   if( (this->GridPointData[gridIdx] != NULL) &&
       (this->GridPointData[gridIdx]->GetNumberOfArrays() > 0) )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -438,9 +438,9 @@ inline bool vtkPStructuredGridConnectivity::HasCellData(const int gridIdx)
 
   if( (this->GridCellData[gridIdx] != NULL) &&
       (this->GridCellData[gridIdx]->GetNumberOfArrays( ) > 0) )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -452,9 +452,9 @@ inline bool vtkPStructuredGridConnectivity::HasPoints(const int gridIdx)
          (gridIdx >= 0) && (gridIdx < static_cast<int>(this->NumberOfGrids)));
 
   if( this->GridPoints[gridIdx] != NULL )
-    {
+  {
     return true;
-    }
+  }
   return false;
 }
 
@@ -472,24 +472,24 @@ inline void vtkPStructuredGridConnectivity::ClearRawBuffers()
 
   // STEP 0: Clear send buffers
   for( unsigned int i=0; i < this->SendBuffers.size(); ++i )
-    {
+  {
     for( unsigned int j=0; j < this->SendBuffers[i].size(); ++j )
-      {
+    {
       delete [] this->SendBuffers[i][j];
-      } // END for all neighbors
+    } // END for all neighbors
     this->SendBuffers[i].clear();
-    } // END for all grids
+  } // END for all grids
   this->SendBuffers.clear();
 
   // STEP 1: Clear rcv buffers
   for( unsigned int i=0; i < this->RcvBuffers.size(); ++i )
-    {
+  {
     for( unsigned int j=0; j < this->RcvBuffers[i].size(); ++j )
-      {
+    {
       delete [] this->RcvBuffers[i][j];
-      } // END for all neighbors
+    } // END for all neighbors
     this->RcvBuffers[i].clear();
-    } // END for all grids
+  } // END for all grids
   this->RcvBuffers.clear();
 }
 
@@ -498,44 +498,44 @@ inline void vtkPStructuredGridConnectivity::ClearRemoteData()
 {
   // STEP 0: Clear remote points
   for( unsigned int i=0; i < this->RemotePoints.size(); ++i )
-    {
+  {
     for( unsigned int j=0; j < this->RemotePoints[i].size(); ++j )
-      {
+    {
       if( this->RemotePoints[ i ][ j ] != NULL )
-        {
+      {
         this->RemotePoints[ i ][ j ]->Delete();
-        }
-      } // END for all j
+      }
+    } // END for all j
     this->RemotePoints[ i ].clear();
-    } // END for all i
+  } // END for all i
   this->RemotePoints.clear();
 
   // STEP 1: Clear remote point data
   for( unsigned int i=0; i < this->RemotePointData.size(); ++i )
-    {
+  {
     for( unsigned int j=0; j < this->RemotePointData[i].size(); ++j )
-      {
+    {
       if( this->RemotePointData[ i ][ j ] != NULL )
-        {
+      {
         this->RemotePointData[ i ][ j ]->Delete();
-        }
-      } // END for all j
+      }
+    } // END for all j
     this->RemotePointData[ i ].clear();
-    } // END for all i
+  } // END for all i
   this->RemotePointData.clear();
 
   // STEP 2: Clear remote cell data
   for( unsigned int i=0; i < this->RemoteCellData.size(); ++i )
-    {
+  {
     for( unsigned int j=0; j < this->RemoteCellData[i].size(); ++j )
-      {
+    {
       if( this->RemoteCellData[ i ][ j ] != NULL )
-        {
+      {
         this->RemoteCellData[ i ][ j ]->Delete();
-        }
-      } // END for all j
+      }
+    } // END for all j
     this->RemoteCellData[ i ].clear();
-    }
+  }
   this->RemoteCellData.clear();
 }
 

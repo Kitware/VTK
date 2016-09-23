@@ -90,12 +90,12 @@ int TestQtTreeRingLabeler(int argc, char* argv[])
   // differently on different platforms.
   int retVal = vtkRegressionTestImageThreshold(view->GetRenderWindow(), 200);
   if( retVal == vtkRegressionTester::DO_INTERACTOR )
-    {
+  {
     view->GetInteractor()->Initialize();
     view->GetInteractor()->Start();
 
     retVal = vtkRegressionTester::PASSED;
-    }
+  }
 
   QFontDatabase::removeAllApplicationFonts();
 

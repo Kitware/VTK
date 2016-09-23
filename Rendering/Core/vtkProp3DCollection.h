@@ -58,9 +58,9 @@ public:
    * same cookie back and forth.
    */
   vtkProp3D *GetNextProp3D(vtkCollectionSimpleIterator &cookie)
-    {
+  {
       return static_cast<vtkProp3D *>(this->GetNextItemAsObject(cookie));
-    }
+  }
 
 protected:
   vtkProp3DCollection() {}
@@ -70,13 +70,13 @@ protected:
 private:
   // hide the standard AddItem from the user and the compiler.
   void AddItem(vtkObject *o)
-    {
+  {
       this->vtkCollection::AddItem(o);
-    }
+  }
   void AddItem(vtkProp *o)
-    {
+  {
       this->vtkPropCollection::AddItem(o);
-    }
+  }
 
 private:
   vtkProp3DCollection(const vtkProp3DCollection&) VTK_DELETE_FUNCTION;
@@ -96,13 +96,13 @@ inline vtkProp3D *vtkProp3DCollection::GetNextProp3D()
 inline vtkProp3D *vtkProp3DCollection::GetLastProp3D()
 {
   if ( this->Bottom == NULL )
-    {
+  {
     return NULL;
-    }
+  }
   else
-    {
+  {
     return static_cast<vtkProp3D *>(this->Bottom->Item);
-    }
+  }
 }
 
 #endif

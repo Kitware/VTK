@@ -41,13 +41,13 @@ QTestApp::QTestApp(int _argc, char* _argv[])
   // so let's put a dummy back in
   this->Argv.append("qTestApp");
   for(int i=0; i<_argc; i++)
-    {
+  {
     this->Argv.append(_argv[i]);
-    }
+  }
   for(int j=0; j<this->Argv.size(); j++)
-    {
+  {
     this->Argvp.append(this->Argv[j].data());
-    }
+  }
   this->Argc = this->Argvp.size();
   App = new QApplication(this->Argc, this->Argvp.data());
 }
@@ -65,9 +65,9 @@ QTestApp::~QTestApp()
 int QTestApp::exec()
 {
   if(!QCoreApplication::arguments().contains("--no_exit"))
-    {
+  {
     QTimer::singleShot(1000, QCoreApplication::instance(), SLOT(quit()));
-    }
+  }
 
   int ret = QApplication::exec();
   return Error + ret;

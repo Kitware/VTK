@@ -88,28 +88,28 @@ void PLSDynaReader(vtkMultiProcessController *controller, void *_args)
   prm->InitializeOffScreen();           // Mesa GL only
 
   if (controller->GetLocalProcessId() == 0)
-    {
+  {
     renwin->Render();
 
     // Do the test comparison.
     int retval = vtkRegressionTestImage(renwin.GetPointer());
     if (retval == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       vtkNew<vtkRenderWindowInteractor> iren;
       iren->SetRenderWindow(renwin.GetPointer());
       iren->Initialize();
       iren->Start();
       retval = vtkRegressionTester::PASSED;
-      }
+    }
 
     *(args->retval) = (retval == vtkRegressionTester::PASSED) ? 0 : 1;
 
     prm->StopServices();
-    }
+  }
   else // not root node
-    {
+  {
     prm->StartServices();
-    }
+  }
 
   controller->Broadcast(args->retval, 1, 0);
 }

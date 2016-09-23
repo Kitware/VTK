@@ -64,34 +64,34 @@ int vtkTableFFT::RequestData(vtkInformation *vtkNotUsed(request),
   vtkTable *output = vtkTable::GetData(outputVector);
 
   if (!input || !output)
-    {
+  {
     vtkWarningMacro(<< "No input or output.");
     return 0;
-    }
+  }
 
   vtkIdType numColumns = input->GetNumberOfColumns();
   for (vtkIdType col = 0; col < numColumns; col++)
-    {
+  {
     this->UpdateProgress((double)col/numColumns);
 
     vtkDataArray *array = vtkArrayDownCast<vtkDataArray>(input->GetColumn(col));
     if (!array) continue;
     if (array->GetNumberOfComponents() != 1) continue;
     if (array->GetName())
-      {
+    {
       if (SystemTools::Strucmp(array->GetName(),"time") == 0) continue;
       if (strcmp(array->GetName(), "vtkValidPointMask") == 0)
-        {
+      {
         output->AddColumn(array);
         continue;
-        }
       }
+    }
     if (array->IsA("vtkIdTypeArray")) continue;
 
     vtkSmartPointer<vtkDataArray> frequencies = this->DoFFT(array);
     frequencies->SetName(array->GetName());
     output->AddColumn(frequencies);
-    }
+  }
 
   return 1;
 }

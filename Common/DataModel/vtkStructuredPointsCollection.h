@@ -39,9 +39,9 @@ public:
    * Add a pointer to a vtkStructuredPoints to the list.
    */
   void AddItem(vtkStructuredPoints *ds)
-    {
+  {
       this->vtkCollection::AddItem(ds);
-    }
+  }
 
   /**
    * Get the next item in the collection. NULL is returned if the collection

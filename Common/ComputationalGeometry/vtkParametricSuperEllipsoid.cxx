@@ -54,9 +54,9 @@ void vtkParametricSuperEllipsoid::Evaluate(double uvw[3], double Pt[3], double D
   double *Dv = Duvw + 3;
 
   for ( int i = 0; i < 3; ++i)
-    {
+  {
     Pt[i] = Du[i] = Dv[i] = 0;
-    }
+  }
 
   double cu = cos(u);
   double su = sin(u);
@@ -93,15 +93,15 @@ void vtkParametricSuperEllipsoid::PrintSelf(ostream& os, vtkIndent indent)
 double vtkParametricSuperEllipsoid::Power ( double x, double n )
 {
   if ( x == 0 )
-    {
+  {
     return 0;
-    }
+  }
   else if ( x < 0 )
-    {
+  {
     return -pow(-x,n);
-    }
+  }
   else
-    {
+  {
     return pow(x,n);
-    }
+  }
 }

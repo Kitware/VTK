@@ -90,9 +90,9 @@ public:
   vtkIdType GetNumberOfIdsInBucket(vtkIdType idx)
   {
     if ( !this->HashTable )
-      {
+    {
       return 0;
-      }
+    }
     vtkIdList* bucket = this->HashTable[idx];
     return bucket ? bucket->GetNumberOfIds() : 0;
   }

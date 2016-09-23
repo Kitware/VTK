@@ -50,22 +50,22 @@ struct ProjectPoints
 
   ProjectPoints(vtkDataSet *source, double *outPts) :
     Source(source), OutPoints(outPts)
-    {
-    }
+  {
+  }
 
   // Threaded projection
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double *p = this->OutPoints + 3*ptId;
       double x[3];
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         this->Source->GetPoint(ptId,x);
         *p++ = x[0];
         *p++ = x[1];
         *p++ = 0.0; //x-y projection
-        }
-    }
+      }
+  }
 };
 
 // Project source points onto plane
@@ -77,24 +77,24 @@ struct ProjectPointsWithScalars
 
   ProjectPointsWithScalars(vtkDataSet *source, double *outPts, double *zScalars) :
     Source(source), OutPoints(outPts), ZScalars(zScalars)
-    {
-    }
+  {
+  }
 
   // Threaded projection
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double *p = this->OutPoints + 3*ptId;
       double *s = this->ZScalars + ptId;
       double x[3];
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         this->Source->GetPoint(ptId,x);
         *p++ = x[0];
         *p++ = x[1];
         *p++ = 0.0; //x-y projection
         *s++ = x[2];
-        }
-    }
+      }
+  }
 };
 
 // The threaded core of the algorithm
@@ -118,34 +118,34 @@ struct ProbePoints
               vtkPointData *inPD, vtkPointData *outPD, int strategy, char *valid, double nullV) :
     Input(input), Kernel(kernel), Locator(loc), InPD(inPD), OutPD(outPD),
     Valid(valid), Strategy(strategy)
-    {
+  {
       this->Arrays.AddArrays(input->GetNumberOfPoints(), inPD, outPD, nullV);
-    }
+  }
 
   // Just allocate a little bit of memory to get started.
   void Initialize()
-    {
+  {
     vtkIdList*& pIds = this->PIds.Local();
     pIds->Allocate(128); //allocate some memory
     vtkDoubleArray*& weights = this->Weights.Local();
     weights->Allocate(128);
-    }
+  }
 
   // When null point is encountered
   void AssignNullPoint(const double x[3], vtkIdList *pIds,
                        vtkDoubleArray *weights, vtkIdType ptId)
-    {
+  {
       if ( this->Strategy == vtkPointInterpolator2D::MASK_POINTS)
-        {
+      {
         this->Valid[ptId] = 0;
         this->Arrays.AssignNullValue(ptId);
-        }
+      }
       else if ( this->Strategy == vtkPointInterpolator2D::NULL_VALUE)
-        {
+      {
         this->Arrays.AssignNullValue(ptId);
-        }
+      }
       else //vtkPointInterpolator2D::CLOSEST_POINT:
-        {
+      {
         pIds->SetNumberOfIds(1);
         vtkIdType pId = this->Locator->FindClosestPoint(x);
         pIds->SetId(0,pId);
@@ -153,38 +153,38 @@ struct ProbePoints
         weights->SetValue(0,1.0);
         this->Arrays.Interpolate(1, pIds->GetPointer(0),
                                  weights->GetPointer(0), ptId);
-        }
-    }
+      }
+  }
 
   // Threaded interpolation method
   void operator() (vtkIdType ptId, vtkIdType endPtId)
-    {
+  {
       double x[3];
       vtkIdList*& pIds = this->PIds.Local();
       vtkIdType numWeights;
       vtkDoubleArray*& weights = this->Weights.Local();
 
       for ( ; ptId < endPtId; ++ptId)
-        {
+      {
         this->Input->GetPoint(ptId,x);
         x[2] = 0.0; //x-y projection
 
         if ( this->Kernel->ComputeBasis(x, pIds) > 0 )
-          {
+        {
           numWeights = this->Kernel->ComputeWeights(x, pIds, weights);
           this->Arrays.Interpolate(numWeights, pIds->GetPointer(0),
                                    weights->GetPointer(0), ptId);
-          }
+        }
         else
-          {
+        {
           this->AssignNullPoint(x, pIds, weights, ptId);
-          }// null point
-        }//for all dataset points
-    }
+        }// null point
+      }//for all dataset points
+  }
 
   void Reduce()
-    {
-    }
+  {
+  }
 
 }; //ProbePoints
 
@@ -211,17 +211,17 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 {
   // Make sure there is a kernel
   if ( !this->Kernel )
-    {
+  {
     vtkErrorMacro(<<"Interpolation kernel required\n");
     return;
-    }
+  }
 
   // Start by building the locator
   if ( !this->Locator )
-    {
+  {
     vtkErrorMacro(<<"Point locator required\n");
     return;
-    }
+  }
 
   // We need to project the source points to the z=0.0 plane
   vtkIdType numSourcePts = source->GetNumberOfPoints();
@@ -236,7 +236,7 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 
   // Create elevation scalars if necessary
   if ( this->InterpolateZ )
-    {
+  {
     zScalars = vtkDoubleArray::New();
     zScalars->SetName(this->GetZArrayName());
     zScalars->SetNumberOfTuples(numSourcePts);
@@ -246,12 +246,12 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
     vtkSMPTools::For(0, numSourcePts, project);
     projSource->GetPointData()->AddArray(zScalars);
     zScalars->UnRegister(this);
-    }
+  }
   else
-    {
+  {
     ProjectPoints project(source,static_cast<double*>(projPoints->GetVoidPointer(0)));
     vtkSMPTools::For(0, numSourcePts, project);
-    }
+  }
 
   this->Locator->SetDataSet(projSource);
   this->Locator->BuildLocator();
@@ -265,18 +265,18 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
   // Masking if requested
   char *mask=NULL;
   if ( this->NullPointsStrategy == vtkPointInterpolator2D::MASK_POINTS )
-    {
+  {
     this->ValidPointsMask = vtkCharArray::New();
     this->ValidPointsMask->SetNumberOfTuples(numPts);
     mask = this->ValidPointsMask->GetPointer(0);
     std::fill_n(mask, numPts, 1);
-    }
+  }
 
   // Now loop over input points, finding closest points and invoking kernel.
   if ( this->Kernel->GetRequiresInitialization() )
-    {
+  {
     this->Kernel->Initialize(this->Locator, source, inPD);
-    }
+  }
 
   // If the input is image data then there is a faster path
   ProbePoints probe(input,this->Kernel,this->Locator,inPD,outPD,
@@ -285,11 +285,11 @@ Probe(vtkDataSet *input, vtkDataSet *source, vtkDataSet *output)
 
   // Clean up
   if ( mask )
-    {
+  {
     this->ValidPointsMask->SetName(this->ValidPointsMaskArrayName);
     outPD->AddArray(this->ValidPointsMask);
     this->ValidPointsMask->Delete();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------

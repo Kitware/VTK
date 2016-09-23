@@ -112,28 +112,28 @@ void PSLACReaderLinearMethod(vtkMultiProcessController *controller, void *_args)
   prm->InitializeOffScreen();           // Mesa GL only
 
   if (controller->GetLocalProcessId() == 0)
-    {
+  {
     renwin->Render();
 
     // Do the test comparison.
     int retval = vtkRegressionTestImage(renwin);
     if (retval == vtkRegressionTester::DO_INTERACTOR)
-      {
+    {
       VTK_CREATE(vtkRenderWindowInteractor, iren);
       iren->SetRenderWindow(renwin);
       iren->Initialize();
       iren->Start();
       retval = vtkRegressionTester::PASSED;
-      }
+    }
 
     *(args->retval) = (retval == vtkRegressionTester::PASSED) ? 0 : 1;
 
     prm->StopServices();
-    }
+  }
   else // not root node
-    {
+  {
     prm->StartServices();
-    }
+  }
 
   controller->Broadcast(args->retval, 1, 0);
 }

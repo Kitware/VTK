@@ -257,60 +257,60 @@ static bool CheckUniques(
 {
   bool ok = true;
   if (!arr)
-    {
+  {
     return ok;
-    }
+  }
 
   cout << arr->GetName() << endl;
 
   int nc = arr->GetNumberOfComponents();
   vtkNew<vtkVariantArray> uniques;
   for (int c = 0; c < nc; ++c)
-    {
+  {
     arr->GetProminentComponentValues(
       c, uniques.GetPointer(), uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  comp " << c << " (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
-      {
+    {
       cout
         << (n > 0 ? ", " : " ")
         << uniques->GetVariantValue(n).ToString().c_str();
-      }
+    }
     cout << endl;
     if (
       uniqueSizeBds[2 * c] > numUniques ||
       uniqueSizeBds[2 * c + 1] < numUniques)
-      {
+    {
       cout
         << "    ** ERROR: Expected between " << uniqueSizeBds[2 * c]
         << " and " << uniqueSizeBds[2 * c + 1] << " values\n";
       ok = false;
-      }
     }
+  }
   if (nc > 1)
-    {
+  {
     arr->GetProminentComponentValues(
       -1, uniques.GetPointer(), uncertainty, minProminence);
     int numUniques = static_cast<int>(uniques->GetNumberOfTuples());
     cout << "  tuples (" << numUniques << "): ";
     for (int n = 0; n <= uniques->GetMaxId(); ++n)
-      {
+    {
       cout
         << (n > 0 && n % nc == 0 ? ", " : " ")
         << uniques->GetVariantValue(n).ToString().c_str();
-      }
+    }
     cout << endl;
     if (
       uniqueSizeBds[2 * nc] > numUniques ||
       uniqueSizeBds[2 * nc + 1] < numUniques)
-      {
+    {
       cout
         << "    ** ERROR: Expected between " << uniqueSizeBds[2 * nc]
         << " and " << uniqueSizeBds[2 * nc + 1] << " values\n";
       ok = false;
-      }
     }
+  }
   return ok;
 }
 

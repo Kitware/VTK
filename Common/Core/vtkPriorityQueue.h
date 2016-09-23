@@ -145,9 +145,9 @@ inline double vtkPriorityQueue::DeleteId(vtkIdType id)
 
   if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )
-    {
+  {
     this->Pop(loc,priority);
-    }
+  }
   return priority;
 }
 
@@ -157,35 +157,35 @@ inline double vtkPriorityQueue::GetPriority(vtkIdType id)
 
   if ( id <= this->ItemLocation->GetMaxId() &&
   (loc=this->ItemLocation->GetValue(id)) != -1 )
-    {
+  {
     return this->Array[loc].priority;
-    }
+  }
   return VTK_DOUBLE_MAX;
 }
 
 inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location, double &priority)
 {
   if ( this->MaxId < 0 )
-    {
+  {
     return -1;
-    }
+  }
   else
-    {
+  {
     priority = this->Array[location].priority;
     return this->Array[location].id;
-    }
+  }
 }
 
 inline vtkIdType vtkPriorityQueue::Peek(vtkIdType location)
 {
   if ( this->MaxId < 0 )
-    {
+  {
     return -1;
-    }
+  }
   else
-    {
+  {
     return this->Array[location].id;
-    }
+  }
 }
 
 #endif

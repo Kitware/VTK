@@ -57,20 +57,20 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
 
   integral = 0.0;
   for (j=0; j < res; ++j)
-    {
+  {
     y = -cutoff + j*inc;
     for (i=0; i < res; ++i)
-      {
+    {
       x = -cutoff + i*inc;
       r = sqrt( x*x + y*y );
       integral += area * normFactor * kernel->ComputeFunctionWeight(r);
-      }
     }
+  }
   std::cout << "SPH " << description << " Kernel Integral (2D): " << integral << std::endl;
   if ( integral < 0.99 || integral > 1.01 )
-    {
+  {
     status = EXIT_FAILURE;
-    }
+  }
 
   // Test 3D
   kernel->SetDimension(3);
@@ -83,24 +83,24 @@ int TestSPHKernel(vtkSmartPointer<T> kernel, const std::string &description)
 
   integral = 0.0;
   for (k=0; k < res; ++k)
-    {
+  {
     z = -cutoff + k*inc;
     for (j=0; j < res; ++j)
-      {
+    {
       y = -cutoff + j*inc;
       for (i=0; i < res; ++i)
-        {
+      {
         x = -cutoff + i*inc;
         r = sqrt( x*x + y*y + z*z );
         integral += volume * normFactor * kernel->ComputeFunctionWeight(r);
-        }
       }
     }
+  }
   std::cout << "SPH " << description << " Kernel Integral (3D): " << integral << std::endl;
   if ( integral < 0.99 || integral > 1.01 )
-    {
+  {
     status = EXIT_FAILURE;
-    }
+  }
 
   return status;
 }
@@ -136,13 +136,13 @@ int TestSPHKernels(int, char*[])
 
   // Get out
   if (status == EXIT_SUCCESS)
-    {
+  {
     std::cout << " PASSED" << std::endl;
-    }
+  }
   else
-    {
+  {
     std::cout << " FAILED" << std::endl;
-    }
+  }
 
   return status;
 }

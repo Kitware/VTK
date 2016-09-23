@@ -83,22 +83,22 @@ vtkTexturedButtonRepresentation::~vtkTexturedButtonRepresentation()
   this->Texture->Delete();
 
   if ( this->Property )
-    {
+  {
     this->Property->Delete();
     this->Property = NULL;
-    }
+  }
 
   if ( this->HoveringProperty )
-    {
+  {
     this->HoveringProperty->Delete();
     this->HoveringProperty = NULL;
-    }
+  }
 
   if ( this->SelectingProperty )
-    {
+  {
     this->SelectingProperty->Delete();
     this->SelectingProperty = NULL;
-    }
+  }
 
   delete this->TextureArray;
 
@@ -133,13 +133,13 @@ void vtkTexturedButtonRepresentation::
 SetButtonTexture(int i, vtkImageData *image)
 {
   if ( i < 0 )
-    {
+  {
     i = 0;
-    }
+  }
   if ( i >= this->NumberOfStates )
-    {
+  {
     i = this->NumberOfStates - 1;
-    }
+  }
 
   (*this->TextureArray)[i] = image;
 }
@@ -150,23 +150,23 @@ vtkImageData *vtkTexturedButtonRepresentation::
 GetButtonTexture(int i)
 {
   if ( i < 0 )
-    {
+  {
     i = 0;
-    }
+  }
   if ( i >= this->NumberOfStates )
-    {
+  {
     i = this->NumberOfStates - 1;
-    }
+  }
 
   vtkTextureArrayIterator iter = this->TextureArray->find(i);
   if ( iter != this->TextureArray->end() )
-    {
+  {
     return (*iter).second;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -219,9 +219,9 @@ void vtkTexturedButtonRepresentation::PlaceWidget(double bds[6])
 
   this->AdjustBounds(bds, bounds, center);
   for (int i=0; i<6; i++)
-    {
+  {
     this->InitialBounds[i] = bounds[i];
-    }
+  }
   this->InitialLength = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
                              (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
                              (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
@@ -243,16 +243,16 @@ void vtkTexturedButtonRepresentation::PlaceWidget(double bds[6])
 
   double s[3], sMin;
   for (int i=0; i < 3; ++i)
-    {
+  {
     if ( (bounds[2*i+1]-bounds[2*i]) <= 0.0 || (aBds[2*i+1]-aBds[2*i]) <= 0.0 )
-      {
+    {
       s[i] = VTK_FLOAT_MAX;
-      }
-    else
-      {
-      s[i] = (bounds[2*i+1]-bounds[2*i]) / (aBds[2*i+1]-aBds[2*i]);
-      }
     }
+    else
+    {
+      s[i] = (bounds[2*i+1]-bounds[2*i]) / (aBds[2*i+1]-aBds[2*i]);
+    }
+  }
   sMin = (s[0]<s[1] ? (s[0]<s[2] ? s[0] : s[2]) : (s[1]<s[2] ? s[1] : s[2]) );
 
   this->Actor->SetScale(sMin, sMin, sMin);
@@ -268,13 +268,13 @@ int vtkTexturedButtonRepresentation
   vtkAssemblyPath* path = this->GetAssemblyPath(X, Y, 0., this->Picker);
 
   if ( path != NULL )
-    {
+  {
     this->InteractionState = vtkButtonRepresentation::Inside;
-    }
+  }
   else
-    {
+  {
     this->InteractionState = vtkButtonRepresentation::Outside;
-    }
+  }
 
   return this->InteractionState;
 }
@@ -288,28 +288,28 @@ void vtkTexturedButtonRepresentation::Highlight(int highlight)
   vtkProperty *selectedProperty;
 
   if ( highlight == vtkButtonRepresentation::HighlightHovering )
-    {
+  {
     this->Actor->SetProperty(this->HoveringProperty);
     this->Follower->SetProperty(this->HoveringProperty);
     selectedProperty = this->HoveringProperty;
-    }
+  }
   else if ( highlight == vtkButtonRepresentation::HighlightSelecting )
-    {
+  {
     this->Actor->SetProperty(this->SelectingProperty);
     this->Follower->SetProperty(this->SelectingProperty);
     selectedProperty = this->SelectingProperty;
-    }
+  }
   else //if ( highlight == vtkButtonRepresentation::HighlightNormal )
-    {
+  {
     this->Actor->SetProperty(this->Property);
     this->Follower->SetProperty(this->Property);
     selectedProperty = this->Property;
-    }
+  }
 
   if ( selectedProperty != initialProperty )
-    {
+  {
     this->Modified();
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -333,32 +333,32 @@ void vtkTexturedButtonRepresentation::BuildRepresentation()
   if ( this->GetMTime() > this->BuildTime ||
        (this->Renderer && this->Renderer->GetVTKWindow() &&
         this->Renderer->GetVTKWindow()->GetMTime() > this->BuildTime) )
-    {
+  {
     // In case follower is being used
     if ( this->FollowCamera )
-      {
+    {
       this->Follower->VisibilityOn();
       this->Actor->VisibilityOff();
       this->Follower->SetCamera(this->Renderer->GetActiveCamera());
-      }
+    }
     else
-      {
+    {
       this->Follower->VisibilityOff();
       this->Actor->VisibilityOn();
-      }
+    }
 
     vtkTextureArrayIterator iter = this->TextureArray->find(this->State);
     if ( iter != this->TextureArray->end() )
-      {
+    {
       this->Texture->SetInputData((*iter).second);
-      }
+    }
     else
-      {
+    {
       this->Texture->SetInputData(NULL);
-      }
+    }
 
     this->BuildTime.Modified();
-    }
+  }
 }
 
 
@@ -368,7 +368,7 @@ void vtkTexturedButtonRepresentation::ShallowCopy(vtkProp *prop)
   vtkTexturedButtonRepresentation *rep =
     vtkTexturedButtonRepresentation::SafeDownCast(prop);
   if ( rep )
-    {
+  {
     this->Mapper->ShallowCopy(rep->Mapper);
     this->Property->DeepCopy(rep->Property);
     this->HoveringProperty->DeepCopy(rep->HoveringProperty);
@@ -377,11 +377,11 @@ void vtkTexturedButtonRepresentation::ShallowCopy(vtkProp *prop)
     vtkTextureArrayIterator iter;
     for ( iter=rep->TextureArray->begin();
           iter != rep->TextureArray->end(); ++iter )
-      {
+    {
       (*this->TextureArray)[(*iter).first] = (*iter).second;
-      }
-    this->FollowCamera = rep->FollowCamera;
     }
+    this->FollowCamera = rep->FollowCamera;
+  }
 
   this->Superclass::ShallowCopy(prop);
 }
@@ -401,13 +401,13 @@ RenderOpaqueGeometry(vtkViewport *viewport)
   this->BuildRepresentation();
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->RenderOpaqueGeometry(viewport);
-    }
+  }
   else
-    {
+  {
     return this->Actor->RenderOpaqueGeometry(viewport);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -417,13 +417,13 @@ RenderTranslucentPolygonalGeometry(vtkViewport *viewport)
   this->BuildRepresentation();
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
   else
-    {
+  {
     return this->Actor->RenderTranslucentPolygonalGeometry(viewport);
-    }
+  }
 }
 //-----------------------------------------------------------------------------
 int vtkTexturedButtonRepresentation::
@@ -432,13 +432,13 @@ HasTranslucentPolygonalGeometry()
   this->BuildRepresentation();
 
   if ( this->FollowCamera )
-    {
+  {
     return this->Follower->HasTranslucentPolygonalGeometry();
-    }
+  }
   else
-    {
+  {
     return this->Actor->HasTranslucentPolygonalGeometry();
-    }
+  }
 }
 
 
@@ -452,13 +452,13 @@ double *vtkTexturedButtonRepresentation::GetBounds()
 void vtkTexturedButtonRepresentation::GetActors(vtkPropCollection *pc)
 {
   if ( this->FollowCamera )
-    {
+  {
     this->Follower->GetActors(pc);
-    }
+  }
   else
-    {
+  {
     this->Actor->GetActors(pc);
-    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -472,29 +472,29 @@ void vtkTexturedButtonRepresentation::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Follow Camera: " << (this->FollowCamera ? "On\n" : "Off\n");
 
   if ( this->Property )
-    {
+  {
     os << indent << "Property: " << this->Property << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Property: (none)\n";
-    }
+  }
 
   if ( this->HoveringProperty )
-    {
+  {
     os << indent << "Hovering Property: " << this->HoveringProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Hovering Property: (none)\n";
-    }
+  }
 
   if ( this->SelectingProperty )
-    {
+  {
     os << indent << "Selecting Property: " << this->SelectingProperty << "\n";
-    }
+  }
   else
-    {
+  {
     os << indent << "Selecting Property: (none)\n";
-    }
+  }
 }

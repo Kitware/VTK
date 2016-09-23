@@ -47,20 +47,20 @@ void vtkBoxMuellerRandomSequence::Next()
   double x=this->UniformSequence->GetValue();
   // Make sure x is in (0,1]
   while(x==0.0)
-    {
+  {
     this->UniformSequence->Next();
     x=this->UniformSequence->GetValue();
-    }
+  }
 
   this->UniformSequence->Next();
   double y=this->UniformSequence->GetValue();
 
   // Make sure y is in (0,1]
   while(y==0.0)
-    {
+  {
     this->UniformSequence->Next();
     y=this->UniformSequence->GetValue();
-    }
+  }
 
   this->Value=sqrt(-2.0*log(x))*cos(2.0 * vtkMath::Pi()*y);
 }
@@ -82,11 +82,11 @@ void vtkBoxMuellerRandomSequence::SetUniformSequence(
   assert("pre: uniformSequence_exists" && uniformSequence!=0);
 
   if(this->UniformSequence!=uniformSequence)
-    {
+  {
     this->UniformSequence->Delete();
     this->UniformSequence=uniformSequence;
     this->UniformSequence->Register(this);
-    }
+  }
 
   assert("post: assigned" && uniformSequence==this->GetUniformSequence());
 }

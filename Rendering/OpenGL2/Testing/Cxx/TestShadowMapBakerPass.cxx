@@ -119,9 +119,9 @@ int TestShadowMapBakerPass(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   bakerPass->ReleaseGraphicsResources(renderWindow.Get());
   return EXIT_SUCCESS;

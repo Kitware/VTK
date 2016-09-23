@@ -86,13 +86,13 @@ void vtkRenderState::SetFrameBuffer(vtkFrameBufferObjectBase *fbo)
 void vtkRenderState::GetWindowSize(int size[2]) const
 {
   if (this->FrameBuffer==0)
-    {
+  {
     this->Renderer->GetTiledSize(&size[0], &size[1]);
-    }
+  }
   else
-    {
+  {
     this->FrameBuffer->GetLastSize(size);
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------

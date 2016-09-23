@@ -53,9 +53,9 @@ public:
    * Equivalent to SetInputConnection(0, algOutput)
    */
   void SetGeometryConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(algOutput);
-    }
+  }
 
   //@{
   /**
@@ -73,9 +73,9 @@ public:
    * Equivalent to SetInputConnection(1, algOutput)
    */
   void SetScalarsConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(1, algOutput);
-    }
+  }
 
   //@{
   /**
@@ -93,9 +93,9 @@ public:
    * Equivalent to SetInputConnection(2, algOutput)
    */
   void SetVectorsConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(2, algOutput);
-    }
+  }
 
   //@{
   /**
@@ -113,9 +113,9 @@ public:
    * Equivalent to SetInputConnection(3, algOutput)
    */
   void SetNormalsConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(3, algOutput);
-    }
+  }
 
   //@{
   /**
@@ -135,9 +135,9 @@ public:
    * Equivalent to SetInputConnection(4, algOutput)
    */
   void SetTCoordsConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(4, algOutput);
-    }
+  }
 
   //@{
   /**
@@ -155,9 +155,9 @@ public:
    * Equivalent to SetInputConnection(5, algOutput)
    */
   void SetTensorsConnection(vtkAlgorithmOutput* algOutput)
-    {
+  {
       this->SetInputConnection(5, algOutput);
-    }
+  }
 
   /**
    * Set the object from which to extract a field and the name
@@ -179,7 +179,7 @@ protected:
 private:
   vtkMergeFilter(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
   void operator=(const vtkMergeFilter&) VTK_DELETE_FUNCTION;
-  };
+};
 
 #endif
 

@@ -36,13 +36,13 @@ vtkPoints* vtkPoints::New(int dataType)
   // First try to create the object from the vtkObjectFactory
   vtkObject* ret = vtkObjectFactory::CreateInstance("vtkPoints");
   if (ret)
-    {
+  {
     if (dataType != VTK_FLOAT)
-      {
+    {
       static_cast<vtkPoints*>(ret)->SetDataType(dataType);
-      }
-    return static_cast<vtkPoints*>(ret);
     }
+    return static_cast<vtkPoints*>(ret);
+  }
   // If the factory was unable to create the object, then create it here.
   return new vtkPoints(dataType);
 }
@@ -83,10 +83,10 @@ void vtkPoints::GetPoints(vtkIdList *ptIds, vtkPoints *outPoints)
 void vtkPoints::ComputeBounds()
 {
   if (this->GetMTime() > this->ComputeTime)
-    {
+  {
     this->Data->ComputeScalarRange(this->Bounds);
     this->ComputeTime.Modified();
-    }
+  }
 }
 
 // Return the bounds of the points.
@@ -107,9 +107,9 @@ vtkMTimeType vtkPoints::GetMTime()
 {
   vtkMTimeType doTime = this->Superclass::GetMTime();
   if ( this->Data->GetMTime() > doTime )
-    {
+  {
     doTime = this->Data->GetMTime();
-    }
+  }
   return doTime;
 }
 
@@ -134,9 +134,9 @@ int vtkPoints::GetDataType()
 void vtkPoints::SetDataType(int dataType)
 {
   if (dataType == this->Data->GetDataType())
-    {
+  {
     return;
-    }
+  }
 
   this->Data->Delete();
   this->Data = vtkDataArray::CreateDataArray(dataType);
@@ -150,21 +150,21 @@ void vtkPoints::SetDataType(int dataType)
 void vtkPoints::SetData(vtkDataArray *data)
 {
   if (data != this->Data && data != NULL)
-    {
+  {
     if (data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't set data");
       return;
-      }
+    }
     this->Data->UnRegister(this);
     this->Data = data;
     this->Data->Register(this);
     if (!this->Data->GetName())
-      {
+    {
       this->Data->SetName("Points");
-      }
-    this->Modified();
     }
+    this->Modified();
+  }
 }
 
 // Deep copy of data. Checks consistency to make sure this operation
@@ -172,19 +172,19 @@ void vtkPoints::SetData(vtkDataArray *data)
 void vtkPoints::DeepCopy(vtkPoints *da)
 {
   if (da == NULL)
-    {
+  {
     return;
-    }
+  }
   if (da->Data != this->Data && da->Data != NULL)
-    {
+  {
     if (da->Data->GetNumberOfComponents() != this->Data->GetNumberOfComponents())
-      {
+    {
       vtkErrorMacro(<<"Number of components is different...can't copy");
       return;
-      }
+    }
     this->Data->DeepCopy(da->Data);
     this->Modified();
-    }
+  }
 }
 
 // Shallow copy of data (i.e. via reference counting). Checks
@@ -206,13 +206,13 @@ void vtkPoints::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Data: " << this->Data << "\n";
   os << indent << "Data Array Name: ";
   if (this->Data->GetName())
-    {
+  {
     os << this->Data->GetName() << "\n";
-    }
+  }
   else
-    {
+  {
     os << "(none)\n";
-    }
+  }
 
   os << indent << "Number Of Points: " << this->GetNumberOfPoints() << "\n";
   double *bounds = this->GetBounds();

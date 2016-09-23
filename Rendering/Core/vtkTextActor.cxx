@@ -109,9 +109,9 @@ vtkTextActor::vtkTextActor()
 
   this->TextRenderer = vtkTextRenderer::GetInstance();
   if (!this->TextRenderer)
-    {
+  {
     vtkErrorMacro(<<"Failed getting the TextRenderer instance!");
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -136,13 +136,13 @@ void vtkTextActor::GetBoundingBox(
 {
   if (this->UpdateRectangle(vport) && this->RectanglePoints &&
     this->RectanglePoints->GetNumberOfPoints() >= 4)
-    {
+  {
     double x[3];
     this->RectanglePoints->GetPoint( 0, x );
     bbox[0] = bbox[1] = x[0];
     bbox[2] = bbox[3] = x[1];
     for (int i = 1; i < this->RectanglePoints->GetNumberOfPoints(); ++i)
-      {
+    {
       this->RectanglePoints->GetPoint( i, x );
 
       if ( bbox[0] > x[0] )
@@ -154,12 +154,12 @@ void vtkTextActor::GetBoundingBox(
         bbox[2] = x[1];
       else if ( bbox[3] < x[1] )
         bbox[3] = x[1];
-      }
     }
+  }
   else
-    {
+  {
     vtkErrorMacro("UpdateRectangle failed to do so");
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -192,16 +192,16 @@ int vtkTextActor::SetConstrainedFontSize(
 {
   // If target "empty" just return
   if (targetWidth == 0 && targetHeight == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   vtkTextProperty* tprop = tactor->GetTextProperty();
   if (!tprop)
-    {
+  {
     vtkGenericWarningMacro(<<"Need text property to apply constraint");
     return 0;
-    }
+  }
   int fontSize = tprop->GetFontSize();
 
   // Use the last size as a first guess
@@ -216,35 +216,35 @@ int vtkTextActor::SetConstrainedFontSize(
   // I guess the best optim would be to have a look at the shape of the
   // font size growth curve (probably not that linear)
   if (tempi[0] > 0.5 && tempi[1] > 0.5)
-    {
+  {
     float fx = targetWidth / static_cast<float>(tempi[0]);
     float fy = targetHeight / static_cast<float>(tempi[1]);
     fontSize = static_cast<int>(ceil(fontSize * ((fx <= fy) ? fx : fy)));
     fontSize = fontSize > 2 ? fontSize : 2;
     tprop->SetFontSize(fontSize);
     tactor->GetSize(viewport, tempi);
-    }
+  }
 
   // While the size is too small increase it
   while (tempi[1] <= targetHeight &&
          tempi[0] <= targetWidth &&
          fontSize < 100)
-    {
+  {
     fontSize++;
     tprop->SetFontSize(fontSize);
     tactor->GetSize(viewport, tempi);
-    }
+  }
 
   // While the size is too large decrease it..  but never below 2 pt.
   // (The MathText rendering uses matplotlib which behaves poorly
   // for very small fonts.)
   while ((tempi[1] > targetHeight || tempi[0] > targetWidth)
          && fontSize > 3)
-    {
+  {
     fontSize--;
     tprop->SetFontSize(fontSize);
     tactor->GetSize(viewport, tempi);
-    }
+  }
 
   return fontSize;
 }
@@ -257,9 +257,9 @@ int vtkTextActor::SetMultipleConstrainedFontSize(
   maxResultingSize[0] = maxResultingSize[1] = 0;
 
   if (nbOfActors == 0)
-    {
+  {
     return 0;
-    }
+  }
 
   int fontSize, aSize;
 
@@ -270,9 +270,9 @@ int vtkTextActor::SetMultipleConstrainedFontSize(
   for (first = 0; first < nbOfActors && !actors[first]; first++) {}
 
   if (first >= nbOfActors)
-    {
+  {
     return 0;
-    }
+  }
 
   fontSize = actors[first]->SetConstrainedFontSize(
     viewport, targetWidth, targetHeight);
@@ -280,37 +280,37 @@ int vtkTextActor::SetMultipleConstrainedFontSize(
   // Find the constrained font size for the remaining actors and
   // pick the smallest
   for (i = first + 1; i < nbOfActors; i++)
-    {
+  {
     if (actors[i])
-      {
+    {
       actors[i]->GetTextProperty()->SetFontSize(fontSize);
       aSize = actors[i]->SetConstrainedFontSize(
         viewport, targetWidth, targetHeight);
       if (aSize < fontSize)
-        {
+      {
         fontSize = aSize;
-        }
       }
     }
+  }
 
   // Assign the smallest size to all text actors and find the largest area
   double tempi[2];
   for (i = first; i < nbOfActors; i++)
-    {
+  {
     if (actors[i])
-      {
+    {
       actors[i]->GetTextProperty()->SetFontSize(fontSize);
       actors[i]->GetSize(viewport, tempi);
       if (tempi[0] > maxResultingSize[0])
-        {
+      {
         maxResultingSize[0] = static_cast<int>(tempi[0]);
-        }
+      }
       if (tempi[1] > maxResultingSize[1])
-        {
+      {
         maxResultingSize[1] = static_cast<int>(tempi[1]);
-        }
       }
     }
+  }
 
   // The above code could be optimized further since the actor
   // labels are likely to have the same height: in that case, we could
@@ -327,9 +327,9 @@ void vtkTextActor::SetNonLinearFontScale(double exp, int tgt)
 {
   if (   (this->FontScaleExponent == exp)
       && (this->TextProperty->GetFontSize() == tgt) )
-    {
+  {
     return;
-    }
+  }
   this->FontScaleExponent = exp;
   this->TextProperty->SetFontSize(tgt);
   this->Modified();
@@ -340,16 +340,16 @@ bool vtkTextActor::RenderImage(vtkTextProperty *tprop, vtkViewport *vp)
 {
   vtkStdString text;
   if (this->Input && this->Input[0])
-    {
+  {
     text = this->Input;
-    }
+  }
 
   vtkWindow *win = vp->GetVTKWindow();
   if (!win)
-    {
+  {
     vtkErrorMacro(<<"No render window available: cannot determine DPI.");
     return false;
-    }
+  }
 
   return this->TextRenderer->RenderString(tprop, text, this->ImageData,
                                           NULL, win->GetDPI());
@@ -361,16 +361,16 @@ bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *vp,
 {
   vtkStdString text;
   if (this->Input && this->Input[0])
-    {
+  {
     text = this->Input;
-    }
+  }
 
   vtkWindow *win = vp->GetVTKWindow();
   if (!win)
-    {
+  {
     vtkErrorMacro(<<"No render window available: cannot determine DPI.");
     return false;
-    }
+  }
   return this->TextRenderer->GetBoundingBox(tprop, text, bbox, win->GetDPI());
 }
 
@@ -378,17 +378,17 @@ bool vtkTextActor::GetImageBoundingBox(vtkTextProperty *tprop, vtkViewport *vp,
 void vtkTextActor::SetInput(const char* str)
 {
   if(!str)
-    {
+  {
     str = "";
-    }
+  }
   if(this->Input)
-    {
+  {
     if(strcmp(this->Input, str) == 0)
-      {
+    {
       return;
-      }
-    delete [] this->Input;
     }
+    delete [] this->Input;
+  }
   this->Input = new char[strlen(str)+1];
   strcpy(this->Input, str);
   this->InputRendered = false;
@@ -405,20 +405,20 @@ char* vtkTextActor::GetInput()
 void vtkTextActor::SetTextProperty(vtkTextProperty *p)
 {
   if ( this->TextProperty == p )
-    {
+  {
     return;
-    }
+  }
   if ( this->TextProperty )
-    {
+  {
     this->TextProperty->UnRegister( this );
     this->TextProperty = NULL;
-    }
+  }
   this->TextProperty = p;
   if (this->TextProperty)
-    {
+  {
     this->TextProperty->Register(this);
     this->ScaledTextProperty->ShallowCopy(this->TextProperty);
-    }
+  }
   this->Modified();
 }
 
@@ -427,14 +427,14 @@ void vtkTextActor::ShallowCopy(vtkProp *prop)
 {
   vtkTextActor *a = vtkTextActor::SafeDownCast(prop);
   if ( a != NULL )
-    {
+  {
     this->SetPosition2(a->GetPosition2());
     this->SetMinimumSize(a->GetMinimumSize());
     this->SetMaximumLineHeight(a->GetMaximumLineHeight());
     this->SetTextScaleMode(a->GetTextScaleMode());
     this->SetTextProperty(a->GetTextProperty());
     this->SetInput(a->GetInput());
-    }
+  }
   // Now do superclass (mapper is handled by it as well).
   this->Superclass::ShallowCopy(prop);
 }
@@ -452,9 +452,9 @@ void vtkTextActor::ReleaseGraphicsResources(vtkWindow *win)
 int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 {
   if (!this->Visibility || !this->Input || !this->Input[0])
-    {
+  {
     return 0;
-    }
+  }
 
   // Everything is built in RenderOpaqueGeometry, just have to render
   int renderedSomething = this->Superclass::RenderOverlay(viewport);
@@ -465,33 +465,33 @@ int vtkTextActor::RenderOverlay(vtkViewport *viewport)
 int vtkTextActor::RenderOpaqueGeometry(vtkViewport *viewport)
 {
   if (!this->Visibility)
-    {
+  {
     return 0;
-    }
+  }
 
   //Make sure we have a string to render
   if(!this->Input || this->Input[0] == '\0')
-    {
+  {
     return 0;
-    }
+  }
 
   int *vSize = viewport->GetSize();
   //vSize == (0,0) means that we're not ready to render yet
   if(vSize[0] == 0 && vSize[1] == 0)
-    {
+  {
     return 0;
-    }
+  }
   //not sure what vSize == 1 means, but it can cause divide-by-zero errors
   //in some of the coordinate conversion methods used below
   if(vSize[0] == 1 || vSize[1] == 1)
-    {
+  {
     return 0;
-    }
+  }
 
   if ( ! this->UpdateRectangle(viewport) )
-    {
+  {
     return 0;
-    }
+  }
 
   // Everything is built, just have to render
   // but we do not render opaque geometry so return 0
@@ -510,9 +510,9 @@ int vtkTextActor::HasTranslucentPolygonalGeometry()
 void vtkTextActor::SetOrientation(float orientation)
 {
   if (this->Orientation == orientation)
-    {
+  {
     return;
-    }
+  }
   this->Modified();
   this->Orientation = orientation;
 }
@@ -524,11 +524,11 @@ int vtkTextActor::GetAlignmentPoint()
   int alignmentCode = 0;
 
   if ( ! this->TextProperty)
-    {
+  {
     return 0;
-    }
+  }
   switch (this->TextProperty->GetJustification())
-    {
+  {
     case VTK_TEXT_LEFT:
       alignmentCode = 0;
       break;
@@ -540,9 +540,9 @@ int vtkTextActor::GetAlignmentPoint()
       break;
     default:
       vtkErrorMacro(<<"Unknown justifaction code.");
-    }
+  }
    switch (this->TextProperty->GetVerticalJustification())
-    {
+   {
     case VTK_TEXT_BOTTOM:
       alignmentCode += 0;
       break;
@@ -554,7 +554,7 @@ int vtkTextActor::GetAlignmentPoint()
       break;
     default:
       vtkErrorMacro(<<"Unknown justifaction code.");
-    }
+   }
   return alignmentCode;
 }
 
@@ -565,7 +565,7 @@ void vtkTextActor::SetAlignmentPoint(int val)
                   << "SetJustification and SetVerticalJustification in the text property.");
 
   switch (val)
-    {
+  {
     case 0:
       this->TextProperty->SetJustificationToLeft();
       this->TextProperty->SetVerticalJustificationToBottom();
@@ -602,7 +602,7 @@ void vtkTextActor::SetAlignmentPoint(int val)
       this->TextProperty->SetJustificationToRight();
       this->TextProperty->SetVerticalJustificationToTop();
       break;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -622,31 +622,31 @@ float vtkTextActor::GetFontScale(vtkViewport *viewport)
 void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
 {
   if (this->ScaledTextProperty->GetMTime() < this->TextProperty->GetMTime())
-    {
+  {
     this->ScaledTextProperty->ShallowCopy(this->TextProperty);
-    }
+  }
 
   // Combine this actor's orientation with the set text property's rotation
   double rotAngle = this->TextProperty->GetOrientation() + this->Orientation;
   this->ScaledTextProperty->SetOrientation(rotAngle);
 
   if (this->TextScaleMode == TEXT_SCALE_MODE_NONE)
-    {
+  {
     if (this->TextProperty)
-      {
+    {
       this->ScaledTextProperty->SetFontSize(this->TextProperty->GetFontSize());
-      }
-    return;
     }
+    return;
+  }
 
   if (this->TextScaleMode == TEXT_SCALE_MODE_VIEWPORT)
-    {
+  {
     if (   (viewport->GetMTime() > this->BuildTime)
         || (   viewport->GetVTKWindow()
             && (viewport->GetVTKWindow()->GetMTime() > this->BuildTime) )
         || (   this->TextProperty
             && (this->TextProperty->GetMTime() > this->BuildTime) ) )
-      {
+    {
       double requestedSize
         = static_cast<double>(this->TextProperty->GetFontSize());
       double scale = static_cast<double>(vtkTextActor::GetFontScale(viewport));
@@ -656,14 +656,14 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
         = static_cast<int>(  pow(targetSize, this->FontScaleExponent)
                            * pow(requestedSize, 1.0-this->FontScaleExponent) );
       this->ScaledTextProperty->SetFontSize(fsize);
-      }
-    return;
     }
+    return;
+  }
 
   //Scaled text case.  We need to be sure that our text will fit
   //inside the specified boundaries
   if(this->TextScaleMode == TEXT_SCALE_MODE_PROP)
-    {
+  {
     int size[2], *point1, *point2;
     point1 = this->PositionCoordinate->GetComputedViewportValue(viewport);
     point2 = this->Position2Coordinate->GetComputedViewportValue(viewport);
@@ -675,41 +675,41 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
     int orientationHasChanged = 0;
     //First check the obvious, am I changed (e.g., text changed)
     if ( this->GetMTime() > this->BuildTime )
-      {
+    {
       positionsHaveChanged = 1; // short circuit the work of checking positions, etc.
-      }
+    }
     else
-      {
+    {
       if (   viewport->GetMTime() > this->BuildTime
           || (   viewport->GetVTKWindow()
               && viewport->GetVTKWindow()->GetMTime() > this->BuildTime ) )
-        {
+      {
         // if the viewport has changed we may - or may not need
         // to rebuild, it depends on if the projected coords change
         if (   (this->LastSize[0]   != size[0])
             || (this->LastSize[1]   != size[1])
             || (this->LastOrigin[0] != point1[0])
             || (this->LastOrigin[1] != point1[1]) )
-          {
+        {
           positionsHaveChanged = 1;
-          }
         }
+      }
 
       // If the orientation has changed then we'll probably need to change our
       // constrained font size as well
       if(this->FormerOrientation != rotAngle)
-        {
+      {
         this->FormerOrientation = rotAngle;
         orientationHasChanged = 1;
-        }
       }
+    }
 
     // Check to see whether we have to rebuild everything
     if (   positionsHaveChanged || orientationHasChanged
         || (this->Mapper && this->Mapper->GetMTime() > this->BuildTime)
         || (   this->TextProperty
             && (this->TextProperty->GetMTime() > this->BuildTime) ) )
-      {
+    {
       vtkDebugMacro(<<"Rebuilding text");
 
       this->LastOrigin[0] = point1[0];
@@ -726,39 +726,39 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
            (this->LastSize[0] < size[0]-1) || (this->LastSize[1] < size[1]-1) ||
            (this->LastSize[0] > size[0]+1) || (this->LastSize[1] > size[1]+1) ||
            orientationHasChanged)
-        {
+      {
         this->LastSize[0] = size[0];
         this->LastSize[1] = size[1];
 
         // limit by minimum size
         if (this->MinimumSize[0] > size[0])
-          {
+        {
           size[0] = this->MinimumSize[0];
-          }
+        }
         if (this->MinimumSize[1] > size[1])
-          {
+        {
           size[1] = this->MinimumSize[1];
-          }
+        }
         int max_height = static_cast<int>(this->MaximumLineHeight * size[1]);
 
         vtkWindow *win = viewport->GetVTKWindow();
         if (!win)
-          {
+        {
           vtkErrorMacro(<<"No render window available: cannot determine DPI.");
           return;
-          }
+        }
 
         int fsize = this->TextRenderer->GetConstrainedFontSize(
           this->Input, this->ScaledTextProperty, size[0],
           (size[1] < max_height ? size[1] : max_height), win->GetDPI());
 
         if (fsize == -1)
-          {
+        {
           vtkWarningMacro(<<"Could not determine constrained font size for "
                           "string:\n\t'" << this->Input << "'\n. Resetting to "
                           "20pt.");
           fsize = 20;
-          }
+        }
 
         // apply non-linear scaling
         fsize = static_cast<int>(
@@ -767,10 +767,10 @@ void vtkTextActor::ComputeScaledFont(vtkViewport *viewport)
                          1.0 - this->FontScaleExponent));
         // and set the new font size
         this->ScaledTextProperty->SetFontSize(fsize);
-        }
       }
-    return;
     }
+    return;
+  }
 
   vtkWarningMacro(<< "Unknown text scaling mode: " << this->TextScaleMode);
 }
@@ -783,15 +783,15 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
   this->RectanglePoints->Reset();
   if ( this->ImageData )
-    {
+  {
     int p2dims[3];
     this->ImageData->GetDimensions(p2dims);
     int text_bbox[4];
     if (!this->GetImageBoundingBox(this->ScaledTextProperty, viewport, text_bbox))
-      {
+    {
       vtkErrorMacro("Cannot compute bounding box.")
       return;
-      }
+    }
     dims[0] = ( text_bbox[1] - text_bbox[0] + 1 );
     dims[1] = ( text_bbox[3] - text_bbox[2] + 1 );
     anchorOffset[0] = text_bbox[0];
@@ -816,14 +816,14 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
 
     tc->InsertComponent(3, 0, tcXMax);
     tc->InsertComponent(3, 1, 0.0);
-    }
+  }
 
   double xo = 0.0, yo = 0.0;
 
   // When TextScaleMode is PROP, we justify text based on the rectangle
   // formed by Position & Position2 coordinates
   if( ( this->TextScaleMode == TEXT_SCALE_MODE_PROP ) || this->UseBorderAlign )
-    {
+  {
     double position1[3], position2[3];
     this->PositionCoordinate->GetValue( position1 );
     this->Position2Coordinate->GetValue( position2 );
@@ -835,7 +835,7 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
     double maxHeight = position2[1] - position1[1];
     // I could get rid of "GetAlignmentPoint" and use justification directly.
     switch( this->GetAlignmentPoint() )
-      {
+    {
       case 0:
         break;
       case 1:
@@ -868,13 +868,13 @@ void vtkTextActor::ComputeRectangle(vtkViewport *viewport)
         break;
       default:
         vtkErrorMacro( << "Bad alignment point value." );
-      }
     }
+  }
   else
-    {
+  {
     xo = anchorOffset[0];
     yo = anchorOffset[1];
-    } //end unscaled text case
+  } //end unscaled text case
 
   this->RectanglePoints->SetNumberOfPoints(4);
   this->RectanglePoints->SetPoint(0, xo,           yo,           0.0);
@@ -888,27 +888,27 @@ int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
 {
   if (this->TextProperty->GetMTime() > this->ScaledTextProperty->GetMTime() ||
       this->GetMTime() > this->BuildTime)
-    {
+  {
     this->ComputeScaledFont(viewport);
-    }
+  }
 
   vtkWindow *win = viewport->GetVTKWindow();
   if (!win)
-    {
+  {
     vtkErrorMacro(<<"No render window available: cannot determine DPI.");
     return 0;
-    }
+  }
 
   //check if we need to render the string
   if(this->ScaledTextProperty->GetMTime() > this->BuildTime ||
     !this->InputRendered || this->GetMTime() > this->BuildTime ||
      this->RenderedDPI != win->GetDPI())
-    {
+  {
     if(!this->RenderImage(this->ScaledTextProperty, viewport))
-      {
+    {
       vtkErrorMacro(<<"Failed rendering text to buffer");
       return 0;
-      }
+    }
 
     // Check if we need to create a new rectangle.
     // Need to check if angle has changed.
@@ -921,7 +921,7 @@ int vtkTextActor::UpdateRectangle(vtkViewport* viewport)
     this->InputRendered = true;
     this->RenderedDPI = win->GetDPI();
     this->BuildTime.Modified();
-    }
+  }
   return 1;
 }
 
@@ -930,9 +930,9 @@ void vtkTextActor::SpecifiedToDisplay(double *pos, vtkViewport *vport,
                                       int specified)
 {
   if ( ! vport )
-    {
+  {
     return;
-    }
+  }
 
   switch(specified)
   {
@@ -961,7 +961,7 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
                                       int specified)
 {
   switch(specified)
-    {
+  {
     case VTK_WORLD:
       vport->DisplayToNormalizedDisplay(pos[0], pos[1]);
       vport->NormalizedDisplayToViewport(pos[0], pos[1]);
@@ -989,7 +989,7 @@ void vtkTextActor::DisplayToSpecified(double *pos, vtkViewport *vport,
       break;
     case VTK_DISPLAY:
       break;
-    }
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -998,23 +998,23 @@ void vtkTextActor::PrintSelf(ostream& os, vtkIndent indent)
   this->Superclass::PrintSelf(os,indent);
 
   if (this->Input)
-    {
+  {
     os << indent << "Input: " << this->Input << endl;
-    }
+  }
   else
-    {
+  {
     os << indent << "Input: (none)\n";
-    }
+  }
 
   if (this->TextProperty)
-    {
+  {
     os << indent << "Text Property:\n";
     this->TextProperty->PrintSelf(os,indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << indent << "Text Property: (none)\n";
-    }
+  }
 
   os << indent << "Scaled Text Property:\n";
   this->ScaledTextProperty->PrintSelf(os, indent.GetNextIndent());

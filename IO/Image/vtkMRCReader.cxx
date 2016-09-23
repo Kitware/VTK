@@ -117,10 +117,10 @@ std::ostream& operator <<(std::ostream& os, const mrc_file_header& hdr)
      << "'" << std::endl;
   os << "rms: " << hdr.rms << " nlabl: " << hdr.nlabl << std::endl;
   for (int i = 0; i < hdr.nlabl; ++i)
-    {
+  {
     os.write(hdr.labl[i], 80);
     os << std::endl;
-    }
+  }
 }
 #endif
 }
@@ -140,9 +140,9 @@ public:
   void openFile(const char* file)
   {
     if (stream != NULL)
-      {
+    {
       delete stream;
-      }
+    }
     stream = new std::ifstream(file, std::ifstream::binary);
   }
 };
@@ -173,7 +173,7 @@ namespace {
 int getFileDataType(int mode)
 {
   switch (mode)
-    {
+  {
     case 0:
     case 16:
       return VTK_TYPE_UINT8;
@@ -187,13 +187,13 @@ int getFileDataType(int mode)
       return VTK_TYPE_UINT16;
     default:
       return -1;
-    }
+  }
 }
 
 int getFileDataNumComponents(int mode)
 {
   switch (mode)
-    {
+  {
     case 0:
     case 1:
     case 2:
@@ -206,7 +206,7 @@ int getFileDataNumComponents(int mode)
       return 3;
     default:
       return -1;
-    }
+  }
 }
 }
 
@@ -218,20 +218,20 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
   // be read in correctly
   assert(sizeof(mrc_file_header) == 1024);
   if (this->FileName)
-    {
+  {
     this->Internals->openFile(this->FileName);
     if (!this->Internals->stream)
-      {
+    {
       vtkErrorMacro("Error opening input file");
       return 0;
-      }
+    }
     this->Internals->stream->read((char*)&this->Internals->header, sizeof(mrc_file_header));
     if (this->Internals->header.stamp[0] != ((char)17))
     // This is what the big-endian MRC files are supposed to look like.  I don't have one to
     // test with though.  However, if it does not look like that, assume it is little endian.
     // There are some non-conformant programs that don't correctly fill in this field, and
     // assuming little endian is safer.
-      {
+    {
       vtkByteSwap::Swap4LERange(&this->Internals->header,24);
       vtkByteSwap::Swap2LERange(&this->Internals->header.creatid,1);
       vtkByteSwap::Swap2LERange(&this->Internals->header.nint,2);
@@ -239,9 +239,9 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       vtkByteSwap::Swap2LERange(&this->Internals->header.idtype,6);
       vtkByteSwap::Swap4LERange(&this->Internals->header.tiltangles,9);
       vtkByteSwap::Swap4LERange(&this->Internals->header.rms,2);
-      }
+    }
     else
-      {
+    {
       vtkByteSwap::Swap4BERange(&this->Internals->header,24);
       vtkByteSwap::Swap2BERange(&this->Internals->header.creatid,1);
       vtkByteSwap::Swap2BERange(&this->Internals->header.nint,2);
@@ -249,7 +249,7 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
       vtkByteSwap::Swap2BERange(&this->Internals->header.idtype,6);
       vtkByteSwap::Swap4BERange(&this->Internals->header.tiltangles,9);
       vtkByteSwap::Swap4BERange(&this->Internals->header.rms,2);
-      }
+    }
 #ifdef VTK_DEBUG_MRC_HEADER
     std::cout << this->Internals->header;
 #endif
@@ -280,12 +280,12 @@ int vtkMRCReader::RequestInformation(vtkInformation* vtkNotUsed(request),
 
     outInfo->Set(vtkAlgorithm::CAN_PRODUCE_SUB_EXTENT(), 1);
     return 1;
-    }
+  }
   else
-    {
+  {
     vtkErrorMacro("No input file set");
     return 0;
-    }
+  }
 }
 
 namespace {
@@ -296,24 +296,24 @@ ByteSwapFunction getByteSwapFunction(int vtkType, bool isLittleEndian)
 {
   int size = 0;
   switch (vtkType)
-    {
+  {
     vtkTemplateMacro(size = sizeof(VTK_TT));
-    }
+  }
   if (size == 2)
-    {
+  {
     return isLittleEndian ? &vtkByteSwap::Swap2LERange
                           : &vtkByteSwap::Swap2BERange;
-    }
+  }
   else if (size == 4)
-    {
+  {
     return isLittleEndian ? &vtkByteSwap::Swap4LERange
                           : &vtkByteSwap::Swap4BERange;
-    }
+  }
   else if (size == 8)
-    {
+  {
     return isLittleEndian ? &vtkByteSwap::Swap8LERange
                           : &vtkByteSwap::Swap8BERange;
-    }
+  }
   return NULL;
 }
 
@@ -326,9 +326,9 @@ void readData(int numComponents, int *outExt, vtkIdType *outInc,
   vtkIdType lineSize = (outExt[1] - outExt[0] + 1) * numComponents;
   T* ptr = outPtr;
   for (vtkIdType z = outExt[4]; z <= outExt[5]; ++z)
-    {
+  {
     for (vtkIdType y = outExt[2]; y <= outExt[3]; ++y)
-      {
+    {
       assert(z >= 0 && y >= 0 && outExt[0] >= 0);
       vtkIdType offset = z * inOffsets[2] + y * inOffsets[1] + outExt[0] * inOffsets[0];
       offset = dataStartPos + offset * sizeof(T);
@@ -337,14 +337,14 @@ void readData(int numComponents, int *outExt, vtkIdType *outInc,
       // read the line
       stream.read((char*)ptr, lineSize * sizeof(T));
       if (byteSwapFunction)
-        {
+      {
         byteSwapFunction((void*)outPtr,lineSize);
-        }
+      }
       // update the data pointer
       ptr += (lineSize + outInc[1]);
-      }
-    ptr += outInc[2];
     }
+    ptr += outInc[2];
+  }
 }
 
 }
@@ -361,9 +361,9 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   this->AllocateOutputData(data, outInfo, execExt);
 
   if (data->GetNumberOfPoints() <= 0)
-    {
+  {
     return;
-    }
+  }
   outExt = data->GetExtent();
   // this should result in the bottom corner of the image having extent
   // 0,0,0 which makes the 'where in the file is this extent' math easier
@@ -377,9 +377,9 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
   void *outPtr = data->GetScalarPointer(outExt[0],outExt[2],outExt[4]);
 
   if (!this->Internals->stream)
-    {
+  {
     return;
-    }
+  }
   // data start position is 1024 (the header size) plus the extended header size
   vtkIdType dataStartPos = 1024 + this->Internals->header.next;
   this->Internals->stream->seekg(dataStartPos, std::ifstream::beg);
@@ -399,12 +399,12 @@ void vtkMRCReader::ExecuteDataWithInformation(vtkDataObject *vtkNotUsed(output),
 
   ByteSwapFunction byteSwapFunction = getByteSwapFunction(vtkType,fileIsLittleEndian);
   switch (vtkType)
-    {
+  {
     vtkTemplateMacro(
         readData<VTK_TT>(numComponents, modifiedOutExt, outInc, inOffsets,
                          static_cast<VTK_TT*>(outPtr), *this->Internals->stream,
                          dataStartPos, byteSwapFunction));
     default:
       vtkErrorMacro("Unknown data type");
-    }
+  }
 }

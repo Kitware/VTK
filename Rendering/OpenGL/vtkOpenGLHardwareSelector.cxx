@@ -45,13 +45,13 @@ public:
   // Set the rendering context and load the required
   // extensions.
   void SetContext(vtkRenderWindow *context)
-    {
+  {
     if (this->Context != context)
-      {
+    {
       this->MultisampleSupport = false;
       this->Context = vtkOpenGLRenderWindow::SafeDownCast(context);
       if (this->Context)
-        {
+      {
         vtkOpenGLExtensionManager *manager
            = this->Context->GetExtensionManager();
 
@@ -60,96 +60,96 @@ public:
         // defined.
         this->MultisampleSupport
           = manager->ExtensionSupported("GL_ARB_multisample")==1;
-        }
       }
     }
+  }
 
   // Description:
   // Enable/disable lighting
   void EnableLighting(bool mode)
-    {
+  {
     if (mode)
-      {
+    {
       glEnable(GL_LIGHTING);
-      }
-    else
-      {
-      glDisable(GL_LIGHTING);
-      }
     }
+    else
+    {
+      glDisable(GL_LIGHTING);
+    }
+  }
 
   // Description:
   // Check if lighting is enabled.
   bool QueryLighting()
-    {
+  {
     if (glIsEnabled(GL_LIGHTING))
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
 
   // Description:
   // Enable/disable multisampling.
   void EnableMultisampling(bool mode)
-    {
+  {
     if (this->MultisampleSupport)
-      {
+    {
       if (mode)
-        {
+      {
         glEnable(vtkgl::MULTISAMPLE);
-        }
+      }
       else
-        {
+      {
         glDisable(vtkgl::MULTISAMPLE);
-        }
       }
     }
+  }
 
   // Description:
   // Check if multisample is enabled.
   bool QueryMultisampling()
-    {
+  {
     if (this->MultisampleSupport && glIsEnabled(vtkgl::MULTISAMPLE))
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
 
   // Description:
   // Enable/Disable blending
   void EnableBlending(bool mode)
-    {
+  {
     if (mode)
-      {
+    {
       glEnable(GL_BLEND);
-      }
-    else
-      {
-      glDisable(GL_BLEND);
-      }
     }
+    else
+    {
+      glDisable(GL_BLEND);
+    }
+  }
 
   // Description:
   // Check if blending is enabled.
   bool QueryBlending()
-    {
+  {
     if (glIsEnabled(GL_BLEND))
-      {
+    {
       return true;
-      }
-    else
-      {
-      return false;
-      }
     }
+    else
+    {
+      return false;
+    }
+  }
 };
 
 //----------------------------------------------------------------------------

@@ -175,14 +175,14 @@ inline vtkObject *vtkCollection::GetNextItemAsObject()
   vtkCollectionElement *elem=this->Current;
 
   if ( elem != NULL )
-    {
+  {
     this->Current = elem->Next;
     return elem->Item;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 inline vtkObject *vtkCollection::GetNextItemAsObject(void *&cookie)
@@ -190,14 +190,14 @@ inline vtkObject *vtkCollection::GetNextItemAsObject(void *&cookie)
   vtkCollectionElement *elem=static_cast<vtkCollectionElement *>(cookie);
 
   if ( elem != NULL )
-    {
+  {
     cookie = static_cast<void *>(elem->Next);
     return elem->Item;
-    }
+  }
   else
-    {
+  {
     return NULL;
-    }
+  }
 }
 
 #endif

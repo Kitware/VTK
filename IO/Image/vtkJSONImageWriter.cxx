@@ -68,16 +68,16 @@ int vtkJSONImageWriter::RequestData(
 
   // Error checking
   if (input == NULL )
-    {
+  {
     vtkErrorMacro(<<"Write:Please specify an input!");
     return 0;
-    }
+  }
   if ( !this->FileName)
-    {
+  {
     vtkErrorMacro(<<"Write:Please specify either a FileName or a file prefix and pattern");
     this->SetErrorCode(vtkErrorCode::NoFileNameError);
     return 0;
-    }
+  }
 
   // Write
   this->InvokeEvent(vtkCommand::StartEvent);
@@ -85,12 +85,12 @@ int vtkJSONImageWriter::RequestData(
 
   ofstream file(this->FileName, ios::out);
   if (file.fail())
-    {
+  {
     vtkErrorMacro("RecursiveWrite: Could not open file " <<
                   this->FileName);
     this->SetErrorCode(vtkErrorCode::CannotOpenFileError);
     return 0;
-    }
+  }
   file << "{"
        << "\"filename\" : \"" << this->FileName << "\""
        << ",\n\"dimensions\": [" << input->GetDimensions()[0] << ", " << input->GetDimensions()[1] << ", " << input->GetDimensions()[2] << "]"
@@ -100,49 +100,49 @@ int vtkJSONImageWriter::RequestData(
   // Write all arrays
   int nbArrays = input->GetPointData()->GetNumberOfArrays();
   for(int i=0; i < nbArrays; ++i)
-    {
+  {
     vtkDataArray* array = input->GetPointData()->GetArray(i);
     // We only dump scalar values
     if(array->GetNumberOfComponents() != 1 || !strcmp(array->GetName(),"vtkValidPointMask"))
-      {
+    {
       continue;
-      }
+    }
     if(this->ArrayName && strlen(this->ArrayName) > 0 && strcmp(array->GetName(),this->ArrayName))
-      {
+    {
       continue;
-      }
+    }
     file << ",\n\"" << array->GetName() << "\": [";
     vtkIdType startIdx = 0;
     vtkIdType endIdx = array->GetNumberOfTuples();
     if(this->Slice >= 0)
-      {
+    {
       vtkIdType sliceSize = input->GetDimensions()[0] * input->GetDimensions()[1];
       startIdx = sliceSize * this->Slice;
       endIdx = startIdx + sliceSize;
-      }
+    }
     for(vtkIdType idx = startIdx; idx < endIdx; ++idx)
-      {
+    {
       if(idx % 50 == 0)
-        {
+      {
         file << "\n";
         file.flush();
-        }
-      if(idx != startIdx)
-        {
-        file << ", ";
-        }
-      if((validMask == NULL) || (validMask && validMask->GetValue(idx)))
-        {
-        file << array->GetVariantValue(idx).ToString();
-        }
-      else
-        {
-        file << "null";
-        }
-
       }
-    file << "]";
+      if(idx != startIdx)
+      {
+        file << ", ";
+      }
+      if((validMask == NULL) || (validMask && validMask->GetValue(idx)))
+      {
+        file << array->GetVariantValue(idx).ToString();
+      }
+      else
+      {
+        file << "null";
+      }
+
     }
+    file << "]";
+  }
 
   file << "\n}" << endl;
   file.close();

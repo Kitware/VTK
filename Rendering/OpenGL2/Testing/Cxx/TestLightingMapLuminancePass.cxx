@@ -45,12 +45,12 @@ int TestLightingMapLuminancePass(int argc, char *argv[])
   bool interactive = false;
 
   for (int i = 0; i < argc; ++i)
-    {
+  {
     if (!strcmp(argv[i], "-I"))
-      {
+    {
       interactive = true;
-      }
     }
+  }
 
   // 0. Prep data
   const char* fileName =
@@ -129,8 +129,8 @@ int TestLightingMapLuminancePass(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage(window);
   if (interactive || retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     interactor->Start();
-    }
+  }
   return !retVal;
 }

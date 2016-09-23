@@ -39,19 +39,19 @@ vtkOpenGLGL2PSHelper *vtkOpenGLGL2PSHelper::GetInstance()
 void vtkOpenGLGL2PSHelper::SetInstance(vtkOpenGLGL2PSHelper *obj)
 {
   if (obj == vtkOpenGLGL2PSHelper::Instance)
-    {
+  {
     return;
-    }
+  }
 
   if (vtkOpenGLGL2PSHelper::Instance)
-    {
+  {
     vtkOpenGLGL2PSHelper::Instance->Delete();
-    }
+  }
 
   if (obj)
-    {
+  {
     obj->Register(NULL);
-    }
+  }
 
   vtkOpenGLGL2PSHelper::Instance = obj;
 }

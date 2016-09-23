@@ -208,7 +208,7 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win,
 {
   vtkOpenGLRenderWindow* renWin = vtkOpenGLRenderWindow::SafeDownCast(win);
   if (renWin)
-    {
+  {
     vtkOpenGLExtensionManager* mgr = renWin->GetExtensionManager();
 
     bool gl12 = mgr->ExtensionSupported("GL_VERSION_1_2")==1;
@@ -223,24 +223,24 @@ bool vtkTextureObject::IsSupported(vtkRenderWindow* win,
 
     bool texFloat = true;
     if (requireTexFloat)
-      {
+    {
       texFloat = mgr->ExtensionSupported("GL_ARB_texture_float")==1;
-      }
+    }
 
     bool depthFloat = true;
     if (requireDepthFloat)
-      {
+    {
       depthFloat = mgr->ExtensionSupported("GL_ARB_depth_buffer_float")==1;
-      }
+    }
 
     bool texInt = true;
     if (requireTexInt)
-      {
+    {
       texInt = mgr->ExtensionSupported("GL_EXT_texture_integer")==1;
-      }
+    }
 
     return npot && tex3D && multi && texFloat && depthFloat && texInt;
-    }
+  }
   return false;
 }
 
@@ -249,9 +249,9 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
 {
   vtkOpenGLRenderWindow *context = vtkOpenGLRenderWindow::SafeDownCast(renWin);
   if (!context)
-    {
+  {
     return false;
-    }
+  }
 
   vtkOpenGLExtensionManager* mgr = context->GetExtensionManager();
 
@@ -287,30 +287,30 @@ bool vtkTextureObject::LoadRequiredExtensions(vtkRenderWindow *renWin)
     = npot && tex3D && multi && texInt && texFloat && depthFloat;
 
   if (supported)
-    {
+  {
     // tex3D
     if(gl12)
-      {
+    {
       mgr->LoadSupportedExtension("GL_VERSION_1_2");
-      }
+    }
     else
-      {
+    {
       mgr->LoadCorePromotedExtension("GL_EXT_texture3D");
-      }
+    }
     // multi
     if(gl13)
-      {
+    {
       mgr->LoadSupportedExtension("GL_VERSION_1_3");
-      }
+    }
     else
-      {
+    {
       mgr->LoadCorePromotedExtension("GL_ARB_multitexture");
-      }
+    }
     // nothing to load for:
     // GL_ARB_texture_non_power_of_two, GL_ARB_texture_float,
     // GL_ARB_depth_buffer_float only defineconstants
     // only using constants from GL_EXT_texture_integer
-    }
+  }
 
   return supported;
 }
@@ -320,28 +320,28 @@ void vtkTextureObject::SetContext(vtkRenderWindow* renWin)
 {
   // avoid pointless reassignment
   if (this->Context == renWin)
-    {
+  {
     return;
-    }
+  }
   // free previous resources
   this->DestroyTexture();
   this->Context = NULL;
   this->Modified();
   // all done if assigned null
   if (!renWin)
-    {
+  {
     return;
-    }
+  }
   // check for support
   vtkOpenGLRenderWindow *context
      = dynamic_cast<vtkOpenGLRenderWindow*>(renWin);
 
   if ( !context
     || !this->LoadRequiredExtensions(renWin) )
-    {
+  {
     vtkErrorMacro("Required OpenGL extensions not supported by the context.");
     return;
-    }
+  }
   // initialize
   this->Context = renWin;
   this->Context->MakeCurrent();
@@ -362,11 +362,11 @@ void vtkTextureObject::DestroyTexture()
   // we are(eg smart pointers), in which case we should
   // do nothing.
   if (this->Context && this->Handle)
-    {
+  {
     GLuint tex = this->Handle;
     glDeleteTextures(1, &tex);
     vtkOpenGLCheckErrorMacro("failed at glDeleteTexture");
-    }
+  }
   this->Handle = 0;
   this->NumberOfDimensions = 0;
   this->Target =0;
@@ -383,14 +383,14 @@ void vtkTextureObject::CreateTexture()
 
   // reuse the existing handle if we have one
   if (!this->Handle)
-    {
+  {
     GLuint tex=0;
     glGenTextures(1, &tex);
     vtkOpenGLCheckErrorMacro("failed at glGenTextures");
     this->Handle=tex;
 
     if (this->Target)
-      {
+    {
       glBindTexture(this->Target, this->Handle);
       vtkOpenGLCheckErrorMacro("failed at glBindTexture");
 
@@ -407,8 +407,8 @@ void vtkTextureObject::CreateTexture()
       glTexParameteri(GL_TEXTURE_2D, vtkgl::TEXTURE_MAX_LEVEL, 0);
 
       glBindTexture(this->Target, 0);
-      }
     }
+  }
 }
 
 //---------------------------------------------------------------------------
@@ -435,9 +435,9 @@ void vtkTextureObject::Bind()
   vtkOpenGLCheckErrorMacro("failed at glBindTexture");
 
   if (this->AutoParameters && (this->GetMTime()>this->SendParametersTime))
-    {
+  {
     this->SendParameters();
-    }
+  }
 }
 
 //----------------------------------------------------------------------------
@@ -452,10 +452,10 @@ bool vtkTextureObject::IsBound()
 {
   bool result=false;
   if(this->Context && this->Handle)
-    {
+  {
     GLenum target=0; // to avoid warnings.
     switch(this->Target)
-      {
+    {
       case GL_TEXTURE_1D:
         target=GL_TEXTURE_BINDING_1D;
         break;
@@ -468,11 +468,11 @@ bool vtkTextureObject::IsBound()
       default:
         assert("check: impossible case" && 0);
         break;
-      }
+    }
     GLint objectId;
     glGetIntegerv(target,&objectId);
     result=static_cast<GLuint>(objectId)==this->Handle;
-    }
+  }
   return result;
 }
 
@@ -513,19 +513,19 @@ void vtkTextureObject::SendParameters()
         OpenGLDepthTextureMode[this->DepthTextureMode]);
 
   if(DepthTextureCompare)
-    {
+  {
     glTexParameteri(
           this->Target,
           vtkgl::TEXTURE_COMPARE_MODE,
           vtkgl::COMPARE_R_TO_TEXTURE);
-    }
+  }
   else
-    {
+  {
     glTexParameteri(
           this->Target,
           vtkgl::TEXTURE_COMPARE_MODE,
           GL_NONE);
-    }
+  }
 
   glTexParameteri(
         this->Target,
@@ -551,29 +551,29 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
   // pre-condition
   if(vtktype==VTK_VOID && numComps != 1)
-    {
+  {
       vtkErrorMacro("Depth component texture must have 1 component only (" <<
                     numComps << " requested");
       return 0;
-    }
+  }
   const bool oldGeForce=!this->SupportsTextureInteger;
 
   if(oldGeForce && numComps<3)
-    {
+  {
     numComps+=2;
-    }
+  }
   // DON'T DEAL WITH VTK_CHAR as this is platform dependent.
   switch (vtktype)
-    {
+  {
   case VTK_VOID:
     // numComps can be 3 on GeForce<8.
     return GL_DEPTH_COMPONENT;
 
     case VTK_SIGNED_CHAR:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE8I_EXT;
           case 2:
@@ -582,12 +582,12 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return vtkgl::RGB8I_EXT;
           case 4:
             return vtkgl::RGBA8I_EXT;
-          }
         }
+      }
       else
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return GL_LUMINANCE8;
           case 2:
@@ -596,14 +596,14 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGB8;
           case 4:
             return GL_RGBA8;
-          }
         }
+      }
 
     case VTK_UNSIGNED_CHAR:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE8UI_EXT;
           case 2:
@@ -612,12 +612,12 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return vtkgl::RGB8UI_EXT;
           case 4:
             return vtkgl::RGBA8UI_EXT;
-          }
         }
+      }
       else
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return GL_LUMINANCE8;
           case 2:
@@ -626,14 +626,14 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return GL_RGB8;
           case 4:
             return GL_RGBA8;
-          }
         }
+      }
 
     case VTK_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE16I_EXT;
           case 2:
@@ -642,46 +642,46 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return vtkgl::RGB16I_EXT;
           case 4:
             return vtkgl::RGBA16I_EXT;
-          }
         }
+      }
       else
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             if(this->SupportsTextureFloat)
-              {
+            {
               return vtkgl::LUMINANCE32F_ARB;
 //            return GL_LUMINANCE16; // not supported as a render target
-              }
+            }
             else
-              {
+            {
               vtkGenericWarningMacro("Unsupported type!");
               return 0;
-              }
+            }
           case 2:
             if(this->SupportsTextureFloat)
-              {
+            {
               return vtkgl::LUMINANCE_ALPHA32F_ARB;
               //            return GL_LUMINANCE16_ALPHA16; // not supported as a render target
-              }
+            }
             else
-              {
+            {
               vtkGenericWarningMacro("Unsupported type!");
               return 0;
-              }
+            }
           case 3:
             return GL_RGB16;
           case 4:
             return GL_RGBA16;
-          }
         }
+      }
 
     case VTK_UNSIGNED_SHORT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE16UI_EXT;
           case 2:
@@ -690,46 +690,46 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
             return vtkgl::RGB16UI_EXT;
           case 4:
             return vtkgl::RGBA16UI_EXT;
-          }
         }
+      }
       else
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             if(this->SupportsTextureFloat)
-              {
+            {
               return vtkgl::LUMINANCE32F_ARB;
 //      return GL_LUMINANCE16; // not supported as a render target
-              }
+            }
             else
-              {
+            {
               vtkGenericWarningMacro("Unsupported type!");
               return 0;
-              }
+            }
           case 2:
             if(this->SupportsTextureFloat)
-              {
+            {
               return vtkgl::LUMINANCE_ALPHA32F_ARB;
 //      return GL_LUMINANCE16_ALPHA16; // not supported as a render target
-              }
+            }
             else
-              {
+            {
                vtkGenericWarningMacro("Unsupported type!");
                return 0;
-              }
+            }
           case 3:
             return GL_RGB16;
           case 4:
             return GL_RGBA16;
-          }
         }
+      }
 
     case VTK_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE32I_EXT;
 
@@ -741,14 +741,14 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
           case 4:
             return vtkgl::RGBA32I_EXT;
-          }
         }
+      }
       else
-        {
+      {
         if(this->SupportsTextureFloat)
-          {
+        {
           switch (numComps)
-            {
+          {
             case 1:
               return vtkgl::LUMINANCE32F_ARB;
 
@@ -760,20 +760,20 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
             case 4:
               return vtkgl::RGBA32F_ARB;
-            }
-          }
-        else
-          {
-          vtkGenericWarningMacro("Unsupported type!");
-          return 0;
           }
         }
+        else
+        {
+          vtkGenericWarningMacro("Unsupported type!");
+          return 0;
+        }
+      }
 
     case VTK_UNSIGNED_INT:
       if(this->SupportsTextureInteger && shaderSupportsTextureInt)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE32UI_EXT;
 
@@ -785,14 +785,14 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
           case 4:
             return vtkgl::RGBA32UI_EXT;
-          }
         }
+      }
       else
-        {
+      {
         if(this->SupportsTextureFloat)
-          {
+        {
           switch (numComps)
-            {
+          {
             case 1:
               return vtkgl::LUMINANCE32F_ARB;
 
@@ -804,20 +804,20 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
             case 4:
               return vtkgl::RGBA32F_ARB;
-            }
-          }
-        else
-          {
-          vtkGenericWarningMacro("Unsupported type!");
-          return 0;
           }
         }
+        else
+        {
+          vtkGenericWarningMacro("Unsupported type!");
+          return 0;
+        }
+      }
 
     case VTK_FLOAT:
       if(this->SupportsTextureFloat)
-        {
+      {
         switch (numComps)
-          {
+        {
           case 1:
             return vtkgl::LUMINANCE32F_ARB;
 
@@ -829,16 +829,16 @@ unsigned int vtkTextureObject::GetInternalFormat(int vtktype, int numComps,
 
           case 4:
             return vtkgl::RGBA32F_ARB;
-          }
         }
+      }
       else
-        {
+      {
         vtkGenericWarningMacro("Unsupported type!");
         return 0;
-        }
+      }
     case VTK_DOUBLE:
       vtkGenericWarningMacro("Unsupported type double!");
-    }
+  }
   return 0;
 }
 
@@ -846,17 +846,17 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
                                          bool shaderSupportsTextureInt)
 {
   if (vtktype == VTK_VOID)
-    {
+  {
     return GL_DEPTH_COMPONENT;
-    }
+  }
 
   if(this->SupportsTextureInteger && shaderSupportsTextureInt
      && (vtktype==VTK_SIGNED_CHAR||vtktype==VTK_UNSIGNED_CHAR||
          vtktype==VTK_SHORT||vtktype==VTK_UNSIGNED_SHORT||vtktype==VTK_INT||
        vtktype==VTK_UNSIGNED_INT))
-    {
+  {
     switch (numComps)
-      {
+    {
       case 1:
         return vtkgl::LUMINANCE_INTEGER_EXT;
       case 2:
@@ -865,12 +865,12 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
         return vtkgl::RGB_INTEGER_EXT;
       case 4:
         return vtkgl::RGBA_INTEGER_EXT;
-      }
     }
+  }
   else
-    {
+  {
     switch (numComps)
-      {
+    {
       case 1:
         return GL_LUMINANCE;
       case 2:
@@ -879,8 +879,8 @@ unsigned int vtkTextureObject::GetFormat(int vtktype, int numComps,
         return GL_RGB;
       case 4:
         return GL_RGBA;
-      }
     }
+  }
   return 0;
 }
 
@@ -889,7 +889,7 @@ static GLenum vtkGetType(int vtk_scalar_type)
   // DON'T DEAL with VTK_CHAR as this is platform dependent.
 
   switch (vtk_scalar_type)
-    {
+  {
   case VTK_SIGNED_CHAR:
     return GL_BYTE;
 
@@ -911,7 +911,7 @@ static GLenum vtkGetType(int vtk_scalar_type)
   case VTK_FLOAT:
   case VTK_VOID: // used for depth component textures.
     return GL_FLOAT;
-    }
+  }
   return 0;
 }
 
@@ -919,7 +919,7 @@ static int vtkGetVTKType(GLenum gltype)
 {
    // DON'T DEAL with VTK_CHAR as this is platform dependent.
   switch (gltype)
-    {
+  {
   case GL_BYTE:
     return VTK_SIGNED_CHAR;
 
@@ -940,7 +940,7 @@ static int vtkGetVTKType(GLenum gltype)
 
   case GL_FLOAT:
     return VTK_FLOAT;
-    }
+  }
 
   return 0;
 }
@@ -979,10 +979,10 @@ bool vtkTextureObject::Create1D(int numComps,
   GLenum type = ::vtkGetType(pbo->GetType());
 
   if (!internalFormat || !format || !type)
-    {
+  {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
-    }
+  }
 
   this->Target = target;
   this->CreateTexture();
@@ -1031,10 +1031,10 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   assert(pbo->GetContext() == this->Context);
 
   if (pbo->GetSize() < width*height*static_cast<unsigned int>(numComps))
-    {
+  {
     vtkErrorMacro("PBO size must match texture size.");
     return false;
-    }
+  }
 
   // Now, detemine texture parameters using the information from the pbo.
   // * internalFormat depends on number of components and the data type.
@@ -1051,10 +1051,10 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
     = this->GetFormat(vtktype, numComps, shaderSupportsTextureInt);
 
   if (!internalFormat || !format || !type)
-    {
+  {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
-    }
+  }
 
   GLenum target = GL_TEXTURE_2D;
   this->Target = target;
@@ -1314,10 +1314,10 @@ bool vtkTextureObject::Allocate3D(unsigned int width,unsigned int height,
   this->Target=vtkgl::TEXTURE_3D;
 
   if(this->Context==0)
-    {
+  {
     vtkErrorMacro("No context specified. Cannot create texture.");
     return false;
-    }
+  }
   GLenum internalFormat = this->GetInternalFormat(vtkType, numComps,
                                                   false);
 
@@ -1358,10 +1358,10 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   assert(this->Context == pbo->GetContext());
 
   if (pbo->GetSize() != width*height*depth*static_cast<unsigned int>(numComps))
-    {
+  {
     vtkErrorMacro("PBO size must match texture size.");
     return false;
-    }
+  }
 
   GLenum target = vtkgl::TEXTURE_3D;
 
@@ -1379,10 +1379,10 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   GLenum type = ::vtkGetType(pbo->GetType());
 
   if (!internalFormat || !format || !type)
-    {
+  {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
-    }
+  }
 
   this->Target = target;
   this->CreateTexture();
@@ -1434,21 +1434,21 @@ vtkPixelBufferObject* vtkTextureObject::Download()
 
   int vtktype = ::vtkGetVTKType(this->Type);
   if (vtktype == 0)
-    {
+  {
     vtkErrorMacro("Failed to determine type.");
     return 0;
-    }
+  }
 
   unsigned int size = this->Width* this->Height* this->Depth;
 
   // doesn't matter which Upload*D method we use since we are not really
   // uploading any data, simply allocating GPU space.
   if (!pbo->Upload1D(vtktype, NULL, size, this->Components, 0))
-    {
+  {
     vtkErrorMacro("Could not allocate memory for PBO.");
     pbo->Delete();
     return 0;
-    }
+  }
 
   pbo->Bind(vtkPixelBufferObject::PACKED_BUFFER);
   this->Bind();
@@ -1491,10 +1491,10 @@ bool vtkTextureObject::Create2D(unsigned int width, unsigned int height,
   GLenum type = ::vtkGetType(vtktype);
 
   if (!internalFormat || !format || !type)
-    {
+  {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
-    }
+  }
 
   this->Target = target;
   this->CreateTexture();
@@ -1541,10 +1541,10 @@ bool vtkTextureObject::Create3D(unsigned int width, unsigned int height,
   GLenum type = ::vtkGetType(vtktype);
 
   if (!internalFormat || !format || !type)
-    {
+  {
     vtkErrorMacro("Failed to detemine texture parameters.");
     return false;
-    }
+  }
 
   this->Target = target;
   this->CreateTexture();
@@ -1694,7 +1694,7 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
   os << indent << "Target: ";
 
   switch(this->Target)
-    {
+  {
     case GL_TEXTURE_1D:
       os << "GL_TEXTURE_1D" << endl;
       break;
@@ -1707,7 +1707,7 @@ void vtkTextureObject::PrintSelf(ostream& os, vtkIndent indent)
     default:
       os << "unknown value: 0x" << hex << this->Target << dec <<endl;
       break;
-    }
+  }
 
   os << indent << "NumberOfDimensions: " << this->NumberOfDimensions << endl;
 

@@ -87,19 +87,19 @@ void vtkVisibilitySort::SetModelTransform(vtkMatrix4x4 *mat)
   // Less efficient than vtkMatrix4x4::DeepCopy, but only sets Modified if
   // there is a real change.
   for (int i = 0; i < 4; i++)
-    {
+  {
     for (int j = 0; j < 4; j++)
-      {
+    {
       this->ModelTransform->SetElement(i, j, mat->GetElement(i, j));
-      }
     }
+  }
 
   if (  this->ModelTransform->GetMTime()
       > this->InverseModelTransform->GetMTime() )
-    {
+  {
     this->InverseModelTransform->DeepCopy(this->ModelTransform);
     this->InverseModelTransform->Invert();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -111,7 +111,7 @@ void vtkVisibilitySort::PrintSelf(ostream &os, vtkIndent indent)
   os << indent << "Input: (" << this->Input << ")" << endl;
   os << indent << "Direction: ";
   switch (this->Direction)
-    {
+  {
     case vtkVisibilitySort::BACK_TO_FRONT:
       os << "back to front" << endl;
       break;
@@ -121,7 +121,7 @@ void vtkVisibilitySort::PrintSelf(ostream &os, vtkIndent indent)
     default:
       os << "unknown" << endl;
       break;
-    }
+  }
 
   os << indent << "MaxCellsReturned: " << this->MaxCellsReturned << endl;
 

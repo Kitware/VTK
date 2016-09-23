@@ -38,12 +38,12 @@ public:
    * Default constructor, its use must be followed by Initialize().
    */
   vtkImageStencilIterator()
-    {
+  {
     this->Increment = 0;
     this->BasePointer = 0;
     this->Pointer = 0;
     this->SpanEndPointer = 0;
-    }
+  }
   //@}
 
   //@{
@@ -62,11 +62,11 @@ public:
                           vtkAlgorithm *algorithm=0,
                           int threadId=0)
     : vtkImagePointDataIterator(image, extent, stencil, algorithm, threadId)
-    {
+  {
     this->BasePointer = static_cast<DType *>(
       vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
     this->UpdatePointer();
-    }
+  }
   //@}
 
   //@{
@@ -78,13 +78,13 @@ public:
                   const int extent[6] = 0,
                   vtkAlgorithm *algorithm=0,
                   int threadId=0)
-    {
+  {
     this->vtkImagePointDataIterator::Initialize(
       image, extent, stencil, algorithm, threadId);
     this->BasePointer = static_cast<DType *>(
       vtkImagePointDataIterator::GetVoidPointer(image, 0, &this->Increment));
     this->UpdatePointer();
-    }
+  }
   //@}
 
   //@{
@@ -94,35 +94,35 @@ public:
    * the point Id and the X index changes.
    */
   void NextSpan()
-    {
+  {
     this->vtkImagePointDataIterator::NextSpan();
     this->UpdatePointer();
-    }
+  }
   //@}
 
   /**
    * Test if the iterator has completed iterating over the entire extent.
    */
   bool IsAtEnd()
-    {
+  {
     return this->vtkImagePointDataIterator::IsAtEnd();
-    }
+  }
 
   /**
    * Return a pointer to the beginning of the current span.
    */
   DType *BeginSpan()
-    {
+  {
     return this->Pointer;
-    }
+  }
 
   /**
    * Return a pointer to the end of the current span.
    */
   DType *EndSpan()
-    {
+  {
     return this->SpanEndPointer;
-    }
+  }
 
 protected:
 
@@ -131,10 +131,10 @@ protected:
    * Update the pointer (called automatically when a new span begins).
    */
   void UpdatePointer()
-    {
+  {
     this->Pointer = this->BasePointer + this->Id*this->Increment;
     this->SpanEndPointer = this->BasePointer + this->SpanEnd*this->Increment;
-    }
+  }
   //@}
 
   // The pointer must be incremented by this amount for each pixel.

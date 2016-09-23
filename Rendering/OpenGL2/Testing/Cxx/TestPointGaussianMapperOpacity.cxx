@@ -135,11 +135,11 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
   timer->StartTimer();
   int numRenders = 85;
   for (int i = 0; i < numRenders; ++i)
-    {
+  {
     renderer->GetActiveCamera()->Azimuth(1);
     renderer->GetActiveCamera()->Elevation(1);
     renderWindow->Render();
-    }
+  }
   timer->StopTimer();
   double elapsed = timer->GetElapsedTime();
 
@@ -159,9 +159,9 @@ int TestPointGaussianMapperOpacity(int argc, char *argv[])
 
   int retVal = vtkRegressionTestImage( renderWindow.Get() );
   if ( retVal == vtkRegressionTester::DO_INTERACTOR)
-    {
+  {
     iren->Start();
-    }
+  }
 
   return !retVal;
 }

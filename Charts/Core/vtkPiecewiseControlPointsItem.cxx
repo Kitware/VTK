@@ -44,11 +44,11 @@ vtkPiecewiseControlPointsItem::vtkPiecewiseControlPointsItem()
 vtkPiecewiseControlPointsItem::~vtkPiecewiseControlPointsItem()
 {
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->RemoveObserver(this->Callback);
     this->PiecewiseFunction->Delete();
     this->PiecewiseFunction = 0;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
@@ -57,32 +57,32 @@ void vtkPiecewiseControlPointsItem::PrintSelf(ostream &os, vtkIndent indent)
   this->Superclass::PrintSelf(os, indent);
   os << indent << "PiecewiseFunction: ";
   if (this->PiecewiseFunction)
-    {
+  {
     os << endl;
     this->PiecewiseFunction->PrintSelf(os, indent.GetNextIndent());
-    }
+  }
   else
-    {
+  {
     os << "(none)" << endl;
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkPiecewiseControlPointsItem::emitEvent(unsigned long event, void* params)
 {
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->InvokeEvent(event, params);
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 vtkMTimeType vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 {
   if (this->PiecewiseFunction)
-    {
+  {
     return this->PiecewiseFunction->GetMTime();
-    }
+  }
   return this->GetMTime();
 }
 
@@ -90,20 +90,20 @@ vtkMTimeType vtkPiecewiseControlPointsItem::GetControlPointsMTime()
 void vtkPiecewiseControlPointsItem::SetPiecewiseFunction(vtkPiecewiseFunction* t)
 {
   if (t == this->PiecewiseFunction)
-    {
+  {
     return;
-    }
+  }
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->RemoveObserver(this->Callback);
-    }
+  }
   vtkSetObjectBodyMacro(PiecewiseFunction, vtkPiecewiseFunction, t);
   if (this->PiecewiseFunction)
-    {
+  {
     this->PiecewiseFunction->AddObserver(vtkCommand::StartEvent, this->Callback);
     this->PiecewiseFunction->AddObserver(vtkCommand::ModifiedEvent, this->Callback);
     this->PiecewiseFunction->AddObserver(vtkCommand::EndEvent, this->Callback);
-    }
+  }
   this->ResetBounds();
   this->ComputePoints();
 }
@@ -129,20 +129,20 @@ void vtkPiecewiseControlPointsItem::SetControlPoint(vtkIdType index, double* new
   this->PiecewiseFunction->GetNodeValue(index, oldPos);
   if (newPos[0] != oldPos[0] || newPos[1] != oldPos[1] ||
       newPos[2] != oldPos[2])
-    {
+  {
     this->StartChanges();
     this->PiecewiseFunction->SetNodeValue(index, newPos);
     this->EndChanges();
-    }
+  }
 }
 
 //-----------------------------------------------------------------------------
 void vtkPiecewiseControlPointsItem::EditPoint(float tX, float tY)
 {
   if (!this->PiecewiseFunction)
-    {
+  {
     return;
-    }
+  }
 
   this->StartChanges();
 
@@ -152,12 +152,12 @@ void vtkPiecewiseControlPointsItem::EditPoint(float tX, float tY)
   xvms[3] += tY;
   this->PiecewiseFunction->SetNodeValue(this->CurrentPoint, xvms);
   if (this->CurrentPoint > 0)
-    {
+  {
     this->PiecewiseFunction->GetNodeValue(this->CurrentPoint - 1, xvms);
     xvms[2] += tX;
     xvms[3] += tY;
     this->PiecewiseFunction->SetNodeValue(this->CurrentPoint - 1, xvms);
-    }
+  }
 
   this->EndChanges();
 }
@@ -166,9 +166,9 @@ void vtkPiecewiseControlPointsItem::EditPoint(float tX, float tY)
 vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
 {
   if (!this->PiecewiseFunction)
-    {
+  {
     return -1;
-    }
+  }
 
   this->StartChanges();
   vtkIdType addedPoint = this->PiecewiseFunction->AddPoint(newPos[0], newPos[1]);
@@ -182,13 +182,13 @@ vtkIdType vtkPiecewiseControlPointsItem::AddPoint(double* newPos)
 vtkIdType vtkPiecewiseControlPointsItem::RemovePoint(double* currentPoint)
 {
   if (!this->PiecewiseFunction)
-    {
+  {
     return -1;
-    }
+  }
   if (!this->IsPointRemovable(this->GetControlPointId(currentPoint)))
-    {
+  {
     return -1;
-    }
+  }
 
   this->StartChanges();
 

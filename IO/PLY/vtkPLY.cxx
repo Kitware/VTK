@@ -62,17 +62,17 @@ static vtkHeap *plyHeap=NULL;
 static void plyInitialize()
 {
   if ( plyHeap == NULL )
-    {
+  {
     plyHeap = vtkHeap::New();
-    }
+  }
 }
 static void plyCleanUp()
 {
   if ( plyHeap )
-    {
+  {
     plyHeap->Delete();
     plyHeap = NULL;
-    }
+  }
 }
 static void *plyAllocateMemory(size_t n)
 {
@@ -619,14 +619,14 @@ void vtkPLY::ply_put_comment(PlyFile *plyfile, const char *comment)
 {
   /* (re)allocate space for new comment */
   if (plyfile->num_comments == 0)
-    {
+  {
     plyfile->comments = (char **) myalloc (sizeof (char *));
-    }
+  }
   else
-    {
+  {
     plyfile->comments = (char **) realloc (plyfile->comments,
                                            sizeof (char *) * (plyfile->num_comments + 1));
-    }
+  }
 
   /* add comment to list */
   plyfile->comments[plyfile->num_comments] = strdup (comment);
@@ -647,14 +647,14 @@ void vtkPLY::ply_put_obj_info(PlyFile *plyfile, const char *obj_info)
 {
   /* (re)allocate space for new info */
   if (plyfile->num_obj_info == 0)
-    {
+  {
     plyfile->obj_info = (char **) myalloc (sizeof (char *));
-    }
+  }
   else
-    {
+  {
     plyfile->obj_info = (char **) realloc (plyfile->obj_info,
                                            sizeof (char *) * (plyfile->num_obj_info + 1));
-    }
+  }
 
   /* add info to list */
   plyfile->obj_info[plyfile->num_obj_info] = strdup (obj_info);
@@ -722,11 +722,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
 
     if (equal_strings (words[0], "format")) {
       if (nwords != 3)
-        {
+      {
         free (plyfile);
         free (words);
         return (NULL);
-        }
+      }
       if (equal_strings (words[1], "ascii"))
         plyfile->file_type = PLY_ASCII;
       else if (equal_strings (words[1], "binary_big_endian"))
@@ -734,11 +734,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
       else if (equal_strings (words[1], "binary_little_endian"))
         plyfile->file_type = PLY_BINARY_LE;
       else
-        {
+      {
         free (plyfile);
         free (words);
         return (NULL);
-        }
+      }
       plyfile->version = atof (words[2]);
     }
     else if (equal_strings (words[0], "element"))
@@ -750,11 +750,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
     else if (equal_strings (words[0], "obj_info"))
       add_obj_info (plyfile, orig_line);
     else if (equal_strings (words[0], "end_header"))
-      {
+    {
       free (words);
       words = NULL;
       break;
-      }
+    }
 
     /* free up words space */
     free (words);
@@ -763,11 +763,11 @@ PlyFile *vtkPLY::ply_read(FILE *fp, int *nelems, char ***elem_names)
   }
 
   if (plyfile->nelems == 0)
-    {
+  {
     free (plyfile);
     free (words);
     return (NULL);
-    }
+  }
 
   /* create tags for each property of each element, to be used */
   /* later to say whether or not to store each property for the user */
@@ -1369,30 +1369,30 @@ void vtkPLY::ply_close(PlyFile *plyfile)
   int i, j;
   PlyElement *elem;
   for (i=0; i<plyfile->nelems; i++)
-    {
+  {
     elem = plyfile->elems[i];
     free(elem->name);
     for (j=0; j<elem->nprops; j++)
-      {
+    {
       free(const_cast<char *>(elem->props[j]->name));
       free (elem->props[j]);
-      }
+    }
     free (elem->props);
     free (elem->store_prop);
     free (elem);
-    }
+  }
   free(plyfile->elems);
 
   for (i=0; i<plyfile->num_comments; i++)
-    {
+  {
     free (plyfile->comments[i]);
-    }
+  }
   free (plyfile->comments);
 
   for (i=0; i<plyfile->num_obj_info; i++)
-    {
+  {
     free (plyfile->obj_info[i]);
-    }
+  }
   free (plyfile->obj_info);
 
   free (plyfile);
@@ -2261,145 +2261,145 @@ void vtkPLY::get_binary_item(
 {
   switch (type) {
     case PLY_CHAR:
-      {
+    {
       vtkTypeInt8 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading char.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_UCHAR:
     case PLY_UINT8:
-      {
+    {
       vtkTypeUInt8 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading uchar or uint8.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_SHORT:
-      {
+    {
       vtkTypeInt16 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading short.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_USHORT:
-      {
+    {
       vtkTypeUInt16 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading ushort.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap2BE(&value) :
         vtkByteSwap::Swap2LE(&value);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_INT:
     case PLY_INT32:
-      {
+    {
       vtkTypeInt32 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading int or int32.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_UINT:
-      {
+    {
       vtkTypeUInt32 value = 0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading uint");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
       *int_val = value;
       *uint_val = value;
       *double_val = value;
-      }
+    }
       break;
     case PLY_FLOAT:
     case PLY_FLOAT32:
-      {
+    {
       vtkTypeFloat32 value = 0.0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading float of float32.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap4BE(&value) :
         vtkByteSwap::Swap4LE(&value);
       *int_val = static_cast<int>(value);
       *uint_val = static_cast<unsigned int>(value);
       *double_val = value;
-      }
+    }
       break;
     case PLY_DOUBLE:
-      {
+    {
       vtkTypeFloat64 value = 0.0;
       if (fread (&value, sizeof(value), 1, plyfile->fp) != 1)
-        {
+      {
         vtkGenericWarningMacro ("PLY error reading file."
                                 << " Premature EOF while reading double.");
         fclose (plyfile->fp);
         return;
-        }
+      }
       plyfile->file_type == PLY_BINARY_BE ?
         vtkByteSwap::Swap8BE(&value) :
         vtkByteSwap::Swap8LE(&value);
       *int_val = static_cast<int>(value);
       *uint_val = static_cast<unsigned int>(value);
       *double_val = value;
-      }
+    }
       break;
     default:
       fprintf (stderr, "get_binary_item: bad type = %d\n", type);
@@ -2719,9 +2719,9 @@ void *vtkPLY::my_alloc(size_t size, int lnum, const char *fname)
   void *ptr = malloc (size);
 
   if (ptr == 0)
-    {
+  {
     fprintf(stderr, "Memory allocation bombed on line %d in %s\n", lnum, fname);
-    }
+  }
 
   return (ptr);
 }

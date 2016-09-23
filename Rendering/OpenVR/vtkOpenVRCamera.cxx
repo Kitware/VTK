@@ -54,7 +54,7 @@ vtkOpenVRCamera::vtkOpenVRCamera()
 vtkOpenVRCamera::~vtkOpenVRCamera()
 {
   if (this->LeftEyePose)
-    {
+  {
     this->LeftEyePose->Delete();
     this->RightEyePose->Delete();
     this->LeftEyeProjection->Delete();
@@ -63,7 +63,7 @@ vtkOpenVRCamera::~vtkOpenVRCamera()
     this->RightEyePose = 0;
     this->LeftEyeProjection = 0;
     this->RightEyeProjection = 0;
-    }
+  }
 
   this->RightWCDCMatrix->Delete();
   this->RightWCVCMatrix->Delete();
@@ -84,15 +84,15 @@ void vtkOpenVRCamera::GetHMDEyePoses(vtkRenderer *ren)
   vr::HmdMatrix34_t matEye = hMD->GetEyeToHeadTransform( vr::Eye_Left );
   this->LeftEyePose->Identity();
   for(int i = 0; i < 3; ++i)
-    {
+  {
     this->LeftEyePose->SetElement(i, 3, -matEye.m[i][3]*distance);
-    }
+  }
   matEye = hMD->GetEyeToHeadTransform( vr::Eye_Right );
   this->RightEyePose->Identity();
   for(int i = 0; i < 3; ++i)
-    {
+  {
     this->RightEyePose->SetElement(i, 3, -matEye.m[i][3]*distance);
-    }
+  }
 }
 
 void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
@@ -107,24 +107,24 @@ void vtkOpenVRCamera::GetHMDEyeProjections(vtkRenderer *ren)
       this->ClippingRange[0],
       this->ClippingRange[1], vr::API_OpenGL);
   for(int i = 0; i < 4; ++i)
-    {
+  {
     for (int j = 0; j < 4; ++j)
-      {
+    {
       this->LeftEyeProjection->SetElement(i, j, mat.m[i][j]);
-      }
     }
+  }
 
   mat =
     hMD->GetProjectionMatrix( vr::Eye_Right,
       this->ClippingRange[0],
       this->ClippingRange[1], vr::API_OpenGL);
   for(int i = 0; i < 4; ++i)
-    {
+  {
     for (int j = 0; j < 4; ++j)
-      {
+    {
       this->RightEyeProjection->SetElement(i, j, mat.m[i][j]);
-      }
     }
+  }
 
   this->RightEyeProjection->Transpose();
   this->LeftEyeProjection->Transpose();
@@ -142,7 +142,7 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
 
   // if were on a stereo renderer draw to special parts of screen
   if (this->LeftEye)
-    {
+  {
     // make sure clipping range is not crazy
     // with OpenVR we know we are in meters so
     // we can use that knowledge to make the
@@ -158,39 +158,39 @@ void vtkOpenVRCamera::Render(vtkRenderer *ren)
     nRange[0] = 0.1;
     // to see transmitters make sure far is at least 6 meters
     if (nRange[1] < 6.0)
-      {
+    {
       nRange[1] = 6.0;
-      }
+    }
     // make sure far is not crazy far > 100m
     if (nRange[1] > 100.0)
-      {
+    {
       nRange[1] = 100.0;
-      }
+    }
     this->SetClippingRange(nRange[0]*distance, nRange[1]*distance);
 
     // Left Eye
     if (win->GetMultiSamples())
-      {
-      glEnable( GL_MULTISAMPLE );
-      }
-    glBindFramebuffer( GL_FRAMEBUFFER, win->GetLeftRenderBufferId());
-    }
-  else
     {
+      glEnable( GL_MULTISAMPLE );
+    }
+    glBindFramebuffer( GL_FRAMEBUFFER, win->GetLeftRenderBufferId());
+  }
+  else
+  {
     // right eye
     if (win->GetMultiSamples())
-      {
+    {
       glEnable( GL_MULTISAMPLE );
-      }
-    glBindFramebuffer( GL_FRAMEBUFFER, win->GetRightRenderBufferId());
     }
+    glBindFramebuffer( GL_FRAMEBUFFER, win->GetRightRenderBufferId());
+  }
 
   glViewport(0, 0, renSize[0], renSize[1] );
   if ((ren->GetRenderWindow())->GetErase() && ren->GetErase()
       && !ren->GetIsPicking())
-    {
+  {
     ren->Clear();
-    }
+  }
 
   vtkOpenGLCheckErrorMacro("failed after Render");
 }
@@ -200,18 +200,18 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 {
   // get the eye pose and projection matricies once
   if (!this->LeftEyePose)
-    {
+  {
     this->LeftEyePose = vtkMatrix4x4::New();
     this->RightEyePose = vtkMatrix4x4::New();
     this->LeftEyeProjection = vtkMatrix4x4::New();
     this->RightEyeProjection = vtkMatrix4x4::New();
-    }
+  }
 
   // has the camera changed?
   if (ren != this->LastRenderer ||
       this->MTime > this->KeyMatrixTime ||
       ren->GetMTime() > this->KeyMatrixTime)
-    {
+  {
     this->GetHMDEyePoses(ren);
 
     this->GetHMDEyeProjections(ren);
@@ -223,12 +223,12 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
     vtkMatrix4x4::Multiply4x4(this->LeftEyePose, w2v, this->WCVCMatrix);
 
     for(int i = 0; i < 3; ++i)
-      {
+    {
       for (int j = 0; j < 3; ++j)
-        {
+      {
         this->NormalMatrix->SetElement(i, j, w2v->GetElement(i, j));
-        }
       }
+    }
     this->NormalMatrix->Invert();
 
     this->WCVCMatrix->Transpose();
@@ -255,32 +255,32 @@ void vtkOpenVRCamera::GetKeyMatrices(vtkRenderer *ren, vtkMatrix4x4 *&wcvc,
 
     this->KeyMatrixTime.Modified();
     this->LastRenderer = ren;
-    }
+  }
 
   if (this->LeftEye)
-    {
+  {
     wcvc = this->WCVCMatrix;
     normMat = this->NormalMatrix;
     vcdc = this->LeftEyeProjection;
     wcdc = this->WCDCMatrix;
-    }
+  }
   else
-    {
+  {
     wcvc = this->RightWCVCMatrix;
     normMat = this->NormalMatrix;
     vcdc = this->RightEyeProjection;
     wcdc = this->RightWCDCMatrix;
-    }
+  }
 }
 
 void vtkOpenVRCamera::GetTrackingToDCMatrix(vtkMatrix4x4 *&tcdc)
 {
   if (this->LeftEye)
-    {
+  {
     tcdc = this->LeftEyeTCDCMatrix;
-    }
+  }
   else
-    {
+  {
     tcdc = this->RightEyeTCDCMatrix;
-    }
+  }
 }
